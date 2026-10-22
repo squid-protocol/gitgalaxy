@@ -1,0 +1,2786 @@
+{
+ "format": "det-mutation-survivors/1",
+ "issue": "#4628",
+ "about": "#4628: each surviving det-port mutant stated `equivalent` or `unreachable`, with the Java change and why it cannot alter observable behaviour; proposed in a PR, reviewed by the owner. A run that kills a stated mutant fails (the claim was wrong). Ids are mutation.py's; before / after are the Java line.",
+ "verdicts": {
+  "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
+  "unreachable": "no input of the program reaches the changed code",
+  "harness-gap": "the change alters behaviour the proof runs but does not compare (open: the harness must)",
+  "case-gap": "an input the case lacks would kill it (open: strengthen the case)"
+ },
+ "case": "cbsa-acctctrl",
+ "survivors": [
+  {
+   "id": "20aca7d0ad",
+   "op": "CON",
+   "line": 41,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 2 << 20;",
+   "verdict": "unreachable",
+   "reason": "GOTO is OR-ed into a paragraph's return only by a GO TO; ACCTCTRL has none (every paragraph returns the next index or throws Goback), so no GOTO bit is ever set or tested differently"
+  },
+  {
+   "id": "282433172a",
+   "op": "CON",
+   "line": 41,
+   "before": "private static final int GOTO = 1 << 20;",
+   "after": "private static final int GOTO = 1 << 21;",
+   "verdict": "unreachable",
+   "reason": "GOTO is OR-ed into a paragraph's return only by a GO TO; ACCTCTRL has none (every paragraph returns the next index or throws Goback), so no GOTO bit is ever set or tested differently"
+  },
+  {
+   "id": "9bb55a3811",
+   "op": "LIT",
+   "line": 44,
+   "before": "\"IA==\"));",
+   "after": "\"XA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "0177afa7b3",
+   "op": "LIT",
+   "line": 46,
+   "before": "\"MDAwMDAwMDAwMDAwMDA=\"));",
+   "after": "\"XDAwMDAwMDAwMDAwMDA=\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of ACCOUNT-KY: only REQUIRED-SORT-CODE (bytes 0..5) is read, after MOVE SORTCODE TO REQUIRED-SORT-CODE writes all six; the changed byte is overwritten before anything reads it"
+  },
+  {
+   "id": "2470681a2b",
+   "op": "LIT",
+   "line": 48,
+   "before": "\"Tg==\"));",
+   "after": "\"Xg==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "8798ca8d49",
+   "op": "LIT",
+   "line": 50,
+   "before": "\"Tg==\"));",
+   "after": "\"Xg==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "ea7f324526",
+   "op": "LIT",
+   "line": 52,
+   "before": "\"Tg==\"));",
+   "after": "\"Xg==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "4af47f74c1",
+   "op": "LIT",
+   "line": 54,
+   "before": "\"KzAwMDAwMDAw\"));",
+   "after": "\"XzAwMDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "8091138e1e",
+   "op": "LIT",
+   "line": 56,
+   "before": "\"ICAgIDAwMDAwMCAgIA==\"));",
+   "after": "\"XCAgIDAwMDAwMCAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "2b0fdd4b15",
+   "op": "LIT",
+   "line": 58,
+   "before": "\"ICAgICAg\"));",
+   "after": "\"XCAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "5cf790d506",
+   "op": "LIT",
+   "line": 60,
+   "before": "\"MDAwMDAwMDAwMDAwMDAwMDAw\"));",
+   "after": "\"XDAwMDAwMDAwMDAwMDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "b5246cfba1",
+   "op": "LIT",
+   "line": 62,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "b63348d1bf",
+   "op": "LIT",
+   "line": 64,
+   "before": "\"Tg==\"));",
+   "after": "\"Xg==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "3d4bc6b31f",
+   "op": "LIT",
+   "line": 66,
+   "before": "\"MDAwMDAwMDAwMDAw\"));",
+   "after": "\"XDAwMDAwMDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "ad4e069831",
+   "op": "LIT",
+   "line": 68,
+   "before": "\"MDAw\"));",
+   "after": "\"XDAw\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "c384f4686a",
+   "op": "LIT",
+   "line": 70,
+   "before": "\"MDAwMDAwMDAwMDAwMDAwMA==\"));",
+   "after": "\"XDAwMDAwMDAwMDAwMDAwMA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "f35ca62b46",
+   "op": "LIT",
+   "line": 72,
+   "before": "\"MDAwMDAwMDAwMA==\"));",
+   "after": "\"XDAwMDAwMDAwMA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "5e16c6cee7",
+   "op": "LIT",
+   "line": 74,
+   "before": "\"AAAAAA==\"));",
+   "after": "\"XAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "e4a1016282",
+   "op": "LIT",
+   "line": 76,
+   "before": "\"AAAAAA==\"));",
+   "after": "\"XAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "9fb95e9165",
+   "op": "LIT",
+   "line": 78,
+   "before": "\"ICAgICAgICAAAAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAgICAgICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAAAAAAAAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICAgICAgICAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of SQLCA: the SELECT's SQLCODE is stored before SQLCODE is tested; the program reads no other SQLCA byte (SQLCODE at 12..15), and the SQLCODE image is overwritten by every SELECT"
+  },
+  {
+   "id": "94287272f9",
+   "op": "LIT",
+   "line": 80,
+   "before": "\"AAAAAA==\"));",
+   "after": "\"XAAAAA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of HV-NUMBER-OF-ACCOUNTS: read only after the SELECT COUNT(*) has stored a count into it (and the failure branch never reads it), so the image byte is overwritten first"
+  },
+  {
+   "id": "6750ed3f6f",
+   "op": "LIT",
+   "line": 82,
+   "before": "\"ICAgICAg\"));",
+   "after": "\"XCAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of HV-ACCOUNT-SORTCODE: MOVE REQUIRED-SORT-CODE TO HV-ACCOUNT-SORTCODE writes all six bytes before the SELECT reads them"
+  },
+  {
+   "id": "6527ea629f",
+   "op": "LIT",
+   "line": 84,
+   "before": "\"AAAAAAAAAAw=\"));",
+   "after": "\"XAAAAAAAAAw=\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "078287396d",
+   "op": "LIT",
+   "line": 86,
+   "before": "\"ICAgICAgICAgIA==\"));",
+   "after": "\"XCAgICAgICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "353ebe32d1",
+   "op": "LIT",
+   "line": 88,
+   "before": "\"ICAuICAuICAgIA==\"));",
+   "after": "\"XCAuICAuICAgIA==\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "b62d628487",
+   "op": "LIT",
+   "line": 90,
+   "before": "\"MDAwMDAw\"));",
+   "after": "\"XDAwMDAw\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "adc9c1f1ff",
+   "op": "LIT",
+   "line": 92,
+   "before": "\"QUJORFBST0M=\"));",
+   "after": "\"XUJORFBST0M=\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "23091c8614",
+   "op": "LIT",
+   "line": 94,
+   "before": "\"AAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XAAAAAAAAAwwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKzAwMDAwMDAwKzAwMDAwMDAwKzAwMDAwMDAwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "4c1a7dbc65",
+   "op": "LIT",
+   "line": 95,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "8e4b3dc86c",
+   "op": "LIT",
+   "line": 96,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of a working-storage item the PROCEDURE DIVISION never reads before writing (SQLCODE-DISPLAY is written, never read or compared; the retry, timestamp, abend and key items are not referenced on any path a scenario takes), so an image byte cannot show"
+  },
+  {
+   "id": "49148ee548",
+   "op": "LIT",
+   "line": 100,
+   "before": "\"ICAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwICAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XCAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAgIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwICAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA: the 98-byte record is wholly overwritten by the incoming COMMAREA copy (the harness always passes the area) and a task without a COMMAREA returns none, and the image bytes past the record are never addressed, so an image byte cannot show"
+  },
+  {
+   "id": "c2f0a9fb44",
+   "op": "LIT",
+   "line": 101,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA: the 98-byte record is wholly overwritten by the incoming COMMAREA copy (the harness always passes the area) and a task without a COMMAREA returns none, and the image bytes past the record are never addressed, so an image byte cannot show"
+  },
+  {
+   "id": "d3655dd856",
+   "op": "LIT",
+   "line": 102,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA: the 98-byte record is wholly overwritten by the incoming COMMAREA copy (the harness always passes the area) and a task without a COMMAREA returns none, and the image bytes past the record are never addressed, so an image byte cannot show"
+  },
+  {
+   "id": "cd7d4ddf43",
+   "op": "LIT",
+   "line": 103,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA: the 98-byte record is wholly overwritten by the incoming COMMAREA copy (the harness always passes the area) and a task without a COMMAREA returns none, and the image bytes past the record are never addressed, so an image byte cannot show"
+  },
+  {
+   "id": "6c2791acb9",
+   "op": "LIT",
+   "line": 104,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA: the 98-byte record is wholly overwritten by the incoming COMMAREA copy (the harness always passes the area) and a task without a COMMAREA returns none, and the image bytes past the record are never addressed, so an image byte cannot show"
+  },
+  {
+   "id": "f3784e0060",
+   "op": "LIT",
+   "line": 105,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA: the 98-byte record is wholly overwritten by the incoming COMMAREA copy (the harness always passes the area) and a task without a COMMAREA returns none, and the image bytes past the record are never addressed, so an image byte cannot show"
+  },
+  {
+   "id": "d455b35296",
+   "op": "LIT",
+   "line": 106,
+   "before": "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"));",
+   "after": "\"XAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"));",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA: the 98-byte record is wholly overwritten by the incoming COMMAREA copy (the harness always passes the area) and a task without a COMMAREA returns none, and the image bytes past the record are never addressed, so an image byte cannot show"
+  },
+  {
+   "id": "2839f7d3ea",
+   "op": "LIT",
+   "line": 108,
+   "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (only EIBCALEN is stored by the generated scaffolding, never read) or RETURN-CODE; neither image is compared (DFHEIBLK and GG-RETURN-CODE are not outputs), so an image byte cannot show"
+  },
+  {
+   "id": "bae2e1b7b2",
+   "op": "LIT",
+   "line": 110,
+   "before": "\"AAA=\"));",
+   "after": "\"XAA=\"));",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (only EIBCALEN is stored by the generated scaffolding, never read) or RETURN-CODE; neither image is compared (DFHEIBLK and GG-RETURN-CODE are not outputs), so an image byte cannot show"
+  },
+  {
+   "id": "0d58d89e67",
+   "op": "CON",
+   "line": 142,
+   "before": "private final Field f4_REQUIRED_SORT_CODE = Field.zoned(s_ACCOUNT_KY, 0, 6, 0, false, false, false);",
+   "after": "private final Field f4_REQUIRED_SORT_CODE = Field.zoned(s_ACCOUNT_KY, 1, 6, 0, false, false, false);",
+   "verdict": "equivalent",
+   "reason": "REQUIRED-SORT-CODE is written by MOVE SORTCODE and read back only through this same field, so a shifted offset moves both the write and the read to the same bytes and the HV-ACCOUNT-SORTCODE value is unchanged"
+  },
+  {
+   "id": "b6e6906706",
+   "op": "CON",
+   "line": 143,
+   "before": "private final Field f9_SQLCODE_DISPLAY = Field.zoned(s_SQLCODE_DISPLAY, 0, 8, 0, true, true, true);",
+   "after": "private final Field f9_SQLCODE_DISPLAY = Field.zoned(s_SQLCODE_DISPLAY, 0, 8, 1, true, true, true);",
+   "verdict": "equivalent",
+   "reason": "SQLCODE-DISPLAY is written on the failure path and never read or compared; SQLCODE is only compared with ZERO, and the stored SQLCODE keeps its value through a different width or scale of the same field read back by itself"
+  },
+  {
+   "id": "cedd3a842c",
+   "op": "CON",
+   "line": 144,
+   "before": "private final Field f33_SQLCA = Field.group(s_SQLCA, 0, 136);",
+   "after": "private final Field f33_SQLCA = Field.group(s_SQLCA, 0, 137);",
+   "verdict": "equivalent",
+   "reason": "f33_SQLCA is the SQLCA group handed to DetSql, which addresses SQLCODE by its own field; the group's declared length is never used"
+  },
+  {
+   "id": "c8477a84bf",
+   "op": "CON",
+   "line": 145,
+   "before": "private final Field f36_SQLCODE = Field.binary(s_SQLCA, 12, 9, 0, true, true);",
+   "after": "private final Field f36_SQLCODE = Field.binary(s_SQLCA, 12, 9, 1, true, true);",
+   "verdict": "equivalent",
+   "reason": "SQLCODE-DISPLAY is written on the failure path and never read or compared; SQLCODE is only compared with ZERO, and the stored SQLCODE keeps its value through a different width or scale of the same field read back by itself"
+  },
+  {
+   "id": "26731e975f",
+   "op": "CON",
+   "line": 146,
+   "before": "private final Field f55_HV_NUMBER_OF_ACCOUNTS = Field.binary(s_HV_NUMBER_OF_ACCOUNTS, 0, 8, 0, true, false);",
+   "after": "private final Field f55_HV_NUMBER_OF_ACCOUNTS = Field.binary(s_HV_NUMBER_OF_ACCOUNTS, 0, 8, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "the SELECT stores the count into HV-NUMBER-OF-ACCOUNTS and the MOVE reads it through the same field, so a different scale cancels on the round trip"
+  },
+  {
+   "id": "36e3c9dd5e",
+   "op": "CON",
+   "line": 146,
+   "before": "private final Field f55_HV_NUMBER_OF_ACCOUNTS = Field.binary(s_HV_NUMBER_OF_ACCOUNTS, 0, 8, 0, true, false);",
+   "after": "private final Field f55_HV_NUMBER_OF_ACCOUNTS = Field.binary(s_HV_NUMBER_OF_ACCOUNTS, 0, 9, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "HV-NUMBER-OF-ACCOUNTS 8 -> 9 digits: the binary field stays four bytes; a count of 10^8 or more wraps at 10^8 into the 8-digit NUMBER-OF-ACCOUNTS on the MOVE either way (mod 10^8 both ways)"
+  },
+  {
+   "id": "073242e202",
+   "op": "CON",
+   "line": 148,
+   "before": "private final Field f57_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+   "after": "private final Field f57_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 16, 0, true);",
+   "verdict": "unreachable",
+   "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
+  },
+  {
+   "id": "4a9785f254",
+   "op": "CON",
+   "line": 148,
+   "before": "private final Field f57_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+   "after": "private final Field f57_WS_U_TIME = Field.packed(s_WS_U_TIME, 1, 15, 0, true);",
+   "verdict": "unreachable",
+   "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
+  },
+  {
+   "id": "edcc36e03a",
+   "op": "CON",
+   "line": 148,
+   "before": "private final Field f57_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 0, true);",
+   "after": "private final Field f57_WS_U_TIME = Field.packed(s_WS_U_TIME, 0, 15, 1, true);",
+   "verdict": "unreachable",
+   "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
+  },
+  {
+   "id": "0ef6f72df2",
+   "op": "CON",
+   "line": 149,
+   "before": "private final Field f58_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);",
+   "after": "private final Field f58_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 11, false);",
+   "verdict": "unreachable",
+   "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
+  },
+  {
+   "id": "9ef3685dbb",
+   "op": "CON",
+   "line": 149,
+   "before": "private final Field f58_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 0, 10, false);",
+   "after": "private final Field f58_WS_ORIG_DATE = Field.alphanumeric(s_WS_ORIG_DATE, 1, 10, false);",
+   "verdict": "unreachable",
+   "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
+  },
+  {
+   "id": "1e6e91e054",
+   "op": "CON",
+   "line": 150,
+   "before": "private final Field f72_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+   "after": "private final Field f72_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 7, 0, false, false, false);",
+   "verdict": "unreachable",
+   "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
+  },
+  {
+   "id": "cd5e2443f7",
+   "op": "CON",
+   "line": 150,
+   "before": "private final Field f72_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+   "after": "private final Field f72_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 1, 6, 0, false, false, false);",
+   "verdict": "unreachable",
+   "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
+  },
+  {
+   "id": "d748307229",
+   "op": "CON",
+   "line": 150,
+   "before": "private final Field f72_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 0, false, false, false);",
+   "after": "private final Field f72_WS_TIME_NOW = Field.zoned(s_WS_TIME_DATA, 0, 6, 1, false, false, false);",
+   "verdict": "unreachable",
+   "reason": "WS-U-TIME / WS-ORIG-DATE / WS-TIME-NOW are used only in POPULATE-TIME-DATE, which no paragraph PERFORMs (the program's flow is P010 -> GET-NUMBER-OF-ACCOUNTS-DB2 -> GET-ME-OUT-OF-HERE)"
+  },
+  {
+   "id": "fe175d35d9",
+   "op": "CON",
+   "line": 152,
+   "before": "private final Field f93_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 98);",
+   "after": "private final Field f93_DFHCOMMAREA = Field.group(s_DFHCOMMAREA, 0, 99);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "304241e45a",
+   "op": "CON",
+   "line": 154,
+   "before": "private final Field f102_ACCOUNT_CONTROL_SUCCESS_FLAG = Field.alphanumeric(s_DFHCOMMAREA, 44, 1, false);",
+   "after": "private final Field f102_ACCOUNT_CONTROL_SUCCESS_FLAG = Field.alphanumeric(s_DFHCOMMAREA, 44, 2, false);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "1ebdfbc9a4",
+   "op": "CON",
+   "line": 155,
+   "before": "private final Field f112_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f112_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "9e61881bf8",
+   "op": "CON",
+   "line": 155,
+   "before": "private final Field f112_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f112_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "e23e532c67",
+   "op": "CON",
+   "line": 155,
+   "before": "private final Field f112_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+   "after": "private final Field f112_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "0ffecdacc1",
+   "op": "CON",
+   "line": 156,
+   "before": "private final Field f113_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f113_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "41ae217b75",
+   "op": "CON",
+   "line": 156,
+   "before": "private final Field f113_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f113_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "d76a593791",
+   "op": "CON",
+   "line": 156,
+   "before": "private final Field f113_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+   "after": "private final Field f113_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "2470b58e7d",
+   "op": "CON",
+   "line": 157,
+   "before": "private final Field f114_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f114_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "b0fc184468",
+   "op": "CON",
+   "line": 157,
+   "before": "private final Field f114_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+   "after": "private final Field f114_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "5e09aacc6b",
+   "op": "CON",
+   "line": 158,
+   "before": "private final Field f115_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f115_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "9fda874ffe",
+   "op": "CON",
+   "line": 158,
+   "before": "private final Field f115_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f115_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "ee1ce648de",
+   "op": "CON",
+   "line": 158,
+   "before": "private final Field f115_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+   "after": "private final Field f115_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "2949ceae32",
+   "op": "CON",
+   "line": 159,
+   "before": "private final Field f116_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f116_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "c6314ee577",
+   "op": "CON",
+   "line": 159,
+   "before": "private final Field f116_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+   "after": "private final Field f116_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "4461a367a3",
+   "op": "CON",
+   "line": 160,
+   "before": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "7072339ecc",
+   "op": "CON",
+   "line": 160,
+   "before": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "c99523adcb",
+   "op": "CON",
+   "line": 160,
+   "before": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+   "after": "private final Field f119_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "598035e2f4",
+   "op": "CON",
+   "line": 161,
+   "before": "private final Field f143_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f143_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "b0e56b9079",
+   "op": "CON",
+   "line": 161,
+   "before": "private final Field f143_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f143_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "c40e46e790",
+   "op": "CON",
+   "line": 161,
+   "before": "private final Field f143_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+   "after": "private final Field f143_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);",
+   "verdict": "equivalent",
+   "reason": "field layout of an item that is either a record byte the program never addresses (EIB fields: ACCTCTRL references no EIB field; GG-RETURN-CODE is never referenced) or the flag byte whose extra length writes a space into byte 45, which INITIALIZE had already blanked and nothing reads before the COMMAREA returns"
+  },
+  {
+   "id": "4c1afaab8b",
+   "op": "NEG",
+   "line": 173,
+   "before": "if (task.level() > 1) {",
+   "after": "if (!(task.level() > 1)) {",
+   "verdict": "unreachable",
+   "reason": "abended() is called only from condition(); ACCTCTRL issues only EXEC CICS RETURN (and the SELECT, which reports through SQLCODE), so no CICS condition is raised and it never runs"
+  },
+  {
+   "id": "90fa84a4f4",
+   "op": "CON",
+   "line": 173,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() > 2) {",
+   "verdict": "unreachable",
+   "reason": "abended() is called only from condition(); ACCTCTRL issues only EXEC CICS RETURN (and the SELECT, which reports through SQLCODE), so no CICS condition is raised and it never runs"
+  },
+  {
+   "id": "b100f33085",
+   "op": "ROR",
+   "line": 173,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() >= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is called only from condition(); ACCTCTRL issues only EXEC CICS RETURN (and the SELECT, which reports through SQLCODE), so no CICS condition is raised and it never runs"
+  },
+  {
+   "id": "bb83fd5618",
+   "op": "ROR",
+   "line": 173,
+   "before": "if (task.level() > 1) {",
+   "after": "if (task.level() <= 1) {",
+   "verdict": "unreachable",
+   "reason": "abended() is called only from condition(); ACCTCTRL issues only EXEC CICS RETURN (and the SELECT, which reports through SQLCODE), so no CICS condition is raised and it never runs"
+  },
+  {
+   "id": "556c7cec4a",
+   "op": "DEL",
+   "line": 174,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "abended() is called only from condition(); no CICS condition is raised, so the caBack.run() in it never runs"
+  },
+  {
+   "id": "cb46915829",
+   "op": "LIT",
+   "line": 179,
+   "before": "@SuppressWarnings(\"unchecked\")",
+   "after": "@SuppressWarnings(\"Xnchecked\")",
+   "verdict": "equivalent",
+   "reason": "An @SuppressWarnings annotation string has no run-time effect."
+  },
+  {
+   "id": "48014ed2f6",
+   "op": "LIT",
+   "line": 181,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "The Hole / IllegalStateException is thrown by a file-store or paragraph lookup reached only by a file command or a HANDLE label; ACCTCTRL issues none."
+  },
+  {
+   "id": "4ee7741dc9",
+   "op": "LIT",
+   "line": 181,
+   "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+   "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");",
+   "verdict": "unreachable",
+   "reason": "The Hole / IllegalStateException is thrown by a file-store or paragraph lookup reached only by a file command or a HANDLE label; ACCTCTRL issues none."
+  },
+  {
+   "id": "2967b1c891",
+   "op": "LIT",
+   "line": 185,
+   "before": "java.util.Map.entry(\"GMOFH999\", 11),",
+   "after": "java.util.Map.entry(\"XMOFH999\", 11),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "80acc1b178",
+   "op": "CON",
+   "line": 185,
+   "before": "java.util.Map.entry(\"GMOFH999\", 11),",
+   "after": "java.util.Map.entry(\"GMOFH999\", 12),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "b4bfc85d20",
+   "op": "LIT",
+   "line": 186,
+   "before": "java.util.Map.entry(\"GMOFH010\", 10),",
+   "after": "java.util.Map.entry(\"XMOFH010\", 10),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "e383585ce3",
+   "op": "CON",
+   "line": 186,
+   "before": "java.util.Map.entry(\"GMOFH010\", 10),",
+   "after": "java.util.Map.entry(\"GMOFH010\", 11),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "3e2fcf8136",
+   "op": "CON",
+   "line": 187,
+   "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 9),",
+   "after": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 10),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "e879fb014f",
+   "op": "LIT",
+   "line": 187,
+   "before": "java.util.Map.entry(\"GET-ME-OUT-OF-HERE\", 9),",
+   "after": "java.util.Map.entry(\"XET-ME-OUT-OF-HERE\", 9),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "cba2886394",
+   "op": "CON",
+   "line": 188,
+   "before": "java.util.Map.entry(\"PTD999\", 8),",
+   "after": "java.util.Map.entry(\"PTD999\", 9),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "f690b625f9",
+   "op": "LIT",
+   "line": 188,
+   "before": "java.util.Map.entry(\"PTD999\", 8),",
+   "after": "java.util.Map.entry(\"XTD999\", 8),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "0f2c974854",
+   "op": "LIT",
+   "line": 189,
+   "before": "java.util.Map.entry(\"PTD010\", 7),",
+   "after": "java.util.Map.entry(\"XTD010\", 7),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "2ae5bb0a14",
+   "op": "CON",
+   "line": 189,
+   "before": "java.util.Map.entry(\"PTD010\", 7),",
+   "after": "java.util.Map.entry(\"PTD010\", 8),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "02ab7e9e4e",
+   "op": "LIT",
+   "line": 190,
+   "before": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 6),",
+   "after": "java.util.Map.entry(\"XOPULATE-TIME-DATE\", 6),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "0625918211",
+   "op": "CON",
+   "line": 190,
+   "before": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 6),",
+   "after": "java.util.Map.entry(\"POPULATE-TIME-DATE\", 7),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "d41363795e",
+   "op": "LIT",
+   "line": 191,
+   "before": "java.util.Map.entry(\"WCD999\", 5),",
+   "after": "java.util.Map.entry(\"XCD999\", 5),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "dc080fedc3",
+   "op": "CON",
+   "line": 191,
+   "before": "java.util.Map.entry(\"WCD999\", 5),",
+   "after": "java.util.Map.entry(\"WCD999\", 6),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "4529cd12da",
+   "op": "CON",
+   "line": 192,
+   "before": "java.util.Map.entry(\"WCD010\", 4),",
+   "after": "java.util.Map.entry(\"WCD010\", 5),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "a6a610e4e7",
+   "op": "LIT",
+   "line": 192,
+   "before": "java.util.Map.entry(\"WCD010\", 4),",
+   "after": "java.util.Map.entry(\"XCD010\", 4),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "05b93454b7",
+   "op": "LIT",
+   "line": 193,
+   "before": "java.util.Map.entry(\"GET-NUMBER-OF-ACCOUNTS-DB2\", 3),",
+   "after": "java.util.Map.entry(\"XET-NUMBER-OF-ACCOUNTS-DB2\", 3),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "b5af37b6ff",
+   "op": "CON",
+   "line": 193,
+   "before": "java.util.Map.entry(\"GET-NUMBER-OF-ACCOUNTS-DB2\", 3),",
+   "after": "java.util.Map.entry(\"GET-NUMBER-OF-ACCOUNTS-DB2\", 4),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "64cc694458",
+   "op": "CON",
+   "line": 194,
+   "before": "java.util.Map.entry(\"P999\", 2),",
+   "after": "java.util.Map.entry(\"P999\", 3),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "f3b39723ad",
+   "op": "LIT",
+   "line": 194,
+   "before": "java.util.Map.entry(\"P999\", 2),",
+   "after": "java.util.Map.entry(\"X999\", 2),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "073c967a56",
+   "op": "CON",
+   "line": 195,
+   "before": "java.util.Map.entry(\"P010\", 1),",
+   "after": "java.util.Map.entry(\"P010\", 2),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "6371dc76a4",
+   "op": "LIT",
+   "line": 195,
+   "before": "java.util.Map.entry(\"P010\", 1),",
+   "after": "java.util.Map.entry(\"X010\", 1),",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "2d878457c3",
+   "op": "LIT",
+   "line": 196,
+   "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+   "after": "java.util.Map.entry(\"XREMIERE\", 0)",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "36aa7e0f5a",
+   "op": "CON",
+   "line": 196,
+   "before": "java.util.Map.entry(\"PREMIERE\", 0)",
+   "after": "java.util.Map.entry(\"PREMIERE\", 1)",
+   "verdict": "unreachable",
+   "reason": "PARAGRAPHS/paragraph() is reached only from condition() via a HANDLE label lookup; ACCTCTRL has no HANDLE and raises no condition"
+  },
+  {
+   "id": "3e35b6a979",
+   "op": "NEG",
+   "line": 201,
+   "before": "if (i == null) {",
+   "after": "if (!(i == null)) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "6fba65eed7",
+   "op": "ROR",
+   "line": 201,
+   "before": "if (i == null) {",
+   "after": "if (i != null) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "51de1e6033",
+   "op": "LIT",
+   "line": 202,
+   "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+   "after": "throw new IllegalStateException(\"Xo paragraph \" + name);",
+   "verdict": "unreachable",
+   "reason": "The Hole / IllegalStateException is thrown by a file-store or paragraph lookup reached only by a file command or a HANDLE label; ACCTCTRL issues none."
+  },
+  {
+   "id": "31c3731118",
+   "op": "ROR",
+   "line": 214,
+   "before": "if (h != null) {",
+   "after": "if (h == null) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "46e28268c5",
+   "op": "NEG",
+   "line": 214,
+   "before": "if (h != null) {",
+   "after": "if (!(h != null)) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "5f0b3a5839",
+   "op": "NEG",
+   "line": 217,
+   "before": "if (DetCics.ignoredByDefault(cond)) {",
+   "after": "if (!(DetCics.ignoredByDefault(cond))) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "9c9a3f7bd1",
+   "op": "CON",
+   "line": 218,
+   "before": "return -1;",
+   "after": "return -2;",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "0164cf0cff",
+   "op": "LIT",
+   "line": 220,
+   "before": "Integer error = handlers.get(\"ERROR\");",
+   "after": "Integer error = handlers.get(\"XRROR\");",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "44e4a6793b",
+   "op": "ROR",
+   "line": 221,
+   "before": "if (error != null) {",
+   "after": "if (error == null) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "9c0dcdc47b",
+   "op": "NEG",
+   "line": 221,
+   "before": "if (error != null) {",
+   "after": "if (!(error != null)) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "6b6e32e799",
+   "op": "NEG",
+   "line": 225,
+   "before": "if (label == null) {",
+   "after": "if (!(label == null)) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "7817c6d81b",
+   "op": "ROR",
+   "line": 225,
+   "before": "if (label == null) {",
+   "after": "if (label != null) {",
+   "verdict": "unreachable",
+   "reason": "condition() runs only for a CICS condition a command raises without RESP; ACCTCTRL issues only EXEC CICS RETURN, which raises none"
+  },
+  {
+   "id": "4bc7ee4673",
+   "op": "NEG",
+   "line": 236,
+   "before": "if (d == null) {",
+   "after": "if (!(d == null)) {",
+   "verdict": "unreachable",
+   "reason": "in_/fill_ are called only under `ca instanceof AcctctrlDfhcommarea x`, which is never null, so the null guard never fires"
+  },
+  {
+   "id": "8a6dba90bc",
+   "op": "ROR",
+   "line": 236,
+   "before": "if (d == null) {",
+   "after": "if (d != null) {",
+   "verdict": "unreachable",
+   "reason": "in_/fill_ are called only under `ca instanceof AcctctrlDfhcommarea x`, which is never null, so the null guard never fires"
+  },
+  {
+   "id": "e578fde2ac",
+   "op": "DEL",
+   "line": 237,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "unreachable",
+   "reason": "in_/fill_ are called only under `ca instanceof AcctctrlDfhcommarea x`, which is never null, so the null guard never fires"
+  },
+  {
+   "id": "3a05c82c14",
+   "op": "AOR",
+   "line": 239,
+   "before": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+   "after": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base - 0, 4, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "50663b0da1",
+   "op": "ROR",
+   "line": 239,
+   "before": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+   "after": "Cobol.move(d.getAccountControlEyeCatcher() != null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "78c9805309",
+   "op": "CON",
+   "line": 239,
+   "before": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+   "after": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 1, 4, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "8c15077654",
+   "op": "CON",
+   "line": 239,
+   "before": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 0, 4, false), CS);",
+   "after": "Cobol.move(d.getAccountControlEyeCatcher() == null ? \"\" : d.getAccountControlEyeCatcher(), Field.alphanumeric(s, base + 0, 5, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "1c76b4c880",
+   "op": "CON",
+   "line": 240,
+   "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 7, 0, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "7012ac6af4",
+   "op": "DEL",
+   "line": 240,
+   "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS); */",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "7a2224bb1f",
+   "op": "CON",
+   "line": 240,
+   "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 15, 6, 0, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "9dc2adfd3f",
+   "op": "ROR",
+   "line": 240,
+   "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAccountControlSortCode() != null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "c57681bed8",
+   "op": "CON",
+   "line": 240,
+   "before": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAccountControlSortCode() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlSortCode().toString()), Field.zoned(s, base + 14, 6, 1, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "0eda295cf8",
+   "op": "CON",
+   "line": 241,
+   "before": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 1, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "1cd723b35f",
+   "op": "ROR",
+   "line": 241,
+   "before": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAccountControlNumber() != null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "9a2655c5a7",
+   "op": "CON",
+   "line": 241,
+   "before": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 9, 0, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "ee7dd2438a",
+   "op": "DEL",
+   "line": 241,
+   "before": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS); */",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "f134aa706c",
+   "op": "CON",
+   "line": 241,
+   "before": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getAccountControlNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getAccountControlNumber().toString()), Field.zoned(s, base + 21, 8, 0, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "50ccae0a07",
+   "op": "CON",
+   "line": 242,
+   "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 9, 0, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "6a7cfcd4fc",
+   "op": "CON",
+   "line": 242,
+   "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 1, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "a9cc604e30",
+   "op": "DEL",
+   "line": 242,
+   "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS); */",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "aaa660a012",
+   "op": "CON",
+   "line": 242,
+   "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 29, 8, 0, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "ab6051e9ea",
+   "op": "ROR",
+   "line": 242,
+   "before": "Cobol.move(d.getNumberOfAccounts() == null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getNumberOfAccounts() != null ? BigDecimal.ZERO : new BigDecimal(d.getNumberOfAccounts().toString()), Field.zoned(s, base + 28, 8, 0, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "066e94b6df",
+   "op": "DEL",
+   "line": 243,
+   "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
+   "after": "/* Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS); */",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "341d263ad9",
+   "op": "ROR",
+   "line": 243,
+   "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getLastAccountNumber() != null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "3b6e574da8",
+   "op": "CON",
+   "line": 243,
+   "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 1, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "6daf3a9671",
+   "op": "CON",
+   "line": 243,
+   "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 37, 8, 0, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "e7703e407b",
+   "op": "CON",
+   "line": 243,
+   "before": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 8, 0, false, false, false), CS);",
+   "after": "Cobol.move(d.getLastAccountNumber() == null ? BigDecimal.ZERO : new BigDecimal(d.getLastAccountNumber().toString()), Field.zoned(s, base + 36, 9, 0, false, false, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "2597206bb6",
+   "op": "CON",
+   "line": 244,
+   "before": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 1, false), CS);",
+   "after": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 2, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "8aceaa6a35",
+   "op": "ROR",
+   "line": 244,
+   "before": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 1, false), CS);",
+   "after": "Cobol.move(d.getAccountControlSuccessFlag() != null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 1, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "e196ae1b5f",
+   "op": "CON",
+   "line": 244,
+   "before": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 44, 1, false), CS);",
+   "after": "Cobol.move(d.getAccountControlSuccessFlag() == null ? \"\" : d.getAccountControlSuccessFlag(), Field.alphanumeric(s, base + 45, 1, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "2410d9c710",
+   "op": "ROR",
+   "line": 245,
+   "before": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 1, false), CS);",
+   "after": "Cobol.move(d.getAccountControlFailCode() != null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 1, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "3c66a4db2b",
+   "op": "CON",
+   "line": 245,
+   "before": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 1, false), CS);",
+   "after": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 2, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "8182c53108",
+   "op": "CON",
+   "line": 245,
+   "before": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 1, false), CS);",
+   "after": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 46, 1, false), CS);",
+   "verdict": "case-gap",
+   "reason": "in_AcctctrlDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 98 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it; the harness cannot state one yet"
+  },
+  {
+   "id": "0daccda4f1",
+   "op": "CON",
+   "line": 249,
+   "before": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+   "after": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 5, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "13f134a6fc",
+   "op": "CON",
+   "line": 249,
+   "before": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+   "after": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 1, 4, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "5b48eb01e3",
+   "op": "AOR",
+   "line": 249,
+   "before": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+   "after": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "97beec4e2e",
+   "op": "DEL",
+   "line": 249,
+   "before": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+   "after": "/* d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "068a904301",
+   "op": "CON",
+   "line": 250,
+   "before": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 0, false, false, false), CS).intValue());",
+   "after": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 15, 6, 0, false, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "2993a1c3d6",
+   "op": "DEL",
+   "line": 250,
+   "before": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 0, false, false, false), CS).intValue());",
+   "after": "/* d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 0, false, false, false), CS).intValue()); */",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "98be072e98",
+   "op": "CON",
+   "line": 250,
+   "before": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 0, false, false, false), CS).intValue());",
+   "after": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 1, false, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "a46c6faced",
+   "op": "CON",
+   "line": 250,
+   "before": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 0, false, false, false), CS).intValue());",
+   "after": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 7, 0, false, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "4b2f97c8ca",
+   "op": "CON",
+   "line": 251,
+   "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 9, 0, false, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "81f24fa7dd",
+   "op": "CON",
+   "line": 251,
+   "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 1, false, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "e665241919",
+   "op": "CON",
+   "line": 251,
+   "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 21, 8, 0, false, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "f9072c7177",
+   "op": "DEL",
+   "line": 251,
+   "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
+   "after": "/* d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue()); */",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "2c08775302",
+   "op": "CON",
+   "line": 252,
+   "before": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 1, false, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "6080dd996a",
+   "op": "CON",
+   "line": 252,
+   "before": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 9, 0, false, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "b0ccd5d4fb",
+   "op": "CON",
+   "line": 252,
+   "before": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 29, 8, 0, false, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "b94509aa9e",
+   "op": "DEL",
+   "line": 252,
+   "before": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue());",
+   "after": "/* d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue()); */",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "3e34e93d08",
+   "op": "CON",
+   "line": 253,
+   "before": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 1, false, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "43682074a4",
+   "op": "CON",
+   "line": 253,
+   "before": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 37, 8, 0, false, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "46b3bb0089",
+   "op": "DEL",
+   "line": 253,
+   "before": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue());",
+   "after": "/* d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue()); */",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "61c87bcc6a",
+   "op": "CON",
+   "line": 253,
+   "before": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue());",
+   "after": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 9, 0, false, false, false), CS).intValue());",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "13b138bd8d",
+   "op": "CON",
+   "line": 254,
+   "before": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 1, false), CS));",
+   "after": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 2, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "b2a660ac42",
+   "op": "DEL",
+   "line": 254,
+   "before": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 1, false), CS));",
+   "after": "/* d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 1, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "f8d0d16fb3",
+   "op": "CON",
+   "line": 254,
+   "before": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 1, false), CS));",
+   "after": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "177acf7752",
+   "op": "DEL",
+   "line": 255,
+   "before": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS));",
+   "after": "/* d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS)); */",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "a0d68d5e6e",
+   "op": "CON",
+   "line": 255,
+   "before": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS));",
+   "after": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 2, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "b73eb40403",
+   "op": "CON",
+   "line": 255,
+   "before": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS));",
+   "after": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 46, 1, false), CS));",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "a2dd54b9af",
+   "op": "DEL",
+   "line": 260,
+   "before": "fill_AcctctrlDfhcommarea(d, s, base);",
+   "after": "/* fill_AcctctrlDfhcommarea(d, s, base); */",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "9971728c50",
+   "op": "DEL",
+   "line": 287,
+   "before": "System.arraycopy(IMAGE_s_DATA_STORE_TYPE, 0, s_DATA_STORE_TYPE.bytes, 0, IMAGE_s_DATA_STORE_TYPE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DATA_STORE_TYPE, 0, s_DATA_STORE_TYPE.bytes, 0, IMAGE_s_DATA_STORE_TYPE.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "e37a8eea6e",
+   "op": "DEL",
+   "line": 288,
+   "before": "System.arraycopy(IMAGE_s_ACCOUNT_KY, 0, s_ACCOUNT_KY.bytes, 0, IMAGE_s_ACCOUNT_KY.length);",
+   "after": "/* System.arraycopy(IMAGE_s_ACCOUNT_KY, 0, s_ACCOUNT_KY.bytes, 0, IMAGE_s_ACCOUNT_KY.length); */",
+   "verdict": "equivalent",
+   "reason": "initialState's copy of this image only supplies bytes the program overwrites before reading (ACCOUNT-KY's sort code by MOVE SORTCODE, HV-ACCOUNT-SORTCODE by the MOVE from it, SQLCA/HV-NUMBER-OF-ACCOUNTS by the SELECT); an unset (zero) storage gives the same results"
+  },
+  {
+   "id": "370045c7c3",
+   "op": "DEL",
+   "line": 289,
+   "before": "System.arraycopy(IMAGE_s_EXIT_DB2_READ, 0, s_EXIT_DB2_READ.bytes, 0, IMAGE_s_EXIT_DB2_READ.length);",
+   "after": "/* System.arraycopy(IMAGE_s_EXIT_DB2_READ, 0, s_EXIT_DB2_READ.bytes, 0, IMAGE_s_EXIT_DB2_READ.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "33aad434d1",
+   "op": "DEL",
+   "line": 290,
+   "before": "System.arraycopy(IMAGE_s_WS_V_RETRIED, 0, s_WS_V_RETRIED.bytes, 0, IMAGE_s_WS_V_RETRIED.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_V_RETRIED, 0, s_WS_V_RETRIED.bytes, 0, IMAGE_s_WS_V_RETRIED.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "8a3c1562e9",
+   "op": "DEL",
+   "line": 291,
+   "before": "System.arraycopy(IMAGE_s_WS_D_RETRIED, 0, s_WS_D_RETRIED.bytes, 0, IMAGE_s_WS_D_RETRIED.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_D_RETRIED, 0, s_WS_D_RETRIED.bytes, 0, IMAGE_s_WS_D_RETRIED.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "c8e5d41805",
+   "op": "DEL",
+   "line": 292,
+   "before": "System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length);",
+   "after": "/* System.arraycopy(IMAGE_s_SQLCODE_DISPLAY, 0, s_SQLCODE_DISPLAY.bytes, 0, IMAGE_s_SQLCODE_DISPLAY.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "7dc9232bcb",
+   "op": "DEL",
+   "line": 293,
+   "before": "System.arraycopy(IMAGE_s_WS_PASSED_DATA, 0, s_WS_PASSED_DATA.bytes, 0, IMAGE_s_WS_PASSED_DATA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_PASSED_DATA, 0, s_WS_PASSED_DATA.bytes, 0, IMAGE_s_WS_PASSED_DATA.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "b563e598f0",
+   "op": "DEL",
+   "line": 294,
+   "before": "System.arraycopy(IMAGE_s_WS_SORT_DIV, 0, s_WS_SORT_DIV.bytes, 0, IMAGE_s_WS_SORT_DIV.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_SORT_DIV, 0, s_WS_SORT_DIV.bytes, 0, IMAGE_s_WS_SORT_DIV.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "5fba7a475e",
+   "op": "DEL",
+   "line": 295,
+   "before": "System.arraycopy(IMAGE_s_WS_DISP_ACCT_NO_VAL, 0, s_WS_DISP_ACCT_NO_VAL.bytes, 0, IMAGE_s_WS_DISP_ACCT_NO_VAL.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_DISP_ACCT_NO_VAL, 0, s_WS_DISP_ACCT_NO_VAL.bytes, 0, IMAGE_s_WS_DISP_ACCT_NO_VAL.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "a6eb3a33b9",
+   "op": "DEL",
+   "line": 296,
+   "before": "System.arraycopy(IMAGE_s_WS_ACCT_REC_LEN, 0, s_WS_ACCT_REC_LEN.bytes, 0, IMAGE_s_WS_ACCT_REC_LEN.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_ACCT_REC_LEN, 0, s_WS_ACCT_REC_LEN.bytes, 0, IMAGE_s_WS_ACCT_REC_LEN.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "3ff3d229b8",
+   "op": "DEL",
+   "line": 297,
+   "before": "System.arraycopy(IMAGE_s_NCS_UPDATED, 0, s_NCS_UPDATED.bytes, 0, IMAGE_s_NCS_UPDATED.length);",
+   "after": "/* System.arraycopy(IMAGE_s_NCS_UPDATED, 0, s_NCS_UPDATED.bytes, 0, IMAGE_s_NCS_UPDATED.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "6b9ae82a8d",
+   "op": "DEL",
+   "line": 298,
+   "before": "System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_EIBTASKN12, 0, s_WS_EIBTASKN12.bytes, 0, IMAGE_s_WS_EIBTASKN12.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "cdbd37c7fe",
+   "op": "DEL",
+   "line": 299,
+   "before": "System.arraycopy(IMAGE_s_PROCTRAN_RETRY, 0, s_PROCTRAN_RETRY.bytes, 0, IMAGE_s_PROCTRAN_RETRY.length);",
+   "after": "/* System.arraycopy(IMAGE_s_PROCTRAN_RETRY, 0, s_PROCTRAN_RETRY.bytes, 0, IMAGE_s_PROCTRAN_RETRY.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "a81aabcbe7",
+   "op": "DEL",
+   "line": 300,
+   "before": "System.arraycopy(IMAGE_s_ACCOUNT_KY2, 0, s_ACCOUNT_KY2.bytes, 0, IMAGE_s_ACCOUNT_KY2.length);",
+   "after": "/* System.arraycopy(IMAGE_s_ACCOUNT_KY2, 0, s_ACCOUNT_KY2.bytes, 0, IMAGE_s_ACCOUNT_KY2.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "a25372ef1c",
+   "op": "DEL",
+   "line": 301,
+   "before": "System.arraycopy(IMAGE_s_HIGHEST_ACCT_NUMBER, 0, s_HIGHEST_ACCT_NUMBER.bytes, 0, IMAGE_s_HIGHEST_ACCT_NUMBER.length);",
+   "after": "/* System.arraycopy(IMAGE_s_HIGHEST_ACCT_NUMBER, 0, s_HIGHEST_ACCT_NUMBER.bytes, 0, IMAGE_s_HIGHEST_ACCT_NUMBER.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "3570bc1573",
+   "op": "DEL",
+   "line": 302,
+   "before": "System.arraycopy(IMAGE_s_WS_CICS_RESP, 0, s_WS_CICS_RESP.bytes, 0, IMAGE_s_WS_CICS_RESP.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_CICS_RESP, 0, s_WS_CICS_RESP.bytes, 0, IMAGE_s_WS_CICS_RESP.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "1af7021620",
+   "op": "DEL",
+   "line": 303,
+   "before": "System.arraycopy(IMAGE_s_WS_CICS_RESP2, 0, s_WS_CICS_RESP2.bytes, 0, IMAGE_s_WS_CICS_RESP2.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_CICS_RESP2, 0, s_WS_CICS_RESP2.bytes, 0, IMAGE_s_WS_CICS_RESP2.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "a18fccf406",
+   "op": "DEL",
+   "line": 304,
+   "before": "System.arraycopy(IMAGE_s_SQLCA, 0, s_SQLCA.bytes, 0, IMAGE_s_SQLCA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_SQLCA, 0, s_SQLCA.bytes, 0, IMAGE_s_SQLCA.length); */",
+   "verdict": "equivalent",
+   "reason": "initialState's copy of this image only supplies bytes the program overwrites before reading (ACCOUNT-KY's sort code by MOVE SORTCODE, HV-ACCOUNT-SORTCODE by the MOVE from it, SQLCA/HV-NUMBER-OF-ACCOUNTS by the SELECT); an unset (zero) storage gives the same results"
+  },
+  {
+   "id": "4257521b21",
+   "op": "DEL",
+   "line": 305,
+   "before": "System.arraycopy(IMAGE_s_HV_NUMBER_OF_ACCOUNTS, 0, s_HV_NUMBER_OF_ACCOUNTS.bytes, 0, IMAGE_s_HV_NUMBER_OF_ACCOUNTS.length);",
+   "after": "/* System.arraycopy(IMAGE_s_HV_NUMBER_OF_ACCOUNTS, 0, s_HV_NUMBER_OF_ACCOUNTS.bytes, 0, IMAGE_s_HV_NUMBER_OF_ACCOUNTS.length); */",
+   "verdict": "equivalent",
+   "reason": "initialState's copy of this image only supplies bytes the program overwrites before reading (ACCOUNT-KY's sort code by MOVE SORTCODE, HV-ACCOUNT-SORTCODE by the MOVE from it, SQLCA/HV-NUMBER-OF-ACCOUNTS by the SELECT); an unset (zero) storage gives the same results"
+  },
+  {
+   "id": "905c0004e5",
+   "op": "DEL",
+   "line": 306,
+   "before": "System.arraycopy(IMAGE_s_HV_ACCOUNT_SORTCODE, 0, s_HV_ACCOUNT_SORTCODE.bytes, 0, IMAGE_s_HV_ACCOUNT_SORTCODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_HV_ACCOUNT_SORTCODE, 0, s_HV_ACCOUNT_SORTCODE.bytes, 0, IMAGE_s_HV_ACCOUNT_SORTCODE.length); */",
+   "verdict": "equivalent",
+   "reason": "initialState's copy of this image only supplies bytes the program overwrites before reading (ACCOUNT-KY's sort code by MOVE SORTCODE, HV-ACCOUNT-SORTCODE by the MOVE from it, SQLCA/HV-NUMBER-OF-ACCOUNTS by the SELECT); an unset (zero) storage gives the same results"
+  },
+  {
+   "id": "fa99dd9649",
+   "op": "DEL",
+   "line": 307,
+   "before": "System.arraycopy(IMAGE_s_WS_U_TIME, 0, s_WS_U_TIME.bytes, 0, IMAGE_s_WS_U_TIME.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_U_TIME, 0, s_WS_U_TIME.bytes, 0, IMAGE_s_WS_U_TIME.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "d90abe44b2",
+   "op": "DEL",
+   "line": 308,
+   "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE, 0, s_WS_ORIG_DATE.bytes, 0, IMAGE_s_WS_ORIG_DATE.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "bb123f1356",
+   "op": "DEL",
+   "line": 309,
+   "before": "System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_ORIG_DATE_GRP_X, 0, s_WS_ORIG_DATE_GRP_X.bytes, 0, IMAGE_s_WS_ORIG_DATE_GRP_X.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "23b5475ddd",
+   "op": "DEL",
+   "line": 310,
+   "before": "System.arraycopy(IMAGE_s_WS_TIME_DATA, 0, s_WS_TIME_DATA.bytes, 0, IMAGE_s_WS_TIME_DATA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_TIME_DATA, 0, s_WS_TIME_DATA.bytes, 0, IMAGE_s_WS_TIME_DATA.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "25a5b674dc",
+   "op": "DEL",
+   "line": 311,
+   "before": "System.arraycopy(IMAGE_s_WS_ABEND_PGM, 0, s_WS_ABEND_PGM.bytes, 0, IMAGE_s_WS_ABEND_PGM.length);",
+   "after": "/* System.arraycopy(IMAGE_s_WS_ABEND_PGM, 0, s_WS_ABEND_PGM.bytes, 0, IMAGE_s_WS_ABEND_PGM.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "e0102cdff3",
+   "op": "DEL",
+   "line": 312,
+   "before": "System.arraycopy(IMAGE_s_ABNDINFO_REC, 0, s_ABNDINFO_REC.bytes, 0, IMAGE_s_ABNDINFO_REC.length);",
+   "after": "/* System.arraycopy(IMAGE_s_ABNDINFO_REC, 0, s_ABNDINFO_REC.bytes, 0, IMAGE_s_ABNDINFO_REC.length); */",
+   "verdict": "equivalent",
+   "reason": "the image of a working-storage item the program never reads before writing (see the IMAGE entries), so zeroed storage gives the same results"
+  },
+  {
+   "id": "783dae7759",
+   "op": "DEL",
+   "line": 314,
+   "before": "System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DFHCOMMAREA, 0, s_DFHCOMMAREA.bytes, 0, IMAGE_s_DFHCOMMAREA.length); */",
+   "verdict": "equivalent",
+   "reason": "the incoming COMMAREA copy overwrites all 98 bytes of DFHCOMMAREA, and a task without a COMMAREA returns none; the INITIALIZE writes every addressed byte anyway"
+  },
+  {
+   "id": "03d35281be",
+   "op": "DEL",
+   "line": 315,
+   "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+   "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL never reads the EIB or RETURN-CODE and neither storage is compared"
+  },
+  {
+   "id": "98ffed7639",
+   "op": "DEL",
+   "line": 316,
+   "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+   "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL never reads the EIB or RETURN-CODE and neither storage is compared"
+  },
+  {
+   "id": "b48fc3f5b8",
+   "op": "DEL",
+   "line": 341,
+   "before": "caBack = () -> { };",
+   "after": "/* caBack = () -> { }; */",
+   "verdict": "equivalent",
+   "reason": "caBack is reset per task; without the reset a task with no COMMAREA after one with refills that earlier task's DTO from the area, which nothing reads"
+  },
+  {
+   "id": "331b0bcb3b",
+   "op": "DEL",
+   "line": 342,
+   "before": "handlers.clear();",
+   "after": "/* handlers.clear(); */",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL has no HANDLE CONDITION/ABEND or READ UPDATE, so handlers and heldKey are never filled and never read"
+  },
+  {
+   "id": "9f14a837ce",
+   "op": "DEL",
+   "line": 343,
+   "before": "heldKey.clear();",
+   "after": "/* heldKey.clear(); */",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL has no HANDLE CONDITION/ABEND or READ UPDATE, so handlers and heldKey are never filled and never read"
+  },
+  {
+   "id": "ed8291f92a",
+   "op": "DEL",
+   "line": 345,
+   "before": "Cobol.move(task.transid(), f114_EIBTRNID, CS);",
+   "after": "/* Cobol.move(task.transid(), f114_EIBTRNID, CS); */",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "f61c348230",
+   "op": "DEL",
+   "line": 347,
+   "before": "Cobol.store(f115_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+   "after": "/* Cobol.store(f115_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "26f073bc4f",
+   "op": "AOR",
+   "line": 349,
+   "before": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "63eaf60462",
+   "op": "AOR",
+   "line": 349,
+   "before": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "80dfe6d594",
+   "op": "DEL",
+   "line": 349,
+   "before": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "/* Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "9daa8f7b33",
+   "op": "CON",
+   "line": 349,
+   "before": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "d5c8a50372",
+   "op": "AOR",
+   "line": 349,
+   "before": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f113_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "11af15f124",
+   "op": "AOR",
+   "line": 350,
+   "before": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "299df27cf7",
+   "op": "AOR",
+   "line": 350,
+   "before": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "3f463a728a",
+   "op": "AOR",
+   "line": 350,
+   "before": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "4343ce8520",
+   "op": "AOR",
+   "line": 350,
+   "before": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "e6b6a23d72",
+   "op": "DEL",
+   "line": 350,
+   "before": "Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "/* Cobol.store(f112_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL's PROCEDURE DIVISION never reads the EIB (no EIB field is referenced), so the value stored in EIBTRNID/EIBTASKN/EIBDATE/EIBTIME cannot show"
+  },
+  {
+   "id": "366267aaaa",
+   "op": "ROR",
+   "line": 351,
+   "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+   "after": "switch (task.aid() != null ? \"\" : task.aid()) {",
+   "verdict": "equivalent",
+   "reason": "the generated AID switch has only a default arm (no HANDLE AID, no DFHAID test), so either operand reaches the same arm"
+  },
+  {
+   "id": "b7ffb2291c",
+   "op": "CON",
+   "line": 355,
+   "before": "int calen = 0;",
+   "after": "int calen = 1;",
+   "verdict": "equivalent",
+   "reason": "calen only reaches EIBCALEN (never read by the program) and the exactCommarea cut test; the scenarios with a stated length are answered by cx() before this default matters, and the default (the record's width, 98 or 99) makes the cut a no-op or a refused PastFrom the same on both sides"
+  },
+  {
+   "id": "175bd7a78a",
+   "op": "DEL",
+   "line": 357,
+   "before": "in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "/* in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "case-gap",
+   "reason": "the typed-DTO entry (`ca instanceof AcctctrlDfhcommarea x`) is reached on every scenario, but the link area (linked:true) then overwrites the bytes it filled and replaces the returned DTO, so a dropped call or a changed offset cannot show; same gap as in_/fill_"
+  },
+  {
+   "id": "1a85cee40c",
+   "op": "CON",
+   "line": 357,
+   "before": "in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 1);",
+   "verdict": "case-gap",
+   "reason": "the typed-DTO entry (`ca instanceof AcctctrlDfhcommarea x`) is reached on every scenario, but the link area (linked:true) then overwrites the bytes it filled and replaces the returned DTO, so a dropped call or a changed offset cannot show; same gap as in_/fill_"
+  },
+  {
+   "id": "7899f1d0ca",
+   "op": "CON",
+   "line": 358,
+   "before": "caBack = () -> fill_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "caBack = () -> fill_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 1);",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea (the caBack that refills the DTO) is replaced by the link area on the harness side: the returned DTO is built from the area bytes (java_area), so dropping or retargeting it is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "b45f6e978a",
+   "op": "DEL",
+   "line": 358,
+   "before": "caBack = () -> fill_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
+   "after": "/* caBack = () -> fill_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0); */",
+   "verdict": "harness-gap",
+   "reason": "fill_AcctctrlDfhcommarea (the caBack that refills the DTO) is replaced by the link area on the harness side: the returned DTO is built from the area bytes (java_area), so dropping or retargeting it is never compared; the harness must compare the DTO as well"
+  },
+  {
+   "id": "2996a39364",
+   "op": "CON",
+   "line": 359,
+   "before": "calen = cx(task, 98);",
+   "after": "calen = cx(task, 99);",
+   "verdict": "equivalent",
+   "reason": "calen only reaches EIBCALEN (never read by the program) and the exactCommarea cut test; the scenarios with a stated length are answered by cx() before this default matters, and the default (the record's width, 98 or 99) makes the cut a no-op or a refused PastFrom the same on both sides"
+  },
+  {
+   "id": "37e02b3dd7",
+   "op": "DEL",
+   "line": 361,
+   "before": "s_DFHCOMMAREA.beyond = null;",
+   "after": "/* s_DFHCOMMAREA.beyond = null; */",
+   "verdict": "harness-gap",
+   "reason": "s_DFHCOMMAREA.beyond is non-null only for a link area longer than the 98-byte DFHCOMMAREA storage, and the harness cannot state a COMMAREA longer than the record (register X10: bytes past the record are not reached by any proof)"
+  },
+  {
+   "id": "5ac9564277",
+   "op": "CON",
+   "line": 364,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "verdict": "case-gap",
+   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+  },
+  {
+   "id": "889ad9555e",
+   "op": "CON",
+   "line": 364,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "verdict": "case-gap",
+   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+  },
+  {
+   "id": "d4a246f6f9",
+   "op": "DEL",
+   "line": 364,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
+   "verdict": "case-gap",
+   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+  },
+  {
+   "id": "1ef6ffb178",
+   "op": "ROR",
+   "line": 365,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "case-gap",
+   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+  },
+  {
+   "id": "29c6165b6b",
+   "op": "ROR",
+   "line": 365,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "case-gap",
+   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+  },
+  {
+   "id": "a1676f6e84",
+   "op": "NEG",
+   "line": 365,
+   "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
+   "verdict": "case-gap",
+   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+  },
+  {
+   "id": "fde8f96e9c",
+   "op": "DEL",
+   "line": 366,
+   "before": "s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length);",
+   "after": "/* s_DFHCOMMAREA.beyond = java.util.Arrays.copyOfRange(cb, s_DFHCOMMAREA.bytes.length, cb.length); */",
+   "verdict": "harness-gap",
+   "reason": "s_DFHCOMMAREA.beyond is non-null only for a link area longer than the 98-byte DFHCOMMAREA storage, and the harness cannot state a COMMAREA longer than the record (register X10: bytes past the record are not reached by any proof)"
+  },
+  {
+   "id": "01ef0491b3",
+   "op": "DEL",
+   "line": 368,
+   "before": "calen = cx(task, cb.length);",
+   "after": "/* calen = cx(task, cb.length); */",
+   "verdict": "case-gap",
+   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+  },
+  {
+   "id": "07ba5cd0b9",
+   "op": "DEL",
+   "line": 374,
+   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "after": "/* s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null; */",
+   "verdict": "harness-gap",
+   "reason": "s_DFHCOMMAREA.beyond is non-null only for a link area longer than the 98-byte DFHCOMMAREA storage, and the harness cannot state a COMMAREA longer than the record (register X10: bytes past the record are not reached by any proof)"
+  },
+  {
+   "id": "8f50738f7a",
+   "op": "ROR",
+   "line": 374,
+   "before": "s_DFHCOMMAREA.beyond = raw.length > keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "after": "s_DFHCOMMAREA.beyond = raw.length >= keep ? java.util.Arrays.copyOfRange(raw, keep, raw.length) : null;",
+   "verdict": "harness-gap",
+   "reason": "s_DFHCOMMAREA.beyond is non-null only for a link area longer than the 98-byte DFHCOMMAREA storage, and the harness cannot state a COMMAREA longer than the record (register X10: bytes past the record are not reached by any proof)"
+  },
+  {
+   "id": "df77dc7f1b",
+   "op": "AOR",
+   "line": 376,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length + keep); } };",
+   "verdict": "harness-gap",
+   "reason": "the byte[] COMMAREA entry's write-back (caBack) and its `beyond` copy are reached only by a byte[] COMMAREA, which the harness cannot state (register X10 for the part past the record)"
+  },
+  {
+   "id": "eb68b62b36",
+   "op": "CON",
+   "line": 376,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 1, raw, keep, raw.length - keep); } };",
+   "verdict": "harness-gap",
+   "reason": "the byte[] COMMAREA entry's write-back (caBack) and its `beyond` copy are reached only by a byte[] COMMAREA, which the harness cannot state (register X10 for the part past the record)"
+  },
+  {
+   "id": "49f5b77429",
+   "op": "ROR",
+   "line": 379,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "calen == the 98-byte storage would only copy the full area to an array of its own length and restore it; the result is the same bytes either way"
+  },
+  {
+   "id": "d40e0e84ea",
+   "op": "DEL",
+   "line": 386,
+   "before": "Cobol.store(f119_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
+   "after": "/* Cobol.store(f119_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBCALEN is stored for the program to read; ACCTCTRL references no EIB field, so the stored value cannot show"
+  },
+  {
+   "id": "3cd264ae71",
+   "op": "CON",
+   "line": 389,
+   "before": "perform(0, 11);",
+   "after": "perform(0, 12);",
+   "verdict": "equivalent",
+   "reason": "p0 (PREMIERE) is empty and returns 1, so starting at paragraph 1 (P010) or stopping at thru 12 runs the same P010 and its RETURN (p10 throws Goback before anything after it)"
+  },
+  {
+   "id": "b7db62add0",
+   "op": "CON",
+   "line": 389,
+   "before": "perform(0, 11);",
+   "after": "perform(1, 11);",
+   "verdict": "equivalent",
+   "reason": "p0 (PREMIERE) is empty and returns 1, so starting at paragraph 1 (P010) or stopping at thru 12 runs the same P010 and its RETURN (p10 throws Goback before anything after it)"
+  },
+  {
+   "id": "20dafeabb8",
+   "op": "LIT",
+   "line": 397,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"XOMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "the PastFrom text is diagnostic: a scenario whose run raises it is refused on both sides and no event is compared"
+  },
+  {
+   "id": "30661225d3",
+   "op": "LIT",
+   "line": 397,
+   "before": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \" bytes): not modelled\");",
+   "after": "throw new DetCics.PastFrom(\"COMMAREA past EIBCALEN (\" + calen + \"Xbytes): not modelled\");",
+   "verdict": "equivalent",
+   "reason": "the PastFrom text is diagnostic: a scenario whose run raises it is refused on both sides and no event is compared"
+  },
+  {
+   "id": "70c39add1d",
+   "op": "DEL",
+   "line": 404,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "The fallback runs only when !task.ended(); p10's RETURN has already ended the task (and run caBack), so it never runs"
+  },
+  {
+   "id": "77542591f0",
+   "op": "DEL",
+   "line": 408,
+   "before": "Cobol.swapTruncOpt(optBefore);",
+   "after": "/* Cobol.swapTruncOpt(optBefore); */",
+   "verdict": "equivalent",
+   "reason": "the restore of the compile mode in runTask's finally matters only to code that runs after the task in the same JVM; every entry point sets the mode itself before it runs a program"
+  },
+  {
+   "id": "bb1fb281a6",
+   "op": "DEL",
+   "line": 409,
+   "before": "Cobol.swapTruncBinary(truncBefore);",
+   "after": "/* Cobol.swapTruncBinary(truncBefore); */",
+   "verdict": "equivalent",
+   "reason": "the restore of the compile mode in runTask's finally matters only to code that runs after the task in the same JVM; every entry point sets the mode itself before it runs a program"
+  },
+  {
+   "id": "cf3b6d8d6a",
+   "op": "DEL",
+   "line": 410,
+   "before": "Cobol.swapNumprocPfd(pfdBefore);",
+   "after": "/* Cobol.swapNumprocPfd(pfdBefore); */",
+   "verdict": "equivalent",
+   "reason": "the restore of the compile mode in runTask's finally matters only to code that runs after the task in the same JVM; every entry point sets the mode itself before it runs a program"
+  },
+  {
+   "id": "25062d0c76",
+   "op": "LIT",
+   "line": 423,
+   "before": "CicsTask task = region.linked(\"ACCTCTRL\", request, area);",
+   "after": "CicsTask task = region.linked(\"XCCTCTRL\", request, area);",
+   "verdict": "case-gap",
+   "reason": "handleLink(request, area), the overload that carries a raw COMMAREA, and lastLinkBytes() are entered by a calling port's LINK with an explicit byte area; the harness enters a linked case through the one-parameter handleLink(request)"
+  },
+  {
+   "id": "015c0da95b",
+   "op": "LIT",
+   "line": 424,
+   "before": "region.run(task, \"ACCTCTRL\", this::runTask);",
+   "after": "region.run(task, \"XCCTCTRL\", this::runTask);",
+   "verdict": "case-gap",
+   "reason": "handleLink(request, area), the overload that carries a raw COMMAREA, and lastLinkBytes() are entered by a calling port's LINK with an explicit byte area; the harness enters a linked case through the one-parameter handleLink(request)"
+  },
+  {
+   "id": "5f28e62ebc",
+   "op": "DEL",
+   "line": 426,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
+   "verdict": "case-gap",
+   "reason": "lastLinkBytes()/the link-area write-back are consumed by a calling port's LINK with an explicit byte area; no caller case LINKs ACCTCTRL with LENGTH"
+  },
+  {
+   "id": "6ab53e4b84",
+   "op": "ROR",
+   "line": 426,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "case-gap",
+   "reason": "lastLinkBytes()/the link-area write-back are consumed by a calling port's LINK with an explicit byte area; no caller case LINKs ACCTCTRL with LENGTH"
+  },
+  {
+   "id": "72925bcb8b",
+   "op": "COR",
+   "line": 426,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "case-gap",
+   "reason": "lastLinkBytes()/the link-area write-back are consumed by a calling port's LINK with an explicit byte area; no caller case LINKs ACCTCTRL with LENGTH"
+  },
+  {
+   "id": "2199843153",
+   "op": "ROR",
+   "line": 436,
+   "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+   "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
+   "verdict": "case-gap",
+   "reason": "lastLinkBytes()/the link-area write-back are consumed by a calling port's LINK with an explicit byte area; no caller case LINKs ACCTCTRL with LENGTH"
+  },
+  {
+   "id": "c48fb157ba",
+   "op": "DEL",
+   "line": 445,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "Only the exception's message and stack-trace suppression: nothing reads either (Goback / PerformExit are control flow)."
+  },
+  {
+   "id": "6b5850a587",
+   "op": "CON",
+   "line": 479,
+   "before": "private int[] performThru = new int[64];",
+   "after": "private int[] performThru = new int[65];",
+   "verdict": "unreachable",
+   "reason": "The stack grows only when 64 PERFORMs are active at once; this program nests at most two."
+  },
+  {
+   "id": "5652c023fc",
+   "op": "DEL",
+   "line": 488,
+   "before": "super(null, null, false, false);",
+   "after": "/* super(null, null, false, false); */",
+   "verdict": "equivalent",
+   "reason": "Only the exception's message and stack-trace suppression: nothing reads either (Goback / PerformExit are control flow)."
+  },
+  {
+   "id": "10c56247a5",
+   "op": "CON",
+   "line": 499,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);",
+   "verdict": "unreachable",
+   "reason": "performThru grows only when 64 PERFORMs are active at once; this program nests at most two"
+  },
+  {
+   "id": "5209389008",
+   "op": "AOR",
+   "line": 499,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "performThru grows only when 64 PERFORMs are active at once; this program nests at most two"
+  },
+  {
+   "id": "8580fa8c6b",
+   "op": "DEL",
+   "line": 499,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */",
+   "verdict": "unreachable",
+   "reason": "performThru grows only when 64 PERFORMs are active at once; this program nests at most two"
+  },
+  {
+   "id": "8e9599ec3a",
+   "op": "CON",
+   "line": 506,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) != 1;",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL has no GO TO. With `jumped` forced or the range-end return skipped, PERFORM 3..5 does not return at paragraph 5 (WCD999) and falls through 6..10: POPULATE-TIME-DATE's ASKTIME/FORMATTIME write only items nothing reads, and GET-ME-OUT-OF-HERE's RETURN fires with the COMMAREA already filled by WCD010, the same RETURN the original reaches after the second PERFORM"
+  },
+  {
+   "id": "fbfe3ecc8c",
+   "op": "ROR",
+   "line": 506,
+   "before": "boolean jumped = (next & GOTO) != 0;",
+   "after": "boolean jumped = (next & GOTO) == 0;",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL has no GO TO. With `jumped` forced or the range-end return skipped, PERFORM 3..5 does not return at paragraph 5 (WCD999) and falls through 6..10: POPULATE-TIME-DATE's ASKTIME/FORMATTIME write only items nothing reads, and GET-ME-OUT-OF-HERE's RETURN fires with the COMMAREA already filled by WCD010, the same RETURN the original reaches after the second PERFORM"
+  },
+  {
+   "id": "706b2516d4",
+   "op": "NEG",
+   "line": 508,
+   "before": "if (!jumped) {",
+   "after": "if (!(!jumped)) {",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL has no GO TO. With `jumped` forced or the range-end return skipped, PERFORM 3..5 does not return at paragraph 5 (WCD999) and falls through 6..10: POPULATE-TIME-DATE's ASKTIME/FORMATTIME write only items nothing reads, and GET-ME-OUT-OF-HERE's RETURN fires with the COMMAREA already filled by WCD010, the same RETURN the original reaches after the second PERFORM"
+  },
+  {
+   "id": "a4887d5426",
+   "op": "DEL",
+   "line": 510,
+   "before": "return;",
+   "after": "/* return; */",
+   "verdict": "equivalent",
+   "reason": "ACCTCTRL has no GO TO. With `jumped` forced or the range-end return skipped, PERFORM 3..5 does not return at paragraph 5 (WCD999) and falls through 6..10: POPULATE-TIME-DATE's ASKTIME/FORMATTIME write only items nothing reads, and GET-ME-OUT-OF-HERE's RETURN fires with the COMMAREA already filled by WCD010, the same RETURN the original reaches after the second PERFORM"
+  },
+  {
+   "id": "214866cf1f",
+   "op": "CON",
+   "line": 512,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 2; d >= 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "the scan looks for an outer active PERFORM whose range ends at the paragraph just run; the only outer range is perform(0, 11) from runTask, whose end (paragraph 11) is never run (p10 throws Goback), so the scan never finds a match whatever its bounds"
+  },
+  {
+   "id": "d484ef7082",
+   "op": "CON",
+   "line": 512,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d >= 1; d--) {",
+   "verdict": "equivalent",
+   "reason": "the scan looks for an outer active PERFORM whose range ends at the paragraph just run; the only outer range is perform(0, 11) from runTask, whose end (paragraph 11) is never run (p10 throws Goback), so the scan never finds a match whatever its bounds"
+  },
+  {
+   "id": "ddc29c26ac",
+   "op": "ROR",
+   "line": 512,
+   "before": "for (int d = mine - 1; d >= 0; d--) {",
+   "after": "for (int d = mine - 1; d > 0; d--) {",
+   "verdict": "equivalent",
+   "reason": "the scan looks for an outer active PERFORM whose range ends at the paragraph just run; the only outer range is perform(0, 11) from runTask, whose end (paragraph 11) is never run (p10 throws Goback), so the scan never finds a match whatever its bounds"
+  },
+  {
+   "id": "5566828c04",
+   "op": "ROR",
+   "line": 518,
+   "before": "if (next >= 12) {",
+   "after": "if (next > 12) {",
+   "verdict": "equivalent",
+   "reason": "next reaches 12 only if p11 returns it; p11 is never run (p10 throws Goback first), so the bound >= 12 vs > 12 / >= 13 is never decided"
+  },
+  {
+   "id": "c0f8ad44c4",
+   "op": "CON",
+   "line": 518,
+   "before": "if (next >= 12) {",
+   "after": "if (next >= 13) {",
+   "verdict": "equivalent",
+   "reason": "next reaches 12 only if p11 returns it; p11 is never run (p10 throws Goback first), so the bound >= 12 vs > 12 / >= 13 is never decided"
+  },
+  {
+   "id": "a1390d4e36",
+   "op": "ROR",
+   "line": 524,
+   "before": "if (e.depth != mine) {",
+   "after": "if (e.depth == mine) {",
+   "verdict": "unreachable",
+   "reason": "PerformExit is thrown only when control reaches the end of an outer active PERFORM range; there is no outer PERFORM, so the catch never runs"
+  },
+  {
+   "id": "c353de48b9",
+   "op": "NEG",
+   "line": 524,
+   "before": "if (e.depth != mine) {",
+   "after": "if (!(e.depth != mine)) {",
+   "verdict": "unreachable",
+   "reason": "PerformExit is thrown only when control reaches the end of an outer active PERFORM range; there is no outer PERFORM, so the catch never runs"
+  },
+  {
+   "id": "7b21c3f694",
+   "op": "DEL",
+   "line": 528,
+   "before": "performDepth = mine;",
+   "after": "/* performDepth = mine; */",
+   "verdict": "equivalent",
+   "reason": "performDepth is restored to `mine` by the finally; a stale depth only leaves one more entry for the next PERFORM to scan (an end of 5), which never equals the paragraph just run (9)"
+  },
+  {
+   "id": "492703de22",
+   "op": "CON",
+   "line": 545,
+   "before": "case 11: return p11();",
+   "after": "case 12: return p11();",
+   "verdict": "unreachable",
+   "reason": "p11 (GMOFH999) is never reached: p10 throws Goback before returning 11"
+  },
+  {
+   "id": "75f1d31184",
+   "op": "LIT",
+   "line": 546,
+   "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+   "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);",
+   "verdict": "unreachable",
+   "reason": "run(i) is only called with 0..11; the default arm never runs"
+  },
+  {
+   "id": "7878e8a286",
+   "op": "CON",
+   "line": 561,
+   "before": "perform(3, 5);",
+   "after": "perform(3, 6);",
+   "verdict": "equivalent",
+   "reason": "the PERFORM ranges hold the same effects when the bounds move by one: paragraphs 3, 5 and 6 are empty (p3 is a section header, p5 an EXIT, p6 empty), and p10 throws Goback before any later paragraph; a bound that reaches p7 only runs ASKTIME/FORMATTIME into items nothing reads"
+  },
+  {
+   "id": "dae0b7123a",
+   "op": "CON",
+   "line": 561,
+   "before": "perform(3, 5);",
+   "after": "perform(4, 5);",
+   "verdict": "equivalent",
+   "reason": "the PERFORM ranges hold the same effects when the bounds move by one: paragraphs 3, 5 and 6 are empty (p3 is a section header, p5 an EXIT, p6 empty), and p10 throws Goback before any later paragraph; a bound that reaches p7 only runs ASKTIME/FORMATTIME into items nothing reads"
+  },
+  {
+   "id": "651bd2520f",
+   "op": "CON",
+   "line": 563,
+   "before": "perform(9, 11);",
+   "after": "perform(9, 12);",
+   "verdict": "equivalent",
+   "reason": "the PERFORM ranges hold the same effects when the bounds move by one: paragraphs 3, 5 and 6 are empty (p3 is a section header, p5 an EXIT, p6 empty), and p10 throws Goback before any later paragraph; a bound that reaches p7 only runs ASKTIME/FORMATTIME into items nothing reads"
+  },
+  {
+   "id": "85c8e0d873",
+   "op": "CON",
+   "line": 563,
+   "before": "perform(9, 11);",
+   "after": "perform(10, 11);",
+   "verdict": "equivalent",
+   "reason": "the PERFORM ranges hold the same effects when the bounds move by one: paragraphs 3, 5 and 6 are empty (p3 is a section header, p5 an EXIT, p6 empty), and p10 throws Goback before any later paragraph; a bound that reaches p7 only runs ASKTIME/FORMATTIME into items nothing reads"
+  },
+  {
+   "id": "3f34601c20",
+   "op": "CON",
+   "line": 564,
+   "before": "return 2;",
+   "after": "return 3;",
+   "verdict": "equivalent",
+   "reason": "paragraph return value consulted only by the PERFORM range test; the neighbouring value reaches the same paragraph set (each is an empty/EXIT paragraph or ends in p10's Goback)"
+  },
+  {
+   "id": "6c6fbdb22e",
+   "op": "CON",
+   "line": 570,
+   "before": "return 3;",
+   "after": "return 4;",
+   "verdict": "equivalent",
+   "reason": "paragraph return value consulted only by the PERFORM range test; the neighbouring value reaches the same paragraph set (each is an empty/EXIT paragraph or ends in p10's Goback)"
+  },
+  {
+   "id": "c659ca92c2",
+   "op": "AOR",
+   "line": 582,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 0, 4, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() - 0, 4, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "84af856af7",
+   "op": "CON",
+   "line": 583,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 14, 6, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 14, 6, 1, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "af0fe0de2b",
+   "op": "CON",
+   "line": 583,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 14, 6, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 14, 7, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "88cf902ee5",
+   "op": "CON",
+   "line": 584,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 20, 8, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 20, 8, 1, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "db4ffd521e",
+   "op": "CON",
+   "line": 584,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 20, 8, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 20, 9, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "0ba1a948e5",
+   "op": "CON",
+   "line": 585,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 28, 8, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 28, 9, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "586fed5c6c",
+   "op": "CON",
+   "line": 585,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 28, 8, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 28, 8, 1, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "5e9b4db3c9",
+   "op": "CON",
+   "line": 586,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 36, 8, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 36, 8, 1, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "c3b4c4d661",
+   "op": "CON",
+   "line": 586,
+   "before": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 36, 8, 0, false, false, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.ZEROS, Field.zoned(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 36, 9, 0, false, false, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "39453e31e5",
+   "op": "CON",
+   "line": 587,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 44, 1, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 45, 1, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "71c560c9fb",
+   "op": "CON",
+   "line": 587,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 44, 1, false), CS);",
+   "after": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 44, 2, false), CS);",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "b45202eeec",
+   "op": "DEL",
+   "line": 587,
+   "before": "Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 44, 1, false), CS);",
+   "after": "/* Cobol.moveFigurative(Figurative.SPACES, Field.alphanumeric(f93_DFHCOMMAREA.storage(), f93_DFHCOMMAREA.offset() + 44, 1, false), CS); */",
+   "verdict": "equivalent",
+   "reason": "INITIALIZE DFHCOMMAREA: the change either overlaps bytes the next statement writes again (a longer item), changes a ZEROS move's scale, which writes the same digits, or leaves the flag/fail-code byte that every path sets afterwards ('Y'/'N' by the SQLCODE test; the fail code is blanked by its own statement)"
+  },
+  {
+   "id": "a7f8d01564",
+   "op": "DEL",
+   "line": 608,
+   "before": "Cobol.move(f36_SQLCODE, f9_SQLCODE_DISPLAY, CS);",
+   "after": "/* Cobol.move(f36_SQLCODE, f9_SQLCODE_DISPLAY, CS); */",
+   "verdict": "equivalent",
+   "reason": "SQLCODE-DISPLAY is written and never read or compared, so the move cannot show"
+  },
+  {
+   "id": "84c83a3403",
+   "op": "CON",
+   "line": 610,
+   "before": "return 5;",
+   "after": "return 6;",
+   "verdict": "equivalent",
+   "reason": "paragraph return value consulted only by the PERFORM range test; the neighbouring value reaches the same paragraph set (each is an empty/EXIT paragraph or ends in p10's Goback)"
+  },
+  {
+   "id": "30fa941a60",
+   "op": "CON",
+   "line": 616,
+   "before": "return 6;",
+   "after": "return 7;",
+   "verdict": "equivalent",
+   "reason": "paragraph return value consulted only by the PERFORM range test; the neighbouring value reaches the same paragraph set (each is an empty/EXIT paragraph or ends in p10's Goback)"
+  },
+  {
+   "id": "340a8008e8",
+   "op": "CON",
+   "line": 622,
+   "before": "return 7;",
+   "after": "return 8;",
+   "verdict": "equivalent",
+   "reason": "paragraph return value consulted only by the PERFORM range test; the neighbouring value reaches the same paragraph set (each is an empty/EXIT paragraph or ends in p10's Goback)"
+  },
+  {
+   "id": "612f81e2c0",
+   "op": "DEL",
+   "line": 628,
+   "before": "Cobol.store(f57_WS_U_TIME, BigDecimal.valueOf(task.asktime()), false, CS);",
+   "after": "/* Cobol.store(f57_WS_U_TIME, BigDecimal.valueOf(task.asktime()), false, CS); */",
+   "verdict": "unreachable",
+   "reason": "ASKTIME is in PTD010, reached only by PERFORM POPULATE-TIME-DATE, which the program never performs"
+  },
+  {
+   "id": "5506ac8017",
+   "op": "LIT",
+   "line": 630,
+   "before": "Cobol.move(CicsTask.formatDate(Cobol.num(f57_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"/\"), f58_WS_ORIG_DATE, CS);",
+   "after": "Cobol.move(CicsTask.formatDate(Cobol.num(f57_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"X\"), f58_WS_ORIG_DATE, CS);",
+   "verdict": "unreachable",
+   "reason": "FORMATTIME is in PTD010, reached only by PERFORM POPULATE-TIME-DATE, which the program never performs"
+  },
+  {
+   "id": "c7fd939e20",
+   "op": "LIT",
+   "line": 630,
+   "before": "Cobol.move(CicsTask.formatDate(Cobol.num(f57_WS_U_TIME, CS).longValue(), \"DDMMYYYY\", \"/\"), f58_WS_ORIG_DATE, CS);",
+   "after": "Cobol.move(CicsTask.formatDate(Cobol.num(f57_WS_U_TIME, CS).longValue(), \"XDMMYYYY\", \"/\"), f58_WS_ORIG_DATE, CS);",
+   "verdict": "unreachable",
+   "reason": "FORMATTIME is in PTD010, reached only by PERFORM POPULATE-TIME-DATE, which the program never performs"
+  },
+  {
+   "id": "e4128eaf19",
+   "op": "CON",
+   "line": 632,
+   "before": "return 8;",
+   "after": "return 9;",
+   "verdict": "equivalent",
+   "reason": "paragraph return value consulted only by the PERFORM range test; the neighbouring value reaches the same paragraph set (each is an empty/EXIT paragraph or ends in p10's Goback)"
+  },
+  {
+   "id": "edafa376bd",
+   "op": "CON",
+   "line": 638,
+   "before": "return 9;",
+   "after": "return 10;",
+   "verdict": "equivalent",
+   "reason": "paragraph return value consulted only by the PERFORM range test; the neighbouring value reaches the same paragraph set (each is an empty/EXIT paragraph or ends in p10's Goback)"
+  },
+  {
+   "id": "3dbc47a9f4",
+   "op": "DEL",
+   "line": 651,
+   "before": "task.returnTransid(null, null);",
+   "after": "/* task.returnTransid(null, null); */",
+   "verdict": "equivalent",
+   "reason": "p10's task.returnTransid(null, null) emits the RETURN; without it runTask's `!task.ended()` fallback emits the same RETURN after the same caBack.run()"
+  },
+  {
+   "id": "be44db1f12",
+   "op": "CON",
+   "line": 653,
+   "before": "return 11;",
+   "after": "return 12;",
+   "verdict": "equivalent",
+   "reason": "paragraph return value consulted only by the PERFORM range test; the neighbouring value reaches the same paragraph set (each is an empty/EXIT paragraph or ends in p10's Goback)"
+  },
+  {
+   "id": "372488ed2f",
+   "op": "CON",
+   "line": 659,
+   "before": "return 12;",
+   "after": "return 13;",
+   "verdict": "equivalent",
+   "reason": "paragraph return value consulted only by the PERFORM range test; the neighbouring value reaches the same paragraph set (each is an empty/EXIT paragraph or ends in p10's Goback)"
+  }
+ ]
+}

@@ -15,7 +15,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FUNC: intrinsic functions | `Funcs.java`, `Accept.java` | 12 | yes |
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
-| LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceegmto.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/Dsntiac.java`, `le/LeTime.java`, `le/Mvswait.java` | 16 | yes |
+| LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceegmto.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/Dsntiac.java`, `le/LeTime.java`, `le/Mvswait.java`, `le/Zuidstck.java` | 17 | yes |
 | DLI: IMS DL/I database calls | `dli/DetDli.java` | 15 | yes |
 | MQ: IBM MQ (MQI from CICS) | `mq/QueueManager.java`, `cics/DetMq.java` | 7 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-181 rules: 85 MATCHED, 23 DIFFERS, 14 REFUSED, 59 ASSUMED; 0 measured on z/OS (#4702).
+182 rules: 85 MATCHED, 23 DIFFERS, 14 REFUSED, 60 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -245,6 +245,7 @@ The date / time services, COBDATFT and MVSWAIT, as the harness's C models do the
 | RT-LE-CEEGMT | CEEGMT / CEEUTC: the run's clock is GMT; Lilian day and seconds | `le-pr` CEEGMT: get current Greenwich Mean Time | - | L6 (MATCHED / ASSUMED / REFUSED); X4 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-LE-CEEGMTO | CEEGMTO / CEEUTCO: the offset from GMT is zero on the GMT clock | `le-pr` CEEGMTO: get offset from Greenwich Mean Time to local time | - | L6 (MATCHED / ASSUMED / REFUSED) | ASSUMED | uncalibrated |
 | RT-LE-DSNTIAC | DSNTIAC: formats an SQLCA into message lines (a stand-in; the text is unproven) | `db2-app` DSNTIAC: the CICS interface to DSNTIAR | - | Q5 (STAND-IN) | ASSUMED | uncalibrated |
+| RT-LE-ZUIDSTCK | ZUIDSTCK: the 16 TOD bytes are a stated input of the run, opaque to the program (a stand-in; never the host clock) | `zarch-pop` STORE CLOCK EXTENDED | - | X47 (ASSUMED (REFUSED where IBM is silent)) | ASSUMED | uncalibrated |
 | RT-LE-CEEQCEN | CEEQCEN: the century window's start (80: the run's default) | `le-pr` CEEQCEN: query the century window | - | L6 (MATCHED / ASSUMED / REFUSED) | ASSUMED | uncalibrated |
 | RT-LE-CEEDATE | CEEDATE: a Lilian day as a character date by a picture string | `le-pr` CEEDATE: convert Lilian date to character format | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-CEEDATM | CEEDATM: Lilian seconds as a character timestamp by a picture string | `le-pr` CEEDATM: convert seconds to character timestamp | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |

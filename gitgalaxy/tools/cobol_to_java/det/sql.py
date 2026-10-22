@@ -484,9 +484,9 @@ class Sql:
                 value = f"DetSql.orNull({value}, {self.g.field_expr(self._ref(h.group(2)))}, CS)"
             v = self.g.tmpname("sqlArg")
             out.append(f"{ind}Object {v} = {value};")
-            parts += [self.g_str(text[last:pos]),
-                      f'({v} == null ? "NULL" : {v} instanceof String ? "\'" + ((String) {v}).replace("\'", "\'\'") + '
-                      f'"\'" : ((java.math.BigDecimal) {v}).toPlainString())']  # fmt: skip
+            lit = f'({v} == null ? "NULL" : {v} instanceof String ? "\'" + ((String) {v}).replace("\'", "\'\'") + '
+            lit += f'"\'" : ((java.math.BigDecimal) {v}).toPlainString())'
+            parts += [self.g_str(text[last:pos]), lit]
             last = pos + 1
         parts.append(self.g_str(text[last:]))
         return [*out, f"{ind}DetSql.savepoint(SQLCA_AREA, {at}, {' + '.join(parts)}, CS);"]

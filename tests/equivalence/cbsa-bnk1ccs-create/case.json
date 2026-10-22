@@ -68,11 +68,20 @@
       "etc/install/base/db2jcl/CRETB03.jcl",
       "etc/install/base/db2jcl/CREI301.jcl"
     ],
-    "seed": "@case/seed.sql",
+    "seed": "@generate",
     "compare": [
       "IBMUSER.PROCTRAN"
     ],
-    "qualifier": "IBMUSER"
+    "qualifier": "IBMUSER",
+    "compare_sql": true,
+    "generate": {
+      "seed": 4507,
+      "tables": {
+        "IBMUSER.PROCTRAN": {
+          "rows": 12
+        }
+      }
+    }
   },
   "commarea": {
     "segments": [
@@ -155,5 +164,5 @@
       }
     }
   ],
-  "notes": "BNK1CCS create-customer scenarios (#5089, #4952): the ENTERs that reach CRECUST's CEEDAYS call, kept apart from cbsa-bnk1ccs so the stated scenarios there still run. NOT PROVABLE (named holes): L1 (CRECUST's DATE-OF-BIRTH-FORMAT declares length 10 over 8 bytes; the 2 slack bytes are storage IBM does not specify, so the oracle refuses create-customer and born-in-the-future by name, exit 98, awaiting an owner ruling on the slack); X18 (the child credit schedule is ASSUMED). When L1 is ruled, move these two scenarios into cbsa-bnk1ccs and cbsa-bnk1ccs-generated and delete this case. Never --record this case while a hole stands. Data: customer.txt and seed.sql are cbsa-bnk1ccs's, SYNTHETIC. Burned estate (CBSA). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+  "notes": "BNK1CCS create-customer scenarios (#5089, #4952): the ENTERs that reach CRECUST's CEEDAYS call, kept apart from cbsa-bnk1ccs so the stated scenarios there still run. NOT PROVABLE (named holes): L1 (CRECUST's DATE-OF-BIRTH-FORMAT declares length 10 over 8 bytes; the 2 slack bytes are storage IBM does not specify, so the oracle refuses create-customer and born-in-the-future by name, exit 98, awaiting an owner ruling on the slack); X18 (the child credit schedule is ASSUMED). When L1 is ruled, move these two scenarios into cbsa-bnk1ccs and cbsa-bnk1ccs-generated and delete this case. Never --record this case while a hole stands. Data: customer.txt is cbsa-bnk1ccs's, SYNTHETIC, and the PROCTRAN rows are generated from the DDL at run time (cbsa-bnk1ccs-generated's, seed 4507; a hand seed would need a generated sibling, test_cbsa_generated_siblings). Burned estate (CBSA). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
 }

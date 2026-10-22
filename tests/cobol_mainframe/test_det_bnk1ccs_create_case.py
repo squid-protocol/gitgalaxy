@@ -45,7 +45,7 @@ def test_case_runs_the_five_children_and_the_proctran_compare():
     assert case["child_programs"] == CHILDREN
     assert {p["program"] for p in case["programs"]} >= {"CRECUST", "ABNDPROC", *CHILDREN.values()}
     assert "IBMUSER.PROCTRAN" in case["db2"]["compare"]
-    assert (CASE_DIR / "seed.sql").is_file() and case["db2"]["seed"] == "@case/seed.sql"
+    assert case["db2"]["seed"] == "@generate"  # a hand seed would need a generated sibling (#4507)
 
 
 def test_notes_name_every_hole_and_forbid_recording():

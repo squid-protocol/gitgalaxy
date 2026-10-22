@@ -434,6 +434,42 @@ def test_the_split_is_a_partition_whatever_the_plan_and_shard_count():
             assert got == [c for lab in matrix for c in ps.shard_cases(want, ps.parse_shard(lab), durations)]  # stable
 
 
+def _synthetic(n: int) -> dict[str, float]:
+    """n cases shaped like the recorded ones: a ~30 s body and a tail of a few multi-minute cases."""
+    return {f"c{i:03d}": 20.0 + (i * 37) % 41 + (180.0 if i % 23 == 0 else 0.0) for i in range(n)}
+
+
+@pytest.mark.parametrize("count", [45, 70, 140])
+def test_shard_count_comes_from_durations_and_balances_within_1_3(count, monkeypatch):
+    """#5919: slowest/fastest planned shard <= 1.3 at 45, 70 and 140 cases, inside the pool cap, a partition."""
+    dur = _synthetic(count)
+    p = {"mode": "narrow", "cases": sorted(dur)}
+    matrix = plan.shards_for(p, dur)
+    w = {c: dur[c] for c in dur}
+    assert 1 <= len(matrix) <= plan.MAX_SHARDS
+    ratio = plan.planned_ratio(w, len(matrix))
+    assert ratio is None or ratio <= plan.MAX_RATIO
+    got = [c for lab in matrix for c in ps.shard_cases(p["cases"], ps.parse_shard(lab), dur)]
+    assert sorted(got) == sorted(p["cases"])
+    busy = plan.shards_for(p, dur, waiting=99)
+    assert len(busy) <= max(1, plan.MAX_SHARDS // 2) and len(busy) <= len(matrix)
+    assert plan.shards_for(p, dur, waiting=None) == matrix  # an unreadable queue plans calm
+    assert len(plan.shards_for({"mode": "ports"}, dur)) == 0
+
+
+def test_shard_count_grows_with_the_work_and_falls_back_without_durations():
+    small, big = _synthetic(20), _synthetic(140)
+    k_small = len(plan.shards_for({"mode": "narrow", "cases": sorted(small)}, small))
+    k_big = len(plan.shards_for({"mode": "narrow", "cases": sorted(big)}, big))
+    assert k_small < k_big <= plan.MAX_SHARDS
+    assert len(plan.shards_for({"mode": "narrow", "cases": sorted(big)})) == plan.MAX_SHARDS  # fixed fallback
+    p = {"mode": "full", "cases": "all"}
+    real = plan.load_durations()
+    assert real and 1 <= len(plan.shards_for(p, real)) <= plan.MAX_SHARDS
+    with pytest.raises(Exception, match="no measured duration"):
+        plan.shards_for({"mode": "narrow", "cases": sorted(big)}, {"c000": 1.0})
+
+
 def test_a_full_sweep_plus_db2_fits_the_job_pool():
     """#5135: a full run is shards + db2 jobs (+ plan + det), which must not exceed the 20-job pool."""
     full = {"mode": "full", "cases": "all", "db2_cases": "all"}
@@ -542,5 +578,7 @@ def test_every_cics_task_module_the_transaction_forge_splices_in_is_a_generator_
     import re
 
     forge = (ROOT / FORGE).read_text(encoding="utf-8")
-    split = {f"gitgalaxy/tools/cobol_to_java/{m}.py" for m in re.findall(r"cobol_to_java\.(cics_task_\w+) import", forge)}
+    split = {
+        f"gitgalaxy/tools/cobol_to_java/{m}.py" for m in re.findall(r"cobol_to_java\.(cics_task_\w+) import", forge)
+    }
     assert split and split <= set(plan.GENERATOR), split - set(plan.GENERATOR)

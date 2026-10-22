@@ -53,13 +53,20 @@ SPECS = {
     "go": Spec("go", {"function_declaration", "method_declaration"}, {"call_expression": "function"}),
     "java": Spec("java", {"method_declaration", "constructor_declaration"}, {"method_invocation": "name"},
                  {"object_creation_expression"}),
-    "csharp": Spec("c_sharp", {"method_declaration", "constructor_declaration", "local_function_statement"},
+    "csharp": Spec("csharp", {"method_declaration", "constructor_declaration", "local_function_statement"},
                    {"invocation_expression": "function"}, {"object_creation_expression"}),
     "rust": Spec("rust", {"function_item"}, {"call_expression": "function"}),
     "javascript": Spec("javascript", {"function_declaration", "method_definition"}, {"call_expression": "function"},
                        {"new_expression"}),
     "python": Spec("python", {"function_definition"}, {"call": "function"}),
 }  # fmt: skip
+
+
+def available(lang):
+    """True when the installed tree-sitter language pack lists ``lang``'s grammar (no download is attempted)."""
+    import tree_sitter_language_pack
+
+    return SPECS[lang].parser in tree_sitter_language_pack.manifest_languages()
 
 
 @functools.cache

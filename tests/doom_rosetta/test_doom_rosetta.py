@@ -103,6 +103,10 @@ FIXTURE_START = {"go": 4, "java": 4, "csharp": 4, "rust": 3, "javascript": 3, "p
 @pytest.mark.parametrize("lang", sorted(LANG_FIXTURES))
 def test_ts_oracle_scores_each_covered_language(lang, tmp_path):
     pytest.importorskip("tree_sitter_language_pack")
+    import ts_callgraph_oracle as ts
+
+    if not ts.available(lang):
+        pytest.skip(f"tree-sitter language pack has no {lang} grammar")
     rel, src = LANG_FIXTURES[lang]
     (tmp_path / rel).write_text(src)
     starts = {"g": FIXTURE_START[lang] - 2, "h": FIXTURE_START[lang] - 1}

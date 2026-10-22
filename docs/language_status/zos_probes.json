@@ -105,6 +105,35 @@
         "H=AT"
       ],
       "note": "The oracle is ASCII, so it differs from z/OS by design (D2 declared difference); expected z/OS output is H=SPACE, H=NOTAT."
+    },
+    "c5-packed-unsigned-sign-nibble": {
+      "entries": [
+        "C5"
+      ],
+      "compile_options": "NUMPROC(NOPFD) (IBM default); run again with NUMPROC(PFD)",
+      "question": "A COMP-3 value 123 carrying the unsigned sign nibble F: ADD 1 GIVING M, then compare N with 123 and test M's stored sign. NOPFD accepts F and generates the preferred sign C in the receiver; PFD is not required to",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P5.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 RAW PIC X(2) VALUE X\"123F\".\n       01 N REDEFINES RAW PIC S9(3) COMP-3.\n       01 M PIC S9(3) COMP-3.\n       01 MX REDEFINES M PIC X(2).\n       PROCEDURE DIVISION.\n           ADD 1 TO N GIVING M\n           DISPLAY \"M=\" M\n           IF N = 123 DISPLAY \"EQ\" ELSE DISPLAY \"NE\" END-IF\n           IF MX = X\"124C\" DISPLAY \"C\" ELSE DISPLAY \"NOT-C\" END-IF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "M=+124",
+        "EQ",
+        "C"
+      ],
+      "note": "The oracle has no NUMPROC flag in plain -std=ibm; it reads F as positive and stores C, the NOPFD answer. The register's PFD claim (the same with preferred signs only) is not exercised by this probe."
+    },
+    "c12-random-sequence": {
+      "entries": [
+        "C12"
+      ],
+      "compile_options": "default",
+      "question": "FUNCTION RANDOM(7), RANDOM with no argument, RANDOM(7) again, RANDOM(0): does the same seed restart the same sequence (IBM: yes, but the numbers themselves are IBM's own generator)",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P12.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 R1 PIC 9V9(6).\n       01 R2 PIC 9V9(6).\n       01 R3 PIC 9V9(6).\n       01 R4 PIC 9V9(6).\n       PROCEDURE DIVISION.\n           COMPUTE R1 = FUNCTION RANDOM(7)\n           COMPUTE R2 = FUNCTION RANDOM\n           COMPUTE R3 = FUNCTION RANDOM(7)\n           COMPUTE R4 = FUNCTION RANDOM(0)\n           DISPLAY \"R1=\" R1\n           DISPLAY \"R2=\" R2\n           DISPLAY \"R3=\" R3\n           DISPLAY \"R4=\" R4\n           STOP RUN.\n",
+      "oracle_expected": [
+        "R1=0486904",
+        "R2=0867977",
+        "R3=0486904",
+        "R4=0840187"
+      ],
+      "note": "The numbers are glibc's rand() / RAND_MAX; z/OS will differ by design (register C12: the numbers DIFFER). The restart property and the unseeded-start-is-seed-zero rule are what a z/OS run can confirm."
     }
   }
 }

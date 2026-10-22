@@ -11,7 +11,8 @@
 
 Each COBOL program is translated by the det translator (no model, no Docker, Db2 or JDK) against a synthetic service
 stub and an empty generated project, and only the outcome is kept: whole / holes / refused, the statement counts, and
-the class name of a refusal. A hole's text (it can quote the program) is counted, never kept.
+the class name of a refusal. A hole's text (it can quote the program) is reduced at once to a closed gap class
+(`schema.gap_class`, or `other`) and then dropped: the outcome never holds it.
 
 The stub stands in for the estate's generated project, so this is a LOWER BOUND on what the full translate does: a
 CICS program's COMMAREA contract and a CALL / LINK target's service are not resolved, and a callee's holes are not
@@ -73,6 +74,7 @@ def translate_program(
     from gitgalaxy.core.estate_options import effective_options
     from gitgalaxy.core.source_text import read_source
     from gitgalaxy.tools.cobol_to_java.det import program as P
+    from gitgalaxy.tools.readiness.schema import gap_class
 
     try:
         text = read_source(prog).text
@@ -96,6 +98,7 @@ def translate_program(
         "statements": sum(int(st["statements"]) for st in stats),
         "translated_statements": sum(int(st["translated"]) for st in stats),
         "holes": holes,
+        "gap_classes": sorted({gap_class(h) for st in stats for h in st["holes"]}),  # closed names, never the text
     }
 
 

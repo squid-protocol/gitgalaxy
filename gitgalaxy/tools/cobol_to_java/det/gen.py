@@ -80,6 +80,9 @@ LIBRARY = {
     "CEEDATE": ("__PACKAGE__.cobolrt.le.Ceedate.call", 4),
     "CEEISEC": ("__PACKAGE__.cobolrt.le.Ceeisec.call", 9),
     "CEEQCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.call", 2),
+    # #5003: Lilian seconds to integer fields (the inverse of CEEISEC) and the day of the week of a Lilian date
+    "CEESECI": ("__PACKAGE__.cobolrt.le.Ceeseci.call", 9),
+    "CEEDYWK": ("__PACKAGE__.cobolrt.le.Ceedywk.call", 3),
     # #5003: the offset from GMT (zero: the run's clock is GMT); CEEUTCO is the same service as CEEGMTO
     "CEEGMTO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
     "CEEUTCO": ("__PACKAGE__.cobolrt.le.Ceegmto.call", 4),
@@ -106,6 +109,7 @@ LIBRARY_FLOATS = {
     "CEEDATM": {0},
     "CEESECS": {2},
     "CEEISEC": {7},
+    "CEESECI": {0},
     "CEEGMTO": {2},
     "CEEUTCO": {2},
 }

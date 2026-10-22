@@ -120,3 +120,14 @@ def test_an_unload_record_can_be_left_out_of_the_seed(tmp_path):
     whole = ims.seed(case, corpus, "DBPAUTP0", dbds["DBPAUTP0"])
     assert len(whole) - len(kept) == 8 + dbds["DBPAUTP0"]["segments"][0]["bytes"]
     assert whole.startswith(kept)
+
+
+def test_the_committed_det_port_has_a_recorded_proof():
+    """`evidence.py prove` records a level only for a committed port: this one is the det translator's own."""
+    prov = json.loads((CASE / "port" / "provenance.json").read_text(encoding="utf-8"))
+    assert (prov["program"], prov["translator"]) == ("COPAUA0C", "det")
+    assert (CASE / "port" / "service" / "Copaua0cService.java").is_file()
+    rec = json.loads((CASE / "evidence.json").read_text(encoding="utf-8"))
+    assert rec["proof"]["verdict"] == "proven" and not rec["proof"]["java_failed"]
+    assert rec["proof"]["runs"] == len(SCENARIOS) and rec["provenance"]["written_by"] == "det"
+    assert rec["coverage"]["branches"]["total"] == 69

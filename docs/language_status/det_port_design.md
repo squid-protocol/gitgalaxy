@@ -865,6 +865,12 @@ NULL is distinct.
   other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical
   relationships; load mode. CardDemo's other DL/I programs stop at one of these: PAUDBLOD (CMPAT=YES, an I/O PCB),
   DBUNLDGS (GSAM PCBs). (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above; COPAUS1C has no equivalence case yet.)
+- **COPAUA0C, the authorization task (`carddemo-copaua0c`, #5278).** Transid CP00: an MQTM trigger, MQGET on the request queue, IMS
+  DBPAUTP0 by EXEC DLI, three VSAM reads and MQPUT replies. Proven on 17 scenarios (3 fault runs), through the deployed entry point
+  too, covering 41/41 paragraphs and 58/69 branches. The det port is committed (`port/service/`, `port/provenance.json`, as CBPAUP0C's),
+  so `evidence.py prove carddemo-copaua0c` records it (`evidence.json`: proven, mutation pending). Left: the 11 uncovered branches (PSB
+  scheduling failure l.308, the DL/I error status of l.627, the five MAKE-DECISION arms l.700, l.339, l.416, l.837, l.963). Not modelled
+  and used by no burned program: MQINQ / MQSET (frontier #4892).
 - **COPAUS0C, the summary screen (`carddemo-copaus0c`, #5233).** Transid CPVS, map COPAU0A: GU / GNP browse of DBPAUTP0 (SCHD, a
   qualified GNP to reposition a page), three VSAM reads and the PF3 / PF7 / PF8 paging, whose keys live in the COMMAREA's `OCCURS` tables.
   Translates 370/370 and is proven on 27 scenarios, through the deployed entry point too, covering 20/20 paragraphs and 80/93 branches. The 13 branches left

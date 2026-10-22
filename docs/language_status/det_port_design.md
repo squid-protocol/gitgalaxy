@@ -869,10 +869,9 @@ NULL is distinct.
   its PRM-INFO card from SYSIN, walks the corpus's own DBPAUTP0 unload with GN / GNP, DLETs the expired details and emptied
   summaries and takes CHKP ID checkpoints. Proven on five runs (the base card and four control-card scenarios, each a `faults` entry with its own
   `sysin` and no plan, #5857: debug Y, a card of only the expiry, an expiry nothing reaches, and 5 expiry days whose first DLET
-  answers DJ and abends, RC 16, on both sides), DBPAUTP0 equal on every run, covering 15/16 paragraphs and 4/40 branches. The case has no `port/` directory, so it has no `evidence.json` (`evidence.py` records only
+  answers DJ and abends, RC 16, on both sides), DBPAUTP0 equal on every run, covering 15/16 paragraphs and 30/40 branches (the harness measured the BMP against the unrewritten text while the trace ran the DIB-and-CALL rewrite, so every line after the first EXEC DLI was lost: 4/40 until #5857's coverage fix reads the staged text). The case has no `port/` directory, so it has no `evidence.json` (`evidence.py` records only
   committed ports, and a record is not a condition of any level): its level is the det-sweep coverage ledger's
-  (`tests/equivalence/det_sweep_coverage/carddemo-cbpaup0c.json`). Left: the branch count is far below what the five runs execute (the IFs at l.196 / 201 / 284 show uncovered
-  although every run takes them); cause not yet found (suspect the branch trace of the BMP-rewritten program).
+  (`tests/equivalence/det_sweep_coverage/carddemo-cbpaup0c.json`). Left: the 10 uncovered branches are the DL/I error statuses (EVALUATE OTHER at l.228 / 259, the failed-DLET and failed-CHKP arms) and a few IF outcomes no input reaches yet; `evidence.py prove` records no level for a case without a committed port (owner choice: commit a det-generated port, or read the ledger).
 
 ## In port_runner
 

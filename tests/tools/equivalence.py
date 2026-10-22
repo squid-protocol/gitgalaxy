@@ -426,7 +426,10 @@ def cobol_coverage(case: dict[str, Any], corpus: Path, traces: list[Path], out: 
     source, staged = read_program(case, corpus / case["program_source"])
     program, _flags = compile_options(case, source)
     staged_file = traces[0].parent / "src" / "PROGRAM.cbl" if traces else None
-    if case.get("db2") and staged_file is not None and staged_file.is_file():  # what ran: the precompiled text
+    rewritten = bool(case.get("db2")) or (bool(case.get("ims")) and equivalence_ims.bmp_using(source) is not None)
+    if (
+        rewritten and staged_file is not None and staged_file.is_file()
+    ):  # what ran: the precompiled / BMP-rewritten text
         program = staged_file.read_text(encoding=staged)
     return cov.write_run_coverage(out, source=corpus / case["program_source"], original=source, compiled=program,
                                   traces=[t for t in traces if t.is_file()], compiled_name="PROGRAM.cbl",

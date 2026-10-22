@@ -62,3 +62,21 @@ def test_the_bmp_source_lowers_every_exec_dli_to_a_call():
     out = ims.rewrite_bmp(source)
     assert "EXEC DLI" not in out.upper()
     assert out.count("CALL 'GGDLICHKP'") == 1 and "GGDLIX" in out
+
+
+def test_coverage_reads_the_rewritten_text_a_bmp_ran():
+    """The trace is of the BMP-rewritten program (DIB inserted, EXEC DLI expanded): mapped against the original text,
+    every line after the first rewrite is lost. Mapped against the rewrite, every original IF keeps its exact line."""
+    import cobol_coverage as cov
+
+    corpus = _corpus()
+    if corpus is None:
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    source = (corpus / _case()["program_source"]).read_text(encoding="latin-1")
+    lines = cov.LineMap(source, ims.rewrite_bmp(source))
+    ifs = [
+        i + 1 for i, x in enumerate(source.split("\n")) if x[6:7] != "*" and x[7:].lstrip().upper().startswith("IF ")
+    ]
+    assert ifs and set(ifs) <= lines.exact
+    # the bug: the unrewritten text is a different length from what ran
+    assert len(ims.rewrite_bmp(source).split("\n")) != len(source.split("\n"))

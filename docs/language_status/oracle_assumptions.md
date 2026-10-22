@@ -4647,6 +4647,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   - ASSUMPTION (#5278, no IBM text cited): under CICS, EXEC DLI numbers the DB PCBs from 1 with no I/O PCB first, so a
     PSB's CMPAT=YES changes nothing there; the harness takes it for a CICS case (`equivalence_ims.psb(cics=True)`). Owner
     to confirm.
+  - DL/I status faults under CICS (#5233): a scenario's `dli_faults` (`{op, nth, status}`; op SCHD or a get / write
+    call, not CHKP; nth a count or `"*"`) is written as the plan both stubs read (`ggdli.c` `planned_dli`,
+    `DetDli.planned`). A planned call is not performed: DIBSTAT answers the status, and each fired fault is logged and
+    compared (a fault that fires on one side only fails). SCHD answers TC only, the one status the model derives.
+  - ASSUMPTION (#5233, no IBM text cited): a qualified GNP that finds nothing answers GE with the parent's feedback and
+    parentage kept; position is open (I3), so the next GN / GNP is refused by name, as after a GU's GE. Whether a
+    qualified GN answers GE or GB stays unsettled (I3), and is still refused.
   - A case's `ims.seed.<DBD>.skip` lists unload record numbers left out of the seed (the corpus unload of DBPAUTP0 ends
     with a root whose packed key is blank, which a qualified GU refuses by design).
   - CALL 'CBLTDLI' is refused in a program IMS does not enter at ENTRY 'DLITCBL' (a BMP, MPP or CICS program).

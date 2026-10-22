@@ -639,6 +639,180 @@
     }
    ],
    "why": "WHEN OTHER of GETCUSTDATA-BYCUST"
+  },
+  {
+   "name": "enter-gu-system-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000017"
+    }
+   },
+   "why": "DL/I fault: GU of the summary answers AC: WHEN OTHER, 'System error while reading AUTH Summary'",
+   "dli_faults": [
+    {
+     "op": "GU",
+     "nth": 1,
+     "status": "AC"
+    }
+   ]
+  },
+  {
+   "name": "enter-gnp-system-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000017"
+    }
+   },
+   "why": "DL/I fault: the first GNP of the details answers AC: WHEN OTHER, 'System error while reading AUTH Details'",
+   "dli_faults": [
+    {
+     "op": "GNP",
+     "nth": 1,
+     "status": "AC"
+    }
+   ]
+  },
+  {
+   "name": "enter-gnp-end-of-db-mid-page",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001"
+    }
+   },
+   "why": "DL/I fault: the third GNP answers GB (END-OF-DB): the page ends at two rows, AUTHS-EOF",
+   "dli_faults": [
+    {
+     "op": "GNP",
+     "nth": 3,
+     "status": "GB"
+    }
+   ]
+  },
+  {
+   "name": "pf8-reposition-system-error",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-PAGE-NUM": 1,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\fv\u0090\u0091F\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS(2)": "vi\u009c\u0099\u0087H8\u008c",
+    "CDEMO-CPVS-AUTH-KEYS(3)": "vp\fv\u0090\u0089\u0011\\",
+    "CDEMO-CPVS-AUTH-KEYS(4)": "vp\fv\u0090\u00904|",
+    "CDEMO-CPVS-AUTH-KEYS(5)": "vp\fv\u0090\u0091F\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001"
+    }
+   },
+   "why": "DL/I fault: PF8's repositioning GNP (WHERE the page's key) answers AC: WHEN OTHER, 'System error while repos. AUTH Details'",
+   "dli_faults": [
+    {
+     "op": "GNP",
+     "nth": 1,
+     "status": "AC"
+    }
+   ]
+  },
+  {
+   "name": "pf8-reposition-gnp-ge",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-PAGE-NUM": 1,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\fv\u0090\u0091F\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS(2)": "vi\u009c\u0099\u0087H8\u008c",
+    "CDEMO-CPVS-AUTH-KEYS(3)": "vp\fv\u0090\u0089\u0011\\",
+    "CDEMO-CPVS-AUTH-KEYS(4)": "vp\fv\u0090\u00904|",
+    "CDEMO-CPVS-AUTH-KEYS(5)": "vp\fv\u0090\u0091F\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001"
+    }
+   },
+   "why": "DL/I fault: the repositioning GNP answers GE (planned by the harness, not a real qualified miss, which stays refused): SEGMENT-NOT-FOUND arm, AUTHS-EOF",
+   "dli_faults": [
+    {
+     "op": "GNP",
+     "nth": 1,
+     "status": "GE"
+    }
+   ]
+  },
+  {
+   "name": "pf8-page-gnp-system-error",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-PAGE-NUM": 1,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\fv\u0090\u0091F\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS(2)": "vi\u009c\u0099\u0087H8\u008c",
+    "CDEMO-CPVS-AUTH-KEYS(3)": "vp\fv\u0090\u0089\u0011\\",
+    "CDEMO-CPVS-AUTH-KEYS(4)": "vp\fv\u0090\u00904|",
+    "CDEMO-CPVS-AUTH-KEYS(5)": "vp\fv\u0090\u0091F\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001"
+    }
+   },
+   "why": "DL/I fault: the GNP after the reposition answers AC: WHEN OTHER, 'System error while reading AUTH Details'",
+   "dli_faults": [
+    {
+     "op": "GNP",
+     "nth": 2,
+     "status": "AC"
+    }
+   ]
   }
  ]
 }

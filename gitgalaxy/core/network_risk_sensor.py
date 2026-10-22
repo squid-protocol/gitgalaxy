@@ -37,6 +37,9 @@ from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
+# #4253: a JS/TS file's `export * from "spec"` rides in `namespace_imports` as `{PREFIX + spec: spec}`
+STAR_EXPORT_PREFIX = "export * from "
+
 # #2540: languages whose import/module references resolve case-insensitively
 # (fortran `USE A` binds a.f90, cobol `COPY A.` binds a.cpy, haskell's
 # necessarily-capitalized `import A` may live in a.hs). Declared per-language
@@ -203,6 +206,8 @@ class NetworkRiskSensor:
         # (`import * as ns from "./x"` -> {"ns": <x's path>}) from the latest
         # _resolve_edges pass; the call resolver reads it for `ns.f()` calls.
         self.namespace_aliases: dict[str, dict[str, str]] = {}
+        # #4253: file -> the files its `export * from` specifiers resolve to
+        self.star_exports: dict[str, set[str]] = {}
         # #perf: memoized extension-stripped candidate paths for Stage-2 import
         # disambiguation. On generated SDKs (many files share a stem) a single
         # token matches thousands of candidates, so _resolve_target stripped the
@@ -1267,6 +1272,7 @@ class NetworkRiskSensor:
         file_facts = self._build_file_facts(parsed_files)
         edges: dict[tuple[str, str], dict[str, Any]] = {}
         self.namespace_aliases = {}
+        self.star_exports = {}
         self.copy_collisions = []
         self.copy_gaps = []
         members = MemberIndex([f.get("path", "") for f in parsed_files]) if self.copy_libraries else None
@@ -1286,7 +1292,10 @@ class NetworkRiskSensor:
                     file_facts=file_facts,
                 )
                 if aliased and aliased != curr_path:
-                    self.namespace_aliases.setdefault(curr_path, {})[alias] = aliased
+                    if alias.startswith(STAR_EXPORT_PREFIX):
+                        self.star_exports.setdefault(curr_path, set()).add(aliased)
+                    else:
+                        self.namespace_aliases.setdefault(curr_path, {})[alias] = aliased
 
             for imp in f.get("raw_imports", []):
                 # Check if it's a Level 2 Tuple (Entity Import) or Level 1 String

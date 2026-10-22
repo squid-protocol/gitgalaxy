@@ -114,7 +114,7 @@ def explain(db: Path, spec: str, only: str | None = None) -> str:
 
     sensor = NetworkRiskSensor()  # #3788: the namespace aliases a scan's import pass resolves
     sensor.resolve_import_edges(parsed)
-    sites, _ = cr.resolve_calls(parsed, edges, sensor.namespace_aliases)
+    sites, _ = cr.resolve_calls(parsed, edges, sensor.namespace_aliases, sensor.star_exports)
     mine: dict[str, list[dict[str, Any]]] = {}
     for s in sites:
         if s["src_path"] == path and s["src_line"] == line and s["kind"] == "call":

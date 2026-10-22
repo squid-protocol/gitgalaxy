@@ -209,6 +209,7 @@ TRANSLATOR_INPUTS = (
     "gitgalaxy/tools/cobol_to_java/*",  # det/ (with cobolrt, copy) and the forge modules det imports (sql: db2 forge)
     "gitgalaxy/standards/cics/*",
     "gitgalaxy/standards/mq.py",
+    "gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py",  # det/engine_layout reads the engine layouts through it (#5649)
     "gitgalaxy/core/aperture.py",
     "gitgalaxy/core/bms_screen_fields.py",
     "gitgalaxy/core/bms_symbolic.py",

@@ -13,7 +13,8 @@ from pathlib import Path
 
 import pytest
 
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "cics_macro_estate"
 

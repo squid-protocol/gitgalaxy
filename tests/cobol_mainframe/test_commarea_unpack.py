@@ -26,7 +26,8 @@ import pytest
 
 import gitgalaxy.cobol_refractor_controller as refractor
 from gitgalaxy.core.data_moves import data_moves
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 
 SHARED = """\
        01  SHARED-COMM.

@@ -16,7 +16,9 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools" / "doom_speedrun"))
 import doom_rosetta_check as check  # noqa: E402
+import doom_scorer  # noqa: E402
 import doom_speedrun  # noqa: E402
 
 PORTS = doom_speedrun.read_manifest()
@@ -49,9 +51,32 @@ def test_every_manifest_port_has_a_golden_and_no_other_does():
 
 
 def test_manifest_expected_fails_are_known_checks():
-    known = {"coverage", "language", "functions", "typosquat", "credentials", "health"}
+    known = {"coverage", "language", "functions", "typosquat", "credentials", "health", "callgraph"}
     for row in PORTS:
         assert set((row["expected_fails"] or "").split()) <= known, row["name"]
+
+
+def _oracle(misses=None, kinds=None):
+    return {"recall": 1.0, "precision": 1.0, "misses_by_shape": misses or {}, "engine_only_by_kind": kinds or {}}
+
+
+def test_callgraph_scores_misses_and_absent_or_comment_edges_only():
+    cols = doom_scorer.callgraph_columns(_oracle({"statement": 2, "after-cast": 1}, {"absent": 4, "comment/string": 1}))
+    assert (cols["callgraph_misses"], cols["callgraph_engine_only"], cols["callgraph_unscored"]) == (3, 5, 0)
+    # a constructor, a bare function reference and a macro mention are reported in their own column, never scored
+    cols = doom_scorer.callgraph_columns(_oracle(kinds={"type": 754, "function-pointer": 21, "macro": 2, "absent": 1}))
+    assert (cols["callgraph_misses"], cols["callgraph_engine_only"], cols["callgraph_unscored"]) == (0, 1, 777)
+
+
+def test_callgraph_is_na_and_a_shown_pass_without_an_oracle(tmp_path):
+    cols, ok = doom_scorer.callgraph_check("cssdoom", tmp_path, tmp_path / "absent.db")  # not a licensed C/C++ port
+    assert ok and set(cols.values()) == {"n/a"} and set(cols) == set(doom_scorer.CALLGRAPH_NA)
+
+
+def test_seven_check_verdict_counts_out_of_seven():
+    assert doom_scorer.verdict([], 7) == "PERFECT"
+    assert doom_scorer.verdict(["callgraph"], 7) == "6/7"
+    assert set(doom_speedrun.COLUMNS) >= set(doom_scorer.CALLGRAPH_NA) | {"verdict6"}
 
 
 def _golden(files, **summary):

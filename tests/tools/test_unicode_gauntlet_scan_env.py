@@ -9,7 +9,7 @@ import unicode_gauntlet as ug  # noqa: E402
 
 
 def _scan_env(monkeypatch, tmp_path, preset=None):
-    import gitgalaxy.tools.cobol_to_cobol.galaxy_ir as ir
+    import scan_server as ir  # #5882: the scan_to_db unicode_gauntlet.scan calls
 
     seen = {}
 

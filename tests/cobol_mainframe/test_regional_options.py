@@ -22,7 +22,8 @@ import pytest
 
 from gitgalaxy.core.compiler_options import cards, compiler_options, effective, intdate, parse_options
 from gitgalaxy.core.mainframe_boundary import extract_boundary
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_db2_forge import db2_dates_source
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import (
     PORTING_RULES,

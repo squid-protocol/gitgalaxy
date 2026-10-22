@@ -21,7 +21,8 @@ from unittest.mock import patch
 import pytest
 
 import gitgalaxy.cobol_refractor_controller as refractor
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 
 ACCTREC = """\
        01  ACCT-REC.
@@ -293,7 +294,8 @@ def test_symbolic_pattern():
 
 
 def test_symbolic_merge(tmp_path):
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+    from scan_server import scan_to_db
 
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -339,7 +341,8 @@ def test_symbolic_merge(tmp_path):
 
 
 def test_symbolic_conflict_rejected(tmp_path):
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+    from scan_server import scan_to_db
 
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -385,7 +388,8 @@ def test_symbolic_conflict_rejected(tmp_path):
 
 
 def _symbolic_estate(tmp_path, keys: str, recsize: str, ridfld: bool):
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+    from scan_server import scan_to_db
 
     repo = tmp_path / "repo"
     for d in ("jcl", "cbl", "csd"):
@@ -428,7 +432,8 @@ def test_a_write_from_a_field_with_a_length_is_the_window_it_writes(tmp_path):
     """GenApp LGACVS01: `WRITE FILE('KSDSCUST') FROM(CA-CUSTOMER-NUM) LENGTH(CUSTOMER-RECORD-SIZE)` writes the
     225 bytes AT the 10-byte field; the window's end falls inside CA-REQUEST-SPECIFIC, which the first
     REDEFINES ending exactly there (CA-CUSTOMER-REQUEST) lays out. KEYS / RECORDSIZE sit on DATA(...)."""
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+    from scan_server import scan_to_db
 
     repo = tmp_path / "repo"
     for d in ("jcl", "cbl", "csd"):

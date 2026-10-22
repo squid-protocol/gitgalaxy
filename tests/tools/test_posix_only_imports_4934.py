@@ -9,12 +9,15 @@ must be (a) inside a `try` that catches ImportError, (b) in a file that calls `p
 from __future__ import annotations
 
 import ast
+import re
 from pathlib import Path
 
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 POSIX_ONLY = frozenset({"fcntl", "termios", "pwd", "grp", "resource", "posix"})
+# #5882: an import names its module as a word, so a file without one cannot import it: only those are parsed (~1 in 10)
+_MENTIONS = re.compile(r"\b(?:" + "|".join(sorted(POSIX_ONLY)) + r")\b")
 # Linux-only by design: the file runs only where Docker/Db2 or the CI shepherd box is, and every test reaching it
 # skips on Windows (the test files `importorskip("fcntl")`).
 LINUX_ONLY = {
@@ -71,7 +74,10 @@ def unguarded(root: Path = REPO_ROOT) -> list[str]:
             if rel in LINUX_ONLY:
                 continue
             try:
-                tree = ast.parse(path.read_text(encoding="utf-8"))
+                text = path.read_text(encoding="utf-8")
+                if not _MENTIONS.search(text):
+                    continue
+                tree = ast.parse(text)
             except (OSError, SyntaxError, UnicodeDecodeError):
                 continue
             guarded, skipped = _guarded_by_try(tree), _importorskipped(tree)
@@ -105,3 +111,59 @@ def test_linux_only_entries_exist():
     """A stale allowlist entry (a renamed or deleted file) would silently exempt nothing."""
     for rel in LINUX_ONLY:
         assert (REPO_ROOT / rel).is_file(), rel
+
+
+def _fcntl_entry_points(source: str) -> set[str]:
+    """Names of the functions in `source` that import fcntl in their body (they raise on Windows when called)."""
+    tree = ast.parse(source)
+    return {
+        fn.name
+        for fn in ast.walk(tree)
+        if isinstance(fn, ast.FunctionDef) and any("fcntl" in _module_names(n) for n in ast.walk(fn) if n is not fn)
+    }
+
+
+def _calls(tree: ast.AST, names: set[str]) -> bool:
+    return any(
+        isinstance(n, ast.Call) and getattr(n.func, "attr", getattr(n.func, "id", "")) in names for n in ast.walk(tree)
+    )
+
+
+def _skips_without_fcntl(source: str) -> bool:
+    tree = ast.parse(source)
+    if "fcntl" in _importorskipped(tree):
+        return True
+    return "skipif" in source and ("fcntl" in source or "win32" in source)
+
+
+def unskipped_fcntl_callers(root: Path = REPO_ROOT, linux_only: dict[str, str] | None = None) -> list[str]:
+    """Test files that call a LINUX_ONLY file's fcntl-importing function with no Windows skip (#5933)."""
+    entries: set[str] = set()
+    for rel in LINUX_ONLY if linux_only is None else linux_only:
+        entries |= _fcntl_entry_points((root / rel).read_text(encoding="utf-8"))
+    found = []
+    for path in sorted((root / "tests").rglob("test_*.py")):
+        try:
+            source = path.read_text(encoding="utf-8")
+            tree = ast.parse(source)
+        except (OSError, SyntaxError, UnicodeDecodeError):
+            continue
+        if _calls(tree, entries) and not _skips_without_fcntl(source):
+            found.append(path.relative_to(root).as_posix())
+    return found
+
+
+def test_no_test_reaches_an_fcntl_function_without_a_windows_skip():
+    """#5933: LINUX_ONLY assumes every test reaching the file skips on Windows; check it."""
+    assert unskipped_fcntl_callers() == []
+
+
+def test_the_caller_guard_catches_an_unskipped_test(tmp_path):
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "lock.py").write_text("def hold():\n    import fcntl\n", encoding="utf-8")
+    (tmp_path / "tests" / "test_bad.py").write_text("def test_a(m):\n    m.hold()\n", encoding="utf-8")
+    (tmp_path / "tests" / "test_ok.py").write_text(
+        "import pytest\npytest.importorskip('fcntl')\ndef test_a(m):\n    m.hold()\n", encoding="utf-8"
+    )
+    (tmp_path / "tests" / "test_none.py").write_text("def test_a(m):\n    m.other()\n", encoding="utf-8")
+    assert unskipped_fcntl_callers(tmp_path, {"tests/lock.py": "x"}) == ["tests/test_bad.py"]

@@ -18,7 +18,8 @@ import sqlite3
 import pytest
 
 import gitgalaxy.cobol_refractor_controller as controller
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 
 LEDGER = """\
        IDENTIFICATION DIVISION.

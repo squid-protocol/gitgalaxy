@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 
 import pytest
+import scan_server
 
 from gitgalaxy.cobol_refractor_controller import IRStateManager, process_payload
 from gitgalaxy.core.ebcdic_codecs import java_charset_name
@@ -207,6 +208,7 @@ def test_the_refractor_scan_declares_the_page_and_reads_the_program_in_it(estate
 
     monkeypatch.setenv("GITGALAXY_DISABLE_GIT_HISTORY", "1")
     monkeypatch.setattr("sys.argv", ["cobol-refractor", str(estate), "--scan", "--source-encoding", PAGE])
+    monkeypatch.setattr(refractor, "scan_to_db", scan_server.scan_to_db)  # #5882: the engine imported once a process
     refractor.main()
     (clean,) = estate.parent.glob("estate_gitgalaxy_clean_*")
     (db,) = (clean / "04_ir_state_dumps").glob("*.db")

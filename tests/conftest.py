@@ -26,6 +26,7 @@ ReDoS sweeps (#5166): a test under tests/extraction/ whose name has `redos` or `
 The hook is tryfirst: pytest's own `-m` deselection and pytest-split's slicing must both see the marker.
 """
 
+import functools
 import hashlib
 import json
 import os
@@ -54,13 +55,18 @@ def _slow_reason(item):
     return marker.kwargs.get("reason") or (marker.args[0] if marker.args else "")
 
 
-def _is_redos_sweep(item):
+@functools.cache
+def _under_extraction(path, root):
+    """Once per test file, not per test (#5882: per item it was ~18% of collecting the suite)."""
     try:
-        top = item.path.relative_to(item.config.rootpath).parts[:2]
+        return path.relative_to(root).parts[:2] == ("tests", "extraction")
     except ValueError:
         return False
+
+
+def _is_redos_sweep(item):
     name = item.originalname or item.name
-    return top == ("tests", "extraction") and ("redos" in name or "linear_on_pathological" in name)
+    return ("redos" in name or "linear_on_pathological" in name) and _under_extraction(item.path, item.config.rootpath)
 
 
 @pytest.hookimpl(tryfirst=True)

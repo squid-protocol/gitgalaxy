@@ -100,7 +100,7 @@ def test_the_manifest_traces_real_generated_code_to_its_cobol(tmp_path):
     import shutil
 
     import gitgalaxy.cobol_refractor_controller as refractor
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+    from scan_server import scan_to_db
 
     repo = tmp_path / "estate"
     for rel, text in {"cbl/MENU.cbl": MENU, "cbl/ACCTINQ.cbl": ACCTINQ, "cpy/ACCTCOM.cpy": ACCTCOM,

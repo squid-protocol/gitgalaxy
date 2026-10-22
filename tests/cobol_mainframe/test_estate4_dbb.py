@@ -17,7 +17,8 @@ from pathlib import Path
 
 import pytest
 
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence_call as ecall  # noqa: E402

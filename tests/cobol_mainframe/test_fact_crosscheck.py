@@ -23,7 +23,8 @@ import translator_adapter as TA
 
 from gitgalaxy.core.copy_libraries import STAND_IN_DIR, stand_in_registers, stand_in_text
 from gitgalaxy.standards.mq import LENGTHS, STAND_INS
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import ZOS_POINTER_BYTES, load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import ZOS_POINTER_BYTES, load_galaxy_ir
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.det.cics import POINTER_BYTES
 
 

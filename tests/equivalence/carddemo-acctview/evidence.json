@@ -7,7 +7,7 @@
   "paths": [
    "tests/equivalence/carddemo-acctview/port/service/CoactvwcService.java"
   ],
-  "sha256": "56019ff5b5aea133a1fbe4e41de1658790550de9eb5bfdf9f554a47031308577",
+  "sha256": "6d5673e69cf2b4c68550cd32719472fcdeba7c594de15d09b9c1aa24532f8270",
   "entry_points": [
    "handleTransaction",
    "runTask"
@@ -19,14 +19,14 @@
     "tests/equivalence/carddemo-acctview/port/**"
    ],
    "files": 1,
-   "sha256": "56019ff5b5aea133a1fbe4e41de1658790550de9eb5bfdf9f554a47031308577"
+   "sha256": "6d5673e69cf2b4c68550cd32719472fcdeba7c594de15d09b9c1aa24532f8270"
   },
   "case": {
    "paths": [
     "tests/equivalence/carddemo-acctview/**"
    ],
    "files": 4,
-   "sha256": "e13f3498edb2a843bdc55b02ae9a254b415b7d2770c06ccca13d7eb42607d1c0"
+   "sha256": "7c1bff9b54949b411c1db6fa8436e5a22e12c4de598feb7f6b34b12baab32394"
   },
   "harness": {
    "paths": [
@@ -46,10 +46,10 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 14,
-   "sha256": "3126b7171f9de7427a9f08910d61ccf18ca026b7543f80e51ca74944f17d124e",
+   "sha256": "f9e65af791308ff4e0b1a6f54872ab959d68ee71cae56dba41d2d07b6426d135",
    "components": {
-    "harness:cics": "9398588ce0ab6fae9efbf766bc6cceb5f96a764431e80913ed69dfbcf030169d",
-    "harness:core": "6ca15fe077558291d5457261b5b460f3fa6f7b92a7a11455c436cfee97ebaf39"
+    "harness:cics": "a06f5412ff8f1ed2b268c32b393ff896f2f1abaf9275d0db58b275516d87e519",
+    "harness:core": "8a927d757019c0302bc0c121f6aa91081140700270fb1e94de673d3b76fde0be"
    }
   },
   "oracle": {
@@ -65,7 +65,7 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 39,
-   "sha256": "3869f6f0ef0199bbb2740962ab86ce23d2a3025c69b1b9fcb55d72025f366ea7",
+   "sha256": "720f71c29ffd50872fe5ac1677767c843f09319451f8d1a06d3c442231689af1",
    "components": {
     "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
@@ -77,7 +77,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 102,
-   "sha256": "97ada74bd02d5e6f0c43e9de02d294e3b932be461e2db14c371b8e09b43de4c9",
+   "sha256": "097c77e3df3ee3875debb25735203a82a9a7b5304474fa7147ea9ec94ccff36a",
    "components": {
     "generator:core": "286f1220d709fb1d4689c6d78a413a9440109a0ecca0472d2e3811c8ac0d9f81",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
@@ -179,13 +179,13 @@
     }
    }
   },
-  "digest": "3c3979e6adf79f48b4c691f6cc574c96abd0342b6a254bb09daeb1ec250b31c2"
+  "digest": "3ef5c5eee44d6a49b5dd9abf5379e7731bd5533fb6cc15b41361aa4e61039f28"
  },
  "proof": {
-  "at": "2026-10-22T13:46:34Z",
+  "at": "2026-10-22T22:31:48Z",
   "verdict": "proven",
-  "runs": 35,
-  "fault_runs": 6,
+  "runs": 36,
+  "fault_runs": 7,
   "environments": null,
   "outputs": {
    "enter-from-menu": {
@@ -327,6 +327,10 @@
    "card-number-point": {
     "equal": 3,
     "records": 3
+   },
+   "pf3-xctl-fails-abend-routine": {
+    "equal": 4,
+    "records": 4
    }
   },
   "return_code_equal": null,
@@ -335,24 +339,24 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 35,
-   "passed": 35,
+   "runs": 36,
+   "passed": 36,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "fb2a45c87d106e9ac144267542bbe76df403785c+uncommitted",
-  "inputs_digest": "3c3979e6adf79f48b4c691f6cc574c96abd0342b6a254bb09daeb1ec250b31c2"
+  "harness_commit": "d2daea624a9f39d0f6dcae4a57be746e515b5f06+uncommitted",
+  "inputs_digest": "3ef5c5eee44d6a49b5dd9abf5379e7731bd5533fb6cc15b41361aa4e61039f28"
  },
  "coverage": {
   "paragraphs": {
-   "covered": 31,
+   "covered": 32,
    "live": 32
   },
   "branches": {
-   "covered": 58,
+   "covered": 59,
    "total": 69
   },
   "uncovered_branches": [
@@ -415,20 +419,14 @@
     "kind": "IF",
     "outcome": "true",
     "unit": "ABEND-ROUTINE"
-   },
-   {
-    "line": 918,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "ABEND-ROUTINE"
    }
   ],
   "handler_labels": {
-   "covered": 0,
+   "covered": 1,
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "3c3979e6adf79f48b4c691f6cc574c96abd0342b6a254bb09daeb1ec250b31c2"
+  "inputs_digest": "3ef5c5eee44d6a49b5dd9abf5379e7731bd5533fb6cc15b41361aa4e61039f28"
  },
  "reach": {
   "entry_points": [
@@ -457,19 +455,19 @@
    {
     "class": "CoactvwcService",
     "method": "handleLink",
-    "line": 493,
+    "line": 501,
     "kind": "left_as_generated"
    },
    {
     "class": "CoactvwcService",
     "method": "onAbendL264",
-    "line": 530,
+    "line": 549,
     "kind": "stub"
    },
    {
     "class": "CoactvwcService",
     "method": "abendLegacy9999L934",
-    "line": 540,
+    "line": 559,
     "kind": "left_as_generated"
    }
   ],
@@ -480,7 +478,7 @@
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "56019ff5b5aea133a1fbe4e41de1658790550de9eb5bfdf9f554a47031308577"
+  "port_sha256": "6d5673e69cf2b4c68550cd32719472fcdeba7c594de15d09b9c1aa24532f8270"
  },
  "mutation": {
   "commit": "fb2a45c87d106e9ac144267542bbe76df403785c",
@@ -573,7 +571,7 @@
    },
    {
     "path": "tests/equivalence/db2/dynsql/cbl/DYNDEMO.cbl",
-    "sha256": "1e9f535f8653d3d4940ae963978f5b2856813599a0e1912b3118998fd1152203"
+    "sha256": "5c84ea37bd96c5a503fcd07d94a7b53eadea6be5b78744a3b9307d3a1d769d16"
    },
    {
     "path": "tests/equivalence/db2/dynsql/ddl/DTAB.ddl",
@@ -649,7 +647,7 @@
    },
    {
     "path": "tests/equivalence/ims/ggdli.c",
-    "sha256": "963759e5184621e0999c8bccf8be2e18775442c40138d41b4c7909702bab41ce"
+    "sha256": "49b4989afcdc794ebcfe5666597fdead41a22c8e3ada31c3a0361b713a1449e2"
    },
    {
     "path": "tests/equivalence/le/ceedays.c",
@@ -689,7 +687,7 @@
    },
    {
     "path": "tests/tools/equivalence_sql.py",
-    "sha256": "731946960e517e2174a303046e46a6ce7a92a44341feaeda2c097ffcc77eeac0"
+    "sha256": "70d91a1e48f88083efc26fd17347ec7e1de53748f812612555ba1e8e799e0fce"
    }
   ],
   "assumptions": null

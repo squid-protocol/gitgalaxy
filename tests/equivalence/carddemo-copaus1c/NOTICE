@@ -1,0 +1,9 @@
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+This case is derived from the AWS Mainframe Modernization CardDemo application
+(https://github.com/aws-samples/aws-mainframe-modernization-carddemo), licensed under the Apache License, Version 2.0
+(LICENSE here): the programs under test (app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl and the COPAUS2C it LINKs
+to), their copybooks, the BMS map copybook COPAU01, the IMS DBD / PSB sources and the Db2 DDL (ddl/AUTHFRDS.ddl,
+ddl/XAUTHFRD.ddl) are CardDemo's, used unmodified. The authorization database in case.json is built from records of
+CardDemo's own DBPAUTP0 unload with fields changed to state each scenario; seed.sql (one fraud row already reported,
+as in the COPAUS2C case) and the scenarios are written for this case.

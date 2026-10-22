@@ -3283,7 +3283,8 @@
    "family": "LE",
    "title": "ZUIDSTCK: the 16 TOD bytes are a stated input of the run, opaque to the program (a stand-in; never the host clock)",
    "methods": [
-    "le/Zuidstck.java:call"
+    "le/Zuidstck.java:call",
+    "le/Zuidstck.java:state"
    ],
    "ibm": {
     "doc": "zarch-pop",

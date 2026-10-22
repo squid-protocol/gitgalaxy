@@ -1,0 +1,83 @@
+{
+  "kind": "cics",
+  "corpus": "zecs",
+  "program": "ZECS001",
+  "program_source": "Source/ZECS001.cbl",
+  "copy_dirs": [
+    "Source"
+  ],
+  "transid": "ZC01",
+  "clock": "2026/10/01 10:30:15.00",
+  "install_symbols": {
+    "values": {
+      "ID": "01",
+      "ECS_HLQ": "ZECS",
+      "ENVIRONMENT": "TEST"
+    },
+    "why": "one instance (ID 01): the CSD's ZC@ID@FILE and ZC@ID@KEY are ZC01FILE and ZC01KEY (EIBTRNID(3:2) names them)"
+  },
+  "datasets": {
+    "ZECS.ZC01FILE.TEST": {
+      "input": "@case/zcempty.bin",
+      "entity": "ZfRecord",
+      "copybook": "Source/ZECSZFC.cpy",
+      "record": "ZF-RECORD",
+      "vsam": {
+        "key_offset": 0,
+        "key_length": 16,
+        "reclen": 32700,
+        "why": "Source/ZECSFILE.idcams: INDEXED KEYS(16 0) RECORDSIZE(100 32700); the CSD's DEFINE FILE(ZC@ID@FILE) DSNAME is @ECS_HLQ@.ZC@ID@FILE.@ENVIRONMENT@ and the engine does not read the IDCAMS job as a define. The CSD defines it RECORDFORMAT(V); every record the case seeds is the one length reclen, so the stub's fixed-length records stand in (the program reads INTO ZF-RECORD, 32700 bytes)",
+        "variable": true
+      }
+    },
+    "ZECS.ZC01KEY.TEST": {
+      "input": "@case/zcempty.bin",
+      "entity": "ZkRecord",
+      "copybook": "Source/ZECSZKC.cpy",
+      "record": "ZK-RECORD",
+      "vsam": {
+        "key_offset": 0,
+        "key_length": 255,
+        "reclen": 512,
+        "why": "Source/ZECSKEY.idcams: INDEXED KEYS(255 0) RECORDSIZE(512 512); the CSD's DEFINE FILE(ZC@ID@KEY) DSNAME is @ECS_HLQ@.ZC@ID@KEY.@ENVIRONMENT@, not read as a define (RECORDFORMAT(V) there, fixed 512-byte records in the stub)",
+        "variable": true
+      }
+    }
+  },
+  "commarea": null,
+  "linked": false,
+  "screens": {},
+  "http_request": {
+    "scheme": "HTTP",
+    "host": "zecs.example.com",
+    "port": 8080,
+    "method": "POST",
+    "version": "HTTP/1.1",
+    "path": "/resources/ecs/walmart/cache/key1",
+    "query": "",
+    "headers": [],
+    "mediatype": "application/octet-stream",
+    "body": "value one"
+  },
+  "doctemplates": {
+    "ZC01DC": "type: A1\r%"
+  },
+  "counters": {
+    "/ZC01_ZECS": 1
+  },
+  "notes": "zECS's HTTP service for one instance (ZECS001), a POST of a new key on an empty cache. 4000-GET-COUNTER calls ZUIDSTCK for THE-TOD and 4120-WRITE-KEY keeps THE-TOD(1:6) as the key record's unique-ID prefix ZK-ZF-IDN. The TOD is a stated input of the run (register X47, #5945): the case states two different ones, and both runtimes write a key record that differs by exactly those six bytes.",
+  "scenarios": [
+    {
+      "name": "post-tod-a",
+      "commarea": null,
+      "tod": "000102030405060708090A0B0C0D0E0F",
+      "why": "POST key1 with the TOD 0001020304050607...: the key record is written with ZK-ZF-IDN X'000102030405' and the file record under it"
+    },
+    {
+      "name": "post-tod-b",
+      "commarea": null,
+      "tod": "D4A3C1B2E5F60718293A4B5C6D7E8F90",
+      "why": "the same POST with the TOD D4A3C1B2E5F60718...: the same task, the key record's ZK-ZF-IDN is X'D4A3C1B2E5F6'"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "note": "Measured z/OS (Enterprise COBOL) results per oracle-register entry (#4702 Part 2). Empty until a run is recorded; a real z/OS only (never Hercules), after counsel clears licence and publishing (Q16). Record: {date, compiler, options, probe, observed, verdict}; verdict is one of matched, differs, refused, abend.",
+  "results": {}
+}

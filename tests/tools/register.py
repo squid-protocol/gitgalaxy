@@ -19,6 +19,7 @@ A PR commits entry files only; its CI renders the page and shows the diff (tests
   register.py next FAMILY      the next free number in a family (C, D, F, X, L, A, Q, J, M), looking at this
                                tree, origin/main and the remote branches; take it when the issue is filed
   register.py new ID           write a skeleton entry file for an ID
+  zos_calibration.json  recorded z/OS results per entry (#4702 Part 2); an entry with one is "z/OS-calibrated"
   register.py audit [--ci]     list entries that claim a match (ASSUMED / MATCHED / no status) with no IBM document
                                citation and no declared difference (#4702); --ci fails on one not in UNCITED_BASELINE
                                or on a baselined one that is now cited (the list only shrinks)
@@ -36,6 +37,9 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 REG = REPO / "docs" / "language_status" / "register"
 PAGE = REPO / "docs" / "language_status" / "oracle_assumptions.md"
+ZOS_LEDGER = REPO / "docs" / "language_status" / "zos_calibration.json"
+ZOS_VERDICTS = ("matched", "differs", "refused", "abend")
+ZOS_RECORD_KEYS = ("date", "compiler", "options", "probe", "observed", "verdict")
 KEYS = ("id", "family", "status", "title", "area", "summary", "reached")
 ID_RE = re.compile(r"^([A-Z])(\d+)([a-z]?)$")
 TABLE_HEAD = "| id | area | entry | status | reached by a proof? |\n|---|---|---|---|---|\n"
@@ -80,6 +84,41 @@ def load_entries() -> list[tuple[dict[str, str], str]]:
     return sorted(out, key=lambda e: id_key(e[0]["id"]))
 
 
+def load_zos(path: Path | None = None) -> dict[str, list[dict[str, str]]]:
+    """The z/OS calibration ledger (#4702 Part 2): entry id -> measured z/OS results. Empty until a run is recorded."""
+    path = path or ZOS_LEDGER
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8")).get("results", {})
+
+
+def zos_calibrated(path: Path | None = None) -> set[str]:
+    """Ids of the entries with at least one recorded z/OS result."""
+    return {i for i, recs in load_zos(path).items() if recs}
+
+
+def zos_problems(ids: set[str], path: Path | None = None) -> list[str]:
+    out = []
+    for i, recs in sorted(load_zos(path).items()):
+        if i not in ids:
+            out.append(f"zos_calibration.json: {i} is not a register entry")
+        for n, r in enumerate(recs):
+            gaps = [k for k in ZOS_RECORD_KEYS if not r.get(k)]
+            if gaps:
+                out.append(f"zos_calibration.json: {i}[{n}] lacks {', '.join(gaps)}")
+            elif r["verdict"] not in ZOS_VERDICTS:
+                out.append(f"zos_calibration.json: {i}[{n}] verdict {r['verdict']!r} not in {ZOS_VERDICTS}")
+    return out
+
+
+def zos_section(ids: list[str]) -> str:
+    done = sorted(zos_calibrated() & set(ids), key=id_key)
+    head = f"### z/OS calibration\n{len(done)} of {len(ids)} entries have a measured z/OS result"
+    if not done:
+        return head + " (none: the IBM side stays as the entry states it; no z/OS run is recorded).\n"
+    return head + ": " + ", ".join(done) + ".\n"
+
+
 def cell(s: str) -> str:
     return s.replace("\n", " ")
 
@@ -111,6 +150,7 @@ def render() -> str:
     stray = sorted({m["id"] for m, _ in entries} - placed, key=id_key)
     if stray:
         raise ValueError(f"entries in a family _layout.json does not place: {stray}")
+    out.append(zos_section([m["id"] for m, _ in entries]))
     return "\n".join(out)
 
 
@@ -119,9 +159,10 @@ def check() -> list[str]:
     compare against any more)."""
     try:
         render()
+        ids = {m["id"] for m, _ in load_entries()}
+        return zos_problems(ids)
     except (ValueError, OSError) as e:
         return [str(e)]
-    return []
 
 
 # Entries that name no IBM document and declare no difference (#4702, swept 2026-10-21; now empty). A new entry needs

@@ -220,6 +220,43 @@
           "le.runtime_options.STORAGE": "00"
         }
       ]
+    },
+    "c6-float-move-to-edited": {
+      "entries": [
+        "C6"
+      ],
+      "compile_options": "default (FLOAT(HEX)); ROUNDED not used",
+      "question": "MOVE COMP-1 1.875 to -(5)9.99: IBM rounds a float moved to an edited item (1.88), the oracle truncates",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PA.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 G COMP-1 VALUE 1.875.\n       01 E PIC -(5)9.99.\n       PROCEDURE DIVISION.\n           MOVE G TO E\n           DISPLAY \"E=\" E\n           STOP RUN.\n",
+      "oracle_expected": [
+        "E=",
+        "1.87"
+      ],
+      "note": "The oracle shows 1.87; the det port follows IBM and gives 1.88 (#4688). The z/OS result decides."
+    },
+    "c6-compound-float-compute": {
+      "entries": [
+        "C6"
+      ],
+      "compile_options": "default (ARITH(COMPAT), FLOAT(HEX))",
+      "question": "COMPUTE R1 = ((FA / 2) * (0.5 + F4)), FA COMP-1 5, F4 COMP-2 4: IBM evaluates the whole expression in floating point (11.25)",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PB.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 FA COMP-1 VALUE 5.\n       01 F4 COMP-2 VALUE 4.\n       01 R1 PIC S9(7)V99.\n       PROCEDURE DIVISION.\n           COMPUTE R1 = ((FA / 2) * (0.5 + F4))\n           DISPLAY \"R1=\" R1\n           STOP RUN.\n",
+      "oracle_expected": [
+        "R1=000000000+"
+      ],
+      "note": "The oracle evaluates in decimal and stores 0 (#4688); the det port gives 11.25 in long HFP. The z/OS result decides."
+    },
+    "c6-float-zero-add-to-packed": {
+      "entries": [
+        "C6"
+      ],
+      "compile_options": "default (ARITH(COMPAT), FLOAT(HEX))",
+      "question": "ADD a COMP-2 zero to a COMP-3 0.68: IBM runs the statement in floating point, so the packed value goes through HFP and may store 0.67",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PC.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 FZ2 COMP-2 VALUE 0.\n       01 R4 PIC S9(7)V99 COMP-3 VALUE 0.68.\n       PROCEDURE DIVISION.\n           ADD FZ2 TO R4\n           DISPLAY \"R4=\" R4\n           STOP RUN.\n",
+      "oracle_expected": [
+        "R4=+000000068"
+      ],
+      "note": "The oracle keeps 0.68; the det port gives 0.67 (#4688, ASSUMED truncation). The z/OS result decides."
     }
   }
 }

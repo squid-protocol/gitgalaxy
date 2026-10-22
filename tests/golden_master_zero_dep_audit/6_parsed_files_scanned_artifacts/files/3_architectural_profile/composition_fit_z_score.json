@@ -3552,7 +3552,7 @@
       "shell/reactos/CreateCabFile.sh": -0.08,
       "shell/reactos/autogen.sh": 0.37,
       "shell/reactos/check_code_format.sh": 0.534,
-      "shell/reactos/codespell_changed_files.sh": 2.422,
+      "shell/reactos/codespell_changed_files.sh": 2.524,
       "shell/reactos/codespell_check.sh": 0.138,
       "shell/reactos/configure.sh": 0.723,
       "shell/reactos/do_code_format.sh": 3.333,

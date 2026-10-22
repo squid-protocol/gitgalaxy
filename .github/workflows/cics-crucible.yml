@@ -23,7 +23,7 @@ name: CICS Crucible
 # the two ledgers cut to its cases. The job `crucible` (the required check's name) merges the shards' results.json,
 # fails unless every case ran in exactly one shard, prints the whole 710-cell report and holds the full ratchet.
 # #5882: a shard measures four cases at once (--jobs 4, one per vCPU), so two shards do what four did; each job
-# costs ~40 s of setup and a runner slot of the shared pool.
+# costs ~40 s of setup and a runner slot of the shared pool. #5919: the `plan` job picks the shard count and timeout.
 
 on:
   pull_request:
@@ -49,6 +49,8 @@ on:
       - "tests/crucible_pins.toml"
       - ".github/workflows/cics-crucible.yml"
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
+      - "tests/tools/crucible_shard_plan.py"  # #5919: the plan job's shard count and timeout
+      - "tests/tools/ci_shard_plan.py"
   # #5131/#5136: no main push trigger. post-merge.yml dispatches this on main (at most once per cadence window, only
   # when PR runners are idle and main changed a file this workflow reads); the nightly run covers a busy day.
   schedule:
@@ -66,15 +68,52 @@ concurrency:
   cancel-in-progress: true  # #4825: read-only, so a superseded main run is cancelled too (frees runners for PRs)
 
 jobs:
-  measure:
-    name: measure (shard ${{ matrix.shard }}/2)
+  # #5919: the shard count and the measure jobs' timeout come from the cases and their measured seconds
+  # (tests/tools/crucible_shard_plan.py), not from this file: adding cases needs no edit here.
+  plan:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.shards.outputs.matrix }}
+      timeout: ${{ steps.shards.outputs.timeout }}
+    steps:
+      - name: Checkout the planner
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+          sparse-checkout: |
+            tests/tools/crucible_shard_plan.py
+            tests/tools/ci_shard_plan.py
+            tests/tools/crucible_pins.py
+            tests/crucible_pins.toml
+
+      - name: Clone cics-crucible at the pin
+        run: |
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get cics)
+          git init -q cics-crucible
+          git -C cics-crucible remote add origin https://github.com/squid-protocol/cics-crucible.git
+          if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then
+            git -C cics-crucible fetch -q --depth 1 origin "$ref"
+          else
+            git -C cics-crucible fetch -q --depth 1 origin "+refs/tags/$ref:refs/tags/$ref"
+          fi
+          git -C cics-crucible checkout -q --detach FETCH_HEAD
+
+      - name: Size the shards from the cases
+        id: shards
+        run: python3 gitgalaxy/tests/tools/crucible_shard_plan.py --cics cics-crucible >> "$GITHUB_OUTPUT"
+
+  measure:
+    name: measure (shard ${{ matrix.shard }}/${{ matrix.total }})
+    needs: plan
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJSON(needs.plan.outputs.timeout) }}  # #5919: the slowest planned shard x 1.5, not hand-set
     strategy:
       fail-fast: false  # every shard reports its own cells
-      matrix:
-        shard: [1, 2]  # the N in --shard i/N below; merge_shards fails if a shard's results are missing
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}  # shard i of N below; merge_shards fails if a shard's results are missing
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -154,7 +193,7 @@ jobs:
         run: |
           cd gitgalaxy
           # #5882: four cases at once, one per vCPU (results and log the same as one at a time)
-          python tests/tools/cics_crucible.py --crucible ../cics-crucible --shard ${{ matrix.shard }}/2 --jobs 4 --ci --out "$RUNNER_TEMP/cics_crucible"
+          python tests/tools/cics_crucible.py --crucible ../cics-crucible --shard ${{ matrix.shard }}/${{ matrix.total }} --jobs 4 --ci --out "$RUNNER_TEMP/cics_crucible"
 
       - name: Upload this shard's results
         if: always()
@@ -238,7 +277,7 @@ jobs:
   # The required check (its name is the job id). Always runs: a shard that failed or never started is a failure here,
   # never a pass by absence.
   crucible:
-    needs: [measure, runner-tests]
+    needs: [plan, measure, runner-tests]
     if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
     runs-on: ubuntu-latest
     timeout-minutes: 15

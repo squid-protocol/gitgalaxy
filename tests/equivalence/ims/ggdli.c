@@ -798,10 +798,11 @@ static void set_dibstat(P dibstat, const char *st) { memcpy(dibstat, st, 2); }
 int GGDLISCHD(P dibstat, P nodhabend) {
     if (bmp) refuse("an EXEC DLI SCHD in a BMP");
     const char *fault = planned_dli("SCHD"); /* #5233: not performed, DIBSTAT answers the status */
-    if (fault) {
+    if (fault && !(!strcmp(fault, "TC") && !scheduled)) {
         set_dibstat(dibstat, fault);
         return 0;
     }
+    /* A planned TC says the task already holds the PSB: schedule it (a TERM after it is valid), DIBSTAT TC. */
     if (scheduled) {
         if (!by_value(nodhabend)) refuse("a SCHD of a PSB already scheduled, without NODHABEND (the task would abend)");
         set_dibstat(dibstat, "TC");
@@ -818,7 +819,7 @@ int GGDLISCHD(P dibstat, P nodhabend) {
         atexit(write_dbs_unless_refused);
     }
     scheduled = 1;
-    set_dibstat(dibstat, "  ");
+    set_dibstat(dibstat, fault ? fault : "  ");
     return 0;
 }
 

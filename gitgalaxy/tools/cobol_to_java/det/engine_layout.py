@@ -17,6 +17,7 @@ the engine does not know (an unexpanded COPY), refuses in both modes: there is n
 
 from __future__ import annotations
 
+import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -24,6 +25,8 @@ from typing import Any
 from gitgalaxy.tools.cobol_to_java.det.layout import Item, LayoutError
 
 MODES = ("engine", "check")
+_IRS: dict[Path, Any] = {}  # one load of each scan DB per process
+_IRS_LOCK = threading.Lock()
 
 
 class LayoutDisagrees(LayoutError):
@@ -195,6 +198,21 @@ class EngineLayouts:
 
             pointer_bytes = POINTER_BYTES
         return cls(EngineRecords.of(ir, ef), root, mode, pointer_bytes)
+
+    @classmethod
+    def for_project(cls, project: Path, corpus: Path, rel: str, mode: str = "check"):
+        """The layouts of program `rel` (relative to the scanned `corpus`) from the estate scan beside the generated
+        `project` (the clean room's galaxy DB); None without a scan or a file the scan does not hold."""
+        from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+
+        db = next(iter(sorted(project.parent.glob("*_gitgalaxy_clean_*/04_ir_state_dumps/*_galaxy_master.db"))), None)
+        if db is None:
+            return None
+        with _IRS_LOCK:
+            if db not in _IRS:
+                _IRS[db] = load_galaxy_ir(db)
+            ir = _IRS[db]
+        return cls.from_ir(ir, rel, corpus, mode)
 
     def rel(self, file: str) -> str | None:
         try:

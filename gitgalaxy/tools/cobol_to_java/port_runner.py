@@ -318,6 +318,7 @@ def det_port(project: Path, ticket: dict[str, Any], source_root: Path, work: Pat
     `strict_copy` (#4486): refuse a SYSLIB collision instead of taking the first library's member; the stats'
     `warnings` name each collision taken."""
     from gitgalaxy.tools.cobol_to_java.det import program as P
+    from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts
     from gitgalaxy.tools.cobol_to_java.det.source import bms_copybooks
 
     src = ticket.get("source") or {}
@@ -338,8 +339,13 @@ def det_port(project: Path, ticket: dict[str, Any], source_root: Path, work: Pat
     m = re.search(r"^package\s+([\w.]+)\.service\s*;", stub, re.M)
     if not m:
         raise SystemExit(f"{stub_file}: no `package ....service;` line")
+    try:  # #5649: the engine's record layouts, from the estate scan beside the project (None: the translator's own)
+        rel = program.resolve().relative_to(source_root.resolve()).as_posix()
+    except ValueError:
+        rel = None
+    layouts = EngineLayouts.for_project(project, source_root, rel) if rel else None
     r = P.translate(program, dirs, stub, m.group(1), P.estate_files(project), project, style, typed, groups,
-                    strict_copy=strict_copy)  # fmt: skip
+                    strict_copy=strict_copy, layouts=layouts)  # fmt: skip
     stats = {"statements": r.stats["statements"], "translated": r.stats["translated"],
              "holes": len(r.stats["holes"]), "style": style, "typed": typed, "groups": groups}  # fmt: skip
     if r.stats.get("warnings"):

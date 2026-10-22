@@ -7,7 +7,7 @@ workflow. Stdlib only: a plan job runs before anything is installed.
              part of the model: more shards are not free.
     timeout  the slowest planned shard x a margin, rounded up to whole minutes, between a floor and a ceiling: emitted by
              the plan, never typed into the YAML.
-    cap      the workflow's share of the 20-job pool; `pool_cap` halves it while PR jobs queue (as ci_layout does).
+    cap      the workflow's share of the 20-job pool; `pool_cap` halves it while PR jobs queue (as the ground-truth layout does).
 
 A case with no measured seconds takes the median of the measured ones (it only unbalances the shards), but when more
 than MAX_UNMEASURED of the cases have none the plan fails loudly (`PlanError`): the durations cache is not being fed.
@@ -22,7 +22,7 @@ from collections.abc import Iterable, Mapping
 MARGIN = 1.5  # timeout = the slowest planned shard x this
 MAX_UNMEASURED = 0.25  # fraction of the cases that may lack a measurement ...
 GRACE_CASES = 2  # ... and this many always may (a PR adding a couple of cases is no failure)
-BUSY_ABOVE = 8  # queued PR jobs; the same signal as ci_layout.BUSY_ABOVE
+BUSY_ABOVE = 8  # queued PR jobs; the ground-truth layout's busy threshold
 
 
 class PlanError(RuntimeError):

@@ -13,7 +13,7 @@ code nobody wrote for us. Each port is cloned at a pinned SHA, scanned, and its 
 | `test_doom_rosetta.py` | `pytest -m doom_rosetta` (self-skips unless the marker is selected) |
 | `../golden_doom_rosetta/` | one gzip JSON per port (`*.json` is git-ignored, hence `.json.gz`) |
 | `../tools/doom_rosetta_check.py` | check, bless (`--update --yes`), `--diagnose PORT` |
-| `../../.github/workflows/doom-rosetta.yml` | PR shards (LOC-packed), nightly `oracle` and `callgraph` jobs |
+| `../../.github/workflows/doom-rosetta.yml` | PR shards (LOC-packed) and the nightly `callgraph` job |
 
 ## Run
 
@@ -41,12 +41,15 @@ listed check is drift too, so remove the entry when the engine gets it right.
 
 ## Nightly
 
-`doom-rosetta.yml` runs on a schedule (and `workflow_dispatch`) on main:
+`doom-rosetta.yml` runs a nightly `callgraph` job on main (C/C++ call-graph accuracy against
+`tests/tools/doom_speedrun/callgraph_baseline.json`). The full clean scan is run by hand for now:
 
-* `oracle`: all ports with `--oracle` (ctags + tree-sitter), table published to the job summary and as the
-  `doom-clean-scan` artifact, then `doom_speedrun.py diff <previous night> <today> --fail-on-regression`. A port that
-  gains a failed check or vanishes fails the run. The first run has no baseline and only publishes.
-* `callgraph`: C/C++ call-graph accuracy against `tests/tools/doom_speedrun/callgraph_baseline.json`.
+```bash
+python tests/tools/doom_speedrun/doom_speedrun.py run --oracle                       # ctags + tree-sitter, all ports
+python tests/tools/doom_speedrun/doom_speedrun.py diff <before> <after> --fail-on-regression
+```
+
+A nightly `--oracle` job that publishes the table and diffs it with the previous night is not wired yet (#5619).
 
 ## Add a port
 

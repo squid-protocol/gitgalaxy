@@ -5926,7 +5926,8 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
         f"Case `{case['name']}`: {case['corpus']} `{case['program_source']}`, transaction {case['transid']}, "
         f"clock `{case['clock']}`. Each scenario is one task; its events (SEND MAP, SEND TEXT, RETURN, "
         "XCTL, ABEND) are paired in order and compared field by field -- screen DATA fields and every "
-        "COMMAREA field (attribute bytes are not compared)."
+        "COMMAREA field; a SEND MAP also its attribute, colour and highlight bytes, cursor and options "
+        "(X'00' and X'40' are not claimed)."
     )
     lines = [f"# {case['program']} -- COBOL vs Java ({report['java']}), CICS", "", about, "",
              "Stub files, from the engine's facts: " + "; ".join(

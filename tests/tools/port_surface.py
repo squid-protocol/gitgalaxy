@@ -44,6 +44,7 @@ GenApp model and det ports): each corpus's project is generated once, as the equ
 (ports_compile_check.generate: refactor, h2, the case's culture), and each port file is resurfaced against the
 generated file at the same path. A port with a provenance.json gets the `resurfaced` event; a hand port without one
 (carddemo-acctview, #3754) is resurfaced all the same and says so. Re-prove each changed case: `evidence.py prove`.
+A det port (provenance `translator: det`) is skipped: its facades are the translator's, not a model's leftovers.
 """
 
 from __future__ import annotations
@@ -323,6 +324,14 @@ def crucible(work: Path, cases: list[str] | None, check: bool, offline: bool) ->
     return 1 if check and differs else 0
 
 
+def is_det_port(port_dir: Path) -> bool:
+    """A port the det translator wrote (provenance `translator: det`): no model wrote over a generated class, and the
+    translator rebuilds its facades itself (det/program.py facades: the COMMAREA-bytes answers), so the generator's text
+    is not its surface; det_port.py check lists it when the translation moves (#5983: COPAUA0C)."""
+    prov = port_dir / "provenance.json"
+    return prov.is_file() and json.loads(prov.read_text(encoding="utf-8")).get("translator") == "det"
+
+
 def equivalence(work: Path, cases: list[str] | None, check: bool) -> int:
     """#4441: resurface the equivalence ports against their corpus's fresh generation."""
     sys.path.insert(0, str(REPO_ROOT / "tests" / "tools"))
@@ -331,6 +340,9 @@ def equivalence(work: Path, cases: list[str] | None, check: bool) -> int:
 
     groups: dict[str, list[dict]] = {}
     for case in pcc.equivalence_ports(set(cases) if cases else None):
+        if is_det_port(case["_port"]):
+            print(f"{case['_name']}: a det port: its surface is the translator's (det_port.py check)")
+            continue
         groups.setdefault(json.dumps([case["corpus"], case.get("culture")], sort_keys=True), []).append(case)
     differs = 0
     for n, (key, members) in enumerate(sorted(groups.items())):

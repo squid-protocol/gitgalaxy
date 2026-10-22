@@ -144,6 +144,28 @@ def test_equivalence_resurfaces_each_case_port_and_records_it(tmp_path, monkeypa
     assert ps.equivalence(tmp_path / "work", None, check=True) == 0
 
 
+def test_a_det_port_is_left_to_the_translator(tmp_path, monkeypatch):
+    """#5983: a det port's facades are the translator's own (no log line, its own answer); --check passes it by."""
+    import json
+
+    import ports_compile_check as pcc
+
+    cases = tmp_path / "equivalence"
+    port = cases / "c1" / "port" / "service" / "XService.java"
+    port.parent.mkdir(parents=True)
+    port.write_text(GENERATED, encoding="utf-8")
+    (cases / "c1" / "case.json").write_text(json.dumps({"name": "c1", "corpus": "k"}), encoding="utf-8")
+    (cases / "c1" / "port" / "provenance.json").write_text(json.dumps({"translator": "det"}), encoding="utf-8")
+
+    def generate(*_args):
+        raise AssertionError("no generation for a det port")
+
+    monkeypatch.setattr(pcc, "EQUIVALENCE", cases)
+    monkeypatch.setattr(pcc, "generate", generate)
+    assert ps.equivalence(tmp_path / "work", None, check=True) == 0
+    assert port.read_text(encoding="utf-8") == GENERATED
+
+
 OVERLOADED = GENERATED.replace(
     "    /** TODO: port it. */",
     """    /** Same transaction, with the COMMAREA's bytes (#4870). */

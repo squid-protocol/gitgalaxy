@@ -46,12 +46,17 @@ def test_short_first_line_pads_the_literal_to_column_72():
 
 
 def test_doubled_quote_in_the_continued_part():
-    src = _program(_first("MOVE 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"), _cont("'B''C' TO WS-X."))
+    src = _program(
+        _first("MOVE 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"), _cont("'B''C' TO WS-X.")
+    )
     assert [(s, t) for s, t, _ in _pairs(src)] == [("'" + "A" * 59 + "B''C'", "WS-X")]
 
 
 def test_comment_marker_and_period_inside_the_continued_literal_do_not_end_the_statement():
-    src = _program(_first("MOVE 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"), _cont("'B*>C. MOVE 1 TO WS-Z' TO WS-X."))
+    src = _program(
+        _first("MOVE 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"),
+        _cont("'B*>C. MOVE 1 TO WS-Z' TO WS-X."),
+    )
     assert [(s, t) for s, t, _ in _pairs(src)] == [("'" + "A" * 59 + "B*>C. MOVE 1 TO WS-Z'", "WS-X")]
 
 
@@ -99,7 +104,9 @@ def test_prefixed_literal_continued(prefix):
 
 
 def test_relation_condition_with_a_continued_literal():
-    src = _program(_first("IF WS-X = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"), _cont("'BBB' DISPLAY 'Q' END-IF."))
+    src = _program(
+        _first("IF WS-X = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"), _cont("'BBB' DISPLAY 'Q' END-IF.")
+    )
     (row,) = relation_facts(src)
     assert row["right"] == "'" + "A" * 54 + "BBB'"
     assert row["right_class"] == "alphanumeric"

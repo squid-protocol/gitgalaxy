@@ -4996,6 +4996,3 @@ Each answer becomes either a model that matches (MATCHED) or a declared differen
   Commit the entry file only: this page is not committed (#5057). A PR's CI renders it (it must render, the same way
   twice) and shows the diff; after merge it is published to the `generated` branch. `python tests/tools/register.py
   render` writes a local copy to read.
-
-### z/OS calibration
-0 of 136 entries have a measured z/OS result (none: the IBM side stays as the entry states it; no z/OS run is recorded).

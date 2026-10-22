@@ -943,3 +943,26 @@ def test_lgucus01_front_end_holds_on_generated_customer_rows(tmp_path):
     sql = _prove_genapp_front_end(tmp_path, "genapp-lgucus01-generated", {"GENASA1.CUSTOMER": 10})
     assert len(sql) == 20 and sum(1 for q in sql if q["statements"]) == 12
     assert {(x["verb"], x["sqlcode"]) for q in sql for x in q["cobol"]} == {("UPDATE", 0), ("UPDATE", 100)}
+
+
+def test_the_dbb_estate_reads_no_db2_table_but_sysdummy1():
+    """#4507: DBB MortgageApplication has no generated-row Db2 case because there is nothing to generate: its one Db2
+    program (EPSCMORT) reads only SYSIBM.SYSDUMMY1, and the case declares no DDL."""
+    import json
+    import re
+
+    from gitgalaxy.core.source_text import read_source
+
+    repo = Path(__file__).resolve().parents[2]
+    corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", repo / ".mainframe_corpora"))
+    cobol = corpora / "dbb-mortgage-application" / "zBuilder" / "MortgageApplication" / "cobol"
+    if not cobol.is_dir():
+        pytest.skip("the dbb-mortgage-application corpus is not available (GITGALAXY_MAINFRAME_CORPORA)")
+    users = {}
+    for src in sorted(cobol.glob("*.cbl")):
+        text = read_source(src).text
+        if re.search(r"EXEC\s+SQL\s+(?!INCLUDE|DECLARE|WHENEVER)\w", text, re.IGNORECASE):
+            users[src.name] = set(re.findall(r"\bFROM\s+([A-Z][\w.]*)", text, re.IGNORECASE))
+    assert users == {"epscmort.cbl": {"SYSIBM.SYSDUMMY1"}}
+    case = json.loads((repo / "tests" / "equivalence" / "mortgage-cmort" / "case.json").read_text("utf-8"))
+    assert case["db2"]["ddl"] == []

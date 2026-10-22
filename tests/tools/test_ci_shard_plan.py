@@ -149,3 +149,41 @@ def test_the_committed_durations_size_a_full_sweep_within_the_pool():
     full["matrix"], full["db2_matrix"] = [f"{i}/6" for i in range(1, 7)], m
     t = plan.timeouts_for(full, dur)
     assert all(plan.TIMEOUT_FLOOR <= v <= plan.TIMEOUT_CEILING for v in t.values())
+
+
+def _workflow(name: str) -> dict:
+    yaml = pytest.importorskip("yaml")
+    return yaml.safe_load((ROOT / ".github" / "workflows" / name).read_text(encoding="utf-8"))
+
+
+def test_det_sweep_jobs_take_their_timeout_from_the_plan_after_the_durations_are_chosen():
+    jobs = _workflow("det-sweep.yml")["jobs"]
+    assert "needs.plan.outputs.timeout" in str(jobs["shard"]["timeout-minutes"])
+    assert "needs.plan.outputs.db2_timeout" in str(jobs["db2"]["timeout-minutes"])
+    assert {"timeout", "db2_timeout"} <= set(jobs["plan"]["outputs"])
+    steps = [s.get("name", "") for s in jobs["plan"]["steps"]]
+    sizing = [i for i, n in enumerate(steps) if n.startswith(("Plan the sweep", "Plan from the port diff"))]
+    merges = [i for i, n in enumerate(steps) if n.startswith(("Choose the durations", "Merge the Db2 durations"))]
+    assert len(merges) == 2 and max(merges) < min(sizing)
+
+
+def test_evidence_refresh_lane_checks_out_what_the_planner_reads(tmp_path):
+    import json
+    import shutil
+    import subprocess
+
+    steps = _workflow("evidence-refresh.yml")["jobs"]["lane"]["steps"]
+    (co,) = [s for s in steps if "sparse-checkout" in (s.get("with") or {})]
+    paths = co["with"]["sparse-checkout"].split()
+    assert "tests/tools/ci_shard_plan.py" in paths and "tests/equivalence/det_sweep_durations.json" in paths
+    for rel in paths:  # copy exactly the sparse tree (the case.json glob included)
+        for src in ROOT.glob(rel):
+            dst = tmp_path / src.relative_to(ROOT)
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(src, dst)
+    out = subprocess.run(
+        [sys.executable, "-I", str(tmp_path / "tests" / "tools" / "det_sweep_plan.py"), "--db2-full-matrix"],
+        capture_output=True, text=True, check=True, cwd=tmp_path,
+    ).stdout  # fmt: skip
+    parts = json.loads(out)
+    assert 1 <= len(parts) <= plan.DB2_MAX_SHARDS

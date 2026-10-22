@@ -24,3 +24,12 @@ def test_the_stated_vsam_wins_over_a_define_that_keeps_its_placeholders():
     vsam = {"key_offset": 0, "key_length": 4, "reclen": 70, "variable": True, "why": "ZX-RECORD is 70 bytes"}
     files = ec.stub_files(_ir(), "p.cbl", {RESOLVED: {"vsam": vsam}}, {"ECS_HLQ": "ZECS", "ENVIRONMENT": "TEST"})
     assert [(f["base"], f["reclen"]) for f in files] == [(RESOLVED, 70)]
+
+
+def test_a_file_name_written_with_an_install_symbol_is_the_resolved_name_the_stub_serves():
+    entry = {"program": "p.cbl", "name": "ZC@ID@FILE", "definitions": [{"dsname": RAW, "record_format": "V"}]}
+    ir = SimpleNamespace(files={"x": SimpleNamespace(vsam_defines=[])}, cics_file_lineage=lambda: [entry])
+    vsam = {"key_offset": 0, "key_length": 4, "reclen": 70, "variable": True, "why": "ZX-RECORD is 70 bytes"}
+    symbols = {"ECS_HLQ": "ZECS", "ENVIRONMENT": "TEST", "ID": "01"}
+    files = ec.stub_files(ir, "p.cbl", {RESOLVED: {"vsam": vsam}}, symbols)
+    assert [f["file"] for f in files] == ["ZC01FILE"]

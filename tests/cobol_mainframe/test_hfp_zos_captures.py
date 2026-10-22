@@ -190,3 +190,21 @@ def test_the_bnk1uac_rate_and_bankdata_period_shapes_are_asked():
     assert cmp["b"] == by_id["asm-enc-9999.99-long"]["want"]
     enc, fix = by_id["asm-enc-99999999999999-long"], by_id["asm-fixed-99999999999999-long-0"]
     assert fix["a"] == enc["want"] and fix["scale"] == 0 and Decimal(fix["want"]) == Decimal("99999999999999")
+
+
+def test_the_bnk1cra_amount_shapes_are_asked():
+    """#4271 (BNK1CRA `WS-AMOUNT-AS-FLOAT`, a COMP-2 amount): negated by `* -1`, compared with ZERO, MOVEd to the amount.
+
+    The negation is exact (an IBM-publication multiply by long -1), both signs are compared with zero, and the negative
+    amount is moved to a 2-decimal field (model-assumption: the float-to-fixed rounding, here on a negative value).
+    """
+    by_id = {r["id"]: r for r in records()}
+    enc = by_id["asm-enc-12.34-long"]
+    neg = by_id["mul-long-12.34-neg1"]
+    assert neg["source"] == "ibm-publication" and neg["a"] == enc["want"] and neg["b"] == "C110000000000000"
+    assert neg["want"][0] == "C" and neg["want"][1:] == enc["want"][1:]
+    pos_cmp, neg_cmp = by_id["cmp-long-12.34-zero"], by_id["cmp-long-neg-12.34-zero"]
+    assert (pos_cmp["a"], pos_cmp["want"]) == (enc["want"], ">") and pos_cmp["b"] == "0" * 16
+    assert (neg_cmp["a"], neg_cmp["want"]) == (neg["want"], "<") and neg_cmp["b"] == "0" * 16
+    fix = by_id["asm-fixed-neg-12.34-long-2"]
+    assert fix["source"] == "model-assumption" and fix["a"] == neg["want"] and Decimal(fix["want"]) == Decimal("-12.34")

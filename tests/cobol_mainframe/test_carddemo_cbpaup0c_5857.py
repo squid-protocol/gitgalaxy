@@ -137,3 +137,14 @@ def test_the_cbpaup0c_scenarios_fail_each_dli_call_the_program_checks():
     # the summary DLET always answers DJ (no get-hold of the summary precedes it), so its failure is the abend scenario
     assert faults["expiry-abend"]["sysin"].startswith("05") and faults["debug-expiry-abend"]["sysin"].endswith("Y")
     assert faults["expiry-not-numeric"]["sysin"][:2] == "XX"
+
+
+def test_the_committed_det_port_has_a_recorded_proof():
+    """`evidence.py prove` records a level only for a committed port: this one is the det translator's own."""
+    prov = json.loads((CASE / "port" / "provenance.json").read_text(encoding="utf-8"))
+    assert (prov["program"], prov["translator"]) == ("CBPAUP0C", "det")
+    assert (CASE / "port" / "service" / "Cbpaup0cService.java").is_file()
+    rec = json.loads((CASE / "evidence.json").read_text(encoding="utf-8"))
+    assert rec["proof"]["verdict"] == "proven" and not rec["proof"]["java_failed"]
+    assert rec["proof"]["return_code_equal"] and rec["provenance"]["written_by"] == "det"
+    assert rec["coverage"]["branches"]["total"] == 40

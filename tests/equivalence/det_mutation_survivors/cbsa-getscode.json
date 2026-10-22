@@ -538,8 +538,8 @@
    "line": 135,
    "before": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
    "after": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base - 0, 6, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_GetscodeDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 6 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it"
+   "verdict": "equivalent",
+   "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
   {
    "id": "1a63c47e5b",
@@ -547,8 +547,8 @@
    "line": 135,
    "before": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
    "after": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 7, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_GetscodeDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 6 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it"
+   "verdict": "equivalent",
+   "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
   {
    "id": "2f4e1d4d51",
@@ -556,8 +556,8 @@
    "line": 135,
    "before": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
    "after": "Cobol.move(d.getSortcode() != null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_GetscodeDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 6 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it"
+   "verdict": "equivalent",
+   "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
   {
    "id": "3aa7172447",
@@ -565,8 +565,8 @@
    "line": 135,
    "before": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 0, 6, false), CS);",
    "after": "Cobol.move(d.getSortcode() == null ? \"\" : d.getSortcode(), Field.alphanumeric(s, base + 1, 6, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_GetscodeDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 6 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it"
+   "verdict": "equivalent",
+   "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
   {
    "id": "32ac5d5a1b",
@@ -574,35 +574,8 @@
    "line": 139,
    "before": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 0, 6, false), CS));",
    "after": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base - 0, 6, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_GetscodeDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) or a dropped write-back is never compared. Needs the harness to compare the DTO too"
-  },
-  {
-   "id": "6839d9b69a",
-   "op": "CON",
-   "line": 139,
-   "before": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 0, 6, false), CS));",
-   "after": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 0, 7, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_GetscodeDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) or a dropped write-back is never compared. Needs the harness to compare the DTO too"
-  },
-  {
-   "id": "706f80732d",
-   "op": "DEL",
-   "line": 139,
-   "before": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 0, 6, false), CS));",
-   "after": "/* d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 0, 6, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_GetscodeDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) or a dropped write-back is never compared. Needs the harness to compare the DTO too"
-  },
-  {
-   "id": "e323f9f8f1",
-   "op": "CON",
-   "line": 139,
-   "before": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 0, 6, false), CS));",
-   "after": "d.setSortcode(Cobol.text(Field.alphanumeric(s, base + 1, 6, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_GetscodeDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) or a dropped write-back is never compared. Needs the harness to compare the DTO too"
+   "verdict": "equivalent",
+   "reason": "base - 0 is base + 0: the same offset, so the same bytes are read"
   },
   {
    "id": "e98a480f29",
@@ -610,8 +583,8 @@
    "line": 144,
    "before": "fill_GetscodeDfhcommarea(d, s, base);",
    "after": "/* fill_GetscodeDfhcommarea(d, s, base); */",
-   "verdict": "harness-gap",
-   "reason": "fill_GetscodeDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) or a dropped write-back is never compared. Needs the harness to compare the DTO too"
+   "verdict": "unreachable",
+   "reason": "out_GetscodeDfhcommarea (the only caller of this fill_) is never called: the port returns the DTO through caBack, whose fill_ call (line 212) the dto_entry scenarios kill"
   },
   {
    "id": "c2a3f6c547",
@@ -799,8 +772,8 @@
    "line": 211,
    "before": "in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0);",
    "after": "in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 1);",
-   "verdict": "case-gap",
-   "reason": "in_GetscodeDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 6 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it"
+   "verdict": "equivalent",
+   "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
   {
    "id": "e8557e1358",
@@ -808,26 +781,8 @@
    "line": 211,
    "before": "in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0);",
    "after": "/* in_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "case-gap",
-   "reason": "in_GetscodeDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 6 bytes of the COMMAREA and hide an in_ defect. A DTO-only run (a case without linked) would kill it"
-  },
-  {
-   "id": "5176416394",
-   "op": "CON",
-   "line": 212,
-   "before": "caBack = () -> fill_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "caBack = () -> fill_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 1);",
-   "verdict": "harness-gap",
-   "reason": "fill_GetscodeDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) or a dropped write-back is never compared. Needs the harness to compare the DTO too"
-  },
-  {
-   "id": "694365c686",
-   "op": "DEL",
-   "line": 212,
-   "before": "caBack = () -> fill_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "/* caBack = () -> fill_GetscodeDfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "harness-gap",
-   "reason": "fill_GetscodeDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) or a dropped write-back is never compared. Needs the harness to compare the DTO too"
+   "verdict": "equivalent",
+   "reason": "in_GetscodeDfhcommarea copies the DTO's SORTCODE into the 6-byte COMMAREA storage, and the program's one statement then MOVEs its literal over those same 6 bytes before anything reads or writes back the field (checked with the dto_entry scenarios, which hand the port the DTO alone and compare the DTO it gives back): whatever in_ stores, or not, is overwritten"
   },
   {
    "id": "ca8a5de7cb",

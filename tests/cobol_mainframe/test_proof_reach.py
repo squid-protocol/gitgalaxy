@@ -319,8 +319,12 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # among them, its stale-record skip ended), all in code no proof runs, so all unreachable. 76 -> 91.
     # #4506 then fixed CARDDEMO BILLPAY's store() modulus (digits + scale, found by the typed-BMS generated case): its
     # recorded mutation run judges the old port, so its 2 flagged survivors are skipped until it is re-run. 91 -> 89.
-    assert len(flagged) == 89 and verdicts.count("unreachable") == 86 and verdicts.count("equivalent") == 3
-    assert not {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C", "CSUTLDTC"}
+    # #4443 re-ran CARDDEMO COMEN01C and COACTVWC (seed 0, 150 mutants each; their records judged older ports, so their
+    # survivors were skipped), ending the skip: 6 more flagged survivors, all unreachable: the facade's lastLinkBytes()
+    # and the program-name literal in region.run / region.linked. 89 -> 95.
+    assert len(flagged) == 95 and verdicts.count("unreachable") == 92 and verdicts.count("equivalent") == 3
+    assert not {prog for prog, _ in flagged} & {"CSUTLDTC"}
+    assert {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C"} == {"COACTVWC", "COMEN01C"}
 
 
 def test_the_re_run_crucible_ports_keep_their_measured_floor():

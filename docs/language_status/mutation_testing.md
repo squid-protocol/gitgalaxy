@@ -323,7 +323,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
-| COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
+| COACTVWC (carddemo-acctview) | equivalence | 150/428 | 96/137 (70%) | 96/109 (88%) | 13 / 0 / 16 / 12 / 0 |
 | COACTVWC (carddemo-acctview-generated) | equivalence | 150/427 | 109/137 (80%) | 109/109 (100%) | 0 / 0 / 16 / 12 / 0 |
 | COADM01C (carddemo-adminmenu) | equivalence | 100/340 | 63/95 (66%) | 63/63 (100%) | 0 / 0 / 29 / 3 / 0 |
 | COADM01C (carddemo-adminmenu-generated) | equivalence | 150/340 | 97/145 (67%) | 97/97 (100%) | 0 / 0 / 43 / 5 / 0 |
@@ -334,7 +334,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBTRN01C (carddemo-dailyval) | equivalence | 100/241 | 63/96 (66%) | 63/71 (89%) | 8 / 0 / 10 / 15 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | CBACT04C (carddemo-intcalc) | equivalence | 100/170 | 70/86 (81%) | 70/77 (91%) | 6 / 1 / 9 / 0 / 0 |
-| COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
+| COMEN01C (carddemo-menu) | equivalence | 150/340 | 87/139 (63%) | 87/87 (100%) | 0 / 0 / 35 / 17 / 0 |
 | COMEN01C (carddemo-menu-generated) | equivalence | 150/340 | 87/139 (63%) | 87/88 (99%) | 0 / 1 / 35 / 16 / 0 |
 | CBTRN02C (carddemo-posttran) | equivalence | 100/263 | 76/85 (89%) | 76/80 (95%) | 3 / 1 / 5 / 0 / 0 |
 | CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/73 (95%) | 4 / 0 / 10 / 0 / 0 |
@@ -382,24 +382,24 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 4497 run | **2739/4103 (67%)** | **2739/3234 (85%)** | 310 / 185 / 584 / 285 / 0 |
-| **all estate** | | 5001 run | **3058/4579 (67%)** | **3058/3588 (85%)** | 345 / 185 / 672 / 319 / 0 |
+| **all equivalence** | | 4497 run | **2731/4114 (66%)** | **2731/3224 (85%)** | 308 / 185 / 583 / 307 / 0 |
+| **all estate** | | 5001 run | **3050/4590 (66%)** | **3050/3578 (85%)** | 343 / 185 / 671 / 341 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 216/272 (79%) | 216/242 (89%) |
+| AOR | 217/278 (78%) | 217/244 (89%) |
 | BDM | 25/49 (51%) | 25/28 (89%) |
-| CON | 385/903 (43%) | 385/501 (77%) |
-| COR | 172/298 (58%) | 172/229 (75%) |
-| DEL | 486/737 (66%) | 486/570 (85%) |
-| LIT | 640/873 (73%) | 640/723 (89%) |
-| NEG | 573/654 (88%) | 573/621 (92%) |
+| CON | 385/902 (43%) | 385/499 (77%) |
+| COR | 176/311 (57%) | 176/234 (75%) |
+| DEL | 489/737 (66%) | 489/565 (87%) |
+| LIT | 633/871 (73%) | 633/719 (88%) |
+| NEG | 569/652 (87%) | 569/618 (92%) |
 | RET | 56/105 (53%) | 56/93 (60%) |
-| ROR | 505/688 (73%) | 505/581 (87%) |
+| ROR | 500/685 (73%) | 500/578 (87%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
-| COACTVWC (carddemo-acctview) | 3/3 | 0/1 | 11/24 | 8/9 | 19/23 | 20/23 | 22/23 | - | 22/23 |
+| COACTVWC (carddemo-acctview) | 4/9 | 0/1 | 12/22 | 12/21 | 16/21 | 16/21 | 18/21 | - | 18/21 |
 | COACTVWC (carddemo-acctview-generated) | 6/9 | 0/1 | 14/22 | 17/21 | 16/21 | 16/21 | 20/21 | - | 20/21 |
 | COADM01C (carddemo-adminmenu) | 8/8 | - | 2/14 | 6/8 | 8/16 | 7/15 | 15/15 | 4/4 | 13/15 |
 | COADM01C (carddemo-adminmenu-generated) | 8/8 | - | 4/24 | 6/8 | 14/26 | 14/25 | 25/25 | 4/4 | 22/25 |
@@ -410,7 +410,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBTRN01C (carddemo-dailyval) | 3/6 | - | 11/16 | 3/12 | 9/15 | 12/16 | 12/16 | - | 13/15 |
 | CSUTLDTC (carddemo-dateutil) | 13/15 | - | 28/51 | 4/8 | 9/10 | 27/35 | 31/32 | - | 33/44 |
 | CBACT04C (carddemo-intcalc) | 3/4 | 4/6 | 13/21 | 1/2 | 13/17 | 20/20 | 10/10 | - | 6/6 |
-| COMEN01C (carddemo-menu) | 13/14 | - | 7/20 | 6/9 | 14/22 | 15/24 | 16/23 | - | 15/24 |
+| COMEN01C (carddemo-menu) | 13/14 | - | 6/21 | 6/10 | 20/24 | 12/24 | 16/23 | - | 14/23 |
 | COMEN01C (carddemo-menu-generated) | 13/14 | - | 6/21 | 6/10 | 20/24 | 12/24 | 16/23 | - | 14/23 |
 | CBTRN02C (carddemo-posttran) | 6/6 | 6/8 | 14/15 | 2/4 | 10/11 | 13/14 | 13/13 | - | 12/14 |
 | CBACT02C (carddemo-readcard) | - | - | 17/23 | 1/3 | 9/11 | 22/25 | 12/12 | - | 8/9 |

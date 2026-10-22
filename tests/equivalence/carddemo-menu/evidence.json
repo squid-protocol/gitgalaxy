@@ -26,7 +26,7 @@
     "tests/equivalence/carddemo-menu/**"
    ],
    "files": 1,
-   "sha256": "5f6509b58243184644b272234106baefc52b05fbaa1bdb538266503dd6a9f9e2"
+   "sha256": "60c5fa7fa2bf0d83f45cbffc7ae8eeada3241daba3ec4200fcb902990b299ce7"
   },
   "harness": {
    "paths": [
@@ -77,7 +77,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 102,
-   "sha256": "a179f8e8647c016d43c62e6707af3112a1164dc737d76035b6a2ddde45279cb0",
+   "sha256": "97ada74bd02d5e6f0c43e9de02d294e3b932be461e2db14c371b8e09b43de4c9",
    "components": {
     "generator:core": "286f1220d709fb1d4689c6d78a413a9440109a0ecca0472d2e3811c8ac0d9f81",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
@@ -90,8 +90,8 @@
     "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "2ade8d1fe04210aba9f6f738426eebce0b6fa31137a34a69ca9b0ffd8631bfc6",
-    "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
+    "generator:det/gen": "103a0da4d979c518e60d0dda1fc003e7a3f65ddf56c16280091e8a7942f41f4d",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
@@ -179,12 +179,12 @@
     }
    }
   },
-  "digest": "218f4a232bdfdf710601b3134b90da6ad70c3dff42050a1ad62e8711384f775e"
+  "digest": "97eb8b3105a6372cc11b69653b315aea9339f2aacbf850e4e852f477bc87eddd"
  },
  "proof": {
-  "at": "2026-10-22T10:36:23Z",
+  "at": "2026-10-22T12:24:29Z",
   "verdict": "proven",
-  "runs": 15,
+  "runs": 16,
   "fault_runs": 2,
   "environments": null,
   "outputs": {
@@ -247,6 +247,10 @@
    "carried-commarea-fields": {
     "equal": 2,
     "records": 2
+   },
+   "carried-customer-and-card-fields": {
+    "equal": 2,
+    "records": 2
    }
   },
   "return_code_equal": null,
@@ -255,16 +259,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 15,
-   "passed": 15,
+   "runs": 16,
+   "passed": 16,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "60569a84d4dc95bd66424646bfaae0b73e4212e3+uncommitted",
-  "inputs_digest": "218f4a232bdfdf710601b3134b90da6ad70c3dff42050a1ad62e8711384f775e"
+  "harness_commit": "06a436358ecf784524e7d13291ed0ade1d586821+uncommitted",
+  "inputs_digest": "97eb8b3105a6372cc11b69653b315aea9339f2aacbf850e4e852f477bc87eddd"
  },
  "coverage": {
   "paragraphs": {
@@ -306,7 +310,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "218f4a232bdfdf710601b3134b90da6ad70c3dff42050a1ad62e8711384f775e"
+  "inputs_digest": "97eb8b3105a6372cc11b69653b315aea9339f2aacbf850e4e852f477bc87eddd"
  },
  "reach": {
   "entry_points": [
@@ -349,40 +353,40 @@
   "port_sha256": "6bf76a85d20100475ecb16ff83209307510de2104a289d062682da44a81ad5cd"
  },
  "mutation": {
-  "commit": "9c21df6c3",
+  "commit": "06a436358ecf784524e7d13291ed0ade1d586821",
   "rejudged": null,
   "seed": 0,
   "mode": null,
-  "mutants": 331,
+  "mutants": 340,
   "chosen": 150,
-  "killed": 86,
-  "survived": 50,
-  "stillborn": 14,
+  "killed": 87,
+  "survived": 52,
+  "stillborn": 11,
   "survivors": {
-   "case_gap": 7,
+   "case_gap": 0,
    "harness_gap": 0,
-   "equivalent": 36,
-   "unreachable": 7,
+   "equivalent": 35,
+   "unreachable": 17,
    "untriaged": 0
   },
-  "score_raw": "86/136",
-  "score_adjusted": "86/93",
+  "score_raw": "87/139",
+  "score_adjusted": "87/87",
   "source": "docs/language_status/mutation_scores.json#carddemo-menu/COMEN01C",
   "inputs": {
    "port": {
-    "sha256": "0e006d59cc0c36a22eccb3c53b6523ee8d9327aa9c6e38ec0c6ce95692e1e2d3"
+    "sha256": "6bf76a85d20100475ecb16ff83209307510de2104a289d062682da44a81ad5cd"
    },
    "case": {
-    "sha256": "19ee80b9d049321890df89247de08268b817d4e6334f9b06c006cbe502e3cf69"
+    "sha256": "5f6509b58243184644b272234106baefc52b05fbaa1bdb538266503dd6a9f9e2"
    },
    "corpus": {
     "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
    },
    "harness": {
-    "sha256": "1764f900744b3e9c121722acf2c84aee1ef8dded04fa68f429e0abc39f031fd9"
+    "sha256": "c894f4be06c9d7db7602b550c60fd6f5c339c34ba7f53e68c3895a1bd36bbc24"
    },
    "oracle": {
-    "sha256": "b1be686cf96bbdce71bd0b5dc4245252f64020d97a5094cee850165bf093d250"
+    "sha256": "3869f6f0ef0199bbb2740962ab86ce23d2a3025c69b1b9fcb55d72025f366ea7"
    }
   }
  },
@@ -395,7 +399,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+   "id": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []

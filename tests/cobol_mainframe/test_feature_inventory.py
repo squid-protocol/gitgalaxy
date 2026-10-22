@@ -401,6 +401,7 @@ def test_no_committed_inventory_key_is_a_sequence_number():  # #5235 (item 1 of 
 
 
 @pytest.mark.nightly
+@pytest.mark.slow(reason="#5992: re-scans every burned estate (114 s on a CI runner) against the committed inventories")
 @pytest.mark.skipif(
     not os.environ.get("GITGALAXY_NIGHTLY"), reason="nightly (~170 s, all estates): set GITGALAXY_NIGHTLY=1"
 )
@@ -409,6 +410,27 @@ def test_feature_inventory_cli_check():
     res = subprocess.run([sys.executable, str(TOOLS / "feature_inventory.py"), "--all-burned", "--check"],  # noqa: S603
                          capture_output=True, text=True, check=False)  # fmt: skip
     assert res.returncode == 0  # noqa: S101
+
+
+def test_every_nightly_test_is_marked_slow():  # #5992
+    """A nightly-only test never runs on a push or PR, so the 15 s per-test ratchet first meets it on the scheduled run
+    (main red, #5992). Every file that marks a test nightly carries a slow mark, and a decorated test carries its own."""
+    import ast
+
+    tests_dir = Path(__file__).resolve().parents[1]
+    bare = []
+    for path in sorted(tests_dir.rglob("*.py")):
+        text = path.read_text(encoding="utf-8")
+        if "mark.nightly" not in text:
+            continue
+        for node in ast.walk(ast.parse(text)):
+            if isinstance(node, ast.FunctionDef):
+                decos = [ast.unparse(d) for d in node.decorator_list]
+                if any("mark.nightly" in d for d in decos) and not any("mark.slow(" in d for d in decos):
+                    bare.append(f"{path.name}::{node.name}")
+        if "mark.slow(" not in text:  # nightly given through a param mark: the test itself carries the slow mark
+            bare.append(path.name)
+    assert not bare, bare  # noqa: S101
 
 
 @pytest.mark.parametrize("national", ["PIC N(4)", "PIC G(4)", "PIC X(4) USAGE NATIONAL", "PIC X(4) USAGE IS DISPLAY-1"])

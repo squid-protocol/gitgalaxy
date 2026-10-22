@@ -42,6 +42,15 @@ from equivalence_common import engine_layouts  # noqa: E402 -- #5649: the engine
 from gitgalaxy.core.estate_options import effective_options  # noqa: E402 -- #4704: the one options resolver
 
 PKG = "com.gitgalaxy.modernized"
+
+
+def proof_order(names: list[str]) -> list[str]:
+    """#5882: the cases longest first, by recorded duration (proof_sweep's; an unmeasured case weighs the median).
+    In name order a long case could start last and hold the shard while the other workers idle."""
+    import proof_sweep as ps
+
+    weight = ps.case_weights(sorted(set(names)), ps.load_durations())
+    return sorted(names, key=lambda c: (-weight[c], c))
 PROOF_TIMEOUT = 3600  # seconds per case
 PKG_DIR = PKG.replace(".", "/")
 
@@ -461,6 +470,8 @@ def main() -> int:
     if not args.translate_only:
         eq.build_image()
         todo = [x for x in results if x.get("statements") is not None]
+        rank = {c: i for i, c in enumerate(proof_order([x["case"] for x in todo]))}
+        todo.sort(key=lambda x: rank[x["case"]])  # (results keep their order: summary.json is unchanged)
         with ThreadPoolExecutor(max_workers=args.jobs) as ex:
             for x, p in zip(
                 todo, ex.map(lambda x: prove(x["case"], args.work, args.faults), todo), strict=False

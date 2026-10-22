@@ -310,3 +310,20 @@ def test_the_signon_case_takes_the_z_credential_survivor_scenarios():
         assert (got["USERIDI"] != got["USERIDI"].upper()) is fold
         assert got["USERIDI"].upper() + "ZELDA" in on_file and got["PASSWDI"].upper() + "U" in on_file
         assert s["why"].startswith("#4049") and "expected" not in s
+
+
+def test_the_userlist_case_takes_the_short_commarea_and_endbr_fault_scenarios():
+    # #4049: a COMMAREA cut at or past the last numeric field (a shorter one leaves PIC 9 as spaces, undefined in IBM),
+    # and ENDBR faults IBM lists for ENDBR (ILLOGIC, NOTAUTH; ITEMERR / PGMIDERR are not listed, IOERR has no abend
+    # code in the oracle table); inputs only, never an expected result
+    scs = _scenarios("carddemo-userlist")
+    for n in (184, 185, 186):
+        s = scs[f"short-commarea-{n}"]
+        assert s["commarea_length"] == n and s["why"].startswith("#4049") and "expected" not in s
+    for name, resp in (
+        ("endbr-illogic-after-a-page-forward", "ILLOGIC"),
+        ("endbr-notauth-after-a-page-back", "NOTAUTH"),
+    ):
+        s = scs[name]
+        assert [(f["cmd"], f["file"], f["resp"]) for f in s["faults"]] == [("ENDBR", "USRSEC", resp)]
+        assert s["why"].startswith("#4049") and "expected" not in s

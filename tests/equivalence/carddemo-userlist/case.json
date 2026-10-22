@@ -1321,6 +1321,186 @@
     "COUSR0A": {}
    },
    "why": "#4628 (det-port mutants on the PAGE-NUM test in PROCESS-PAGE-BACKWARD): USER0006 is the 11th user, so ten rows back exhaust the file and the extra READPREV hits ENDFILE: PAGE-NUM is set to 1 (not 3 - 1)"
+  },
+  {
+   "name": "short-commarea-184",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CA00",
+    "CDEMO-TO-PROGRAM": "COADM01C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COUSR0A",
+    "CDEMO-LAST-MAPSET": "COUSR00",
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CU00-USR-SEL-FLG": "U",
+    "CDEMO-CU00-USR-SELECTED": "ADMIN002"
+   },
+   "receive": {
+    "COUSR0A": {
+     "TITLE01I": "AWS Mainframe Modernization",
+     "TITLE02I": "CardDemo",
+     "PGMNAMEI": "COUSR00C",
+     "TRNNAMEI": "CU00",
+     "CURDATEI": "22/07/18",
+     "CURTIMEI": "10:30:15",
+     "PAGENUMI": "1",
+     "USRIDINI": "USER0003"
+    }
+   },
+   "why": "#4049: the caller passed the first 184 of the COMMAREA's 194 bytes (EIBCALEN 184, X23): the fields from byte 184 are spaces and the RETURN carries that back. Only lengths at or past the last numeric field (PAGE-NUM, ends at 184) are stated: a shorter COMMAREA leaves a PIC 9 field as spaces, which IBM leaves undefined",
+   "commarea_length": 184
+  },
+  {
+   "name": "short-commarea-185",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CA00",
+    "CDEMO-TO-PROGRAM": "COADM01C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COUSR0A",
+    "CDEMO-LAST-MAPSET": "COUSR00",
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CU00-USR-SEL-FLG": "U",
+    "CDEMO-CU00-USR-SELECTED": "ADMIN002"
+   },
+   "receive": {
+    "COUSR0A": {
+     "TITLE01I": "AWS Mainframe Modernization",
+     "TITLE02I": "CardDemo",
+     "PGMNAMEI": "COUSR00C",
+     "TRNNAMEI": "CU00",
+     "CURDATEI": "22/07/18",
+     "CURTIMEI": "10:30:15",
+     "PAGENUMI": "1",
+     "USRIDINI": "USER0003"
+    }
+   },
+   "why": "#4049: the caller passed the first 185 of the COMMAREA's 194 bytes (EIBCALEN 185, X23): the fields from byte 185 are spaces and the RETURN carries that back. Only lengths at or past the last numeric field (PAGE-NUM, ends at 184) are stated: a shorter COMMAREA leaves a PIC 9 field as spaces, which IBM leaves undefined",
+   "commarea_length": 185
+  },
+  {
+   "name": "short-commarea-186",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CA00",
+    "CDEMO-TO-PROGRAM": "COADM01C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COUSR0A",
+    "CDEMO-LAST-MAPSET": "COUSR00",
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CU00-USR-SEL-FLG": "U",
+    "CDEMO-CU00-USR-SELECTED": "ADMIN002"
+   },
+   "receive": {
+    "COUSR0A": {
+     "TITLE01I": "AWS Mainframe Modernization",
+     "TITLE02I": "CardDemo",
+     "PGMNAMEI": "COUSR00C",
+     "TRNNAMEI": "CU00",
+     "CURDATEI": "22/07/18",
+     "CURTIMEI": "10:30:15",
+     "PAGENUMI": "1",
+     "USRIDINI": "USER0003"
+    }
+   },
+   "why": "#4049: the caller passed the first 186 of the COMMAREA's 194 bytes (EIBCALEN 186, X23): the fields from byte 186 are spaces and the RETURN carries that back. Only lengths at or past the last numeric field (PAGE-NUM, ends at 184) are stated: a shorter COMMAREA leaves a PIC 9 field as spaces, which IBM leaves undefined",
+   "commarea_length": 186
+  },
+  {
+   "name": "endbr-illogic-after-a-page-forward",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "USRSEC",
+     "resp": "ILLOGIC",
+     "why": "110 on the ENDBR after PF8: ENDBR has no RESP, so CICS takes its default action and abends the task"
+    }
+   ],
+   "why": "#4049: 110 on the ENDBR after PF8: the program's ENDBR has no RESP, so the condition abends the task before the screen is sent"
+  },
+  {
+   "name": "endbr-notauth-after-a-page-back",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "USER0006",
+    "CDEMO-CU00-USRID-LAST": "USER0015",
+    "CDEMO-CU00-PAGE-NUM": 2,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "USRSEC",
+     "resp": "NOTAUTH",
+     "why": "101 on the ENDBR after PF7: ENDBR has no RESP, so CICS takes its default action and abends the task"
+    }
+   ],
+   "why": "#4049: 101 on the ENDBR after PF7: the program's ENDBR has no RESP, so the condition abends the task before the screen is sent"
   }
  ],
  "notes": "CardDemo's user list (transaction CU00, program COUSR00C): a page of ten users browsed from USRSEC (STARTBR / READNEXT, ENDBR), PF8 / PF7 page forward and back from the page's last / first id (a READNEXT / READPREV first steps over the record the browse starts on), a 'U' or 'D' beside a user XCTLs to the update / delete screen. usrsec.txt is CardDemo's ten DUSRSECJ users plus fifteen synthetic ones (USER0006-USER0020, named for computing pioneers, written for this case) so that three pages exist. A defect of the original the case shows: a search past the last id makes STARTBR NOTFND, and the ENDBR that follows (no RESP) abends with INVREQ. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

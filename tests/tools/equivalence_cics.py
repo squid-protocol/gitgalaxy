@@ -3920,7 +3920,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             fields = screen_fields(corpus, case, kv["map"], "output")
             vals = decode_record(data, fields, enc)
             keys = {f["name"]: screen_key(f) for f in fields}  # #5076: an OCCURS field's every occurrence, ACCOUNT.3
-            res["screens"].append({"map": kv["map"],
+            res["screens"].append({"map": kv["map"], **({"mapset": kv["mapset"]} if "mapset" in kv else {}),
                                    "fields": {keys[k][0]: v for k, v in vals.items() if keys[k][1] == "O"},
                                    "subfields": map_subfields(corpus, case, kv["map"], data, enc),
                                    "options": sorted(args.partition("opts=")[2].split()),
@@ -5598,7 +5598,7 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         verb, _, args = line.partition(" ")
         if verb == "SEND-MAP":
             s = next(screens)
-            out.append({"event": "SEND-MAP", "map": s["map"], "screen": s["fields"], "subfields": s["subfields"],
+            out.append({"event": "SEND-MAP", "map": s["map"], **({"mapset": s["mapset"]} if "mapset" in s else {}), "screen": s["fields"], "subfields": s["subfields"],
                         "options": s["options"], "cursor": s["cursor"]})  # fmt: skip
         elif verb == "SEND-TEXT":  # #5401: its options too, as CicsTask.sendText records them
             out.append({"event": "SEND-TEXT", "text": next(texts), "options": next(text_options, [])})
@@ -5633,7 +5633,9 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         elif verb in equivalence_mq.EVENTS:  # #4892
             out.append(next(mq_calls))
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
-            out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
+            mapset = re.search(r"\bmapset=(\S*)", args)  # #5862: the mapset too, as CicsTask.receive records it
+            out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1),
+                        **({"mapset": mapset.group(1)} if mapset else {})})  # fmt: skip
         elif verb == "RETURN":
             lvl = re.search(r"\blevel=(\d+)", args)
             if "resp=" in args:  # #4270: a RETURN IMMEDIATE that failed (INVREQ / LENGERR): CicsTask.returnImmediate
@@ -5762,7 +5764,7 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             diffs.append({"event": n + 1, "cobol": c and c["event"], "java": j and j["event"]})
             continue
         bad = []
-        for key in ("map", "transid", "program", "text", "abcode", "queue", "data", "resp", "item", "resource"):
+        for key in ("map", "mapset", "transid", "program", "text", "abcode", "queue", "data", "resp", "item", "resource"):
             if key in c and not _same(c[key], j.get(key)):
                 bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
         if c["event"] == "START":  # #4270: what CicsTask.start records besides the transid and RESP, both ways

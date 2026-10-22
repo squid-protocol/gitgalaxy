@@ -398,15 +398,6 @@
    "reason": "COBIL00C never references EIBRESP or EIBRESP2 (its commands use RESP(WS-RESP-CD) / RESP2(WS-REAS-CD)), so the store's value or absence cannot show"
   },
   {
-   "id": "74b4bb8c3a",
-   "op": "LIT",
-   "line": 1184,
-   "before": "java.util.Optional<Cobil0aScreen> received8 = task.receive(\"COBIL0A\", \"COBIL00\", Cobil0aScreen.class);",
-   "after": "java.util.Optional<Cobil0aScreen> received8 = task.receive(\"COBIL0A\", \"XOBIL00\", Cobil0aScreen.class);",
-   "verdict": "harness-gap",
-   "reason": "RECEIVE MAP's mapset name: the stub records it in the RECEIVE-MAP event line, but equivalence_cics.cobol_events keeps only `map`, so the proof does not compare it. Fix: add `mapset` to that event dict; it moves the CICS harness fingerprint, so every CICS case's ledger re-runs"
-  },
-  {
    "id": "7d64efbfdb",
    "op": "DEL",
    "line": 1220,

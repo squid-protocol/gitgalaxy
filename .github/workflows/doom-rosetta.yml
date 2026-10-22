@@ -1,8 +1,8 @@
 name: DOOM-rosetta
 
 # Zero-drift check of the pinned DOOM ports against tests/golden_doom_rosetta (#5619, slice 3). The 44 ports total ~6.7M
-# LOC and 7.5 min serial, so the `plan` job packs them into SHARDS by LOC (largest first, into the lightest shard, from
-# the golden's own per-file LOC) and each shard runs `pytest -m doom_rosetta` with DOOM_ROSETTA_PORTS narrowed to its
+# LOC and 7.5 min serial, so the `plan` job packs them into shards by LOC (largest first, into the lightest shard, from
+# the golden's own per-file LOC; #5919: crucible_shard_plan.py also picks the count and the shard timeout) and each shard runs `pytest -m doom_rosetta` with DOOM_ROSETTA_PORTS narrowed to its
 # ports. Clones are fetched at the manifest SHA at run time (never committed) and cached per shard, keyed by the
 # manifest hash. Each shard writes its wall time to the job summary: the PR wall time is the slowest shard.
 # Slice 4 (#5630): the nightly `callgraph` job (schedule / manual only) scans the 20 licensed C/C++ ports and fails on a
@@ -20,6 +20,8 @@ on:
       - "tests/doom_rosetta/**"
       - "tests/golden_doom_rosetta/**"
       - "tests/tools/doom_rosetta_check.py"
+      - "tests/tools/crucible_shard_plan.py"  # #5919: the plan job's shard count and timeout
+      - "tests/tools/ci_shard_plan.py"
       - "tests/tools/doom_speedrun/**"
       - ".github/workflows/doom-rosetta.yml"
   schedule:
@@ -40,43 +42,23 @@ jobs:
     timeout-minutes: 5
     outputs:
       matrix: ${{ steps.shards.outputs.matrix }}
+      timeout: ${{ steps.shards.outputs.timeout }}
     steps:
       - name: Checkout GitGalaxy PR
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Pack the ports into LOC-balanced shards
+      - name: Size and pack the ports into LOC-balanced shards
         id: shards
-        env:
-          SHARDS: "4"
-        run: |
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import csv, glob, gzip, json, os
-
-          n = int(os.environ["SHARDS"])
-          loc = {}
-          for path in glob.glob("tests/golden_doom_rosetta/*.json.gz"):
-              with gzip.open(path, "rt") as fh:
-                  files = json.load(fh)["files"]
-              loc[os.path.basename(path).removesuffix(".json.gz")] = sum(v[1] for v in files.values())
-          with open("tests/doom_rosetta/manifest.csv", newline="") as fh:
-              names = [r["name"] for r in csv.DictReader(fh)]
-          bins = [{"ports": [], "loc": 0} for _ in range(n)]
-          for name in sorted(names, key=lambda p: (-loc.get(p, 0), p)):
-              b = min(bins, key=lambda x: x["loc"])
-              b["ports"].append(name)
-              b["loc"] += loc.get(name, 0)
-          include = [{"shard": i + 1, "ports": ",".join(sorted(b["ports"])), "loc": b["loc"]} for i, b in enumerate(bins)]
-          print("matrix=" + json.dumps({"include": include}))
-          PY
+        run: python3 tests/tools/crucible_shard_plan.py --doom >> "$GITHUB_OUTPUT"
 
   shard:
     needs: plan
     if: ${{ github.event_name != 'schedule' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104; the nightly runs `callgraph` only: draft PRs skip heavy CI
     name: shard ${{ matrix.shard }} (${{ matrix.loc }} LOC)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: ${{ fromJSON(needs.plan.outputs.timeout) }}  # #5919: the slowest planned shard x 1.5, not hand-set
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}

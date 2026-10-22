@@ -1,5 +1,5 @@
 {
- "commit": "f061c4405",
+ "commit": "d1becbc1c",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,22 +160,22 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-22T16:22:43Z",
+  "as_of": "2026-10-22T17:31:07Z",
   "core": {
-   "closed": 83,
-   "open": 17,
-   "total": 100
+   "closed": 159,
+   "open": 25,
+   "total": 184
   },
   "core_last_window": {
-   "closed": 47,
-   "net_closed": 6,
-   "opened": 41
+   "closed": 55,
+   "net_closed": 15,
+   "opened": 40
   },
   "core_milestone": {
-   "closed": 45,
+   "closed": 87,
    "number": 28,
-   "open": 14,
-   "total": 59
+   "open": 16,
+   "total": 103
   },
   "epics": {
    "4890": "open",
@@ -184,23 +184,23 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "20 days",
+  "eta": "12 days",
   "frontier": {
-   "closed": 0,
-   "found_last_window": 0,
-   "open": 0,
-   "total": 0
+   "closed": 106,
+   "found_last_window": 23,
+   "open": 98,
+   "total": 204
   },
   "frontier_milestone": {
    "closed": 0,
    "number": 30,
-   "open": 0,
-   "total": 0
+   "open": 46,
+   "total": 46
   },
   "infra": {
-   "closed": 0,
-   "open": 0,
-   "total": 0
+   "closed": 189,
+   "open": 59,
+   "total": 248
   },
   "measured": true,
   "milestones": [
@@ -409,18 +409,18 @@
    }
   ],
   "sweep": {
-   "closed": 0,
-   "open": 0,
-   "total": 0
+   "closed": 79,
+   "open": 14,
+   "total": 93
   },
   "title_counts": {
    "cics": {
-    "closed": 0,
-    "total": 0
+    "closed": 85,
+    "total": 105
    },
    "cobol": {
-    "closed": 0,
-    "total": 0
+    "closed": 128,
+    "total": 144
    }
   },
   "window_days": 7

@@ -7,7 +7,7 @@ weights through ci_shard_plan. Stdlib only: a plan job runs before anything is i
     --doom       tests/doom_rosetta/manifest.csv + the goldens' own per-file LOC; emits `matrix` (LOC-balanced shards,
                  each with its ports) and `timeout`
 
-Neither workflow types a shard count or a shard timeout: adding cases (or ports) moves the plan, not the YAML. The model
+The plan job of each workflow calls this module, so adding cases (or ports) moves the plan, not the YAML. The model
 constants below were calibrated so today's inputs reproduce today's counts (CICS 2 shards, DOOM 4).
 """
 

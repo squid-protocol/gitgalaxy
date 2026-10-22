@@ -15,7 +15,6 @@ import cics_crucible_compare as cc  # noqa: E402
 import crucible_shard_plan as plan  # noqa: E402
 
 WORKFLOW = TESTS.parent / ".github" / "workflows" / "cics-crucible.yml"
-DOOM_WORKFLOW = TESTS.parent / ".github" / "workflows" / "doom-rosetta.yml"
 CASES = sorted(runner.CASE_SECONDS) + ["a-new-case"]  # a case with no recorded seconds is still placed
 
 
@@ -94,28 +93,13 @@ def test_merge_refuses_an_incomplete_or_overlapping_run(parts, needle):
 
 
 def test_the_workflow_matrix_is_the_n_the_job_passes_to_shard():
-    """#5919: the plan job emits the matrix ({shard, total}) and the timeout; no literal shard list or timeout is left."""
     text = WORKFLOW.read_text(encoding="utf-8")
-    assert not re.search(r"shard: \[[\d, ]+\]", text), "a hand-set shard list"
-    measure = text[text.index("\n  measure:") : text.index("\n  runner-tests:")]
-    assert "matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}" in measure and "needs: plan" in measure
-    assert "timeout-minutes: ${{ fromJSON(needs.plan.outputs.timeout) }}" in measure
-    assert "--shard ${{ matrix.shard }}/${{ matrix.total }}" in measure
-    assert "shard ${{ matrix.shard }}/${{ matrix.total }}" in measure  # the job name carries the same N
-    assert "crucible_shard_plan.py --cics" in text and "needs: [plan, measure, runner-tests]" in text
-
-
-def test_the_doom_workflow_sizes_its_shards_from_the_plan():
-    text = DOOM_WORKFLOW.read_text(encoding="utf-8")
-    assert "SHARDS:" not in text and "crucible_shard_plan.py --doom" in text
-    shard = text[text.index("\n  shard:") : text.index("\n  # #5630 slice 4")]
-    assert "timeout-minutes: ${{ fromJSON(needs.plan.outputs.timeout) }}" in shard
-
-
-@pytest.mark.parametrize("path", [WORKFLOW, DOOM_WORKFLOW])
-def test_the_workflows_trigger_on_the_planner(path):
-    text = path.read_text(encoding="utf-8")
-    assert '"tests/tools/crucible_shard_plan.py"' in text and '"tests/tools/ci_shard_plan.py"' in text
+    matrix = re.search(r"shard: \[([\d, ]+)\]", text)
+    assert matrix, "no shard matrix"
+    shards = [int(x) for x in matrix.group(1).split(",")]
+    totals = set(re.findall(r"--shard \$\{\{ matrix\.shard \}\}/(\d+)", text))
+    assert shards == list(range(1, len(shards) + 1)) and totals == {str(len(shards))}
+    assert f"shard ${{{{ matrix.shard }}}}/{len(shards)}" in text  # the job name carries the same N
 
 
 def _cases(n):

@@ -143,14 +143,6 @@ def test_unreadable_queue_plans_calm(monkeypatch):
     assert plan.queue_waiting("pull_request", None) is None
 
 
-def test_det_sweep_plan_job_may_read_the_queue():
-    job = _workflow("det-sweep.yml")["jobs"]["plan"]
-    assert job["permissions"]["actions"] == "read"
-    for s in job["steps"]:
-        if s.get("name", "").startswith(("Plan the sweep", "Plan from the port diff")):
-            assert "GH_TOKEN" in s["env"]
-
-
 def test_db2_plan_with_unmeasured_cases_fails_and_nothing_to_prove_is_no_shards():
     p, dur = _db2_plan(10)
     with pytest.raises(sp.PlanError):

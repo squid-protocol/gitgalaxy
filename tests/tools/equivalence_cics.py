@@ -4023,7 +4023,8 @@ def map_subfields(
     themselves (DFHRED is X'F2'), so the byte is the value. Not set, and not compared: X'00' -- the LOW-VALUES a
     program clears its map with, which BMS reads as "the map's own" -- and a space, which is never a BMS value
     here but WORKING-STORAGE GnuCOBOL initialised to spaces where IBM leaves it undefined (a map the program never
-    cleared: the mainframe's bytes are not known, so nothing is claimed about them)."""
+    cleared: the mainframe's bytes are not known, so nothing is claimed about them). #5233: X'40' too -- DFHBMUNP, the
+    EBCDIC space, which the port's side (java_subfields) cannot tell from a cleared byte, so neither side claims it."""
     out: dict[str, dict[str, int]] = {}
     scr = case["screens"][map_name]
     layouts = [screen_layout(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
@@ -4037,7 +4038,7 @@ def map_subfields(
         raw = data[f["offset"] : f["offset"] + f["bytes"]]
         if kind == "L" and f["bytes"] == 2 and int.from_bytes(raw, "big", signed=True) == -1:
             out.setdefault(name, {})["length"] = -1
-        elif kind in _SUBFIELDS and f["bytes"] == 1 and raw not in (b"\x00", space):
+        elif kind in _SUBFIELDS and f["bytes"] == 1 and raw not in (b"\x00", space, b"\x40"):
             out.setdefault(name, {})[_SUBFIELDS[kind]] = raw[0]
     return out
 
@@ -4055,7 +4056,8 @@ def java_subfields(sub: Any) -> dict[str, dict[str, int]]:
 
 
 # ---- the Java side --------------------------------------------------------------------
-_DTO_FIELD = re.compile(r"^\s*//\s*(.+?)\n\s*private\s+([\w.<>]+)\s+(\w+);", re.M)
+# a table field has a second comment line ("// OCCURS 20 TIMES") between its PICTURE comment and the property (#5233)
+_DTO_FIELD = re.compile(r"^\s*//\s*(.+?)\n(?:\s*//[^\n]*\n)?\s*private\s+([\w.<>]+)\s+(\w+);", re.M)
 
 
 def java_class_file(src: Path, name: str, context: Path | None = None) -> Path | None:
@@ -4098,6 +4100,11 @@ def dto_shape(src: Path, cls: str, context: Path | None = None) -> dict[str, Any
     return _dto_file_shape(src, path)
 
 
+class TableField(str):
+    """#5233: the COBOL name of a DTO property that is a List (an OCCURS table of scalars). The port's input carries it
+    in the area's bytes (`tabled`), never as JSON: a scalar there is not a list."""
+
+
 def _dto_file_shape(src: Path, path: Path) -> dict[str, Any]:
     shape: dict[str, Any] = {}
     for comment, jtype, var in _DTO_FIELD.findall(path.read_text(encoding="utf-8")):
@@ -4105,7 +4112,8 @@ def _dto_file_shape(src: Path, path: Path) -> dict[str, Any]:
         if part is not None:
             shape[var] = (part.stem, _dto_file_shape(src, part))
         elif ":" in comment:
-            shape[var] = comment.split(":", 1)[0].strip()
+            name = comment.split(":", 1)[0].strip()
+            shape[var] = TableField(name) if jtype.startswith("List<") else name
     return shape
 
 
@@ -4117,7 +4125,7 @@ def to_java(values: dict[str, Any], shape: dict[str, Any], text: frozenset[str] 
     for var, spec in shape.items():
         if isinstance(spec, tuple):
             out[var] = to_java(values, spec[1], text)
-        elif spec in values:
+        elif spec in values and not isinstance(spec, TableField):
             v = values[spec]
             if spec in text:
                 out[var] = v
@@ -4381,7 +4389,8 @@ FACADE_JAVA = """    /** #4449: a facade did not run the scenario's task the way
                 used = twoB;
                 carriesBytes = true;
                 entry(program, "handleTransaction");
-                got = call(twoB, service, scenario.transid(), commarea, null);
+                // #5233: the bytes the scenario's task starts with (a table's later occurrences are only there), not none
+                got = call(twoB, service, scenario.transid(), commarea, scenario.linkAreaView());
             } else if (commarea == null && one != null) {
                 used = one;
                 entry(program, "handleTransaction");
@@ -5255,12 +5264,17 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             values = decode_record(commarea_record(ca_read, sc["commarea"], enc), ca_fields, enc, keep_nulls=True)
             # a value the DTO has no field for would reach the port as nothing at all: the case must name the
             # COMMAREA as the contract DTO's record does
-            lost = sorted(set(sc["commarea"]) - shape_names(shape))
+            # #5233: a table's later occurrence (CDEMO-CPVS-AUTH-KEYS(3)) is the DTO's list property, set by the bytes
+            tables = {n for n in _leaves(shape).values() if isinstance(n, TableField)}
+            tabled = {k for k in sc["commarea"] if re.sub(r"\(\d+\)$", "", k) in tables}
+            lost = sorted({k for k in sc["commarea"] if re.sub(r"\(\d+\)$", "", k) not in shape_names(shape)})
             if lost:
                 raise Unsupported(f"scenario {sc['name']}: the COMMAREA DTO {ca_cls} has no field for {lost} -- "
                                   f"describe the COMMAREA with the record the DTO is generated from")  # fmt: skip
             ca = to_java(values, shape, alphanumeric(ca_fields))
-            if case.get("linked"):  # #4765: the very bytes the COBOL task was LINKed with (CicsTask.withLinkArea)
+            if (
+                case.get("linked") or tabled
+            ):  # #4765: the very bytes the COBOL task was LINKed with (CicsTask.withLinkArea)
                 area = commarea_record(ca_read, sc["commarea"], enc).hex().upper()
         # A typed field is named as the symbolic map names its input (ACCTSIDI); a screen view model
         # keys it by the BMS field (ACCTSID), as screenValues() / fromValues() do.
@@ -5371,7 +5385,14 @@ def first_occurrences(values: dict[str, Any], fields: list[dict[str, Any]]) -> d
     inside an OCCURS group appear once"), at the first occurrence: COMM-ACC-TYPE is COMM-ACC-TYPE(1) of a layout with
     every occurrence. The others it does not carry, so they are absent -- compared, never assumed equal."""
     first = {f["base"]: f["name"] for f in fields if f.get("subscripts") and all(k == 1 for k in f["subscripts"])}
-    return {first.get(k, k): v for k, v in values.items()}
+    out: dict[str, Any] = {}
+    for k, v in values.items():
+        name = first.get(k, k)
+        if isinstance(v, list) and all(not isinstance(x, (dict, list)) for x in v):  # #5233: a table of scalars
+            out.update({re.sub(r"\(1\)$", f"({i})", name): x for i, x in enumerate(v, 1)})
+        else:
+            out[name] = v
+    return out
 
 
 def java_area(area: str, ca_fields: list[dict[str, Any]], enc: str) -> dict[str, Any]:

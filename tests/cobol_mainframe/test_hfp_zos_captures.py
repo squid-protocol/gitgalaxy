@@ -157,3 +157,16 @@ def test_the_bnk1tfn_non_exact_float_to_fixed_shape_is_asked():
             enc, fix = by_id[f"asm-enc-{v}-{sz}"], by_id[f"asm-fixed-{v}-{sz}-2"]
             assert enc["source"] == fix["source"] == "model-assumption"
             assert fix["a"] == enc["want"] and Decimal(fix["want"]) == Decimal(v)
+
+
+def test_the_bankdata_le_seconds_shape_is_asked():
+    """#4271 (BANKDATA TIMESTAMP, CRECUST CEELOCT): LE seconds as a COMP-2, MOVEd to a `9(14)` field.
+
+    The source comment wants no rounding up; the model rounds a float MOVEd to fixed point (IBM "Conversions and
+    precision"), GnuCOBOL truncates. A whole second is exact in long HFP, a .6 second rounds up to the next one.
+    """
+    by_id = {r["id"]: r for r in records()}
+    for secs, rounded in (("13987654321", "13987654321"), ("13987654321.6", "13987654322")):
+        enc, fix = by_id[f"asm-enc-{secs}-long"], by_id[f"asm-fixed-{secs}-long-0"]
+        assert enc["source"] == fix["source"] == "model-assumption" and enc["size"] == fix["size"] == "long"
+        assert fix["a"] == enc["want"] and fix["scale"] == 0 and Decimal(fix["want"]) == Decimal(rounded)

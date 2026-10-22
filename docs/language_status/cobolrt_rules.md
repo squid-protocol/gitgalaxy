@@ -16,7 +16,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
 | LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceegmto.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/Dsntiac.java`, `le/LeTime.java`, `le/Mvswait.java` | 16 | yes |
-| DLI: IMS DL/I database calls | `dli/DetDli.java` | 14 | yes |
+| DLI: IMS DL/I database calls | `dli/DetDli.java` | 15 | yes |
 | MQ: IBM MQ (MQI from CICS) | `mq/QueueManager.java`, `cics/DetMq.java` | 7 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
 | SORT: SORT / MERGE and collating sequences | `Sort.java` | 6 | yes |
@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-180 rules: 85 MATCHED, 23 DIFFERS, 14 REFUSED, 58 ASSUMED; 0 measured on z/OS (#4702).
+181 rules: 85 MATCHED, 23 DIFFERS, 14 REFUSED, 59 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -275,6 +275,7 @@ A batch DL/I program's CALL 'CBLTDLI' through a DB PCB on a stated database: the
 | RT-DLI-CALL | CALL 'CBLTDLI' USING function pcb io-area [ssa ...]: the PCB the program was passed, the function's dispatch (AD for an unknown function, AM for one PROCOPT does not allow), any other DL/I call refused | `ims-codes` DL/I status codes | - | I1 (ASSUMED); I5 (REFUSED) | ASSUMED | uncalibrated |
 | RT-DLI-SCHD | EXEC DLI SCHD PSB under CICS: the databases load at the first SCHD, the PSB's PCBs start with no position, DIBSTAT blank; a PSB already scheduled is TC (with NODHABEND), else refused | `ims-apis` EXEC DLI SCHD / TERM | - | I5 (REFUSED) | ASSUMED | uncalibrated |
 | RT-DLI-TERM | EXEC DLI TERM: the scheduled PSB is released (the databases keep what was written), DIBSTAT blank; a TERM with no PSB scheduled is refused | `ims-apis` EXEC DLI SCHD / TERM | - | I5 (REFUSED) | ASSUMED | uncalibrated |
+| RT-DLI-FAULT-INJECTION | A planned DL/I fault (# DLI FUNCTION NTH\|* STATUS; a get-hold counts as its get) replaces that call's execution, the PCB answering the status as for any status it names | none: the faults are the harness's; the PCB feedback a fault leaves is assumed | - | I3 (ASSUMED) | ASSUMED | uncalibrated |
 
 ## MQ: IBM MQ (MQI from CICS)
 

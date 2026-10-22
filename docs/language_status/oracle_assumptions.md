@@ -2923,6 +2923,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   same runtime check (only when the program was LINKed with a COMMAREA). `SET ADDRESS OF` (direct or through a pointer) is
   translated since #4771 (X47) and its record is a LINKAGE 01 record like any other, so it carries the same mark and refuses
   by the same runtime check; the oracle's `ggcics.c` compares addresses, so it refuses every alias form.
+- **Calibration kit (#5060).** `tests/tools/xctl_commarea_capture_kit.py emit OUTDIR` writes three CICS COBOL programs (a driver
+  that LINKs, a middle program that XCTLs its whole DFHCOMMAREA, a group inside it and a `SET ADDRESS OF` alias, and a target that
+  writes `TGT` and RETURNs); `verdict SYSOUT` reads the run's `X39-<case>|<area>` lines and says `same-storage`, `copy`, `mixed` or
+  `invalid` per case. It is the real-CICS run this item waits on: it changes no model, and the refusal is replaced only by a person
+  who reads a captured run (record the CICS release and the output's sha256 here). The kit's COBOL has not been compiled on z/OS.
 - **Status:** REFUSED. When IBM's reference or a system run settles it, replace the refusal with the model.
 
 ### X40. A failed XCTL / LINK the program neither handles nor checks abends with the condition's code (NOTAUTH: AEY7); a planned LINK fault (#4648)

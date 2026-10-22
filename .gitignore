@@ -239,6 +239,8 @@ tests/telemetry_out/
 
 # #4788: the oracle-assumptions register layout is source (the *.json rule above hid it from the first PR)
 !docs/language_status/register/_layout.json
+# #4702 Part 2: the z/OS calibration ledger is source
+!docs/language_status/zos_calibration.json
 !tests/tools/feature_inventory.schema.json
 !tests/fixtures/feature_inventory/*.json
 !tests/fixtures/era_distribution/summary.json

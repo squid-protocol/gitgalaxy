@@ -92,6 +92,14 @@ def test_perform_varying():
     assert s.kind == "PERFORM" and s.data["target"] == "P1" and s.data["varying"][0] == R("I")
 
 
+def test_perform_test_after_varying_runs_the_body_before_the_test():
+    """#5945: PERFORM WITH TEST AFTER VARYING ... UNTIL tests after the body (the step only while the test is false)."""
+    for text, after in (("PERFORM TEST AFTER VARYING I FROM 1 BY 1 UNTIL I > 3", True),
+                        ("PERFORM P1 VARYING I FROM 1 BY 1 UNTIL I > 3", False)):  # fmt: skip
+        s = S._statement(text, 1)
+        assert s.data["test_after"] is after and s.data["varying"] is not None
+
+
 def test_exec_cics_options():
     words, opts = C.parse_exec(
         "EXEC CICS SEND MAP('COSGN0A') MAPSET('COSGN00') FROM(COSGN0AO) ERASE CURSOR RESP(WS-RESP) END-EXEC"
@@ -685,6 +693,7 @@ def test_options_honoured_without_code_say_why():
 
 # ---- #4468 (after #4467, ownership per #4273): the translator takes each COPY's member from the engine --------------
 from gitgalaxy.tools.cobol_to_java.det import source as SRC  # noqa: E402
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 

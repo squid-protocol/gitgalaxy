@@ -954,7 +954,12 @@ class RepositoryForge:
         column = "VSAM_RECORD"
         while column in {f.cobol.upper().replace("-", "_") for f in st.fields} | {"VSAM_KEY"}:
             column += "_X"
-        load = [f"        {cls} r = new {cls}();"]
+        load = [f"        if (rec.length < {reclen}) {{  // a WRITE ... LENGTH(n) short of the record: the rest is spaces",
+                f"            byte[] full = CobolRecords.blank({reclen}, text);",
+                "            System.arraycopy(rec, 0, full, 0, rec.length);",
+                "            rec = full;",
+                "        }",
+                f"        {cls} r = new {cls}();"]  # fmt: skip
         store = [f"        byte[] read = {raw} != null && {raw}.length == {reclen} ? {raw} : null;",
                  f"        byte[] rec = read != null ? read.clone() : CobolRecords.blank({reclen}, text);"]  # fmt: skip
         if st.composite:

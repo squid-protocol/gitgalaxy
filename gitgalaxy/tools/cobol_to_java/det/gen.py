@@ -2881,6 +2881,9 @@ class Gen:
             self.leak = leak_before
             until_code = self.cond_top(until)
             self.leak = leak_after
+            if d["test_after"]:  # the body runs, then the condition; the step only when it is still false
+                return [f"{ind}{init}", f"{ind}while (true) {{", *body, f"{ind}    if ({until_code}) break;",
+                        f"{ind}    {step}", f"{ind}}}"]  # fmt: skip
             return [f"{ind}{init}", f"{ind}while (!({until_code})) {{", *body, f"{ind}    {step}", f"{ind}}}"]
         self.leak = leak_after
         if d["inline"]:

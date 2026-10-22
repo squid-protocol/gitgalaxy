@@ -453,6 +453,23 @@ def scenario_clock(case: dict[str, Any], sc: dict[str, Any]) -> str:
     return clock
 
 
+_TOD = re.compile(r"[0-9A-Fa-f]{32}")
+
+
+def scenario_tod(case: dict[str, Any], sc: dict[str, Any]) -> str | None:
+    """#5945 (register X47): the 16 bytes CALL ZUIDSTCK returns, 32 hex digits -- the scenario's "tod", else the case's, else
+    unstated (None: both runtimes then refuse the CALL). A fact the run states on both sides ($GGC_ZUIDSTCK_TOD for the
+    stub task, Zuidstck.state for the port), never the clock."""
+    tod = sc.get("tod", case.get("tod"))
+    if tod is not None and not (isinstance(tod, str) and _TOD.fullmatch(tod)):
+        raise Unsupported(f'scenario {sc.get("name")}: "tod" is 32 hexadecimal digits (got {tod!r})')
+    return tod
+
+
+def case_states_tod(case: dict[str, Any]) -> bool:
+    return "tod" in case or any("tod" in sc for sc in case["scenarios"])
+
+
 def clock_iso(case: dict[str, Any], sc: dict[str, Any] | None = None) -> str:
     """#4270: the case's clock ("2026/10/01 10:30:15.00") as the stub's $GGCICS_NOW (2026-10-01T10:30:15): the
     moment a START's expiry and a CANCEL's "not expired" count from, as CicsTask counts them from the same clock.
@@ -3318,7 +3335,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                                     "compiled_name": f"SUB{name}.cbl"})  # fmt: skip
     # (#4950: or the program itself CALLs one -- CBSA CRECUST's CEEDAYS / CEELOCT; #5076: or a program it LINKs in the
     # task does, BNK1CCS -> CRECUST)
-    le_call = re.compile(r"(?i)\bCALL\s+['\"]CEE|\bCOPY\s+CSDB2RPY\b|\bDSNTIAC\b")  # #5858: DSNTIAC's model too
+    le_call = re.compile(r"(?i)\bCALL\s+['\"]CEE|\bCOPY\s+CSDB2RPY\b|\bDSNTIAC\b|\bZUIDSTCK\b")  # #5858: DSNTIAC's model too; #5945: ZUIDSTCK's
     calls_le = le_call.search(source) or any(
         le_call.search(common.read_program(case, corpus / extra["program_source"])[0])
         for extra in case.get("programs", [])
@@ -3538,6 +3555,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       + (f"GGCICS_HTTP={rel}/http.cfg " if http_peers(case, sc) is not None else "")
                       + (f"GGCICS_WEBREQ={rel}/webreq.cfg " if http_request(case, sc) is not None else "")
                       + (f"GGCICS_TCPIP={rel}/tcpip.cfg " if tcpip(case, sc) is not None else "")
+                      + (f"GGC_ZUIDSTCK_TOD={scenario_tod(case, sc)} " if scenario_tod(case, sc) else "")
                       + f"{sqlenv}COB_CURRENT_DATE='{scenario_clock(case, sc)}' GGCICS_NOW={clock_iso(case, sc)} ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
         if db2:  # what the task left in each compared table
@@ -4585,6 +4603,24 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     import equivalence_java as ej
 
     pkg = ej.PKG
+    # #5945: the scenario's stated TOD for CALL ZUIDSTCK (only a case that states one carries the driver lines)
+    tod_stmt = (
+        '            stateTod(sc.has("tod") ? sc.get("tod").asText() : null);\n' if case_states_tod(case) else ""
+    )
+    tod_helper = (
+        f"""    /** #5945 (X47): the scenario's TOD, or none, for the port's ZUIDSTCK stand-in (the stub's $GGC_ZUIDSTCK_TOD). */
+    static void stateTod(String hex) {{
+        try {{
+            Class.forName("{pkg}.cobolrt.le.Zuidstck").getMethod("state", String.class).invoke(null, hex);
+        }} catch (ReflectiveOperationException e) {{
+            throw new IllegalStateException("a stated TOD for a port with no cobolrt.le.Zuidstck", e);
+        }}
+    }}
+
+"""
+        if case_states_tod(case)
+        else ""
+    )
     svc = ej._service_class(case["program"])
     var = svc[0].lower() + svc[1:]
     ca = commarea_class(case, src, next(src.rglob(f"{svc}.java")))
@@ -4799,7 +4835,7 @@ class EquivalenceRunTest {{
         }}
     }}
 
-    /** #5278: a new task on the stated databases (cobolrt.dli.DetDli, the stub's ggdli.c): nothing scheduled, nothing read yet. */
+{tod_helper}    /** #5278: a new task on the stated databases (cobolrt.dli.DetDli, the stub's ggdli.c): nothing scheduled, nothing read yet. */
     static void dliReset(Path dir) {{
         System.setProperty("gitgalaxy.dli.dir", dir.toString());
         try {{
@@ -4867,7 +4903,7 @@ class EquivalenceRunTest {{
             Path sysout = out.resolve(sc.get("name").asText() + ".sysout");
             Files.deleteIfExists(sysout);
             System.setProperty("gitgalaxy.sysout", sysout.toString());
-            CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, calen, received)
+{tod_stmt}            CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, calen, received)
                     .withClock(java.time.LocalDateTime.parse(sc.path("clock").asText("{ej._clock(case)}")))  // EIBTIME / ASKTIME: the scenario's clock, else the case's
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
@@ -5233,6 +5269,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           "startcode": task_facts(case, sc)[0], "terminal": task_facts(case, sc)[1],
                           **terminal_facts(case, sc),
                           **({"clock": ej._clock({**case, "clock": scenario_clock(case, sc)})} if "clock" in sc else {}),
+                          **({"tod": scenario_tod(case, sc)} if scenario_tod(case, sc) else {}),
                           "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
                           **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),

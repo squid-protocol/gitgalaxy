@@ -18,13 +18,13 @@ rust-doom,https://github.com/cristicbz/rust-doom,6aa7681cee4e181a2b13ecc9acfa3fc
 doom-wasm,https://github.com/cloudflare/doom-wasm,65e0d3ae2ffa604155eebd96ed40da6567bd08f4,,,engine-port,GPL-2.0,Chocolate Doom (WebAssembly port),
 fastdoom,https://github.com/viti95/FastDoom,3e7a7a9c017304e2c62e840a6eba20668c315ddd,,,engine-port,GPL-2.0,linuxdoom (DOS x86 asm-optimised fork),callgraph
 puredoom,https://github.com/Daivuk/PureDOOM,355cfbd16fac119718879239336ee2ea408886bd,,,engine-port,GPL-2.0,PrBoom (single-header port),
-doom-ios,https://github.com/id-Software/DOOM-IOS,3bf2af22f381441faccb13652bcf992a43bb8eb5,,,engine-port,GPL-2.0,id Software iOS release (linuxdoom lineage),language
+doom-ios,https://github.com/id-Software/DOOM-IOS,3bf2af22f381441faccb13652bcf992a43bb8eb5,,,engine-port,GPL-2.0,id Software iOS release (linuxdoom lineage),
 doom3-bfg,https://github.com/id-Software/DOOM-3-BFG,1caba1979589971b5ed44e315d9ead30b278d8b4,,,separate-engine,GPL-3.0,id Tech 4 / Doom 3 BFG (separate engine),callgraph
 doom-ascii,https://github.com/wojciech-graj/doom-ascii,940528f138e12431e5a1417351863709f1620078,,,engine-port,GPL-2.0,Chocolate Doom (terminal renderer),
 srb2,https://github.com/STJr/SRB2,639b58c6d718452ef343a0bc927d043bed9e40d6,,,engine-port,GPL-2.0,Doom Legacy <- Doom,callgraph
 freedoom,https://github.com/freedoom/freedoom,3ac019628d70b812ffb722f7f2365771b76a9d29,,,assets,BSD-3-Clause / CC0-1.0 (COPYING.adoc),"asset project (content, not engine)",
 helion,https://github.com/Helion-Engine/Helion,0e5a78fbd503f18ca51623a9e107c65ede5a129f,,,reimplementation,GPL-3.0,C# modern engine (Boom/ZDoom-compatible),
-doomsday,https://github.com/skyjake/Doomsday-Engine,aa09feba6449efe3b426013a71499bf7c310de15,,,engine-port,GPL-3.0 (doc/LICENSE),Doomsday engine (own lineage),language callgraph
+doomsday,https://github.com/skyjake/Doomsday-Engine,aa09feba6449efe3b426013a71499bf7c310de15,,,engine-port,GPL-3.0 (doc/LICENSE),Doomsday engine (own lineage),callgraph
 edge-classic,https://github.com/edge-classic/EDGE-classic,50b901f2f9b3abe23ca363cd9165679869697e51,,,engine-port,GPL-3.0,EDGE (Boom-derived),callgraph
 nugget-doom,https://github.com/MrAlaux/Nugget-Doom,42efefeb3c2a2e79ff4aa3563e0d140a5bde63ff,,,engine-port,GPL-2.0,Woof,
 inter-doom,https://github.com/JNechaevsky/inter-doom,e3018d269c1b703ec0f597688b49d291a360fdc5,,,engine-port,GPL-2.0,Crispy Doom,

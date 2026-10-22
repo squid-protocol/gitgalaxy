@@ -62,6 +62,10 @@ class FocusingError(Exception):
 # (`-S`, `-u`) nor a `VAR=value` assignment.
 _SHEBANG_ENV_SKIP = re.compile(r"^(?:-|[A-Za-z_]\w*=)")
 
+# #5876: syntax only Objective-C carries, line-leading so a comment or string cannot supply it. A `.h` is
+# objective-c only when its own text has one of these; a `.m` neighbour or a same-stem `.m` never decides it.
+_OBJC_SYNTAX = re.compile(r"^[ \t]*(?:@(?:interface|implementation|protocol|class|end)\b|#[ \t]*import\b)", re.MULTILINE)
+
 
 def _shebang_interpreter(first_line: str) -> str:
     """The interpreter token of a shebang line, lowercased, or "" if absent."""
@@ -529,7 +533,7 @@ class LanguageDetector:
                     return self._forge_result("c", 0.99, 0, "Sibling Anchor (.c)", result, content_sample)
                 elif f"{base_stem}.cpp" in ext_tally or f"{base_stem}.cc" in ext_tally:
                     return self._forge_result("cpp", 0.99, 0, "Sibling Anchor (C++)", result, content_sample)
-                elif f"{base_stem}.m" in ext_tally:
+                elif f"{base_stem}.m" in ext_tally and _OBJC_SYNTAX.search(content_sample):
                     return self._forge_result(
                         "objective-c",
                         0.99,
@@ -712,6 +716,10 @@ class LanguageDetector:
             # so the vote overrides whatever the extension-count physics picked.
             if sib := self._proof_only_sibling_vote(file_path, ext):
                 gravity_lang, dominance = sib
+            # #5876: the sibling vote cannot confer Objective-C on a `.h` with no ObjC syntax of its own
+            # (its `.m` neighbours are not evidence).
+            if gravity_lang == "objective-c" and ext == ".h" and not _OBJC_SYNTAX.search(content_sample):
+                gravity_lang = None
             if gravity_lang and (evidenced := self._shared_extension_evidence(content_sample, ext)):
                 gravity_lang = evidenced
 

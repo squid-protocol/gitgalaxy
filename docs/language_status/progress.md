@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `9453bd9cd` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `924a4d711` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -18,13 +18,13 @@ Reachable denominator: 123 programs (129 - 2 - 2 - 2). These programs stay in th
 
 | Estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 | L2+ | L4+ | L5 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 2 | 3 | 8 | 7 | 22 | 2 | 39 (88.6%) | 24 (54.5%) | 2 |
+| `aws-mainframe-modernization-carddemo` | 44 | 2 | 3 | 8 | 7 | 24 | 0 | 39 (88.6%) | 24 (54.5%) | 0 |
 | `cics-async-api-credit-card-application-example` | 10 | 0 | 0 | 0 | 0 | 10 | 0 | 10 (100.0%) | 10 (100.0%) | 0 |
 | `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 13 | 12 | 6 | 0 | 31 (100.0%) | 6 (19.4%) | 0 |
 | `cics-genapp` | 31 | 0 | 0 | 6 | 18 | 7 | 0 | 31 (100.0%) | 7 (22.6%) | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 2 | 1 | 0 | 1 | 0 | 2 (33.3%) | 1 (16.7%) | 0 |
-| `zecs` | 7 | 2 | 1 | 2 | 1 | 1 | 0 | 4 (57.1%) | 1 (14.3%) | 0 |
-| **Total** | 129 | 6 | 6 | 30 | 38 | 47 | 2 | 117 (90.7%) | 49 (38.0%) | 2 |
+| `zecs` | 7 | 2 | 0 | 3 | 1 | 1 | 0 | 5 (71.4%) | 1 (14.3%) | 0 |
+| **Total** | 129 | 6 | 5 | 31 | 38 | 49 | 0 | 118 (91.5%) | 49 (38.0%) | 0 |
 
 L0 inventoried, L1 translated whole, L2 executed equal, L3 every paragraph, L4 every net branch, L5 translator
 mutants caught (`definition_of_done.md`).
@@ -54,12 +54,12 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 | 1 | 9 | 6 | 0 |
 | 2 | 70 | 69 | 24 |
 | 3 | 16 | 14 | 8 |
-| 4 | 21 | 19 | 9 |
+| 4 | 21 | 20 | 9 |
 | untagged | 13 | 9 | 8 |
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-22T10:45:53Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-22T11:09:07Z.
 
 - `scope:core`: 27 open, 157 closed.
 - Milestone 28: 16 open, 87 closed.

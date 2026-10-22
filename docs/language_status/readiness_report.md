@@ -13,8 +13,8 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 | L1 translated whole | 3 |
 | L2 executed equivalent | 8 |
 | L3 paragraph coverage | 7 |
-| L4 branch coverage | 22 |
-| L5 mutants accounted for | 2 |
+| L4 branch coverage | 24 |
+| L5 mutants accounted for | 0 |
 
 - translated whole: 42 / 44 (95%); with holes: 2; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
@@ -308,15 +308,15 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 | level | programs at exactly this level |
 |---|---|
 | L0 inventoried | 2 |
-| L1 translated whole | 1 |
-| L2 executed equivalent | 2 |
+| L1 translated whole | 0 |
+| L2 executed equivalent | 3 |
 | L3 paragraph coverage | 1 |
 | L4 branch coverage | 1 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 5 / 7 (71%); with holes: 0; refused: 2
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
-- executed equivalent (L2 and above): 4 / 7
+- executed equivalent (L2 and above): 5 / 7
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
 
 Refused whole, by reason:
@@ -333,13 +333,12 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 4, era none: 3
 |---|---|---|---|---|---|
 | 1 | refused: CICS Assembler (refuses the whole program: upper bound) | 2 | 0 | 2 | era none: 2 |
 
-### Proof blockers (5 programs translated whole, 1 with no proof gap; top 3 of 3 classes, `proof_blockers.py` statistics)
+### Proof blockers (5 programs translated whole, 1 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: paragraphs below the bar | 2 | 0 | 2 |
+| 1 | coverage: paragraphs below the bar | 3 | 0 | 3 |
 | 2 | coverage: branch outcomes below the bar | 1 | 0 | 1 |
-| 3 | no case | 1 | 0 | 1 |
 
 ### Missing inputs
 

@@ -88,7 +88,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT: IBM keeps the absolute value, and so does the det runtime; cobc's native arithmetic wraps (#4684) | MATCHED (det runtime = IBM) / DIFFERS (oracle vs IBM, declared; no cobc option turns it off) | no |
 | C5 | compiler | `NUMPROC(MIG)` as Enterprise COBOL 5+ compiles it (NOPFD), `NUMPROC(PFD)` with preferred signs (#4271); `TRUNC(OPT)` with conforming binary values, `ARITH(EXTEND)` with intermediates within 30 digits (#4706); `INTDATE(LILIAN)` | MATCHED (NUMPROC) / MODELLED (TRUNC(OPT) and ARITH(EXTEND), det ports, a stop by name; INTDATE(LILIAN), det port, no oracle) / REFUSED (the rest) | NUMPROC: no; TRUNC(OPT): CBSA (det ports); ARITH(EXTEND): DBB EPSCSMRD (det ports) |
-| C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its float `**` is a hole) |
+| C6 | compiler | COMP-1 / COMP-2: IBM hexadecimal floating point, and float-mode evaluation of the whole expression | MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name | no (DBB EPSMPMT: its float `**` is an ASSUMED routine; the case waits on z/OS captures) |
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS; byte uses REFUSED by name in the det translator (#4271) | read as numbers only (a VALUE beyond the PICTURE: fixed, #4501) |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
 | C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS (declared: each side's fields read by its own layout, compared by name; a POINTER only as NULL or not) | only NULL (CBSA, data after one included) |
@@ -499,7 +499,7 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     `S9(7)V99 COMP-3` = 0.68, FZ2 a COMP-2 zero: the port gives 0.67. IBM runs any statement with a floating-point
     operand in floating point (even a zero one), 0.68 is 0.67AE147AE147AE x 16**0 in long HFP (just below 0.68), and
     the store truncates (ASSUMED, below; pending z/OS calibration, #4702 part 2); cobc keeps 0.68. None of the three
-    shapes is in a burned estate's program (EPSMPMT's float use is the `**` hole above).
+    shapes is in a burned estate's program (EPSMPMT's float use is the `**` below).
 - **The det runtime (since #4271 slice 1)** models HFP: `cobolrt/Hfp.java`, the translator's own model
   `det/hfp.py`.
   - Storage: `Field.hfp`, the bytes as z/OS holds them; a VALUE is encoded at translation (`layout._put_value`).
@@ -573,16 +573,16 @@ instrument). The rows below are rendered by one table in code (`compiler_options
   oracle_assumptions.md C6"): a float's bytes or those of an item over it (a group MOVE, a REDEFINES, a reference
   modification, STRING, a CALL argument, a record read or written -- a file or sort record named by its FD through
   `Gen.check_record_bytes`, #4271 -- a COMMAREA); a float MOVEd to or from a nonnumeric item;
-  a comparison with a nonnumeric operand; exponentiation in a floating-point expression (a run-time routine IBM does
-  not document bit for bit); an intrinsic function in one but NUMVAL / NUMVAL-C (IBM's floating-point functions);
+  a comparison with a nonnumeric operand; an intrinsic function in one but NUMVAL / NUMVAL-C (IBM's floating-point functions);
   any floating-point expression under ARITH(EXTEND); ON SIZE ERROR and ROUNDED into a float, DIVIDE ... REMAINDER
-  in floating point. In the runtime: an HFP exponent overflow or underflow (what z/OS does depends on the program
+  in floating point. In the runtime: an HFP exponent overflow or underflow (a `**` result included), `0 ** 0` and 0 to a negative power, a negative base with a fractional exponent, an integer exponent past +-1000 (base other than 1 or -1) (what z/OS does depends on the program
   mask and Language Environment), a NUMVAL argument past 18 digits or 15 significant ones. `ggdisplay.c` still
   refuses the DISPLAY of a float on the COBOL side (C8), so no proof compares one.
 - **Waiting on it.**
   - `mortgage-mpmt` (EPSMPMT): its interest rate is now computed in long HFP, but the payment's `(1 + C) ** N`, N
-    with decimal places, is a floating-point exponentiation: the one hole, so the case stays in the det sweep's
-    baseline (KNOWN_UNPROVEN). It would also round where GnuCOBOL truncates.
+    with decimal places, is a floating-point exponentiation: since the `**` slice below it translates (ASSUMED
+    `Hfp.power`), but no z/OS capture agrees with the assumption, so the case stays in the det sweep's baseline
+    (KNOWN_UNPROVEN). It would also round where GnuCOBOL truncates.
   - **A non-exact COMP-2 amount into a 2-decimal field (#5703 evidence, BNK1TFN line 494).** 12.34, 9999999999.99 and 0.01
     moved to `S9(10)V99` differ between GnuCOBOL and the port where the double is below the decimal (12.34 -> cobc 12.33,
     9999999999.99 -> cobc 9999999999.98, port 12.34 / 9999999999.99). IBM's MOVE rounding is documented ("Conversions and
@@ -610,7 +610,7 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     `test_the_bnk1cra_amount_shapes_are_asked`. Still pending z/OS capture (#4050).
   - **A monthly interest rate stored in a COMP-1 and added to 1 (DBB EPSMPMT `WS-CALC-INTEREST`, lines 120-130).** The
     quotient `(rate / 100) / 12` is not exact (5% is 0.0041666...), stored as short HFP (`3F111111`), read back at 8
-    places (0.00416667), and `1 + rate` is a long add (`4110111111000000`); the `**` after it stays a Hole (below). Asked
+    places (0.00416667), and `1 + rate` is a long add (`4110111111000000`); the `**` after it is the ASSUMED routine below. Asked
     as 5 `model-assumption` records (90 asked in all; `asm-*-eps-*`), pinned by `test_the_epsmpmt_interest_shapes_are_asked`.
     Still pending z/OS capture (#4050).
   - **The exponentiation after it (DBB EPSMPMT lines 125-130, `(1 + WS-CALC-INTEREST) ** WS-NUMBER-OF-MONTHS`).** The kit has
@@ -619,18 +619,25 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     (`hfp_capture_kit.power`: the exact power for an integer exponent, `exp(b ln a)` at 60 digits for a fractional one,
     truncated to long): 5% over 360 months, 12, 2.5 and -12, and 6.5% over 360. The base is the `1 + rate` long add above,
     the exponent the month count (`9(9)V99 COMP`) converted to long. They are evidence of nothing until z/OS agrees; the
-    det translator still refuses a float `**` (the Hole above) and `mortgage-mpmt` stays in KNOWN_UNPROVEN. Pinned by
-    `test_the_epsmpmt_exponentiation_is_asked`. Whether the det runtime should ever adopt a `**` routine is an owner decision.
+    det runtime now uses the same routine (`**` below) and `mortgage-mpmt` stays in KNOWN_UNPROVEN. Pinned by
+    `test_the_epsmpmt_exponentiation_is_asked`.
   - CBSA's CRECUST, BANKDATA, BNK1CAC, BNK1CRA, BNK1TFN and BNK1UAC are not cases. Since #4270's NUMVAL slice
     BNK1CAC, BNK1TFN and BNK1UAC translate whole (BNK1CRA still has EXEC CICS INQUIRE).
-- **Exponentiation is refused in every shape, on purpose (#4271).** IBM documents no result for `**` in a
-  floating-point expression, so the translator makes it a Hole whatever the base (COMP-1, COMP-2, parenthesised, a
-  fixed-point base with a float exponent), the exponent (integer literal or item, negative, with decimal places, a
-  float), the verb (COMPUTE, IF) or the nesting, and whatever the receiver; pinned by `test_det_hfp.py`
-  `test_a_floating_point_exponentiation_is_a_named_hole_in_every_shape`. A fixed-point `**` is not affected (the
-  oracle's decimal rule, C2; `test_a_fixed_point_exponentiation_is_not_refused`). Modelling it as an ASSUMED routine
-  would not move `mortgage-mpmt` out of KNOWN_UNPROVEN: the oracle cannot run HFP, so the proof waits on z/OS captures
-  (#4050) either way. Among the burned estates only EPSMPMT (line 125) reaches it.
+- **Exponentiation in a floating-point expression is an ASSUMED routine (#4271).** IBM documents no result for `**`.
+  The det translator emits `Hfp.power(base, exponent)` in every shape (a COMP-1 or COMP-2 base, a fixed-point base with
+  a float exponent, a parenthesised base, an exponent that is a literal, an item, negative, with decimal places or a
+  float, COMPUTE or IF, nested, any receiver). A `**` makes the statement LONG, so the routine is long HFP: the exact
+  power for an integer exponent, `exp(b ln a)` at 60 digits for a fractional one, truncated to long. It is the capture
+  kit's reference (`hfp_capture_kit.power`, the `want` of the 5 `asm-pow-eps-*` records) and the Java runtime is held
+  to the translator's model `det/hfp.py power` bit for bit; pinned by `test_det_hfp.py`
+  `test_a_floating_point_exponentiation_translates_through_hfp_power_in_every_shape`,
+  `test_the_power_routine_is_the_model_bit_for_bit` and `test_the_model_power_is_the_capture_kits_reference`. It is
+  evidence of nothing until a z/OS run agrees (#4050): a disagreeing capture is a finding against this routine, and
+  `mortgage-mpmt` stays in KNOWN_UNPROVEN (the oracle cannot run HFP). Refused by name: a range overflow or underflow,
+  `0 ** 0`, 0 to a negative power, a negative base with a fractional exponent, an integer exponent past +-1000. A
+  fixed-point `**` is not affected (the oracle's decimal rule, C2; `test_a_fixed_point_exponentiation_is_not_refused`).
+  `FUNCTION ANNUITY` (the same power plus an undocumented float result) stays a Hole. Among the burned estates only
+  EPSMPMT (line 125) reaches it.
 - **What would settle it.** A z/OS run of EPSMPMT's scenarios (#4050): the exponentiation, and the ASSUMED
   conversions above, checked where the oracle cannot.
   - **Where a capture lands (#4271, #4050).** `tests/cobol_mainframe/zos_captures/hfp.json` is a table of expected HFP

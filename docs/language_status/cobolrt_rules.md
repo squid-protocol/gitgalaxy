@@ -10,7 +10,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 |---|---|---|---|
 | CBL: statements and data movement | `Cobol.java` | 46 | yes |
 | NUM: numeric storage codecs | `Codec.java`, `Zoned.java` | 13 | yes |
-| HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java` | 13 | yes |
+| HFP: COMP-1 / COMP-2 as hexadecimal floating point | `Hfp.java` | 14 | yes |
 | EDIT: numeric editing | `Editing.java` | 5 | yes |
 | FUNC: intrinsic functions | `Funcs.java`, `Accept.java` | 12 | yes |
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-182 rules: 85 MATCHED, 23 DIFFERS, 14 REFUSED, 60 ASSUMED; 0 measured on z/OS (#4702).
+183 rules: 85 MATCHED, 23 DIFFERS, 14 REFUSED, 61 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -145,6 +145,7 @@ IBM HFP arithmetic, conversions and DISPLAY.
 | RT-HFP-LONG-TO-SHORT | A long value into a COMP-1 is rounded (LOAD ROUNDED: a one added at the first discarded bit) | `cobol-pg` Conversions and precision | - | C6 (MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name) | MATCHED | uncalibrated |
 | RT-HFP-IEEE-CONVERSION | An IEEE binary32 / binary64 pattern to and from COMP-1 / COMP-2: binary64 exact in long HFP, binary32 truncated to long then rounded to short, HFP to IEEE nearest ties to even | none: IBM documents no IEEE converter for COMP-1 / COMP-2; the model's choice (det/hfp.py from_ieee / to_ieee) | - | C6 (MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name) | ASSUMED | uncalibrated |
 | RT-HFP-FIXED-TO-FLOAT | A fixed-point value converted to long HFP: the exact value truncated to 14 hexadecimal digits (then rounded to short for a COMP-1) | none: IBM does not document the generated conversion; truncation is the model's choice | - | C6 (MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name) | ASSUMED | uncalibrated |
+| RT-HFP-POWER | A floating-point exponentiation: the exact power for an integer exponent, exp(b ln a) at 60 digits for a fractional one, truncated to long HFP | none: IBM documents no result for a floating-point exponentiation; the capture kit's reference power() is the model until captured z/OS output agrees | - | C6 (MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name) | ASSUMED | uncalibrated |
 | RT-HFP-FLOAT-TO-FIXED | A float moved to a fixed-point item: rounded in the receiver's low-order position, at most 9 (COMP-1) / 18 (COMP-2) significant digits | `cobol-pg` Conversions and precision | - | C6 (MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name) | MATCHED | uncalibrated |
 | RT-HFP-NUMVAL-FLOAT | FUNCTION NUMVAL / NUMVAL-C in a floating-point expression: long HFP of the value under ARITH(COMPAT); more than 18 digits, or more than 15 significant ones, refused by name | `cobol-pg` Converting to numbers | ARITH | C6 (MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name) | ASSUMED | uncalibrated |
 | RT-HFP-FLOAT-STATEMENT-STORE | A statement that is floating point only through NUMVAL stores its result into a fixed-point receiver rounded half away from zero, as a float MOVE is | `cobol-pg` Conversions and precision | - | C6 (MODELLED in the det runtime (HFP, #4271 slice 1); the oracle DIFFERS (IEEE, decimal evaluation): proven by IBM-cited vectors and on exact values; what the oracle cannot decide REFUSED by name) | ASSUMED | uncalibrated |

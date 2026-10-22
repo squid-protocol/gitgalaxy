@@ -839,3 +839,19 @@ verdicts are proposals for owner review. The open ones are the byte[] COMMAREA e
 | COUSR01C (carddemo-useradd) | 150/1214 | 91 | 56 | 3 | 54 | 2 | 91/147 (62%) | no |
 | COUSR02C (carddemo-userupd) | 150/1404 | 96 | 48 | 6 | 47 | 1 | 96/144 (67%) | no |
 | COUSR03C (carddemo-userdel) | 150/1302 | 84 | 58 | 8 | 54 | 4 | 84/142 (59%) | no |
+
+**#4628 slice 6 (2026-10-22): COUSR00C and ABNDPROC measured; neither reaches L5.** First det-port ledgers (150 mutants each, seed 0,
+fast mode, JDK 17). COUSR00C: ten new scenarios (`full-commarea-carried`, the `rows-sent-back-*` family that re-enters with a
+full page of rows, `select-in-an-empty-row`, `pf7-back-to-the-top-exactly` and others) took the proof to 42 scenarios, 16/16
+paragraphs, 95/100 branches, and the survivors to 39 (37 stated, 2 `case-gap`: the XCTL-failure branch needs a CSD without
+COUSR02C/COUSR03C, and the first-record branch needs a USRSEC key that sorts below X'40'). Every stated survivor has its reason in
+`det_mutation_survivors/carddemo-userlist.json`; the verdicts are proposals for owner review. ABNDPROC is measured, not yet
+strengthened: 96 survivors, 62 stated (45 equivalent, 17 unreachable), 30 `harness-gap` and 4 `case-gap` open. One of the
+`harness-gap` rows is a real comparison gap: the Java COMMAREA event of a LINKed ABNDPROC carries "CBSAAPPLO" under a mutant that
+reads ABND-APPLID as 9 bytes, yet the proof reports 2/2 events equal, because the proof does not compare the DTO copy that
+`fill_` stores.
+
+| program (case) | mutants run / in scope | killed | survived | stillborn | stated equivalent / unreachable | unaccounted | raw score | L5 |
+|---|---|---|---|---|---|---|---|---|
+| COUSR00C (carddemo-userlist) | 150/2828 | 108 | 39 | 3 | 37 | 2 | 108/147 (73%) | no |
+| ABNDPROC (cbsa-abndproc) | 150/453 | 45 | 96 | 9 | 62 | 34 | 45/141 (32%) | no |

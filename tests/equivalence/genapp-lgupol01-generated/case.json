@@ -1,0 +1,335 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGUPOL01",
+ "program_source": "base/src/lgupol01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGUP",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGUPDB01",
+   "program_source": "base/src/lgupdb01.cbl"
+  },
+  {
+   "program": "LGUPVS01",
+   "program_source": "base/src/lgupvs01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSPOLY": {
+   "input": "@case/ksdspoly.txt",
+   "entity": "WfPolicyInfo",
+   "copybook": "base/src/lgupvs01.cbl",
+   "record": "WF-POLICY-INFO",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 21,
+    "reclen": 64,
+    "why": "base/cntl/adef121.jcl DEFINE2: DATA(... KEYS(21 0) RECORDSIZE(64 64)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "@generate",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.POLICY",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.HOUSE",
+   "GENASA1.MOTOR"
+  ],
+  "compare_sql": true,
+  "generate": {
+   "seed": 4507,
+   "tables": {
+    "GENASA1.CUSTOMER": {
+     "rows": 10,
+     "columns": {
+      "CUSTOMERNUMBER": {
+       "values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+       ]
+      }
+     }
+    },
+    "GENASA1.POLICY": {
+     "rows": 12
+    },
+    "GENASA1.ENDOWMENT": {
+     "rows": 3
+    },
+    "GENASA1.HOUSE": {
+     "rows": 4
+    },
+    "GENASA1.MOTOR": {
+     "rows": 4
+    },
+    "GENASA1.COMMERCIAL": {
+     "rows": 3
+    }
+   }
+  }
+ },
+ "clock_fields": {
+  "db2": [
+   "GENASA1.POLICY.LASTCHANGED"
+  ],
+  "commarea": [
+   "CA-REQUEST-SPECIFIC(31:26)"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgupol01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "region": {
+  "applid": "GENAREGN",
+  "sysid": "CICA"
+ },
+ "scenarios": [
+  {
+   "name": "end-p10",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232080000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "LGUPDB01's scenario end-p10 through LGUPOL01: LASTCHANGED matches: UPDATE ENDOWMENT, positioned UPDATE POLICY, read back, LGUPVS01 rewrites the VSAM record; '00'"
+  },
+  {
+   "name": "end-p8",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000082026-01-012027-01-012023-11-22-10.25.19.3484750000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "LGUPDB01's scenario end-p8 through LGUPOL01: policy 8 (generated BROKERSREFERENCE NULL, read through its indicator)"
+  },
+  {
+   "name": "end-p7",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000072026-01-012027-01-011997-12-02-05.10.18.2769660000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "LGUPDB01's scenario end-p7 through LGUPOL01: a third endowment policy"
+  },
+  {
+   "name": "hou-p12",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "9",
+    "CA-REQUEST-SPECIFIC": "00010000122026-01-012027-01-012018-11-28-02.25.16.7370170000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "LGUPDB01's scenario hou-p12 through LGUPOL01: house path"
+  },
+  {
+   "name": "hou-p11",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "6",
+    "CA-REQUEST-SPECIFIC": "00010000112026-01-012027-01-012011-08-03-06.32.26.4832570000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "LGUPDB01's scenario hou-p11 through LGUPOL01: house path, another customer"
+  },
+  {
+   "name": "hou-p8",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000082026-01-012027-01-012023-11-22-10.25.19.3484750000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "LGUPDB01's scenario hou-p8 through LGUPOL01: policy 8 also holds a house row"
+  },
+  {
+   "name": "hou-p2",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "5",
+    "CA-REQUEST-SPECIFIC": "00010000022026-01-012027-01-010001-01-01-00.00.00.0000000000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "LGUPDB01's scenario hou-p2 through LGUPOL01: LASTCHANGED is the lowest timestamp (0001-01-01-00.00.00.000000)"
+  },
+  {
+   "name": "mot-p3",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "2",
+    "CA-REQUEST-SPECIFIC": "00010000032026-01-012027-01-019999-12-31-23.59.59.9999990000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "LGUPDB01's scenario mot-p3 through LGUPOL01: LASTCHANGED is the highest timestamp (9999-12-31-23.59.59.999999)"
+  },
+  {
+   "name": "mot-p12",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "9",
+    "CA-REQUEST-SPECIFIC": "00010000122026-01-012027-01-012018-11-28-02.25.16.7370170000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "LGUPDB01's scenario mot-p12 through LGUPOL01: motor path"
+  },
+  {
+   "name": "mot-p9",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "7",
+    "CA-REQUEST-SPECIFIC": "00010000092026-01-012027-01-012017-01-11-05.41.43.0941070000000042REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "LGUPDB01's scenario mot-p9 through LGUPOL01: generated BROKERID NULL, read through its indicator, then set from the request"
+  },
+  {
+   "name": "mot-p11",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "6",
+    "CA-REQUEST-SPECIFIC": "00010000112026-01-012027-01-012011-08-03-06.32.26.4832570000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "LGUPDB01's scenario mot-p11 through LGUPOL01: motor path"
+  },
+  {
+   "name": "stale-end-p10",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232090000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "LGUPDB01's scenario stale-end-p10 through LGUPOL01: CA-LASTCHANGED one microsecond off the row's: '02', nothing changed"
+  },
+  {
+   "name": "stale-mot-p3",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "2",
+    "CA-REQUEST-SPECIFIC": "00010000032026-01-012027-01-019999-12-31-23.59.59.9999980000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "LGUPDB01's scenario stale-mot-p3 through LGUPOL01: stale LASTCHANGED on the highest-timestamp row"
+  },
+  {
+   "name": "end-no-type-row-p1",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000012026-01-012027-01-012024-02-29-12.00.00.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "LGUPDB01's scenario end-no-type-row-p1 through LGUPOL01: policy 1 holds no endowment row: UPDATE ENDOWMENT +100, '01'"
+  },
+  {
+   "name": "hou-for-endowment-p10",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232080000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "LGUPDB01's scenario hou-for-endowment-p10 through LGUPOL01: a house update of an endowment policy: UPDATE HOUSE +100, '01'"
+  },
+  {
+   "name": "mot-for-endowment-p10",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232080000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "LGUPDB01's scenario mot-for-endowment-p10 through LGUPOL01: a motor update of an endowment policy: UPDATE MOTOR +100, '01'"
+  },
+  {
+   "name": "end-wrong-customer",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "2",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232080000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "LGUPDB01's scenario end-wrong-customer through LGUPOL01: policy 10 belongs to customer 1: the cursor FETCH finds no row (+100)"
+  },
+  {
+   "name": "hou-wrong-customer",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "3",
+    "CA-REQUEST-SPECIFIC": "00010000122026-01-012027-01-012018-11-28-02.25.16.7370170000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "LGUPDB01's scenario hou-wrong-customer through LGUPOL01: policy 12 belongs to customer 9: FETCH +100"
+  },
+  {
+   "name": "mot-unknown-policy",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00000009992026-01-012027-01-012024-02-29-12.00.00.0000000000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "LGUPDB01's scenario mot-unknown-policy through LGUPOL01: no policy 999: FETCH +100"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: LGUPOL01 moves ' NO COMMAREA RECEIVED' to EM-VARIABLE, WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG (TD CSMT and TS GENAERRS), IF EIBCALEN > 0 is false, then ABEND LGCA"
+  },
+  {
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "name": "short-commarea-end",
+   "commarea_length": 100,
+   "why": "01UEND: EIBCALEN 100 < WS-REQUIRED-CA-LEN 152: CA-RETURN-CODE '98', RETURN before the LINK"
+  },
+  {
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "4",
+    "CA-REQUEST-SPECIFIC": "00000000062026-01-012027-01-012011-09-01-22.32.42.0000000000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "name": "short-commarea-hou",
+   "commarea_length": 140,
+   "why": "01UHOU: EIBCALEN 140 < WS-REQUIRED-CA-LEN 158: CA-RETURN-CODE '98', RETURN before the LINK"
+  },
+  {
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "2",
+    "CA-REQUEST-SPECIFIC": "00000000012026-01-012027-01-012011-05-11-17.12.17.0000000000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "name": "short-commarea-mot",
+   "commarea_length": 150,
+   "why": "01UMOT: EIBCALEN 150 < WS-REQUIRED-CA-LEN 165: CA-RETURN-CODE '98', RETURN before the LINK"
+  },
+  {
+   "commarea": {
+    "CA-REQUEST-ID": "01UCOM",
+    "CA-CUSTOMER-NUM": "4",
+    "CA-REQUEST-SPECIFIC": "00000000062026-01-012027-01-012011-09-01-22.32.42.0000000000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "name": "unknown-request-id",
+   "why": "CA-REQUEST-ID '01UCOM' (no WHEN): CA-RETURN-CODE '99', and the EVALUATE falls through to PERFORM UPDATE-POLICY-DB2-INFO all the same: LGUPDB01 runs with the request"
+  }
+ ],
+ "notes": "Generated-row sibling (#4507) of genapp-lgupol01: the Db2 tables are generated from base/cntl/db2cre.jcl (the generate block of genapp-lgupdb01-generated: FKs, NULLs and boundary values, seed 4507), not GenApp's INSERTs. The scenarios are genapp-lgupdb01-generated's, written against those rows and run through LGUPOL01, which LINKs LGUPDB01, plus the front end's own row-independent paths. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

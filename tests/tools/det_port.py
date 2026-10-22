@@ -50,7 +50,9 @@ def proof_order(names: list[str]) -> list[str]:
     import proof_sweep as ps
 
     weight = ps.case_weights(sorted(set(names)), ps.load_durations())
-    return sorted(names, key=lambda c: (-weight[c], c))
+    return sorted(names, key=lambda c: (-weight.get(c, 0), c))  # weight is {} when no case has a recorded duration
+
+
 PROOF_TIMEOUT = 3600  # seconds per case
 PKG_DIR = PKG.replace(".", "/")
 

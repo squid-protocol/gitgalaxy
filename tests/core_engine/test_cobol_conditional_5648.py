@@ -6,8 +6,9 @@ from decimal import Decimal
 
 import pytest
 
-from gitgalaxy.core.cobol_conditional import Conditional, ConditionalCompilation, options_defines
+from gitgalaxy.core.cobol_conditional import Conditional, ConditionalCompilation, active_source, options_defines
 from gitgalaxy.core.compiler_options import compiler_options
+from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.tools.cobol_to_java.det.source import logical_lines, program_lines
 
 
@@ -148,3 +149,64 @@ def test_a_directive_in_a_copy_member_is_refused_by_name(tmp_path):
     (tmp_path / "M.cpy").write_text("      >>IF X IS DEFINED\n       01 A PIC X.\n      >>END-IF\n")
     with pytest.raises(ConditionalCompilation, match=r"M\.cpy:1: >>IF: conditional compilation in a COPY member"):
         program_lines(prog, [])
+
+
+# ---- the scanner reads >>IF too (#5648): a branch not taken is not source ----
+_HEAD = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P.\n       DATA DIVISION.\n"
+
+
+def _program(*body: str) -> str:
+    return _HEAD + "       WORKING-STORAGE SECTION.\n" + "\n".join(body) + "\n"
+
+
+@pytest.mark.parametrize("free", [False, True])
+def test_the_scanner_drops_a_copy_in_a_branch_not_taken(free):
+    pad = "" if free else "       "
+    src = _program(
+        f"{pad}>>DEFINE TARGET AS 1",
+        f"{pad}>>IF TARGET = 1",
+        f"{pad}COPY ACTIVE.",
+        f"{pad}>>ELSE",
+        f"{pad}COPY DEAD.",
+        f"{pad}>>END-IF",
+        f"{pad}01 A PIC X.",
+        f"{pad}COPY AFTER.",
+    )
+    out = extract_boundary("cobol", src)
+    assert [c["member"] for c in out["section_copies"]] == ["ACTIVE"]
+    # the line map is the identity: a fact keeps its line in the file
+    assert [(r["name"], r["line"]) for r in out["records"]] == [("A", 11)]
+    assert out["records"][0]["copy_members"] == "AFTER"
+
+
+def test_the_scanner_drops_a_data_item_in_a_branch_not_taken_and_nesting_holds():
+    src = _program(
+        "       >>IF NOPE IS DEFINED",
+        "       01 GONE PIC X.",
+        "       >>IF NOPE IS NOT DEFINED",
+        "       01 STILL-GONE PIC X.",
+        "       >>END-IF",
+        "       >>ELSE",
+        "       01 KEPT PIC X.",
+        "       >>END-IF",
+    )
+    assert [r["name"] for r in extract_boundary("cobol", src)["records"]] == ["KEPT"]
+
+
+def test_active_source_keeps_offsets_and_is_unchanged_without_a_taken_decision():
+    src = _program("       >>IF X IS DEFINED", "       01 A PIC X.", "       >>END-IF")
+    out = active_source(src)
+    assert len(out.split("\n")) == len(src.split("\n"))
+    assert "01 A" not in out
+    assert active_source("       01 A PIC X.\n") == "       01 A PIC X.\n"  # no directive
+    # refused forms and a COPY member (no PROGRAM-ID) are returned whole: a scan never raises
+    refused = _program("       >>IF X = 1", "       01 A PIC X.", "       >>END-IF")  # relation on an undefined name
+    assert active_source(refused) == refused
+    member = "      >>IF X IS DEFINED\n       01 A PIC X.\n      >>END-IF\n"
+    assert active_source(member) == member
+    assert [r["name"] for r in extract_boundary("cobol", member)["records"]] == ["A"]
+
+
+def test_the_scanner_keeps_compiler_options_from_before_the_directives():
+    src = "       CBL TRUNC(BIN)\n" + _program("       >>IF NOPE IS DEFINED", "       01 A PIC X.", "       >>END-IF")
+    assert [r["option"] for r in extract_boundary("cobol", src)["compiler_options"]] == ["TRUNC"]

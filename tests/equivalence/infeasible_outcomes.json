@@ -302,6 +302,14 @@
     "outcome": "WHEN@297",
     "family": "C",
     "reason": "`EVALUATE WS-IDX` `WHEN 12` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-MENU-OPT-COUNT` (264-265): the count is the constant 11 (COMEN02Y line 21 `05 CDEMO-MENU-OPT-COUNT PIC 9(02) VALUE 11`), never written by COMEN01C, and the loop body does not change WS-IDX, so WS-IDX takes only 1-11."
+   },
+   {
+    "unit": "PROCESS-ENTER-KEY",
+    "line": 136,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "C",
+    "reason": "`IF CDEMO-USRTYP-USER AND CDEMO-MENU-OPT-USRTYPE(WS-OPTION) = 'A'`: CDEMO-MENU-OPT-USRTYPE is the COMEN02Y copybook's VALUEs, and each of the 11 options carries `10 FILLER PIC X(01) VALUE 'U'` (lines 29, 35, 41, 47, 53, 59, 65, 72, 78, 84, 90; no 'A' anywhere in the copybook); COMEN01C never writes the table (it only reads it at 137, 150ff and 274ff), so no option's user type is 'A' and the true outcome is never reached."
    }
   ],
   "carddemo-posttran": [
@@ -312,6 +320,16 @@
     "outcome": "false",
     "family": "C",
     "reason": "`IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 202), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (line 361), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached"
+   }
+  ],
+  "carddemo-readacct": [
+   {
+    "unit": "PROCEDURE-DIVISION",
+    "line": 148,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "`IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 147), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (line 190), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached"
    }
   ],
   "carddemo-readcard": [

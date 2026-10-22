@@ -2956,22 +2956,50 @@ def _kind_java(v: cc.Verdict, actual: dict[str, Any]) -> cc.Verdict:
     return v
 
 
+def _measure_dir(d: Path, sides: set[str], work: Path, offline: bool, ports: PortOptions | None,
+                 strengthened: bool) -> tuple[dict[str, Any], dict[str, Any], PortOptions | None]:  # fmt: skip
+    """One case of `measure`: its cells, its coverage entry, and `ports` with what it collected (#5882: a --jobs
+    worker's answer, so the parent merges exactly what a sequential run would have gathered)."""
+    case = cc.load_case(d)
+    if strengthened:  # #4049
+        add_strengthened(case)
+    coverage: dict[str, Any] = {}
+    return measure_case(case, sides, work / case.id, offline, ports, coverage), coverage, ports
+
+
 def measure(crucible: Path, only: set[str] | None, sides: set[str], work: Path, offline: bool,
-            ports: PortOptions | None = None, strengthened: bool = False) -> dict[str, Any]:  # fmt: skip
+            ports: PortOptions | None = None, strengthened: bool = False, jobs: int = 1) -> dict[str, Any]:  # fmt: skip
+    """#5882: `jobs` > 1 measures that many cases at once, each in its own process (quiet() redirects a whole
+    process's output); the results and the printed per-case lines are the sequential run's, in case order."""
     cells: dict[str, dict[str, Any]] = {}
     coverage: dict[str, Any] = {}
     dirs = cc.discover(crucible, only)
     if not dirs:
         raise SystemExit(f"no cases under {crucible}/cases" + (f" matching {sorted(only)}" if only else ""))
-    for d in dirs:
-        case = cc.load_case(d)
-        if strengthened:  # #4049
-            add_strengthened(case)
-        print(f"{case.id} ...", flush=True)
-        got = measure_case(case, sides, work / case.id, offline, ports, coverage)
+    pool = None
+    if jobs > 1 and len(dirs) > 1:
+        import concurrent.futures
+        import multiprocessing
+
+        pool = concurrent.futures.ProcessPoolExecutor(
+            min(jobs, len(dirs)), mp_context=multiprocessing.get_context("spawn")
+        )
+        pending = [pool.submit(_measure_dir, d, sides, work, offline, ports, strengthened) for d in dirs]
+    for i, d in enumerate(dirs):
+        print(f"{d.name} ...", flush=True)
+        if pool is None:
+            got, cov_part, _ = _measure_dir(d, sides, work, offline, ports, strengthened)
+        else:
+            got, cov_part, theirs = pending[i].result()
+            if ports is not None and theirs is not None:
+                ports.actual.update(theirs.actual)
+                ports.entries.update(theirs.entries)
         cells.update(got)
+        coverage.update(cov_part)
         by = Counter(f"{c['side']}:{c['status']}" for c in got.values())
         print("   " + ", ".join(f"{k} {n}" for k, n in sorted(by.items())), flush=True)
+    if pool is not None:
+        pool.shutdown()
     oracle = None
     if "cobol-stub" in sides:  # #4309: the GnuCOBOL the COBOL side ran on, checked against the pin
         import equivalence_oracle  # noqa: PLC0415 -- beside equivalence_common, imported as it is
@@ -3546,6 +3574,7 @@ def main(argv: list[str] | None = None) -> int:
                     "{report_dir}); the exit status is then whether every java-ported cell passes")  # fmt: skip
     ap.add_argument("--forge-cache", type=Path, help="#4047: a directory holding the generated project, filled by the "
                     "first run and copied by later ones (the mutation runs' fast mode); java-ported only")  # fmt: skip
+    ap.add_argument("--jobs", type=int, default=1, help="#5882: measure this many cases at once (one process each)")
     ap.add_argument("--strengthened", action="store_true",
                     help="#4049: add each case's strengthened scenarios (tests/cics_crucible/strengthened)")  # fmt: skip
     ap.add_argument("--derive-expected", action="store_true", help="#4049: run the strengthened scenarios of the "
@@ -3598,7 +3627,7 @@ def main(argv: list[str] | None = None) -> int:
         args.cases = shard["cases"]
     work = args.keep or Path(tempfile.mkdtemp(prefix="cics_crucible_"))
     results = measure(crucible, set(args.cases) if args.cases else None, set(args.sides), work.resolve(), args.offline,
-                      ported, args.strengthened)  # fmt: skip
+                      ported, args.strengthened, args.jobs)  # fmt: skip
     if shard:
         results["shard"] = shard
     n = Counter(c["status"] for c in results["cells"].values())

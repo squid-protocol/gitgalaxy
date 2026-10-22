@@ -22,6 +22,8 @@ name: CICS Crucible
 # seconds (cics_crucible.py shard_plan), each its own runner with its own GnuCOBOL container and Maven; a shard holds
 # the two ledgers cut to its cases. The job `crucible` (the required check's name) merges the shards' results.json,
 # fails unless every case ran in exactly one shard, prints the whole 710-cell report and holds the full ratchet.
+# #5882: a shard measures four cases at once (--jobs 4, one per vCPU), so two shards do what four did; each job
+# costs ~40 s of setup and a runner slot of the shared pool.
 
 on:
   pull_request:
@@ -65,14 +67,14 @@ concurrency:
 
 jobs:
   measure:
-    name: measure (shard ${{ matrix.shard }}/4)
+    name: measure (shard ${{ matrix.shard }}/2)
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false  # every shard reports its own cells
       matrix:
-        shard: [1, 2, 3, 4]  # the N in --shard i/N below; merge_shards fails if a shard's results are missing
+        shard: [1, 2]  # the N in --shard i/N below; merge_shards fails if a shard's results are missing
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -151,7 +153,8 @@ jobs:
           GITGALAXY_ORACLE_STRICT: "1"
         run: |
           cd gitgalaxy
-          python tests/tools/cics_crucible.py --crucible ../cics-crucible --shard ${{ matrix.shard }}/4 --ci --out "$RUNNER_TEMP/cics_crucible"
+          # #5882: four cases at once, one per vCPU (results and log the same as one at a time)
+          python tests/tools/cics_crucible.py --crucible ../cics-crucible --shard ${{ matrix.shard }}/2 --jobs 4 --ci --out "$RUNNER_TEMP/cics_crucible"
 
       - name: Upload this shard's results
         if: always()

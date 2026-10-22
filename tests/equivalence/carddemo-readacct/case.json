@@ -11,7 +11,7 @@
   "clock": "2022/07/18 10:30:15.00",
   "datasets": {
     "ACCTFILE": {
-      "input": "app/data/ASCII/acctdata.txt",
+      "input": "@case/acctdata.txt",
       "organization": "indexed",
       "reclen": 300,
       "keys": [
@@ -48,7 +48,7 @@
       }
     }
   },
-  "notes": "Job READACCT step STEP05: CBACT01C reads CardDemo's account master (the ACCTDATA KSDS, acctdata.txt) in key order, DISPLAYs each account, and writes three files per account: OUTFILE (RECFM=FB, LRECL=107; the reissue date reformatted by the assembler routine COBDATFT, CURR-CYC-DEBIT as COMP-3, 2525.00 when it is zero), ARRYFILE (LRECL=110: a 5-entry table, three entries set, the rest as INITIALIZE leaves them) and VBRCFILE (RECFM=VB: a 12-byte and a 39-byte record per account, RECORD VARYING DEPENDING ON WS-RECD-LEN). COBDATFT is the harness's model of app/asm/COBDATFT.asm (tests/equivalence/le/cobdatft.c; oracle_assumptions.md A1). OUT-ACCT-REISSUE-DATE carries two bytes COBDATFT never writes (oracle_assumptions.md L3: GnuCOBOL's spaces). ARRYFILE's untouched table entries are INITIALIZE's zeros, unsigned under GnuCOBOL, with the preferred C sign on z/OS: zoned_sign_equivalent (oracle_assumptions.md C10). The program never CLOSEs its three output files (GOBACK does). Every input is the corpus's data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+  "notes": "Job READACCT step STEP05: CBACT01C reads CardDemo's account master (the ACCTDATA KSDS, acctdata.txt) in key order, DISPLAYs each account, and writes three files per account: OUTFILE (RECFM=FB, LRECL=107; the reissue date reformatted by the assembler routine COBDATFT, CURR-CYC-DEBIT as COMP-3, 2525.00 when it is zero), ARRYFILE (LRECL=110: a 5-entry table, three entries set, the rest as INITIALIZE leaves them) and VBRCFILE (RECFM=VB: a 12-byte and a 39-byte record per account, RECORD VARYING DEPENDING ON WS-RECD-LEN). COBDATFT is the harness's model of app/asm/COBDATFT.asm (tests/equivalence/le/cobdatft.c; oracle_assumptions.md A1). OUT-ACCT-REISSUE-DATE carries two bytes COBDATFT never writes (oracle_assumptions.md L3: GnuCOBOL's spaces). ARRYFILE's untouched table entries are INITIALIZE's zeros, unsigned under GnuCOBOL, with the preferred C sign on z/OS: zoned_sign_equivalent (oracle_assumptions.md C10). The program never CLOSEs its three output files (GOBACK does). #5864: acctdata.txt is the corpus's acctdata.txt plus account 51 (a copy of the first account with a cycle debit of 50.00), the one account with a nonzero ACCT-CURR-CYC-DEBIT, so 1300-POPUL-ACCT-RECORD's `IF ACCT-CURR-CYC-DEBIT EQUAL TO ZERO` takes its false outcome; the corpus's own accounts all carry a zero debit. Every other input is the corpus's data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
   "zoned_sign_equivalent": [
     "ARRYFILE"
   ],
@@ -184,6 +184,18 @@
         }
       ],
       "why": "30 (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the second VBRCFILE record -- the first account's 39-byte record: 1575-WRITE-VB2-RECORD, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+    },
+    {
+      "name": "vbrcfile-first-write-error",
+      "plan": [
+        {
+          "dd": "VBRCFILE",
+          "op": "WRITE",
+          "nth": 1,
+          "status": "30"
+        }
+      ],
+      "why": "30 (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the first VBRCFILE record -- the first account's 12-byte record: 1550-WRITE-VB1-RECORD, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999 (#5864: the VB1 status test's true outcome; vbrcfile-write-error reaches only 1575's)"
     },
     {
       "name": "close-acctfile",

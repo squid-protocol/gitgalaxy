@@ -119,6 +119,11 @@
     {"id": "asm-fixed-eps-5pct-monthly-short-8", "source": "model-assumption", "op": "fixed", "a": "3F111111", "size": "short", "scale": 8, "want": "0.00416667"},
     {"id": "asm-enc-eps-6.5pct-monthly-short", "source": "model-assumption", "op": "encode", "value": "0.005416666666666667", "size": "short", "want": "3F162FC9"},
     {"id": "asm-fixed-eps-6.5pct-monthly-short-8", "source": "model-assumption", "op": "fixed", "a": "3F162FC9", "size": "short", "scale": 8, "want": "0.00541667"},
-    {"id": "asm-add-1-eps-5pct-monthly-long", "source": "model-assumption", "op": "add", "a": "4110000000000000", "b": "3F11111100000000", "size": "long", "want": "4110111111000000"}
+    {"id": "asm-add-1-eps-5pct-monthly-long", "source": "model-assumption", "op": "add", "a": "4110000000000000", "b": "3F11111100000000", "size": "long", "want": "4110111111000000"},
+    {"id": "asm-pow-eps-5pct-monthly-360", "source": "model-assumption", "op": "pow", "a": "4110111111000000", "b": "4316800000000000", "size": "long", "want": "41477BE10B70D20C"},
+    {"id": "asm-pow-eps-5pct-monthly-12", "source": "model-assumption", "op": "pow", "a": "4110111111000000", "b": "41C0000000000000", "size": "long", "want": "4110D18F228CDE62"},
+    {"id": "asm-pow-eps-5pct-monthly-2.5", "source": "model-assumption", "op": "pow", "a": "4110111111000000", "b": "4128000000000000", "size": "long", "want": "41102ACCD2B28115"},
+    {"id": "asm-pow-eps-5pct-monthly-neg12", "source": "model-assumption", "op": "pow", "a": "4110111111000000", "b": "C1C0000000000000", "size": "long", "want": "40F38A3F71C4E1F7"},
+    {"id": "asm-pow-eps-6.5pct-monthly-360", "source": "model-assumption", "op": "pow", "a": "4110162FC9000000", "b": "4316800000000000", "size": "long", "want": "416FDE63C55C3F8D"}
   ]
 }

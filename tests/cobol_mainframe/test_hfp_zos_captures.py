@@ -37,9 +37,11 @@ OPS = {
     "to_ieee": ("a",),
     "round_short": ("a",),
     "compare": ("a", "b"),
+    "pow": ("a", "b"),
 }
-# round_short: a long item MOVEd to a COMP-1, the result is always short; store: a fixed-point receiver is long
-SIZES = {"round_short": ("short",), "store": ("long",)}
+# round_short: a long item MOVEd to a COMP-1, the result is always short; store: a fixed-point receiver is long;
+# pow: EPSMPMT's exponentiation is long (IBM evaluates a `**` in long floating point)
+SIZES = {"round_short": ("short",), "store": ("long",), "pow": ("long",)}
 
 
 def records() -> list[dict]:
@@ -224,3 +226,23 @@ def test_the_epsmpmt_interest_shapes_are_asked():
     assert add["source"] == "model-assumption" and add["a"] == "4110000000000000"
     assert add["b"] == enc["want"] + "0" * 8 and add["size"] == "long"
     assert "asm-enc-eps-6.5pct-monthly-short" in by_id
+
+
+def test_the_epsmpmt_exponentiation_is_asked():
+    """#4271 (DBB EPSMPMT `(1 + WS-CALC-INTEREST) ** WS-NUMBER-OF-MONTHS`, the float hole left in `mortgage-mpmt`).
+
+    A `pow` record is a model-assumption whose `want` is the kit's own reference (IBM documents no result for `**`); its
+    base is the `1 + rate` long add already asked, and its exponent is the fixed-point month count converted to long.
+    """
+    by_id = {r["id"]: r for r in records()}
+    add = by_id["asm-add-1-eps-5pct-monthly-long"]
+    pows = {k: r for k, r in by_id.items() if r["op"] == "pow"}
+    assert set(pows) >= {f"asm-pow-eps-5pct-monthly-{x}" for x in ("360", "12", "2.5", "neg12")}
+    assert all(r["source"] == "model-assumption" and r["size"] == "long" for r in pows.values())
+    p360 = pows["asm-pow-eps-5pct-monthly-360"]
+    assert p360["a"] == add["want"] and p360["b"] == "4316800000000000"  # 360 = 0.168 x 16**3
+    # (1 + 0.0041666...) ** 360 is about e ** 1.4967 = 4.467: 0x4.77...
+    assert float(F(int(p360["want"][2:], 16), 16**14) * 16 ** (int(p360["want"][:2], 16) - 64)) == pytest.approx(
+        4.467, abs=1e-3
+    )
+    assert float(F(int(pows["asm-pow-eps-5pct-monthly-neg12"]["want"][2:], 16), 16**14)) > 0

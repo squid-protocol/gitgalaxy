@@ -133,6 +133,18 @@ IBM_CITE = re.compile(
     re.I,
 )
 DECLARED_DIFF = re.compile(r"declared (oracle-vs-IBM )?difference|DIFFERS|Where they differ", re.I)
+# The strict tier: a document NUMBER or an ibm.com/docs link (a bare document name is not a quote), a declared
+# difference, or an explicit statement that IBM is silent. Entries that still name a document only by name are listed
+# here; the list only shrinks (#4702).
+STRICT_CITE = re.compile(r"[SGA][CHA]\d\d-\d{4}|ibm\.com/docs", re.I)
+IBM_SILENT = re.compile(
+    r"IBM (is|stays|says nothing|does not (define|document))[^.]{0,30}(silent|undefined|nothing)"
+    r"|undefined (on|in|by) IBM|not documented",
+    re.I,
+)
+STRICT_BASELINE: frozenset[str] = frozenset(
+    {"F1", "F2", "I1", "I3", "I4", "Q1a", "Q1b", "X1", "X9", "X13", "X14", "X15", "X16", "X23", "X24"}
+)
 
 
 def audit() -> list[tuple[str, str, str]]:
@@ -146,13 +158,34 @@ def audit() -> list[tuple[str, str, str]]:
     return out
 
 
+def audit_strict() -> list[str]:
+    """Ids of the entries that claim a match without a document number, a link, a declared difference or a stated IBM
+    silence."""
+    out = []
+    for meta, body in load_entries():
+        status = meta["status"]
+        claims = "ASSUMED" in status or "MATCHED" in status or not status
+        if claims and not (STRICT_CITE.search(body) or DECLARED_DIFF.search(body) or IBM_SILENT.search(body)):
+            out.append(meta["id"])
+    return out
+
+
 def audit_problems(found: list[tuple[str, str, str]]) -> list[str]:
     ids = {i for i, _, _ in found}
     new = sorted(ids - UNCITED_BASELINE, key=id_key)
     fixed = sorted(UNCITED_BASELINE - ids, key=id_key)
-    return [f"{i}: no IBM citation or declared difference (quote IBM, or declare the difference)" for i in new] + [
+    problems = [f"{i}: no IBM citation or declared difference (quote IBM, or declare the difference)" for i in new] + [
         f"{i}: now cited; remove it from UNCITED_BASELINE" for i in fixed
     ]
+    strict = set(audit_strict())
+    problems += [
+        f"{i}: no IBM document number or link (cite it, declare the difference, or state IBM is silent)"
+        for i in sorted(strict - STRICT_BASELINE, key=id_key)
+    ]
+    problems += [
+        f"{i}: now strictly cited; remove it from STRICT_BASELINE" for i in sorted(STRICT_BASELINE - strict, key=id_key)
+    ]
+    return problems
 
 
 def _git(*args: str) -> str:

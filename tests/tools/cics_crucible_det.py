@@ -49,6 +49,7 @@ def ports_dir(case: str, dest: Path, root: Path = DET_PORTS) -> Path:
 def build(case: str, crucible: Path, project: Path, root: Path = DET_PORTS) -> dict[str, tuple[int, int]]:
     """Translate the case's programs with the deterministic translator over the stubs of a generated `project`."""
     from gitgalaxy.tools.cobol_to_java.det import program as P
+    from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts
     from gitgalaxy.tools.cobol_to_java.det.source import bms_copybooks
 
     src = next(crucible.glob(f"cases/*/{case}"))
@@ -63,7 +64,7 @@ def build(case: str, crucible: Path, project: Path, root: Path = DET_PORTS) -> d
             stub = (project / "src/main/java" / PKG.replace(".", "/") / "service"
                     / f"{prog.capitalize()}Service.java").read_text(encoding="utf-8")  # fmt: skip
             r = P.translate(src / "src" / f"{prog}.cbl", [src / "copy", bms], stub, PKG, P.estate_files(project),
-                            project)  # fmt: skip
+                            project, layouts=EngineLayouts.for_project(project, src, f"src/{prog}.cbl"))  # fmt: skip
             (out / f"{r.service}.java").write_text(r.java, encoding="utf-8")
             stats[prog] = (r.stats["translated"], r.stats["statements"])
     finally:

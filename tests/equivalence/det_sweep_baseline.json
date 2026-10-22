@@ -6,6 +6,10 @@
    "issue": "#4952",
    "why": "CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof."
   },
+  "cbsa-bnk1ccs-create": {
+   "issue": "#5089",
+   "why": "BNK1CCS create-customer and born-in-the-future ENTERs LINK CRECUST, whose CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date (oracle_assumptions.md L1): the 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored, so the oracle refuses by name ('CEEDAYS: picture not modelled') and the case stays unproven, as CRECUST (cbsa-crecust, #4952). Also open: X18 (the child schedule is ASSUMED). Awaiting the owner's ruling on the slack; then the scenarios move into cbsa-bnk1ccs and cbsa-bnk1ccs-generated."
+  },
   "mortgage-mpmt": {
    "issue": "#4271",
    "why": "IBM DBB EPSMPMT computes its payment through a COMP-1 item in hexadecimal floating point on z/OS, truncated decimal on GnuCOBOL. The det runtime models HFP since #4271 slice 1 (its interest COMPUTE translates), but the payment's (1 + C) ** N, N with decimal places, is a floating-point exponentiation IBM does not document bit for bit: a named hole (oracle_assumptions.md C6; its CBL NUMPROC(MIG) is modelled, C5). The dead-code FUNCTION ANNUITY (line 144) is the second: IBM defines the formula, arg-1 / (1 - (1 + arg-1) ** -arg-2), but not the bits of the power or of the result, so it is refused by name with that reason (not modelled). Two holes before and after #4271's last slice; the callers mortgage-csmrt and mortgage-cmort keep theirs"

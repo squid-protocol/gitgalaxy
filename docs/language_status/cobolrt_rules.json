@@ -149,7 +149,10 @@
     "p16",
     "pow16",
     "value",
-    "digits"
+    "digits",
+    "ln",
+    "atanh2",
+    "exp"
    ]
   },
   {
@@ -1814,6 +1817,26 @@
    "calibration": "uncalibrated"
   },
   {
+   "id": "RT-HFP-POWER",
+   "family": "HFP",
+   "title": "A floating-point exponentiation: the exact power for an integer exponent, exp(b ln a) at 60 digits for a fractional one, truncated to long HFP",
+   "methods": [
+    "power"
+   ],
+   "ibm": null,
+   "ibm_note": "IBM documents no result for a floating-point exponentiation; the capture kit's reference power() is the model until captured z/OS output agrees",
+   "options": [],
+   "features": [
+    "data_types: COMP-1",
+    "data_types: COMP-2"
+   ],
+   "register": [
+    "C6"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
    "id": "RT-HFP-FLOAT-TO-FIXED",
    "family": "HFP",
    "title": "A float moved to a fixed-point item: rounded in the receiver's low-order position, at most 9 (COMP-1) / 18 (COMP-2) significant digits",
@@ -3283,7 +3306,8 @@
    "family": "LE",
    "title": "ZUIDSTCK: the 16 TOD bytes are a stated input of the run, opaque to the program (a stand-in; never the host clock)",
    "methods": [
-    "le/Zuidstck.java:call"
+    "le/Zuidstck.java:call",
+    "le/Zuidstck.java:state"
    ],
    "ibm": {
     "doc": "zarch-pop",

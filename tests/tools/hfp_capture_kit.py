@@ -12,16 +12,24 @@
 
     python tests/tools/hfp_capture_kit.py emit   OUTDIR
     python tests/tools/hfp_capture_kit.py ingest SYSOUT --job JOB --step STEP --calibrated-under OPTIONS.json [--table T]
+    python tests/tools/hfp_capture_kit.py verify SYSOUT [--table T]
 
 `emit` writes HFPCAP.cbl and HFPCAP.jcl from the `ibm-publication` records of zos_captures/hfp.json: a program that
 runs each record's operation on z/OS and DISPLAYs `id|result`. `ingest` reads the job's output and appends one
 `zos-run` record per captured line, with its evidence (job, step, the output's sha256; never the data) and the runtime
 options it ran under (`runtime_options.calibration_problems`). A record that exists is never rewritten. A model that
 disagrees with a captured result is reported as a finding against the model: the record stays, the model is fixed.
+`verify` is `ingest` as a dry run: it needs no job, step or options, appends nothing, and prints the same report, so
+the findings are seen before a record is committed.
 
 Not every record can be asked of a COBOL program, and the kit says which are skipped and why (`SKIPPED`): COBOL has
 no IEEE converter (from_ieee / to_ieee), and a short multiply or divide is evaluated by IBM in long floating point and
-rounded, which is not the short arithmetic the table's short rows state.
+rounded, which is not the short arithmetic the table's short rows state; the same for a short `**` (`pow`).
+
+`pow` is `COMPUTE LR = LA ** LB` (DBB EPSMPMT's `(1 + C) ** WS-NUMBER-OF-MONTHS`, the one float hole left in
+`mortgage-mpmt`): IBM documents no result for it, so a `pow` record is a `model-assumption` whose `want` is `power()`,
+the kit's own reference. It is evidence of nothing until a z/OS run agrees; a disagreement is a finding against the
+reference, and the det translator keeps refusing a float `**`.
 
 A `model-assumption` record states what the det runtime ASSUMES where IBM documents nothing (register C6, ASSUMED): a
 fixed-point value converted to float is truncated to long, a float result stored in a fixed-point receiver truncates
@@ -36,7 +44,7 @@ import hashlib
 import json
 import re
 import sys
-from decimal import ROUND_DOWN, Decimal
+from decimal import ROUND_DOWN, Context, Decimal
 from fractions import Fraction as F
 from pathlib import Path
 
@@ -62,16 +70,31 @@ OPS = {
     "to_ieee": ("a",),
     "round_short": ("a",),
     "compare": ("a", "b"),
+    "pow": ("a", "b"),
 }
 FUNC = {"add": H.add, "sub": H.sub, "mul": H.mul, "div": H.div}
 ARITH = {"add": "+", "sub": "-", "mul": "*", "div": "/"}
 ARITH_NAME = {v: k for k, v in ARITH.items()}
 SKIP_IEEE = "COBOL has no IEEE converter"
-SKIP_SHORT = "IBM evaluates a COMP-1 multiply or divide in long floating point, not the short arithmetic the row states"
+POW_PRECISION = 60  # decimal digits of the reference for a fractional exponent; far past the 14 hex digits it is cut to
+SKIP_SHORT = "IBM evaluates a COMP-1 multiply, divide or exponentiation in long floating point, not the short arithmetic the row states"
 
 
 def records(table: Path | None = None) -> list[dict]:
     return json.loads((table or TABLE).read_text(encoding="utf-8"))["records"]
+
+
+def power(base: F, exp: F) -> F:
+    """The kit's REFERENCE for `base ** exp` in long HFP: the exact power truncated to long (an integer exponent), or
+    exp(exp * ln(base)) at POW_PRECISION digits truncated to long. IBM documents no result (register C6), so this is
+    an assumption the z/OS run decides, not a model the det runtime uses (it still refuses a float `**`)."""
+    if exp.denominator == 1:
+        return H.of(base**exp.numerator if exp >= 0 else 1 / base ** (-exp.numerator))
+    if base <= 0:
+        raise ValueError("a fractional exponent needs a positive base")
+    ctx = Context(prec=POW_PRECISION)
+    value = ctx.exp(ctx.multiply(H._dec(exp), ctx.ln(H._dec(base))))
+    return H.of(F(value))
 
 
 def compute(r: dict) -> str:
@@ -86,6 +109,8 @@ def compute(r: dict) -> str:
     if r["op"] == "round_short":  # a long item MOVEd to a COMP-1: LOAD ROUNDED (a is the long hex, the result short)
         return H.encode(H.to_short(H.decode(bytes.fromhex(r["a"]))), True).hex().upper()
     a = H.decode(bytes.fromhex(r["a"]))
+    if r["op"] == "pow":
+        return H.encode(power(a, H.decode(bytes.fromhex(r["b"]))), False).hex().upper()
     if r["op"] == "compare":
         b = H.decode(bytes.fromhex(r["b"]))
         return "<" if a < b else ">" if a > b else "="
@@ -107,7 +132,7 @@ def skip_reason(r: dict) -> str:
     """Why a record cannot be asked of a COBOL program ('' when it can)."""
     if r["op"] in ("from_ieee", "to_ieee"):
         return SKIP_IEEE
-    if r["op"] in ("mul", "div") and r["size"] == "short":
+    if r["op"] in ("mul", "div", "pow") and r["size"] == "short":
         return SKIP_SHORT
     return ""
 
@@ -163,7 +188,7 @@ def statements(r: dict) -> list[str]:
         out.append(f"DISPLAY {tag} E{r['scale']}")
     else:
         out.append(f"MOVE X'{r['b']}' TO {p}B-X")
-        out.append(f"COMPUTE {p}R = {p}A {ARITH[op]} {p}B")
+        out.append(f"COMPUTE {p}R = {p}A {'**' if op == 'pow' else ARITH[op]} {p}B")
         out.append(f"DISPLAY {tag} FUNCTION HEX-OF({p}R-X)")
     return [_line(s) for s in out]
 
@@ -233,10 +258,12 @@ def captured_record(r: dict, result: str, evidence: dict, under: dict) -> dict:
     }
 
 
-def ingest(text: str, table: Path, job: str, step: str, under: dict) -> dict:
-    """Append the captured records; returns {'added': ids, 'findings': [...], 'missing': ids, 'skipped': ids}."""
+def ingest(text: str, table: Path, job: str, step: str, under: dict, dry_run: bool = False) -> dict:
+    """Append the captured records; returns {'added': ids, 'findings': [...], 'missing': ids, 'skipped': ids}.
+
+    `dry_run` reports the same result (`added` is what would be appended) without the evidence check or a write."""
     problems = calibration_problems(under)
-    if problems or not job or not step:
+    if not dry_run and (problems or not job or not step):
         raise ValueError("; ".join(problems + ([] if job and step else ["job and step are required evidence"])))
     recs = records(table)
     asked = {r["id"]: r for r in askable(recs)}
@@ -255,7 +282,7 @@ def ingest(text: str, table: Path, job: str, step: str, under: dict) -> dict:
         same = Decimal(model) == Decimal(result) if rec["op"] in ("fixed", "store") else model == result
         if not same:
             findings.append(f"{rec['id']}: model {model!r}, z/OS {result!r}: a finding against the model")
-    if new:
+    if new and not dry_run:
         _append(table, new)
     return {
         "added": [r["id"] for r in new],
@@ -285,6 +312,9 @@ def main(argv: list[str] | None = None) -> int:
     i.add_argument("--step", required=True)
     i.add_argument("--calibrated-under", type=Path, required=True)
     i.add_argument("--table", type=Path, default=TABLE)
+    v = sub.add_parser("verify")
+    v.add_argument("sysout", type=Path)
+    v.add_argument("--table", type=Path, default=TABLE)
     a = ap.parse_args(argv)
     if a.cmd == "emit":
         a.outdir.mkdir(parents=True, exist_ok=True)
@@ -294,6 +324,10 @@ def main(argv: list[str] | None = None) -> int:
         skips = skipped(recs)
         print(f"asked {len(askable(recs))} records; SKIPPED {len(skips)}: {sorted(set(skips.values()))}")
         return 0
+    if a.cmd == "verify":
+        res = ingest(a.sysout.read_text(encoding="utf-8"), a.table, "", "", {}, dry_run=True)
+        print(json.dumps(res, indent=1))
+        return 1 if res["findings"] else 0
     under = json.loads(a.calibrated_under.read_text(encoding="utf-8"))
     res = ingest(a.sysout.read_text(encoding="utf-8"), a.table, a.job, a.step, under)
     print(json.dumps(res, indent=1))

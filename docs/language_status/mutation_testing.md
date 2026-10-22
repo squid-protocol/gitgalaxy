@@ -323,7 +323,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
-| COACTVWC (carddemo-acctview) | equivalence | 150/328 | 105/129 (81%) | 105/113 (93%) | 8 / 0 / 16 / 0 / 0 |
+| COACTVWC (carddemo-acctview) | equivalence | 150/428 | 96/137 (70%) | 96/109 (88%) | 13 / 0 / 16 / 12 / 0 |
 | COACTVWC (carddemo-acctview-generated) | equivalence | 150/427 | 109/137 (80%) | 109/109 (100%) | 0 / 0 / 16 / 12 / 0 |
 | COADM01C (carddemo-adminmenu) | equivalence | 100/340 | 63/95 (66%) | 63/63 (100%) | 0 / 0 / 29 / 3 / 0 |
 | COADM01C (carddemo-adminmenu-generated) | equivalence | 150/340 | 97/145 (67%) | 97/97 (100%) | 0 / 0 / 43 / 5 / 0 |
@@ -334,7 +334,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBTRN01C (carddemo-dailyval) | equivalence | 100/241 | 63/96 (66%) | 63/71 (89%) | 8 / 0 / 10 / 15 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
 | CBACT04C (carddemo-intcalc) | equivalence | 100/170 | 70/86 (81%) | 70/77 (91%) | 6 / 1 / 9 / 0 / 0 |
-| COMEN01C (carddemo-menu) | equivalence | 150/331 | 86/136 (63%) | 86/93 (92%) | 7 / 0 / 36 / 7 / 0 |
+| COMEN01C (carddemo-menu) | equivalence | 150/340 | 87/139 (63%) | 87/87 (100%) | 0 / 0 / 35 / 17 / 0 |
 | COMEN01C (carddemo-menu-generated) | equivalence | 150/340 | 87/139 (63%) | 87/88 (99%) | 0 / 1 / 35 / 16 / 0 |
 | CBTRN02C (carddemo-posttran) | equivalence | 100/263 | 76/85 (89%) | 76/80 (95%) | 3 / 1 / 5 / 0 / 0 |
 | CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/73 (95%) | 4 / 0 / 10 / 0 / 0 |
@@ -346,7 +346,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/73 (84%) | 12 / 0 / 10 / 8 / 0 |
 | COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 66/91 (73%) | 66/79 (84%) | 13 / 0 / 5 / 7 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/314 | 67/100 (67%) | 67/67 (100%) | 0 / 0 / 25 / 8 / 0 |
-| COTRN01C (carddemo-tranview-generated) | equivalence | 150/314 | 91/150 (61%) | 91/92 (99%) | 0 / 1 / 48 / 10 / 0 |
+| COTRN01C (carddemo-tranview-generated) | equivalence | 150/314 | 92/150 (61%) | 92/92 (100%) | 0 / 0 / 48 / 10 / 0 |
 | CBTRN03C (carddemo-trnrpt) | equivalence | 100/408 | 68/86 (79%) | 68/79 (86%) | 8 / 3 / 7 / 0 / 0 |
 | COUSR01C (carddemo-useradd) | equivalence | 100/272 | 63/98 (64%) | 63/64 (98%) | 0 / 1 / 27 / 7 / 0 |
 | COUSR03C (carddemo-userdel) | equivalence | 100/340 | 67/87 (77%) | 67/67 (100%) | 0 / 0 / 17 / 3 / 0 |
@@ -382,24 +382,24 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 4497 run | **2738/4103 (67%)** | **2738/3234 (85%)** | 310 / 186 / 584 / 285 / 0 |
-| **all estate** | | 5001 run | **3057/4579 (67%)** | **3057/3588 (85%)** | 345 / 186 / 672 / 319 / 0 |
+| **all equivalence** | | 4497 run | **2731/4114 (66%)** | **2731/3224 (85%)** | 308 / 185 / 583 / 307 / 0 |
+| **all estate** | | 5001 run | **3050/4590 (66%)** | **3050/3578 (85%)** | 343 / 185 / 671 / 341 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 216/272 (79%) | 216/242 (89%) |
+| AOR | 217/278 (78%) | 217/244 (89%) |
 | BDM | 25/49 (51%) | 25/28 (89%) |
-| CON | 385/903 (43%) | 385/501 (77%) |
-| COR | 172/298 (58%) | 172/229 (75%) |
-| DEL | 485/737 (66%) | 485/570 (85%) |
-| LIT | 640/873 (73%) | 640/723 (89%) |
-| NEG | 573/654 (88%) | 573/621 (92%) |
+| CON | 385/902 (43%) | 385/499 (77%) |
+| COR | 176/311 (57%) | 176/234 (75%) |
+| DEL | 489/737 (66%) | 489/565 (87%) |
+| LIT | 633/871 (73%) | 633/719 (88%) |
+| NEG | 569/652 (87%) | 569/618 (92%) |
 | RET | 56/105 (53%) | 56/93 (60%) |
-| ROR | 505/688 (73%) | 505/581 (87%) |
+| ROR | 500/685 (73%) | 500/578 (87%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
-| COACTVWC (carddemo-acctview) | 3/3 | 0/1 | 11/24 | 8/9 | 19/23 | 20/23 | 22/23 | - | 22/23 |
+| COACTVWC (carddemo-acctview) | 4/9 | 0/1 | 12/22 | 12/21 | 16/21 | 16/21 | 18/21 | - | 18/21 |
 | COACTVWC (carddemo-acctview-generated) | 6/9 | 0/1 | 14/22 | 17/21 | 16/21 | 16/21 | 20/21 | - | 20/21 |
 | COADM01C (carddemo-adminmenu) | 8/8 | - | 2/14 | 6/8 | 8/16 | 7/15 | 15/15 | 4/4 | 13/15 |
 | COADM01C (carddemo-adminmenu-generated) | 8/8 | - | 4/24 | 6/8 | 14/26 | 14/25 | 25/25 | 4/4 | 22/25 |
@@ -410,7 +410,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBTRN01C (carddemo-dailyval) | 3/6 | - | 11/16 | 3/12 | 9/15 | 12/16 | 12/16 | - | 13/15 |
 | CSUTLDTC (carddemo-dateutil) | 13/15 | - | 28/51 | 4/8 | 9/10 | 27/35 | 31/32 | - | 33/44 |
 | CBACT04C (carddemo-intcalc) | 3/4 | 4/6 | 13/21 | 1/2 | 13/17 | 20/20 | 10/10 | - | 6/6 |
-| COMEN01C (carddemo-menu) | 13/14 | - | 7/20 | 6/9 | 14/22 | 15/24 | 16/23 | - | 15/24 |
+| COMEN01C (carddemo-menu) | 13/14 | - | 6/21 | 6/10 | 20/24 | 12/24 | 16/23 | - | 14/23 |
 | COMEN01C (carddemo-menu-generated) | 13/14 | - | 6/21 | 6/10 | 20/24 | 12/24 | 16/23 | - | 14/23 |
 | CBTRN02C (carddemo-posttran) | 6/6 | 6/8 | 14/15 | 2/4 | 10/11 | 13/14 | 13/13 | - | 12/14 |
 | CBACT02C (carddemo-readcard) | - | - | 17/23 | 1/3 | 9/11 | 22/25 | 12/12 | - | 8/9 |
@@ -422,7 +422,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COTRN02C (carddemo-tranadd) | 7/7 | 3/7 | 1/12 | 5/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
 | COTRN00C (carddemo-tranlist) | 6/9 | - | 10/14 | 8/14 | 11/13 | 10/14 | 11/11 | 2/3 | 8/13 |
 | COTRN01C (carddemo-tranview) | 1/1 | - | 2/24 | 2/3 | 21/24 | 19/24 | 17/17 | - | 5/7 |
-| COTRN01C (carddemo-tranview-generated) | 1/1 | - | 3/43 | 2/3 | 33/43 | 30/36 | 17/17 | - | 5/7 |
+| COTRN01C (carddemo-tranview-generated) | 1/1 | - | 3/43 | 2/3 | 34/43 | 30/36 | 17/17 | - | 5/7 |
 | CBTRN03C (carddemo-trnrpt) | 2/2 | 5/7 | 9/14 | 1/7 | 14/14 | 13/14 | 12/14 | - | 12/14 |
 | COUSR01C (carddemo-useradd) | 1/1 | - | 1/21 | 3/6 | 16/20 | 16/20 | 10/10 | - | 16/20 |
 | COUSR03C (carddemo-userdel) | 0/1 | - | 6/17 | 2/4 | 14/17 | 14/16 | 16/16 | - | 15/16 |
@@ -547,6 +547,17 @@ tranadd is proven on 78 scenarios (72/75 branches), and the deterministic port o
 NUMVAL-C into `PIC 99` (00, the date is refused) while IBM rounds a float-mode store (01, register C6, `RT-HFP-FLOAT-STATEMENT-STORE`), which the deterministic port follows, so the
 det sweep of carddemo-report fails on it. The scenario is not committed. The mutant is a real IBM difference, not an equivalent one: the model port's `DOWN` follows the oracle.
 billpay `868815f4c6` and `29f0e18174` (a balance of 1,000,000.00 or more) are a different mechanism and stay open.
+
+**Wide balances on billpay** (#5401, 2026-10-22). Every CardDemo account is below 1,000,000.00, so billpay never showed a wide amount or the tenth integer digit
+that COBIL00C's MOVE of `ACCT-CURR-BAL` (`S9(10)V99`) into `TRAN-AMT` (`S9(9)V99`) drops. The case appends two synthetic accounts and their card xref rows
+(`acctdata-5401.txt`, `cardxref-5401.txt`): `00000099998` at 1,234,567.89 (`pay-balance-over-one-million`) and `00000099997` at 1,234,567,890.12
+(`pay-balance-ten-integer-digits`, TRAN-AMT keeps 234,567,890.12). GnuCOBOL and the port agree on both: billpay is proven on 35 scenarios (46/48 branches).
+The two survivors that named this gap, `868815f4c6` and `29f0e18174`, were judged on the port before #5844 changed `store()` to count integer digits; their ids no longer exist.
+Against the current port the same mutants (`store(.., 9, 3)` at line 542, `store(.., 10, 3)` at 552; ids `84cb7729f6`, `95f2f0cf57`) change only the scale of a
+value that the setter writes at scale 2, so they survive the new scenarios and are equivalent, not case gaps. The digit-count mutants the new account does reach:
+`d5264128d1` (`store(bal, 10, 2)` at 542) is killed by the ten-integer-digit scenario; `2f50a14acd` (`store(.., 11, 2)` at 552) survives and is unreachable
+(balance minus amount is at most 1,000,000,000.00, 10 digits). The scores are not re-run, and `mutation_scores.json` is not edited.
+`test_carddemo_wide_balance_5401.py` pins the accounts, the xref rows and the scenarios.
 
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and

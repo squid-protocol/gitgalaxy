@@ -37,9 +37,11 @@ OPS = {
     "to_ieee": ("a",),
     "round_short": ("a",),
     "compare": ("a", "b"),
+    "pow": ("a", "b"),
 }
-# round_short: a long item MOVEd to a COMP-1, the result is always short; store: a fixed-point receiver is long
-SIZES = {"round_short": ("short",), "store": ("long",)}
+# round_short: a long item MOVEd to a COMP-1, the result is always short; store: a fixed-point receiver is long;
+# pow: EPSMPMT's exponentiation is long (IBM evaluates a `**` in long floating point)
+SIZES = {"round_short": ("short",), "store": ("long",), "pow": ("long",)}
 
 
 def records() -> list[dict]:
@@ -190,3 +192,57 @@ def test_the_bnk1uac_rate_and_bankdata_period_shapes_are_asked():
     assert cmp["b"] == by_id["asm-enc-9999.99-long"]["want"]
     enc, fix = by_id["asm-enc-99999999999999-long"], by_id["asm-fixed-99999999999999-long-0"]
     assert fix["a"] == enc["want"] and fix["scale"] == 0 and Decimal(fix["want"]) == Decimal("99999999999999")
+
+
+def test_the_bnk1cra_amount_shapes_are_asked():
+    """#4271 (BNK1CRA `WS-AMOUNT-AS-FLOAT`, a COMP-2 amount): negated by `* -1`, compared with ZERO, MOVEd to the amount.
+
+    The negation is exact (an IBM-publication multiply by long -1), both signs are compared with zero, and the negative
+    amount is moved to a 2-decimal field (model-assumption: the float-to-fixed rounding, here on a negative value).
+    """
+    by_id = {r["id"]: r for r in records()}
+    enc = by_id["asm-enc-12.34-long"]
+    neg = by_id["mul-long-12.34-neg1"]
+    assert neg["source"] == "ibm-publication" and neg["a"] == enc["want"] and neg["b"] == "C110000000000000"
+    assert neg["want"][0] == "C" and neg["want"][1:] == enc["want"][1:]
+    pos_cmp, neg_cmp = by_id["cmp-long-12.34-zero"], by_id["cmp-long-neg-12.34-zero"]
+    assert (pos_cmp["a"], pos_cmp["want"]) == (enc["want"], ">") and pos_cmp["b"] == "0" * 16
+    assert (neg_cmp["a"], neg_cmp["want"]) == (neg["want"], "<") and neg_cmp["b"] == "0" * 16
+    fix = by_id["asm-fixed-neg-12.34-long-2"]
+    assert fix["source"] == "model-assumption" and fix["a"] == neg["want"] and Decimal(fix["want"]) == Decimal("-12.34")
+
+
+def test_the_epsmpmt_interest_shapes_are_asked():
+    """#4271 (DBB EPSMPMT `WS-CALC-INTEREST` COMP-1 = (rate / 100) / 12, then `1 + WS-CALC-INTEREST`).
+
+    The monthly rate is a non-exact quotient stored as short HFP, read back at 8 places, and added to 1 in long HFP (the
+    statement's mode, since the `**` that follows is long). All model-assumption: IBM documents none of the three results.
+    """
+    by_id = {r["id"]: r for r in records()}
+    enc, fix = by_id["asm-enc-eps-5pct-monthly-short"], by_id["asm-fixed-eps-5pct-monthly-short-8"]
+    assert enc["source"] == fix["source"] == "model-assumption" and enc["size"] == "short"
+    assert fix["a"] == enc["want"] and fix["scale"] == 8 and Decimal(fix["want"]) == Decimal("0.00416667")
+    add = by_id["asm-add-1-eps-5pct-monthly-long"]
+    assert add["source"] == "model-assumption" and add["a"] == "4110000000000000"
+    assert add["b"] == enc["want"] + "0" * 8 and add["size"] == "long"
+    assert "asm-enc-eps-6.5pct-monthly-short" in by_id
+
+
+def test_the_epsmpmt_exponentiation_is_asked():
+    """#4271 (DBB EPSMPMT `(1 + WS-CALC-INTEREST) ** WS-NUMBER-OF-MONTHS`, the float hole left in `mortgage-mpmt`).
+
+    A `pow` record is a model-assumption whose `want` is the kit's own reference (IBM documents no result for `**`); its
+    base is the `1 + rate` long add already asked, and its exponent is the fixed-point month count converted to long.
+    """
+    by_id = {r["id"]: r for r in records()}
+    add = by_id["asm-add-1-eps-5pct-monthly-long"]
+    pows = {k: r for k, r in by_id.items() if r["op"] == "pow"}
+    assert set(pows) >= {f"asm-pow-eps-5pct-monthly-{x}" for x in ("360", "12", "2.5", "neg12")}
+    assert all(r["source"] == "model-assumption" and r["size"] == "long" for r in pows.values())
+    p360 = pows["asm-pow-eps-5pct-monthly-360"]
+    assert p360["a"] == add["want"] and p360["b"] == "4316800000000000"  # 360 = 0.168 x 16**3
+    # (1 + 0.0041666...) ** 360 is about e ** 1.4967 = 4.467: 0x4.77...
+    assert float(F(int(p360["want"][2:], 16), 16**14) * 16 ** (int(p360["want"][:2], 16) - 64)) == pytest.approx(
+        4.467, abs=1e-3
+    )
+    assert float(F(int(pows["asm-pow-eps-5pct-monthly-neg12"]["want"][2:], 16), 16**14)) > 0

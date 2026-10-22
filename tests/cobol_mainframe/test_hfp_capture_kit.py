@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import shutil
 import sys
+from fractions import Fraction as F
 from pathlib import Path
 
 import pytest
@@ -164,3 +165,51 @@ def test_a_model_assumption_is_asked_and_a_disagreeing_capture_is_a_finding_agai
     out = _sysout(recs, skip={"asm-store-add-0.1-0.2-2"}) + "asm-store-add-0.1-0.2-2|0.30\n"
     res = K.ingest(out, table, "J1", "GO", _under())
     assert len(res["findings"]) == 1 and "zos-asm-store-add-0.1-0.2-2" in res["findings"][0]
+
+
+def test_a_pow_record_becomes_a_compute_with_the_exponentiation_operator():
+    r = next(x for x in K.records() if x["id"] == "asm-pow-eps-5pct-monthly-360")
+    text = "".join(K.statements(r))
+    assert "COMPUTE LR = LA ** LB" in text and "HEX-OF(LR-X)" in text and "asm-pow-eps-5pct-monthly-360|" in text
+    assert r["id"] in {x["id"] for x in K.askable(K.records())}
+    assert K.skip_reason({**r, "size": "short"}) == K.SKIP_SHORT
+
+
+def test_the_pow_reference_is_exact_for_an_integer_exponent_and_truncates_to_long():
+    two, three = K.H.of(2), K.H.of(3)
+    assert K.power(two, three) == 8 and K.power(two, K.H.of(-3)) == F(1, 8)
+    root = K.power(K.H.of(4), K.H.decode(bytes.fromhex("4080000000000000")))  # 4 ** 0.5
+    assert abs(root - 2) < F(1, 10**15) and root <= 2
+    with pytest.raises(ValueError):
+        K.power(K.H.of(-4), K.H.decode(bytes.fromhex("4080000000000000")))
+
+
+def test_a_pow_capture_that_disagrees_with_the_reference_is_a_finding(table):
+    recs = K.records(table)
+    ident = "asm-pow-eps-5pct-monthly-12"
+    out = _sysout(recs, skip={ident}) + f"{ident}|4110D18F228CDE63\n"
+    res = K.ingest(out, table, "J1", "GO", _under())
+    assert len(res["findings"]) == 1 and f"zos-{ident}" in res["findings"][0]
+
+
+def test_verify_reports_what_ingest_would_and_writes_nothing(table, tmp_path, capsys):
+    recs = K.records(table)
+    before = table.read_text(encoding="utf-8")
+    ok = tmp_path / "ok.txt"
+    ok.write_text(_sysout(recs), encoding="utf-8")
+    assert K.main(["verify", str(ok), "--table", str(table)]) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["added"] == ["zos-" + r["id"] for r in K.askable(recs)] and report["findings"] == []
+    bad = tmp_path / "bad.txt"
+    bad.write_text(_sysout(recs, skip={"enc-1", "disp-1.5"}) + "enc-1|41200000\n", encoding="utf-8")
+    assert K.main(["verify", str(bad), "--table", str(table)]) == 1
+    report = json.loads(capsys.readouterr().out)
+    assert "zos-enc-1" in report["findings"][0] and report["missing"] == ["disp-1.5"]
+    assert table.read_text(encoding="utf-8") == before
+
+
+def test_a_dry_run_ingest_needs_no_evidence_and_a_real_one_still_does(table):
+    recs = K.records(table)
+    assert K.ingest(_sysout(recs), table, "", "", {}, dry_run=True)["added"]
+    with pytest.raises(ValueError):
+        K.ingest(_sysout(recs), table, "", "", {})

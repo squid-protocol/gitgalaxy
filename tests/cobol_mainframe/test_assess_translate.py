@@ -124,3 +124,50 @@ def test_a_refusal_is_only_valid_on_a_refused_program(outcomes):
     report = SC.project(_inventory(sorted(SOURCES), []), translation=outcomes)
     next(r for r in report["programs"] if r["name"] == "WHOLE1.cbl")["refusal"] = "CopyUnresolved"
     assert any("refusal" in p for p in SC.validate(report))
+
+
+@pytest.fixture(scope="module")
+def scanned(tmp_path_factory):
+    """The WHOLE1 estate and its scan DB: the engine's record layouts come from it (#5649)."""
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+
+    estate = tmp_path_factory.mktemp("lay")
+    (estate / "WHOLE1.cbl").write_text(SOURCES["WHOLE1.cbl"])
+    return estate, scan_to_db(estate, tmp_path_factory.mktemp("laydb"))
+
+
+def test_the_dry_run_translates_on_the_engine_layouts(scanned, monkeypatch):
+    """#5649: with the estate's scan each program is handed its EngineLayouts in the given mode (check by default) and
+    the engine lays out its record; without a scan, or with layouts=None, the translator's own."""
+    from gitgalaxy.tools.cobol_to_java.det import engine_layout as EL
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    estate, db = scanned
+    seen: list = []
+    real = P.translate
+
+    def spy(*a, **kw):
+        seen.append(kw.get("layouts"))
+        return real(*a, **kw)
+
+    monkeypatch.setattr(P, "translate", spy)
+    progs = [estate / "WHOLE1.cbl"]
+    out = dryrun.dry_run(estate, [estate], None, progs, scan_db=db)
+    assert out["WHOLE1.cbl"]["translation"] == "whole"
+    assert isinstance(seen[0], EL.EngineLayouts) and seen[0].mode == "check" and seen[0].consumed == ["WS-A"]
+    dryrun.dry_run(estate, [estate], None, progs, scan_db=db, layouts="engine")
+    assert seen[1].mode == "engine"
+    dryrun.dry_run(estate, [estate], None, progs, scan_db=db, layouts=None)
+    dryrun.dry_run(estate, [estate], None, progs)
+    assert seen[2:] == [None, None]
+
+
+def test_a_layout_the_translator_computes_differently_refuses_the_program(scanned, monkeypatch):
+    from gitgalaxy.tools.cobol_to_java.det import engine_layout as EL
+
+    estate, db = scanned
+    monkeypatch.setattr(EL, "differences", lambda rec, own: ["WS-A engine @0+4, translator @0+5"])
+    out = dryrun.dry_run(estate, [estate], None, [estate / "WHOLE1.cbl"], scan_db=db)
+    assert out["WHOLE1.cbl"] == {"translation": "refused", "refusal": "LayoutDisagrees"}
+    out = dryrun.dry_run(estate, [estate], None, [estate / "WHOLE1.cbl"], scan_db=db, layouts="engine")
+    assert out["WHOLE1.cbl"]["translation"] == "whole"

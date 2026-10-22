@@ -21,7 +21,12 @@ disagrees with a captured result is reported as a finding against the model: the
 
 Not every record can be asked of a COBOL program, and the kit says which are skipped and why (`SKIPPED`): COBOL has
 no IEEE converter (from_ieee / to_ieee), and a short multiply or divide is evaluated by IBM in long floating point and
-rounded, which is not the short arithmetic the table's short rows state.
+rounded, which is not the short arithmetic the table's short rows state; the same for a short `**` (`pow`).
+
+`pow` is `COMPUTE LR = LA ** LB` (DBB EPSMPMT's `(1 + C) ** WS-NUMBER-OF-MONTHS`, the one float hole left in
+`mortgage-mpmt`): IBM documents no result for it, so a `pow` record is a `model-assumption` whose `want` is `power()`,
+the kit's own reference. It is evidence of nothing until a z/OS run agrees; a disagreement is a finding against the
+reference, and the det translator keeps refusing a float `**`.
 
 A `model-assumption` record states what the det runtime ASSUMES where IBM documents nothing (register C6, ASSUMED): a
 fixed-point value converted to float is truncated to long, a float result stored in a fixed-point receiver truncates
@@ -36,7 +41,7 @@ import hashlib
 import json
 import re
 import sys
-from decimal import ROUND_DOWN, Decimal
+from decimal import ROUND_DOWN, Context, Decimal
 from fractions import Fraction as F
 from pathlib import Path
 
@@ -62,16 +67,31 @@ OPS = {
     "to_ieee": ("a",),
     "round_short": ("a",),
     "compare": ("a", "b"),
+    "pow": ("a", "b"),
 }
 FUNC = {"add": H.add, "sub": H.sub, "mul": H.mul, "div": H.div}
 ARITH = {"add": "+", "sub": "-", "mul": "*", "div": "/"}
 ARITH_NAME = {v: k for k, v in ARITH.items()}
 SKIP_IEEE = "COBOL has no IEEE converter"
-SKIP_SHORT = "IBM evaluates a COMP-1 multiply or divide in long floating point, not the short arithmetic the row states"
+POW_PRECISION = 60  # decimal digits of the reference for a fractional exponent; far past the 14 hex digits it is cut to
+SKIP_SHORT = "IBM evaluates a COMP-1 multiply, divide or exponentiation in long floating point, not the short arithmetic the row states"
 
 
 def records(table: Path | None = None) -> list[dict]:
     return json.loads((table or TABLE).read_text(encoding="utf-8"))["records"]
+
+
+def power(base: F, exp: F) -> F:
+    """The kit's REFERENCE for `base ** exp` in long HFP: the exact power truncated to long (an integer exponent), or
+    exp(exp * ln(base)) at POW_PRECISION digits truncated to long. IBM documents no result (register C6), so this is
+    an assumption the z/OS run decides, not a model the det runtime uses (it still refuses a float `**`)."""
+    if exp.denominator == 1:
+        return H.of(base**exp.numerator if exp >= 0 else 1 / base ** (-exp.numerator))
+    if base <= 0:
+        raise ValueError("a fractional exponent needs a positive base")
+    ctx = Context(prec=POW_PRECISION)
+    value = ctx.exp(ctx.multiply(H._dec(exp), ctx.ln(H._dec(base))))
+    return H.of(F(value))
 
 
 def compute(r: dict) -> str:
@@ -86,6 +106,8 @@ def compute(r: dict) -> str:
     if r["op"] == "round_short":  # a long item MOVEd to a COMP-1: LOAD ROUNDED (a is the long hex, the result short)
         return H.encode(H.to_short(H.decode(bytes.fromhex(r["a"]))), True).hex().upper()
     a = H.decode(bytes.fromhex(r["a"]))
+    if r["op"] == "pow":
+        return H.encode(power(a, H.decode(bytes.fromhex(r["b"]))), False).hex().upper()
     if r["op"] == "compare":
         b = H.decode(bytes.fromhex(r["b"]))
         return "<" if a < b else ">" if a > b else "="
@@ -107,7 +129,7 @@ def skip_reason(r: dict) -> str:
     """Why a record cannot be asked of a COBOL program ('' when it can)."""
     if r["op"] in ("from_ieee", "to_ieee"):
         return SKIP_IEEE
-    if r["op"] in ("mul", "div") and r["size"] == "short":
+    if r["op"] in ("mul", "div", "pow") and r["size"] == "short":
         return SKIP_SHORT
     return ""
 
@@ -163,7 +185,7 @@ def statements(r: dict) -> list[str]:
         out.append(f"DISPLAY {tag} E{r['scale']}")
     else:
         out.append(f"MOVE X'{r['b']}' TO {p}B-X")
-        out.append(f"COMPUTE {p}R = {p}A {ARITH[op]} {p}B")
+        out.append(f"COMPUTE {p}R = {p}A {'**' if op == 'pow' else ARITH[op]} {p}B")
         out.append(f"DISPLAY {tag} FUNCTION HEX-OF({p}R-X)")
     return [_line(s) for s in out]
 

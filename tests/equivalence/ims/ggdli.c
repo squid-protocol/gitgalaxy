@@ -27,6 +27,7 @@
  * boolean qualification, another function, a call whose answer depends on what this model leaves open (register I5)
  * -- writes "CBLTDLI: ... is not modelled" to stderr and ends the run (exit 98): no proof rests on a guess.
  * Each call returns 0 (RETURN-CODE 0, register I1).
+ * A case's fault run may plan a DL/I status on a call (GGDLI_FAULTS, see planned_dli, #5857).
  */
 extern int cob_get_num_params(void); /* libcob: the argument count of the current CALL */
 #include <stdio.h>
@@ -447,6 +448,49 @@ static const char *chain(const Ssa *s, int k) {
 /* ---- the PCB mask ---------------------------------------------------------------------------------------------- */
 static void status(Pcb *p, const char *st) { memcpy(p->mask + 10, st, 2); }
 
+/* #5857: DL/I status faults, the twin of DetDli.planned. GGDLI_FAULTS names a plan file, one fault per line:
+ *     <FUNCTION> <NTH> <STATUS>        e.g.  GNP 3 AM        (NTH `*`: every call)
+ * FUNCTION is GU GN GNP ISRT REPL or DLET (a get-hold counts as its get) or CHKP; every call of it counts, whether or
+ * not it faults. The planned call is NOT performed: the PCB (DIBSTAT for CHKP) answers the status. Each fault that
+ * fires is appended to GGDLI_FAULTS_LOG as `DLI <FUNCTION> <NTH> <STATUS>`. */
+static const char *planned_dli(const char *fn) {
+    static struct { char fn[5]; int nth; char st[3]; int seen; } plan[32];
+    static int np = -1;
+    if (np < 0) {
+        np = 0;
+        const char *path = getenv("GGDLI_FAULTS");
+        FILE *f = path ? fopen(path, "r") : NULL;
+        char nth[16];
+        while (f && np < 32 && fscanf(f, "%4s %15s %2s", plan[np].fn, nth, plan[np].st) == 3) {
+            plan[np].nth = nth[0] == '*' ? 0 : atoi(nth);
+            plan[np].seen = 0;
+            np++;
+        }
+        if (f) fclose(f);
+    }
+    if (!np) return NULL;
+    char key[5];
+    memcpy(key, fn, 4);
+    key[4] = 0;
+    for (int i = 3; i >= 0 && key[i] == ' '; i--) key[i] = 0;
+    if (key[0] == 'G' && key[1] == 'H') memmove(key + 1, key + 2, strlen(key + 2) + 1);
+    const char *hit = NULL;
+    for (int i = 0; i < np; i++) {
+        if (strcmp(plan[i].fn, key)) continue;
+        plan[i].seen++;
+        if (!hit && (plan[i].nth == 0 || plan[i].nth == plan[i].seen)) {
+            hit = plan[i].st;
+            const char *log = getenv("GGDLI_FAULTS_LOG");
+            FILE *l = log ? fopen(log, "a") : NULL;
+            if (l) {
+                fprintf(l, "DLI %s %d %s\n", key, plan[i].seen, plan[i].st);
+                fclose(l);
+            }
+        }
+    }
+    return hit;
+}
+
 static void feedback(Pcb *p, Node *n) {
     char lv[3];
     Node *path[MAXSEG];
@@ -696,6 +740,11 @@ static int do_call(P *args, int n) {
                                   "GCMD", "AUTH", "CHNG", "PURG", "DEQ ", "SETO", "APSB", "DPSB", "GSTA", NULL};
     int known = 0;
     for (int i = 0; KNOWN[i]; i++) known |= !strcmp(fn, KNOWN[i]);
+    const char *fault = known ? planned_dli(fn) : NULL;
+    if (fault) {
+        status(p, fault);
+        return 0;
+    }
     if (!known) {
         for (int i = 0; OTHER[i]; i++)
             if (!strcmp(fn, OTHER[i])) refuse("a DL/I call other than GU GHU GN GHN GNP GHNP ISRT REPL DLET");
@@ -826,6 +875,11 @@ int GGDLIX(P dibstat, P verb, P pcbnum, P io, P seglen, P s1, P v1, P l1, P s2, 
 int GGDLICHKP(P dibstat, P id, P idlen) {
     if (!bmp) refuse("an EXEC DLI CHKP outside a BMP entered by USING its I/O PCB");
     if (by_value(idlen) != 8) refuse("a CHKP ID that is not 8 bytes");
+    const char *fault = planned_dli("CHKP");
+    if (fault) {
+        set_dibstat(dibstat, fault);
+        return 0;
+    }
     for (int i = 0; i < npcb; i++) {
         Pcb *p = &pcbs[i];
         p->pos = POS_START;

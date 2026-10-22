@@ -43,6 +43,42 @@
     "SORTCODE": "ABCDEF"
    },
    "why": "non-digits from the caller: all six bytes replaced"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "the caller passes no COMMAREA (EIBCALEN 0, no DFHCOMMAREA): the program still MOVEs the sort code, never testing EIBCALEN"
+  },
+  {
+   "name": "eibcalen-zero",
+   "commarea": {
+    "SORTCODE": "123456"
+   },
+   "commarea_length": 0,
+   "why": "EIBCALEN 0 with the COMMAREA record present (X23): the MOVE reaches past the bytes the caller passed"
+  },
+  {
+   "name": "eibcalen-short",
+   "commarea": {
+    "SORTCODE": "123456"
+   },
+   "commarea_length": 3,
+   "why": "the caller passed 3 of the 6 bytes: the MOVE writes all 6, past EIBCALEN"
+  },
+  {
+   "name": "longer-sortcode",
+   "commarea": {
+    "SORTCODE": "12345678"
+   },
+   "why": "the caller's sort code is 8 characters for the 6-byte SORTCODE: the stated value overruns the field and the MOVE replaces it whole"
+  },
+  {
+   "name": "eibcalen-full",
+   "commarea": {
+    "SORTCODE": "123456"
+   },
+   "commarea_length": 6,
+   "why": "EIBCALEN equals the record (6 bytes, X23): the COMMAREA is stated exact, so the area is cut to the 6 bytes the caller passed and the MOVE fits exactly"
   }
  ]
 }

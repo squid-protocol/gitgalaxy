@@ -5325,7 +5325,9 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             ca = to_java(values, shape, alphanumeric(ca_fields))
             if (
                 case.get("linked") or tabled
-            ):  # #4765: the very bytes the COBOL task was LINKed with (CicsTask.withLinkArea)
+            ) and not sc.get("dto_entry"):  # #4765: the very bytes the COBOL task was LINKed with (CicsTask.withLinkArea)
+                # #5863: a scenario with "dto_entry" gives the port the DTO alone -- the bytes would overwrite every
+                # field the typed entry (in_) maps, and hide a defect there; the COBOL side still runs the same record
                 area = commarea_record(ca_read, sc["commarea"], enc).hex().upper()
         # A typed field is named as the symbolic map names its input (ACCTSIDI); a screen view model
         # keys it by the BMS field (ACCTSID), as screenValues() / fromValues() do.
@@ -5490,6 +5492,8 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
             if e.get("event") == "RETRIEVE":  # #5089: the data's bytes as text
                 e.update(java_retrieve_as_compared(e))
             if e.get("event") == "COMMAREA" and e.get("area") is not None:  # #4765: the bytes the port left
+                if isinstance(e.get("commarea"), dict):  # #5863: the DTO it gave back too (compare_events `dto`)
+                    e["dto"] = java_commarea(e["commarea"], shape, ca_fields or [], enc)
                 e["commarea"] = java_area(e.pop("area"), ca_fields or [], enc)
             elif "commarea" in e:
                 if isinstance(e["commarea"], dict):  # #4778: a DTO -- no property holds a FILLER (compare_events)
@@ -5925,6 +5929,9 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
                     continue
                 if not same(cv[name], jv.get(name)):
                     bad.append({"field": f"{part}.{name}", "cobol": cv[name], "java": jv.get(name)})
+        for name, value in (j.get("dto") or {}).items():  # #5863: a LINKed port's DTO too, beside the bytes it left
+            if name in (c.get("commarea") or {}) and not _same_commarea(c["commarea"][name], value):
+                bad.append({"field": f"commarea.dto.{name}", "cobol": c["commarea"][name], "java": value})
         if c["event"] == "SEND-TEXT" and "options" in c:  # #5401: the options the translation forwards, both ways
             java_options = sorted(o for o in j.get("options") or [] if o in TEXT_OPTIONS_FORWARDED)
             if c["options"] != java_options:

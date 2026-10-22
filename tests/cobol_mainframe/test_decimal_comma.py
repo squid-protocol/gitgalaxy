@@ -16,7 +16,7 @@ import pytest
 import gitgalaxy.cobol_refractor_controller as refractor
 import gitgalaxy.cobol_to_java_controller as java_controller
 from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas, parse_cobol_picture
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import PORTING_RULES, decimal_point_rules
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import _pic_numeric, cobol_edit_source
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import generate_java_entity, parse_pic_clause

@@ -92,7 +92,8 @@ from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import (  # noqa: E40
 from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge import analyze_cobol_intent  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.engine_sourcing import engine_lineage, engine_schemas  # noqa: E402
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import GalaxyIR, load_galaxy_ir, scan_to_db  # noqa: E402
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import GalaxyIR, load_galaxy_ir  # noqa: E402
+from scan_server import scan_to_db  # noqa: E402
 
 # The sibling readers/scorer. It has no top-level engine imports, so importing it
 # here is cheap and one-directional -- it no longer imports this module (#3211).

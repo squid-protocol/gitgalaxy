@@ -16,7 +16,7 @@ import pytest
 
 import gitgalaxy.cobol_refractor_controller as refractor
 import gitgalaxy.cobol_to_java_controller as java_controller
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
+from scan_server import scan_to_db
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import _carrying_class, count_tokens
 
 PROGRAM = """\

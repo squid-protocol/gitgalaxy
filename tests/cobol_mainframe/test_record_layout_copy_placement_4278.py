@@ -14,7 +14,8 @@ One real galaxyscope scan backs every test (as test_commarea_contracts.py does).
 
 import pytest
 
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 
 # carddemo CSDB2RWY: `05`-level roots.
 ROWS = """\

@@ -458,7 +458,8 @@ def test_bms_field_verdict_needs_explicit_validation(mini_repo):
 def test_compare_bms_checks_a_map_against_its_generated_copybook(tmp_path):
     """A real scan of carddemo's COCRDLI.bms beside the COCRDLI.CPY that IBM's
     DFHMAPS generated from it: every named field agrees, and so do the two readers."""
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+    from scan_server import scan_to_db
 
     src = rd.EXCERPTS / "aws-mainframe-modernization-carddemo" / "app"
     repo = tmp_path / "carddemo"

@@ -8,7 +8,8 @@ COPY after the last entry of a nested group, and the continuation was counted un
 
 import pytest
 
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+from scan_server import scan_to_db
 
 PROG = """\
        IDENTIFICATION DIVISION.

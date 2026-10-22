@@ -450,7 +450,7 @@ static void status(Pcb *p, const char *st) { memcpy(p->mask + 10, st, 2); }
 
 /* #5857: DL/I status faults, the twin of DetDli.planned. GGDLI_FAULTS names a plan file, one fault per line:
  *     <FUNCTION> <NTH> <STATUS>        e.g.  GNP 3 AM        (NTH `*`: every call)
- * FUNCTION is GU GN GNP ISRT REPL or DLET (a get-hold counts as its get) or CHKP; every call of it counts, whether or
+ * FUNCTION is GU GN GNP ISRT REPL or DLET (a get-hold counts as its get), CHKP, or (#5233) SCHD; every call of it counts, whether or
  * not it faults. The planned call is NOT performed: the PCB (DIBSTAT for CHKP) answers the status. Each fault that
  * fires is appended to GGDLI_FAULTS_LOG as `DLI <FUNCTION> <NTH> <STATUS>`. */
 static const char *planned_dli(const char *fn) {
@@ -584,7 +584,14 @@ static void get(Pcb *p, const char *fn, unsigned char *io, Ssa *s, int k, int ho
             p->pos = POS_UNKNOWN;
             p->par = PAR_UNKNOWN;
         } else if (gnp) {
-            if (qualified) refuse("a qualified GNP that finds nothing (where IMS leaves position)");
+            if (qualified) {
+                /* #5233 (register I5): GE, the parent's feedback, parentage as it was; where IMS leaves position after a
+                 * qualified search that finds nothing is not stated, so it is unknown and the next GN / GNP stops by name */
+                status(p, "GE");
+                feedback(p, bound);
+                p->pos = POS_UNKNOWN;
+                return;
+            }
             status(p, "GE");
             feedback(p, bound);
             p->pos = POS_AT;
@@ -790,6 +797,11 @@ static void set_dibstat(P dibstat, const char *st) { memcpy(dibstat, st, 2); }
 
 int GGDLISCHD(P dibstat, P nodhabend) {
     if (bmp) refuse("an EXEC DLI SCHD in a BMP");
+    const char *fault = planned_dli("SCHD"); /* #5233: not performed, DIBSTAT answers the status */
+    if (fault) {
+        set_dibstat(dibstat, fault);
+        return 0;
+    }
     if (scheduled) {
         if (!by_value(nodhabend)) refuse("a SCHD of a PSB already scheduled, without NODHABEND (the task would abend)");
         set_dibstat(dibstat, "TC");

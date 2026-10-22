@@ -60,11 +60,14 @@ import bisect
 import re
 from typing import Any
 
+from gitgalaxy.core.cobol_preprocessor import free_code
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
 from gitgalaxy.core.special_names import special_names
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
 
-_LITERAL = r"[XNGZ]?'[^'\n]{0,320}'?|[XNGZ]?\"[^\"\n]{0,320}\"?"
+# A doubled quote inside a literal is one quote character (`'it''s'`, `"say ""hi"""`), not the end of it.
+_LIT_PREFIX = r"(?:[NGB]X|[XNGZB])?"  # hexadecimal, national, DBCS, boolean and Z prefixes
+_LITERAL = _LIT_PREFIX + r"'(?:[^'\n]|''){0,320}'?|" + _LIT_PREFIX + r"\"(?:[^\"\n]|\"\"){0,320}\"?"
 _NUMBER = r"[+-]?[0-9]*\.[0-9]+|[+-]?[0-9]+"
 # #4353: a COBOL word takes the record reader's national, CJK and full-width characters (#3955 /
 # #3991): `MOVE '000001' TO 社員コード` drew no row and `X項目` was cut to `X`.
@@ -137,8 +140,8 @@ def _procedure_text(code_stream: str) -> str:
     for i, line in enumerate(lines):
         if len(line) > 6 and line[6] in "*/Dd":  # comment, page eject, debugging line
             lines[i] = ""
-        elif "*>" in line:
-            lines[i] = line[: line.index("*>")]
+        else:
+            lines[i] = free_code(line)  # #5648: a literal that holds `*>` is not a comment
     text = "\n".join(lines)
     m = re.search(r"(?<![A-Z0-9-])PROCEDURE[ \t\n]{1,200}DIVISION(?![A-Z0-9-])", text, re.I)
     if m:
@@ -146,9 +149,12 @@ def _procedure_text(code_stream: str) -> str:
     return text
 
 
+_LITERAL_HEAD = re.compile(_LIT_PREFIX + "['\"]", re.I)
+
+
 def _is_literal(raw: str) -> bool:
-    """A quoted literal, or one with an X / N / G / Z prefix (`X'00'`)."""
-    return raw[:1] in "'\"" or (len(raw) > 1 and raw[1] in "'\"" and raw[0].upper() in "XNGZ")
+    """A quoted literal, or one with a hexadecimal / national / DBCS / boolean prefix (`X'00'`, `NX'00'`)."""
+    return _LITERAL_HEAD.match(raw) is not None
 
 
 class _Stream:

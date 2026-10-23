@@ -28,7 +28,7 @@
  * Modelled (IMS Messages and Codes, "DL/I status codes"): GU GHU GN GHN GNP GHNP ISRT REPL DLET through a DB PCB, with
  * unqualified SSAs and SSAs qualified by one field (EQ GT LT GE LE NE and their symbolic forms) on a C / X field (a
  * byte comparison) or a P field whose operands both carry the same positive sign (where IMS's packed and logical
- * comparisons agree); status blank, GA, GK, GE, GB, GP, II, DJ, DA, AC, AJ, AK, AD, AM. Command codes F, L, -, C, D and P (on a GU) are
+ * comparisons agree); status blank, GA, GK, GE, GB, GP, II, DJ, DA, AC, AJ, AK, AD, AM. A DB PCB with PROCOPT L / LS (#5233, load_isrt) takes only ISRT, in hierarchic and key order: LB, LC, LD, LE. Command codes F, L, -, C, D and P (on a GU) are
  * modelled (#5233, check_codes). Anything else -- the other command codes, the # operator, another function, a call
  * whose answer depends on what this model leaves open (register I5)
  * -- writes "CBLTDLI: ... is not modelled" to stderr and ends the run (exit 98): no proof rests on a guess.
@@ -74,6 +74,8 @@ typedef struct {
     Node *holdpath[MAXSSA]; /* #5233: the segments a D-coded get-hold returned, in I/O area order (nhp 0: only the held one) */
     int holdskip[MAXSSA];   /* command code N, per holdpath entry */
     int nhp;
+    int load;         /* #5233: PROCOPT L / LS on a DB PCB (load mode): ISRT only, in hierarchic and key order */
+    Node *loadlast;   /* the segment the last successful load ISRT inserted */
     int gsam;         /* #5233: a GSAM PCB (load mode): db is -1, `out` collects the records ISRT appended */
     int reclen;
     char dbname[9];
@@ -255,6 +257,7 @@ static void read_psb(void) {
         for (int d = 0; d < ndb; d++)
             if (!strcmp(dbs[d].name, a)) p->db = d;
         p->keylen = k;
+        p->load = !strcmp(p->procopt, "L") || !strcmp(p->procopt, "LS");
         for (int s = 0; s < nseg; s++)
             if (segs[s].db == p->db) p->sensegs++;
         npcb++;
@@ -936,8 +939,48 @@ static void path_isrt(Pcb *p, unsigned char *io, Ssa *s, int k) {
 
 /* ISRT: the last SSA names the type inserted (unqualified); the SSAs before it locate the parent, from the root, or
  * there are none and current position does */
+static void load_isrt(Pcb *p, unsigned char *io, Ssa *s, int k) {
+    if (k > 1) refuse("a load-mode ISRT with SSAs before the last");
+    int t = s[0].seg;
+    Node *root = &dbs[p->db].root;
+    if (!p->loadlast && root->first) refuse("load mode into a database that already holds segments");
+    Node *parent = segs[t].parent < 0 ? root : ancestor_of_type(p->loadlast, segs[t].parent);
+    if (!parent) {
+        status(p, "LD");
+        return;
+    }
+    const Fld *key = &flds[segs[t].key];
+    Node *last = parent->first;
+    while (last && last->next) last = last->next;
+    if (last) {
+        const char *bad = NULL;
+        if (last->seg > t)
+            bad = "LE";
+        else if (last->seg == t) {
+            int c = key_cmp(last, io + key->start - 1);
+            bad = c == 0 ? "LB" : c > 0 ? "LC" : NULL;
+        }
+        if (bad) {
+            status(p, bad);
+            return;
+        }
+    }
+    Node *n = calloc(1, sizeof *n);
+    n->seg = t;
+    n->data = malloc(segs[t].bytes);
+    memcpy(n->data, io, segs[t].bytes);
+    link_child(parent, n);
+    p->loadlast = n;
+    status(p, "  ");
+    feedback(p, n);
+    p->pos = POS_AT;
+    p->at = n;
+    p->prevknown = 0;
+    p->par = PAR_UNKNOWN;
+}
+
 static void isrt(Pcb *p, unsigned char *io, Ssa *s, int k) {
-    if (!allows(p, 'I')) {
+    if (!p->load && !allows(p, 'I')) {
         status(p, "AM");
         return;
     }
@@ -946,6 +989,10 @@ static void isrt(Pcb *p, unsigned char *io, Ssa *s, int k) {
     const char *bad = chain(s, k);
     if (bad) {
         status(p, bad);
+        return;
+    }
+    if (p->load) {
+        load_isrt(p, io, s, k);
         return;
     }
     for (int i = 0; i < k - 1; i++)

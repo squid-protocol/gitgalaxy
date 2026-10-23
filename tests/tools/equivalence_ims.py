@@ -12,7 +12,8 @@ issues CALL 'CBLTDLI') runs against, and both sides run on the same stated conte
 The DBD and PSB sources are read by the engine's own macro reader (gitgalaxy/core/ims_gen.py); what this model does
 not model is refused here by name (Unsupported): HDAM / PHDAM (the randomizer's root order), logical relationships,
 variable-length segments, a non-unique or missing sequence field, an I/O PCB (CMPAT=YES, TYPE=TP: IMS TM), PROCSEQ (a
-secondary index), load mode on a DB PCB (PROCOPT L), segment-level PROCOPT and partial sensitivity. A GSAM database
+secondary index), a PROCOPT with L beside other options, segment-level PROCOPT and partial sensitivity. A DB PCB with PROCOPT L / LS
+(#5233) is load mode: ISRT only, into an empty database no other PCB shares. A GSAM database
 (#5233) is modelled as a load-mode output only: ACCESS=(GSAM,..) with fixed RECORD=(n), a TYPE=GSAM PCB with PROCOPT
 LS, and ISRT; it takes `"gsam": {"<DBD>": {"copybook": ..., "record": ...}}` to compare its records by field.
 `{"unload": ...}` reads an HD reorganization unload (DFSURGU0) of the corpus: its segments, EBCDIC, each laid out by
@@ -133,8 +134,11 @@ def psb(
             if _keyed(attrs, "PROCSEQ"):
                 raise Unsupported(f"{where}: PCB {r['name']}: PROCSEQ (a secondary index) is not modelled")
             procopt = (r["procopt"] or "A").upper()
-            if "L" in procopt:
-                raise Unsupported(f"{where}: PCB {r['name']}: PROCOPT={procopt} (load mode) is not modelled")
+            if "L" in procopt and procopt not in ("L", "LS"):
+                raise Unsupported(f"{where}: PCB {r['name']}: PROCOPT={procopt} (load mode with another option is not "
+                                  "modelled: only L / LS alone)")  # fmt: skip
+            if "L" in procopt and cics:
+                raise Unsupported(f"{where}: PCB {r['name']}: PROCOPT={procopt} (load mode under CICS is not modelled)")
             name = (r["dbd_name"] or "").upper()
             if name not in dbds:
                 raise Unsupported(f"{where}: PCB {r['name']}: DBD {name} is not one of the case's DBDs")
@@ -149,6 +153,9 @@ def psb(
     for p in pcbs:
         if p.get("gsam"):
             continue
+        if p["procopt"] in ("L", "LS") and sum(q.get("dbd") == p["dbd"] for q in pcbs) > 1:
+            raise Unsupported(f"{where}: a load-mode PCB on {p['dbd']} beside another PCB on it (the database is "
+                              "empty until the load ends: not modelled)")  # fmt: skip
         every = [s["name"] for s in dbds[p["dbd"]]["segments"]]
         if sorted(p["sensegs"]) != sorted(every):
             raise Unsupported(f"{where}: a PCB on {p['dbd']} sensitive to {p['sensegs']}, not to every segment "

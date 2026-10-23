@@ -3562,6 +3562,13 @@ CICS_TASK_JAVA += """\
         return null;
     }
 
+    /** #6271 (register X71): the {RESP, RESP2} a scenario's fault plan gives this SEND-MAP / RECEIVE-MAP (`name` the map),
+     *  SYNCPOINT or ROLLBACK (`name` "-") -- {0, 0} when none: the command then runs, and a planned one is not performed. */
+    public int[] planned(String cmd, String name) {
+        int[] p = root().injected(cmd, name);
+        return p == null ? new int[] {0, 0} : p;
+    }
+
     /** The region's temporary storage this task works on (#4002): one store is shared by every task of a
      *  conversation, the way a region's TS queues outlive the task that writes them. */
     public CicsTask withTempStorage(TempStorage storage) {
@@ -3838,8 +3845,13 @@ CICS_TASK_JAVA += """\
             resp = 22;
             resp2 = 11;
         }
+        int[] planned = resp == 0 ? root().injected("RETURN", "-") : null;  // #6271 (X71): a planned INVREQ / LENGERR
+        if (planned != null) {
+            resp = planned[0];
+            resp2 = planned[1];
+        }
         if (resp != 0) {
-            event("RETURN", "level", level, "immediate", true, "transid", transid, "resp", resp == 16 ? "INVREQ" : "LENGERR",
+            event("RETURN", "level", level, "immediate", true, "transid", transid, "resp", respName(resp),
                     "resp2", resp2);
             return new int[] {resp, resp2};
         }

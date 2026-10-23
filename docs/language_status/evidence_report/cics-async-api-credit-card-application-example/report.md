@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `60569a84d4dc95bd66424646bfaae0b73e4212e3` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `28734a013e294b3a60b9d42c48375c826e01abde` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `fb0f9c57888b`).
+The translation survey matches the translator in the tree (translator fingerprint `e41589af5e06`).
 
 ## How to read this report
 
@@ -120,6 +120,7 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
   | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
   - runtime fact no harness states: ASSIGN STARTCODE (no equivalence case states it)
 - **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 100% (1992/1992 caught; 2042 of 2042 mutants, seed 0); every survivor accounted for (0)
@@ -149,6 +150,7 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 3 named assumptions (none measured on z/OS)
 - **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 100% (217/217 caught; 223 of 223 mutants, seed 0); every survivor accounted for (0)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X17, X18, X27; commands without oracle backing: DELAY, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
 
@@ -174,6 +176,7 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
   | RUN | full | gt-start-options (yes / no) | no |
 
 - **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 3 named assumptions (none measured on z/OS)
 - **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 100% (240/240 caught; 246 of 246 mutants, seed 0); every survivor accounted for (0)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X17, X18, X27; commands without oracle backing: GET CONTAINER, PUT CONTAINER, RUN; assumption reach and the migration dimensions above: not measured
 
@@ -199,6 +202,7 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
 - **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 100% (558/558 caught; 576 of 576 mutants, seed 0); every survivor accounted for (0)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X17, X27; commands without oracle backing: GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
 
@@ -226,6 +230,7 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 3 named assumptions (none measured on z/OS)
 - **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 100% (228/228 caught; 234 of 234 mutants, seed 0); every survivor accounted for (0)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X17, X18, X27; commands without oracle backing: DELAY, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
 
@@ -252,6 +257,7 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
 - **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 100% (202/202 caught; 208 of 208 mutants, seed 0); every survivor accounted for (0)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X17, X27; commands without oracle backing: GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
 
@@ -279,6 +285,7 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
 - **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 100% (162/162 caught; 168 of 168 mutants, seed 0); every survivor accounted for (0)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X18, X27; commands without oracle backing: DELAY; assumption reach and the migration dimensions above: not measured
 
@@ -306,6 +313,7 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
 - **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 100% (162/162 caught; 168 of 168 mutants, seed 0); every survivor accounted for (0)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X18, X27; commands without oracle backing: DELAY; assumption reach and the migration dimensions above: not measured
 
@@ -332,6 +340,7 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
   | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X15 (ASSUMED (REFUSED where IBM is silent)), X17 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
   - runtime fact no harness states: ASSIGN STARTCODE (no equivalence case states it)
 - **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 100% (1839/1839 caught; 1889 of 1889 mutants, seed 0); every survivor accounted for (0)
@@ -359,6 +368,7 @@ From `tests/equivalence/estate_options/cics-async-api-credit-card-application-ex
   | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
 
 - **Assumptions relied on:** named by its commands' spec entries: X18 (ASSUMED (REFUSED where IBM is silent)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
 - **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 100% (183/183 caught; 189 of 189 mutants, seed 0); every survivor accounted for (0)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X18, X27; commands without oracle backing: DELAY; assumption reach and the migration dimensions above: not measured
 
@@ -375,9 +385,11 @@ From the spec entries of the commands the programs use, with the register's stat
 | X20 | CICS | MATCHED (REFUSED where the region cannot decide) | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused |
 | X27 | CICS | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: "ignored if the link is local"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused |
 
+- z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
+
 ## Reproducibility
 
-- translator commit (the survey's): `60569a84d4dc95bd66424646bfaae0b73e4212e3`
+- translator commit (the survey's): `28734a013e294b3a60b9d42c48375c826e01abde`
 - corpus pin: `cics-async-api-credit-card-application-example` at `c32c52fcfd8d587b352f67959a5dfb0d11dbd8bb`
 - crucible pins: cics `v0.9.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.9.0 (3ca75ae0)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -387,8 +399,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 60569a84d4dc95bd66424646bfaae0b73e4212e3
-python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 60569a84d4dc95bd66424646bfaae0b73e4212e3
+python tests/tools/cics_census.py survey --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde
+python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

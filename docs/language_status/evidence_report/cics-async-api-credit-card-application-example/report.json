@@ -145,9 +145,9 @@
     397
    ],
    "carddemo-acctview": [
-    31,
     32,
-    58,
+    32,
+    59,
     69
    ],
    "carddemo-acctview-generated": [
@@ -183,7 +183,7 @@
    "carddemo-cardlist": [
     36,
     36,
-    136,
+    147,
     149
    ],
    "carddemo-cardupdate": [
@@ -211,7 +211,7 @@
     40
    ],
    "carddemo-cbstm03a": [
-    23,
+    25,
     25,
     0,
     46
@@ -229,8 +229,8 @@
     31
    ],
    "carddemo-cobswait": [
-    0,
-    0,
+    1,
+    1,
     0,
     0
    ],
@@ -255,14 +255,20 @@
    "carddemo-copaua0c": [
     41,
     41,
-    58,
+    62,
     69
    ],
    "carddemo-copaus0c": [
     20,
     20,
-    80,
+    84,
     93
+   ],
+   "carddemo-copaus1c": [
+    15,
+    15,
+    44,
+    48
    ],
    "carddemo-copaus2c": [
     2,
@@ -306,6 +312,12 @@
     4,
     10
    ],
+   "carddemo-dbunldgs": [
+    14,
+    14,
+    18,
+    18
+   ],
    "carddemo-intcalc": [
     22,
     22,
@@ -330,8 +342,14 @@
     29,
     33
    ],
+   "carddemo-paudblod": [
+    16,
+    16,
+    24,
+    34
+   ],
    "carddemo-paudbunl": [
-    9,
+    10,
     10,
     20,
     22
@@ -540,6 +558,7 @@
     109,
     143
    ],
+   "cbsa-bnk1ccs-create": null,
    "cbsa-bnk1ccs-generated": [
     33,
     33,
@@ -549,7 +568,7 @@
    "cbsa-bnk1cra": [
     28,
     28,
-    52,
+    55,
     67
    ],
    "cbsa-bnk1cra-generated": [
@@ -591,7 +610,7 @@
    "cbsa-bnk1uac": [
     31,
     31,
-    75,
+    78,
     88
    ],
    "cbsa-bnk1uac-generated": [
@@ -658,7 +677,7 @@
    "cbsa-custctrl": [
     7,
     7,
-    3,
+    4,
     4
    ],
    "cbsa-dbcrfun": [
@@ -688,7 +707,7 @@
    "cbsa-delcus": [
     22,
     22,
-    13,
+    16,
     16
    ],
    "cbsa-delcus-generated": [
@@ -724,7 +743,7 @@
    "cbsa-inqacccu": [
     16,
     22,
-    19,
+    21,
     33
    ],
    "cbsa-inqacccu-generated": [
@@ -740,6 +759,12 @@
     46
    ],
    "cbsa-updacc": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-faults": [
     7,
     7,
     6,
@@ -799,6 +824,12 @@
     4,
     8
    ],
+   "genapp-lgacus01-generated": [
+    3,
+    3,
+    4,
+    8
+   ],
    "genapp-lgacvs01": [
     3,
     3,
@@ -806,18 +837,24 @@
     4
    ],
    "genapp-lgapdb01": [
-    6,
     7,
-    17,
+    7,
+    23,
     31
    ],
    "genapp-lgapdb01-generated": [
-    6,
     7,
-    17,
+    7,
+    23,
     31
    ],
    "genapp-lgapol01": [
+    2,
+    2,
+    5,
+    8
+   ],
+   "genapp-lgapol01-generated": [
     2,
     2,
     5,
@@ -853,6 +890,12 @@
     8,
     12
    ],
+   "genapp-lgdpol01-generated": [
+    3,
+    3,
+    8,
+    12
+   ],
    "genapp-lgdpvs01": [
     3,
     3,
@@ -877,22 +920,28 @@
     4,
     8
    ],
+   "genapp-lgicus01-generated": [
+    4,
+    4,
+    4,
+    8
+   ],
    "genapp-lgicvs01": [
     1,
     1,
-    10,
+    12,
     12
    ],
    "genapp-lgicvs01-linked": [
     1,
     1,
-    10,
+    12,
     12
    ],
    "genapp-lgipdb01": [
     12,
     12,
-    73,
+    74,
     74
    ],
    "genapp-lgipdb01-generated": [
@@ -902,6 +951,12 @@
     74
    ],
    "genapp-lgipol01": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "genapp-lgipol01-generated": [
     2,
     2,
     3,
@@ -979,6 +1034,12 @@
     5,
     8
    ],
+   "genapp-lgucus01-generated": [
+    4,
+    4,
+    5,
+    8
+   ],
    "genapp-lgucvs01": [
     3,
     3,
@@ -998,6 +1059,12 @@
     38
    ],
    "genapp-lgupol01": [
+    4,
+    4,
+    13,
+    16
+   ],
+   "genapp-lgupol01-generated": [
     4,
     4,
     13,
@@ -1039,13 +1106,13 @@
    "zecs-ecs001": [
     15,
     15,
-    15,
+    16,
     18
    ],
    "zecs-zecs000": [
-    30,
+    33,
     38,
-    35,
+    38,
     46
    ],
    "zecs-zecs001": [
@@ -1055,9 +1122,9 @@
     200
    ],
    "zecs-zecs003": [
-    19,
     21,
-    20,
+    21,
+    28,
     28
    ],
    "zecs-zecsplt": [
@@ -1576,6 +1643,14 @@
     "stale": [],
     "status": "shown equal, unapproved"
    },
+   "carddemo-copaus0c": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
+   "carddemo-copaus1c": {
+    "stale": [],
+    "status": "shown equal, unapproved"
+   },
    "carddemo-dailyval": {
     "stale": [],
     "status": "shown equal, unapproved"
@@ -1684,10 +1759,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "60569a84d4dc95bd66424646bfaae0b73e4212e3",
+   "sha": "28734a013e294b3a60b9d42c48375c826e01abde",
    "translator": {
-    "files": 138,
-    "sha256": "fb0f9c57888b0e436abf4dfcd50722c44f155b793e5d75d36cb94bc05afc8d2b"
+    "files": 141,
+    "sha256": "e41589af5e06a3e819205743d4075a0578f8c9ca950f27b44845f0c18265308c"
    }
   },
   "sweeps": {}
@@ -6464,8 +6539,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 60569a84d4dc95bd66424646bfaae0b73e4212e3",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 60569a84d4dc95bd66424646bfaae0b73e4212e3",
+   "python tests/tools/cics_census.py survey --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -6486,13 +6561,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "60569a84d4dc95bd66424646bfaae0b73e4212e3",
+   "sha": "28734a013e294b3a60b9d42c48375c826e01abde",
    "translator": {
-    "files": 138,
-    "sha256": "fb0f9c57888b0e436abf4dfcd50722c44f155b793e5d75d36cb94bc05afc8d2b"
+    "files": 141,
+    "sha256": "e41589af5e06a3e819205743d4075a0578f8c9ca950f27b44845f0c18265308c"
    }
   },
-  "translator_commit": "60569a84d4dc95bd66424646bfaae0b73e4212e3",
+  "translator_commit": "28734a013e294b3a60b9d42c48375c826e01abde",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -6535,6 +6610,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "fb0f9c57888b0e436abf4dfcd50722c44f155b793e5d75d36cb94bc05afc8d2b"
+  "fingerprint": "e41589af5e06a3e819205743d4075a0578f8c9ca950f27b44845f0c18265308c"
  }
 }

@@ -29,15 +29,6 @@
    "reason": "WHEN OTHER's CONTINUE negated: the branch does nothing either way"
   },
   {
-   "id": "4e3abb66a8",
-   "op": "ROR",
-   "line": 1764,
-   "before": "if (DetCics.resp(xr9) != 0) {",
-   "after": "if (DetCics.resp(xr9) == 0) {",
-   "verdict": "case-gap",
-   "reason": "the branch takes CICS's default action for an XCTL that raises a condition (PGMIDERR: the task abends); the mutant skips it. Needs an XCTL that fails, i.e. a CSD without COUSR02C/COUSR03C, which would fail every select-update / select-delete scenario of this case: a second case with its own csd is the way"
-  },
-  {
    "id": "ec45fe7025",
    "op": "LIT",
    "line": 1823,

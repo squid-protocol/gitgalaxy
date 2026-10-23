@@ -729,128 +729,7 @@ int GGCRECS(gg_cics *c, void **ptr) {
     return 0;
 }
 
-/* ---- temporary storage (#4002) ------------------------------------------------------ */
-/* The queue's directory; `hex` gets the name (trailing blanks and nulls dropped) in hex. */
-static void ts_dir(const gg_cics *c, char *dir, size_t size, char *hex) {
-    const char *root = getenv("GGCICS_TS");
-    char name[17];
-    trim(c->qname, 16, name);
-    hex[0] = '\0';
-    for (int i = 0; name[i]; i++) sprintf(hex + 2 * i, "%02X", (unsigned char)name[i]);
-    if (root) snprintf(dir, size, "%s/%s", root, hex);
-    else snprintf(dir, size, "%s/ts/%s", dir_in(), hex);
-}
-
-/* How many items the queue holds; -1 when it does not exist (QIDERR). */
-static int ts_count(const char *dir) {
-    struct stat st;
-    char path[4200];
-    if (stat(dir, &st) != 0) return -1;
-    int n = 0;
-    for (;;) {
-        snprintf(path, sizeof path, "%s/%06d.bin", dir, n + 1);
-        if (stat(path, &st) != 0) return n;
-        n++;
-    }
-}
-
-static int ts_next(const char *dir) {
-    char path[4200];
-    int n = 0;
-    snprintf(path, sizeof path, "%s/next", dir);
-    FILE *f = fopen(path, "r");
-    if (f) { if (fscanf(f, "%d", &n) != 1) n = 0; fclose(f); }
-    return n;
-}
-
-static void ts_set_next(const char *dir, int n) {
-    char path[4200];
-    snprintf(path, sizeof path, "%s/next", dir);
-    FILE *f = fopen(path, "w");
-    if (f) { fprintf(f, "%d\n", n); fclose(f); }
-}
-
-/* READQ TS QUEUE ITEM(c->item) | NEXT (c->item 0) INTO LENGTH(c->len) (IBM, EXEC CICS READQ TS):
- * QIDERR when the queue does not exist; ITEMERR for an item outside the queue, or NEXT past its
- * end; else the item goes INTO, truncated to LENGTH with LENGERR when longer, and LENGTH is set
- * to the item's length. NUMITEMS (c->num) is the queue's item count. NEXT reads the item after
- * the last one read by any task; this stub counts a read by ITEM as a read too. */
-int GGCREADQ(gg_cics *c, char *into) {
-    char dir[4096], hex[40], path[4200], ev[160], buf[32768], item[16];
-    int max = c->len, n = 0, copied = 0, next = c->item == 0;
-    ts_dir(c, dir, sizeof dir, hex);
-    int count = ts_count(dir);
-    int want = next ? (count < 0 ? 0 : ts_next(dir)) + 1 : c->item;
-    c->resp2 = 0;
-    c->num = 0;
-    if (count < 0) {
-        c->resp = QIDERR;
-    } else if (want < 1 || want > count) {
-        c->resp = ITEMERR;
-    } else {
-        snprintf(path, sizeof path, "%s/%06d.bin", dir, want);
-        FILE *f = fopen(path, "rb");
-        if (f) { n = (int)fread(buf, 1, sizeof buf, f); fclose(f); }
-        copied = n < max ? n : (max > 0 ? max : 0);
-        memcpy(into, buf, (size_t)copied);
-        c->resp = n > max ? LENGERR : NORMAL;
-        c->len = n;
-        c->num = count;
-        ts_set_next(dir, want);
-    }
-    if (next) snprintf(item, sizeof item, "NEXT");
-    else snprintf(item, sizeof item, "%d", c->item);
-    snprintf(ev, sizeof ev, "READQ-TS queue=%s item=%s resp=%d len=%d copied=%d", hex, item, c->resp,
-             (c->resp == NORMAL || c->resp == LENGERR) ? n : -1, copied);
-    event(ev, into, copied);
-    return 0;
-}
-
-/* WRITEQ TS QUEUE FROM LENGTH(c->len) [ITEM REWRITE] (IBM, EXEC CICS WRITEQ TS): a new queue is
- * created by its first write; the item is appended and its number returned in ITEM (c->item).
- * REWRITE replaces item c->item: QIDERR without the queue, ITEMERR outside it. LENGERR when
- * LENGTH is outside 1-32763. NUMITEMS (c->num) is the count after the write. */
-int GGCWRTQ(gg_cics *c, char *from) {
-    char dir[4096], hex[40], path[4200], ev[160], flags[41];
-    int len = c->len;
-    trim(c->flags, 40, flags);
-    int rewrite = strstr(flags, "REWRITE") != NULL;
-    ts_dir(c, dir, sizeof dir, hex);
-    int count = ts_count(dir), item = 0, fresp, fresp2;
-    char qname[17];
-    trim(c->qname, 16, qname);
-    c->resp2 = 0;
-    if (injected("WRITEQ-TS", qname, &fresp, &fresp2)) {  /* #4049: a planned condition; nothing is written */
-        c->resp = fresp;
-        c->resp2 = fresp2;
-    } else if (len < 1 || len > 32763) {
-        c->resp = LENGERR;
-    } else if (rewrite && count < 0) {
-        c->resp = QIDERR;
-    } else if (rewrite && (c->item < 1 || c->item > count)) {
-        c->resp = ITEMERR;
-    } else {
-        if (count < 0) {
-            char root[4096];
-            const char *env = getenv("GGCICS_TS");
-            if (env) snprintf(root, sizeof root, "%s", env);
-            else snprintf(root, sizeof root, "%s/ts", dir_in());
-            MKDIR(root);
-            MKDIR(dir);
-            count = 0;
-        }
-        item = rewrite ? c->item : count + 1;
-        snprintf(path, sizeof path, "%s/%06d.bin", dir, item);
-        FILE *f = fopen(path, "wb");
-        if (f) { fwrite(from, 1, (size_t)len, f); fclose(f); }
-        c->resp = NORMAL;
-        c->item = item;
-        c->num = rewrite ? count : count + 1;
-    }
-    snprintf(ev, sizeof ev, "WRITEQ-TS queue=%s item=%d resp=%d len=%d", hex, item, c->resp, len);
-    event(ev, from, len > 0 && len <= 32763 ? len : 0);
-    return 0;
-}
+#include "ggcics_tempstorage.c"  /* #5274: the temporary storage family (READQ TS, WRITEQ TS) */
 
 /* ---- the task's outputs ----------------------------------------------------------- */
 /* SEND MAP: the symbolic map's bytes as the program left them (#4001: the harness resolves what
@@ -975,124 +854,7 @@ int GGCXCTL(gg_cics *c, char *commarea, int len) {
     return 0;
 }
 
-/* ---- conditions and abends (#4003) --------------------------------------------------- *
- * Each program level (a LINK level, #4004) has its own handler state: per condition
- * (DFHRESP code) the index of its HANDLE CONDITION label, IGNORE (-1) or the default (0);
- * its HANDLE ABEND LABEL exit; and a PUSH HANDLE stack of saved states. The translator
- * numbers the labels a program's HANDLE commands name, and after a command that raised a
- * condition issues GO TO <labels> DEPENDING ON GG-GOTO (IBM's translator does the same
- * after the HANDLE command, with DFHEIGDI): the transfer is a plain COBOL GO TO.
- */
-#define MAX_LEVELS 32
-#define MAX_PUSH 16
-#define NCOND 130
-enum { ERRCOND = DFHRESP_ERROR }; /* HANDLE CONDITION ERROR's slot */
-
-typedef struct {
-    short cond[NCOND]; /* >0 label index, -1 IGNORE, 0 default */
-    short aid[40];     /* HANDLE AID (#4007): per key (aid_keys), its label index, 0 none, -1 deactivated (#4414) */
-    int exit_label;    /* HANDLE ABEND LABEL index, 0 none */
-    int exit_active;   /* deactivated when it gets control (IBM, abend recovery) */
-    char exit_name[31];
-} handlers;
-
-enum { RUNNING = 0, DONE = 1, XCTLED = 2 };
-
-typedef struct {
-    char prog[9];
-    char invoker[9];         /* the program that LINKed / XCTLed to this one (ASSIGN INVOKINGPROG); "" at the first */
-    char next_invoker[9];    /* the invoker of the program pending at this level */
-    handlers h;
-    handlers pushed[MAX_PUSH];
-    int npushed;
-    int state;               /* RUNNING, DONE (RETURN, GOBACK) or XCTLED (#4004) */
-    int pending;             /* a program is to run at this level: next / next_len / next_area */
-    char next[9];
-    int next_len, next_area_set;
-    char *next_area;
-    char *link_area;         /* the LINK COMMAREA: the linking program's own storage (NULL: none) */
-    int link_len;
-    /* #4270: the channel the level's program was passed (index + 1 into chans; 0: none), the channels in its
-     * scope, and the names an XCTL left behind (naming one is refused: IBM does not document their scope) */
-    int cur;
-    int scope[32];
-    int nscope;
-    char dropped[32][17];
-    int ndropped;
-    int next_chan;           /* the channel an XCTL passes to the program pending at this level (index + 1) */
-    int gen;                 /* #4951: which LINKed program this level runs (0: the task's first), the owner of its browses */
-} level;
-
-static level levels[MAX_LEVELS];
-static int link_gen = 0; /* #4951: the last LINK's generation */
-static void channel_pass(level *L, int passed); /* #4270 */
-static int lvl = 0; /* the current level, 0 = level 1 */
-static char task_abcode[5] = "    ";
-
-static const char *current_program(void) { return levels[lvl].prog; }
-
-/* The program's entry: the translator names it (GG-NAME1) for the level it runs at. It starts
- * with no handlers of its own: "The HANDLE CONDITION options are not inherited by the linked-to
- * program" (IBM, LINK), nor by the program XCTLed to. */
-int GGCPENT(gg_cics *c) {
-    level *L = &levels[lvl];
-    trim(c->name1, 8, L->prog);
-    memset(&L->h, 0, sizeof L->h);
-    L->npushed = 0;
-    L->state = RUNNING;
-    return 0;
-}
-
-/* HANDLE CONDITION / IGNORE CONDITION: condition GG-NUM gets label GG-ITEM (0: the default
- * action again, -1: IGNORE). The last HANDLE or IGNORE for a condition wins (IBM, IGNORE
- * CONDITION: "until a HANDLE CONDITION command for the same condition is encountered"). */
-int GGCHCND(gg_cics *c) {
-    if (c->num > 0 && c->num < NCOND) levels[lvl].h.cond[c->num] = (short)c->item;
-    c->resp = NORMAL;
-    c->resp2 = 0;
-    return 0;
-}
-
-/* HANDLE ABEND LABEL (GG-NAME2 'LABEL', GG-ITEM its index, GG-FLAGS its name), CANCEL or
- * RESET (IBM, EXEC CICS HANDLE ABEND). */
-int GGCHABN(gg_cics *c) {
-    char how[9];
-    handlers *h = &levels[lvl].h;
-    trim(c->name2, 8, how);
-    if (strcmp(how, "LABEL") == 0) {
-        h->exit_label = c->item;
-        h->exit_active = 1;
-        trim(c->flags, 30, h->exit_name);
-    } else if (strcmp(how, "CANCEL") == 0) {
-        h->exit_active = 0;
-    } else if (h->exit_label) { /* RESET: reactivate the exit cancelled, or taken */
-        h->exit_active = 1;
-    }
-    c->resp = NORMAL;
-    c->resp2 = 0;
-    return 0;
-}
-
-/* PUSH HANDLE saves the level's HANDLE CONDITION, IGNORE CONDITION and HANDLE ABEND state and
- * suspends it; POP HANDLE restores the last one saved, INVREQ when none is (IBM, PUSH / POP). */
-int GGCPUSH(gg_cics *c) {
-    level *L = &levels[lvl];
-    c->resp2 = 0;
-    if (L->npushed >= MAX_PUSH) { c->resp = INVREQ; return 0; }
-    L->pushed[L->npushed++] = L->h;
-    memset(&L->h, 0, sizeof L->h);
-    c->resp = NORMAL;
-    return 0;
-}
-
-int GGCPOP(gg_cics *c) {
-    level *L = &levels[lvl];
-    c->resp2 = 0;
-    if (L->npushed == 0) { c->resp = INVREQ; return 0; }
-    L->h = L->pushed[--L->npushed];
-    c->resp = NORMAL;
-    return 0;
-}
+#include "ggcics_conditions.c"  /* #5274: the conditions and abends family (the per-level handler state, GGCPENT, HANDLE CONDITION and ABEND, PUSH/POP HANDLE) */
 
 /* ---- HANDLE AID (#4007) ---------------------------------------------------------------- *
  * The keys HANDLE AID names, and the EIBAID byte each one sends (the harness's DFHAID.cpy:
@@ -2583,7 +2345,7 @@ static void web_opened(gg_cics *c, char *token, int peer, int byurimap) {
 
 /* WEB OPEN: GG-FLAGS URIMAP (the name in GG-NAME1) or HOST (GG-LEN HOSTLENGTH, GG-ITEM the SCHEME CVDA, GG-NUM the
  * PORTNUMBER when GG-FLAGS also names PORT). LENGERR 21, INVREQ 40 / 138; the SESSTOKEN written on NORMAL only. */
-int GGCWOPN(gg_cics *c, char *token, char *host, int hostcap) {
+static int web_open(gg_cics *c, char *token, char *host, int hostcap) {
     char flags[41], name[9], h[WEB_TXT];
     int conds = 0, port, n = c->len;
     const char *sch;
@@ -2616,6 +2378,33 @@ int GGCWOPN(gg_cics *c, char *token, char *host, int hostcap) {
         }
     }
     refuse("WEB OPEN of a peer the run does not state");
+    return 0;
+}
+
+/* The WEB-OPEN event of SPEC 6.2 (host and scheme as the connection names them, '-' when the command gave none; RESP2 as
+ * recorded): a refusal inside web_open records nothing, as CicsTask.webOpenHost / webOpenUrimap. */
+int GGCWOPN(gg_cics *c, char *token, char *host, int hostcap) {
+    char flags[41], hx[WEB_TXT * 2 + 2], ev[WEB_TXT * 2 + 120];
+    const char *sch = c->item == 1096 ? "HTTP" : c->item == 1029 ? "HTTPS" : "-";
+    int n = c->len;
+    const char *h = host;
+    web_load();
+    trim(c->flags, 40, flags);
+    web_open(c, token, host, hostcap);
+    if (strncmp(flags, "URIMAP", 6) == 0) {
+        n = 0;
+        sch = "-";
+        if (c->resp == NORMAL) {
+            h = web_peers[web_sess[web_nsess - 1].peer].host;
+            n = (int)strlen(h);
+            sch = web_peers[web_sess[web_nsess - 1].peer].scheme;
+        }
+    } else if (n <= 0 || n > hostcap) {
+        n = 0;
+    }
+    web_hex(h, n, hx);
+    snprintf(ev, sizeof ev, "WEB-OPEN host=%s scheme=%s resp=%d resp2=%d", hx, sch, c->resp, c->resp2);
+    event(ev, NULL, 0);
     return 0;
 }
 
@@ -2720,6 +2509,11 @@ int GGCWCLS(gg_cics *c, char *token) {
     c->resp = s < 0 ? DFHRESP_NOTOPEN : NORMAL;
     c->resp2 = s < 0 ? 27 : 0;
     if (s >= 0) web_sess[s].open = 0;
+    {
+        char ev[80];
+        snprintf(ev, sizeof ev, "WEB-CLOSE resp=%d resp2=%d", c->resp, c->resp2);
+        event(ev, NULL, 0);
+    }
     return 0;
 }
 

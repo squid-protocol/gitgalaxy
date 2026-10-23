@@ -52,6 +52,8 @@ def test_ggcics_includes_its_families_once():
     family = (STUB / "ggcics_containers.c").read_text(encoding="utf-8")
     assert re.findall(r'^#include "(ggcics_\w+\.c)"', host, re.M) == [
         "ggcics_filecontrol.c",
+        "ggcics_tempstorage.c",
+        "ggcics_conditions.c",
         "ggcics_transientdata.c",
         "ggcics_containers.c",
         "ggcics_taskcontrol.c",
@@ -224,4 +226,41 @@ def test_ggcics_holds_the_transient_data_stubs_in_its_family_file():
 def test_the_td_verbs_still_translate_to_their_stubs():
     for verb, stub in (("READQ TD QUEUE('Q') INTO(WS-REC)", "GGCRDTD"), ("DELETEQ TD QUEUE('Q')", "GGCDLTD"),
                        ("WRITEQ TD QUEUE('Q') FROM(WS-REC)", "GGCWRTD")):  # fmt: skip
+        assert any(stub in ln for ln in ec.translate_command(verb)), verb
+
+
+# ---- temporary storage and conditions / abends (#5274, sixth and seventh stub families) ---------------------------------
+def test_ggcics_holds_the_temporary_storage_stubs_in_its_family_file():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    family = (STUB / "ggcics_tempstorage.c").read_text(encoding="utf-8")
+    assert "#include" not in family
+    for entry in ("GGCREADQ", "GGCWRTQ"):
+        assert re.search(rf"^int {entry}\(", family, re.M), entry
+        assert not re.search(rf"^int {entry}\(", host, re.M), entry
+    for helper in ("ts_dir", "ts_count", "ts_next", "ts_set_next"):
+        assert re.search(rf"^static \w+ {helper}\(", family, re.M), helper
+        assert not re.search(rf"^static \w+ {helper}\(", host, re.M), helper
+
+
+def test_ggcics_holds_the_condition_and_abend_handlers_in_its_family_file():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    family = (STUB / "ggcics_conditions.c").read_text(encoding="utf-8")
+    assert "#include" not in family
+    for entry in ("GGCPENT", "GGCHCND", "GGCHABN", "GGCPUSH", "GGCPOP"):
+        assert re.search(rf"^int {entry}\(", family, re.M), entry
+        assert not re.search(rf"^int {entry}\(", host, re.M), entry
+    # the include sits where the blocks did: file control, temporary storage, conditions, then transient data
+    assert (
+        host.index('#include "ggcics_filecontrol.c"')
+        < host.index('#include "ggcics_tempstorage.c"')
+        < host.index('#include "ggcics_conditions.c"')
+        < host.index('#include "ggcics_transientdata.c"')
+    )
+
+
+def test_the_ts_verbs_still_translate_to_their_stubs():
+    for verb, stub in (
+        ("READQ TS QUEUE('Q') INTO(WS-REC)", "GGCREADQ"),
+        ("WRITEQ TS QUEUE('Q') FROM(WS-REC)", "GGCWRTQ"),
+    ):
         assert any(stub in ln for ln in ec.translate_command(verb)), verb

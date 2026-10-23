@@ -192,7 +192,14 @@ identical in a diff, so say which one this is.
 
 ### 7. Make it a compared datum (`tests/tools/refraction_differential.py`)
 
-Add the fact to `compare()` with **both** a forge source and the engine source
+A channel compared as `{old, db}` value sets (one row per file; the key's reader as `old` when there
+is no forge) is one `SetChannel` entry in `SET_CHANNELS`: write its `compare_<x>()`, then declare the
+row language, delta field, row key, answer-key section / sign-off flag / items key / values reader,
+and the summary metric names. `compare()`, `summarize()`, `flatten()`, `_key_verdict()` and
+`INDEPENDENT_FIELDS` iterate the table; do not edit them (#3383). A channel that is not a set
+difference (a per-program datum like paragraphs or records) still goes through `compare()` by hand.
+
+Add the fact with **both** a forge source and the engine source
 (`ef.<facts>`), flatten per-element deltas, and give it a real `cause` in `_classify_cause()`. A
 fact the DB now carries is **never** `stated_absence` — that classification is only for datums with
 no DB equivalent. A field the engine has that the forge's lossy reader drops is an explained
@@ -206,8 +213,11 @@ a real engine gap and stays `unexplained` until a validated key adjudicates it. 
 Add candidate generation to `draft_program()` (using the key's **own** independent reader —
 never import the engine or the forge, or the key stops being an oracle), a field to the `fields`
 list, and an `add(...)` row in `score()`. Populate the committed keys with the `draft` command; new
-fields are committed **drafted** and validated incrementally. If the field is an independent oracle,
-add it to `INDEPENDENT_FIELDS` and `_key_verdict()`, and gate the verdict behind an explicit
+fields are committed **drafted** and validated incrementally. A per-file section drafted by an
+`add-<x>` command ("refresh drafts, keep signed-off entries") is one `DraftSection` entry in
+`DRAFT_SECTIONS` (the subcommand and handler are built from it; `drop_stale=True` also drops an
+unsigned entry the draft no longer yields). If the field is an independent oracle, its `SetChannel`
+entry already feeds `INDEPENDENT_FIELDS` and `_key_verdict()`; gate the verdict behind an explicit
 per-program flag (record layouts use `records_validated`) so drafted truth never adjudicates.
 
 ### 9. Tests — mirror the reference trio

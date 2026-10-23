@@ -121,3 +121,29 @@ def test_the_real_ledger_cites_each_issue_once():
     real, _ = pb.load()
     issues = [b["issue"] for b in real["blockers"] if b.get("issue")]
     assert len(issues) == len(set(issues))
+
+
+def test_the_curve_and_estimate_use_program_counts_and_say_what_they_are():
+    ledger = _ledger(
+        _blocker(1),
+        _blocker(2, new_class=False),
+        _blocker(3, estate="cics-genapp", after_round=2, new_class=False),
+    )
+    text = pb.render(ledger, REGISTRY, BURNED, {"zecs": 4, "cics-genapp": 6})
+    assert "| 1 | zecs | 4 | 2 | 0.50 | 2 | 1 | 1 | 0 |" in text
+    assert "| 2 | cics-genapp | 6 | 1 | 0.17 | 3 | 0 | 1 | 1 |" in text
+    assert "0.30 pooled (range 0.17 to 0.50)" in text
+    assert "no variance model" in text
+
+
+def test_an_estimate_needs_two_estates_with_a_program_count():
+    text = pb.render(_ledger(_blocker(1)), REGISTRY, BURNED, {"zecs": 4})
+    assert "no estimate" in text
+
+
+def test_the_real_estates_have_program_counts():
+    ledger, registry = pb.load()
+    burned = pb.burned_names()
+    sizes = pb.estate_sizes([e["id"] for e in registry["estates"] if e["id"] in burned])
+    assert set(sizes) == {e["id"] for e in registry["estates"] if e["id"] in burned}
+    assert all(n > 0 for n in sizes.values())

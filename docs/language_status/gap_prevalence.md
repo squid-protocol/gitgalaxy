@@ -35,25 +35,41 @@ Counted by tools only; non-burned estates keep their first-contact numbers. Aggr
 
 | gap | estates | programs | e0 | e1 | e2 | e3 | e4 | none | status | owner |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `other` | 6 | 18 | 0 | 0 | 4 | 0 | 4 | 10 | not modelled | unowned |
 | `missing copybook` | 2 | 9 | 0 | 0 | 8 | 0 | 1 | 0 | unknown | unowned (copybook family) |
 | `<name>: undeclared item` | 2 | 4 | 0 | 0 | 3 | 0 | 0 | 1 | not modelled | unowned |
+| `WRITE: AFTER without ADVANCING` | 2 | 4 | 0 | 0 | 0 | 0 | 0 | 4 | not modelled | unowned |
 | `refused: generation` | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | refused by name | unowned |
 | `refused: LayoutError` | 1 | 9 | 0 | 0 | 9 | 0 | 0 | 0 | refused by name | unowned |
+| `WRITE: carriage control (mnemonic-name) not modelled` | 1 | 4 | 0 | 0 | 0 | 0 | 0 | 4 | not modelled | unowned |
 | `<name>: no such item` | 1 | 3 | 0 | 0 | 3 | 0 | 0 | 0 | not modelled | unowned |
-| `EXEC: other` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | unowned |
-| `CALL: other` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | not modelled | unowned |
+| `CALL: target without a CALL entry in the estate` | 1 | 3 | 0 | 0 | 0 | 0 | 0 | 3 | not modelled | unowned |
+| `FD: variable-length records without RECORD VARYING` | 1 | 3 | 0 | 0 | 0 | 0 | 0 | 3 | not modelled | unowned |
+| `<name>: bytes overlap another item` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
+| `ACCEPT: from SYSIN / console` | 1 | 2 | 0 | 0 | 0 | 0 | 0 | 2 | not modelled | unowned |
+| `EXEC CICS map: no <name> field` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | #4270 (cics-command-slice) |
+| `JSON GENERATE: not modelled` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
+| `JSON PARSE: not modelled` | 1 | 2 | 0 | 0 | 0 | 0 | 2 | 0 | not modelled | unowned |
+| `MOVE: literal beyond the single-byte code page` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | unowned |
+| `STRING: numeric sender with P or a decimal place` | 1 | 2 | 0 | 0 | 2 | 0 | 0 | 0 | not modelled | unowned |
+| `CALL: other non-IBM target` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | not modelled | unowned |
 | `EXEC CICS WEB CONVERSE URIMAP POST` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
 | `EXEC CICS WEB RECEIVE NOTRUNCATE` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
 | `EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | not modelled | #4270 (cics-command-slice) |
 | `EXEC SQL: other` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | #4098 (Db2 det-port) |
+| `EXHIBIT NAMED: only plain names and literals` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | not modelled | unowned |
+| `FD: no record description` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | not modelled | unowned |
+| `MOVE CORRESPONDING` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | not modelled | unowned |
+| `PERFORM: undeclared paragraph` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | unowned |
+| `STOP: literal` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | not modelled | unowned |
+| `STRING: literal beyond the single-byte code page` | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | not modelled | unowned |
 | `refused: ExprError` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
 | `refused: LayoutDisagrees` | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 0 | refused by name | unowned |
 | `refused: UnitRefused` | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | refused by name | unowned |
 
 | top N gaps closed | programs whole | share | bound |
 |---|---|---|---|
-| 1 | 21 / 52 | 40.4% | exact |
-| 3 | 32 / 52 | 61.5% | upper |
-| 5 | 43 / 52 | 82.7% | upper |
-| 10 | 47 / 52 | 90.4% | upper |
+| 1 | 19 / 52 | 36.5% | upper |
+| 3 | 20 / 52 | 38.5% | upper |
+| 5 | 31 / 52 | 59.6% | upper |
+| 10 | 40 / 52 | 76.9% | upper |
+| 25 | 47 / 52 | 90.4% | upper |

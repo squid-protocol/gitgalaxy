@@ -184,9 +184,18 @@ def test_strictness_gaps_follow_the_registry_and_skip_unrowed_languages():
 
 
 def test_the_pilot_list_is_the_ten_repos_plus_the_burned_mainframe_estates():
-    assert len(op.PILOT_REPOS) == 16
+    assert len(op.PILOT_REPOS) == 17
     burned = [n for n, e in op.PILOT_REPOS.items() if e["burned"]]
-    assert burned == ["carddemo", "cbsa", "genapp", "zecs", "dbb-mortgage", "dbb-mortgage-2019", "async-credit-card"]
+    assert burned == [
+        "carddemo",
+        "cbsa",
+        "cbsa-late",
+        "genapp",
+        "zecs",
+        "dbb-mortgage",
+        "dbb-mortgage-2019",
+        "async-credit-card",
+    ]
 
 
 def test_every_burned_entry_names_a_burned_upstream():
@@ -205,7 +214,7 @@ def test_every_burned_entry_names_a_burned_upstream():
             tail = entry["url"].rstrip("/").split("/")[-1].lower()
             assert tail in burned_urls, name
             # mid-history pin (None) or an explicit commit; there is no PROVENANCE copy for these
-            assert entry["pin"] is None or name in ("dbb-mortgage", "dbb-mortgage-2019", "zecs")
+            assert entry["pin"] is None or name in ("dbb-mortgage", "dbb-mortgage-2019", "zecs", "cbsa-late")
 
 
 def test_the_dbb_entry_is_limited_to_the_mortgage_application_subtree():
@@ -256,3 +265,10 @@ def test_a_stripped_subdir_entry_scans_at_the_root_and_joins_history_under_the_p
     plain = op.PILOT_REPOS["dbb-mortgage"]
     assert op._strip_args(plain) == []
     assert op._history_path(plain, "zBuilder/MortgageApplication/x.cbl") == "zBuilder/MortgageApplication/x.cbl"
+
+
+def test_the_late_cbsa_entry_shares_the_clone_and_pins_after_the_midpoint(tmp_path):
+    late, mid = op.PILOT_REPOS["cbsa-late"], op.PILOT_REPOS["cbsa"]
+    assert late["url"] == mid["url"] and late["burned"] and mid["pin"] is None
+    assert late["pin"] and op._subdir_args(late) == [] and op._strip_args(late) == []
+    assert op._repo_dir(tmp_path, "cbsa-late") == op._repo_dir(tmp_path, "cbsa")

@@ -220,3 +220,44 @@ def test_both_raw_shapes_of_a_client_session_match_the_expected_log(tmp_path):
         )
     ]  # fmt: skip
     assert [{k: v for k, v in e.items() if k not in ("program", "event")} for e in stub] == java
+
+
+def _hdr(name: str, value: str) -> dict:
+    return runner._web_header_event(name, value, 0, 0)
+
+
+def test_both_sides_model_the_response_header_event():  # #4767 (X38)
+    for caps in (runner.COBOL_CAPS, runner.JAVA_CAPS):
+        assert set(caps.events["WEB-WRITE-HTTPHEADER"]) == set(cc.EVENT_KEYS["WEB-WRITE-HTTPHEADER"])
+    ev = _hdr("X-One", "1")
+    assert ev == {"event": "WEB-WRITE-HTTPHEADER", "name": "X-One", "value": "1", "resp": "NORMAL"}
+
+
+def test_the_stub_header_line_maps_to_the_spec_event(tmp_path):
+    (tmp_path / "events.txt").write_text(
+        f"001 WEB-HEADER pgm=P name={b'X-One'.hex().upper()} value={b'reply-200'.hex().upper()} resp=0 resp2=0\n",
+        encoding="latin-1",
+    )
+    (stub,) = runner._cobol_events(tmp_path, "P")
+    assert {k: v for k, v in stub.items() if k != "program"} == _hdr("X-One", "reply-200")
+
+
+def test_peer_check_compares_the_response_headers():  # #4767 (X38)
+    case = _case("A", "B", "C")
+    case.data["peers"]["client-a"]["responses"][0]["headers"] = {"X-One": "1", "X-Two": "2"}
+    case.data["peers"]["client-a"]["responses"][1]["headers"] = {"X-One": "1"}
+    sc = {"requests": [_req(0), _req(5), _req(10)]}
+    both = [_hdr("X-Two", "2"), _hdr("X-One", "1")]  # the order the program wrote them in is not compared
+    ok = [_task(0, "A", extra=both), _task(1, "B", extra=both[1:]), _task(2, "C")]
+    assert runner.http_peer_log(case, sc, ok) == {}
+    missing = runner.http_peer_log(case, sc, [_task(0, "A", extra=both[1:])])
+    assert "response headers [('X-One', '1')]" in missing["http_peer"]
+    wrong = runner.http_peer_log(case, sc, [_task(0, "A", extra=[_hdr("X-One", "9"), both[0]])])
+    assert "response headers" in wrong["http_peer"]
+    twice = runner.http_peer_log(case, sc, [_task(0, "A", extra=[*both, _hdr("X-One", "1")])])
+    assert "response headers" in twice["http_peer"]  # a header written twice is two headers
+    unstated = runner.http_peer_log(case, sc, [_task(0, "A", extra=both), _task(1, "B", extra=both)])
+    assert "response headers" in unstated["http_peer"]  # a peer that states none for a response expects none
+    assert (
+        runner.http_peer_log(case, sc, [_task(0, "A", extra=both), _task(1, "B", extra=both[1:]), _task(2, "C")]) == {}
+    )

@@ -88,6 +88,9 @@ public final class DetDli {
         boolean par; // #5233: command code P
         boolean path; // #5233: command code D
         boolean enq; // #5233: command code Q
+        boolean up; // #5233: command code U
+        boolean vee; // #5233: command code V
+        Node anchor; // #5233: U / V, the node at this level on the current position (set per call by get)
         byte[] cat; // #5233: command code C, the concatenated key in the parentheses
         // #5233: the statements after the first, each joined to the one before by AND (or == false) or OR
         final List<Term> more = new ArrayList<>();
@@ -754,7 +757,7 @@ public final class DetDli {
             }
             int at = o + 9;
             if (q == '*') {
-                // #5233: command codes, each one of A-Z 0-9 or '-', then '(' or a blank; F, L, P, C, D, Q and - are modelled
+                // #5233: command codes, each one of A-Z 0-9 or '-', then '(' or a blank; F, L, P, C, D, Q, U, V and - are modelled
                 while (at < b.length && isCode(b[at] & 0xFF)) {
                     char c = (char) (b[at] & 0xFF);
                     if (c == 'F') {
@@ -767,6 +770,10 @@ public final class DetDli {
                         s.path = true;
                     } else if (c == 'Q') {
                         s.enq = true;
+                    } else if (c == 'U') {
+                        s.up = true;
+                    } else if (c == 'V') {
+                        s.vee = true;
                     } else if (c == 'C') {
                         s.cat = new byte[0];
                     } else if (c != '-') {
@@ -921,6 +928,9 @@ public final class DetDli {
             if (s[i].enq && fn.charAt(0) != 'G') {
                 throw refuse("the command code Q on a " + fn.trim()); // #5233: Q (enqueue) is modelled on the gets, where it changes nothing
             }
+            if ((s[i].up || s[i].vee) && (fn.charAt(0) != 'G' || s[i].cat != null)) {
+                throw refuse("the command code " + (s[i].up ? "U" : "V") + (s[i].cat != null ? " beside C" : " on a " + fn.trim()));
+            }
             if (s[i].par && (!gu || ++ps > 1)) {
                 throw refuse(gu ? "the command code P on more than one SSA" : "the command code P on a " + fn.trim());
             }
@@ -998,6 +1008,9 @@ public final class DetDli {
             Node a = ancestorOfType(n, s[i].seg);
             if (a == null || !qualifies(a, s[i])) {
                 return false;
+            }
+            if (s[i].anchor != null && a != s[i].anchor) {
+                return false; // #5233: U / V, the SSA's level must be the one the current position is on
             }
         }
         return true;
@@ -1105,6 +1118,26 @@ public final class DetDli {
         if (bad != null) {
             status(p, bad);
             return;
+        }
+        // #5233: command codes U and V take the current position as qualification: U at its own level, V at its level and
+        // every level above; the node there is the position's ancestor-or-self of that type
+        int vee = -1;
+        for (int i = 0; i < k; i++) {
+            if (s[i].vee) {
+                vee = i;
+            }
+        }
+        for (int i = 0; i < k; i++) {
+            s[i].anchor = null;
+            if (s[i].up || i <= vee) {
+                if (p.pos != POS_AT) {
+                    throw refuse("the command code " + (i <= vee ? "V" : "U") + " with no established position");
+                }
+                s[i].anchor = ancestorOfType(p.at, s[i].seg);
+                if (s[i].anchor == null) {
+                    throw refuse("the command code " + (i <= vee ? "V" : "U") + " at a level the current position is not on");
+                }
+            }
         }
         boolean gu = fn.charAt(1) == 'U' || fn.charAt(2) == 'U';
         boolean gnp = !gu && fn.contains("NP");

@@ -21,6 +21,7 @@ from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E
 from gitgalaxy.tools.cobol_to_java import cics_task_taskcontrol as tt  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.det import cics_conditions as CN  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_containers as CC  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as CF  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_taskcontrol as CT  # noqa: E402
@@ -309,3 +310,18 @@ def test_the_harness_dispatches_conditions_to_its_module():
                        ("HANDLE ABEND CANCEL", "GGCHABN"), ("PUSH HANDLE", "GGCPUSH"), ("POP HANDLE", "GGCPOP"),
                        ("ASSIGN ABCODE(WS-AB)", "GGCASGN")):  # fmt: skip
         assert any(stub in ln for ln in ec.translate_command(body, ["ANY-ERROR", "DONE"])), body
+
+
+# ---- conditions (#5274, det half): ASSIGN, the conditions a HANDLE / IGNORE names, HANDLE AID, PUSH / POP HANDLE ---------
+CONDITION_METHODS = ("assign", "conditions", "handle_aid_", "push_pop", "input_outcome")
+
+
+def test_the_det_translator_holds_the_condition_methods_in_its_mixin():
+    assert issubclass(C.Cics, CN.ConditionCommands)
+    for method in CONDITION_METHODS:
+        assert method in vars(CN.ConditionCommands) and method not in vars(C.Cics), method
+        assert callable(getattr(C.Cics, method)), method
+    for key, cmd in COMMANDS.items():  # every spec command that dispatches to a moved method still reaches it
+        if cmd.impl and cmd.impl.translator.split(".")[1] in CONDITION_METHODS:
+            assert callable(getattr(C.Cics, cmd.impl.translator.split(".")[1])), key
+    assert "outcome" in vars(C.Cics)  # shared with every family: it stays the translator's own

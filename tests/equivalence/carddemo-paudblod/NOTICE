@@ -1,0 +1,8 @@
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+This case is derived from the AWS Mainframe Modernization CardDemo application
+(https://github.com/aws-samples/aws-mainframe-modernization-carddemo), licensed under the Apache License, Version 2.0
+(LICENSE here): the program under test (app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL), its copybooks
+(CIPAUSMY, CIPAUDTY, PAUTBPCB, IMSFUNCS), the DBD (ims/DBPAUTP0.dbd), the PSB (ims/PAUTBUNL.PSB) and the database's
+unload (data/EBCDIC/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat) are CardDemo's, used unmodified. Nothing in this case is
+written for it but case.json.

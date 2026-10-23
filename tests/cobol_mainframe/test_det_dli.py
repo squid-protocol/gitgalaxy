@@ -832,11 +832,11 @@ def test_a_bmp_supplies_only_dibstat_of_the_dib(tmp_path):
     assert len(r.stats["holes"]) == 1 and "DIBSEGM" in r.stats["holes"][0], r.stats["holes"]
 
 
-def test_chkp_outside_a_bmp_and_cbltdli_in_a_bmp_are_holes_by_name(tmp_path):
+def test_chkp_outside_a_bmp_is_a_hole_by_name_and_cbltdli_in_a_bmp_is_not(tmp_path):
     r = _translate_cics(tmp_path, _cics_program(_wrap("EXEC DLI CHKP ID(IOA) END-EXEC")))
     assert any("CHKP" in h for h in r.stats["holes"]), r.stats["holes"]
     r = _translate(tmp_path, _bmp(["    CALL 'CBLTDLI' USING FN DB-PCB SEG-A"]))
-    assert any("not modelled" in h and "CBLTDLI" in h for h in r.stats["holes"]), r.stats["holes"]
+    assert not any("CBLTDLI" in h for h in r.stats["holes"]), r.stats["holes"]  # #5233: a BMP's CBLTDLI is modelled
     # a USING of one item is not a BMP's I/O PCB and DB PCB: EXEC DLI stays a hole outside CICS
     r = _translate(tmp_path, _bmp(_bmp_stmt("EXEC DLI GN USING PCB(2) SEGMENT(DEPT) INTO(SEG-A) END-EXEC"),
                                   using=" USING IO-PCB"))  # fmt: skip

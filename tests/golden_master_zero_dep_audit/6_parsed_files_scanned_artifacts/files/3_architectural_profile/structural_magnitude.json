@@ -1105,7 +1105,7 @@
       "cpp/godot/AUTHORS.md": 7.8,
       "cpp/godot/DONORS.md": 7.1,
       "cpp/godot/LICENSE.txt": 1.0,
-      "cpp/godot/editor_node.cpp": 5994.8,
+      "cpp/godot/editor_node.cpp": 5999.3,
       "cpp/godot/editor_node.h": 105.02,
       "cpp/godot/gdscript_vm.cpp": 2214.86,
       "cpp/godot/main.cpp": 4858.94,
@@ -1968,7 +1968,7 @@
       "javascript/threejs/Matrix4.js": 726.94,
       "javascript/threejs/Nodes.js": 156.8,
       "javascript/threejs/WebGLProgram.js": 725.72,
-      "javascript/threejs/WebGLRenderer.js": 2893.36
+      "javascript/threejs/WebGLRenderer.js": 3150.26
     },
     "jcl": {
       "jcl/SOURCES.md": 1.0
@@ -2523,7 +2523,7 @@
       "perl/bugzilla/Requirements.pm": 310.94
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 10297.12,
+      "perl/exiftool/ExifTool.pm": 10380.82,
       "perl/exiftool/META.json": 16.1,
       "perl/exiftool/Makefile.PL": 16.02,
       "perl/exiftool/README": 5.4,
@@ -2598,7 +2598,7 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 26.94,
       "php/wordpress/class-wp-query.php": 3986.36,
-      "php/wordpress/formatting.php": 3835.06,
+      "php/wordpress/formatting.php": 3836.86,
       "php/wordpress/functions.php": 5333.06,
       "php/wordpress/license.txt": 7.7,
       "php/wordpress/plugin.php": 381.0,
@@ -3298,11 +3298,11 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 3.86,
-      "scheme/racket/cpnanopass.ss": 5164.98,
+      "scheme/racket/cpnanopass.ss": 5517.18,
       "scheme/racket/eval.c": 4181.18,
       "scheme/racket/fun.c": 11949.16,
       "scheme/racket/io.ss": 1040.08,
-      "scheme/racket/schemify.rkt": 1051.08,
+      "scheme/racket/schemify.rkt": 1055.28,
       "scheme/racket/thread.rkt": 497.58
     },
     "shell": {
@@ -3908,10 +3908,10 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 1.12,
       "typescript/typescript_compiler/binder.ts": 2955.32,
-      "typescript/typescript_compiler/checker.ts": 55293.14,
-      "typescript/typescript_compiler/emitter.ts": 5162.68,
+      "typescript/typescript_compiler/checker.ts": 59497.04,
+      "typescript/typescript_compiler/emitter.ts": 6880.38,
       "typescript/typescript_compiler/package.json": 2.36,
-      "typescript/typescript_compiler/parser.ts": 7687.74,
+      "typescript/typescript_compiler/parser.ts": 7704.44,
       "typescript/typescript_compiler/types.ts": 220.82
     },
     "typescript/vscode": {
@@ -3919,7 +3919,7 @@
       "typescript/vscode/async.ts": 2060.16,
       "typescript/vscode/codeEditorWidget.ts": 1571.2,
       "typescript/vscode/eslint.config.js": 76.08,
-      "typescript/vscode/extHost.api.impl.ts": 1738.92,
+      "typescript/vscode/extHost.api.impl.ts": 2067.32,
       "typescript/vscode/gulpfile.vscode.ts": 433.82,
       "typescript/vscode/instantiationService.ts": 386.96,
       "typescript/vscode/ipc.ts": 987.54,
@@ -4079,7 +4079,7 @@
       "zig/tigerbeetle/direction.zig": 58.8,
       "zig/tigerbeetle/download.sh": 75.36,
       "zig/tigerbeetle/download.win.ps1": 29.3,
-      "zig/tigerbeetle/state_machine.zig": 1718.4
+      "zig/tigerbeetle/state_machine.zig": 2337.9
     },
     "zig/zig": {
       "zig/zig/Compilation.zig": 2973.98,
@@ -4087,7 +4087,7 @@
       "zig/zig/Sema.zig": 18798.88,
       "zig/zig/Type.zig": 2114.3,
       "zig/zig/Zcu.zig": 1591.28,
-      "zig/zig/main.zig": 4990.48
+      "zig/zig/main.zig": 6447.28
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 65.44

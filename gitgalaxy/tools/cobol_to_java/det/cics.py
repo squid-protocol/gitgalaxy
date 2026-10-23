@@ -2220,11 +2220,11 @@ class Cics(ConditionCommands, ContainerCommands, FileControlCommands, TaskContro
         r, vals, resp = self.g.tmpname("received"), self.g.tmpname("typed"), self.g.tmpname("resp")
         pl = self.g.tmpname("planned")  # #6271 (X71): a planned INVMPSZ / INVREQ receives nothing: INTO is untouched
         out = [*guard, f"{ind}int[] {pl} = task.planned(\"RECEIVE-MAP\", {G_jstr(m)});",
-               f"{ind}java.util.Optional<{cls}> {r} = {pl}[0] != 0 ? java.util.Optional.empty() "
-               f": task.receive({G_jstr(m)}, {G_jstr(ms)}, {cls}.class);",
+               (f"{ind}java.util.Optional<{cls}> {r} = {pl}[0] != 0 ? java.util.Optional.empty() "
+                f": task.receive({G_jstr(m)}, {G_jstr(ms)}, {cls}.class);"),
                f"{ind}int {resp} = {pl}[0] != 0 ? {pl}[0] : {r}.isPresent() ? 0 : 36;", f"{ind}if ({r}.isPresent()) {{",
-               f"{ind}    java.util.Arrays.fill({fi}.storage().bytes, {fi}.offset(), {fi}.offset() + {fi}.length(), "
-               "(byte) 0);",
+               (f"{ind}    java.util.Arrays.fill({fi}.storage().bytes, {fi}.offset(), {fi}.offset() + {fi}.length(), "
+                "(byte) 0);"),
                f"{ind}    java.util.Map<String, String> {vals} = {r}.get().screenValues();"]  # fmt: skip
         justify = self.gp.screen_justify(cls)
         for name, k in self.screen_slots(cls):  # #5076: every occurrence of a repeated field, keyed NAME.k

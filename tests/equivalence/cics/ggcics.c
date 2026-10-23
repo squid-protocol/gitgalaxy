@@ -233,7 +233,6 @@ static int injected_at(gg_cics *c, const char *cmd, const char *file, int *resp,
     char path[3000], line[256], pcmd[16], pfile[32], nth[16], pcode[16];
     int presp, presp2, n = 0, slot = -1, hit = 0;
     char key[40];
-    c->go_to = 0;  /* a stale exit from an earlier abend is spent; only this command's abend sets it now */
     snprintf(key, sizeof key, "%.15s %.16s", cmd, file);
     for (int i = 0; i < 32; i++) {
         if (fault_keys[i][0] == 0 || strcmp(fault_keys[i], key) == 0) { slot = i; break; }

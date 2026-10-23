@@ -240,6 +240,70 @@ def _bind_hits(path: str, value: Any, source: str | None) -> list[dict[str, Any]
                      f"{row['reason']} (#4707)"}]  # fmt: skip
 
 
+# #4707: the Language Environment options whose value is judged for syntax. The rows above keep their policy (a
+# well-formed value is honoured, declared or refused exactly as before); a value that is not LE syntax at all is not
+# one IBM accepts, so it is refused by name instead of being declared or blamed on TRAP(OFF) / RETCODE.
+# `normal` returns the value in the table's spelling (omitted fields filled with the IBM default), or None if malformed.
+LE_PREFIX = "le.runtime_options."
+_STORAGE_DEFAULT = ("NONE", "NONE", "NONE", "0K")
+
+
+def _normal_storage(state: str) -> str | None:
+    fields = [f.strip() for f in state.split(",")]
+    if len(fields) > 4 or fields == [""]:
+        return None
+    out = list(_STORAGE_DEFAULT)
+    for i, field in enumerate(fields):
+        if not field:
+            continue  # an omitted positional field keeps the IBM default
+        if i < 3 and (field == "NONE" or re.fullmatch(r"[0-9A-F]{2}", field)):
+            out[i] = field
+        elif i == 3 and (m := re.fullmatch(r"(\d+)(K?)", field)):
+            out[i] = "0K" if int(m.group(1)) == 0 else field
+        else:
+            return None
+    return ",".join(out)
+
+
+def _normal_trap(state: str) -> str | None:
+    fields = [f.strip() for f in state.split(",")]
+    if fields[0] in ("ON", "OFF") and (len(fields) == 1 or (len(fields) == 2 and fields[1] in ("SPIE", "NOSPIE"))):
+        return ",".join(fields)
+    return None
+
+
+LE_OPTIONS: dict[str, dict[str, Any]] = {
+    "STORAGE": {"normal": _normal_storage,
+        "grammar": "up to four comma-separated fields: allocated-storage init, freed-storage init, stack init (each NONE "
+                   "or a two-digit hex byte), reserve size (digits, optional K); an omitted field is the IBM default"},
+    "TRAP": {"normal": _normal_trap, "grammar": "ON or OFF, optionally followed by SPIE or NOSPIE"},
+    "ABTERMENC": {"normal": lambda state: state if state in ("ABEND", "RETCODE") else None,
+        "grammar": "ABEND or RETCODE"},
+}  # fmt: skip
+
+
+def le_rows() -> list[str]:
+    """The LE_OPTIONS rows as the markdown table lines register C18 holds (tests pin the page to them)."""
+    return [
+        f"| `{LE_PREFIX}{key}` | {r['grammar']} | a value outside this syntax is refused by name; a well-formed one "
+        "is judged by the row above |"
+        for key, r in LE_OPTIONS.items()
+    ]
+
+
+def _le_normal(path: str, state: str) -> str:
+    row = LE_OPTIONS.get(path[len(LE_PREFIX) :]) if path.startswith(LE_PREFIX) else None
+    return state if row is None else (row["normal"](state) or state)
+
+
+def _le_hits(path: str, value: Any, source: str | None) -> list[dict[str, Any]]:
+    row = LE_OPTIONS.get(path[len(LE_PREFIX) :]) if path.startswith(LE_PREFIX) else None
+    if row is None or row["normal"](_state(value)) is not None:
+        return []
+    return [{"option": path, "declared": _state(value), "policy": "refuse", "applied": None, "source": source,
+             "note": f"{path}={value}: not Language Environment syntax ({row['grammar']}) (#4707)"}]  # fmt: skip
+
+
 # #4707: which burned estates exercise each judged option (policy refuse or declare): the corpora whose source holds the
 # construct the row says the option changes. An empty list says no burned program depends on the assumed value, so a
 # refusal there protects a customer's estate only. The test greps the corpora for each pattern (STORAGE rests on
@@ -302,6 +366,10 @@ def runtime_unhonoured(
                 continue
             if row["kind"] == "ccsid":
                 state = state.lstrip("0")  # 037 is 37
+            if bad := _le_hits(path, value, (sources or {}).get(path)):
+                out.extend(bad)
+                continue
+            state = _le_normal(path, state)
             if path == TRANSLATOR_OPTION:
                 out.extend(_translator_hits(path, value, (sources or {}).get(path)))
             elif path == PRECOMPILE_OPTION:

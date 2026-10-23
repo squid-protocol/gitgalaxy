@@ -24,6 +24,7 @@ from gitgalaxy.core import estate_options as eo  # noqa: E402
 from gitgalaxy.core.runtime_options import (
     BIND_OPTIONS,
     CICS_CONVENTIONS,
+    LE_OPTIONS,
     RUNTIME_OPTION_TABLE,
     PRECOMPILE_OPTIONS,
     RUNTIME_USED_BY,
@@ -31,6 +32,7 @@ from gitgalaxy.core.runtime_options import (
     bind_rows,
     calibration_problems,
     conventions_rows,
+    le_rows,
     precompile_rows,
     precompile_tokens,
     runtime_effect,
@@ -559,6 +561,84 @@ def test_a_bind_refusal_reaches_the_oracle_and_the_resolver(put_estate):
         common.compile_options(put_estate("db2", "bind.ISOLATION", "XX"), PLAIN)
     common.compile_options(put_estate("db2", "bind.ISOLATION", "UR"), PLAIN)
     assert eo.effective_options(put_estate("db2", "bind.ISOLATION", "UR")).unhonoured_runtime() == []
+
+
+# --- the Language Environment options, judged for syntax (#4707) ---
+
+LE = "le.runtime_options."
+
+
+def _le(key, value, sources=None):
+    return runtime_unhonoured({"le": {f"runtime_options.{key}": value}}, sources)
+
+
+def test_the_register_lists_every_le_row():
+    text = (ROOT / "docs" / "language_status" / "register" / "C18.md").read_text(encoding="utf-8")
+    assert not [row for row in le_rows() if row not in text]
+
+
+def test_the_le_syntax_rows_cover_exactly_the_judged_runtime_options():
+    assert {LE + key for key in LE_OPTIONS} == {
+        key for key, row in RUNTIME_OPTION_TABLE.items() if key.startswith(LE) and row["policy"] is not None
+    }
+    assert all(row["grammar"] for row in LE_OPTIONS.values())
+
+
+@pytest.mark.parametrize("path", ESTATES, ids=lambda p: p.stem)
+def test_every_le_value_an_estate_records_is_well_formed_and_honoured(path):
+    data = json.loads(path.read_text(encoding="utf-8"))
+    recorded = ((data.get("le") or {}).get("runtime_options")) or {}
+    if not recorded:
+        pytest.skip("this estate records no LE runtime option")
+    hits = eo.effective_options({"program": "P"}, data).unhonoured_runtime()
+    assert [h for h in hits if h["option"].startswith(LE)] == []
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        *[("TRAP", v) for v in ("ON", "ON,SPIE", "ON,NOSPIE", "on", " on , spie ")],
+        ("ABTERMENC", "abend"),
+        *[("STORAGE", v) for v in ("NONE", "NONE,NONE,NONE,0K", "none,none,none", ",,,", "NONE,NONE,NONE,0", " NONE , NONE ")],
+    ],
+)  # fmt: skip
+def test_a_well_formed_default_le_value_is_clean(key, value):
+    assert _le(key, value) == []
+
+
+@pytest.mark.parametrize(
+    ("key", "value", "declared"),
+    [("STORAGE", "00,NONE,NONE,0K", "00,NONE,NONE,0K"), ("STORAGE", "NONE,NONE,NONE,4K", "NONE,NONE,NONE,4K"),
+     ("STORAGE", "ff", "FF,NONE,NONE,0K"), ("TRAP", "OFF", "OFF"), ("TRAP", "off,nospie", "OFF,NOSPIE"),
+     ("ABTERMENC", "RETCODE", "RETCODE")],
+)  # fmt: skip
+def test_a_well_formed_value_keeps_its_policy(key, value, declared):
+    (hit,) = _le(key, value)
+    assert hit["declared"] == declared
+    assert hit["policy"] == RUNTIME_OPTION_TABLE[LE + key]["policy"]
+    assert "not Language Environment syntax" not in hit["note"]
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        ("STORAGE", "garbage"), ("STORAGE", "ZZ,NONE,NONE,0K"), ("STORAGE", "0,NONE,NONE,0K"), ("STORAGE", "NONE,NONE,NONE,K"),
+        ("STORAGE", "NONE,NONE,NONE,0K,1"), ("STORAGE", "NONE,NONE,NONE,0KB"), ("STORAGE", ""), ("STORAGE", "NONE,NONE,NONE,-1K"),
+        ("TRAP", "XX"), ("TRAP", "ON,FOO"), ("TRAP", ""), ("TRAP", "ON,SPIE,NOSPIE"), ("TRAP", "SPIE"),
+        ("ABTERMENC", "FOO"), ("ABTERMENC", ""), ("ABTERMENC", "ABEND,RETCODE"),
+    ],
+)  # fmt: skip
+def test_a_value_that_is_not_le_syntax_is_refused_by_name_once(key, value):
+    (hit,) = _le(key, value, {LE + key: "f:3"})
+    assert (hit["policy"], hit["applied"], hit["source"]) == ("refuse", None, "f:3")
+    assert LE + key in hit["note"] and "not Language Environment syntax" in hit["note"] and "#4707" in hit["note"]
+    assert runtime_effect(LE + key, value) == "refused"
+
+
+def test_a_malformed_le_value_reaches_the_oracle(put_estate):
+    with pytest.raises(common.UnsupportedOption, match=re.escape("le.runtime_options.STORAGE")):
+        common.compile_options(put_estate("le", "runtime_options.STORAGE", "garbage"), PLAIN)
+    common.compile_options(put_estate("le", "runtime_options.STORAGE", "NONE"), PLAIN)
 
 
 # --- the calibration hook against every recorded measurement (#4702 part 2) ---

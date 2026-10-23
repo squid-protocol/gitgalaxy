@@ -861,10 +861,12 @@ NULL is distinct.
   (its INITIALIZE ... REPLACING of a table is C17, #5823; its three READ KEYLENGTH(LENGTH OF ...) take the mapped file's key, #5831). A BMP entered `USING` its I/O PCB and DB PCBs translates GN / GNP / DLET / CHKP ID(area) and answers DIBSTAT (#5857; CBPAUP0C
   translates 110/110, pinned in `test_det_dli.py`); its oracle side is linked (`ggdli.c`, #5889). Still holes: other EXEC DLI commands
   and options, and any DIB field but DIBSTAT.
-- **Refused (register I5).** Other EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
-  other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical
-  relationships; load mode. CardDemo's other DL/I programs stop at one of these: PAUDBLOD (CMPAT=YES, an I/O PCB),
-  DBUNLDGS (GSAM PCBs). (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above.)
+- **Refused (register I5).** Other EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); a GSAM PCB that
+  reads; DL/I calls other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary
+  indexes; logical relationships; load mode on a DB PCB. CardDemo's other DL/I program that stops at one of these:
+  PAUDBLOD (CMPAT=YES, an I/O PCB). **GSAM load mode (#5233, RT-DLI-GSAM).** A TYPE=GSAM PCB with PROCOPT LS is a
+  record output file (`DetDli.gsamCall`, twin of `ggdli.c`'s `gsam_call`): ISRT appends one record, any other
+  function answers AM; `carddemo-dbunldgs` proves DBUNLDGS on it. (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above.)
 - **COPAUA0C, the authorization task (`carddemo-copaua0c`, #5278).** Transid CP00: an MQTM trigger, MQGET on the request queue, IMS
   DBPAUTP0 by EXEC DLI, three VSAM reads and MQPUT replies. Proven on 17 scenarios (3 fault runs), through the deployed entry point
   too, covering 41/41 paragraphs and 58/69 branches. The det port is committed (`port/service/`, `port/provenance.json`, as CBPAUP0C's),

@@ -1,6 +1,6 @@
 /*
  * le_time.c -- models of the Language Environment date/time callable services CEEGMT / CEEUTC, CEEDATM, CEESECS,
- * CEEDATE, CEEISEC, CEESECI, CEEDYWK and CEEQCEN for the equivalence harness (#4949). GnuCOBOL has no LE services; a program that
+ * CEEDATE, CEEISEC, CEESECI, CEEDYWK, CEEQCEN and CEESCEN for the equivalence harness (#4949). GnuCOBOL has no LE services; a program that
  * CALLs one (CBSA's BANKDATA: CEEGMT, CEEDATM) runs against this instead, and a port is proven against what this
  * returns. The twin of det/cobolrt/le/LeTime.java: the same conditions, the same bytes, the same refusals. Register
  * L6 (docs/language_status/register/L6.md) says what IBM documents, what is assumed and what is refused.
@@ -13,6 +13,7 @@
  *   CALL "CEESECI" USING input_seconds, year, month, day, hours, minutes, seconds, milliseconds, fc
  *   CALL "CEEDYWK" USING input_Lilian_date, day_number, fc          (1 Sunday .. 7 Saturday)
  *   CALL "CEEQCEN" USING century_start, fc
+ *   CALL "CEESCEN" USING century_start, fc          (0 to 100, CEE2533 otherwise)
  *   CALL "CEEGMTO" USING offset_hours, offset_minutes, offset_seconds, fc      (CEEUTCO: the same)
  * (IBM z/OS Language Environment Programming Reference; the message list per service is the one IBM publishes for the
  * ILE CEE APIs, the same service definitions: register L6.) Lilian day 1 is 15 October 1582; Lilian second 86400 is
@@ -249,8 +250,24 @@ int CEEUTCO(unsigned char *hours, unsigned char *minutes, unsigned char *seconds
     return gmto(hours, minutes, seconds, fc);
 }
 
+/* The century window's start, years before the system date: 80 (the ILE default) until CEESCEN sets it. Nothing reads
+ * it yet: CEESECS refuses YY. */
+static long century_start = 80;
+
 int CEEQCEN(unsigned char *century, unsigned char *fc) {
-    put_int(century, 80);
+    put_int(century, century_start);
+    put_fc(fc, 0);
+    return 0;
+}
+
+/* CEESCEN: 0 to 100; anything else is CEE2533 and the setting is unchanged. */
+int CEESCEN(unsigned char *century, unsigned char *fc) {
+    long v = get_int(century);
+    if (v < 0 || v > 100) {
+        put_fc(fc, 2533);
+        return 0;
+    }
+    century_start = v;
     put_fc(fc, 0);
     return 0;
 }

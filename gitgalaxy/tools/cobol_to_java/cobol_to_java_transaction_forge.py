@@ -2585,8 +2585,14 @@ public class CicsTask {
      *  maxLength (nothing is read) or a record longer than maxLength (the record is read, so lost, and the result holds
      *  its first maxLength characters); the result's length is the record's own. #5168 (X61): an extrapartition queue is
      *  NOTOPEN when closed and INVREQ when open for output; an input one reads like an intrapartition queue, or answers
-     *  the IOERR the harness planned (READQ-TD, the record skipped). */
+     *  the IOERR the harness planned (READQ-TD, the record skipped). #5168 (X61): a LOGICAL intrapartition queue holding no
+     *  record answers the QBUSY the harness planned (another task is writing it: IBM states no RESP2); that needs NOSUSPEND
+     *  (else IBM suspends the task: refused). */
     public TdResult readqTd(String queue, int maxLength) {
+        return readqTd(queue, maxLength, false);
+    }
+
+    public TdResult readqTd(String queue, int maxLength, boolean noSuspend) {
         String q = queue.strip();
         String t = tdResolve(q);
         int kind = tdKind(t);
@@ -2603,8 +2609,17 @@ public class CicsTask {
         if (readable) {
             tdTouch(t);
         }
-        int[] planned = readable && kind == 2 ? root().injected("READQ-TD", q) : null;
-        if (planned != null) {  // #5168 (X61): a planned IOERR -- IBM: "the data record in error is skipped", nothing reaches INTO
+        boolean busyable = readable && kind == 1 && "LOGICAL".equals(tdAttr(t, "RECOVSTATUS")) && (records == null || records.isEmpty());
+        int[] planned = readable && (kind == 2 || busyable) ? root().injected("READQ-TD", q) : null;
+        if (planned != null && busyable != (planned[0] == 25)) {
+            throw new UnsupportedOperationException("a planned READQ TD " + CicsSpec.name(planned[0]) + " on " + q + ": QBUSY is for a LOGICAL intrapartition queue with no record, IOERR for an extrapartition one");
+        }
+        if (planned != null && busyable) {  // #5168 (X61): a planned QBUSY, no committed record left
+            if (!noSuspend) {
+                throw new UnsupportedOperationException("READQ TD on a planned-busy queue without NOSUSPEND: " + q + " (the task would be suspended)");
+            }
+            resp = CicsSpec.name(planned[0]);
+        } else if (planned != null) {  // #5168 (X61): a planned IOERR -- IBM: "the data record in error is skipped", nothing reaches INTO
             if (records != null && !records.isEmpty()) {
                 records.removeFirst();
                 tempStorage.tdRead.add(t);

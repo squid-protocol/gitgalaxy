@@ -28,7 +28,7 @@
  * Modelled (IMS Messages and Codes, "DL/I status codes"): GU GHU GN GHN GNP GHNP ISRT REPL DLET through a DB PCB, with
  * unqualified SSAs and SSAs qualified by one field (EQ GT LT GE LE NE and their symbolic forms) on a C / X field (a
  * byte comparison) or a P field whose operands both carry the same positive sign (where IMS's packed and logical
- * comparisons agree); status blank, GA, GK, GE, GB, GP, II, DJ, DA, AC, AJ, AK, AD, AM. Command codes F, L and - are
+ * comparisons agree); status blank, GA, GK, GE, GB, GP, II, DJ, DA, AC, AJ, AK, AD, AM. Command codes F, L, - and P (on a GU) are
  * modelled (#5233, check_codes). Anything else -- the other command codes, the # operator, another function, a call
  * whose answer depends on what this model leaves open (register I5)
  * -- writes "CBLTDLI: ... is not modelled" to stderr and ends the run (exit 98): no proof rests on a guess.
@@ -395,7 +395,7 @@ typedef struct {
     int or_; /* #5233: joined to the statement before by OR (else AND); unused on the first */
 } Term;
 typedef struct {
-    int first, last; /* command codes F and L (#5233) */
+    int first, last, par; /* command codes F, L and P (#5233) */
     int seg, fld, op; /* fld -1: unqualified; the first statement (terms[0]) is mirrored here */
     const unsigned char *value;
     int nterms;
@@ -412,7 +412,7 @@ static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
         name8(nm, raw[i]);
         out[i].seg = find_seg(db, nm);
         out[i].fld = -1;
-        out[i].first = out[i].last = 0;
+        out[i].first = out[i].last = out[i].par = 0;
         if (out[i].seg < 0) return "AC";
         unsigned char q = raw[i][8];
         if (q == ' ') continue;
@@ -424,6 +424,8 @@ static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
                     out[i].first = 1;
                 else if (*at == 'L')
                     out[i].last = 1;
+                else if (*at == 'P')
+                    out[i].par = 1;
                 else if (*at != '-') {
                     char what[40];
                     snprintf(what, sizeof what, "the command code %c", *at);
@@ -472,7 +474,15 @@ static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
  * which starts from the first twin); L only as the last, unqualified SSA. Anything else is refused. */
 static void check_codes(const char *fn, const Ssa *s, int k) {
     int gu = !strncmp(fn, "GU", 2) || !strncmp(fn, "GHU", 3), is = !strncmp(fn, "ISRT", 4);
+    int ps = 0;
     for (int i = 0; i < k; i++) {
+        if (s[i].par && (!gu || ++ps > 1)) {
+            char what[40];
+            if (gu)
+                refuse("the command code P on more than one SSA");
+            snprintf(what, sizeof what, "the command code P on a %.4s", fn);
+            refuse(what);
+        }
         if (s[i].first && !gu && !is) {
             char what[40];
             snprintf(what, sizeof what, "the command code F on a %.4s", fn);
@@ -730,6 +740,8 @@ static void get(Pcb *p, const char *fn, unsigned char *io, Ssa *s, int k, int ho
     if (!gnp) {
         p->par = PAR_AT;
         p->parentage = n;
+        for (int i = 0; i < k; i++) /* #5233: command code P sets parentage at the level of its SSA (a GU only) */
+            if (s[i].par) p->parentage = ancestor_of_type(n, s[i].seg);
     }
     if (hold) p->hold = n;
 }

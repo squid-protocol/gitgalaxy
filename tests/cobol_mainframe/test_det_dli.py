@@ -402,6 +402,13 @@ CMD_EXPECTED = [
     "Q08 [  ] S2JAVA",  # DEPT, EMP, SKILL*L: the last SKILL under the first EMP
     "Q09 [  ] E004DAVE",  # ISRT EMP*F under D200: inserted in key order (F and L change nothing with a unique key)
     "Q10 [  ] E004DAVE",  # so the last EMP under D200 is now E004
+    # P on a GU: parentage at the DEPT, so the GNPs walk everything under D100 (EMP E001, its skills, E002, the project)
+    "Q11 [  ] E001ALICE", "Q12 [  ] S1COBOL", "Q13 [  ] S2JAVA",
+    "Q14 [GA] E002BOB", "Q15 [GK] P1ALPHA", "Q16 [GE]",  # GA: up a level; GK: same level, another type; GE: D100 is done
+    # P on the lowest SSA is the default: parentage at the EMP, so the GNPs stop after E001's two skills
+    "Q17 [  ] E001ALICE", "Q18 [  ] S1COBOL", "Q19 [  ] S2JAVA", "Q20 [GE]",
+    # P with a qualification: D200's dependents, including the E004 inserted by Q09
+    "Q21 [  ] E003CAROL", "Q22 [  ] S1DB2", "Q23 [GA] E004DAVE", "Q24 [GE]",
 ]  # fmt: skip
 
 
@@ -431,7 +438,6 @@ def _swap(old: str, new: str):
         (_swap("'DEPT    *L '", "'DEPT    *C '"), "the command code C"),
         (_swap("'DEPT    *L '", "'DEPT    *D '"), "the command code D"),
         (_swap("'DEPT    *L '", "'DEPT    *N '"), "the command code N"),
-        (_swap("'DEPT    *L '", "'DEPT    *P '"), "the command code P"),
         (_swap("'DEPT    *L '", "'DEPT    *Q '"), "the command code Q"),
         (_swap("'DEPT    *L '", "'DEPT    *U '"), "the command code U"),
         (_swap("'DEPT    *L '", "'DEPT    *V '"), "the command code V"),
@@ -441,6 +447,10 @@ def _swap(old: str, new: str):
          "the command code F on a GN"),
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DL"),
          "the command code L other than"),
+        (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DP"),
+         "the command code P on a GN"),
+        (_swap("F-ISRT PCB1 IOA C-DQ C-EF", "F-ISRT PCB1 IOA C-DQ C-EP"), "the command code P on a ISRT"),
+        (_swap("IOA S-DEPT S-EMP C-SKL", "IOA C-DP C-EP C-SKL"), "the command code P on more than one SSA"),
         (_swap("IOA S-DEPT C-EL", "IOA C-DL C-EL"), "the command code L other than"),  # L on a path SSA
         (_swap("IOA C-DQ C-EL", "IOA C-DQL C-EL"), "the command code L other than"),  # L on a qualified SSA
     ],

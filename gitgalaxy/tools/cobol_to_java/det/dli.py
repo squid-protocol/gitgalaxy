@@ -41,7 +41,15 @@ def entry_pcbs(proc: S.Procedure) -> list[str] | None:
     first = next((p.body[0] for p in proc.paragraphs if p.body), None)
     if first is None or first.kind != "ENTRY" or not first.data.get("first") or first.data["name"].upper() != ENTRY:
         return None
-    return [r.name.upper() for r in first.data["using"]]
+    names = [r.name.upper() for r in first.data["using"]]
+    return None if _io_first(proc, names) else names
+
+
+def _io_first(proc: S.Procedure, entry: list[str]) -> bool:
+    """#5233: whether the header's PROCEDURE DIVISION USING is the I/O PCB then exactly the ENTRY 'DLITCBL' list (PAUDBLOD:
+    a BMP, CMPAT=YES, whose ENTRY lists the DB PCB only). IMS enters a BMP at the header, so the I/O PCB comes first."""
+    head = [u.upper() for u in proc.division_using]
+    return bool(entry) and len(head) == len(entry) + 1 and head[1:] == entry
 
 
 class BmpPcbs(list):
@@ -54,13 +62,19 @@ class BmpPcbs(list):
 def bmp_pcbs(proc: S.Procedure) -> BmpPcbs | None:
     """The PCBs of a non-CICS program entered by PROCEDURE DIVISION USING io-pcb db-pcb ... that issues EXEC DLI, else
     None (a program with a USING and EXEC DLI but no ENTRY 'DLITCBL'). Needs at least the I/O PCB and one DB PCB."""
-    if len(proc.using) < 2 or not uses_exec(
-        x.text for q in proc.paragraphs for x in S.walk(q.body) if x.kind == "EXEC"
+    using = proc.division_using if proc.division_using else proc.using
+    stmts = [x for q in proc.paragraphs for x in S.walk(q.body)]
+    if len(using) < 2 or not (
+        uses_exec(x.text for x in stmts if x.kind == "EXEC") or any(x.kind == "CALL" and _is_cbltdli(x) for x in stmts)
     ):
         return None
-    out = BmpPcbs(u.upper() for u in proc.using[1:])
-    out.io = proc.using[0].upper()
+    out = BmpPcbs(u.upper() for u in using[1:])
+    out.io = using[0].upper()
     return out
+
+
+def _is_cbltdli(s: S.Stmt) -> bool:
+    return str(s.data.get("program") or "").upper() == CALL
 
 
 def call(gen: Any, s: S.Stmt, ind: str) -> list[str]:
@@ -68,7 +82,7 @@ def call(gen: Any, s: S.Stmt, ind: str) -> list[str]:
     from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
     pcbs = gen.dli_pcbs
-    if pcbs is None or isinstance(pcbs, BmpPcbs):
+    if pcbs is None:
         raise Untranslatable(f"CALL {CALL}: a program IMS does not enter at ENTRY '{ENTRY}' (BMP, MPP or CICS) "
                              "is not modelled")  # fmt: skip
     args = s.data["args"]
@@ -82,6 +96,8 @@ def call(gen: Any, s: S.Stmt, ind: str) -> list[str]:
     first = gen.resolve(refs[0])
     if (getattr(first, "usage", None) or "").upper() in BINARY:
         raise Untranslatable(f"CALL {CALL}: the parameter-count form (a binary count first) is not modelled")
+    if isinstance(pcbs, BmpPcbs) and refs[1].name.upper() == pcbs.io:
+        raise Untranslatable(f"CALL {CALL}: the I/O PCB {refs[1].name} (IMS TM message calls) is not modelled")
     if refs[1].name.upper() not in pcbs or refs[1].subscripts or refs[1].refmod is not None:
         raise Untranslatable(f"CALL {CALL}: the PCB {refs[1].name} is not one IMS passed at ENTRY '{ENTRY}'")
     fields = ", ".join(gen.field_expr(r) for r in refs)

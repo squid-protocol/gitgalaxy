@@ -390,7 +390,15 @@ def generate_all(case: dict[str, Any], corpus: Path) -> tuple[dict[str, bytes], 
     out: dict[str, bytes] = {}
     for dd in _order(todo):
         spec = todo[dd]
-        fields = common.layout_fields(corpus, spec["generate"]["copybook"], spec["generate"].get("record"))
+        # #5233: a COPY inside the record (PAUDBLOD's CIPAUSMY) resolves in the case's copy_dirs, after the file's own directory
+        dirs = [
+            (corpus / spec["generate"]["copybook"]).parent,
+            *(corpus / d for d in case.get("copy_dirs", [])),
+            corpus,
+        ]
+        fields = common.layout_fields(
+            corpus, spec["generate"]["copybook"], spec["generate"].get("record"), copy_dirs=dirs
+        )
         width = max(f["offset"] + f["bytes"] for f in fields)
         if width > spec["reclen"]:
             raise ValueError(f"{dd}: the layout is {width} bytes, wider than reclen {spec['reclen']}")

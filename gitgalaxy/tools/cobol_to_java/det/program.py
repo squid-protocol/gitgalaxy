@@ -835,9 +835,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             records.append(idx)
     proc = S.parse(lines)
     bmp = None if is_cics or DLI.entry_pcbs(proc) is not None else DLI.bmp_pcbs(proc)  # #5857: a BMP's EXEC DLI
-    if bmp is not None or (
-        is_cics and DLI.uses_exec(x.text for q in proc.paragraphs for x in S.walk(q.body) if x.kind == "EXEC")
-    ):
+    if (bmp is not None or is_cics) and DLI.uses_exec(
+        x.text for q in proc.paragraphs for x in S.walk(q.body) if x.kind == "EXEC"
+    ):  # (#5233: a BMP that only CALLs CBLTDLI has no DIB)
         records += DLI.dib_records()  # #5278: EXEC DLI answers DIBSTAT (det/dli.py)
     # SORT-RETURN: the special register, S9(4) BINARY (IBM: 0 after a successful SORT / MERGE) -- only in a program
     # that sorts or names it, so no other port's storage changes

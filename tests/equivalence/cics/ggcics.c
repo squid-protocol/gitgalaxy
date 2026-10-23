@@ -2345,7 +2345,7 @@ static void web_opened(gg_cics *c, char *token, int peer, int byurimap) {
 
 /* WEB OPEN: GG-FLAGS URIMAP (the name in GG-NAME1) or HOST (GG-LEN HOSTLENGTH, GG-ITEM the SCHEME CVDA, GG-NUM the
  * PORTNUMBER when GG-FLAGS also names PORT). LENGERR 21, INVREQ 40 / 138; the SESSTOKEN written on NORMAL only. */
-int GGCWOPN(gg_cics *c, char *token, char *host, int hostcap) {
+static int web_open(gg_cics *c, char *token, char *host, int hostcap) {
     char flags[41], name[9], h[WEB_TXT];
     int conds = 0, port, n = c->len;
     const char *sch;
@@ -2378,6 +2378,33 @@ int GGCWOPN(gg_cics *c, char *token, char *host, int hostcap) {
         }
     }
     refuse("WEB OPEN of a peer the run does not state");
+    return 0;
+}
+
+/* The WEB-OPEN event of SPEC 6.2 (host and scheme as the connection names them, '-' when the command gave none; RESP2 as
+ * recorded): a refusal inside web_open records nothing, as CicsTask.webOpenHost / webOpenUrimap. */
+int GGCWOPN(gg_cics *c, char *token, char *host, int hostcap) {
+    char flags[41], hx[WEB_TXT * 2 + 2], ev[WEB_TXT * 2 + 120];
+    const char *sch = c->item == 1096 ? "HTTP" : c->item == 1029 ? "HTTPS" : "-";
+    int n = c->len;
+    const char *h = host;
+    web_load();
+    trim(c->flags, 40, flags);
+    web_open(c, token, host, hostcap);
+    if (strncmp(flags, "URIMAP", 6) == 0) {
+        n = 0;
+        sch = "-";
+        if (c->resp == NORMAL) {
+            h = web_peers[web_sess[web_nsess - 1].peer].host;
+            n = (int)strlen(h);
+            sch = web_peers[web_sess[web_nsess - 1].peer].scheme;
+        }
+    } else if (n <= 0 || n > hostcap) {
+        n = 0;
+    }
+    web_hex(h, n, hx);
+    snprintf(ev, sizeof ev, "WEB-OPEN host=%s scheme=%s resp=%d resp2=%d", hx, sch, c->resp, c->resp2);
+    event(ev, NULL, 0);
     return 0;
 }
 
@@ -2482,6 +2509,11 @@ int GGCWCLS(gg_cics *c, char *token) {
     c->resp = s < 0 ? DFHRESP_NOTOPEN : NORMAL;
     c->resp2 = s < 0 ? 27 : 0;
     if (s >= 0) web_sess[s].open = 0;
+    {
+        char ev[80];
+        snprintf(ev, sizeof ev, "WEB-CLOSE resp=%d resp2=%d", c->resp, c->resp2);
+        event(ev, NULL, 0);
+    }
     return 0;
 }
 

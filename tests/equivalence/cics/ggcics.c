@@ -223,8 +223,14 @@ static char fault_keys[32][40];
  * index and answers DUPKEY (RESP2 140) because another record with the same key follows. So injected() holds it
  * back (the read runs) and dupkey_apply() turns the NORMAL of a read that found its record into it. */
 static struct { int on, n, resp, resp2; char cmd[16], file[32]; } dupkey;
-static int injected(const char *cmd, const char *file, int *resp, int *resp2) {
-    char path[3000], line[256], pcmd[16], pfile[32], nth[16];
+/* #6271 (X70): a planned ABEND line (`CMD FILE NTH ABEND 0 ABCODE`, RESP field -1) is not a condition: the command
+ * abends the task with ABCODE (cause "system", an abend CICS itself raises), so the HANDLE ABEND exit gets control (c->go_to)
+ * or the task ends, and the command does nothing else (RESP / RESP2 NORMAL). Every call site has the task's `c`. */
+static void abend(gg_cics *c, const char *code, const char *cause, int cond, int cancel);
+static int injected_at(gg_cics *c, const char *cmd, const char *file, int *resp, int *resp2);
+#define injected(cmd, file, resp, resp2) injected_at(c, cmd, file, resp, resp2)
+static int injected_at(gg_cics *c, const char *cmd, const char *file, int *resp, int *resp2) {
+    char path[3000], line[256], pcmd[16], pfile[32], nth[16], pcode[16];
     int presp, presp2, n = 0, slot = -1, hit = 0;
     char key[40];
     snprintf(key, sizeof key, "%.15s %.16s", cmd, file);
@@ -239,12 +245,25 @@ static int injected(const char *cmd, const char *file, int *resp, int *resp2) {
     FILE *f = fopen(path, "r");
     while (f && !hit && fgets(line, sizeof line, f)) {
         presp2 = 0;
-        if (sscanf(line, "%15s %31s %15s %d %d", pcmd, pfile, nth, &presp, &presp2) < 4) continue;
+        pcode[0] = '\0';
+        if (sscanf(line, "%15s %31s %15s %d %d %15s", pcmd, pfile, nth, &presp, &presp2, pcode) < 4) continue;
         if (strcmp(pcmd, cmd) != 0 || strcmp(pfile, file) != 0) continue;
         if (nth[0] != '*' && atoi(nth) != n) continue;
         *resp = presp;
         *resp2 = presp2;
         hit = 1;
+        if (presp == -1 && pcode[0]) {
+            char code[5] = "    ";
+            memcpy(code, pcode, strlen(pcode) < 4 ? strlen(pcode) : 4);
+            snprintf(path, sizeof path, "%s/faults.txt", dir_out());
+            FILE *log = fopen(path, "a");
+            if (log) { fprintf(log, "%s %s %d ABEND %s\n", cmd, file, n, pcode); fclose(log); }
+            *resp = NORMAL;
+            *resp2 = 0;
+            fclose(f);
+            abend(c, code, "system", 0, 0);
+            return 1;
+        }
     }
     if (f) fclose(f);
     if (hit && *resp == DFHRESP_DUPKEY) {
@@ -510,6 +529,14 @@ int GGCWRIT(gg_cics *c, char *ridfld, int keylen, char *from, int fromlen) {
     return 0;
 }
 
+/* SPEC 6.2 REWRITE event: the file, RESP, RESP2 where the command is not NORMAL, and the FROM bytes as issued. */
+static void rewrite_event(const gg_cics *c, const char *want, const char *from, int fromlen) {
+    char ev[200];
+    int n = snprintf(ev, sizeof ev, "REWRITE file=%s resp=%d", want, c->resp);
+    if (c->resp != NORMAL && c->resp2) snprintf(ev + n, sizeof ev - (size_t)n, " resp2=%d", c->resp2);
+    event(ev, from, fromlen);
+}
+
 /* REWRITE FILE(name1) FROM: replaces the record a READ UPDATE holds; INVREQ when none is held. */
 int GGCREWR(gg_cics *c, char *from, int fromlen) {
     char want[9], path[3000];
@@ -521,7 +548,7 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
     if (injected("REWRITE", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-        file_event("REWRITE", want, key, have ? klen : 0, c->resp);
+        rewrite_event(c, want, from, fromlen);
         return 0;
     }
     if (!have) {
@@ -552,7 +579,7 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
         }
     }
     if (c->resp == NORMAL) file_set_end("READ", want);  /* IBM: a READ SET pointer is valid until a corresponding REWRITE completes */
-    file_event("REWRITE", want, key, have ? klen : 0, c->resp);
+    rewrite_event(c, want, from, fromlen);
     return 0;
 }
 

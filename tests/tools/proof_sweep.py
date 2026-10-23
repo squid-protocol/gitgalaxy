@@ -212,6 +212,7 @@ def det_sweep(
                             "phases": {"translate": {"seconds": row.get("translate_seconds", 0), "count": 1},
                                        **(row.get("phases") or {})},  # #5882: where the seconds went
                             "uncovered": _uncovered(work / row["case"] / "proof" / "cobol" / "coverage.json"),
+                            **_uncovered_paragraphs(work / row["case"] / "proof" / "cobol" / "coverage.json"),
                             "linked": _linked(work / row["case"] / "proof" / "cobol" / "coverage.json")}  # fmt: skip
     return out
 
@@ -235,6 +236,17 @@ def _uncovered(path: Path) -> list[str] | None:
         return infeasible_outcomes.uncovered_of(json.loads(path.read_text(encoding="utf-8")))
     except (OSError, ValueError, KeyError, TypeError):
         return None
+
+
+def _uncovered_paragraphs(path: Path) -> dict[str, list[str]]:
+    """#6072: the live paragraphs the proof never entered ("NAME:line"), for the ledger's `uncovered` list; the key is
+    there only when there are some."""
+    try:
+        paras = json.loads(path.read_text(encoding="utf-8"))["paragraphs"]["uncovered"]
+        found = [f"{u['name']}:{u['line']}" for u in paras]
+    except (OSError, ValueError, KeyError, TypeError):
+        return {}
+    return {"uncovered_paragraphs": found} if found else {}
 
 
 def model_sweep(work: Path, faults: str, skip_db2: bool = False, only: list[str] | None = None) -> dict[str, dict]:

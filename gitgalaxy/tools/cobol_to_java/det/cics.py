@@ -504,6 +504,7 @@ class Cics(ConditionCommands, ContainerCommands, FileControlCommands, TaskContro
         # handler state is stacked); set by program._translate from the source before any statement is translated
         self.handle_aid = False
         self.push_handle = False
+        self.handle_abend = False  # #6271 (X70): the program has HANDLE ABEND, so a file command checks for its exit
         self.eibds_read = False  # #5126 (X64): the program reads EIBDS, so a file control command sets it
         # #4528: the region's code page (region_page), set by program._translate; `region_used`: the port declares
         # REGION (a TS command moves bytes between the program's storage and the region)
@@ -830,11 +831,17 @@ class Cics(ConditionCommands, ContainerCommands, FileControlCommands, TaskContro
         """One EXEC CICS command's Java; a file control command leads with `Cobol.move(<file>, EIBDS)` (#5126, X64),
         set before the command runs so a failed request leaves its file named, in a program that reads EIBDS."""
         lines = self._command(text, ind)
-        if self.eibds_read:
+        if self.eibds_read or self.handle_abend:
             words, opts = parse_exec(text)
             file = opts.get("FILE") or opts.get("DATASET")
             if words[:1] and " ".join(words) in EIBDS_VERBS and file:
-                return [f"{ind}Cobol.move({self.text(file)}, {self.g.eib('EIBDS')}, CS);", *lines]
+                if self.handle_abend and " ".join(words) != "UNLOCK":  # #6271 (X70): an injected file abend
+                    ex = self.g.tmpname("exit")  # went to this program's exit, or unwound past this level
+                    lines = [*lines, f"{ind}String {ex} = task.abendExit();",
+                             f"{ind}if ({ex} != null) {self.g.jump(f'paragraph({ex})')}",
+                             f"{ind}if (task.ended()) throw abended();"]  # fmt: skip
+                if self.eibds_read:
+                    return [f"{ind}Cobol.move({self.text(file)}, {self.g.eib('EIBDS')}, CS);", *lines]
         return lines
 
     def _command(self, text: str, ind: str) -> list[str]:

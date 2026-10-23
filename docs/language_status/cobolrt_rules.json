@@ -220,11 +220,13 @@
     "le/Ceedate.java",
     "le/Ceedatm.java",
     "le/Ceedays.java",
+    "le/Ceedywk.java",
     "le/Ceegmt.java",
     "le/Ceegmto.java",
     "le/Ceeisec.java",
     "le/Ceeloct.java",
     "le/Ceeqcen.java",
+    "le/Ceeseci.java",
     "le/Ceesecs.java",
     "le/Ceeutc.java",
     "le/Cobdatft.java",
@@ -3413,6 +3415,46 @@
    "ibm": {
     "doc": "le-pr",
     "section": "CEEISEC: convert integers to seconds"
+   },
+   "options": [],
+   "register": [
+    "L6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-CEESECI",
+   "family": "LE",
+   "title": "CEESECI: Lilian seconds to year, month, day, hours, minutes, seconds, milliseconds",
+   "methods": [
+    "seci",
+    "le/Ceeseci.java:call"
+   ],
+   "site": "le/LeTime.java:seci",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEESECI: convert seconds to integers"
+   },
+   "options": [],
+   "register": [
+    "L6"
+   ],
+   "status": "MATCHED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-LE-CEEDYWK",
+   "family": "LE",
+   "title": "CEEDYWK: the day of the week of a Lilian date, 1 (Sunday) to 7 (Saturday)",
+   "methods": [
+    "dywk",
+    "le/Ceedywk.java:call"
+   ],
+   "site": "le/LeTime.java:dywk",
+   "ibm": {
+    "doc": "le-pr",
+    "section": "CEEDYWK: calculate day of week from Lilian date"
    },
    "options": [],
    "register": [

@@ -127,4 +127,48 @@ def test_carddemo_menu_admin_only_guard_and_readacct_loop_guard_are_stated():
     assert any(f["name"] == "vbrcfile-first-write-error" for f in case["faults"])
     rows = (io.CASES / "carddemo-readacct" / "acctdata.txt").read_text(encoding="utf-8").splitlines()
     assert len(rows) == 51 and rows[-1][:11] == "00000000051"
-    assert rows[-1][90:102] != "00000000000{"  # the nonzero ACCT-CURR-CYC-DEBIT 1300-POPUL-ACCT-RECORD's false arm needs
+    assert (
+        rows[-1][90:102] != "00000000000{"
+    )  # the nonzero ACCT-CURR-CYC-DEBIT 1300-POPUL-ACCT-RECORD's false arm needs
+
+
+def test_cbsa_delacc_and_bankdata_state_the_one_outcome_their_proof_leaves():
+    """#5864: DELACC's `IF SQLCODE = 0` (line 363) never sees another SQLCODE (+100 jumped, anything else abended); BANKDATA's
+    100-failed-draws arm (line 917) is a probability near zero. Each is the one outcome the det sweep left (13/14, 47/48)."""
+    ledger = io.load()
+    for case, line, outcome, family, total in (
+        ("cbsa-delacc", 363, "false", "G", 14),
+        ("cbsa-bankdata", 917, "true", "C", 48),
+    ):
+        (e,) = ledger[case]
+        assert (e["line"], e["kind"], e["outcome"], e["family"]) == (line, "IF", outcome, family)
+        uncovered = [{"line": line, "outcome": outcome}]
+        assert io.adjust(case, (1, 1, total - 1, total), uncovered, ledger)[0] == (1, 1, total - 1, total - 1)
+    assert "RAD999" in ledger["cbsa-delacc"][0]["reason"] and "HRAC" in ledger["cbsa-delacc"][0]["reason"]
+    assert "2014" in ledger["cbsa-bankdata"][0]["reason"] and "1900" in ledger["cbsa-bankdata"][0]["reason"]
+
+
+def test_cbsa_custctrl_reaches_the_sysiderr_retry_with_a_scenario():
+    """#5864: CUSTCTRL's SYSIDERR retry (l.171) was the one outcome unreached (3/4); a first-READ SYSIDERR now covers it (4/4)."""
+    case = json.loads((io.CASES / "cbsa-custctrl" / "case.json").read_text(encoding="utf-8"))
+    (s,) = [x for x in case["scenarios"] if x["name"] == "read-sysiderr-retried"]
+    assert [(f["cmd"], f["resp"], f["nth"]) for f in s["faults"]] == [("READ", "SYSIDERR", 1)]
+    assert "is not reached: SYSIDERR is not an injectable" not in case["notes"]
+    assert "cbsa-custctrl" not in io.load()
+
+
+def test_cobtupdt_open_guard_and_sqlcode_evaluates_are_stated_for_both_cases():
+    """#4507: COBTUPDT's proofs leave 16/20 branches; the four others are the OPEN status guard (84) and the three
+    `EVALUATE TRUE` that name no positive SQLCODE but +100 (151 insert, 177 update, 207 delete), stated on both cases."""
+    ledger = io.load()
+    want = [
+        ("0001-OPEN-FILES", 84, "IF", "false", "G"),
+        ("10031-INSERT-DB", 151, "EVALUATE", "none", "R"),
+        ("10032-UPDATE-DB", 177, "EVALUATE", "none", "R"),
+        ("10033-DELETE-DB", 207, "EVALUATE", "none", "R"),
+    ]
+    for case in ("carddemo-cobtupdt", "carddemo-cobtupdt-generated"):
+        assert [(e["unit"], e["line"], e["kind"], e["outcome"], e["family"]) for e in ledger[case]] == want
+        assert all(e["reason"] for e in ledger[case])
+        uncovered = [{"line": line, "kind": kind, "outcome": outcome} for _, line, kind, outcome, _ in want]
+        assert io.adjust(case, (9, 9, 16, 20), uncovered, ledger)[0] == (9, 9, 16, 16)

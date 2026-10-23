@@ -123,7 +123,7 @@ Beyond synthetic fixtures, the suite gates against pinned real mainframe estates
 ## CI gates and ratchets
 
 Every PR touching the mainframe or translator stack must pass the gates in [`tests/tools/pr_gates.py`](../tools/pr_gates.py):
-- **`det` sweep (`det-sweep.yml`):** Sharded across 6 parallel runners (`MAX_SHARDS=6`), verifying that no program regresses on translation holes or equivalence scenarios (`tests/equivalence/det_sweep_baseline.json`).
+- **`det` sweep (`det-sweep.yml`):** Sharded across parallel runners sized from the measured case durations (at most `MAX_SHARDS=6`, slowest/fastest planned shard <= 1.3), verifying that no program regresses on translation holes or equivalence scenarios (`tests/equivalence/det_sweep_baseline.json`).
 - **CICS spec ratchet:** `python -m gitgalaxy.standards.cics regen --check` and `python -m gitgalaxy.standards.cics check`.
 - **Evidence record & report schema gates:** Verifies that every committed `evidence.json` in `tests/equivalence/` and `tests/cics_crucible/` validates against the schema and matches its recorded input digests.
 

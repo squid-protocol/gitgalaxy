@@ -1,5 +1,6 @@
 """The z/OS probe corpus (#4702 Part 2): shape, register links, template, and the oracle's expected output."""
 
+import json
 import os
 import shutil
 import subprocess
@@ -32,6 +33,14 @@ def test_burned_estate_assumed_entries_have_a_probe():
     # C5: DBB MortgageApplication (NUMPROC); C12: CBSA (RANDOM). C6 is not reached by a burned program yet.
     covered = {e for p in zos_probes.load().values() for e in p["entries"]}
     assert {"C5", "C12"} <= covered
+
+
+def test_the_4688_float_differences_have_probes():
+    # The three oracle-vs-IBM shapes the #4675 fuzz found (register C6), as z/OS-runnable probes.
+    probes = zos_probes.load()
+    ids = {"c6-float-move-to-edited", "c6-compound-float-compute", "c6-float-zero-add-to-packed"}
+    assert ids <= set(probes)
+    assert all(probes[i]["entries"] == ["C6"] for i in ids)
 
 
 def test_file_and_storage_assumed_entries_with_burned_reach_have_a_probe():
@@ -136,3 +145,97 @@ def test_oracle_output_is_the_recorded_expectation():
     probes = zos_probes.load()
     seen = zos_probes.run_oracle(probes)
     assert {k: seen[k] for k in probes} == {k: p["oracle_expected"] for k, p in probes.items()}
+
+
+# --- ingest: an operator's filled template -> validated zos_calibration.json records ---
+
+PROBES = {
+    "p1": {"entries": ["C1"], "compile_options": "ARITH(COMPAT)", "oracle_expected": ["1", "2"]},
+    "p2": {"entries": ["C2"], "compile_options": "OPT(0)", "oracle_expected": ["9"]},
+}
+
+
+def _rec(**kw):
+    base = {"date": "2026-11-01", "compiler": "Enterprise COBOL 6.4", "options": "", "probe": "p1", "observed": "1 2",
+            "verdict": "", "runtime_options": {k: v["default"] for k, v in RUNTIME_OPTION_TABLE.items()}}  # fmt: skip
+    return {**base, **kw}
+
+
+def test_ingest_derives_matched_and_differs_and_keeps_options():
+    merged, _, bad = zos_probes.ingest_records({"C1": [_rec(), _rec(date="2026-11-02", observed="1 3")]}, PROBES, {})
+    assert bad == []
+    assert [r["verdict"] for r in merged["C1"]] == ["matched", "differs"]
+    assert merged["C1"][0]["options"] == "ARITH(COMPAT)"
+
+
+def test_ingest_skips_unfilled_and_keeps_operator_verdicts():
+    merged, notes, bad = zos_probes.ingest_records(
+        {"C1": [_rec(observed=""), _rec(observed="rc=0C7", verdict="abend")]}, PROBES, {}
+    )
+    assert bad == []
+    assert [r["verdict"] for r in merged["C1"]] == ["abend"]
+    assert any("unfilled" in n for n in notes)
+
+
+def test_ingest_rejects_bad_verdict_unknown_probe_wrong_entry_and_missing_fields():
+    filled = {
+        "C1": [_rec(verdict="proven"), _rec(probe="nope"), _rec(probe="p2"), _rec(compiler=""), _rec(date="")],
+    }
+    _, _, bad = zos_probes.ingest_records(filled, PROBES, {})
+    joined = "\n".join(bad)
+    assert len(bad) == 5
+    for text in ("verdict 'proven'", "unknown probe", "does not list entry C1", "lacks compiler", "lacks date"):
+        assert text in joined
+
+
+def test_ingest_is_idempotent_and_replaces_a_re_measured_record():
+    first, _, _ = zos_probes.ingest_records({"C1": [_rec()]}, PROBES, {})
+    again, _, _ = zos_probes.ingest_records({"C1": [_rec()]}, PROBES, first)
+    assert again == first
+    fixed, _, _ = zos_probes.ingest_records({"C1": [_rec(observed="1 3")]}, PROBES, first)
+    assert [r["verdict"] for r in fixed["C1"]] == ["differs"]
+
+
+def test_problems_flag_a_record_whose_probe_does_not_list_the_entry():
+    found = zos_probes.problems(PROBES, set(), {"C2": [{"probe": "p1"}]})
+    assert any("C2 records probe 'p1', which does not list that entry" in f for f in found)
+
+
+def _real_probe():
+    pid, p = sorted(zos_probes.load().items())[0]
+    return pid, p["entries"][0], p
+
+
+def test_ingest_command_dry_run_then_write_leaves_the_committed_ledger_alone(tmp_path):
+    committed = register.ZOS_LEDGER.read_text(encoding="utf-8")
+    pid, entry, p = _real_probe()
+    filled = tmp_path / "filled.json"
+    rec = _rec(probe=pid, observed=" ".join(p["oracle_expected"]), options=p["compile_options"])
+    filled.write_text(json.dumps({"results": {entry: [rec]}}), encoding="utf-8")
+    ledger = tmp_path / "zos_calibration.json"
+    ledger.write_text(committed, encoding="utf-8")
+    assert zos_probes.ingest(filled, ledger=ledger) == 0
+    assert ledger.read_text(encoding="utf-8") == committed
+    assert zos_probes.ingest(filled, write=True, ledger=ledger) == 0
+    assert register.zos_problems(IDS, ledger) == []
+    assert register.load_zos(ledger)[entry][0]["verdict"] == "matched"
+    assert register.ZOS_LEDGER.read_text(encoding="utf-8") == committed
+
+
+def test_ingest_command_writes_nothing_when_a_record_is_rejected(tmp_path):
+    pid, entry, _ = _real_probe()
+    filled = tmp_path / "filled.json"
+    filled.write_text(json.dumps({"results": {entry: [_rec(probe=pid, verdict="proven")]}}), encoding="utf-8")
+    ledger = tmp_path / "zos_calibration.json"
+    ledger.write_text('{"results": {}}', encoding="utf-8")
+    assert zos_probes.ingest(filled, write=True, ledger=ledger) == 1
+    assert ledger.read_text(encoding="utf-8") == '{"results": {}}'
+
+
+def test_ingest_rejects_a_record_with_a_wrong_runtime_option_set(tmp_path):
+    pid, entry, p = _real_probe()
+    filled = tmp_path / "filled.json"
+    filled.write_text(json.dumps({"results": {entry: [_rec(probe=pid, runtime_options={"x": "1"})]}}), encoding="utf-8")
+    ledger = tmp_path / "zos_calibration.json"
+    ledger.write_text('{"results": {}}', encoding="utf-8")
+    assert zos_probes.ingest(filled, write=True, ledger=ledger) == 1

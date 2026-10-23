@@ -16,6 +16,9 @@ import pytest
 
 from gitgalaxy.tools.readiness import schema as SC
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import test_assess as TA  # noqa: E402  (sibling helper: the source-text check)
+
 REPO = Path(__file__).resolve().parents[2]
 CORPORA = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", REPO / ".mainframe_corpora"))
 MARK = "ZQXCLEAN"
@@ -107,14 +110,21 @@ def test_clean_install_assesses_an_estate_without_the_translator(clean, tmp_path
             assert "CLEAN1" not in text
 
 
-@pytest.mark.slow(reason="#4726: runs the installed gitgalaxy assess on a burned estate")
-def test_clean_install_assesses_a_burned_estate(clean):
-    estate = CORPORA / "zecs"
+@pytest.mark.slow(reason="#4726: runs the installed gitgalaxy assess on a burned estate, plain and redacted")
+@pytest.mark.parametrize("name", TA.BURNED)
+def test_clean_install_assesses_every_burned_estate(clean, name):
+    """The installed command on each burned estate: schema-valid, no estate source text, no program name when redacted."""
+    estate = CORPORA / name
     if not estate.is_dir():
-        pytest.skip("the zecs corpus is not available (GITGALAXY_MAINFRAME_CORPORA)")
-    res, text = _assess(clean, estate)
-    assert res.returncode == 0, res.stderr[-3000:]
-    report = json.loads(text)
-    assert SC.validate(report) == []
-    assert report["totals"]["programs"] > 0
-    assert all("translation" not in r for r in report["programs"])
+        pytest.skip(f"the {name} corpus is not available (GITGALAXY_MAINFRAME_CORPORA)")
+    inv = TA._inventory(name)
+    for extra, allowed in ((), TA._program_names(inv)), (("--redact",), set()):
+        res, text = _assess(clean, estate, *extra)
+        assert res.returncode == 0, res.stderr[-3000:]
+        report = json.loads(text)
+        assert SC.validate(report) == []
+        assert report["totals"]["programs"] > 0
+        assert all("translation" not in r for r in report["programs"])
+        TA.assert_no_source_text(report, estate, allowed)
+        if extra:
+            assert all(r["name"].startswith("P-") for r in report["programs"])

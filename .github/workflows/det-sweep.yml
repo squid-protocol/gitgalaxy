@@ -61,6 +61,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: read  # the PR's labels, read live (shepherd:full)
+      actions: read  # #5919: the queued PR jobs (ci_layout.py --print-waiting), so the shard caps shrink under queue pressure
     timeout-minutes: 25  # a minute normally; ~10 when a translator change needs the port diff (#4814)
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
@@ -129,7 +130,11 @@ jobs:
           git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
           labels=""
           if [ -n "$PR" ]; then labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || true); fi
+          # #5919: the queue depth is read here, not by the planner; empty (not a PR, or unreadable) plans calm
+          waiting=""
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then waiting=$(python3 tests/tools/ci_layout.py --print-waiting || true); fi
           python3 tests/tools/det_sweep_plan.py --event "$GITHUB_EVENT_NAME" --base origin/main \
+            ${waiting:+--waiting "$waiting"} \
             --labels "$labels" --github-output "$GITHUB_OUTPUT" | tee plan.json
           {
             echo "## Det sweep plan"
@@ -191,9 +196,14 @@ jobs:
         if: steps.plan.outputs.mode == 'ports'
         env:
           TOUCHED: ${{ steps.plan.outputs.cases }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
         run: |
+          # #5919: as in "Plan the sweep"; GITHUB_REPOSITORY is what ci_layout.py reads
+          waiting=""
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then waiting=$(python3 tests/tools/ci_layout.py --print-waiting || true); fi
           python3 tests/tools/det_sweep_plan.py --ports "$RUNNER_TEMP/portcheck/check.json" --touched "$TOUCHED" \
-            --github-output "$GITHUB_OUTPUT" | tee plan2.json
+            ${waiting:+--waiting "$waiting"} --github-output "$GITHUB_OUTPUT" | tee plan2.json
           {
             echo "## Det sweep plan, from the port diff"
             echo '```json'

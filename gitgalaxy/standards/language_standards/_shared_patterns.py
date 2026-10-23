@@ -439,7 +439,9 @@ CALLS_OUT_CALL_VERB = re.compile(r"(?i)\bCALL\s+['\"]?((?:[^\W\d]|[$#@])[\w$#@-]
 # Lisp family (scheme): the callee is the first symbol after an open paren.
 # Charset includes lisp identifier punctuation (probe-branch, null?, set!).
 # #3814: the letters and digits are UAX #31's (`probe-नाम`), the punctuation stays.
-CALLS_OUT_LISP_FAMILY = re.compile(r"\(\s*([" + ID_START + r"][" + ID_CONTINUE + r"!?*<>=+-]*)")
+# #5640: `/ . : ~ $ % & ^` too, the set scheme's func_start already names with (`bytevector-copy/range` was read
+# as the call `bytevector-copy`).
+CALLS_OUT_LISP_FAMILY = re.compile(r"\(\s*([" + ID_START + r"][" + ID_CONTINUE + r"!?*<>=+/.:~$%&^-]*)")
 
 # Command-position family (tcl, powershell, livecode): the callee is the first
 # word on a statement line. Charset covers tcl `ns::proc` interior colons and

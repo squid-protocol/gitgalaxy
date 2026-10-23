@@ -642,6 +642,16 @@ def hits(inv: Inventory, events: Iterable[Event], lines: LineMap, compiled_name:
     # every unit entered, the ones the inventory lacks too (summary: `unread`); `L$0`-style names are GnuCOBOL's own
     out = Hits(units={e.name for e in mine if e.kind in ("Section", "Paragraph") and "$" not in e.name})
     points = {b.line: b for b in inv.branches + inv.after_transfer}  # the latter: summary flags a run taking one
+    # an ENTRY 'NAME' statement is entered by name, so no Paragraph event names the unit that holds it (IMS enters a
+    # DL/I program at ENTRY 'DLITCBL'): the unit holding the first statement the entry runs was entered
+    for n, e in enumerate(mine[:-1]):
+        nxt = mine[n + 1]
+        own = not compiled_name or nxt.source == compiled_name
+        if e.kind == "Entry" and e.name != inv.program and nxt.kind == "stmt" and own:
+            m = lines.get(nxt.line)
+            unit = inv.unit_of(m[0]) if m is not None else None
+            if unit:
+                out.units.add(unit)
     stmts: list[tuple[int, str, bool]] = []  # (original line, verb, exact)
     for e in mine:
         if e.kind != "stmt" or (compiled_name and e.source and e.source != compiled_name):

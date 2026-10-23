@@ -298,7 +298,10 @@ def _is_ctags_synthetic_anon_name(name: str, lang: str) -> bool:
     _SYNTHETIC_GG_CLASS_NAMES) applied to ctags' equivalent. Also covers javascript's own
     "AnonymousFunction"/"AnonymousClass" placeholder scheme (_CTAGS_JS_ANON_NAME_RE above), gated
     to `lang == "javascript"` only -- see that regex's own comment for why this one CAN'T be
-    applied language-agnostically like the "__anon" check above."""
+    applied language-agnostically like the "__anon" check above.
+
+    Convention (owner, 2026-10-22, #5685): lambdas/anonymous functions are not func_start definitions
+    in any language, so these ctags entries are dropped from the reference side."""
     if _CTAGS_ANON_NAME_RE.match(name):
         return True
     return lang == "javascript" and bool(_CTAGS_JS_ANON_NAME_RE.match(name))

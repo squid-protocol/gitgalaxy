@@ -85,6 +85,7 @@ def test_the_fixtures_dbd_and_psb_become_the_configuration_both_sides_read(tmp_p
 
 
 DBD_HEAD = "         DBD     NAME=X,ACCESS=(HIDAM,VSAM)\n"
+GSAM_DBD = "         DBD     NAME=G,ACCESS=(GSAM,BSAM)\nDSG001   DATASET DD1=IN,DD2=OUT,RECORD=(100),RECFM=F\n         DBDGEN\n"
 SEGM = "         SEGM    NAME=R,PARENT=0,BYTES=10\n"
 KEY = "         FIELD   NAME=(K,SEQ,U),START=1,BYTES=2,TYPE=C\n"
 
@@ -93,7 +94,8 @@ KEY = "         FIELD   NAME=(K,SEQ,U),START=1,BYTES=2,TYPE=C\n"
     "text, why",
     [
         (DBD_HEAD.replace("HIDAM", "HDAM") + SEGM + KEY, "ACCESS=HDAM"),
-        (DBD_HEAD.replace("HIDAM,VSAM", "GSAM,BSAM") + SEGM + KEY, "ACCESS=GSAM"),
+        (DBD_HEAD.replace("HIDAM,VSAM", "GSAM,BSAM") + SEGM + KEY, "a GSAM database needs one DATASET"),
+        (GSAM_DBD.replace("RECFM=F", "RECFM=V"), "a GSAM database needs one DATASET"),
         (DBD_HEAD + SEGM.replace("BYTES=10", "BYTES=(10,4)") + KEY, "variable-length"),
         (DBD_HEAD + SEGM + KEY.replace("SEQ,U", "SEQ,M"), "non-unique sequence field"),
         (DBD_HEAD + SEGM, "no sequence field"),
@@ -115,7 +117,8 @@ GEN = "         PSBGEN  LANG=COBOL,PSBNAME=P,CMPAT=NO\n"
     [
         (PCB + GEN.replace("CMPAT=NO", "CMPAT=YES"), "CMPAT=YES"),
         ("IO       PCB     TYPE=TP,MODIFY=YES\n" + PCB + GEN, "TYPE=TP PCB"),
-        ("G        PCB     TYPE=GSAM,DBDNAME=X,PROCOPT=LS\n" + GEN, "TYPE=GSAM PCB"),
+        ("G        PCB     TYPE=GSAM,DBDNAME=X,PROCOPT=LS\n" + GEN, "GSAM DBD X is not one of"),
+        ("G        PCB     TYPE=GSAM,DBDNAME=G,PROCOPT=GO\n" + GEN, "reading a GSAM file is not"),
         (PCB.replace("KEYLEN=2", "KEYLEN=2,PROCSEQ=XIDX") + GEN, "PROCSEQ"),
         (PCB.replace("PROCOPT=A", "PROCOPT=L") + GEN, "load mode"),
         (PCB.replace("PARENT=0", "PARENT=0,PROCOPT=G") + GEN, "segment-level PROCOPT"),
@@ -125,7 +128,32 @@ GEN = "         PSBGEN  LANG=COBOL,PSBNAME=P,CMPAT=NO\n"
 def test_a_psb_the_model_does_not_model_is_refused_by_name(text, why):
     db = ei.dbd(DBD_HEAD + SEGM + KEY + "         SEGM    NAME=C,PARENT=R,BYTES=4\n" + KEY, "X.dbd")
     with pytest.raises(ei.Unsupported, match=re.escape(why)):
-        ei.psb(text, "P.psb", {"X": db})
+        ei.psb(text, "P.psb", {"X": db, "G": ei.dbd(GSAM_DBD, "G.dbd")})
+
+
+def test_a_gsam_database_and_its_load_mode_pcb_become_a_gsam_line_and_a_record_comparison():
+    """#5233: a GSAM DBD is its RECORD length; its LS PCB a `GSAM` line (no DBD / seed lines); its .out is records."""
+    g = ei.dbd(GSAM_DBD, "G.dbd")
+    assert g == {"name": "G", "gsam": 100, "segments": []}
+    x = ei.dbd(DBD_HEAD + SEGM + KEY, "X.dbd")
+    pcbs = ei.psb("G        PCB     TYPE=GSAM,DBDNAME=G,PROCOPT=LS\n" + PCB + GEN, "P.psb", {"X": x, "G": g})
+    assert [(p["dbd"], p.get("gsam")) for p in pcbs] == [("G", 100), ("X", None)]
+    dbd_cfg, psb_cfg = ei.config({"X": x, "G": g}, pcbs)
+    assert "G" not in [ln.split()[1] for ln in dbd_cfg.splitlines() if ln.startswith("DBD ")]
+    assert psb_cfg.splitlines() == ["GSAM G LS 100", "PCB X A 2"]
+    case = {"ims": {"dbd": [], "psb": ""}}
+    keep = ei.dbd_definitions
+    try:
+        ei.dbd_definitions = lambda c, corpus: {"G": g}
+        a, b = bytes([65]) * 100, bytes([66]) * 100
+        assert ei.diff_db(case, ROOT, "G", a + b, a + b) == {"records": 2, "equal": 2, "filler_differs": 0, "diffs": []}
+        d = ei.diff_db(case, ROOT, "G", a + b, a)
+        assert d["equal"] == 1 and d["diffs"] == [{"segment": 2, "cobol": b.hex(), "java": None}]
+        assert ei.diff_db(case, ROOT, "G", a, b)["diffs"] == [{"segment": 1, "cobol": a.hex(), "java": b.hex()}]
+        with pytest.raises(ei.Unsupported, match="whole number"):
+            ei.diff_db(case, ROOT, "G", a[:5], a)
+    finally:
+        ei.dbd_definitions = keep
 
 
 def test_a_pcb_not_sensitive_to_every_segment_is_refused():

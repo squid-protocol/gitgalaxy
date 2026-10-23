@@ -3155,6 +3155,13 @@ FILE_FAULT_UNMODELLED = {
     ("REWRITE", "ILLOGIC"),
 }  # X49: ends the browse
 FILE_FAULT_COMMANDS = _FILE_CMDS
+# #5168 (X61): READQ TD's IOERR ("an input/output error ... the data record in error is skipped"; IBM states no RESP2), planned on
+# an open extrapartition input queue. IBM's other READQ TD conditions follow from the queue and the call (NOTOPEN, INVREQ, QZERO,
+# LENGERR, QIDERR, DISABLED) or need a second task (QBUSY), so no plan names them (refused by name).
+TD_READ_FAULTS = ("IOERR",)
+TD_READ_COMMAND = (
+    "READQ-TD"  # not in FAULT_COMMANDS: the strengthening loop plans from that list, with a NOTAUTH it cannot give here
+)
 
 
 def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], reclen: int, enc: str) -> bytes:
@@ -3235,11 +3242,18 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
         refused_file = (
             cmd in FILE_FAULT_COMMANDS and f.get("resp") in FILE_FAULT_REFUSED
         )  # named in X49, not just unknown
-        if cmd not in FAULT_COMMANDS or (f.get("resp") not in CICS_RESP and not refused_file):
+        if (cmd not in FAULT_COMMANDS and cmd != TD_READ_COMMAND) or (
+            f.get("resp") not in CICS_RESP and not refused_file
+        ):
             raise Unsupported(
-                f"scenario {sc['name']}: fault {f} ({'/'.join(FAULT_COMMANDS)} with a CICS_RESP condition)"
+                f"scenario {sc['name']}: fault {f} ({'/'.join((*FAULT_COMMANDS, TD_READ_COMMAND))} with a CICS_RESP condition)"
             )
         resp2 = int(f.get("resp2", 0))
+        if cmd == TD_READ_COMMAND and (f["resp"] not in TD_READ_FAULTS or resp2):
+            raise Unsupported(
+                f"scenario {sc['name']}: fault {f}: READQ TD is planned with {'/'.join(TD_READ_FAULTS)} and no RESP2 only "
+                "(IBM states none; the other conditions follow from the queue, register X61, refused)"
+            )
         if cmd in FILE_FAULT_COMMANDS:
             resp2 = _file_fault_resp2(sc, f, cmd, resp2)
         elif f["resp"] in ("DUPKEY", "DUPREC"):  # #4623: the duplicate-key pair is a file condition only

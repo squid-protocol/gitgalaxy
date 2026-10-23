@@ -6,10 +6,13 @@ runs the installed `gitgalaxy assess` on a small planted estate and asserts the 
 the expected counts, a copybook gap, no planted source text, and the estate left untouched. Network is cut by proxy
 variables pointing at a dead port on top of `--no-index` (assess also blocks sockets itself).
 
-    python scripts/check_assess_install.py [--wheel-dir DIR] [--wheelhouse DIR] [--keep]
+    python scripts/check_assess_install.py [--wheel-dir DIR] [--wheelhouse DIR] [--estates CORPORA] [--keep]
 
 --wheelhouse DIR installs the `translator` extra from local wheels (`pip wheel "gitgalaxy[translator]" -w DIR`), which
 turns the translate-only dry run on; without it the dry run is skipped with its notice, and that is asserted instead.
+--estates CORPORA also runs the installed command, plain and redacted, on each of the six burned estates under CORPORA
+(`.mainframe_corpora`): exit 0, schema-valid report, programs found, labels under --redact, and no program name in the
+redacted report. A missing estate directory is a failure, not a skip.
 Exit 0 = pass, 1 = a failed assertion, 2 = the build or install itself failed.
 """
 
@@ -28,6 +31,18 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 MARK = "ZQXINSTALL"
 NOTICE = "translate-only dry run skipped: pip install gitgalaxy[translator]"
+BURNED = (  # estate4_draw.BURNED_NAMES, as their corpus directories
+    "aws-mainframe-modernization-carddemo",
+    "cics-banking-sample-application-cbsa",
+    "cics-genapp",
+    "zecs",
+    "dbb-mortgage-application",
+    "cics-async-api-credit-card-application-example",
+)
+VALIDATE = (
+    "import json,sys;from gitgalaxy.tools.readiness import schema;"
+    "e=schema.validate(json.load(open(sys.argv[1])));print(e);sys.exit(bool(e))"
+)
 PROGRAMS = {
     "BATCH1.cbl": (
         "       IDENTIFICATION DIVISION.\n"
@@ -59,7 +74,11 @@ def run(cmd: list[str], cwd: Path, env: dict[str, str]) -> subprocess.CompletedP
 
 
 def fingerprint(root: Path) -> dict[str, str]:
-    return {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.rglob("*"))}
+    return {
+        str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest()
+        for p in sorted(root.rglob("*"))
+        if p.is_file()
+    }
 
 
 def check(cond: bool, msg: str, failures: list[str]) -> None:
@@ -68,10 +87,46 @@ def check(cond: bool, msg: str, failures: list[str]) -> None:
         failures.append(msg)
 
 
+def check_burned(
+    estate: Path, py: str, exe: str, work: Path, env: dict[str, str], translated: bool, failures: list[str]
+) -> None:
+    """The installed command on one burned estate, plain and redacted."""
+    if not estate.is_dir():
+        check(False, f"{estate.name}: the estate directory exists", failures)
+        return
+    before = fingerprint(estate)
+    stems = {p.stem.upper() for p in estate.rglob("*") if p.suffix.lower() in (".cbl", ".cob", ".cobol")}
+    for flag in ("", "--redact"):
+        out = work / f"{estate.name}{flag}.json"
+        res = run([exe, "assess", str(estate), "--out", str(out), *([flag] if flag else [])], work, env)
+        tag = f"{estate.name} {flag or 'plain'}"
+        check(res.returncode == 0, f"{tag}: exits 0 (got {res.returncode})", failures)
+        if not out.exists():
+            check(False, f"{tag}: the report was written", failures)
+            continue
+        text = out.read_text(encoding="utf-8")
+        report = json.loads(text)
+        valid = run([py, "-I", "-c", VALIDATE, str(out)], work, env)
+        check(valid.returncode == 0, f"{tag}: schema.validate accepts it {valid.stdout.strip()}", failures)
+        check(report["totals"]["programs"] > 0, f"{tag}: {report['totals']['programs']} programs", failures)
+        check(("translation" in report["totals"]) == translated, f"{tag}: dry run present == {translated}", failures)
+        if flag:
+            check(all(p["name"].startswith("P-") for p in report["programs"]), f"{tag}: names are labels", failures)
+            check(
+                not any(f'"{stem}"' in text.upper() for stem in stems),
+                f"{tag}: no program name in the report",
+                failures,
+            )
+    check(fingerprint(estate) == before, f"{estate.name}: the estate is unchanged", failures)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--wheel-dir", type=Path, help="reuse the gitgalaxy wheel in this directory instead of building")
     ap.add_argument("--wheelhouse", type=Path, help="local wheels for the translator extra (installs it)")
+    ap.add_argument(
+        "--estates", type=Path, help="corpora root: also assess each burned estate with the installed command"
+    )
     ap.add_argument("--keep", action="store_true", help="keep the work directory and print its path")
     args = ap.parse_args()
 
@@ -142,10 +197,7 @@ def main() -> int:
                     py,
                     "-I",
                     "-c",
-                    (
-                        "import json,sys;from gitgalaxy.tools.readiness import schema;"
-                        "e=schema.validate(json.load(open(sys.argv[1])));print(e);sys.exit(bool(e))"
-                    ),
+                    VALIDATE,
                     str(out),
                 ],
                 work,
@@ -184,6 +236,9 @@ def main() -> int:
             failures,
         )
         check(fingerprint(estate) == before, "the estate is unchanged", failures)
+
+        for name in BURNED if args.estates else ():
+            check_burned(args.estates / name, py, exe, work, env, bool(args.wheelhouse), failures)
 
         if failures:
             print(f"\n{len(failures)} check(s) failed; stderr tail:\n{res.stderr[-1500:]}")

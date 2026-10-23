@@ -166,7 +166,7 @@ def prior_files(issue: str, repo: Path = REPO_ROOT) -> list[str]:
                 "git",
                 "log",
                 "origin/main",
-                f"--grep=#{issue}\\b",
+                f"--grep=#{issue}([^0-9]|$)",  # POSIX ERE has no \\b (macOS)
                 "-E",
                 f"-n{PRIOR_COMMITS}",
                 "--name-only",

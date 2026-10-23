@@ -8,8 +8,11 @@ it, because ``smoke-test.yml`` replaces ``addopts`` with its own ``-m`` and woul
 The unmarked tests at the bottom are fast and always run.
 """
 
+import ast
+import fnmatch
 import json
 import os
+import re
 import shutil
 import sqlite3
 import sys
@@ -50,6 +53,37 @@ def test_port_matches_golden(row, request):
 def test_every_manifest_port_has_a_golden_and_no_other_does():
     on_disk = {p.name.removesuffix(".json.gz") for p in check.GOLDEN_DIR.glob("*.json.gz")}
     assert on_disk == set(NAMES)
+
+
+TOOLS = Path(__file__).resolve().parents[1] / "tools"
+WORKFLOW = Path(__file__).resolve().parents[2] / ".github" / "workflows" / "doom-rosetta.yml"
+
+
+def _reached_tool_modules():
+    """Every tests/tools module this file reaches through imports, lazy (in-function) ones included, as repo paths."""
+    seen, todo = set(), [Path(__file__).resolve()]
+    while todo:
+        tree = ast.parse(todo.pop().read_text())
+        names = {a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names}
+        names |= {n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module and not n.level}
+        for name in names:
+            for d in (TOOLS, TOOLS / "doom_speedrun"):
+                path = d / f"{name}.py"
+                if path.is_file() and path not in seen:
+                    seen.add(path)
+                    todo.append(path)
+    return {p.relative_to(WORKFLOW.parents[2]).as_posix() for p in seen}
+
+
+def test_workflow_paths_cover_the_check_imports():
+    # doom-rosetta.yml lists the check's own tool modules, not all of tests/tools/doom_speedrun/: a module the check
+    # imports that the list misses would let a PR change it without running the check
+    block = WORKFLOW.read_text().split("    paths:\n", 1)[1].split("  schedule:", 1)[0]
+    globs = [g for g in re.findall(r'^\s+- "([^"]+)"', block, re.M) if not g.startswith("!")]
+    reached = _reached_tool_modules()
+    assert {"tests/tools/doom_rosetta_check.py", "tests/tools/doom_speedrun/doom_scorer.py"} <= reached
+    missing = sorted(p for p in reached if not any(fnmatch.fnmatch(p, g) for g in globs))
+    assert not missing, f"add to doom-rosetta.yml's pull_request paths: {missing}"
 
 
 def test_manifest_expected_fails_are_known_checks():

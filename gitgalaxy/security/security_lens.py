@@ -590,6 +590,12 @@ class SecurityLens:
             key: derive_literal_gate(regex, prefer_selective=True) for key, regex in self.HIDDEN_TEXT_SIGNATURES.items()
         }
 
+    def restrict_signatures(self, keys: tuple[str, ...]) -> None:
+        """Scan only the main signatures in `keys` (#5500). `scan_content` walks `_scan_plan`, built
+        at construction, so assigning a narrower `THREAT_SIGNATURES` afterwards changes nothing."""
+        self.THREAT_SIGNATURES = {key: self.THREAT_SIGNATURES[key] for key in keys}
+        self._scan_plan = [(key, regex, False) for key, regex in self.THREAT_SIGNATURES.items()]
+
     def _calculate_shannon_entropy(self, data: str) -> float:
         """
         Calculates the Shannon Entropy of a string to identify base64/encrypted blobs.

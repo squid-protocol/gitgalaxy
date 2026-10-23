@@ -48,7 +48,9 @@ BASE_DIRS = ("linuxdoom-1.10/", "sndserv/", "ipx/", "sersrc/")
 # Licensed ports of the manifest that are not C/C++ (the C/C++ ones are callgraph_oracle.LICENSED); licenses read
 # from the repo files. A port in neither set is never run, reported or committed by this tool.
 LICENSED = callgraph_oracle.LICENSED | frozenset(
-    "room4doom gore managed-doom mochadoom rust-doom doom-ios freedoom helion".split()
+    "room4doom gore managed-doom mochadoom rust-doom doom-ios freedoom helion "
+    "sqldoom doomf77 doom-scheme dartdoom doo-cr kocoa-doom fsharp-doom cssdoom doom-fx fps-cob "
+    "agentic-cobol-doom-cc agentic-cobol-doom-codex mood".split()
 )
 MIN_TOKENS = 20  # trivial bodies (empty stubs, one-line returns) hash-match spuriously
 NEAR, DERIVED = 0.9, 0.6

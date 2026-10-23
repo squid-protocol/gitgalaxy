@@ -269,3 +269,26 @@ def test_a_case_touch_in_a_real_branch_fails_the_ratchet_and_an_untouched_one_do
     out = capsys.readouterr().out
     assert "a: stale (case)" in out and "b: stale" not in out and "refresh a --work DIR" in out
     assert dm.stale_check() == 1  # no ref: every ledger; "b" is in step, "a" is not
+
+
+def test_updacc_typed_dto_entry_scenarios_and_no_open_case_gap():
+    """#4049: UPDACC's typed-DTO entry is driven by dto_entry scenarios (the link-area bytes hide an in_ defect), the
+    failing run carries every caller field, and no survivor of the case is left a case-gap."""
+    import json
+
+    root = dm.CASES / "cbsa-updacc"
+    scenarios = {s["name"]: s for s in json.loads((root / "case.json").read_text())["scenarios"]}
+    dto = [n for n, s in scenarios.items() if s.get("dto_entry")]
+    assert len(dto) >= 6 and all(n.startswith("dto-entry-") for n in dto)
+    kept = scenarios["dto-entry-caller-fields-kept-on-failure"]["commarea"]
+    for field in (
+        "COMM-CUSTNO",
+        "COMM-OPENED",
+        "COMM-LAST-STMT-DT",
+        "COMM-NEXT-STMT-DT",
+        "COMM-AVAIL-BAL",
+        "COMM-ACTUAL-BAL",
+    ):
+        assert kept[field] not in ("", "0")
+    survivors = json.loads((dm.CASES / "det_mutation_survivors" / "cbsa-updacc.json").read_text())["survivors"]
+    assert "case-gap" not in {s["verdict"] for s in survivors}

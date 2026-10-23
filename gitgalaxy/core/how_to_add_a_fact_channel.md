@@ -141,9 +141,10 @@ dialect that predates the channel is not a missing-key error. It then propagates
 The master DB is the machine-readable store; two human/LLM-facing reports also carry the fact,
 each rendering **nothing** for a file that has none (so a non-mainframe scan is unchanged):
 
-- **Full audit report (`audit_recorder.py`)** — the VERBOSE forensic JSON. Add a
-  `_<name>_facts_block(file_data)` returning the FULL detail (every item/edge, mirroring the DB
-  table) and attach it as a numbered per-file key only when non-empty. **This is the golden-master
+- **Full audit report (`audit_recorder.py`)** — the VERBOSE forensic JSON. Add one `AuditSection`
+  to `AUDIT_SECTIONS` (payload key, report label, columns as `(label, key)` pairs, `_when(...)` for
+  keys a row carries only when set; `_mainframe_facts_block` iterates the table, #3383) with the FULL
+  detail (every item/edge, mirroring the DB table); it is attached only when non-empty. **This is the golden-master
   source (`data_galaxy_audit.json`)** — see invariant #2: adding it here DOES move the golden
   master for any mainframe file in the crucible corpus, so re-bless (`crucible_check.py --update`).
 - **LLM brief (`llm_recorder.py`)** — the TOKEN-OPTIMIZED markdown. Add a presence-keyed

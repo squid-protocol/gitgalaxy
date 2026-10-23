@@ -846,7 +846,11 @@ caller-value-longer-than-the-field scenario (kills: see the table); a link area 
 stated (register X10), so the `beyond` mutants are `harness-gap`. ACCTCTRL and UPDACC (Db2) are triaged the same way (#5863 slice 3):
 ACCTCTRL gained 7 scenarios (165 -> 184 killed) and 228 of its 308 survivors are stated (160 equivalent, 68 unreachable), 45 open
 `case-gap` and 35 open `harness-gap`; UPDACC gained 3 scenarios (293 -> 304 killed) and 256 of its 384 survivors are stated (181
-equivalent, 75 unreachable), 77 open `case-gap` and 51 open `harness-gap`. Its no-COMMAREA and short-EIBCALEN scenarios are left out: they
+equivalent, 75 unreachable), 77 open `case-gap` and 51 open `harness-gap`. #4049 then gave it six `dto-entry-*` scenarios (the typed
+DTO alone, so the link-area bytes cannot overwrite what `in_` maps; one is a failing run whose caller fields are all non-zero): 304 -> 394
+killed, every `case-gap` closed (63 of the 77 killed or restated, 9 stated equivalent: a width or null test on a field the program
+overwrites, `COMM-SCODE` and `COMM-SUCCESS`), and 29 open `harness-gap`. A scenario with EIBCALEN 98 was tried and the java-facade side
+refuses it, so the `caWhole` mutants are `harness-gap` too. Its no-COMMAREA and short-EIBCALEN scenarios are left out: they
 fail the java-facade side of the proof, so the cut-COMMAREA path stays a `case-gap`. The open ones are the typed-DTO `in_` / `fill_` paths (the
 harness replaces the DTO with the link-area bytes), the `byte[]` COMMAREA entry, `handleLink(request, area)` (no caller LINKs with
 LENGTH) and `beyond` (X10).
@@ -856,7 +860,7 @@ LENGTH) and `beyond` (X10).
 | GETCOMPY (cbsa-getcompy) | 220/220 | 60 | 146 | 14 | 127 | 19 | 60/206 (29%) | no |
 | GETSCODE (cbsa-getscode) | 227/227 | 67 | 146 | 14 | 127 | 19 | 67/213 (31%) | no |
 | ACCTCTRL (cbsa-acctctrl) | 517/517 | 203 | 289 | 25 | 268 | 21 | 203/492 (41%) | no |
-| UPDACC (cbsa-updacc) | 713/713 | 304 | 384 | 25 | 256 | 128 | 304/688 (44%) | no |
+| UPDACC (cbsa-updacc) | 713/713 | 394 | 294 | 25 | 265 | 29 | 394/688 (57%) | no |
 
 **#5863 slice 4 (GETCOMPY, typed-DTO entry):** a scenario may state `"dto_entry": true`: the port is given the typed DTO alone, without the link-area bytes that otherwise overwrite every field `in_` maps, and a LINKed port that took the bytes now has the DTO it gave back compared beside them (`commarea.dto.<field>` in `compare_events`). GETCOMPY gained two such scenarios (55 -> 60 killed: the five `fill_` mutants of the DTO write-back). The `in_` mutants still survive and are now stated `equivalent`: the program's one MOVE overwrites the whole field `in_` fills. 19 stay open, all on the `byte[]` COMMAREA entry, `handleLink(request, area)` and `beyond` (X10). ACCTCTRL took the same 10 scenarios in #5863 slice 6 (184 -> 203 killed; 268 of 289 survivors stated, 15 open `case-gap`, 6 open `harness-gap`). UPDACC takes them in the next slice.
 

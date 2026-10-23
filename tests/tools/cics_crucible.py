@@ -200,7 +200,10 @@ COBOL_CAPS = cc.Capabilities(
         "LINK": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "XCTL": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
-        "READ": frozenset({"file", "ridfld", "resp"}),
+        # #4443 A0b: what ggcics_filecontrol.c's read_event / unlock_event and ggcics.c's rewrite_event record
+        "READ": frozenset({"file", "ridfld", "update", "resp", "resp2", "length", "data"}),
+        "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
+        "UNLOCK": frozenset({"file", "resp", "resp2"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
@@ -2283,9 +2286,19 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             ev.update(target=arg("target"), length=int(arg("len") or 0),
                       commarea=cc.RawArea(data, "latin-1") if arg("area") == "1" else None, resp=resp,
                       resp2=int(arg("resp2") or 0) if resp != "NORMAL" else None)  # fmt: skip
-        elif verb == "READ":
-            ev.update(file=arg("file"), ridfld=arg("key").encode(cc.EBCDIC),
-                      resp=names.get(int(arg("resp") or 0), arg("resp")))  # fmt: skip
+        elif verb in ("READ", "REWRITE", "UNLOCK"):  # #4443 A0b: SPEC 6.2 keys only where the command carries them
+            ev.update(file=arg("file"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+            if verb == "READ":
+                ev["ridfld"] = arg("key").encode(cc.EBCDIC)
+                if arg("upd"):
+                    ev["update"] = True
+                if arg("len"):
+                    ev["length"] = int(arg("len"))
+                ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] == "NORMAL" else None
+            elif verb == "REWRITE":
+                ev["data"] = cc.RawArea(data, "latin-1")
+            if arg("resp2") and not (verb == "READ" and ev["resp"] == "LENGERR"):  # SPEC section 2 asserts LENGERR's RESP only
+                ev["resp2"] = int(arg("resp2"))
         elif verb in ("RETURN", "END"):
             level = int(arg("level") or 1)
             ev = {"event": "RETURN", "program": issuer, "level": level}

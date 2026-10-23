@@ -12,6 +12,7 @@
 # know is refused by name, so a new estate file cannot record an option nothing has judged. The text of every row is
 # rendered into docs/language_status/register/C18.md; tests/cobol_mainframe/test_runtime_option_table.py pins it.
 # ==============================================================================
+import re
 from typing import Any
 
 # kind "value": compared upper case against `honoured`; kind "ccsid": honoured for the default CCSIDs or the CCSID of
@@ -28,6 +29,12 @@ RUNTIME_OPTION_TABLE: dict[str, dict[str, Any]] = {
     "le.runtime_options.ABTERMENC": {"kind": "value", "default": "ABEND", "honoured": ("ABEND",), "policy": "refuse",
         "reason": "ABTERMENC(RETCODE) ends an unhandled condition with a return code instead of an abend; the "
                   "harness compares the abend"},
+    "le.source.CEEOPTS": {"kind": "value", "default": "", "honoured": None, "policy": None,
+        "reason": "the CEEOPTS member is only a carrier: what it sets is read into the le.runtime_options rows, each judged"},
+    "le.source.CEEUOPT": {"kind": "value", "default": "", "honoured": None, "policy": None,
+        "reason": "the CEEUOPT module is only a carrier: what it sets is read into the le.runtime_options rows, each judged"},
+    "le.source.CEEDOPT": {"kind": "value", "default": "", "honoured": None, "policy": None,
+        "reason": "the CEEDOPT installation default is only a carrier: what it sets is read into the le.runtime_options rows, each judged"},
     "db2.format.DATE": {"kind": "value", "default": "ISO", "honoured": ("ISO",), "policy": "refuse",
         "reason": "DATE(USA|EUR|JIS|LOCAL) changes the string of every date a program fetches or compares; the Db2 "
                   "cases run in ISO"},
@@ -81,6 +88,49 @@ RUNTIME_OPTION_TABLE: dict[str, dict[str, Any]] = {
 }  # fmt: skip
 
 
+# #4707: the CICS translator options, judged one by one (the options file records them as one string). policy None: the
+# option changes the listing or the build, not the generated code a run executes; "refuse": it changes the generated
+# code or data layout, which the harness does not model. A token with no row is refused by name.
+TRANSLATOR_OPTIONS: dict[str, dict[str, Any]] = {
+    "CICS": {"policy": None, "reason": "selects the translator's CICS command set; the default for a CICS program"},
+    "SP": {"policy": None, "reason": "the system-programming command set is read from the source it was given"},
+    "EDF": {"policy": None, "reason": "EDF only adds debugging-transaction hooks around each command"},
+    "NOEDF": {"policy": None, "reason": "NOEDF removes the debugging-transaction hooks; no result depends on them"},
+    "DEBUG": {"policy": None, "reason": "DEBUG only adds debugging-tool hooks"},
+    "NODEBUG": {"policy": None, "reason": "NODEBUG removes debugging-tool hooks"},
+    "FLAG": {"policy": None, "reason": "FLAG chooses which translator messages are listed"},
+    "SOURCE": {"policy": None, "reason": "a listing option"},
+    "NOSOURCE": {"policy": None, "reason": "a listing option"},
+    "XREF": {"policy": None, "reason": "a listing option"},
+    "NOXREF": {"policy": None, "reason": "a listing option"},
+    "APOST": {"policy": None, "reason": "the delimiter the translator writes into its own generated text"},
+    "QUOTE": {"policy": None, "reason": "the delimiter the translator writes into its own generated text"},
+    "CPSM": {"policy": None, "reason": "adds the CICSPlex SM command set"},
+    "COBOL2": {"policy": "refuse", "reason": "COBOL2 changes the layout of the generated working storage; not modelled"},
+    "COBOL3": {"policy": "refuse", "reason": "COBOL3 changes the layout of the generated working storage; not modelled"},
+    "GRAPHIC": {"policy": "refuse", "reason": "GRAPHIC changes how DBCS literals in commands are read; not modelled"},
+    "NATLANG": {"policy": "refuse", "reason": "NATLANG changes the language of messages the generated code issues; not modelled"},
+}  # fmt: skip
+TRANSLATOR_OPTION = "cics.translator.options"
+_TOKEN = re.compile(r"[A-Za-z][A-Za-z0-9]*")
+
+
+def translator_tokens(value: Any) -> list[str]:
+    """The upper-case option tokens of a recorded translator value (`CICS('SP,EDF') via the CBL card` is CICS, SP, EDF):
+    the text before a ' via ' note, a token being letters and digits."""
+    text = str(value if value is not None else "").split(" via ", 1)[0]
+    return [t.upper() for t in _TOKEN.findall(text)]
+
+
+def translator_rows() -> list[str]:
+    """The TRANSLATOR_OPTIONS rows as the markdown table lines register C18 holds (tests pin the page to them)."""
+    return [
+        f"| `cics.translator.{key}` | {'no' if r['policy'] is None else 'yes'}: {r['reason']} | "
+        f"{'recorded only' if r['policy'] is None else 'refused by name'} |"
+        for key, r in TRANSLATOR_OPTIONS.items()
+    ]
+
+
 # #4707: which burned estates exercise each judged option (policy refuse or declare): the corpora whose source holds the
 # construct the row says the option changes. An empty list says no burned program depends on the assumed value, so a
 # refusal there protects a customer's estate only. The test greps the corpora for each pattern (STORAGE rests on
@@ -111,6 +161,17 @@ def _state(value: Any) -> str:
     return str(value if value is not None else "").strip().upper()
 
 
+def _translator_hits(path: str, value: Any, source: str | None) -> list[dict[str, Any]]:
+    hits = []
+    for token in translator_tokens(value):
+        row = TRANSLATOR_OPTIONS.get(token)
+        if row is None or row["policy"]:
+            why = row["reason"] if row else "no row in the translator option table"
+            hits.append({"option": path, "declared": token, "policy": "refuse", "applied": None, "source": source,
+                         "note": f"{path}={value}: {token}: {why} (#4707)"})  # fmt: skip
+    return hits
+
+
 def runtime_unhonoured(
     runtime: dict[str, dict[str, Any]],
     sources: dict[str, str] | None = None,
@@ -132,6 +193,8 @@ def runtime_unhonoured(
                 continue
             if row["kind"] == "ccsid":
                 state = state.lstrip("0")  # 037 is 37
+            if path == TRANSLATOR_OPTION:
+                out.extend(_translator_hits(path, value, (sources or {}).get(path)))
             if row["policy"] is None or state in row["honoured"] or (row["kind"] == "ccsid" and state == code_page):
                 continue
             out.append({"option": path, "declared": state, "policy": row["policy"], "source": (sources or {}).get(path),

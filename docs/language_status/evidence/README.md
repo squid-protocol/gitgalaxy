@@ -13,7 +13,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COCRDSLC](carddemo-cardview.md) | carddemo-cardview | cics | proven, unapproved |  | 25 | 30/30 / 69/75 | 60/91 / 60/65 | 0 | - |
 | [CBPAUP0C](carddemo-cbpaup0c.md) | carddemo-cbpaup0c | batch | proven, unapproved |  | 12 | 15/16 / 37/40 | - | 0 | - |
 | [CBSTM03A](carddemo-cbstm03a.md) | carddemo-cbstm03a | batch | proven, unapproved |  | 1 | 24/25 / 0/46 | - | 0 | - |
-| [COPAUA0C](carddemo-copaua0c.md) | carddemo-copaua0c | cics | proven, unapproved |  | 20 | 41/41 / 60/69 | - | 0 | - |
+| [COPAUA0C](carddemo-copaua0c.md) | carddemo-copaua0c | cics | proven, unapproved |  | 22 | 41/41 / 62/69 | - | 0 | - |
 | [CBTRN01C](carddemo-dailyval.md) | carddemo-dailyval | batch | proven, unapproved |  | 21 | 18/18 / 65/66 | 63/96 / 63/71 | 0 | - |
 | [CSUTLDTC](carddemo-dateutil.md) | carddemo-dateutil | call | proven, unapproved |  | 1 | 2/2 / 4/10 | 145/195 / 145/145 | 0 | - |
 | [CBACT04C](carddemo-intcalc.md) | carddemo-intcalc | batch | proven, unapproved |  | 20 | 22/22 / 85/86 | 70/86 / 70/77 | 0 | - |

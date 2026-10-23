@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.det import cics_conditions as CN  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_containers as CC  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as CF  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_taskcontrol as CT  # noqa: E402
@@ -679,7 +680,7 @@ def test_options_honoured_without_code_say_why():
     whose having no effect the table states."""
     src = Path(C.__file__).read_text(encoding="utf-8")
     code = src[src.index("def command_key") :]
-    for family in (CC, CF, CT):  # #5274: the command families split out of det/cics.py
+    for family in (CC, CF, CT, CN):  # #5274: the command families split out of det/cics.py
         code += Path(family.__file__).read_text(encoding="utf-8")
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
               "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",

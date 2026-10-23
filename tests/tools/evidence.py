@@ -890,7 +890,8 @@ def mutation_section(t: Target, existing_mutation: dict[str, Any] | None = None)
         "killed": tot["killed"],
         "survived": tot["survived"],
         "stillborn": tot["stillborn"],
-        "survivors": {k: tot.get(k, 0) for k in ("case_gap", "harness_gap", "equivalent", "unreachable", "untriaged")},
+        "survivors": {k: tot.get(k, 0) for k in ("case_gap", "harness_gap", "equivalent", "unreachable", "untriaged")}
+        | ({"declared_difference": tot["declared_difference"]} if tot.get("declared_difference") else {}),  # #5401
         "score_raw": _score(tot["killed"], judged),
         "score_adjusted": _score(tot["killed"], judged - tot.get("equivalent", 0) - tot.get("unreachable", 0)),
         "source": f"docs/language_status/mutation_scores.json#{case_key}/{t.program}",
@@ -1081,7 +1082,8 @@ def claim(rec: dict[str, Any], st: dict[str, Any]) -> str:
         note = st["sections"].get("mutation", "")
         parts.append(f"Mutation score **{m['score_raw']} raw, {m['score_adjusted']} adjusted** ({m['survived']} "
                      f"survivors: {s['case_gap']} case gaps, {s['harness_gap']} harness gaps, {s['equivalent']} "
-                     f"equivalent, {s['unreachable']} unreachable, {s['untriaged']} untriaged)"
+                     f"equivalent, {s['unreachable']} unreachable, {s['untriaged']} untriaged"
+                     + (f", {s['declared_difference']} declared difference" if s.get("declared_difference") else "") + ")"
                      + (f" -- **{note}**" if note.startswith("stale") else "") + ".")  # fmt: skip
     fc = p.get("facade")
     if fc:

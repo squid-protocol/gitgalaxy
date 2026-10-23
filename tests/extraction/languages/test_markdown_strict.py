@@ -111,6 +111,22 @@ def test_markdown_lit_code_blocks_formatting_and_indentation_regression():
     )
 
 
+def test_markdown_lit_code_blocks_tilde_fences_4108():
+    """A tilde fence opens and closes a code block like a backtick fence; 2 tildes and 4-space indents do not."""
+    pattern = MARKDOWN_RULES["lit_code_blocks"]
+
+    assert len(pattern.findall("~~~python\nprint(1)\n~~~\n")) == 2
+    assert len(pattern.findall("~~~~\ncode\n~~~~\n")) == 2
+    assert pattern.search("   ~~~ js")
+    assert pattern.search("~~~ `ticks` allowed in a tilde info string")
+    assert len(pattern.findall("```a\nx\n```\n~~~b\ny\n~~~\n")) == 4
+
+    assert not pattern.search("~~not a fence\n")
+    assert not pattern.search("    ~~~python\nindented\n    ~~~")
+    assert not pattern.search("text ~~~ inline")
+    assert not pattern.search("``` `ticks` not allowed in a backtick info string")
+
+
 def test_markdown_lit_diagrams_case_insensitivity_and_indentation_regression():
     """
     Regression test for `lit_diagrams`:
@@ -206,6 +222,7 @@ def test_markdown_redos_immunity():
     assert_redos_immune(MARKDOWN_RULES["lit_links"], "[" * 20000, timeout_sec=3.0)
     assert_redos_immune(MARKDOWN_RULES["lit_links"], "[link](" * 20000, timeout_sec=3.0)
     assert_redos_immune(MARKDOWN_RULES["lit_code_blocks"], "`" * 20000, timeout_sec=3.0)
+    assert_redos_immune(MARKDOWN_RULES["lit_code_blocks"], "~" * 20000, timeout_sec=3.0)
     assert_redos_immune(MARKDOWN_RULES["lit_diagrams"], "`" * 20000, timeout_sec=3.0)
     assert_redos_immune(MARKDOWN_RULES["lit_headers"], "#" * 20000, timeout_sec=3.0)
 

@@ -202,7 +202,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | I2 | IMS | twins and qualifications compare the field's stored bytes; a C / X key's order is the data page's (ASCII on both sides), not EBCDIC's; a P qualification only where packed and logical comparison agree | DIFFERS | no (CardDemo's keys are packed and binary bytes, the same in both pages) |
 | I3 | IMS | position and parentage kept per PCB as IBM describes them; after a call whose position IBM leaves to IMS's search, the next call that needs it is refused | ASSUMED | yes (PAUDBUNL: GN after GNP's GE) |
 | I4 | IMS | DBD name, level, status, PROCOPT, segment name, key feedback length, sensitive segments, key feedback as IBM lays them out; what IMS leaves there at entry and after GE / II assumed | ASSUMED | yes (PAUDBUNL tests PAUT-PCB-STATUS; its key feedback is only DISPLAYed on a path no scenario takes) |
-| I5 | IMS | EXEC DLI beyond SCHD / TERM / GU / GN / GNP / ISRT / REPL / DLET and a BMP's CHKP ID, MPP programs, a GSAM PCB that reads, other calls (XRST, ROLB, CHKP with an option but ID, ...), command codes but F / L / P / -, the # (independent AND) operator, AIBTDLI / CEETDLI, HDAM order, secondary indexes, logical relationships, load mode on a DB PCB | REFUSED | — |
+| I5 | IMS | EXEC DLI beyond SCHD / TERM / GU / GN / GNP / ISRT / REPL / DLET and a BMP's CHKP ID, MPP programs, a GSAM PCB that reads, other calls (XRST, ROLB, CHKP with an option but ID, ...), command codes but F / L / P / C / -, the # (independent AND) operator, AIBTDLI / CEETDLI, HDAM order, secondary indexes, logical relationships, load mode on a DB PCB | REFUSED | — |
 | I6 | IMS | an HD reorganization unload (DFSURGU0) read by the record layout observed in CardDemo's; the segment counts its trailer records must match what was read | ASSUMED | yes (carddemo-paudbunl: 22 roots, 202 children) |
 | W1 | MQ | CMQV / CMQODV / CMQMDV / CMQGMOV / CMQPMOV / CMQTML: stand-ins from IBM's docs, version-1 layouts, only the constants the model gives meaning to | ASSUMED | yes (carddemo-codate01, #4892) |
 | W2 | MQ | MQGMO_WAIT on an empty queue: 2033 at once (no concurrent producer); MQWI_UNLIMITED refused | ASSUMED | yes (carddemo-codate01, #4892) |
@@ -4955,6 +4955,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     the retrieved segment. ASSUMPTION (no IBM text quoted; written from memory of IBM's description): `P` on a GN /
     GNP (where parentage is already set) and on an ISRT is not modelled; it is refused, not guessed. The proof is
     `DLICMD` (Q11-Q24), expected output written from the description before either runtime ran it.
+  - Command code `C` (#5233): `SEG*C(key)` names a segment by its concatenated key, the sequence-field values from the root
+    down to that segment (the sum of those key lengths, no field name or operator). Modelled on a GU / GHU as the only SSA:
+    both runtimes read it as one SSA per level qualified EQ on that level's key, so position, parentage, feedback and GE are
+    those of the ordinary path call. Refused by name: C on a GN / GNP / ISRT, C beside another SSA, C with L; a C with no
+    parentheses is AJ. ASSUMPTION (no IBM text quoted; written from memory of IBM's description): C beside other SSAs and
+    a key that does not end at its `)` (IMS answers a status for a short key) are not modelled. The proof is `DLICMD`
+    (Q25-Q29), expected output written from the description before either runtime ran it.
   - ASSUMPTION (#5233, no IBM text cited): a qualified GNP that finds nothing answers GE with the parent's feedback and
     parentage kept; position is open (I3), so the next GN / GNP is refused by name, as after a GU's GE. Whether a
     qualified GN answers GE or GB stays unsettled (I3), and is still refused.

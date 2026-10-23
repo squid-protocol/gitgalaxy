@@ -1898,6 +1898,8 @@ _CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS: dict[str, frozenset[str]] = {
         {"def", "function", "class", "using", "catch", "sizeof", "alignof", "decltype", "include", "require"}
         | {"require_once", "include_once", "except", "finally", "typeof"}
     ),
+    # #6266: java has no `sizeof`; `filelump_t.sizeof()` is a static method call (mochadoom)
+    "java": frozenset({"def", "function", "using", "sizeof", "alignof", "decltype", "include", "require", "typeof"}),
 }
 
 # #5634: a rust macro invocation `name!(..)` is not a call of a function `name`. Its qualifier carries

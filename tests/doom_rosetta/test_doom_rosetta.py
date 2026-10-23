@@ -163,6 +163,41 @@ def test_ts_oracle_scores_each_covered_language(lang, tmp_path):
     assert (cols["callgraph_misses"], cols["callgraph_engine_only"], ok) == (0, 1, False), cols
 
 
+def test_ts_oracle_scores_a_bound_function_expression_as_its_own_unit(tmp_path):
+    """#6266: ``window.f = () => {..}`` and ``const f = () => ..`` are functions the engine names; their calls are not the
+    enclosing function's. An anonymous callback argument stays in the enclosing function."""
+    pytest.importorskip("tree_sitter_language_pack")
+    import ts_callgraph_oracle as ts
+
+    if not ts.available("javascript"):
+        pytest.skip("tree-sitter language pack has no javascript grammar")
+    src = (
+        "function g() {}\nfunction h() {}\nfunction k() {}\n"
+        "function f() {\n  window.a = () => {\n    g();\n  };\n  const b = function () { h(); };\n"
+        "  [1].forEach(() => { k(); });\n}\n"
+    )
+    (tmp_path / "a.js").write_text(src)
+    rows = [("a.js", "javascript", n, i + 1, []) for i, n in enumerate("ghk")]
+    rows += [("a.js", "javascript", "f", 4, ["k"]), ("a.js", "javascript", "a", 5, ["g"]), ("a.js", "javascript", "b", 8, ["h"])]
+    res = ts.body_oracle(tmp_path, rows)
+    assert (res["misses_by_shape"], res["engine_only_by_kind"], res["unmatched_functions"]) == ({}, {}, 0), res
+
+
+def test_ts_oracle_reads_a_csharp_builtin_type_name_as_a_reference_not_an_absent_edge(tmp_path):
+    """#6266: ``new string(..)`` beside a user ``operator string`` names the type in the body: reported, never ``absent``."""
+    pytest.importorskip("tree_sitter_language_pack")
+    import ts_callgraph_oracle as ts
+
+    if not ts.available("csharp"):
+        pytest.skip("tree-sitter language pack has no csharp grammar")
+    src = "class A {\n void string() {}\n void f() {\n  var s = new string(c);\n }\n}\n"
+    (tmp_path / "A.cs").write_text(src)
+    rows = [("A.cs", "csharp", "string", 2, []), ("A.cs", "csharp", "f", 3, ["string"])]
+    res = ts.body_oracle(tmp_path, rows)
+    assert res["engine_only_by_kind"] == {"function-pointer": 1} and res["misses_by_shape"] == {}, res
+    assert doom_scorer.callgraph_columns(res)["callgraph_engine_only"] == 0
+
+
 def test_ts_oracle_reads_rust_macro_arguments_and_skips_quote(tmp_path):
     pytest.importorskip("tree_sitter_language_pack")
     import ts_callgraph_oracle as ts

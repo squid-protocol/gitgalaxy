@@ -10,10 +10,11 @@ catastrophic backtracking). This suite exists to catch both, for every rule the 
 rather than asserting the approach is immune to the tradeoffs that come with skipping an AST.
 
 It validates GitGalaxy's structural extraction rules, enforces ReDoS-immunity bounds across
-the 2,406 production rule patterns, and checks deterministic output across the 56 languages
-that have real structural signatures (65 languages/formats registered, including pure data
-formats with nothing to signature-match), plus the mainframe pipeline and the COBOL-to-Java
-proofs. As of 2026-10-01, `python -m pytest tests/ --collect-only -q` collects 13,281 tests.
+the production rule patterns, and checks deterministic output across every language that has
+real structural signatures (the registry also holds pure data formats with nothing to
+signature-match), plus the mainframe pipeline and the COBOL-to-Java proofs. The test count is
+whatever `python -m pytest tests/ --collect-only -q` prints; the language and pattern counts are
+read off `LANGUAGE_DEFINITIONS` in `gitgalaxy/standards/language_standards/`, not written here.
 
 ---
 
@@ -35,7 +36,7 @@ every supported language, organized into three tiers: **Valid** (does it match r
 code), **Invalid** (does it correctly reject the documented lookalike), and **Pathological**
 (does it survive adversarial or malformed input without hanging).
 
-* **`/extraction/languages`** — One `test_<lang>.py` per language for the four extraction gauntlets below plus a colocated, `_strict`-suffixed `test_<lang>_strict.py` per language — the direct, per-language proof behind every "structural signature" claim GitGalaxy makes (4,884 tests across 56 languages, sharing a `_strict_harness.py` ReDoS-testing helper module the same way the extraction files share `_extraction_harness.py`). The `_strict` suffix keeps the two sets of basenames from colliding under pytest's default import mode, since this repo has no `tests/__init__.py` anywhere. The `gitgalaxy/standards/language_standards/` package registers 65 languages/formats; 56 of them define real structural signatures (the rest — `json`, `xml`, `csv`, ... — are pure data formats with nothing to structurally signature-match), totaling 2,406 rule patterns. For every one of those 56 languages, its `_strict.py` file enforces a strict per-signature template:
+* **`/extraction/languages`** — One `test_<lang>.py` per language for the four extraction gauntlets below plus a colocated, `_strict`-suffixed `test_<lang>_strict.py` per language — the direct, per-language proof behind every "structural signature" claim GitGalaxy makes (one set per language, sharing a `_strict_harness.py` ReDoS-testing helper module the same way the extraction files share `_extraction_harness.py`). The `_strict` suffix keeps the two sets of basenames from colliding under pytest's default import mode, since this repo has no `tests/__init__.py` anywhere. The `gitgalaxy/standards/language_standards/` package registers the languages and formats; those that define real structural signatures get the strict file (the rest — `json`, `xml`, `csv`, ... — are pure data formats with nothing to structurally signature-match). For every one of those languages, its `_strict.py` file enforces a strict per-signature template:
   1. **Positive match** — the rule fires on a realistic snippet of its own documented, included construct.
   2. **Negative match** — the rule does *not* fire on the documented excluded construct (the false-positive check most naive regex test suites skip entirely).
   3. **Cross-rule ambiguity** — where two signatures share a token (e.g. C#'s `event ... += handler` firing both `events` and `listeners`), the test asserts the overlap is intentional and named, not an accidental collision.

@@ -39,8 +39,9 @@ raw reading and the reconciled ground truth built from it can diverge. The audit
 & LIMITATIONS section has the specific, confirmed cases (file and function names included) —
 read that before citing either side's number as more precise than the methodology supports.
 
-31 languages currently have a committed baseline
-(`tests/tree_sitter_accuracy_baseline_<lang>.json`) and appear scored here. 14 more that
+Every language with a committed baseline
+(`tests/tree_sitter_accuracy_baseline_<lang>.json`) appears scored here (count the files).
+The languages that
 GitGalaxy extracts structural signatures from but tree-sitter has no grammar for at all (COBOL,
 JCL, assembly, and others) get a GitGalaxy-only row (`gg_only=1`) with every `ts_*` column left
 blank, not scored as a loss.

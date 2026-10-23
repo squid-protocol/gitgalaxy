@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests" / "tools"))
 
 import equivalence_ims as ei  # noqa: E402
+from gitgalaxy.core.source_text import read_source  # noqa: E402
 
 PKG = "p"
 CORPUS = (
@@ -93,11 +94,11 @@ def test_the_io_pcb_given_to_cbltdli_is_refused_by_name(tmp_path):
     not (CBL / "PAUDBLOD.CBL").is_file(), reason="needs the CardDemo corpus (GITGALAXY_MAINFRAME_CORPORA)"
 )
 def test_paudblod_is_a_bmp_whose_entry_hides_the_io_pcb_and_translates_whole(tmp_path):
-    source = (CBL / "PAUDBLOD.CBL").read_text(errors="replace")
+    source = read_source(CBL / "PAUDBLOD.CBL").text
     assert ei.entry_using(source) == ["PAUTBPCB"]
     assert ei.bmp_using(source) == ["IO-PCB-MASK", "PAUTBPCB"]
     # the unload program keeps the batch path: its ENTRY is the only list
-    unl = (CBL / "PAUDBUNL.CBL").read_text(errors="replace")
+    unl = read_source(CBL / "PAUDBUNL.CBL").text
     assert ei.bmp_using(unl) is None and ei.entry_using(unl)
     pytest.importorskip("tree_sitter_language_pack")
     sys.path.insert(0, str(ROOT / "tests" / "cobol_mainframe"))

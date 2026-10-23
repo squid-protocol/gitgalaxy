@@ -63,6 +63,17 @@ def test_the_split_comes_from_estate4_draw():
     assert "cics-async-api-redbooks" in cc.census_names() and "cics-genapp" not in cc.census_names()
 
 
+def test_census_and_burned_sets_are_disjoint():
+    """#6064: an estate that gets burned must leave the census (the async credit-card example did), never count in both."""
+    import equivalence_env
+    import estate4_draw
+
+    assert not cc.census_names() & cc.burned_names()
+    census = {r.split("/")[-1].lower() for r in equivalence_env.census_repos()}
+    assert census == cc.census_names()
+    assert not census & {n.lower() for n in estate4_draw.BURNED_NAMES}
+
+
 def test_usage_counts_programs_per_option_split_burned(tmp_path):
     main, census = tmp_path / "main", tmp_path / "census"
     corpus(

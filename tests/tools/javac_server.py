@@ -205,7 +205,8 @@ def warm() -> bool:
         try:
             javac([str(bin_dir / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(out), str(src)],
                   check=True, capture_output=True, timeout=120)  # fmt: skip
-            subprocess.run([str(bin_dir / "java"), "-cp", str(out), "Warm"], check=True, capture_output=True, timeout=120)  # noqa: S603
+            subprocess.run([str(bin_dir / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(out), "Warm"],  # noqa: S603
+                           check=True, capture_output=True, encoding="utf-8", timeout=120)  # fmt: skip
         except (OSError, subprocess.SubprocessError):
             return False  # a warm-up never fails a run: the tests find out for themselves
     return True

@@ -185,6 +185,34 @@ def test_provision_clones_at_the_pin_records_shas_and_is_idempotent(tmp_path, re
     assert env["CICS_CRUCIBLE_PATH"] == str(crucible)
 
 
+def test_provision_retires_a_clone_that_has_become_burned(tmp_path, remote, monkeypatch):
+    root = tmp_path / "scratch"
+    assert "retired" not in ee.provision(root, str(remote), log=lambda m: None)
+    _repo(root / "census" / "old")
+    monkeypatch.setattr(ee, "burned_names", lambda: {"old", "one"})  # "one" is still listed: kept
+    rec = ee.provision(root, str(remote), log=lambda m: None)
+    assert rec["retired"] == ["old"] and not (root / "census" / "old").exists()
+    assert (root / "census" / "one").is_dir() and set(rec["census"]) == {"one", "two"}
+
+
+def test_provision_refuses_to_retire_a_dirty_burned_clone(tmp_path, remote, monkeypatch):
+    root = tmp_path / "scratch"
+    old = _repo(root / "census" / "old")
+    (old / "f.txt").write_text("edited")
+    monkeypatch.setattr(ee, "burned_names", lambda: {"old"})
+    with pytest.raises(ee.ProvisionRefused, match="old"):
+        ee.provision(root, str(remote), log=lambda m: None)
+    assert old.is_dir()
+
+
+def test_a_non_burned_stray_is_left_alone(tmp_path, remote, monkeypatch):
+    root = tmp_path / "scratch"
+    _repo(root / "census" / "stray")
+    monkeypatch.setattr(ee, "burned_names", lambda: {"old"})
+    rec = ee.provision(root, str(remote), log=lambda m: None)
+    assert (root / "census" / "stray").is_dir() and "retired" not in rec
+
+
 def test_provision_refuses_an_estate4_candidate_before_cloning(tmp_path, remote, monkeypatch):
     monkeypatch.setattr(ee, "census_repos", lambda: ["o/one", "o/elsewhere"])
     with pytest.raises(ee.ProvisionRefused, match="o/elsewhere"):

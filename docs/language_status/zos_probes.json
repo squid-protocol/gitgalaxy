@@ -338,6 +338,62 @@
         "SPACE<DIGIT"
       ],
       "note": "Expected z/OS: LOWER<UPPER, DIGIT>LOWER, SPACE<DIGIT. Keys and comparisons are not audited for burned reach (register D1)."
+    },
+    "c8-display-signed-forms": {
+      "entries": [
+        "C8"
+      ],
+      "compile_options": "default",
+      "question": "DISPLAY of a signed zoned, a signed COMP and a signed COMP-3 item: the sign is overpunched in the last digit, with no separate `-`",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P8.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 Z PIC S9(3) VALUE -12.\n       01 B PIC S9(4) COMP VALUE -7.\n       01 P PIC S9(5) COMP-3 VALUE -42.\n       PROCEDURE DIVISION.\n           DISPLAY \"Z=\" Z\n           DISPLAY \"B=\" B\n           DISPLAY \"P=\" P\n           STOP RUN.\n",
+      "oracle_expected": [
+        "Z=012-",
+        "B=-00007",
+        "P=-00042"
+      ],
+      "note": "Raw cobc writes the trailing/leading `-` forms (ggdisplay.c rewrites them in the harness). Expected z/OS: Z=01K, and the COMP and COMP-3 items shown in external decimal form with the overpunch in the last digit (the register's Not-quoted bullet: B=000P, P=0004K); record what z/OS prints for B and P."
+    },
+    "d3-ascii-overpunch-sign": {
+      "entries": [
+        "D3"
+      ],
+      "compile_options": "default",
+      "question": "Zoned data whose last character is an overpunch letter (12K, 45}, 78{) read as S9(3): the zone nibble gives the sign",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P3D.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 T1 PIC X(3) VALUE \"12K\".\n       01 N1 REDEFINES T1 PIC S9(3).\n       01 T2 PIC X(3) VALUE \"45}\".\n       01 N2 REDEFINES T2 PIC S9(3).\n       01 T3 PIC X(3) VALUE \"78{\".\n       01 N3 REDEFINES T3 PIC S9(3).\n       PROCEDURE DIVISION.\n           DISPLAY \"N1=\" N1\n           DISPLAY \"N2=\" N2\n           DISPLAY \"N3=\" N3\n           COMPUTE N1 = N1 + 0\n           DISPLAY \"T1=\" T1\n           STOP RUN.\n",
+      "oracle_expected": [
+        "N1=120+",
+        "N2=450+",
+        "N3=780+",
+        "T1=120"
+      ],
+      "note": "Plain cobc -std=ibm without -fsign=EBCDIC reads the low nibble and ignores the overpunch letter; the harness passes -fsign=EBCDIC. Expected z/OS: N1=-122 (K = X'D2', negative), N2=-450 (} = X'D0'), N3=+780 ({ = X'C0'). The probe source is typed in EBCDIC on z/OS, so the letters are the overpunch characters of the code page."
+    },
+    "f2-file-status-conditions": {
+      "entries": [
+        "F2"
+      ],
+      "compile_options": "default (a VSAM KSDS behind the KFILE DD, 4-byte key at offset 0, empty; no NOSUCH DD allocated)",
+      "question": "The real conditions the injected FILE STATUS values stand for: OPEN INPUT of an unallocated file, WRITE of a duplicate key, READ NEXT past the last record",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PF2.\n       ENVIRONMENT DIVISION.\n       INPUT-OUTPUT SECTION.\n       FILE-CONTROL.\n           SELECT MISSING ASSIGN TO \"NOSUCH\"\n               ORGANIZATION IS SEQUENTIAL\n               FILE STATUS IS FS1.\n           SELECT KF ASSIGN TO \"KFILE\"\n               ORGANIZATION IS INDEXED\n               ACCESS MODE IS DYNAMIC\n               RECORD KEY IS KREC-KEY\n               FILE STATUS IS FS2.\n       DATA DIVISION.\n       FILE SECTION.\n       FD MISSING.\n       01 MREC PIC X(4).\n       FD KF.\n       01 KREC.\n           05 KREC-KEY PIC X(4).\n       WORKING-STORAGE SECTION.\n       01 FS1 PIC XX.\n       01 FS2 PIC XX.\n       PROCEDURE DIVISION.\n           OPEN INPUT MISSING\n           DISPLAY \"OPEN=\" FS1\n           OPEN OUTPUT KF\n           MOVE \"AAAA\" TO KREC-KEY\n           WRITE KREC\n           DISPLAY \"W1=\" FS2\n           WRITE KREC\n           DISPLAY \"W2=\" FS2\n           CLOSE KF\n           OPEN INPUT KF\n           READ KF NEXT\n           READ KF NEXT\n           DISPLAY \"R2=\" FS2\n           CLOSE KF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "OPEN=35",
+        "W1=00",
+        "W2=22",
+        "R2=10"
+      ],
+      "note": "The fault injection (ggfault.c, CICS faults.cfg) does not run on z/OS: this probe measures the status IBM gives each real condition, which F2 injects on both sides. Expected z/OS: the same four values; the 35 needs the DD to be absent, so leave NOSUCH unallocated."
+    },
+    "l2-cee3abd-user-abend": {
+      "entries": [
+        "L2"
+      ],
+      "compile_options": "default",
+      "question": "CALL CEE3ABD USING abcode timing with abcode 1234 and timing 0: the step ends with a user abend and the DISPLAY after it never runs",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL2.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 ABCODE PIC S9(9) COMP VALUE 1234.\n       01 TIMING PIC S9(9) COMP VALUE 0.\n       PROCEDURE DIVISION.\n           DISPLAY \"BEFORE\"\n           CALL \"CEE3ABD\" USING ABCODE TIMING\n           DISPLAY \"AFTER\"\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEE3ABD (module not found, rc=1); the equivalence harness links ggabend.c as the stand-in. Expected z/OS: BEFORE is displayed, then the step ends ABEND U1234 (the code modulo 4096), AFTER is not displayed."
     }
   }
 }

@@ -15,7 +15,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | FUNC: intrinsic functions | `Funcs.java`, `Accept.java` | 12 | yes |
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
-| LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceegmt.java`, `le/Ceegmto.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/Dsntiac.java`, `le/LeTime.java`, `le/Mvswait.java`, `le/Zuidstck.java` | 17 | yes |
+| LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceedywk.java`, `le/Ceegmt.java`, `le/Ceegmto.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceeseci.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/Dsntiac.java`, `le/LeTime.java`, `le/Mvswait.java`, `le/Zuidstck.java` | 19 | yes |
 | DLI: IMS DL/I database calls | `dli/DetDli.java` | 15 | yes |
 | MQ: IBM MQ (MQI from CICS) | `mq/QueueManager.java`, `cics/DetMq.java` | 7 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-183 rules: 85 MATCHED, 23 DIFFERS, 14 REFUSED, 61 ASSUMED; 0 measured on z/OS (#4702).
+185 rules: 87 MATCHED, 23 DIFFERS, 14 REFUSED, 61 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -252,6 +252,8 @@ The date / time services, COBDATFT and MVSWAIT, as the harness's C models do the
 | RT-LE-CEEDATM | CEEDATM: Lilian seconds as a character timestamp by a picture string | `le-pr` CEEDATM: convert seconds to character timestamp | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-CEESECS | CEESECS: a character timestamp to Lilian seconds, its range checked (31 December 9999 23:59:59.999 the last) | `le-pr` CEESECS: convert timestamp to seconds | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-CEEISEC | CEEISEC: year, month, day, hours, minutes, seconds, milliseconds to Lilian seconds, each checked | `le-pr` CEEISEC: convert integers to seconds | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
+| RT-LE-CEESECI | CEESECI: Lilian seconds to year, month, day, hours, minutes, seconds, milliseconds | `le-pr` CEESECI: convert seconds to integers | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
+| RT-LE-CEEDYWK | CEEDYWK: the day of the week of a Lilian date, 1 (Sunday) to 7 (Saturday) | `le-pr` CEEDYWK: calculate day of week from Lilian date | - | L6 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-CEEDAYS | CEEDAYS: a character date by a picture string to a Lilian day, the documented conditions; the rest refused | `le-pr` CEEDAYS: convert date to Lilian format | - | L1 (MATCHED / ASSUMED / REFUSED) | MATCHED | uncalibrated |
 | RT-LE-CEELOCT | CEELOCT: the run's pinned clock as local time: Lilian day, Lilian seconds and the 17-character Gregorian form | `le-pr` CEELOCT: get current local date or time | - | L5 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-LE-COBDATFT | COBDATFT (CardDemo's assembler date routine): input type '2' to output type '2' modelled byte for byte; type '1' and the error path depend on the load module's literal pool: refused | `carddemo-cobdatft` COBDATFT.asm | - | A1 (MATCHED / REFUSED) | MATCHED | uncalibrated |

@@ -17,6 +17,7 @@ import equivalence_cics_containers as ecc  # noqa: E402
 from gitgalaxy.standards.cics.commands import COMMANDS  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_containers as tc  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_taskcontrol as tt  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_containers as CC  # noqa: E402
@@ -116,7 +117,7 @@ def test_the_det_translator_holds_the_file_control_methods_in_its_mixin():
         assert C.command_key([verb], {"FILE": "'F'"}).startswith(verb), verb
 
 
-# ---- task / interval control (#5274, third family; the det half so far): START, RETRIEVE, the child tasks, DELAY ... ---
+# ---- task / interval control (#5274, third family; the det half and the forge's CicsTask): START, RETRIEVE, the child tasks, DELAY ... ---
 TASK_METHODS = ("_number", "start", "retrieve", "run_transid", "fetch", "free_child", "delay", "post", "wait_event",
                 "converse", "cancel", "send_control")  # fmt: skip
 
@@ -130,3 +131,14 @@ def test_the_det_translator_holds_the_task_control_methods_in_its_mixin():
         if cmd.impl and cmd.impl.translator.split(".")[1] in TASK_METHODS:
             assert callable(getattr(C.Cics, cmd.impl.translator.split(".")[1])), key
     assert "pointer" in vars(C.Cics)  # shared with the other families: it stays the translator's own
+
+
+def test_cicstask_holds_the_task_control_java_once_where_it_sat():
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tt.TASKCONTROL_JAVA) == 1
+    at = java.index(tt.TASKCONTROL_JAVA)
+    assert java[:at].endswith("    public long taskNumber() {\n        return root().taskNumber;\n    }\n")  # before it
+    assert java[at + len(tt.TASKCONTROL_JAVA) :].startswith("    /** ENQ RESOURCE(resource)")
+    for method in ("withStartData", "start", "startAt", "startRequest", "runTransid", "delay", "fetch", "freeChild",
+                   "retrieve", "cancel", "post", "waitEvent"):  # fmt: skip
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tt.TASKCONTROL_JAVA), method

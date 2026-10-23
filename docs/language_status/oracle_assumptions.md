@@ -4875,6 +4875,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   - CALL 'CBLTDLI' is refused in a program IMS does not enter at ENTRY 'DLITCBL' or as a BMP (an MPP or CICS program), and with the I/O PCB.
   - Also refused: the parameter-count form (a binary count first), a PCB the entry was not passed, any ON EXCEPTION
     phrase, and CALL 'AIBTDLI' or 'CEETDLI'.
+  - IMS TM / MFS (#5233): message calls on the I/O PCB (GU / GN / ISRT of a message), CHNG / SETO / PURG / CMD / INQY, MPP
+    entry and MFS screens are needed by no burned program (PAUDBLOD is the only one handed an I/O PCB, and it never calls
+    on it); they stay refused by name and nothing is modelled. `test_paudblod_bmp_5233.py` pins that census over the
+    CardDemo IMS programs, so a burned program that starts to need them fails there first. The other burned estates have no DL/I.
 - **Refused by the harness** (`equivalence_ims.Unsupported`, "not runnable faithfully"):
   - HDAM and PHDAM: the root sequence is the randomizer's.
   - INDEX and LOGICAL databases, and a GSAM database with variable-length records or no fixed RECORD=(n).

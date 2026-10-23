@@ -1274,7 +1274,7 @@ file's paths.
 | `db2.bind.VALIDATE` (IBM default `RUN`) | no: VALIDATE only decides when a missing object is reported | none needed | -- | recorded only | C18 |
 | `db2.bind.ACTION` (IBM default `REPLACE`) | no: ACTION is a bind administration choice | none needed | -- | recorded only | C18 |
 | `db2.bind.packages` (IBM default `none`) | no: the package list names where a bound program lives, not what it computes | none needed | -- | recorded only | C18 |
-| `db2.precompile.PARM` (IBM default ``) | no: the precompiler PARM (HOST, APOST, XREF ...) is read from the source it was given; the corpus pin fixes that source | none needed | -- | recorded only | C18 |
+| `db2.precompile.PARM` (IBM default ``) | no: the precompiler PARM is judged token by token (PRECOMPILE_OPTIONS): a listing or delimiter token changes no result, one that changes SQL text, dates, decimals or code pages is refused by name | none needed | -- | recorded only | C18 |
 | `db2.precompile.coprocessor` (IBM default ``) | no: how SQL reaches the compiler (precompiler or integrated coprocessor) is a build route; the det translator reads the SQL statements themselves | none needed | -- | recorded only | C18 |
 | `cics.region.LOCALCCSID` (IBM default `37`) | yes: LOCALCCSID is the region's code page for EBCDIC <-> client conversion; the proof runs the case's data in its data_encoding | none: the oracle runs the case's data in its data_encoding | same | 37, 1140 honoured; any other is a declared difference (applied: data in the case's data_encoding) | C18 |
 | `cics.region.CICS_TS` (IBM default ``) | no: the CICS release is recorded for provenance; the command spec (X-series) states what is modelled | none needed | -- | recorded only | C18 |
@@ -1332,6 +1332,39 @@ that changes the generated code or data layout (COBOL2, COBOL3, GRAPHIC, NATLANG
 | `cics.translator.COBOL3` | yes: COBOL3 changes the layout of the generated working storage; not modelled | refused by name |
 | `cics.translator.GRAPHIC` | yes: GRAPHIC changes how DBCS literals in commands are read; not modelled | refused by name |
 | `cics.translator.NATLANG` | yes: NATLANG changes the language of messages the generated code issues; not modelled | refused by name |
+
+
+### Db2 precompiler PARM, judged token by token (#4707)
+The options file records the precompiler PARM as one string (`HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST`);
+`runtime_options.precompile_tokens` splits it into `NAME` / `NAME(arg)`, and each token meets `PRECOMPILE_OPTIONS`. A
+token with no row, and one that changes SQL text, dates, decimals or code pages with an argument other than the IBM
+default the harness runs under, is refused by name. Burned estates: only CardDemo records a PARM (all five tokens are
+no-effect or at the honoured default); CBSA, GenApp and DBB use the integrated coprocessor, CICS-async and zECS record
+none. Rendered from `PRECOMPILE_OPTIONS`.
+
+| option | (1) changes results? | (4) otherwise |
+|---|---|---|
+| `db2.precompile.PARM.HOST` | yes: HOST names the host language whose declarations the precompiler reads; only COBOL is modelled | refused by name unless IBMCOB, COBOL |
+| `db2.precompile.PARM.APOST` | no: the delimiter the precompiler writes into its own generated COBOL | recorded only |
+| `db2.precompile.PARM.QUOTE` | no: the delimiter the precompiler writes into its own generated COBOL | recorded only |
+| `db2.precompile.PARM.XREF` | no: a listing option | recorded only |
+| `db2.precompile.PARM.NOXREF` | no: a listing option | recorded only |
+| `db2.precompile.PARM.SOURCE` | no: a listing option | recorded only |
+| `db2.precompile.PARM.NOSOURCE` | no: a listing option | recorded only |
+| `db2.precompile.PARM.FLAG` | no: FLAG chooses which precompiler messages are listed | recorded only |
+| `db2.precompile.PARM.LINECOUNT` | no: a listing option (lines per page) | recorded only |
+| `db2.precompile.PARM.ONEPASS` | no: how many passes the precompiler makes over the source | recorded only |
+| `db2.precompile.PARM.TWOPASS` | no: how many passes the precompiler makes over the source | recorded only |
+| `db2.precompile.PARM.APOSTSQL` | no: the Db2 default: the apostrophe delimits an SQL string | recorded only |
+| `db2.precompile.PARM.QUOTESQL` | yes: QUOTESQL swaps the SQL string and delimited-identifier delimiters, so SQL text is read differently | refused by name unless never |
+| `db2.precompile.PARM.DATE` | yes: DATE decides the format of every date string; only ISO is modelled (db2.format.DATE) | refused by name unless ISO |
+| `db2.precompile.PARM.TIME` | yes: TIME decides the format of every time string; only ISO is modelled (db2.format.TIME) | refused by name unless ISO |
+| `db2.precompile.PARM.DEC` | yes: DEC(31) changes decimal arithmetic precision; only DEC(15) is modelled (db2.format.DEC) | refused by name unless 15, 15. |
+| `db2.precompile.PARM.DECPT` | yes: DECPT decides the decimal point of SQL literals; only the period is modelled (db2.format.DECPT) | refused by name unless ., PERIOD |
+| `db2.precompile.PARM.CCSID` | yes: CCSID decides the code page of SQL character data; see db2.ccsid.EBCDIC_CCSID | refused by name unless 37, 1140 |
+| `db2.precompile.PARM.STDSQL` | yes: STDSQL(YES) changes SQLCODE / SQLSTATE handling and host-variable rules; not modelled | refused by name unless NO |
+| `db2.precompile.PARM.SQL` | yes: SQL(ALL) changes which SQL statements the precompiler accepts; not modelled | refused by name unless DB2 |
+| `db2.precompile.PARM.GRAPHIC` | yes: GRAPHIC changes how DBCS literals in SQL are read; not modelled | refused by name unless never |
 
 
 ### CICS conventions the ports rely on: EIB fields and abends (#4707)

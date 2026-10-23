@@ -561,3 +561,23 @@ def test_a_changed_runtime_value_changes_the_row_and_a_note_does_not():
     noted = copy.deepcopy(effective_options(case, program=t.program))
     noted.runtime_sources = {k: "changed note" for k in noted.runtime_sources}
     assert noted.fingerprint()["runtime"] == base
+
+
+def test_the_page_shows_the_compiler_options_a_proof_ran_under():
+    t, rec = _runtime_record()
+    rec["inputs"]["options"]["effective"]["semantic"] = {"ARITH": "COMPAT", "TRUNC": "STD"}
+    (row,) = [ln for ln in ev.render_page(t, rec).splitlines() if ln.startswith("| compiler options |")]
+    assert ev.json_sha256({"ARITH": "COMPAT", "TRUNC": "STD"})[:16] in row
+    assert "(2): ARITH=COMPAT, TRUNC=STD" in row
+
+
+@pytest.mark.parametrize("semantic", [None, {}])
+def test_a_record_with_no_compiler_options_renders_no_row(semantic):
+    t, rec = _runtime_record()
+    rec["inputs"]["options"]["effective"].pop("semantic", None)
+    if semantic is not None:
+        rec["inputs"]["options"]["effective"]["semantic"] = semantic
+    page = ev.render_page(t, rec)
+    assert "| compiler options |" not in page
+    assert ev.compiler_line(rec["inputs"]["options"]) is None
+    assert ev.compiler_line(None) is None

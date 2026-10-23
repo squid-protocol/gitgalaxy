@@ -155,8 +155,13 @@ JS_LLM_API = _js_package_import(_LLM_API_JS_PACKAGES)
 # scope always counted; so the per-provider `langchain_openai` /
 # `@langchain/openai` count here AND under llm_api. The bounded `_\w{1,64}`
 # suffix is followed by `(?!\w)`, so it cannot split ambiguously.
-PY_LLM_ORCHESTRATOR = _py_package_import(r"langchain(?:_\w{1,64})?|llama_index")
-JS_LLM_ORCHESTRATOR = _js_package_import(r"langchain|llamaindex|@(?:langchain|llamaindex)/[\w.-]+")
+# Agent frameworks that are not named langchain/llama_index count too (#4108): python `langgraph`, `crewai`, `autogen`,
+# `haystack`, `semantic_kernel`, `dspy`, `pydantic_ai`, `smolagents`; npm Vercel's AI SDK (`ai`, `@ai-sdk/*`) and `@mastra/*`.
+# The bare `ai` is safe only because the specifier must END at the name (or a `/`): `'ai-utils'`, `'./ai'` never match.
+PY_LLM_ORCHESTRATOR = _py_package_import(
+    r"langchain(?:_\w{1,64})?|llama_index|langgraph|crewai|autogen|haystack|semantic_kernel|dspy|pydantic_ai|smolagents"
+)
+JS_LLM_ORCHESTRATOR = _js_package_import(r"langchain|llamaindex|ai|@(?:langchain|llamaindex|ai-sdk|mastra)/[\w.-]+")
 # llm_vector_store (#4150): Chroma and Pinecone (npm: `@pinecone-database/*`).
 PY_LLM_VECTOR_STORE = _py_package_import(r"chromadb|pinecone")
 JS_LLM_VECTOR_STORE = _js_package_import(r"chromadb|@pinecone-database/[\w.-]+")

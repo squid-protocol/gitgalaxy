@@ -182,3 +182,15 @@ def test_proof_section_is_rendered_and_in_the_delta():
     if pr:
         pr[0]["only"] += 3
         assert rr.delta(old, new)[name]["proofs"][pr[0]["gap"]]["only"][1] == pr[0]["only"]
+
+
+def test_main_markdown_carries_a_proof_section_for_every_estate_with_whole_programs(tmp_path):
+    """#5229: the CLI output (not just render()) ranks proof blockers per burned estate, beside the rules to land."""
+    out = tmp_path / "r.md"
+    assert rr.main(["--top", "0", "--out", str(out)]) == 0
+    text = out.read_text(encoding="utf-8")
+    built = rr.build(top=0)
+    wholes = [n for n, m in built["estates"].items() if m["proofs_to_land"]["whole"]]
+    assert wholes
+    assert text.count("### Proof blockers (") == len(wholes)
+    assert text.count("### Rules to land (") == len(built["estates"])

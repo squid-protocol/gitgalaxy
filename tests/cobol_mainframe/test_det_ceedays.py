@@ -356,3 +356,19 @@ def test_only_cbsa_crecust_declares_a_vstring_length_past_its_text():
     crecust = {o for o in overruns if o[1] == "CRECUST.cbl"}
     assert ("cics-banking-sample-application-cbsa", "CRECUST.cbl", 10, 8) in crecust
     assert {o[1] for o in overruns} == {"CRECUST.cbl"}
+
+
+def test_the_dateutil_case_calls_every_julian_day_boundary_the_model_documents():
+    """#4049: CSUTLDTC's case grows the YYYYDDD calls (day 000, 366 in a leap and a non-leap year, the Lilian and 9999
+    ends, a non-digit), each on a picture the model documents; the port answers them too (a DDD token)."""
+    import json
+
+    case = json.loads((ROOT / "tests/equivalence/carddemo-dateutil/case.json").read_text(encoding="utf-8"))
+    julian = {c["name"]: c["args"] for c in case["calls"] if c["name"].startswith("julian-")}
+    modelled = {"YYYYDDD   ", "DDDYYYY   ", "YYYY-DDD  "}
+    assert {a[1] for a in julian.values()} <= modelled
+    dates = {a[0].strip() for a in julian.values()}
+    assert {"2022000", "2023366", "2024366", "1900366", "2000366", "2024367", "1582287", "1582288", "9999365"} <= dates
+    assert any(not d.isdigit() for d in dates), "a non-digit in the date"
+    port = ROOT / "tests/equivalence/carddemo-dateutil/port/service/CsutldtcService.java"
+    assert '"DDD"' in port.read_text(encoding="utf-8")

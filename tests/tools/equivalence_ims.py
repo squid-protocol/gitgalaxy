@@ -302,14 +302,19 @@ def _code(source: str) -> str:
 
 def bmp_using(source: str) -> list[str] | None:
     """#5857 (register I5): the items of a BMP's PROCEDURE DIVISION USING (the I/O PCB first, then the DB PCBs) -- a
-    program with no ENTRY 'DLITCBL' that issues EXEC DLI -- else None."""
+    program that issues EXEC DLI or CALL 'CBLTDLI' and has no ENTRY 'DLITCBL', or (#5233, PAUDBLOD) whose ENTRY lists
+    exactly the header's USING minus the leading I/O PCB (IMS enters a BMP at the header) -- else None."""
     code = _code(source)
-    if entry_using(source) is not None or not re.search(r"\bEXEC\s+DLI\b", code, re.I):
+    if not re.search(r"\bEXEC\s+DLI\b|\bCALL\s+['\"]CBLTDLI['\"]", code, re.I):
         return None
     m = re.search(r"\bPROCEDURE\s+DIVISION\s+USING\s+(.*?)\.", code, re.I | re.S)
     if not m:
         return None
-    return [w for w in (x.upper() for x in m.group(1).split()) if w not in ("BY", "REFERENCE")]
+    head = [w for w in (x.upper() for x in m.group(1).split()) if w not in ("BY", "REFERENCE")]
+    entry = entry_using(source)
+    if entry is not None and not (entry and len(head) == len(entry) + 1 and head[1:] == entry):
+        return None
+    return head
 
 
 def stage(case: dict[str, Any], corpus: Path, source: str, dest: Path) -> list[dict[str, Any]]:

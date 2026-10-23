@@ -202,7 +202,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | I2 | IMS | twins and qualifications compare the field's stored bytes; a C / X key's order is the data page's (ASCII on both sides), not EBCDIC's; a P qualification only where packed and logical comparison agree | DIFFERS | no (CardDemo's keys are packed and binary bytes, the same in both pages) |
 | I3 | IMS | position and parentage kept per PCB as IBM describes them; after a call whose position IBM leaves to IMS's search, the next call that needs it is refused | ASSUMED | yes (PAUDBUNL: GN after GNP's GE) |
 | I4 | IMS | DBD name, level, status, PROCOPT, segment name, key feedback length, sensitive segments, key feedback as IBM lays them out; what IMS leaves there at entry and after GE / II assumed | ASSUMED | yes (PAUDBUNL tests PAUT-PCB-STATUS; its key feedback is only DISPLAYed on a path no scenario takes) |
-| I5 | IMS | EXEC DLI beyond SCHD / TERM / GU / GN / GNP / ISRT / REPL / DLET and a BMP's CHKP ID, MPP programs, a GSAM PCB that reads, other calls (XRST, ROLB, CHKP with an option but ID, ...), command codes but F / L / P / C / D / Q / U / V / -, the # (independent AND) operator, AIBTDLI / CEETDLI, HDAM order, secondary indexes, logical relationships, load mode on a DB PCB | REFUSED | — |
+| I5 | IMS | EXEC DLI beyond SCHD / TERM / GU / GN / GNP / ISRT / REPL / DLET and a BMP's CHKP ID, MPP programs, a GSAM PCB that reads, other calls (XRST, ROLB, CHKP with an option but ID, ...), command codes but F / L / P / C / D / N / Q / U / V / -, the # (independent AND) operator, AIBTDLI / CEETDLI, HDAM order, secondary indexes, logical relationships, load mode on a DB PCB | REFUSED | — |
 | I6 | IMS | an HD reorganization unload (DFSURGU0) read by the record layout observed in CardDemo's; the segment counts its trailer records must match what was read | ASSUMED | yes (carddemo-paudbunl: 22 roots, 202 children) |
 | W1 | MQ | CMQV / CMQODV / CMQMDV / CMQGMOV / CMQPMOV / CMQTML: stand-ins from IBM's docs, version-1 layouts, only the constants the model gives meaning to | ASSUMED | yes (carddemo-codate01, #4892) |
 | W2 | MQ | MQGMO_WAIT on an empty queue: 2033 at once (no concurrent producer); MQWI_UNLIMITED refused | ASSUMED | yes (carddemo-codate01, #4892) |
@@ -4983,6 +4983,14 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     when the position is not at or below the SSA's level, the call is refused by name rather than answered with a status;
     a GN that finds nothing under U / V answers as without them. Refused by name on both runtimes on an ISRT and beside
     `C` (REPL / DLET take no SSA). No burned program uses one: the proof is `DLICMD` (Q46-Q55) on both runtimes.
+  - Command code `N` (#5233): no replace, with `D` on a get-hold (GHU / GHN / GHNP). A REPL straight after such a get replaces
+    each segment the path call returned from its slice of the I/O area (the concatenation `D` hands back), except the segments
+    whose SSA carried `N`. A sequence field changed in a replaced segment answers DA and nothing is replaced; an `N` segment's
+    slice is not compared. A DLET after a path call is refused by name. Refused by name on both runtimes: `N` without `D`, and
+    `N` on any call but a get-hold. ASSUMPTION (no IBM text quoted; written from memory of IBM's description): a REPL after
+    a D path call with no `N` replaces every segment returned; the path ISRT (`D` on an ISRT) and the other REPL path forms stay
+    refused. The Java runtime refuses an I/O area shorter than the concatenation; the C twin cannot see the area's size. No
+    burned program uses one: the proof is `DLICMD` (Q56-Q70) on both runtimes.
   - Command code `P` (#5233): on a GU / GHU it sets parentage at the level of its SSA (the ancestor of the retrieved
     segment of that SSA's type, or the segment itself) instead of at the lowest segment retrieved, so a following GNP
     walks the dependents of that segment. `P` on the last SSA is the default. Position and the I/O area are those of

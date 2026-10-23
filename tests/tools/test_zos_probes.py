@@ -60,8 +60,6 @@ NOT_PROBED_FAMILIES = {
 NOT_PROBED_IDS = {
     "A2": "z/OS control blocks (PSA / TCB / TIOT): stand-ins, no cobc equivalent",
     "J1": "VSAM on H2: no burned reach",
-    "L4": "CEEIGZCT stand-in: LE service, no cobc equivalent",
-    "L5": "CEELOCT: LE service, no cobc equivalent",
     "M2": "SQLCA after an injected SQL fault: EXEC SQL is not a cobc statement (the Db2 probes are the Q family)",
 }
 
@@ -143,6 +141,24 @@ def test_the_le_and_assembler_matched_probes_say_what_z_os_should_print():
         assert probes[pid]["entries"] == [entry], pid
         assert "Expected z/OS" in probes[pid]["note"], pid
         assert probes[pid]["oracle_expected"] == ["rc=1"], pid
+
+
+def test_the_le_assumed_probes_say_what_z_os_should_print():
+    # L4 (CEEIGZCT) and L5 (CEELOCT), #4702 slice 4: plain cobc has no such copybook or module (rc=1); each note
+    # carries the z/OS answer.
+    probes = zos_probes.load()
+    ids = {
+        "l4-ceeigzct-cee000-after-success": "L4",
+        "l4-ceeigzct-cee000-after-failed-call": "L4",
+        "l5-ceeloct-feedback-and-gregorian-shape": "L5",
+        "l5-ceeloct-seconds-match-lilian": "L5",
+        "l5-ceeloct-gregorian-tail": "L5",
+    }
+    for pid, entry in ids.items():
+        assert probes[pid]["entries"] == [entry], pid
+        assert "Expected z/OS" in probes[pid]["note"], pid
+        assert probes[pid]["oracle_expected"] == ["rc=1"], pid
+    assert not {"L4", "L5"} & set(NOT_PROBED_IDS)
 
 
 def test_the_differs_probes_state_the_expected_zos_answer():

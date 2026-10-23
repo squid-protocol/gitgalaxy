@@ -2572,7 +2572,8 @@ public class CicsTask {
      *  first out. QIDERR when the CSD does not define the queue; QZERO when it holds no record; LENGERR for a negative
      *  maxLength (nothing is read) or a record longer than maxLength (the record is read, so lost, and the result holds
      *  its first maxLength characters); the result's length is the record's own. #5168 (X61): an extrapartition queue is
-     *  NOTOPEN when closed and INVREQ when open for output; an input one reads like an intrapartition queue. */
+     *  NOTOPEN when closed and INVREQ when open for output; an input one reads like an intrapartition queue, or answers
+     *  the IOERR the harness planned (READQ-TD, the record skipped). */
     public TdResult readqTd(String queue, int maxLength) {
         String q = queue.strip();
         String t = tdResolve(q);
@@ -2590,7 +2591,14 @@ public class CicsTask {
         if (readable) {
             tdTouch(t);
         }
-        if (readable && records != null && !records.isEmpty()) {
+        int[] planned = readable && kind == 2 ? root().injected("READQ-TD", q) : null;
+        if (planned != null) {  // #5168 (X61): a planned IOERR -- IBM: "the data record in error is skipped", nothing reaches INTO
+            if (records != null && !records.isEmpty()) {
+                records.removeFirst();
+                tempStorage.tdRead.add(t);
+            }
+            resp = CicsSpec.name(planned[0]);
+        } else if (readable && records != null && !records.isEmpty()) {
             String record = records.removeFirst();
             data = record.length() > maxLength ? record.substring(0, maxLength) : record;
             length = record.length();

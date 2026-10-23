@@ -71,6 +71,8 @@ public final class DetDli {
         int par = PAR_NONE;
         Node parentage;
         Node hold;
+        List<Node> holdPath; // #5233: the segments a D-coded get-hold returned, in I/O area order (null: only the held one)
+        boolean[] holdSkip; // #5233: command code N, per holdPath entry: left out of the REPL
         boolean prevknown;
         boolean gsam; // #5233: a GSAM PCB (load mode): db is -1, out collects the records ISRT appended
         int reclen;
@@ -90,6 +92,7 @@ public final class DetDli {
         boolean enq; // #5233: command code Q
         boolean up; // #5233: command code U
         boolean vee; // #5233: command code V
+        boolean noRepl; // #5233: command code N
         Node anchor; // #5233: U / V, the node at this level on the current position (set per call by get)
         byte[] cat; // #5233: command code C, the concatenated key in the parentheses
         // #5233: the statements after the first, each joined to the one before by AND (or == false) or OR
@@ -757,7 +760,7 @@ public final class DetDli {
             }
             int at = o + 9;
             if (q == '*') {
-                // #5233: command codes, each one of A-Z 0-9 or '-', then '(' or a blank; F, L, P, C, D, Q, U, V and - are modelled
+                // #5233: command codes, each one of A-Z 0-9 or '-', then '(' or a blank; F, L, P, C, D, N, Q, U, V and - are modelled
                 while (at < b.length && isCode(b[at] & 0xFF)) {
                     char c = (char) (b[at] & 0xFF);
                     if (c == 'F') {
@@ -774,6 +777,8 @@ public final class DetDli {
                         s.up = true;
                     } else if (c == 'V') {
                         s.vee = true;
+                    } else if (c == 'N') {
+                        s.noRepl = true;
                     } else if (c == 'C') {
                         s.cat = new byte[0];
                     } else if (c != '-') {
@@ -924,6 +929,9 @@ public final class DetDli {
             }
             if (s[i].path && s[i].cat != null) {
                 throw refuse("the command code D beside C");
+            }
+            if (s[i].noRepl && (fn.charAt(0) != 'G' || fn.charAt(1) != 'H' || !s[i].path)) {
+                throw refuse("the command code N other than with D on a get-hold call (" + fn.trim() + ")");
             }
             if (s[i].enq && fn.charAt(0) != 'G') {
                 throw refuse("the command code Q on a " + fn.trim()); // #5233: Q (enqueue) is modelled on the gets, where it changes nothing
@@ -1261,6 +1269,18 @@ public final class DetDli {
         }
         if (hold) {
             p.hold = n;
+            if (out.size() > 1 || s[k - 1].noRepl) {
+                // #5233: a path get-hold: REPL replaces each segment returned, but those coded N
+                p.holdPath = out;
+                p.holdSkip = new boolean[out.size()];
+                int j = 0;
+                for (int i = 0; i < k - 1; i++) {
+                    if (s[i].path) {
+                        p.holdSkip[j++] = s[i].noRepl;
+                    }
+                }
+                p.holdSkip[j] = s[k - 1].noRepl;
+            }
         }
     }
 
@@ -1338,7 +1358,7 @@ public final class DetDli {
 
     /** REPL / DLET: on the segment the previous call on this PCB held. */
     // [rule RT-DLI-CHANGE]
-    private static void change(Pcb p, boolean dlet, Field io, Node held, int k) {
+    private static void change(Pcb p, boolean dlet, Field io, Node held, int k, List<Node> path, boolean[] skip) {
         if (!allows(p, dlet ? 'D' : 'R')) {
             status(p, "AM");
             return;
@@ -1351,6 +1371,10 @@ public final class DetDli {
             return;
         }
         byte[] b = io.storage().bytes;
+        if (path != null) {
+            changePath(p, dlet, io, path, skip);
+            return;
+        }
         if (keyCmp(held, b, io.offset() + keyAt(held)) != 0) {
             status(p, "DA");
             return;
@@ -1402,6 +1426,42 @@ public final class DetDli {
     }
 
     /** CALL 'CBLTDLI' USING function pcb io-area [ssa ...]. */
+    /** REPL / DLET after a D-coded get-hold (#5233): the I/O area holds the segments the get returned, one after another. REPL
+     *  replaces each segment from its slice of the area except those coded N; a changed sequence field in any replaced one is DA
+     *  and nothing is replaced. A DLET after a path call is not modelled. */
+    private static void changePath(Pcb p, boolean dlet, Field io, List<Node> path, boolean[] skip) {
+        if (dlet) {
+            throw refuse("a DLET after a path call (command code D)");
+        }
+        byte[] b = io.storage().bytes;
+        int off = io.offset();
+        int total = 0;
+        for (Node o : path) {
+            total += o.data.length;
+        }
+        if (b.length - off < total) {
+            throw refuse("an I/O area shorter than the segments of a path REPL");
+        }
+        int at = off;
+        for (int i = 0; i < path.size(); i++) {
+            Node o = path.get(i);
+            if (!skip[i] && keyCmp(o, b, at + keyAt(o)) != 0) {
+                status(p, "DA");
+                return;
+            }
+            at += o.data.length;
+        }
+        status(p, "  ");
+        at = off;
+        for (int i = 0; i < path.size(); i++) {
+            Node o = path.get(i);
+            if (!skip[i]) {
+                System.arraycopy(b, at, o.data, 0, o.data.length);
+            }
+            at += o.data.length;
+        }
+    }
+
     // [rule RT-DLI-CALL]
     public static void call(Field function, Field pcb, Field io, Field... ssas) {
         if (PCBS.isEmpty()) {
@@ -1411,6 +1471,10 @@ public final class DetDli {
         String fn = new String(function.storage().bytes, function.offset(), 4, StandardCharsets.ISO_8859_1);
         Node held = p.hold;
         p.hold = null;
+        List<Node> heldPath = p.holdPath;
+        boolean[] heldSkip = p.holdSkip;
+        p.holdPath = null;
+        p.holdSkip = null;
         String fault = KNOWN.contains(fn) ? planned(fn) : null;
         if (fault != null) {
             status(p, fault);
@@ -1443,7 +1507,7 @@ public final class DetDli {
         } else if (fn.equals("ISRT")) {
             isrt(p, io, s);
         } else {
-            change(p, fn.charAt(0) == 'D', io, held, s.length);
+            change(p, fn.charAt(0) == 'D', io, held, s.length, heldPath, heldSkip);
         }
     }
 }

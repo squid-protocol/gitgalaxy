@@ -1,0 +1,102 @@
+{
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "DBUNLDGS",
+ "program_source": "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+ "copy_dirs": [
+  "app/app-authorization-ims-db2-mq/cpy"
+ ],
+ "job": "UNLDGSAM",
+ "step": "STEP01",
+ "parm": null,
+ "clock": "2022/10/07 10:30:15.00",
+ "datasets": {},
+ "ims": {
+  "dbd": [
+   "app/app-authorization-ims-db2-mq/ims/DBPAUTP0.dbd",
+   "app/app-authorization-ims-db2-mq/ims/PASFLDBD.DBD",
+   "app/app-authorization-ims-db2-mq/ims/PADFLDBD.DBD"
+  ],
+  "psb": "app/app-authorization-ims-db2-mq/ims/DLIGSAMP.PSB",
+  "seed": {
+   "DBPAUTP0": {
+    "unload": "app/app-authorization-ims-db2-mq/data/EBCDIC/AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0.dat"
+   }
+  },
+  "segments": {
+   "PAUTSUM0": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+    "record": "PENDING-AUTH-SUMMARY"
+   },
+   "PAUTDTL1": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+    "record": "PENDING-AUTH-DETAILS"
+   }
+  },
+  "gsam": {
+   "PASFLDBD": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+    "record": "PENDING-AUTH-SUMMARY"
+   },
+   "PADFLDBD": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+    "record": "PENDING-AUTH-DETAILS"
+   }
+  },
+  "compare": [
+   "DBPAUTP0",
+   "PASFLDBD",
+   "PADFLDBD"
+  ]
+ },
+ "notes": "Job UNLDGSAM step STEP01 (DFSRRC00 PARM='DLI,DBUNLDGS,DLIGSAMP'): IMS enters DBUNLDGS at ENTRY 'DLITCBL' with the three PCBs of PSB DLIGSAMP -- the DB PCB on DBPAUTP0 and two GSAM PCBs (TYPE=GSAM, PROCOPT=LS, load mode) on PASFLDBD (RECORD=(100)) and PADFLDBD (RECORD=(200)). It reads the pending-authorization database with GN / GNP and ISRTs each root into the first GSAM database and each child into the second, one record per call. The database is the corpus's own HD unload (22 roots, 202 children), as in carddemo-paudbunl; its last root's key is EBCDIC spaces, so PA-ACCT-ID IS NUMERIC fails for it and it is skipped. A GSAM database is modelled as a load-mode output only (register I5, #5233): ISRT with no SSA appends one record of the DBD's RECORD length and answers blank; any other function answers AM; the GSAM PCB mask carries the DBD name, a blank level and a blank status (ASSUMED, no IBM text cited for the level). The program has no files: its outputs are the three databases (the GSAM ones compared record by record, by their copybook's fields) and SYSOUT. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "faults": [
+  {
+   "name": "gn-error",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "GN",
+     "nth": 2,
+     "status": "AM"
+    }
+   ],
+   "why": "#5233: the second root GN answers AM (a status that is neither blank nor GB): AUTH SUM  GN FAILED and 9999-ABEND after the first root and its children were unloaded to the GSAM databases"
+  },
+  {
+   "name": "gnp-error",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "GNP",
+     "nth": 1,
+     "status": "AM"
+    }
+   ],
+   "why": "#5233: the first child GNP answers AM (neither blank nor GE): GNP CALL FAILED and 9999-ABEND with the first root already in the first GSAM database"
+  },
+  {
+   "name": "gsam-parent-isrt",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "ISRT",
+     "nth": 1,
+     "status": "II"
+    }
+   ],
+   "why": "#5233: the first ISRT, the root into PASFLDBD, answers II: GSAM PARENT FAIL and 9999-ABEND, nothing written to either GSAM database"
+  },
+  {
+   "name": "gsam-child-isrt",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "ISRT",
+     "nth": 2,
+     "status": "AM"
+    }
+   ],
+   "why": "#5233: the second ISRT, the first child into PADFLDBD, answers AM: GSAM PARENT FAIL (the program's message for either) and 9999-ABEND with the first root already in PASFLDBD"
+  }
+ ]
+}

@@ -47,11 +47,11 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 14,
-   "sha256": "49c125fbe072e3d67aa0c601c9e2779350da3afb0dc5dc2889957000e1c3dd81",
+   "sha256": "03417c19837c61b2f8df1690721a2cea59bfcd81298fa81ef6ad0b368cca4a76",
    "components": {
     "harness:cics": "a06f5412ff8f1ed2b268c32b393ff896f2f1abaf9275d0db58b275516d87e519",
     "harness:core": "6ca15fe077558291d5457261b5b460f3fa6f7b92a7a11455c436cfee97ebaf39",
-    "harness:ims": "5254ac0cfbb51526951fd101391790f6f8a7b5d45dc3da93592a49f484d739ae"
+    "harness:ims": "bc7359c9bed5fd7192e54a5fe7aee9d64c93703f21578bfe044d1babb4fff3ff"
    }
   },
   "oracle": {
@@ -67,11 +67,11 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 39,
-   "sha256": "bd5a751a83cbd5c92de5a188ccb7141f12bd5e81ac2c937aa862a7e4f0c60acf",
+   "sha256": "29f60f9a988e4047dbcf970123c8f37bddeaf9331cf41096c4e17de4708b446d",
    "components": {
     "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
-    "oracle:ims": "b80e1a97c3bcf4314892170ee1a6cb5e55601e4aed5efdf63b4b6386f7712105",
+    "oracle:ims": "5048b2b498bdc267eb232a72d661beca284f91b6565ed6a58290d2b970e5b176",
     "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
    }
   },
@@ -80,7 +80,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 104,
-   "sha256": "6fcca3c4e6156ea9093e680ec2a8265bbd92a18d69bf063e63814ce841920bd3",
+   "sha256": "50b063aa27d27ae305c50e53536e1cff14c8f00406aacf4bda78a8a5e97e55dd",
    "components": {
     "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
     "generator:cobolrt/Codec.java": "8f64df479294b444eba647528c55b25615d5a4fa962e7447757d0d48d5c342ab",
@@ -97,7 +97,7 @@
     "generator:cobolrt/batch/DetFiles.java": "fe03a6459ba1dcc2a8ad367c4b7cd1debaf1ab9c661697c4841c726f99354ba1",
     "generator:cobolrt/cics/DetCics.java": "3dbd4b5fc6597cef7a50abbfbf544488eb051bb2c215ba597a2a190f917b8bc2",
     "generator:cobolrt/cics/DetMq.java": "40204edf5e82cd78739db956e424860a0121cb3ec44e0a9c1e508ed41fcf3187",
-    "generator:cobolrt/dli/DetDli.java": "7887ac96d0ae545e080bda422e91b2f196706a4271626a362ba44c5a94a3f4b1",
+    "generator:cobolrt/dli/DetDli.java": "319f2dd4508351e333c2446b5fad1522c01d6cd45bd914f2ddcf2351c6f710c4",
     "generator:cobolrt/mq/QueueManager.java": "229bbdaf9082354aa501eb66f45eb7b8d9f3557e653421dc8bed3932cb7cf77b",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
@@ -199,12 +199,13 @@
       "translator.options": "CICS"
      }
     }
-   }
+   },
+   "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "7d7f7d76e5926be3bc2e21fad05b1e9f3abf03cccd566a0e080b436637c9dc73"
+  "digest": "d25e23b6491fdd71f7110deaf850864621c1e65ea5e8510893f3e0e48467e521"
  },
  "proof": {
-  "at": "2026-10-23T00:50:57Z",
+  "at": "2026-10-23T00:58:45Z",
   "verdict": "proven",
   "runs": 20,
   "fault_runs": 6,
@@ -305,8 +306,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "15d170c9b6afe041849505116de2a19543f013d4",
-  "inputs_digest": "7d7f7d76e5926be3bc2e21fad05b1e9f3abf03cccd566a0e080b436637c9dc73"
+  "harness_commit": "5e7e0d7002a4a3b63b1af435d5cd69d59ae73092+uncommitted",
+  "inputs_digest": "d25e23b6491fdd71f7110deaf850864621c1e65ea5e8510893f3e0e48467e521"
  },
  "coverage": {
   "paragraphs": {
@@ -378,7 +379,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "7d7f7d76e5926be3bc2e21fad05b1e9f3abf03cccd566a0e080b436637c9dc73"
+  "inputs_digest": "d25e23b6491fdd71f7110deaf850864621c1e65ea5e8510893f3e0e48467e521"
  },
  "reach": {
   "entry_points": [
@@ -569,7 +570,7 @@
    },
    {
     "path": "tests/equivalence/ims/ggdli.c",
-    "sha256": "49b4989afcdc794ebcfe5666597fdead41a22c8e3ada31c3a0361b713a1449e2"
+    "sha256": "e8cdf81458208a8968093245d7d483d350e0cd8a9615bb62ebe609ef66b7cee9"
    },
    {
     "path": "tests/equivalence/le/ceedays.c",

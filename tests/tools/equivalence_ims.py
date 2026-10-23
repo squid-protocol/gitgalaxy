@@ -11,15 +11,17 @@ issues CALL 'CBLTDLI') runs against, and both sides run on the same stated conte
 
 The DBD and PSB sources are read by the engine's own macro reader (gitgalaxy/core/ims_gen.py); what this model does
 not model is refused here by name (Unsupported): HDAM / PHDAM (the randomizer's root order), logical relationships,
-variable-length segments, a non-unique or missing sequence field, an I/O PCB (CMPAT=YES, TYPE=TP: IMS TM), a GSAM PCB,
-PROCSEQ (a secondary index), load mode (PROCOPT L / LS), segment-level PROCOPT and partial sensitivity.
+variable-length segments, a non-unique or missing sequence field, an I/O PCB (CMPAT=YES, TYPE=TP: IMS TM), PROCSEQ (a
+secondary index), load mode on a DB PCB (PROCOPT L), segment-level PROCOPT and partial sensitivity. A GSAM database
+(#5233) is modelled as a load-mode output only: ACCESS=(GSAM,..) with fixed RECORD=(n), a TYPE=GSAM PCB with PROCOPT
+LS, and ISRT; it takes `"gsam": {"<DBD>": {"copybook": ..., "record": ...}}` to compare its records by field.
 `{"unload": ...}` reads an HD reorganization unload (DFSURGU0) of the corpus: its segments, EBCDIC, each laid out by
 its copybook (`segments`) into the case's data page (text through CCSID 037, COMP / COMP-3 bytes as they are), its
 trailer's segment counts checked.
 
 Written for both sides into one directory (`stage`): dbd.cfg, psb.cfg and seed.<DBD> (tests/equivalence/ims/ggdli.c
 documents the format); each side writes <DBD>.out, the database as the step left it, compared segment by segment
-(`diff_db`) with every field of its segment's layout.
+(`diff_db`) with every field of its segment's layout; a GSAM database's .out is its records, compared record by record.
 """
 
 from __future__ import annotations
@@ -59,6 +61,14 @@ def dbd(text: str, where: str) -> dict[str, Any]:
     if db is None:
         raise Unsupported(f"{where}: no DBD statement")
     access = (db["access"] or "").upper()
+    if access == "GSAM":  # #5233: a sequential file of fixed-length records, no hierarchy
+        sets = [r for r in rows if r["kind"] == "DATASET"]
+        rec = _keyed(sets[0]["attributes"], "RECORD") if len(sets) == 1 else None
+        n = (rec or "").strip("()").split(",")[0]
+        if not n.isdigit() or int(n) == 0 or (_keyed(sets[0]["attributes"], "RECFM") or "F") != "F":
+            raise Unsupported(f"{where}: a GSAM database needs one DATASET with RECORD=(n) and RECFM=F (variable and "
+                              "blocked formats are not modelled)")  # fmt: skip
+        return {"name": db["name"].upper(), "gsam": int(n), "segments": []}
     if access not in ACCESS:
         raise Unsupported(f"{where}: ACCESS={access or '?'} (only {', '.join(ACCESS)}: the root sequence of an HDAM "
                           "database is its randomizer's, a GSAM / INDEX / LOGICAL database is no hierarchy here)")  # fmt: skip
@@ -91,7 +101,7 @@ def dbd(text: str, where: str) -> dict[str, Any]:
 def psb(
     text: str, where: str, dbds: dict[str, dict[str, Any]], bmp: bool = False, cics: bool = False
 ) -> list[dict[str, Any]]:
-    """The PSB's DB PCBs, in order: [{dbd, procopt, keylen}]; an I/O or GSAM PCB, or what else is not modelled,
+    """The PSB's DB PCBs, in order: [{dbd, procopt, keylen}]; an I/O PCB, or what else is not modelled,
     refused. `bmp`: the program is a BMP (#5857), which IMS enters with the I/O PCB first (CMPAT=YES): required then,
     and refused otherwise. `cics`: EXEC DLI numbers the DB PCBs from 1 (no I/O PCB first), so CMPAT=YES changes nothing
     (I5 ASSUMPTION, no IBM text cited)."""
@@ -109,8 +119,17 @@ def psb(
     for r in rows:
         attrs = r["attributes"] or ""
         if r["kind"] == "PCB":
+            if (r["pcb_type"] or "").upper() == "GSAM":  # #5233: load mode (LS), ISRT only
+                name = (r["dbd_name"] or "").upper()
+                if not dbds.get(name, {}).get("gsam"):
+                    raise Unsupported(f"{where}: PCB {r['name']}: GSAM DBD {name} is not one of the case's DBDs")
+                if (r["procopt"] or "").upper() != "LS":
+                    raise Unsupported(f"{where}: PCB {r['name']}: GSAM PROCOPT={r['procopt']} (only LS, load mode, "
+                                      "is modelled: reading a GSAM file is not)")  # fmt: skip
+                pcbs.append({"dbd": name, "procopt": "LS", "keylen": 0, "gsam": dbds[name]["gsam"], "sensegs": []})
+                continue
             if (r["pcb_type"] or "").upper() != "DB":
-                raise Unsupported(f"{where}: a TYPE={r['pcb_type']} PCB (an I/O, alternate or GSAM PCB: not modelled)")
+                raise Unsupported(f"{where}: a TYPE={r['pcb_type']} PCB (an I/O or alternate PCB: not modelled)")
             if _keyed(attrs, "PROCSEQ"):
                 raise Unsupported(f"{where}: PCB {r['name']}: PROCSEQ (a secondary index) is not modelled")
             procopt = (r["procopt"] or "A").upper()
@@ -128,6 +147,8 @@ def psb(
                 raise Unsupported(f"{where}: SENSEG {r['name']}: a segment-level PROCOPT is not modelled")
             pcbs[-1]["sensegs"].append((r["name"] or "").upper())
     for p in pcbs:
+        if p.get("gsam"):
+            continue
         every = [s["name"] for s in dbds[p["dbd"]]["segments"]]
         if sorted(p["sensegs"]) != sorted(every):
             raise Unsupported(f"{where}: a PCB on {p['dbd']} sensitive to {p['sensegs']}, not to every segment "
@@ -248,6 +269,8 @@ def config(dbds: dict[str, dict[str, Any]], pcbs: list[dict[str, Any]]) -> tuple
     """dbd.cfg and psb.cfg (tests/equivalence/ims/ggdli.c, DetDli.load)."""
     lines = []
     for name, db in dbds.items():
+        if db.get("gsam"):  # no hierarchy: only its PCB's GSAM line names it
+            continue
         lines.append(f"DBD {name}")
         for s in db["segments"]:
             lines.append(f"SEGM {name} {s['name']} {s['parent']} {s['bytes']}")
@@ -255,7 +278,12 @@ def config(dbds: dict[str, dict[str, Any]], pcbs: list[dict[str, Any]]) -> tuple
             for f in s["fields"]:
                 lines.append(f"FIELD {name} {s['name']} {f['name']} {f['start']} {f['bytes']} {f['type']} "
                              f"{'S' if f['seq'] else '-'}")  # fmt: skip
-    return "\n".join(lines) + "\n", "".join(f"PCB {p['dbd']} {p['procopt']} {p['keylen']}\n" for p in pcbs)
+    return "\n".join(lines) + "\n", "".join(
+        f"GSAM {p['dbd']} {p['procopt']} {p['gsam']}\n"
+        if p.get("gsam")
+        else f"PCB {p['dbd']} {p['procopt']} {p['keylen']}\n"
+        for p in pcbs
+    )
 
 
 def entry_using(source: str) -> list[str] | None:
@@ -300,6 +328,8 @@ def stage(case: dict[str, Any], corpus: Path, source: str, dest: Path) -> list[d
     (dest / "dbd.cfg").write_text(dbd_cfg, encoding="ascii")
     (dest / "psb.cfg").write_text(psb_cfg, encoding="ascii")
     for name, db in dbds.items():
+        if db.get("gsam"):  # load mode: nothing to seed
+            continue
         (dest / f"seed.{name}").write_bytes(seed(case, corpus, name, db))
     return pcbs
 
@@ -338,6 +368,8 @@ def diff_db(case: dict[str, Any], corpus: Path, name: str, cobol: bytes, java: b
     """One database on both sides: its segments paired in hierarchic sequence, each one's fields (its segment's
     layout, else its bytes) compared."""
     dbds = dbd_definitions(case, corpus)
+    if dbds[name].get("gsam"):
+        return diff_gsam(case, corpus, name, dbds[name]["gsam"], cobol, java)
     sizes = {s["name"]: s["bytes"] for s in dbds[name]["segments"]}
     left, right = split(cobol, sizes), split(java, sizes)
     diffs: list[dict[str, Any]] = []
@@ -356,6 +388,36 @@ def diff_db(case: dict[str, Any], corpus: Path, name: str, cobol: bytes, java: b
             continue
         d = common.diff_records(a[1], b[1], len(a[1]), layout, case.get("code_page", "cp037"), enc)
         diffs.append({"segment": k + 1, "name": a[0], "diffs": d["diffs"]})
+    records = max(len(left), len(right))
+    return {"records": records, "equal": records - len(diffs), "filler_differs": 0, "diffs": diffs}
+
+
+def diff_gsam(case: dict[str, Any], corpus: Path, name: str, reclen: int, cobol: bytes, java: bytes) -> dict[str, Any]:
+    """#5233: a GSAM database's .out is its fixed-length records, in the order ISRT appended them; paired by position,
+    each compared by its copybook's fields when the case names one (`ims.gsam`), else by bytes."""
+    if len(cobol) % reclen or len(java) % reclen:
+        raise Unsupported(f"GSAM {name}: output is not a whole number of {reclen}-byte records")
+    left = [cobol[i : i + reclen] for i in range(0, len(cobol), reclen)]
+    right = [java[i : i + reclen] for i in range(0, len(java), reclen)]
+    spec = case["ims"].get("gsam", {}).get(name)
+    layout = None
+    if spec:
+        dirs = [corpus / d for d in case.get("copy_dirs", [])]
+        layout = common.layout_fields(corpus, spec["copybook"], spec.get("record"), copy_dirs=[*dirs, corpus],
+                                      occurrences=True)  # fmt: skip
+    diffs: list[dict[str, Any]] = []
+    enc = common.data_encoding(case)
+    for k in range(max(len(left), len(right))):
+        a = left[k] if k < len(left) else None
+        b = right[k] if k < len(right) else None
+        if a is None or b is None:
+            diffs.append({"segment": k + 1, "cobol": a.hex() if a else None, "java": b.hex() if b else None})
+        elif a != b:
+            if layout is None:
+                diffs.append({"segment": k + 1, "cobol": a.hex(), "java": b.hex()})
+            else:
+                d = common.diff_records(a, b, reclen, layout, case.get("code_page", "cp037"), enc)
+                diffs.append({"segment": k + 1, "diffs": d["diffs"]})
     records = max(len(left), len(right))
     return {"records": records, "equal": records - len(diffs), "filler_differs": 0, "diffs": diffs}
 

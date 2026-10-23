@@ -32,6 +32,8 @@ A case steers what the program must meet:
 `"digits": true` fills a text field with digits only -- a card number, an account id kept as text -- which its
 PICTURE (X) cannot say. `date` (#3829) gives a field valid dates in a shape -- YYYY, YY, MM and DD, anything else literal --
 text or numeric (`PIC 9(8)` as DDMMYYYY), whatever the field is called; its width must be the field's.
+`hex` (#6072) writes a field's raw bytes, cycled as `values` (with `every`): a value no PICTURE can say, such as
+a COMP-3 with a bad digit nibble for an IS NUMERIC false arm; each must be the field's width.
 `from` draws a field from another dataset's values (generated first), so a join finds its
 row -- and, with `miss`, sometimes does not, so the not-found path runs too. The primary key
 (the case's first `keys` entry) is unique, and an indexed dataset is written in key order,

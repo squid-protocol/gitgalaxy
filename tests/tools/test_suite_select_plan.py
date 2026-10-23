@@ -103,3 +103,46 @@ def test_the_cli_writes_the_github_output(tmp_path):
     sys.argv = ["x", "--files", "README.md", "--github-output", str(out)]
     assert sp.main() == 0
     assert out.read_text().splitlines() == ["mode=select", "paths=tests/core_engine"]
+
+
+def _smoke():
+    yaml = pytest.importorskip("yaml")
+    path = TOOLS.parents[1] / ".github" / "workflows" / "smoke-test.yml"
+    return yaml.safe_load(path.read_text(encoding="utf-8"))
+
+
+def test_the_workflow_wires_the_plan_to_skip_select_and_full():
+    wf = _smoke()
+    jobs = wf["jobs"]
+    plan_job = jobs["suite-plan"]
+    plan_step = next(s for s in plan_job["steps"] if s.get("id") == "plan")
+    assert "suite_select_plan.py" in plan_step["run"] and "--github-output" in plan_step["run"]
+    assert '"mode=full"' not in plan_step["run"] or "|| {" in plan_step["run"]  # a planner failure falls back to full
+    assert "shepherd:full" in plan_step["run"] or "--labels" in plan_step["run"]
+    assert plan_job["outputs"] == {"mode": "${{ steps.plan.outputs.mode }}", "paths": "${{ steps.plan.outputs.paths }}"}
+    # only a pull request is planned; every other event leaves mode empty, which is the full suite
+    assert "pull_request" in plan_job["if"]
+    part = jobs["full-suite-part"]
+    assert "suite-plan" in part["needs"] and "!= 'skip'" in part["if"]  # skip starts no part
+    pytest_step = next(s for s in part["steps"] if s.get("name", "").startswith("Golden Record Integration Test"))
+    assert "matrix.group == 1" in pytest_step["if"] and "!= 'select'" in pytest_step["if"]
+    assert '[ "$PLAN" = "select" ]' in pytest_step["run"] and "$SELECTED" in pytest_step["run"]
+    # the required check passes on a skipped part only for a skip plan (or the tested-tree gate)
+    agg = jobs["full-suite"]
+    assert "suite-plan" in agg["needs"]
+    assert 'test "$PLAN" = "skip"' in agg["steps"][0]["run"]
+    # the suite-time budget never totals a select / skip run's partial times
+    assert "suite-plan.outputs.mode == 'full'" in jobs["suite-time"]["if"]
+
+
+def test_the_pull_request_trigger_no_longer_ignores_docs():
+    wf = _smoke()
+    assert "paths-ignore" not in wf[True]["pull_request"]  # the planner decides (register edits run their readers)
+    assert wf[True]["push"]["paths-ignore"] == ["docs/**"]  # push keeps its behaviour
+
+
+def test_replay_of_known_change_lists():
+    # #6245's file list is not provable here without its diff; the three shapes the workflow relies on:
+    assert plan(["docs/language_status/register/x.md"])["mode"] == "select"
+    assert plan(["gitgalaxy/core/detector.py"])["mode"] == "full"
+    assert plan([], "pull_request")["mode"] == "full"  # a short or empty file list is full

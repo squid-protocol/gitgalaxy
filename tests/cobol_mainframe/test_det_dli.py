@@ -420,6 +420,9 @@ CMD_EXPECTED = [
     # DEPT*DP, EMP (parentage the DEPT), then GNPs of EMP*D, SKILL: each skill under D100 with its EMP, then GE
     "Q35 [  ] D100/E001/", "Q36 [  ] E001/S1CO/", "Q37 [  ] E001/S2JA/", "Q38 [GE]     /    /",  # nothing found: the area is untouched (blank)
     "Q39 [  ] D100/E001/",  # GHU
+    # Q (enqueue) changes nothing with one program: on an unqualified and a qualified SSA, a GN, a GNP that finds nothing,
+    # a GHU, and beside L
+    "Q40 [  ] D100SALES", "Q41 [  ] E003CAROL", "Q42 [  ] E004DAVE", "Q43 [GE]", "Q44 [  ] E003CAROL", "Q45 [  ] E002BOB",
 ]  # fmt: skip
 
 
@@ -442,12 +445,24 @@ def _swap(old: str, new: str):
     return edit
 
 
+def _swaps(*pairs: tuple[str, str]):
+    edits = [_swap(old, new) for old, new in pairs]
+
+    def edit(s: str) -> str:
+        for one in edits:
+            s = one(s)
+        return s
+
+    return edit
+
+
 @E2E
 @pytest.mark.parametrize(
     "edit, why",
     [
         (_swap("'DEPT    *L '", "'DEPT    *N '"), "the command code N"),
-        (_swap("'DEPT    *L '", "'DEPT    *Q '"), "the command code Q"),
+        (_swaps(("'DEPT    *L '", "'DEPT    *Q '"), ("F-GU PCB1 IOA C-DL", "F-ISRT PCB1 IOA C-DL")),
+         "the command code Q on a ISRT"),  # Q is modelled on the gets only
         (_swap("'DEPT    *L '", "'DEPT    *U '"), "the command code U"),
         (_swap("'DEPT    *L '", "'DEPT    *V '"), "the command code V"),
         (_swap("'DEPT    *L '", "'DEPT    *3 '"), "the command code 3"),

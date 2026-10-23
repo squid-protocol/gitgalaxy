@@ -965,6 +965,137 @@
       "refused_by_name": false,
       "new_class": false,
       "summary": "FUNCTION NUMVAL in a fixed-point COMPUTE was exact decimal; IBM evaluates it in long HFP, which blocked the three BNK1 programs translating whole."
+    },
+    {
+      "id": "P065",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "copaus2c",
+        "lgtestc1",
+        "lgastat1"
+      ],
+      "issue": 4737,
+      "fixed_by": "#4748",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Four CICS options were each the only gap in a program (FORMATTIME RESP, ASKTIME NOHANDLE, RECEIVE MAP ASIS, READQ TS LENGTH(LENGTH OF)); three burned programs (CardDemo, GenApp) were one option from whole, the fourth is in a non-burned repo."
+    },
+    {
+      "id": "P066",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "harness",
+      "class": "ci-gate",
+      "programs": [],
+      "issue": 4530,
+      "fixed_by": "#4536",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "14 committed equivalence ports (11 CardDemo Javadoc, 3 GenApp handleTransaction) had drifted from what the generator writes today, and no CI gate caught it; ports resurfaced, re-proven, and port_surface --check gated."
+    },
+    {
+      "id": "P067",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "harness",
+      "class": "ci-gate",
+      "programs": [
+        "cbact01c",
+        "cbact02c",
+        "cbact03c",
+        "cbact04c",
+        "cbcus01c",
+        "cbtrn01c",
+        "cbtrn02c",
+        "cbtrn03c",
+        "csutldtc",
+        "epsnbrvl",
+        "lgstsq"
+      ],
+      "issue": 5008,
+      "fixed_by": "#5011",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Batch and CALL det cases never got a det-sweep coverage ledger entry, so 11 programs stayed at L2 'coverage not measured' (CardDemo, DBB, GenApp)."
+    },
+    {
+      "id": "P068",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "facade",
+      "class": "commarea-bytes",
+      "programs": [
+        "lgtestp1",
+        "lgtestp2",
+        "lgtestp3",
+        "lgtestp4",
+        "cocrdupc",
+        "epscmort"
+      ],
+      "issue": 4870,
+      "fixed_by": "#4960",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The generated facade answered RETURN TRANSID COMMAREA as a DTO only, losing bytes the DTO cannot decode (non-digits in a numeric DISPLAY field); needed a bytes overload and an overload-aware port_surface (#4888), re-proving ~25 ports."
+    },
+    {
+      "id": "P069",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "epscsmrt",
+        "cotrtlic"
+      ],
+      "issue": 4736,
+      "fixed_by": "#4750",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Dynamic CALL was the only gap in two burned programs: a REDEFINES-over-VALUE-table target (DBB EPSCSMRT) found no candidates, and CALL DSNTIAC (CardDemo COTRTLIC) is refused by name because Db2's message text is not modelled."
+    },
+    {
+      "id": "P070",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "data-layout",
+      "programs": [
+        "epscsmrd",
+        "cocrdupc",
+        "cousr01c",
+        "cotrn02c",
+        "updacc"
+      ],
+      "issue": 5694,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Record layouts the engine cannot hand the translator: PROCEDURE/FUNCTION-POINTER width (#5841) and SYNC slack (#6117) are done; DFHAID, DFHBMSCA, DFHEIBLK, SQLCA and SQLDA keep the translator's own layout (open)."
+    },
+    {
+      "id": "P071",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "harness",
+      "class": "db2",
+      "programs": [
+        "bankdata",
+        "cbstm03b"
+      ],
+      "issue": 5561,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Two whole-translated batch programs (CBSA BANKDATA, CardDemo CBSTM03B) had no equivalence case that runs them, so they stayed at L1; the harness needed the Db2 generated-rows path with VSAM output, and datasets for a CALLed program."
     }
   ]
 }

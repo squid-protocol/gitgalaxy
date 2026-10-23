@@ -87,6 +87,7 @@ public final class DetDli {
         boolean last; // #5233: command code L
         boolean par; // #5233: command code P
         boolean path; // #5233: command code D
+        boolean enq; // #5233: command code Q
         byte[] cat; // #5233: command code C, the concatenated key in the parentheses
         // #5233: the statements after the first, each joined to the one before by AND (or == false) or OR
         final List<Term> more = new ArrayList<>();
@@ -753,7 +754,7 @@ public final class DetDli {
             }
             int at = o + 9;
             if (q == '*') {
-                // #5233: command codes, each one of A-Z 0-9 or '-', then '(' or a blank; F, L and - are modelled
+                // #5233: command codes, each one of A-Z 0-9 or '-', then '(' or a blank; F, L, P, C, D, Q and - are modelled
                 while (at < b.length && isCode(b[at] & 0xFF)) {
                     char c = (char) (b[at] & 0xFF);
                     if (c == 'F') {
@@ -764,6 +765,8 @@ public final class DetDli {
                         s.par = true;
                     } else if (c == 'D') {
                         s.path = true;
+                    } else if (c == 'Q') {
+                        s.enq = true;
                     } else if (c == 'C') {
                         s.cat = new byte[0];
                     } else if (c != '-') {
@@ -899,7 +902,7 @@ public final class DetDli {
         return (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-';
     }
 
-    /** Command codes (#5233): F and L on a GU / GHU or an ISRT, P on a GU / GHU (a unique sequence field: no effect on ISRT, and F none on
+    /** Command codes (#5233): Q on a get (no effect: one program, so no other program to wait for); F and L on a GU / GHU or an ISRT, P on a GU / GHU (a unique sequence field: no effect on ISRT, and F none on
      *  GU, which starts from the first twin); L on a GU only as the last, unqualified SSA. Anything else is refused. */
     private static void checkCodes(String fn, Ssa[] s) {
         boolean gu = fn.startsWith("GU") || fn.startsWith("GHU");
@@ -914,6 +917,9 @@ public final class DetDli {
             }
             if (s[i].path && s[i].cat != null) {
                 throw refuse("the command code D beside C");
+            }
+            if (s[i].enq && fn.charAt(0) != 'G') {
+                throw refuse("the command code Q on a " + fn.trim()); // #5233: Q (enqueue) is modelled on the gets, where it changes nothing
             }
             if (s[i].par && (!gu || ++ps > 1)) {
                 throw refuse(gu ? "the command code P on more than one SSA" : "the command code P on a " + fn.trim());

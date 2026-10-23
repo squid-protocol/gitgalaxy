@@ -3728,9 +3728,10 @@
   {
    "id": "RT-DLI-ISRT",
    "family": "DLI",
-   "title": "ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found",
+   "title": "ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found; with command code D, a path insert from the root (each D-coded level kept or created from its slice of the I/O area)",
    "methods": [
-    "isrt"
+    "isrt",
+    "pathIsrt"
    ],
    "ibm": {
     "doc": "ims-apis",
@@ -3749,7 +3750,8 @@
    "family": "DLI",
    "title": "REPL / DLET on the segment the previous get-hold call returned; DJ without one, DA when the I/O area changed the sequence field; DLET removes the segment's dependents",
    "methods": [
-    "change"
+    "change",
+    "changePath"
    ],
    "ibm": {
     "doc": "ims-apis",

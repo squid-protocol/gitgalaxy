@@ -355,17 +355,17 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/73 (95%) | 4 / 0 / 10 / 0 / 0 |
 | CBCUS01C (carddemo-readcust) | equivalence | 83/83 | 63/74 (85%) | 63/70 (90%) | 7 / 0 / 4 / 0 / 0 |
 | CBACT03C (carddemo-readxref) | equivalence | 90/90 | 69/83 (83%) | 69/77 (90%) | 8 / 0 / 6 / 0 / 0 |
-| CORPT00C (carddemo-report) | equivalence | 100/642 | 58/87 (67%) | 58/60 (97%) | 2 / 0 / 16 / 11 / 0 |
+| CORPT00C (carddemo-report) | equivalence | 100/642 | 59/87 (68%) | 59/60 (98%) | 1 / 0 / 16 / 11 / 0 |
 | COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
 | COSGN00C (carddemo-signon-generated) | equivalence | 150/202 | 99/149 (66%) | 99/99 (100%) | 0 / 0 / 42 / 8 / 0 |
-| COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/73 (84%) | 12 / 0 / 10 / 8 / 0 |
+| COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 70/91 (77%) | 70/73 (96%) | 3 / 0 / 10 / 8 / 0 |
 | COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 66/91 (73%) | 66/79 (84%) | 13 / 0 / 5 / 7 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/314 | 67/100 (67%) | 67/67 (100%) | 0 / 0 / 25 / 8 / 0 |
 | COTRN01C (carddemo-tranview-generated) | equivalence | 150/314 | 92/150 (61%) | 92/92 (100%) | 0 / 0 / 48 / 10 / 0 |
 | CBTRN03C (carddemo-trnrpt) | equivalence | 100/408 | 68/86 (79%) | 68/79 (86%) | 8 / 3 / 7 / 0 / 0 |
 | COUSR01C (carddemo-useradd) | equivalence | 100/272 | 63/98 (64%) | 63/64 (98%) | 0 / 1 / 27 / 7 / 0 |
 | COUSR03C (carddemo-userdel) | equivalence | 100/340 | 67/87 (77%) | 67/67 (100%) | 0 / 0 / 17 / 3 / 0 |
-| COUSR00C (carddemo-userlist) | equivalence | 510/510 | 377/505 (75%) | 377/379 (99%) | 0 / 2 / 55 / 71 / 0 |
+| COUSR00C (carddemo-userlist) | equivalence | 512/512 | 379/507 (75%) | 379/381 (99%) | 0 / 2 / 55 / 71 / 0 |
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 57/82 (70%) | 57/59 (97%) | 2 / 0 / 14 / 9 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/470 | 63/131 (48%) | 63/106 (59%) | 43 / 0 / 11 / 14 / 0 |
 | UPDACC (cbsa-updacc) | equivalence | 139/139 | 103/139 (74%) | 103/110 (94%) | 0 / 7 / 17 / 12 / 0 |
@@ -398,17 +398,17 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 5117 run | **3225/4729 (68%)** | **3225/3683 (88%)** | 257 / 201 / 646 / 400 / 0 |
-| **all estate** | | 5621 run | **3544/5205 (68%)** | **3544/4037 (88%)** | 292 / 201 / 734 / 434 / 0 |
+| **all equivalence** | | 5119 run | **3237/4731 (68%)** | **3237/3685 (88%)** | 247 / 201 / 646 / 400 / 0 |
+| **all estate** | | 5623 run | **3556/5207 (68%)** | **3556/4039 (88%)** | 282 / 201 / 734 / 434 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
 | AOR | 231/286 (81%) | 231/255 (91%) |
-| BDM | 25/52 (48%) | 25/28 (89%) |
-| CON | 463/1061 (44%) | 463/576 (80%) |
-| COR | 224/353 (63%) | 224/263 (85%) |
-| DEL | 613/878 (70%) | 613/688 (89%) |
-| LIT | 730/989 (74%) | 730/814 (90%) |
+| BDM | 27/52 (52%) | 27/28 (96%) |
+| CON | 467/1062 (44%) | 467/577 (81%) |
+| COR | 228/353 (65%) | 228/263 (87%) |
+| DEL | 614/878 (70%) | 614/688 (89%) |
+| LIT | 731/990 (74%) | 731/815 (90%) |
 | NEG | 622/703 (88%) | 622/668 (93%) |
 | RET | 56/105 (53%) | 56/93 (60%) |
 | ROR | 580/778 (75%) | 580/652 (89%) |
@@ -432,17 +432,17 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBACT02C (carddemo-readcard) | - | - | 17/23 | 1/3 | 9/11 | 22/25 | 12/12 | - | 8/9 |
 | CBCUS01C (carddemo-readcust) | - | - | 12/13 | 1/4 | 8/8 | 23/27 | 10/10 | - | 9/12 |
 | CBACT03C (carddemo-readxref) | - | - | 16/19 | 1/4 | 9/9 | 22/27 | 10/10 | - | 11/14 |
-| CORPT00C (carddemo-report) | 3/3 | 0/1 | 1/11 | 10/13 | 6/13 | 12/13 | 13/13 | 4/7 | 9/13 |
+| CORPT00C (carddemo-report) | 3/3 | 0/1 | 1/11 | 10/13 | 7/13 | 12/13 | 13/13 | 4/7 | 9/13 |
 | COSGN00C (carddemo-signon) | 2/2 | - | 3/20 | 3/4 | 12/20 | 18/20 | 15/16 | - | 14/17 |
 | COSGN00C (carddemo-signon-generated) | 2/2 | - | 6/36 | 4/5 | 23/36 | 31/35 | 16/16 | - | 17/19 |
-| COTRN02C (carddemo-tranadd) | 7/7 | 3/7 | 1/12 | 5/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
+| COTRN02C (carddemo-tranadd) | 7/7 | 5/7 | 4/12 | 9/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
 | COTRN00C (carddemo-tranlist) | 6/9 | - | 10/14 | 8/14 | 11/13 | 10/14 | 11/11 | 2/3 | 8/13 |
 | COTRN01C (carddemo-tranview) | 1/1 | - | 2/24 | 2/3 | 21/24 | 19/24 | 17/17 | - | 5/7 |
 | COTRN01C (carddemo-tranview-generated) | 1/1 | - | 3/43 | 2/3 | 34/43 | 30/36 | 17/17 | - | 5/7 |
 | CBTRN03C (carddemo-trnrpt) | 2/2 | 5/7 | 9/14 | 1/7 | 14/14 | 13/14 | 12/14 | - | 12/14 |
 | COUSR01C (carddemo-useradd) | 1/1 | - | 1/21 | 3/6 | 16/20 | 16/20 | 10/10 | - | 16/20 |
 | COUSR03C (carddemo-userdel) | 0/1 | - | 6/17 | 2/4 | 14/17 | 14/16 | 16/16 | - | 15/16 |
-| COUSR00C (carddemo-userlist) | 12/12 | - | 50/123 | 28/38 | 111/126 | 75/94 | 49/51 | - | 52/61 |
+| COUSR00C (carddemo-userlist) | 12/12 | - | 51/124 | 28/38 | 111/126 | 76/95 | 49/51 | - | 52/61 |
 | COUSR02C (carddemo-userupd) | 1/1 | - | 3/16 | 3/5 | 11/16 | 14/16 | 13/13 | - | 12/15 |
 | INQACC (cbsa-inqacc) | 3/3 | 1/2 | 4/21 | 2/5 | 10/21 | 6/21 | 14/21 | 8/16 | 15/21 |
 | UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 10/11 | 17/28 | 28/34 | 8/8 | - | 19/21 |
@@ -723,9 +723,14 @@ python tests/tools/det_mutation.py refresh --work DIR        # an input moved: s
   above; `mutation.py run --port DIR --files GLOB` is the hook.
 - **The ledger**, `tests/equivalence/det_mutation/<CASE>.json`, is written only by the tool: per case the counts, every
   judged mutant's verdict, the survivors in full, and the fingerprints of the det port's files, the case, the
-  corpus pin, the harness, the oracle and the Java generator (the stand-in for the port a reader can check without
-  translating). Any fingerprint that moved makes the entry unknown; `refresh` re-translates and, when the port
-  bytes did not change, renews it: a generator-only move needs no re-run; a case / corpus / harness / oracle move re-runs
+  corpus pin, the reviewed survivor list, and the Java generator, harness and oracle. **Fresh (#5862, owner
+  2026-10-23)** means the case, the corpus pin and the survivor list match the tree and `refresh` has not found the
+  det port's bytes (the generated `.java` files) moved. The generator, harness and
+  oracle fingerprints are whole-tree hashes: their drift alone does not stale an entry, it is recorded (`drifted`,
+  shown by `describe` and `stale-check`). Because `status` cannot translate, a port that a translator change moved is
+  only found when `refresh` runs (the nightly Evidence Refresh lane): it then marks the entry stale (`port_moved`)
+  until `run` records the new port. `refresh` re-translates any entry that is stale or drifted and, when the port
+  bytes did not change, renews it: info drift only needs no re-run; a case / corpus / survivor-list move re-runs
   only the recorded survivors (same seed, mode and scope) and carries the rest. A survivor that now dies drops out
   (a stated `equivalent` / `unreachable` one is a wrong claim: exit 1); one still surviving with the same Java line
   keeps its stated verdict. Mutants killed before are not re-proven, so a case weakened since would not show. The

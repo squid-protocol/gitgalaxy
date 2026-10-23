@@ -423,6 +423,25 @@ CMD_EXPECTED = [
     # Q (enqueue) changes nothing with one program: on an unqualified and a qualified SSA, a GN, a GNP that finds nothing,
     # a GHU, and beside L
     "Q40 [  ] D100SALES", "Q41 [  ] E003CAROL", "Q42 [  ] E004DAVE", "Q43 [GE]", "Q44 [  ] E003CAROL", "Q45 [  ] E002BOB",
+    # U and V make the current position a qualification (U at its level, V at it and above): position E002 under D100, then
+    # DEPT*U, EMP | DEPT*U, EMP(E002) | DEPT*V, EMP*V | DEPT, EMP*U | a GN DEPT*U, PROJ | DEPT*V | GNP EMP, SKILL | GNP
+    # EMP*V, SKILL (the next skill of the same EMP) | DEPT*U, EMP(E003): E003 is under D200, not the position's D100
+    "Q46 [  ] E001ALICE", "Q47 [  ] E002BOB", "Q48 [  ] E002BOB", "Q49 [  ] E002BOB", "Q50 [  ] P1ALPHA", "Q51 [  ] D100SALES",
+    "Q52 [  ] E001ALICE", "Q53 [  ] S1COBOL", "Q54 [  ] S2JAVA", "Q55 [GE]",
+    # N (no replace) beside D on a GHU, then REPL of the path: DEPT*DN, EMP: only the EMP is replaced (the DEPT name stays SALES)
+    "Q56 [  ] D100/E001/", "Q57 [  ] D100/E001/", "Q58 [  ] E001XENIA", "Q59 [  ] D100SALES",
+    # DEPT*D, EMP*DN: the DEPT is replaced and the EMP is not
+    "Q60 [  ] D100/E001/", "Q61 [  ] D100/E001/", "Q62 [  ] D100ALPHA", "Q63 [  ] E001XENIA",
+    # an N segment's sequence field is not compared (D999 in the DEPT's slice), the EMP is replaced
+    "Q64 [  ] D100/E001/", "Q65 [  ] D999/E001/", "Q66 [  ] D100ALPHA", "Q67 [  ] E001NEWNM",
+    # a changed sequence field in a replaced segment is DA, and nothing is replaced
+    "Q68 [  ] D100/E001/", "Q69 [DA] D100/E999/", "Q70 [  ] E001NEWNM",
+    # D on an ISRT before the last SSA, the path insert: DEPT*D, EMP inserts a new root and its child; the GU reads the child back
+    "Q71 [  ] EMP", "Q72 [  ] E010ZED",
+    # an existing D-coded DEPT is kept (its slice is not compared: its name, ALPHA since Q62, stays), the EMP is inserted under it; the same call again is II
+    "Q73 [  ] EMP", "Q74 [  ] D100ALPHA", "Q75 [  ] E011ABEL", "Q76 [II] DEPT",
+    # three levels, DEPT*D, EMP*D, SKILL; then a qualified DEPT without D (found by its SSA), EMP*D, SKILL; a qualified DEPT that is missing: GE
+    "Q77 [  ] SKILL", "Q78 [  ] S9TEST", "Q79 [  ] SKILL", "Q80 [  ] E030CY", "Q81 [  ] S8X", "Q82 [GE]",
 ]  # fmt: skip
 
 
@@ -433,7 +452,10 @@ def test_command_codes_answer_the_same_on_both_runtimes(tmp_path):
     assert _lines(cobol_out) == CMD_EXPECTED
     assert _lines(java_out) == CMD_EXPECTED
     assert cobol_db == java_db
-    keys = [(n, d[:4].decode("latin-1").strip()) for n, d in ei.split(cobol_db, {"DEPT": 20, "EMP": 20, "SKILL": 8, "PROJ": 12})]
+    keys = [
+        (n, d[:4].decode("latin-1").strip())
+        for n, d in ei.split(cobol_db, {"DEPT": 20, "EMP": 20, "SKILL": 8, "PROJ": 12})
+    ]
     assert ("EMP", "E004") in keys and keys.index(("EMP", "E004")) == keys.index(("EMP", "E003")) + 2
 
 
@@ -463,10 +485,25 @@ def _swaps(*pairs: tuple[str, str]):
         (_swap("'DEPT    *L '", "'DEPT    *N '"), "the command code N"),
         (_swaps(("'DEPT    *L '", "'DEPT    *Q '"), ("F-GU PCB1 IOA C-DL", "F-ISRT PCB1 IOA C-DL")),
          "the command code Q on a ISRT"),  # Q is modelled on the gets only
-        (_swap("'DEPT    *L '", "'DEPT    *U '"), "the command code U"),
-        (_swap("'DEPT    *L '", "'DEPT    *V '"), "the command code V"),
+        (_swap("'DEPT    *L '", "'DEPT    *U '"), "the command code U with no established position"),
+        (_swap("'DEPT    *L '", "'DEPT    *V '"), "the command code V with no established position"),
+        (_swaps(("'DEPT    *L '", "'DEPT    *U '"), ("F-GU PCB1 IOA C-DL", "F-ISRT PCB1 IOA C-DL")),
+         "the command code U on a ISRT"),  # U and V are modelled on the gets only
+        (_swaps(("'DEPT    *L '", "'DEPT    *V '"), ("F-GU PCB1 IOA C-DL", "F-ISRT PCB1 IOA C-DL")),
+         "the command code V on a ISRT"),
+        (_swaps(("'EMP     *CD'", "'EMP     *CU'"), ("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CE2",
+                                                       "CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CDE")),
+         "the command code U beside C"),
         (_swap("'DEPT    *L '", "'DEPT    *3 '"), "the command code 3"),
-        (_swap("'DEPT    *L '", "'DEPT    *-N'"), "the command code N"),  # a refused code later in the list
+        (_swap("PIC X(11) VALUE 'DEPT    *L '", "PIC X(12) VALUE 'DEPT    *-N '"),
+         "the command code N other than with D on a get-hold call"),  # N later in the list, on a GU
+        (_swap("F-GHU PCB1 IOP C-DDN S-EMP", "F-GU PCB1 IOP C-DDN S-EMP"), "the command code N other than with D on a get-hold call"),
+        (_swap("'DEPT    *DN '", "'DEPT    *N  '"), "the command code N other than with D on a get-hold call"),  # N without D (a hold get)
+        (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-ISRT PCB1 IOA C-DDN"),
+         "the command code N other than with D on a get-hold call (ISRT)"),  # no replace is a get-hold's, not a path insert's
+        (_swap("F-ISRT PCB1 IOP C-DD S-EMP", "F-ISRT PCB1 IOP C-DDN S-EMP"),
+         "the command code N other than with D on a get-hold call (ISRT)"),  # N beside D on a path insert
+        (_swap("PIC X(4) VALUE 'REPL'", "PIC X(4) VALUE 'DLET'"), "a DLET after a path call"),
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DF"),
          "the command code F on a GN"),
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DL"),
@@ -478,7 +515,6 @@ def _swaps(*pairs: tuple[str, str]):
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-CE2"),
          "the command code C other than"),
         (_swap("IOA S-DEPT S-EMP C-SKL", "IOA C-CE2 C-CS2"), "the command code C other than"),
-        (_swap("F-ISRT PCB1 IOA C-DQ C-EF", "F-ISRT PCB1 IOA C-DQ C-ED"), "the command code D on a ISRT"),
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CE2", "CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CDE"),
          "the command code D beside C"),
         (_swap("IOA S-DEPT C-EL", "IOA C-DL C-EL"), "the command code L other than"),  # L on a path SSA
@@ -1140,3 +1176,12 @@ def test_detdli_a_gsam_pcb_in_load_mode_appends_records_and_refuses_what_it_does
     assert records.read_bytes() == b"AAAAAAAABBBBBBBB"
     dup, _ = run("GSAM G LS 8\nGSAM G LS 8\n", "dup")
     assert dup == ["CBLTDLI: two GSAM PCBs on one database is not modelled"]
+
+
+@E2E
+def test_a_path_isrt_with_an_area_shorter_than_its_segments_is_refused_by_the_java_runtime(tmp_path):
+    # the C twin cannot see the area's size (register I5), so only the Java side refuses
+    short = _swap("F-ISRT PCB1 IOP C-DD S-EMP", "F-ISRT PCB1 IOA C-DD S-EMP")
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_side(tmp_path / "java", prog="DLICMD", edit=short)
+    assert "a path ISRT whose I/O area is shorter" in (e.value.stderr or b"").decode("utf-8")

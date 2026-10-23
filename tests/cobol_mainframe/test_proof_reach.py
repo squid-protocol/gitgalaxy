@@ -334,7 +334,8 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # #4049 (CSUTLDTC Julian) changed the dateutil port that CORPT00C and COTRN02C CALL, and re-proved both: their
     # recorded mutation runs judged the older callee, so their 2 flagged survivors (both unreachable) are skipped until
     # the next run. 114 -> 112.
-    assert len(flagged) == 112 and verdicts.count("unreachable") == 109 and verdicts.count("equivalent") == 3
+    # #4049 re-ran both (CORPT00C 59/87 caught, COTRN02C 70/91, 100 mutants each, seed 0): the 2 return. 112 -> 114.
+    assert len(flagged) == 114 and verdicts.count("unreachable") == 111 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"CSUTLDTC"}
     assert {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C"} == {"COACTVWC", "COMEN01C"}
 

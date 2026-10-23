@@ -159,7 +159,7 @@ CONTAINER_STOP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
 
 # SPEC 6.2: the abend code CICS gives an unhandled condition (the AEIA topic of IBM's abend codes).
 CONDITION_ABCODE = {"NOTFND": "AEIM", "LENGERR": "AEIV", "ITEMERR": "AEIZ", "QIDERR": "AEYH", "MAPFAIL": "AEI9",
-                    "ENDDATA": "AEI2", "PGMIDERR": "AEI0", "INVREQ": "AEIP",
+                    "ENDDATA": "AEI2", "PGMIDERR": "AEI0", "INVREQ": "AEIP", "IOERR": "AEIQ",
                     # #4270: IBM abend codes AEZJ / AEZV ("CONTAINERERR / CHANNELERR condition not handled")
                     "CONTAINERERR": "AEZJ", "CHANNELERR": "AEZV",
                     # #4648: IBM abend code AEY7 ("NOTAUTH condition not handled")
@@ -200,7 +200,10 @@ COBOL_CAPS = cc.Capabilities(
         "LINK": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "XCTL": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
-        "READ": frozenset({"file", "ridfld", "resp"}),
+        # #4443 A0b: what ggcics_filecontrol.c's read_event / unlock_event and ggcics.c's rewrite_event record
+        "READ": frozenset({"file", "ridfld", "update", "resp", "resp2", "length", "data"}),
+        "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
+        "UNLOCK": frozenset({"file", "resp", "resp2"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
@@ -232,6 +235,10 @@ JAVA_CAPS = cc.Capabilities(
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
+        # #4443: what CicsTask.readInto / rewriteFrom / unlock record (READ SET is not modelled there)
+        "READ": frozenset({"file", "ridfld", "update", "resp", "resp2", "length", "data"}),
+        "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
+        "UNLOCK": frozenset({"file", "resp", "resp2"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
         "START": _START_KEYS,
         "RETRIEVE": _RETRIEVE_KEYS,
@@ -1819,6 +1826,24 @@ def java_send_map(screen: Screen, e: dict[str, Any]) -> tuple[dict[str, Any], An
     return cics_bms.send_map(screen.bms, program, e.get("options") or [], e.get("cursor"))
 
 
+def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
+    """#4443: a READ / REWRITE / UNLOCK CicsTask recorded, as the log's keys: `update`, `resp2` and `length` only when
+    the command carries them. A LENGERR READ asserts its RESP only (SPEC section 2, Files), so its RESP2 is left out."""
+    ev: dict[str, Any] = {"file": e.get("file"), "resp": e.get("resp")}
+    if kind == "READ":
+        ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
+        if e.get("update"):
+            ev["update"] = True
+        if e.get("length") is not None:
+            ev["length"] = e["length"]
+    if kind in ("READ", "REWRITE"):
+        b64 = e.get("data")
+        ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
+    if e.get("resp2") is not None and not (kind == "READ" and e.get("resp") == "LENGERR"):
+        ev["resp2"] = e["resp2"]
+    return ev
+
+
 def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 screens: dict[str, Screen] | None = None) -> dict[str, Any]:  # fmt: skip
     """The generated test's output for one scenario -> an actual log for the comparison."""
@@ -1856,6 +1881,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 ev.update(queue=e.get("queue"), item=e.get("item"), resp=e.get("resp"), data=data)
                 if kind == "READQ-TS":
                     ev["length"] = e.get("length")
+            elif kind in ("READ", "REWRITE", "UNLOCK"):  # #4443: byte[] ridfld / data arrive as base64, EBCDIC bytes
+                ev.update(_java_file_event(kind, e))
             elif kind == "WRITE-OPERATOR":  # #4270 zECS (X32): the console message, as the text CicsTask recorded
                 ev.update(data=cc.RawArea(str(e.get("text") or "").encode("latin-1"), "latin-1"), resp=e.get("resp"))
             elif kind == "RECEIVE-MAP":
@@ -2259,9 +2286,20 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             ev.update(target=arg("target"), length=int(arg("len") or 0),
                       commarea=cc.RawArea(data, "latin-1") if arg("area") == "1" else None, resp=resp,
                       resp2=int(arg("resp2") or 0) if resp != "NORMAL" else None)  # fmt: skip
-        elif verb == "READ":
-            ev.update(file=arg("file"), ridfld=arg("key").encode(cc.EBCDIC),
-                      resp=names.get(int(arg("resp") or 0), arg("resp")))  # fmt: skip
+        elif verb in ("READ", "REWRITE", "UNLOCK"):  # #4443 A0b: SPEC 6.2 keys only where the command carries them
+            ev.update(file=arg("file"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+            if verb == "READ":
+                ev["ridfld"] = arg("key").encode(cc.EBCDIC)
+                if arg("upd"):
+                    ev["update"] = True
+                if arg("len"):
+                    ev["length"] = int(arg("len"))
+                ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] == "NORMAL" else None
+            elif verb == "REWRITE":
+                ev["data"] = cc.RawArea(data, "latin-1")
+            # SPEC section 2 asserts LENGERR's RESP only
+            if arg("resp2") and not (verb == "READ" and ev["resp"] == "LENGERR"):
+                ev["resp2"] = int(arg("resp2"))
         elif verb in ("RETURN", "END"):
             level = int(arg("level") or 1)
             ev = {"event": "RETURN", "program": issuer, "level": level}

@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-paudblod",
+  "entries": [
+    {
+      "unit": "3100-INSERT-CHILD-SEG",
+      "line": 310,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF PAUT-PCB-STATUS NOT EQUAL TO SPACES AND 'II'` (310) has no END-IF of its own: it sits inside `IF PAUT-PCB-STATUS = SPACES` (309) and runs right after `PERFORM 3200-INSERT-IMS-CALL`. 3200 returns only with the status blank or 'II' (its own test at 3200 sends any other status to 9999-ABEND, which GOBACKs), so the status read at 310 is never outside blank / 'II' and the ROOT GU CALL FAIL arm cannot run; a failed root GU (not blank) skips 309's body altogether."
+    }
+  ]
+}

@@ -43,7 +43,10 @@ def test_dbcrfun_covers_update_and_proctran_insert_failing():
 
 
 def test_bnkmenu_and_dbcrfun_state_their_unreachable_arms():
-    data = json.loads((EQUIV / "infeasible_outcomes.json").read_text(encoding="utf-8"))["cases"]
+    data = {
+        case: json.loads((EQUIV / "infeasible_outcomes" / f"{case}.json").read_text(encoding="utf-8"))["entries"]
+        for case in ("cbsa-bnkmenu", "cbsa-dbcrfun")
+    }
     menu = {(e["unit"], e["line"], e["outcome"]): e for e in data["cbsa-bnkmenu"]}
     assert ("IOT010", 897, "false") in menu
     assert menu[("A010", 178, "true")]["family"] == "R"

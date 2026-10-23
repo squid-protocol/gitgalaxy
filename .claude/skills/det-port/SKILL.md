@@ -47,6 +47,7 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUN
 | **a PR that changes a case with a `det_mutation` ledger** | `pr_gates.py` prints a `HINT det-mutation` line; run `pr_gates.py --only-ratchets det-mutation`, then `det_mutation.py refresh CASE --work DIR` and commit `tests/equivalence/det_mutation/CASE.json`, so strengthening a case never drops its program from L5 (#5862) |
 | **run a det case** | `det_port.py run`: only it applies the deterministic port. `equivalence.py run` uses the generated skeleton, not the deterministic port (#5147) |
 | prove one port by hand | `$PY tests/tools/equivalence.py run CASE --port DIR/CASE/port --keep DIR/proof --faults all` |
+| **an evidence-ladder slice** (#6072) | the `ladder-slice` skill: `tests/tools/ladder_gaps.py CASE` lists the uncovered paragraphs and branch outcomes, `tests/tools/ladder_refresh.py CASE` reruns the sweep, ledger, evidence and pin tests after an edit |
 | all CI gates | `$PY tests/tools/pr_gates.py` (`--fast` skips the golden masters and the suite) |
 | **re-prove everything** (a runtime / harness / oracle change) | `$PY tests/tools/proof_sweep.py --work DIR` -- every det and model port, checked against the cases not proven on purpose; det ~9 min at `--jobs 4`, model ~12 min (2026-10-02) |
 

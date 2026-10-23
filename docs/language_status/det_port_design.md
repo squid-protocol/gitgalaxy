@@ -866,7 +866,8 @@ NULL is distinct.
   indexes; logical relationships; load mode on a DB PCB. CardDemo's other DL/I program that stops at one of these:
   PAUDBLOD (CMPAT=YES, an I/O PCB). **GSAM load mode (#5233, RT-DLI-GSAM).** A TYPE=GSAM PCB with PROCOPT LS is a
   record output file (`DetDli.gsamCall`, twin of `ggdli.c`'s `gsam_call`): ISRT appends one record, any other
-  function answers AM; `carddemo-dbunldgs` proves DBUNLDGS on it. (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above.)
+  function answers AM; `carddemo-dbunldgs` proves DBUNLDGS on it. Reading a GSAM file (PROCOPT G) is used by no burned
+  program (`test_gsam_burned_5233.py` pins it) and stays refused by name. (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above.)
 - **COPAUA0C, the authorization task (`carddemo-copaua0c`, #5278).** Transid CP00: an MQTM trigger, MQGET on the request queue, IMS
   DBPAUTP0 by EXEC DLI, three VSAM reads and MQPUT replies. Proven on 17 scenarios (3 fault runs), through the deployed entry point
   too, covering 41/41 paragraphs and 58/69 branches. The det port is committed (`port/service/`, `port/provenance.json`, as CBPAUP0C's),

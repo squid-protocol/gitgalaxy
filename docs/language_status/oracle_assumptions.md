@@ -1382,6 +1382,23 @@ well-formed and resolves as before. Rendered from `LE_OPTIONS`.
 | `le.runtime_options.ABTERMENC` | ABEND or RETCODE | a value outside this syntax is refused by name; a well-formed one is judged by the row above |
 
 
+### Db2 format and CCSID options, judged for syntax (#4707)
+The six `db2.format.*` and `db2.ccsid.*` rows above keep their outcome for a well-formed value (ISO, 15, a period and NO
+honoured; USA, EUR, 31, a comma and YES refused; an EBCDIC CCSID declared or honoured). A value that is not Db2 syntax at
+all is not one IBM accepts, so it is refused by name rather than blamed on the format it resembles or declared as a
+CCSID. Burned estates: every recorded cell (`ISO`, `15`, `.`, `NO`, a plain CCSID) is well-formed and resolves as before.
+The CICS `cics.region.LOCALCCSID` row is judged in the CICS slice. Rendered from `DB2_OPTIONS`.
+
+| option | syntax accepted | otherwise |
+|---|---|---|
+| `db2.format.DATE` | ISO, USA, EUR, JIS or LOCAL | a value outside this syntax is refused by name; a well-formed one is judged by the row above |
+| `db2.format.TIME` | ISO, USA, EUR, JIS or LOCAL | a value outside this syntax is refused by name; a well-formed one is judged by the row above |
+| `db2.format.DEC` | 15 or 31, optionally followed by a period | a value outside this syntax is refused by name; a well-formed one is judged by the row above |
+| `db2.format.DECPT` | a period or a comma, or PERIOD or COMMA | a value outside this syntax is refused by name; a well-formed one is judged by the row above |
+| `db2.ccsid.SQLCCSID` | YES or NO | a value outside this syntax is refused by name; a well-formed one is judged by the row above |
+| `db2.ccsid.EBCDIC_CCSID` | a CCSID: one to five digits, not zero | a value outside this syntax is refused by name; a well-formed one is judged by the row above |
+
+
 ### Db2 bind options, judged per value (#4707)
 The four bind options that carry a value are checked against what IBM accepts for them; a value outside the set is
 refused by name (the rows above stay "recorded only" for an accepted value, so a z/OS measurement need not state them).

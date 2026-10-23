@@ -51,9 +51,13 @@ MIN_RATE = 0.8
 ISSUE_TITLE = "Flaky CI job: {name}"
 
 
-def cause(job: dict[str, Any]) -> str | None:
-    """Why this failed attempt failed, by ci_rerun_stats' classifier (None where it is not available)."""
-    return ci_rerun_stats.classify([job]) if ci_rerun_stats else None
+def cause(job: dict[str, Any], attempt_jobs: list[dict[str, Any]] | None = None) -> str | None:
+    """Why this failed attempt failed, by ci_rerun_stats' classifier (None where it is not available).
+
+    A gate job (`ground-truth`: "Every part passed") is classified with the jobs of its attempt it gates (#5605)."""
+    if not ci_rerun_stats:
+        return None
+    return ci_rerun_stats.classify(ci_rerun_stats.scope_jobs(job, attempt_jobs or []))
 
 
 def rerun_verdicts(jobs: list[dict[str, Any]]) -> dict[str, tuple[bool, str | None]]:
@@ -68,7 +72,7 @@ def rerun_verdicts(jobs: list[dict[str, Any]]) -> dict[str, tuple[bool, str | No
         last = js[-1]
         failed = [j for j in js[:-1] if j.get("conclusion") == "failure"]
         if failed and last.get("conclusion") in ("success", "failure"):
-            out[name] = (last["conclusion"] == "success", cause(failed[0]))
+            out[name] = (last["conclusion"] == "success", cause(failed[0], jobs))
     return out
 
 
@@ -83,6 +87,8 @@ def day_reruns(api: pr_check.Api, day: str) -> dict[str, list[Any]]:
                 continue
             jobs = pr_check.paged(api, f"repos/{REPO_SLUG}/actions/runs/{r['id']}/jobs?filter=all", "jobs")
             for name, (passed, why) in rerun_verdicts(jobs).items():
+                if why == "superseded":
+                    continue  # cancelled by a newer push, then rerun: the job was not nondeterministic (#5605)
                 row = out.setdefault(name, [0, 0, {}])
                 row[0 if passed else 1] += 1
                 if why:

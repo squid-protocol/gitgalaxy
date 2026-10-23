@@ -32,10 +32,24 @@ def _secs(job: dict) -> float:
     return (b - a).total_seconds()
 
 
+def is_gate(job: dict) -> bool:
+    """An aggregator job (`needs: [...]`, `if: always()`): every failed step of it only says a job it gates did not pass."""
+    failed = [st.get("name", "").lower() for st in job.get("steps", []) if st.get("conclusion") == "failure"]
+    return bool(failed) and all("passed" in n for n in failed)
+
+
+def scope_jobs(job: dict, attempt_jobs: list[dict]) -> list[dict]:
+    """The jobs to classify a failed `job` by: itself, or for a gate itself plus the other jobs of its attempt (#5605)."""
+    if not is_gate(job):
+        return [job]
+    same = [j for j in attempt_jobs if j is not job and j.get("run_attempt") == job.get("run_attempt")]
+    return [job, *same]
+
+
 def classify(
     jobs: list[dict], timeout_minutes: dict[str, int] | None = None, logs: dict[str, str] | None = None
 ) -> str:
-    """One cause for a failed attempt: timeout | registry_pull | db2_start | ratchet | artifact_missing | test_failure | other | none.
+    """One cause for a failed attempt: timeout | superseded | registry_pull | db2_start | ratchet | artifact_missing | test_failure | other | none.
 
     `logs` maps a job name to its log text; only a failed Db2 step consults it (registry_pull vs db2_start)."""
     timeout_minutes = timeout_minutes or {}
@@ -49,6 +63,9 @@ def classify(
             cap and job.get("conclusion") == "cancelled" and _secs(job) >= cap * 60 - TIMEOUT_SLACK_S
         ):
             return "timeout"
+    gated = [j for j in bad if not is_gate(j)]
+    if gated != bad and gated and all(j.get("conclusion") == "cancelled" for j in gated):
+        return "superseded"  # a gate failed because its parts were cancelled early: a newer push, not a flake (#5605)
     for job in bad:
         for step in job.get("steps", []):
             if step.get("conclusion") != "failure":

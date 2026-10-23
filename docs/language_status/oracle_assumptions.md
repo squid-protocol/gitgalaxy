@@ -3631,6 +3631,14 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **PICIN / PICOUT: out of scope, by name.** They are pictures given to the *generated symbolic-map field* (compile-time: the item's
   PICTURE in the copybook) and BMS does not check or convert the data at run time ("the validity of the input data is not checked by
   BMS"); no run-time conversion exists to model. The symbolic map's PICTURE is already what the layouts read.
+  Re-read 2026-10-23 (#5116, PICIN/PICOUT box) against the live DFHMDF page (https://www.ibm.com/docs/en/cics-ts/6.x?topic=macros-dfhmdf):
+  PICIN "specifies a picture to be applied to an input field in an IN or INOUT map; this picture serves as an editing specification
+  that is passed to the application program, thus permitting the user to use the editing capabilities of COBOL or PL/I." "BMS checks
+  that the specified characters are valid picture specifications for the language of the map." "However, the validity of the input data
+  is not checked by BMS or the high-level language when the map is used, so any wanted checking must be performed by the application
+  program." PICOUT "is like PICIN, except that a picture to be applied to an output field in the OUT or INOUT map is generated." The
+  page states no run-time conversion or validation of data against either picture. Pinned by `test_x54_records_picin_picout_no_runtime_conversion_5116`
+  and `test_det_receive_and_send_map_never_read_a_picture_5116` (`Cics.receive_map` / `Cics.send_map` never read `picin` / `picout`).
 - **Not modelled, by name.** (1) A GRPNAME group's later fields take the first field's ATTRB (so NUM, hence the NUM default); the
   forge reads each field's own ATTRB, so a group member without one is treated as non-NUM. (2) OCCURS: IBM gives every occurrence
   the field's one JUSTIFY, but a screen's OCCURS field is not received at all by `Cics.receive_map` (its values are keyed `NAME.n`,

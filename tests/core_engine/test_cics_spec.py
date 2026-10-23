@@ -229,8 +229,11 @@ def test_the_runtimes_keep_no_hand_copy_of_the_generated_tables():
     )
     assert _java_cases(detcics) == [] and _java_cases(forge.CICS_TASK_JAVA) == []
     assert len(_java_cases(forge.CICS_SPEC_JAVA)) == len(RESP_NAME) + len(DFHRESP) + len(CONDITION_ABEND)
-    ggcics = (ROOT / "tests/equivalence/cics/ggcics.c").read_text(encoding="utf-8")
+    stub = ROOT / "tests/equivalence/cics"
+    ggcics = (stub / "ggcics.c").read_text(encoding="utf-8")
     assert '#include "ggcics_spec.h"' in ggcics and "condition_abcode(int" not in ggcics
+    for family in sorted(stub.glob("ggcics_*.c")):  # #5274: a family file is part of the stub's one translation unit
+        ggcics += family.read_text(encoding="utf-8")
     for body in re.findall(r"enum\s*\{([^}]*)\}", ggcics):
         for name, value in re.findall(r"(\w+)\s*=\s*(\w+)", body):
             if name in DFHRESP:

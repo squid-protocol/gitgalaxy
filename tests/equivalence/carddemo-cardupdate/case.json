@@ -1220,6 +1220,76 @@
    "why": "PF5 confirming with the screen as fetched: 1200 sets NO-CHANGES-DETECTED before 9200's READ UPDATE fails"
   },
   {
+   "name": "search-card-read-rls-abend-afcr",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CARDDAT",
+     "nth": 1,
+     "resp": "ABEND",
+     "abcode": "AFCR"
+    }
+   ],
+   "why": "#6271 (X70): the card READ abends AFCR (a VSAM RLS file control abend, IBM CICS TS abend codes): CICS abends the task, so the active HANDLE ABEND passes control to ABEND-ROUTINE, which no file condition reaches"
+  },
+  {
+   "name": "pf5-rewrite-rls-abend-afct",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "N",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VONN",
+     "CRDSTCDI": "N",
+     "EXPMONI": "04",
+     "EXPYEARI": "2024",
+     "EXPDAYI": "09"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "REWRITE",
+     "file": "CARDDAT",
+     "nth": 1,
+     "resp": "ABEND",
+     "abcode": "AFCT"
+    }
+   ],
+   "why": "#6271 (X70): the REWRITE abends AFCT after the READ UPDATE locked the record: the abend routine takes it and the task backs out, so the file is unchanged"
+  },
+  {
    "name": "pf3-xctl-fails-abend-routine",
    "aid": "DFHPF3",
    "commarea": {

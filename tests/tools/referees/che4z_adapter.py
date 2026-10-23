@@ -387,7 +387,7 @@ def symbol_facts(symbols: list[dict[str, Any]], lines: list[str]) -> dict[str, s
 
 def lsp_doc(corpus: str, root: Path, key: dict[str, Any], jar: Path) -> dict[str, Any]:
     doc = F.new_doc("che4z", che4z_version(jar), corpus, LSP_CHANNELS)
-    proc = subprocess.Popen(["java", "-Xss64m", "-jar", str(jar), "pipeEnabled"], stdin=subprocess.PIPE,
+    proc = subprocess.Popen(["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-Xss64m", "-jar", str(jar), "pipeEnabled"], stdin=subprocess.PIPE,
                             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)  # fmt: skip
     assert proc.stdin is not None and proc.stdout is not None
     session = LspSession(proc.stdout, proc.stdin, copybook_resolver(root))

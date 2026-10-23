@@ -355,3 +355,27 @@ def test_the_updacc_case_judges_each_nullable_column_of_the_select_alone():
         s = scs[name]
         assert rows[int(s["commarea"]["COMM-ACCNO"])] == [col], name
         assert "#4049" in s["why"] and "expected" not in s
+
+
+def test_the_dateutil_case_calls_only_pictures_the_ceedays_model_documents():
+    # #4049 CSUTLDTC re-judge: YYYY MM DD once each in any order, one separator (- / .) used throughout, an all-blank
+    # tail (L1, #4952). An undocumented picture would end the proof (exit 98), so none is in the case: the refused
+    # ones are pinned in test_det_ceedays.py. Inputs only: no call carries an expected result.
+    import json
+    import re
+
+    path = Path(__file__).resolve().parents[1] / "equivalence" / "carddemo-dateutil" / "case.json"
+    calls = json.loads(path.read_text(encoding="utf-8"))["calls"]
+    token = re.compile(r"^(?=.*YYYY)(?=.*MM)(?=.*DD)(?:YYYY|MM|DD|(?P<sep>[-/.]))+ *$")
+    seen = set()
+    for c in calls:
+        date, picture, _ = c["args"]
+        assert len(date) == len(picture) == 10, c["name"]
+        m = token.match(picture)
+        assert m and picture.count("YYYY") == picture.count("MM") == picture.count("DD") == 1, c["name"]
+        assert len(set(re.findall(r"[-/.]", picture))) <= 1, c["name"]
+        assert c["why"].strip() and "expected" not in c, c["name"]
+        seen.add(re.sub(r"[-/.]| ", "", picture))
+    # every order the re-judge added is there, with a blank-padded picture and a '.' separator
+    assert {"YYYYMMDD", "MMDDYYYY", "DDMMYYYY"} <= seen
+    assert any(c["args"][1].endswith(" ") for c in calls) and any("." in c["args"][1] for c in calls)

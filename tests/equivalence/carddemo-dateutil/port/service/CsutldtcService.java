@@ -173,9 +173,8 @@ public class CsutldtcService {
         if (year < 0 || month < 0 || day < 0) {
             return FC_BAD_PIC_STRING;
         }
-        if (pos < d.length()) {
-            return FC_BAD_DATE_VALUE;
-        }
+        // IBM CEEDAYS: after a valid date is parsed, remaining characters are ignored (#4049: a date longer than the
+        // picture's span is not a bad value; the oracle model agrees)
         if (month < 1 || month > 12) {
             return FC_INVALID_MONTH;
         }

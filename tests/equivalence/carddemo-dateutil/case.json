@@ -174,6 +174,96 @@
         ""
       ],
       "why": "#4049 (proposed for 871d241296): a blank in the second-to-last position"
+    },
+    {
+      "name": "ymd-blank-padded",
+      "args": [
+        "20220718  ",
+        "YYYYMMDD  ",
+        ""
+      ],
+      "why": "#4049 (CSUTLDTC re-judge; CEEDAYS L1 pictures, #4952): CardDemo's own picture, no separators, blank tail: the date's trailing blanks lie past the picture's span, so the call is valid"
+    },
+    {
+      "name": "mdy-order",
+      "args": [
+        "07182022  ",
+        "MMDDYYYY  ",
+        ""
+      ],
+      "why": "#4049 (CSUTLDTC re-judge; CEEDAYS L1 pictures, #4952): tokens in MM DD YYYY order: a valid date"
+    },
+    {
+      "name": "dmy-order",
+      "args": [
+        "18072022  ",
+        "DDMMYYYY  ",
+        ""
+      ],
+      "why": "#4049 (CSUTLDTC re-judge; CEEDAYS L1 pictures, #4952): tokens in DD MM YYYY order: a valid date"
+    },
+    {
+      "name": "dmy-leap-day",
+      "args": [
+        "29022024  ",
+        "DDMMYYYY  ",
+        ""
+      ],
+      "why": "#4049 (CSUTLDTC re-judge; CEEDAYS L1 pictures, #4952): 29 February of a leap year, tokens in DD MM YYYY order"
+    },
+    {
+      "name": "mdy-first-lilian-day",
+      "args": [
+        "10151582  ",
+        "MMDDYYYY  ",
+        ""
+      ],
+      "why": "#4049 (CSUTLDTC re-judge; CEEDAYS L1 pictures, #4952): 1582-10-15, the first Lilian day, in MM DD YYYY order: valid"
+    },
+    {
+      "name": "dot-separators",
+      "args": [
+        "2022.07.18",
+        "YYYY.MM.DD",
+        ""
+      ],
+      "why": "#4049 (CSUTLDTC re-judge; CEEDAYS L1 pictures, #4952): '.' separators: valid"
+    },
+    {
+      "name": "ymd-padded-bad-day",
+      "args": [
+        "20220230  ",
+        "YYYYMMDD  ",
+        ""
+      ],
+      "why": "#4049 (CSUTLDTC re-judge; CEEDAYS L1 pictures, #4952): no 30 February, padded picture: CEE2EC (2508)"
+    },
+    {
+      "name": "ymd-padded-non-numeric",
+      "args": [
+        "2022AB18  ",
+        "YYYYMMDD  ",
+        ""
+      ],
+      "why": "#4049 (CSUTLDTC re-judge; CEEDAYS L1 pictures, #4952): non-numeric month in a padded picture: CEE2EO (2520)"
+    },
+    {
+      "name": "tail-digit-past-picture",
+      "args": [
+        "202207181 ",
+        "YYYYMMDD  ",
+        ""
+      ],
+      "why": "#4049 (CSUTLDTC re-judge; CEEDAYS L1): a digit past the picture's span: IBM ignores the characters after a valid date, so the call is valid (the port had answered 2508)"
+    },
+    {
+      "name": "tail-text-past-picture",
+      "args": [
+        "20220718XY",
+        "YYYYMMDD  ",
+        ""
+      ],
+      "why": "#4049 (CSUTLDTC re-judge; CEEDAYS L1): letters past the picture's span are ignored the same way"
     }
   ],
   "notes": "CardDemo's shared date check CSUTLDTC, CALLed by COTRN02C, CORPT00C and the CSUTLDPY copybook: it passes the date and picture to the Language Environment service CEEDAYS and returns a message (severity, message number, result, date, picture) in LS-RESULT, and the severity as RETURN-CODE. GnuCOBOL has no CEEDAYS: the COBOL side runs against tests/equivalence/le/ceedays.c, a model of IBM's documented behaviour for the pictures it models (YYYY-MM-DD and its '/' and '.' forms) -- every call here is one of those; each `why` cites the rule. CardDemo's callers also pass 'YYYYMMDD' in the 10-byte field, which that model does not cover (how CEEDAYS treats the trailing blanks is not modelled), so no call here uses it; nor a month outside 1-12, whose condition (2508 or 2517) IBM's documentation does not settle. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

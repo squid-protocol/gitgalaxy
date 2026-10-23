@@ -108,6 +108,9 @@ DEFINITION: dict[str, Any] = {
     # collision resolves through the internal_discriminator (Tier 2), ecosystem
     # gravity (Tier 1.5) or the lexical scan (Tier 3).
     "extensions": [".sql", ".ddl", ".dml"],
+    # #5736: `CALL name` sites leaving the file reach call_site_data (core/sql_calls.py). TOP LEVEL, not
+    # `rules`: language_lens compiles every string value inside `rules` (#2806).
+    "boundary_extraction": "sql",
     "exact_matches": [],
     # ECOSYSTEM ANCHORS: the mainframe sources that live beside DB2 DDL/SQL PL in the
     # same repository -- the COBOL and PL/I programs that embed its SQL, and the JCL

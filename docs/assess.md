@@ -69,6 +69,7 @@ gitgalaxy assess /path/to/estate --jcl /path/to/compile/jcl --out report.json   
 | `copybook_gaps` | each copybook a program COPYs that the estate does not hold, and the programs that need it |
 | `programs` | each program: name, `cobol` / `assembler`, status (`parsed`, `unparsed`, `refused by family`), a reason (`missing copybook`, a parser error's class name, or the refusal family), its era tags, and for a parsed program its translate-only result (below) |
 | `totals.translation` | parsed programs per translate-only result: `whole`, `holes`, `refused` |
+| `rules` | with the dry run: the ranked rules to land (below) |
 
 ### Translate-only dry run
 
@@ -81,6 +82,24 @@ Read it as a lower bound. The dry run translates each program alone, against a p
 project, so a CICS program's COMMAREA contract and the services of the programs it CALLs or LINKs to are not resolved,
 and a callee's holes are not credited to its caller. It is a translation status, not a proof level: nothing here says a
 program behaves as it does on z/OS.
+
+### Ranked rules
+
+With the dry run the report carries `rules`: `classes` (how many distinct gaps the estate shows) and `ranked`, the top 25.
+Each hole of each program that does not translate whole is reduced to a gap class: a COBOL statement (`MOVE`), `EXEC
+CICS` with the spec's command words (`EXEC CICS WRITE`), or `EXEC SQL`, plus at most one reason from a fixed list
+(`no generated Db2 repository method`, `no batch package`, `key length not known`, `not modelled`, `no such item`, ...);
+a refusal is `refused: <exception class>`; anything the list does not name is the one word `other`. Per rule:
+
+- `only`: programs this rule alone keeps from whole (landing it makes them whole, as far as the dry run can tell);
+- `one_away`: programs left one other rule from whole;
+- `touched`: programs with the rule at all;
+- `only_by_era`: the era mix of the `only` programs (`none` where no era tag).
+
+The order is `only`, then `one_away`, then `touched`, the order of `cics_census.py blockers`. Rules carry no program
+name, so redaction changes nothing here. The hole's own text, which can quote your program, is never written; `validate`
+refuses a rule outside these classes. Because of the lower bound above, some top rules are the placeholder's
+(`no generated screen for map`, `no batch package`), not the estate's: read them with that in mind.
 
 A feature name is printed only if it is in a closed vocabulary:
 
@@ -128,4 +147,3 @@ Counts are the same as in the plain report.
 ## Follow-ups (#4726)
 
 - A post-publish check that installs the PyPI package on a clean runner.
-- The readiness report's ranked rules (#5228 has closed; `assess` does not carry them yet).

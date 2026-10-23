@@ -168,6 +168,7 @@ from typing import Any
 
 from gitgalaxy.core.cobol_preprocessor import replace_text as _replace_text  # #5648: shared with det/
 from gitgalaxy.core.compiler_options import effective as effective_options
+from gitgalaxy.core.invocation_resolver import SQL_ROUTINE_LANGUAGES
 from gitgalaxy.core.jcl_runners import systsin_programs
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.core.unicode_paths import nfc
@@ -1630,7 +1631,7 @@ class GalaxyIR:
         calls = [
             (f, c)
             for f in self.files.values()
-            if f.language != "db2_sql"
+            if f.language not in SQL_ROUTINE_LANGUAGES
             for c in f.calls
             if c.verb not in TRANSACTION_ROUTING_VERBS
         ]

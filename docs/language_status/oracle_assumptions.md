@@ -4814,6 +4814,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     beginning; no IBM text is cited for it. The oracle side is linked (#5857): `equivalence_ims.py` accepts CMPAT=YES for a BMP entered USING its I/O PCB and
     DB PCBs, `ggdli.c` binds them (`GGDLIBMP`, refusing PCB(1) and SCHD/TERM) and models CHKP (`GGDLICHKP`: every
     position lost, the same uncited ASSUMPTION as the Java side), and `rewrite_bmp` lowers GN/GNP/DLET/CHKP ID(area).
+  - CALL 'CBLTDLI' in a BMP (#5233) is the same lane: a program with `PROCEDURE DIVISION USING io-pcb db-pcb ...` whose
+    `ENTRY 'DLITCBL'` lists exactly the DB PCBs (PAUDBLOD: IMS enters a BMP at the header and passes the I/O PCB first,
+    CMPAT=YES, so the ENTRY list is the header's minus its first) is read as a BMP on both sides (`stmt.Procedure.division_using`,
+    `dli.entry_pcbs` / `bmp_pcbs`, `equivalence_ims.bmp_using`). An ENTRY with no header USING, or whose list is not that, stays the
+    batch DLITCBL path (PAUDBUNL, DBUNLDGS). The I/O PCB passed to CBLTDLI (an IMS TM message call) is refused by name. Run as
+    `carddemo-paudblod` (INFILE1 / INFILE2 generated from the program's own record layouts: they are not in the corpus), a
+    database loaded by ISRT root, GU root, ISRT child; no DIB is built for a program with no EXEC DLI.
   - Every other EXEC DLI command (XRST, ROLB, GHU ...) stays a hole by name, as do the get clauses not modelled
     (FIELDLENGTH, KEYS, a multi-field WHERE, SEGMENT-less WHERE), CHKP with any option but ID, and EXEC DLI outside
     CICS in a program that is not such a BMP.
@@ -4847,7 +4854,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     GSAM file (PROCOPT G) is needed by no burned program and stays refused by name in the harness (`equivalence_ims.psb`).
   - A case's `ims.seed.<DBD>.skip` lists unload record numbers left out of the seed (the corpus unload of DBPAUTP0 ends
     with a root whose packed key is blank, which a qualified GU refuses by design).
-  - CALL 'CBLTDLI' is refused in a program IMS does not enter at ENTRY 'DLITCBL' (a BMP, MPP or CICS program).
+  - CALL 'CBLTDLI' is refused in a program IMS does not enter at ENTRY 'DLITCBL' or as a BMP (an MPP or CICS program), and with the I/O PCB.
   - Also refused: the parameter-count form (a binary count first), a PCB the entry was not passed, any ON EXCEPTION
     phrase, and CALL 'AIBTDLI' or 'CEETDLI'.
 - **Refused by the harness** (`equivalence_ims.Unsupported`, "not runnable faithfully"):

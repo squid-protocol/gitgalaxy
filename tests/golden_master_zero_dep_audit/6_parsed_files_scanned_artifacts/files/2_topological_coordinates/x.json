@@ -1,7 +1,7 @@
 {
   "groups": {
     "abap": {
-      "abap/SOURCES.md": 1333.09
+      "abap/SOURCES.md": 1333.11
     },
     "abap/abapGit": {
       "abap/abapGit/package.devc.xml": 690.48,
@@ -413,7 +413,7 @@
       "c/SOURCES.md": -11095.94
     },
     "c/cosmopolitan_intrin": {
-      "c/cosmopolitan_intrin/countbits.c": 661.52
+      "c/cosmopolitan_intrin/countbits.c": 661.91
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": -5824.9,
@@ -1103,21 +1103,21 @@
     },
     "cpp/godot": {
       "cpp/godot/AUTHORS.md": -3907.52,
-      "cpp/godot/DONORS.md": -5041.38,
-      "cpp/godot/LICENSE.txt": -4758.73,
-      "cpp/godot/editor_node.cpp": -4663.37,
-      "cpp/godot/editor_node.h": -4309.2,
-      "cpp/godot/gdscript_vm.cpp": -5140.74,
-      "cpp/godot/main.cpp": -4917.0,
-      "cpp/godot/main.h": -5297.52,
-      "cpp/godot/node.cpp": -4574.07,
+      "cpp/godot/DONORS.md": -5041.4,
+      "cpp/godot/LICENSE.txt": -4758.74,
+      "cpp/godot/editor_node.cpp": -4663.38,
+      "cpp/godot/editor_node.h": -4309.21,
+      "cpp/godot/gdscript_vm.cpp": -5140.76,
+      "cpp/godot/main.cpp": -4917.01,
+      "cpp/godot/main.h": -5297.54,
+      "cpp/godot/node.cpp": -4574.08,
       "cpp/godot/node.h": -4016.91,
       "cpp/godot/object.cpp": -4102.02,
-      "cpp/godot/object.h": -5217.29,
-      "cpp/godot/rendering_server_default.cpp": -4893.16,
+      "cpp/godot/object.h": -5217.31,
+      "cpp/godot/rendering_server_default.cpp": -4893.17,
       "cpp/godot/rendering_server_default.h": -4372.73,
       "cpp/godot/variant.cpp": -4302.48,
-      "cpp/godot/variant.h": -4741.63
+      "cpp/godot/variant.h": -4741.64
     },
     "cpp/mlir": {
       "cpp/mlir/flatbuffer_export.cc": -9605.89,
@@ -1129,13 +1129,13 @@
       "cpp/mlir/tf_tfl_translate.cc": -9593.09
     },
     "cpp/powertoys": {
-      "cpp/powertoys/FancyZones.cpp": -6766.9,
-      "cpp/powertoys/FancyZones.h": -6296.38,
-      "cpp/powertoys/ImageResizerExt.cpp": -7310.01,
-      "cpp/powertoys/centralized_kb_hook.cpp": -6752.54,
-      "cpp/powertoys/logger.cpp": -6476.99,
-      "cpp/powertoys/main.cpp": -7022.44,
-      "cpp/powertoys/powertoy_module.h": -6878.75
+      "cpp/powertoys/FancyZones.cpp": -6766.92,
+      "cpp/powertoys/FancyZones.h": -6296.4,
+      "cpp/powertoys/ImageResizerExt.cpp": -7310.03,
+      "cpp/powertoys/centralized_kb_hook.cpp": -6752.56,
+      "cpp/powertoys/logger.cpp": -6477.01,
+      "cpp/powertoys/main.cpp": -7022.46,
+      "cpp/powertoys/powertoy_module.h": -6878.77
     },
     "cpp/serenity_ak_siphash_cpu": {
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 5387.96,
@@ -1190,19 +1190,19 @@
       "css/element/fonts-baseline.css": -2768.69
     },
     "css/gutenberg_css_modules": {
-      "css/gutenberg_css_modules/LICENSE.md": -6062.93,
-      "css/gutenberg_css_modules/block-theme-style.css": -5845.88,
-      "css/gutenberg_css_modules/button.module.css": -6241.69,
-      "css/gutenberg_css_modules/card.module.css": -6477.91,
-      "css/gutenberg_css_modules/tabs.module.css": -5978.26
+      "css/gutenberg_css_modules/LICENSE.md": -6062.95,
+      "css/gutenberg_css_modules/block-theme-style.css": -5845.9,
+      "css/gutenberg_css_modules/button.module.css": -6241.71,
+      "css/gutenberg_css_modules/card.module.css": -6477.93,
+      "css/gutenberg_css_modules/tabs.module.css": -5978.28
     },
     "css/mediawiki_resources": {
-      "css/mediawiki_resources/COPYING": 2016.08,
-      "css/mediawiki_resources/apihelp.css": 2414.28,
-      "css/mediawiki_resources/apisandbox.css": 1624.59,
-      "css/mediawiki_resources/diff.styles.print.css": 1868.08,
-      "css/mediawiki_resources/mediawiki.action.history.css": 2269.63,
-      "css/mediawiki_resources/toc.css": 2044.07
+      "css/mediawiki_resources/COPYING": 2016.11,
+      "css/mediawiki_resources/apihelp.css": 2414.3,
+      "css/mediawiki_resources/apisandbox.css": 1624.61,
+      "css/mediawiki_resources/diff.styles.print.css": 1868.1,
+      "css/mediawiki_resources/mediawiki.action.history.css": 2269.65,
+      "css/mediawiki_resources/toc.css": 2044.09
     },
     "css/odoo": {
       "css/odoo/control_panel_mobile.css": 10106.23,
@@ -1251,7 +1251,7 @@
       "db2_sql/db2unit/PROVENANCE.md": -9860.39
     },
     "dockerfile": {
-      "dockerfile/SOURCES.md": -7425.69
+      "dockerfile/SOURCES.md": -7425.71
     },
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": -2893.21,
@@ -1390,21 +1390,21 @@
       "go/kubernetes/scheduler.go": -7755.04
     },
     "go/kubernetes_kubectl_tls": {
-      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 2431.47
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 2431.5
     },
     "groovy": {
       "groovy/SOURCES.md": -8780.16
     },
     "groovy/fineract_gradle_plugin": {
-      "groovy/fineract_gradle_plugin/LICENSE_RELEASE": -8286.56,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": -9099.26,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": -9001.04,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": -8605.5,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": -8800.63,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": -9071.7,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": -8860.89,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": -8445.79,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": -9337.42
+      "groovy/fineract_gradle_plugin/LICENSE_RELEASE": -8297.55,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": -9110.24,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": -9012.03,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": -8616.49,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": -8811.62,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": -9082.69,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": -8871.88,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": -8456.77,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": -9348.4
     },
     "groovy/flutter_android_gradle": {
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_app_build.gradle": -6496.48,
@@ -1835,13 +1835,13 @@
       "html/html5_boilerplate/src_index.html": 5745.28
     },
     "html/jquery_test_fixtures": {
-      "html/jquery_test_fixtures/LICENSE.txt": 369.49,
-      "html/jquery_test_fixtures/csp-nonce.html": -20.54,
-      "html/jquery_test_fixtures/iframe.html": 789.67,
-      "html/jquery_test_fixtures/name.html": 310.07,
-      "html/jquery_test_fixtures/qunit-fixture.html": 248.84,
-      "html/jquery_test_fixtures/table.html": 436.35,
-      "html/jquery_test_fixtures/trusted-html.html": 660.4
+      "html/jquery_test_fixtures/LICENSE.txt": 369.76,
+      "html/jquery_test_fixtures/csp-nonce.html": -20.27,
+      "html/jquery_test_fixtures/iframe.html": 789.93,
+      "html/jquery_test_fixtures/name.html": 310.34,
+      "html/jquery_test_fixtures/qunit-fixture.html": 249.11,
+      "html/jquery_test_fixtures/table.html": 436.61,
+      "html/jquery_test_fixtures/trusted-html.html": 660.66
     },
     "html/odoo_mako": {
       "html/odoo_mako/LICENSE.txt": 9277.54,
@@ -1962,21 +1962,21 @@
       "javascript/react_error_codes/extract-errors.js": -1672.55
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": -686.19,
-      "javascript/threejs/Editor.js": 288.86,
-      "javascript/threejs/GLTFLoader.js": -223.55,
-      "javascript/threejs/Matrix4.js": -129.84,
-      "javascript/threejs/Nodes.js": -362.84,
-      "javascript/threejs/WebGLProgram.js": 135.59,
-      "javascript/threejs/WebGLRenderer.js": -525.38
+      "javascript/threejs/BufferGeometry.js": -687.62,
+      "javascript/threejs/Editor.js": 290.0,
+      "javascript/threejs/GLTFLoader.js": -533.94,
+      "javascript/threejs/Matrix4.js": -129.77,
+      "javascript/threejs/Nodes.js": -363.25,
+      "javascript/threejs/WebGLProgram.js": 136.4,
+      "javascript/threejs/WebGLRenderer.js": -216.14
     },
     "jcl": {
       "jcl/SOURCES.md": 9769.1
     },
     "jcl/cash-account-cobol": {
-      "jcl/cash-account-cobol/DB2BIND.jcl": -7116.39,
-      "jcl/cash-account-cobol/DB2DDL.jcl": -6890.72,
-      "jcl/cash-account-cobol/DEFKSDS.jcl": -6884.93
+      "jcl/cash-account-cobol/DB2BIND.jcl": -7116.41,
+      "jcl/cash-account-cobol/DB2DDL.jcl": -6890.74,
+      "jcl/cash-account-cobol/DEFKSDS.jcl": -6884.94
     },
     "jcl/cics-banking-sample-application-cbsa": {
       "jcl/cics-banking-sample-application-cbsa/ABNDPROC.jcl": 1686.88,
@@ -2465,13 +2465,13 @@
       "matlab/SOURCES.md": 10934.32
     },
     "matlab/eeglab": {
-      "matlab/eeglab/README.md": 1243.93,
-      "matlab/eeglab/eeg_eval.m": 867.24,
-      "matlab/eeglab/eeglab.m": 1353.05,
-      "matlab/eeglab/eegobj.m": 1832.43,
-      "matlab/eeglab/pop_loadset.m": 1644.85,
-      "matlab/eeglab/runica.m": 1029.6,
-      "matlab/eeglab/supergui.m": 1361.3
+      "matlab/eeglab/README.md": 1243.95,
+      "matlab/eeglab/eeg_eval.m": 867.26,
+      "matlab/eeglab/eeglab.m": 1353.07,
+      "matlab/eeglab/eegobj.m": 1832.45,
+      "matlab/eeglab/pop_loadset.m": 1644.87,
+      "matlab/eeglab/runica.m": 1029.63,
+      "matlab/eeglab/supergui.m": 1361.32
     },
     "mlir": {
       "mlir/SOURCES.md": 716.64
@@ -2498,7 +2498,7 @@
       "nix/ghostty/shell.nix": 4943.92
     },
     "objective-c": {
-      "objective-c/SOURCES.md": 229.88
+      "objective-c/SOURCES.md": 230.0
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": -7603.63,
@@ -2570,8 +2570,8 @@
       "php/laravel_core/Router.php": 8947.22
     },
     "php/laravel_validation_rules": {
-      "php/laravel_validation_rules/Can.php": 1762.82,
-      "php/laravel_validation_rules/LICENSE.md": 1505.03
+      "php/laravel_validation_rules/Can.php": 1762.84,
+      "php/laravel_validation_rules/LICENSE.md": 1505.04
     },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": -6499.27,
@@ -2609,8 +2609,8 @@
       "plaintext/SOURCES.md": -10953.16
     },
     "plaintext/ansible": {
-      "plaintext/ansible/COPYING": -7534.77,
-      "plaintext/ansible/requirements.txt": -7729.95
+      "plaintext/ansible/COPYING": -7534.79,
+      "plaintext/ansible/requirements.txt": -7729.97
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
       "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": -9654.58
@@ -2625,7 +2625,7 @@
       "plaintext/opencv/include/CMakeLists.txt": 3683.43
     },
     "pli": {
-      "pli/SOURCES.md": 2039.22
+      "pli/SOURCES.md": 2039.24
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": -1369.42,
@@ -3257,19 +3257,19 @@
       "rust/syn/derive.rs": 3199.61
     },
     "rust/tokio": {
-      "rust/tokio/addr_of.rs": -7486.54,
-      "rust/tokio/block_on.rs": -8337.04,
-      "rust/tokio/blocking.rs": -7192.98,
-      "rust/tokio/builder.rs": -7683.78,
-      "rust/tokio/config.rs": -8326.8,
-      "rust/tokio/fuzz.rs": -7544.83,
-      "rust/tokio/interval.rs": -7316.24,
-      "rust/tokio/lib.rs": -7900.25,
-      "rust/tokio/maybe_done.rs": -8031.33,
-      "rust/tokio/tests.rs": -8245.77,
-      "rust/tokio/tokio_mpsc_bounded.rs": -7490.26,
-      "rust/tokio/tokio_named_pipe.rs": -7757.6,
-      "rust/tokio/tokio_udp.rs": -8006.31
+      "rust/tokio/addr_of.rs": -427.49,
+      "rust/tokio/block_on.rs": -1277.99,
+      "rust/tokio/blocking.rs": -133.93,
+      "rust/tokio/builder.rs": -624.73,
+      "rust/tokio/config.rs": -1267.75,
+      "rust/tokio/fuzz.rs": -485.78,
+      "rust/tokio/interval.rs": -257.18,
+      "rust/tokio/lib.rs": -841.2,
+      "rust/tokio/maybe_done.rs": -972.28,
+      "rust/tokio/tests.rs": -1186.72,
+      "rust/tokio/tokio_mpsc_bounded.rs": -431.21,
+      "rust/tokio/tokio_named_pipe.rs": -698.55,
+      "rust/tokio/tokio_udp.rs": -947.26
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 12892.02
@@ -3298,11 +3298,11 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": -8489.52,
-      "scheme/racket/cpnanopass.ss": -8631.22,
+      "scheme/racket/cpnanopass.ss": -8632.14,
       "scheme/racket/eval.c": -8214.86,
       "scheme/racket/fun.c": -8302.68,
       "scheme/racket/io.ss": -8850.32,
-      "scheme/racket/schemify.rkt": -7938.72,
+      "scheme/racket/schemify.rkt": -7938.69,
       "scheme/racket/thread.rkt": -7757.73
     },
     "shell": {
@@ -3619,7 +3619,7 @@
       "solidity/openzeppelin/StorageSlot.sol": -8455.8
     },
     "sql": {
-      "sql/SOURCES.md": -6385.6
+      "sql/SOURCES.md": -6385.62
     },
     "sql/baseline": {
       "sql/baseline/schema.php": -10544.66
@@ -3692,10 +3692,10 @@
       "sqlite/mediawiki_sqlite_tables/tables-generated.sql": -3648.54
     },
     "sqlite/prisma_sqlite_migrations": {
-      "sqlite/prisma_sqlite_migrations/provider-switch-postgresql-to-sqlite__20210215145936_hello.sql": -624.73,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-db-exists__20240527130802_init.sql": -820.11,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-exists__20240527130802_init.sql": -638.08,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-failed__20240527130802_init.sql": -373.7
+      "sqlite/prisma_sqlite_migrations/provider-switch-postgresql-to-sqlite__20210215145936_hello.sql": -625.0,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-db-exists__20240527130802_init.sql": -820.38,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-exists__20240527130802_init.sql": -638.35,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-failed__20240527130802_init.sql": -373.97
     },
     "sqlite/prisma_typed_sql": {
       "sqlite/prisma_typed_sql/findBigInt.sql": -2801.1,
@@ -3749,13 +3749,13 @@
       "swift/SOURCES.md": 7910.93
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": -5535.45,
-      "swift/alamofire/Alamofire.podspec": -4564.24,
-      "swift/alamofire/Package.swift": -5204.24,
-      "swift/alamofire/ParameterEncoder.swift": -4784.18,
-      "swift/alamofire/Request.swift": -5297.52,
-      "swift/alamofire/Response.swift": -4980.3,
-      "swift/alamofire/Session.swift": -5041.45
+      "swift/alamofire/AFError.swift": -5535.47,
+      "swift/alamofire/Alamofire.podspec": -4564.25,
+      "swift/alamofire/Package.swift": -5204.26,
+      "swift/alamofire/ParameterEncoder.swift": -4784.2,
+      "swift/alamofire/Request.swift": -5297.54,
+      "swift/alamofire/Response.swift": -4980.31,
+      "swift/alamofire/Session.swift": -5041.47
     },
     "tabular": {
       "tabular/SOURCES.md": 8849.15
@@ -3776,7 +3776,7 @@
       "tabular/tsv_genomics/B.cell_eQTL.tsv": 9459.1
     },
     "tcl": {
-      "tcl/SOURCES.md": -7974.94
+      "tcl/SOURCES.md": -7974.96
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": 2924.7,
@@ -3800,15 +3800,15 @@
       "tcl/macports_port_api/portmain.tcl": 3281.72
     },
     "tcl/macports_registry": {
-      "tcl/macports_registry/common.tcl": -5992.32,
-      "tcl/macports_registry/depends.tcl": -6105.38,
-      "tcl/macports_registry/entry.tcl": -5213.51,
-      "tcl/macports_registry/portimage.tcl": -5821.86,
-      "tcl/macports_registry/portuninstall.tcl": -5801.68,
-      "tcl/macports_registry/receipt_flat.tcl": -6067.67,
-      "tcl/macports_registry/receipt_sqlite.tcl": -6300.07,
-      "tcl/macports_registry/registry.tcl": -5527.0,
-      "tcl/macports_registry/registry_util.tcl": -5343.33
+      "tcl/macports_registry/common.tcl": -5992.34,
+      "tcl/macports_registry/depends.tcl": -6105.41,
+      "tcl/macports_registry/entry.tcl": -5213.53,
+      "tcl/macports_registry/portimage.tcl": -5821.88,
+      "tcl/macports_registry/portuninstall.tcl": -5801.7,
+      "tcl/macports_registry/receipt_flat.tcl": -6067.7,
+      "tcl/macports_registry/receipt_sqlite.tcl": -6300.09,
+      "tcl/macports_registry/registry.tcl": -5527.02,
+      "tcl/macports_registry/registry_util.tcl": -5343.35
     },
     "tcl/sqlite": {
       "tcl/sqlite/LICENSE.md": 7443.45,
@@ -3831,10 +3831,10 @@
       "tcl/sqlite_json_triggers/LICENSE.md": 1269.95
     },
     "tcl/sqlite_query_planner": {
-      "tcl/sqlite_query_planner/LICENSE.md": -10275.75
+      "tcl/sqlite_query_planner/LICENSE.md": -10286.23
     },
     "tcl/sqlite_rtree": {
-      "tcl/sqlite_rtree/LICENSE.md": -460.73
+      "tcl/sqlite_rtree/LICENSE.md": -460.91
     },
     "td": {
       "td/SOURCES.md": -7812.6
@@ -3871,9 +3871,9 @@
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": 4555.4
     },
     "typescript/excalibur_math": {
-      "typescript/excalibur_math/LICENSE.md": 1061.91,
-      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 1058.97,
-      "typescript/excalibur_math/math_ray.ts": 811.14
+      "typescript/excalibur_math/LICENSE.md": 1061.92,
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": 1058.98,
+      "typescript/excalibur_math/math_ray.ts": 811.15
     },
     "typescript/excalidraw_text_wrapping": {
       "typescript/excalidraw_text_wrapping/textWrapping.ts": 10676.24
@@ -3909,27 +3909,27 @@
       "typescript/typescript_compiler/LICENSE.txt": -3002.02,
       "typescript/typescript_compiler/binder.ts": -2524.9,
       "typescript/typescript_compiler/checker.ts": -2771.07,
-      "typescript/typescript_compiler/emitter.ts": -2739.33,
+      "typescript/typescript_compiler/emitter.ts": -2738.98,
       "typescript/typescript_compiler/package.json": -2365.96,
       "typescript/typescript_compiler/parser.ts": -3147.22,
       "typescript/typescript_compiler/types.ts": -3383.92
     },
     "typescript/vscode": {
-      "typescript/vscode/LICENSE.txt": 932.8,
-      "typescript/vscode/async.ts": 728.61,
-      "typescript/vscode/codeEditorWidget.ts": 692.05,
-      "typescript/vscode/eslint.config.js": 1245.15,
-      "typescript/vscode/extHost.api.impl.ts": 397.94,
-      "typescript/vscode/gulpfile.vscode.ts": 1196.92,
-      "typescript/vscode/instantiationService.ts": 543.09,
-      "typescript/vscode/ipc.ts": 943.45,
-      "typescript/vscode/lifecycle.ts": 130.66,
-      "typescript/vscode/package.json": 86.36,
-      "typescript/vscode/vscode.d.ts": 422.61
+      "typescript/vscode/LICENSE.txt": 932.83,
+      "typescript/vscode/async.ts": 428.19,
+      "typescript/vscode/codeEditorWidget.ts": 692.06,
+      "typescript/vscode/eslint.config.js": 1245.2,
+      "typescript/vscode/extHost.api.impl.ts": 696.41,
+      "typescript/vscode/gulpfile.vscode.ts": 1196.97,
+      "typescript/vscode/instantiationService.ts": 543.08,
+      "typescript/vscode/ipc.ts": 943.48,
+      "typescript/vscode/lifecycle.ts": 130.62,
+      "typescript/vscode/package.json": 86.32,
+      "typescript/vscode/vscode.d.ts": 422.59
     },
     "typescript/zod": {
-      "typescript/zod/package.json": -6170.01,
-      "typescript/zod/tsconfig.json": -5953.95
+      "typescript/zod/package.json": -6170.03,
+      "typescript/zod/tsconfig.json": -5953.97
     },
     "xml": {
       "xml/SOURCES.md": -9263.35
@@ -3977,15 +3977,15 @@
       "yacc/SOURCES.md": -6425.82
     },
     "yacc/freebsd": {
-      "yacc/freebsd/COPYRIGHT": -9666.35,
-      "yacc/freebsd/config.y": -9682.2,
-      "yacc/freebsd/jailparse.y": -9901.42
+      "yacc/freebsd/COPYRIGHT": -9676.94,
+      "yacc/freebsd/config.y": -9692.79,
+      "yacc/freebsd/jailparse.y": -9912.01
     },
     "yaml": {
       "yaml/SOURCES.md": 9289.52
     },
     "yaml/ansible": {
-      "yaml/ansible/COPYING": -6631.44
+      "yaml/ansible/COPYING": -6631.46
     },
     "yaml/ansible/blocks": {
       "yaml/ansible/blocks/block_fail_tasks.yml": -10736.17,
@@ -4068,18 +4068,18 @@
       "zig/mach/win32.zig": -4936.96
     },
     "zig/tigerbeetle": {
-      "zig/tigerbeetle/aof.zig": -408.92,
-      "zig/tigerbeetle/build.zig": -608.67,
-      "zig/tigerbeetle/build_multiversion.zig": -162.74,
-      "zig/tigerbeetle/cluster.zig": -968.58,
-      "zig/tigerbeetle/config.zig": -410.3,
-      "zig/tigerbeetle/constants.zig": -1196.55,
-      "zig/tigerbeetle/copyhound.zig": -870.15,
-      "zig/tigerbeetle/counting_allocator.zig": -1249.8,
-      "zig/tigerbeetle/direction.zig": -66.46,
-      "zig/tigerbeetle/download.sh": -924.3,
-      "zig/tigerbeetle/download.win.ps1": -440.29,
-      "zig/tigerbeetle/state_machine.zig": -692.71
+      "zig/tigerbeetle/aof.zig": -7469.53,
+      "zig/tigerbeetle/build.zig": -7671.73,
+      "zig/tigerbeetle/build_multiversion.zig": -7222.18,
+      "zig/tigerbeetle/cluster.zig": -8035.64,
+      "zig/tigerbeetle/config.zig": -7471.75,
+      "zig/tigerbeetle/constants.zig": -8264.78,
+      "zig/tigerbeetle/copyhound.zig": -7934.93,
+      "zig/tigerbeetle/counting_allocator.zig": -8317.75,
+      "zig/tigerbeetle/direction.zig": -7125.46,
+      "zig/tigerbeetle/download.sh": -7990.0,
+      "zig/tigerbeetle/download.win.ps1": -7502.38,
+      "zig/tigerbeetle/state_machine.zig": -7756.22
     },
     "zig/zig": {
       "zig/zig/Compilation.zig": 5331.48,
@@ -4087,7 +4087,7 @@
       "zig/zig/Sema.zig": 5044.66,
       "zig/zig/Type.zig": 4474.33,
       "zig/zig/Zcu.zig": 5553.23,
-      "zig/zig/main.zig": 4648.53
+      "zig/zig/main.zig": 4645.3
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 12088.03

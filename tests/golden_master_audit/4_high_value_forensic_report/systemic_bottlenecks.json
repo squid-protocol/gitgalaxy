@@ -72,14 +72,14 @@
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 12.971,
-        "score": 1297.1
+        "pr": 12.972,
+        "score": 1297.2
       },
       {
         "doc": 96.9697,
         "path": "python/fastapi/fastapi/applications.py",
-        "pr": 10.176,
-        "score": 986.764
+        "pr": 10.177,
+        "score": 986.861
       },
       {
         "doc": 100.0,

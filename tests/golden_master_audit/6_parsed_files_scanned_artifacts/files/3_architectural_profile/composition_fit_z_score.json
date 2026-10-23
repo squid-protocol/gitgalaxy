@@ -1164,10 +1164,10 @@
       "csharp/SOURCES.md": 0.0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 0.763,
-      "csharp/roslyn/CSharpSyntaxTree.cs": -0.236,
+      "csharp/roslyn/CSharpCompilation.cs": 0.785,
+      "csharp/roslyn/CSharpSyntaxTree.cs": -0.287,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 2.48,
-      "csharp/roslyn/LanguageParser.cs": 1.033,
+      "csharp/roslyn/LanguageParser.cs": 1.011,
       "csharp/roslyn/License.txt": 0.0,
       "csharp/roslyn/MethodCompiler.cs": -0.203,
       "csharp/roslyn/Workspace.cs": -0.596
@@ -2597,8 +2597,8 @@
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": -0.224,
-      "php/wordpress/class-wp-query.php": 0.455,
-      "php/wordpress/formatting.php": 0.764,
+      "php/wordpress/class-wp-query.php": 0.223,
+      "php/wordpress/formatting.php": 0.803,
       "php/wordpress/functions.php": 0.447,
       "php/wordpress/license.txt": 0.0,
       "php/wordpress/plugin.php": 1.74,
@@ -3288,9 +3288,9 @@
       "scala/kafka/Kafka.scala": 1.016,
       "scala/kafka/KafkaApis.scala": -0.124,
       "scala/kafka/KafkaRaftManager.scala": 0.877,
-      "scala/kafka/LogManager.scala": 0.36,
+      "scala/kafka/LogManager.scala": 0.334,
       "scala/kafka/Partition.scala": 1.152,
-      "scala/kafka/ReplicaManager.scala": 0.359,
+      "scala/kafka/ReplicaManager.scala": 0.408,
       "scala/kafka/SocketServer.scala": 1.0
     },
     "scheme": {
@@ -3298,7 +3298,7 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0.0,
-      "scheme/racket/cpnanopass.ss": 1.253,
+      "scheme/racket/cpnanopass.ss": 1.251,
       "scheme/racket/eval.c": 0.355,
       "scheme/racket/fun.c": 0.125,
       "scheme/racket/io.ss": 1.912,

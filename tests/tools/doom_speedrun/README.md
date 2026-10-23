@@ -192,7 +192,7 @@ Blind spots:
 
 How much of id Software's linuxdoom-1.10 survives in each port: the round-1 study's survival and landmark-function
 scripts, ported onto the harness. It reads the scans and clones `scan` leaves; licensed ports only (`LICENSED`: the
-call-graph oracle's C/C++ set plus the licensed rewrites; any other port is refused).
+call-graph oracle's C/C++ set plus the other licensed ports of the manifest; any other port is refused).
 
 ```bash
 python tests/tools/doom_speedrun/doom_speedrun.py scan                      # once per engine SHA
@@ -249,3 +249,17 @@ Blind spots:
 - **Vendored code is not excluded** (the study script did not either): a port that bundles a library carries its
   functions in its own distribution. `lineage.py` is the tool that applies the engine's vendor test.
 - **The majority language names the port** (`lang`); a polyglot port's functions of other code languages stay in.
+
+## Study write-up tables (`study_report.py`, #5620)
+
+One command regenerates every table of `docs/research/doom-port-study.md` (clean-scan before/after, fidelity, lineage,
+distributions, cross-language landmarks, and the `sfs` subway figures) from the scans `run --oracle` leaves under
+`--work`; licensed ports only.
+
+```bash
+python tests/tools/doom_speedrun/study_report.py --work DIR --sha SHA --subway subway.csv --write   # --check: rc 1 when stale
+```
+
+- The before column defaults to `--before round2` (the round-2 `clean_check.csv`).
+- A port whose scorer saw 0 first-party files is marked `(vacuous)`; one with no ctags reading shows `not compared`.
+- `--subway` is the `subway.csv` of `sfs compare ... --subway-reference linuxdoom`; without it the block says so.

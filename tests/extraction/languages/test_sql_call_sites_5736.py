@@ -76,3 +76,59 @@ def test_a_cobol_call_still_ignores_sql_routines():
     ]
     sites, edges = resolve_invocations(files)
     assert sites[0]["resolved_path"] is None and edges == []
+
+
+PG_CALLER = """\
+-- CALL commented_out();
+CREATE OR REPLACE PROCEDURE app.raise_pay(p_id int)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  /* CALL in_block_comment(1); */
+  CALL app.audit_log(p_id);
+  CALL "Notify_One"(p_id);
+  CALL local_helper(p_id);
+  PERFORM tax_of(p_id);
+  EXECUTE 'CALL in_string()';
+END;
+$$;
+
+CREATE PROCEDURE local_helper(p int)
+LANGUAGE sql
+AS $$ CALL audit_log(p) $$;
+
+DO $$ BEGIN CALL cleanup_all(); END $$;
+"""
+
+
+def _pg_sites(src: str) -> list[tuple[str, str, int]]:
+    code = _PRISM.split_streams(src, "postgresql")["code_stream"]
+    return [(c["verb"], c["target"], c["line"]) for c in extract_boundary("sql", code)["calls"]]
+
+
+def test_postgresql_calls_leaving_the_file_reach_call_sites():
+    assert LANGUAGE_DEFINITIONS["postgresql"]["boundary_extraction"] == "sql"
+    assert _pg_sites(PG_CALLER) == [
+        ("CALL", "AUDIT_LOG", 7),
+        ("CALL", "NOTIFY_ONE", 8),
+        ("CALL", "AUDIT_LOG", 17),
+        ("CALL", "CLEANUP_ALL", 19),
+    ]
+
+
+def test_postgresql_no_call_no_site():
+    assert _pg_sites("CREATE TABLE t (a int);\nSELECT foo(a) FROM t;\nPERFORM bar();\n") == []
+
+
+def test_postgresql_resolves_within_its_own_dialect_only():
+    site = {"verb": "CALL", "form": "literal", "operand": "AUDIT_LOG", "target": "AUDIT_LOG", "line": 7}
+    files = [
+        _file("db/caller.sql", "postgresql", ["raise_pay"], sites=[site]),
+        _file("db/db2_audit.sql", "db2_sql", ["AUDIT_LOG"]),
+        _file("src/AUDIT_LOG.cbl", "cobol", classes=["AUDIT_LOG"]),
+    ]
+    sites, edges = resolve_invocations(files)
+    assert sites[0]["resolved_path"] is None and edges == []
+    files.append(_file("db/pg_audit.sql", "postgresql", ["audit_log"]))
+    sites, edges = resolve_invocations(files)
+    assert [(s["src_path"], s["resolved_path"]) for s in sites] == [("db/caller.sql", "db/pg_audit.sql")]

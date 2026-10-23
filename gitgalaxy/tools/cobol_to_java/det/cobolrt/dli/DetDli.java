@@ -1146,6 +1146,23 @@ public final class DetDli {
         "LOG ", "STAT", "GSCD", "FLD ", "POS ", "INIT", "INQY", "SNAP", "PCB ", "TERM", "GMSG", "ICMD", "RCMD", "CMD ",
         "GCMD", "AUTH", "CHNG", "PURG", "DEQ ", "SETO", "APSB", "DPSB", "GSTA");
 
+    /** A GSAM PCB (load mode, #5233; twin of ggdli.c's gsam_call): ISRT appends one record, any other function is AM. */
+    // [rule RT-DLI-GSAM]
+    static void gsamCall(Pcb p, String fn, Field io, Field[] ssas) {
+        if (!fn.equals("ISRT")) {
+            status(p, "AM");
+            return;
+        }
+        if (ssas.length != 0) {
+            throw refuse("a GSAM ISRT with an SSA");
+        }
+        if (io.storage().bytes.length - io.offset() < p.reclen) {
+            throw refuse("a GSAM ISRT whose I/O area is shorter than the DBD's record");
+        }
+        p.out.write(io.storage().bytes, io.offset(), p.reclen);
+        status(p, "  ");
+    }
+
     /** CALL 'CBLTDLI' USING function pcb io-area [ssa ...]. */
     // [rule RT-DLI-CALL]
     public static void call(Field function, Field pcb, Field io, Field... ssas) {
@@ -1168,19 +1185,8 @@ public final class DetDli {
             status(p, "AD");
             return;
         }
-        if (p.gsam) { // a GSAM PCB (load mode, #5233; twin of ggdli.c's gsam_call): ISRT appends one record, else AM
-            if (!fn.equals("ISRT")) {
-                status(p, "AM");
-                return;
-            }
-            if (ssas.length != 0) {
-                throw refuse("a GSAM ISRT with an SSA");
-            }
-            if (io.storage().bytes.length - io.offset() < p.reclen) {
-                throw refuse("a GSAM ISRT whose I/O area is shorter than the DBD's record");
-            }
-            p.out.write(io.storage().bytes, io.offset(), p.reclen);
-            status(p, "  ");
+        if (p.gsam) { // #5233
+            gsamCall(p, fn, io, ssas);
             return;
         }
         if (ssas.length > 15) {

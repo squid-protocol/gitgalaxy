@@ -71,6 +71,7 @@ CONDITION_ABEND: Mapping[str, str] = {
     "ENDDATA": "AEI2",
     "PGMIDERR": "AEI0",
     "INVREQ": "AEIP",
+    "IOERR": "AEIQ",  # #6166: "IOERR condition not handled" (IBM abend AEIQ)
     "CONTAINERERR": "AEZJ",  # #4270: "CONTAINERERR condition not handled"
     "CHANNELERR": "AEZV",  # "CHANNELERR condition not handled"
     "TOKENERR": "AEZL",  # #4951: GETNEXT / ENDBROWSE CONTAINER (IBM APAR PK43600 shows GETNEXT CONTAINER's TOKENERR abending AEZL)

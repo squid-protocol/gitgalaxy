@@ -924,7 +924,7 @@ public final class DetDli {
             if (s[i].cat != null && (!gu || s.length != 1 || s[i].last)) {
                 throw refuse("the command code C other than alone on a GU, without L");
             }
-            if (s[i].path && fn.charAt(0) != 'G') {
+            if (s[i].path && fn.charAt(0) != 'G' && !isrt) { // #5233: D on an ISRT is the path insert
                 throw refuse("the command code D on a " + fn.trim());
             }
             if (s[i].path && s[i].cat != null) {
@@ -1304,6 +1304,12 @@ public final class DetDli {
             status(p, bad);
             return;
         }
+        for (int i = 0; i < k - 1; i++) {
+            if (s[i].path) {
+                pathIsrt(p, io, s);
+                return;
+            }
+        }
         int t = s[k - 1].seg;
         Segm sg = SEGS.get(t);
         Node parent;
@@ -1354,6 +1360,81 @@ public final class DetDli {
         p.at = n;
         p.prevknown = false;
         p.par = PAR_UNKNOWN;
+    }
+
+    /** Path ISRT (#5233, command code D on an SSA before the last): the I/O area holds each D-coded segment and then the last
+     *  one, fixed length, in hierarchic order. A level is found in its parent's children (a D-coded one by the sequence field in its
+     *  slice, another by its SSA) and inserted from its slice when a D-coded one is missing. ASSUMPTION (no IBM text quoted): a
+     *  D-coded segment that exists is kept as it is and its slice is not compared; the last segment is inserted as an ordinary ISRT. */
+    // [rule RT-DLI-ISRT]
+    private static void pathIsrt(Pcb p, Field io, Ssa[] s) {
+        int k = s.length;
+        if (SEGS.get(s[0].seg).parent >= 0) {
+            throw refuse("an ISRT whose SSAs leave out the root level");
+        }
+        byte[] b = io.storage().bytes;
+        int at = io.offset();
+        Node parent = ROOTS.get(p.db);
+        for (int i = 0; i < k; i++) {
+            int t = s[i].seg;
+            Segm sg = SEGS.get(t);
+            boolean coded = i == k - 1 || s[i].path;
+            int key = at + FLDS.get(sg.key).start - 1;
+            if (coded && at + sg.bytes > b.length) {
+                throw refuse("a path ISRT whose I/O area is shorter than the segments it names");
+            }
+            Node found = null;
+            for (Node c : parent.kids) {
+                if (c.seg == t && (coded ? keyCmp(c, b, key) == 0 : satisfies(c, s, i + 1))) {
+                    found = c;
+                    break;
+                }
+            }
+            if (i == k - 1) {
+                if (found != null) {
+                    status(p, "II");
+                    feedback(p, parent.parent != null ? parent : null);
+                    p.pos = POS_UNKNOWN;
+                    p.par = PAR_UNKNOWN;
+                    return;
+                }
+                Node n = new Node();
+                n.seg = t;
+                n.data = Arrays.copyOfRange(b, at, at + sg.bytes);
+                linkChild(parent, n);
+                status(p, "  ");
+                feedback(p, n);
+                p.pos = POS_AT;
+                p.at = n;
+                p.prevknown = false;
+                p.par = PAR_UNKNOWN;
+                return;
+            }
+            if (found == null && !coded) {
+                status(p, "GE");
+                feedback(p, parent.parent != null ? parent : null);
+                p.pos = POS_UNKNOWN;
+                p.par = PAR_UNKNOWN;
+                return;
+            }
+            if (found == null) {
+                Node n = new Node();
+                n.seg = t;
+                n.data = Arrays.copyOfRange(b, at, at + sg.bytes);
+                n.parent = parent; // so the SSA's qualification can be read before the segment is linked
+                if (!satisfies(n, s, i + 1)) {
+                    throw refuse("a path ISRT whose segment does not satisfy its own SSA");
+                }
+                linkChild(parent, n);
+                found = n;
+            } else if (!satisfies(found, s, i + 1)) {
+                throw refuse("a path ISRT whose existing segment does not satisfy its own SSA");
+            }
+            if (coded) {
+                at += sg.bytes;
+            }
+            parent = found;
+        }
     }
 
     /** REPL / DLET: on the segment the previous call on this PCB held. */

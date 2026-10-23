@@ -436,6 +436,12 @@ CMD_EXPECTED = [
     "Q64 [  ] D100/E001/", "Q65 [  ] D999/E001/", "Q66 [  ] D100ALPHA", "Q67 [  ] E001NEWNM",
     # a changed sequence field in a replaced segment is DA, and nothing is replaced
     "Q68 [  ] D100/E001/", "Q69 [DA] D100/E999/", "Q70 [  ] E001NEWNM",
+    # D on an ISRT before the last SSA, the path insert: DEPT*D, EMP inserts a new root and its child; the GU reads the child back
+    "Q71 [  ] EMP", "Q72 [  ] E010ZED",
+    # an existing D-coded DEPT is kept (its slice is not compared: its name, ALPHA since Q62, stays), the EMP is inserted under it; the same call again is II
+    "Q73 [  ] EMP", "Q74 [  ] D100ALPHA", "Q75 [  ] E011ABEL", "Q76 [II] DEPT",
+    # three levels, DEPT*D, EMP*D, SKILL; then a qualified DEPT without D (found by its SSA), EMP*D, SKILL; a qualified DEPT that is missing: GE
+    "Q77 [  ] SKILL", "Q78 [  ] S9TEST", "Q79 [  ] SKILL", "Q80 [  ] E030CY", "Q81 [  ] S8X", "Q82 [GE]",
 ]  # fmt: skip
 
 
@@ -446,7 +452,10 @@ def test_command_codes_answer_the_same_on_both_runtimes(tmp_path):
     assert _lines(cobol_out) == CMD_EXPECTED
     assert _lines(java_out) == CMD_EXPECTED
     assert cobol_db == java_db
-    keys = [(n, d[:4].decode("latin-1").strip()) for n, d in ei.split(cobol_db, {"DEPT": 20, "EMP": 20, "SKILL": 8, "PROJ": 12})]
+    keys = [
+        (n, d[:4].decode("latin-1").strip())
+        for n, d in ei.split(cobol_db, {"DEPT": 20, "EMP": 20, "SKILL": 8, "PROJ": 12})
+    ]
     assert ("EMP", "E004") in keys and keys.index(("EMP", "E004")) == keys.index(("EMP", "E003")) + 2
 
 
@@ -491,7 +500,9 @@ def _swaps(*pairs: tuple[str, str]):
         (_swap("F-GHU PCB1 IOP C-DDN S-EMP", "F-GU PCB1 IOP C-DDN S-EMP"), "the command code N other than with D on a get-hold call"),
         (_swap("'DEPT    *DN '", "'DEPT    *N  '"), "the command code N other than with D on a get-hold call"),  # N without D (a hold get)
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-ISRT PCB1 IOA C-DDN"),
-         "the command code D on a ISRT"),  # the path ISRT stays refused
+         "the command code N other than with D on a get-hold call (ISRT)"),  # no replace is a get-hold's, not a path insert's
+        (_swap("F-ISRT PCB1 IOP C-DD S-EMP", "F-ISRT PCB1 IOP C-DDN S-EMP"),
+         "the command code N other than with D on a get-hold call (ISRT)"),  # N beside D on a path insert
         (_swap("PIC X(4) VALUE 'REPL'", "PIC X(4) VALUE 'DLET'"), "a DLET after a path call"),
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DF"),
          "the command code F on a GN"),
@@ -504,7 +515,6 @@ def _swaps(*pairs: tuple[str, str]):
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-CE2"),
          "the command code C other than"),
         (_swap("IOA S-DEPT S-EMP C-SKL", "IOA C-CE2 C-CS2"), "the command code C other than"),
-        (_swap("F-ISRT PCB1 IOA C-DQ C-EF", "F-ISRT PCB1 IOA C-DQ C-ED"), "the command code D on a ISRT"),
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CE2", "CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CDE"),
          "the command code D beside C"),
         (_swap("IOA S-DEPT C-EL", "IOA C-DL C-EL"), "the command code L other than"),  # L on a path SSA
@@ -1166,3 +1176,12 @@ def test_detdli_a_gsam_pcb_in_load_mode_appends_records_and_refuses_what_it_does
     assert records.read_bytes() == b"AAAAAAAABBBBBBBB"
     dup, _ = run("GSAM G LS 8\nGSAM G LS 8\n", "dup")
     assert dup == ["CBLTDLI: two GSAM PCBs on one database is not modelled"]
+
+
+@E2E
+def test_a_path_isrt_with_an_area_shorter_than_its_segments_is_refused_by_the_java_runtime(tmp_path):
+    # the C twin cannot see the area's size (register I5), so only the Java side refuses
+    short = _swap("F-ISRT PCB1 IOP C-DD S-EMP", "F-ISRT PCB1 IOA C-DD S-EMP")
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_side(tmp_path / "java", prog="DLICMD", edit=short)
+    assert "a path ISRT whose I/O area is shorter" in (e.value.stderr or b"").decode("utf-8")

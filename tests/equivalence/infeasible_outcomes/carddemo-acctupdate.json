@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-acctupdate",
+  "entries": [
+    {
+      "unit": "ABEND-ROUTINE",
+      "line": 4205,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 19-20), a separate 01-level ABEND-DATA that no INITIALIZE of the program names, and the program writes it only at 2637-2638 (a non-blank literal) and 4206. It is never LOW-VALUES."
+    }
+  ]
+}

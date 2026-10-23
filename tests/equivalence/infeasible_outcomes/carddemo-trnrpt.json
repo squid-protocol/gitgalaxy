@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-trnrpt",
+  "entries": [
+    {
+      "unit": "PROCEDURE-DIVISION",
+      "line": 171,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "`IF END-OF-FILE = 'N'` (the outer test of the read loop) runs only inside `PERFORM UNTIL END-OF-FILE = 'Y'` (line 170), so END-OF-FILE is not 'Y' on entry; END-OF-FILE has VALUE 'N' and the only statement that writes it is `MOVE 'Y' TO END-OF-FILE` (lines 236 and 264), so it holds only 'N' or 'Y' and the false outcome (neither) is never reached"
+    }
+  ]
+}

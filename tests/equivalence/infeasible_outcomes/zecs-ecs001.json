@@ -1,0 +1,22 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "zecs-ecs001",
+  "entries": [
+    {
+      "unit": "A3000-OPEN-CONNECTION",
+      "line": 197,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "`IF EIBRESP = DFHRESP(NORMAL)` after `WEB OPEN SESSTOKEN(SESSION-TOKEN) URIMAP(URIMAP-NAME)` (190-194): URIMAP-NAME is the copybook-less constant `VALUE 'ECS001'` (line 37), never written, and the region's WEB OPEN by URIMAP (GGCWOPN, register X35) answers NORMAL for the peer the scenario states and refuses (the run stops) for one it does not; the stub raises no condition for the URIMAP form (its LENGERR 21 / INVREQ 40 / 138 belong to the HOST form, which ECS001 does not use). IBM documents more WEB OPEN conditions than the model raises (assumption X35): owner review."
+    },
+    {
+      "unit": "A5000-CLOSE-CONNECTION",
+      "line": 353,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "`IF EIBRESP = DFHRESP(NORMAL)` after `WEB CLOSE SESSTOKEN(SESSION-TOKEN)` (A5000): the only condition the region raises for WEB CLOSE is NOTOPEN (GGCWCLS, register X35), for a token no open session holds; A5000 runs only after A3000 left through line 197's NORMAL arm with SESSION-TOKEN written by the WEB OPEN, A4000 never closes it, and ECS001 closes it once, so the session is open. IBM's other WEB CLOSE conditions are not raised by the model (assumption X35): owner review."
+    }
+  ]
+}

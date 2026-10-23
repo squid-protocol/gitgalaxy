@@ -1,0 +1,38 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-menu",
+  "entries": [
+    {
+      "unit": "PROCESS-ENTER-KEY",
+      "line": 136,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF CDEMO-USRTYP-USER AND CDEMO-MENU-OPT-USRTYPE(WS-OPTION) = 'A'`: CDEMO-MENU-OPT-USRTYPE is the COMEN02Y copybook's VALUEs, and each of the 11 options carries `10 FILLER PIC X(01) VALUE 'U'` (lines 29, 35, 41, 47, 53, 59, 65, 72, 78, 84, 90; no 'A' anywhere in the copybook); COMEN01C never writes the table (it only reads it at 137, 150ff and 274ff), so no option's user type is 'A' and the true outcome is never reached."
+    },
+    {
+      "unit": "PROCESS-ENTER-KEY",
+      "line": 146,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@169",
+      "family": "C",
+      "reason": "`WHEN CDEMO-MENU-OPT-PGMNAME(WS-OPTION)(1:5) = 'DUMMY'` runs only under `IF NOT ERR-FLG-ON` (145), i.e. after the test at 127-129 let WS-OPTION through as numeric, not zero and not > CDEMO-MENU-OPT-COUNT (11, COMEN02Y line 21 `05 CDEMO-MENU-OPT-COUNT PIC 9(02) VALUE 11`); the program names of options 1-11 are the copybook VALUEs COACTVWC, COACTUPC, COCRDLIC, COCRDSLC, COCRDUPC, COTRN00C, COTRN01C, COTRN02C, CORPT00C, COBIL00C, COPAUS0C (COMEN02Y lines 28-89) and COMEN01C never writes the table, so none starts with 'DUMMY'."
+    },
+    {
+      "unit": "BUILD-MENU-OPTIONS",
+      "line": 274,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "C",
+      "reason": "`EVALUATE WS-IDX` `WHEN OTHER` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-MENU-OPT-COUNT` (264-265): the count is the constant 11 (COMEN02Y line 21 `05 CDEMO-MENU-OPT-COUNT PIC 9(02) VALUE 11`), never written by COMEN01C, and the loop body does not change WS-IDX, so WS-IDX is always 1-11, each matched by WHEN 1-11."
+    },
+    {
+      "unit": "BUILD-MENU-OPTIONS",
+      "line": 274,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@297",
+      "family": "C",
+      "reason": "`EVALUATE WS-IDX` `WHEN 12` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-MENU-OPT-COUNT` (264-265): the count is the constant 11 (COMEN02Y line 21 `05 CDEMO-MENU-OPT-COUNT PIC 9(02) VALUE 11`), never written by COMEN01C, and the loop body does not change WS-IDX, so WS-IDX takes only 1-11."
+    }
+  ]
+}

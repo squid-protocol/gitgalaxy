@@ -111,6 +111,22 @@ that the aperture refuses (line 1 over 500 chars), so the entry exports the comm
 * **Result:** COBOL stays untested. This estate's COBOL was effectively frozen after its 2019 load; 12 files with 0 touches carry no rate. The pooled burned-estate
   numbers above do not change (no fix hit added). A longer-lived burned estate with COBOL churn is the only way to test it by git history; none exists.
 
+## CBSA, maintenance-phase pin (fourth slice, #2720)
+
+The CBSA pin in the second slice is the first-parent midpoint, which sits inside the 2022-12 to 2023-09 build-out (110 commits in 2023-01 alone, most of the
+repo's renames). The `cbsa-late` entry (same upstream clone, `clone_as`) pins at `f15453b` (2023-10-19), after the renames and the 2023-08/09 burst, with the
+standard 730-day window: the maintenance phase, where a defect found in shipped COBOL would show up as a later touch.
+
+| estate | upstream history | scanned files (rowed languages) | later fix hits | files with a fix |
+|---|---|---|---|---|
+| CBSA, 2023-10 pin | 37 non-merge commits in the window | 264 (jcl 110, java 82, cobol 68, shell 2, batch 2) | 0 | 0 |
+
+* **28 COBOL files are touched in the window, none by a labelled fix.** 146 JCL and 71 Java touches, also none by a labelled fix. The one labelled subject in the
+  window ("Fix pictures", 2024-07-24) deletes four images; it touches no scanned source file.
+* **Result:** COBOL stays untested: 68 files with touches but 0 fix hits carry no rate. The pooled burned-estate numbers above do not change.
+  The late pin shows the other half of the second slice's CBSA row: the 4 hits there came from the build-out, and the maintenance phase of this
+  sample repo is feature and documentation work.
+
 ## Limits
 
 Subject-only labels (precision ~83%, recall well below); effective follow-up of about 6-7 months for nine repos; a rate per file (equal follow-up) rather than per line;
@@ -122,4 +138,6 @@ one language row per repo for most repos; dynamism comes from one signal (`refle
 * A repo pair that puts a 0-gap language beside a 3-4-gap language at equal role (e.g. Rust + build scripts) to test the table's low end - frontier.
 * Burned mainframe estates beyond CardDemo: done in the second slice above (CBSA, GenApp, zECS, DBB MortgageApplication, cicsdev async); too little history and too few fixes to test COBOL. Closing the COBOL question needs diff-verified fix labels (below) or a longer-lived burned estate - none needed by a program today.
 * DBB MortgageApplication: done in the third slice above. The 2025 `zBuilder` tree is a copy (`--follow` cannot recover the 2019 history), and the 2019 `Build/MortgageApplication` layout has 0 touches on COBOL; no burned program needs more.
+* CBSA: done in the fourth slice above (late pin, 0 fix hits). The `etc/install/base` to `springBootUI` move (2026-04) leaves 12 commits after it; too few for a pin.
+* GenApp: 22 of 24 hits are two bulk "COBOL updates and fixes" commits; a bulk-commit guard (drop commits touching many scanned files) would show how many hits survive - sweep, no burned program needs it.
 * Recall of the fix label (trailers, linked issues, diff-verified fixes as in `temporal-crucible`'s harvesters) - sweep.

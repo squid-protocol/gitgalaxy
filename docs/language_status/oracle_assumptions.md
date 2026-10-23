@@ -1268,10 +1268,10 @@ file's paths.
 | `db2.format.DECPT` (IBM default `.`) | yes: DECPT(,) makes the decimal point of SQL literals a comma; the Db2 cases run with a period | none | none | any value but . refused by name | C18 |
 | `db2.ccsid.EBCDIC_CCSID` (IBM default `37`) | yes: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding | none: the oracle runs the case's data in its data_encoding | same | 37, 1140 honoured; any other is a declared difference (applied: data in the case's data_encoding) | C18 |
 | `db2.ccsid.SQLCCSID` (IBM default `NO`) | yes: SQLCCSID(YES) passes SQL host text in the CCSID of the program's source; the harness does not model the conversion | none | none | any value but NO refused by name | C18 |
-| `db2.bind.ISOLATION` (IBM default `CS`) | no: isolation only matters between concurrent units of work; a proof runs one | none needed | -- | recorded only | C18 |
-| `db2.bind.CURRENTDATA` (IBM default `NO`) | no: CURRENTDATA only decides lock avoidance between concurrent units of work | none needed | -- | recorded only | C18 |
-| `db2.bind.DYNAMICRULES` (IBM default `RUN`) | no: DYNAMICRULES decides authorization and the qualifier of dynamic SQL, not a computed value | none needed | -- | recorded only | C18 |
-| `db2.bind.VALIDATE` (IBM default `RUN`) | no: VALIDATE only decides when a missing object is reported | none needed | -- | recorded only | C18 |
+| `db2.bind.ISOLATION` (IBM default `CS`) | no: isolation only matters between concurrent units of work; a proof runs one (the value is judged, BIND_OPTIONS) | none needed | -- | recorded only | C18 |
+| `db2.bind.CURRENTDATA` (IBM default `NO`) | no: CURRENTDATA only decides lock avoidance between concurrent units of work (the value is judged, BIND_OPTIONS) | none needed | -- | recorded only | C18 |
+| `db2.bind.DYNAMICRULES` (IBM default `RUN`) | no: DYNAMICRULES decides authorization and the qualifier of dynamic SQL, not a computed value (the value is judged, BIND_OPTIONS) | none needed | -- | recorded only | C18 |
+| `db2.bind.VALIDATE` (IBM default `RUN`) | no: VALIDATE only decides when a missing object is reported (the value is judged, BIND_OPTIONS) | none needed | -- | recorded only | C18 |
 | `db2.bind.ACTION` (IBM default `REPLACE`) | no: ACTION is a bind administration choice | none needed | -- | recorded only | C18 |
 | `db2.bind.packages` (IBM default `none`) | no: the package list names where a bound program lives, not what it computes | none needed | -- | recorded only | C18 |
 | `db2.precompile.PARM` (IBM default ``) | no: the precompiler PARM is judged token by token (PRECOMPILE_OPTIONS): a listing or delimiter token changes no result, one that changes SQL text, dates, decimals or code pages is refused by name | none needed | -- | recorded only | C18 |
@@ -1365,6 +1365,22 @@ none. Rendered from `PRECOMPILE_OPTIONS`.
 | `db2.precompile.PARM.STDSQL` | yes: STDSQL(YES) changes SQLCODE / SQLSTATE handling and host-variable rules; not modelled | refused by name unless NO |
 | `db2.precompile.PARM.SQL` | yes: SQL(ALL) changes which SQL statements the precompiler accepts; not modelled | refused by name unless DB2 |
 | `db2.precompile.PARM.GRAPHIC` | yes: GRAPHIC changes how DBCS literals in SQL are read; not modelled | refused by name unless never |
+
+
+### Db2 bind options, judged per value (#4707)
+The four bind options that carry a value are checked against what IBM accepts for them; a value outside the set is
+refused by name (the rows above stay "recorded only" for an accepted value, so a z/OS measurement need not state them).
+`ACTION` and `packages` are bind administration and stay recorded for any value. Burned estates: CardDemo records
+ISOLATION CS and CURRENTDATA YES, CBSA ISOLATION UR, GenApp ISOLATION CS, CURRENTDATA NO, DYNAMICRULES BIND and VALIDATE
+BIND; CICS-async, DBB and zECS record none. No burned program issues dynamic SQL or a `WITH UR/CS/RR/RS` clause, so no
+accepted value changes a burned result. Rendered from `BIND_OPTIONS`.
+
+| option | (1) changes results? | (4) otherwise |
+|---|---|---|
+| `db2.bind.ISOLATION` | no: a proof runs one unit of work, and a program sees its own updates at every isolation level | recorded only for CS, UR, RR, RS; any other value refused by name |
+| `db2.bind.CURRENTDATA` | no: CURRENTDATA only decides lock avoidance and block fetch between concurrent units of work | recorded only for YES, NO; any other value refused by name |
+| `db2.bind.DYNAMICRULES` | no: RUN and BIND only change the authorization and qualifier of dynamic SQL, which no burned program issues; DEFINE* and INVOKE* take a routine owner's context, which is not modelled | recorded only for RUN, BIND; any other value refused by name |
+| `db2.bind.VALIDATE` | no: VALIDATE only decides when a missing object is reported; a program that ran found every object | recorded only for RUN, BIND; any other value refused by name |
 
 
 ### CICS conventions the ports rely on: EIB fields and abends (#4707)

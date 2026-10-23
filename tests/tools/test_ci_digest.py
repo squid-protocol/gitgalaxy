@@ -255,7 +255,7 @@ ROLLUP_PARTS = {  # roll-up check -> (workflow, the part jobs whose check-run na
     "ground-truth": ("mainframe-ground-truth.yml", {"ground-truth-part"}),
     "det": ("det-sweep.yml", {"plan", "shard", "db2"}),
 }
-MATRIX_SAMPLE = {"matrix.group": "1", "matrix.shard": "1/4"}
+MATRIX_SAMPLE = {"matrix.group": "1", "matrix.shard": "1/4", "needs.suite-plan.outputs.splits": "3"}  # fmt: skip
 
 
 def rendered_job_names(workflow):
@@ -269,7 +269,7 @@ def rendered_job_names(workflow):
     names = {}
     for job_id, job in jobs.items():
         name = re.sub(
-            r"\$\{\{\s*([\w.]+)\s*\}\}", lambda m: MATRIX_SAMPLE.get(m.group(1), m.group(0)), job.get("name", job_id)
+            r"\$\{\{\s*([\w.-]+)\s*\}\}", lambda m: MATRIX_SAMPLE.get(m.group(1), m.group(0)), job.get("name", job_id)
         )
         assert "${{" not in name, f"{workflow}: job {job_id} name {name!r} has an expression this test cannot render"
         names[job_id] = name

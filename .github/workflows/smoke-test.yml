@@ -76,7 +76,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python tests/tools/skip_tested_tree.py smoke-test.yml
 
-  # #5114: the newest measured durations, chosen ONCE for all three parts. A part that restored `test-durations-` itself
+  # #5114: the newest measured durations, chosen ONCE for all the parts. A part that restored `test-durations-` itself
   # could land on a different cache than its neighbours (the nightly saves one between their starts) and pytest-split
   # then cuts different slices. lookup-only downloads nothing; the parts restore this exact key. An empty key (no
   # cache yet, or this job failed) means every part uses the committed .test_durations: the same file, so still one split.
@@ -106,22 +106,72 @@ jobs:
   # signal on every push without the 12x cost. The full OS x Python-version
   # matrix still gets exercised, just not on every push -- see
   # full-suite-gate.yml.
-  # #4825: the suite (~16.6k tests, up to ~20 min on one runner even with -n auto) runs in 3 parts, each on its own
-  # runner and each still -n auto (pytest-split --splits 3 --group N, balanced by .test_durations: per-test seconds,
+  # #4825: the suite (~16.6k tests, up to ~20 min on one runner even with -n auto) runs in parts (#5919: as many as the plan says), each on its own
+  # runner and each still -n auto (pytest-split --splits N --group N, balanced by .test_durations: per-test seconds,
   # refreshed now and then with `pytest tests/ -n 8 --store-durations` (pytest-split installed); a test it does not
   # list counts at the average). `full-suite` below -- the required check -- passes only when every part passed.
   # #4847: every run restores the newest nightly's durations (the cache saved by `full-suite-durations`), falling
   # back to the committed .test_durations on a miss; the nightly parts store their seconds and that job merges them.
-  full-suite-part:
-    name: full-suite part ${{ matrix.group }}/3
+  # #5919: the part count and the part jobs' timeout come from the measured durations (suite_shard_plan.py --smoke), not
+  # from YAML: the suite grows every day. It plans from the exact durations the parts will balance by (the key the
+  # `durations` job chose, else the committed .test_durations). The queue depth is read here, on a pull request only
+  # (empty = calm). A plan that fails (no durations) fails the parts, so the required check.
+  suite-plan:
+    name: plan the suite parts
     needs: [tested-tree, durations]
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read  # the queued PR jobs (ci_layout.py --print-waiting)
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      splits: ${{ steps.plan.outputs.splits }}
+      timeout: ${{ steps.plan.outputs.timeout }}
+    steps:
+      - name: Check out the planner
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: |
+            tests/tools/suite_shard_plan.py
+            tests/tools/ci_shard_plan.py
+            tests/tools/ci_layout.py
+            .test_durations
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Restore the durations the plan chose (#4847, #5114)
+        id: durations
+        if: needs.durations.outputs.key != ''
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-cache
+          key: ${{ needs.durations.outputs.key }}
+
+      - name: Balance by the restored durations (else the committed .test_durations)
+        if: steps.durations.outputs.cache-matched-key != ''
+        run: cp durations-cache/test_durations.json .test_durations
+
+      - name: Plan the parts
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          waiting=""
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then waiting=$(python3 tests/tools/ci_layout.py --print-waiting || true); fi
+          python3 tests/tools/suite_shard_plan.py --smoke ${waiting:+--waiting "$waiting"} | tee -a "$GITHUB_OUTPUT"
+
+  full-suite-part:
+    name: full-suite part ${{ matrix.group }}/${{ needs.suite-plan.outputs.splits }}
+    needs: [tested-tree, durations, suite-plan]
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJSON(needs.suite-plan.outputs.timeout) }}  # #5919: planned from the durations
     strategy:
       fail-fast: false
-      matrix:
-        group: [1, 2, 3]
+      matrix: ${{ fromJSON(needs.suite-plan.outputs.matrix) }}
     env:
       PYTHONUTF8: "1"
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
@@ -224,9 +274,10 @@ jobs:
           # PYTEST_ADDOPTS so the pytest command line below stays as it is.
           if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then echo "PYTEST_ADDOPTS=--ignore=tests/cobol_mainframe" >> "$GITHUB_ENV"; fi
 
-      - name: Golden Record Integration Test (Pytest), part ${{ matrix.group }}/3
+      - name: Golden Record Integration Test (Pytest), part ${{ matrix.group }}/${{ needs.suite-plan.outputs.splits }}
         env:
           GROUP: ${{ matrix.group }}
+          SPLITS: ${{ needs.suite-plan.outputs.splits }}
           EVENT: ${{ github.event_name }}
           SWEEPS: ${{ steps.sweeps.outputs.mode }}
           GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-part-${{ matrix.group }}.json  # #5166: tests/conftest.py writes each test's seconds
@@ -241,7 +292,7 @@ jobs:
           if [ "$SWEEPS" = "none" ]; then marks=(-m "not golden_crucible and not redos_sweep"); fi
           # #5133: least_duration, not pytest-split's default duration_based_chunks (contiguous slices: all of tests/cobol_mainframe
           # landed in part 1, 11.9 min against 4.8 and 3.5)
-          pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --ignore=tests/cobol_mainframe/test_evidence_components.py --splits 3 --splitting-algorithm least_duration --group "$GROUP" "${store[@]}" "${marks[@]}"
+          pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --ignore=tests/cobol_mainframe/test_evidence_components.py --splits "$SPLITS" --splitting-algorithm least_duration --group "$GROUP" "${store[@]}" "${marks[@]}"
 
       # #5166 part B: the per-test time gate (a test over 10 s needs a slow marker or a baseline entry; a baselined one
       # fails over 2x). Part of this required job, so it always reports; the suite total is the suite-time job's.
@@ -308,11 +359,11 @@ jobs:
       - name: Evidence report level deltas (advisory, #4703)
         run: python tests/tools/evidence_report.py --deltas --live >> "$GITHUB_STEP_SUMMARY"
 
-  # #4847: the nightly's three parts' durations, merged (pytest-split's {nodeid: seconds} files, disjoint) and saved
+  # #4847: the nightly's parts' durations, merged (pytest-split's {nodeid: seconds} files, disjoint) and saved
   # under `test-durations-<run id>`; the next run of every part restores the newest one. Not a required check.
   full-suite-durations:
     name: store the suite's durations
-    needs: full-suite-part
+    needs: [suite-plan, full-suite-part]
     if: github.event_name == 'schedule' && success()
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -329,9 +380,11 @@ jobs:
           path: parts
 
       - name: Merge the parts into one durations file
+        env:
+          SPLITS: ${{ needs.suite-plan.outputs.splits }}
         run: |
           parts=$(find parts -name 'durations-part-*.json' | sort)
-          test "$(printf '%s\n' "$parts" | grep -c .)" = 3 || { echo "expected 3 parts' durations:"; echo "$parts"; exit 1; }
+          test "$(printf '%s\n' "$parts" | grep -c .)" = "$SPLITS" || { echo "expected $SPLITS parts' durations:"; echo "$parts"; exit 1; }
           mkdir -p durations-cache
           python3 tests/tools/merge_test_durations.py durations-cache/test_durations.json $parts
 
@@ -347,7 +400,7 @@ jobs:
   # The total is the sum of the parts' own measured seconds, not the contended durations cache (#5162).
   suite-time:
     name: suite time budget (#5166)
-    needs: full-suite-part
+    needs: [suite-plan, full-suite-part]
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.full-suite-part.result == 'success') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -370,9 +423,10 @@ jobs:
         env:
           EVENT: ${{ github.event_name }}
           GH_TOKEN: ${{ github.token }}
+          SPLITS: ${{ needs.suite-plan.outputs.splits }}
         run: |
           parts=$(find times -name 'times-part-*.json' | sort)
-          test "$(printf '%s\n' "$parts" | grep -c .)" = 3 || { echo "expected 3 parts' test times:"; echo "$parts"; exit 1; }
+          test "$(printf '%s\n' "$parts" | grep -c .)" = "$SPLITS" || { echo "expected $SPLITS parts' test times:"; echo "$parts"; exit 1; }
           enforce=()
           if [ "$EVENT" = "schedule" ]; then enforce=(--enforce); fi
           status=0

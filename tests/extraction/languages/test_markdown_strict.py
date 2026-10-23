@@ -128,6 +128,25 @@ def test_markdown_lit_diagrams_case_insensitivity_and_indentation_regression():
     assert not pattern.search("    ```mermaid\n4-space indent\n    ```")
 
 
+def test_markdown_lit_diagrams_fence_variants_4108():
+    """A diagram fence may use tildes, a space before the info string, or a pandoc/quarto brace."""
+    pattern = MARKDOWN_RULES["lit_diagrams"]
+
+    assert pattern.search("~~~mermaid\ngraph TD;\n~~~")
+    assert pattern.search("~~~~ plantuml\n@startuml\n@enduml\n~~~~")
+    assert pattern.search("``` mermaid\ngraph TD;\n```")
+    assert pattern.search("```{mermaid}\ngraph TD;\n```")
+    assert pattern.search("``` {.plantuml}\n@startuml\n```")
+    assert len(pattern.findall("```mermaid\na\n```\n\n~~~mermaid\nb\n~~~\n")) == 2
+
+    # not diagrams: other info strings, a two-char fence, a 4-space indented tilde fence, a longer word
+    assert not pattern.search("~~~python\nprint(1)\n~~~")
+    assert not pattern.search("~~mermaid\nx\n~~")
+    assert not pattern.search("    ~~~mermaid\nx\n    ~~~")
+    assert not pattern.search("```mermaidish\nx\n```")
+    assert not pattern.search("text ```mermaid inline")
+
+
 def test_markdown_lit_headers_multiline_and_boundary_regression():
     r"""
     Regression test for `lit_headers`. The one genuine bug: previously

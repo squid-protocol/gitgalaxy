@@ -3078,7 +3078,7 @@
     "python/homeassistant_ble_integrations": {
       "python/homeassistant_ble_integrations/LICENSE.md": 0.0,
       "python/homeassistant_ble_integrations/aranet___init__.py": 6.029,
-      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 7.735,
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 7.766,
       "python/homeassistant_ble_integrations/utils.py": 6.074
     },
     "python/langchain_agents": {

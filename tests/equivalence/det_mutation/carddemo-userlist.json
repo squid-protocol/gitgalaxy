@@ -5,7 +5,7 @@
  "case": "carddemo-userlist",
  "entry": {
   "program": "COUSR00C",
-  "commit": "b3cbcd810523c9e59a4f24e26c0a2f9510f8a7e1+uncommitted",
+  "commit": "10bbd830b22d93b342527f55f6a43648b6949b05+uncommitted",
   "date": "2026-10-23",
   "mode": "fast",
   "seed": 0,
@@ -437,19 +437,20 @@
    }
   ],
   "inputs": {
-   "port": "ac4e7fabc33b0c4a91a9b1e292892374bffcd93b99a7e107b1a9c7977ec5fc4d",
-   "generator": "ca4b410456337605833203481b5315aacced3f8cf3db7c2885782db15a8d19ea",
+   "port": "1287bce94dcab127d39fc834937e05e27a19ab60d957700e6fce8e99a170dc05",
+   "generator": "27f397cc6f2fc2f38818e326c651de4b1d2127c06e16565fe60ad933369aaf7c",
    "case": "8c16f63cf2c832b099125c16be0ae1347a59c0057eb67d63d9d70c01d2522a15",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
    "harness": "da2c3ff87512c11dd74bd9daae9017fa3f4ee7e7dc962ead4c5cae60412c4c1a",
-   "oracle": "b1f23bb484bc931bd1ea75c1d8b3a9d58d6d5e2cb96c6aba3b7c055030a79e8b"
+   "oracle": "e9a91207341afa76d5dc5bdec3a5fd2419ee34e569bd25110cb5be6171a4f8f6"
   },
   "components": {
    "generator": {
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
     "generator:core": "3184137b4cda58f351019fe04b65c400a1bdb2ed16fee76b69b353e4e3459cea",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "ee2003eb116c7db04e24270bb05d1e64be44ac095c3bbb01c10356222e954d31",
+    "generator:det/cics": "a6cc31fceae58f5b202d49880d55b716d2821a5ea7ed2b45e4f32d6621136df1",
+    "generator:det/cics_conditions": "c5bfb6ed32df1a582cf010bf59f1f16dd7440e4caa075a0458f62ca9b85f6219",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
     "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
     "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",

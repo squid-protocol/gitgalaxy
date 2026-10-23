@@ -42,8 +42,24 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   catches it) (#5887).
 * **Fixed-format COBOL test input past column 72 is silently truncated by `_code`:** one statement per line in lowering
   tests (#5887).
+* **Count maps summed by key are a `Counter`, not `{}`** (a bare dict crashed `--oracle` without tree_sitter, #5533).
+* **A bare `(?m)` inside a joined alternation breaks the scan:** use `(?m:...)`. An uppercase `<< CONST` shift reads as a
+  heredoc and swallows the file (#5695).
+* **`_RET` keyword guard against `class` also blocks `Class<Actor>` return types:** use `class(?![ \t]*<)` (#5535).
+* **`ctags --output-format=json --fields=+K` dedupes same-name+pattern tags** (860 vs 939 on doom.go): add `n` when
+  counting definitions (#5459).
+* **Mode A slicing cuts a unit at the LAST standalone `assembly_returns` match:** where RETURN is an early exit add the
+  language to `_NON_TERMINATING_KEYWORDS_BY_LANG` (#5688).
+* **`VendorDirectoryDetector.is_candidate_name` is gone:** call `is_vendored(rel_dir)` per ancestor dir (#5515, #5553).
+* **Scans are keyed by engine SHA:** to re-score old scans with a new scorer, symlink `<work>/scans/<HEAD sha>` to the
+  old scan dir (valid only when `gitgalaxy/` has no diff) (#5617).
+* **`tests/fixtures/evidence_report/*` snapshots lag the live translator:** read current holes with `generated_branch.py
+  show` (#5775).
+* **The shared venv has no pytest-xdist** (`-n4` exits 4); a serial full suite takes ~20 min: poll `full.exit` (#5960).
 
 ## CI and workflow traps
+* **Never put a multi-line string inside `${{ }}`** (YAML folds newlines): use two `if:`-gated steps or a block scalar (#5612).
+* **Two concurrent `doom_rosetta_check` runs need separate `--work` dirs** (#5960).
 * On a path-filtered workflow, key caches by `hashFiles` of the inputs, not the sha: the sha only has an entry for
   commits that triggered the workflow (#5184).
 * A step that runs `git diff origin/main...HEAD` needs `fetch-depth: 0`; the shallow default has no merge base, so a

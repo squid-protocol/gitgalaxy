@@ -38,10 +38,13 @@ count, you're in the wrong skill — use `add-signal`.**
    `extract_boundary()`. Read the PRISM code stream; emit a flat, source-ordered dict list (tree →
    `ordinal`/`parent_ordinal`, rebuilt by the reader).
 3. `galaxyscope.py` boundary block: read the key with a default, add to `data_payload`.
-4. `record_keeper.py`: `CREATE TABLE <name>_data (… file_id … ON DELETE CASCADE)` + two indexes;
-   insert via `_insert_per_file_child`.
-5. `state_rehydrator.py`: restore via `_restore_child_table` and set `node["<key>"]` — mandatory, or
-   incremental scans drop unchanged files' facts.
+4. `core/fact_channels.py` (#3383): ONE `FactChannel` entry in `CHANNELS` carries the schema (`ddl`
+   `CREATE TABLE … file_id … ON DELETE CASCADE`, `extra_columns` heals, `indexes`), the insert
+   (`columns` + `to_row`) and the restore (`restore_select` + `to_payload`; mandatory, or incremental
+   scans drop unchanged files' facts). `record_keeper.py` needs one `create_channel_table(...)` line
+   beside the other channels; insert and restore iterate the registry. A channel with a custom
+   insert/restore (call_site, transaction, sql_statement) is still hand-wired there.
+5. (merged into 4.)
 6. `galaxy_ir.py`: `Engine<Fact>` dataclass, `EngineFile.<facts>` field, `_has_table`-gated read,
    and **update the SCOPE comment**.
 7. `refraction_differential.py`: a real forge-vs-engine compared datum with a real cause (never

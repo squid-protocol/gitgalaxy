@@ -1,6 +1,6 @@
 """#5233: the CardDemo COPAUS0C equivalence case (the pending-authorization summary screen, transid CPVS: EXEC DLI GU /
 GNP browse of DBPAUTP0, three VSAM reads, BMS map COPAU0A) and the harness steps it needed. The unit tests need nothing
-but the case; the proof itself (33 scenarios, GnuCOBOL against the det port, the deployed entry point too) is the det
+but the case; the proof itself (37 scenarios since #6072, GnuCOBOL against the det port, the deployed entry point too) is the det
 sweep's, `det_port.py run carddemo-copaus0c`."""
 
 from __future__ import annotations
@@ -30,6 +30,8 @@ SCENARIOS = [
     "read-xref-io-error", "read-acct-io-error", "read-cust-io-error",
     "enter-gu-system-error", "enter-gnp-system-error", "enter-gnp-end-of-db-mid-page", "pf8-reposition-system-error",
     "pf8-reposition-gnp-ge", "pf8-page-gnp-system-error",
+    # #6072: SEL0004, a GNP that ends the list, an SCHD that fails once and always
+    "select-row-4", "enter-account-probe-gnp-ends", "enter-schd-tc-once", "enter-schd-fails",
 ]  # fmt: skip
 
 
@@ -52,13 +54,13 @@ def test_the_case_runs_the_program_under_its_transid_on_the_authorization_databa
 
 def test_each_dli_fault_is_a_plan_the_stubs_read_and_the_status_arms_are_all_planned():
     """#5233: GU and GNP (the browse's first read, a mid-page read, PF8's reposition and the read after it) each answer a
-    status the program's EVALUATE handles. SCHD's TC is not planned: the program's TERM after it is refused (no PSB)."""
+    status the program's EVALUATE handles. #6072 plans SCHD's TC too, once (TERM and schedule again) and always."""
     planned = {s["name"]: ec.dli_fault_lines(_case(), s) for s in _case()["scenarios"] if s.get("dli_faults")}
     assert planned["enter-gu-system-error"] == ["GU 1 AC"]
     assert planned["enter-gnp-end-of-db-mid-page"] == ["GNP 3 GB"]
     assert planned["pf8-reposition-gnp-ge"] == ["GNP 1 GE"]
-    assert {op.split()[0] for lines in planned.values() for op in lines} == {"GU", "GNP"}
-    assert len(planned) == 6
+    assert {op.split()[0] for lines in planned.values() for op in lines} == {"GU", "GNP", "SCHD"}
+    assert len(planned) == 9
 
 
 def test_the_case_notice_names_the_sources_own_license():

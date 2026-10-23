@@ -300,6 +300,46 @@ def _le_hits(path: str, value: Any, source: str | None) -> list[dict[str, Any]]:
              "note": f"{path}={value}: not Language Environment syntax ({row['grammar']}) (#4707)"}]  # fmt: skip
 
 
+# #4707: the Db2 format and CCSID options whose value is judged for syntax, the same way as the LE rows: a well-formed
+# value keeps its outcome (ISO honoured, USA refused, a CCSID declared), one that is not Db2 syntax is refused by name.
+DB2_PREFIX = "db2."
+
+
+def _one_of(*names: str) -> Any:
+    return lambda state: state if state in names else None
+
+
+def _normal_ccsid(state: str) -> str | None:
+    return state if re.fullmatch(r"\d{1,5}", state) and int(state) > 0 else None
+
+
+DB2_OPTIONS: dict[str, dict[str, Any]] = {
+    "format.DATE": {"normal": _one_of("ISO", "USA", "EUR", "JIS", "LOCAL"), "grammar": "ISO, USA, EUR, JIS or LOCAL"},
+    "format.TIME": {"normal": _one_of("ISO", "USA", "EUR", "JIS", "LOCAL"), "grammar": "ISO, USA, EUR, JIS or LOCAL"},
+    "format.DEC": {"normal": _one_of("15", "31", "15.", "31."), "grammar": "15 or 31, optionally followed by a period"},
+    "format.DECPT": {"normal": _one_of(".", ",", "PERIOD", "COMMA"), "grammar": "a period or a comma, or PERIOD or COMMA"},
+    "ccsid.SQLCCSID": {"normal": _one_of("YES", "NO"), "grammar": "YES or NO"},
+    "ccsid.EBCDIC_CCSID": {"normal": _normal_ccsid, "grammar": "a CCSID: one to five digits, not zero"},
+}  # fmt: skip
+
+
+def db2_rows() -> list[str]:
+    """The DB2_OPTIONS rows as the markdown table lines register C18 holds (tests pin the page to them)."""
+    return [
+        f"| `{DB2_PREFIX}{key}` | {r['grammar']} | a value outside this syntax is refused by name; a well-formed one "
+        "is judged by the row above |"
+        for key, r in DB2_OPTIONS.items()
+    ]
+
+
+def _db2_hits(path: str, value: Any, source: str | None) -> list[dict[str, Any]]:
+    row = DB2_OPTIONS.get(path[len(DB2_PREFIX) :]) if path.startswith(DB2_PREFIX) else None
+    if row is None or row["normal"](_state(value)) is not None:
+        return []
+    return [{"option": path, "declared": _state(value), "policy": "refuse", "applied": None, "source": source,
+             "note": f"{path}={value}: not Db2 syntax ({row['grammar']}) (#4707)"}]  # fmt: skip
+
+
 # #4707: which burned estates exercise each judged option (policy refuse or declare): the corpora whose source holds the
 # construct the row says the option changes. An empty list says no burned program depends on the assumed value, so a
 # refusal there protects a customer's estate only. The test greps the corpora for each pattern (STORAGE rests on
@@ -362,7 +402,9 @@ def runtime_unhonoured(
                 continue
             if row["kind"] == "ccsid":
                 state = state.lstrip("0")  # 037 is 37
-            if bad := _le_hits(path, value, (sources or {}).get(path)):
+            if bad := _le_hits(path, value, (sources or {}).get(path)) or _db2_hits(
+                path, value, (sources or {}).get(path)
+            ):
                 out.extend(bad)
                 continue
             if path == TRANSLATOR_OPTION:

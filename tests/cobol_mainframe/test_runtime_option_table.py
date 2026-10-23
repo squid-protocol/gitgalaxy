@@ -24,6 +24,7 @@ from gitgalaxy.core import estate_options as eo  # noqa: E402
 from gitgalaxy.core.runtime_options import (
     BIND_OPTIONS,
     CICS_CONVENTIONS,
+    DB2_OPTIONS,
     LE_OPTIONS,
     RUNTIME_OPTION_TABLE,
     PRECOMPILE_OPTIONS,
@@ -32,6 +33,7 @@ from gitgalaxy.core.runtime_options import (
     bind_rows,
     calibration_problems,
     conventions_rows,
+    db2_rows,
     le_rows,
     precompile_rows,
     precompile_tokens,
@@ -639,6 +641,84 @@ def test_a_malformed_le_value_reaches_the_oracle(put_estate):
     with pytest.raises(common.UnsupportedOption, match=re.escape("le.runtime_options.STORAGE")):
         common.compile_options(put_estate("le", "runtime_options.STORAGE", "garbage"), PLAIN)
     common.compile_options(put_estate("le", "runtime_options.STORAGE", "NONE,NONE,NONE,0K"), PLAIN)
+
+
+# --- the Db2 format and CCSID options, judged for syntax (#4707) ---
+
+DB2 = "db2."
+
+
+def _db2(key, value, sources=None):
+    return runtime_unhonoured({"db2": {key: value}}, sources)
+
+
+def test_the_register_lists_every_db2_syntax_row():
+    text = (ROOT / "docs" / "language_status" / "register" / "C18.md").read_text(encoding="utf-8")
+    assert not [row for row in db2_rows() if row not in text]
+
+
+def test_the_db2_syntax_rows_cover_exactly_the_judged_format_and_ccsid_options():
+    assert {DB2 + key for key in DB2_OPTIONS} == {
+        key
+        for key, row in RUNTIME_OPTION_TABLE.items()
+        if key.startswith(("db2.format.", "db2.ccsid.")) and row["policy"] is not None
+    }
+    assert all(row["grammar"] for row in DB2_OPTIONS.values())
+
+
+@pytest.mark.parametrize("path", ESTATES, ids=lambda p: p.stem)
+def test_every_db2_format_and_ccsid_value_an_estate_records_is_well_formed(path):
+    data = json.loads(path.read_text(encoding="utf-8"))
+    db2 = data.get("db2") or {}
+    recorded = {f"{g}.{k}": v for g in ("format", "ccsid") for k, v in (db2.get(g) or {}).items()}
+    if not recorded:
+        pytest.skip("this estate records no Db2 format or CCSID option")
+    hits = eo.effective_options({"program": "P"}, data).unhonoured_runtime()
+    assert [h for h in hits if "not Db2 syntax" in h["note"]] == []
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [("format.DATE", "USA"), ("format.DATE", "local"), ("format.TIME", "JIS"), ("format.DEC", "31"), ("format.DEC", "31."),
+     ("format.DECPT", ","), ("format.DECPT", "comma"), ("ccsid.SQLCCSID", "YES")],
+)  # fmt: skip
+def test_a_well_formed_non_default_db2_value_keeps_its_refusal(key, value):
+    (hit,) = _db2(key, value)
+    assert hit["policy"] == "refuse"
+    assert "not Db2 syntax" not in hit["note"]
+
+
+@pytest.mark.parametrize(("value", "declared"), [("285", "285"), ("00285", "285")])
+def test_a_well_formed_ccsid_keeps_its_declaration(value, declared):
+    (hit,) = _db2("ccsid.EBCDIC_CCSID", value)
+    assert (hit["policy"], hit["declared"].lstrip("0")) == ("declare", declared)
+    assert _db2("ccsid.EBCDIC_CCSID", "037") == []
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        ("format.DATE", "FOO"), ("format.DATE", ""), ("format.DATE", "ISO,USA"), ("format.TIME", "25"),
+        ("format.DEC", "16"), ("format.DEC", "abc"), ("format.DEC", ""), ("format.DEC", "15,31"),
+        ("format.DECPT", ";"), ("format.DECPT", ""), ("format.DECPT", ".."),
+        ("ccsid.SQLCCSID", "MAYBE"), ("ccsid.SQLCCSID", ""), ("ccsid.SQLCCSID", "YES,NO"),
+        ("ccsid.EBCDIC_CCSID", "abc"), ("ccsid.EBCDIC_CCSID", "123456"), ("ccsid.EBCDIC_CCSID", "0"), ("ccsid.EBCDIC_CCSID", "-37"),
+        ("ccsid.EBCDIC_CCSID", ""),
+    ],
+)  # fmt: skip
+def test_a_value_that_is_not_db2_syntax_is_refused_by_name_once(key, value):
+    (hit,) = _db2(key, value, {DB2 + key: "f:3"})
+    assert (hit["policy"], hit["applied"], hit["source"]) == ("refuse", None, "f:3")
+    assert DB2 + key in hit["note"] and "not Db2 syntax" in hit["note"] and "#4707" in hit["note"]
+    assert runtime_effect(DB2 + key, value) == "refused"
+
+
+def test_a_malformed_db2_value_reaches_the_oracle(put_estate):
+    with pytest.raises(common.UnsupportedOption, match=re.escape("db2.format.DATE")):
+        common.compile_options(put_estate("db2", "format.DATE", "FOO"), PLAIN)
+    with pytest.raises(common.UnsupportedOption, match=re.escape("db2.ccsid.EBCDIC_CCSID")):
+        common.compile_options(put_estate("db2", "ccsid.EBCDIC_CCSID", "abc"), PLAIN)
+    common.compile_options(put_estate("db2", "format.DATE", "ISO"), PLAIN)
 
 
 # --- the calibration hook against every recorded measurement (#4702 part 2) ---

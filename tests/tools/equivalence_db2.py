@@ -302,15 +302,31 @@ def fetch_odbc_cli(dest: Path | None = None, pin: dict[str, str] | None = None) 
 
 PULL_ATTEMPTS = 4
 PULL_BACKOFF = 15  # seconds; doubles each attempt
+LOAD_WAIT = 900  # seconds to wait for a background image load/pull (CI's pull.log + pull-done markers) before pulling
 
 
 class Db2ImagePullError(RuntimeError):
     """#5048: the digest-pinned Db2 image could not be pulled -- infrastructure (registry or network), not our code."""
 
 
+def _await_background_load(wait: float = LOAD_WAIT) -> None:
+    """#5601: CI loads the cached image (db2_image_cache.py load, ~2 min for 2.3 GB) or pulls it in the background
+    while Db2 starts, and marks the end with `pull-done` in RUNNER_TEMP (`pull.log` marks its start). Starting before
+    it ended made this harness see no image and pull icr.io itself, which failed on a registry blip: wait for it."""
+    temp = os.environ.get("RUNNER_TEMP")
+    if not temp or not (Path(temp) / "pull.log").is_file():
+        return
+    done = Path(temp) / "pull-done"
+    deadline = time.monotonic() + wait
+    while not done.exists() and time.monotonic() < deadline:
+        time.sleep(1)
+
+
 def pull_image(image: str = IMAGE, attempts: int = PULL_ATTEMPTS, backoff: float = PULL_BACKOFF) -> None:
     """#5048: `docker pull` of the pinned image, retried (the registry and the network hiccup). The digest stays the
     pin: only the same bytes can come back. Nothing happens when the image is already on this host."""
+    if image == IMAGE:
+        _await_background_load()
     if run_ref(image) != image or _docker("image", "inspect", "-f", "{{.Id}}", image, check=False).strip():
         return
     last = ""

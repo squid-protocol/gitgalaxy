@@ -379,7 +379,6 @@ def test_boolean_ssas_answer_the_same_on_both_runtimes(tmp_path):
     "edit, why",
     [
         (lambda s: s.replace("VALUE '|'", "VALUE '#'"), "the independent AND operator (#)"),
-        (lambda s: s.replace("PIC X(9) VALUE 'EMP     ('.", "PIC X(9) VALUE 'EMP     *'.", 1), "an SSA with command codes"),
         (lambda s: s.replace("COMP-3 VALUE 1000", "COMP-3 VALUE -1000"), "P-field qualification on operands"),
     ],
 )  # fmt: skip
@@ -389,6 +388,93 @@ def test_what_a_boolean_ssa_still_leaves_out_is_refused_by_both_runtimes(tmp_pat
     with pytest.raises(subprocess.CalledProcessError) as e:
         _java_side(tmp_path / "java", prog="DLIBOOL", edit=edit)
     assert why in (e.value.stderr or b"").decode("utf-8")
+
+
+# #5233: command codes F, L and -, written from IBM's documentation (L takes the last twin of the type under its parent;
+# F is the default start of a GU; both are ignored on an ISRT into a unique sequence field)
+CMD_EXPECTED = [
+    "Q01 [  ] D300HR",  # GU DEPT*L: the last root
+    "Q02 [GB]",  # the GN after it: position is on the last root, which has no successor
+    "Q03 [  ] D100SALES", "Q04 [  ] D100SALES",  # DEPT*F and DEPT*-: the first root, as without a code
+    "Q05 [  ] E002BOB",  # DEPT, EMP*L: the last EMP under the first DEPT
+    "Q06 [  ] E003CAROL",  # DEPT*-(DEPTNO = D200), EMP*L: a null code before the qualification
+    "Q07 [  ] E002BOB",  # EMP*FL: L decides
+    "Q08 [  ] S2JAVA",  # DEPT, EMP, SKILL*L: the last SKILL under the first EMP
+    "Q09 [  ] E004DAVE",  # ISRT EMP*F under D200: inserted in key order (F and L change nothing with a unique key)
+    "Q10 [  ] E004DAVE",  # so the last EMP under D200 is now E004
+    # P on a GU: parentage at the DEPT, so the GNPs walk everything under D100 (EMP E001, its skills, E002, the project)
+    "Q11 [  ] E001ALICE", "Q12 [  ] S1COBOL", "Q13 [  ] S2JAVA",
+    "Q14 [GA] E002BOB", "Q15 [GK] P1ALPHA", "Q16 [GE]",  # GA: up a level; GK: same level, another type; GE: D100 is done
+    # P on the lowest SSA is the default: parentage at the EMP, so the GNPs stop after E001's two skills
+    "Q17 [  ] E001ALICE", "Q18 [  ] S1COBOL", "Q19 [  ] S2JAVA", "Q20 [GE]",
+    # P with a qualification: D200's dependents, including the E004 inserted by Q09
+    "Q21 [  ] E003CAROL", "Q22 [  ] S1DB2", "Q23 [GA] E004DAVE", "Q24 [GE]",
+]  # fmt: skip
+
+
+@E2E
+def test_command_codes_answer_the_same_on_both_runtimes(tmp_path):
+    cobol_out, cobol_db = _cobol_side(tmp_path / "cobol", prog="DLICMD")
+    java_out, java_db = _java_side(tmp_path / "java", prog="DLICMD")
+    assert _lines(cobol_out) == CMD_EXPECTED
+    assert _lines(java_out) == CMD_EXPECTED
+    assert cobol_db == java_db
+    keys = [(n, d[:4].decode("latin-1").strip()) for n, d in ei.split(cobol_db, {"DEPT": 20, "EMP": 20, "SKILL": 8, "PROJ": 12})]
+    assert ("EMP", "E004") in keys and keys.index(("EMP", "E004")) == keys.index(("EMP", "E003")) + 2
+
+
+def _swap(old: str, new: str):
+    def edit(s: str) -> str:
+        assert old in s
+        return s.replace(old, new, 1)
+
+    return edit
+
+
+@E2E
+@pytest.mark.parametrize(
+    "edit, why",
+    [
+        (_swap("'DEPT    *L '", "'DEPT    *C '"), "the command code C"),
+        (_swap("'DEPT    *L '", "'DEPT    *D '"), "the command code D"),
+        (_swap("'DEPT    *L '", "'DEPT    *N '"), "the command code N"),
+        (_swap("'DEPT    *L '", "'DEPT    *Q '"), "the command code Q"),
+        (_swap("'DEPT    *L '", "'DEPT    *U '"), "the command code U"),
+        (_swap("'DEPT    *L '", "'DEPT    *V '"), "the command code V"),
+        (_swap("'DEPT    *L '", "'DEPT    *3 '"), "the command code 3"),
+        (_swap("'DEPT    *L '", "'DEPT    *-D'"), "the command code D"),  # a refused code later in the list
+        (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DF"),
+         "the command code F on a GN"),
+        (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DL"),
+         "the command code L other than"),
+        (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DP"),
+         "the command code P on a GN"),
+        (_swap("F-ISRT PCB1 IOA C-DQ C-EF", "F-ISRT PCB1 IOA C-DQ C-EP"), "the command code P on a ISRT"),
+        (_swap("IOA S-DEPT S-EMP C-SKL", "IOA C-DP C-EP C-SKL"), "the command code P on more than one SSA"),
+        (_swap("IOA S-DEPT C-EL", "IOA C-DL C-EL"), "the command code L other than"),  # L on a path SSA
+        (_swap("IOA C-DQ C-EL", "IOA C-DQL C-EL"), "the command code L other than"),  # L on a qualified SSA
+    ],
+)  # fmt: skip
+def test_the_command_codes_not_modelled_are_refused_by_name_on_both_runtimes(tmp_path, edit, why):
+    def with_qualified_l(s: str) -> str:
+        s = edit(s)
+        return s.replace("       LINKAGE SECTION.", QL + "       LINKAGE SECTION.", 1)
+
+    with pytest.raises(AssertionError, match=re.escape(why)):
+        _cobol_side(tmp_path / "cobol", prog="DLICMD", edit=with_qualified_l)
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_side(tmp_path / "java", prog="DLICMD", edit=with_qualified_l)
+    assert why in (e.value.stderr or b"").decode("utf-8")
+
+
+# a DEPT SSA that carries L and a qualification (the refusal edit above points a call at it)
+QL = """       01  C-DQL.
+           05 FILLER             PIC X(11) VALUE 'DEPT    *L('.
+           05 FILLER             PIC X(8) VALUE 'DEPTNO'.
+           05 FILLER             PIC X(2) VALUE ' ='.
+           05 FILLER             PIC X(4) VALUE 'D200'.
+           05 FILLER             PIC X VALUE ')'.
+"""
 
 
 @E2E

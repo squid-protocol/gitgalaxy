@@ -50,6 +50,18 @@ SECS_1988 = 148138 * 86400 + 19 * 3600 + 1  # 19:00:01 on 16 May 1988 (IBM: seco
 VECTORS: list[tuple[str, list[str], str | None]] = [
     # CEEQCEN: the ILE / LE default window starts 80 years before the system date
     ("CEEQCEN", [], "0|80"),
+    # CEESCEN (#5003): sets the window's start (0 to 100), CEEQCEN reads it back; CEE2533 outside, the setting kept.
+    # Each row sets in order then queries: "<token of the last set>|<the value CEEQCEN returns>". Nothing reads the window yet.
+    ("CEESCEN", ["80"], "0|80"),
+    ("CEESCEN", ["0"], "0|0"),
+    ("CEESCEN", ["100"], "0|100"),
+    ("CEESCEN", ["50"], "0|50"),
+    ("CEESCEN", ["101"], "2533|80"),
+    ("CEESCEN", ["-1"], "2533|80"),
+    ("CEESCEN", ["50", "101"], "2533|50"),
+    ("CEESCEN", ["50", "-1"], "2533|50"),
+    ("CEESCEN", ["100", "0"], "0|0"),
+    ("CEESCEN", ["0", "100", "101"], "2533|100"),
     # CEEGMT / CEEUTC: the pinned clock as GMT (the det runtime's CURRENT-DATE carries +0000)
     (
         "CEEGMT",
@@ -281,6 +293,7 @@ C_DRIVER = r"""
 int CEEGMT(unsigned char*, unsigned char*, unsigned char*);
 int CEEUTC(unsigned char*, unsigned char*, unsigned char*);
 int CEEQCEN(unsigned char*, unsigned char*);
+int CEESCEN(unsigned char*, unsigned char*);
 int CEEGMTO(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
 int CEEUTCO(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
 int CEEDATE(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
@@ -301,6 +314,9 @@ int main(int argc, char **argv) {
     double d;
     memset(fc, 0xEE, 12); memset(out, ' ', sizeof out); memset(sec, 0, 8); memset(l, 0, 4);
     if (!strcmp(svc, "CEEQCEN")) { CEEQCEN(l, fc); hexfc(fc); printf("|%ld\n", (long)((l[0] << 24) | (l[1] << 16) | (l[2] << 8) | l[3])); return 0; }
+    if (!strcmp(svc, "CEESCEN")) { /* each argument in turn, then the window read back: the last token and the value */
+        unsigned char c[4]; for (int i = 2; i < argc; i++) { i4(c, atol(argv[i])); CEESCEN(c, fc); }
+        unsigned char q[4], qfc[12]; CEEQCEN(q, qfc); hexfc(fc); printf("|%ld\n", rd4(q)); return 0; }
     if (!strcmp(svc, "CEEGMTO") || !strcmp(svc, "CEEUTCO")) {
         unsigned char h[4], m[4]; memset(h, 0x55, 4); memset(m, 0x55, 4); memset(sec, 0x55, 8);
         (!strcmp(svc, "CEEGMTO") ? CEEGMTO : CEEUTCO)(h, m, sec, fc); memcpy(&d, sec, 8); hexfc(fc);
@@ -385,6 +401,11 @@ public class Probe {
             try {
                 switch (t[0]) {
                     case "CEEQCEN" -> { Field c = raw(4); Ceeqcen.call(c, fc, CS); System.out.println(hex(fc) + "|" + lil(c)); }
+                    case "CEESCEN" -> {
+                        for (int i = 1; i < t.length; i++) Ceeqcen.set(i4(Long.parseLong(t[i])), fc, CS);
+                        Field q = raw(4); Ceeqcen.call(q, raw(12), CS); System.out.println(hex(fc) + "|" + lil(q));
+                        Ceeqcen.set(i4(80), raw(12), CS); // the window is the run's: put the default back for the next row
+                    }
                     case "CEEGMTO", "CEEUTCO" -> {
                         Field h = raw(4), m = raw(4), s = flt();
                         java.util.Arrays.fill(h.storage().bytes, (byte) 0x55); java.util.Arrays.fill(m.storage().bytes, (byte) 0x55);
@@ -568,6 +589,12 @@ def test_every_service_is_a_library_routine_with_its_arity(prog, args):
     assert (prog in G.LIBRARY_CHARSET) == (prog != "CEEDYWK")  # CEEDYWK has no float, so it takes no charset
 
 
+def test_ceescen_is_the_set_entry_of_the_ceeqcen_class():
+    """CEESCEN shares CEEQCEN's class (the window is one setting); the translator does not call it yet (still refused)."""
+    assert "public static void set(Field century, Field fc, Charset cs)" in (RT / "le/Ceeqcen.java").read_text()
+    assert "CEESCEN" not in G.LIBRARY
+
+
 def test_the_comp2_arguments_are_by_value_and_the_clock_services_take_the_clock():
     assert G.LIBRARY_FLOATS == {
         "CEELOCT": {1}, "CEEGMT": {1}, "CEEUTC": {1}, "CEEDATM": {0}, "CEESECS": {2}, "CEEISEC": {7}, "CEESECI": {0},
@@ -579,10 +606,10 @@ def test_the_comp2_arguments_are_by_value_and_the_clock_services_take_the_clock(
 def test_every_vector_service_is_covered_and_every_service_has_vectors():
     assert {v[0] for v in VECTORS} == {
         "CEEGMT", "CEEUTC", "CEEQCEN", "CEEDATE", "CEEDATM", "CEESECS", "CEEISEC", "CEEGMTO", "CEEUTCO",
-        "CEESECI", "CEEDYWK",
+        "CEESECI", "CEEDYWK", "CEESCEN",
     }  # fmt: skip
     # CEESECI / CEEDYWK take no picture and no field combination, so there is nothing to refuse by name
-    for svc in {v[0] for v in VECTORS} - {"CEEUTC", "CEEQCEN", "CEEGMT", "CEEGMTO", "CEEUTCO", "CEESECI", "CEEDYWK"}:
+    for svc in {v[0] for v in VECTORS} - {"CEEUTC", "CEEQCEN", "CEEGMT", "CEEGMTO", "CEEUTCO", "CEESECI", "CEEDYWK", "CEESCEN"}:
         mine = [v for v in VECTORS if v[0] == svc]
         assert any(v[2] and v[2].startswith("0|") for v in mine), svc  # a valid call
         assert any(v[2] == REFUSED for v in mine), svc  # a refusal by name

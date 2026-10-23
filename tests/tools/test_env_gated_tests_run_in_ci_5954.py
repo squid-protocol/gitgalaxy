@@ -76,6 +76,16 @@ UNCOVERED_PATH = frozenset(
         "tests/tools/test_crucible_case.py",
     }
 )
+# What a gated file says it needs, read from the `reason=` of its skip marks (the same wording a skipped run prints).
+NEEDS = {
+    "docker": re.compile(r"Docker"),
+    "jdk_maven": re.compile(r"JDK|Maven"),
+    "db2": re.compile(r"Db2"),
+    "crucible_checkout": re.compile(r"cics-crucible checkout|CICS_CRUCIBLE_PATH"),
+}
+REASON = re.compile(r"(?:reason=|skip\()\s*f?\"([^\"]*)\"")
+DOCSTRING = re.compile(r'\A\s*"""(.*?)"""', re.S)
+DOC = REPO / "docs" / "ci_env_gated_tests.md"
 # Reads CICS_CRUCIBLE_PATH only from its own monkeypatched sandbox, not from the runner's environment.
 NOT_GATED = frozenset({"test_crucible_pins.py"})
 
@@ -92,6 +102,13 @@ def _gated():
         if PATH_READ.search(text):
             path.add(rel)
     return e2e, path
+
+
+def needs_of(text):
+    """The environment a file's skip reasons and module docstring name: a subset of NEEDS."""
+    doc = DOCSTRING.match(text)
+    reasons = " ".join(REASON.findall(text) + ([doc.group(1)] if doc else []))
+    return frozenset(k for k, rx in NEEDS.items() if rx.search(reasons))
 
 
 def _workflow_coverage():
@@ -135,3 +152,18 @@ def test_the_uncovered_lists_only_shrink():
 def test_the_runner_tests_job_is_seen_as_covering_cics_crucible():
     reached, _ = _workflow_coverage()
     assert "tests/cics_crucible" in reached
+
+
+def test_every_uncovered_file_states_what_it_needs():
+    """A gated file whose skip reasons name no environment cannot be scheduled into a workflow: reword its reason."""
+    nameless = sorted(f for f in UNCOVERED_E2E | UNCOVERED_PATH if not needs_of(read_source(REPO / f).text))
+    assert not nameless, f"skip reason names no Docker / JDK / Db2 / crucible checkout (#5954): {nameless}"
+
+
+def test_the_inventory_page_lists_every_uncovered_file_under_its_needs():
+    page = read_source(DOC).text
+    for f in sorted(UNCOVERED_E2E | UNCOVERED_PATH):
+        row = next((ln for ln in page.splitlines() if f"`{f}`" in ln), None)
+        assert row, f"{f} is not in {DOC.relative_to(REPO)}"
+        for need in needs_of(read_source(REPO / f).text):
+            assert need in row, f"{f}: the page row does not name {need}"

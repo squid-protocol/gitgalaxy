@@ -50,6 +50,7 @@ import os
 import re
 import shlex
 import shutil
+import stat
 import subprocess
 import sys
 import time
@@ -324,6 +325,20 @@ def burned_names() -> set[str]:
     return {n.lower() for n in estate4_draw.BURNED_NAMES}
 
 
+def _writable_retry(func, path, _exc) -> None:
+    """rmtree error hook: git's object files are read-only, which Windows refuses to delete (#6209)."""
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+
+def rmtree_writable(path: Path) -> None:
+    """shutil.rmtree that also removes a git clone's read-only objects on Windows."""
+    if sys.version_info >= (3, 12):
+        shutil.rmtree(path, onexc=_writable_retry)
+    else:
+        shutil.rmtree(path, onerror=_writable_retry)
+
+
 def retire_burned(census: Path, repos: list[str], log=print) -> list[str]:
     """Remove the census clones that have since been burned (estate4_draw.BURNED_NAMES) and are not on the census list:
     a leftover one is surveyed as non-burned. A dirty or non-git clone raises ProvisionRefused and nothing is removed."""
@@ -337,7 +352,7 @@ def retire_burned(census: Path, repos: list[str], log=print) -> list[str]:
             raise ProvisionRefused(f"{p} is burned but not a clean git clone: remove or commit it by hand")
     for p in doomed:
         log(f"retiring burned clone {p}")
-        shutil.rmtree(p)
+        rmtree_writable(p)
     return [p.name for p in doomed]
 
 

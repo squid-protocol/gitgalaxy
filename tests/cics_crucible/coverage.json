@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.9.0 (3ca75ae0)",
+ "crucible_ref": "v0.10.0 (01e11fe6)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-channel-containers/CACHAN": {
@@ -90,6 +90,20 @@
    }
   },
   "ca-container-ccsid/CACCBIT": {
+   "live": 3,
+   "outcomes": 0,
+   "scenarios": {
+    "bit-container": {
+     "units": [
+      "LOG-GET",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "ca-container-ccsid/CACCSID": {
    "live": 3,
    "outcomes": 0,
    "scenarios": {}
@@ -310,6 +324,59 @@
      "outcomes": [
       "44:false",
       "44:true"
+     ]
+    }
+   }
+  },
+  "gt-post-wait-event/GTPOST": {
+   "live": 5,
+   "outcomes": 9,
+   "scenarios": {
+    "post-wait-cancel": {
+     "units": [
+      "MAIN-PARA",
+      "POST-WAIT-CANCEL"
+     ],
+     "outcomes": [
+      "45:WHEN@46",
+      "70:true",
+      "76:true"
+     ]
+    },
+    "wait-null": {
+     "units": [
+      "MAIN-PARA",
+      "WAIT-NULL"
+     ],
+     "outcomes": [
+      "45:WHEN@48"
+     ]
+    },
+    "post-expired": {
+     "units": [
+      "MAIN-PARA",
+      "POST-PAST"
+     ],
+     "outcomes": [
+      "45:WHEN@50"
+     ]
+    },
+    "converse-fits": {
+     "units": [
+      "CONVERSE-REPLY",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "45:WHEN@52"
+     ]
+    },
+    "converse-cut": {
+     "units": [
+      "CONVERSE-REPLY",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "45:OTHER"
      ]
     }
    }
@@ -700,6 +767,28 @@
     }
    }
   },
+  "gt-web-client/GTWCLI": {
+   "live": 1,
+   "outcomes": 2,
+   "scenarios": {
+    "ok": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "44:false"
+     ]
+    },
+    "notfound": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "44:true"
+     ]
+    }
+   }
+  },
   "gt-web-parse-url/GTWPARS": {
    "live": 5,
    "outcomes": 10,
@@ -997,8 +1086,8 @@
    }
   },
   "hc-file-unlock/HCUNLK": {
-   "live": 8,
-   "outcomes": 8,
+   "live": 9,
+   "outcomes": 9,
    "scenarios": {}
   },
   "hc-handle-aid/HCAID": {

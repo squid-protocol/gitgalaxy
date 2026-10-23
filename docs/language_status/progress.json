@@ -1,5 +1,5 @@
 {
- "commit": "de8142103",
+ "commit": "39c5e03d0",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,21 +160,21 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-23T16:53:59Z",
+  "as_of": "2026-10-23T17:15:54Z",
   "core": {
-   "closed": 163,
-   "open": 23,
+   "closed": 167,
+   "open": 19,
    "total": 186
   },
   "core_last_window": {
-   "closed": 54,
-   "net_closed": 14,
+   "closed": 58,
+   "net_closed": 18,
    "opened": 40
   },
   "core_milestone": {
-   "closed": 89,
+   "closed": 92,
    "number": 28,
-   "open": 14,
+   "open": 11,
    "total": 103
   },
   "epics": {
@@ -184,7 +184,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "12 days",
+  "eta": "7 days",
   "frontier": {
    "closed": 107,
    "found_last_window": 25,
@@ -310,9 +310,9 @@
     "total": 3
    },
    {
-    "closed": 44,
+    "closed": 45,
     "number": 18,
-    "open": 3,
+    "open": 2,
     "title": "Run Verified \u2705 \u2014 Pics or It Didn't Port",
     "total": 47
    },
@@ -380,9 +380,9 @@
     "total": 22
    },
    {
-    "closed": 250,
+    "closed": 253,
     "number": 28,
-    "open": 15,
+    "open": 12,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
     "total": 265
    },
@@ -419,7 +419,7 @@
     "total": 107
    },
    "cobol": {
-    "closed": 129,
+    "closed": 130,
     "total": 144
    }
   },

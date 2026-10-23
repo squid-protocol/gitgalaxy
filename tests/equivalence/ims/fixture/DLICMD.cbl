@@ -1,6 +1,6 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID. DLICMD.
-      * #5233 command-code fixture: F, L, P, C, D, Q, U, V and the null code - in SSAs on
+      * #5233 command-code fixture: F, L, P, C, D, N, Q, U, V and the null code - in SSAs on
       * LVLDBD through PSB LVLPSB. IBM: L takes the last twin of the
       * type under its parent, F the first (the default start of a GU);
       * on an ISRT with a unique sequence field both are ignored. P on a
@@ -10,6 +10,8 @@
       * one found, one after another, in hierarchic order (Q30-Q39). Q
       * (enqueue) changes nothing with one program (Q40-Q45). U and V
       * take the current position as qualification (Q46-Q55). The
+      * N (no replace) beside D on a get-hold: the REPL that follows replaces each segment the
+      * path call returned except those coded N (Q56-Q70). The
       * test pins the expected output, written from IBM's documentation
       * before either runtime ran it.
        DATA DIVISION.
@@ -96,6 +98,11 @@
            05 FILLER             PIC X(11) VALUE 'DEPT    *V '.
        01  C-EU.
            05 FILLER             PIC X(11) VALUE 'EMP     *U '.
+       01  F-REPL                PIC X(4) VALUE 'REPL'.
+       01  C-DDN.
+           05 FILLER             PIC X(12) VALUE 'DEPT    *DN '.
+       01  C-EDN.
+           05 FILLER             PIC X(12) VALUE 'EMP     *DN '.
        01  C-EV.
            05 FILLER             PIC X(11) VALUE 'EMP     *V '.
        01  C-EQ2.
@@ -371,6 +378,69 @@
            MOVE 55 TO W-Q
            MOVE SPACES TO IOA
            CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DU C-EQ3
+           PERFORM SHOW1
+           MOVE 56 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GHU PCB1 IOP C-DDN S-EMP
+           PERFORM SHOWP
+           MOVE 'ZZZZZ' TO IOP(5:5)
+           MOVE 'XENIA' TO IOP(25:5)
+           MOVE 57 TO W-Q
+           CALL 'CBLTDLI' USING F-REPL PCB1 IOP
+           PERFORM SHOWP
+           MOVE 58 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA S-DEPT S-EMP
+           PERFORM SHOW1
+           MOVE 59 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA S-DEPT
+           PERFORM SHOW1
+           MOVE 60 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GHU PCB1 IOP C-DD C-EDN
+           PERFORM SHOWP
+           MOVE 'ALPHA' TO IOP(5:5)
+           MOVE 'QQQQQ' TO IOP(25:5)
+           MOVE 61 TO W-Q
+           CALL 'CBLTDLI' USING F-REPL PCB1 IOP
+           PERFORM SHOWP
+           MOVE 62 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA S-DEPT
+           PERFORM SHOW1
+           MOVE 63 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA S-DEPT S-EMP
+           PERFORM SHOW1
+           MOVE 64 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GHU PCB1 IOP C-DDN S-EMP
+           PERFORM SHOWP
+           MOVE 'D999' TO IOP(1:4)
+           MOVE 'NEWNM' TO IOP(25:5)
+           MOVE 65 TO W-Q
+           CALL 'CBLTDLI' USING F-REPL PCB1 IOP
+           PERFORM SHOWP
+           MOVE 66 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA S-DEPT
+           PERFORM SHOW1
+           MOVE 67 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA S-DEPT S-EMP
+           PERFORM SHOW1
+           MOVE 68 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GHU PCB1 IOP C-DD S-EMP
+           PERFORM SHOWP
+           MOVE 'E999' TO IOP(21:4)
+           MOVE 69 TO W-Q
+           CALL 'CBLTDLI' USING F-REPL PCB1 IOP
+           PERFORM SHOWP
+           MOVE 70 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA S-DEPT S-EMP
            PERFORM SHOW1
            GOBACK.
        SHOWP.

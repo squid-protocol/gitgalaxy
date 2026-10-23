@@ -17,7 +17,7 @@ an unfinished log, not a clean estate.
 | 4 | cics-genapp | 7 | 26 | 0 | 7 | 4 | 1.75 | 0 |
 | 5 | zecs | 2 | 28 | 0 | 2 | 4 | 0.50 | 0 |
 | 7 | dbb-mortgage-application | 3 | 31 | 0 | 3 | 2 | 1.50 | 0 |
-| 8 | cics-async-api-credit-card-application-example | 0 | 31 | 0 | 0 | 0 | n/a | 0 |
+| 8 | cics-async-api-credit-card-application-example | 2 | 33 | 0 | 2 | 0 | n/a | 0 |
 
 No single estate: 1 (P005 by sibling sweep after round 8).
 
@@ -25,10 +25,10 @@ No single estate: 1 (P005 by sibling sweep after round 8).
 
 | side | blockers | | class | blockers | first seen |
 |---|---|---|---|---|---|
-| det | 10 | | cics-command | 5 | P024 |
+| det | 10 | | cics-command | 6 | P024 |
 | transaction-forge | 3 | | cobol-dialect | 3 | P006 |
-| facade | 5 | | commarea-bytes | 6 | P028 |
-| harness | 14 | | data-layout | 2 | P027 |
+| facade | 5 | | commarea-bytes | 7 | P028 |
+| harness | 16 | | data-layout | 2 | P027 |
 | runtime | 0 | | control-flow | 3 | P015 |
 |  |  | | db2 | 4 | P026 |
 |  |  | | vsam | 3 | P019 |
@@ -38,18 +38,26 @@ No single estate: 1 (P005 by sibling sweep after round 8).
 
 ## Discovery curve by round
 
-| after round | blockers | new classes |
-|---|---|---|
-| 2 | 8 | 7 |
-| 3 | 11 | 2 |
-| 4 | 7 | 0 |
-| 5 | 2 | 0 |
-| 7 | 3 | 0 |
-| 8 | 1 | 1 |
+A round is one burned estate. `programs` is the estate's program count from its answer key; the rate is
+logged blockers per program. A blocker with no estate is counted on its own row, not in any rate.
+
+| round | estate | programs | blockers | per program | cumulative blockers | new classes | classes seen | rounds since a new class |
+|---|---|---|---|---|---|---|---|---|
+| 2 | cics-banking-sample-application-cbsa | 31 | 8 | 0.26 | 8 | 7 | 7 | 0 |
+| 3 | aws-mainframe-modernization-carddemo | 44 | 11 | 0.25 | 19 | 2 | 9 | 0 |
+| 4 | cics-genapp | 31 | 7 | 0.23 | 26 | 0 | 9 | 1 |
+| 5 | zecs | 5 | 2 | 0.40 | 28 | 0 | 9 | 2 |
+| 7 | dbb-mortgage-application | 6 | 3 | 0.50 | 31 | 0 | 9 | 3 |
+| 8 | cics-async-api-credit-card-application-example | 10 | 2 | 0.20 | 33 | 0 | 9 | 4 |
+| 8 | none (sibling sweep, P005) | | 1 | | 34 | 1 | 10 | |
 
 ## Expected for the next estate
 
-Mean logged blockers per burned estate: 5.2 over 6 burned estates (31 blockers). This is a count of logged entries over a partial backfill, an indication of the order of magnitude; the issue's keyword count (~1.3 blockers per program on the first port falling to ~0.25 on the fifth, zECS excepted for new API areas) is the better prior until the backfill is complete.
+Logged blockers per program over the last 3 estates: 0.33 pooled (range 0.20 to 0.50); over all 6 estates 0.26. For a next estate of N programs that is about 0.3*N logged blockers (between 0.2*N and 0.5*N): 3.3 per 10 programs, 13 for 40.
+
+New classes: 10 of the 34 logged blockers opened a class, and the last 4 estate(s) opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a floor on novelty, not a guarantee.
+
+Read this as an order of magnitude. The ledger is a partial backfill (the issue's keyword count is ~1.3 blockers per program on the first port falling to ~0.25 on the fifth, zECS excepted for new API areas, which is higher than the logged rate here), so the logged rate is a lower bound. There are 6 data points and no variance model: the range is the spread of the last 3, not a confidence interval.
 
 ## Blocker log
 
@@ -87,3 +95,5 @@ Mean logged blockers per burned estate: 5.2 over 6 burned estates (31 blockers).
 | P031 | 7 | dbb-mortgage-application | transaction-forge | cobol-dialect | no | epscsmrd | #4243 | no | The forge and differential read a multi-program source as one program, blocking EPSCSMRD onboarding. |
 | P032 | 7 | dbb-mortgage-application | harness | cics-command | no |  | #4506 | no | The equivalence harness had no BMS map support. |
 | P005 | 8 | none | harness | eib-fact | yes |  | #5077 / #5125 | no | The harness could not state ASSIGN STARTCODE, EIBFN or EIBRCODE (3 estates, 7 programs one gap from proven); found by a measurement across estates, not on one. |
+| P033 | 8 | cics-async-api-credit-card-application-example | harness | commarea-bytes | no |  | #4642 | no | The equivalence harness could not run a CICS task with no COMMAREA (KeyError / IndexError on an empty LINKAGE SECTION) or state a COMMAREA length per scenario; the estate's Java side did not compile without BMS maps. |
+| P034 | 8 | cics-async-api-credit-card-application-example | harness | cics-command | no |  | #4647 | no | The equivalence harness had no input channel or output containers (RUN TRANSID CHANNEL / LINK CHANNEL callers, GET / PUT CONTAINER), which every async service takes. |

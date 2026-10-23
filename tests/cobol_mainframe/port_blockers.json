@@ -484,6 +484,32 @@
       "refused_by_name": false,
       "new_class": false,
       "summary": "The equivalence harness had no BMS map support."
+    },
+    {
+      "id": "P033",
+      "estate": "cics-async-api-credit-card-application-example",
+      "after_round": 8,
+      "side": "harness",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": null,
+      "fixed_by": "#4642",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The equivalence harness could not run a CICS task with no COMMAREA (KeyError / IndexError on an empty LINKAGE SECTION) or state a COMMAREA length per scenario; the estate's Java side did not compile without BMS maps."
+    },
+    {
+      "id": "P034",
+      "estate": "cics-async-api-credit-card-application-example",
+      "after_round": 8,
+      "side": "harness",
+      "class": "cics-command",
+      "programs": [],
+      "issue": null,
+      "fixed_by": "#4647",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The equivalence harness had no input channel or output containers (RUN TRANSID CHANNEL / LINK CHANNEL callers, GET / PUT CONTAINER), which every async service takes."
     }
   ]
 }

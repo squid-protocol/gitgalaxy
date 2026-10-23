@@ -11,7 +11,7 @@ the repository and invoked as an external, unmodified tool.
 | `engine_adapter.py` | the engine: a scanned corpus's master DB through GalaxyIR (+ the unit graph `cobol_answer_key.py` reads) |
 | `cobrix_adapter.py` + `java/CobrixFacts.java` | Cobrix: copybook record layouts (offsets, sizes) |
 | `treesitter_adapter.py` | Spantree tree-sitter-cobol-enterprise: units, extents, edges, calls, COPY, data items, typed EXEC CICS / SQL |
-| `che4z_adapter.py` | Eclipse Che4z COBOL LSP's headless `analysis` CLI: units, extents, edges, COPY, data items |
+| `che4z_adapter.py` | Eclipse Che4z COBOL LSP, driven over LSP (`documentSymbol`, #4438): PROGRAM-IDs, units, extents, COPY, data item level + name; `--mode cli` keeps the headless `analysis` CLI (all channels, but fragile) |
 | `mapa_adapter.py` | mapa's CallTree: PROGRAM-IDs, COPY / INCLUDE, CALL / LINK / XCTL targets, DB2 tables, CICS file commands |
 | `translator_adapter.py` | the det COBOL-to-Java translator's own parse (not a referee: the engine's sibling inside GitGalaxy), for the engine-vs-translator cross-check `tests/tools/fact_crosscheck.py` (#4273) |
 | `estate_key.py` | estate-crucible's generated key (#4317) in the answer-key shape, so every adapter runs on it unchanged |
@@ -58,10 +58,15 @@ unzip -q $REF/che4z/cobol-language-support-2.5.1.vsix -d $REF/che4z/vsix
 export CHE4Z_SERVER_JAR=$REF/che4z/vsix/extension/server/jar/server.jar
 ```
 
-Known limits of 2.5.1's `analysis` CLI (see the scorecard): it prints no result and exits 1 on any
-program containing a `CALL` statement, its `--ast` JSON writer overflows / runs out of memory on
-large CICS programs, and its serialised OCCURS clause carries no DEPENDING ON. Driving the server
-over LSP (`textDocument/documentSymbol`) would avoid all three; that is #4377's next phase.
+Default mode is LSP (`che4z_adapter.py ... --mode lsp`): one `java -jar server.jar pipeEnabled` per corpus, `didOpen`,
+the server's diagnostics (analysis done), then `textDocument/documentSymbol`. The server asks the client to resolve
+copybooks (`copybook/resolve`, then `file/content`); the adapter answers from the corpus's copybook dirs. A symbol tree
+carries no PERFORM / GO TO edges and no PIC / USAGE / OCCURS / REDEFINES / VALUE clauses, so LSP mode does not produce
+those channels (the scorecard shows n/a, not a miss) and reads a data item's level from its source line. A section's
+extent ends where its first paragraph starts and trailing blank / comment lines are dropped. Compared with
+`--mode cli`, which exits 1 on any program containing a `CALL`, overflows / runs out of memory on large CICS
+programs, and serialises OCCURS without DEPENDING ON, LSP mode parses those members. A member that gets no diagnostics
+within 120 s (e.g. a pathological estate-crucible program) is a `fail`.
 
 **mapa** (MIT, cschneid-the-elder/mapa; JDK 21). `cobol/CallTree.jar` is committed upstream:
 

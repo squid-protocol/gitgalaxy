@@ -25,6 +25,7 @@ A case steers what the program must meet:
     "generate": {"copybook": "app/cpy/CVACT01Y.cpy", "record": "ACCOUNT-RECORD", "records": 40, "seed": 7,
                  "fields": {"ACCT-GROUP-ID": {"values": ["A000000000", "DEFAULT"]},
                             "DIS-TRAN-TYPE-CD": {"values": ["01", "02"], "every": 3},
+                            "ROOT-SEG-KEY": {"hex": ["10000000001C", "1000000000AC"]},   # raw bytes, a COMP-3 not NUMERIC
                             "XREF-ACCT-ID": {"from": "ACCTFILE.ACCT-ID", "miss": 0.1},
                             "KTO-DATUM": {"date": "DD.MM.YYYY"}}}
 
@@ -309,6 +310,12 @@ def generate_dataset(
             rule = rules.get(f["name"], {})
             if "values" in rule:  # `every` k: the value changes each k rows (a cartesian fill)
                 v = rule["values"][(row // rule.get("every", 1)) % len(rule["values"])]
+            elif (
+                "hex" in rule
+            ):  # #6072: raw bytes (an invalid packed value for an IS NUMERIC test), `every` as `values`
+                v = rule["hex"][(row // rule.get("every", 1)) % len(rule["hex"])]
+                if len(bytes.fromhex(v)) != f["bytes"]:
+                    raise ValueError(f"{name}.{f['name']}: hex {v!r} is not the field's {f['bytes']} bytes")
             elif rule.get("digits"):  # a text field that holds a number (a card number): digits only
                 v = "".join(rng.choice("0123456789") for _ in range(f["bytes"]))
             elif "date" in rule:
@@ -338,8 +345,10 @@ def generate_dataset(
             else:
                 v = field_value(rng, f, row if attempts == row + 1 else row + attempts, alphabet)
             chosen[f["name"]] = v
-            rec[f["offset"] : f["offset"] + f["bytes"]] = encode_field(
-                v, f["pic"], f["usage"], f["bytes"], code_page, data_encoding
+            rec[f["offset"] : f["offset"] + f["bytes"]] = (
+                bytes.fromhex(v)
+                if "hex" in rule
+                else encode_field(v, f["pic"], f["usage"], f["bytes"], code_page, data_encoding)
             )
         if key is not None:
             k = bytes(rec[key["offset"] : key["offset"] + key["length"]])

@@ -53,13 +53,13 @@ RUNTIME_OPTION_TABLE: dict[str, dict[str, Any]] = {
         "reason": "SQLCCSID(YES) passes SQL host text in the CCSID of the program's source; the harness does not "
                   "model the conversion"},
     "db2.bind.ISOLATION": {"kind": "value", "default": "CS", "honoured": None, "policy": None,
-        "reason": "isolation only matters between concurrent units of work; a proof runs one"},
+        "reason": "isolation only matters between concurrent units of work; a proof runs one (the value is judged, BIND_OPTIONS)"},
     "db2.bind.CURRENTDATA": {"kind": "value", "default": "NO", "honoured": None, "policy": None,
-        "reason": "CURRENTDATA only decides lock avoidance between concurrent units of work"},
+        "reason": "CURRENTDATA only decides lock avoidance between concurrent units of work (the value is judged, BIND_OPTIONS)"},
     "db2.bind.DYNAMICRULES": {"kind": "value", "default": "RUN", "honoured": None, "policy": None,
-        "reason": "DYNAMICRULES decides authorization and the qualifier of dynamic SQL, not a computed value"},
+        "reason": "DYNAMICRULES decides authorization and the qualifier of dynamic SQL, not a computed value (the value is judged, BIND_OPTIONS)"},
     "db2.bind.VALIDATE": {"kind": "value", "default": "RUN", "honoured": None, "policy": None,
-        "reason": "VALIDATE only decides when a missing object is reported"},
+        "reason": "VALIDATE only decides when a missing object is reported (the value is judged, BIND_OPTIONS)"},
     "db2.bind.ACTION": {"kind": "value", "default": "REPLACE", "honoured": None, "policy": None,
         "reason": "ACTION is a bind administration choice"},
     "db2.bind.packages": {"kind": "value", "default": "none", "honoured": None, "policy": None,
@@ -204,6 +204,42 @@ def _precompile_hits(path: str, value: Any, source: str | None) -> list[dict[str
     return hits
 
 
+# #4707: the Db2 bind options whose value is judged. The rows above stay policy None (no run result depends on a value
+# the harness accepts, so a z/OS measurement need not state them); a value outside `values` is not one IBM accepts for
+# that option (or, for DYNAMICRULES, takes a routine owner's context the harness does not model), so it is refused by name.
+BIND_OPTIONS: dict[str, dict[str, Any]] = {
+    "ISOLATION": {"values": ("CS", "UR", "RR", "RS"),
+        "reason": "a proof runs one unit of work, and a program sees its own updates at every isolation level"},
+    "CURRENTDATA": {"values": ("YES", "NO"),
+        "reason": "CURRENTDATA only decides lock avoidance and block fetch between concurrent units of work"},
+    "DYNAMICRULES": {"values": ("RUN", "BIND"),
+        "reason": "RUN and BIND only change the authorization and qualifier of dynamic SQL, which no burned program "
+                  "issues; DEFINE* and INVOKE* take a routine owner's context, which is not modelled"},
+    "VALIDATE": {"values": ("RUN", "BIND"),
+        "reason": "VALIDATE only decides when a missing object is reported; a program that ran found every object"},
+}  # fmt: skip
+BIND_PREFIX = "db2.bind."
+
+
+def bind_rows() -> list[str]:
+    """The BIND_OPTIONS rows as the markdown table lines register C18 holds (tests pin the page to them)."""
+    return [
+        f"| `{BIND_PREFIX}{key}` | no: {r['reason']} | recorded only for {', '.join(r['values'])}; any other value "
+        "refused by name |"
+        for key, r in BIND_OPTIONS.items()
+    ]
+
+
+def _bind_hits(path: str, value: Any, source: str | None) -> list[dict[str, Any]]:
+    row = BIND_OPTIONS.get(path[len(BIND_PREFIX) :])
+    state = _state(value)
+    if row is None or state in row["values"]:
+        return []
+    return [{"option": path, "declared": state, "policy": "refuse", "applied": None, "source": source,
+             "note": f"{path}={value}: not a value the harness runs under ({', '.join(row['values'])}): "
+                     f"{row['reason']} (#4707)"}]  # fmt: skip
+
+
 # #4707: which burned estates exercise each judged option (policy refuse or declare): the corpora whose source holds the
 # construct the row says the option changes. An empty list says no burned program depends on the assumed value, so a
 # refusal there protects a customer's estate only. The test greps the corpora for each pattern (STORAGE rests on
@@ -270,6 +306,8 @@ def runtime_unhonoured(
                 out.extend(_translator_hits(path, value, (sources or {}).get(path)))
             elif path == PRECOMPILE_OPTION:
                 out.extend(_precompile_hits(path, value, (sources or {}).get(path)))
+            elif path.startswith(BIND_PREFIX):
+                out.extend(_bind_hits(path, value, (sources or {}).get(path)))
             if row["policy"] is None or state in row["honoured"] or (row["kind"] == "ccsid" and state == code_page):
                 continue
             out.append({"option": path, "declared": state, "policy": row["policy"], "source": (sources or {}).get(path),

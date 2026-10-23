@@ -57,13 +57,14 @@ class FactChannel:
         return self.restore_select
 
 
-def create_channel_table(cursor: sqlite3.Cursor, channel: FactChannel, ensure_columns: Callable) -> None:
-    """Create one channel's table, heal an older one, and add its indexes.
+def create_channel_table(cursor: sqlite3.Cursor, name: str, ensure_columns: Callable) -> None:
+    """Create the named channel's table, heal an older one, and add its indexes.
 
     Statement order matches the hand-written blocks it replaced (table, column
     heals, indexes), so sqlite_master is identical. `ensure_columns` is injected
     (record_keeper's `_ensure_columns`) because this module cannot import it.
     """
+    channel = CHANNELS_BY_NAME[name]
     cursor.execute(channel.ddl)
     for group in channel.extra_columns:
         ensure_columns(cursor, channel.table, list(group))

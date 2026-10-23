@@ -126,7 +126,7 @@ dialect that predates the channel is not a missing-key error. It then propagates
   FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE)`), `extra_columns` (one
   `_ensure_columns` group per tuple, for a column added after the table first shipped) and `indexes`
   (`idx_<name>_file_id`, `idx_<name>_snapshot`).** Then add one
-  `create_channel_table(cursor, CHANNELS_BY_NAME["<name>"], _ensure_columns)` line in `record_keeper`
+  `create_channel_table(cursor, "<name>", _ensure_columns)` line in `record_keeper`
   beside the other channels (the call order is the `sqlite_master` order, so it stays explicit). The FK cascade is load-bearing: the idempotent per-snapshot wipe deletes
   `file_data` rows and your children go with them — no explicit DELETE needed.
 - **Insert: add one `FactChannel` entry to `CHANNELS` in `gitgalaxy/core/fact_channels.py` (#3383).**

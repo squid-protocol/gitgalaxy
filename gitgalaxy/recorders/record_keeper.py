@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, TypedDict, cast
 
 from gitgalaxy.core.call_resolver import encode_qualifiers, resolution_rates
-from gitgalaxy.core.fact_channels import CHANNELS, CHANNELS_BY_NAME, create_channel_table
+from gitgalaxy.core.fact_channels import CHANNELS, create_channel_table
 from gitgalaxy.core.function_population import population_functions
 from gitgalaxy.metrics import archetype_classifier
 from gitgalaxy.metrics.archetype_parity import WITHHELD_LABEL
@@ -1023,7 +1023,7 @@ class RecordKeeper:
         # repository, so neither end could be a file_data FK.
         # access_modes is a comma-joined sorted list rather than a row per mode,
         # because "INPUT and OUTPUT" is one fact about one file, not two.
-        create_channel_table(cursor, CHANNELS_BY_NAME["dataset"], _ensure_columns)
+        create_channel_table(cursor, "dataset", _ensure_columns)
 
         # #3246: the DATA DIVISION item tree and FD record layouts -- the last
         # structural datum the forge parsers owned and the DB did not carry. One
@@ -1040,7 +1040,7 @@ class RecordKeeper:
         # INIT -> value_literal); `attributes` carries the item's full attribute
         # text for everything else (BASED(p), UNALIGNED, LIKE, POS, ...). NULL for
         # COBOL, whose clauses all have a column.
-        create_channel_table(cursor, CHANNELS_BY_NAME["record"], _ensure_columns)
+        create_channel_table(cursor, "record", _ensure_columns)
 
         # #3347: BMS screen-field layouts -- one row per DFHMSD (mapset) / DFHMDI
         # (map) / DFHMDF (field) macro, in source order, the tree carried as
@@ -1052,7 +1052,7 @@ class RecordKeeper:
         # reaches the symbolic map). `attributes` keeps every other operand as
         # written (COLOR=, HILIGHT=, a map's SIZE=, a mapset's MODE=/LANG= ...).
         # Per-file, so it hangs off file_data with the usual cascade-delete.
-        create_channel_table(cursor, CHANNELS_BY_NAME["screen_field"], _ensure_columns)
+        create_channel_table(cursor, "screen_field", _ensure_columns)
 
         # #3351-#3354: CICS resource operations -- one row per EXEC CICS command
         # that names a resource: a FILE (READ/WRITE/REWRITE/DELETE/browse), a BMS
@@ -1075,7 +1075,7 @@ class RecordKeeper:
         #                        the queue type, TS or TD
         #   record_clause     -- INTO | FROM | SET, and record_name its operand
         #   attributes        -- every other option as written (RIDFLD, UPDATE, ...)
-        create_channel_table(cursor, CHANNELS_BY_NAME["cics_resource"], _ensure_columns)
+        create_channel_table(cursor, "cics_resource", _ensure_columns)
 
         # #3449: CICS task control (core/cics_tasks.py) -- how tasks relate: a
         # parent RUNs / STARTs a child transaction, FETCHes or FREEs a child,
@@ -1625,7 +1625,7 @@ class RecordKeeper:
         #   attributes     the record's full operand text, whitespace-folded
         # Per-file (every fact is in the deck itself), cascade-deleted with
         # file_data and restored on delta scans; nothing here is resolved.
-        create_channel_table(cursor, CHANNELS_BY_NAME["csd_resource"], _ensure_columns)
+        create_channel_table(cursor, "csd_resource", _ensure_columns)
 
         # #3344: the DB2 table shape a program binds to -- one row per column of
         # an `EXEC SQL DECLARE <table> TABLE (...)` (inline in a COBOL/PL/I
@@ -1643,7 +1643,7 @@ class RecordKeeper:
         #                  source writes none (DB2 defaults are not invented)
         #   nullable    -- 0 exactly when the column says NOT NULL
         #   attributes  -- every column option after the type, as written
-        create_channel_table(cursor, CHANNELS_BY_NAME["sql_table"], _ensure_columns)
+        create_channel_table(cursor, "sql_table", _ensure_columns)
 
         # #3446: embedded SQL statements -- which tables each program reads and
         # writes (db2_sql_statements). One row per (statement, table); a

@@ -121,7 +121,7 @@ def test_a_table_created_before_a_healed_column_gains_it_and_keeps_its_rows():
             cursor.execute("CREATE TABLE file_data (id INTEGER PRIMARY KEY)")
             cursor.execute(old_ddl)
             cursor.execute(f"INSERT INTO {channel.table} (repo_name) VALUES ('keep')")  # noqa: S608 -- registry literal
-            create_channel_table(cursor, channel, _ensure_columns)
+            create_channel_table(cursor, channel.name, _ensure_columns)
             columns = {r[1] for r in cursor.execute(f"PRAGMA table_info({channel.table})")}
             assert healed <= columns, channel.name
             assert cursor.execute(f"SELECT repo_name FROM {channel.table}").fetchall() == [("keep",)]  # noqa: S608

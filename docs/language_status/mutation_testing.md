@@ -347,7 +347,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/82 (91%) | 7 / 0 / 12 / 0 / 0 |
 | COCRDSLC (carddemo-cardview) | equivalence | 100/503 | 60/91 (66%) | 60/65 (92%) | 4 / 1 / 22 / 4 / 0 |
 | CBTRN01C (carddemo-dailyval) | equivalence | 100/241 | 63/96 (66%) | 63/71 (89%) | 8 / 0 / 10 / 15 / 0 |
-| CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
+| CSUTLDTC (carddemo-dateutil) | equivalence | 208/208 | 145/192 (76%) | 145/145 (100%) | 0 / 0 / 10 / 37 / 0 |
 | CBACT04C (carddemo-intcalc) | equivalence | 100/170 | 70/86 (81%) | 70/77 (91%) | 6 / 1 / 9 / 0 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/340 | 87/139 (63%) | 87/87 (100%) | 0 / 0 / 35 / 17 / 0 |
 | COMEN01C (carddemo-menu-generated) | equivalence | 150/340 | 87/139 (63%) | 87/88 (99%) | 0 / 1 / 35 / 16 / 0 |
@@ -398,20 +398,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 5052 run | **3173/4664 (68%)** | **3173/3631 (87%)** | 257 / 201 / 643 / 390 / 0 |
-| **all estate** | | 5556 run | **3492/5140 (68%)** | **3492/3985 (88%)** | 292 / 201 / 731 / 424 / 0 |
+| **all equivalence** | | 5049 run | **3173/4661 (68%)** | **3173/3631 (87%)** | 257 / 201 / 643 / 387 / 0 |
+| **all estate** | | 5553 run | **3492/5137 (68%)** | **3492/3985 (88%)** | 292 / 201 / 731 / 421 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 227/283 (80%) | 227/251 (90%) |
+| AOR | 228/283 (81%) | 228/252 (90%) |
 | BDM | 25/52 (48%) | 25/28 (89%) |
 | CON | 449/1040 (43%) | 449/562 (80%) |
 | COR | 219/346 (63%) | 219/258 (85%) |
-| DEL | 611/877 (70%) | 611/686 (89%) |
+| DEL | 612/877 (70%) | 612/687 (89%) |
 | LIT | 727/986 (74%) | 727/811 (90%) |
-| NEG | 615/696 (88%) | 615/661 (93%) |
+| NEG | 614/695 (88%) | 614/660 (93%) |
 | RET | 56/105 (53%) | 56/93 (60%) |
-| ROR | 563/755 (75%) | 563/635 (89%) |
+| ROR | 562/753 (75%) | 562/634 (89%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -424,7 +424,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COCRDLIC (carddemo-cardlist) | 8/8 | - | 8/13 | 10/13 | 7/13 | 12/13 | 13/13 | 6/9 | 11/12 |
 | COCRDSLC (carddemo-cardview) | 4/5 | - | 3/14 | 10/14 | 6/14 | 9/14 | 13/14 | 2/2 | 13/14 |
 | CBTRN01C (carddemo-dailyval) | 3/6 | - | 11/16 | 3/12 | 9/15 | 12/16 | 12/16 | - | 13/15 |
-| CSUTLDTC (carddemo-dateutil) | 13/15 | - | 28/51 | 4/8 | 9/10 | 27/35 | 31/32 | - | 33/44 |
+| CSUTLDTC (carddemo-dateutil) | 14/15 | - | 28/51 | 4/8 | 10/10 | 27/35 | 30/31 | - | 32/42 |
 | CBACT04C (carddemo-intcalc) | 3/4 | 4/6 | 13/21 | 1/2 | 13/17 | 20/20 | 10/10 | - | 6/6 |
 | COMEN01C (carddemo-menu) | 13/14 | - | 6/21 | 6/10 | 20/24 | 12/24 | 16/23 | - | 14/23 |
 | COMEN01C (carddemo-menu-generated) | 13/14 | - | 6/21 | 6/10 | 20/24 | 12/24 | 16/23 | - | 14/23 |
@@ -611,6 +611,15 @@ What the triage found:
   - CSUTLDTC: a January date; day `00`; year `0000`; year `0001` with a bad day; a non-digit in the last two places.
     So not all of its remaining survivors sit behind undocumented CEEDAYS behaviour. These are valid inputs that the
     CEEDAYS model accepts, though the COBOL still decides their expected results.
+    Re-judged (#4049) against the L1 pictures (#4952): the case now also calls `YYYYMMDD  `, `MMDDYYYY  `,
+    `DDMMYYYY  ` and `YYYY.MM.DD`, and text past the picture's span (IBM ignores it). That found a port gap, fixed:
+    the port answered 2508 for such text. Score 145/195 (74%) -> 145/192 (76%): the blank-tail calls
+    killed 2 more survivors (the `e--` of `stripTrailing`), and removing the wrong check dropped its 3 mutants (2
+    of them killed, 1 survivor). The fix shifted the lines, so 5 survivors were re-triaged under new ids. The 37 that stay are
+    unreachable by the model's refusals (undocumented pictures, month 0 or 13, a repeated or missing token, a
+    short date: ceedays.c exit 98) or by the port's `ceedays()` never returning that feedback (invalid era,
+    year in era 0); `YYYYDDD` is documented but the port answers it as a bad picture, so no call uses it (a port
+    gap, not yet a case input).
   - Fault plans: 15 survivors across the estate are reached only when a CICS command raises a condition, for
     example a WRITEQ TS or an XCTL that fails, or a callee that abends. The crucible has no fault injection, so
     these are case gaps that need a fault plan. The other crucible gaps are scenarios it does not have, such as an

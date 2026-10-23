@@ -428,6 +428,14 @@ CMD_EXPECTED = [
     # EMP*V, SKILL (the next skill of the same EMP) | DEPT*U, EMP(E003): E003 is under D200, not the position's D100
     "Q46 [  ] E001ALICE", "Q47 [  ] E002BOB", "Q48 [  ] E002BOB", "Q49 [  ] E002BOB", "Q50 [  ] P1ALPHA", "Q51 [  ] D100SALES",
     "Q52 [  ] E001ALICE", "Q53 [  ] S1COBOL", "Q54 [  ] S2JAVA", "Q55 [GE]",
+    # N (no replace) beside D on a GHU, then REPL of the path: DEPT*DN, EMP: only the EMP is replaced (the DEPT name stays SALES)
+    "Q56 [  ] D100/E001/", "Q57 [  ] D100/E001/", "Q58 [  ] E001XENIA", "Q59 [  ] D100SALES",
+    # DEPT*D, EMP*DN: the DEPT is replaced and the EMP is not
+    "Q60 [  ] D100/E001/", "Q61 [  ] D100/E001/", "Q62 [  ] D100ALPHA", "Q63 [  ] E001XENIA",
+    # an N segment's sequence field is not compared (D999 in the DEPT's slice), the EMP is replaced
+    "Q64 [  ] D100/E001/", "Q65 [  ] D999/E001/", "Q66 [  ] D100ALPHA", "Q67 [  ] E001NEWNM",
+    # a changed sequence field in a replaced segment is DA, and nothing is replaced
+    "Q68 [  ] D100/E001/", "Q69 [DA] D100/E999/", "Q70 [  ] E001NEWNM",
 ]  # fmt: skip
 
 
@@ -478,7 +486,13 @@ def _swaps(*pairs: tuple[str, str]):
                                                        "CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CDE")),
          "the command code U beside C"),
         (_swap("'DEPT    *L '", "'DEPT    *3 '"), "the command code 3"),
-        (_swap("'DEPT    *L '", "'DEPT    *-N'"), "the command code N"),  # a refused code later in the list
+        (_swap("PIC X(11) VALUE 'DEPT    *L '", "PIC X(12) VALUE 'DEPT    *-N '"),
+         "the command code N other than with D on a get-hold call"),  # N later in the list, on a GU
+        (_swap("F-GHU PCB1 IOP C-DDN S-EMP", "F-GU PCB1 IOP C-DDN S-EMP"), "the command code N other than with D on a get-hold call"),
+        (_swap("'DEPT    *DN '", "'DEPT    *N  '"), "the command code N other than with D on a get-hold call"),  # N without D (a hold get)
+        (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-ISRT PCB1 IOA C-DDN"),
+         "the command code D on a ISRT"),  # the path ISRT stays refused
+        (_swap("PIC X(4) VALUE 'REPL'", "PIC X(4) VALUE 'DLET'"), "a DLET after a path call"),
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DF"),
          "the command code F on a GN"),
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DL"),

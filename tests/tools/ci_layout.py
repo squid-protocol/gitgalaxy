@@ -90,7 +90,14 @@ def main() -> int:
     ap.add_argument("--busy-above", type=int, default=BUSY_ABOVE)
     ap.add_argument("--github-output", type=Path)
     ap.add_argument("--summary", type=Path)
+    ap.add_argument(
+        "--print-waiting", action="store_true", help="#5919: print the queued PR jobs (empty when unreadable)"
+    )
     args = ap.parse_args()
+    if args.print_waiting:  # for a workflow step that hands the count to another planner; always exits 0
+        n = waiting_now()
+        print("" if n is None else n)
+        return 0
     waiting = args.waiting
     if waiting is None and args.event == "pull_request" and args.mode != "none":
         waiting = waiting_now()

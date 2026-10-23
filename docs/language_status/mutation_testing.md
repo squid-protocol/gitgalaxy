@@ -322,8 +322,11 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 - UPDACC on generated Db2 rows (cbsa-updacc-generated, #4507, all 139 mutants run, seed 0): 103 killed, 36 survived
   (7 harness gaps, 17 equivalent, 12 unreachable). The seven harness gaps are the `-904` UPDATE-failure arm: a
   `sql_faults` scenario was tried and the proof refuses it ("no SQL fault hook in UPDACC": the model-written port
-  reaches Db2 through JDBC, not `cobolrt.sql.DetSql`), so the scenario was not kept. A det-translated UPDACC would
-  take the fault.
+  reaches Db2 through JDBC, not `cobolrt.sql.DetSql`), so the scenario was not kept. A det-translated UPDACC takes the
+  fault: `cbsa-updacc-faults` (no `port/`, the hand case's DDL and seed) injects `-904`, `-913` and `-803` on the UPDATE
+  (line 278) and `-904` / `-913` on the SELECT (line 191), and `det_port.py run` proves it on 10 scenarios covering
+  7/7 paragraphs and 6/6 branches. The seven stay recorded as harness gaps of the model port (its mutants are not
+  re-run against the det case); the det-port fault case is where that arm is judged.
 
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
@@ -625,6 +628,9 @@ an area of its own and an EIBCALEN of 8, 22 or 80. Three scenarios (`direct-8-by
 the negative balance); the third, `* 10000` for `% 10000` on the destination of `overlayVisits`, is equivalent
 (WS-V2's V2-VISITS is zero after INITIALIZE, so the destination digits are always 0000). CAXB is now 20/3 with 0 case gaps.
 This landed in #5505, so the "needs a cics-crucible CAXA mode" wording in #5490 and #5491 is superseded: no release or pin bump was needed.
+Re-checked 2026-10-22 (#5491, XCTL length 21-24): a fresh `mutation_crucible.py run --only ca-xctl-versions/CAXB --sample 24 --seed 0 --strengthened`
+gives 20/23 caught, and mutant `496bab0daf` (NEG `k == 0` -> `!(k == 0)`, `CaxbService.java:231`) is `killed`, `killed_by`
+`direct-22-byte-area`: the 22-byte area (EIBCALEN 22) is the one that reaches that branch.
 
 Spot-check 2026-10-22 (#4443): 22 of the 45 equivalent verdicts on the 13 re-run ports were re-read against the port source; all hold, no new case. The sample and its caveats: [mutation_equivalent_spot_check.md](mutation_equivalent_spot_check.md).
 

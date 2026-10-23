@@ -2303,9 +2303,6 @@
   "type-filter-no-match": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
   "desc-filter-no-match": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
   "filter-count-fails": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "filter-count-fails-after-edit-error": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "pf7-back-to-first-page--sql-cotrtlic-1998": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "pf7-back-to-first-page--sql-cotrtlic-1753": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "type-filter--sql-cotrtlic-1803": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout"
+  "filter-count-fails-after-edit-error": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout"
  }
 }

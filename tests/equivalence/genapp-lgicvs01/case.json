@@ -126,6 +126,22 @@
    },
    "why": "no LOW CUSTOMER item: HIGH is taken from the queue, LOW keeps its default, so only the L record is written; the key is scaled into LOW..HIGH",
    "commarea": null
+  },
+  {
+   "name": "dpl-start-on-terminal-case",
+   "startcode": "D",
+   "ts": {
+    "GENACNTL": [
+     "**** GENAPP CNTL",
+     "LOW CUSTOMER=0000000003",
+     "HIGH CUSTOMER=0000000003"
+    ]
+   },
+   "why": "STARTCODE D (a distributed program link, not a terminal start): WS-FLAG is 'C', the RECEIVE is skipped and the key goes back in COMMA-DATA with no SEND TEXT; the other arm of the STARTCODE test than the terminal scenarios take",
+   "commarea": {
+    "COMMA-DATA-H": "",
+    "COMMA-DATA-HIGH": 0
+   }
   }
  ]
 }

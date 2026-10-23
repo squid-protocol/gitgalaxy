@@ -166,6 +166,7 @@ def test_resp_tables():
     )
     assert RESP_NAME[12] == "FILENOTFOUND"  # (DSIDERR, its older name, is an alias)
     assert set(CONDITION_ABEND) <= set(DFHRESP)
+    assert CONDITION_ABEND["IOERR"] == "AEIQ"  # #6166: IBM abend AEIQ, "IOERR condition not handled"
 
 
 # ---- the CLI -------------------------------------------------------------------------------------------------------

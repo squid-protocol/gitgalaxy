@@ -249,6 +249,7 @@ public final class CicsSpec {
             case "ENDDATA" -> "AEI2";
             case "PGMIDERR" -> "AEI0";
             case "INVREQ" -> "AEIP";
+            case "IOERR" -> "AEIQ";
             case "CONTAINERERR" -> "AEZJ";
             case "CHANNELERR" -> "AEZV";
             case "TOKENERR" -> "AEZL";

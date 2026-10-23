@@ -279,3 +279,17 @@ def test_the_ts_verbs_still_translate_to_their_stubs():
         ("WRITEQ TS QUEUE('Q') FROM(WS-REC)", "GGCWRTQ"),
     ):
         assert any(stub in ln for ln in ec.translate_command(verb)), verb
+
+
+# ---- temporary storage (#5274, harness half): READQ / WRITEQ / DELETEQ TS and how a TS event is read back --------------
+def test_the_harness_dispatches_temporary_storage_to_its_module():
+    import equivalence_cics_tempstorage as ect  # noqa: E402
+
+    for name in ("ts_command", "delete_queue", "ts_seed", "cobol_ts", "java_ts_as_compared"):
+        assert callable(getattr(ect, name)), name
+    for old in ("_ts_command", "_cobol_ts"):
+        assert not hasattr(ec, old), old
+    assert ec.ts_seed is ect.ts_seed and ec.java_ts_as_compared is ect.java_ts_as_compared
+    for body, stub in (("WRITEQ TS QUEUE('Q') FROM(WS-REC)", "GGCWRTQ"), ("READQ TS QUEUE('Q') INTO(WS-REC)", "GGCREADQ"),
+                       ("DELETEQ TS QUEUE('Q')", "GGCDELQ")):  # fmt: skip
+        assert any(stub in ln for ln in ec.translate_command(body)), body

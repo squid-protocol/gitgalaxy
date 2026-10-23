@@ -37,6 +37,7 @@ import cobol_coverage as cov  # #4023
 import equivalence_common as common
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
 import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
+import equivalence_cics_tempstorage as cics_tempstorage  # #5274: the temporary storage family
 import equivalence_db2
 import equivalence_ims  # #5278
 import equivalence_inputs  # #3804
@@ -54,6 +55,8 @@ from gitgalaxy.standards.cics.model import GroupKind
 from gitgalaxy.standards.cics.resp import DFHRESP as SPEC_DFHRESP
 from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA  # #4415: DFHVALUE(name), IBM's CVDA numbers
 
+ts_seed = cics_tempstorage.ts_seed  # public names the tests and the compare step reach through this module
+java_ts_as_compared = cics_tempstorage.java_ts_as_compared
 STUB = common.CASES / "cics"
 LE_MODELS = common.CASES / "le"  # Language Environment service models (CEEDAYS) a CALLed subprogram may use
 
@@ -550,19 +553,6 @@ def _region_page() -> str:
     return region_page(None)
 
 
-def ts_seed(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, list[str]]:
-    """#4270 (GenApp LGICVS01 reads its control queue GENACNTL): the TS queues the region holds when the task starts
-    ({"QUEUE": [item text, ...]}), the scenario's "ts", else the case's -- as the cics-crucible runner seeds a
-    scenario's initial ts_queues. The stub gets each item's bytes in the data's encoding ($GGCICS_DIR/ts, the layout
-    GGCREADQ reads); CicsTask the same text in the region's code page (DetCics.region: a TS item is "the bytes the
-    program wrote, in the region's code page", #4528)."""
-    seed = sc.get("ts", case.get("ts")) or {}
-    for q, items in seed.items():
-        if not (0 < len(q) <= 16 and isinstance(items, list) and all(isinstance(i, str) for i in items)):
-            raise Unsupported(f'scenario {sc.get("name")}: "ts" maps a queue name (1-16) to a list of item texts')
-    return seed
-
-
 def _past_from(length: str | None, area: str | None, what: str) -> list[str]:
     """A write whose LENGTH runs past its FROM item (GenApp's LGSTSQ): CICS takes the bytes that follow the item in
     storage, which GnuCOBOL lays out unlike IBM's compiler -- the run stops (98, "not modelled", oracle_assumptions.md
@@ -572,57 +562,6 @@ def _past_from(length: str | None, area: str | None, what: str) -> list[str]:
     return [f"IF GG-LEN > LENGTH OF {area}",
             f"    DISPLAY '{what} LENGTH > FROM: not modelled'",
             "    MOVE 98 TO RETURN-CODE", "    STOP RUN", "END-IF"]  # fmt: skip
-
-
-def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None = None) -> list[str]:
-    """#4002: READQ TS / WRITEQ TS -> GGCREADQ / GGCWRTQ. LENGTH is in-out on READQ (the most INTO
-    takes; then the item's length, set on NORMAL and LENGERR only: IBM documents it for neither
-    ITEMERR nor QIDERR). ITEM is a value on READQ (NEXT: 0) and on WRITEQ REWRITE, a data area WRITEQ
-    sets otherwise; NUMITEMS is set on NORMAL."""
-    feature = f"{verb} TS"
-    _check_spec(feature, opts, (verb,), lambda bad: [f"{feature} {bad[0]}"])
-    queue = opts.get("QUEUE") or opts.get("QNAME")
-    area = opts.get("INTO") if verb == "READQ" else opts.get("FROM")
-    setp = opts.get("SET") if verb == "READQ" else None
-    if not queue:
-        raise Unsupported(_rule(feature, "one_of", "QUEUE"), [feature])
-    if setp:  # #5042 (X58): READQ TS SET(pointer) LENGTH(data-area) -> GGCRDQS, the item as a new block
-        if area:
-            raise Unsupported(_rule(feature, "at_most_one", "INTO"), [feature])
-        length = opts.get("LENGTH") or opts.get("FLENGTH")
-        if not length or re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()):
-            raise Unsupported(_rule(feature, "requires", "SET"), [feature])
-        item, num = opts.get("ITEM"), opts.get("NUMITEMS")
-        lines = [f"MOVE {queue} TO GG-QNAME", "MOVE 0 TO GG-LEN",
-                 f"MOVE {item} TO GG-ITEM" if item and "NEXT" not in opts else "MOVE 0 TO GG-ITEM"]  # fmt: skip
-        lines += _call("GGCRDQS", [f"BY REFERENCE {_pointer(feature, setp)}"])
-        lines += ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {length}", "END-IF"]
-        if num:
-            lines += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {num}", "END-IF"]
-        return lines + _resp(opts, True, labels)
-    if not area:
-        raise Unsupported(f"{feature} without QUEUE / {'INTO' if verb == 'READQ' else 'FROM'}", [feature])
-    length, item, num = opts.get("LENGTH") or opts.get("FLENGTH"), opts.get("ITEM"), opts.get("NUMITEMS")
-    lines = [f"MOVE {queue} TO GG-QNAME", f"MOVE {length or f'LENGTH OF {area}'} TO GG-LEN"]
-    after = []
-    if verb == "READQ":
-        lines.append(f"MOVE {item} TO GG-ITEM" if item and "NEXT" not in opts else "MOVE 0 TO GG-ITEM")
-        lines += _call("GGCREADQ", [f"BY REFERENCE {area}"])
-        if length and not _literal(length) and not re.fullmatch(r"(?is)LENGTH\s+OF\s+.+", length.strip()):
-            # (#4737: a literal / LENGTH OF is the most INTO takes; CICS's length goes to a temporary nobody reads)
-            after += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"]
-    else:
-        rewrite = "REWRITE" in opts
-        if rewrite and not item:
-            raise Unsupported(f"{feature} REWRITE without ITEM", [feature])
-        lines += [f"MOVE {item if rewrite else 0} TO GG-ITEM",
-                  "MOVE 'REWRITE' TO GG-FLAGS" if rewrite else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
-        lines += _past_from(length, area, "WRITEQ TS") + _call("GGCWRTQ", [f"BY REFERENCE {area}"])
-        if item and not rewrite:
-            after += ["IF GG-RESP = 0", f"    MOVE GG-ITEM TO {item}", "END-IF"]
-    if num:
-        after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {num}", "END-IF"]
-    return lines + after + _resp(opts, True, labels)
 
 
 def _td_command(verb: str, opts: dict[str, str | None], labels: list[str] | None = None) -> list[str]:
@@ -1827,13 +1766,9 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
     if verb in ("READQ", "DELETEQ") and "TD" in opts:  # #5079 (X57): transient data, intrapartition
         return _td_command(verb, opts, labels)
     if verb == "DELETEQ" and "TD" not in opts:  # #4415 slice 2 (X29): the whole TS queue
-        _check_spec("DELETEQ TS", opts, (verb,), lambda bad: [f"DELETEQ TS {bad[0]}"])
-        queue = opts.get("QUEUE") or opts.get("QNAME")
-        if not queue:
-            raise Unsupported(_rule("DELETEQ TS", "one_of", "QUEUE"), ["DELETEQ TS"])
-        return [f"MOVE {queue} TO GG-QNAME"] + _call("GGCDELQ", []) + _resp(opts, True, labels)
+        return cics_tempstorage.delete_queue(opts, labels)
     if verb in ("READQ", "WRITEQ") and "TD" not in opts:  # #4002: temporary storage (TS is the default)
-        return _ts_command(verb, opts, labels)
+        return cics_tempstorage.ts_command(verb, opts, labels)
     if verb == "SEND" and "MAP" in opts:
         _check_spec("SEND MAP", opts, (verb,))
         lines = [name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
@@ -3540,7 +3475,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "mq.cfg").write_text(equivalence_mq.cfg(equivalence_mq.state(case, sc), enc), encoding="ascii")
         if task_facts(case, sc)[1] is not None:  # #4270: what the operator typed (an unformatted RECEIVE)
             (d / "terminal.in").write_bytes(task_facts(case, sc)[1].encode(enc))
-        for q, items in ts_seed(case, sc).items():  # #4270: the TS queues the task starts with
+        for q, items in cics_tempstorage.ts_seed(case, sc).items():  # #4270: the TS queues the task starts with
             qdir = d / "ts" / q.encode("ascii").hex().upper()
             qdir.mkdir(parents=True, exist_ok=True)
             for i, item in enumerate(items, 1):
@@ -3781,19 +3716,6 @@ def _day_of_year(y: int, m: int, d: int) -> int:
 RESP_NAMES = {n: name for name, n in DFHRESP.items()}  # #4607: the stub logs a RESP by number, CicsTask by name
 
 
-def _cobol_ts(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
-    """#4607: a WRITEQ TS the stub logged (`queue` the name's bytes in hex, `item` 0 when none was written, `resp` by
-    number; the bytes written in the event's blob) as CicsTask records it: {queue, data, resp, item}. The data of a
-    write that failed is not compared (the stub logs none for a LENGTH outside 1-32763)."""
-    name = bytes.fromhex(kv.get("queue", ""))
-    resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
-    text = common._decode_text(data, enc) if resp == "NORMAL" else None
-    if resp == "NORMAL" and text is None:
-        text = f"<undecodable {data!r} in {enc}>"
-    return {"queue": (common._decode_text(name, enc) or name.hex()).rstrip(" \x00"), "data": text, "resp": resp,
-            "item": int(kv.get("item", "0")) or None}  # fmt: skip
-
-
 def _cobol_start(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
     """#4270 (GenApp LGWEBST5): a START the stub logged (GGCSTRT: `interval=` or `time=` hhmmss, `protect` 0 / 1,
     `resp` by number, `expires` from $GGCICS_NOW -- the case's clock --, `area` 1 with FROM, its bytes in the event's
@@ -3870,26 +3792,6 @@ def java_start_as_compared(e: dict[str, Any]) -> dict[str, Any]:
         return {**e, "from": raw.decode(REGION_PAGE)}
     except UnicodeDecodeError:
         return {**e, "from": f"<undecodable {raw!r} in {REGION_PAGE}>"}
-
-
-def java_ts_as_compared(e: dict[str, Any]) -> dict[str, Any]:
-    """#4607: CicsTask's WRITEQ-TS event as the comparison reads it: its data (bytes, base64 in the JSON) in the
-    region's page -- the det port writes an item there (#4528: DetCics.toRegion; CICS's default CCSID 037, the page
-    det/cics.region_page gives an estate that declares no EBCDIC one) -- as text; none for a write that failed. A
-    port whose region page is another shows as a difference, never as a pass."""
-    import base64
-
-    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
-
-    data = e.get("data")
-    text = None
-    if e.get("resp") == "NORMAL" and isinstance(data, str):
-        raw = base64.b64decode(data)
-        try:
-            text = raw.decode(REGION_PAGE)
-        except UnicodeDecodeError:
-            text = f"<undecodable {raw!r} in {REGION_PAGE}>"
-    return {**e, "data": text, "item": e.get("item") or None}
 
 
 X6_WRITEQ = re.compile(r"WRITEQ T[SD] LENGTH > FROM: not modelled")
@@ -4036,7 +3938,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "WEB-RECEIVE":  # #4767 (X38): the request body the program read, as CicsTask records it
             res.setdefault("webreceive", []).append(_cobol_web_receive(kv, data, enc))
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
-            res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
+            res.setdefault("ts", []).append(cics_tempstorage.cobol_ts(kv, data, enc))
         elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
             res.setdefault("reads", []).append(_cobol_read(verb, kv, data, enc))
         elif verb == "START":  # #4270 (GenApp LGWEBST5): as CicsTask records it
@@ -5363,7 +5265,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           **terminal_facts(case, sc),
                           **({"clock": ej._clock({**case, "clock": scenario_clock(case, sc)})} if "clock" in sc else {}),
                           **({"tod": scenario_tod(case, sc)} if scenario_tod(case, sc) else {}),
-                          "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
+                          "ts": cics_tempstorage.ts_seed(case, sc), "urimaps": urimaps(case, sc),
                           **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
                           "http_request": http_request(case, sc), "tcpip": tcpip(case, sc),
@@ -5502,7 +5404,7 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
             if e.get("event") == "LINK":  # #4173: the target's DTO as issued, before it is mapped to this program's
                 e["link_area"] = e.get("commarea")
             if e.get("event") == "WRITEQ-TS":  # #4607: the item's bytes as text
-                e.update(java_ts_as_compared(e))
+                e.update(cics_tempstorage.java_ts_as_compared(e))
             if e.get("event") == "READQ-TS":  # #4270: the item's bytes as text
                 e.update(java_read_as_compared(e))
             if e.get("event") == "START":  # #4270: the FROM data's bytes as text

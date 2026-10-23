@@ -4447,7 +4447,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   (CRECUST's item is 17 bytes). (4) A leap second, a DST fold or an unset clock are not modelled.
 - **IBM references.** https://www.ibm.com/docs/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.ceea800/cblex1.htm (the COBOL example).
 
-### L6. CEEGMT / CEEUTC, CEEDATM, CEESECS, CEEDATE, CEEISEC, CEESECI, CEEDYWK, CEEQCEN — IBM's conditions where documented; the clock, the output item and what IBM leaves open assumed or refused
+### L6. CEEGMT / CEEUTC, CEEDATM, CEESECS, CEEDATE, CEEISEC, CEESECI, CEEDYWK, CEEQCEN, CEESCEN — IBM's conditions where documented; the clock, the output item and what IBM leaves open assumed or refused
 - **What IBM documents** (Language Environment Programming Reference, the callable services; the message lists below are
   those IBM publishes for the same services as the ILE CEE APIs, which share their definitions and message numbers:
   https://www.ibm.com/docs/en/ssw_ibm_i_73/apis/CEEDATM.htm, `CEESECS.htm`, `CEEDATE.htm`, `CEEISEC.htm`, `CEESECI.htm`, `CEEDYWK.htm`, `CEEUTC.htm`
@@ -4504,7 +4504,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   one** invalid field (IBM lists the codes, not their order). CEESECS: a timestamp shorter than its picture (IBM
   lists no insufficient-data code for it), with a leading blank, with leading zeros omitted after a delimiter
   (`1988-5-16`: IBM accepts it; the model has no rule), `YY` (the century window, which depends on the system date;
-  CEEQCEN's 80 is the default, no CEESCEN is modelled) or `DDD` in the input, or a picture without a full date.
+  CEEQCEN's 80 is the default, CEESCEN sets it, but nothing reads the window yet) or `DDD` in the input, or a picture without a full date.
   CEEGMT without a pinned clock.
 - **Modelled (#5003), assumed (6).** CEEGMTO / CEEUTCO (the same service) return hours 0, minutes 0, seconds 0.0 and a
   success feedback code. The time-zone decision: the clock is GMT (CURRENT-DATE ends `+0000`), so local time is GMT and
@@ -4517,10 +4517,15 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   and CEESECI fed the output of every CEEISEC row. Assumed: the milliseconds are floored as for CEEDATM (3); a
   fraction that is not exact in binary can differ by one millisecond between HFP and IEEE (5), so the vectors use
   exact ones. Neither service has a picture or a field combination to refuse.
-- **Not modelled: sibling services** of the same set: CEESCEN, CEEFMDA / CEEFMDT / CEEFMDV (a call is refused by name by the translator, as before), and the
+- **Modelled (#5003): CEESCEN** (`CALL 'CEESCEN' USING century_start, fc`, translated to `Ceeqcen.set`, charset last, `gen.LIBRARY` /
+  `LIBRARY_CHARSET`; `tests/cobol_mainframe/test_det_le_time.py` pins the arity and the emitted call). The setting is one value shared with
+  CEEQCEN (default 80); 0 to 100 is stored, anything else is CEE2533 and the setting is kept. Assumed: the setting lasts the run (a
+  CEESCEN in one program is seen by a later CEEQCEN in another). **Nothing reads the window yet:** a `YY` input to CEESECS stays
+  refused by name until a rule uses it. No burned program calls CEESCEN.
+- **Not modelled: sibling services** of the same set: CEEFMDA / CEEFMDT / CEEFMDV (a call is refused by name by the translator, as before), and the
   country-default pictures.
 - **IBM references.** The pages above; CEELOCT's example (L5) and the symbolic feedback codes (L4).
-- **Not modelled, no burned program needs them (#5003).** CEESCEN, CEEFMDA / CEEFMDT / CEEFMDV, null (default) pictures and CEE2526 / CEE2527
+- **Not modelled, no burned program needs them (#5003).** CEEFMDA / CEEFMDT / CEEFMDV, null (default) pictures and CEE2526 / CEE2527
   truncation (CEESECI and CEEDYWK are modelled, above). A sweep of the burned estates finds no call to any of them (CRECUST and CSUTLDTC call CEEDAYS, BANKDATA CEEGMT and
   CEEDATM with a 14-byte picture and an 80-byte output), so there is nothing to prove; they stay refused by name.
 

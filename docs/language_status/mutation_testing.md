@@ -628,6 +628,9 @@ This landed in #5505, so the "needs a cics-crucible CAXA mode" wording in #5490 
 Re-checked 2026-10-22 (#5491, XCTL length 21-24): a fresh `mutation_crucible.py run --only ca-xctl-versions/CAXB --sample 24 --seed 0 --strengthened`
 gives 20/23 caught, and mutant `496bab0daf` (NEG `k == 0` -> `!(k == 0)`, `CaxbService.java:231`) is `killed`, `killed_by`
 `direct-22-byte-area`: the 22-byte area (EIBCALEN 22) is the one that reaches that branch.
+Re-checked 2026-10-22 (#5491, negative balance): the same run (20/23 caught, `--seed 0`) has mutant `5b1e4d4e31`
+(BDM `unscaled.signum() < 0 ? kept.negate() : kept` -> `kept : kept`, `CaxbService.java:248`) `killed`, `killed_by`
+`direct-negative-balance`: its V2-BALANCE of -12345.67 is the one value that takes the negate branch. No CAXA mode was needed.
 
 Spot-check 2026-10-22 (#4443): 22 of the 45 equivalent verdicts on the 13 re-run ports were re-read against the port source; all hold, no new case. The sample and its caveats: [mutation_equivalent_spot_check.md](mutation_equivalent_spot_check.md).
 

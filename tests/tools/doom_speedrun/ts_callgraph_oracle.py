@@ -23,7 +23,10 @@ from pathlib import Path
 
 EXAMPLES = 3
 QUOTING = ("quote", "quote_spanned", "stringify")
-NAME_NODES = {"identifier", "field_identifier", "property_identifier", "type_identifier", "simple_identifier"}
+NAME_NODES = {
+    "identifier", "field_identifier", "property_identifier", "type_identifier", "simple_identifier",
+    "predefined_type",  # C# `new string(..)`: a constructor of a built-in type, kind ``type`` (#6266)
+}  # fmt: skip
 # a qualified callee reduces to the field that names the function (``a.b.f`` -> ``f``)
 NAME_FIELD = {
     "attribute": "attribute", "selector_expression": "field", "member_expression": "property",
@@ -38,13 +41,30 @@ TEXT_NODES = {
 }  # fmt: skip
 
 
+# a function-valued expression bound to a name is a function of its own: ``window.f = () => {..}``, ``const f = () => ..``
+BINDINGS = {"assignment_expression": "right", "variable_declarator": "value", "pair": "value"}
+
+
 class Spec:
-    def __init__(self, parser, functions, calls, ctors=()):
-        self.parser, self.functions, self.calls, self.ctors = (
+    def __init__(self, parser, functions, calls, ctors=(), bound=()):
+        self.parser, self.functions, self.calls, self.ctors, self.bound = (
             parser,
             frozenset(functions),
             dict(calls),
             frozenset(ctors),
+            frozenset(bound),
+        )
+
+    def is_unit(self, node):
+        """A function definition node, or a bound function expression (the engine names and scores it on its own)."""
+        if node.type in self.functions:
+            return True
+        parent = node.parent
+        return (
+            node.type in self.bound
+            and parent is not None
+            and parent.type in BINDINGS
+            and parent.child_by_field_name(BINDINGS[parent.type]) == node
         )
 
 
@@ -57,7 +77,8 @@ SPECS = {
                    {"invocation_expression": "function"}, {"object_creation_expression"}),
     "rust": Spec("rust", {"function_item"}, {"call_expression": "function"}),
     "javascript": Spec("javascript", {"function_declaration", "method_definition"}, {"call_expression": "function"},
-                       {"new_expression"}),
+                       {"new_expression"},
+                       {"arrow_function", "function_expression"}),
     "python": Spec("python", {"function_definition"}, {"call": "function"}),
 }  # fmt: skip
 
@@ -115,7 +136,7 @@ class Body:
             if n.type in TEXT_NODES:
                 self.text_only.append(text_of(n))
                 continue
-            if n.type in spec.functions:
+            if spec.is_unit(n):
                 continue  # a nested function is its own unit
             if n.type in spec.calls:
                 fn = n.child_by_field_name(spec.calls[n.type])
@@ -151,7 +172,7 @@ def function_nodes(tree, spec):
     out, stack = [], [tree.root_node]
     while stack:
         n = stack.pop()
-        if n.type in spec.functions:
+        if spec.is_unit(n):
             out.append(n)
         stack.extend(reversed(n.children))
     return out

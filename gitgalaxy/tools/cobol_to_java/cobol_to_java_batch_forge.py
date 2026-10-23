@@ -217,8 +217,14 @@ class BatchForge:
                          else f"the REXX / CLIST exec {', '.join(execs)}" if execs else "nothing resolved")  # fmt: skip
 
     # ---- sources ------------------------------------------------------------------------------
+    @property
+    def file_runtime_only(self) -> bool:
+        """#6065: an estate with no application JCL job but file-owning main programs (a no-JCL batch estate) gets the
+        file runtime (CobolFiles and what it needs), not the Spring Batch job classes or the controller."""
+        return self.enabled and not self.applications and bool(self.unscheduled)
+
     def sources(self) -> dict[tuple[str, ...], dict[str, str]]:
-        if not self.applications:
+        if not self.applications and not self.file_runtime_only:
             return {}
         pkg = f"{self.package}.{SUBPACKAGE}"
         out = {
@@ -226,7 +232,10 @@ class BatchForge:
             .replace("{zone}", self.target.culture.zone)
             .replace("{record_charset}", record_charset_java(self.target.data.record_charset))
             for name, text in _RUNTIME.items()
+            if not (self.file_runtime_only and name in _SPRING_BATCH_RUNTIME)
         }
+        if self.file_runtime_only:
+            return {("base_pkg", SUBPACKAGE): out}
         if self.target.features.rest_controllers:
             out["BatchJobController"] = _CONTROLLER.replace("{pkg}", pkg)
         for j in self.applications:
@@ -401,6 +410,9 @@ class BatchForge:
                 f"(generated: {steps} steps, {todo} utility steps to port), {kinds.count('runner')} runner, "
                 f"{kinds.count('utility')} utility, {kinds.count('build')} build (resources/batch/jcl-jobs.json)\n")  # fmt: skip
 
+
+# Runtime classes that import Spring Batch: left out of a no-JCL estate's file runtime (#6065).
+_SPRING_BATCH_RUNTIME = {"JclSteps", "JclJobLauncher"}
 
 _RUNTIME = {
     "Sysout": """package {pkg};

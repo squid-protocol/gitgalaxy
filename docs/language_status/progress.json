@@ -1,5 +1,5 @@
 {
- "commit": "80e22db1f",
+ "commit": "b8759a2d3",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -133,34 +133,34 @@
    "programs": 0
   },
   "1": {
-   "l2_plus": 6,
-   "l4_plus": 0,
+   "l2_plus": 9,
+   "l4_plus": 1,
    "programs": 9
   },
   "2": {
    "l2_plus": 69,
-   "l4_plus": 24,
+   "l4_plus": 34,
    "programs": 70
   },
   "3": {
    "l2_plus": 14,
-   "l4_plus": 8,
+   "l4_plus": 9,
    "programs": 16
   },
   "4": {
    "l2_plus": 20,
-   "l4_plus": 9,
+   "l4_plus": 12,
    "programs": 21
   },
   "none": {
    "l2_plus": 9,
-   "l4_plus": 8,
+   "l4_plus": 9,
    "programs": 13
   }
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-23T09:45:06Z",
+  "as_of": "2026-10-23T10:03:58Z",
   "core": {
    "closed": 163,
    "open": 23,
@@ -428,17 +428,17 @@
  "ladder": {
   "estates": {
    "aws-mainframe-modernization-carddemo": {
-    "l2_plus": 39,
-    "l2_plus_pct": 88.6,
-    "l4_plus": 24,
-    "l4_plus_pct": 54.5,
+    "l2_plus": 42,
+    "l2_plus_pct": 95.5,
+    "l4_plus": 28,
+    "l4_plus_pct": 63.6,
     "l5": 0,
     "levels": {
      "L0": 2,
-     "L1": 3,
-     "L2": 8,
-     "L3": 7,
-     "L4": 24,
+     "L1": 0,
+     "L2": 4,
+     "L3": 10,
+     "L4": 28,
      "L5": 0
     },
     "programs": 44,
@@ -464,15 +464,15 @@
    "cics-banking-sample-application-cbsa": {
     "l2_plus": 31,
     "l2_plus_pct": 100.0,
-    "l4_plus": 6,
-    "l4_plus_pct": 19.4,
+    "l4_plus": 10,
+    "l4_plus_pct": 32.3,
     "l5": 0,
     "levels": {
      "L0": 0,
      "L1": 0,
      "L2": 13,
-     "L3": 12,
-     "L4": 6,
+     "L3": 8,
+     "L4": 10,
      "L5": 0
     },
     "programs": 31,
@@ -481,15 +481,15 @@
    "cics-genapp": {
     "l2_plus": 31,
     "l2_plus_pct": 100.0,
-    "l4_plus": 7,
-    "l4_plus_pct": 22.6,
+    "l4_plus": 13,
+    "l4_plus_pct": 41.9,
     "l5": 0,
     "levels": {
      "L0": 0,
      "L1": 0,
-     "L2": 6,
-     "L3": 18,
-     "L4": 7,
+     "L2": 5,
+     "L3": 13,
+     "L4": 13,
      "L5": 0
     },
     "programs": 31,
@@ -515,15 +515,15 @@
    "zecs": {
     "l2_plus": 5,
     "l2_plus_pct": 71.4,
-    "l4_plus": 1,
-    "l4_plus_pct": 14.3,
+    "l4_plus": 3,
+    "l4_plus_pct": 42.9,
     "l5": 0,
     "levels": {
      "L0": 2,
      "L1": 0,
-     "L2": 3,
-     "L3": 1,
-     "L4": 1,
+     "L2": 2,
+     "L3": 0,
+     "L4": 3,
      "L5": 0
     },
     "programs": 7,
@@ -531,17 +531,17 @@
    }
   },
   "total": {
-   "l2_plus": 118,
-   "l2_plus_pct": 91.5,
-   "l4_plus": 49,
-   "l4_plus_pct": 38.0,
+   "l2_plus": 121,
+   "l2_plus_pct": 93.8,
+   "l4_plus": 65,
+   "l4_plus_pct": 50.4,
    "l5": 0,
    "levels": {
     "L0": 6,
-    "L1": 5,
-    "L2": 31,
-    "L3": 38,
-    "L4": 49,
+    "L1": 2,
+    "L2": 25,
+    "L3": 31,
+    "L4": 65,
     "L5": 0
    },
    "programs": 129,

@@ -1,13 +1,15 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID. DLICMD.
-      * #5233 command-code fixture: F, L, P, C, D and the null code - in SSAs on
+      * #5233 command-code fixture: F, L, P, C, D, Q, U, V and the null code - in SSAs on
       * LVLDBD through PSB LVLPSB. IBM: L takes the last twin of the
       * type under its parent, F the first (the default start of a GU);
       * on an ISRT with a unique sequence field both are ignored. P on a
       * GU sets parentage at the level of its SSA, so a GNP afterwards
       * walks every dependent of that segment, not of the lowest one
       * retrieved. D (a path call) hands back the D-coded segments and the
-      * one found, one after another, in hierarchic order (Q30-Q39). The
+      * one found, one after another, in hierarchic order (Q30-Q39). Q
+      * (enqueue) changes nothing with one program (Q40-Q45). U and V
+      * take the current position as qualification (Q46-Q55). The
       * test pins the expected output, written from IBM's documentation
       * before either runtime ran it.
        DATA DIVISION.
@@ -74,6 +76,42 @@
            05 FILLER             PIC X(2) VALUE ' ='.
            05 FILLER             PIC X(4) VALUE 'D200'.
            05 FILLER             PIC X VALUE ')'.
+       01  C-DK.
+           05 FILLER             PIC X(11) VALUE 'DEPT    *Q '.
+       01  C-DQQ.
+           05 FILLER             PIC X(11) VALUE 'DEPT    *Q('.
+           05 FILLER             PIC X(8) VALUE 'DEPTNO'.
+           05 FILLER             PIC X(2) VALUE ' ='.
+           05 FILLER             PIC X(4) VALUE 'D200'.
+           05 FILLER             PIC X VALUE ')'.
+       01  C-EK.
+           05 FILLER             PIC X(11) VALUE 'EMP     *Q '.
+       01  C-EKL.
+           05 FILLER             PIC X(12) VALUE 'EMP     *QL '.
+       01  S-PROJ.
+           05 FILLER             PIC X(9) VALUE 'PROJ     '.
+       01  C-DU.
+           05 FILLER             PIC X(11) VALUE 'DEPT    *U '.
+       01  C-DV.
+           05 FILLER             PIC X(11) VALUE 'DEPT    *V '.
+       01  C-EU.
+           05 FILLER             PIC X(11) VALUE 'EMP     *U '.
+       01  C-EV.
+           05 FILLER             PIC X(11) VALUE 'EMP     *V '.
+       01  C-EQ2.
+           05 FILLER             PIC X(11) VALUE 'EMP     *-('.
+           05 FILLER             PIC X(8) VALUE 'EMPNO'.
+           05 FILLER             PIC X(2) VALUE ' ='.
+           05 FILLER             PIC X(4) VALUE 'E002'.
+           05 FILLER             PIC X VALUE ')'.
+       01  C-EQ3.
+           05 FILLER             PIC X(11) VALUE 'EMP     *-('.
+           05 FILLER             PIC X(8) VALUE 'EMPNO'.
+           05 FILLER             PIC X(2) VALUE ' ='.
+           05 FILLER             PIC X(4) VALUE 'E003'.
+           05 FILLER             PIC X VALUE ')'.
+       01  C-SK.
+           05 FILLER             PIC X(11) VALUE 'SKILL   *Q '.
        01  C-CE2.
            05 FILLER             PIC X(11) VALUE 'EMP     *C('.
            05 FILLER             PIC X(8) VALUE 'D100E002'.
@@ -270,6 +308,70 @@
            MOVE SPACES TO IOP
            CALL 'CBLTDLI' USING F-GHU PCB1 IOP C-DD S-EMP
            PERFORM SHOWP
+           MOVE 40 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DK
+           PERFORM SHOW1
+           MOVE 41 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DQQ S-EMP
+           PERFORM SHOW1
+           MOVE 42 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GN PCB1 IOA C-EK
+           PERFORM SHOW1
+           MOVE 43 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA C-SK
+           PERFORM SHOW1
+           MOVE 44 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GHU PCB1 IOA C-DQQ C-EK
+           PERFORM SHOW1
+           MOVE 45 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA S-DEPT C-EKL
+           PERFORM SHOW1
+           MOVE 46 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DU S-EMP
+           PERFORM SHOW1
+           MOVE 47 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DU C-EQ2
+           PERFORM SHOW1
+           MOVE 48 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DV C-EV
+           PERFORM SHOW1
+           MOVE 49 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA S-DEPT C-EU
+           PERFORM SHOW1
+           MOVE 50 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DU S-PROJ
+           PERFORM SHOW1
+           MOVE 51 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DV
+           PERFORM SHOW1
+           MOVE 52 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA S-EMP
+           PERFORM SHOW1
+           MOVE 53 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA S-SKL
+           PERFORM SHOW1
+           MOVE 54 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA C-EV S-SKL
+           PERFORM SHOW1
+           MOVE 55 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DU C-EQ3
+           PERFORM SHOW1
            GOBACK.
        SHOWP.
            DISPLAY 'Q' W-Q ' [' P1-STATUS '] ' IOP(1:4) '/'

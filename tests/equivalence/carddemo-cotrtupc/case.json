@@ -479,6 +479,26 @@
     "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
    },
    "why": "PF3: CDEMO-FROM-TRANID / -PROGRAM are blank (cleared on entry), so CA00 / COADM01C; SYNCPOINT and XCTL with CARDDEMO-COMMAREA (FROM CTTU / COTRTUPC, admin user, context 0)"
+  },
+  {
+   "name": "pf3-xctl-fails-abend-routine",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "S",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "why": "#6072: reaches ABEND-ROUTINE (HANDLE ABEND LABEL(ABEND-ROUTINE), app/app-transaction-type-db2/cbl/COTRTUPC.cbl:348). PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): the XCTL back to the caller fails with no RESP, so CICS abends the task and the active HANDLE ABEND passes control to ABEND-ROUTINE (after the SYNCPOINT, which succeeds)",
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ]
   }
  ],
  "notes": "CardDemo's Db2 transaction-type maintenance screen (transaction CTTU, program COTRTUPC, admin menu option 6 or PF2 on COTRTLIC): a type code is validated and looked up in CARDDEMO.TRANSACTION_TYPE; a found type's description can be changed (ENTER validates, PF5 saves, PF12 cancels) or the type deleted (PF4, PF4 again to confirm); a type not found can be added (PF5, the description, ENTER, PF5: the UPDATE finds no row and the program INSERTs). The state between screens is TTUP-CHANGE-ACTION and the old / new details in the program's own COMMAREA area after CARDDEMO-COMMAREA; on entry the program INITIALIZEs CARDDEMO-COMMAREA, so every later screen carries an empty CardDemo area with context 1 -- the scenarios give that state. Both sides run their SQL on one real Db2 (tests/tools/equivalence_db2.py): TRANSACTION_TYPE and TRANSACTION_TYPE_CATEGORY (whose ON DELETE RESTRICT foreign key makes deleting type 01 return -532) are created from the corpus DDL, seeded before each scenario and both compared after it. The seed is the corpus's DB2LTTYP.ctl and DB2LTCAT.ctl INSERTs unchanged, plus five types (08-12) without category rows in a separate INSERT, written for this case and its sibling carddemo-cotrtlic (08 is the type a delete can remove). Not covered: the -911 / other negative SQLCODE branches and a duplicate key on the INSERT, which real data cannot reach (the INSERT runs only after the UPDATE found no row), and the 'UNEXPECTED DATA SCENARIO' ABEND-ROUTINE. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

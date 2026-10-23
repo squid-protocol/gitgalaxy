@@ -420,6 +420,14 @@ CMD_EXPECTED = [
     # DEPT*DP, EMP (parentage the DEPT), then GNPs of EMP*D, SKILL: each skill under D100 with its EMP, then GE
     "Q35 [  ] D100/E001/", "Q36 [  ] E001/S1CO/", "Q37 [  ] E001/S2JA/", "Q38 [GE]     /    /",  # nothing found: the area is untouched (blank)
     "Q39 [  ] D100/E001/",  # GHU
+    # Q (enqueue) changes nothing with one program: on an unqualified and a qualified SSA, a GN, a GNP that finds nothing,
+    # a GHU, and beside L
+    "Q40 [  ] D100SALES", "Q41 [  ] E003CAROL", "Q42 [  ] E004DAVE", "Q43 [GE]", "Q44 [  ] E003CAROL", "Q45 [  ] E002BOB",
+    # U and V make the current position a qualification (U at its level, V at it and above): position E002 under D100, then
+    # DEPT*U, EMP | DEPT*U, EMP(E002) | DEPT*V, EMP*V | DEPT, EMP*U | a GN DEPT*U, PROJ | DEPT*V | GNP EMP, SKILL | GNP
+    # EMP*V, SKILL (the next skill of the same EMP) | DEPT*U, EMP(E003): E003 is under D200, not the position's D100
+    "Q46 [  ] E001ALICE", "Q47 [  ] E002BOB", "Q48 [  ] E002BOB", "Q49 [  ] E002BOB", "Q50 [  ] P1ALPHA", "Q51 [  ] D100SALES",
+    "Q52 [  ] E001ALICE", "Q53 [  ] S1COBOL", "Q54 [  ] S2JAVA", "Q55 [GE]",
 ]  # fmt: skip
 
 
@@ -442,14 +450,33 @@ def _swap(old: str, new: str):
     return edit
 
 
+def _swaps(*pairs: tuple[str, str]):
+    edits = [_swap(old, new) for old, new in pairs]
+
+    def edit(s: str) -> str:
+        for one in edits:
+            s = one(s)
+        return s
+
+    return edit
+
+
 @E2E
 @pytest.mark.parametrize(
     "edit, why",
     [
         (_swap("'DEPT    *L '", "'DEPT    *N '"), "the command code N"),
-        (_swap("'DEPT    *L '", "'DEPT    *Q '"), "the command code Q"),
-        (_swap("'DEPT    *L '", "'DEPT    *U '"), "the command code U"),
-        (_swap("'DEPT    *L '", "'DEPT    *V '"), "the command code V"),
+        (_swaps(("'DEPT    *L '", "'DEPT    *Q '"), ("F-GU PCB1 IOA C-DL", "F-ISRT PCB1 IOA C-DL")),
+         "the command code Q on a ISRT"),  # Q is modelled on the gets only
+        (_swap("'DEPT    *L '", "'DEPT    *U '"), "the command code U with no established position"),
+        (_swap("'DEPT    *L '", "'DEPT    *V '"), "the command code V with no established position"),
+        (_swaps(("'DEPT    *L '", "'DEPT    *U '"), ("F-GU PCB1 IOA C-DL", "F-ISRT PCB1 IOA C-DL")),
+         "the command code U on a ISRT"),  # U and V are modelled on the gets only
+        (_swaps(("'DEPT    *L '", "'DEPT    *V '"), ("F-GU PCB1 IOA C-DL", "F-ISRT PCB1 IOA C-DL")),
+         "the command code V on a ISRT"),
+        (_swaps(("'EMP     *CD'", "'EMP     *CU'"), ("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CE2",
+                                                       "CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CDE")),
+         "the command code U beside C"),
         (_swap("'DEPT    *L '", "'DEPT    *3 '"), "the command code 3"),
         (_swap("'DEPT    *L '", "'DEPT    *-N'"), "the command code N"),  # a refused code later in the list
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DF"),

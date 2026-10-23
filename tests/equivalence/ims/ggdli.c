@@ -395,7 +395,8 @@ typedef struct {
     int or_; /* #5233: joined to the statement before by OR (else AND); unused on the first */
 } Term;
 typedef struct {
-    int first, last, par, path; /* command codes F, L, P and D (#5233) */
+    int first, last, par, path, enq, up, vee; /* command codes F, L, P, D, Q, U and V (#5233) */
+    Node *anchor; /* U / V: the node at this level on the current position (set per call by get) */
     const unsigned char *cat; /* command code C (#5233): the concatenated key in the parentheses, else NULL */
     int seg, fld, op; /* fld -1: unqualified; the first statement (terms[0]) is mirrored here */
     const unsigned char *value;
@@ -429,7 +430,7 @@ static int expand_cat(Ssa *s, int k) {
     for (int i = 0; i < depth; i++) {
         Ssa *x = &s[i];
         int t = path[depth - 1 - i];
-        x->first = x->last = x->par = 0;
+        x->first = x->last = x->par = x->enq = x->up = x->vee = 0;
         x->cat = NULL;
         x->seg = t;
         x->fld = segs[t].key;
@@ -454,14 +455,14 @@ static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
         name8(nm, raw[i]);
         out[i].seg = find_seg(db, nm);
         out[i].fld = -1;
-        out[i].first = out[i].last = out[i].par = out[i].path = 0;
+        out[i].first = out[i].last = out[i].par = out[i].path = out[i].enq = out[i].up = out[i].vee = 0;
         out[i].cat = NULL;
         if (out[i].seg < 0) return "AC";
         unsigned char q = raw[i][8];
         if (q == ' ') continue;
         const unsigned char *at = raw[i] + 9;
         if (q == '*') {
-            /* #5233: command codes, each one of A-Z 0-9 or '-', then '(' or a blank; F, L and - are modelled */
+            /* #5233: command codes, each one of A-Z 0-9 or '-', then '(' or a blank; F, L, P, C, D, Q, U, V and - are modelled */
             while ((*at >= 'A' && *at <= 'Z') || (*at >= '0' && *at <= '9') || *at == '-') {
                 if (*at == 'F')
                     out[i].first = 1;
@@ -471,6 +472,12 @@ static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
                     out[i].par = 1;
                 else if (*at == 'D')
                     out[i].path = 1;
+                else if (*at == 'Q')
+                    out[i].enq = 1; /* #5233: enqueue; no effect with one program, checked in check_codes */
+                else if (*at == 'U')
+                    out[i].up = 1;
+                else if (*at == 'V')
+                    out[i].vee = 1;
                 else if (*at == 'C')
                     out[i].cat = at; /* the key itself is placed below */
                 else if (*at != '-') {
@@ -525,7 +532,7 @@ static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
     return 0;
 }
 
-/* Command codes (#5233): F and L on a GU / GHU or an ISRT (a unique sequence field: no effect on ISRT, and F none on GU,
+/* Command codes (#5233): Q on a get (no effect: one program, so no other program to wait for); F and L on a GU / GHU or an ISRT (a unique sequence field: no effect on ISRT, and F none on GU,
  * which starts from the first twin); L only as the last, unqualified SSA. Anything else is refused. */
 static void check_codes(const char *fn, const Ssa *s, int k) {
     int gu = !strncmp(fn, "GU", 2) || !strncmp(fn, "GHU", 3), is = !strncmp(fn, "ISRT", 4);
@@ -538,6 +545,16 @@ static void check_codes(const char *fn, const Ssa *s, int k) {
             refuse(what);
         }
         if (s[i].path && s[i].cat) refuse("the command code D beside C");
+        if (s[i].enq && fn[0] != 'G') { /* #5233: Q (enqueue) is modelled on the gets, where it changes nothing */
+            char what[40];
+            snprintf(what, sizeof what, "the command code Q on a %.4s", fn);
+            refuse(what);
+        }
+        if ((s[i].up || s[i].vee) && (fn[0] != 'G' || s[i].cat)) {
+            char what[48];
+            snprintf(what, sizeof what, "the command code %c%s%.4s", s[i].up ? 'U' : 'V', s[i].cat ? " beside C" : " on a ", s[i].cat ? "" : fn);
+            refuse(what);
+        }
         if (s[i].par && (!gu || ++ps > 1)) {
             char what[40];
             if (gu)
@@ -604,6 +621,7 @@ static int satisfies(Node *n, const Ssa *s, int k) {
     for (int i = 0; i < k; i++) {
         Node *a = ancestor_of_type(n, s[i].seg);
         if (!a || !qualifies(a, &s[i])) return 0;
+        if (s[i].anchor && a != s[i].anchor) return 0; /* #5233: U / V */
     }
     return 1;
 }
@@ -715,6 +733,19 @@ static void get(Pcb *p, const char *fn, unsigned char *io, Ssa *s, int k, int ho
     }
     Node *n = NULL, *from = NULL, *bound = NULL;
     int gu = fn[1] == 'U' || fn[2] == 'U', gnp = !gu && strstr(fn, "NP") != NULL;
+    /* #5233: command codes U and V take the current position as qualification: U at its own level, V at its level and
+     * every level above; the node there is the position's ancestor-or-self of that type */
+    int vee = -1;
+    for (int i = 0; i < k; i++)
+        if (s[i].vee) vee = i;
+    for (int i = 0; i < k; i++) {
+        s[i].anchor = NULL;
+        if (s[i].up || i <= vee) {
+            if (p->pos != POS_AT) refuse(i <= vee ? "the command code V with no established position" : "the command code U with no established position");
+            s[i].anchor = ancestor_of_type(p->at, s[i].seg);
+            if (!s[i].anchor) refuse(i <= vee ? "the command code V at a level the current position is not on" : "the command code U at a level the current position is not on");
+        }
+    }
     if (gu) {
         if (k && segs[s[0].seg].parent >= 0) refuse("a GU whose SSAs leave out the root level");
         from = db_first(p->db);

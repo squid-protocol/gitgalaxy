@@ -67,11 +67,7 @@ NOT_PROBED_IDS = {
 
 
 # MATCHED entries (beyond the families above) with no cobc form, listed so a new MATCHED entry has to be sorted.
-MATCHED_NO_COBC_FORM = {
-    "A1": "z/OS service refusal: nothing for cobc to run",
-    "L1": "LE service: no cobc equivalent",
-    "L6": "LE service: no cobc equivalent",
-}
+MATCHED_NO_COBC_FORM: dict[str, str] = {}
 
 
 def test_every_assumed_entry_is_probed_or_sorted_out():
@@ -130,6 +126,23 @@ def test_the_matched_probes_say_what_z_os_should_print():
     for pid, entry in ids.items():
         assert entry in probes[pid]["entries"], pid
         assert "Expected z/OS" in probes[pid]["note"], pid
+
+
+def test_the_le_and_assembler_matched_probes_say_what_z_os_should_print():
+    # A1, L1 and L6 (#4702 slice 3): plain cobc has no such module (rc=1); each note carries the z/OS answer.
+    probes = zos_probes.load()
+    ids = {
+        "a1-cobdatft-type-2-to-2": "A1",
+        "l1-ceedays-blank-picture-tail": "L1",
+        "l1-ceedays-date-past-span-ignored": "L1",
+        "l1-ceedays-day-outside-month": "L1",
+        "l6-ceedywk-weekdays": "L6",
+        "l6-ceeqcen-default-window": "L6",
+    }
+    for pid, entry in ids.items():
+        assert probes[pid]["entries"] == [entry], pid
+        assert "Expected z/OS" in probes[pid]["note"], pid
+        assert probes[pid]["oracle_expected"] == ["rc=1"], pid
 
 
 def test_the_differs_probes_state_the_expected_zos_answer():

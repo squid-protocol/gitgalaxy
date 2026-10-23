@@ -262,6 +262,16 @@ def run_parm(case: dict[str, Any], fault: dict[str, Any] | None = None) -> str |
     return case.get("parm")
 
 
+def cobc_failure_report(case: dict[str, Any], cobol_work: Path, error: str) -> dict[str, Any] | None:
+    """#4493: the report of a case whose COBOL side did not COMPILE (cobc left no `program`): `cobol_compile_failed`
+    and cobc's own stderr, so a sweep row and the blocker page can name it. None for any other COBOL-side failure
+    (a crash at run time, a missing image), which still stops the proof."""
+    if (cobol_work / "program").is_file():
+        return None
+    return {"case": case["name"], "program": case["program"], "outputs": {}, "proven": False,
+            "cobol_compile_failed": True, "cobc_stderr": error.strip()[-4000:]}  # fmt: skip
+
+
 def fresh_fault_log(work: Path, fault: dict[str, Any] | None) -> None:
     """ggfault.c / ggsql APPEND to work/FAULTS: a second pass over the same work dir (a kept baseline run again) would
     log every fault twice, and a --reuse of it would copy the doubled log into each mutant's COBOL side (mutation
@@ -870,8 +880,16 @@ def main() -> int:
     if case.get("db2"):  # the case's tables, created from its DDL on the harness's Db2 (equivalence_db2.py)
         with equivalence_common.phase("db2_create"):  # #5882
             equivalence_db2.create(case, corpus)
-    with equivalence_common.phase("cobol_run"):
-        cobol = run_cobol(case, corpus, work / "cobol")
+    try:
+        with equivalence_common.phase("cobol_run"):
+            cobol = run_cobol(case, corpus, work / "cobol")
+    except RuntimeError as e:
+        failed = cobc_failure_report(case, work / "cobol", str(e))
+        if failed is None:
+            raise
+        (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
+        print(f"{case['program']}: cobc did not compile it -- see {work / 'report.json'}")
+        return _recorded(args, work, 1)
     if case.get("db2") and args.sql_faults != "none":  # #4173: the case's SQL faults, resolved to their statements
         import equivalence_cics as ec
 

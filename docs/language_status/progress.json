@@ -1,5 +1,5 @@
 {
- "commit": "8578e4ff0",
+ "commit": "e5da0445d",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-23T17:35:14Z",
+  "as_of": "2026-10-23T17:41:20Z",
   "core": {
    "closed": 167,
    "open": 20,
@@ -199,8 +199,8 @@
   },
   "infra": {
    "closed": 197,
-   "open": 55,
-   "total": 252
+   "open": 56,
+   "total": 253
   },
   "measured": true,
   "milestones": [
@@ -233,9 +233,9 @@
     "total": 12
    },
    {
-    "closed": 47,
+    "closed": 48,
     "number": 6,
-    "open": 13,
+    "open": 12,
     "title": "Side Quests \ud83d\uddfa\ufe0f",
     "total": 60
    },
@@ -409,8 +409,8 @@
    }
   ],
   "sweep": {
-   "closed": 82,
-   "open": 13,
+   "closed": 83,
+   "open": 12,
    "total": 95
   },
   "title_counts": {

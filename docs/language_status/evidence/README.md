@@ -6,13 +6,13 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 
 | program | case | kind | status | why | runs | coverage (para / branch) | mutation (raw / adj) | ported unproven | approved |
 |---|---|---|---|---|---|---|---|---|---|
-| [COACTVWC](carddemo-acctview.md) | carddemo-acctview | cics | proven, unapproved |  | 35 | 31/32 / 58/69 | 110/137 / 110/110 | 0 | - |
+| [COACTVWC](carddemo-acctview.md) | carddemo-acctview | cics | proven, unapproved |  | 36 | 32/32 / 59/69 | 119/137 / 119/119 | 0 | - |
 | [COADM01C](carddemo-adminmenu.md) | carddemo-adminmenu | cics | proven, unapproved |  | 34 | 8/8 / 20/26 | 63/95 / 63/63 | 0 | - |
 | [COBIL00C](carddemo-billpay.md) | carddemo-billpay | cics | proven, unapproved |  | 35 | 16/16 / 46/48 | 66/86 / 66/70 | 0 | - |
 | [COCRDLIC](carddemo-cardlist.md) | carddemo-cardlist | cics | proven, unapproved |  | 36 | 36/36 / 136/149 | 75/94 / 75/82 | 0 | - |
 | [COCRDSLC](carddemo-cardview.md) | carddemo-cardview | cics | proven, unapproved |  | 25 | 30/30 / 69/75 | 60/91 / 60/65 | 0 | - |
 | [CBPAUP0C](carddemo-cbpaup0c.md) | carddemo-cbpaup0c | batch | proven, unapproved |  | 12 | 15/16 / 37/40 | - | 0 | - |
-| [CBSTM03A](carddemo-cbstm03a.md) | carddemo-cbstm03a | batch | proven, unapproved |  | 1 | 23/25 / 0/46 | - | 0 | - |
+| [CBSTM03A](carddemo-cbstm03a.md) | carddemo-cbstm03a | batch | proven, unapproved |  | 1 | 24/25 / 0/46 | - | 0 | - |
 | [COPAUA0C](carddemo-copaua0c.md) | carddemo-copaua0c | cics | proven, unapproved |  | 20 | 41/41 / 60/69 | - | 0 | - |
 | [CBTRN01C](carddemo-dailyval.md) | carddemo-dailyval | batch | proven, unapproved |  | 21 | 18/18 / 65/66 | 63/96 / 63/71 | 0 | - |
 | [CSUTLDTC](carddemo-dateutil.md) | carddemo-dateutil | call | proven, unapproved |  | 1 | 2/2 / 4/10 | 145/195 / 145/145 | 0 | - |

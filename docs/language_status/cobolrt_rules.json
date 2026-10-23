@@ -3590,10 +3590,11 @@
   {
    "id": "RT-DLI-SSA",
    "family": "DLI",
-   "title": "SSAs: segment name, unqualified (blank) or qualified (field, relational operator, value, ')'); AC / AJ / AK as IBM answers them; command codes, boolean qualification and missing levels refused",
+   "title": "SSAs: segment name, unqualified (blank) or qualified (field, relational operator, value, ')'); qualification statements joined by AND (& or *) and OR (+ or |), AND binding tighter, at most 16; AC / AJ / AK as IBM answers them; command codes, the independent AND (#) and missing levels refused",
    "methods": [
     "parseSsas",
-    "chain"
+    "chain",
+    "isBool"
    ],
    "ibm": {
     "doc": "ims-apis",
@@ -3614,7 +3615,8 @@
    "methods": [
     "qualifies",
     "packedSign",
-    "satisfies"
+    "satisfies",
+    "term"
    ],
    "ibm": {
     "doc": "ims-apis",

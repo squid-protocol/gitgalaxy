@@ -80,7 +80,16 @@ public final class DetDli {
 
     private static final class Ssa {
         int seg;
-        int fld = -1;
+        int fld = -1; // the first qualification statement's field (-1: unqualified)
+        int op;
+        byte[] value;
+        // #5233: the statements after the first, each joined to the one before by AND (or == false) or OR
+        final List<Term> more = new ArrayList<>();
+    }
+
+    private static final class Term {
+        boolean or;
+        int fld;
         int op;
         byte[] value;
     }
@@ -744,39 +753,69 @@ public final class DetDli {
                 st[0] = "AJ";
                 return out;
             }
-            s.fld = findFld(s.seg, name8(b, o + 9));
-            if (s.fld < 0) {
-                st[0] = "AK";
-                return out;
-            }
-            String op = new String(b, o + 17, 2, StandardCharsets.ISO_8859_1);
-            s.op = -1;
-            for (int k = 0; k < OPS.length; k++) {
-                for (String v : OPS[k]) {
-                    if (v.equals(op)) {
-                        s.op = k;
+            int at = o + 9;
+            for (int k = 0; ; k++) {
+                int fld = findFld(s.seg, name8(b, at));
+                if (fld < 0) {
+                    st[0] = "AK";
+                    return out;
+                }
+                String op = new String(b, at + 8, 2, StandardCharsets.ISO_8859_1);
+                int opn = -1;
+                for (int j = 0; j < OPS.length; j++) {
+                    for (String v : OPS[j]) {
+                        if (v.equals(op)) {
+                            opn = j;
+                        }
                     }
                 }
-            }
-            if (s.op < 0) {
-                st[0] = "AJ";
-                return out;
-            }
-            Fld f = FLDS.get(s.fld);
-            s.value = Arrays.copyOfRange(b, o + 19, o + 19 + f.bytes);
-            int end = b[o + 19 + f.bytes] & 0xFF;
-            if (end == '&' || end == '*' || end == '+' || end == '|' || end == '#') {
-                throw refuse("a boolean SSA qualification");
-            }
-            if (end != ')') {
-                st[0] = "AJ";
-                return out;
-            }
-            if (f.type != 'C' && f.type != 'X' && f.type != 'P') {
-                throw refuse("a qualification on a field of a type other than C, X or P");
+                if (opn < 0) {
+                    st[0] = "AJ";
+                    return out;
+                }
+                Fld f = FLDS.get(fld);
+                byte[] value = Arrays.copyOfRange(b, at + 10, at + 10 + f.bytes);
+                if (k == 0) {
+                    s.fld = fld;
+                    s.op = opn;
+                    s.value = value;
+                } else {
+                    Term m = s.more.get(k - 1);
+                    m.fld = fld;
+                    m.op = opn;
+                    m.value = value;
+                }
+                int end = b[at + 10 + f.bytes] & 0xFF;
+                if (f.type != 'C' && f.type != 'X' && f.type != 'P' && (end == ')' || isBool(end))) {
+                    throw refuse("a qualification on a field of a type other than C, X or P");
+                }
+                if (end == ')') {
+                    break;
+                }
+                if (end == '#') {
+                    throw refuse("a boolean SSA with the independent AND operator (#)");
+                }
+                if (!isBool(end)) {
+                    st[0] = "AJ";
+                    return out;
+                }
+                if (k == MAX_TERMS - 1) {
+                    throw refuse("a boolean SSA of more than " + MAX_TERMS + " qualification statements");
+                }
+                Term m = new Term();
+                m.or = end == '+' || end == '|';
+                s.more.add(m);
+                at += 11 + f.bytes;
             }
         }
         return out;
+    }
+
+    private static final int MAX_TERMS = 16;
+
+    /** A boolean operator that joins two qualification statements: AND is * or &, OR is + or | (# is refused apart). */
+    private static boolean isBool(int c) {
+        return c == '&' || c == '*' || c == '+' || c == '|';
     }
 
     private static int packedSign(byte[] p, int at, int n) {
@@ -794,16 +833,31 @@ public final class DetDli {
         if (s.fld < 0) {
             return true;
         }
-        Fld f = FLDS.get(s.fld);
+        // IBM: statements joined by AND form a set, and the SSA holds when any set does. Every statement is evaluated
+        // (no short circuit) so a refusal does not depend on the data.
+        boolean any = false;
+        boolean set = term(n, s.fld, s.op, s.value);
+        for (Term m : s.more) {
+            if (m.or) {
+                any |= set;
+                set = true;
+            }
+            set &= term(n, m.fld, m.op, m.value);
+        }
+        return any | set;
+    }
+
+    private static boolean term(Node n, int fld, int op, byte[] value) {
+        Fld f = FLDS.get(fld);
         if (f.type == 'P') {
             int sa = packedSign(n.data, f.start - 1, f.bytes);
-            int sb = packedSign(s.value, 0, f.bytes);
+            int sb = packedSign(value, 0, f.bytes);
             if (sa < 0 || sb < 0 || sa != sb || (sa != 0xC && sa != 0xF)) {
                 throw refuse("a P-field qualification on operands that are not both valid with one positive sign");
             }
         }
-        int c = Arrays.compareUnsigned(n.data, f.start - 1, f.start - 1 + f.bytes, s.value, 0, f.bytes);
-        switch (s.op) {
+        int c = Arrays.compareUnsigned(n.data, f.start - 1, f.start - 1 + f.bytes, value, 0, f.bytes);
+        switch (op) {
             case 0: return c == 0;
             case 1: return c > 0;
             case 2: return c < 0;

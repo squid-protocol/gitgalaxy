@@ -387,9 +387,17 @@ static Node *ancestor_of_type(Node *n, int seg) {
 }
 
 /* ---- SSAs ------------------------------------------------------------------------------------------------------ */
+#define MAX_TERMS 16
 typedef struct {
-    int seg, fld, op; /* fld -1: unqualified; op 0 EQ 1 GT 2 LT 3 GE 4 LE 5 NE */
+    int fld, op; /* op 0 EQ 1 GT 2 LT 3 GE 4 LE 5 NE */
     const unsigned char *value;
+    int or_; /* #5233: joined to the statement before by OR (else AND); unused on the first */
+} Term;
+typedef struct {
+    int seg, fld, op; /* fld -1: unqualified; the first statement (terms[0]) is mirrored here */
+    const unsigned char *value;
+    int nterms;
+    Term terms[MAX_TERMS];
 } Ssa;
 
 static const char *OPS[][3] = {{"EQ", " =", "= "}, {"GT", " >", "> "}, {"LT", " <", "< "},
@@ -407,20 +415,35 @@ static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
         if (q == ' ') continue;
         if (q == '*') refuse("an SSA with command codes");
         if (q != '(') return "AJ";
-        name8(nm, raw[i] + 9);
-        out[i].fld = find_fld(out[i].seg, nm);
-        if (out[i].fld < 0) return "AK";
-        out[i].op = -1;
-        for (int o = 0; o < 6; o++)
-            for (int v = 0; v < 3; v++)
-                if (!memcmp(raw[i] + 17, OPS[o][v], 2)) out[i].op = o;
-        if (out[i].op < 0) return "AJ";
-        out[i].value = raw[i] + 19;
-        unsigned char end = raw[i][19 + flds[out[i].fld].bytes];
-        if (end == '&' || end == '*' || end == '+' || end == '|' || end == '#') refuse("a boolean SSA qualification");
-        if (end != ')') return "AJ";
-        char t = flds[out[i].fld].type;
-        if (t != 'C' && t != 'X' && t != 'P') refuse("a qualification on a field of a type other than C, X or P");
+        const unsigned char *at = raw[i] + 9;
+        out[i].nterms = 0;
+        for (;;) {
+            Term *m = &out[i].terms[out[i].nterms];
+            name8(nm, at);
+            m->fld = find_fld(out[i].seg, nm);
+            if (m->fld < 0) return "AK";
+            m->op = -1;
+            for (int o = 0; o < 6; o++)
+                for (int v = 0; v < 3; v++)
+                    if (!memcmp(at + 8, OPS[o][v], 2)) m->op = o;
+            if (m->op < 0) return "AJ";
+            m->value = at + 10;
+            unsigned char end = at[10 + flds[m->fld].bytes];
+            char t = flds[m->fld].type;
+            int bool_op = end == '&' || end == '*' || end == '+' || end == '|';
+            if (t != 'C' && t != 'X' && t != 'P' && (end == ')' || bool_op))
+                refuse("a qualification on a field of a type other than C, X or P");
+            out[i].nterms++;
+            if (end == ')') break;
+            if (end == '#') refuse("a boolean SSA with the independent AND operator (#)");
+            if (!bool_op) return "AJ";
+            if (out[i].nterms == MAX_TERMS) refuse("a boolean SSA of more than 16 qualification statements");
+            out[i].terms[out[i].nterms].or_ = end == '+' || end == '|';
+            at += 11 + flds[m->fld].bytes;
+        }
+        out[i].fld = out[i].terms[0].fld;
+        out[i].op = out[i].terms[0].op;
+        out[i].value = out[i].terms[0].value;
     }
     return 0;
 }
@@ -433,17 +456,16 @@ static int packed_sign(const unsigned char *p, int n) {
     return p[n - 1] & 15;
 }
 
-static int qualifies(const Node *n, const Ssa *s) {
-    if (s->fld < 0) return 1;
-    const Fld *f = &flds[s->fld];
+static int term_holds(const Node *n, const Term *m) {
+    const Fld *f = &flds[m->fld];
     const unsigned char *a = n->data + f->start - 1;
     if (f->type == 'P') {
-        int sa = packed_sign(a, f->bytes), sb = packed_sign(s->value, f->bytes);
+        int sa = packed_sign(a, f->bytes), sb = packed_sign(m->value, f->bytes);
         if (sa < 0 || sb < 0 || sa != sb || (sa != 0xC && sa != 0xF))
             refuse("a P-field qualification on operands that are not both valid with one positive sign");
     }
-    int c = memcmp(a, s->value, f->bytes);
-    switch (s->op) {
+    int c = memcmp(a, m->value, f->bytes);
+    switch (m->op) {
     case 0: return c == 0;
     case 1: return c > 0;
     case 2: return c < 0;
@@ -451,6 +473,21 @@ static int qualifies(const Node *n, const Ssa *s) {
     case 4: return c <= 0;
     default: return c != 0;
     }
+}
+
+/* IBM: statements joined by AND form a set, and the SSA holds when any set does. Every statement is evaluated (no
+   short circuit) so a refusal does not depend on the data. */
+static int qualifies(const Node *n, const Ssa *s) {
+    if (s->fld < 0) return 1;
+    int any = 0, set = term_holds(n, &s->terms[0]);
+    for (int k = 1; k < s->nterms; k++) {
+        if (s->terms[k].or_) {
+            any |= set;
+            set = 1;
+        }
+        set &= term_holds(n, &s->terms[k]);
+    }
+    return any | set;
 }
 
 /* n (of the last SSA's type) satisfies every SSA: each one's segment type is n or an ancestor of n */

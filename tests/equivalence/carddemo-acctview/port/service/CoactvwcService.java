@@ -136,7 +136,8 @@ public class CoactvwcService {
      * comparing its outputs with the original's.
      */
     public void runTask(CicsTask task) {
-        // 0000-MAIN: EXEC CICS HANDLE ABEND LABEL(ABEND-ROUTINE) -- no abend path is driven.
+        // 0000-MAIN: EXEC CICS HANDLE ABEND LABEL(ABEND-ROUTINE)
+        task.handleAbend("ABEND-ROUTINE");
         Work w = new Work();
         CarddemoCommarea ca = blankCommarea();
         String thisFromProgram = "";
@@ -166,7 +167,14 @@ public class CoactvwcService {
             ca.setCdemoPgmContext(0);
             ca.setCdemoLastMapset("COACTVW");
             ca.setCdemoLastMap("CACTVWA");
-            dispatchCdemoToProgramL349(task, ca.getCdemoToProgram(), ca);   // XCTL PROGRAM(CDEMO-TO-PROGRAM), line 349
+            String resp = dispatchCdemoToProgramL349(task, ca.getCdemoToProgram(), ca);   // XCTL PROGRAM(CDEMO-TO-PROGRAM), line 349
+            if (!"NORMAL".equals(resp)) {
+                // no RESP / HANDLE CONDITION: CICS default action abends the task, and the HANDLE ABEND exit of
+                // line 264 takes it: ABEND-ROUTINE (#6072)
+                if (task.abendOnCondition(resp) != null) {
+                    abendRoutine(task);
+                }
+            }
             return;
         }
         int context = ca.getCdemoPgmContext() == null ? 0 : ca.getCdemoPgmContext();
@@ -496,6 +504,18 @@ public class CoactvwcService {
         CicsTask task = region.linked("COACTVWC", request);
         region.run(task, "COACTVWC", this::runTask);
         return request;
+    }
+
+    /**
+     * ABEND-ROUTINE (app/cbl/COACTVWC.cbl:916). DEFECT (kept): ABEND-MSG is initialised to SPACES, never LOW-VALUES,
+     * so the test of line 918 is never true and the 'UNEXPECTED ABEND OCCURRED.' text is never shown.
+     */
+    private void abendRoutine(CicsTask task) {
+        // MOVE LIT-THISPGM TO ABEND-CULPRIT; EXEC CICS SEND FROM(ABEND-DATA) LENGTH(LENGTH OF ABEND-DATA) NOHANDLE
+        String data = " ".repeat(4) + "COACTVWC" + " ".repeat(50 + 72);
+        task.sendText(data, 134);
+        task.handleAbendCancel();       // EXEC CICS HANDLE ABEND CANCEL
+        task.abend("9999");             // EXEC CICS ABEND ABCODE('9999')
     }
 
     /** EXEC CICS XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COACTVWC.cbl:349, COMMAREA(CARDDEMO-COMMAREA): the target is data-driven (candidates the engine found: COMEN01C (moves)).

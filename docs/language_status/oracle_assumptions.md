@@ -4896,6 +4896,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     entry and MFS screens are needed by no burned program (PAUDBLOD is the only one handed an I/O PCB, and it never calls
     on it); they stay refused by name and nothing is modelled. `test_paudblod_bmp_5233.py` pins that census over the
     CardDemo IMS programs, so a burned program that starts to need them fails there first. The other burned estates have no DL/I.
+  - CALL 'CBLTDLI' from a CICS program (#5233): no burned CICS program makes it (COPAUA0C / COPAUS0C / COPAUS1C use EXEC DLI;
+    the only CBLTDLI callers are the batch / BMP PAUDBLOD, DBUNLDGS, PAUDBUNL). The CICS harness refuses a CICS source that CALLs
+    CBLTDLI, AIBTDLI or CEETDLI by name (`equivalence_cics.refuse_dli_call_interface`), and `test_cblt_dli_cics_5233.py` pins the
+    census over the burned estates. The UIB-addressed PCB list a CICS CBLTDLI program reads is not modelled.
 - **Refused by the harness** (`equivalence_ims.Unsupported`, "not runnable faithfully"):
   - HDAM and PHDAM: the root sequence is the randomizer's.
   - INDEX and LOGICAL databases, and a GSAM database with variable-length records or no fixed RECORD=(n).

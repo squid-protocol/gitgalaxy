@@ -572,6 +572,17 @@ def runtime_line(options: dict[str, Any] | None) -> str | None:
     return f"`{json_sha256(runtime)[:16]}` ({counts}): {values}"
 
 
+def compiler_line(options: dict[str, Any] | None) -> str | None:
+    """#4707: the compiler options a record's proof ran under, as one line: the hash of the semantic section (the
+    options cobc and the det port act on; computed from `effective.semantic`, so a record that stores no
+    `semantic_sha256` shows the same), the count and every `NAME=value`. None when the record holds none."""
+    semantic = ((options or {}).get("effective") or {}).get("semantic") or {}
+    if not semantic:
+        return None
+    values = ", ".join(f"{k}={v}" for k, v in sorted(semantic.items()))
+    return f"`{json_sha256(semantic)[:16]}` ({len(semantic)}): {values}"
+
+
 def spec_inputs(t: Target, files: Any, read: Any = None, names: Any = None) -> dict[str, Any]:
     """The fingerprints of the target's file-spec inputs (port, case, harness, oracle, generator) over `files`; the
     harness / oracle / generator ones carry their per-component fingerprints (#4731). `names`: only those inputs."""
@@ -1159,6 +1170,8 @@ def render_page(t: Target, rec: dict[str, Any]) -> str:
         lines.append(f"| {k} | {what} `{(v.get('sha256') or '-')[:16]}` |")
         if k == "options" and (rl := runtime_line(v)):  # #4707: only when the record holds runtime options
             lines.append(f"| runtime options | {rl} |")
+        if k == "options" and (cl := compiler_line(v)):  # #4707: only when the record holds compiler options
+            lines.append(f"| compiler options | {cl} |")
     o = rec.get("oracle") or {}
     img = o.get("image") or {}
     lines.append(f"| oracle run | {o.get('kind', '-')}: {o.get('compiler') or o.get('source', '-')}"
@@ -1447,9 +1460,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "status":
         rows = [(t, status(load(t), t)) for t in _pick(args.keys, False)]
         if args.json:
-            for t, st in rows:  # #4707: only when the record holds runtime options
-                if rl := runtime_line((((load(t) or {}).get("inputs")) or {}).get("options")):
+            for t, st in rows:  # #4707: only when the record holds runtime / compiler options
+                opts = (((load(t) or {}).get("inputs")) or {}).get("options")
+                if rl := runtime_line(opts):
                     st["runtime_options"] = rl
+                if cl := compiler_line(opts):
+                    st["compiler_options"] = cl
             print(json.dumps({t.key: st for t, st in rows}, indent=1))
         else:
             for t, st in rows:

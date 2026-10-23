@@ -355,7 +355,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/73 (95%) | 4 / 0 / 10 / 0 / 0 |
 | CBCUS01C (carddemo-readcust) | equivalence | 83/83 | 63/74 (85%) | 63/70 (90%) | 7 / 0 / 4 / 0 / 0 |
 | CBACT03C (carddemo-readxref) | equivalence | 90/90 | 69/83 (83%) | 69/77 (90%) | 8 / 0 / 6 / 0 / 0 |
-| CORPT00C (carddemo-report) | equivalence | 100/642 | 59/87 (68%) | 59/60 (98%) | 1 / 0 / 16 / 11 / 0 |
+| CORPT00C (carddemo-report) | equivalence | 100/642 | 59/87 (68%) | 59/60 (98%) | 0 / 0 / 16 / 11 / 0 + 1 declared |
 | COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
 | COSGN00C (carddemo-signon-generated) | equivalence | 150/202 | 99/149 (66%) | 99/99 (100%) | 0 / 0 / 42 / 8 / 0 |
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 70/91 (77%) | 70/73 (96%) | 3 / 0 / 10 / 8 / 0 |
@@ -398,8 +398,8 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 5117 run | **3235/4729 (68%)** | **3235/3683 (88%)** | 247 / 201 / 646 / 400 / 0 |
-| **all estate** | | 5621 run | **3554/5205 (68%)** | **3554/4037 (88%)** | 282 / 201 / 734 / 434 / 0 |
+| **all equivalence** | | 5117 run | **3235/4729 (68%)** | **3235/3683 (88%)** | 246 / 201 / 646 / 400 / 0 + 1 declared |
+| **all estate** | | 5621 run | **3554/5205 (68%)** | **3554/4037 (88%)** | 281 / 201 / 734 / 434 / 0 + 1 declared |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
@@ -563,10 +563,13 @@ mutants): tranadd `18030c6651`, `d06e6adeed`, `b72db7485f` (the mutated Java cra
 tranadd amount had cents below .50, so a `HALF_UP` mutant of the integer part could not show. tranadd now states `amount-fraction-above-half` (`+00000123.75`),
 `amount-fraction-at-half` (.50), `amount-fraction-nines` (.99) and `amount-negative-fraction-above-half` (`-00000123.75`). GnuCOBOL and the port agree on all four:
 tranadd is proven on 78 scenarios (72/75 branches), and the deterministic port on the same 78. In a re-run of the same sample (seed 0, 100 mutants) `35957e9be4` and
-`77da652333` are killed; the scores are not recorded. `test_carddemo_fractional_5401.py` pins the cents (below, at and above half) and both signs. Left: report
-`d2fca7d77a` (`unsignedDigits`, `HALF_UP`). A fractional date part (`SDTDDI` `.9`) kills it on the model port, but the case is not provable: GnuCOBOL truncates
+`77da652333` are killed; the scores are not recorded. `test_carddemo_fractional_5401.py` pins the cents (below, at and above half) and both signs. Report
+`d2fca7d77a` (`unsignedDigits`, `HALF_UP`) is recorded as a declared difference (below). A fractional date part (`SDTDDI` `.9`) kills it on the model port, but the case is not provable: GnuCOBOL truncates
 NUMVAL-C into `PIC 99` (00, the date is refused) while IBM rounds a float-mode store (01, register C6, `RT-HFP-FLOAT-STATEMENT-STORE`), which the deterministic port follows, so the
 det sweep of carddemo-report fails on it. The scenario is not committed. The mutant is a real IBM difference, not an equivalent one: the model port's `DOWN` follows the oracle.
+Owner ruling (2026-10-23): it is a declared difference, class `float-store-rounding` (register C6), not an equivalent mutant. `mutation_scores.py` has the
+verdict `declared_difference`, which needs `class` and `register` in the triage entry and, unlike `equivalent`, stays in the adjusted score's denominator
+(carddemo-report: 59/60 adjusted, the declared one among the 60). The scores are not re-run.
 billpay `868815f4c6` and `29f0e18174` (a balance of 1,000,000.00 or more) are a different mechanism and stay open.
 
 **Wide balances on billpay** (#5401, 2026-10-22). Every CardDemo account is below 1,000,000.00, so billpay never showed a wide amount or the tenth integer digit

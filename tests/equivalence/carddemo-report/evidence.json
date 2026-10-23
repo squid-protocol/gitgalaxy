@@ -453,11 +453,12 @@
   "survived": 28,
   "stillborn": 13,
   "survivors": {
-   "case_gap": 1,
+   "case_gap": 0,
    "harness_gap": 0,
    "equivalent": 16,
    "unreachable": 11,
-   "untriaged": 0
+   "untriaged": 0,
+   "declared_difference": 1
   },
   "score_raw": "59/87",
   "score_adjusted": "59/60",

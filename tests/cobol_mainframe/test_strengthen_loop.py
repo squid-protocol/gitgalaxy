@@ -327,3 +327,31 @@ def test_the_userlist_case_takes_the_short_commarea_and_endbr_fault_scenarios():
         s = scs[name]
         assert [(f["cmd"], f["file"], f["resp"]) for f in s["faults"]] == [("ENDBR", "USRSEC", resp)]
         assert s["why"].startswith("#4049") and "expected" not in s
+
+
+def test_the_updacc_case_judges_each_nullable_column_of_the_select_alone():
+    # #4049: UPDACC's SELECT INTO has no indicator variables, so any NULL column is SQLCODE -305. The old seed's only
+    # NULL was ACCOUNT_LAST_STATEMENT, which hid every && / || mix-up among the other columns of the null test: one
+    # seed row per column, each with exactly one NULL, and a scenario that LINKs it (inputs only, no expected result)
+    case_dir = Path(__file__).resolve().parents[1] / "equivalence" / "cbsa-updacc"
+    scs = _scenarios("cbsa-updacc")
+    rows = {}
+    for line in (case_dir / "seed.sql").read_text().splitlines():
+        cells = line.strip().lstrip("(").rstrip(",;)").split(",")
+        if len(cells) == 12:
+            rows[int(cells[3].strip("'"))] = [i for i, c in enumerate(cells) if c.strip() == "NULL"]
+    # seed column order: eyecatcher, customer, sortcode, accno, type, rate, opened, overdraft, last, next, avail, actual
+    column = {
+        "null-eyecatcher": 0,
+        "null-customer-number": 1,
+        "null-next-statement": 9,
+        "null-available-balance": 10,
+        "null-actual-balance": 11,
+        "null-account-type": 4,
+        "null-interest-rate": 5,
+        "null-overdraft-limit": 7,
+    }
+    for name, col in column.items():
+        s = scs[name]
+        assert rows[int(s["commarea"]["COMM-ACCNO"])] == [col], name
+        assert "#4049" in s["why"] and "expected" not in s

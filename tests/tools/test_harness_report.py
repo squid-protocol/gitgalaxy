@@ -215,7 +215,7 @@ def test_input_keys_only_when_something_limits_an_input(tmp_path):
 
 # ---- #4493 issue classes 1 and 3: unclassified because no burned program needs them ------------------------------
 EQUIVALENCE = Path(__file__).resolve().parents[1] / "equivalence"
-STATED_RULES = {"values", "every", "from", "miss", "digits", "date"}
+STATED_RULES = {"values", "every", "from", "miss", "digits", "date", "hex"}  # hex: one field's raw bytes (#6072)
 
 
 def generated_datasets():

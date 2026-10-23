@@ -50,7 +50,6 @@ jobs:
       # PR check out only the paths this workflow's own filter triggers on, at their real paths so SARIF locations and
       # `muninn.yml` suppressions still match. Schedule and dispatch take the full tree below: the backstop.
       # Keep the list in step with `on.pull_request.paths`; the three root config files are read by the scanners.
-      # osv-scanner exits 128 (no packages found) when it sees no manifest, so the one under tests/ stays in.
       - name: Checkout (PR, filtered paths only)
         if: ${{ github.event_name == 'pull_request' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -65,7 +64,6 @@ jobs:
             /templates/
             /pyproject.toml
             /requirements*.txt
-            /tests/requirements-mypy.txt
             /action.yml
             /muninn.yml
             /zizmor.yml

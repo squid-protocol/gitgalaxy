@@ -84,7 +84,7 @@ _WANT = [
     _ev("UNLOCK", file="F", resp="NORMAL"),
     _ev("REWRITE", file="F", data=_rec("K001BRAVO   0099"), resp="INVREQ", resp2=30),  # the UNLOCK released it
     _ev("UNLOCK", file="F", resp="INVREQ", resp2=47),  # a token matching none
-    _read("FILENOTFOUND", "K001", file="Z", data=None)  # the stub knows no RESP2 for it: none claimed,
+    _read("FILENOTFOUND", "K001", file="Z", data=None),  # the stub knows no RESP2 for it: none claimed,
 ]
 
 

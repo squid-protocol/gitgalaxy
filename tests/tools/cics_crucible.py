@@ -2297,7 +2297,8 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
                 ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] == "NORMAL" else None
             elif verb == "REWRITE":
                 ev["data"] = cc.RawArea(data, "latin-1")
-            if arg("resp2") and not (verb == "READ" and ev["resp"] == "LENGERR"):  # SPEC section 2 asserts LENGERR's RESP only
+            # SPEC section 2 asserts LENGERR's RESP only
+            if arg("resp2") and not (verb == "READ" and ev["resp"] == "LENGERR"):
                 ev["resp2"] = int(arg("resp2"))
         elif verb in ("RETURN", "END"):
             level = int(arg("level") or 1)

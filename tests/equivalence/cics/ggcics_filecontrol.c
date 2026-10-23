@@ -28,8 +28,23 @@ static long long read_search(gg_cics *c, const char *path, int reclen, int keyof
     return best;
 }
 
+/* SPEC 6.2 READ event: `upd=1` for READ UPDATE, `len=` the LENGTH after the command, `resp2=` where the command is not
+ * NORMAL, and the bytes that went INTO (NORMAL only: a LENGERR read asserts its RESP and length, not its data). */
+static void read_event(const gg_cics *c, const char *want, const char *ridfld, int keylen, const char *into, int intolen) {
+    char ev[400], key[256];
+    int shown = keylen < 0 ? 0 : keylen < 200 ? keylen : 200;  /* #5092: a negative KEYLENGTH is INVREQ 42 */
+    memcpy(key, ridfld, (size_t)shown);
+    key[shown] = '\0';
+    int n = snprintf(ev, sizeof ev, "READ file=%s key=%s resp=%d", want, key, c->resp);
+    if (strstr(c->flags, "UPDATE") && n < (int)sizeof ev) n += snprintf(ev + n, sizeof ev - (size_t)n, " upd=1");
+    if (c->resp == NORMAL || c->resp == LENGERR) n += snprintf(ev + n, sizeof ev - (size_t)n, " len=%d", c->len);
+    if (c->resp != NORMAL && c->resp2 && n < (int)sizeof ev) snprintf(ev + n, sizeof ev - (size_t)n, " resp2=%d", c->resp2);
+    int moved = c->resp == NORMAL ? (c->len < intolen ? c->len : intolen) : 0;
+    event(ev, into, moved);
+}
+
 int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
-    char want[9], line[4096], name[64], path[3000], ev[320];
+    char want[9], line[4096], name[64], path[3000];
     int reclen, keyoff, klen, fresp, fresp2;
     trim(c->name1, 8, want);
     c->resp = FILENOTFOUND;
@@ -37,17 +52,13 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     if (strstr(c->flags, "UPDATE") && !strstr(c->flags, "TOKEN") && has_hold(want)) {
         c->resp = INVREQ;  /* #5092: a second READ UPDATE without a token, nothing released between */
         c->resp2 = 28;
+        read_event(c, want, ridfld, keylen, into, 0);
         return 0;
     }
     if (injected("READ", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-        char key[256];
-        int shown = keylen < 0 ? 0 : keylen < 200 ? keylen : 200;  /* #5092: a negative KEYLENGTH is INVREQ 42 */
-        memcpy(key, ridfld, (size_t)shown);
-        key[shown] = '\0';
-        snprintf(ev, sizeof ev, "READ file=%s key=%s resp=%d", want, key, c->resp);
-        event(ev, NULL, 0);
+        read_event(c, want, ridfld, keylen, into, 0);
         return 0;
     }
     keyed_on_esds("READ", want);
@@ -99,13 +110,8 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
         }
         fclose(cfg);
     }
-    char key[256];
-    int shown = keylen < 0 ? 0 : keylen < 200 ? keylen : 200;  /* #5092: a negative KEYLENGTH is INVREQ 42 */
-    memcpy(key, ridfld, (size_t)shown);
-    key[shown] = '\0';
     dupkey_apply(c);
-    snprintf(ev, sizeof ev, "READ file=%s key=%s resp=%d", want, key, c->resp);
-    event(ev, NULL, 0);
+    read_event(c, want, ridfld, keylen, into, intolen);
     return 0;
 }
 
@@ -542,6 +548,14 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
     return 0;
 }
 
+/* SPEC 6.2 UNLOCK event: the file, RESP, and RESP2 where the command is not NORMAL. */
+static void unlock_event(const gg_cics *c, const char *want) {
+    char ev[200];
+    int n = snprintf(ev, sizeof ev, "UNLOCK file=%s resp=%d", want, c->resp);
+    if (c->resp != NORMAL && c->resp2) snprintf(ev + n, sizeof ev - (size_t)n, " resp2=%d", c->resp2);
+    event(ev, NULL, 0);
+}
+
 /* UNLOCK FILE(name1) TOKEN(GG-NUM) (#5078, X52): releases the record a READ UPDATE TOKEN holds; INVREQ RESP2 47 for a
  * token matching none in use. #5079: without TOKEN (GG-FLAGS blank) it releases the file's tokenless hold; none held: no action, NORMAL (IBM). */
 int GGCUNLK(gg_cics *c) {
@@ -551,12 +565,14 @@ int GGCUNLK(gg_cics *c) {
     c->resp2 = 0;
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
+        unlock_event(c, want);
         return 0;
     }
     if (!strstr(c->flags, "TOKEN")) {
         release(want);
         c->resp = NORMAL;
         file_set_end("READ", want);  /* IBM: until a corresponding UNLOCK completes */
+        unlock_event(c, want);
         return 0;
     }
     int ti = token_find(c->num, want);
@@ -568,5 +584,6 @@ int GGCUNLK(gg_cics *c) {
         c->resp = NORMAL;
         file_set_end("READ", want);
     }
+    unlock_event(c, want);
     return 0;
 }

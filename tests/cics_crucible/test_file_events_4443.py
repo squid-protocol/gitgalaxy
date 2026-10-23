@@ -299,22 +299,9 @@ def test_what_each_side_does_not_record_stays_unsupported():
     del read_set["length"]
     assert "CicsTask: READ set" in cc.blockers(_log([{**read_set, "program": "HCUNLK"}]), runner.JAVA_CAPS)
     assert cc.blockers(_log([{**e, "program": "HCUNLK"} for e in _EXPECTED]), runner.JAVA_CAPS) == []
-    # the stub (ggcics.c) records READ's file, key and RESP only, and no REWRITE or UNLOCK (#4443 slice A0b)
-    stub = cc.blockers(_log([{**e, "program": "HCUNLK"} for e in _EXPECTED]), runner.COBOL_CAPS)
-    assert stub == [
-        "stub: READ length",
-        "stub: READ data",
-        "stub: READ resp2",
-        "stub: REWRITE event",
-        "stub: UNLOCK event",
-        "stub: READ update",
-    ]
-    v = _verdict(
-        [_READ],
-        _log([{"event": "READ", "program": "HCUNLK", "file": "HCUF", "ridfld": "K002".encode(E), "resp": "NORMAL"}]),
-        runner.COBOL_CAPS,
-    )
-    assert v.status == "unsupported" and "stub: READ length" in v.features
+    # the stub (ggcics.c) records READ's update/length/data/resp2, REWRITE and UNLOCK since #4443 slice A0b; READ SET it does not
+    assert cc.blockers(_log([{**e, "program": "HCUNLK"} for e in _EXPECTED]), runner.COBOL_CAPS) == []
+    assert "stub: READ set" in cc.blockers(_log([{**read_set, "program": "HCUNLK"}]), runner.COBOL_CAPS)
 
 
 def test_the_forge_cics_task_holds_the_recording_methods():

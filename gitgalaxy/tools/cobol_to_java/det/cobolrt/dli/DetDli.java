@@ -83,6 +83,8 @@ public final class DetDli {
         int fld = -1; // the first qualification statement's field (-1: unqualified)
         int op;
         byte[] value;
+        boolean first; // #5233: command code F
+        boolean last; // #5233: command code L
         // #5233: the statements after the first, each joined to the one before by AND (or == false) or OR
         final List<Term> more = new ArrayList<>();
     }
@@ -746,14 +748,32 @@ public final class DetDli {
             if (q == ' ') {
                 continue;
             }
+            int at = o + 9;
             if (q == '*') {
-                throw refuse("an SSA with command codes");
-            }
-            if (q != '(') {
+                // #5233: command codes, each one of A-Z 0-9 or '-', then '(' or a blank; F, L and - are modelled
+                while (at < b.length && isCode(b[at] & 0xFF)) {
+                    char c = (char) (b[at] & 0xFF);
+                    if (c == 'F') {
+                        s.first = true;
+                    } else if (c == 'L') {
+                        s.last = true;
+                    } else if (c != '-') {
+                        throw refuse("the command code " + c);
+                    }
+                    at++;
+                }
+                if (at >= b.length || (b[at] != ' ' && b[at] != '(')) {
+                    st[0] = "AJ";
+                    return out;
+                }
+                if (b[at] == ' ') {
+                    continue;
+                }
+                at++;
+            } else if (q != '(') {
                 st[0] = "AJ";
                 return out;
             }
-            int at = o + 9;
             for (int k = 0; ; k++) {
                 int fld = findFld(s.seg, name8(b, at));
                 if (fld < 0) {
@@ -812,6 +832,26 @@ public final class DetDli {
     }
 
     private static final int MAX_TERMS = 16;
+
+    /** A character a command-code list may hold. */
+    private static boolean isCode(int c) {
+        return (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-';
+    }
+
+    /** Command codes (#5233): F and L on a GU / GHU or an ISRT (a unique sequence field: no effect on ISRT, and F none on
+     *  GU, which starts from the first twin); L on a GU only as the last, unqualified SSA. Anything else is refused. */
+    private static void checkCodes(String fn, Ssa[] s) {
+        boolean gu = fn.startsWith("GU") || fn.startsWith("GHU");
+        boolean isrt = fn.equals("ISRT");
+        for (int i = 0; i < s.length; i++) {
+            if (s[i].first && !gu && !isrt) {
+                throw refuse("the command code F on a " + fn.trim());
+            }
+            if (s[i].last && (!(gu || isrt) || i != s.length - 1 || s[i].fld >= 0)) {
+                throw refuse("the command code L other than on the last, unqualified SSA of a GU or ISRT");
+            }
+        }
+    }
 
     /** A boolean operator that joins two qualification statements: AND is * or &, OR is + or | (# is refused apart). */
     private static boolean isBool(int c) {
@@ -1018,6 +1058,14 @@ public final class DetDli {
             from = p.pos == POS_START ? dbFirst(p.db) : nextInSeq(p.at);
         }
         Node n = firstSatisfying(from, bound, s, k);
+        if (n != null && gu && k > 0 && s[k - 1].last) {
+            // #5233: the last twin of the type under the parent the path found
+            for (Node c : n.parent.kids) {
+                if (c.seg == n.seg) {
+                    n = c;
+                }
+            }
+        }
         if (n == null) {
             boolean qualified = false;
             for (Ssa x : s) {
@@ -1252,6 +1300,7 @@ public final class DetDli {
             status(p, st[0]);
             return;
         }
+        checkCodes(fn, s);
         if (fn.charAt(0) == 'G') {
             get(p, fn, io, s, fn.charAt(1) == 'H');
         } else if (fn.equals("ISRT")) {

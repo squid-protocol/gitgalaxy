@@ -3456,7 +3456,8 @@ def test_the_stub_web_open_converse_close(tmp_path):
     assert events[2].endswith("host=- scheme=HTTP resp=22 resp2=21")  # HOSTLENGTH 0: no host
     assert events[3].endswith(f"host={hx('zecs.example')} scheme=HTTP resp=16 resp2=138")
     assert events[4].endswith(f"host={hx('zecs.example')} scheme=- resp=16 resp2=40")  # a scheme that is neither
-    assert events[9].endswith("WEB-CLOSE pgm= resp=0 resp2=0") and events[10].endswith("WEB-CLOSE pgm= resp=19 resp2=27")
+    assert events[9].endswith("WEB-CLOSE pgm= resp=0 resp2=0")
+    assert events[10].endswith("WEB-CLOSE pgm= resp=19 resp2=27")
     conv = events[5:9]
     assert "method=PUT" in conv[1] and "body=1" in conv[1] and "media=746578742F706C61696E" in conv[1]
     assert "query=636C6561723D2A" in conv[3] and "resp=22 resp2=57" in conv[3]

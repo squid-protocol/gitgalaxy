@@ -52,6 +52,7 @@ def test_ggcics_includes_its_families_once():
     family = (STUB / "ggcics_containers.c").read_text(encoding="utf-8")
     assert re.findall(r'^#include "(ggcics_\w+\.c)"', host, re.M) == [
         "ggcics_filecontrol.c",
+        "ggcics_transientdata.c",
         "ggcics_containers.c",
         "ggcics_taskcontrol.c",
         "ggcics_enq.c",
@@ -198,3 +199,29 @@ def test_ggcics_holds_the_enq_stub_in_its_family_file():
 def test_enq_still_translates_to_its_stub_and_deq_to_none():
     assert any("GGCENQ" in ln for ln in ec.translate_command("ENQ RESOURCE(WS-RES)"))
     assert not any("GGC" in ln and "CALL" in ln for ln in ec.translate_command("DEQ RESOURCE(WS-RES)"))
+
+
+# ---- transient data (#5274, fifth stub family): READQ / WRITEQ / DELETEQ TD, SET / INQUIRE TDQUEUE -------------------
+def test_ggcics_holds_the_transient_data_stubs_in_its_family_file():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    family = (STUB / "ggcics_transientdata.c").read_text(encoding="utf-8")
+    assert "#include" not in family
+    for entry in ("GGCWRTD", "GGCRDTD", "GGCDLTD", "GGCRDTS", "GGCSTDQ", "GGCSTDE", "GGCSTDT", "GGCITDQ"):
+        assert re.search(rf"^int {entry}\(", family, re.M), entry
+        assert not re.search(rf"^int {entry}\(", host, re.M), entry
+    for helper in ("td_dir", "td_kind", "td_uow_end"):
+        assert re.search(rf"^static \w+ {helper}\(", family, re.M), helper
+    # the uow code in the host calls td_uow_end, so its forward declaration stays there, before the include
+    assert host.index("static void td_uow_end(int rollback);") < host.index('#include "ggcics_transientdata.c"')
+    # the include sits where the block did: after the file-control include, before the containers include
+    assert (
+        host.index('#include "ggcics_filecontrol.c"')
+        < host.index('#include "ggcics_transientdata.c"')
+        < host.index('#include "ggcics_containers.c"')
+    )
+
+
+def test_the_td_verbs_still_translate_to_their_stubs():
+    for verb, stub in (("READQ TD QUEUE('Q') INTO(WS-REC)", "GGCRDTD"), ("DELETEQ TD QUEUE('Q')", "GGCDLTD"),
+                       ("WRITEQ TD QUEUE('Q') FROM(WS-REC)", "GGCWRTD")):  # fmt: skip
+        assert any(stub in ln for ln in ec.translate_command(verb)), verb

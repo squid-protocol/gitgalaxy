@@ -1088,7 +1088,22 @@
   "hc-file-unlock/HCUNLK": {
    "live": 9,
    "outcomes": 9,
-   "scenarios": {}
+   "scenarios": {
+    "read-short": {
+     "units": [
+      "LOG-D",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "SHORT-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@48",
+      "137:true",
+      "147:false"
+     ]
+    }
+   }
   },
   "hc-handle-aid/HCAID": {
    "live": 6,

@@ -2305,6 +2305,33 @@ def seed_ts(root: Path, queues: dict[str, list[Any]]) -> None:
             (d / f"{n:06d}.bin").write_bytes(cc.expected_bytes(item).decode(cc.EBCDIC).encode("latin-1"))
 
 
+def seed_files(case: cc.Case, work: Path, sid: str) -> str:
+    """#4443: the case's seeded files for the stub -- `data/<FILE>.dat` (one record per line, SPEC 2) as fixed-length
+    records in `runs/<scenario>/files/<FILE>`, and the files.cfg text naming them (`FILE path reclen keyoff keylen`). The key is the
+    leading bytes the case's RIDFLD names, so its length is the RIDFLD length of the expected READ events; a file no
+    expected READ names is left out (the stub answers FILENOTFOUND, as before)."""
+    keylen: dict[str, int] = {}
+    for log in case.expected.values():
+        for task in log.get("tasks") or []:
+            for ev in task.get("events") or []:
+                if ev.get("event") == "READ" and isinstance(ev.get("ridfld"), str):
+                    keylen.setdefault(ev["file"], len(ev["ridfld"]))
+    rel = f"runs/{sid}/files"
+    root = work / rel
+    cfg = ""
+    for name in sorted(case.csd.get("files") or ()):
+        seed = case.dir / "data" / f"{name}.dat"
+        if name not in keylen or not seed.is_file():
+            continue
+        lines = seed.read_bytes().splitlines()
+        if not lines or len({len(x) for x in lines}) != 1:
+            continue
+        root.mkdir(parents=True, exist_ok=True)
+        (root / name).write_bytes(b"".join(lines))
+        cfg += f"{name} /work/{rel}/{name} {len(lines[0])} 0 {keylen[name]}\n"
+    return cfg
+
+
 def read_ts(root: Path) -> dict[str, list[bytes]]:
     """#4002: every TS queue in the stub's store, its items as EBCDIC bytes (the `final` state)."""
     out: dict[str, list[bytes]] = {}
@@ -2738,6 +2765,7 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
     seed_ts(work / ts, (sc.get("initial") or {}).get("ts_queues") or {})
     count = iter(range(1000))
     origin = origin_peers(case, sc)
+    files_cfg = seed_files(case, work, sc["id"])  # #4443
 
     def run_one(frame: dict[str, Any], transid: str, commarea: bytes | None, step: dict[str, Any] | None,
                 data: list[Any], requests: list[tuple[str, int]]) -> dict[str, Any]:  # fmt: skip
@@ -2745,7 +2773,19 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
         if origin is not None:  # #4767 (X35): each task process is told the origin servers (not a log key)
             frame = {**frame, "http_peers": origin}
         return run_task(
-            case, box, work, rel, ts, transid, frame, commarea, step, data, requests, task_faults(sc, transid)
+            case,
+            box,
+            work,
+            rel,
+            ts,
+            transid,
+            frame,
+            commarea,
+            step,
+            data,
+            requests,
+            task_faults(sc, transid),
+            files_cfg,
         )
 
     tasks, stopped = drive_scenario(case, sc, run_one)
@@ -2756,7 +2796,7 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
 def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, transid: str, frame: dict[str, Any],
              commarea: bytes | None, step: dict[str, Any] | None, data: list[Any] | None = None,
              requests: list[tuple[str, int]] | None = None,
-             faults: list[str] | None = None) -> dict[str, Any]:  # fmt: skip
+             faults: list[str] | None = None, files_cfg: str = "") -> dict[str, Any]:  # fmt: skip
     """One task in one process: its inputs in `rel` (the COMMAREA, the terminal's input -- a step's text or
     map fields -- the EIB, the CSD's programs and transactions, #4006: the START data it RETRIEVEs and the
     unexpired requests a CANCEL searches, the virtual clock), then the stub's events as the task's."""
@@ -2775,7 +2815,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
         return task
     d = work / rel
     (d / "out").mkdir(parents=True, exist_ok=True)
-    (d / "files.cfg").write_text("", encoding="ascii")
+    (d / "files.cfg").write_text(files_cfg, encoding="ascii")
     (d / "programs.cfg").write_text("".join(f"{p}\n" for p in sorted(case.csd["programs"])), encoding="ascii")
     (d / "transactions.cfg").write_text("".join(f"{t}\n" for t in sorted(case.csd["transactions"])), encoding="ascii")
     (d / "terminals.cfg").write_text(f"{case.data['terminal']}\n", encoding="ascii")

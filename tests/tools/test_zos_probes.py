@@ -78,6 +78,36 @@ def test_every_assumed_entry_is_probed_or_sorted_out():
     assert unsorted == [], f"probe these or add a reason to NOT_PROBED_*: {unsorted}"
 
 
+def test_every_differs_entry_is_probed_or_sorted_out():
+    # A declared oracle-vs-IBM difference (status DIFFERS) is exactly what a z/OS run should measure.
+    covered = {e for p in zos_probes.load().values() for e in p["entries"]}
+    unsorted = [
+        m["id"]
+        for m, _ in register.load_entries()
+        if m["status"].startswith("DIFFERS")
+        and m["id"] not in covered
+        and m["id"] not in NOT_PROBED_IDS
+        and m["id"][0] not in NOT_PROBED_FAMILIES
+    ]
+    assert unsorted == [], f"probe these or add a reason to NOT_PROBED_*: {unsorted}"
+
+
+def test_the_differs_probes_state_the_expected_zos_answer():
+    # The oracle's output is the wrong side of a DIFFERS entry: each probe says what z/OS should print instead.
+    probes = zos_probes.load()
+    ids = {
+        "c10-zoned-sign-zone-after-value-zero-and-initialize": "C10",
+        "c16-comp5-one-and-two-digit-size": "C16",
+        "c7-comp5-byte-order": "C7",
+        "c9-pointer-size": "C9",
+        "c17-initialize-replacing-table": "C17",
+        "d1-ascii-vs-ebcdic-order": "D1",
+    }
+    for pid, entry in ids.items():
+        assert entry in probes[pid]["entries"], pid
+        assert "Expected z/OS" in probes[pid]["note"], pid
+
+
 def test_every_probe_is_fixed_format_ending_in_stop_run():
     for pid, p in zos_probes.load().items():
         lines = p["source"].splitlines()

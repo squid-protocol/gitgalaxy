@@ -8,6 +8,7 @@ Both runtimes (det/dli.py and tests/tools/equivalence_ims.py) must read the same
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import sys
@@ -135,3 +136,19 @@ def test_no_burned_program_makes_an_ims_tm_message_call():
             assert not re.search(r"VALUE\s+'(CHNG|SETO|PURG|CMD |GCMD|INQY)", code), path.name
     assert seen >= 3  # PAUDBLOD's three calls at least
     assert not list(CORPUS.rglob("*.mfs")) and not list(CORPUS.rglob("*.MFS"))
+
+
+def test_the_case_reaches_the_non_numeric_root_key_arm_and_paudbunls_gn_gnp_failures():
+    """Checklist [c:25b46480]: PAUDBLOD's `ROOT-SEG-KEY IS NUMERIC` false arm needs a COMP-3 key with a bad digit nibble
+    (raw `hex` bytes, #6072); PAUDBUNL's GN / GNP abend arms need a DL/I status that is neither blank nor GB / GE."""
+    cases = ROOT / "tests" / "equivalence"
+    blod = json.loads((cases / "carddemo-paudblod" / "case.json").read_text(encoding="utf-8"))
+    keys = blod["datasets"]["INFILE2"]["generate"]["fields"]["ROOT-SEG-KEY"]["hex"]
+    assert len(keys) == 8 and all(len(k) == 12 and k.endswith("C") for k in keys)
+    assert sum(any(c in "ABCDEF" for c in k[:-1]) for k in keys) == 1
+    unl = json.loads((cases / "carddemo-paudbunl" / "case.json").read_text(encoding="utf-8"))
+    dli = {f["name"]: f["plan"][0] for f in unl["faults"] if f["plan"][0]["dd"] == "DLI"}
+    assert {n: (p["op"], p["status"]) for n, p in dli.items()} == {
+        "root-gn-fail": ("GN", "AM"),
+        "child-gnp-fail": ("GNP", "AM"),
+    }

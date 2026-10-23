@@ -105,6 +105,7 @@ def parse_csd(text: str) -> dict[str, Any]:
     uctrans: dict[str, str] = {}  # #4415: a TYPETERM's UCTRAN (YES / NO / TRANID), when the CSD says
     urimaps: list[tuple[str, str, str]] = []  # #4270 zECS (X32): (name, TRANSACTION or "", PATH), in the CSD's order
     disabled: set[str] = set()  # #4768 (X34): programs defined STATUS(DISABLED)
+    files: set[str] = set()  # #4443: the DEFINE FILE names (the cobol-stub's files.cfg is built from them)
     server_urimaps: list[
         dict[str, str]
     ] = []  # #4767 (X37): the URIMAPs that map an inbound HTTP request to a transaction
@@ -118,6 +119,8 @@ def parse_csd(text: str) -> dict[str, Any]:
                 disabled.add(name)
         elif kind == "MAPSET":
             mapsets.add(name)
+        elif kind == "FILE":
+            files.add(name)
         elif kind == "URIMAP":
             tr = re.search(r"\bTRANSACTION\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             pa = re.search(r"\bPATH\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
@@ -147,6 +150,8 @@ def parse_csd(text: str) -> dict[str, Any]:
     uctran = {t: uctrans[tt] for t, tt in terminal_types.items() if tt in uctrans}
     out = {"programs": programs, "transactions": transactions, "mapsets": mapsets, "terminals": terminals,
            "uctran": uctran, "urimaps": urimaps, "disabled": disabled}  # fmt: skip
+    if files:  # added only when non-empty, like server_urimaps
+        out["files"] = files
     if server_urimaps:  # added only when non-empty: an always-present empty key breaks exact-equality tests
         out["server_urimaps"] = server_urimaps
     return out

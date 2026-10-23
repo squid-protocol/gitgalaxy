@@ -22,6 +22,10 @@ COMPONENTS: the CICS stub and equivalence_cics.py, the Db2 layer, batch file I/O
 harness / oracle only when a component it uses changed; one written before them (no `components`) keeps the whole-input
 comparison until `update` rewrites it, or `migrate` adds them while the entry is current on the whole input.
 
+#6072: an entry also holds `uncovered` -- {"paragraphs": ["NAME:line", ...], "branches": ["line:outcome", ...]}, the live
+paragraphs and branch outcomes the proof did not reach, present only when there are some (tests/tools/ladder_gaps.py
+reads it). Entries written before it have none until the next `update`; `check` only warns on a difference.
+
 Every number in it is read off a sweep's coverage line, none is computed or written by hand. A reader
 (proof_blockers.py) trusts an entry as CURRENT only while `fresh_coverage()`; a missing entry is "unknown". #4730: a
 stale entry stays readable through `last_coverage()` (the evidence report shows it as the last measurement, marked
@@ -86,6 +90,13 @@ def linked_counts(coverage: Any) -> dict[str, Any]:
         except (KeyError, TypeError):
             continue
     return out
+
+
+def uncovered_lists(row: dict[str, Any]) -> dict[str, list[str]]:
+    """#6072: a sweep row's uncovered live paragraphs ("NAME:line") and branch outcomes ("line:outcome") -- what a
+    ladder slice must close, so planners (ladder_gaps.py) see it without a sweep. A key is there only when non-empty."""
+    out = {"paragraphs": list(row.get("uncovered_paragraphs") or []), "branches": list(row.get("uncovered") or [])}
+    return {k: v for k, v in out.items() if v}
 
 
 def fingerprints(case: str) -> dict[str, Any]:
@@ -187,7 +198,9 @@ def build(det: dict[str, dict[str, Any]], old: dict[str, dict[str, Any]]) -> dic
             continue
         nums = parse_line(row.get("coverage", ""))
         if nums is not None:
-            new = {**nums, **({"linked": row["linked"]} if row.get("linked") else {}), "inputs": fingerprints(case)}
+            gaps = uncovered_lists(row)
+            new = {**nums, **({"linked": row["linked"]} if row.get("linked") else {}),
+                   **({"uncovered": gaps} if gaps else {}), "inputs": fingerprints(case)}  # fmt: skip
             prev = cases.get(case)
             # Same numbers from the same inputs: the entry is kept as it is, `measured_at` included (still true: those
             # inputs gave those numbers at that commit). Otherwise every refresh restamps every entry, the bot's own merge
@@ -239,6 +252,8 @@ def check(det: dict[str, dict[str, Any]], ledger: dict[str, dict[str, Any]],
             elif entry["linked"] != row["linked"]:
                 problems.append(f"coverage ledger: {case}: the LINKed programs' coverage moved ({row['linked']} vs the "
                                 f"ledger's {entry['linked']}) -- if intended, {fix}")  # fmt: skip
+        if row.get("uncovered") is not None and uncovered_lists(row) != (entry.get("uncovered") or {}):
+            warnings.append(f"coverage ledger: {case}: its uncovered lists differ from the sweep's; {fix}")
         now = fingerprints(case)
         bad = stale(entry, now)
         if [n for n in bad if n in BLOCKING] or (bad and recheck):

@@ -723,9 +723,14 @@ python tests/tools/det_mutation.py refresh --work DIR        # an input moved: s
   above; `mutation.py run --port DIR --files GLOB` is the hook.
 - **The ledger**, `tests/equivalence/det_mutation/<CASE>.json`, is written only by the tool: per case the counts, every
   judged mutant's verdict, the survivors in full, and the fingerprints of the det port's files, the case, the
-  corpus pin, the harness, the oracle and the Java generator (the stand-in for the port a reader can check without
-  translating). Any fingerprint that moved makes the entry unknown; `refresh` re-translates and, when the port
-  bytes did not change, renews it: a generator-only move needs no re-run; a case / corpus / harness / oracle move re-runs
+  corpus pin, the reviewed survivor list, and the Java generator, harness and oracle. **Fresh (#5862, owner
+  2026-10-23)** means the case, the corpus pin and the survivor list match the tree and `refresh` has not found the
+  det port's bytes (the generated `.java` files) moved. The generator, harness and
+  oracle fingerprints are whole-tree hashes: their drift alone does not stale an entry, it is recorded (`drifted`,
+  shown by `describe` and `stale-check`). Because `status` cannot translate, a port that a translator change moved is
+  only found when `refresh` runs (the nightly Evidence Refresh lane): it then marks the entry stale (`port_moved`)
+  until `run` records the new port. `refresh` re-translates any entry that is stale or drifted and, when the port
+  bytes did not change, renews it: info drift only needs no re-run; a case / corpus / survivor-list move re-runs
   only the recorded survivors (same seed, mode and scope) and carries the rest. A survivor that now dies drops out
   (a stated `equivalent` / `unreachable` one is a wrong claim: exit 1); one still surviving with the same Java line
   keeps its stated verdict. Mutants killed before are not re-proven, so a case weakened since would not show. The

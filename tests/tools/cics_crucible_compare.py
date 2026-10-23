@@ -69,7 +69,10 @@ EVENT_KEYS: dict[str, tuple[str, ...]] = {
     "READQ-TS": ("queue", "item", "resp", "length", "data"),
     "WRITEQ-TS": ("queue", "data", "resp", "item"),
     "WRITE-OPERATOR": ("data", "resp"),  # #4270 zECS (X32): the console message
-    "READ": ("file", "ridfld", "resp"),
+    # #4443: the keyed file commands (SPEC 6.2): `update` / `set` only on those forms, `length` and `data` after the read
+    "READ": ("file", "ridfld", "update", "resp", "resp2", "set", "length", "data"),
+    "REWRITE": ("file", "data", "resp", "resp2"),
+    "UNLOCK": ("file", "resp", "resp2"),
     # #4767 zECS (X37, X38): an `http` task's request body and its response (SPEC 6.2; resp2 only where IBM documents it)
     "WEB-RECEIVE": ("resp", "resp2", "length", "data"),
     "WEB-SEND": ("status", "statustext", "mediatype", "from", "resp", "resp2"),

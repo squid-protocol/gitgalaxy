@@ -119,9 +119,8 @@ jobs:
           ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
           (cd gitgalaxy && python tests/tools/import_graph_accuracy.py --fetch-only) &
           import_pid=$!
-          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref" &
-          crucible_pid=$!
-          wait "$import_pid" && wait "$crucible_pid"
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
+          wait "$import_pid"
 
       # Three lanes balance the measured gate times (span anchoring is the longest alone). Each gate
       # keeps its own baseline gate, --samples and exit code; its table goes to a per-gate file and is

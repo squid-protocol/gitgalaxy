@@ -111,6 +111,102 @@
     }
    ],
    "why": "30: a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): OPEN INPUT INFILE2 fails after INFILE1 opened: 'ERROR IN OPENING INFILE2' and 9999-ABEND"
+  },
+  {
+   "name": "infile1-read-error",
+   "plan": [
+    {
+     "dd": "INFILE1",
+     "op": "READ",
+     "nth": 3,
+     "status": "30"
+    }
+   ],
+   "why": "30: a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the third root READ: neither blank/00 nor 10, so 'ERROR READING ROOT SEG INFILE' and the loop goes on to the next record (the program's defect: no abend)"
+  },
+  {
+   "name": "infile2-read-error",
+   "plan": [
+    {
+     "dd": "INFILE2",
+     "op": "READ",
+     "nth": 3,
+     "status": "30"
+    }
+   ],
+   "why": "30: a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the third child READ: 'ERROR READING CHILD SEG INFILE' and the loop goes on"
+  },
+  {
+   "name": "infile1-close",
+   "plan": [
+    {
+     "dd": "INFILE1",
+     "op": "CLOSE",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "30: a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing INFILE1 after the load: 'ERROR IN CLOSING 1ST FILE' and the step goes on to close INFILE2"
+  },
+  {
+   "name": "infile2-close",
+   "plan": [
+    {
+     "dd": "INFILE2",
+     "op": "CLOSE",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "30: a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing INFILE2: 'ERROR IN CLOSING 2ND FILE'"
+  },
+  {
+   "name": "root-isrt-fail",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "ISRT",
+     "nth": 1,
+     "status": "AM"
+    }
+   ],
+   "why": "#5233: the first root ISRT answers AM (neither blank nor II): ROOT INSERT FAILED and 9999-ABEND (RC 16) with nothing loaded"
+  },
+  {
+   "name": "child-gu-fail",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "GU",
+     "nth": 1,
+     "status": "AM"
+    }
+   ],
+   "why": "#5233: the first root GU (qualified by the child's root key) answers AM instead of blank / GE: the child ISRT is not tried and the load goes on to the next child record"
+  },
+  {
+   "name": "child-isrt-dup",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "ISRT",
+     "nth": 12,
+     "status": "II"
+    }
+   ],
+   "why": "#5233: the first child ISRT (the 12th ISRT of the run, after the 11 root inserts) answers II: CHILD SEGMENT ALREADY IN DB and the load goes on"
+  },
+  {
+   "name": "child-isrt-fail",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "ISRT",
+     "nth": 12,
+     "status": "AM"
+    }
+   ],
+   "why": "#5233: the first child ISRT answers AM (neither blank nor II): INSERT CALL FAIL FOR CHILD and 9999-ABEND (RC 16) with the 11 roots loaded and no child"
   }
  ]
 }

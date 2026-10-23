@@ -24,6 +24,7 @@ from gitgalaxy.core import estate_options as eo  # noqa: E402
 from gitgalaxy.core.runtime_options import (
     BIND_OPTIONS,
     CICS_CONVENTIONS,
+    CICS_OPTIONS,
     DB2_OPTIONS,
     LE_OPTIONS,
     RUNTIME_OPTION_TABLE,
@@ -32,6 +33,7 @@ from gitgalaxy.core.runtime_options import (
     TRANSLATOR_OPTIONS,
     bind_rows,
     calibration_problems,
+    cics_rows,
     conventions_rows,
     db2_rows,
     le_rows,
@@ -719,6 +721,73 @@ def test_a_malformed_db2_value_reaches_the_oracle(put_estate):
     with pytest.raises(common.UnsupportedOption, match=re.escape("db2.ccsid.EBCDIC_CCSID")):
         common.compile_options(put_estate("db2", "ccsid.EBCDIC_CCSID", "abc"), PLAIN)
     common.compile_options(put_estate("db2", "format.DATE", "ISO"), PLAIN)
+
+
+# --- the CICS region and program-definition options, judged for syntax (#4707) ---
+
+CICS = "cics."
+
+
+def _cics(key, value, sources=None):
+    return runtime_unhonoured({"cics": {key: value}}, sources)
+
+
+def test_the_register_lists_every_cics_syntax_row():
+    text = (ROOT / "docs" / "language_status" / "register" / "C18.md").read_text(encoding="utf-8")
+    assert not [row for row in cics_rows() if row not in text]
+
+
+def test_the_cics_syntax_rows_cover_exactly_the_region_and_program_definition_options_with_a_value_grammar():
+    assert {CICS + key for key in CICS_OPTIONS} == {
+        key for key in RUNTIME_OPTION_TABLE if key.startswith(("cics.region.", "cics.program_definition."))
+    }
+    assert all(row["grammar"] for row in CICS_OPTIONS.values())
+
+
+@pytest.mark.parametrize("path", ESTATES, ids=lambda p: p.stem)
+def test_every_cics_value_an_estate_records_is_well_formed(path):
+    data = json.loads(path.read_text(encoding="utf-8"))
+    hits = eo.effective_options({"program": "P"}, data).unhonoured_runtime()
+    assert [h for h in hits if "not CICS syntax" in h["note"]] == []
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [("region.LOCALCCSID", "037"), ("region.LOCALCCSID", "1140"), ("region.DB2CONN", "yes"), ("region.DB2CONN", "NO"),
+     ("region.CICS_TS", "4.2"), ("region.CICS_TS", "5"), ("region.CICS_TS", "6.1.0"),
+     ("program_definition.CONCURRENCY", "THREADSAFE"), ("program_definition.CONCURRENCY", "required"),
+     ("program_definition.EXECKEY", "USER"), ("program_definition.EXECKEY", "cics")],
+)  # fmt: skip
+def test_a_well_formed_cics_value_is_not_refused_for_syntax(key, value):
+    assert not [h for h in _cics(key, value) if "not CICS syntax" in h["note"]]
+
+
+def test_a_well_formed_other_ccsid_keeps_its_declaration():
+    (hit,) = _cics("region.LOCALCCSID", "285")
+    assert (hit["policy"], hit["applied"]) == ("declare", "data in the case's data_encoding")
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        ("region.LOCALCCSID", "abc"), ("region.LOCALCCSID", "123456"), ("region.LOCALCCSID", "0"), ("region.LOCALCCSID", ""),
+        ("region.DB2CONN", "MAYBE"), ("region.DB2CONN", ""), ("region.DB2CONN", "YES,NO"),
+        ("region.CICS_TS", "v4"), ("region.CICS_TS", ""), ("region.CICS_TS", "4..2"), ("region.CICS_TS", "1.2.3.4"),
+        ("program_definition.CONCURRENCY", "FAST"), ("program_definition.CONCURRENCY", ""),
+        ("program_definition.EXECKEY", "SUPER"), ("program_definition.EXECKEY", ""),
+    ],
+)  # fmt: skip
+def test_a_value_that_is_not_cics_syntax_is_refused_by_name_once(key, value):
+    (hit,) = _cics(key, value, {CICS + key: "f:3"})
+    assert (hit["policy"], hit["applied"], hit["source"]) == ("refuse", None, "f:3")
+    assert CICS + key in hit["note"] and "not CICS syntax" in hit["note"] and "#4707" in hit["note"]
+    assert runtime_effect(CICS + key, value) == "refused"
+
+
+def test_a_malformed_cics_value_reaches_the_oracle(put_estate):
+    with pytest.raises(common.UnsupportedOption, match=re.escape("cics.region.DB2CONN")):
+        common.compile_options(put_estate("cics", "region.DB2CONN", "MAYBE"), PLAIN)
+    common.compile_options(put_estate("cics", "region.DB2CONN", "YES"), PLAIN)
 
 
 # --- the calibration hook against every recorded measurement (#4702 part 2) ---

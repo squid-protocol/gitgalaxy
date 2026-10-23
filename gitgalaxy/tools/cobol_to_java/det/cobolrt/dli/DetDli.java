@@ -72,6 +72,10 @@ public final class DetDli {
         Node parentage;
         Node hold;
         boolean prevknown;
+        boolean gsam; // #5233: a GSAM PCB (load mode): db is -1, out collects the records ISRT appended
+        int reclen;
+        String dbname;
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
     }
 
     private static final class Ssa {
@@ -253,12 +257,26 @@ public final class DetDli {
         PCBS.clear();
         for (String line : Files.readAllLines(dir().resolve("psb.cfg"), StandardCharsets.ISO_8859_1)) {
             String[] w = line.trim().split("\\s+");
-            if (!w[0].equals("PCB")) {
+            boolean gsam = w[0].equals("GSAM");
+            if (!gsam && !w[0].equals("PCB")) {
                 continue;
             }
             Pcb p = new Pcb();
-            p.db = DBS.indexOf(w[1]);
             p.procopt = w[2].length() > 4 ? w[2].substring(0, 4) : w[2];
+            if (gsam) { // GSAM <dbd> <procopt> <record length> (tests/tools/equivalence_ims.py)
+                for (Pcb o : PCBS) {
+                    if (o.gsam && o.dbname.equals(w[1])) {
+                        throw refuse("two GSAM PCBs on one database");
+                    }
+                }
+                p.gsam = true;
+                p.db = -1;
+                p.dbname = w[1];
+                p.reclen = Integer.parseInt(w[3]);
+                PCBS.add(p);
+                continue;
+            }
+            p.db = DBS.indexOf(w[1]);
             p.keylen = Integer.parseInt(w[3]);
             for (Segm s : SEGS) {
                 if (s.db == p.db) {
@@ -486,8 +504,10 @@ public final class DetDli {
         byte[] b = p.mask.storage().bytes;
         int o = p.mask.offset();
         Arrays.fill(b, o, o + 36, (byte) ' ');
-        text(p.mask, 0, 8, DBS.get(p.db));
-        text(p.mask, 8, 2, "00");
+        text(p.mask, 0, 8, p.gsam ? p.dbname : DBS.get(p.db));
+        if (!p.gsam) { // a GSAM PCB has no segment level: blank (ASSUMED, register I5)
+            text(p.mask, 8, 2, "00");
+        }
         text(p.mask, 12, 4, p.procopt);
         fullword(p.mask, 16, 0);
         fullword(p.mask, 28, 0);
@@ -617,6 +637,11 @@ public final class DetDli {
                 ByteArrayOutputStream o = new ByteArrayOutputStream();
                 dump(o, ROOTS.get(d));
                 Files.write(Path.of(out).resolve(DBS.get(d) + ".out"), o.toByteArray());
+            }
+            for (Pcb p : PCBS) { // #5233: each GSAM database, the records its PCB took
+                if (p.gsam) {
+                    Files.write(Path.of(out).resolve(p.dbname + ".out"), p.out.toByteArray());
+                }
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -1141,6 +1166,21 @@ public final class DetDli {
                 throw refuse("a DL/I call other than GU GHU GN GHN GNP GHNP ISRT REPL DLET");
             }
             status(p, "AD");
+            return;
+        }
+        if (p.gsam) { // a GSAM PCB (load mode, #5233; twin of ggdli.c's gsam_call): ISRT appends one record, else AM
+            if (!fn.equals("ISRT")) {
+                status(p, "AM");
+                return;
+            }
+            if (ssas.length != 0) {
+                throw refuse("a GSAM ISRT with an SSA");
+            }
+            if (io.storage().bytes.length - io.offset() < p.reclen) {
+                throw refuse("a GSAM ISRT whose I/O area is shorter than the DBD's record");
+            }
+            p.out.write(io.storage().bytes, io.offset(), p.reclen);
+            status(p, "  ");
             return;
         }
         if (ssas.length > 15) {

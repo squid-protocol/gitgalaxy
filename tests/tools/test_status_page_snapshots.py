@@ -30,3 +30,29 @@ def test_no_other_status_page_claims_a_current_proof_count():
         if p.name not in SNAPSHOT_PAGES and CURRENT_CLAIM.search(p.read_text(encoding="utf-8"))
     ]
     assert not offenders, f"pages with a current-status count and no snapshot banner: {offenders}"
+
+
+README_COUNT = re.compile(
+    r"\b\d+\s+(?:`[^`]+`\s+)?(?:commands?|programs?|records?|languages?|tells|estates?|tests?|rules?)\b|\(\d+\)|\bacross all \d+\b",
+    re.IGNORECASE,
+)
+
+
+def _readme_prose():
+    """README text outside fenced code and <details> blocks, with backtick spans kept (a count can sit before one)."""
+    text = (STATUS / "README.md").read_text(encoding="utf-8")
+    text = re.sub(r"<details>.*?</details>", "", text, flags=re.DOTALL)
+    return re.sub(r"^```.*?^```", "", text, flags=re.DOTALL | re.MULTILINE)
+
+
+def test_readme_states_no_count_outside_details():
+    hits = [m.group(0) for m in README_COUNT.finditer(_readme_prose())]
+    assert not hits, f"docs/language_status/README.md states hand-written counts: {hits}; link the generated page"
+
+
+def test_readme_language_table_has_no_numeric_columns():
+    rows = [ln for ln in _readme_prose().splitlines() if ln.startswith("| ")]
+    assert rows, "the language table moved"
+    for row in rows:
+        cells = [c.strip() for c in row.strip().strip("|").split("|")]
+        assert not any(re.fullmatch(r"\d+(/\d+)?\*?", c) for c in cells), f"numeric cell in README table row: {row}"

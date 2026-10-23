@@ -35,6 +35,7 @@ A label added by someone without write access is removed too, on any pass (the t
 | Label | Meaning | What you do |
 |---|---|---|
 | `shepherd:needs-fix` | A real failure, a merge conflict or a red matrix on this head. One digest comment says what failed and the local command that reproduces it. | Fix it, push. |
+| `shepherd:needs-owner` | Auto-merge was refused for good (the shepherd token lacks a permission, e.g. Workflows for a PR that edits `.github/workflows/`). One comment says why; the shepherd stops retrying while it is set. | Merge by hand, or fix the token and remove the label. |
 | `shepherd:waiting-on-main` | The failing check fails on `main` too, or did until `main` went green and this head has not been re-tested with the fix. | Nothing on this PR: main's owner fixes it, then the reconcile pass merges `main` in once (#5484) and the label stays until a run on that head finishes. |
 | `shepherd:retrying` | An infra or flake failure is being rerun (up to 3 times, 15 minutes apart). | Nothing; wait. |
 | `shepherd:reapprove` | New commits dropped `shepherd:merge` (an approval is bound to its head). | Review the new head, re-add `shepherd:merge`. |

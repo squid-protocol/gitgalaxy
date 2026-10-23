@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "genapp-lgdpvs01",
+  "entries": [
+    {
+      "unit": "WRITE-ERROR-MESSAGE",
+      "line": 117,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF EIBCALEN > 0` (the outer test of WRITE-ERROR-MESSAGE's COMMAREA copy) is false only for a call with no COMMAREA. Before any error path the program has already used the COMMAREA: lines 77-79 move CA-Request-ID(4:1), CA-Policy-Num and CA-Customer-Num, items of the LINKAGE DFHCOMMAREA, into WF-Policy-Key for the DELETE, so with EIBCALEN 0 they are read from no storage. The only caller, LGDPDB01 (line 168), LINKs with Commarea(DFHCOMMAREA) LENGTH(32500) past its own `IF EIBCALEN IS EQUAL TO ZERO` ABEND LGCA, so EIBCALEN is never 0 on a call (the proof does not reach this line at all: the first LINK of WRITE-ERROR-MESSAGE, with the 102-byte ERROR-MSG, makes LGSTSQ write 107 bytes from a 95-byte WRITE-MSG and the oracle refuses it, X6); a harness cannot state a COMMAREA-less call without a reference to unaddressable LINKAGE storage, which IBM leaves undefined (X23: a reference past EIBCALEN is refused on both sides, the task judged up to it)."
+    }
+  ]
+}

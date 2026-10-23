@@ -10,6 +10,10 @@ from pathlib import Path
 EQUIV = Path(__file__).resolve().parents[1] / "equivalence"
 
 
+def _stated(case):
+    return json.loads((EQUIV / "infeasible_outcomes" / f"{case}.json").read_text(encoding="utf-8"))["entries"]
+
+
 def _scenarios(case):
     data = json.loads((EQUIV / case / "case.json").read_text(encoding="utf-8"))
     return {s["name"]: s for s in data["scenarios"]}
@@ -52,10 +56,9 @@ def test_bnk1cra_covers_dbcrfun_link_failing_and_amount_shapes():
 
 
 def test_infeasible_entries_name_a_family_and_a_reason():
-    data = json.loads((EQUIV / "infeasible_outcomes.json").read_text(encoding="utf-8"))
     for case in ("cbsa-bnk1uac", "cbsa-bnk1cra"):
-        entries = data["cases"][case]
+        entries = _stated(case)
         assert entries
         for e in entries:
-            assert e["family"] in data["families"]
+            assert e["family"] in "GCR"
             assert e["reason"]

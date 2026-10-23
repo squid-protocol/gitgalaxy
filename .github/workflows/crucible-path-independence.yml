@@ -36,7 +36,7 @@ jobs:
   path-independence:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: 10  # ~5 min in CI (two crucible scans); a hang should fail fast
+    timeout-minutes: 10  # ~4.6 min median, 6.1 max in CI (two concurrent crucible scans, #5500); a hang should fail fast
     steps:
       - name: Checkout GitGalaxy PR
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

@@ -258,14 +258,48 @@ def test_scheme_procedure_define_is_unchanged():
 # --- lua and tcl: pinned, they already extract these shapes ------------------------------------------
 
 
-def test_lua_call_after_concat_and_not():
-    code = (
-        "local function run_command(reason)\n"
-        "  dbg_writeln(reason..format_stack_frame_info(1))\n"
-        "  while not frame_has_line(2) do x = 1 end\n"
-        "end\n"
-    )
-    assert {"dbg_writeln", "format_stack_frame_info", "frame_has_line"} <= set(_calls("lua", code, "run_command"))
+def _lua(body: str) -> list[str]:
+    return _calls("lua", "local function run(reason)\n  " + body + "\nend\n", "run")
+
+
+@pytest.mark.parametrize(
+    "body, callee",
+    [
+        ("dbg_writeln(reason..format_stack_frame_info(1))", "format_stack_frame_info"),
+        ("x = reason .. y .. z1(1) .. w1(2)", "w1"),
+        ("x = reason..a2(1)..b2(2)", "b2"),
+        ("x = obj:m1(1)..obj.m2(2)", "m2"),
+        ("while not frame_has_line(2) do x = 1 end", "frame_has_line"),
+        ("if not g(1) then x = 1 end", "g"),
+        ("repeat x = 1 until not h(2)", "h"),
+        ("x = not i(3) and j(4)", "j"),
+        ("y = (not k(5))", "k"),
+        ("z = not not l(6)", "l"),
+        ("while not obj:m(1) do x = 1 end", "m"),
+        ("print(not ok(1), (not pk(2)))", "pk"),
+        ("local t = {not a1(1), b1(2)}", "b1"),
+        ("a = not (c1(1))", "c1"),
+    ],
+)
+def test_lua_call_after_concat_or_not(body, callee):
+    assert callee in _lua(body)
+
+
+def test_lua_anonymous_function_calls_belong_to_the_enclosing_unit():
+    """C8: a function expression inside a named unit is part of it (`debugger.lua` `repl = function` is top level)."""
+    code = "local function f()\n  local cb = function(x)\n    foo(x)\n  end\n  g(function() bar() end)\nend\n"
+    assert set(_calls("lua", code, "f")) == {"foo", "g", "bar"}
+
+
+def test_lua_top_level_function_expression_is_not_a_named_unit():
+    """`repl = function(r) ... end` at file level has no enclosing named unit (anonymous is never func_start, #5685):
+    its calls sit in a synthetic bucket the DB does not store, so the #5630 oracle, which hands them to the previous
+    unit, reports them as `run_command` misses (edge-classic debugger.lua:456)."""
+    code = "local function a()\n  x()\nend\nrepl = function(r)\n  while not frame_has_line(1) do y() end\nend\n"
+    functions = _functions("lua", code)
+    assert functions["a"]["calls_out_to"] == ["x"]
+    assert "repl" not in functions
+    assert {"frame_has_line", "y"} <= set(functions["Anonymous_Block"]["calls_out_to"])
 
 
 def test_tcl_command_after_a_closing_brace():

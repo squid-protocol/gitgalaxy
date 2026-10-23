@@ -1,5 +1,5 @@
 {
- "commit": "f6f97b8ba",
+ "commit": "a181fac1e",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -115,10 +115,10 @@
   },
   "mutation": {
    "adjusted_kill_pct": 87.4,
-   "adjusted_total": 3976,
-   "killed": 3475,
+   "adjusted_total": 3985,
+   "killed": 3484,
    "ports": 59,
-   "raw_kill_pct": 67.7,
+   "raw_kill_pct": 67.9,
    "raw_total": 5134
   },
   "translator": {
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-23T01:37:23Z",
+  "as_of": "2026-10-23T01:45:24Z",
   "core": {
    "closed": 161,
    "open": 25,

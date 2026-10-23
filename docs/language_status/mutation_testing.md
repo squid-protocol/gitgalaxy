@@ -571,6 +571,15 @@ value that the setter writes at scale 2, so they survive the new scenarios and a
 (balance minus amount is at most 1,000,000,000.00, 10 digits). The scores are not re-run, and `mutation_scores.json` is not edited.
 `test_carddemo_wide_balance_5401.py` pins the accounts, the xref rows and the scenarios.
 
+**Mapset on tranlist** (#5401, 2026-10-23). COTRN00C sends and receives map `COTRN0A` of mapset `COTRN00`, and `carddemo-tranlist/case.json` stated no `"maps"`, so the stub
+did not check the mapset on the COBOL side. The survivors that named this gap, `31b9d4be47` (the ERASE SEND MAP at line 537) and `16f2ecb581` (the no-ERASE SEND MAP at 539),
+were judged before #5862 made the comparator compare the MAPSET of a SEND / RECEIVE MAP: re-run with `mutation.py run --only` (seed 0) against the case as it stood on main
+(`--case-file`), both are already killed (`mapset` differs, `COTRN00` against `XOTRN00`), so they were never a case gap any more and the useradd harness gap
+(`ccaa395318`) is closed the same way. The case now also states `"maps": {"COTRN0A": {"mapset": "COTRN00"}}`, the form `carddemo-useradd` uses, so a SEND MAP or RECEIVE MAP
+for a map its mapset does not hold abends ABM0 on the COBOL side too; tranlist is still proven on 36 scenarios (96/101 branches). The scores are not re-run, and
+`mutation_scores.json` is not edited.
+`test_carddemo_tranlist_maps_5401.py` pins the stated map and mapset.
+
 #4047 then scored six CardDemo batch ports (readxref, readcust, dailyval, intcalc, posttran, trnrpt; seed 0, up to 100
 mutants each, `--jobs 3`, fast mode). These rows are seed 0 and differ from the older seed-1 CBACT04C, CBTRN02C and
 CBTRN03C figures above. The case gaps repeat across the six: `displayIoStatus` takes a numeric test on both status bytes,

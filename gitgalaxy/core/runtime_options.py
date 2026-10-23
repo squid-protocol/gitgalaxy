@@ -243,7 +243,8 @@ def _bind_hits(path: str, value: Any, source: str | None) -> list[dict[str, Any]
 # #4707: the Language Environment options whose value is judged for syntax. The rows above keep their policy (a
 # well-formed value is honoured, declared or refused exactly as before); a value that is not LE syntax at all is not
 # one IBM accepts, so it is refused by name instead of being declared or blamed on TRAP(OFF) / RETCODE.
-# `normal` returns the value in the table's spelling (omitted fields filled with the IBM default), or None if malformed.
+# `normal` returns the value with omitted fields filled in, or None if malformed (only used to judge syntax: the outcome
+# of a well-formed value is still decided on the spelling the file records).
 LE_PREFIX = "le.runtime_options."
 _STORAGE_DEFAULT = ("NONE", "NONE", "NONE", "0K")
 
@@ -275,7 +276,7 @@ def _normal_trap(state: str) -> str | None:
 LE_OPTIONS: dict[str, dict[str, Any]] = {
     "STORAGE": {"normal": _normal_storage,
         "grammar": "up to four comma-separated fields: allocated-storage init, freed-storage init, stack init (each NONE "
-                   "or a two-digit hex byte), reserve size (digits, optional K); an omitted field is the IBM default"},
+                   "or a two-digit hex byte), reserve size (digits, optional K); an omitted field is allowed"},
     "TRAP": {"normal": _normal_trap, "grammar": "ON or OFF, optionally followed by SPIE or NOSPIE"},
     "ABTERMENC": {"normal": lambda state: state if state in ("ABEND", "RETCODE") else None,
         "grammar": "ABEND or RETCODE"},
@@ -289,11 +290,6 @@ def le_rows() -> list[str]:
         "is judged by the row above |"
         for key, r in LE_OPTIONS.items()
     ]
-
-
-def _le_normal(path: str, state: str) -> str:
-    row = LE_OPTIONS.get(path[len(LE_PREFIX) :]) if path.startswith(LE_PREFIX) else None
-    return state if row is None else (row["normal"](state) or state)
 
 
 def _le_hits(path: str, value: Any, source: str | None) -> list[dict[str, Any]]:
@@ -369,7 +365,6 @@ def runtime_unhonoured(
             if bad := _le_hits(path, value, (sources or {}).get(path)):
                 out.extend(bad)
                 continue
-            state = _le_normal(path, state)
             if path == TRANSLATOR_OPTION:
                 out.extend(_translator_hits(path, value, (sources or {}).get(path)))
             elif path == PRECOMPILE_OPTION:

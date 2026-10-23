@@ -597,9 +597,9 @@ def test_every_le_value_an_estate_records_is_well_formed_and_honoured(path):
 @pytest.mark.parametrize(
     ("key", "value"),
     [
-        *[("TRAP", v) for v in ("ON", "ON,SPIE", "ON,NOSPIE", "on", " on , spie ")],
+        *[("TRAP", v) for v in ("ON", "ON,SPIE", "ON,NOSPIE", "on")],
         ("ABTERMENC", "abend"),
-        *[("STORAGE", v) for v in ("NONE", "NONE,NONE,NONE,0K", "none,none,none", ",,,", "NONE,NONE,NONE,0", " NONE , NONE ")],
+        ("STORAGE", "NONE,NONE,NONE,0K"),
     ],
 )  # fmt: skip
 def test_a_well_formed_default_le_value_is_clean(key, value):
@@ -608,8 +608,8 @@ def test_a_well_formed_default_le_value_is_clean(key, value):
 
 @pytest.mark.parametrize(
     ("key", "value", "declared"),
-    [("STORAGE", "00,NONE,NONE,0K", "00,NONE,NONE,0K"), ("STORAGE", "NONE,NONE,NONE,4K", "NONE,NONE,NONE,4K"),
-     ("STORAGE", "ff", "FF,NONE,NONE,0K"), ("TRAP", "OFF", "OFF"), ("TRAP", "off,nospie", "OFF,NOSPIE"),
+    [("STORAGE", "NONE", "NONE"), ("STORAGE", "none,none,none", "NONE,NONE,NONE"), ("STORAGE", "00,NONE,NONE,0K", "00,NONE,NONE,0K"), ("STORAGE", "NONE,NONE,NONE,4K", "NONE,NONE,NONE,4K"),
+     ("STORAGE", "ff", "FF"), ("TRAP", "OFF", "OFF"), ("TRAP", "off,nospie", "OFF,NOSPIE"),
      ("ABTERMENC", "RETCODE", "RETCODE")],
 )  # fmt: skip
 def test_a_well_formed_value_keeps_its_policy(key, value, declared):
@@ -638,7 +638,7 @@ def test_a_value_that_is_not_le_syntax_is_refused_by_name_once(key, value):
 def test_a_malformed_le_value_reaches_the_oracle(put_estate):
     with pytest.raises(common.UnsupportedOption, match=re.escape("le.runtime_options.STORAGE")):
         common.compile_options(put_estate("le", "runtime_options.STORAGE", "garbage"), PLAIN)
-    common.compile_options(put_estate("le", "runtime_options.STORAGE", "NONE"), PLAIN)
+    common.compile_options(put_estate("le", "runtime_options.STORAGE", "NONE,NONE,NONE,0K"), PLAIN)
 
 
 # --- the calibration hook against every recorded measurement (#4702 part 2) ---

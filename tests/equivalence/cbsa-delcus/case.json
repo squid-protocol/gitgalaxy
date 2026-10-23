@@ -158,6 +158,54 @@
     }
    ],
    "why": "the DELETE of the CUSTOMER record fails with IOERR: the program's failure path"
+  },
+  {
+   "name": "read-notfnd-after-inquiry",
+   "commarea": {
+    "COMM-CUSTNO": "0000000002"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "NOTFND",
+     "nth": 3,
+     "why": "13 on DELCUS's READ UPDATE (the 3rd READ of CUSTOMER in the task: INQCUST, INQACCCU's INQCUST, DELCUS)"
+    }
+   ],
+   "why": "someone else deleted the CUSTOMER record after INQCUST found it: DELCUS's READ FOR UPDATE gets NOTFND and goes to DCV999 -- the accounts are already deleted, the record is not deleted again, COMM-DEL-SUCCESS 'Y'"
+  },
+  {
+   "name": "read-ioerr",
+   "commarea": {
+    "COMM-CUSTNO": "0000000002"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "nth": 3,
+     "why": "17 on DELCUS's READ UPDATE (the 3rd READ of CUSTOMER in the task)"
+    }
+   ],
+   "why": "DELCUS's READ FOR UPDATE gets IOERR, neither SYSIDERR nor NOTFND: the abend path (ABNDPROC linked, the task abends)"
+  },
+  {
+   "name": "delete-sysiderr-retried",
+   "commarea": {
+    "COMM-CUSTNO": "0000000002"
+   },
+   "faults": [
+    {
+     "cmd": "DELETE",
+     "file": "CUSTOMER",
+     "resp": "SYSIDERR",
+     "nth": 1,
+     "why": "53 on the first DELETE"
+    }
+   ],
+   "why": "the DELETE of the CUSTOMER record gets SYSIDERR once: DELAY 3 seconds (a task takes no time, X4), DELETE again, then the deletion succeeds -- the DELETE twin of read-sysiderr-retried"
   }
  ],
  "notes": "CBSA's delete-customer service (DELCUS, LINKed by BNK1DCS with the DELCUS copybook's COMMAREA). It LINKs INQCUST (the customer must exist: 'N' and INQCUST's fail code otherwise), lists the customer's accounts through INQACCCU (SYNCONRETURN), LINKs DELACC for each (ACCOUNT row deleted, PROCTRAN 'ODA' row written, as in cbsa-delacc), then READs the CUSTOMER record FOR UPDATE and DELETEs it, retrying on SYSIDERR (DELAY FOR SECONDS(3), no time passes in a task, oracle_assumptions.md X4). ACCOUNT, PROCTRAN, CUSTOMER and ABNDFILE are compared after every scenario. Data: seed.sql is cbsa-delacc's and customer.txt is cbsa-bnk1cca's (SYNTHETIC). Not reached: failure branches no fault can be injected on (ASKTIME / FORMATTIME / ASSIGN, the Db2 INSERT of the PROCTRAN row, LINK DELACC). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

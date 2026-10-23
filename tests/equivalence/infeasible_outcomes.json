@@ -708,6 +708,154 @@
     "reason": "`IF OPENED-DATE-ATTEMPTS > 100` (GENERATE-OPENED-DATE, performed UNTIL OPENED-DATE-VALID = 'Y', line 730) needs 100 draws in a row where the opened year is not above the birth year (line 912). The year is ((2014 - CUSTOMER-BIRTH-YEAR) * FUNCTION RANDOM) + CUSTOMER-BIRTH-YEAR (lines 892-895) and the birth year is drawn from 1900-1999 (line 527), so a draw fails only when FUNCTION RANDOM is under 1 / (2014 - birth year), at most 1/15: 100 in a row has probability under 15^-100 and the PARM seed cannot be searched to it. Not a logical impossibility: reviewed as unreachable in practice, to be kept under owner review."
    }
   ],
+  "cbsa-bnk1cra": [
+   {
+    "unit": "A010",
+    "line": 271,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OCRA') COMMAREA(WS-COMM-AREA) LENGTH(21)` (263-269): RETURN never comes back on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for it with a 21-byte COMMAREA and an installed TRANSID."
+   },
+   {
+    "unit": "A010",
+    "line": 271,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "R",
+    "reason": "Same test (271): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+   },
+   {
+    "unit": "SM010",
+    "line": 657,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND MAP ERASE (648 on): IBM raises no condition for a map the program has just built from its own BNK1CDO, and no fault can be injected on it."
+   },
+   {
+    "unit": "SM010",
+    "line": 722,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "C",
+    "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 51), set by no statement: only `SET SEND-ERASE` (188) and `SET SEND-DATAONLY-ALARM` (244, 354) write the flag."
+   },
+   {
+    "unit": "SM010",
+    "line": 731,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "C",
+    "reason": "The RESP test inside the `IF SEND-DATAONLY` block (722), which is never entered."
+   },
+   {
+    "unit": "SM010",
+    "line": 731,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "The RESP test inside the `IF SEND-DATAONLY` block (722), which is never entered."
+   },
+   {
+    "unit": "SM010",
+    "line": 796,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SM010 after the first SEND MAP and '2' is never set (see 722), so the test is always true."
+   },
+   {
+    "unit": "SM010",
+    "line": 806,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND MAP DATAONLY ALARM (796 on): IBM raises no condition for a map the program has just built from its own BNK1CDO, and no fault can be injected on it."
+   },
+   {
+    "unit": "STM010",
+    "line": 884,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND TEXT ERASE FREEKB that writes the termination message (876-882): IBM raises no condition for it on a terminal that just sent a map, and no fault can be injected on it."
+   }
+  ],
+  "cbsa-bnk1uac": [
+   {
+    "unit": "A010",
+    "line": 303,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OUAC') COMMAREA(WS-COMM-AREA) LENGTH(99)` (296-301): RETURN never comes back to the program on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for a RETURN whose COMMAREA is 99 bytes and TRANSID names an installed transaction."
+   },
+   {
+    "unit": "A010",
+    "line": 303,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "R",
+    "reason": "Same test (303): a RETURN that succeeds ends the task, so the fall-through arm where RESP is NORMAL is never executed."
+   },
+   {
+    "unit": "SM010",
+    "line": 1083,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`RESP(WS-CICS-RESP)` is set by the SEND MAP ERASE at 1074-1081; IBM raises no condition here for a map the program has just built from its own BNK1UAO (a MAPFAIL belongs to RECEIVE MAP), and no fault can be injected on it."
+   },
+   {
+    "unit": "SM010",
+    "line": 1149,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "C",
+    "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 51), which is set only by `SET SEND-ERASE` (208) and `SET SEND-DATAONLY-ALARM` (270, 404); no statement sets SEND-DATAONLY, so the flag is never '2'."
+   },
+   {
+    "unit": "SM010",
+    "line": 1159,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "C",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` lies inside the `IF SEND-DATAONLY` block (1149), which is never entered (see 1149 true)."
+   },
+   {
+    "unit": "SM010",
+    "line": 1159,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "Same nested test inside the `IF SEND-DATAONLY` block (1149), never entered."
+   },
+   {
+    "unit": "SM010",
+    "line": 1224,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) takes the SEND-MAP-ERASE branch ahead of it and ends at SM999, and '2' is never set (see 1149), so the test is always true."
+   },
+   {
+    "unit": "SM010",
+    "line": 1235,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`RESP(WS-CICS-RESP)` is set by the SEND MAP DATAONLY ALARM at 1225-1233; IBM raises no condition here for a map the program has just built from its own BNK1UAO (a MAPFAIL belongs to RECEIVE MAP), and no fault can be injected on it."
+   },
+   {
+    "unit": "STM010",
+    "line": 1314,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`RESP(WS-CICS-RESP)` of the SEND TEXT ERASE FREEKB (1305-1311) that writes the termination message: IBM raises no condition for it on a terminal that just sent a map, and no fault can be injected on it."
+   }
+  ],
   "cbsa-delacc": [
    {
     "unit": "RAD010",

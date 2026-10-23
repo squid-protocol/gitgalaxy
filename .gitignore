@@ -165,6 +165,8 @@ docs/language_status/evidence_report/*
 !tests/cobol_mainframe/ground_truth_ledger.json
 # ...and the port-side blocker ledger (#5051, tests/tools/port_blockers.py).
 !tests/cobol_mainframe/port_blockers.json
+# ...and the customer-blocker signature catalogue (#5054, tests/tools/blocker_ingest.py).
+!tests/cobol_mainframe/blocker_signatures.json
 # ...and the fresh-estate trial ledger (#3805, tests/tools/trial.py).
 !tests/cobol_mainframe/trials.json
 # ...and the CICS crucible runner's ratchet ledger and its fixture case (#3989): the fixture is in the

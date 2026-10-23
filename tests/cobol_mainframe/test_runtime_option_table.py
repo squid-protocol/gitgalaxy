@@ -54,7 +54,9 @@ HONOURED = [
     ("le", "runtime_options.TRAP", "on"),
     ("le", "runtime_options.ABTERMENC", "ABEND"),
     ("db2", "format.DATE", "ISO"),
+    ("db2", "format.TIME", "ISO"),
     ("db2", "format.DEC", "15"),
+    ("db2", "format.DECPT", "."),
     ("db2", "ccsid.EBCDIC_CCSID", "037"),
     ("db2", "ccsid.EBCDIC_CCSID", "1140"),
     ("cics", "region.LOCALCCSID", "37"),
@@ -338,3 +340,13 @@ def test_storage_used_by_matches_the_programs_register_l3_names():
 def test_the_register_lists_every_used_by_row():
     text = (ROOT / "docs" / "language_status" / "register" / "C18.md").read_text(encoding="utf-8")
     assert not [row for row in used_by_rows() if row not in text]
+
+
+@pytest.mark.parametrize("key", ["DATE", "TIME", "DEC", "DECPT"])
+def test_a_db2_format_row_honours_only_its_default_and_names_it(key):
+    """The row's claim about the cases ("run in ISO / DEC(15) / with a period") is its default, the one value honoured."""
+    row = RUNTIME_OPTION_TABLE[f"db2.format.{key}"]
+    assert row["honoured"] == (row["default"],) and row["policy"] == "refuse"
+    claim = row["reason"].split("; the Db2 cases run ", 1)[1]
+    assert {"DATE": "ISO", "TIME": "ISO", "DEC": "DEC(15)", "DECPT": "a period"}[key] in claim
+    assert row["default"] in {"ISO", "15", "."}

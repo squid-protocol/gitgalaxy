@@ -1520,6 +1520,139 @@
           "ACTBALI": "+0000098765.43"
         }
       }
+    },
+    {
+      "name": "rate-signed-whole",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "rate '+5': not NUMERIC as a class, no decimal point, so the point count is 0 and the one-point branch is skipped",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "+5",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      }
+    },
+    {
+      "name": "link-inqacc-pgmiderr",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "ENTER with account 2 while LINK INQACC fails with PGMIDERR: the non-NORMAL arm after the LINK",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "LINK",
+          "program": "INQACC",
+          "resp": "PGMIDERR",
+          "nth": 1,
+          "why": "LINK INQACC refused"
+        }
+      ]
+    },
+    {
+      "name": "link-updacc-pgmiderr",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "PF5 update of account 2 while LINK UPDACC fails with PGMIDERR: the non-NORMAL arm after the LINK",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "LINK",
+          "program": "UPDACC",
+          "resp": "PGMIDERR",
+          "nth": 1,
+          "why": "LINK UPDACC refused"
+        }
+      ]
+    },
+    {
+      "name": "link-inqacc-notauth",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "ENTER with account 2 while LINK INQACC fails with NOTAUTH: the non-NORMAL arm after the LINK",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "LINK",
+          "program": "INQACC",
+          "resp": "NOTAUTH",
+          "nth": 1,
+          "why": "LINK INQACC refused"
+        }
+      ]
+    },
+    {
+      "name": "link-updacc-notauth",
+      "aid": "DFHPF5",
+      "commarea": {},
+      "why": "PF5 update of account 2 while LINK UPDACC fails with NOTAUTH: the non-NORMAL arm after the LINK",
+      "receive": {
+        "BNK1UA": {
+          "ACCNOI": "00000002",
+          "ACTYPEI": "SAVING  ",
+          "INTRTI": "3.25",
+          "OVERDRI": "100",
+          "OPENDDI": "31",
+          "OPENMMI": "01",
+          "OPENYYI": "2020",
+          "LSTMTDDI": "01",
+          "LSTMTMMI": "08",
+          "LSTMTYYI": "2026",
+          "NSTMTDDI": "01",
+          "NSTMTMMI": "09",
+          "NSTMTYYI": "2026",
+          "AVBALI": "+0000098765.43",
+          "ACTBALI": "+0000098765.43"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "LINK",
+          "program": "UPDACC",
+          "resp": "NOTAUTH",
+          "nth": 1,
+          "why": "LINK UPDACC refused"
+        }
+      ]
     }
   ],
   "notes": "CBSA's update-account screen (BNK1UAC, transaction OUAC, BMS map BNK1UA of mapset BNK1UAM: the symbolic map is generated from src/base/bms_src/BNK1UAM.bms). Pseudo-conversational: a first task sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 RETURN TRANSID('OMEN') IMMEDIATE, PF12 the termination message, CLEAR, ENTER (inquiry: EDIT-DATA, LINK INQACC) -- ACCNO is the map's only NUM field, so no scenario types letters into it: a 3270 numeric field cannot key them (owner decision on #5116, 2026-10-15: inquire-non-numeric dropped; INTRT and OVERDR are not NUM, so their letter scenarios stay), PF5 (update: VALIDATE-DATA of the type, interest rate, overdraft and both statement dates, then LINK UPDACC), any other key 'Invalid key pressed.'. INQACC, UPDACC and ABNDPROC run in the task, as in cbsa-inqacc and cbsa-updacc. ACCOUNT and PROCTRAN are compared after every scenario. Rates typed are exact in IEEE and HFP (oracle_assumptions.md C6), and none makes the second INSPECT's reference modification run past INTRTI. Not reached: the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK (no fault can be injected on them). Data: seed.sql is cbsa-bnk1dac's SYNTHETIC seed. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",

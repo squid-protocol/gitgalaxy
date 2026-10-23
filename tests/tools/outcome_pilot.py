@@ -99,6 +99,18 @@ PILOT_REPOS: dict[str, dict[str, Any]] = {
         "burned": True,
         "subdir": "zBuilder/MortgageApplication",
     },
+    # The same sample in its 2019 layout: Build/MortgageApplication, committed 2019-03-16 and deleted later. The 2025
+    # zBuilder tree is a copy (all files "A" in 0f8a61f), so `--follow` cannot reach this history; it needs its own pin.
+    "dbb-mortgage-2019": {
+        "url": "https://github.com/IBM/dbb",
+        "pin": "ecd713f",
+        "burned": True,
+        "subdir": "Build/MortgageApplication",
+        # the scanner's aperture drops anything under a `Build/` directory, and `git archive` re-encodes the sources to
+        # EBCDIC: export the raw blobs of the subtree at the snapshot root, prefix the subdir back on when joining history
+        "strip_subdir": True,
+        "clone_as": "dbb-mortgage",
+    },
     "async-credit-card": {
         "url": "https://github.com/cicsdev/cics-async-api-credit-card-application-example",
         "pin": None,
@@ -239,7 +251,7 @@ def history_after_pin(
 
 # --- scanning ----------------------------------------------------------------------------------------------------
 def _repo_dir(work: Path, name: str) -> Path:
-    return work / "clones" / name
+    return work / "clones" / PILOT_REPOS[name].get("clone_as", name)
 
 
 def resolve_pin(repo: Path, entry: dict[str, Any], pin_fraction: float = 0.5) -> str:
@@ -247,6 +259,16 @@ def resolve_pin(repo: Path, entry: dict[str, Any], pin_fraction: float = 0.5) ->
         return _git(repo, "rev-parse", entry["pin"]).strip()
     shas = _git(repo, "rev-list", "--first-parent", "--reverse", "HEAD").split()
     return shas[min(len(shas) - 1, int(len(shas) * pin_fraction))]
+
+
+def _strip_args(entry: dict[str, Any]) -> list[str]:
+    if not (entry.get("strip_subdir") and entry.get("subdir")):
+        return []
+    return [f"--strip-components={len(Path(entry['subdir']).parts)}"]
+
+
+def _history_path(entry: dict[str, Any], rel: str) -> str:
+    return f"{entry['subdir']}/{rel}" if _strip_args(entry) else rel
 
 
 def _subdir_args(entry: dict[str, Any]) -> list[str]:
@@ -262,6 +284,25 @@ def cmd_clone(work: Path, names: list[str]) -> None:
         subprocess.run(["git", "clone", "--quiet", PILOT_REPOS[name]["url"], str(dest)], check=True)
 
 
+def export_raw_tree(repo: Path, pin: str, subdir: str, dest: Path) -> None:
+    """Write the blobs under `subdir` at `pin` to `dest` with the subdir prefix removed, bytes as committed.
+
+    `git archive` applies `working-tree-encoding` attributes (the DBB sample's `zos-working-tree-encoding: ibm-1047`),
+    which turns the committed ASCII sources into newline-less EBCDIC that the aperture refuses; `git show` does not.
+    """
+    listing = subprocess.run(
+        ["git", "-C", str(repo), "ls-tree", "-r", "-z", "--name-only", pin, subdir], capture_output=True, check=True
+    ).stdout
+    for raw in listing.split(b"\0"):
+        if not raw:
+            continue
+        path = raw.decode("utf-8")
+        blob = subprocess.run(["git", "-C", str(repo), "show", f"{pin}:{path}"], capture_output=True, check=True).stdout
+        target = dest / path[len(subdir) :].lstrip("/")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(blob)
+
+
 def cmd_scan(work: Path, names: list[str]) -> None:
     for name in names:
         repo = _repo_dir(work, name)
@@ -270,11 +311,14 @@ def cmd_scan(work: Path, names: list[str]) -> None:
         out = work / "scans" / name
         if not snap.exists():
             snap.mkdir(parents=True)
-            archive = subprocess.Popen(
-                ["git", "-C", str(repo), "archive", pin, *_subdir_args(PILOT_REPOS[name])], stdout=subprocess.PIPE
-            )
-            subprocess.run(["tar", "-x", "-C", str(snap)], stdin=archive.stdout, check=True)
-            archive.wait()
+            if _strip_args(PILOT_REPOS[name]):
+                export_raw_tree(repo, pin, PILOT_REPOS[name]["subdir"], snap)
+            else:
+                archive = subprocess.Popen(
+                    ["git", "-C", str(repo), "archive", pin, *_subdir_args(PILOT_REPOS[name])], stdout=subprocess.PIPE
+                )
+                subprocess.run(["tar", "-x", "-C", str(snap)], stdin=archive.stdout, check=True)
+                archive.wait()
         out.mkdir(parents=True, exist_ok=True)
         env = dict(os.environ, GITGALAXY_DISABLE_GIT_HISTORY="1")
         subprocess.run(
@@ -342,7 +386,8 @@ def cmd_label(work: Path, names: list[str], window_days: int) -> None:
             dbs = sorted(scan_dir.glob("*.db"))
             files = read_scan(dbs[0])
             snap = work / "snapshots" / name
-            by_rel = {relative_path(f["path"], snap): f for f in files}
+            entry = PILOT_REPOS[name]
+            by_rel = {_history_path(entry, relative_path(f["path"], snap)): f for f in files}
             commits = history_after_pin(repo, pin, window_days, PILOT_REPOS[name].get("subdir"))
             fixes, touches, _final = later_fix_counts(commits, by_rel)
             sample_rng = random.Random(f"{SEED}:{name}")

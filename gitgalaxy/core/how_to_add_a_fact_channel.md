@@ -122,15 +122,17 @@ dialect that predates the channel is not a missing-key error. It then propagates
 
 ### 4. Persist a per-file child table (`record_keeper.py`)
 
-- `CREATE TABLE IF NOT EXISTS <name>_data (…, file_id INTEGER, …, FOREIGN KEY(file_id) REFERENCES
-  file_data(id) ON DELETE CASCADE)` next to `dataset_data`, plus `idx_<name>_file_id` and
-  `idx_<name>_snapshot`. The FK cascade is load-bearing: the idempotent per-snapshot wipe deletes
+- **Schema: the `FactChannel` entry's `ddl` (`CREATE TABLE IF NOT EXISTS <name>_data (…, file_id INTEGER, …,
+  FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE)`), `extra_columns` (one
+  `_ensure_columns` group per tuple, for a column added after the table first shipped) and `indexes`
+  (`idx_<name>_file_id`, `idx_<name>_snapshot`).** Then add one
+  `create_channel_table(cursor, "<name>", _ensure_columns)` line in `record_keeper`
+  beside the other channels (the call order is the `sqlite_master` order, so it stays explicit). The FK cascade is load-bearing: the idempotent per-snapshot wipe deletes
   `file_data` rows and your children go with them — no explicit DELETE needed.
 - **Insert: add one `FactChannel` entry to `CHANNELS` in `gitgalaxy/core/fact_channels.py` (#3383).**
   It names the `table`, the `payload_key`, the `columns` *after* the standard
   `(repo_name, commit_hash, file_id)`, and a `to_row(item)` mapping each payload dict to those
-  columns; `record_keeper` loops over the registry and calls `_insert_per_file_child`. The
-  `CREATE TABLE` stays in `record_keeper` for now. (This is for **per-file** facts. The call graph is
+  columns; `record_keeper` loops over the registry and calls `_insert_per_file_child`. (This is for **per-file** facts. The call graph is
   different — see "Per-file vs global" below. A channel needing a custom insert is still hand-wired
   in `record_keeper` until the registry grows a hook for it.)
 
@@ -249,7 +251,7 @@ seams — this doc's channel table, `galaxy_ir.py`'s SCOPE comment and accessors
 PR on exactly those seams (tracked as the shared-seam problem in #3383, the golden-master/ruff-
 baseline layout problem in #3384). That cost roughly 8 rebase cycles of 15–40 minutes each in that
 round, and one answer-key merge had to be redone by hand. The #3383 registry now removes the
-persist and restore seams (steps 4-5); the rest are still shared, so rebase like this:
+schema, persist and restore seams (steps 4-5); the rest are still shared, so rebase like this:
 
 1. `git fetch origin` and rebase onto `origin/main` — take **main's side** of any golden-master or
    ruff-baseline conflict wholesale, never hand-merge JSON/baseline entries.

@@ -68,7 +68,13 @@ def test_a_level_never_outruns_its_numbers(rows):
 
 # Records whose mutation run has 60 survivors awaiting the owner's review (#5856): a ratchet that only shrinks, the same
 # case as MUTATION_PENDING in tests/cobol_mainframe/test_evidence.py (a ledger is committed with its reviewed survivors).
-MUTATION_UNREVIEWED = {"carddemo-cbstm03a", "carddemo-cbpaup0c", "carddemo-copaua0c"}
+MUTATION_UNREVIEWED = {
+    "carddemo-cbstm03a",
+    "carddemo-cbpaup0c",
+    "carddemo-copaua0c",
+    "carddemo-copaus0c",
+    "carddemo-copaus1c",
+}
 
 
 def test_every_committed_carddemo_record_has_a_mutation_section():

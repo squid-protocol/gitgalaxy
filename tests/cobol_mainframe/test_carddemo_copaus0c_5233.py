@@ -91,3 +91,14 @@ def test_a_dto_list_property_is_a_table_field_the_json_never_carries(tmp_path):
     assert shape == {"cdemoPage": "CDEMO-PAGE", "cdemoKeys": "CDEMO-KEYS"}
     assert isinstance(shape["cdemoKeys"], ec.TableField)
     assert not isinstance(shape["cdemoPage"], ec.TableField)
+
+
+def test_the_committed_det_port_has_a_recorded_proof():
+    """`evidence.py prove` records a level only for a committed port: this one is the det translator's own."""
+    prov = json.loads((CASE / "port" / "provenance.json").read_text(encoding="utf-8"))
+    assert (prov["program"], prov["translator"]) == ("COPAUS0C", "det")
+    assert (CASE / "port" / "service" / "Copaus0cService.java").is_file()
+    rec = json.loads((CASE / "evidence.json").read_text(encoding="utf-8"))
+    assert rec["proof"]["verdict"] == "proven" and not rec["proof"]["java_failed"]
+    assert rec["provenance"]["written_by"] == "det"
+    assert rec["proof"]["runs"] >= len(SCENARIOS)

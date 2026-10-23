@@ -307,9 +307,12 @@ int GGCWRTD(gg_cics *c, char *from) {
  * is set to the record's own length. An extrapartition queue, a record moved past INTO: refused (X57, X6). */
 int GGCRDTD(gg_cics *c, char *into, int intolen) {
     char queue[17], hex[40], dir[4096], path[4200], ev[160], buf[32768];
-    char target[17];
-    int max = c->len, n = 0, copied = 0, shown = -1, kind, state = 0, fresp, fresp2;
+    char target[17], rec[16], fl[40];
+    int max = c->len, n = 0, copied = 0, shown = -1, kind, state = 0, fresp, fresp2, nosuspend;
     trim(c->qname, 16, queue);
+    trim(c->flags, 40, fl); /* #5168 (X61): TDNOSUSPEND, read once and cleared (FETCH leaves NOSUSPEND in the same field) */
+    nosuspend = strstr(fl, "TDNOSUSPEND") != NULL;
+    c->flags[0] = '\0';
     hex[0] = '\0';
     for (int i = 0; queue[i]; i++) sprintf(hex + 2 * i, "%02X", (unsigned char)queue[i]);
     c->resp = NORMAL;
@@ -332,7 +335,18 @@ int GGCRDTD(gg_cics *c, char *into, int intolen) {
         td_touch(target);
         td_dir(target, dir, sizeof dir);
         int head = td_head(dir), tail = td_tail(dir, head);
-        if (kind == 2 && injected("READQ-TD", queue, &fresp, &fresp2)) {
+        int busyable = kind == 1 && head == tail && td_attr(target, "RECOVSTATUS", rec, sizeof rec) && strcmp(rec, "LOGICAL") == 0;
+        if ((kind == 2 || busyable) && injected("READQ-TD", queue, &fresp, &fresp2)) {
+          if (busyable != (fresp == DFHRESP_QBUSY)) refuse("a planned READQ TD QBUSY is for a LOGICAL intrapartition queue with no record, IOERR for an extrapartition one");
+          if (busyable) {
+            /* #5168 (X61): a planned QBUSY on a LOGICAL intrapartition queue with no committed record; no RESP2 (IBM lists none) */
+            if (!nosuspend) {
+                snprintf(ev, sizeof ev, "READQ TD on a planned-busy queue without NOSUSPEND: %s (the task would be suspended)", queue);
+                refuse(ev);
+            }
+            c->resp = fresp;
+            c->resp2 = fresp2;
+          } else {
             /* #5168 (X61): a planned IOERR on an open input queue; IBM: "the data record in error is skipped", so the record
              * is consumed and nothing reaches INTO. Counted for an open extrapartition queue only, as CicsTask counts it. */
             c->resp = fresp;
@@ -344,6 +358,7 @@ int GGCRDTD(gg_cics *c, char *into, int intolen) {
                 FILE *f = fopen(path, "w");
                 if (f) { fprintf(f, "%d\n", head + 1); fclose(f); }
             }
+          }
         } else if (head == tail) {
             c->resp = DFHRESP_QZERO;
         } else {

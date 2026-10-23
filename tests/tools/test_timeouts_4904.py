@@ -259,3 +259,13 @@ def test_full_suite_gate_parts_are_complete_and_grids_agree():
     assert legs
     for key, parts in legs.items():
         assert sorted(parts) == list(range(1, key[2] + 1)), key
+
+
+def test_full_suite_gate_has_no_310_leg_and_caps_stay_in_plan_range():
+    """#5156: the 3.10 legs are gone (#3322), and every leg's cap sits inside the shard plan's floor/ceiling."""
+    import suite_shard_plan
+
+    entries = _full_suite_grids()[0]
+    assert not [e for e in entries if e["python-version"] == "3.10"]
+    for e in entries:
+        assert suite_shard_plan.GATE_TIMEOUT_FLOOR <= e["timeout"] <= suite_shard_plan.GATE_TIMEOUT_CEILING, e

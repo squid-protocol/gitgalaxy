@@ -135,6 +135,8 @@ jobs:
     # 33, macOS ~29, all cancelled/killed at 30/35/28), so every leg now runs in 2 parts. A leg that sets "timeout" overrides the default.
     # 2026-10-20: windows 3.11 parts took 22-25 min of a 33-min cap (#5764) -> 3 parts (~17-18 min each with setup, cap 27); macOS parts
     # up to 16.7 min -> cap 26 (was 22).
+    # 2026-10-22 (#5156): re-measured over 5 main runs, worst job wall time ubuntu 8 min (cap 20), windows 3.11 11 (27), windows 3.12 13 (25),
+    # macOS 12 (26): every cap is >=1.9x, none outgrown, kept (#5776 added that headroom). The Python 3.10 legs it listed are gone (#3322).
     timeout-minutes: ${{ matrix.timeout || 30 }}
     env:
       PYTHONUTF8: "1"

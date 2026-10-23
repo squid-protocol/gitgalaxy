@@ -3749,7 +3749,8 @@
    "family": "DLI",
    "title": "REPL / DLET on the segment the previous get-hold call returned; DJ without one, DA when the I/O area changed the sequence field; DLET removes the segment's dependents",
    "methods": [
-    "change"
+    "change",
+    "changePath"
    ],
    "ibm": {
     "doc": "ims-apis",

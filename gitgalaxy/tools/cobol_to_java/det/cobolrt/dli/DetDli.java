@@ -1425,10 +1425,10 @@ public final class DetDli {
         status(p, "  ");
     }
 
-    /** CALL 'CBLTDLI' USING function pcb io-area [ssa ...]. */
     /** REPL / DLET after a D-coded get-hold (#5233): the I/O area holds the segments the get returned, one after another. REPL
      *  replaces each segment from its slice of the area except those coded N; a changed sequence field in any replaced one is DA
      *  and nothing is replaced. A DLET after a path call is not modelled. */
+    // [rule RT-DLI-CHANGE]
     private static void changePath(Pcb p, boolean dlet, Field io, List<Node> path, boolean[] skip) {
         if (dlet) {
             throw refuse("a DLET after a path call (command code D)");
@@ -1462,6 +1462,7 @@ public final class DetDli {
         }
     }
 
+    /** CALL 'CBLTDLI' USING function pcb io-area [ssa ...]. */
     // [rule RT-DLI-CALL]
     public static void call(Field function, Field pcb, Field io, Field... ssas) {
         if (PCBS.isEmpty()) {

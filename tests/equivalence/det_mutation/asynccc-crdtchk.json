@@ -5,8 +5,8 @@
  "case": "asynccc-crdtchk",
  "entry": {
   "program": "CRDTCHK",
-  "commit": "0db32bd5d669c5dfc7b39b17000e1e6be0156f87",
-  "date": "2026-10-22",
+  "commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+  "date": "2026-10-23",
   "mode": "fast",
   "seed": 0,
   "mutants": 223,
@@ -14,231 +14,65 @@
   "chosen": 223,
   "coverage": "proven on 3 scenarios, covering 1/1 paragraphs and 2/2 branches",
   "counts": {
-   "killed": 217,
+   "killed": 51,
    "timeout": 0,
-   "survived": 0,
+   "survived": 166,
    "stillborn": 6,
    "error": 0,
    "pending": 0
   },
   "killed": [
-   "01616f0a9b",
    "02e54f124e",
-   "03f93fc336",
    "0664c8023e",
-   "076bccc60c",
    "082163990b",
    "08775b57ab",
-   "094e107ba6",
-   "096bc71fee",
-   "09b00442c4",
-   "09fce7661e",
-   "0bc9c2ab64",
-   "0d830de575",
-   "0d8a7c8ef3",
-   "0d9db318ff",
-   "0f1098b824",
-   "115d0dceec",
-   "11b1d0acb5",
-   "12dd0ecc38",
    "13e4190c0c",
    "168b41f8c4",
-   "17ba133ba4",
-   "18f63bb48a",
-   "1b3057f597",
    "1b762de3e4",
    "1b8dc581f4",
    "1bdc99977a",
-   "1db54b5dc8",
-   "1ddf669eb8",
-   "2149acdd4a",
-   "215592f990",
    "21ab4586b4",
-   "21d499cafb",
-   "23c375bac3",
-   "244de86c9a",
-   "24b6d91fd2",
-   "26d967c8f3",
-   "272c8f287e",
    "284ff1c979",
-   "28dd36eac1",
    "297e4a185e",
-   "29c0ad5294",
-   "2bb2bdbd60",
-   "2c2addcf0b",
    "2c95ee311a",
-   "2d4935ff91",
-   "2d64d9ce59",
    "2ef1854cbb",
-   "2ff6052094",
-   "30d0ac63b4",
-   "31a9ddc930",
-   "32163f7eb2",
-   "321fc28386",
-   "3245ee2583",
-   "33c18d79c9",
-   "348590d331",
-   "3497690190",
-   "375415e621",
-   "37cff8371d",
    "383b952d76",
-   "388158fd32",
-   "38dd9dd018",
-   "395c68e796",
    "3cba6b9dcd",
-   "3cdb0d352e",
-   "3e92d351eb",
    "3fd44c9db8",
-   "400230e5ba",
-   "40ce5c22a3",
    "40f78cdb31",
-   "44c33eecd6",
-   "44e8940e4c",
    "4547b6e888",
    "456f53fb22",
-   "4580e202e6",
    "458ab95191",
-   "48348a99e4",
    "4875fbda3a",
-   "48db3763a4",
-   "4bbeca5235",
    "4bd7968c86",
-   "4da0ea89f7",
    "4de528108f",
-   "4f0f123478",
-   "4fe1d28a38",
    "503e182a3b",
-   "50b9f269de",
-   "52e8611020",
-   "538f42db19",
-   "54228477d6",
    "55b659f1f6",
-   "55eba0999c",
-   "563dc5d5e0",
-   "5665d30b19",
-   "56a3d33a64",
-   "57c4219ccc",
-   "57c8fd6e96",
    "5915abd5c0",
-   "5bc99c023b",
-   "5c0282536a",
-   "5cd286b129",
    "5de8b21157",
-   "5e01ee06e4",
-   "5e36e2a942",
-   "5e59664dc2",
-   "5fc20031d4",
-   "639492a6e8",
-   "654037aba6",
-   "674c712faa",
-   "692b8736d2",
    "69c701d4fd",
-   "6b0994aaac",
-   "6ba08cd6c1",
-   "6c45c35f48",
-   "6db9f2e241",
    "6ddbe3cdaf",
-   "6e11042284",
-   "6e6419c178",
-   "771390a289",
-   "77e89e2570",
-   "79453b13f8",
-   "7a32a226ae",
-   "7a814ed3a6",
-   "7ca996a8f5",
-   "7d442366b5",
-   "7e0f37f525",
-   "7f1f704629",
    "80a75d0dbe",
-   "830a835f8f",
    "83ab991b87",
    "85d4df8095",
-   "8629306d83",
-   "86ed8d1c7e",
-   "87987ae854",
-   "87a4c6871c",
-   "88b0ab0f6c",
    "89347f69b1",
-   "8ad158b7c7",
    "8b0c23e379",
-   "9437da33ed",
    "94d3ffcb44",
-   "95b28a180e",
-   "97d5988d19",
-   "9902decd23",
-   "9dc44cdd34",
-   "9e1415f44d",
-   "a0e57ef301",
-   "a14e42dee2",
-   "a671069555",
-   "a6dc0e024b",
-   "a7e1bab8e6",
    "a946ad5976",
-   "aa29322096",
-   "aaf5a0c3b0",
-   "aaf73606a7",
-   "ab20cd9347",
    "ac75b36f21",
    "ac8b17d9fb",
-   "adb789632d",
    "b1d8a78c46",
-   "b4916465dc",
-   "b69741f647",
-   "b6aeb6376c",
-   "b723a6359e",
    "b990061385",
-   "bddd8f1a31",
-   "be86a3df41",
-   "bf7b808ec7",
-   "c038210e18",
-   "c1bbd099d5",
-   "c1cdb73116",
    "c2291b14b6",
-   "c2c0419380",
-   "c30b24e943",
-   "c4959e713e",
    "c542d84b2b",
-   "c5a0bf41c7",
-   "c745d69900",
-   "cac0b6942e",
-   "cb85a4dbbe",
-   "cd12852afa",
-   "cd5e30e8b5",
-   "ce303383fc",
-   "d2241c5896",
    "d26edd4c11",
-   "d43df70fe8",
-   "d44424cab4",
    "d4726a9a60",
    "d6446a637a",
-   "d6f33e3d53",
-   "d9aa787741",
-   "d9af815c91",
-   "da6d2711e9",
-   "dcac1124d9",
-   "ddf6726ec1",
-   "e0e8653113",
    "e45f789c5b",
-   "e46ef6d891",
    "e64b0cc479",
-   "e7dbb38ca9",
-   "e80dd566ce",
-   "e8ce776412",
    "e8ec3ae5e6",
-   "eaf019b5dc",
-   "eb96f22d69",
-   "ed57b69220",
-   "ed5ec23652",
    "edeb4896d0",
-   "ef86b91fe1",
-   "f0f0b0a2fd",
-   "f13d2279ec",
-   "f4efef06b4",
-   "f6c0c08b32",
-   "f7384d9ef7",
-   "f9725446d1",
-   "fbf425012b",
-   "fec9bcc126"
+   "ef86b91fe1"
   ],
   "stillborn": [
    "0a78f51e92",
@@ -248,44 +82,1373 @@
    "e282f460ad",
    "f74ab4f490"
   ],
-  "survived": [],
+  "survived": [
+   {
+    "id": "79453b13f8",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 32,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 2 << 20;"
+   },
+   {
+    "id": "674c712faa",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 32,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 1 << 21;"
+   },
+   {
+    "id": "eaf019b5dc",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 35,
+    "before": "\"ICAgIA==\"));",
+    "after": "\"XCAgIA==\"));"
+   },
+   {
+    "id": "56a3d33a64",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 37,
+    "before": "\"ICAg\"));",
+    "after": "\"XCAg\"));"
+   },
+   {
+    "id": "8ad158b7c7",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 41,
+    "before": "\"Q1JEVENISyA=\"));",
+    "after": "\"X1JEVENISyA=\"));"
+   },
+   {
+    "id": "5c0282536a",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 43,
+    "before": "\"AAAAAA==\"));",
+    "after": "\"XAAAAA==\"));"
+   },
+   {
+    "id": "2bb2bdbd60",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 45,
+    "before": "\"AAAAAA==\"));",
+    "after": "\"XAAAAA==\"));"
+   },
+   {
+    "id": "c038210e18",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 47,
+    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));"
+   },
+   {
+    "id": "244de86c9a",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 49,
+    "before": "\"AAA=\"));",
+    "after": "\"XAA=\"));"
+   },
+   {
+    "id": "e8ce776412",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 63,
+    "before": "private final Field f10_COMMAND_RESP = Field.binary(s_COMMAND_RESP, 0, 8, 0, true, false);",
+    "after": "private final Field f10_COMMAND_RESP = Field.binary(s_COMMAND_RESP, 0, 9, 0, true, false);"
+   },
+   {
+    "id": "4da0ea89f7",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 63,
+    "before": "private final Field f10_COMMAND_RESP = Field.binary(s_COMMAND_RESP, 0, 8, 0, true, false);",
+    "after": "private final Field f10_COMMAND_RESP = Field.binary(s_COMMAND_RESP, 0, 8, 1, true, false);"
+   },
+   {
+    "id": "c745d69900",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 64,
+    "before": "private final Field f11_COMMAND_RESP2 = Field.binary(s_COMMAND_RESP2, 0, 8, 0, true, false);",
+    "after": "private final Field f11_COMMAND_RESP2 = Field.binary(s_COMMAND_RESP2, 0, 9, 0, true, false);"
+   },
+   {
+    "id": "40ce5c22a3",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 64,
+    "before": "private final Field f11_COMMAND_RESP2 = Field.binary(s_COMMAND_RESP2, 0, 8, 0, true, false);",
+    "after": "private final Field f11_COMMAND_RESP2 = Field.binary(s_COMMAND_RESP2, 0, 8, 1, true, false);"
+   },
+   {
+    "id": "f9725446d1",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 65,
+    "before": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);"
+   },
+   {
+    "id": "50b9f269de",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 65,
+    "before": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);"
+   },
+   {
+    "id": "ddf6726ec1",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 65,
+    "before": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f13_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);"
+   },
+   {
+    "id": "33c18d79c9",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 66,
+    "before": "private final Field f14_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f14_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);"
+   },
+   {
+    "id": "3497690190",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 66,
+    "before": "private final Field f14_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f14_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);"
+   },
+   {
+    "id": "400230e5ba",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 66,
+    "before": "private final Field f14_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f14_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);"
+   },
+   {
+    "id": "0f1098b824",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 67,
+    "before": "private final Field f15_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f15_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);"
+   },
+   {
+    "id": "5e59664dc2",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 67,
+    "before": "private final Field f15_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f15_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);"
+   },
+   {
+    "id": "87a4c6871c",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 68,
+    "before": "private final Field f16_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f16_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);"
+   },
+   {
+    "id": "388158fd32",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 68,
+    "before": "private final Field f16_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f16_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
+   },
+   {
+    "id": "21d499cafb",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 68,
+    "before": "private final Field f16_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f16_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);"
+   },
+   {
+    "id": "1ddf669eb8",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 69,
+    "before": "private final Field f17_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f17_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);"
+   },
+   {
+    "id": "26d967c8f3",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 69,
+    "before": "private final Field f17_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f17_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);"
+   },
+   {
+    "id": "adb789632d",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 70,
+    "before": "private final Field f20_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f20_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);"
+   },
+   {
+    "id": "4580e202e6",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 70,
+    "before": "private final Field f20_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f20_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);"
+   },
+   {
+    "id": "7d442366b5",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 70,
+    "before": "private final Field f20_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f20_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);"
+   },
+   {
+    "id": "771390a289",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 71,
+    "before": "private final Field f41_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f41_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);"
+   },
+   {
+    "id": "4f0f123478",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 71,
+    "before": "private final Field f41_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f41_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);"
+   },
+   {
+    "id": "538f42db19",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 71,
+    "before": "private final Field f41_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f41_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);"
+   },
+   {
+    "id": "0d8a7c8ef3",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 72,
+    "before": "private final Field f42_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f42_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);"
+   },
+   {
+    "id": "3245ee2583",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 72,
+    "before": "private final Field f42_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f42_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);"
+   },
+   {
+    "id": "6db9f2e241",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 72,
+    "before": "private final Field f42_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f42_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);"
+   },
+   {
+    "id": "c2c0419380",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 73,
+    "before": "private final Field f44_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f44_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);"
+   },
+   {
+    "id": "830a835f8f",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 73,
+    "before": "private final Field f44_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f44_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);"
+   },
+   {
+    "id": "54228477d6",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 73,
+    "before": "private final Field f44_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f44_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+   },
+   {
+    "id": "6e6419c178",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 84,
+    "before": "if (task.level() > 1) {",
+    "after": "if (!(task.level() > 1)) {"
+   },
+   {
+    "id": "2d64d9ce59",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 84,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() <= 1) {"
+   },
+   {
+    "id": "d44424cab4",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 84,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() >= 1) {"
+   },
+   {
+    "id": "ed57b69220",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 84,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() > 2) {"
+   },
+   {
+    "id": "7e0f37f525",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 85,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "86ed8d1c7e",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 90,
+    "before": "@SuppressWarnings(\"unchecked\")",
+    "after": "@SuppressWarnings(\"Xnchecked\")"
+   },
+   {
+    "id": "aa29322096",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 92,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
+   },
+   {
+    "id": "d2241c5896",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 92,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
+   },
+   {
+    "id": "e0e8653113",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 96,
+    "before": "java.util.Map.entry(\"MAINLINE\", 0)",
+    "after": "java.util.Map.entry(\"XAINLINE\", 0)"
+   },
+   {
+    "id": "a6dc0e024b",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 96,
+    "before": "java.util.Map.entry(\"MAINLINE\", 0)",
+    "after": "java.util.Map.entry(\"MAINLINE\", 1)"
+   },
+   {
+    "id": "7f1f704629",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 101,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {"
+   },
+   {
+    "id": "096bc71fee",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 101,
+    "before": "if (i == null) {",
+    "after": "if (i != null) {"
+   },
+   {
+    "id": "44c33eecd6",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 102,
+    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
+   },
+   {
+    "id": "11b1d0acb5",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 114,
+    "before": "if (h != null) {",
+    "after": "if (!(h != null)) {"
+   },
+   {
+    "id": "09fce7661e",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 114,
+    "before": "if (h != null) {",
+    "after": "if (h == null) {"
+   },
+   {
+    "id": "cd12852afa",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 117,
+    "before": "if (DetCics.ignoredByDefault(cond)) {",
+    "after": "if (!(DetCics.ignoredByDefault(cond))) {"
+   },
+   {
+    "id": "da6d2711e9",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 118,
+    "before": "return -1;",
+    "after": "return -2;"
+   },
+   {
+    "id": "cb85a4dbbe",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 120,
+    "before": "Integer error = handlers.get(\"ERROR\");",
+    "after": "Integer error = handlers.get(\"XRROR\");"
+   },
+   {
+    "id": "03f93fc336",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 121,
+    "before": "if (error != null) {",
+    "after": "if (!(error != null)) {"
+   },
+   {
+    "id": "395c68e796",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 121,
+    "before": "if (error != null) {",
+    "after": "if (error == null) {"
+   },
+   {
+    "id": "e46ef6d891",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 125,
+    "before": "if (label == null) {",
+    "after": "if (!(label == null)) {"
+   },
+   {
+    "id": "c1cdb73116",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 125,
+    "before": "if (label == null) {",
+    "after": "if (label != null) {"
+   },
+   {
+    "id": "c30b24e943",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 132,
+    "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
+    "after": "return task.eibcalen() != null ? whole : task.eibcalen();"
+   },
+   {
+    "id": "a14e42dee2",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 142,
+    "before": "System.arraycopy(IMAGE_s_ACCOUNT_NUMBER_IN, 0, s_ACCOUNT_NUMBER_IN.bytes, 0, IMAGE_s_ACCOUNT_NUMBER_IN.length);",
+    "after": "/* System.arraycopy(IMAGE_s_ACCOUNT_NUMBER_IN, 0, s_ACCOUNT_NUMBER_IN.bytes, 0, IMAGE_s_ACCOUNT_NUMBER_IN.length); */"
+   },
+   {
+    "id": "3e92d351eb",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 143,
+    "before": "System.arraycopy(IMAGE_s_RETURN_DATA, 0, s_RETURN_DATA.bytes, 0, IMAGE_s_RETURN_DATA.length);",
+    "after": "/* System.arraycopy(IMAGE_s_RETURN_DATA, 0, s_RETURN_DATA.bytes, 0, IMAGE_s_RETURN_DATA.length); */"
+   },
+   {
+    "id": "31a9ddc930",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 145,
+    "before": "System.arraycopy(IMAGE_s_PROG_NAMES, 0, s_PROG_NAMES.bytes, 0, IMAGE_s_PROG_NAMES.length);",
+    "after": "/* System.arraycopy(IMAGE_s_PROG_NAMES, 0, s_PROG_NAMES.bytes, 0, IMAGE_s_PROG_NAMES.length); */"
+   },
+   {
+    "id": "12dd0ecc38",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 146,
+    "before": "System.arraycopy(IMAGE_s_COMMAND_RESP, 0, s_COMMAND_RESP.bytes, 0, IMAGE_s_COMMAND_RESP.length);",
+    "after": "/* System.arraycopy(IMAGE_s_COMMAND_RESP, 0, s_COMMAND_RESP.bytes, 0, IMAGE_s_COMMAND_RESP.length); */"
+   },
+   {
+    "id": "b723a6359e",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 147,
+    "before": "System.arraycopy(IMAGE_s_COMMAND_RESP2, 0, s_COMMAND_RESP2.bytes, 0, IMAGE_s_COMMAND_RESP2.length);",
+    "after": "/* System.arraycopy(IMAGE_s_COMMAND_RESP2, 0, s_COMMAND_RESP2.bytes, 0, IMAGE_s_COMMAND_RESP2.length); */"
+   },
+   {
+    "id": "2149acdd4a",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 148,
+    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
+   },
+   {
+    "id": "77e89e2570",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 149,
+    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
+   },
+   {
+    "id": "6ba08cd6c1",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 171,
+    "before": "caBack = () -> { };",
+    "after": "/* caBack = () -> { }; */"
+   },
+   {
+    "id": "f0f0b0a2fd",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 172,
+    "before": "handlers.clear();",
+    "after": "/* handlers.clear(); */"
+   },
+   {
+    "id": "5bc99c023b",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 173,
+    "before": "heldKey.clear();",
+    "after": "/* heldKey.clear(); */"
+   },
+   {
+    "id": "d6f33e3d53",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 175,
+    "before": "Cobol.move(task.transid(), f15_EIBTRNID, CS);",
+    "after": "/* Cobol.move(task.transid(), f15_EIBTRNID, CS); */"
+   },
+   {
+    "id": "6e11042284",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 177,
+    "before": "Cobol.store(f16_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+    "after": "/* Cobol.store(f16_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
+   },
+   {
+    "id": "e7dbb38ca9",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 179,
+    "before": "Cobol.store(f14_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "/* Cobol.store(f14_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
+   },
+   {
+    "id": "b6aeb6376c",
+    "op": "AOR",
+    "file": "service/CrdtchkService.java",
+    "line": 179,
+    "before": "Cobol.store(f14_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f14_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "a671069555",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 179,
+    "before": "Cobol.store(f14_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f14_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "f7384d9ef7",
+    "op": "AOR",
+    "file": "service/CrdtchkService.java",
+    "line": 179,
+    "before": "Cobol.store(f14_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f14_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "215592f990",
+    "op": "AOR",
+    "file": "service/CrdtchkService.java",
+    "line": 179,
+    "before": "Cobol.store(f14_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f14_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "9437da33ed",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 180,
+    "before": "Cobol.store(f13_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "/* Cobol.store(f13_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
+   },
+   {
+    "id": "8629306d83",
+    "op": "AOR",
+    "file": "service/CrdtchkService.java",
+    "line": 180,
+    "before": "Cobol.store(f13_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f13_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "0d830de575",
+    "op": "AOR",
+    "file": "service/CrdtchkService.java",
+    "line": 180,
+    "before": "Cobol.store(f13_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f13_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "1b3057f597",
+    "op": "AOR",
+    "file": "service/CrdtchkService.java",
+    "line": 180,
+    "before": "Cobol.store(f13_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f13_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "bf7b808ec7",
+    "op": "AOR",
+    "file": "service/CrdtchkService.java",
+    "line": 180,
+    "before": "Cobol.store(f13_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f13_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
+   },
+   {
+    "id": "654037aba6",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 181,
+    "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+    "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
+   },
+   {
+    "id": "28dd36eac1",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 185,
+    "before": "int calen = 0;",
+    "after": "int calen = 1;"
+   },
+   {
+    "id": "f13d2279ec",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 186,
+    "before": "if (ca instanceof AsyncpntAccountNumberIn) {",
+    "after": "if (!(ca instanceof AsyncpntAccountNumberIn)) {"
+   },
+   {
+    "id": "fbf425012b",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 187,
+    "before": "calen = cx(task, 4);",
+    "after": "/* calen = cx(task, 4); */"
+   },
+   {
+    "id": "c1bbd099d5",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 187,
+    "before": "calen = cx(task, 4);",
+    "after": "calen = cx(task, 5);"
+   },
+   {
+    "id": "6c45c35f48",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 188,
+    "before": "} else if (ca instanceof AsyncpntCreditCheckResult) {",
+    "after": "} else if (!(ca instanceof AsyncpntCreditCheckResult)) {"
+   },
+   {
+    "id": "cd5e30e8b5",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 189,
+    "before": "calen = cx(task, 3);",
+    "after": "/* calen = cx(task, 3); */"
+   },
+   {
+    "id": "5cd286b129",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 189,
+    "before": "calen = cx(task, 3);",
+    "after": "calen = cx(task, 4);"
+   },
+   {
+    "id": "2ff6052094",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 190,
+    "before": "} else if (ca instanceof AsyncpntCustomerAddress) {",
+    "after": "} else if (!(ca instanceof AsyncpntCustomerAddress)) {"
+   },
+   {
+    "id": "cac0b6942e",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 191,
+    "before": "calen = cx(task, 80);",
+    "after": "/* calen = cx(task, 80); */"
+   },
+   {
+    "id": "be86a3df41",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 191,
+    "before": "calen = cx(task, 80);",
+    "after": "calen = cx(task, 81);"
+   },
+   {
+    "id": "692b8736d2",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 192,
+    "before": "} else if (ca instanceof AsyncpntCustomerImportance) {",
+    "after": "} else if (!(ca instanceof AsyncpntCustomerImportance)) {"
+   },
+   {
+    "id": "23c375bac3",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 193,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "ed5ec23652",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 193,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "e80dd566ce",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 194,
+    "before": "} else if (ca instanceof AsyncpntCustomerName) {",
+    "after": "} else if (!(ca instanceof AsyncpntCustomerName)) {"
+   },
+   {
+    "id": "6b0994aaac",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 195,
+    "before": "calen = cx(task, 80);",
+    "after": "/* calen = cx(task, 80); */"
+   },
+   {
+    "id": "c4959e713e",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 195,
+    "before": "calen = cx(task, 80);",
+    "after": "calen = cx(task, 81);"
+   },
+   {
+    "id": "5e01ee06e4",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 196,
+    "before": "} else if (ca instanceof AsyncpntCustomerPostcode) {",
+    "after": "} else if (!(ca instanceof AsyncpntCustomerPostcode)) {"
+   },
+   {
+    "id": "b69741f647",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 197,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "375415e621",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 197,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "0bc9c2ab64",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 198,
+    "before": "} else if (ca instanceof AsyncpntReturnData) {",
+    "after": "} else if (!(ca instanceof AsyncpntReturnData)) {"
+   },
+   {
+    "id": "57c8fd6e96",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 199,
+    "before": "calen = cx(task, 186);",
+    "after": "/* calen = cx(task, 186); */"
+   },
+   {
+    "id": "9902decd23",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 199,
+    "before": "calen = cx(task, 186);",
+    "after": "calen = cx(task, 187);"
+   },
+   {
+    "id": "aaf73606a7",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 201,
+    "before": "Cobol.store(f20_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
+    "after": "/* Cobol.store(f20_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
+   },
+   {
+    "id": "0d9db318ff",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 203,
+    "before": "perform(0, 0);",
+    "after": "perform(0, 1);"
+   },
+   {
+    "id": "38dd9dd018",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 208,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "4fe1d28a38",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 212,
+    "before": "Cobol.swapTruncBinary(truncBefore);",
+    "after": "/* Cobol.swapTruncBinary(truncBefore); */"
+   },
+   {
+    "id": "88b0ab0f6c",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 213,
+    "before": "Cobol.swapNumprocPfd(pfdBefore);",
+    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
+   },
+   {
+    "id": "a7e1bab8e6",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 218,
+    "before": "throw new UnsupportedOperationException(\"handleLink: the program has no task facade (a channel program); it runs as runTask\");",
+    "after": "throw new UnsupportedOperationException(\"XandleLink: the program has no task facade (a channel program); it runs as runTask\");"
+   },
+   {
+    "id": "7ca996a8f5",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 227,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "7a814ed3a6",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 232,
+    "before": "private int[] performThru = new int[64];",
+    "after": "private int[] performThru = new int[65];"
+   },
+   {
+    "id": "eb96f22d69",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 233,
+    "before": "private int performDepth = 0;",
+    "after": "private int performDepth = 1;"
+   },
+   {
+    "id": "fec9bcc126",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 241,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "37cff8371d",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 252,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
+   },
+   {
+    "id": "ab20cd9347",
+    "op": "AOR",
+    "file": "service/CrdtchkService.java",
+    "line": 252,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
+   },
+   {
+    "id": "87987ae854",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 252,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
+   },
+   {
+    "id": "b4916465dc",
+    "op": "AOR",
+    "file": "service/CrdtchkService.java",
+    "line": 254,
+    "before": "performThru[performDepth++] = thru;",
+    "after": "performThru[performDepth--] = thru;"
+   },
+   {
+    "id": "48348a99e4",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 259,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) == 0;"
+   },
+   {
+    "id": "55eba0999c",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 259,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) != 1;"
+   },
+   {
+    "id": "44e8940e4c",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 261,
+    "before": "if (!jumped) {",
+    "after": "if (!(!jumped)) {"
+   },
+   {
+    "id": "c5a0bf41c7",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 262,
+    "before": "if (i == thru) {",
+    "after": "if (!(i == thru)) {"
+   },
+   {
+    "id": "57c4219ccc",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 262,
+    "before": "if (i == thru) {",
+    "after": "if (i != thru) {"
+   },
+   {
+    "id": "30d0ac63b4",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 263,
+    "before": "return;",
+    "after": "/* return; */"
+   },
+   {
+    "id": "97d5988d19",
+    "op": "AOR",
+    "file": "service/CrdtchkService.java",
+    "line": 265,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine + 1; d >= 0; d--) {"
+   },
+   {
+    "id": "9e1415f44d",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 265,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 2; d >= 0; d--) {"
+   },
+   {
+    "id": "32163f7eb2",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 265,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d < 0; d--) {"
+   },
+   {
+    "id": "f6c0c08b32",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 265,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d > 0; d--) {"
+   },
+   {
+    "id": "aaf5a0c3b0",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 265,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 1; d--) {"
+   },
+   {
+    "id": "3cdb0d352e",
+    "op": "AOR",
+    "file": "service/CrdtchkService.java",
+    "line": 265,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 0; d++) {"
+   },
+   {
+    "id": "321fc28386",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 266,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (!(performThru[d] == i)) {"
+   },
+   {
+    "id": "4bbeca5235",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 266,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (performThru[d] != i) {"
+   },
+   {
+    "id": "24b6d91fd2",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 271,
+    "before": "if (next >= 1) {",
+    "after": "if (!(next >= 1)) {"
+   },
+   {
+    "id": "1db54b5dc8",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 271,
+    "before": "if (next >= 1) {",
+    "after": "if (next < 1) {"
+   },
+   {
+    "id": "115d0dceec",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 271,
+    "before": "if (next >= 1) {",
+    "after": "if (next > 1) {"
+   },
+   {
+    "id": "01616f0a9b",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 271,
+    "before": "if (next >= 1) {",
+    "after": "if (next >= 2) {"
+   },
+   {
+    "id": "ce303383fc",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 274,
+    "before": "i = next;",
+    "after": "/* i = next; */"
+   },
+   {
+    "id": "272c8f287e",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 277,
+    "before": "if (e.depth != mine) {",
+    "after": "if (!(e.depth != mine)) {"
+   },
+   {
+    "id": "dcac1124d9",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 277,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {"
+   },
+   {
+    "id": "2d4935ff91",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 281,
+    "before": "performDepth = mine;",
+    "after": "/* performDepth = mine; */"
+   },
+   {
+    "id": "17ba133ba4",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 288,
+    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
+   },
+   {
+    "id": "29c0ad5294",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 297,
+    "before": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont1.resp())), false, CS);",
+    "after": "/* Cobol.store(f41_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont1.resp())), false, CS); */"
+   },
+   {
+    "id": "d9af815c91",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 298,
+    "before": "Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(cont1.resp2()), false, CS);",
+    "after": "/* Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(cont1.resp2()), false, CS); */"
+   },
+   {
+    "id": "bddd8f1a31",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 299,
+    "before": "Cobol.store(f10_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont1.resp())), false, CS);",
+    "after": "/* Cobol.store(f10_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont1.resp())), false, CS); */"
+   },
+   {
+    "id": "348590d331",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 300,
+    "before": "Cobol.store(f11_COMMAND_RESP2, BigDecimal.valueOf(cont1.resp2()), false, CS);",
+    "after": "/* Cobol.store(f11_COMMAND_RESP2, BigDecimal.valueOf(cont1.resp2()), false, CS); */"
+   },
+   {
+    "id": "5e36e2a942",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 310,
+    "before": "task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+    "after": "task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(6), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "d9aa787741",
+    "op": "LIT",
+    "file": "service/CrdtchkService.java",
+    "line": 310,
+    "before": "task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"DELAY out of range\");",
+    "after": "task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(5), null), \"XELAY out of range\");"
+   },
+   {
+    "id": "2c2addcf0b",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 311,
+    "before": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f41_EIBRESP, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "5665d30b19",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 311,
+    "before": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "48db3763a4",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 312,
+    "before": "Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "52e8611020",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 312,
+    "before": "Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "094e107ba6",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 314,
+    "before": "int to = condition(DetCics.condition(0));",
+    "after": "int to = condition(DetCics.condition(1));"
+   },
+   {
+    "id": "a0e57ef301",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 315,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "076bccc60c",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 315,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "18f63bb48a",
+    "op": "ROR",
+    "file": "service/CrdtchkService.java",
+    "line": 315,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "09b00442c4",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 315,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "f4efef06b4",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 320,
+    "before": "Cobol.store(f41_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont2.resp())), false, CS);",
+    "after": "/* Cobol.store(f41_EIBRESP, BigDecimal.valueOf(DetCics.resp(cont2.resp())), false, CS); */"
+   },
+   {
+    "id": "95b28a180e",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 321,
+    "before": "Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(cont2.resp2()), false, CS);",
+    "after": "/* Cobol.store(f42_EIBRESP2, BigDecimal.valueOf(cont2.resp2()), false, CS); */"
+   },
+   {
+    "id": "5fc20031d4",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 322,
+    "before": "Cobol.store(f10_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont2.resp())), false, CS);",
+    "after": "/* Cobol.store(f10_COMMAND_RESP, BigDecimal.valueOf(DetCics.resp(cont2.resp())), false, CS); */"
+   },
+   {
+    "id": "9dc44cdd34",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 323,
+    "before": "Cobol.store(f11_COMMAND_RESP2, BigDecimal.valueOf(cont2.resp2()), false, CS);",
+    "after": "/* Cobol.store(f11_COMMAND_RESP2, BigDecimal.valueOf(cont2.resp2()), false, CS); */"
+   },
+   {
+    "id": "563dc5d5e0",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 325,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "639492a6e8",
+    "op": "DEL",
+    "file": "service/CrdtchkService.java",
+    "line": 326,
+    "before": "task.returnTransid(null, null);",
+    "after": "/* task.returnTransid(null, null); */"
+   },
+   {
+    "id": "7a32a226ae",
+    "op": "NEG",
+    "file": "service/CrdtchkService.java",
+    "line": 327,
+    "before": "if (true) throw new Goback();",
+    "after": "if (!(true)) throw new Goback();"
+   },
+   {
+    "id": "d43df70fe8",
+    "op": "CON",
+    "file": "service/CrdtchkService.java",
+    "line": 328,
+    "before": "return 1;",
+    "after": "return 2;"
+   }
+  ],
   "inputs": {
-   "port": "ad861aa839f048ab22676919a7a35be31769a1a761023d86826e33ca30e49271",
-   "generator": "6681c242d15376704d68ac11d16926ab6d83a1c27b09ae334fdd4cf9300735c2",
+   "port": "a3c5eadb3d50df71264885459a7bcd147fd6e4c45776f6db7705002280279562",
+   "generator": "140bceaf0d6727d934e5f0eeca6332e708567250dcb4326c21e7fded289bf18f",
    "case": "91757418376cfc30e9db683b2ada855ac31d6afa3c9943afa40231330d981904",
    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-   "harness": "4e4ed6b5ddf328b47f42651b6f45570d43c3e89b316c72a1b887a8f78156a31e",
-   "oracle": "27cd5d5127a7ff5cf004d7ea63517333edb599feefc1643485560c707d475c0b"
+   "harness": "efbe51075ec1adca1d2de680be9c28392f4d525f661d39c1d5f9eeaf7ae38c86",
+   "oracle": "e9e74c7b948ad1020416ad6ae58cb9ae52e4027557d0f25419d12926e20cc83e"
   },
   "components": {
    "generator": {
-    "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
+    "generator:core": "5835676e90b8075f69e69802dc022e2830ebe3ffccae9b2ad090ee45a18931de",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
     "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
     "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dli": "59300231ec82938ae8606969155f9d0fef4962ad739e8d6da188a7b6202e9ebd",
-    "generator:det/dyncall": "88c49b4c2e152b1e81d9afb16790c0faac7e6ce25a5f797a5b7c3528f7de92ae",
+    "generator:det/dli": "8a81045734ca0b53157f70ed0a4708159a20472e80fa51c334c50fde312133e6",
+    "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "6df3c4e25730ed5f5d06c4b9891a4a45958c6fa9808761f5f8078be3ef0d99b4",
-    "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
+    "generator:det/gen": "bca5020bf4c777be262e3b09840d2aee977e9b69a01b3e2940bcffe3c54028f5",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/source": "1a59078834bfd89f31c04759c85727e659c8172b12323d97e3711324d1d8f0bf",
-    "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
+    "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
+    "generator:det/stmt": "72ade7437769eb7b8d8e94511613964e6f5cb98f30b4a4c5d6295709534b5176"
    },
    "harness": {
-    "harness:cics": "213c9450546bf312b75d1e132d67f07d558860d6645035e28f54d04046f36195",
-    "harness:core": "b1e0cf6689a29fa82863925972598abbec78a3c74b3eebdde86031140713e0df"
+    "harness:cics": "524c7ec5b94a8002f7cb66755e3328f295865ecc7399685916101df02b20703c",
+    "harness:core": "d62c9af2a5f83bb39a1deffe40cd7d7d63bb0d2945c4e8cec6b12503931f45ef"
    },
    "oracle": {
-    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
-    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
-    "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
+    "oracle:cics-stub": "a87ec1941cad022e2a2706e2d20545b3da939139e7764b7aa9bec9358bcc82ae",
+    "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
+    "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
    }
   }
  }

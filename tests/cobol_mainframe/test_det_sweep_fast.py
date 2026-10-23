@@ -582,3 +582,48 @@ def test_every_cics_task_module_the_transaction_forge_splices_in_is_a_generator_
         f"gitgalaxy/tools/cobol_to_java/{m}.py" for m in re.findall(r"cobol_to_java\.(cics_task_\w+) import", forge)
     }
     assert split and split <= set(plan.GENERATOR), split - set(plan.GENERATOR)
+
+
+def _db2_wait_seconds() -> int:
+    """The poll count x sleep of det-sweep.yml's `Wait for the first Db2 database` step."""
+    import re
+
+    text = (Path(__file__).resolve().parents[2] / ".github/workflows/det-sweep.yml").read_text(encoding="utf-8")
+    step = text.split("name: Wait for the first Db2 database", 1)[1].split("\n      - name:", 1)[0]
+    polls = int(re.search(r"seq 1 (\d+)", step).group(1))
+    nap = int(re.search(r"^\s*sleep (\d+)", step, re.M).group(1))
+    return polls * nap
+
+
+def test_the_ci_wait_for_db2_outlasts_two_start_attempts():  # #5602
+    import equivalence_db2 as d
+
+    assert _db2_wait_seconds() >= 2 * d.READY_POLLS * 10
+
+
+def test_a_db2_start_that_never_finishes_is_retried_once_on_a_fresh_container(monkeypatch):  # #5602
+    import equivalence_db2 as d
+
+    starts, waits = [], iter([False, True])
+    monkeypatch.setattr(d, "_CONTAINER_READY", False)
+    monkeypatch.setattr(d, "READY_MARK", Path("/nonexistent/db2-ready-mark"))
+    monkeypatch.setattr(d, "_docker", lambda *a, **k: "image-id")
+    monkeypatch.setattr(d, "_container_identity", lambda: "")
+    monkeypatch.setattr(d, "_start_container", lambda *, replace=False: starts.append(replace))
+    monkeypatch.setattr(d, "_await_ready", lambda: next(waits))
+    d._ensure_container()
+    assert starts == [False, True]
+    assert d._CONTAINER_READY
+
+
+def test_a_db2_start_that_fails_twice_raises(monkeypatch):  # #5602
+    import equivalence_db2 as d
+
+    monkeypatch.setattr(d, "_CONTAINER_READY", False)
+    monkeypatch.setattr(d, "READY_MARK", Path("/nonexistent/db2-ready-mark"))
+    monkeypatch.setattr(d, "_docker", lambda *a, **k: "image-id")
+    monkeypatch.setattr(d, "_start_container", lambda *, replace=False: None)
+    monkeypatch.setattr(d, "_await_ready", lambda: False)
+    with pytest.raises(RuntimeError, match="did not come up"):
+        d._ensure_container()
+    assert not d._CONTAINER_READY

@@ -362,6 +362,43 @@ def run_args(volume: str | None = None) -> list[str]:
             "-e", "IS_OSXFS=false", "-e", "PERSISTENT_HOME=false", "-e", "HADR_ENABLED=false"]  # fmt: skip
 
 
+READY_POLLS = 120  # x 10 s; det-sweep.yml's wait for the first database must allow at least this long (#5602)
+
+
+def _start_container(*, replace: bool = False) -> None:
+    """Start the Db2 container under the start lock; `replace` removes a stuck one first (#5602)."""
+    import fcntl
+
+    # #4733: several processes start together on a fresh container (CI): one starts it, the others wait for it
+    lock = Path.home() / ".cache" / "gitgalaxy-db2-start.lock"
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    with lock.open("w") as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        if replace:
+            _docker("rm", "-f", CONTAINER, check=False)
+        state = _docker("inspect", "-f", "{{.State.Running}}", CONTAINER, check=False).strip()
+        if state in ("true", "false"):
+            _check_container_image()
+        if not _docker("network", "ls", "-q", "-f", f"name=^{NETWORK}$").strip():
+            _docker("network", "create", NETWORK)
+        if state == "false":
+            _docker("start", CONTAINER)
+        elif state != "true":
+            pull_image()
+            _docker("run", "-d", *run_args(), run_ref())
+
+
+def _await_ready() -> bool:
+    """Wait for first-start setup and GGDB (several minutes under load); the container-ready bound is READY_POLLS x 10 s."""
+    for _ in range(READY_POLLS):
+        if "Setup has completed" in _docker("logs", CONTAINER, check=False) and "Database code set" in _db_cfg(
+            DATABASE0
+        ):
+            return True
+        time.sleep(10)
+    return False
+
+
 def _ensure_container() -> None:
     global _CONTAINER_READY
     if _CONTAINER_READY:
@@ -377,36 +414,19 @@ def _ensure_container() -> None:
             if not _docker("images", "-q", COBOL_IMAGE).strip():
                 fetch_odbc_cli()
                 common.docker_build("-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES))  # #5048: retried
-    import fcntl
-
-    # #4733: several processes start together on a fresh container (CI): one starts it, the others wait for it
-    lock = Path.home() / ".cache" / "gitgalaxy-db2-start.lock"
-    lock.parent.mkdir(parents=True, exist_ok=True)
-    with lock.open("w") as fh:
-        fcntl.flock(fh, fcntl.LOCK_EX)
-        state = _docker("inspect", "-f", "{{.State.Running}}", CONTAINER, check=False).strip()
-        if state in ("true", "false"):
-            _check_container_image()
-        if not _docker("network", "ls", "-q", "-f", f"name=^{NETWORK}$").strip():
-            _docker("network", "create", NETWORK)
-        if state == "false":
-            _docker("start", CONTAINER)
-        elif state != "true":
-            pull_image()
-            _docker("run", "-d", *run_args(), run_ref())
-    for _ in range(120):  # first start: several minutes. Ready = set up, and GGDB (the pool's reference) exists
-        if "Setup has completed" in _docker("logs", CONTAINER, check=False) and "Database code set" in _db_cfg(
-            DATABASE0
-        ):
-            _CONTAINER_READY = True
-            if ident := _container_identity():
-                READY_MARK.parent.mkdir(parents=True, exist_ok=True)
-                tmp = READY_MARK.with_name(f"{READY_MARK.name}.{os.getpid()}")
-                tmp.write_text(ident + "\n", encoding="utf-8")
-                tmp.replace(READY_MARK)
-            return
-        time.sleep(10)
-    raise RuntimeError("Db2 did not come up")
+    _start_container()
+    ready = _await_ready()
+    if not ready:  # #5602: a start that never finished is retried once on a fresh container, not left to a CI rerun
+        _start_container(replace=True)
+        ready = _await_ready()
+    if not ready:
+        raise RuntimeError("Db2 did not come up")
+    _CONTAINER_READY = True
+    if ident := _container_identity():
+        READY_MARK.parent.mkdir(parents=True, exist_ok=True)
+        tmp = READY_MARK.with_name(f"{READY_MARK.name}.{os.getpid()}")
+        tmp.write_text(ident + "\n", encoding="utf-8")
+        tmp.replace(READY_MARK)
 
 
 def pinned_by_digest(image: str = IMAGE) -> bool:

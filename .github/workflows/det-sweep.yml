@@ -436,7 +436,9 @@ jobs:
       - name: Wait for the first Db2 database
         shell: bash
         run: |
-          for _ in $(seq 1 120); do
+          # #5602: 540 x 5 s = 2700 s, above two start attempts (equivalence_db2 READY_POLLS x 10 s each); the old 600 s
+          # failed the job while the background start was still allowed to finish. prewarm.done ends the wait early.
+          for _ in $(seq 1 540); do
             if [ -f "$RUNNER_TEMP/db2-ready.d/GGDB.ready" ] || [ -f "$RUNNER_TEMP/db2-prewarm.done" ]; then break; fi
             sleep 5
           done

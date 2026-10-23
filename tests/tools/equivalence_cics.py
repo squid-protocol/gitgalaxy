@@ -1303,6 +1303,10 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
     if verb in cics_filecontrol.FILE_VERBS:  # #5274: the file control family
         lines = cics_filecontrol.file_command(verb, opts, labels)
         if lines is not None:
+            if (
+                labels and verb != "UNLOCK"
+            ):  # #6271 (X70): a planned abend went to the HANDLE ABEND exit, or ends the task
+                return ["MOVE 0 TO GG-GOTO", *lines, *_map_abend(labels)]
             return lines
     if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
         return _delay(opts, labels)
@@ -3066,12 +3070,36 @@ def _file_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: in
     return resp2
 
 
+# #6271 (register X70): the abend codes IBM documents for a VSAM RLS file control request -- AFCR (the RLS server is
+# unavailable), AFCS (an RLS access to a file with no SMSVSAM), AFCT (an RLS timeout) -- a scenario may plant on a file
+# command: the task abends with the code (cause "system") and a HANDLE ABEND exit gets control. No other code is sourced.
+FILE_ABEND_CODES = ("AFCR", "AFCS", "AFCT")
+
+
+def _abend_fault_line(sc: dict[str, Any], f: dict[str, Any], cmd: str) -> str:
+    """One `{"cmd", "file", "resp": "ABEND", "abcode", "nth"}` fault as the `CMD NAME NTH -1 0 ABCODE` line both sides read."""
+    where = f"scenario {sc['name']}: fault {f}"
+    if cmd not in FILE_FAULT_COMMANDS or f.get("abcode") not in FILE_ABEND_CODES or f.get("resp2"):
+        raise Unsupported(
+            f"{where}: an ABEND is planned on a file control command ({'/'.join(FILE_FAULT_COMMANDS)}) with "
+            f"abcode {'/'.join(FILE_ABEND_CODES)} and no resp2 (register X70: no other command or code is sourced)"
+        )
+    nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
+    name = next((f[k] for k in _FAULT_NAME if f.get(k)), None)
+    if not name:
+        raise Unsupported(f"{where} names no {'/'.join(_FAULT_NAME)}")
+    return f"{cmd} {name} {nth} -1 0 {f['abcode']}"
+
+
 def fault_lines(sc: dict[str, Any]) -> list[str]:
     """A scenario's `faults` as both sides read them: `CMD NAME NTH RESP RESP2` (faults.cfg, CicsTask.withFaults) --
     NAME the file a READ names, or the program an INQUIRE PROGRAM names."""
     out = []
     for f in sc.get("faults") or []:
         cmd = f.get("cmd", "READ")
+        if f.get("resp") == "ABEND":  # #6271 (register X70): the task abends instead of a condition
+            out.append(_abend_fault_line(sc, f, cmd))
+            continue
         if cmd == "LINK" and f.get("resp") in LINK_REFUSED_CONDITIONS:  # #4986 (register X43)
             raise Unsupported(
                 f"scenario {sc['name']}: fault {f}: LINK {f['resp']} is IBM-documented but the region never raises it "

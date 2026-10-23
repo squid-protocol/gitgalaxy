@@ -3520,6 +3520,18 @@ CICS_TASK_JAVA += """\
         }
     }
 
+    private void logAbend(String what, int n, String code) {
+        if (faultLog != null) {
+            try {
+                java.nio.file.Files.writeString(faultLog, what + " " + n + " ABEND " + code
+                        + System.lineSeparator(), java.nio.file.StandardOpenOption.CREATE,
+                        java.nio.file.StandardOpenOption.APPEND);
+            } catch (java.io.IOException e) {
+                throw new java.io.UncheckedIOException(e);
+            }
+        }
+    }
+
     private int[] injected(String cmd, String file) {
         if (faultPlan.isEmpty()) {
             return null;
@@ -3530,6 +3542,14 @@ CICS_TASK_JAVA += """\
             if (f[0].equals(cmd) && f[1].equals(file) && ("*".equals(f[2]) || Integer.parseInt(f[2]) == n)) {
                 int resp = Integer.parseInt(f[3]);
                 int resp2 = f.length > 4 ? Integer.parseInt(f[4]) : 0;
+                if (resp == -1 && f.length > 5) {  // #6271 (X70): `CMD FILE NTH -1 0 ABCODE` abends the task, as the stub
+                    String exit = abend(f[5], "system", null, false);
+                    if (exit != null) {
+                        unwoundTo = exit;  // the exit at this level: the port reads it with abendExit()
+                    }
+                    logAbend(cmd + " " + file, n, f[5]);
+                    return new int[] {0, 0};
+                }
                 if (resp == 15) {  // DUPKEY: the read goes on, see dupkeyOr
                     deferredDupkey = new int[] {n, resp, resp2};
                     deferredWhat = cmd + " " + file;

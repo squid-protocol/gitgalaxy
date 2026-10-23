@@ -94,17 +94,32 @@ def _gh(path: str) -> dict:
     return json.loads(_gh_text(path))
 
 
+def has_failed_db2_step(job: dict) -> bool:
+    return any(st.get("conclusion") == "failure" and "db2" in st.get("name", "").lower() for st in job.get("steps", []))
+
+
+def job_log(job: dict) -> str:
+    """The log of one job ("" when it has expired: classify() then falls back to db2_start)."""
+    try:
+        return _gh_text(f"repos/{REPO}/actions/jobs/{job['id']}/logs", "--allow-escape-sequences")
+    except subprocess.CalledProcessError:
+        return ""
+
+
 def _db2_logs(jobs: list[dict]) -> dict[str, str]:
     """Logs of the jobs whose failed step is a Db2 one (the only ones classify() reads a log for)."""
-    out: dict[str, str] = {}
-    for job in jobs:
-        if any(
-            st.get("conclusion") == "failure" and "db2" in st.get("name", "").lower() for st in job.get("steps", [])
-        ):
-            try:
-                out[job["name"]] = _gh_text(f"repos/{REPO}/actions/jobs/{job['id']}/logs", "--allow-escape-sequences")
-            except subprocess.CalledProcessError:
-                out[job["name"]] = ""  # an expired log: classify() falls back to db2_start
+    return {job["name"]: job_log(job) for job in jobs if has_failed_db2_step(job)}
+
+
+def workflow_runs(wf: str, since: str, limit: int = 20) -> list[dict]:
+    """Every run of `wf` created after `since`: pages of 100 until a short one (a single page missed the older ones)."""
+    out: list[dict] = []
+    for page in range(1, limit + 1):
+        path = f"repos/{REPO}/actions/workflows/{wf}/runs?per_page=100&page={page}&created=%3E{since}"
+        got = _gh(path)["workflow_runs"]
+        out += got
+        if len(got) < 100:
+            break
     return out
 
 
@@ -122,7 +137,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     caps = {k: int(v) for k, v in (t.split("=") for t in args.timeout)}
     for wf in args.workflows:
-        runs = _gh(f"repos/{REPO}/actions/workflows/{wf}/runs?per_page=100&created=%3E{args.since}")["workflow_runs"]
+        runs = workflow_runs(wf, args.since)
         print(f"{wf}: re-run attempts per day {per_day(runs)}")
         for run in runs:
             for attempt in range(1, int(run.get("run_attempt", 1))):

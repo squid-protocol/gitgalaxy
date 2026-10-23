@@ -70,7 +70,7 @@ Evidence (#5206, #4703; detail in `blocker-slice` / `cics-command-slice`): read 
 - Taking over a stale or foreign branch: check divergence first (`git rev-list --left-right --count origin/main...HEAD`).
 - Merge main ONLY for a reason (#5134, owner 2026-10-14): the PR is CONFLICTING/dirty, a required check fails because of main, or golden masters / generated files must be re-blessed after a sibling merge. Never just to be current or "behind": every push to a ready PR costs a full CI run, and the shepherd no longer updates a behind branch. `git merge origin/main`, never rebase or force-push. Generated files: take main's, then regenerate; check baselines git may silently revert (ruff baseline: regenerate, don't hand-merge).
 - Commit only your own files (explicit `git add <file>`; never `-A`; `docs/self_scan/gitgalaxy_master.db-shm` / `-wal` show up untracked in plan-first worktrees: never add them, #5103); check `git diff origin/main --stat` has nothing unrelated. Commit messages and the PR body end with the attribution lines the launching session gave you, verbatim.
-- `gh auth setup-git`, push, open ONE draft PR to main (a `WIP:` draft early is fine) with `gh api repos/squid-protocol/gitgalaxy/pulls -F draft=true -F body=@file`, and check the body landed (an empty body was sent back, #5183). Edit it later with `gh api -X PATCH .../pulls/<n> -F body=@file`.
+- `gh auth setup-git`, push, open ONE draft PR to main (a `WIP:` draft early is fine) with `gh api repos/squid-protocol/gitgalaxy/pulls -F draft=true -F body=@file`, and check the body landed (an empty body was sent back, #5183). The body MUST hold a `## Class / Sibling gaps` section (the class, members done, gaps; 60 send-backs 10-19..23 were only this; precheck wants 150+ chars naming class or sibling). Edit it later with `gh api -X PATCH .../pulls/<n> -F body=@file`.
 
 ## Hygiene
 - A hook blocks `pgrep -f` wait loops that match their own shell (one worker spun ~1 h): wait on a PID (`wait $pid`, `kill -0`), `bg-job.sh wait NAME` or `wait-pids.sh`. `pkill -f` kills your own shell (exit 144), may leave children running, and a `pgrep -f` pattern matches itself unless its first letter is bracketed (`[m]utation.py`): `pgrep -af`, check each PID is yours, kill by PID (#5277, #5431, #5528).
@@ -85,7 +85,7 @@ Merge (unless told to). Rebase or force-push. Close issues. `--no-verify`, `rese
 ## After pushing
 To queue a green PR for merge, label it `shepherd:merge` (docs/ci.md); fallback `python tests/tools/box/ci_shepherd.py add N`.
 
-Check CI ONCE (`gh pr checks <n>`), then up to 2 fix rounds for real failures; report what it said. `action_required` with a CONFLICTING PR means merge main (no checks ran); a killed background watcher is not a CI failure.
+Check CI ONCE (`gh pr checks <n>`), then up to 2 fix rounds for real failures. `action_required` with a CONFLICTING PR means merge main (no checks ran); a killed background watcher is not a CI failure.
 
 A workflow or CI-script change has its own traps: `.claude/rules/python-test-traps.md` ("CI and workflow traps").
 

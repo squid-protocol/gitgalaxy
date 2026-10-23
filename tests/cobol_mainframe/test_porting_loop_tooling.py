@@ -180,7 +180,8 @@ def test_the_ceedays_model_against_the_calendar(tmp_path):
 def test_a_call_cases_file_is_well_formed():
     case = json.loads((eq.CASES / "carddemo-dateutil" / "case.json").read_text(encoding="utf-8"))
     assert case["kind"] == "call" and all(len(c["args"]) == len(case["using"]) for c in case["calls"])
-    assert all(c["args"][1] in ("YYYY-MM-DD", "YYYY/MM/DD") for c in case["calls"])  # only the modelled pictures
+    # only pictures the CEEDAYS model documents; the exact token rules are pinned in test_strengthen_loop.py (#4049)
+    assert all(len(c["args"][1]) == 10 and "YYYY" in c["args"][1] for c in case["calls"])
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL) and a JDK + Maven")

@@ -16,11 +16,21 @@ def _program(proc: list[str], org: str = "SEQUENTIAL", special: str = "") -> str
     lines = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. ADVTEST.", "       ENVIRONMENT DIVISION."]
     if special:
         lines += ["       CONFIGURATION SECTION.", "       SPECIAL-NAMES.", f"           {special}"]
-    lines += ["       INPUT-OUTPUT SECTION.", "       FILE-CONTROL.", "           SELECT OUT-FILE ASSIGN TO OUTDD",
-              f"               ORGANIZATION IS {org}", "               FILE STATUS WS-ST.", "       DATA DIVISION.",
-              "       FILE SECTION.", "       FD  OUT-FILE.", "       01  OUT-REC PIC X(10).",
-              "       WORKING-STORAGE SECTION.", "       77  WS-ST PIC XX.", "       77  WS-N PIC 9 VALUE 2.",
-              "       PROCEDURE DIVISION."]
+    lines += [
+        "       INPUT-OUTPUT SECTION.",
+        "       FILE-CONTROL.",
+        "           SELECT OUT-FILE ASSIGN TO OUTDD",
+        f"               ORGANIZATION IS {org}",
+        "               FILE STATUS WS-ST.",
+        "       DATA DIVISION.",
+        "       FILE SECTION.",
+        "       FD  OUT-FILE.",
+        "       01  OUT-REC PIC X(10).",
+        "       WORKING-STORAGE SECTION.",
+        "       77  WS-ST PIC XX.",
+        "       77  WS-N PIC 9 VALUE 2.",
+        "       PROCEDURE DIVISION.",
+    ]
     lines += [f"           {x}" for x in proc] + ["           GOBACK."]
     return "\n".join(lines) + "\n"
 

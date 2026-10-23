@@ -9,26 +9,32 @@
  },
  "coverage_if_closed": [
   {
-   "share": 0.4038,
+   "share": 0.3654,
    "top": 1,
-   "upper_bound": false,
-   "whole": 21
+   "upper_bound": true,
+   "whole": 19
   },
   {
-   "share": 0.6154,
+   "share": 0.3846,
    "top": 3,
    "upper_bound": true,
-   "whole": 32
+   "whole": 20
   },
   {
-   "share": 0.8269,
+   "share": 0.5962,
    "top": 5,
    "upper_bound": true,
-   "whole": 43
+   "whole": 31
+  },
+  {
+   "share": 0.7692,
+   "top": 10,
+   "upper_bound": true,
+   "whole": 40
   },
   {
    "share": 0.9038,
-   "top": 10,
+   "top": 25,
    "upper_bound": true,
    "whole": 47
   }
@@ -48,30 +54,6 @@
  ],
  "format": "gap-prevalence/1",
  "gaps": [
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 4,
-    "3": 0,
-    "4": 4,
-    "none": 10
-   },
-   "estates": 6,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 2,
-    "3": 0,
-    "4": 2,
-    "none": 2
-   },
-   "gap": "other",
-   "owner": "unowned",
-   "programs": 18,
-   "refuses_program": false,
-   "status": "not modelled"
-  },
   {
    "by_era": {
     "0": 0,
@@ -115,6 +97,30 @@
     "none": 1
    },
    "gap": "<name>: undeclared item",
+   "owner": "unowned",
+   "programs": 4,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 4
+   },
+   "estates": 2,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 2
+   },
+   "gap": "WRITE: AFTER without ADVANCING",
    "owner": "unowned",
    "programs": 4,
    "refuses_program": false,
@@ -172,6 +178,30 @@
    "by_era": {
     "0": 0,
     "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 4
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "WRITE: carriage control (mnemonic-name) not modelled",
+   "owner": "unowned",
+   "programs": 4,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
     "2": 3,
     "3": 0,
     "4": 0,
@@ -196,6 +226,102 @@
    "by_era": {
     "0": 0,
     "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 3
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "CALL: target without a CALL entry in the estate",
+   "owner": "unowned",
+   "programs": 3,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 3
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "FD: variable-length records without RECORD VARYING",
+   "owner": "unowned",
+   "programs": 3,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 2,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "<name>: bytes overlap another item",
+   "owner": "unowned",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 2
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "ACCEPT: from SYSIN / console",
+   "owner": "unowned",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
     "2": 2,
     "3": 0,
     "4": 0,
@@ -210,7 +336,103 @@
     "4": 0,
     "none": 0
    },
-   "gap": "EXEC: other",
+   "gap": "EXEC CICS map: no <name> field",
+   "owner": "#4270 (cics-command-slice)",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 2,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "JSON GENERATE: not modelled",
+   "owner": "unowned",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 2,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "JSON PARSE: not modelled",
+   "owner": "unowned",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 2,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "MOVE: literal beyond the single-byte code page",
+   "owner": "unowned",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 2,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "STRING: numeric sender with P or a decimal place",
    "owner": "unowned",
    "programs": 2,
    "refuses_program": false,
@@ -234,7 +456,7 @@
     "4": 0,
     "none": 1
    },
-   "gap": "CALL: other",
+   "gap": "CALL: other non-IBM target",
    "owner": "unowned",
    "programs": 1,
    "refuses_program": false,
@@ -332,6 +554,150 @@
    },
    "gap": "EXEC SQL: other",
    "owner": "#4098 (Db2 det-port)",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "EXHIBIT NAMED: only plain names and literals",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "FD: no record description",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "MOVE CORRESPONDING",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "PERFORM: undeclared paragraph",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "STOP: literal",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "STRING: literal beyond the single-byte code page",
+   "owner": "unowned",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"

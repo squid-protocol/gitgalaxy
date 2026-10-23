@@ -17,7 +17,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COPAUS0C](carddemo-copaus0c.md) | carddemo-copaus0c | cics | proven, unapproved |  | 33 | 20/20 / 84/93 | - | 0 | - |
 | [COPAUS1C](carddemo-copaus1c.md) | carddemo-copaus1c | cics | proven, unapproved |  | 35 | 15/15 / 48/48 | - | 0 | - |
 | [CBTRN01C](carddemo-dailyval.md) | carddemo-dailyval | batch | proven, unapproved |  | 21 | 18/18 / 65/66 | 63/96 / 63/71 | 0 | - |
-| [CSUTLDTC](carddemo-dateutil.md) | carddemo-dateutil | call | proven, unapproved |  | 1 | 2/2 / 4/10 | 145/195 / 145/145 | 0 | - |
+| [CSUTLDTC](carddemo-dateutil.md) | carddemo-dateutil | call | proven, unapproved |  | 1 | 2/2 / 4/10 | 197/260 / 197/197 | 0 | - |
 | [CBACT04C](carddemo-intcalc.md) | carddemo-intcalc | batch | proven, unapproved |  | 20 | 22/22 / 85/86 | 70/86 / 70/77 | 0 | - |
 | [COMEN01C](carddemo-menu.md) | carddemo-menu | cics | proven, unapproved |  | 16 | 7/7 / 29/33 | 87/139 / 87/87 | 0 | - |
 | [CBTRN02C](carddemo-posttran.md) | carddemo-posttran | batch | proven, unapproved |  | 29 | 26/26 / 95/96 | 76/85 / 76/80 | 0 | - |

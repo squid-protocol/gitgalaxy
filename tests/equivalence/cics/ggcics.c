@@ -1588,7 +1588,7 @@ int GGCWRTD(gg_cics *c, char *from) {
 int GGCRDTD(gg_cics *c, char *into, int intolen) {
     char queue[17], hex[40], dir[4096], path[4200], ev[160], buf[32768];
     char target[17];
-    int max = c->len, n = 0, copied = 0, shown = -1, kind, state = 0;
+    int max = c->len, n = 0, copied = 0, shown = -1, kind, state = 0, fresp, fresp2;
     trim(c->qname, 16, queue);
     hex[0] = '\0';
     for (int i = 0; queue[i]; i++) sprintf(hex + 2 * i, "%02X", (unsigned char)queue[i]);
@@ -1597,7 +1597,7 @@ int GGCRDTD(gg_cics *c, char *into, int intolen) {
     td_resolve(queue, target); /* #5168 */
     kind = td_kind(target);
     if (kind == 3) refuse("READQ TD of a queue whose TYPE is not INTRA or EXTRA: not modelled");
-    if (kind == 2) state = td_extra_state(target); /* #5168: closed NOTOPEN, open for output INVREQ; IOERR: refused, no data set */
+    if (kind == 2) state = td_extra_state(target); /* #5168: closed NOTOPEN, open for output INVREQ; IOERR: planned only (faults.cfg READQ-TD) */
     if (!kind) {
         c->resp = QIDERR;
     } else if (td_disabled(target)) {
@@ -1612,7 +1612,19 @@ int GGCRDTD(gg_cics *c, char *into, int intolen) {
         td_touch(target);
         td_dir(target, dir, sizeof dir);
         int head = td_head(dir), tail = td_tail(dir, head);
-        if (head == tail) {
+        if (kind == 2 && injected("READQ-TD", queue, &fresp, &fresp2)) {
+            /* #5168 (X61): a planned IOERR on an open input queue; IBM: "the data record in error is skipped", so the record
+             * is consumed and nothing reaches INTO. Counted for an open extrapartition queue only, as CicsTask counts it. */
+            c->resp = fresp;
+            c->resp2 = fresp2;
+            if (head != tail) {
+                snprintf(path, sizeof path, "%s/%06d.bin", dir, head);
+                remove(path);
+                snprintf(path, sizeof path, "%s/head", dir);
+                FILE *f = fopen(path, "w");
+                if (f) { fprintf(f, "%d\n", head + 1); fclose(f); }
+            }
+        } else if (head == tail) {
             c->resp = DFHRESP_QZERO;
         } else {
             snprintf(path, sizeof path, "%s/%06d.bin", dir, head);

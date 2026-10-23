@@ -180,6 +180,7 @@ _RETRIEVE_KEYS = frozenset("resp length data rtransid rtermid queue".split())
 # #4767 zECS (X37, X38): an `http` task's request body and response, on both sides
 _WEB_RECEIVE_KEYS = frozenset("resp resp2 length data".split())
 _WEB_SEND_KEYS = frozenset("status statustext mediatype from resp resp2".split())
+_WEB_HEADER_KEYS = frozenset("name value resp resp2".split())  # #4767 (X38): a response header the task wrote
 # #4767 (X35): a task's client-side WEB OPEN / CONVERSE / CLOSE against a stated origin peer, on both sides
 _WEB_CLIENT_KEYS = {
     "WEB-OPEN": frozenset("host scheme resp resp2".split()),
@@ -209,6 +210,7 @@ COBOL_CAPS = cc.Capabilities(
         "RUN": frozenset({"transid", "resp", "resp2"}),  # #4270
         "WEB-RECEIVE": _WEB_RECEIVE_KEYS,  # #4767 (X37, X38)
         "WEB-SEND": _WEB_SEND_KEYS,
+        "WEB-WRITE-HTTPHEADER": _WEB_HEADER_KEYS,
         **_WEB_CLIENT_KEYS,
     },
     ts_queues=True,
@@ -237,6 +239,7 @@ JAVA_CAPS = cc.Capabilities(
         "RUN": frozenset({"transid", "resp", "resp2"}),  # #4270
         "WEB-RECEIVE": _WEB_RECEIVE_KEYS,  # #4767 (X37, X38)
         "WEB-SEND": _WEB_SEND_KEYS,
+        "WEB-WRITE-HTTPHEADER": _WEB_HEADER_KEYS,
         **_WEB_CLIENT_KEYS,
     },
     ts_queues=True,
@@ -1909,6 +1912,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
             elif kind == "WEB-SEND":  # #4767 (X37): the response the task sent
                 ev.update(_web_send_event(e.get("status"), e.get("statustext"), e.get("mediatype"),
                                           str(e.get("body") or "").encode("latin-1"), e.get("resp"), e.get("resp2")))  # fmt: skip
+            elif kind == "WEB-HEADER":  # #4767 (X38): CicsTask's name for SPEC's WEB-WRITE-HTTPHEADER
+                ev.update(_web_header_event(e.get("name"), e.get("value"), e.get("resp"), e.get("resp2")))
             elif kind in _WEB_CLIENT_KEYS:  # #4767 (X35): the client-side session, as CicsTask recorded it
                 ev.update(_web_client_event(kind, e.get("host"), e.get("scheme"), e.get("method"), e.get("path"),
                                             e.get("status"), e.get("tolength"), e.get("into"), e.get("resp"),
@@ -2228,6 +2233,10 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
 
             ev.update(_web_send_event(int(arg("status")), hx("stext"), hx("media"), data, int(arg("resp") or 0),
                                       int(arg("resp2") or 0)))  # fmt: skip
+        elif verb == "WEB-HEADER":  # #4767 (X38): the stub's name for SPEC's WEB-WRITE-HTTPHEADER (hex fields)
+            ev.update(_web_header_event(bytes.fromhex(arg("name")).decode("latin-1"),
+                                        bytes.fromhex(arg("value")).decode("latin-1"), int(arg("resp") or 0),
+                                        int(arg("resp2") or 0)))  # fmt: skip
         elif verb in _WEB_CLIENT_KEYS:  # #4767 (X35): hex fields ('-': none), the response the peer gave
 
             def hx2(k: str) -> str | None:
@@ -2445,6 +2454,15 @@ def _web_send_event(status: Any, statustext: str | None, mediatype: str | None, 
     return ev
 
 
+def _web_header_event(name: Any, value: Any, resp: Any, resp2: Any) -> dict[str, Any]:
+    """#4767 (X38): the WEB-WRITE-HTTPHEADER event of SPEC 6.2 from what either side recorded (a header is recorded only
+    when the command is NORMAL). Both runtimes name the event WEB-HEADER; SPEC's name replaces it here."""
+    ev: dict[str, Any] = {"event": "WEB-WRITE-HTTPHEADER", "name": name, "value": value, "resp": _resp_name(resp)}
+    if resp2:
+        ev["resp2"] = resp2
+    return ev
+
+
 def _web_client_event(kind: str, host: str | None, scheme: str | None, method: str | None, path: str | None,
                       status: int | None, tolength: int | None, into: str | None, resp: Any,
                       resp2: Any) -> dict[str, Any]:  # fmt: skip
@@ -2570,8 +2588,11 @@ def http_peer_log(case: cc.Case, sc: dict[str, Any], tasks: list[dict[str, Any]]
         if k >= len(stated):
             return {"http_peer": f"{where}: the task answered, the peer states no response #{k + 1}"}
         got = {"status": sent[0]["status"], "mediatype": sent[0]["mediatype"],
-               "body": sent[0]["from"].data.decode("latin-1")}  # fmt: skip
-        for key, want in stated[k].items():
+               "body": sent[0]["from"].data.decode("latin-1"),
+               "headers": sorted((e["name"], e["value"]) for e in t["events"] if e["event"] == "WEB-WRITE-HTTPHEADER")}  # fmt: skip
+        want_all = {"headers": {}, **stated[k]}  # a peer that states no headers expects none (SPEC section 2)
+        want_all["headers"] = sorted(want_all["headers"].items())  # a header written twice is two headers
+        for key, want in want_all.items():
             if got.get(key) != want:
                 return {"http_peer": f"{where}: response {key} {got.get(key)!r}, the peer states {want!r}"}
     return {}

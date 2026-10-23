@@ -73,6 +73,7 @@ EVENT_KEYS: dict[str, tuple[str, ...]] = {
     # #4767 zECS (X37, X38): an `http` task's request body and its response (SPEC 6.2; resp2 only where IBM documents it)
     "WEB-RECEIVE": ("resp", "resp2", "length", "data"),
     "WEB-SEND": ("status", "statustext", "mediatype", "from", "resp", "resp2"),
+    "WEB-WRITE-HTTPHEADER": ("name", "value", "resp", "resp2"),  # #4767 (X38): a response header the task wrote
     # #4767 (X35): a task's client-side session against a stated origin peer
     "WEB-OPEN": ("host", "scheme", "resp", "resp2"),
     "WEB-CONVERSE": ("method", "path", "status", "tolength", "into", "resp", "resp2"),

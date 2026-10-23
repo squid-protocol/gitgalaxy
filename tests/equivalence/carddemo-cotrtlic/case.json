@@ -246,6 +246,40 @@
    "why": "WHEN CCARD-AID-PFK07 AND NOT CA-FIRST-PAGE: the page number drops to 1 and 8100-READ-BACKWARDS fetches C-TR-TYPE-BACKWARD (TR_TYPE < 08, descending) into rows 7..1; since the page is now 1, 2500 also says 'No previous pages to display'"
   },
   {
+   "name": "pf7-back-to-page-2",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 3,
+    "WS-CA-LAST-PAGE-DISPLAYED": 0,
+    "WS-CA-NEXT-PAGE-IND": "\u0000"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE"
+    }
+   },
+   "why": "WHEN CCARD-AID-PFK07 AND NOT CA-FIRST-PAGE with the page staying above 1 (3 -> 2): 8100-READ-BACKWARDS opens C-TR-TYPE-BACKWARD (9500), fetches TR_TYPE < 08 descending into rows 7..1 (07..01), sets CA-NEXT-PAGE-EXISTS and closes the cursor (9550); WS-INFORM-REC-ACTIONS is set, so the info message is not blank (the page-1 PF7 leaves it blank and is bounds-refused). The commarea is a hand-set previous screen: page 3 of seven-row pages needs 15+ types, the seed has 12, so its first key 08 is not what paging alone would leave"
+  },
+  {
    "name": "type-filter",
    "aid": "DFHENTER",
    "commarea": {

@@ -52,6 +52,22 @@
            05 FILLER             PIC X(2) VALUE ' ='.
            05 FILLER             PIC X(4) VALUE 'D200'.
            05 FILLER             PIC X VALUE ')'.
+       01  C-CE2.
+           05 FILLER             PIC X(11) VALUE 'EMP     *C('.
+           05 FILLER             PIC X(8) VALUE 'D100E002'.
+           05 FILLER             PIC X VALUE ')'.
+       01  C-CS2.
+           05 FILLER             PIC X(11) VALUE 'SKILL   *C('.
+           05 FILLER             PIC X(10) VALUE 'D100E001S2'.
+           05 FILLER             PIC X VALUE ')'.
+       01  C-CE9.
+           05 FILLER             PIC X(11) VALUE 'EMP     *C('.
+           05 FILLER             PIC X(8) VALUE 'D100E009'.
+           05 FILLER             PIC X VALUE ')'.
+       01  C-CE3.
+           05 FILLER             PIC X(11) VALUE 'EMP     *C('.
+           05 FILLER             PIC X(8) VALUE 'D200E003'.
+           05 FILLER             PIC X VALUE ')'.
        LINKAGE SECTION.
        01  PCB1.
            05 P1-DBD             PIC X(8).
@@ -171,6 +187,26 @@
            MOVE 24 TO W-Q
            MOVE SPACES TO IOA
            CALL 'CBLTDLI' USING F-GNP PCB1 IOA
+           PERFORM SHOW1
+           MOVE 25 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CE2
+           PERFORM SHOW1
+           MOVE 26 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CS2
+           PERFORM SHOW1
+           MOVE 27 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA
+           PERFORM SHOW1
+           MOVE 28 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CE9
+           PERFORM SHOW1
+           MOVE 29 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CE3
            PERFORM SHOW1
            GOBACK.
        SHOW1.

@@ -4030,10 +4030,22 @@ class StructuralExtractor:
         """
         C-Optimized jump-tracking algorithm.
         Expects 'safe_text' where string literals and comments have already been shielded.
-        `max_span` bounds the scan (an embedded-block handshake passes its lookahead); default BODY_LOOKAHEAD_LIMIT.
+        `max_span` pins the scan to that lookahead (an embedded-block handshake passes its own). Otherwise
+        a scope still open at HANDSHAKE_LOOKAHEAD_LIMIT is rescanned out to BODY_LOOKAHEAD_LIMIT, and the
+        longer answer is kept only when it closes: a malformed scope stays cut where it always was.
         """
+        end, closed = self._scan_balanced(
+            safe_text, start_pos, opener, closer, max_span or self.HANDSHAKE_LOOKAHEAD_LIMIT
+        )
+        if closed or max_span is not None or start_pos + self.HANDSHAKE_LOOKAHEAD_LIMIT >= len(safe_text):
+            return end
+        longer, longer_closed = self._scan_balanced(safe_text, start_pos, opener, closer, self.BODY_LOOKAHEAD_LIMIT)
+        return longer if longer_closed else end
+
+    def _scan_balanced(self, safe_text: str, start_pos: int, opener: str, closer: str, span: int) -> tuple[int, bool]:
+        """One bounded scan: (end, closed). `closed` is False when the limit or the text ended first."""
         depth = 0
-        limit = min(start_pos + (self.BODY_LOOKAHEAD_LIMIT if max_span is None else max_span), len(safe_text))
+        limit = min(start_pos + span, len(safe_text))
         pos = start_pos
 
         while pos < limit:
@@ -4060,9 +4072,9 @@ class StructuralExtractor:
 
                 # We have cleanly exited the original scope
                 if depth <= 0:
-                    return pos
+                    return pos, True
 
-        return limit
+        return limit, False
 
     def _resolve_class_scope_end(
         self,

@@ -90,6 +90,27 @@ slice's conclusion:
 * The estates are small, sample-style repos with few commits; with these windows they cannot give a COBOL rate. The honest result: COBOL stays
   untested, and the burned estates cannot test it by git history alone.
 
+## DBB MortgageApplication, 2019 layout (third slice, #2720)
+
+The second slice's sibling gap said `--follow` across the 2025 move would recover the 2019 history. It does not: `git show -M 0f8a61f` lists every
+`zBuilder/MortgageApplication` file as an add, and `git log --follow` on `epscmort.cbl` stops at that commit. The tree was copied in, not renamed.
+The 2019 sample lives at `Build/MortgageApplication` (committed 2019-03-16, `ecd713f`), so it is a separate `PILOT_REPOS` entry, `dbb-mortgage-2019`
+(same upstream clone, `clone_as`), pinned there with the standard 730-day window (full follow-up, unlike the 2026 pins). Two tool changes were needed:
+the aperture drops anything under a `Build/` directory, so the subtree is scanned at the snapshot root (`strip_subdir`) and the prefix is added back for
+the history join; and `git archive` applies the repo's `zos-working-tree-encoding: ibm-1047`, turning the committed ASCII sources into newline-less EBCDIC
+that the aperture refuses (line 1 over 500 chars), so the entry exports the committed blobs raw (`export_raw_tree`).
+
+| estate | upstream history | scanned files (rowed languages) | later fix hits | files with a fix |
+|---|---|---|---|---|
+| DBB MortgageApplication 2019 | 18 non-merge commits touch the subtree inside the window | 12 (cobol 6 programs + 6 copybooks) | 0 | 0 |
+
+* **All 18 commits touch build scripts only** (`build/Tools.groovy` 7, `build.groovy` 5, `build.properties` 4, `deploy.groovy` 3, ...); none touches a `.cbl` or `.cpy`.
+  Groovy, properties and yaml have no strictness row, so they are left out of the rows by design.
+* **Label check (all 8 labelled subjects in the sample, read by the PR author):** "Fixes #464/#460/#531/#534", "Fixes #464 and other bugs", "Fixed IDz User Build
+  Dependency Path Issue" and two "fixes IBMDBB/DBB#N" YAML-sample commits are fixes to the build framework or its samples, not to COBOL. Zero are COBOL defects.
+* **Result:** COBOL stays untested. This estate's COBOL was effectively frozen after its 2019 load; 12 files with 0 touches carry no rate. The pooled burned-estate
+  numbers above do not change (no fix hit added). A longer-lived burned estate with COBOL churn is the only way to test it by git history; none exists.
+
 ## Limits
 
 Subject-only labels (precision ~83%, recall well below); effective follow-up of about 6-7 months for nine repos; a rate per file (equal follow-up) rather than per line;
@@ -100,5 +121,5 @@ one language row per repo for most repos; dynamism comes from one signal (`refle
 * Full build-out to the 218 pinned repos with a longer horizon (or older pins) - no burned-estate program needs it; frontier.
 * A repo pair that puts a 0-gap language beside a 3-4-gap language at equal role (e.g. Rust + build scripts) to test the table's low end - frontier.
 * Burned mainframe estates beyond CardDemo: done in the second slice above (CBSA, GenApp, zECS, DBB MortgageApplication, cicsdev async); too little history and too few fixes to test COBOL. Closing the COBOL question needs diff-verified fix labels (below) or a longer-lived burned estate - none needed by a program today.
-* DBB MortgageApplication: the tree moved into `zBuilder/` in 2025-09, so pathspec history stops there; `--follow` per file across the move would recover the 2019 `Build/MortgageApplicationV2` history - sweep.
+* DBB MortgageApplication: done in the third slice above. The 2025 `zBuilder` tree is a copy (`--follow` cannot recover the 2019 history), and the 2019 `Build/MortgageApplication` layout has 0 touches on COBOL; no burned program needs more.
 * Recall of the fix label (trailers, linked issues, diff-verified fixes as in `temporal-crucible`'s harvesters) - sweep.

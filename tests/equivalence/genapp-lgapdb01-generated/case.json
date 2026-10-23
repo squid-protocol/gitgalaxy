@@ -133,6 +133,26 @@
    "why": "the commercial path: INSERT COMMERCIAL (perils and premiums)"
   },
   {
+   "name": "add-endowment",
+   "commarea": {
+    "CA-REQUEST-ID": "01AEND",
+    "CA-CUSTOMER-NUM": "3",
+    "CA-REQUEST-SPECIFIC": "00000000002026-01-012027-01-01                          0000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "commarea_length": 152,
+   "why": "INSERT-ENDOW, the caller passed exactly the required 152 bytes (28 header + 124): WS-VARY-LEN 0, the INSERT without PADDINGDATA (X23: no storage overlay at this length, X8)"
+  },
+  {
+   "name": "add-endowment-short",
+   "commarea": {
+    "CA-REQUEST-ID": "01AEND",
+    "CA-CUSTOMER-NUM": "3",
+    "CA-REQUEST-SPECIFIC": "00000000002026-01-012027-01-01                          0000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "commarea_length": 151,
+   "why": "one byte under the required 152: '98' to CA-RETURN-CODE, RETURN before any INSERT or LINK"
+  },
+  {
    "name": "unknown-request",
    "commarea": {
     "CA-REQUEST-ID": "01AXXX",

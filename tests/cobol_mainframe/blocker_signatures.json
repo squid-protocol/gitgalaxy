@@ -1,0 +1,10 @@
+{
+ "about": "Construct signature -> issue, for ingesting a customer's anonymized blocker report (#5054, tests/tools/blocker_ingest.py). `category` is a blocker_report.CATEGORIES value; `prefix` is matched on whole words at the start of the signature once every KIND_xxxxxx hash is replaced by KIND_*. First match wins, longest prefix first. Every entry cites an issue that burned-estate evidence already carries; no census or blind-estate repo appears here.",
+ "signatures": [
+  {"category": "cics-command", "prefix": "EXEC CICS WEB", "issue": 4767, "estate": "zecs"},
+  {"category": "cics-command", "prefix": "EXEC CICS READQ TS", "issue": 4002, "estate": "aws-mainframe-modernization-carddemo"},
+  {"category": "cics-command", "prefix": "EXEC CICS READQ TD", "issue": 5079, "estate": "aws-mainframe-modernization-carddemo"},
+  {"category": "cics-command", "prefix": "EXEC CICS ADDRESS COMMAREA", "issue": 5079, "estate": "aws-mainframe-modernization-carddemo"},
+  {"category": "environment", "prefix": "refused: macro-level CICS", "issue": 5121, "estate": "cics-genapp"}
+ ]
+}

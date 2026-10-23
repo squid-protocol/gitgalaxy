@@ -891,3 +891,95 @@ def test_detdli_bmp_entry_numbers_pcbs_after_the_io_pcb_and_chkp_releases_positi
     assert out == [f"[{io_pcb}]", "[  D100]", "[  D200]", "[  ]", "[  D100]",
                    "[CBLTDLI: a CHKP ID that is not 8 bytes is not modelled]", f"[{no_pcb}]",
                    "[CBLTDLI: an EXEC DLI CHKP outside a BMP entered by USING its I/O PCB is not modelled]"]  # fmt: skip
+
+
+GSAM_MAIN = """
+import {pkg}.cobolrt.Field;
+import {pkg}.cobolrt.Storage;
+import {pkg}.cobolrt.dli.DetDli;
+
+public class Main {{
+    static Field area(String s, int n) {{
+        Storage st = new Storage(n);
+        byte[] b = s.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1);
+        System.arraycopy(b, 0, st.bytes, 0, Math.min(n, b.length));
+        return Field.group(st, 0, n);
+    }}
+
+    static String call(Field mask, String fn, Field io, Field... ssas) {{
+        try {{
+            DetDli.call(area(fn, 4), mask, io, ssas);
+            return "[" + new String(mask.storage().bytes, mask.offset() + 10, 2) + "]";
+        }} catch (UnsupportedOperationException e) {{
+            return e.getMessage();
+        }}
+    }}
+
+    public static void main(String[] a) {{
+        Field m1 = area("", 36);
+        Field m2 = area("", 36);
+        try {{
+            DetDli.enter(a[0].equals("dup") ? new Field[] {{ m1, m2 }} : new Field[] {{ m1 }});
+        }} catch (UnsupportedOperationException e) {{
+            System.out.println(e.getMessage());
+            return;
+        }}
+        System.out.println("mask [" + new String(m1.storage().bytes, 0, 16) + "]");
+        System.out.println(call(m1, "ISRT", area("AAAAAAAA", 8)));
+        System.out.println(call(m1, "ISRT", area("BBBBBBBBXXXX", 12)));
+        for (String fn : new String[] {{ "GU  ", "GN  ", "GNP ", "REPL", "DLET" }}) {{
+            System.out.println(fn + " " + call(m1, fn, area("CCCCCCCC", 8)));
+        }}
+        System.out.println(call(m1, "ISRT", area("DDDDDDDD", 8), area("SEG     ", 8)));
+        System.out.println(call(m1, "ISRT", area("EEEE", 4)));
+        DetDli.leave();
+    }}
+}}
+"""
+
+
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_detdli_a_gsam_pcb_in_load_mode_appends_records_and_refuses_what_it_does_not_model(tmp_path):
+    """#5233, RT-DLI-GSAM (DetDli.gsamCall): ISRT appends one record of the DBD's length (the I/O area's first 8 bytes), any
+    other function is AM, the mask's segment level is blank; an SSA, an I/O area shorter than the record and a second
+    GSAM PCB on the database are refused by name."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "src"
+    for rel, text in P.runtime_files("t", batch=False).items():
+        if not rel.startswith(("cobolrt/cics/", "cobolrt/sql/")):
+            (src / "t" / rel).parent.mkdir(parents=True, exist_ok=True)
+            (src / "t" / rel).write_text(text)
+    (src / "Main.java").write_text(GSAM_MAIN.format(pkg="t"))
+    jdk = _jdk()
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"),  # noqa: S603
+                    *map(str, src.rglob("*.java"))], check=True)  # fmt: skip
+
+    def run(psb: str, arg: str) -> tuple[list[str], Path]:
+        work = tmp_path / arg
+        (work / "dli").mkdir(parents=True)
+        (work / "out").mkdir()
+        (work / "dli" / "dbd.cfg").write_text("", encoding="ascii")
+        (work / "dli" / "psb.cfg").write_text(psb, encoding="ascii")
+        out = subprocess.run([str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8",  # noqa: S603
+                              f"-Dgitgalaxy.dli.dir={work / 'dli'}", f"-Dgitgalaxy.dli.out={work / 'out'}",
+                              "-cp", str(tmp_path / "classes"), "Main", arg], capture_output=True,
+                             check=True).stdout.decode("utf-8").splitlines()  # fmt: skip
+        return out, work / "out" / "G.out"
+
+    lines, records = run("GSAM G LS 8\n", "one")
+    assert lines[0] == "mask [G           LS  ]"  # DBD name, blank level and status, PROCOPT
+    assert lines[1:] == [
+        "[  ]",
+        "[  ]",
+        "GU   [AM]",
+        "GN   [AM]",
+        "GNP  [AM]",
+        "REPL [AM]",
+        "DLET [AM]",
+        "CBLTDLI: a GSAM ISRT with an SSA is not modelled",
+        "CBLTDLI: a GSAM ISRT whose I/O area is shorter than the DBD's record is not modelled",
+    ]
+    assert records.read_bytes() == b"AAAAAAAABBBBBBBB"
+    dup, _ = run("GSAM G LS 8\nGSAM G LS 8\n", "dup")
+    assert dup == ["CBLTDLI: two GSAM PCBs on one database is not modelled"]

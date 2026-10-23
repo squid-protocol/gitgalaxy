@@ -10,9 +10,9 @@
 # See gitgalaxy/core/how_to_add_a_fact_channel.md.
 #
 # SCOPE AND NON-SCOPE:
-#   - Persist + restore only. The CREATE TABLE / _ensure_columns DDL still lives
-#     in record_keeper; the differential, answer key, IR reader and recorder
-#     sections are not registry-driven yet (#3383 remaining slices).
+#   - Persist, restore and schema (DDL, _ensure_columns heals, indexes). The
+#     differential, answer key, IR reader and recorder sections are not
+#     registry-driven yet (#3383 remaining slices).
 #   - Channels with a custom insert or restore (call_site_data, transaction_data,
 #     sql_statement_data and the later per-file channels) are not migrated yet.
 #   - Order of CHANNELS is the insert order; each table is independent, so it
@@ -45,11 +45,217 @@ class FactChannel:
     to_row: Callable[[Any], tuple]
     restore_select: "str | Callable[[sqlite3.Cursor, Callable, Callable], str]"
     to_payload: Callable[[Any], dict]
+    # Schema: the CREATE TABLE text, the `_ensure_columns` groups that heal an older
+    # table (one ALTER group per tuple, in order), and the CREATE INDEX statements.
+    ddl: str = ""
+    extra_columns: tuple = ()
+    indexes: tuple = ()
 
     def select_sql(self, cursor: sqlite3.Cursor, has_table: Callable, has_column: Callable) -> str:
         if callable(self.restore_select):
             return self.restore_select(cursor, has_table, has_column)
         return self.restore_select
+
+
+def create_channel_table(cursor: sqlite3.Cursor, name: str, ensure_columns: Callable) -> None:
+    """Create the named channel's table, heal an older one, and add its indexes.
+
+    Statement order matches the hand-written blocks it replaced (table, column
+    heals, indexes), so sqlite_master is identical. `ensure_columns` is injected
+    (record_keeper's `_ensure_columns`) because this module cannot import it.
+    """
+    channel = CHANNELS_BY_NAME[name]
+    cursor.execute(channel.ddl)
+    for group in channel.extra_columns:
+        ensure_columns(cursor, channel.table, list(group))
+    for statement in channel.indexes:
+        cursor.execute(statement)
+
+
+# DDL per channel. Whitespace inside each string is part of the schema text SQLite stores
+# (sqlite_master.sql), so it is kept exactly as the recorder wrote it.
+
+# #3345: a JCL DSN with its symbolic parameters (SET / PROC defaults /
+# EXEC overrides) resolved where the file alone determines it. `dsn` stays
+# the DSN as written; `dsn_resolved` is NULL unless every symbol resolved,
+# and `dsn_resolution` says how (literal / resolved / proc_default /
+# ambiguous / unresolved -- see mainframe_boundary._jcl_resolve_datasets).
+# Both NULL on a COBOL row. Healed onto a table created before #3345.
+# #3348: a COBOL row's OPEN sites, a JSON list of [mode, line] in line order, so
+# the refractor can drop the OPENs in dead paragraphs. NULL on a JCL row.
+
+_DATASET_DDL = """
+            CREATE TABLE IF NOT EXISTS dataset_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                step_name TEXT,
+                internal_name TEXT,
+                assign_name TEXT,
+                dd_name TEXT,
+                access_modes TEXT,
+                dsn TEXT,
+                line_number INTEGER,
+                dsn_resolved TEXT,
+                dsn_resolution TEXT,
+                open_sites TEXT,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+# #3250: heal a record_data table created before `attributes` existed.
+# #3355: `copy_members` -- the COPY member(s) that expand right after this
+# entry (`01 DFHCOMMAREA.` + `COPY INQCUST.` -> 'INQCUST'), comma-separated
+# in source order; NULL for an entry no COPY follows. Only the position is
+# recorded: expanding the member is the reader's job (galaxy_ir), so a
+# COMMAREA record and a callee's DFHCOMMAREA can be compared field by field.
+# #3694: `sign_separate` -- 1 when a COBOL item codes SIGN [TRAILING] SEPARATE (its sign
+# takes a byte of its own, after the digits), 2 for SIGN LEADING SEPARATE (before them),
+# NULL otherwise; widths are the reader's job (galaxy_ir).
+# #4265: `copy_libraries` -- the library-name each `copy_members` COPY names (`COPY X IN LIB`),
+# comma-separated in the same order, "" for an unqualified COPY; NULL when none names one.
+# #4265: `copy_replacing` -- each `copy_members` COPY's REPLACING operands, a JSON list in the same
+# order: null for a COPY that replaces nothing, else [[from, to(, LEADING|TRAILING)], ...] with
+# pseudo-text as written minus its `==` delimiters. NULL when no COPY on the entry replaces
+# anything. The copybook keeps its own (tagged) names; the reader applies the REPLACING.
+# #4266: `sync` -- 'SYNC' / 'SYNC LEFT' / 'SYNC RIGHT' when a COBOL item codes SYNCHRONIZED (slack
+# bytes before it are the reader's job, galaxy_ir); `justified` / `blank_when_zero` -- 1 when it codes
+# JUSTIFIED / BLANK WHEN ZERO; `renames` -- a 66 entry's `A [THRU B]` (qualifiers as `X OF Y`).
+# All NULL otherwise.
+
+_RECORD_DDL = """
+            CREATE TABLE IF NOT EXISTS record_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                section TEXT,
+                fd_name TEXT,
+                ordinal INTEGER,
+                parent_ordinal INTEGER,
+                level_number INTEGER,
+                item_name TEXT,
+                pic TEXT,
+                usage TEXT,
+                occurs_min INTEGER,
+                occurs_max INTEGER,
+                occurs_depending_on TEXT,
+                redefines TEXT,
+                value_literal TEXT,
+                line_number INTEGER,
+                attributes TEXT,
+                copy_members TEXT,
+                sign_separate INTEGER,
+                copy_libraries TEXT,
+                copy_replacing TEXT,
+                sync TEXT,
+                justified INTEGER,
+                blank_when_zero INTEGER,
+                renames TEXT,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+_SCREEN_FIELD_DDL = """
+            CREATE TABLE IF NOT EXISTS screen_field_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                ordinal INTEGER,
+                parent_ordinal INTEGER,
+                field_name TEXT,
+                pos_line INTEGER,
+                pos_column INTEGER,
+                length INTEGER,
+                attrb TEXT,
+                picin TEXT,
+                picout TEXT,
+                initial_value TEXT,
+                occurs INTEGER,
+                attributes TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+_CICS_RESOURCE_DDL = """
+            CREATE TABLE IF NOT EXISTS cics_resource_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                verb TEXT,
+                resource_kind TEXT,
+                access TEXT,
+                name_operand TEXT,
+                resource_name TEXT,
+                name_resolution TEXT,
+                name_candidates TEXT,
+                qualifier_operand TEXT,
+                qualifier TEXT,
+                record_clause TEXT,
+                record_name TEXT,
+                attributes TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+# #5120: provenance -- CSD or an assembled macro table (DFHFCT ...). A
+# pre-#5120 database gets the columns healed in; its rows read as CSD.
+
+_CSD_RESOURCE_DDL = """
+            CREATE TABLE IF NOT EXISTS csd_resource_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                resource_type TEXT,
+                resource_name TEXT,
+                group_name TEXT,
+                dsname TEXT,
+                ddname TEXT,
+                record_format TEXT,
+                key_length INTEGER,
+                record_size INTEGER,
+                queue_type TEXT,
+                plan TEXT,
+                db2_entry TEXT,
+                transid TEXT,
+                program TEXT,
+                attributes TEXT,
+                line_number INTEGER,
+                source TEXT,
+                macro_table TEXT,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+_SQL_TABLE_DDL = """
+            CREATE TABLE IF NOT EXISTS sql_table_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                table_name TEXT,
+                table_line INTEGER,
+                colno INTEGER,
+                column_name TEXT,
+                sql_type TEXT,
+                length INTEGER,
+                scale INTEGER,
+                nullable INTEGER,
+                attributes TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
 
 
 def _dataset_select(cursor, has_table, has_column):
@@ -153,6 +359,13 @@ CHANNELS = (
     FactChannel(
         name="dataset",
         table="dataset_data",
+        ddl=_DATASET_DDL,
+        extra_columns=(("dsn_resolved TEXT", "dsn_resolution TEXT"), ("open_sites TEXT",)),
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_dataset_file_id ON dataset_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_dataset_dd_name ON dataset_data(dd_name);",
+            "CREATE INDEX IF NOT EXISTS idx_dataset_snapshot ON dataset_data(repo_name, commit_hash);",
+        ),
         payload_key="dataset_bindings",
         columns=(
             "step_name",
@@ -200,6 +413,19 @@ CHANNELS = (
     FactChannel(
         name="record",
         table="record_data",
+        ddl=_RECORD_DDL,
+        extra_columns=(
+            ("attributes TEXT",),
+            ("copy_members TEXT",),
+            ("sign_separate INTEGER",),
+            ("copy_libraries TEXT",),
+            ("copy_replacing TEXT",),
+            ("sync TEXT", "justified INTEGER", "blank_when_zero INTEGER", "renames TEXT"),
+        ),
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_record_file_id ON record_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_record_snapshot ON record_data(repo_name, commit_hash);",
+        ),
         payload_key="record_layouts",
         columns=(
             "section",
@@ -285,6 +511,13 @@ CHANNELS = (
     FactChannel(
         name="sql_table",
         table="sql_table_data",
+        ddl=_SQL_TABLE_DDL,
+        extra_columns=(),
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_sql_table_file_id ON sql_table_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_sql_table_name ON sql_table_data(table_name);",
+            "CREATE INDEX IF NOT EXISTS idx_sql_table_snapshot ON sql_table_data(repo_name, commit_hash);",
+        ),
         payload_key="sql_tables",
         columns=(
             "table_name",
@@ -336,6 +569,13 @@ CHANNELS = (
     FactChannel(
         name="csd_resource",
         table="csd_resource_data",
+        ddl=_CSD_RESOURCE_DDL,
+        extra_columns=(("source TEXT", "macro_table TEXT"),),
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_csd_resource_file_id ON csd_resource_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_csd_resource_name ON csd_resource_data(resource_type, resource_name);",
+            "CREATE INDEX IF NOT EXISTS idx_csd_resource_snapshot ON csd_resource_data(repo_name, commit_hash);",
+        ),
         payload_key="csd_resources",
         columns=(
             "resource_type",
@@ -401,6 +641,12 @@ CHANNELS = (
     FactChannel(
         name="screen_field",
         table="screen_field_data",
+        ddl=_SCREEN_FIELD_DDL,
+        extra_columns=(),
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_screen_field_file_id ON screen_field_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_screen_field_snapshot ON screen_field_data(repo_name, commit_hash);",
+        ),
         payload_key="screen_fields",
         columns=(
             "kind",
@@ -464,6 +710,13 @@ CHANNELS = (
     FactChannel(
         name="cics_resource",
         table="cics_resource_data",
+        ddl=_CICS_RESOURCE_DDL,
+        extra_columns=(),
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_cics_resource_file_id ON cics_resource_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_cics_resource_name ON cics_resource_data(resource_kind, resource_name);",
+            "CREATE INDEX IF NOT EXISTS idx_cics_resource_snapshot ON cics_resource_data(repo_name, commit_hash);",
+        ),
         payload_key="cics_resources",
         columns=(
             "verb",
@@ -520,3 +773,5 @@ CHANNELS = (
         },
     ),
 )
+
+CHANNELS_BY_NAME = {channel.name: channel for channel in CHANNELS}

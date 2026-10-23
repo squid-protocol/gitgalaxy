@@ -192,7 +192,8 @@ JS_DL_FRAMEWORKS = _js_package_import(
 # `from OpenSSL import crypto` (which the old rule caught only through the incidental
 # `x509` / `crypto` tokens) still count; `socket.io` is
 # dropped (not a python module name) and `webgl` kept as before.
-PY_HARDWARE_BRIDGE = _py_package_import(r"serialport|usb|bluetooth|websocket|printer|webgl")
+# python's serial library is `pyserial`, imported as `serial` (#4108); `bleak` is its bluetooth-LE client.
+PY_HARDWARE_BRIDGE = _py_package_import(r"serialport|serial|pyserial|usb|bluetooth|bleak|websocket|printer|webgl")
 PY_CRYPTOGRAPHY = _py_package_import(
     r"cryptography|OpenSSL|crypto|bcrypt|x509|tls|ssl|jsonwebtoken|argon2|hashlib|hmac"
 )

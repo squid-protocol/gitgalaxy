@@ -192,7 +192,7 @@ fixed it: the census below predates that fix.
 | solidity | C-style | 105 | 321 | K: `returns (` 74, `assembly`, `override(` |
 | sqlite | blind | -- | -- | agrees (C7: declared blind) |
 | swift | C-style | 133 | 319 | A: `@available(`, `@escaping`, `@Sendable` (25) |
-| tcl | command position | 394 | 1,110 | S: SQL keywords inside brace-quoted strings in command position (`SELECT`, `WHERE`). A command after `}` in `foreach`/`namespace eval` bodies is captured (pinned, #5640); a one-line `switch` arm body (`x { doX }`) is not (the label reads as the command) |
+| tcl | command position | 394 | 1,110 | S: SQL keywords inside brace-quoted strings in command position (`SELECT`, `WHERE`). A command after `}` in `foreach`/`namespace eval` bodies is captured (pinned, #5640); a one-line `switch` arm body (`x { doX }`) is not (the label reads as the command). Top-level script after the last `proc` (`startClient`, `start` in odamex `tests/bugs/*.tcl`) has no named unit, so its calls are not stored; the #5630 oracle blames them on `main` (pinned, #5640) |
 | td | blind | -- | -- | agrees (C7: declared blind) |
 | typescript | C-style | 5,770 | 13,765 | K: `async (` 34; D (nested `function`, 172); B |
 | xml | blind | -- | -- | agrees (C7: declared blind) |

@@ -124,6 +124,12 @@ referee that produces the channel and parsed the file; a file with fewer than 2 
 same pairs are sampled under `referee-majority` in `disagreements.json`. Scorecards that name other tools
 are not published until the owner's review clears it (see #4438).
 
+`.github/workflows/referee-panel.yml` runs it nightly and on `workflow_dispatch` (no `pull_request` or `push` trigger,
+`contents: read`). The upstream refs (Cobrix, tree-sitter-cobol-enterprise and mapa by commit, Che4z by release tag,
+the tree-sitter CLI by version) are env values at the top of that file, and the installs are cached under a key
+that hashes the file, so bumping a ref reinstalls. The scorecard, JSON, disagreements and `run.json` are uploaded as a
+3-day artifact: nothing is published.
+
 `disagreements.json` groups every engine / referee difference by pattern
 (`engine-only, in key`, `<referee>-only, not in key`, ...) with a seeded sample of each, for
 adjudication against the source: engine wrong, referee wrong, definitional, or key wrong.

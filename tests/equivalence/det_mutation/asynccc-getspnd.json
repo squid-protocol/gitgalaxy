@@ -5,8 +5,8 @@
  "case": "asynccc-getspnd",
  "entry": {
   "program": "GETSPND",
-  "commit": "0db32bd5d669c5dfc7b39b17000e1e6be0156f87",
-  "date": "2026-10-22",
+  "commit": "a2f680331521aac6af7f8006262eedfcb5b7bab9+uncommitted",
+  "date": "2026-10-23",
   "mode": "fast",
   "seed": 0,
   "mutants": 168,
@@ -14,176 +14,31 @@
   "chosen": 168,
   "coverage": "proven on 1 scenario, covering 1/1 paragraphs and 0/0 branches",
   "counts": {
-   "killed": 162,
+   "killed": 17,
    "timeout": 0,
-   "survived": 0,
+   "survived": 145,
    "stillborn": 6,
    "error": 0,
    "pending": 0
   },
   "killed": [
    "00eb688c1d",
-   "023c12e0c4",
-   "03881a7c00",
-   "04d55dfbbd",
    "04e7632a0a",
-   "0512cd27b6",
-   "05cfd28946",
-   "0647df5ba0",
-   "06700a07ee",
-   "070ec873cc",
-   "0745055e45",
-   "0745cf8dd9",
-   "0ae5b23d14",
-   "0d6de44d1a",
-   "0fd7ce665c",
-   "108ed461fb",
-   "10992be514",
-   "127bbaf8ee",
-   "13132bbf9c",
-   "14fbb66f2b",
-   "15a42a5902",
-   "17582bead9",
-   "19e3be2a98",
-   "1d621baf2e",
-   "2075570678",
-   "20d6ed809c",
-   "21ae032b47",
    "230184517e",
-   "2349d2823d",
-   "264c358fdb",
    "2843b3b024",
-   "2a1737008d",
-   "2c8752fe36",
-   "2d693dbb50",
-   "2d9c298156",
-   "2da39e3a45",
-   "30f915423e",
-   "348a254339",
-   "3670183195",
-   "376b52f7c0",
-   "381f0139f6",
-   "387f23b703",
-   "393c197731",
-   "399b91daa0",
-   "3aff6df062",
-   "3e18edf04c",
-   "3f60b052f2",
-   "3face8888a",
-   "40dfac6da8",
-   "40fa68a703",
-   "425630aedf",
-   "42bae18846",
    "43766f9ddb",
-   "43efcf28be",
    "444d254b67",
-   "45de515584",
-   "46c61fa797",
    "46d77f89e7",
-   "48a1216b1d",
-   "4ef06b985a",
-   "4f6745d882",
-   "5141310a44",
-   "55a00b3def",
    "56a999f73c",
    "59324f1f70",
-   "5a88ba6729",
-   "5bbb07d866",
-   "5bffe5361d",
-   "5dcce62cc2",
-   "60db90d9a1",
-   "63eefb7e30",
-   "66b4ad6996",
-   "67724921a8",
-   "67aaad98bb",
-   "69fecadf09",
-   "6cef0dc93d",
-   "6f9a4f564e",
-   "70dcc669ef",
-   "72f0efc5e3",
-   "73a2f90f21",
-   "780525db03",
-   "792a318bef",
-   "7a1a1a3ecd",
-   "7a32a7870e",
-   "7a3e04566c",
-   "7c1a9cd7da",
-   "7c9654dfdd",
-   "7cff7d9a6e",
-   "80b23330db",
-   "8286ebb477",
-   "854cc40b16",
-   "85a7b86d09",
-   "86225ee586",
-   "8827880a98",
-   "89761e48f5",
-   "8a4bc55e9c",
-   "8bf08f1814",
-   "8cd960fac2",
-   "8ea0c4f495",
-   "929ce5894b",
-   "9475c6b20a",
-   "949f825b00",
-   "981236f69c",
-   "9c78f5c8b9",
    "9d5d9736ed",
    "9d801103c5",
-   "9e0c4038c3",
-   "9e603249a6",
-   "9f6b655722",
-   "9fe5288653",
-   "a643d734dd",
-   "abf2dbdd77",
    "ac3e2c6487",
-   "ae2809e1ee",
-   "b0f67bb50d",
-   "b2023c3983",
-   "b68dbb1b57",
-   "b726dae234",
-   "b8f3785f24",
-   "bb5fe9dce2",
-   "bdb064157a",
    "bf80b319e7",
-   "bfae07d3e0",
-   "c0a27206e5",
-   "c23f221bf7",
    "c2e2538e89",
-   "c4618836d1",
-   "c6617ccfd8",
-   "c98c87f3f8",
-   "cab9821786",
-   "ccc54074ef",
-   "ce84a386d2",
-   "d02beb8f6b",
-   "d03f22d7af",
-   "d238ad2a21",
-   "d26fe9c2e4",
-   "d3e6c498fb",
-   "d5c02a8a20",
-   "da5cd34a22",
-   "dc4508d4d2",
-   "df75e951f0",
-   "e293e5d42c",
-   "e3256ca3e9",
-   "e534992134",
-   "e5980f487d",
-   "e65df7e20b",
-   "e8f8813a29",
-   "e9ce61e24f",
    "ed5bc49bd1",
-   "ef789f68a3",
-   "efdae87a9d",
-   "f00034358d",
-   "f15940566f",
-   "f29aa0d3ec",
-   "f43fefd897",
    "f445a8929e",
-   "f4f9831637",
-   "f7dac101b1",
-   "f9f3753c7f",
-   "fc2b258124",
-   "fcf9267029",
-   "ff5f8a2d27"
+   "fcf9267029"
   ],
   "stillborn": [
    "32d4bc0a5d",
@@ -193,44 +48,1205 @@
    "f9a570c871",
    "f9ab8063d1"
   ],
-  "survived": [],
+  "survived": [
+   {
+    "id": "070ec873cc",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 32,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 2 << 20;"
+   },
+   {
+    "id": "b0f67bb50d",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 32,
+    "before": "private static final int GOTO = 1 << 20;",
+    "after": "private static final int GOTO = 1 << 21;"
+   },
+   {
+    "id": "55a00b3def",
+    "op": "LIT",
+    "file": "service/GetspndService.java",
+    "line": 35,
+    "before": "\"AAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));",
+    "after": "\"XAAADAAAAAwgICAgAAAADCAgICAAAAAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAAAAAAAAAIA==\"));"
+   },
+   {
+    "id": "15a42a5902",
+    "op": "LIT",
+    "file": "service/GetspndService.java",
+    "line": 37,
+    "before": "\"AAA=\"));",
+    "after": "\"XAA=\"));"
+   },
+   {
+    "id": "43efcf28be",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 41,
+    "before": "private final Field f2_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f2_EIBTIME = Field.packed(s_DFHEIBLK, 1, 7, 0, true);"
+   },
+   {
+    "id": "5bffe5361d",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 41,
+    "before": "private final Field f2_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f2_EIBTIME = Field.packed(s_DFHEIBLK, 0, 8, 0, true);"
+   },
+   {
+    "id": "86225ee586",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 41,
+    "before": "private final Field f2_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 0, true);",
+    "after": "private final Field f2_EIBTIME = Field.packed(s_DFHEIBLK, 0, 7, 1, true);"
+   },
+   {
+    "id": "10992be514",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 42,
+    "before": "private final Field f3_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f3_EIBDATE = Field.packed(s_DFHEIBLK, 5, 7, 0, true);"
+   },
+   {
+    "id": "45de515584",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 42,
+    "before": "private final Field f3_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f3_EIBDATE = Field.packed(s_DFHEIBLK, 4, 8, 0, true);"
+   },
+   {
+    "id": "3face8888a",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 42,
+    "before": "private final Field f3_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 0, true);",
+    "after": "private final Field f3_EIBDATE = Field.packed(s_DFHEIBLK, 4, 7, 1, true);"
+   },
+   {
+    "id": "2c8752fe36",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 43,
+    "before": "private final Field f4_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f4_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 9, 4, false);"
+   },
+   {
+    "id": "ccc54074ef",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 43,
+    "before": "private final Field f4_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 4, false);",
+    "after": "private final Field f4_EIBTRNID = Field.alphanumeric(s_DFHEIBLK, 8, 5, false);"
+   },
+   {
+    "id": "ef789f68a3",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 44,
+    "before": "private final Field f5_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f5_EIBTASKN = Field.packed(s_DFHEIBLK, 13, 7, 0, true);"
+   },
+   {
+    "id": "387f23b703",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 44,
+    "before": "private final Field f5_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f5_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 8, 0, true);"
+   },
+   {
+    "id": "7a32a7870e",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 44,
+    "before": "private final Field f5_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 0, true);",
+    "after": "private final Field f5_EIBTASKN = Field.packed(s_DFHEIBLK, 12, 7, 1, true);"
+   },
+   {
+    "id": "46c61fa797",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 45,
+    "before": "private final Field f6_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f6_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 17, 4, false);"
+   },
+   {
+    "id": "f29aa0d3ec",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 45,
+    "before": "private final Field f6_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 4, false);",
+    "after": "private final Field f6_EIBTRMID = Field.alphanumeric(s_DFHEIBLK, 16, 5, false);"
+   },
+   {
+    "id": "5141310a44",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 46,
+    "before": "private final Field f9_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f9_EIBCALEN = Field.binary(s_DFHEIBLK, 25, 4, 0, true, false);"
+   },
+   {
+    "id": "0647df5ba0",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 46,
+    "before": "private final Field f9_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f9_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 5, 0, true, false);"
+   },
+   {
+    "id": "9c78f5c8b9",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 46,
+    "before": "private final Field f9_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 0, true, false);",
+    "after": "private final Field f9_EIBCALEN = Field.binary(s_DFHEIBLK, 24, 4, 1, true, false);"
+   },
+   {
+    "id": "7c1a9cd7da",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 47,
+    "before": "private final Field f30_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f30_EIBRESP = Field.binary(s_DFHEIBLK, 77, 8, 0, true, false);"
+   },
+   {
+    "id": "a643d734dd",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 47,
+    "before": "private final Field f30_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f30_EIBRESP = Field.binary(s_DFHEIBLK, 76, 9, 0, true, false);"
+   },
+   {
+    "id": "2075570678",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 47,
+    "before": "private final Field f30_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 0, true, false);",
+    "after": "private final Field f30_EIBRESP = Field.binary(s_DFHEIBLK, 76, 8, 1, true, false);"
+   },
+   {
+    "id": "9f6b655722",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 48,
+    "before": "private final Field f31_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f31_EIBRESP2 = Field.binary(s_DFHEIBLK, 81, 8, 0, true, false);"
+   },
+   {
+    "id": "7c9654dfdd",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 48,
+    "before": "private final Field f31_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f31_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 9, 0, true, false);"
+   },
+   {
+    "id": "e3256ca3e9",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 48,
+    "before": "private final Field f31_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 0, true, false);",
+    "after": "private final Field f31_EIBRESP2 = Field.binary(s_DFHEIBLK, 80, 8, 1, true, false);"
+   },
+   {
+    "id": "69fecadf09",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 49,
+    "before": "private final Field f33_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f33_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 1, 4, 0, true, false);"
+   },
+   {
+    "id": "14fbb66f2b",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 49,
+    "before": "private final Field f33_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f33_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 5, 0, true, false);"
+   },
+   {
+    "id": "05cfd28946",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 49,
+    "before": "private final Field f33_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 0, true, false);",
+    "after": "private final Field f33_GG_RETURN_CODE = Field.binary(s_GG_RETURN_CODE, 0, 4, 1, true, false);"
+   },
+   {
+    "id": "ff5f8a2d27",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 60,
+    "before": "if (task.level() > 1) {",
+    "after": "if (!(task.level() > 1)) {"
+   },
+   {
+    "id": "f43fefd897",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 60,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() <= 1) {"
+   },
+   {
+    "id": "e8f8813a29",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 60,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() >= 1) {"
+   },
+   {
+    "id": "03881a7c00",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 60,
+    "before": "if (task.level() > 1) {",
+    "after": "if (task.level() > 2) {"
+   },
+   {
+    "id": "bb5fe9dce2",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 61,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "19e3be2a98",
+    "op": "LIT",
+    "file": "service/GetspndService.java",
+    "line": 66,
+    "before": "@SuppressWarnings(\"unchecked\")",
+    "after": "@SuppressWarnings(\"Xnchecked\")"
+   },
+   {
+    "id": "30f915423e",
+    "op": "LIT",
+    "file": "service/GetspndService.java",
+    "line": 68,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"XICS file \" + name + \": the program names no file the generated project stores\");"
+   },
+   {
+    "id": "0d6de44d1a",
+    "op": "LIT",
+    "file": "service/GetspndService.java",
+    "line": 68,
+    "before": "throw new Hole(\"CICS file \" + name + \": the program names no file the generated project stores\");",
+    "after": "throw new Hole(\"CICS file \" + name + \"X the program names no file the generated project stores\");"
+   },
+   {
+    "id": "72f0efc5e3",
+    "op": "LIT",
+    "file": "service/GetspndService.java",
+    "line": 72,
+    "before": "java.util.Map.entry(\"MAINLINE\", 0)",
+    "after": "java.util.Map.entry(\"XAINLINE\", 0)"
+   },
+   {
+    "id": "3e18edf04c",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 72,
+    "before": "java.util.Map.entry(\"MAINLINE\", 0)",
+    "after": "java.util.Map.entry(\"MAINLINE\", 1)"
+   },
+   {
+    "id": "d26fe9c2e4",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 77,
+    "before": "if (i == null) {",
+    "after": "if (!(i == null)) {"
+   },
+   {
+    "id": "2349d2823d",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 77,
+    "before": "if (i == null) {",
+    "after": "if (i != null) {"
+   },
+   {
+    "id": "ae2809e1ee",
+    "op": "LIT",
+    "file": "service/GetspndService.java",
+    "line": 78,
+    "before": "throw new IllegalStateException(\"no paragraph \" + name);",
+    "after": "throw new IllegalStateException(\"Xo paragraph \" + name);"
+   },
+   {
+    "id": "60db90d9a1",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 90,
+    "before": "if (h != null) {",
+    "after": "if (!(h != null)) {"
+   },
+   {
+    "id": "efdae87a9d",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 90,
+    "before": "if (h != null) {",
+    "after": "if (h == null) {"
+   },
+   {
+    "id": "9e0c4038c3",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 93,
+    "before": "if (DetCics.ignoredByDefault(cond)) {",
+    "after": "if (!(DetCics.ignoredByDefault(cond))) {"
+   },
+   {
+    "id": "ce84a386d2",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 94,
+    "before": "return -1;",
+    "after": "return -2;"
+   },
+   {
+    "id": "d02beb8f6b",
+    "op": "LIT",
+    "file": "service/GetspndService.java",
+    "line": 96,
+    "before": "Integer error = handlers.get(\"ERROR\");",
+    "after": "Integer error = handlers.get(\"XRROR\");"
+   },
+   {
+    "id": "f15940566f",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 97,
+    "before": "if (error != null) {",
+    "after": "if (!(error != null)) {"
+   },
+   {
+    "id": "df75e951f0",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 97,
+    "before": "if (error != null) {",
+    "after": "if (error == null) {"
+   },
+   {
+    "id": "f4f9831637",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 101,
+    "before": "if (label == null) {",
+    "after": "if (!(label == null)) {"
+   },
+   {
+    "id": "d03f22d7af",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 101,
+    "before": "if (label == null) {",
+    "after": "if (label != null) {"
+   },
+   {
+    "id": "376b52f7c0",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 108,
+    "before": "return task.eibcalen() == null ? whole : task.eibcalen();",
+    "after": "return task.eibcalen() != null ? whole : task.eibcalen();"
+   },
+   {
+    "id": "c98c87f3f8",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 118,
+    "before": "System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length);",
+    "after": "/* System.arraycopy(IMAGE_s_DFHEIBLK, 0, s_DFHEIBLK.bytes, 0, IMAGE_s_DFHEIBLK.length); */"
+   },
+   {
+    "id": "f7dac101b1",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 119,
+    "before": "System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length);",
+    "after": "/* System.arraycopy(IMAGE_s_GG_RETURN_CODE, 0, s_GG_RETURN_CODE.bytes, 0, IMAGE_s_GG_RETURN_CODE.length); */"
+   },
+   {
+    "id": "3f60b052f2",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 141,
+    "before": "caBack = () -> { };",
+    "after": "/* caBack = () -> { }; */"
+   },
+   {
+    "id": "425630aedf",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 142,
+    "before": "handlers.clear();",
+    "after": "/* handlers.clear(); */"
+   },
+   {
+    "id": "8286ebb477",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 143,
+    "before": "heldKey.clear();",
+    "after": "/* heldKey.clear(); */"
+   },
+   {
+    "id": "9fe5288653",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 144,
+    "before": "initialState();",
+    "after": "/* initialState(); */"
+   },
+   {
+    "id": "89761e48f5",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 145,
+    "before": "Cobol.move(task.transid(), f4_EIBTRNID, CS);",
+    "after": "/* Cobol.move(task.transid(), f4_EIBTRNID, CS); */"
+   },
+   {
+    "id": "399b91daa0",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 147,
+    "before": "Cobol.store(f5_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS);",
+    "after": "/* Cobol.store(f5_EIBTASKN, BigDecimal.valueOf(task.taskNumber()), false, CS); */"
+   },
+   {
+    "id": "67aaad98bb",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 149,
+    "before": "Cobol.store(f3_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "/* Cobol.store(f3_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS); */"
+   },
+   {
+    "id": "bdb064157a",
+    "op": "AOR",
+    "file": "service/GetspndService.java",
+    "line": 149,
+    "before": "Cobol.store(f3_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f3_EIBDATE, BigDecimal.valueOf((now.getYear() + 1900) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "3670183195",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 149,
+    "before": "Cobol.store(f3_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f3_EIBDATE, BigDecimal.valueOf((now.getYear() - 1901) * 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "8827880a98",
+    "op": "AOR",
+    "file": "service/GetspndService.java",
+    "line": 149,
+    "before": "Cobol.store(f3_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f3_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "023c12e0c4",
+    "op": "AOR",
+    "file": "service/GetspndService.java",
+    "line": 149,
+    "before": "Cobol.store(f3_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+    "after": "Cobol.store(f3_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L - now.getDayOfYear()), false, CS);"
+   },
+   {
+    "id": "7a1a1a3ecd",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 150,
+    "before": "Cobol.store(f2_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "/* Cobol.store(f2_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS); */"
+   },
+   {
+    "id": "17582bead9",
+    "op": "AOR",
+    "file": "service/GetspndService.java",
+    "line": 150,
+    "before": "Cobol.store(f2_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f2_EIBTIME, BigDecimal.valueOf(now.getHour() / 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "0fd7ce665c",
+    "op": "AOR",
+    "file": "service/GetspndService.java",
+    "line": 150,
+    "before": "Cobol.store(f2_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f2_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "9e603249a6",
+    "op": "AOR",
+    "file": "service/GetspndService.java",
+    "line": 150,
+    "before": "Cobol.store(f2_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f2_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() / 100L + now.getSecond()), false, CS);"
+   },
+   {
+    "id": "48a1216b1d",
+    "op": "AOR",
+    "file": "service/GetspndService.java",
+    "line": 150,
+    "before": "Cobol.store(f2_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+    "after": "Cobol.store(f2_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L - now.getSecond()), false, CS);"
+   },
+   {
+    "id": "854cc40b16",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 151,
+    "before": "switch (task.aid() == null ? \"\" : task.aid()) {",
+    "after": "switch (task.aid() != null ? \"\" : task.aid()) {"
+   },
+   {
+    "id": "abf2dbdd77",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 155,
+    "before": "int calen = 0;",
+    "after": "int calen = 1;"
+   },
+   {
+    "id": "127bbaf8ee",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 156,
+    "before": "if (ca instanceof AsyncpntAccountNumberIn) {",
+    "after": "if (!(ca instanceof AsyncpntAccountNumberIn)) {"
+   },
+   {
+    "id": "dc4508d4d2",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 157,
+    "before": "calen = cx(task, 4);",
+    "after": "/* calen = cx(task, 4); */"
+   },
+   {
+    "id": "2d9c298156",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 157,
+    "before": "calen = cx(task, 4);",
+    "after": "calen = cx(task, 5);"
+   },
+   {
+    "id": "fc2b258124",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 158,
+    "before": "} else if (ca instanceof AsyncpntCreditCheckResult) {",
+    "after": "} else if (!(ca instanceof AsyncpntCreditCheckResult)) {"
+   },
+   {
+    "id": "2d693dbb50",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 159,
+    "before": "calen = cx(task, 3);",
+    "after": "/* calen = cx(task, 3); */"
+   },
+   {
+    "id": "0ae5b23d14",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 159,
+    "before": "calen = cx(task, 3);",
+    "after": "calen = cx(task, 4);"
+   },
+   {
+    "id": "8ea0c4f495",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 160,
+    "before": "} else if (ca instanceof AsyncpntCustomerAddress) {",
+    "after": "} else if (!(ca instanceof AsyncpntCustomerAddress)) {"
+   },
+   {
+    "id": "42bae18846",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 161,
+    "before": "calen = cx(task, 80);",
+    "after": "/* calen = cx(task, 80); */"
+   },
+   {
+    "id": "381f0139f6",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 161,
+    "before": "calen = cx(task, 80);",
+    "after": "calen = cx(task, 81);"
+   },
+   {
+    "id": "0512cd27b6",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 162,
+    "before": "} else if (ca instanceof AsyncpntCustomerImportance) {",
+    "after": "} else if (!(ca instanceof AsyncpntCustomerImportance)) {"
+   },
+   {
+    "id": "b726dae234",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 163,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "792a318bef",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 163,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "8bf08f1814",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 164,
+    "before": "} else if (ca instanceof AsyncpntCustomerName) {",
+    "after": "} else if (!(ca instanceof AsyncpntCustomerName)) {"
+   },
+   {
+    "id": "63eefb7e30",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 165,
+    "before": "calen = cx(task, 80);",
+    "after": "/* calen = cx(task, 80); */"
+   },
+   {
+    "id": "c4618836d1",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 165,
+    "before": "calen = cx(task, 80);",
+    "after": "calen = cx(task, 81);"
+   },
+   {
+    "id": "13132bbf9c",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 166,
+    "before": "} else if (ca instanceof AsyncpntCustomerPostcode) {",
+    "after": "} else if (!(ca instanceof AsyncpntCustomerPostcode)) {"
+   },
+   {
+    "id": "3aff6df062",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 167,
+    "before": "calen = cx(task, 8);",
+    "after": "/* calen = cx(task, 8); */"
+   },
+   {
+    "id": "264c358fdb",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 167,
+    "before": "calen = cx(task, 8);",
+    "after": "calen = cx(task, 9);"
+   },
+   {
+    "id": "20d6ed809c",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 168,
+    "before": "} else if (ca instanceof AsyncpntReturnData) {",
+    "after": "} else if (!(ca instanceof AsyncpntReturnData)) {"
+   },
+   {
+    "id": "c0a27206e5",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 169,
+    "before": "calen = cx(task, 186);",
+    "after": "/* calen = cx(task, 186); */"
+   },
+   {
+    "id": "5bbb07d866",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 169,
+    "before": "calen = cx(task, 186);",
+    "after": "calen = cx(task, 187);"
+   },
+   {
+    "id": "d3e6c498fb",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 171,
+    "before": "Cobol.store(f9_EIBCALEN, BigDecimal.valueOf(calen), false, CS);",
+    "after": "/* Cobol.store(f9_EIBCALEN, BigDecimal.valueOf(calen), false, CS); */"
+   },
+   {
+    "id": "b2023c3983",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 173,
+    "before": "perform(0, 0);",
+    "after": "/* perform(0, 0); */"
+   },
+   {
+    "id": "5dcce62cc2",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 173,
+    "before": "perform(0, 0);",
+    "after": "perform(0, 1);"
+   },
+   {
+    "id": "e293e5d42c",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 178,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "4ef06b985a",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 182,
+    "before": "Cobol.swapTruncBinary(truncBefore);",
+    "after": "/* Cobol.swapTruncBinary(truncBefore); */"
+   },
+   {
+    "id": "67724921a8",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 183,
+    "before": "Cobol.swapNumprocPfd(pfdBefore);",
+    "after": "/* Cobol.swapNumprocPfd(pfdBefore); */"
+   },
+   {
+    "id": "cab9821786",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 199,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "393c197731",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 204,
+    "before": "private int[] performThru = new int[64];",
+    "after": "private int[] performThru = new int[65];"
+   },
+   {
+    "id": "21ae032b47",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 205,
+    "before": "private int performDepth = 0;",
+    "after": "private int performDepth = 1;"
+   },
+   {
+    "id": "9475c6b20a",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 213,
+    "before": "super(null, null, false, false);",
+    "after": "/* super(null, null, false, false); */"
+   },
+   {
+    "id": "929ce5894b",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 224,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "/* performThru = java.util.Arrays.copyOf(performThru, mine * 2); */"
+   },
+   {
+    "id": "b8f3785f24",
+    "op": "AOR",
+    "file": "service/GetspndService.java",
+    "line": 224,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);"
+   },
+   {
+    "id": "c6617ccfd8",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 224,
+    "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+    "after": "performThru = java.util.Arrays.copyOf(performThru, mine * 3);"
+   },
+   {
+    "id": "780525db03",
+    "op": "AOR",
+    "file": "service/GetspndService.java",
+    "line": 226,
+    "before": "performThru[performDepth++] = thru;",
+    "after": "performThru[performDepth--] = thru;"
+   },
+   {
+    "id": "7cff7d9a6e",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 231,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) == 0;"
+   },
+   {
+    "id": "f9f3753c7f",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 231,
+    "before": "boolean jumped = (next & GOTO) != 0;",
+    "after": "boolean jumped = (next & GOTO) != 1;"
+   },
+   {
+    "id": "80b23330db",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 233,
+    "before": "if (!jumped) {",
+    "after": "if (!(!jumped)) {"
+   },
+   {
+    "id": "bfae07d3e0",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 234,
+    "before": "if (i == thru) {",
+    "after": "if (!(i == thru)) {"
+   },
+   {
+    "id": "40dfac6da8",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 234,
+    "before": "if (i == thru) {",
+    "after": "if (i != thru) {"
+   },
+   {
+    "id": "1d621baf2e",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 235,
+    "before": "return;",
+    "after": "/* return; */"
+   },
+   {
+    "id": "5a88ba6729",
+    "op": "AOR",
+    "file": "service/GetspndService.java",
+    "line": 237,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine + 1; d >= 0; d--) {"
+   },
+   {
+    "id": "e9ce61e24f",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 237,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 2; d >= 0; d--) {"
+   },
+   {
+    "id": "06700a07ee",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 237,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d < 0; d--) {"
+   },
+   {
+    "id": "6f9a4f564e",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 237,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d > 0; d--) {"
+   },
+   {
+    "id": "66b4ad6996",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 237,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 1; d--) {"
+   },
+   {
+    "id": "f00034358d",
+    "op": "AOR",
+    "file": "service/GetspndService.java",
+    "line": 237,
+    "before": "for (int d = mine - 1; d >= 0; d--) {",
+    "after": "for (int d = mine - 1; d >= 0; d++) {"
+   },
+   {
+    "id": "6cef0dc93d",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 238,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (!(performThru[d] == i)) {"
+   },
+   {
+    "id": "8cd960fac2",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 238,
+    "before": "if (performThru[d] == i) {",
+    "after": "if (performThru[d] != i) {"
+   },
+   {
+    "id": "73a2f90f21",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 243,
+    "before": "if (next >= 1) {",
+    "after": "if (!(next >= 1)) {"
+   },
+   {
+    "id": "108ed461fb",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 243,
+    "before": "if (next >= 1) {",
+    "after": "if (next < 1) {"
+   },
+   {
+    "id": "70dcc669ef",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 243,
+    "before": "if (next >= 1) {",
+    "after": "if (next > 1) {"
+   },
+   {
+    "id": "e65df7e20b",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 243,
+    "before": "if (next >= 1) {",
+    "after": "if (next >= 2) {"
+   },
+   {
+    "id": "c23f221bf7",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 246,
+    "before": "i = next;",
+    "after": "/* i = next; */"
+   },
+   {
+    "id": "e534992134",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 249,
+    "before": "if (e.depth != mine) {",
+    "after": "if (!(e.depth != mine)) {"
+   },
+   {
+    "id": "949f825b00",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 249,
+    "before": "if (e.depth != mine) {",
+    "after": "if (e.depth == mine) {"
+   },
+   {
+    "id": "348a254339",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 253,
+    "before": "performDepth = mine;",
+    "after": "/* performDepth = mine; */"
+   },
+   {
+    "id": "d5c02a8a20",
+    "op": "LIT",
+    "file": "service/GetspndService.java",
+    "line": 260,
+    "before": "default: throw new IllegalStateException(\"paragraph \" + i);",
+    "after": "default: throw new IllegalStateException(\"Xaragraph \" + i);"
+   },
+   {
+    "id": "04d55dfbbd",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 267,
+    "before": "task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+    "after": "task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), \"DELAY out of range\");"
+   },
+   {
+    "id": "4f6745d882",
+    "op": "LIT",
+    "file": "service/GetspndService.java",
+    "line": 267,
+    "before": "task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"DELAY out of range\");",
+    "after": "task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(2), null), \"XELAY out of range\");"
+   },
+   {
+    "id": "981236f69c",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 268,
+    "before": "Cobol.store(f30_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f30_EIBRESP, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "da5cd34a22",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 268,
+    "before": "Cobol.store(f30_EIBRESP, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f30_EIBRESP, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "0745cf8dd9",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 269,
+    "before": "Cobol.store(f31_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "/* Cobol.store(f31_EIBRESP2, BigDecimal.valueOf(0), false, CS); */"
+   },
+   {
+    "id": "d238ad2a21",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 269,
+    "before": "Cobol.store(f31_EIBRESP2, BigDecimal.valueOf(0), false, CS);",
+    "after": "Cobol.store(f31_EIBRESP2, BigDecimal.valueOf(1), false, CS);"
+   },
+   {
+    "id": "85a7b86d09",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 271,
+    "before": "int to = condition(DetCics.condition(0));",
+    "after": "int to = condition(DetCics.condition(1));"
+   },
+   {
+    "id": "e5980f487d",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 272,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (!(to >= 0)) return GOTO | to;"
+   },
+   {
+    "id": "40fa68a703",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 272,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to < 0) return GOTO | to;"
+   },
+   {
+    "id": "0745055e45",
+    "op": "ROR",
+    "file": "service/GetspndService.java",
+    "line": 272,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to > 0) return GOTO | to;"
+   },
+   {
+    "id": "2da39e3a45",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 272,
+    "before": "if (to >= 0) return GOTO | to;",
+    "after": "if (to >= 1) return GOTO | to;"
+   },
+   {
+    "id": "b68dbb1b57",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 275,
+    "before": "caBack.run();",
+    "after": "/* caBack.run(); */"
+   },
+   {
+    "id": "7a3e04566c",
+    "op": "DEL",
+    "file": "service/GetspndService.java",
+    "line": 276,
+    "before": "task.returnTransid(null, null);",
+    "after": "/* task.returnTransid(null, null); */"
+   },
+   {
+    "id": "8a4bc55e9c",
+    "op": "NEG",
+    "file": "service/GetspndService.java",
+    "line": 277,
+    "before": "if (true) throw new Goback();",
+    "after": "if (!(true)) throw new Goback();"
+   },
+   {
+    "id": "2a1737008d",
+    "op": "CON",
+    "file": "service/GetspndService.java",
+    "line": 278,
+    "before": "return 1;",
+    "after": "return 2;"
+   }
+  ],
   "inputs": {
-   "port": "d229aee1e038ce6c0cfa432755c83a20c84ae7506e1846e89d11095761253880",
-   "generator": "6681c242d15376704d68ac11d16926ab6d83a1c27b09ae334fdd4cf9300735c2",
+   "port": "cb3e4a918a8ac97b7cab267285d6ea8aefb9a06ceed0c371ec14f27e52f6b1a4",
+   "generator": "140bceaf0d6727d934e5f0eeca6332e708567250dcb4326c21e7fded289bf18f",
    "case": "3f15c0e7364770e323f6e9c65487c146dbfba37ff81f38d42b9aebc930125c49",
    "corpus": "a98b9cfe46b5f45db9305f0a997047218e09c7c36422ec0849f6af7af5dd5353",
-   "harness": "4e4ed6b5ddf328b47f42651b6f45570d43c3e89b316c72a1b887a8f78156a31e",
-   "oracle": "27cd5d5127a7ff5cf004d7ea63517333edb599feefc1643485560c707d475c0b"
+   "harness": "efbe51075ec1adca1d2de680be9c28392f4d525f661d39c1d5f9eeaf7ae38c86",
+   "oracle": "e9e74c7b948ad1020416ad6ae58cb9ae52e4027557d0f25419d12926e20cc83e"
   },
   "components": {
    "generator": {
-    "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
+    "generator:core": "5835676e90b8075f69e69802dc022e2830ebe3ffccae9b2ad090ee45a18931de",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
     "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
     "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dli": "59300231ec82938ae8606969155f9d0fef4962ad739e8d6da188a7b6202e9ebd",
-    "generator:det/dyncall": "88c49b4c2e152b1e81d9afb16790c0faac7e6ce25a5f797a5b7c3528f7de92ae",
+    "generator:det/dli": "8a81045734ca0b53157f70ed0a4708159a20472e80fa51c334c50fde312133e6",
+    "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "6df3c4e25730ed5f5d06c4b9891a4a45958c6fa9808761f5f8078be3ef0d99b4",
-    "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
+    "generator:det/gen": "bca5020bf4c777be262e3b09840d2aee977e9b69a01b3e2940bcffe3c54028f5",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/source": "1a59078834bfd89f31c04759c85727e659c8172b12323d97e3711324d1d8f0bf",
-    "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
+    "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
+    "generator:det/stmt": "72ade7437769eb7b8d8e94511613964e6f5cb98f30b4a4c5d6295709534b5176"
    },
    "harness": {
-    "harness:cics": "213c9450546bf312b75d1e132d67f07d558860d6645035e28f54d04046f36195",
-    "harness:core": "b1e0cf6689a29fa82863925972598abbec78a3c74b3eebdde86031140713e0df"
+    "harness:cics": "524c7ec5b94a8002f7cb66755e3328f295865ecc7399685916101df02b20703c",
+    "harness:core": "d62c9af2a5f83bb39a1deffe40cd7d7d63bb0d2945c4e8cec6b12503931f45ef"
    },
    "oracle": {
-    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
-    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
-    "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
+    "oracle:cics-stub": "a87ec1941cad022e2a2706e2d20545b3da939139e7764b7aa9bec9358bcc82ae",
+    "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
+    "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
    }
   }
  }

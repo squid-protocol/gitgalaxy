@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
 
 /**
  * The Language Environment date/time callable services CEEGMT / CEEUTC, CEEDATM, CEESECS, CEEDATE, CEEISEC, CEESECI,
- * CEEDYWK and CEEQCEN (#4949, #5003), as the equivalence harness models them for the COBOL side (tests/equivalence/le/le_time.c): the
+ * CEEDYWK, CEEQCEN and CEESCEN (#4949, #5003), as the equivalence harness models them for the COBOL side (tests/equivalence/le/le_time.c): the
  * same conditions, the same bytes, and the same refusals -- what that model does not model, this does not either
  * ("NAME: ... is not modelled"). Register L6 says what IBM documents, what is assumed and what is refused.
  *
@@ -197,9 +197,23 @@ final class LeTime {
         putFc(fc, 0);
     }
 
+    /** The century window's start (years before the system date): the run's setting, 80 until CEESCEN changes it. */
+    private static int centuryStart = 80;
+
     // [rule RT-LE-CEEQCEN]
     static void qcen(Field century, Field fc) {
-        putInt(century, 80);
+        putInt(century, centuryStart);
+        putFc(fc, 0);
+    }
+
+    /** CEESCEN: 0 to 100, else CEE2533 and the setting is unchanged. Nothing reads the window yet (CEESECS refuses YY). */
+    static void scen(Field century, Field fc) {
+        int v = getInt(century);
+        if (v < 0 || v > 100) {
+            putFc(fc, 2533);
+            return;
+        }
+        centuryStart = v;
         putFc(fc, 0);
     }
 

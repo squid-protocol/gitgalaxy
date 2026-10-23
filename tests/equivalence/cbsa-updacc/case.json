@@ -186,6 +186,72 @@
     "COMM-INT-RATE": "1.25"
    },
    "why": "the caller's COMM-EYE differs from the row's ACCOUNT_EYECATCHER: the success path's MOVE HV-ACCOUNT-EYECATCHER TO COMM-EYE is the only thing that makes the returned eyecatcher the row's"
+  },
+  {
+   "name": "dto-entry-update",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "as update-type-overdraft-rate, through the typed DTO alone (#4049): the link-area bytes no longer overwrite what in_ maps, so each COMM-* field's move from the DTO shows in the UPDATE and the refilled COMMAREA",
+   "dto_entry": true
+  },
+  {
+   "name": "dto-entry-account-not-found",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "99",
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0"
+   },
+   "why": "as account-not-found, through the typed DTO alone (#4049): a failing run returns the caller's DTO fields as in_ mapped them",
+   "dto_entry": true
+  },
+  {
+   "name": "dto-entry-eibcalen-full",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "commarea_length": 99,
+   "why": "as eibcalen-full (99 bytes), through the typed DTO alone (#4049)",
+   "dto_entry": true
+  },
+  {
+   "name": "dto-entry-foreign-sort-code",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "123456",
+    "COMM-ACCNO": "2",
+    "COMM-ACC-TYPE": "",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0"
+   },
+   "why": "as foreign-sort-code-blank-type, through the typed DTO alone (#4049): in_ maps COMM-SCODE and COMM-EYE, the failing path returns them",
+   "dto_entry": true
+  },
+  {
+   "name": "dto-entry-eyecatcher",
+   "commarea": {
+    "COMM-EYE": "ZZZZ",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "as eyecatcher-refilled-from-db, through the typed DTO alone (#4049)",
+   "dto_entry": true
   }
  ],
  "notes": "CBSA's update-account service (UPDACC, LINKed with the UPDACC copybook's COMMAREA): the account is read by the program's own sort code (987654) and COMM-ACCNO with a SELECT INTO from Db2 table ACCOUNT (unqualified: the bind's QUALIFIER, IBMUSER); a failed SELECT (+100, -305 ...) or an account type that is blank or starts with a space gives COMM-SUCCESS 'N' and no UPDATE; otherwise ACCOUNT_TYPE, ACCOUNT_INTEREST_RATE and ACCOUNT_OVERDRAFT_LIMIT are UPDATEd, and the COMMAREA is refilled from the host variables, each date reformatted from Db2's character form (YYYY-MM-DD) to DDMMYYYY. The table is compared after every scenario."

@@ -24,18 +24,6 @@
    "program_source": "src/base/cobol_src/UPDCUST.cbl"
   },
   {
-   "program": "DELCUS",
-   "program_source": "src/base/cobol_src/DELCUS.cbl"
-  },
-  {
-   "program": "INQACCCU",
-   "program_source": "src/base/cobol_src/INQACCCU.cbl"
-  },
-  {
-   "program": "DELACC",
-   "program_source": "src/base/cobol_src/DELACC.cbl"
-  },
-  {
    "program": "ABNDPROC",
    "program_source": "src/base/cobol_src/ABNDPROC.cbl"
   }
@@ -272,90 +260,6 @@
    }
   },
   {
-   "name": "delete-three-accounts",
-   "aid": "DFHPF5",
-   "commarea": {
-    "WS-COMM-TERM": 451
-   },
-   "why": "PF5 with customer 1 (three accounts): VALIDATE-DATA passes, DEL-CUST-DATA LINKs DELCUS (INQCUST, INQACCCU, a DELACC per account, the CUSTOMER record deleted) -- the 'successfully deleted' message, the map's fields blanked",
-   "receive": {
-    "BNK1DC": {
-     "CUSTNOI": "0000000001",
-     "SORTCI": "987654",
-     "CUSTNO2I": "0000000001"
-    }
-   }
-  },
-  {
-   "name": "delete-one-loan",
-   "aid": "DFHPF5",
-   "commarea": {
-    "WS-COMM-TERM": 451
-   },
-   "why": "PF5 with customer 2, one LOAN account with a negative balance: one DELACC, then the customer is deleted",
-   "receive": {
-    "BNK1DC": {
-     "CUSTNOI": "0000000002",
-     "SORTCI": "987654",
-     "CUSTNO2I": "0000000002"
-    }
-   }
-  },
-  {
-   "name": "delete-null-statement-date",
-   "aid": "DFHPF5",
-   "commarea": {
-    "WS-COMM-TERM": 451
-   },
-   "why": "PF5 with customer 3, whose account has a NULL last-statement date: INQACCCU's FETCH fails (-305), no account is returned, DELCUS deletes the customer alone",
-   "receive": {
-    "BNK1DC": {
-     "CUSTNOI": "0000000003",
-     "SORTCI": "987654",
-     "CUSTNO2I": "0000000003"
-    }
-   }
-  },
-  {
-   "name": "delete-not-on-file",
-   "aid": "DFHPF5",
-   "commarea": {
-    "WS-COMM-TERM": 451
-   },
-   "why": "PF5 with customer 5, which has an account but no CUSTOMER record: DELCUS fails with code 1 -- 'that Cust no was not found. Customer NOT deleted.', nothing deleted",
-   "receive": {
-    "BNK1DC": {
-     "CUSTNOI": "0000000005",
-     "SORTCI": "987654",
-     "CUSTNO2I": "0000000005"
-    }
-   }
-  },
-  {
-   "name": "delete-ioerr",
-   "aid": "DFHPF5",
-   "commarea": {
-    "WS-COMM-TERM": 451
-   },
-   "why": "PF5 with customer 2 when the DELETE of the CUSTOMER record fails with IOERR: DELCUS fails with code 3 -- 'a delete error occurred. Customer NOT deleted.'",
-   "receive": {
-    "BNK1DC": {
-     "CUSTNOI": "0000000002",
-     "SORTCI": "987654",
-     "CUSTNO2I": "0000000002"
-    }
-   },
-   "faults": [
-    {
-     "cmd": "DELETE",
-     "file": "CUSTOMER",
-     "resp": "IOERR",
-     "nth": 1,
-     "why": "17 on the DELETE"
-    }
-   ]
-  },
-  {
    "name": "update",
    "aid": "DFHENTER",
    "commarea": {
@@ -506,18 +410,5 @@
    }
   }
  ],
- "notes": "CBSA's display / amend / delete-customer screen (BNK1DCS, transaction ODCS, BMS map BNK1DC of mapset BNK1DCM: the symbolic map is generated from src/base/bms_src/BNK1DCM.bms, @bms/BNK1DCM.cpy). Its terminal is a stated fact of the run: T001 (EIBTRMID), UCTRANST NOUCTRAN unless a scenario says UCTRAN (INQUIRE / SET TERMINAL UCTRANST, oracle_assumptions.md X26); a first task stores the terminal's UCTRANST in the COMMAREA and turns translation off, and every exit (PF3 / PF12 / CLEAR, an abend) SETs it back from the COMMAREA (WS-COMM-TERM 451 in every returning scenario). ENTER inquires (LINK INQCUST); PF10 checks the customer and unprotects the name and address for amending (COMM-UPD 'Y'); ENTER with COMM-UPD 'Y' validates the title and address and LINKs UPDCUST; PF5 deletes through DELCUS. INQCUST, UPDCUST and ABNDPROC run in the task, as in cbsa-inqcust / cbsa-updcust. The COMMAREA compared is the one the program RETURNs, WS-COMM-AREA (LENGTH 266). CUSTOMER and ABNDFILE are compared after every scenario. PF5 deletes through DELCUS, LINKed in the task with INQCUST, INQACCCU and DELACC as in cbsa-delcus; its Db2 (ACCOUNT, PROCTRAN) is cbsa-delcus's seed.sql (SYNTHETIC) and is compared after every scenario. Not reached: a terminal whose translation is on when a RECEIVE follows the SET (IBM does not say when a SET UCTRANST takes effect: refused by both runtimes, X26), a customer number with no digit after BIF DEEDIT (not modelled), a PF10 whose date / credit-score fields came back empty (UNPROT-CUST-DATA MOVEs the symbolic map's LOW-VALUES through a 9(8) REDEFINES: non-digit data in a numeric MOVE, oracle_assumptions.md C11 -- the scenarios give PF10 the screen's fields as shown), and the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK / INQUIRE / SET (no fault can be injected on them). Data: customer.txt is cbsa-updcust's (SYNTHETIC). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
- "db2": {
-  "ddl": [
-   "etc/install/base/db2jcl/CRETB01.jcl",
-   "etc/install/base/db2jcl/CREI101.jcl",
-   "etc/install/base/db2jcl/CRETB02.jcl"
-  ],
-  "seed": "@case/seed.sql",
-  "compare": [
-   "IBMUSER.ACCOUNT",
-   "IBMUSER.PROCTRAN"
-  ],
-  "qualifier": "IBMUSER"
- }
+ "notes": "CBSA's display / amend / delete-customer screen (BNK1DCS, transaction ODCS, BMS map BNK1DC of mapset BNK1DCM: the symbolic map is generated from src/base/bms_src/BNK1DCM.bms, @bms/BNK1DCM.cpy). Its terminal is a stated fact of the run: T001 (EIBTRMID), UCTRANST NOUCTRAN unless a scenario says UCTRAN (INQUIRE / SET TERMINAL UCTRANST, oracle_assumptions.md X26); a first task stores the terminal's UCTRANST in the COMMAREA and turns translation off, and every exit (PF3 / PF12 / CLEAR, an abend) SETs it back from the COMMAREA (WS-COMM-TERM 451 in every returning scenario). ENTER inquires (LINK INQCUST); PF10 checks the customer and unprotects the name and address for amending (COMM-UPD 'Y'); ENTER with COMM-UPD 'Y' validates the title and address and LINKs UPDCUST; PF5 deletes through DELCUS. INQCUST, UPDCUST and ABNDPROC run in the task, as in cbsa-inqcust / cbsa-updcust. The COMMAREA compared is the one the program RETURNs, WS-COMM-AREA (LENGTH 266). CUSTOMER and ABNDFILE are compared after every scenario. Not reached: a valid PF5 delete -- DELCUS is not translated whole (cics_census: 4 holes), so no scenario LINKs it --; a terminal whose translation is on when a RECEIVE follows the SET (IBM does not say when a SET UCTRANST takes effect: refused by both runtimes, X26), a customer number with no digit after BIF DEEDIT (not modelled), a PF10 whose date / credit-score fields came back empty (UNPROT-CUST-DATA MOVEs the symbolic map's LOW-VALUES through a 9(8) REDEFINES: non-digit data in a numeric MOVE, oracle_assumptions.md C11 -- the scenarios give PF10 the screen's fields as shown), and the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK / INQUIRE / SET (no fault can be injected on them). Data: customer.txt is cbsa-updcust's (SYNTHETIC). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
 }

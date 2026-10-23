@@ -125,6 +125,20 @@ def test_ground_truth_job_has_headroom_over_slow_runners():
     assert "--durations=" in job
 
 
+def test_workflow_runs_pages_until_a_short_page(monkeypatch):  # #5603
+    pages = {1: 100, 2: 100, 3: 7}
+    seen = []
+
+    def fake_gh(path):
+        n = int(re.search(r"&page=(\d+)", path).group(1))
+        seen.append(n)
+        return {"workflow_runs": [{"id": i} for i in range(pages[n])]}
+
+    monkeypatch.setattr(s, "_gh", fake_gh)
+    assert len(s.workflow_runs("det-sweep.yml", "2026-10-09")) == 207
+    assert seen == [1, 2, 3]
+
+
 GATE = ("Every part passed", "failure")
 
 

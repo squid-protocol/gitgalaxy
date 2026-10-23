@@ -272,3 +272,61 @@ def test_the_late_cbsa_entry_shares_the_clone_and_pins_after_the_midpoint(tmp_pa
     assert late["url"] == mid["url"] and late["burned"] and mid["pin"] is None
     assert late["pin"] and op._subdir_args(late) == [] and op._strip_args(late) == []
     assert op._repo_dir(tmp_path, "cbsa-late") == op._repo_dir(tmp_path, "cbsa")
+
+
+def test_bulk_guard_credits_no_file_for_a_wide_commit_but_still_follows_its_renames():
+    commits = [
+        ("c3", "fix crash in a", [("M", "b.c", None)]),
+        (
+            "c2",
+            "COBOL updates and fixes",
+            [("M", "a.c", None), ("M", "b.c", None), ("R", "c2.c", "c.c"), ("M", "d.c", None)],
+        ),
+        ("c1", "add a", [("M", "a.c", None)]),
+    ]
+    paths = ["a.c", "b.c", "c.c", "d.c"]
+    fixes, touches, final = op.later_fix_counts(commits, paths)
+    assert fixes == {"a.c": 1, "b.c": 2, "c.c": 1, "d.c": 1} and touches["a.c"] == 2
+    fixes, touches, final = op.later_fix_counts(commits, paths, max_files=4)  # boundary: 4 files is not bulk
+    assert fixes["a.c"] == 1
+    fixes, touches, final = op.later_fix_counts(commits, paths, max_files=3)
+    assert fixes == {"b.c": 1} and touches == {"a.c": 1, "b.c": 1}
+    assert final["c.c"] == "c2.c"  # the alias moved even though the commit was not credited
+
+
+@pytest.mark.parametrize(
+    "body",
+    ["Fixes #123", "details\n\nFixed octo/repo#4", "Fixes: abc123def", "see CVE-2024-12345 for impact"],
+)
+def test_body_labels_catch_linked_fixes(body):
+    assert op.is_fix_body(body)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "",
+        "Closes #12",
+        "Resolves #3",
+        "adds a fixture for the prefix",
+        "relates to #12",
+        "the fixes were reverted later",
+    ],
+)
+def test_body_labels_ignore_loose_mentions(body):
+    assert not op.is_fix_body(body)
+
+
+def test_recall_counts_split_subject_from_body_only():
+    commits = [
+        ("a", "fix crash", "Fixes #1"),
+        ("b", "dnscache: check hostname on lookup", "Fixes #2"),
+        ("c", "add feature", ""),
+    ]
+    assert op.recall_counts(commits) == {"commits": 3, "subject_fix": 1, "body_only_fix": 1, "either": 2}
+
+
+def test_commit_bodies_reads_the_window(history):
+    repo, pin = history
+    got = op.commit_bodies(repo, pin, 730)
+    assert [s for _h, s, _b in got][:1] == ["fix: drop gone"] and len(got) == 5

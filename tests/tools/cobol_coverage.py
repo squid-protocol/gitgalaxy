@@ -72,6 +72,9 @@ from gitgalaxy.tools.cobol_to_cobol import cobol_graveyard_finder as gy  # noqa:
 FORMAT = "cobol-coverage/1"
 TRACE_FLAG = "-ftraceall"
 TRACE_NAME = "trace.txt"
+# a PROCEDURE DIVISION with no paragraph or section header is one unit, run from its first statement: a trace names no
+# Paragraph event for it, so it is entered when any of the program's own statements ran
+IMPLICIT_UNIT = "(PROCEDURE DIVISION)"
 
 
 def trace_env(path: str) -> str:
@@ -487,8 +490,12 @@ def inventory(path: Path, copybook_root: Path | None = None, encoding: str | Non
     split = gy.split_procedure_division(content)
     units = gy.procedure_units(split[1]) if split else []
     names = [u["name"] for u in units if u["name"]]
-    dead = set(names) - gy.reachable_units(units) if units else set()
     where = _unit_lines(raw)
+    if split and not names:
+        start = next((i for i, x in enumerate(raw.split("\n")) if _PROCEDURE.search(x)), None)
+        where = {IMPLICIT_UNIT: start + 2 if start is not None else 1}
+        units, names = [{"name": IMPLICIT_UNIT, "kind": "implicit", "text": split[1]}], [IMPLICIT_UNIT]
+    dead = set(names) - gy.reachable_units(units) if units else set()
     handler: list[str] = []
     for u in units:
         for m in gy._CICS_HANDLE.finditer(u["text"]):
@@ -642,6 +649,10 @@ def hits(inv: Inventory, events: Iterable[Event], lines: LineMap, compiled_name:
     # every unit entered, the ones the inventory lacks too (summary: `unread`); `L$0`-style names are GnuCOBOL's own
     out = Hits(units={e.name for e in mine if e.kind in ("Section", "Paragraph") and "$" not in e.name})
     points = {b.line: b for b in inv.branches + inv.after_transfer}  # the latter: summary flags a run taking one
+    if IMPLICIT_UNIT in inv.live and any(
+        e.kind == "stmt" and not (compiled_name and e.source and e.source != compiled_name) for e in mine
+    ):
+        out.units.add(IMPLICIT_UNIT)
     # an ENTRY 'NAME' statement is entered by name, so no Paragraph event names the unit that holds it (IMS enters a
     # DL/I program at ENTRY 'DLITCBL'): the unit holding the first statement the entry runs was entered
     for n, e in enumerate(mine[:-1]):

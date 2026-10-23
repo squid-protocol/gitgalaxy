@@ -2060,6 +2060,18 @@ _DIB = "       01  DIB.\n           05 FILLER   PIC XX.\n           05 DIBSTAT  
 
 
 DLI_CALL = re.compile(r"\bEXEC\s+DLI\b", re.I)
+# #5233 (register I5): the CALL interfaces to DL/I. Under CICS only EXEC DLI is modelled; no burned program CALLs these.
+DLI_CALL_INTERFACE = re.compile(r"\bCALL\s+['\"](CBLTDLI|AIBTDLI|CEETDLI)['\"]", re.I)
+
+
+def refuse_dli_call_interface(source: str) -> None:
+    """Refuse by name a CICS program that CALLs CBLTDLI / AIBTDLI / CEETDLI (the UIB-addressed PCB list is not modelled)."""
+    code = "\n".join(ln[6:72] for ln in source.splitlines() if len(ln) > 6 and ln[6] not in "*/")
+    m = DLI_CALL_INTERFACE.search(code)
+    if m:
+        raise Unsupported(
+            f"CALL '{m.group(1).upper()}' under CICS: only EXEC DLI is modelled (register I5)", ["CALL DLI"]
+        )
 
 
 def dli_stage(case: dict[str, Any], corpus: Path, dest: Path) -> list[str]:
@@ -3397,6 +3409,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     for model in sorted(LE_MODELS.glob("*.c")) if subs or calls_le else []:
         shutil.copy(model, src / model.name)
         subs.append(f"src/{model.name}")
+    refuse_dli_call_interface(source)
     if DLI_CALL.search(source):  # #5278 (register I5): the DL/I model, its databases stated in the case's "ims"
         if not case.get("ims"):
             raise Unsupported('EXEC DLI in a case with no "ims" section', ["EXEC DLI"])

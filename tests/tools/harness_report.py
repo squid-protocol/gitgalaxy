@@ -278,6 +278,51 @@ def input_blockers(
     return sorted(out, key=lambda b: (-b["tests_held"], b["cause"]))
 
 
+LINK_FIX = "Connect the unresolved COPY member(s) so the programs translate whole: {names}"
+STUB_FIX = "Model or stub the runtime service the translator leaves a hole for: {names}"
+
+
+def untranslated_cause(klass: str) -> str:
+    """The #4493 blocker class of one translation gap class (`cics_census.gap_classes`): `unresolved link` (class 4:
+    a COPY member the engine did not connect), `no stub` (class 5: a CICS / Db2 / IMS service nothing models),
+    `refused` (the translator refuses the construct by name) or `hole` (an unmodelled statement)."""
+    if klass.startswith("missing copybook"):
+        return "unresolved link"
+    if klass.startswith("refused:"):
+        return "refused"
+    if klass.startswith(("EXEC CICS", "EXEC SQL", "EXEC DLI", "CALL CBLTDLI")):
+        return "no stub"
+    return "hole"
+
+
+def untranslated_blockers(res: dict[str, Any]) -> list[dict[str, Any]]:
+    """Programs the translator refused or left holes in, which have no proof subject, grouped by cause (each program
+    under ONE cause: its first class) and stated as the fix. Burned, non-crucible programs only. No case exists to
+    unlock, so the count is the programs that would become provable subjects."""
+    from proof_blockers import is_crucible
+
+    by: dict[str, dict[str, Any]] = {}
+    for p in res.get("untranslated", []):
+        if is_crucible(p["corpus"]) or not p.get("burned") or not p["classes"]:
+            continue
+        cause = untranslated_cause(p["classes"][0])
+        b = by.setdefault(cause, {"programs": set(), "items": set()})
+        b["programs"].add(p["program"])
+        b["items"].add(f"{p['program']}: {'; '.join(p['classes'])}")
+    out = []
+    for cause, b in by.items():
+        names = sorted(b["programs"])
+        fix = {"unresolved link": LINK_FIX, "no stub": STUB_FIX}.get(
+            cause,
+            "Teach the translator the construct it "
+            + ("refuses" if cause == "refused" else "leaves a hole for")
+            + ": {names}",
+        )
+        out.append({"cause": cause, "fix": fix.format(names=", ".join(names)) + ".",
+                    "programs": names, "items": sorted(b["items"])})  # fmt: skip
+    return sorted(out, key=lambda b: (-len(b["programs"]), b["cause"]))
+
+
 def case_coverage(cases_dir: Path, name: str) -> dict[str, int] | None:
     f = cases_dir / name / "evidence.json"
     if not f.is_file():
@@ -372,6 +417,8 @@ def build(
     }  # fmt: skip
     if in_blockers := input_blockers(rows, inputs, tests):
         rep["input_blockers"] = in_blockers
+    if untranslated := untranslated_blockers(res):
+        rep["untranslated"] = untranslated
     return rep
 
 
@@ -426,6 +473,11 @@ def markdown(rep: dict[str, Any]) -> str:
         out += ["", "### Input-generation blockers (highest value first)", ""]
         for n, b in enumerate(rep["input_blockers"], 1):
             out.append(f"{n}. {b['fix']} Holds back {b['tests_held']} tests across {len(b['programs'])} programs.")
+            out += [f"   - {it}" for it in b["items"]]
+    if rep.get("untranslated"):
+        out += ["", "## Programs with no translation yet (no case can run them)", ""]
+        for n, b in enumerate(rep["untranslated"], 1):
+            out.append(f"{n}. {b['fix']} Frees {len(b['programs'])} programs to get a case.")
             out += [f"   - {it}" for it in b["items"]]
     nl = rep["not_listed"]
     out += ["", f"Not listed: {nl['non_burned_programs']} non-burned programs ({nl['note']}).", ""]

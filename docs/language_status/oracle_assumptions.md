@@ -4696,11 +4696,17 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   where Db2 binds it, which gives the same row for an INSERT ... VALUES; a program that reads SQLERRD(3) shows as a
   differing scenario (as above). Refused by name: a marker in EXECUTE IMMEDIATE, a marker count that is not the host
   variable count (Db2 -313), `USING DESCRIPTOR`, a host structure or array, and a CICS program.
-- **Refused.** The rest of dynamic SQL (PREPARE of other text / EXECUTE USING DESCRIPTOR / DESCRIBE), CONNECT, CALL, ALLOCATE / ASSOCIATE, scroll
-  FETCH (PRIOR / ABSOLUTE / RELATIVE), host-variable arrays and a host variable in a savepoint statement (Q3) stop the precompiler and the det
-  translator by name (and a savepoint statement in a CICS program the det translator), as does an undeclared host
-  variable or a `WHERE CURRENT OF` a cursor the program does not declare. A positioned UPDATE / DELETE on a declared
-  cursor runs (Q8).
+- **Refused (#4269), by form; burned estates using any of them: none** (a grep of the six burned corpora, 2026-10-23).
+  Each stops the det translator with `EXEC SQL <verb>: <form> (register Q4 ...)`:
+  - `DESCRIBE` (SQLDA of a prepared statement or table): needs an SQLDA model; modelled when a burned program describes.
+  - `CONNECT [TO loc | RESET]`: the port has one connection per run; a location switch needs a second oracle database.
+  - `EXEC SQL CALL proc (...)`: a stored procedure needs a procedure fixture on the oracle (and result-set rules).
+  - `PREPARE` of other text or from a host variable, `EXECUTE ... USING DESCRIPTOR`, `ALLOCATE` / `ASSOCIATE`: as above.
+  - A `SET` that does not assign a host variable (`SET CURRENT SQLID`, ...).
+  - Scroll `FETCH` (PRIOR / ABSOLUTE / RELATIVE), host-variable arrays and a host variable in a savepoint statement (Q3)
+    stop the precompiler and the det translator by name (and a savepoint statement in a CICS program the det
+    translator), as does an undeclared host variable or a `WHERE CURRENT OF` a cursor the program does not declare.
+    A positioned UPDATE / DELETE on a declared cursor runs (Q8).
 
 ### Q5. DSNTIAC stand-in (text unproven); DSNTIAR REFUSED
 - **What.** Db2's message formatters (DSNTIAR formats an SQLCA into message text in a caller's buffer; DSNTIAC is its CICS

@@ -86,6 +86,7 @@ public final class DetDli {
         boolean first; // #5233: command code F
         boolean last; // #5233: command code L
         boolean par; // #5233: command code P
+        boolean path; // #5233: command code D
         byte[] cat; // #5233: command code C, the concatenated key in the parentheses
         // #5233: the statements after the first, each joined to the one before by AND (or == false) or OR
         final List<Term> more = new ArrayList<>();
@@ -761,6 +762,8 @@ public final class DetDli {
                         s.last = true;
                     } else if (c == 'P') {
                         s.par = true;
+                    } else if (c == 'D') {
+                        s.path = true;
                     } else if (c == 'C') {
                         s.cat = new byte[0];
                     } else if (c != '-') {
@@ -905,6 +908,12 @@ public final class DetDli {
         for (int i = 0; i < s.length; i++) {
             if (s[i].cat != null && (!gu || s.length != 1 || s[i].last)) {
                 throw refuse("the command code C other than alone on a GU, without L");
+            }
+            if (s[i].path && fn.charAt(0) != 'G') {
+                throw refuse("the command code D on a " + fn.trim());
+            }
+            if (s[i].path && s[i].cat != null) {
+                throw refuse("the command code D beside C");
             }
             if (s[i].par && (!gu || ++ps > 1)) {
                 throw refuse(gu ? "the command code P on more than one SSA" : "the command code P on a " + fn.trim());
@@ -1175,10 +1184,27 @@ public final class DetDli {
                 st = "GK";
             }
         }
-        if (io.storage().bytes.length - io.offset() < n.data.length) {
+        // #5233: command code D, a path call: each D-coded SSA's segment (the found one's ancestor of that type), in
+        // hierarchic order, then the found segment itself; D on the last SSA adds nothing
+        List<Node> out = new ArrayList<>();
+        for (int i = 0; i < k - 1; i++) {
+            if (s[i].path) {
+                out.add(ancestorOfType(n, s[i].seg));
+            }
+        }
+        out.add(n);
+        int total = 0;
+        for (Node o : out) {
+            total += o.data.length;
+        }
+        if (io.storage().bytes.length - io.offset() < total) {
             throw refuse("an I/O area shorter than the segment");
         }
-        System.arraycopy(n.data, 0, io.storage().bytes, io.offset(), n.data.length);
+        int off = io.offset();
+        for (Node o : out) {
+            System.arraycopy(o.data, 0, io.storage().bytes, off, o.data.length);
+            off += o.data.length;
+        }
         status(p, st);
         feedback(p, n);
         p.pos = POS_AT;

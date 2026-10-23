@@ -43,6 +43,13 @@ CLOCK_C = "2026/10/01 10:30:15.25"
 REFUSED = "REFUSED"
 D = "1988-05-16"  # day 148138 (IBM: "16 May 1988 is day number 148 138")
 SECS_1988 = 148138 * 86400 + 19 * 3600 + 1  # 19:00:01 on 16 May 1988 (IBM: second 12 799 191 601)
+CLOCK_2000 = "2000/01/01 00:00:00.00"
+
+
+def _midnight(y: int, m: int, d: int) -> str:
+    """The CEESECS answer for a date with no time: "0|<Lilian seconds>.000"."""
+    return f"0|{(_dt.date(y, m, d) - _dt.date(1582, 10, 14)).days * 86400}.000"
+
 
 # (service, args, want): want is "<msgno>|<value>" -- msgno 0 on success; REFUSED for a call the model refuses by name;
 # None where the table only checks that the two models agree. Value: CEEGMT "lilian,seconds", CEEQCEN the century, CEEDATE
@@ -160,7 +167,28 @@ VECTORS: list[tuple[str, list[str], str | None]] = [
     ("CEESECS", ["1988-5-16", "YYYY-MM-DD"], REFUSED),  # leading zeros omitted (IBM allows it)
     ("CEESECS", ["1988-05-1", "YYYY-MM-DD"], REFUSED),
     ("CEESECS", [" 1988-05-16", "YYYY-MM-DD"], REFUSED),  # leading blank
-    ("CEESECS", ["88-05-16", "YY-MM-DD"], REFUSED),  # the century window
+    # a YY is windowed: [system year - start, + 99], the start 80 until CEESCEN sets it. The row's extra arguments are the
+    # CEESCEN value called first ("" for none) and the pinned clock (the system year: 2026, or 2000 below)
+    ("CEESECS", ["88-05-16", "YY-MM-DD", "", CLOCK_C], _midnight(1988, 5, 16)),  # window 1946 .. 2045
+    ("CEESECS", ["45-05-16", "YY-MM-DD", "", CLOCK_C], _midnight(2045, 5, 16)),
+    ("CEESECS", ["46-05-16", "YY-MM-DD", "", CLOCK_C], _midnight(1946, 5, 16)),
+    ("CEESECS", ["00-01-01", "YY-MM-DD", "", CLOCK_C], _midnight(2000, 1, 1)),
+    ("CEESECS", ["99-12-31", "YY-MM-DD", "", CLOCK_C], _midnight(1999, 12, 31)),
+    ("CEESECS", ["880516190001", "YYMMDDHHMISS", "", CLOCK_C], f"0|{SECS_1988}.000"),
+    ("CEESECS", ["88-05-16", "YY-MM-DD", "0", CLOCK_C], _midnight(2088, 5, 16)),  # start 0: 2026 .. 2125
+    ("CEESECS", ["26-05-16", "YY-MM-DD", "0", CLOCK_C], _midnight(2026, 5, 16)),
+    ("CEESECS", ["25-05-16", "YY-MM-DD", "0", CLOCK_C], _midnight(2125, 5, 16)),
+    ("CEESECS", ["26-05-16", "YY-MM-DD", "100", CLOCK_C], _midnight(1926, 5, 16)),  # start 100: 1926 .. 2025
+    ("CEESECS", ["25-05-16", "YY-MM-DD", "100", CLOCK_C], _midnight(2025, 5, 16)),
+    ("CEESECS", ["75-05-16", "YY-MM-DD", "50", CLOCK_C], _midnight(2075, 5, 16)),  # start 50: 1976 .. 2075
+    ("CEESECS", ["76-05-16", "YY-MM-DD", "50", CLOCK_C], _midnight(1976, 5, 16)),
+    ("CEESECS", ["88-05-16", "YY-MM-DD", "101", CLOCK_C], _midnight(1988, 5, 16)),  # CEE2533: the window stays 80
+    ("CEESECS", ["19-06-01", "YY-MM-DD", "", CLOCK_2000], _midnight(2019, 6, 1)),  # the clock's year, not 2026
+    ("CEESECS", ["20-06-01", "YY-MM-DD", "", CLOCK_2000], _midnight(1920, 6, 1)),
+    ("CEESECS", ["00-02-29", "YY-MM-DD", "100", CLOCK_2000], "2508|0.000"),  # window 1900: no 29 February
+    ("CEESECS", ["00-02-29", "YY-MM-DD", "", CLOCK_2000], _midnight(2000, 2, 29)),
+    ("CEESECS", ["8a-05-16", "YY-MM-DD", "", CLOCK_C], "2525|0.000"),
+    ("CEESECS", ["88.137", "YY.DDD", "", CLOCK_C], REFUSED),  # a Julian date: still refused
     ("CEESECS", ["1988.137", "YYYY.DDD"], REFUSED),  # a Julian date
     ("CEESECS", ["19:00", "HH:MI"], REFUSED),  # no date
     ("CEESECS", ["1988-13-32", "YYYY-MM-DD"], REFUSED),  # two invalid fields: which condition comes first is open
@@ -330,7 +358,10 @@ int main(int argc, char **argv) {
         hexfc(fc); int n = (out[0] << 8) | out[1]; printf("|%.*s\n", n, out + 2); return 0; }
     if (!strcmp(svc, "CEEDATM")) { d = atof(argv[2]); memcpy(sec, &d, 8); vstr(pic, argv[3]); CEEDATM(sec, pic, out, fc);
         hexfc(fc); int n = (out[0] << 8) | out[1]; printf("|%.*s\n", n, out + 2); return 0; }
-    if (!strcmp(svc, "CEESECS")) { vstr(in, argv[2]); vstr(pic, argv[3]); memset(sec, 0x55, 8); CEESECS(in, pic, sec, fc);
+    if (!strcmp(svc, "CEESECS")) { vstr(in, argv[2]); vstr(pic, argv[3]); memset(sec, 0x55, 8);
+        if (argc > 4 && *argv[4]) { unsigned char c[4], cfc[12]; i4(c, atol(argv[4])); CEESCEN(c, cfc); }
+        if (argc > 5) setenv("COB_CURRENT_DATE", argv[5], 1);
+        CEESECS(in, pic, sec, fc);
         memcpy(&d, sec, 8); hexfc(fc); printf("|%.3f\n", d); return 0; }
     if (!strcmp(svc, "CEEDYWK")) { i4(l, atol(argv[2])); memset(a[0], 0x55, 4); CEEDYWK(l, a[0], fc);
         hexfc(fc); printf("|%ld\n", rd4(a[0])); return 0; }
@@ -421,8 +452,12 @@ public class Probe {
                         System.out.println(hex(fc) + "|" + text(o)); }
                     case "CEEDATM" -> { Field s = flt(); Cobol.store(s, new BigDecimal(t[1]), false, CS); Field o = raw(600);
                         Ceedatm.call(s, vstr(t[2]), o, fc, CS); System.out.println(hex(fc) + "|" + text(o)); }
-                    case "CEESECS" -> { Field s = flt(); Ceesecs.call(vstr(t[1]), vstr(t[2]), s, fc, CS);
-                        System.out.println(hex(fc) + "|" + secs(s)); }
+                    case "CEESECS" -> {
+                        if (t.length > 3 && !t[3].isEmpty()) Ceeqcen.set(i4(Long.parseLong(t[3])), raw(12), CS);
+                        Field s = flt(); Ceesecs.call(t.length > 4 ? t[4] : "", vstr(t[1]), vstr(t[2]), s, fc, CS);
+                        System.out.println(hex(fc) + "|" + secs(s));
+                        Ceeqcen.set(i4(80), raw(12), CS); // the window is the run's: put the default back for the next row
+                    }
                     case "CEEDYWK" -> { Field o = raw(4); Ceedywk.call(i4(Long.parseLong(t[1])), o, fc);
                         System.out.println(hex(fc) + "|" + lil(o)); }
                     case "CEESECI" -> {
@@ -488,6 +523,8 @@ def test_the_oracle_model_gives_ibms_answers(c_driver, svc, args, want):
 
 
 def _java_line(svc: str, args: list[str]) -> str:
+    if svc == "CEESECS" and len(args) > 2:  # timestamp, picture, the CEESCEN value, the clock as CURRENT-DATE text
+        return "|".join([svc, args[0], args[1], args[2], re.sub("[/: .]", "", args[3]) + "+0000"])
     if svc in ("CEEGMT", "CEEUTC"):
         return f"{svc}|{re.sub('[/: .]', '', args[0])}+0000"  # the run's CURRENT-DATE text
     return "|".join([svc, *args])
@@ -562,6 +599,13 @@ def test_the_clock_services_refuse_without_a_pinned_clock(c_driver):
     assert run.returncode == 98 and run.stderr.rstrip().endswith("is not modelled")
 
 
+def test_a_century_window_without_a_pinned_clock_is_refused(c_driver):
+    """A YY needs the system year; the model has no host clock to fall back on (like CEEGMT), so it refuses by name."""
+    assert _run_c(c_driver, "CEESECS", ["88-05-16", "YY-MM-DD"]) == REFUSED
+    # no YY, no clock needed
+    assert _run_c(c_driver, "CEESECS", ["1988-05-16", "YYYY-MM-DD"]) == f"{_hex_fc(0)}|{148138 * 86400}.000"
+
+
 # ---- 3. the translator's wiring ------------------------------------------------------------------------------------
 
 
@@ -612,12 +656,26 @@ def test_a_ceescen_call_translates_to_the_set_entry_with_the_charset_last(tmp_pa
     assert "pk.cobolrt.le.Ceeqcen.call(f1_CENT, f2_FC, CS);" in out
 
 
+def test_a_ceesecs_call_takes_the_run_clock_first_for_its_century_window(tmp_path):
+    assert "CEESECS" in G.LIBRARY_CLOCK
+    src = tmp_path / "SE.cbl"
+    src.write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. SE.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n"
+        "       01 TS PIC X(8).\n       01 PIC1 PIC X(8).\n       01 SECS COMP-2.\n       01 FC PIC X(12).\n"
+        "       PROCEDURE DIVISION.\n           CALL 'CEESECS' USING TS, PIC1, SECS, FC.\n           GOBACK.\n"
+    )
+    from gitgalaxy.tools.cobol_to_java.det.program import translate
+
+    out = str(translate(src, [], "package pk;\npublic class SE {\n}\n", "pk").__dict__)
+    assert "pk.cobolrt.le.Ceesecs.call(clock.currentDate(), f1_TS, f2_PIC1, f3_SECS, f4_FC, CS);" in out
+
+
 def test_the_comp2_arguments_are_by_value_and_the_clock_services_take_the_clock():
     assert G.LIBRARY_FLOATS == {
         "CEELOCT": {1}, "CEEGMT": {1}, "CEEUTC": {1}, "CEEDATM": {0}, "CEESECS": {2}, "CEEISEC": {7}, "CEESECI": {0},
         "CEEGMTO": {2}, "CEEUTCO": {2},
     }  # fmt: skip
-    assert G.LIBRARY_CLOCK == {"CEELOCT", "CEEGMT", "CEEUTC"}
+    assert G.LIBRARY_CLOCK == {"CEELOCT", "CEEGMT", "CEEUTC", "CEESECS"}
 
 
 def test_every_vector_service_is_covered_and_every_service_has_vectors():
@@ -626,7 +684,16 @@ def test_every_vector_service_is_covered_and_every_service_has_vectors():
         "CEESECI", "CEEDYWK", "CEESCEN",
     }  # fmt: skip
     # CEESECI / CEEDYWK take no picture and no field combination, so there is nothing to refuse by name
-    for svc in {v[0] for v in VECTORS} - {"CEEUTC", "CEEQCEN", "CEEGMT", "CEEGMTO", "CEEUTCO", "CEESECI", "CEEDYWK", "CEESCEN"}:
+    for svc in {v[0] for v in VECTORS} - {
+        "CEEUTC",
+        "CEEQCEN",
+        "CEEGMT",
+        "CEEGMTO",
+        "CEEUTCO",
+        "CEESECI",
+        "CEEDYWK",
+        "CEESCEN",
+    }:
         mine = [v for v in VECTORS if v[0] == svc]
         assert any(v[2] and v[2].startswith("0|") for v in mine), svc  # a valid call
         assert any(v[2] == REFUSED for v in mine), svc  # a refusal by name

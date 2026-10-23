@@ -146,6 +146,8 @@ and a `recall` command (subject-only vs subject-or-body labels). Numbers below a
 
 ## Pooled memo for #2716 (all slices)
 
+Posted on #2716: https://github.com/squid-protocol/gitgalaxy/issues/2716#issuecomment-6361780842 (2026-10-23).
+
 * **Corpus:** 15 pins from 12 upstream repos (9 non-burned, plus CardDemo, CBSA twice, GenApp, zECS, DBB twice, async credit-card), 9,497 files with a strictness row, 1,404 fix-file
   hits on 761 files (954 on 526 with the bulk guard), 24-month window capped by HEAD (about 6-7 months for the nine 2026 pins).
 * **Strictness:** no consistent predictive value at equal evidence. Pooled 0.67 (0.53-0.84) goes the opposite way to the table; per-repo signs disagree (curl 0.53, redis 5.2,

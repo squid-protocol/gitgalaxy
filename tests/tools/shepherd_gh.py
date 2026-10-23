@@ -15,6 +15,7 @@ Requests (set by a maintainer with write access):
   shepherd:matrix   dispatch full-suite-gate.yml on the PR branch; auto-merge waits for a green run on this head
   shepherd:full     det sweep plans mode=full (tests/tools/det_sweep_plan.py reads the label)
 Status (set and cleared by this module only): shepherd:needs-fix, shepherd:waiting-on-main, shepherd:retrying,
+  shepherd:needs-owner (auto-merge refused for good, #6061: token lacks a permission; sticky, no retry),
   shepherd:reapprove (the bot dropped shepherd:merge on a new head; stays until a maintainer re-adds it).
 
 Rules, all in decide() (pure: a snapshot in, actions out):
@@ -60,8 +61,21 @@ REPO_SLUG = pr_check.REPO_SLUG
 MERGE, HOLD, MATRIX, FULL = "shepherd:merge", "shepherd:hold", "shepherd:matrix", "shepherd:full"
 NEEDS, WAITING, RETRYING = "shepherd:needs-fix", "shepherd:waiting-on-main", "shepherd:retrying"
 REAPPROVE = "shepherd:reapprove"
+OWNER = "shepherd:needs-owner"  # #6061: auto-merge refused for good (token permission); only a person can merge
 REQUESTS = (MERGE, HOLD, MATRIX, FULL)
-STATUS = (NEEDS, WAITING, RETRYING, REAPPROVE)
+STATUS = (NEEDS, WAITING, RETRYING, REAPPROVE, OWNER)
+# GitHub's wording when the token may not touch a PR that edits workflow files, or lacks a permission: retrying cannot help
+PERMANENT_REFUSAL = re.compile(
+    r"without `?workflow`? scope|refusing to allow a personal access token|resource not accessible by"
+    r"|must have admin rights|http 403|permission denied",
+    re.I,
+)
+OWNER_TEXT = (
+    "CI shepherd: auto-merge was refused for this PR and retrying cannot help ({why}). If it edits "
+    "`.github/workflows/`, the shepherd token cannot enable auto-merge: merge it by hand, or give AUTOMATION_PAT "
+    "Workflows: read and write. The shepherd will not try again while `" + OWNER + "` is set; remove the label to "
+    "let it retry."
+)
 WRITE = {"admin", "maintain", "write"}  # the collaborator permissions that may set a request label
 INFRA_RERUNS = 3  # an outage (Docker Hub 429/504, 2026-10-09) outlasts one rerun
 RETRY_GAP = 15 * 60  # seconds between reruns of the same run's failed jobs
@@ -88,6 +102,7 @@ LABELS: dict[str, tuple[str, str]] = {
     NEEDS: ("d93f0b", f"Bot: a real failure on this head; see the digest comment. Guide: {DOCS}"),
     WAITING: ("fbca04", f"Bot: the failing check fails on main too (main's to fix). Guide: {DOCS}"),
     RETRYING: ("c2e0c6", f"Bot: an infra/flake rerun is pending on this head. Guide: {DOCS}"),
+    OWNER: ("b60205", f"Bot: auto-merge was refused (token permission); a maintainer merges by hand. Guide: {DOCS}"),
     REAPPROVE: ("e99695", f"Bot: new commits dropped shepherd:merge; re-add it to merge this head. Guide: {DOCS}"),
 }
 
@@ -200,6 +215,8 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
         acts.append({"op": "approve", "sha": sha, "login": actor.get("login") or "shepherd"})
     if s.get("carried") and MERGE in labels:
         acts.append({"op": "approve", "sha": sha, "by": "carried from the bot's update"})
+    if OWNER in labels and MERGE in labels:
+        blocked.append(f"{OWNER} is set (auto-merge was refused for good)")  # #6061: no retry every pass
     want = MERGE in labels and not blocked
     if want and s["draft"]:
         # #5104: a draft head's heavy checks were skipped, and a skip reads as green. Auto-merge waits for the next pass,
@@ -257,8 +274,12 @@ def decide(s: dict[str, Any]) -> list[dict[str, Any]]:
         acts.append({"op": "comment", "body": f"<!-- shepherd-digest {sha} -->\n" + s["digest_text"]})
 
     desired: set[str] = set()
+    if OWNER in s["labels"] and MERGE in labels:
+        desired.add(OWNER)  # sticky: a pass must not remove it for the next pass to add back (#6061)
     if req:
-        if needs:
+        if (
+            needs and OWNER not in desired
+        ):  # the owner status wins: needs-fix would flap with the shepherd's own red run
             desired.add(NEEDS)
         if waiting:
             desired.add(WAITING)
@@ -541,6 +562,21 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
     """Carry out the actions with gh. Returns one log line per action; a failed call is reported, never raised."""
     log: list[str] = []
 
+    def refused(argv: list[str], what: str) -> None:
+        """Auto-merge on: a permanent permission refusal is labelled once and commented once, not reported FAILED."""
+        r = run(argv)
+        err = (r.stderr or r.stdout or "").strip()
+        if r.returncode and PERMANENT_REFUSAL.search(err):
+            why = err.replace("`", "'")[:200]
+            body = OWNER_TEXT.format(why=why)
+            lab = ["gh", "api", "-X", "POST", f"repos/{REPO_SLUG}/issues/{n}/labels", "-f", f"labels[]={OWNER}"]
+            cmt = ["gh", "api", f"repos/{REPO_SLUG}/issues/{n}/comments", "-f", f"body={body}"]
+            if not run(lab).returncode:
+                run(cmt)  # the label is the once-guard: decide() stops asking while it is set
+            log.append(f"#{n} {what}: refused for good, labelled {OWNER}: {why}")
+        else:
+            log.append(f"#{n} {what}: " + ("ok" if not r.returncode else "FAILED: " + err[:200]))
+
     def gh(argv: list[str], what: str) -> None:
         r = run(argv)
         err = (r.stderr or r.stdout or "").strip()
@@ -591,7 +627,7 @@ def apply(n: int, s: dict[str, Any], acts: list[dict[str, Any]], run: Run = _run
         elif op == "ready":
             gh(["gh", "pr", "ready", str(n), "-R", REPO_SLUG], "ready for review")
         elif op == "automerge" and a["on"]:
-            gh(
+            refused(
                 ["gh", "pr", "merge", str(n), "-R", REPO_SLUG, "--auto", "--squash", "--match-head-commit", a["sha"]],
                 "auto-merge on",
             )

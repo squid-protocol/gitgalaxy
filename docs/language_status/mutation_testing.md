@@ -648,6 +648,14 @@ Re-checked 2026-10-22 (#5491, negative balance): the same run (20/23 caught, `--
 
 Spot-check 2026-10-22 (#4443): 22 of the 45 equivalent verdicts on the 13 re-run ports were re-read against the port source; all hold, no new case. The sample and its caveats: [mutation_equivalent_spot_check.md](mutation_equivalent_spot_check.md).
 
+Checked 2026-10-23 (#4443, READ ... INTO LENGTH -> LENGERR, #4436 / #4453): no cics-crucible release carries the scenario yet, so there is no
+branch to mutate. v0.9.0 is the latest release and tag. Its only keyed READ ... INTO LENGTH case, `hc-file-unlock` (HCUNLK), reads with
+LENGTH(16), the record's own length, and its NOTES say LENGERR (RESP2 10 / 13) "is not provoked". The one burned crucible port near it,
+`hc-perform-range` (HCQREAD), reads TS queues. GenApp LGUCVS01 / LGUPVS01 model the LENGTH (X14) but refuse LENGERR on READ UPDATE by name.
+What closes the item: a cics-crucible case with a non-UPDATE keyed READ INTO whose LENGTH is below the record's length (RESP LENGERR, RESP2
+11, INTO truncated, LENGTH set back to the record's length), a release, the pin bump with its re-baseline, a port, and a mutation run
+on that branch that kills a mutant of the truncation or the set-back.
+
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.
 

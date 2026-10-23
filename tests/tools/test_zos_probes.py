@@ -62,6 +62,15 @@ NOT_PROBED_IDS = {
     "J1": "VSAM on H2: no burned reach",
     "L4": "CEEIGZCT stand-in: LE service, no cobc equivalent",
     "L5": "CEELOCT: LE service, no cobc equivalent",
+    "M2": "SQLCA after an injected SQL fault: EXEC SQL is not a cobc statement (the Db2 probes are the Q family)",
+}
+
+
+# MATCHED entries (beyond the families above) with no cobc form, listed so a new MATCHED entry has to be sorted.
+MATCHED_NO_COBC_FORM = {
+    "A1": "z/OS service refusal: nothing for cobc to run",
+    "L1": "LE service: no cobc equivalent",
+    "L6": "LE service: no cobc equivalent",
 }
 
 
@@ -90,6 +99,37 @@ def test_every_differs_entry_is_probed_or_sorted_out():
         and m["id"][0] not in NOT_PROBED_FAMILIES
     ]
     assert unsorted == [], f"probe these or add a reason to NOT_PROBED_*: {unsorted}"
+
+
+def test_every_matched_entry_with_a_quote_only_basis_is_probed_or_sorted_out():
+    # C8, D3, F2, L2 (and M2, sorted out) were MATCHED on an IBM quote alone. The rest of the MATCHED class below is
+    # a Db2 / CICS / LE / control-block shape or an A/L entry with no cobc form; a new MATCHED entry must join one list.
+    covered = {e for p in zos_probes.load().values() for e in p["entries"]}
+    assert {"C8", "D3", "F2", "L2"} <= covered
+    assert "M2" in NOT_PROBED_IDS
+    unsorted = [
+        m["id"]
+        for m, _ in register.load_entries()
+        if m["status"].startswith("MATCHED")
+        and m["id"] not in covered
+        and m["id"] not in NOT_PROBED_IDS
+        and m["id"][0] not in NOT_PROBED_FAMILIES
+        and m["id"] not in MATCHED_NO_COBC_FORM
+    ]
+    assert unsorted == [], f"probe these or add a reason to MATCHED_NO_COBC_FORM: {unsorted}"
+
+
+def test_the_matched_probes_say_what_z_os_should_print():
+    probes = zos_probes.load()
+    ids = {
+        "c8-display-signed-forms": "C8",
+        "d3-ascii-overpunch-sign": "D3",
+        "f2-file-status-conditions": "F2",
+        "l2-cee3abd-user-abend": "L2",
+    }
+    for pid, entry in ids.items():
+        assert entry in probes[pid]["entries"], pid
+        assert "Expected z/OS" in probes[pid]["note"], pid
 
 
 def test_the_differs_probes_state_the_expected_zos_answer():

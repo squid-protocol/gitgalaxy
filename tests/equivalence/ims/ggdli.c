@@ -71,6 +71,9 @@ typedef struct {
     int par;          /* parentage: PAR_AT on `parent` */
     Node *parentage;
     Node *hold;       /* the segment a get-hold call returned, until the next call on this PCB */
+    Node *holdpath[MAXSSA]; /* #5233: the segments a D-coded get-hold returned, in I/O area order (nhp 0: only the held one) */
+    int holdskip[MAXSSA];   /* command code N, per holdpath entry */
+    int nhp;
     int gsam;         /* #5233: a GSAM PCB (load mode): db is -1, `out` collects the records ISRT appended */
     int reclen;
     char dbname[9];
@@ -395,7 +398,7 @@ typedef struct {
     int or_; /* #5233: joined to the statement before by OR (else AND); unused on the first */
 } Term;
 typedef struct {
-    int first, last, par, path, enq, up, vee; /* command codes F, L, P, D, Q, U and V (#5233) */
+    int first, last, par, path, enq, up, vee, norepl; /* command codes F, L, P, D, Q, U, V and N (#5233) */
     Node *anchor; /* U / V: the node at this level on the current position (set per call by get) */
     const unsigned char *cat; /* command code C (#5233): the concatenated key in the parentheses, else NULL */
     int seg, fld, op; /* fld -1: unqualified; the first statement (terms[0]) is mirrored here */
@@ -455,14 +458,14 @@ static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
         name8(nm, raw[i]);
         out[i].seg = find_seg(db, nm);
         out[i].fld = -1;
-        out[i].first = out[i].last = out[i].par = out[i].path = out[i].enq = out[i].up = out[i].vee = 0;
+        out[i].first = out[i].last = out[i].par = out[i].path = out[i].enq = out[i].up = out[i].vee = out[i].norepl = 0;
         out[i].cat = NULL;
         if (out[i].seg < 0) return "AC";
         unsigned char q = raw[i][8];
         if (q == ' ') continue;
         const unsigned char *at = raw[i] + 9;
         if (q == '*') {
-            /* #5233: command codes, each one of A-Z 0-9 or '-', then '(' or a blank; F, L, P, C, D, Q, U, V and - are modelled */
+            /* #5233: command codes, each one of A-Z 0-9 or '-', then '(' or a blank; F, L, P, C, D, N, Q, U, V and - are modelled */
             while ((*at >= 'A' && *at <= 'Z') || (*at >= '0' && *at <= '9') || *at == '-') {
                 if (*at == 'F')
                     out[i].first = 1;
@@ -472,6 +475,8 @@ static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
                     out[i].par = 1;
                 else if (*at == 'D')
                     out[i].path = 1;
+                else if (*at == 'N')
+                    out[i].norepl = 1;
                 else if (*at == 'Q')
                     out[i].enq = 1; /* #5233: enqueue; no effect with one program, checked in check_codes */
                 else if (*at == 'U')
@@ -545,6 +550,11 @@ static void check_codes(const char *fn, const Ssa *s, int k) {
             refuse(what);
         }
         if (s[i].path && s[i].cat) refuse("the command code D beside C");
+        if (s[i].norepl && (fn[0] != 'G' || fn[1] != 'H' || !s[i].path)) {
+            char what[64];
+            snprintf(what, sizeof what, "the command code N other than with D on a get-hold call (%.4s)", fn);
+            refuse(what);
+        }
         if (s[i].enq && fn[0] != 'G') { /* #5233: Q (enqueue) is modelled on the gets, where it changes nothing */
             char what[40];
             snprintf(what, sizeof what, "the command code Q on a %.4s", fn);
@@ -827,9 +837,11 @@ static void get(Pcb *p, const char *fn, unsigned char *io, Ssa *s, int k, int ho
     /* #5233: command code D, a path call: each D-coded SSA's segment (the found one's ancestor of that type), in
      * hierarchic order, then the found segment itself; D on the last SSA adds nothing */
     unsigned char *at = io;
+    int np = 0;
     for (int i = 0; i < k - 1; i++)
         if (s[i].path) {
             Node *a = ancestor_of_type(n, s[i].seg);
+            np++;
             memcpy(at, a->data, segs[a->seg].bytes);
             at += segs[a->seg].bytes;
         }
@@ -845,7 +857,20 @@ static void get(Pcb *p, const char *fn, unsigned char *io, Ssa *s, int k, int ho
         for (int i = 0; i < k; i++) /* #5233: command code P sets parentage at the level of its SSA (a GU only) */
             if (s[i].par) p->parentage = ancestor_of_type(n, s[i].seg);
     }
-    if (hold) p->hold = n;
+    if (hold) {
+        p->hold = n;
+        if (np > 0 || s[k - 1].norepl) { /* #5233: a path get-hold: REPL replaces each segment returned, but those coded N */
+            int j = 0;
+            for (int i = 0; i < k - 1; i++)
+                if (s[i].path) {
+                    p->holdpath[j] = ancestor_of_type(n, s[i].seg);
+                    p->holdskip[j++] = s[i].norepl;
+                }
+            p->holdpath[j] = n;
+            p->holdskip[j++] = s[k - 1].norepl;
+            p->nhp = j;
+        }
+    }
 }
 
 /* ISRT: the last SSA names the type inserted (unqualified); the SSAs before it locate the parent, from the root, or
@@ -917,7 +942,7 @@ static void isrt(Pcb *p, unsigned char *io, Ssa *s, int k) {
 }
 
 /* REPL / DLET: on the segment the previous call on this PCB held */
-static void change(Pcb *p, int dlet, unsigned char *io, Node *held, int k) {
+static void change(Pcb *p, int dlet, unsigned char *io, Node *held, int k, Node **path, const int *skip, int npath) {
     if (!allows(p, dlet ? 'D' : 'R')) {
         status(p, "AM");
         return;
@@ -925,6 +950,25 @@ static void change(Pcb *p, int dlet, unsigned char *io, Node *held, int k) {
     if (k) refuse(dlet ? "a DLET with SSAs" : "a REPL with SSAs");
     if (!held) {
         status(p, "DJ");
+        return;
+    }
+    if (npath) { /* #5233: REPL after a D-coded get-hold: each segment from its slice of the area, except those coded N */
+        if (dlet) refuse("a DLET after a path call (command code D)");
+        unsigned char *at = io;
+        for (int i = 0; i < npath; i++) {
+            const Fld *pk = &flds[segs[path[i]->seg].key];
+            if (!skip[i] && key_cmp(path[i], at + pk->start - 1) != 0) {
+                status(p, "DA");
+                return;
+            }
+            at += segs[path[i]->seg].bytes;
+        }
+        status(p, "  ");
+        at = io;
+        for (int i = 0; i < npath; i++) {
+            if (!skip[i]) memcpy(path[i]->data, at, segs[path[i]->seg].bytes);
+            at += segs[path[i]->seg].bytes;
+        }
         return;
     }
     const Fld *key = &flds[segs[held->seg].key];
@@ -979,6 +1023,11 @@ static int do_call(P *args, int n) {
     fn[4] = 0;
     Node *held = p->hold;
     p->hold = NULL;
+    Node *hpath[MAXSSA];
+    int hskip[MAXSSA], nhpath = p->nhp;
+    memcpy(hpath, p->holdpath, sizeof hpath);
+    memcpy(hskip, p->holdskip, sizeof hskip);
+    p->nhp = 0;
     static const char *KNOWN[] = {"GU  ", "GHU ", "GN  ", "GHN ", "GNP ", "GHNP", "ISRT", "REPL", "DLET", NULL};
     static const char *OTHER[] = {"CHKP", "XRST", "ROLB", "ROLL", "ROLS", "SETS", "SETU", "SYNC", "LOG ", "STAT", "GSCD",
                                   "FLD ", "POS ", "INIT", "INQY", "SNAP", "PCB ", "TERM", "GMSG", "ICMD", "RCMD", "CMD ",
@@ -1016,7 +1065,7 @@ static int do_call(P *args, int n) {
     else if (!strcmp(fn, "ISRT"))
         isrt(p, args[2], s, k);
     else
-        change(p, fn[0] == 'D', args[2], held, k);
+        change(p, fn[0] == 'D', args[2], held, k, hpath, hskip, nhpath);
     return 0;
 }
 

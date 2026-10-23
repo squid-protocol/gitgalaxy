@@ -1,6 +1,6 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 43,
+ "scenarios": 45,
  "paragraphs": {
   "covered": 45,
   "live": 45
@@ -9,22 +9,40 @@
   "covered": 175,
   "total": 189
  },
+ "uncovered": {
+  "branches": [
+   "730:false",
+   "743:false",
+   "816:false",
+   "833:false",
+   "949:WHEN@1011",
+   "972:false",
+   "1013:true",
+   "1013:false",
+   "1099:OTHER",
+   "1140:WHEN@1157",
+   "1140:none",
+   "1309:true",
+   "1455:true",
+   "1533:true"
+  ]
+ },
  "inputs": {
-  "case": "e9cd2de6f8ee2ca0bac8f5059999ef2f3c06e23668084831f3e57f59461b6f9c",
+  "case": "62ac6494ee4f0fdf7cc8baf684c93bb85c93b0e0207be4a06bf1ad8633b7aa83",
   "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-  "harness": "efbe51075ec1adca1d2de680be9c28392f4d525f661d39c1d5f9eeaf7ae38c86",
-  "oracle": "e9e74c7b948ad1020416ad6ae58cb9ae52e4027557d0f25419d12926e20cc83e",
+  "harness": "259df7f985d135ac49ddae6d49a0435ca9e4d0f704234edab8a8d39817888fcc",
+  "oracle": "6f69d6f185c5e7e53e2edd47ce31a470f178d36ed4231b7909aaf6563bee70cb",
   "components": {
    "harness": {
-    "harness:cics": "524c7ec5b94a8002f7cb66755e3328f295865ecc7399685916101df02b20703c",
-    "harness:core": "d62c9af2a5f83bb39a1deffe40cd7d7d63bb0d2945c4e8cec6b12503931f45ef"
+    "harness:cics": "9f28217e5768f0929c0b3ce903aa4c3989842c3706a91faf3d92bc6e2a53b2c9",
+    "harness:core": "808b8ac9e553c3caffe3e5b89d7b7a1d8a04cd0b273490c8f2fb0e16aeb53e77"
    },
    "oracle": {
-    "oracle:cics-stub": "a87ec1941cad022e2a2706e2d20545b3da939139e7764b7aa9bec9358bcc82ae",
+    "oracle:cics-stub": "da619e96b8bbf6fc3163cfb27917078b99dd43231f3441175cb37ebdeb199ef2",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
-    "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
+    "oracle:le": "d3ad2b23aac02cd604a06ef216dc42a338c6584b5c475c9fddeaf1cf551bc668"
    }
   }
  },
- "measured_at": "28734a013e294b3a60b9d42c48375c826e01abde"
+ "measured_at": "a4e2c1f153d39b85d0d3eb2cda68948baca7a23e"
 }

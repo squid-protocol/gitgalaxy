@@ -915,6 +915,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         # #4414: HANDLE AID / PUSH HANDLE anywhere in the program, before its input commands are translated
         execs = [s.text for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "EXEC"]
         gen.cics.handle_aid = any(re.match(r"(?is)\s*EXEC\s+CICS\s+HANDLE\s+AID\b", t) for t in execs)
+        gen.cics.handle_abend = any(re.match(r"(?is)\s*EXEC\s+CICS\s+HANDLE\s+ABEND\b", t) for t in execs)
         gen.cics.push_handle = any(re.match(r"(?is)\s*EXEC\s+CICS\s+(PUSH|POP)\s+HANDLE\b", t) for t in execs)
         # #5126 (X64): EIBDS is set by a file control command only in a program that reads it (a port that never does
         # keeps its text)

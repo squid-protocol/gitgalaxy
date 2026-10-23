@@ -113,7 +113,9 @@ step exit codes and seconds, per-source member status counts) under the scratch 
 `--out` inside the checkout is refused, and nothing is posted or published (the owner's hold, #4438). It exits 2
 before running anything when a referee's variable (`COBRIX_CLASSPATH`, `TS_COBOL_ENTERPRISE_LIB`,
 `CHE4Z_SERVER_JAR`, `MAPA_CALLTREE_JAR`) is unset or names a missing file, and 1 after all corpora ran when a
-step failed or a referee parsed no member of a corpus. JVM start-up and the 5-minute grammar generation make it a
+step failed or a referee parsed no member of any corpus. A referee that cannot parse one corpus (tree-sitter on
+`dbb-mortgage-application`'s `CBL` cards) or has no members there (Cobrix reads layouts only) is a `notes` entry in
+`run.json`, not a failure (first dispatch, #4438). JVM start-up and the 5-minute grammar generation make it a
 poor PR gate, so it is meant for a scheduled or manual run, never a `pull_request` trigger.
 
 With two or more referees the scorecard also has an "Engine vs the referee majority" table (#4438): per
@@ -123,6 +125,12 @@ majority when MORE than half of the voting referees report it (2 of 3; with 2 vo
 referee that produces the channel and parsed the file; a file with fewer than 2 voters is skipped. The
 same pairs are sampled under `referee-majority` in `disagreements.json`. Scorecards that name other tools
 are not published until the owner's review clears it (see #4438).
+
+`.github/workflows/referee-panel.yml` runs it nightly and on `workflow_dispatch` (no `pull_request` or `push` trigger,
+`contents: read`). The upstream refs (Cobrix, tree-sitter-cobol-enterprise and mapa by commit, Che4z by release tag,
+the tree-sitter CLI by version) are env values at the top of that file, and the installs are cached under a key
+that hashes the file, so bumping a ref reinstalls. The scorecard, JSON, disagreements and `run.json` are uploaded as a
+3-day artifact: nothing is published.
 
 `disagreements.json` groups every engine / referee difference by pattern
 (`engine-only, in key`, `<referee>-only, not in key`, ...) with a seeded sample of each, for

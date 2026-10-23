@@ -28,7 +28,7 @@
  * Modelled (IMS Messages and Codes, "DL/I status codes"): GU GHU GN GHN GNP GHNP ISRT REPL DLET through a DB PCB, with
  * unqualified SSAs and SSAs qualified by one field (EQ GT LT GE LE NE and their symbolic forms) on a C / X field (a
  * byte comparison) or a P field whose operands both carry the same positive sign (where IMS's packed and logical
- * comparisons agree); status blank, GA, GK, GE, GB, GP, II, DJ, DA, AC, AJ, AK, AD, AM. Command codes F, L, - and P (on a GU) are
+ * comparisons agree); status blank, GA, GK, GE, GB, GP, II, DJ, DA, AC, AJ, AK, AD, AM. Command codes F, L, -, C, D and P (on a GU) are
  * modelled (#5233, check_codes). Anything else -- the other command codes, the # operator, another function, a call
  * whose answer depends on what this model leaves open (register I5)
  * -- writes "CBLTDLI: ... is not modelled" to stderr and ends the run (exit 98): no proof rests on a guess.
@@ -395,7 +395,8 @@ typedef struct {
     int or_; /* #5233: joined to the statement before by OR (else AND); unused on the first */
 } Term;
 typedef struct {
-    int first, last, par; /* command codes F, L and P (#5233) */
+    int first, last, par, path; /* command codes F, L, P and D (#5233) */
+    const unsigned char *cat; /* command code C (#5233): the concatenated key in the parentheses, else NULL */
     int seg, fld, op; /* fld -1: unqualified; the first statement (terms[0]) is mirrored here */
     const unsigned char *value;
     int nterms;
@@ -405,6 +406,47 @@ typedef struct {
 static const char *OPS[][3] = {{"EQ", " =", "= "}, {"GT", " >", "> "}, {"LT", " <", "< "},
                                {"GE", ">=", "=>"}, {"LE", "<=", "=<"}, {"NE", "\xac=", "=\xac"}};
 
+/* The bytes of a concatenated key down to a segment type (#5233, command code C). */
+static int cat_length(int seg) {
+    int len = 0;
+    for (int t = seg; t >= 0; t = segs[t].parent) {
+        if (segs[t].key < 0) refuse("the command code C on a segment with no sequence field");
+        len += flds[segs[t].key].bytes;
+    }
+    return len;
+}
+
+/* Command code C (#5233): the concatenated key becomes one SSA per level, qualified EQ on that level's key. */
+static int expand_cat(Ssa *s, int k) {
+    if (k != 1 || !s[0].cat) return k;
+    int path[MAXSSA], depth = 0;
+    for (int t = s[0].seg; t >= 0; t = segs[t].parent) {
+        if (depth == MAXSSA) refuse("more than 15 SSAs");
+        path[depth++] = t;
+    }
+    Ssa src = s[0];
+    const unsigned char *at = src.cat;
+    for (int i = 0; i < depth; i++) {
+        Ssa *x = &s[i];
+        int t = path[depth - 1 - i];
+        x->first = x->last = x->par = 0;
+        x->cat = NULL;
+        x->seg = t;
+        x->fld = segs[t].key;
+        x->op = 0;
+        x->value = at;
+        x->nterms = 1;
+        x->terms[0].fld = x->fld;
+        x->terms[0].op = 0;
+        x->terms[0].value = at;
+        x->terms[0].or_ = 0;
+        at += flds[x->fld].bytes;
+    }
+    s[depth - 1].par = src.par;
+    s[depth - 1].first = src.first;
+    return depth;
+}
+
 /* The SSAs of a call: 0, or the status code that rejects them. */
 static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
     for (int i = 0; i < n; i++) {
@@ -412,7 +454,8 @@ static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
         name8(nm, raw[i]);
         out[i].seg = find_seg(db, nm);
         out[i].fld = -1;
-        out[i].first = out[i].last = out[i].par = 0;
+        out[i].first = out[i].last = out[i].par = out[i].path = 0;
+        out[i].cat = NULL;
         if (out[i].seg < 0) return "AC";
         unsigned char q = raw[i][8];
         if (q == ' ') continue;
@@ -426,6 +469,10 @@ static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
                     out[i].last = 1;
                 else if (*at == 'P')
                     out[i].par = 1;
+                else if (*at == 'D')
+                    out[i].path = 1;
+                else if (*at == 'C')
+                    out[i].cat = at; /* the key itself is placed below */
                 else if (*at != '-') {
                     char what[40];
                     snprintf(what, sizeof what, "the command code %c", *at);
@@ -434,8 +481,16 @@ static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
                 at++;
             }
             if (*at != ' ' && *at != '(') return "AJ";
+            if (*at == ' ' && out[i].cat) return "AJ";
             if (*at == ' ') continue;
             at++;
+            if (out[i].cat) {
+                /* #5233: command code C, SEG*C(concatenated key): the keys from the root down to this segment */
+                int len = cat_length(out[i].seg);
+                if (at[len] != ')') return "AJ";
+                out[i].cat = at;
+                continue;
+            }
         } else if (q != '(')
             return "AJ";
         out[i].nterms = 0;
@@ -476,6 +531,13 @@ static void check_codes(const char *fn, const Ssa *s, int k) {
     int gu = !strncmp(fn, "GU", 2) || !strncmp(fn, "GHU", 3), is = !strncmp(fn, "ISRT", 4);
     int ps = 0;
     for (int i = 0; i < k; i++) {
+        if (s[i].cat && (!gu || k != 1 || s[i].last)) refuse("the command code C other than alone on a GU, without L");
+        if (s[i].path && fn[0] != 'G') {
+            char what[40];
+            snprintf(what, sizeof what, "the command code D on a %.4s", fn);
+            refuse(what);
+        }
+        if (s[i].path && s[i].cat) refuse("the command code D beside C");
         if (s[i].par && (!gu || ++ps > 1)) {
             char what[40];
             if (gu)
@@ -731,7 +793,16 @@ static void get(Pcb *p, const char *fn, unsigned char *io, Ssa *s, int k, int ho
         else if (segs[n->seg].level == segs[p->at->seg].level && n->seg != p->at->seg)
             st = "GK";
     }
-    memcpy(io, n->data, segs[n->seg].bytes);
+    /* #5233: command code D, a path call: each D-coded SSA's segment (the found one's ancestor of that type), in
+     * hierarchic order, then the found segment itself; D on the last SSA adds nothing */
+    unsigned char *at = io;
+    for (int i = 0; i < k - 1; i++)
+        if (s[i].path) {
+            Node *a = ancestor_of_type(n, s[i].seg);
+            memcpy(at, a->data, segs[a->seg].bytes);
+            at += segs[a->seg].bytes;
+        }
+    memcpy(at, n->data, segs[n->seg].bytes);
     status(p, st);
     feedback(p, n);
     p->pos = POS_AT;
@@ -908,6 +979,7 @@ static int do_call(P *args, int n) {
         return 0;
     }
     check_codes(fn, s, k);
+    k = expand_cat(s, k);
     if (fn[0] == 'G')
         get(p, fn, args[2], s, k, fn[1] == 'H');
     else if (!strcmp(fn, "ISRT"))

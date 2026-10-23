@@ -107,6 +107,35 @@ def test_a_referee_that_parsed_nothing_fails_the_run(tmp_path):
     assert code == 1 and report["problems"] == ["zecs: che4z parsed none of 1 members"]
 
 
+def test_a_referee_that_parsed_one_corpus_but_not_another_is_a_note(tmp_path):
+    """tree-sitter cannot read dbb's CBL cards, yet parses the other corpora: a finding, not a failed run."""
+
+    def run(cmd, cwd):
+        if "--out" in cmd and "--corpus" in cmd:
+            out = Path(cmd[cmd.index("--out") + 1])
+            corpus = cmd[cmd.index("--corpus") + 1]
+            doc = F.new_doc(out.stem, "stub", corpus, [])
+            bad = out.stem == "treesitter" and corpus == "zecs"
+            F.add_file(doc, "A.cbl", {}, status="fail" if bad else "ok")
+            F.dump(doc, out)
+        return 0
+
+    report, code = R.run_panel(R.panel_corpora(["cics-genapp", "zecs"]), tmp_path, run)
+    assert code == 0 and report["problems"] == []
+    assert report["notes"] == ["zecs: treesitter parsed none of 1 members"]
+
+
+def test_a_referee_with_no_members_in_a_corpus_is_not_a_problem(tmp_path):
+    def run(cmd, cwd):
+        if "--out" in cmd and "--corpus" in cmd:
+            out = Path(cmd[cmd.index("--out") + 1])
+            F.dump(F.new_doc(out.stem, "stub", cmd[cmd.index("--corpus") + 1], []), out)
+        return 0
+
+    report, code = R.run_panel(R.panel_corpora(["zecs"]), tmp_path, run)
+    assert code == 0 and report["problems"] == [] and "notes" not in report
+
+
 def test_main_without_referees_exits_2_and_runs_nothing(tmp_path, capsys):
     assert R.main(["--out", str(tmp_path / "o")], env={}) == 2
     assert not (tmp_path / "o").exists()

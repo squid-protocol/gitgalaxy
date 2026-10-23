@@ -86,6 +86,8 @@ public final class DetDli {
         boolean first; // #5233: command code F
         boolean last; // #5233: command code L
         boolean par; // #5233: command code P
+        boolean path; // #5233: command code D
+        byte[] cat; // #5233: command code C, the concatenated key in the parentheses
         // #5233: the statements after the first, each joined to the one before by AND (or == false) or OR
         final List<Term> more = new ArrayList<>();
     }
@@ -760,6 +762,10 @@ public final class DetDli {
                         s.last = true;
                     } else if (c == 'P') {
                         s.par = true;
+                    } else if (c == 'D') {
+                        s.path = true;
+                    } else if (c == 'C') {
+                        s.cat = new byte[0];
                     } else if (c != '-') {
                         throw refuse("the command code " + c);
                     }
@@ -770,9 +776,23 @@ public final class DetDli {
                     return out;
                 }
                 if (b[at] == ' ') {
+                    if (s.cat != null) {
+                        st[0] = "AJ";
+                        return out;
+                    }
                     continue;
                 }
                 at++;
+                if (s.cat != null) {
+                    // #5233: command code C, SEG*C(concatenated key): the keys from the root down to this segment
+                    int len = catLength(s.seg);
+                    if (at + len >= b.length || b[at + len] != ')') {
+                        st[0] = "AJ";
+                        return out;
+                    }
+                    s.cat = Arrays.copyOfRange(b, at, at + len);
+                    continue;
+                }
             } else if (q != '(') {
                 st[0] = "AJ";
                 return out;
@@ -836,6 +856,44 @@ public final class DetDli {
 
     private static final int MAX_TERMS = 16;
 
+    /** The bytes of a concatenated key down to a segment type (#5233, command code C). */
+    private static int catLength(int seg) {
+        int len = 0;
+        for (int t = seg; t >= 0; t = SEGS.get(t).parent) {
+            if (SEGS.get(t).key < 0) {
+                throw refuse("the command code C on a segment with no sequence field");
+            }
+            len += FLDS.get(SEGS.get(t).key).bytes;
+        }
+        return len;
+    }
+
+    /** Command code C (#5233): the concatenated key becomes one SSA per level, qualified EQ on that level's key. */
+    private static Ssa[] expandCat(Ssa[] s) {
+        if (s.length != 1 || s[0].cat == null) {
+            return s;
+        }
+        List<Integer> path = new ArrayList<>();
+        for (int t = s[0].seg; t >= 0; t = SEGS.get(t).parent) {
+            path.add(0, t);
+        }
+        Ssa[] out = new Ssa[path.size()];
+        int at = 0;
+        for (int i = 0; i < out.length; i++) {
+            Ssa x = new Ssa();
+            x.seg = path.get(i);
+            x.fld = SEGS.get(x.seg).key;
+            x.op = 0;
+            int n = FLDS.get(x.fld).bytes;
+            x.value = Arrays.copyOfRange(s[0].cat, at, at + n);
+            at += n;
+            out[i] = x;
+        }
+        out[out.length - 1].par = s[0].par;
+        out[out.length - 1].first = s[0].first;
+        return out;
+    }
+
     /** A character a command-code list may hold. */
     private static boolean isCode(int c) {
         return (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-';
@@ -848,6 +906,15 @@ public final class DetDli {
         boolean isrt = fn.equals("ISRT");
         int ps = 0;
         for (int i = 0; i < s.length; i++) {
+            if (s[i].cat != null && (!gu || s.length != 1 || s[i].last)) {
+                throw refuse("the command code C other than alone on a GU, without L");
+            }
+            if (s[i].path && fn.charAt(0) != 'G') {
+                throw refuse("the command code D on a " + fn.trim());
+            }
+            if (s[i].path && s[i].cat != null) {
+                throw refuse("the command code D beside C");
+            }
             if (s[i].par && (!gu || ++ps > 1)) {
                 throw refuse(gu ? "the command code P on more than one SSA" : "the command code P on a " + fn.trim());
             }
@@ -1117,10 +1184,27 @@ public final class DetDli {
                 st = "GK";
             }
         }
-        if (io.storage().bytes.length - io.offset() < n.data.length) {
+        // #5233: command code D, a path call: each D-coded SSA's segment (the found one's ancestor of that type), in
+        // hierarchic order, then the found segment itself; D on the last SSA adds nothing
+        List<Node> out = new ArrayList<>();
+        for (int i = 0; i < k - 1; i++) {
+            if (s[i].path) {
+                out.add(ancestorOfType(n, s[i].seg));
+            }
+        }
+        out.add(n);
+        int total = 0;
+        for (Node o : out) {
+            total += o.data.length;
+        }
+        if (io.storage().bytes.length - io.offset() < total) {
             throw refuse("an I/O area shorter than the segment");
         }
-        System.arraycopy(n.data, 0, io.storage().bytes, io.offset(), n.data.length);
+        int off = io.offset();
+        for (Node o : out) {
+            System.arraycopy(o.data, 0, io.storage().bytes, off, o.data.length);
+            off += o.data.length;
+        }
         status(p, st);
         feedback(p, n);
         p.pos = POS_AT;
@@ -1314,6 +1398,7 @@ public final class DetDli {
             return;
         }
         checkCodes(fn, s);
+        s = expandCat(s);
         if (fn.charAt(0) == 'G') {
             get(p, fn, io, s, fn.charAt(1) == 'H');
         } else if (fn.equals("ISRT")) {

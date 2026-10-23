@@ -1489,6 +1489,142 @@
      "resp2": 3
     }
    ]
+  },
+  {
+   "name": "pf8-with-card-filter-skips-to-the-matching-card",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "1561409106491600",
+    "WS-CA-LAST-CARD-ACCT-ID": 35,
+    "WS-CA-FIRST-CARD-NUM": "0500024453765740",
+    "WS-CA-FIRST-CARD-ACCT-ID": 50,
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000500500024453765740Y000000000270683586198171516Y000000000020923877193247330Y000000000200927987108636232Y000000000120982496213629795Y000000000441014086565224350Y000000000371142167692878931Y"
+   },
+   "receive": {
+    "CCRDLIA": {
+     "CARDSIDI": "4011500891777367"
+    }
+   },
+   "why": "PF8 from the 8th card with a valid 16-digit card filter (the ENTER form is refused by X8): 2220 takes the numeric branch, 9500 excludes every card but 4011500891777367 and the browse runs to ENDFILE"
+  },
+  {
+   "name": "pf8-page-ends-exactly-on-the-last-card",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "8517866958206008",
+    "WS-CA-LAST-CARD-ACCT-ID": 14,
+    "WS-CA-FIRST-CARD-NUM": "7251508149188883",
+    "WS-CA-FIRST-CARD-ACCT-ID": 29,
+    "WS-CA-SCREEN-NUM": 5,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000500500024453765740Y000000000270683586198171516Y000000000020923877193247330Y000000000200927987108636232Y000000000120982496213629795Y000000000441014086565224350Y000000000371142167692878931Y"
+   },
+   "receive": {
+    "CCRDLIA": {}
+   },
+   "why": "PF8 from the 44th card: the seven rows are 44..50 so the look-ahead READNEXT after the 7th row hits ENDFILE with no earlier message ('NO MORE RECORDS TO SHOW')"
+  },
+  {
+   "name": "pf8-page-number-zero-no-next-page",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "9805583408996588",
+    "WS-CA-LAST-CARD-ACCT-ID": 40,
+    "WS-CA-FIRST-CARD-NUM": "9805583408996588",
+    "WS-CA-FIRST-CARD-ACCT-ID": 40,
+    "WS-CA-SCREEN-NUM": 0,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "\u0000",
+    "WS-ALL-ROWS": "000000000409805583408996588Y\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+   },
+   "receive": {
+    "CCRDLIA": {}
+   },
+   "why": "PF8 with no next page falls to WHEN OTHER (no ADD 1), so the first row read finds WS-CA-SCREEN-NUM still 0 and bumps it to 1"
+  },
+  {
+   "name": "pf7-at-the-first-page-account-filter-matches-nothing",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 0,
+    "CDEMO-CARD-NUM": 0,
+    "CDEMO-LAST-MAP": "CCRDLIA",
+    "CDEMO-LAST-MAPSET": "COCRDLI",
+    "WS-CA-LAST-CARD-NUM": "1561409106491600",
+    "WS-CA-LAST-CARD-ACCT-ID": 35,
+    "WS-CA-FIRST-CARD-NUM": "0500024453765740",
+    "WS-CA-FIRST-CARD-ACCT-ID": 50,
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-ALL-ROWS": "000000000500500024453765740Y000000000270683586198171516Y000000000020923877193247330Y000000000200927987108636232Y000000000120982496213629795Y000000000441014086565224350Y000000000371142167692878931Y"
+   },
+   "receive": {
+    "CCRDLIA": {
+     "ACCTSIDI": "99999999999"
+    }
+   },
+   "why": "PF7 on page 1 relists from the first card; an account filter that matches no card reaches ENDFILE on page 1 with no row: NO-RECORDS-FOUND"
+  },
+  {
+   "name": "no-commarea-pf7",
+   "aid": "DFHPF7",
+   "commarea": null,
+   "why": "no COMMAREA with PF7 (the ENTER form is refused by X8): 0000-MAIN initialises page 1 and PF7 on the first page relists it, so 1300 skips the filter setup"
+  },
+  {
+   "name": "pf8-back-from-card-view-keeps-the-selected-ids",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCDL",
+    "CDEMO-FROM-PROGRAM": "COCRDSLC",
+    "CDEMO-TO-TRANID": "CCLI",
+    "CDEMO-TO-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 2,
+    "CDEMO-CARD-NUM": 923877193247330,
+    "CDEMO-LAST-MAP": "CCRDSLA",
+    "CDEMO-LAST-MAPSET": "COCRDSL"
+   },
+   "why": "PF8 arriving from COCRDSLC with its account and card still in the COMMAREA: the screen is not received, so neither filter is set and 1300 echoes CDEMO-ACCT-ID and CDEMO-CARD-NUM"
   }
  ],
  "bounds_refused": {

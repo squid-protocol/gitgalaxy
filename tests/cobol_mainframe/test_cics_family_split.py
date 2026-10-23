@@ -2,7 +2,8 @@
 stub translator equivalence_cics.py, the det translator det/cics.py) still runs where it always did: each family module
 is spliced, included or dispatched to exactly once, and each command the spec names is implemented in its family's
 module, not left behind in the host file. Containers / channels (#4270, #4951, #5005) is the first family moved; file control is the second (stub and
-forge so far: the harness and det halves are still in their host files)."""
+forge so far: the harness and det halves are still in their host files); task / interval control is the third (stub,
+det and forge; the harness half is still in its host file)."""
 
 from __future__ import annotations
 
@@ -49,7 +50,13 @@ def test_cicstask_holds_the_containers_java_once_where_it_sat():
 def test_ggcics_includes_its_families_once():
     host = (STUB / "ggcics.c").read_text(encoding="utf-8")
     family = (STUB / "ggcics_containers.c").read_text(encoding="utf-8")
-    assert re.findall(r'^#include "(ggcics_\w+\.c)"', host, re.M) == ["ggcics_filecontrol.c", "ggcics_containers.c"]
+    assert re.findall(r'^#include "(ggcics_\w+\.c)"', host, re.M) == [
+        "ggcics_filecontrol.c",
+        "ggcics_transientdata.c",
+        "ggcics_containers.c",
+        "ggcics_taskcontrol.c",
+        "ggcics_enq.c",
+    ]
     assert "#include" not in family  # one translation unit: the family sees everything ggcics.c declared before it
     for impl in FAMILY.values():
         assert re.search(rf"^int {impl.c}\(", family, re.M), impl.c
@@ -142,3 +149,79 @@ def test_cicstask_holds_the_task_control_java_once_where_it_sat():
     for method in ("withStartData", "start", "startAt", "startRequest", "runTransid", "delay", "fetch", "freeChild",
                    "retrieve", "cancel", "post", "waitEvent"):  # fmt: skip
         assert re.search(rf"public \S+(?: \S+)? {method}\(", tt.TASKCONTROL_JAVA), method
+
+
+TASK_ENTRIES = ("GGCSTRT", "GGCRTRV", "GGCRUNT", "GGCCHLD", "GGCDLAY", "GGCPOST", "GGCWEVT", "GGCFETCH", "GGCFREE",
+                "GGCCNCL")  # fmt: skip
+
+
+def test_ggcics_holds_the_task_control_stubs_in_its_family_file():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    family = (STUB / "ggcics_taskcontrol.c").read_text(encoding="utf-8")
+    assert "#include" not in family
+    for entry in TASK_ENTRIES:
+        assert re.search(rf"^int {entry}\(", family, re.M), entry
+        assert not re.search(rf"^int {entry}\(", host, re.M), entry
+    # every spec command that dispatches to a task-control method has its stub in the family file (CONVERSE and SEND
+    # CONTROL are terminal I/O in the stub: only their det methods sit in the task-control mixin)
+    for key, cmd in COMMANDS.items():
+        if (
+            cmd.impl
+            and cmd.impl.translator.split(".")[1] in set(TASK_METHODS) - {"converse", "send_control"}
+            and cmd.impl.c
+        ):
+            assert re.search(rf"^int {cmd.impl.c}\(", family, re.M), key
+    # the include sits where the block did: after DELETEQ TS, before the ENQ include
+    assert (
+        host.index("int GGCDELQ(")
+        < host.index('#include "ggcics_taskcontrol.c"')
+        < host.index('#include "ggcics_enq.c"')
+    )
+
+
+# ---- ENQ / DEQ (#5274, fourth stub family): one stub function; DEQ is translated inline, with no stub ---------------
+def test_ggcics_holds_the_enq_stub_in_its_family_file():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    family = (STUB / "ggcics_enq.c").read_text(encoding="utf-8")
+    assert "#include" not in family
+    assert re.search(r"^int GGCENQ\(", family, re.M) and not re.search(r"^int GGCENQ\(", host, re.M)
+    assert (
+        COMMANDS["ENQ"].impl is None and COMMANDS["DEQ"].impl is None
+    )  # no spec impl: the harness calls GGCENQ itself
+    # the include sits where the block did: after the task-control include, before GGCAOUT
+    assert (
+        host.index('#include "ggcics_taskcontrol.c"')
+        < host.index('#include "ggcics_enq.c"')
+        < host.index("int GGCAOUT(")
+    )
+
+
+def test_enq_still_translates_to_its_stub_and_deq_to_none():
+    assert any("GGCENQ" in ln for ln in ec.translate_command("ENQ RESOURCE(WS-RES)"))
+    assert not any("GGC" in ln and "CALL" in ln for ln in ec.translate_command("DEQ RESOURCE(WS-RES)"))
+
+
+# ---- transient data (#5274, fifth stub family): READQ / WRITEQ / DELETEQ TD, SET / INQUIRE TDQUEUE -------------------
+def test_ggcics_holds_the_transient_data_stubs_in_its_family_file():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    family = (STUB / "ggcics_transientdata.c").read_text(encoding="utf-8")
+    assert "#include" not in family
+    for entry in ("GGCWRTD", "GGCRDTD", "GGCDLTD", "GGCRDTS", "GGCSTDQ", "GGCSTDE", "GGCSTDT", "GGCITDQ"):
+        assert re.search(rf"^int {entry}\(", family, re.M), entry
+        assert not re.search(rf"^int {entry}\(", host, re.M), entry
+    for helper in ("td_dir", "td_kind", "td_uow_end"):
+        assert re.search(rf"^static \w+ {helper}\(", family, re.M), helper
+    # the uow code in the host calls td_uow_end, so its forward declaration stays there, before the include
+    assert host.index("static void td_uow_end(int rollback);") < host.index('#include "ggcics_transientdata.c"')
+    # the include sits where the block did: after the file-control include, before the containers include
+    assert (
+        host.index('#include "ggcics_filecontrol.c"')
+        < host.index('#include "ggcics_transientdata.c"')
+        < host.index('#include "ggcics_containers.c"')
+    )
+
+
+def test_the_td_verbs_still_translate_to_their_stubs():
+    for verb, stub in (("READQ TD QUEUE('Q') INTO(WS-REC)", "GGCRDTD"), ("DELETEQ TD QUEUE('Q')", "GGCDLTD"),
+                       ("WRITEQ TD QUEUE('Q') FROM(WS-REC)", "GGCWRTD")):  # fmt: skip
+        assert any(stub in ln for ln in ec.translate_command(verb)), verb

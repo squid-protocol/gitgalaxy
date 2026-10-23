@@ -708,6 +708,244 @@
     "reason": "`IF OPENED-DATE-ATTEMPTS > 100` (GENERATE-OPENED-DATE, performed UNTIL OPENED-DATE-VALID = 'Y', line 730) needs 100 draws in a row where the opened year is not above the birth year (line 912). The year is ((2014 - CUSTOMER-BIRTH-YEAR) * FUNCTION RANDOM) + CUSTOMER-BIRTH-YEAR (lines 892-895) and the birth year is drawn from 1900-1999 (line 527), so a draw fails only when FUNCTION RANDOM is under 1 / (2014 - birth year), at most 1/15: 100 in a row has probability under 15^-100 and the PARM seed cannot be searched to it. Not a logical impossibility: reviewed as unreachable in practice, to be kept under owner review."
    }
   ],
+  "cbsa-bnk1cra": [
+   {
+    "unit": "A010",
+    "line": 271,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OCRA') COMMAREA(WS-COMM-AREA) LENGTH(21)` (263-269): RETURN never comes back on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for it with a 21-byte COMMAREA and an installed TRANSID."
+   },
+   {
+    "unit": "A010",
+    "line": 271,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "R",
+    "reason": "Same test (271): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+   },
+   {
+    "unit": "SM010",
+    "line": 657,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND MAP ERASE (648 on): IBM raises no condition for a map the program has just built from its own BNK1CDO, and no fault can be injected on it."
+   },
+   {
+    "unit": "SM010",
+    "line": 722,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "C",
+    "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 51), set by no statement: only `SET SEND-ERASE` (188) and `SET SEND-DATAONLY-ALARM` (244, 354) write the flag."
+   },
+   {
+    "unit": "SM010",
+    "line": 731,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "C",
+    "reason": "The RESP test inside the `IF SEND-DATAONLY` block (722), which is never entered."
+   },
+   {
+    "unit": "SM010",
+    "line": 731,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "The RESP test inside the `IF SEND-DATAONLY` block (722), which is never entered."
+   },
+   {
+    "unit": "SM010",
+    "line": 796,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SM010 after the first SEND MAP and '2' is never set (see 722), so the test is always true."
+   },
+   {
+    "unit": "SM010",
+    "line": 806,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND MAP DATAONLY ALARM (796 on): IBM raises no condition for a map the program has just built from its own BNK1CDO, and no fault can be injected on it."
+   },
+   {
+    "unit": "STM010",
+    "line": 884,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND TEXT ERASE FREEKB that writes the termination message (876-882): IBM raises no condition for it on a terminal that just sent a map, and no fault can be injected on it."
+   }
+  ],
+  "cbsa-bnk1uac": [
+   {
+    "unit": "A010",
+    "line": 303,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OUAC') COMMAREA(WS-COMM-AREA) LENGTH(99)` (296-301): RETURN never comes back to the program on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for a RETURN whose COMMAREA is 99 bytes and TRANSID names an installed transaction."
+   },
+   {
+    "unit": "A010",
+    "line": 303,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "R",
+    "reason": "Same test (303): a RETURN that succeeds ends the task, so the fall-through arm where RESP is NORMAL is never executed."
+   },
+   {
+    "unit": "SM010",
+    "line": 1083,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`RESP(WS-CICS-RESP)` is set by the SEND MAP ERASE at 1074-1081; IBM raises no condition here for a map the program has just built from its own BNK1UAO (a MAPFAIL belongs to RECEIVE MAP), and no fault can be injected on it."
+   },
+   {
+    "unit": "SM010",
+    "line": 1149,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "C",
+    "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 51), which is set only by `SET SEND-ERASE` (208) and `SET SEND-DATAONLY-ALARM` (270, 404); no statement sets SEND-DATAONLY, so the flag is never '2'."
+   },
+   {
+    "unit": "SM010",
+    "line": 1159,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "C",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` lies inside the `IF SEND-DATAONLY` block (1149), which is never entered (see 1149 true)."
+   },
+   {
+    "unit": "SM010",
+    "line": 1159,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "C",
+    "reason": "Same nested test inside the `IF SEND-DATAONLY` block (1149), never entered."
+   },
+   {
+    "unit": "SM010",
+    "line": 1224,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) takes the SEND-MAP-ERASE branch ahead of it and ends at SM999, and '2' is never set (see 1149), so the test is always true."
+   },
+   {
+    "unit": "SM010",
+    "line": 1235,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`RESP(WS-CICS-RESP)` is set by the SEND MAP DATAONLY ALARM at 1225-1233; IBM raises no condition here for a map the program has just built from its own BNK1UAO (a MAPFAIL belongs to RECEIVE MAP), and no fault can be injected on it."
+   },
+   {
+    "unit": "STM010",
+    "line": 1314,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`RESP(WS-CICS-RESP)` of the SEND TEXT ERASE FREEKB (1305-1311) that writes the termination message: IBM raises no condition for it on a terminal that just sent a map, and no fault can be injected on it."
+   }
+  ],
+  "cbsa-crdtagy1": [
+   {
+    "unit": "A010",
+    "line": 133,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 133, after `EXEC CICS DELAY FOR SECONDS(WS-DELAY-AMT)`: WS-DELAY-AMT is `COMPUTE ((3 - 1) * FUNCTION RANDOM(WS-SEED)) + 1` into a PIC S9(8) COMP, and RANDOM is below 1, so the interval is always 1 or 2 seconds. IBM's DELAY conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delay) are EXPIRED (a time already past; intervals under 250 ms), and INVREQ for hours, minutes, seconds or milliseconds out of range (RESP2 4, 5, 6, 22) or a command CICS cannot process; a FOR SECONDS of 1 or 2 meets none (no HOURS/MINUTES/MILLISECONDS operand, no TIME/UNTIL), and the harness plans no fault on DELAY. The paragraphs this arm PERFORMs (POPULATE-TIME-DATE, PTD010, PTD999) are reachable only through it: they stay uncovered, as this ledger states branches, not paragraphs."
+   },
+   {
+    "unit": "A010",
+    "line": 233,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 233, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3."
+   }
+  ],
+  "cbsa-crdtagy2": [
+   {
+    "unit": "A010",
+    "line": 132,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 132, after `EXEC CICS DELAY FOR SECONDS(WS-DELAY-AMT)`: WS-DELAY-AMT is `COMPUTE ((3 - 1) * FUNCTION RANDOM(WS-SEED)) + 1` into a PIC S9(8) COMP, and RANDOM is below 1, so the interval is always 1 or 2 seconds. IBM's DELAY conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delay) are EXPIRED (a time already past; intervals under 250 ms), and INVREQ for hours, minutes, seconds or milliseconds out of range (RESP2 4, 5, 6, 22) or a command CICS cannot process; a FOR SECONDS of 1 or 2 meets none (no HOURS/MINUTES/MILLISECONDS operand, no TIME/UNTIL), and the harness plans no fault on DELAY. The paragraphs this arm PERFORMs (POPULATE-TIME-DATE, PTD010, PTD999) are reachable only through it: they stay uncovered, as this ledger states branches, not paragraphs."
+   },
+   {
+    "unit": "A010",
+    "line": 233,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 233, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3."
+   }
+  ],
+  "cbsa-crdtagy3": [
+   {
+    "unit": "A010",
+    "line": 132,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 132, after `EXEC CICS DELAY FOR SECONDS(WS-DELAY-AMT)`: WS-DELAY-AMT is `COMPUTE ((3 - 1) * FUNCTION RANDOM(WS-SEED)) + 1` into a PIC S9(8) COMP, and RANDOM is below 1, so the interval is always 1 or 2 seconds. IBM's DELAY conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delay) are EXPIRED (a time already past; intervals under 250 ms), and INVREQ for hours, minutes, seconds or milliseconds out of range (RESP2 4, 5, 6, 22) or a command CICS cannot process; a FOR SECONDS of 1 or 2 meets none (no HOURS/MINUTES/MILLISECONDS operand, no TIME/UNTIL), and the harness plans no fault on DELAY. The paragraphs this arm PERFORMs (POPULATE-TIME-DATE, PTD010, PTD999) are reachable only through it: they stay uncovered, as this ledger states branches, not paragraphs."
+   },
+   {
+    "unit": "A010",
+    "line": 232,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 232, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3."
+   }
+  ],
+  "cbsa-crdtagy4": [
+   {
+    "unit": "A010",
+    "line": 133,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 133, after `EXEC CICS DELAY FOR SECONDS(WS-DELAY-AMT)`: WS-DELAY-AMT is `COMPUTE ((3 - 1) * FUNCTION RANDOM(WS-SEED)) + 1` into a PIC S9(8) COMP, and RANDOM is below 1, so the interval is always 1 or 2 seconds. IBM's DELAY conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delay) are EXPIRED (a time already past; intervals under 250 ms), and INVREQ for hours, minutes, seconds or milliseconds out of range (RESP2 4, 5, 6, 22) or a command CICS cannot process; a FOR SECONDS of 1 or 2 meets none (no HOURS/MINUTES/MILLISECONDS operand, no TIME/UNTIL), and the harness plans no fault on DELAY. The paragraphs this arm PERFORMs (POPULATE-TIME-DATE, PTD010, PTD999) are reachable only through it: they stay uncovered, as this ledger states branches, not paragraphs."
+   },
+   {
+    "unit": "A010",
+    "line": 235,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 235, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3."
+   }
+  ],
+  "cbsa-crdtagy5": [
+   {
+    "unit": "A010",
+    "line": 132,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 132, after `EXEC CICS DELAY FOR SECONDS(WS-DELAY-AMT)`: WS-DELAY-AMT is `COMPUTE ((3 - 1) * FUNCTION RANDOM(WS-SEED)) + 1` into a PIC S9(8) COMP, and RANDOM is below 1, so the interval is always 1 or 2 seconds. IBM's DELAY conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delay) are EXPIRED (a time already past; intervals under 250 ms), and INVREQ for hours, minutes, seconds or milliseconds out of range (RESP2 4, 5, 6, 22) or a command CICS cannot process; a FOR SECONDS of 1 or 2 meets none (no HOURS/MINUTES/MILLISECONDS operand, no TIME/UNTIL), and the harness plans no fault on DELAY. The paragraphs this arm PERFORMs (POPULATE-TIME-DATE, PTD010, PTD999) are reachable only through it: they stay uncovered, as this ledger states branches, not paragraphs."
+   },
+   {
+    "unit": "A010",
+    "line": 235,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "R",
+    "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 235, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3."
+   }
+  ],
   "cbsa-delacc": [
    {
     "unit": "RAD010",
@@ -748,7 +986,27 @@
     "reason": "`IF EIBCALEN > 0` (the outer test of WRITE-ERROR-MESSAGE's COMMAREA copy) is false only for a call with no COMMAREA. Before any error path the program has already used the COMMAREA: lines 77-79 move CA-Request-ID(4:1), CA-Policy-Num and CA-Customer-Num, items of the LINKAGE DFHCOMMAREA, into WF-Policy-Key for the DELETE, so with EIBCALEN 0 they are read from no storage. The only caller, LGDPDB01 (line 168), LINKs with Commarea(DFHCOMMAREA) LENGTH(32500) past its own `IF EIBCALEN IS EQUAL TO ZERO` ABEND LGCA, so EIBCALEN is never 0 on a call (the proof does not reach this line at all: the first LINK of WRITE-ERROR-MESSAGE, with the 102-byte ERROR-MSG, makes LGSTSQ write 107 bytes from a 95-byte WRITE-MSG and the oracle refuses it, X6); a harness cannot state a COMMAREA-less call without a reference to unaddressable LINKAGE storage, which IBM leaves undefined (X23: a reference past EIBCALEN is refused on both sides, the task judged up to it)."
    }
   ],
+  "genapp-lgicdb01-generated": [
+   {
+    "unit": "WRITE-ERROR-MESSAGE",
+    "line": 231,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for EIBCALEN 90 here: LGICDB01 returns '98' for EIBCALEN < 90 (line 140: WS-CUSTOMER-LEN 72 + header and trailer 18), and WRITE-ERROR-MESSAGE runs only after the SELECT (line 169, the -913 arm continues, any other SQLCODE reaches it) or for EIBCALEN 0. Reaching it takes a failing SELECT with EIBCALEN exactly 90, but the SELECT's INTO host variables (CA-PHONE-MOBILE, CA-PHONE-HOME, CA-EMAIL-ADDRESS of LGCMAREA) lie past byte 90, so the task would reference storage past EIBCALEN, which IBM leaves undefined and X23 refuses on both sides (measured: a scenario with commarea_length 90 and an injected -811 fires the fault on the COBOL side only, 'faults fired differ'). The only caller, LGICUS01 (line 122), LINKs with LENGTH(32500), so EIBCALEN is 32500 on every call."
+   }
+  ],
   "genapp-lgucdb01": [
+   {
+    "unit": "WRITE-ERROR-MESSAGE",
+    "line": 208,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for a call whose COMMAREA is 1 to 90 bytes. Reaching it takes a failing UPDATE (line 155) with EIBCALEN between 1 and 90, but the statement's host variables (CA-PHONE-MOBILE, CA-PHONE-HOME, CA-EMAIL-ADDRESS of LGCMAREA) lie past byte 90 (header 18 + the 72 bytes of first name to postcode), so the task would reference storage past EIBCALEN, which IBM leaves undefined and X23 refuses on both sides (the task is judged up to the reference; the det port binds the host variables before the statement runs, the injected SQL fault reads none). LGUCDB01 has no length guard of its own. The only caller, LGUCUS01 (line 128), LINKs with LENGTH(32500), so EIBCALEN is 32500 on every call."
+   }
+  ],
+  "genapp-lgucdb01-generated": [
    {
     "unit": "WRITE-ERROR-MESSAGE",
     "line": 208,
@@ -766,6 +1024,76 @@
     "outcome": "false",
     "family": "G",
     "reason": "`IF EIBCALEN > 0` (the outer test of WRITE-ERROR-MESSAGE's COMMAREA copy) is false only for a call with no COMMAREA. Before any error path the program has already used the COMMAREA: lines 67-73 READs with RIDFLD(CA-Customer-Num), an item of the LINKAGE DFHCOMMAREA, so with EIBCALEN 0 it is read from no storage. The only caller, LGUCDB01 (line 136), LINKs with Commarea(DFHCOMMAREA) LENGTH(225), so EIBCALEN is 225 on every call; a harness cannot state a COMMAREA-less call without a reference to unaddressable LINKAGE storage, which IBM leaves undefined (X23: a reference past EIBCALEN is refused on both sides, the task judged up to it)."
+   }
+  ],
+  "genapp-lgupol01": [
+   {
+    "unit": "WRITE-ERROR-MESSAGE",
+    "line": 186,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF EIBCALEN > 0` is true never: WRITE-ERROR-MESSAGE has one PERFORM (line 101), inside `IF EIBCALEN IS EQUAL TO ZERO` (line 99), so EIBCALEN is 0 on every entry and the COMMAREA copy (lines 186-200) is skipped.."
+   },
+   {
+    "unit": "WRITE-ERROR-MESSAGE",
+    "line": 187,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "Nested in `IF EIBCALEN > 0` (line 186), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run."
+   },
+   {
+    "unit": "WRITE-ERROR-MESSAGE",
+    "line": 187,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "Nested in `IF EIBCALEN > 0` (line 186), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run."
+   }
+  ],
+  "genapp-lgupol01-generated": [
+   {
+    "unit": "WRITE-ERROR-MESSAGE",
+    "line": 186,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF EIBCALEN > 0` is true never: WRITE-ERROR-MESSAGE has one PERFORM (line 101), inside `IF EIBCALEN IS EQUAL TO ZERO` (line 99), so EIBCALEN is 0 on every entry and the COMMAREA copy (lines 186-200) is skipped.."
+   },
+   {
+    "unit": "WRITE-ERROR-MESSAGE",
+    "line": 187,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "Nested in `IF EIBCALEN > 0` (line 186), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run."
+   },
+   {
+    "unit": "WRITE-ERROR-MESSAGE",
+    "line": 187,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "Nested in `IF EIBCALEN > 0` (line 186), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run."
+   }
+  ],
+  "zecs-ecs001": [
+   {
+    "unit": "A3000-OPEN-CONNECTION",
+    "line": 197,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "R",
+    "reason": "`IF EIBRESP = DFHRESP(NORMAL)` after `WEB OPEN SESSTOKEN(SESSION-TOKEN) URIMAP(URIMAP-NAME)` (190-194): URIMAP-NAME is the copybook-less constant `VALUE 'ECS001'` (line 37), never written, and the region's WEB OPEN by URIMAP (GGCWOPN, register X35) answers NORMAL for the peer the scenario states and refuses (the run stops) for one it does not; the stub raises no condition for the URIMAP form (its LENGERR 21 / INVREQ 40 / 138 belong to the HOST form, which ECS001 does not use). IBM documents more WEB OPEN conditions than the model raises (assumption X35): owner review."
+   },
+   {
+    "unit": "A5000-CLOSE-CONNECTION",
+    "line": 353,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "R",
+    "reason": "`IF EIBRESP = DFHRESP(NORMAL)` after `WEB CLOSE SESSTOKEN(SESSION-TOKEN)` (A5000): the only condition the region raises for WEB CLOSE is NOTOPEN (GGCWCLS, register X35), for a token no open session holds; A5000 runs only after A3000 left through line 197's NORMAL arm with SESSION-TOKEN written by the WEB OPEN, A4000 never closes it, and ECS001 closes it once, so the session is open. IBM's other WEB CLOSE conditions are not raised by the model (assumption X35): owner review."
    }
   ]
  }

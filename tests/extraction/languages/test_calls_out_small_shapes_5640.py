@@ -9,6 +9,7 @@
 * tcl: a one-line brace body (`catch {qux}`, `if {$a} {foo}`, `after 10 {zed}`) is command position.
 * scheme: the formals list of a `lambda` is not a call.
 * lua / tcl: the shapes the issue named (a call after `..` or `not`, a command after `}`) are pinned as working.
+* tcl: top-level script after a proc is no proc's call (the oracle's `main` misses).
 
 Driven through `StructuralExtractor.splice()`, the path a scan takes.
 """
@@ -305,6 +306,19 @@ def test_lua_top_level_function_expression_is_not_a_named_unit():
 def test_tcl_command_after_a_closing_brace():
     code = "proc main {} {\n    foreach x $l {\n        puts $x\n    }\n    startClient\n    if {$a} {\n        foo\n    }\n    start\n}\n"
     assert {"startClient", "foo", "start"} <= set(_calls("tcl", code, "main"))
+
+
+def test_tcl_top_level_script_after_a_proc_is_not_the_procs_call():
+    """odamex `tests/bugs/*.tcl`: `startClient` / `start` follow `proc main {...}`'s closing brace at file level, so
+    they are script, not part of `main`. The tcl rule has no top-level unit (its calls are not stored); the #5630
+    oracle hands everything after the last `proc` to it and reports them as `main` misses."""
+    code = (
+        "proc main {} {\n    wait\n    if {$a} {\n        foo\n    }\n}\n"
+        "startClient\nset error [catch { main }]\nif { $error } {\n puts bad\n}\nstart\nend\n"
+    )
+    functions = _functions("tcl", code)
+    assert set(functions) == {"main"}
+    assert set(functions["main"]["calls_out_to"]) == {"wait", "foo"}
 
 
 def test_tcl_foreach_switch_namespace_bodies():

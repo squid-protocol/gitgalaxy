@@ -18,7 +18,9 @@ from .._shared_patterns import (
     COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
+    JS_CRYPTOGRAPHY,
     JS_DL_FRAMEWORKS,
+    JS_HARDWARE_BRIDGE,
     JS_LLM_API,
     JS_LLM_ORCHESTRATOR,
     JS_LLM_VECTOR_STORE,
@@ -774,6 +776,10 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:arguments\.|prototype|__proto__|Object\.assign|Reflect|Proxy|Object\.defineProperty)\b"
             r"|\.bind\(|\.call\(|\.apply\("
         ),
+        # hardware_bridge / cryptography (#4108): typescript imports the same packages as its
+        # javascript superset (`import * as crypto from 'crypto'`); the rules were never wired here.
+        "hardware_bridge": JS_HARDWARE_BRIDGE,
+        "cryptography": JS_CRYPTOGRAPHY,
         # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
         "llm_api": JS_LLM_API,
         "llm_orchestrator": JS_LLM_ORCHESTRATOR,

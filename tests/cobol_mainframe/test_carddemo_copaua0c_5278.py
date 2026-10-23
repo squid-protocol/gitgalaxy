@@ -17,6 +17,8 @@ ROOT = Path(__file__).resolve().parents[2]
 TOOLS = ROOT / "tests" / "tools"
 sys.path.insert(0, str(TOOLS))
 
+from gitgalaxy.core.source_text import read_source  # noqa: E402
+
 import equivalence_cics as ec  # noqa: E402
 import equivalence_ims as ims  # noqa: E402
 
@@ -132,3 +134,17 @@ def test_the_committed_det_port_has_a_recorded_proof():
     assert rec["proof"]["verdict"] == "proven" and not rec["proof"]["java_failed"]
     assert rec["proof"]["runs"] == len(SCENARIOS) and rec["provenance"]["written_by"] == "det"
     assert rec["coverage"]["branches"]["total"] == 69
+
+
+def test_the_request_limit_exit_is_stated_as_unprovable_not_left_silent():
+    """Line 339 (true): the reply pointer is never reset, so a fourth reply in one task reads past the 200-byte buffer
+    (undefined in IBM): the case says so by name instead of carrying a scenario no proof can pass."""
+    notes = _case()["notes"]
+    assert "Not provable, by name" in notes and "WS-RESP-LENGTH" in notes and "line 339" in notes
+    corpus = _corpus()
+    if corpus is None:
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    src = read_source(corpus / APP / "cbl/COPAUA0C.cbl").text.splitlines()
+    assert "WS-RESP-LENGTH" in src[45] and "VALUE 1" in src[45] and "W02-PUT-BUFFER" in src[107] and "X(200)" in src[107]
+    assert sum("WS-RESP-LENGTH" in ln for ln in src) == 3  # declared, the STRING POINTER, the MQPUT1 length: never reset
+    assert "WS-REQSTS-PROCESS-LIMIT" in src[338] and "VALUE 500" in src[39]

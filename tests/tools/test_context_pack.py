@@ -93,3 +93,26 @@ def test_cli_body_file_offline(db, tmp_path):
         check=True,
     ).stdout
     assert "process_payload" in out
+
+
+def test_prior_files_name_an_epic_whose_body_names_no_code(db):
+    out = cp.build_pack(db, "epic: speed", "no code named here", prior=["gitgalaxy/core/prism.py", "docs/x.md"])
+    assert "Earlier PRs for this issue changed:" in out
+    assert "`gitgalaxy/core/prism.py`" in out
+    assert "docs/x.md" not in out  # not in the DB
+
+
+def test_prior_files_reads_commits_mentioning_the_issue(tmp_path):
+    def git(*a):
+        subprocess.run(["git", "-c", "user.email=a@b", "-c", "user.name=x", *a], cwd=tmp_path, check=True)
+
+    git("init", "-q")
+    (tmp_path / "a.py").write_text("1\n")
+    (tmp_path / "b.py").write_text("1\n")
+    git("add", "a.py")
+    git("commit", "-qm", "a (Part of #77)")
+    git("add", "b.py")
+    git("commit", "-qm", "b (Part of #770)")
+    git("update-ref", "refs/remotes/origin/main", "HEAD")
+    assert cp.prior_files("77", tmp_path) == ["a.py"]
+    assert cp.prior_files("not-a-number", tmp_path) == []

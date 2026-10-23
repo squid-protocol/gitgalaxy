@@ -93,3 +93,14 @@ def test_each_dli_fault_is_a_plan_the_stubs_read():
     assert planned["pf5-repl-fails"] == ["REPL 1 AC"]
     assert {line.split()[0] for lines in planned.values() for line in lines} == {"GU", "GNP", "REPL"}
     assert len(planned) == 7
+
+
+def test_the_committed_det_port_has_a_recorded_proof():
+    """`evidence.py prove` records a level only for a committed port: this one is the det translator's own."""
+    prov = json.loads((CASE / "port" / "provenance.json").read_text(encoding="utf-8"))
+    assert (prov["program"], prov["translator"]) == ("COPAUS1C", "det")
+    assert (CASE / "port" / "service" / "Copaus1cService.java").is_file()
+    rec = json.loads((CASE / "evidence.json").read_text(encoding="utf-8"))
+    assert rec["proof"]["verdict"] == "proven" and not rec["proof"]["java_failed"]
+    assert rec["provenance"]["written_by"] == "det"
+    assert rec["proof"]["runs"] >= len(SCENARIOS)

@@ -85,6 +85,7 @@ public final class DetDli {
         byte[] value;
         boolean first; // #5233: command code F
         boolean last; // #5233: command code L
+        boolean par; // #5233: command code P
         // #5233: the statements after the first, each joined to the one before by AND (or == false) or OR
         final List<Term> more = new ArrayList<>();
     }
@@ -757,6 +758,8 @@ public final class DetDli {
                         s.first = true;
                     } else if (c == 'L') {
                         s.last = true;
+                    } else if (c == 'P') {
+                        s.par = true;
                     } else if (c != '-') {
                         throw refuse("the command code " + c);
                     }
@@ -838,12 +841,16 @@ public final class DetDli {
         return (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-';
     }
 
-    /** Command codes (#5233): F and L on a GU / GHU or an ISRT (a unique sequence field: no effect on ISRT, and F none on
+    /** Command codes (#5233): F and L on a GU / GHU or an ISRT, P on a GU / GHU (a unique sequence field: no effect on ISRT, and F none on
      *  GU, which starts from the first twin); L on a GU only as the last, unqualified SSA. Anything else is refused. */
     private static void checkCodes(String fn, Ssa[] s) {
         boolean gu = fn.startsWith("GU") || fn.startsWith("GHU");
         boolean isrt = fn.equals("ISRT");
+        int ps = 0;
         for (int i = 0; i < s.length; i++) {
+            if (s[i].par && (!gu || ++ps > 1)) {
+                throw refuse(gu ? "the command code P on more than one SSA" : "the command code P on a " + fn.trim());
+            }
             if (s[i].first && !gu && !isrt) {
                 throw refuse("the command code F on a " + fn.trim());
             }
@@ -1122,6 +1129,12 @@ public final class DetDli {
         if (!gnp) {
             p.par = PAR_AT;
             p.parentage = n;
+            for (Ssa x : s) {
+                if (x.par) {
+                    // #5233: command code P sets parentage at the level of its SSA (a GU only, checkCodes)
+                    p.parentage = ancestorOfType(n, x.seg);
+                }
+            }
         }
         if (hold) {
             p.hold = n;

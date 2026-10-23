@@ -394,6 +394,78 @@
         "rc=1"
       ],
       "note": "Plain cobc has no CEE3ABD (module not found, rc=1); the equivalence harness links ggabend.c as the stand-in. Expected z/OS: BEFORE is displayed, then the step ends ABEND U1234 (the code modulo 4096), AFTER is not displayed."
+    },
+    "l1-ceedays-blank-picture-tail": {
+      "entries": [
+        "L1"
+      ],
+      "compile_options": "default",
+      "question": "CEEDAYS with picture 'YYYYMMDD  ' and date '20200115  ' (both padded to 10, as CardDemo CSUTLDTC does): is the all-blank picture tail ignored",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL1.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 PICV.\n          05 PICL PIC S9(4) COMP VALUE 10.\n          05 PICT PIC X(10) VALUE 'YYYYMMDD  '.\n       01 DATV.\n          05 DATL PIC S9(4) COMP VALUE 10.\n          05 DATT PIC X(10) VALUE '20200115  '.\n       01 LILIAN PIC S9(9) COMP VALUE -1.\n       01 FC.\n          05 SEV PIC S9(4) COMP.\n          05 MSGNO PIC S9(4) COMP.\n          05 REST PIC X(8).\n       01 SHOWL PIC -9(9).\n       01 SHOWM PIC 9(4).\n       PROCEDURE DIVISION.\n           CALL \"CEEDAYS\" USING PICV DATV LILIAN FC\n           MOVE LILIAN TO SHOWL\n           MOVE MSGNO TO SHOWM\n           DISPLAY \"LILIAN=\" SHOWL \" MSGNO=\" SHOWM\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEEDAYS (module not found, rc=1); the equivalence harness links the stand-in (tests/equivalence/le). This is the ASSUMED shape of register L1 (IBM does not say how the picture's blank tail is read). Expected z/OS if the assumption holds: LILIAN=159704 MSGNO=0000 (feedback success); anything else (a nonzero MSGNO, LILIAN=0) settles L1 as a declared difference."
+    },
+    "l1-ceedays-date-past-span-ignored": {
+      "entries": [
+        "L1"
+      ],
+      "compile_options": "default",
+      "question": "CEEDAYS with picture 'YYYYMMDD' (length 8) and a 10-byte date '20200115XX': IBM documents that characters after a valid date are ignored",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL1.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 PICV.\n          05 PICL PIC S9(4) COMP VALUE 8.\n          05 PICT PIC X(10) VALUE 'YYYYMMDD  '.\n       01 DATV.\n          05 DATL PIC S9(4) COMP VALUE 10.\n          05 DATT PIC X(10) VALUE '20200115XX'.\n       01 LILIAN PIC S9(9) COMP VALUE -1.\n       01 FC.\n          05 SEV PIC S9(4) COMP.\n          05 MSGNO PIC S9(4) COMP.\n          05 REST PIC X(8).\n       01 SHOWL PIC -9(9).\n       01 SHOWM PIC 9(4).\n       PROCEDURE DIVISION.\n           CALL \"CEEDAYS\" USING PICV DATV LILIAN FC\n           MOVE LILIAN TO SHOWL\n           MOVE MSGNO TO SHOWM\n           DISPLAY \"LILIAN=\" SHOWL \" MSGNO=\" SHOWM\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEEDAYS (module not found, rc=1); the equivalence harness links the stand-in (tests/equivalence/le). Documented shape of register L1 (LE Programming Reference, CEEDAYS: remaining characters are ignored). Expected z/OS: LILIAN=159704 MSGNO=0000."
+    },
+    "l1-ceedays-day-outside-month": {
+      "entries": [
+        "L1"
+      ],
+      "compile_options": "default",
+      "question": "CEEDAYS with picture 'YYYYMMDD' and date '20210229' (29 February of a year that is not a leap year): Lilian 0 and a nonzero feedback code",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL1.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 PICV.\n          05 PICL PIC S9(4) COMP VALUE 8.\n          05 PICT PIC X(10) VALUE 'YYYYMMDD  '.\n       01 DATV.\n          05 DATL PIC S9(4) COMP VALUE 8.\n          05 DATT PIC X(10) VALUE '20210229  '.\n       01 LILIAN PIC S9(9) COMP VALUE -1.\n       01 FC.\n          05 SEV PIC S9(4) COMP.\n          05 MSGNO PIC S9(4) COMP.\n          05 REST PIC X(8).\n       01 SHOWL PIC -9(9).\n       01 SHOWM PIC 9(4).\n       PROCEDURE DIVISION.\n           CALL \"CEEDAYS\" USING PICV DATV LILIAN FC\n           MOVE LILIAN TO SHOWL\n           MOVE MSGNO TO SHOWM\n           DISPLAY \"LILIAN=\" SHOWL \" MSGNO=\" SHOWM\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEEDAYS (module not found, rc=1); the equivalence harness links the stand-in (tests/equivalence/le). Documented shape of register L1 (a date that is not valid returns Lilian 0 and a nonzero feedback code). Expected z/OS: LILIAN=0 MSGNO=2508 (CEE2508, day not valid for the month). The register models 2508 for this; the code number is the part a z/OS run confirms."
+    },
+    "l6-ceedywk-weekdays": {
+      "entries": [
+        "L6"
+      ],
+      "compile_options": "default",
+      "question": "CEEDYWK for the Lilian number of 15 January 2020: a Wednesday, day number 4",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL6.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 LILIAN PIC S9(9) COMP VALUE 159704.\n       01 DAYNO PIC S9(9) COMP VALUE -1.\n       01 FC.\n          05 SEV PIC S9(4) COMP.\n          05 MSGNO PIC S9(4) COMP.\n          05 REST PIC X(8).\n       01 SHOWM PIC 9(4).\n       PROCEDURE DIVISION.\n           CALL \"CEEDYWK\" USING LILIAN DAYNO FC\n           DISPLAY \"DAYNO=\" DAYNO\n           MOVE MSGNO TO SHOWM\n           DISPLAY \"MSGNO=\" SHOWM\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEEDYWK (module not found, rc=1); the equivalence harness links the stand-in (tests/equivalence/le). Documented shape of register L6 (CEEDYWK: day number 1 Sunday to 7 Saturday). 15 January 2020 was a Wednesday. Expected z/OS: DAYNO=+000000004 MSGNO=0000."
+    },
+    "l6-ceeqcen-default-window": {
+      "entries": [
+        "L6"
+      ],
+      "compile_options": "default",
+      "question": "CEEQCEN with no CEESCEN call before it returns the default century start, 80",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL6.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 CENT PIC S9(9) COMP VALUE -1.\n       01 FC.\n          05 SEV PIC S9(4) COMP.\n          05 MSGNO PIC S9(4) COMP.\n          05 REST PIC X(8).\n       01 SHOWM PIC 9(4).\n       PROCEDURE DIVISION.\n           CALL \"CEEQCEN\" USING CENT FC\n           DISPLAY \"CENT=\" CENT\n           MOVE MSGNO TO SHOWM\n           DISPLAY \"MSGNO=\" SHOWM\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEEQCEN (module not found, rc=1); the equivalence harness links the stand-in (tests/equivalence/le). ASSUMED shape of register L6 for the run-wide setting; the default 80 is IBM-documented (CEEQCEN). Expected z/OS: CENT=+000000080 MSGNO=0000."
+    },
+    "a1-cobdatft-type-2-to-2": {
+      "entries": [
+        "A1"
+      ],
+      "compile_options": "default",
+      "question": "CALL COBDATFT USING the date record with input type '2' (YYYY-MM-DD) and output type '2' (YYYYMMDD) on 2020-01-15",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PA1.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 DATEREC.\n          05 INTYPE PIC X VALUE '2'.\n          05 INPDT PIC X(20) VALUE '2020-01-15'.\n          05 OUTYPE PIC X VALUE '2'.\n          05 OUTDT PIC X(20) VALUE SPACES.\n          05 ERMSG PIC X(38) VALUE SPACES.\n       PROCEDURE DIVISION.\n           CALL \"COBDATFT\" USING DATEREC\n           DISPLAY \"OUT=\" OUTDT(1:8)\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no COBDATFT (CardDemo's S/370 assembler module, module not found, rc=1); the equivalence harness links tests/equivalence/le/cobdatft.c. Needs CardDemo's COBDATFT load module in the z/OS step library. Expected z/OS (the modelled path of register A1, read from the module's MVC instructions): OUT=20200115. The error paths and input type '1' depend on the load module's literal pool and are not probed."
     }
   }
 }

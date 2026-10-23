@@ -147,9 +147,10 @@ each rendering **nothing** for a file that has none (so a non-mainframe scan is 
   detail (every item/edge, mirroring the DB table); it is attached only when non-empty. **This is the golden-master
   source (`data_galaxy_audit.json`)** — see invariant #2: adding it here DOES move the golden
   master for any mainframe file in the crucible corpus, so re-bless (`crucible_check.py --update`).
-- **LLM brief (`llm_recorder.py`)** — the TOKEN-OPTIMIZED markdown. Add a presence-keyed
-  `_<name>_facts_lines(parsed_files)` that returns `[]` unless a file carries the fact, and
-  SUMMARISE (e.g. record *roots* with a field count, not the whole tree). Not golden-mastered.
+- **LLM brief (`llm_recorder.py`)** — the TOKEN-OPTIMIZED markdown. Add one `FactLine(key, render)` to
+  `FACT_LINES` (`render(file) -> list[str]`, `[]` unless the file carries the fact; SUMMARISE, e.g. record
+  *roots* with a field count, not the whole tree; `volume=False` for a key that renders but must not make a
+  file a carrier) and, for a repo-wide count bullet, a `FactSummary` in `FACT_SUMMARIES` (#3383). Not golden-mastered.
 
 ### 5. Restore on delta scans (`state_rehydrator.py`) — NOT optional
 

@@ -35,6 +35,7 @@ from collections.abc import Iterator
 
 import cobol_coverage as cov  # #4023
 import equivalence_common as common
+import equivalence_cics_conditions as cics_conditions  # #5274: the conditions / handlers family
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
 import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
 import equivalence_cics_tempstorage as cics_tempstorage  # #5274: the temporary storage family
@@ -48,13 +49,13 @@ import equivalence_sql
 from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
 from gitgalaxy.standards.cics.eib import EIB_FACTS, TASKN_MAX
 from gitgalaxy.standards.cics.commands import whole_refusal
-from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
 from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
 from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS
 from gitgalaxy.standards.cics.model import GroupKind
 from gitgalaxy.standards.cics.resp import DFHRESP as SPEC_DFHRESP
 from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA  # #4415: DFHVALUE(name), IBM's CVDA numbers
 
+handler_labels = cics_conditions.handler_labels
 ts_seed = cics_tempstorage.ts_seed  # public names the tests and the compare step reach through this module
 java_ts_as_compared = cics_tempstorage.java_ts_as_compared
 STUB = common.CASES / "cics"
@@ -201,121 +202,6 @@ def _resp(opts: dict[str, str | None], can_fail: bool, labels: list[str] | None 
         lines += (["IF GG-RESP NOT = 0", "    CALL 'GGCCOND' USING GG-CICS"]
                   + [f"    {ln}" for ln in _transfer(labels)]
                   + ["    IF GG-GOTO < 0", "        GOBACK", "    END-IF", "END-IF"])  # fmt: skip
-    return lines
-
-
-# #4007: the keys HANDLE AID names (IBM, EXEC CICS HANDLE AID).
-AID_KEYS = frozenset(["ANYKEY", "ENTER", "CLEAR", "CLRPARTN", "LIGHTPEN", "OPERID", "TRIGGER", "PA1", "PA2", "PA3"]
-                     + [f"PF{n}" for n in range(1, 25)])  # fmt: skip
-
-
-def _aid(opts: dict[str, str | None], labels: list[str]) -> list[str]:
-    """#4007: after an input command (RECEIVE MAP, terminal RECEIVE) that completed normally, HANDLE AID's
-    label for the key pressed -- unless RESP or NOHANDLE suspends the handlers (IBM, RESP: "RESP implies
-    NOHANDLE"; NOHANDLE: "no action is to be taken for any condition or attention identifier (AID)")."""
-    if opts.get("RESP") or "NOHANDLE" in opts:
-        return []
-    return (["IF GG-RESP = 0", "    MOVE EIBAID TO GG-NAME1", "    CALL 'GGCAID' USING GG-CICS"]
-            + [f"    {ln}" for ln in _transfer(labels)] + ["END-IF"])  # fmt: skip
-
-
-def _input_resp(opts: dict[str, str | None], labels: list[str], handle_aid: bool) -> list[str]:
-    """#4414: an input command's outcome (_resp) and, in a program that issues HANDLE AID, its AID (_aid). Which
-    CICS acts on first when the command also raised a condition and a HANDLE AID label applies to the key is not
-    documented: GGCAID, called first with the condition, records AID-REFUSED for the driver to refuse."""
-    if not handle_aid:
-        return _resp(opts, True, labels)
-    first = ([] if opts.get("RESP") or "NOHANDLE" in opts
-             else ["IF GG-RESP NOT = 0", "    MOVE EIBAID TO GG-NAME1", "    CALL 'GGCAID' USING GG-CICS", "END-IF"])  # fmt: skip
-    return first + _resp(opts, True, labels) + _aid(opts, labels)
-
-
-# #4003: the commands whose options name the labels a program's handlers transfer to.
-_HANDLE_KINDS = ("CONDITION", "ABEND", "AID")
-
-
-def handler_labels(bodies: list[str]) -> list[str]:
-    """Every label a program's HANDLE CONDITION / HANDLE ABEND LABEL / HANDLE AID names, in first-use
-    order: GG-GOTO numbers them from 1."""
-    out: list[str] = []
-    for body in bodies:
-        try:
-            pairs = _options(body)
-        except Unsupported:
-            continue
-        if len(pairs) < 2 or pairs[0][0] != "HANDLE" or pairs[1][0] not in _HANDLE_KINDS:
-            continue
-        for opt, value in pairs[2:]:
-            if value and not (pairs[1][0] == "ABEND" and opt != "LABEL"):
-                label = value.upper()
-                if label not in out:
-                    out.append(label)
-    return out
-
-
-def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]:
-    """#4003: HANDLE CONDITION / IGNORE CONDITION / HANDLE ABEND / PUSH / POP HANDLE / ASSIGN ABCODE."""
-    verb, kind = pairs[0][0], pairs[1][0] if len(pairs) > 1 else None
-    opts = dict(pairs)
-    if verb in ("PUSH", "POP") and kind == "HANDLE":
-        _check_spec(f"{verb} HANDLE", opts, (verb, "HANDLE"))
-        return _call("GGCPUSH" if verb == "PUSH" else "GGCPOP", []) + _resp(opts, True, labels)
-    if verb == "ASSIGN":  # ABCODE (#4003); APPLID / SYSID: the region's identity, from the case's "region";
-        # PROGRAM: the name of the program running (IBM CICS TS, ASSIGN: "the name of the current program")
-        asked = [(n, v) for n, v in pairs[1:] if n not in ("RESP", "RESP2", "NOHANDLE")]
-        # #4270 slice 3: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD, from what the runner states (GGCASGN)
-        _check_spec("ASSIGN", opts, ("ASSIGN",), lambda bad: [f"ASSIGN {n}" for n in bad])
-        if not asked or not all(v for _n, v in asked):
-            raise Unsupported("ASSIGN without a target", ["ASSIGN ?"])
-        lines: list[str] = []
-        for n, target in asked:
-            if n == "CHANNEL":  # #4270: the current channel's name, blanks without one (GGCASCH)
-                lines += _call("GGCASCH", []) + [f"MOVE GG-CHAN TO {target}"]
-                continue
-            if n in ("SCRNHT", "SCRNWD"):  # a halfword, in GG-NUM
-                lines += [f"MOVE '{n}' TO GG-NAME2"] + _call("GGCASGN", []) + [f"MOVE GG-NUM TO {target}"]
-                continue
-            width = SPEC["ASSIGN"].options[n].width
-            lines += ["MOVE SPACES TO GG-NAME2" if n == "ABCODE" else f"MOVE '{n[:8]}' TO GG-NAME2"] + _call(
-                "GGCASGN", []
-            )
-            # IBM writes exactly `width` bytes and leaves the rest of a wider data area as it was (det: DetCics.put); a
-            # plain MOVE would space-pad that tail (#4049), so the target is reference-modified to the width
-            if re.search(r"\(\s*\d*\s*:", target):
-                raise Unsupported(f"ASSIGN {n}: a reference-modified target", [f"ASSIGN {n}"])
-            lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}(1:{width})")
-        if not any(n in TERMINAL_OPTIONS for n, _v in asked):
-            return lines + _resp(opts, False)
-        # INVREQ RESP2 5 for a task with no terminal, and then no data area written (register X19)
-        check = ["MOVE 'TERMCHK' TO GG-NAME2"] + _call("GGCASGN", [])
-        return (check + ["IF GG-RESP = 0"] + [f"    {ln}" for ln in lines] + ["    MOVE 0 TO GG-RESP GG-RESP2", "END-IF"]
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "HANDLE" and kind == "AID":  # #4007
-        lines = []
-        for key, label in pairs[2:]:
-            if key not in AID_KEYS:
-                raise Unsupported(f"HANDLE AID {key}: not an attention key", ["HANDLE AID"])
-            index = labels.index(label.upper()) + 1 if label else -1  # #4414: -1 deactivated (GGCAID)
-            lines += [f"MOVE '{key}' TO GG-NAME1", f"MOVE {index} TO GG-ITEM"] + _call("GGCHAID", [])
-        return lines
-    if kind == "ABEND":
-        if verb == "HANDLE":
-            _check_spec("HANDLE ABEND", opts, ("HANDLE", "ABEND"))
-        if "PROGRAM" in opts:
-            raise _stub_only("HANDLE ABEND PROGRAM")
-        label = opts.get("LABEL")
-        if label:
-            return ["MOVE 'LABEL' TO GG-NAME2", f"MOVE {labels.index(label.upper()) + 1} TO GG-ITEM",
-                    f"MOVE '{label.upper()[:30]}' TO GG-FLAGS"] + _call("GGCHABN", [])  # fmt: skip
-        return [f"MOVE '{'CANCEL' if 'CANCEL' in opts else 'RESET'}' TO GG-NAME2"] + _call("GGCHABN", [])
-    lines: list[str] = []
-    for cond, label in pairs[2:]:
-        if cond not in DFHRESP or cond == "NORMAL":
-            raise Unsupported(f"{verb} CONDITION {cond}: not a documented condition", [f"{verb} CONDITION"])
-        if verb == "IGNORE" and cond == "ERROR":  # #4414: IBM does not say whether ERROR's action can be to ignore
-            raise Unsupported("IGNORE CONDITION ERROR: not documented", ["IGNORE CONDITION ERROR"])
-        index = -1 if verb == "IGNORE" else (labels.index(label.upper()) + 1 if label else 0)
-        lines += [f"MOVE {DFHRESP[cond]} TO GG-NUM", f"MOVE {index} TO GG-ITEM"] + _call("GGCHCND", [])
     return lines
 
 
@@ -1406,7 +1292,7 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
     pairs = _options(body)
     if not pairs:
         raise Unsupported("empty EXEC CICS")
-    labels = handler_labels([body]) if labels is None else labels
+    labels = cics_conditions.handler_labels([body]) if labels is None else labels
     opts = dict(pairs)
     verb = pairs[0][0]
     flags = [n for n, v in pairs[1:] if v is None and n not in ("NOHANDLE",)]
@@ -1733,7 +1619,7 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         return ([name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
                 + _call("GGCRECV", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
                 + _map_abend(labels)
-                + _input_resp(opts, labels, handle_aid))  # fmt: skip
+                + cics_conditions.input_resp(opts, labels, handle_aid))  # fmt: skip
     if verb == "RECEIVE":  # #4005: terminal input, unformatted (SPEC 5: the step's `text`)
         _check_spec("RECEIVE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         into, setp = opts.get("INTO"), opts.get("SET")
@@ -1748,17 +1634,17 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
                 raise Unsupported("RECEIVE SET without MAXLENGTH and LENGTH", ["RECEIVE SET"])
             if not m:  # #5042 (X58): SET(pointer) -> GGCRECP, the data in a new block the pointer addresses
                 return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECP", [f"BY REFERENCE {_pointer('RECEIVE', setp)}"])
-                        + [f"MOVE GG-LEN TO {length}"] + _input_resp(opts, labels, handle_aid))  # fmt: skip
+                        + [f"MOVE GG-LEN TO {length}"] + cics_conditions.input_resp(opts, labels, handle_aid))  # fmt: skip
             return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECS", ["BY REFERENCE GG-PTR"])
                     + [f"SET ADDRESS OF {m.group(1)} TO GG-PTR", f"MOVE GG-LEN TO {length}"]
-                    + _input_resp(opts, labels, handle_aid))  # fmt: skip
+                    + cics_conditions.input_resp(opts, labels, handle_aid))  # fmt: skip
         if not into:
             raise Unsupported(_rule("RECEIVE", "one_of", "INTO"), ["RECEIVE"])
         limit = most or length or f"LENGTH OF {into}"
         lines = [flags, f"MOVE {limit} TO GG-LEN"] + _call("GGCRECT", [f"BY REFERENCE {into}"])
         if length:
             lines.append(f"MOVE GG-LEN TO {length}")
-        return lines + _input_resp(opts, labels, handle_aid)
+        return lines + cics_conditions.input_resp(opts, labels, handle_aid)
     if verb == "WRITEQ" and "TD" in opts:  # transient data: a record on an extrapartition / intrapartition queue
         _check_spec("WRITEQ TD", opts, (verb, "TD"), lambda bad: [f"WRITEQ TD {bad[0]}"])
         queue, frm = opts.get("QUEUE"), opts.get("FROM")
@@ -1878,7 +1764,7 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         or (verb in ("PUSH", "POP") and len(pairs) > 1 and pairs[1][0] == "HANDLE")
         or verb == "ASSIGN"
     ):
-        return _handle(pairs, labels)  # fmt: skip
+        return cics_conditions.handle(pairs, labels)  # fmt: skip
     if verb in ("PUT", "GET", "DELETE") and "CONTAINER" in opts:  # #4270
         return cics_containers._container_command(verb, opts, labels)
     if verb in ("MOVE", "STARTBROWSE", "GETNEXT", "ENDBROWSE") and "CONTAINER" in opts:  # #4951
@@ -2124,7 +2010,7 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
         raise Unsupported("WITH DEBUGGING MODE: debugging lines compiled as code (not modelled)", ["DEBUGGING MODE"])
     blocks = list(_exec_blocks(lines))
     cics_bodies = [b[3] for b in blocks if not b[3].startswith(_DLI_TAG)]
-    labels = handler_labels(cics_bodies)  # #4003: what GG-GOTO indexes, program-wide
+    labels = cics_conditions.handler_labels(cics_bodies)  # #4003: what GG-GOTO indexes, program-wide
     handle_aid = any(re.match(r"\s*HANDLE\s+AID\b", b_, re.I) for b_ in cics_bodies)  # #4007
     eibds = reads_eibds(lines)  # #5126 (X64)
     out: list[str] = []

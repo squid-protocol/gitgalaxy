@@ -252,6 +252,26 @@
    },
    "why": "as eyecatcher-refilled-from-db, through the typed DTO alone (#4049)",
    "dto_entry": true
+  },
+  {
+   "name": "dto-entry-caller-fields-kept-on-failure",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "99",
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0",
+    "COMM-CUSTNO": "1234567890",
+    "COMM-OPENED": "15061999",
+    "COMM-LAST-STMT-DT": "01032026",
+    "COMM-NEXT-STMT-DT": "01042026",
+    "COMM-AVAIL-BAL": "-123.45",
+    "COMM-ACTUAL-BAL": "678.90",
+    "COMM-SUCCESS": "Y"
+   },
+   "dto_entry": true,
+   "why": "a failing run (account 99 not found) through the typed DTO alone, with every COMM-* field the caller sends non-blank / non-zero: the program writes only SCODE and SUCCESS on this path, so the returned COMMAREA shows each other field exactly as in_ mapped it (#4049; the field-by-field moves and widths at the DTO entry)"
   }
  ],
  "notes": "CBSA's update-account service (UPDACC, LINKed with the UPDACC copybook's COMMAREA): the account is read by the program's own sort code (987654) and COMM-ACCNO with a SELECT INTO from Db2 table ACCOUNT (unqualified: the bind's QUALIFIER, IBMUSER); a failed SELECT (+100, -305 ...) or an account type that is blank or starts with a space gives COMM-SUCCESS 'N' and no UPDATE; otherwise ACCOUNT_TYPE, ACCOUNT_INTEREST_RATE and ACCOUNT_OVERDRAFT_LIMIT are UPDATEd, and the COMMAREA is refilled from the host variables, each date reformatted from Db2's character form (YYYY-MM-DD) to DDMMYYYY. The table is compared after every scenario."

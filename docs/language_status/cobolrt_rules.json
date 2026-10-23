@@ -3592,7 +3592,7 @@
   {
    "id": "RT-DLI-SSA",
    "family": "DLI",
-   "title": "SSAs: segment name, unqualified (blank) or qualified (field, relational operator, value, ')'); qualification statements joined by AND (& or *) and OR (+ or |), AND binding tighter, at most 16; AC / AJ / AK as IBM answers them; command codes F, L, P, C and - (L only on the last unqualified SSA of a GU, P only on a GU, C only as the one SSA of a GU), the other codes, the independent AND (#) and missing levels refused",
+   "title": "SSAs: segment name, unqualified (blank) or qualified (field, relational operator, value, ')'); qualification statements joined by AND (& or *) and OR (+ or |), AND binding tighter, at most 16; AC / AJ / AK as IBM answers them; command codes F, L, P, C, D and - (L only on the last unqualified SSA of a GU, P only on a GU, C only as the one SSA of a GU, D on a get call), the other codes, the independent AND (#) and missing levels refused",
    "methods": [
     "parseSsas",
     "catLength",
@@ -3657,7 +3657,7 @@
   {
    "id": "RT-DLI-GET",
    "family": "DLI",
-   "title": "GU / GN / GNP and their holds: the first segment in hierarchic sequence satisfying the SSAs, from the database's start, from position, or under parentage; GE / GB / GP / GA / GK; position and parentage after the call",
+   "title": "GU / GN / GNP and their holds: the first segment in hierarchic sequence satisfying the SSAs, from the database's start, from position, or under parentage; GE / GB / GP / GA / GK; position and parentage after the call; command code D hands back the D-coded segments before the found one",
    "methods": [
     "get",
     "firstSatisfying",

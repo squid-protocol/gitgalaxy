@@ -204,7 +204,8 @@ def test_evidence_deltas_is_advisory_and_off_the_required_check():
 def test_full_suite_parts_are_balanced_by_least_duration():
     """#5133: the default duration_based_chunks cuts contiguous slices, which put tests/cobol_mainframe all in part 1."""
     steps = _jobs("smoke-test.yml")["full-suite-part"]["steps"]
-    runs = [str(s.get("run")) for s in steps if "--splits 3" in str(s.get("run"))]
+    # The part count is planned by the suite-plan job (#5919): match the planned flag, not a literal count.
+    runs = [str(s.get("run")) for s in steps if '--splits "$SPLITS"' in str(s.get("run"))]
     assert runs
     assert all("--splitting-algorithm least_duration" in r for r in runs)
 

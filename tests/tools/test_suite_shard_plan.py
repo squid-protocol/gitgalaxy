@@ -27,21 +27,22 @@ def _legs(m):
     return {(x["os"], x["python-version"]) for x in m}
 
 
-def test_todays_durations_reproduce_todays_smoke_parts(durations):
+def test_todays_durations_plan_smoke_parts_within_the_pool_and_timeout_bounds(durations):
+    """No exact count: the committed durations move with every refresh (#6146 halved the ground-truth seconds)."""
     p = plan.smoke_plan(durations)
-    assert p["splits"] == 3 and p["matrix"] == {"group": [1, 2, 3]}
+    assert 1 <= p["splits"] <= plan.SMOKE_MAX_PARTS
+    assert p["matrix"] == {"group": list(range(1, p["splits"] + 1))}
     assert plan.SMOKE_TIMEOUT_FLOOR <= p["timeout"] <= plan.SMOKE_TIMEOUT_CEILING
 
 
-def test_todays_durations_reproduce_todays_gate_parts(durations):
+def test_todays_durations_give_the_slowest_gate_leg_the_most_parts(durations):
     parts = {}
     for leg in plan.gate_plan(durations)["matrix"]:
         parts[(leg["os"], leg["python-version"])] = leg["splits"]
-    assert parts == {
-        ("ubuntu-latest", "3.11"): 2, ("ubuntu-latest", "3.12"): 2,
-        ("windows-latest", "3.11"): 3, ("windows-latest", "3.12"): 2,
-        ("macos-latest", "3.11"): 2, ("macos-latest", "3.12"): 2,
-    }  # fmt: skip
+    assert set(parts) == {(os_name, py) for os_name, py, _ in plan.LEGS}
+    assert all(1 <= n <= plan.GATE_MAX_PARTS for n in parts.values())
+    assert parts[("windows-latest", "3.11")] == max(parts.values())
+    assert parts[("ubuntu-latest", "3.11")] == min(parts.values())
 
 
 def test_growth_adds_parts_without_a_yaml_edit(durations):
@@ -75,6 +76,43 @@ def test_the_workflows_still_read_the_shape_the_plan_emits():
     for key in ("matrix.part", "matrix.splits", "matrix.even", "matrix.timeout", "matrix.step_timeout"):
         assert key in gate
     assert re.search(r"matrix\.group", (WORKFLOWS / "smoke-test.yml").read_text(encoding="utf-8"))
+
+
+def _smoke_jobs():
+    yaml = pytest.importorskip("yaml")
+    return yaml.safe_load((WORKFLOWS / "smoke-test.yml").read_text(encoding="utf-8"))["jobs"]
+
+
+def test_smoke_parts_are_planned_not_typed():
+    """#5919: no literal split count, group list or part timeout is left in smoke-test.yml; the plan job feeds them."""
+    text = (WORKFLOWS / "smoke-test.yml").read_text(encoding="utf-8")
+    assert not re.search(r"--splits\s+\d", text)
+    assert not re.search(r"group:\s*\[", text)
+    assert not re.search(r"part \$\{\{ matrix\.group \}\}/\d", text)
+    jobs = _smoke_jobs()
+    part = jobs["full-suite-part"]
+    assert "suite-plan" in part["needs"]
+    assert part["strategy"]["matrix"] == "${{ fromJSON(needs.suite-plan.outputs.matrix) }}"
+    assert part["timeout-minutes"] == "${{ fromJSON(needs.suite-plan.outputs.timeout) }}"
+    assert '--splits "$SPLITS"' in text
+
+
+def test_smoke_plan_job_reads_the_queue_in_the_workflow_and_the_parts_balance_by_the_same_durations():
+    jobs = _smoke_jobs()
+    plan_job = jobs["suite-plan"]
+    assert plan_job["permissions"]["actions"] == "read"
+    assert {"matrix", "splits", "timeout"} <= set(plan_job["outputs"])
+    run = "\n".join(s.get("run", "") for s in plan_job["steps"])
+    assert "ci_layout.py --print-waiting" in run
+    assert 'GITHUB_EVENT_NAME" = "pull_request"' in run  # a queue read on a pull request only (empty = calm)
+    assert "suite_shard_plan.py --smoke" in run and "${waiting:+--waiting" in run
+    assert any(s.get("with", {}).get("key") == "${{ needs.durations.outputs.key }}" for s in plan_job["steps"])
+    checkout = next(s for s in plan_job["steps"] if "checkout" in s.get("uses", ""))
+    for needed in ("suite_shard_plan.py", "ci_shard_plan.py", "ci_layout.py", ".test_durations"):
+        assert needed in checkout["with"]["sparse-checkout"]
+    for job in ("full-suite-durations", "suite-time"):  # the per-part artifact counts follow the plan, not a 3
+        assert "suite-plan" in jobs[job]["needs"]
+        assert "= 3 ||" not in "\n".join(s.get("run", "") for s in jobs[job]["steps"])
 
 
 def test_missing_or_empty_durations_fail_the_plan(tmp_path):

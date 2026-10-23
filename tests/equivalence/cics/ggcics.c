@@ -530,6 +530,14 @@ int GGCWRIT(gg_cics *c, char *ridfld, int keylen, char *from, int fromlen) {
     return 0;
 }
 
+/* SPEC 6.2 REWRITE event: the file, RESP, RESP2 where the command is not NORMAL, and the FROM bytes as issued. */
+static void rewrite_event(const gg_cics *c, const char *want, const char *from, int fromlen) {
+    char ev[200];
+    int n = snprintf(ev, sizeof ev, "REWRITE file=%s resp=%d", want, c->resp);
+    if (c->resp != NORMAL && c->resp2) snprintf(ev + n, sizeof ev - (size_t)n, " resp2=%d", c->resp2);
+    event(ev, from, fromlen);
+}
+
 /* REWRITE FILE(name1) FROM: replaces the record a READ UPDATE holds; INVREQ when none is held. */
 int GGCREWR(gg_cics *c, char *from, int fromlen) {
     char want[9], path[3000];
@@ -541,7 +549,7 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
     if (injected("REWRITE", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-        file_event("REWRITE", want, key, have ? klen : 0, c->resp);
+        rewrite_event(c, want, from, fromlen);
         return 0;
     }
     if (!have) {
@@ -572,7 +580,7 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
         }
     }
     if (c->resp == NORMAL) file_set_end("READ", want);  /* IBM: a READ SET pointer is valid until a corresponding REWRITE completes */
-    file_event("REWRITE", want, key, have ? klen : 0, c->resp);
+    rewrite_event(c, want, from, fromlen);
     return 0;
 }
 

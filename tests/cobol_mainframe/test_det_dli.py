@@ -281,15 +281,16 @@ def test_what_the_translator_does_not_model_is_a_hole_by_name(tmp_path, proc, en
 
 
 # ---- the level fixture on both runtimes (the first-time number: PR body) ----------------------------------------------
-def _cobol_side(work: Path, seed: bytes = SEED) -> tuple[str, bytes]:
+def _cobol_side(work: Path, seed: bytes = SEED, prog: str = "DLILVL", edit=None) -> tuple[str, bytes]:
     pcbs = _stage(work / "dli", seed)
     (work / "dliout").mkdir()
     src = work / "src"
     src.mkdir()
-    shutil.copy(FIXTURE / "DLILVL.cbl", src / "DLILVL.cbl")
+    text = (FIXTURE / f"{prog}.cbl").read_text()
+    (src / f"{prog}.cbl").write_text(edit(text) if edit else text)
     shutil.copy(ei.STUB, src / "ggdli.c")
     (src / "EQDRIVER.cbl").write_text("\n".join(" " * 7 + ln for ln in ei.cobol_driver("DLITCBL", pcbs)) + "\n")
-    script = ("cobc -x -std=ibm -fsign=EBCDIC -o prog src/EQDRIVER.cbl src/DLILVL.cbl src/ggdli.c && "
+    script = (f"cobc -x -std=ibm -fsign=EBCDIC -o prog src/EQDRIVER.cbl src/{prog}.cbl src/ggdli.c && "
               "GGDLI_DIR=/w/dli GGDLI_OUT=/w/dliout ./prog")  # fmt: skip
     run = subprocess.run(["docker", "run", "--rm", "-v", f"{work}:/w", "-w", "/w", IMAGE, "sh", "-c", script],  # noqa: S607
                          capture_output=True, text=True, check=False)  # fmt: skip
@@ -297,7 +298,7 @@ def _cobol_side(work: Path, seed: bytes = SEED) -> tuple[str, bytes]:
     return run.stdout, (work / "dliout" / "LVLDBD.out").read_bytes()
 
 
-def _java_side(work: Path, seed: bytes = SEED) -> tuple[str, bytes]:
+def _java_side(work: Path, seed: bytes = SEED, prog: str = "DLILVL", edit=None) -> tuple[str, bytes]:
     pytest.importorskip("tree_sitter_language_pack")
     sys.path.insert(0, str(ROOT / "tests" / "cobol_mainframe"))
     import test_det_programs as tdp
@@ -307,7 +308,9 @@ def _java_side(work: Path, seed: bytes = SEED) -> tuple[str, bytes]:
     (work / "dliout").mkdir()
     project = work / "project"
     tdp._batch_package(project / "src/main/java")
-    r = P.translate(FIXTURE / "DLILVL.cbl", [], "public class DlilvlService {\n}\n", PKG, None, project)
+    cbl = work / f"{prog}.cbl"
+    cbl.write_text(edit((FIXTURE / f"{prog}.cbl").read_text()) if edit else (FIXTURE / f"{prog}.cbl").read_text())
+    r = P.translate(cbl, [], f"public class {prog.capitalize()}Service {{\n}}\n", PKG, None, project)
     assert not r.stats["holes"], r.stats["holes"]
     srcdir = work / "java"
     java = r.java.replace("import org.springframework.stereotype.Service;\n", "").replace("@Service\n", "")
@@ -348,6 +351,44 @@ def test_the_level_fixture_prints_what_ibm_documents_on_both_runtimes(tmp_path):
     keys = [(n, d[:4].decode("latin-1").strip()) for n, d in ei.split(cobol_db, sizes)]
     assert keys == [("DEPT", "D100"), ("EMP", "E002"), ("EMP", "E005"), ("PROJ", "P1AL"), ("DEPT", "D150"),
                     ("DEPT", "D200"), ("EMP", "E003"), ("SKILL", "S1DB"), ("DEPT", "D300")]  # fmt: skip
+
+
+# #5233: boolean SSAs, written from IBM's documentation (AND binds tighter than OR; * and & are AND, + and | are OR)
+BOOL_EXPECTED = [
+    "Q1 [  ] E001ALICE", "Q1 [  ] E003CAROL",  # a GU then a GN: ALICE | CAROL
+    "Q2 [  ] E003CAROL",  # E003 + (E001 * BOB): AND first, so E003 alone matches (OR first would find nothing)
+    "Q3 [  ] E002BOB",  # SAL > 1000 & SAL < 3000 on packed salaries
+    "Q4 [  ] E003CAROL",  # (BOB & SAL > 5000) + E003
+    "Q5 [AJ]",  # a character after a statement that is neither ) nor a boolean operator
+    "Q6 [AK]",  # the second statement names a field the segment lacks
+    "Q7 [GE]",  # E001 & E002: no segment satisfies both
+]  # fmt: skip
+
+
+@E2E
+def test_boolean_ssas_answer_the_same_on_both_runtimes(tmp_path):
+    cobol_out, cobol_db = _cobol_side(tmp_path / "cobol", prog="DLIBOOL")
+    java_out, java_db = _java_side(tmp_path / "java", prog="DLIBOOL")
+    assert _lines(cobol_out) == BOOL_EXPECTED
+    assert _lines(java_out) == BOOL_EXPECTED
+    assert cobol_db == java_db
+
+
+@E2E
+@pytest.mark.parametrize(
+    "edit, why",
+    [
+        (lambda s: s.replace("VALUE '|'", "VALUE '#'"), "the independent AND operator (#)"),
+        (lambda s: s.replace("PIC X(9) VALUE 'EMP     ('.", "PIC X(9) VALUE 'EMP     *'.", 1), "an SSA with command codes"),
+        (lambda s: s.replace("COMP-3 VALUE 1000", "COMP-3 VALUE -1000"), "P-field qualification on operands"),
+    ],
+)  # fmt: skip
+def test_what_a_boolean_ssa_still_leaves_out_is_refused_by_both_runtimes(tmp_path, edit, why):
+    with pytest.raises(AssertionError, match=re.escape(why)):
+        _cobol_side(tmp_path / "cobol", prog="DLIBOOL", edit=edit)
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_side(tmp_path / "java", prog="DLIBOOL", edit=edit)
+    assert why in (e.value.stderr or b"").decode("utf-8")
 
 
 @E2E

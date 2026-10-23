@@ -1,5 +1,5 @@
 """#5278: the CardDemo COPAUA0C equivalence case (IMS DBPAUTP0 through EXEC DLI, three VSAM files, the MQ request / reply
-queues) and the harness steps it needed. The unit tests need nothing but the case; the proof itself (17 scenarios,
+queues) and the harness steps it needed. The unit tests need nothing but the case; the proof itself (20 scenarios,
 GnuCOBOL against the det port) is the det sweep's, `det_port.py run carddemo-copaua0c`."""
 
 from __future__ import annotations
@@ -29,6 +29,7 @@ SCENARIOS = [
     "decline-no-summary-over-account-limit", "card-not-in-xref", "account-not-in-master", "customer-not-in-master",
     "same-account-twice", "amount-without-decimals", "amount-with-sign", "three-requests-mixed",
     "read-xref-io-error", "read-acct-io-error", "read-cust-io-error", "no-trigger-data", "no-reply-queue",
+    "gu-summary-bad-status", "repl-summary-fails", "request-longer-than-buffer", "schd-held-after-term",
 ]  # fmt: skip
 
 

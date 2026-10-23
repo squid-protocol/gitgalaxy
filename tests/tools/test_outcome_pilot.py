@@ -184,9 +184,9 @@ def test_strictness_gaps_follow_the_registry_and_skip_unrowed_languages():
 
 
 def test_the_pilot_list_is_the_ten_repos_plus_the_burned_mainframe_estates():
-    assert len(op.PILOT_REPOS) == 15
+    assert len(op.PILOT_REPOS) == 16
     burned = [n for n, e in op.PILOT_REPOS.items() if e["burned"]]
-    assert burned == ["carddemo", "cbsa", "genapp", "zecs", "dbb-mortgage", "async-credit-card"]
+    assert burned == ["carddemo", "cbsa", "genapp", "zecs", "dbb-mortgage", "dbb-mortgage-2019", "async-credit-card"]
 
 
 def test_every_burned_entry_names_a_burned_upstream():
@@ -205,7 +205,7 @@ def test_every_burned_entry_names_a_burned_upstream():
             tail = entry["url"].rstrip("/").split("/")[-1].lower()
             assert tail in burned_urls, name
             # mid-history pin (None) or an explicit commit; there is no PROVENANCE copy for these
-            assert entry["pin"] is None or name in ("dbb-mortgage", "zecs")
+            assert entry["pin"] is None or name in ("dbb-mortgage", "dbb-mortgage-2019", "zecs")
 
 
 def test_the_dbb_entry_is_limited_to_the_mortgage_application_subtree():
@@ -238,3 +238,21 @@ def test_mainframe_file_kinds_have_a_strictness_row_or_are_skipped():
         gaps = op.strictness_gaps(lang)
         assert gaps is None or isinstance(gaps, int)
     assert op.strictness_gaps("no_such_language") is None
+
+
+def test_the_2019_dbb_entry_shares_the_clone_and_pins_the_old_layout(tmp_path):
+    old, new = op.PILOT_REPOS["dbb-mortgage-2019"], op.PILOT_REPOS["dbb-mortgage"]
+    assert old["url"] == new["url"] and old["burned"]
+    assert op._subdir_args(old) == ["Build/MortgageApplication"]
+    assert old["pin"] and old["pin"] != new["pin"]
+    assert op._repo_dir(tmp_path, "dbb-mortgage-2019") == op._repo_dir(tmp_path, "dbb-mortgage")
+    assert op._repo_dir(tmp_path, "cbsa") == tmp_path / "clones" / "cbsa"
+
+
+def test_a_stripped_subdir_entry_scans_at_the_root_and_joins_history_under_the_prefix():
+    entry = op.PILOT_REPOS["dbb-mortgage-2019"]
+    assert op._strip_args(entry) == ["--strip-components=2"]
+    assert op._history_path(entry, "cobol/epscmort.cbl") == "Build/MortgageApplication/cobol/epscmort.cbl"
+    plain = op.PILOT_REPOS["dbb-mortgage"]
+    assert op._strip_args(plain) == []
+    assert op._history_path(plain, "zBuilder/MortgageApplication/x.cbl") == "zBuilder/MortgageApplication/x.cbl"

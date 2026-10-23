@@ -1090,7 +1090,7 @@
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 0,
       "cpp/NVDA/__init__.py": 0,
-      "cpp/NVDA/braille.py": 0,
+      "cpp/NVDA/braille.py": 1,
       "cpp/NVDA/contributors.txt": 0,
       "cpp/NVDA/copying.txt": 0,
       "cpp/NVDA/core.py": 0,
@@ -3078,7 +3078,7 @@
     "python/homeassistant_ble_integrations": {
       "python/homeassistant_ble_integrations/LICENSE.md": 0,
       "python/homeassistant_ble_integrations/aranet___init__.py": 0,
-      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 0,
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 1,
       "python/homeassistant_ble_integrations/utils.py": 0
     },
     "python/langchain_agents": {

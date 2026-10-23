@@ -167,7 +167,7 @@ fixed it: the census below predates that fix.
 | json | blind | -- | -- | agrees (C7: declared blind) |
 | kotlin | C-style | 28 | 35 | A: `@Throws(`, `@JvmName(` |
 | livecode | command position | 1,063 | 2,527 | K: `private` 250, `public` 99, `command` 95, `variable`, `case`, `break`, `module`, `handler`, `default`, `constant` (~800 of 2,527) |
-| lua | C-style | 1,370 | 3,301 | K: `not (`/`or (`/`and (`; D (`local function f`, 55). A call after `..` or `not` is captured (pinned, #5640) |
+| lua | C-style | 1,370 | 3,301 | K: `not (`/`or (`/`and (`; D (`local function f`, 55). A call after `..` or `not` is captured (pinned per shape, #5640). Not captured: `f"s"`, `f{...}`, `f[[s]]` (no parenthesis). A top-level `name = function` has no named unit, so its calls are not stored (C8, #5685); the #5630 oracle blames them on the previous unit |
 | m4 | C-style | 39 | 142 | agrees (macro invocations are calls) |
 | makefile | own | 1 | 0 | agrees (`$(call f)`) |
 | markdown | blind | -- | -- | agrees (C7: declared blind) |
@@ -192,7 +192,7 @@ fixed it: the census below predates that fix.
 | solidity | C-style | 105 | 321 | K: `returns (` 74, `assembly`, `override(` |
 | sqlite | blind | -- | -- | agrees (C7: declared blind) |
 | swift | C-style | 133 | 319 | A: `@available(`, `@escaping`, `@Sendable` (25) |
-| tcl | command position | 394 | 1,110 | S: SQL keywords inside brace-quoted strings in command position (`SELECT`, `WHERE`). A command after `}` in `foreach`/`namespace eval` bodies is captured (pinned, #5640); a one-line `switch` arm body (`x { doX }`) is not (the label reads as the command) |
+| tcl | command position | 394 | 1,110 | S: SQL keywords inside brace-quoted strings in command position (`SELECT`, `WHERE`). A command after `}` in `foreach`/`namespace eval` bodies is captured (pinned, #5640); a one-line `switch` arm body (`x { doX }`) is not (the label reads as the command). Top-level script after the last `proc` (`startClient`, `start` in odamex `tests/bugs/*.tcl`) has no named unit, so its calls are not stored; the #5630 oracle blames them on `main` (pinned, #5640) |
 | td | blind | -- | -- | agrees (C7: declared blind) |
 | typescript | C-style | 5,770 | 13,765 | K: `async (` 34; D (nested `function`, 172); B |
 | xml | blind | -- | -- | agrees (C7: declared blind) |

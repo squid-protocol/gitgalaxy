@@ -187,7 +187,7 @@ def test_the_ground_truth_seconds_are_recorded_and_the_parts_balanced():
     cut them by a default weight. Refresh from the test-times-ground-truth-part-N artifacts of a main run; the replay
     of the parts must then be within 20% (#5133 acceptance)."""
     seconds, totals = _ground_truth_totals()
-    assert len(seconds) > 5500, f"only {len(seconds)} tests/cobol_mainframe/ durations recorded: refresh them"
+    assert len(seconds) > 7000, f"only {len(seconds)} tests/cobol_mainframe/ durations recorded: refresh them"
     assert max(totals) <= min(totals) * 1.2, totals
     assert seconds[0] < sum(totals) / 4, "one test is a quarter of the ground-truth job: no split can balance it"
 

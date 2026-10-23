@@ -2,7 +2,7 @@
 
 # CICS Command Specification (`gitgalaxy/standards/cics`)
 
-### One declarative specification for 257 `EXEC CICS` commands—driving the translator, the Java runtime, the C oracle stub, and the readiness scanner.
+### One declarative specification for the `EXEC CICS` commands—driving the translator, the Java runtime, the C oracle stub, and the readiness scanner.
 
 `gitgalaxy/standards/cics/` is the single source of truth for how GitGalaxy parses, translates,
 executes, and refuses `EXEC CICS` commands. Every command entry declares its status (`modelled`,
@@ -15,14 +15,14 @@ and the C header (`tests/equivalence/cics/ggcics_spec.h`) compiled into the GnuC
 
 <table>
 <tr>
-<td align="center" width="190"><h2>257</h2></td>
-<td align="center" width="190"><h2>100</h2></td>
+<td align="center" width="190"><h2>1</h2></td>
+<td align="center" width="190"><h2>2</h2></td>
 <td align="center" width="190"><h2>2</h2></td>
 <td align="center" width="190"><h2>0</h2></td>
 </tr>
 <tr>
-<td align="center" valign="top"><sub><strong>CICS commands specified</strong><br />100 full · 2 engine-only · 155 name-only<br /><em><a href="#command-coverage-by-family">command families</a> · IBM URLs cited</em></sub></td>
-<td align="center" valign="top"><sub><strong>modelled on both runtimes</strong><br /><code>det</code> translator + GnuCOBOL CICS stub<br /><em><a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/cics_spec_status.md">live spec status</a> · parity-checked</em></sub></td>
+<td align="center" valign="top"><sub><strong>declarative spec for every CICS command</strong><br />full · engine-only · name-only, counted on the live page<br /><em><a href="#command-coverage-by-family">command families</a> · IBM URLs cited</em></sub></td>
+<td align="center" valign="top"><sub><strong>runtimes the modelled commands run on</strong><br /><code>det</code> translator + GnuCOBOL CICS stub<br /><em><a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/cics_spec_status.md">live spec status</a> · parity-checked</em></sub></td>
 <td align="center" valign="top"><sub><strong>generated runtime targets</strong><br /><code>CicsSpec.java</code> &amp; <code>ggcics_spec.h</code><br /><em><a href="#generated-runtime-tables-and-ci-ratchet">regen CLI</a> · gated in CI</em></sub></td>
 <td align="center" valign="top"><sub><strong>unlisted spec importers allowed</strong><br />enforced by <code>test_cics_spec.py</code><br /><em><a href="#strict-import-and-consistency-gates">import gate</a> · single authority</em></sub></td>
 </tr>
@@ -44,7 +44,7 @@ and the C header (`tests/equivalence/cics/ggcics_spec.h`) compiled into the GnuC
 ## Quickstart
 
 ```sh
-# List all 257 CICS command entries (status, X-register, option counts, IBM doc URL)
+# List every CICS command entry (status, X-register, option counts, IBM doc URL)
 python -m gitgalaxy.standards.cics emit
 
 # Inspect specific command entries as full JSON (options, groups, refusals, outcomes)
@@ -77,10 +77,10 @@ python -m gitgalaxy.standards.cics regen
 
 ## Command coverage by family
 
-The **257 command entries** in [`commands/`](commands/) are organized by CICS functional domain
+The command entries in [`commands/`](commands/) are organized by CICS functional domain
 ([live per-command table](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/cics_spec_status.md)):
 
-| Module | Domain | Modelled Commands (`100` full, `2` engine-only) | Refused by Name (`155`) |
+| Module | Domain | Modelled Commands (full and engine-only) | Refused by Name |
 |---|---|---|---|
 | [`commands/files.py`](commands/files.py) | **File control (VSAM)** | `READ`, `WRITE`, `REWRITE`, `DELETE`, `UNLOCK`, `STARTBR`, `READNEXT`, `READPREV`, `ENDBR`, `RESETBR` | RLS-only options (`UPDATE` on `READNEXT`/`READPREV`, `CONSISTENT`, `NOSUSPEND`) refused by option name |
 | [`commands/terminal.py`](commands/terminal.py), [`commands/send.py`](commands/send.py) | **BMS 3270 & terminal control** | `SEND MAP`, `RECEIVE MAP`, `SEND TEXT`, `SEND CONTROL`, `SEND`, `RECEIVE`, `CONVERSE`, `ISSUE ERASEAUP` | `SEND PAGE`, `PURGE MESSAGE`, LU6.2 / APPC conversation verbs (`ALLOCATE`, `CONNECT PROCESS`, `FREE`, `GDS *`, `ISSUE *`) |
@@ -145,6 +145,6 @@ enforce:
 | Resource | What it contains |
 |---|---|
 | [CICS command spec design (`cics_command_spec.md`)](../../../docs/language_status/cics_command_spec.md) | Architectural design and PR rollout plan for the unified CICS specification |
-| [Live CICS spec status (`generated` branch)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/cics_spec_status.md) | Generated table of all 257 commands with census frequency and crucible test coverage |
+| [Live CICS spec status (`generated` branch)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/cics_spec_status.md) | Generated table of every command with census frequency and crucible test coverage |
 | [CICS to Java (`cobol_to_java/README.md`)](../../tools/cobol_to_java/README.md) | How the spec drives `det/cics.py`, `CicsTask`, and equivalence proofs |
 | [Oracle assumptions register (`generated` branch)](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md) | Full text of the `X1`–`X63` CICS oracle assumptions referenced by the spec |

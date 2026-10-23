@@ -60,8 +60,11 @@ DEFINITION: dict[str, Any] = {
         "_dependency_capture": re.compile(
             r"\[(?:[^\[\]]|\[[^\[\]]*\])+\]\(\s*(?!<|[a-zA-Z][a-zA-Z0-9+.-]*:|//|#)([^()\s#]+)"
         ),
-        "lit_code_blocks": re.compile(r"^[ \t]{0,3}```+[^`\r\n]*$", re.M),
-        "lit_diagrams": re.compile(r"^[ \t]{0,3}```+(?:mermaid|plantuml)\b", re.I | re.M),
+        # A tilde fence may carry backticks in its info string; a backtick fence may not (CommonMark) (#4108).
+        "lit_code_blocks": re.compile(r"^[ \t]{0,3}(?:`{3,}[^`\r\n]*|~{3,}[^\r\n]*)$", re.M),
+        # A fence opens with 3+ backticks or tildes; the info string may follow after spaces
+        # and/or a pandoc/quarto brace (```{mermaid}, ~~~ mermaid, ``` {.plantuml}) (#4108).
+        "lit_diagrams": re.compile(r"^[ \t]{0,3}(?:`{3,}|~{3,})[ \t]{0,4}\{?\.?(?:mermaid|plantuml)\b", re.I | re.M),
         "lit_headers": re.compile(r"^[ \t]{0,3}#{1,6}[ \t]+", re.M),
         "lit_links": re.compile(r"\[(?:[^\[\]]|\[[^\[\]]*\])+\]\((?:[^()]|\([^()]*\))+\)"),
     },

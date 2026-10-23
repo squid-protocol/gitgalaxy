@@ -326,7 +326,9 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # so its survivors were skipped): 14 more flagged survivors, all unreachable: the facade's handleLink / lastLinkBytes(),
     # the 2-argument handleTransaction, the program-name literal in region.run / region.linked, the lastAnswerBytes
     # assignment and the four browse helpers' repository-method literals. 95 -> 109.
-    assert len(flagged) == 109 and verdicts.count("unreachable") == 106 and verdicts.count("equivalent") == 3
+    # #6072 re-ran COACTVWC on its hand port with the abend path (seed 0, 150 mutants): one fewer flagged survivor than
+    # #4443's 6 (the facade's lastLinkBytes(); the program-name literal in region.run / region.linked), all unreachable. 109 -> 108.
+    assert len(flagged) == 108 and verdicts.count("unreachable") == 105 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"CSUTLDTC"}
     assert {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C"} == {"COACTVWC", "COMEN01C"}
 

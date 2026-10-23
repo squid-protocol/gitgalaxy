@@ -331,7 +331,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
-| COACTVWC (carddemo-acctview) | equivalence | 150/428 | 110/137 (80%) | 110/110 (100%) | 0 / 0 / 16 / 11 / 0 |
+| COACTVWC (carddemo-acctview) | equivalence | 150/446 | 119/137 (87%) | 119/119 (100%) | 0 / 0 / 12 / 6 / 0 |
 | COACTVWC (carddemo-acctview-generated) | equivalence | 150/427 | 109/137 (80%) | 109/109 (100%) | 0 / 0 / 16 / 12 / 0 |
 | COADM01C (carddemo-adminmenu) | equivalence | 100/340 | 63/95 (66%) | 63/63 (100%) | 0 / 0 / 29 / 3 / 0 |
 | COADM01C (carddemo-adminmenu-generated) | equivalence | 150/340 | 97/145 (67%) | 97/97 (100%) | 0 / 0 / 43 / 5 / 0 |
@@ -391,24 +391,24 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 5046 run | **3156/4658 (68%)** | **3156/3622 (87%)** | 272 / 194 / 647 / 389 / 0 |
-| **all estate** | | 5550 run | **3475/5134 (68%)** | **3475/3976 (87%)** | 307 / 194 / 735 / 423 / 0 |
+| **all equivalence** | | 5046 run | **3165/4658 (68%)** | **3165/3631 (87%)** | 272 / 194 / 643 / 384 / 0 |
+| **all estate** | | 5550 run | **3484/5134 (68%)** | **3484/3985 (87%)** | 307 / 194 / 731 / 418 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 226/283 (80%) | 226/250 (90%) |
+| AOR | 227/283 (80%) | 227/251 (90%) |
 | BDM | 25/52 (48%) | 25/28 (89%) |
-| CON | 447/1040 (43%) | 447/560 (80%) |
+| CON | 449/1040 (43%) | 449/562 (80%) |
 | COR | 212/345 (61%) | 212/258 (82%) |
-| DEL | 607/876 (69%) | 607/683 (89%) |
-| LIT | 725/984 (74%) | 725/809 (90%) |
-| NEG | 614/696 (88%) | 614/660 (93%) |
+| DEL | 610/876 (70%) | 610/686 (89%) |
+| LIT | 727/984 (74%) | 727/811 (90%) |
+| NEG | 615/696 (88%) | 615/661 (93%) |
 | RET | 56/105 (53%) | 56/93 (60%) |
 | ROR | 563/753 (75%) | 563/635 (89%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
-| COACTVWC (carddemo-acctview) | 6/9 | 0/1 | 12/22 | 18/21 | 16/21 | 18/21 | 20/21 | - | 20/21 |
+| COACTVWC (carddemo-acctview) | 7/9 | 0/1 | 14/22 | 18/21 | 19/21 | 20/21 | 21/21 | - | 20/21 |
 | COACTVWC (carddemo-acctview-generated) | 6/9 | 0/1 | 14/22 | 17/21 | 16/21 | 16/21 | 20/21 | - | 20/21 |
 | COADM01C (carddemo-adminmenu) | 8/8 | - | 2/14 | 6/8 | 8/16 | 7/15 | 15/15 | 4/4 | 13/15 |
 | COADM01C (carddemo-adminmenu-generated) | 8/8 | - | 4/24 | 6/8 | 14/26 | 14/25 | 25/25 | 4/4 | 22/25 |
@@ -631,6 +631,9 @@ This landed in #5505, so the "needs a cics-crucible CAXA mode" wording in #5490 
 Re-checked 2026-10-22 (#5491, XCTL length 21-24): a fresh `mutation_crucible.py run --only ca-xctl-versions/CAXB --sample 24 --seed 0 --strengthened`
 gives 20/23 caught, and mutant `496bab0daf` (NEG `k == 0` -> `!(k == 0)`, `CaxbService.java:231`) is `killed`, `killed_by`
 `direct-22-byte-area`: the 22-byte area (EIBCALEN 22) is the one that reaches that branch.
+Re-checked 2026-10-22 (#5491, negative balance): the same run (20/23 caught, `--seed 0`) has mutant `5b1e4d4e31`
+(BDM `unscaled.signum() < 0 ? kept.negate() : kept` -> `kept : kept`, `CaxbService.java:248`) `killed`, `killed_by`
+`direct-negative-balance`: its V2-BALANCE of -12345.67 is the one value that takes the negate branch. No CAXA mode was needed.
 
 Spot-check 2026-10-22 (#4443): 22 of the 45 equivalent verdicts on the 13 re-run ports were re-read against the port source; all hold, no new case. The sample and its caveats: [mutation_equivalent_spot_check.md](mutation_equivalent_spot_check.md).
 

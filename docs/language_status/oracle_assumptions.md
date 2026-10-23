@@ -4826,7 +4826,9 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     appending one record of n bytes from the I/O area; the harness compares the records in order, by field when the case
     names a copybook (`ims.gsam`). ASSUMPTION (no IBM text cited): any function but ISRT on a GSAM PCB answers AM, and the
     PCB mask's segment level is blank (a GSAM PCB has no segment). Refused by name on both runtimes: an ISRT with an SSA,
-    an I/O area shorter than the record, and two GSAM PCBs on one database.
+    an I/O area shorter than the record, and two GSAM PCBs on one database. Burned estate (pinned by
+    `test_gsam_burned_5233.py`): only DBUNLDGS / DLIGSAMP.PSB use GSAM, both PCBs PROCOPT=LS and ISRT-only; reading a
+    GSAM file (PROCOPT G) is needed by no burned program and stays refused by name in the harness (`equivalence_ims.psb`).
   - A case's `ims.seed.<DBD>.skip` lists unload record numbers left out of the seed (the corpus unload of DBPAUTP0 ends
     with a root whose packed key is blank, which a qualified GU refuses by design).
   - CALL 'CBLTDLI' is refused in a program IMS does not enter at ENTRY 'DLITCBL' (a BMP, MPP or CICS program).

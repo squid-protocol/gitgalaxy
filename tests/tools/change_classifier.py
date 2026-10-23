@@ -47,6 +47,15 @@ _MD = re.compile(r"(?<![\w.\-])((?:[\w.\-*{}]+/)*[\w\-*{}][\w.\-*{}]*\.md)\b")
 _MARKERS = ("docs", ".claude", ".md")
 
 
+def _text(path: Path) -> str:
+    """UTF-8, else Latin-1 (never lossy; stdlib only, since plan jobs run before the package is installed)."""
+    raw = path.read_bytes()
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return raw.decode("latin-1")
+
+
 def scope_of(rel: str) -> str:
     """The reader a file stands for: tests/tools files singly, other tests per directory, the engine as one."""
     parts = rel.split("/")
@@ -228,7 +237,7 @@ def scan(root: Path = REPO_ROOT) -> dict[str, list[str]]:
         if "/." in "/" + rel or "__pycache__" in rel or PATTERN_HOLDERS.search(rel):
             continue
         try:
-            src = f.read_bytes().decode("utf-8", errors="replace")
+            src = _text(f)
         except OSError:
             continue
         is_test = f.name.startswith(("test_", "conftest"))
@@ -299,7 +308,7 @@ def ground_truth_scopes(root: Path = REPO_ROOT, workflow: bool = False) -> froze
         if PATTERN_HOLDERS.search(p.as_posix()):
             return set()  # a planner lists the paths it skips: naming them is not running them
         try:
-            return mods.keys() & set(word.findall(p.read_bytes().decode("utf-8", errors="replace")))
+            return mods.keys() & set(word.findall(_text(p)))
         except OSError:
             return set()
 
@@ -314,7 +323,7 @@ def ground_truth_scopes(root: Path = REPO_ROOT, workflow: bool = False) -> froze
     if not workflow:
         return frozenset({*_GT_DIRS, *(f"tests/tools/{m}.py" for m in seen)})
     try:
-        text = (root / GROUND_TRUTH_WORKFLOW).read_bytes().decode("utf-8", errors="replace")
+        text = _text(root / GROUND_TRUTH_WORKFLOW)
     except OSError:
         text = ""
     todo = [m for m in re.findall(r"tests/tools/(\w+)\.(?:py|sh)", text) if m in mods and m not in seen]

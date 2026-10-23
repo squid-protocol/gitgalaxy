@@ -500,7 +500,8 @@ instrument). The rows below are rendered by one table in code (`compiler_options
     `S9(7)V99 COMP-3` = 0.68, FZ2 a COMP-2 zero: the port gives 0.67. IBM runs any statement with a floating-point
     operand in floating point (even a zero one), 0.68 is 0.67AE147AE147AE x 16**0 in long HFP (just below 0.68), and
     the store truncates (ASSUMED, below; pending z/OS calibration, #4702 part 2); cobc keeps 0.68. None of the three
-    shapes is in a burned estate's program (EPSMPMT's float use is the `**` below).
+    shapes is in a burned estate's program (EPSMPMT's float use is the `**` below). Each is a z/OS-runnable probe in `zos_probes.json` (`c6-float-move-to-edited`,
+    `c6-compound-float-compute`, `c6-float-zero-add-to-packed`) with the oracle's answer recorded; no z/OS result yet.
 - **The det runtime (since #4271 slice 1)** models HFP: `cobolrt/Hfp.java`, the translator's own model
   `det/hfp.py`.
   - Storage: `Field.hfp`, the bytes as z/OS holds them; a VALUE is encoded at translation (`layout._put_value`).

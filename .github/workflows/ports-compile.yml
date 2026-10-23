@@ -30,6 +30,7 @@ on:
       - "tests/tools/equivalence_cache.py"
       - "tests/tools/java_target_matrix.py"
       - "tests/tools/mainframe_corpus.py"
+      - "scripts/check_assess_install.py"  # #4726: the clean-install check step below
       - ".github/workflows/ports-compile.yml"
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
   # #5131/#5136: no main push trigger. post-merge.yml dispatches this on main (at most once per cadence window, only
@@ -142,6 +143,17 @@ jobs:
         run: |
           cd gitgalaxy
           python tests/tools/port_surface.py equivalence --work "$RUNNER_TEMP/port_surface" --check
+        shell: bash
+
+      # #4726: `gitgalaxy assess` installs and runs on a clean machine, from wheels, on every burned estate. Rides this job
+      # because it already has the checkout and the pinned corpora; no new trigger or matrix. The script builds the wheel
+      # from the checkout and installs it into a fresh venv with --no-index; the wheelhouse (the translator extra's wheels)
+      # is built here, with network, so the translate-only dry run is on.
+      - name: Assess clean-install check (burned estates, translator from a wheelhouse)
+        run: |
+          cd gitgalaxy
+          pip wheel "./[translator]" -w "$RUNNER_TEMP/wheelhouse"
+          python scripts/check_assess_install.py --wheelhouse "$RUNNER_TEMP/wheelhouse" --estates "$GITGALAXY_MAINFRAME_CORPORA"
         shell: bash
 
       - name: Summary

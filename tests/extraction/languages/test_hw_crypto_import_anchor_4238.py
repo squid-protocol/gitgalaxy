@@ -1,7 +1,8 @@
 """
 #4238: `hardware_bridge` and `cryptography`, the last import-anchored rules, are anchored
 on the library's top-level package (builders from #4150 / PR #4231) instead of matching a
-library name ANYWHERE on an import line. Only python and javascript carry them.
+library name ANYWHERE on an import line. Python, javascript and typescript carry them (#4108 added
+typescript; the embedded_python dialect carries cryptography only, its hardware handles ride on `io`).
 """
 
 import sys
@@ -25,16 +26,35 @@ def _rule(lang: str, key: str):
     return LANGUAGE_DEFINITIONS[lang]["rules"][key]
 
 
+_CARRIERS = {
+    "hardware_bridge": ["javascript", "python", "typescript"],
+    "cryptography": ["embedded_python", "javascript", "python", "typescript"],
+}
+
+
 @pytest.mark.parametrize("key", _RULES)
-def test_only_python_and_javascript_carry_the_rule(key):
+def test_only_the_import_anchored_languages_carry_the_rule(key):
     langs = sorted(k for k, d in LANGUAGE_DEFINITIONS.items() if d.get("rules", {}).get(key) is not None)
-    assert langs == ["javascript", "python"]
+    assert langs == _CARRIERS[key]
+
+
+@pytest.mark.parametrize("key", _RULES)
+def test_typescript_shares_the_javascript_rule(key):
+    assert _rule("typescript", key) is _rule("javascript", key)
+
+
+def test_embedded_python_shares_the_python_cryptography_rule():
+    assert _rule("embedded_python", "cryptography") is _rule("python", "cryptography")
 
 
 _PY_FIRES = [
     ("hardware_bridge", "import usb.core"),
     ("hardware_bridge", "from usb import util"),
     ("hardware_bridge", "import bluetooth"),
+    ("hardware_bridge", "import serial"),
+    ("hardware_bridge", "import serial.tools.list_ports"),
+    ("hardware_bridge", "from serial import Serial"),
+    ("hardware_bridge", "from bleak import BleakClient"),
     ("hardware_bridge", "import os, websocket"),
     ("hardware_bridge", "from websocket import create_connection"),
     ("cryptography", "import hashlib"),
@@ -53,6 +73,10 @@ _PY_SILENT = [
     ("hardware_bridge", "from . import ir_websocket"),
     ("hardware_bridge", "from scapy.layers.bluetooth import HCI"),
     ("hardware_bridge", "usb = 1"),
+    ("hardware_bridge", "from app.serial_utils import parse"),
+    ("hardware_bridge", "from django.core.serializers import serialize"),
+    ("hardware_bridge", "import serialization_helpers"),
+    ("hardware_bridge", "from cryptography.hazmat.primitives import serialization"),
     ("cryptography", "from myproj.crypto.utils import hash_it"),
     ("cryptography", "from django.utils.crypto import get_random_string"),
     ("cryptography", "from scapy.layers.tls.record import TLS"),
@@ -142,3 +166,14 @@ def test_js_counts_only_real_imports_through_splice():
 @pytest.mark.parametrize("key", _RULES)
 def test_hw_crypto_import_patterns_are_redos_immune(lang, key, payload):
     assert_redos_immune(_rule(lang, key), payload)
+
+
+def test_typescript_counts_real_imports_through_splice():
+    code = "import * as crypto from 'crypto';\nimport h from './crypto/helpers';\nimport { SerialPort } from 'serialport';\n"
+    assert _count("typescript", "cryptography", code) == 1
+    assert _count("typescript", "hardware_bridge", code) == 1
+
+
+def test_embedded_python_counts_real_imports_through_splice():
+    code = "import hashlib\nfrom myproj.crypto.utils import h\n"
+    assert _count("embedded_python", "cryptography", code) == 1

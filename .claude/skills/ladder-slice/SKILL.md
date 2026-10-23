@@ -68,7 +68,7 @@ before/after numbers from it. `det_port.py run` does not write the ledger.
   INTO THE FILE AS SOON AS YOU HAVE THE REASON -- reasons kept only in context were lost to a summary (0448Z). A
   scenario that reaches a stated outcome refutes it. Paragraph-level entries only once the tooling slice lands
   (CBPAUP0C `6000-EXIT` has been rediscovered 5+ times: check the file first).
-- **Your call vs owner's**: CRECUST and the CEEDAYS rulings stay refused; BANKDATA held (PR #5958); EPSMPMT callers wait
+- **Owner holds**: CRECUST and the CEEDAYS rulings stay refused; BANKDATA held (PR #5958); EPSMPMT callers wait
   on #5867. Not your slice.
 
 ## 5. Refresh chain (after every edit AND after every `git merge origin/main`)
@@ -86,9 +86,14 @@ Run targeted tests, not the whole `tests/cobol_mainframe` (it times out); CI run
 
 ## 6. PR
 
-- One estate, one rung; group programs of one shape (CRDTAGY1-5, lgtestp1-3, the GenApp *vs01 family).
-- Hand-written-file cap from the worker brief: generated files (ledgers, evidence records, `-generated` twins) don't
-  count; list the split in the plan.
+- **Estate-sized, data-only (owner 2026-10-23: CI is the limit).** One estate per PR, one or both rungs, every
+  program in it. Case data -- `case.json`, scenario input files, infeasible entries -- and generated files (ledgers,
+  evidence records, `-generated` twins) don't count toward the 5-file cap. Data-only ladder PRs merged in 9-53 min at
+  any size; the slow ones (78-158 min, 4-13 commits) all changed code.
+- **No code in a ladder PR.** A harness / tool / translator change it needs is its own small PR first (this slice
+  queues after it), or the outcome stays open citing #6271.
+- **Never let one program hold the estate:** a program that won't close in the run is dropped to **Remaining
+  slices** with what's left; ship the rest.
+- No per-slice JSON-only test file: the det-sweep ratchet already checks the cases.
 - Body: before/after table per program (paragraphs live/run, net branches, infeasible added with reasons), the
-  outcomes left open and why (#6271 cite, owner hold), "Part of #6072". A JSON-only slice test, if any, must be ruff
-  clean (no bare `assert` outside tests: S101).
+  outcomes left open and why (#6271 cite, owner hold), "Part of #6072".

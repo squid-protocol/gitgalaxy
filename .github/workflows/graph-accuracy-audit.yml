@@ -132,9 +132,11 @@ jobs:
           mkdir -p "$RUNNER_TEMP/gaa"
           gate() {  # gate <name> <command...>: log + summary per gate, one "FAIL name" line on failure
             name=$1; shift
-            { echo "::group::$name"; PYTHONPATH="$PWD" "$@" --ci --summary "$RUNNER_TEMP/gaa/$name.md"; rc=$?; echo "::endgroup::"; exit $rc; } \
+            start=$SECONDS
+            ( echo "::group::$name"; PYTHONPATH="$PWD" "$@" --ci --summary "$RUNNER_TEMP/gaa/$name.md"; rc=$?; echo "::endgroup::"; exit $rc ) \
               > "$RUNNER_TEMP/gaa/$name.log" 2>&1 \
               || echo "FAIL $name" >> "$RUNNER_TEMP/gaa/failed"
+            echo "$name: $((SECONDS - start)) s" >> "$RUNNER_TEMP/gaa/times"
           }
           ( gate span-anchoring python tests/tools/span_anchor_audit.py --samples 3 ) &
           ( gate import-graph python tests/tools/import_graph_accuracy.py --samples 5
@@ -142,6 +144,7 @@ jobs:
           ( gate call-java python tests/tools/call_graph_resolution.py java --samples 5
             gate call-python python tests/tools/call_graph_resolution.py python --samples 5 ) &
           wait
+          cat "$RUNNER_TEMP/gaa/times"
           for n in import-graph call-typescript call-java call-python span-anchoring; do
             cat "$RUNNER_TEMP/gaa/$n.log"
             cat "$RUNNER_TEMP/gaa/$n.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true

@@ -203,7 +203,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | I2 | IMS | twins and qualifications compare the field's stored bytes; a C / X key's order is the data page's (ASCII on both sides), not EBCDIC's; a P qualification only where packed and logical comparison agree | DIFFERS | no (CardDemo's keys are packed and binary bytes, the same in both pages) |
 | I3 | IMS | position and parentage kept per PCB as IBM describes them; after a call whose position IBM leaves to IMS's search, the next call that needs it is refused | ASSUMED | yes (PAUDBUNL: GN after GNP's GE) |
 | I4 | IMS | DBD name, level, status, PROCOPT, segment name, key feedback length, sensitive segments, key feedback as IBM lays them out; what IMS leaves there at entry and after GE / II assumed | ASSUMED | yes (PAUDBUNL tests PAUT-PCB-STATUS; its key feedback is only DISPLAYed on a path no scenario takes) |
-| I5 | IMS | EXEC DLI beyond SCHD / TERM / GU / GN / GNP / ISRT / REPL / DLET and a BMP's CHKP ID, MPP programs, a GSAM PCB that reads, other calls (XRST, ROLB, CHKP with an option but ID, ...), command codes but F / L / P / C / D / N / Q / U / V / -, the # (independent AND) operator, AIBTDLI / CEETDLI, HDAM order, secondary indexes, logical relationships, load mode on a DB PCB | REFUSED | — |
+| I5 | IMS | EXEC DLI beyond SCHD / TERM / GU / GN / GNP / ISRT / REPL / DLET and a BMP's CHKP ID, MPP programs, a GSAM PCB that reads, other calls (XRST, ROLB, CHKP with an option but ID, ...), command codes but F / L / P / C / D / N / Q / U / V / -, the # (independent AND) operator, AIBTDLI / CEETDLI, HDAM order, secondary indexes, logical relationships, load mode beyond a lone L / LS PCB | REFUSED | — |
 | I6 | IMS | an HD reorganization unload (DFSURGU0) read by the record layout observed in CardDemo's; the segment counts its trailer records must match what was read | ASSUMED | yes (carddemo-paudbunl: 22 roots, 202 children) |
 | W1 | MQ | CMQV / CMQODV / CMQMDV / CMQGMOV / CMQPMOV / CMQTML: stand-ins from IBM's docs, version-1 layouts, only the constants the model gives meaning to | ASSUMED | yes (carddemo-codate01, #4892) |
 | W2 | MQ | MQGMO_WAIT on an empty queue: 2033 at once (no concurrent producer); MQWI_UNLIMITED refused | ASSUMED | yes (carddemo-codate01, #4892) |
@@ -5037,6 +5037,15 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     an I/O area shorter than the record, and two GSAM PCBs on one database. Burned estate (pinned by
     `test_gsam_burned_5233.py`): only DBUNLDGS / DLIGSAMP.PSB use GSAM, both PCBs PROCOPT=LS and ISRT-only; reading a
     GSAM file (PROCOPT G) is needed by no burned program and stays refused by name in the harness (`equivalence_ims.psb`).
+  - Load mode on a DB PCB (#5233, rule RT-DLI-ISRT; proof `test_det_dli.py::test_load_mode_*`): a PCB with PROCOPT L or LS alone
+    loads an empty database; ISRT is the only call that works and every other function answers AM. An ISRT names its segment
+    type and loads it as the last child of the last loaded segment of the parent type (an unqualified parent SSA is not
+    needed). Status codes (IBM's load statuses): LB for a key equal to the last twin's, LC for a key below it, LD when no
+    parent of the type is loaded, LE for a type that comes before one already under the parent. ASSUMPTION (no IBM text
+    cited): the precedence is LE, then LB / LC, and a load-mode ISRT's feedback and position are those of an ordinary ISRT.
+    Refused by name on both runtimes: an ISRT with SSAs before the last and a load into a database that already holds
+    segments; refused by the harness: PROCOPT L with another option, a load PCB beside another PCB on the same DBD, load mode
+    under CICS. Needed by no burned program.
   - A case's `ims.seed.<DBD>.skip` lists unload record numbers left out of the seed (the corpus unload of DBPAUTP0 ends
     with a root whose packed key is blank, which a qualified GU refuses by design).
   - CALL 'CBLTDLI' is refused in a program IMS does not enter at ENTRY 'DLITCBL' or as a BMP (an MPP or CICS program), and with the I/O PCB.
@@ -5056,7 +5065,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   - Logical relationships, variable-length segments, a non-unique or missing sequence field.
   - CMPAT=YES outside a BMP (IMS TM passes an I/O PCB first; taken under CICS, see the ASSUMPTION), and an I/O or alternate PCB, a GSAM PCB with a PROCOPT but LS (reading a GSAM file, PROCOPT G), and a PSB with
     two GSAM PCBs on one database.
-  - PROCSEQ (a secondary index), PROCOPT L / LS (load mode) on a DB PCB, a segment-level PROCOPT, and a PCB not sensitive to every
+  - PROCSEQ (a secondary index), PROCOPT L with another option (and a load PCB beside another PCB on its DBD), a segment-level PROCOPT, and a PCB not sensitive to every
     segment.
   - An ENTRY 'DLITCBL' that does not name one area per PCB.
 - **Refused by both runtimes at run time** ("CBLTDLI: ... is not modelled"; exit 98 on the COBOL side):

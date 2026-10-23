@@ -1,5 +1,5 @@
 {
- "commit": "72db4cddc",
+ "commit": "90b6d7cf2",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,15 +160,15 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-23T01:23:00Z",
+  "as_of": "2026-10-23T01:26:47Z",
   "core": {
-   "closed": 160,
-   "open": 26,
+   "closed": 161,
+   "open": 25,
    "total": 186
   },
   "core_last_window": {
-   "closed": 53,
-   "net_closed": 11,
+   "closed": 54,
+   "net_closed": 12,
    "opened": 42
   },
   "core_milestone": {
@@ -184,7 +184,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "17 days",
+  "eta": "15 days",
   "frontier": {
    "closed": 107,
    "found_last_window": 25,
@@ -317,9 +317,9 @@
     "total": 47
    },
    {
-    "closed": 15,
+    "closed": 16,
     "number": 19,
-    "open": 4,
+    "open": 3,
     "title": "New Challenger Approaches \ud83e\udd4a \u2014 Fresh Estates",
     "total": 19
    },

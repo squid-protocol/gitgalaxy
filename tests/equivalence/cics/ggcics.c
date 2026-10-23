@@ -613,7 +613,13 @@ static void browses_end(void); /* #4951 */
 
 /* SYNCPOINT (flags empty: commit) / SYNCPOINT ROLLBACK (flags ROLLBACK: undo since the last SYNCPOINT). */
 int GGCSYNC(gg_cics *c) {
-    int rollback = strstr(c->flags, "ROLLBACK") != NULL;
+    int rollback = strstr(c->flags, "ROLLBACK") != NULL, fresp, fresp2;
+    /* #6271 (X71): a planned INVREQ (RESP2 200): the command is refused, no unit of work ends and nothing is recorded */
+    if (injected(rollback ? "ROLLBACK" : "SYNCPOINT", "-", &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        return 0;
+    }
     uow_end(rollback);
     browses_end(); /* #4951: a container browse token does not survive a sync point */
     c->resp = NORMAL;
@@ -663,6 +669,12 @@ int GGCRECV(gg_cics *c, char *into, int intolen) {
     trim(c->name1, 8, map);
     trim(c->name2, 8, mapset);
     if (map_not_found(c, map, mapset)) return 0;
+    int fresp, fresp2; /* #6271 (X71): a planned INVMPSZ / INVREQ: nothing is received, INTO is untouched */
+    if (injected("RECEIVE-MAP", map, &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        return 0;
+    }
     snprintf(path, sizeof path, "%s/receive_%s.bin", dir_in(), map);
     FILE *f = fopen(path, "rb");
     c->resp = MAPFAIL;
@@ -767,6 +779,12 @@ int GGCSMAP(gg_cics *c, char *from, int len) {
     trim(c->name2, 8, mapset);
     trim(c->flags, 40, flags);
     if (map_not_found(c, map, mapset)) return 0;
+    int fresp, fresp2; /* #6271 (X71): a planned INVMPSZ / TSIOERR / INVREQ: nothing is sent, the screen stays as it was */
+    if (injected("SEND-MAP", map, &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        return 0;
+    }
     snprintf(ev, sizeof ev, "SEND-MAP map=%s mapset=%s len=%d cursor=%d opts=%s", map, mapset, len, c->len, flags);
     event(ev, from, len);
     c->resp = NORMAL;
@@ -919,6 +937,11 @@ int GGCRETI(gg_cics *c, char *commarea, int len) {
     if (lvl > 0) { c->resp = INVREQ; c->resp2 = 2; }
     else if (no_terminal) { c->resp = INVREQ; c->resp2 = 1; }
     else if (has && (len < 0 || len > 32763)) { c->resp = LENGERR; c->resp2 = 11; }
+    int fresp, fresp2; /* #6271 (X71): a planned INVREQ (1, 2, 4, 200) / LENGERR (11, 26, 27): the program goes on */
+    if (c->resp == NORMAL && injected("RETURN", "-", &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+    }
     if (c->resp != NORMAL) {
         snprintf(ev, sizeof ev, "RETURN level=%d transid=%s immediate=1 resp=%d resp2=%d", lvl + 1, transid, c->resp,
                  c->resp2);

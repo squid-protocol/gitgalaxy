@@ -2895,7 +2895,7 @@ def screen_key(f: dict[str, Any]) -> tuple[str, str]:
 CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC", "DUPKEY", "INVREQ", "IOERR", "NOSPACE",
                                      "NOTOPEN", "ILLOGIC", "LENGERR", "PGMIDERR", "NOTAUTH", "DISABLED", "LOADING",
                                      "ENDFILE", "TERMIDERR", "ITEMERR", "TRANSIDERR", "QIDERR", "SYSIDERR",
-                                     "ISCINVREQ", "LOCKED", "ENQBUSY", "QBUSY")}  # fmt: skip
+                                     "ISCINVREQ", "LOCKED", "ENQBUSY", "QBUSY", "INVMPSZ", "TSIOERR")}  # fmt: skip
 
 
 def enq_fault_key(resource: str | None) -> str:
@@ -2932,12 +2932,25 @@ FAULT_COMMANDS = (
     "RETRIEVE",
     "CANCEL",
     "ENQ",  # #5089: its `resource` (the RESOURCE operand as written); ENQBUSY only, see ENQ_FAULTS
+    "SEND-MAP",  # #6271 (register X71): its `map`; RECEIVE-MAP too. RETURN, SYNCPOINT and ROLLBACK name none (`-`)
+    "RECEIVE-MAP",
+    "RETURN",
+    "SYNCPOINT",
+    "ROLLBACK",
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
 # #4986 (register X43): IBM's LINK conditions the region does not raise and that have no sourced abend code
 LINK_REFUSED_CONDITIONS = ("ROLLEDBACK", "SYSIDERR", "TERMERR")
 
-_FAULT_NAME = ("file", "program", "queue", "transid", "reqid", "resource")  # #4049: the resource a fault names, by key
+_FAULT_NAME = (
+    "file",
+    "program",
+    "queue",
+    "transid",
+    "reqid",
+    "resource",
+    "map",
+)  # #4049: the resource a fault names, by key
 
 # #5044 (register X49, extends #4623's X48): the conditions a file command may be planned with, per command, and the RESP2
 # IBM gives each (CICS TS 6.x, each command's "Conditions"; the syntax line's list and the RESP2 values checked against
@@ -3091,6 +3104,38 @@ def _abend_fault_line(sc: dict[str, Any], f: dict[str, Any], cmd: str) -> str:
     return f"{cmd} {name} {nth} -1 0 {f['abcode']}"
 
 
+# #6271 (register X71): the conditions a terminal or unit-of-work command may be planned with, per command, and the RESP2
+# values IBM gives each (CICS TS 6.x, the "Conditions" of SEND MAP, RECEIVE MAP, RETURN, SYNCPOINT). () = IBM states no
+# RESP2 (one is not planned); several values: the scenario names one. Every other condition IBM lists for these commands
+# needs a device, partition, BMS paging, a remote system or a PLT stage no case models: refused by name (X71).
+UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
+    "SEND-MAP": {"INVMPSZ": (), "TSIOERR": (), "INVREQ": (200,)},
+    "RECEIVE-MAP": {"INVMPSZ": (), "INVREQ": ()},
+    "RETURN": {"INVREQ": (1, 2, 4, 200), "LENGERR": (11, 26, 27)},
+    "SYNCPOINT": {"INVREQ": (200,)},
+    "ROLLBACK": {"INVREQ": (200,)},
+}
+UI_NAMELESS = ("RETURN", "SYNCPOINT", "ROLLBACK")
+
+
+def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int) -> int:
+    """The RESP2 of a SEND MAP / RECEIVE MAP / RETURN / SYNCPOINT fault, or Unsupported naming register X71."""
+    where = f"scenario {sc['name']}: fault {f}"
+    ibm = UI_FAULT_CONDITIONS[cmd].get(f["resp"])
+    if ibm is None:
+        listed = "/".join(UI_FAULT_CONDITIONS[cmd])
+        raise Unsupported(f"{where}: {f['resp']} is not planned on {cmd}; planned: {listed} (register X71, refused)")
+    if not ibm:
+        if resp2:
+            raise Unsupported(f"{where}: IBM states no RESP2 for {f['resp']} on {cmd} (register X71): name none")
+        return 0
+    if resp2 == 0 and len(ibm) == 1:
+        return ibm[0]
+    if resp2 not in ibm:
+        raise Unsupported(f"{where}: IBM's {f['resp']} on {cmd} has RESP2 {'/'.join(map(str, ibm))}: name one (X71)")
+    return resp2
+
+
 def fault_lines(sc: dict[str, Any]) -> list[str]:
     """A scenario's `faults` as both sides read them: `CMD NAME NTH RESP RESP2` (faults.cfg, CicsTask.withFaults) --
     NAME the file a READ names, or the program an INQUIRE PROGRAM names."""
@@ -3120,7 +3165,9 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
                 f"scenario {sc['name']}: fault {f}: READQ TD is planned with {'/'.join(TD_READ_FAULTS)} and no RESP2 only "
                 "(IBM states none; the other conditions follow from the queue, register X61, refused)"
             )
-        if cmd in FILE_FAULT_COMMANDS:
+        if cmd in UI_FAULT_CONDITIONS:
+            resp2 = _ui_fault_resp2(sc, f, cmd, resp2)
+        elif cmd in FILE_FAULT_COMMANDS:
             resp2 = _file_fault_resp2(sc, f, cmd, resp2)
         elif f["resp"] in ("DUPKEY", "DUPREC"):  # #4623: the duplicate-key pair is a file condition only
             listed = "/".join(FILE_FAULT_CONDITIONS[f["resp"]])
@@ -3139,7 +3186,7 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
                 )
             f = {**f, "resource": enq_fault_key(f.get("resource"))}
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
-        name = "-" if cmd == "RETRIEVE" else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
+        name = "-" if cmd == "RETRIEVE" or cmd in UI_NAMELESS else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
         if not name:
             raise Unsupported(f"scenario {sc['name']}: fault {f} names no {'/'.join(_FAULT_NAME)}")
         out.append(f"{cmd} {name} {nth} {CICS_RESP[f['resp']]} {resp2}")

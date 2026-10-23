@@ -2762,7 +2762,10 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   is recorded (event WEB-CONVERSE: host, method, path, query without its "?", and the media type and body when there is a body,
   RESP / RESP2) and answered by the first stated response not yet given that matches its method, path and query.
 - **WEB CLOSE** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-close). NOTOPEN RESP2 27 "Invalid session token"; after
-  it "the session token is no longer valid". Modelled (`CicsTask.webClose`, the stub's `GGCWCLS`).
+  it "the session token is no longer valid". Modelled (`CicsTask.webClose`, the stub's `GGCWCLS`). The connection and its end are
+  recorded too (events WEB-OPEN: the host as the connection names it ('' when HOSTLENGTH gave none, the peer's for a URIMAP), the
+  scheme (none when neither HTTP nor HTTPS), RESP / RESP2; WEB-CLOSE: RESP / RESP2), and the equivalence harness compares them
+  (#4767). A refused open records nothing.
 - **What IBM leaves open, and what we do.** (1) The server: STATED, never guessed (the case's or scenario's `http_peers`,
   `CicsTask.withHttpPeers` / `$GGCICS_HTTP`); a connection to a server, or a request, the run does not state is refused. (2) The
   token's value: ours, `GGWS` and a 4-digit sequence per task (ASSUMED: IBM only says 8 bytes). (3) Code-page conversion: the
@@ -2784,8 +2787,8 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Unit-proven: `CicsTask` and the stub C answer one list of steps
   line for line and refuse the same steps (tests/cics_crucible/test_cics_runtimes.py); both translators
   (tests/cobol_mainframe/test_det_translate.py, test_equivalence_cics.py); the equivalence harness states the peers on both sides
-  and compares the requests (test_equivalence_cics.py). No cics-crucible case yet (its SPEC has no WEB-CONVERSE event: a crucible
-  SPEC change). zECS: with #4768's INQUIRE URIMAP direct form, ECS001 translates whole.
+  and compares the requests (test_equivalence_cics.py). No cics-crucible case yet (its SPEC, v0.9.0, has no WEB-OPEN / WEB-CONVERSE / WEB-CLOSE
+  event: a crucible SPEC change, then a pin bump on the owner's OK). zECS: with #4768's INQUIRE URIMAP direct form, ECS001 translates whole.
 
 ### X36. WEB PARSE URL (CICS web support, a URL taken apart) — ASSUMED, REFUSED where IBM is silent (#4767, zECS)
 - **WEB PARSE URL** (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-web-parse-url). URL "the complete URL string",

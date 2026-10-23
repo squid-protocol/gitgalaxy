@@ -20,7 +20,7 @@
     "tests/equivalence/carddemo-dateutil/port/**"
    ],
    "files": 2,
-   "sha256": "cab413e362004543959be9c79b45f0931f3715101ec097baa75b3f00291e007e"
+   "sha256": "d9e5bc61f92ff9202d5ae3d792db3b4845ae45f2ac5f1da56467dbdb4c2ccc08"
   },
   "case": {
    "paths": [
@@ -183,10 +183,10 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "138ea50d63db7538f3779f5e6d75c575524164863c298bc76fae681ac6c77647"
+  "digest": "44acb8cca8465cfc50075e31e6787f5e2d389019cfe89c95536dd7afb29a63f0"
  },
  "proof": {
-  "at": "2026-10-23T14:24:14Z",
+  "at": "2026-10-23T13:43:07Z",
   "verdict": "proven",
   "runs": 78,
   "fault_runs": 11,
@@ -519,8 +519,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "680846e459c3c3d5f48e33aaa47d0677dda415d3+uncommitted",
-  "inputs_digest": "138ea50d63db7538f3779f5e6d75c575524164863c298bc76fae681ac6c77647"
+  "harness_commit": "b218a6a61de6490f66443fd1d7c10e5980628ded+uncommitted",
+  "inputs_digest": "44acb8cca8465cfc50075e31e6787f5e2d389019cfe89c95536dd7afb29a63f0"
  },
  "coverage": {
   "paragraphs": {
@@ -556,7 +556,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "138ea50d63db7538f3779f5e6d75c575524164863c298bc76fae681ac6c77647"
+  "inputs_digest": "44acb8cca8465cfc50075e31e6787f5e2d389019cfe89c95536dd7afb29a63f0"
  },
  "reach": {
   "entry_points": [

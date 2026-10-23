@@ -15,6 +15,7 @@ the repository and invoked as an external, unmodified tool.
 | `mapa_adapter.py` | mapa's CallTree: PROGRAM-IDs, COPY / INCLUDE, CALL / LINK / XCTL targets, DB2 tables, CICS file commands |
 | `translator_adapter.py` | the det COBOL-to-Java translator's own parse (not a referee: the engine's sibling inside GitGalaxy), for the engine-vs-translator cross-check `tests/tools/fact_crosscheck.py` (#4273) |
 | `estate_key.py` | estate-crucible's generated key (#4317) in the answer-key shape, so every adapter runs on it unchanged |
+| `run_panel.py` | the nightly entry point: the steps below in order for every burned keyed corpus, scratch results only (#4438) |
 | `score.py` | the scorecard: each source vs the key, agreement with the engine, disagreements for adjudication |
 
 The scoring rules are in `score.py`'s docstring and pinned by `tests/cobol_mainframe/test_referee_score.py`.
@@ -97,6 +98,23 @@ python tests/tools/referees/estate_key.py --crucible ../estate-crucible \
 python tests/tools/referees/score.py --facts $FACTS --md scorecard.md --json scorecard.json \
     --disagreements disagreements.json
 ```
+
+## Nightly run
+
+`run_panel.py` is the whole recipe above in one command, for the burned keyed corpora (`estate4_draw.BURNED_NAMES`):
+
+```sh
+python tests/tools/referees/run_panel.py                 # results in /tmp/gitgalaxy-scratch/referees/<engine key>/
+python tests/tools/referees/run_panel.py --corpus zecs --dry-run   # print the commands, run nothing
+```
+
+It writes `scorecard.md`, `scorecard.json`, `disagreements.json` and `run.json` (engine key, referee versions,
+step exit codes and seconds, per-source member status counts) under the scratch directory and nowhere else: an
+`--out` inside the checkout is refused, and nothing is posted or published (the owner's hold, #4438). It exits 2
+before running anything when a referee's variable (`COBRIX_CLASSPATH`, `TS_COBOL_ENTERPRISE_LIB`,
+`CHE4Z_SERVER_JAR`, `MAPA_CALLTREE_JAR`) is unset or names a missing file, and 1 after all corpora ran when a
+step failed or a referee parsed no member of a corpus. JVM start-up and the 5-minute grammar generation make it a
+poor PR gate, so it is meant for a scheduled or manual run, never a `pull_request` trigger.
 
 With two or more referees the scorecard also has an "Engine vs the referee majority" table (#4438): per
 channel, the files with a majority, the majority scored against the key, the engine's agreement with the

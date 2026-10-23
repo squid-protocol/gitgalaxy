@@ -241,7 +241,10 @@ jobs:
           if [ "$SWEEPS" = "none" ]; then marks=(-m "not golden_crucible and not redos_sweep"); fi
           # #5133: least_duration, not pytest-split's default duration_based_chunks (contiguous slices: all of tests/cobol_mainframe
           # landed in part 1, 11.9 min against 4.8 and 3.5)
+          # #5133: this part's pytest wall seconds, for the nightly's wall-calibrated durations (a failed pytest fails the step first)
+          started=$SECONDS
           pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --ignore=tests/cobol_mainframe/test_evidence_components.py --splits 3 --splitting-algorithm least_duration --group "$GROUP" "${store[@]}" "${marks[@]}"
+          echo $((SECONDS - started)) > "$RUNNER_TEMP/pytest-wall-part-$GROUP.txt"
 
       # #5166 part B: the per-test time gate (a test over 10 s needs a slow marker or a baseline entry; a baselined one
       # fails over 2x). Part of this required job, so it always reports; the suite total is the suite-time job's.
@@ -258,9 +261,13 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-      - name: Keep this part's durations (nightly, #4847)
+      # #5133: the seconds pytest-split records are per-test times under `-n auto` contention, and the contention differs by
+      # part; scaled so the part's seconds sum to its measured pytest wall, the next run's least_duration balances wall time.
+      - name: Keep this part's durations, wall-calibrated (nightly, #4847, #5133)
         if: github.event_name == 'schedule' && success()
-        run: cp .test_durations "$RUNNER_TEMP/durations-part-${{ matrix.group }}.json"
+        run: |
+          python3 tests/tools/calibrate_test_durations.py .test_durations "$RUNNER_TEMP/durations-part-${{ matrix.group }}.json" \
+            --wall "$(cat "$RUNNER_TEMP/pytest-wall-part-${{ matrix.group }}.txt")"
 
       - name: Upload this part's durations (nightly, #4847)
         if: github.event_name == 'schedule' && success()

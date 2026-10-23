@@ -88,6 +88,14 @@ PILOT_REPOS: dict[str, dict[str, Any]] = {
         "pin": None,
         "burned": True,
     },
+    # The same sample at the end of its 2023 build-out (after the 2022-12..2023-02 renames and the 2023-08/09 burst):
+    # the maintenance phase, where the midpoint pin above sits inside the build-out.
+    "cbsa-late": {
+        "url": "https://github.com/cicsdev/cics-banking-sample-application-cbsa",
+        "pin": "f15453ba1d",
+        "burned": True,
+        "clone_as": "cbsa",
+    },
     "genapp": {"url": "https://github.com/cicsdev/cics-genapp", "pin": None, "burned": True},
     # zECS's sources arrive with the 2016-11-29 "Initial commit on github"; a midpoint pin would scan only markdown.
     "zecs": {"url": "https://github.com/walmartlabs/zECS", "pin": "9ab1e35", "burned": True},

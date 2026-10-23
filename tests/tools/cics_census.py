@@ -665,6 +665,8 @@ HISTORY = REPO / "docs" / "language_status" / "blockers_history.jsonl"
 GENERATED_DIR = "docs/language_status/blockers"
 GENERATED_FILES = ("blockers.txt", "blockers.json", "meta.json")
 GENERATED_HISTORY = f"{GENERATED_DIR}/blockers_history.jsonl"
+# #6064: the LOCAL census series (tests/tools/census_nightly.py): one line per main SHA, census repos included, counts only
+GENERATED_CENSUS_HISTORY = f"{GENERATED_DIR}/census_history.jsonl"
 
 
 def _git(*argv: str) -> str:
@@ -1015,7 +1017,8 @@ def cmd_history(args: argparse.Namespace) -> int:
     path = args.file or HISTORY
     if args.action == "show":
         if args.generated:  # the nightly series published by evidence-refresh.yml (#4863)
-            rows = [json.loads(ln) for ln in read_generated(GENERATED_HISTORY).splitlines() if ln.strip()]
+            series = GENERATED_CENSUS_HISTORY if args.series == "census" else GENERATED_HISTORY
+            rows = [json.loads(ln) for ln in read_generated(series).splitlines() if ln.strip()]
         else:
             rows = read_history(path)
         if args.json:
@@ -1146,6 +1149,8 @@ def main(argv: list[str] | None = None) -> int:
     h.add_argument("--nightly", action="store_true", help="append: a nightly line (no PR; one per SHA)")
     h.add_argument("--generated", action="store_true", help="show: the nightly series on origin/generated "
                    "(blockers_history.jsonl there; fetched first)")  # fmt: skip
+    h.add_argument("--series", choices=["nightly", "census"], default="nightly", help="show --generated: the CI "
+                   "nightly series, or the local census series (census_nightly.py, #6064)")  # fmt: skip
     h.add_argument("--note", help="append: a note (e.g. what the survey left out)")
     h.add_argument("--file", type=Path, help=f"the history file (default {HISTORY.relative_to(REPO)})")
     h.add_argument("--json", action="store_true")

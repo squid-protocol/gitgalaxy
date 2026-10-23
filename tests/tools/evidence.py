@@ -101,6 +101,7 @@ MUTATION_INPUTS = ("port", "case", "corpus", "harness", "oracle")  # Q3: the gen
 HARNESS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
            "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py",
            "tests/tools/equivalence_cics_containers.py", "tests/tools/equivalence_cics_filecontrol.py",
+           "tests/tools/equivalence_cics_conditions.py",
            "tests/tools/equivalence_cics_tempstorage.py",
            "tests/tools/equivalence_call.py",
            "tests/tools/equivalence_cache.py", "tests/tools/equivalence_db2.py", "tests/tools/equivalence_oracle.py",
@@ -241,6 +242,7 @@ COMPONENTS: tuple[Component, ...] = (
             "tests/tools/equivalence_cics.py",
             "tests/tools/equivalence_cics_containers.py",
             "tests/tools/equivalence_cics_filecontrol.py",
+            "tests/tools/equivalence_cics_conditions.py",
             "tests/tools/equivalence_cics_tempstorage.py",
         ),  # #5274: its families
         lambda u: u.cics_harness,

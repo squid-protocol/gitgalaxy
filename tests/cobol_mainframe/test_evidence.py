@@ -137,7 +137,7 @@ def test_committed_approvals_name_a_person_and_what_they_attest():
 
 # ---- only a person writes an approval -----------------------------------------------------------------------------
 _TOOLS_WITHOUT_APPROVALS = ("equivalence.py", "equivalence_call.py", "equivalence_cics.py",
-                            "equivalence_cics_containers.py", "equivalence_cics_filecontrol.py", "cics_crucible.py",
+                            "equivalence_cics_containers.py", "equivalence_cics_filecontrol.py", "equivalence_cics_tempstorage.py", "cics_crucible.py",
                             "mutation.py", "mutation_crucible.py", "mutation_scores.py", "crucible_port_provenance.py")  # fmt: skip
 _ALLOWED_WRITERS = {"_append_approval", "new_record", "save"}
 

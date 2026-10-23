@@ -65,6 +65,7 @@ HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.p
                  "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py",
                  "tests/tools/equivalence_cics_containers.py",  # #5274: the CICS harness's containers family
                  "tests/tools/equivalence_cics_filecontrol.py",  # #5274: ... and its file control family
+                 "tests/tools/equivalence_cics_tempstorage.py",  # #5274: ... and its temporary storage family
                  "tests/tools/cobol_coverage.py",  # #4023: every COBOL run is traced through it
                  "tests/equivalence/faults/ggfault.c", "tests/equivalence/faults/ggabend.c",  # fault runs, CEE3ABD
                  "tests/equivalence/faults/ggdisplay.c",  # #4056: DISPLAY as IBM writes it

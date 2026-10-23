@@ -990,29 +990,35 @@ class _RespCics(_KeyCics):
 
 
 @pytest.mark.parametrize(
-    ("text", "call"),
+    ("text", "cmd", "call"),
     [
-        ("SYNCPOINT ROLLBACK RESP(R) RESP2(R2)", "task.rollback();"),  # CBSA DBCRFUN 564, INQACC 682
-        ("SYNCPOINT ROLLBACK RESP(R) RESP2(R2)".replace("SYNCPOINT ROLLBACK", "SYNCPOINT ROLLBACK NOHANDLE"),
-         "task.rollback();"),
-        ("SYNCPOINT RESP(R) RESP2(R2)", "task.syncpoint();"),  # XFRFUN 407
-        ("SYNCPOINT", "task.syncpoint();"),
+        ("SYNCPOINT ROLLBACK RESP(R) RESP2(R2)", "ROLLBACK", "task.rollback();"),  # CBSA DBCRFUN 564, INQACC 682
+        ("SYNCPOINT ROLLBACK NOHANDLE RESP(R) RESP2(R2)", "ROLLBACK", "task.rollback();"),
+        ("SYNCPOINT RESP(R) RESP2(R2)", "SYNCPOINT", "task.syncpoint();"),  # XFRFUN 407
+        ("SYNCPOINT", "SYNCPOINT", "task.syncpoint();"),
     ],
 )  # fmt: skip
-def test_syncpoint_writes_normal_into_eibresp_resp_and_resp2(text, call):
-    """#4437 (left by #4411): RESP / RESP2 on SYNCPOINT [ROLLBACK] were accepted and never written, so a program
-    testing `WS-CICS-RESP NOT = DFHRESP(NORMAL)` read what the previous command left there. In the region NORMAL is
-    the only outcome (det.cics.OPTIONS says why); it is written as CICS writes it, and no condition is raised."""
+def test_syncpoint_writes_the_planned_outcome_into_eibresp_resp_and_resp2(text, cmd, call):
+    """#4437 (left by #4411): RESP / RESP2 on SYNCPOINT [ROLLBACK] were accepted and never written. #6271 (X71): the
+    outcome is the one the scenario plans for the command (NORMAL with no plan), the command runs only when none is
+    planned, and the outcome is written as CICS writes it (a condition with no RESP coded raises HANDLE CONDITION)."""
     c = _RespCics()
-    assert c.command(text, "") == [call, "OUTCOME(0, 0);"]
+    assert c.command(text, "") == [
+        f'int[] planned1 = task.planned("{cmd}", "-");',
+        f"if (planned1[0] == 0) {call}",
+        "OUTCOME(planned1[0], planned1[1]);",
+    ]
     (opts,) = c.outcomes
-    assert "NOHANDLE" in opts  # NORMAL raises nothing: no HANDLE CONDITION dispatch
     assert ("RESP" in opts) == ("RESP(" in text) and ("RESP2" in opts) == ("RESP2(" in text)
 
 
 def test_syncpoint_resp2_alone_is_written_too():
     assert _RespCics().command("SYNCPOINT ROLLBACK RESP2(R2)", "") == [
-        "task.rollback();", "OUTCOME(0, 0);", "STORE(R2, BigDecimal.valueOf(0));"]  # fmt: skip
+        'int[] planned1 = task.planned("ROLLBACK", "-");',
+        "if (planned1[0] == 0) task.rollback();",
+        "OUTCOME(planned1[0], planned1[1]);",
+        "STORE(R2, BigDecimal.valueOf(planned1[1]));",
+    ]
 
 
 # A sample of each modelled command that accepts RESP; the commands this double cannot translate say why their RESP

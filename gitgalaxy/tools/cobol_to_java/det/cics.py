@@ -1340,10 +1340,17 @@ class Cics(ConditionCommands, ContainerCommands, FileControlCommands, TaskContro
         if verb in ("SYNCPOINT", "SYNCPOINT ROLLBACK"):
             # #4437: NORMAL -- the only outcome in this region (OPTIONS says why); EIBRESP / RESP / RESP2 written as
             # CICS writes them, never left as the previous command set them
-            call = f"{ind}task.{'rollback' if verb == 'SYNCPOINT ROLLBACK' or 'ROLLBACK' in opts else 'syncpoint'}();"
-            out = [call, *self.outcome({**opts, "NOHANDLE": None}, "0", "0", ind)]  # (NORMAL raises no condition)
+            back = verb == "SYNCPOINT ROLLBACK" or "ROLLBACK" in opts
+            pl = g.tmpname(
+                "planned"
+            )  # #6271 (X71): a planned INVREQ (RESP2 200) is not performed and raises as any condition
+            call = f'{ind}int[] {pl} = task.planned({G_jstr("ROLLBACK" if back else "SYNCPOINT")}, "-");'
+            call2 = f"{ind}if ({pl}[0] == 0) task.{'rollback' if back else 'syncpoint'}();"
+            out = [call, call2, *self.outcome(opts, f"{pl}[0]", f"{pl}[1]", ind)]
             if "RESP2" in opts and "RESP" not in opts:  # RESP2 alone is written too
-                out.append(ind + self.g.store_into(self.ref(_arg(opts["RESP2"])), "BigDecimal.valueOf(0)", False))
+                out.append(
+                    ind + self.g.store_into(self.ref(_arg(opts["RESP2"])), f"BigDecimal.valueOf({pl}[1])", False)
+                )
             return out
         if verb == "SEND CONTROL":
             return self.send_control(opts, ind)
@@ -2191,9 +2198,11 @@ class Cics(ConditionCommands, ContainerCommands, FileControlCommands, TaskContro
         flags = [o for o in MAP_OPTIONS if o in opts]
         screen = "null" if "MAPONLY" in opts else f"{cls}.fromValues({v})"
         out.append(f"{ind}{cls} {scr} = {screen};")
-        out.append(f"{ind}task.sendMap({G_jstr(m)}, {G_jstr(ms)}, {scr}, {sub}"
+        pl = self.g.tmpname("planned")  # #6271 (X71): a planned INVMPSZ / TSIOERR / INVREQ sends nothing
+        out.append(f'{ind}int[] {pl} = task.planned("SEND-MAP", {G_jstr(m)});')
+        out.append(f"{ind}if ({pl}[0] == 0) task.sendMap({G_jstr(m)}, {G_jstr(ms)}, {scr}, {sub}"
                    f"{''.join(', ' + G_jstr(x) for x in flags)});")  # fmt: skip
-        return out + self.outcome(opts, "0", "0", ind)
+        return out + self.outcome(opts, f"{pl}[0]", f"{pl}[1]", ind)
 
     def receive_map(self, opts: dict, ind: str) -> list[str]:
         # #4737 (X28): ASIS -- IBM: "lowercase characters in the 3270 input data stream are not translated to uppercase".
@@ -2209,8 +2218,11 @@ class Cics(ConditionCommands, ContainerCommands, FileControlCommands, TaskContro
         into = self.ref(opts["INTO"]) if opts.get("INTO") else E.Ref(m + "I")
         fi = self.g.field_expr(into)
         r, vals, resp = self.g.tmpname("received"), self.g.tmpname("typed"), self.g.tmpname("resp")
-        out = [*guard, f"{ind}java.util.Optional<{cls}> {r} = task.receive({G_jstr(m)}, {G_jstr(ms)}, {cls}.class);",
-               f"{ind}int {resp} = {r}.isPresent() ? 0 : 36;", f"{ind}if ({r}.isPresent()) {{",
+        pl = self.g.tmpname("planned")  # #6271 (X71): a planned INVMPSZ / INVREQ receives nothing: INTO is untouched
+        out = [*guard, f"{ind}int[] {pl} = task.planned(\"RECEIVE-MAP\", {G_jstr(m)});",
+               f"{ind}java.util.Optional<{cls}> {r} = {pl}[0] != 0 ? java.util.Optional.empty() "
+               f": task.receive({G_jstr(m)}, {G_jstr(ms)}, {cls}.class);",
+               f"{ind}int {resp} = {pl}[0] != 0 ? {pl}[0] : {r}.isPresent() ? 0 : 36;", f"{ind}if ({r}.isPresent()) {{",
                f"{ind}    java.util.Arrays.fill({fi}.storage().bytes, {fi}.offset(), {fi}.offset() + {fi}.length(), "
                "(byte) 0);",
                f"{ind}    java.util.Map<String, String> {vals} = {r}.get().screenValues();"]  # fmt: skip

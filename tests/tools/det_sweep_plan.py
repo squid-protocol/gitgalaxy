@@ -38,7 +38,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CASES = REPO_ROOT / "tests" / "equivalence"
-MAX_SHARDS = 6  # full sweep: runners (#5135: 6 fat shards, ~10 min each, not 20 that queue behind the 20-job pool; a narrow plan starts one per PER_SHARD cases)
+MAX_SHARDS = 6  # runners at most (#5135: not 20 that queue behind the 20-job pool); #5919: durations size the count below it, and without them a full sweep takes 6, a narrow plan one per PER_SHARD cases
 PER_SHARD = 3  # narrow: about this many cases per runner
 # #4901: the Db2 cases run on their own runners (each starts IBM's Db2 container, minutes), in parallel with the shards
 # #5882: a full sweep's Db2 runners scale with the Db2 cases (a fixed 4 timed shards out at 70 cases): one per
@@ -54,6 +54,8 @@ DB2_PER_SHARD = 6  # narrow: about this many Db2 cases per runner (a Db2 start i
 DB2_SETUP_S = 420  # job start, checkout, Db2 container + databases (~6 min, #5882) before the first proof
 DB2_TARGET_S = 15 * 60  # a Db2 job, start to sweep end (det_sweep_timing.BUDGET_SECONDS)
 SHARD_SETUP_S = 300  # a non-Db2 shard: checkout, install, the GnuCOBOL image
+SHARD_TARGET_S = 10 * 60  # #5919: a non-Db2 shard, start to sweep end (the fewest runners that fit)
+MAX_RATIO = 1.3  # planned slowest / fastest shard (det_sweep_timing.MAX_RATIO)
 PROOF_JOBS = 4  # proof_sweep.py --jobs: cases proven at once in a shard
 TIMEOUT_FLOOR, TIMEOUT_CEILING = 25, 45  # minutes
 DEFAULT_TIMEOUT = 30  # minutes, when there are no durations to size from
@@ -324,15 +326,49 @@ def narrow_by_ports(check: Path, touched: list[str], cases: dict[str, dict]) -> 
                       f"{len(cases) - len(affected)} case(s) carried forward unchanged"}  # fmt: skip
 
 
-def shards_for(p: dict) -> list[str]:
-    """The runner labels for a plan: MAX_SHARDS for a full sweep, one per PER_SHARD cases when narrow, none for no cases."""
+def shards_for(p: dict, durations: dict[str, float] | None = None, waiting: int | None = None) -> list[str]:
+    """The runner labels for a plan, none for no cases. With `durations` (#5919): the fewest runners whose slowest fits
+    SHARD_TARGET_S, at most MAX_SHARDS (halved while PR jobs queue), then fewer while the planned slowest/fastest ratio
+    is over MAX_RATIO; the plan fails (PlanError) when too many cases are unmeasured. Without: MAX_SHARDS for a full
+    sweep, one per PER_SHARD cases when narrow."""
     if p["mode"] == "ports":
         return []  # not final: --ports turns it into a narrow (or full) plan
-    if p["mode"] == "full":
+    if durations is not None:
+        names = sorted(n for n, c in case_dirs().items() if not is_db2(c)) if p["cases"] == "all" else list(p["cases"])
+        n = _sized_shards(names, durations, waiting)
+    elif p["mode"] == "full":
         n = MAX_SHARDS
     else:
         n = min(MAX_SHARDS, -(-len(p["cases"]) // PER_SHARD))
     return [f"{i}/{n}" for i in range(1, n + 1)]
+
+
+def _loads(weight: dict[str, float], n: int) -> list[float]:
+    """Planned seconds in each of `n` shards, longest case first into the lightest (what proof_sweep does)."""
+    loads = [0.0] * max(1, n)
+    for w in sorted(weight.values(), reverse=True):
+        loads[loads.index(min(loads))] += w
+    return loads
+
+
+def planned_ratio(weight: dict[str, float], n: int) -> float | None:
+    """Slowest / fastest shard's planned work for `n` shards; None for fewer than two, or an idle shard."""
+    if n < 2 or not weight:
+        return None
+    loads = _loads(weight, n)
+    return max(loads) / min(loads) if min(loads) > 0 else None
+
+
+def _sized_shards(names: list[str], durations: dict[str, float], waiting: int | None) -> int:
+    """The non-Db2 shard count for `names`: the target-fitting count (ci_shard_plan), reduced until the planned ratio is
+    within MAX_RATIO (a smaller count balances better; one shard always does)."""
+    shard_plan = _shard_plan()
+    w, missing = shard_plan.weights(names, durations)
+    shard_plan.check_measured(missing, len(w))
+    n = shard_plan.shards_for(w, SHARD_SETUP_S, PROOF_JOBS, SHARD_TARGET_S, shard_plan.pool_cap(MAX_SHARDS, waiting))
+    while n > 1 and (planned_ratio(w, n) or 0.0) > MAX_RATIO:
+        n -= 1
+    return n
 
 
 def _shard_plan():
@@ -553,7 +589,11 @@ def db2_setup_from(timing_paths: list[Path]) -> float | None:
 
 def emit(p: dict, github_output: Path | None, durations: dict[str, float] | None = None,
          waiting: int | None = None, db2_setup_s: float | None = None) -> int:  # fmt: skip
-    p["matrix"] = shards_for(p)
+    p["matrix"] = shards_for(p, durations, waiting)
+    if durations is not None and len(p["matrix"]) > 1:
+        names = [n for n, c in case_dirs().items() if not is_db2(c)] if p["cases"] == "all" else list(p["cases"])
+        ratio = planned_ratio(_shard_plan().weights(names, durations)[0], len(p["matrix"]))
+        p["ratio"] = None if ratio is None else round(ratio, 3)
     p["shards"] = len(p["matrix"])
     p["db2_matrix"] = db2_shards_for(
         p, durations=durations, waiting=waiting, setup_s=db2_setup_s

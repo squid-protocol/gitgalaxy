@@ -322,7 +322,11 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # #4443 re-ran CARDDEMO COMEN01C and COACTVWC (seed 0, 150 mutants each; their records judged older ports, so their
     # survivors were skipped), ending the skip: 6 more flagged survivors, all unreachable: the facade's lastLinkBytes()
     # and the program-name literal in region.run / region.linked. 89 -> 95.
-    assert len(flagged) == 95 and verdicts.count("unreachable") == 92 and verdicts.count("equivalent") == 3
+    # #4049 slice 2 re-recorded COUSR00C (the hand port, full enumeration of 510 mutants; its record judged an older port,
+    # so its survivors were skipped): 14 more flagged survivors, all unreachable: the facade's handleLink / lastLinkBytes(),
+    # the 2-argument handleTransaction, the program-name literal in region.run / region.linked, the lastAnswerBytes
+    # assignment and the four browse helpers' repository-method literals. 95 -> 109.
+    assert len(flagged) == 109 and verdicts.count("unreachable") == 106 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"CSUTLDTC"}
     assert {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C"} == {"COACTVWC", "COMEN01C"}
 

@@ -155,3 +155,20 @@ def test_cbsa_custctrl_reaches_the_sysiderr_retry_with_a_scenario():
     assert [(f["cmd"], f["resp"], f["nth"]) for f in s["faults"]] == [("READ", "SYSIDERR", 1)]
     assert "is not reached: SYSIDERR is not an injectable" not in case["notes"]
     assert "cbsa-custctrl" not in io.load()
+
+
+def test_cobtupdt_open_guard_and_sqlcode_evaluates_are_stated_for_both_cases():
+    """#4507: COBTUPDT's proofs leave 16/20 branches; the four others are the OPEN status guard (84) and the three
+    `EVALUATE TRUE` that name no positive SQLCODE but +100 (151 insert, 177 update, 207 delete), stated on both cases."""
+    ledger = io.load()
+    want = [
+        ("0001-OPEN-FILES", 84, "IF", "false", "G"),
+        ("10031-INSERT-DB", 151, "EVALUATE", "none", "R"),
+        ("10032-UPDATE-DB", 177, "EVALUATE", "none", "R"),
+        ("10033-DELETE-DB", 207, "EVALUATE", "none", "R"),
+    ]
+    for case in ("carddemo-cobtupdt", "carddemo-cobtupdt-generated"):
+        assert [(e["unit"], e["line"], e["kind"], e["outcome"], e["family"]) for e in ledger[case]] == want
+        assert all(e["reason"] for e in ledger[case])
+        uncovered = [{"line": line, "kind": kind, "outcome": outcome} for _, line, kind, outcome, _ in want]
+        assert io.adjust(case, (9, 9, 16, 20), uncovered, ledger)[0] == (9, 9, 16, 16)

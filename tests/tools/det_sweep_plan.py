@@ -7,7 +7,8 @@ A pull request that changes no det input (DET_INPUTS: docs, other engine code ..
 so the workflow can run -- and report its required `det` check -- on every PR). One that changes only files under
 tests/equivalence/<case>/ re-proves those cases (and the cases that
 take that case's port: `port_from`, `uses_ports`, transitively); so does one changing a case's coverage-ledger file,
-tests/equivalence/det_sweep_coverage/<case>.json (#4789: the sweep of that case is what checks the entry). A change to the translator + runtime (det/) or the generator (GENERATOR: the forges that write the
+tests/equivalence/det_sweep_coverage/<case>.json (#4789: the sweep of that case is what checks the entry), or its
+tests/equivalence/infeasible_outcomes/<case>.json (#6072). A change to the translator + runtime (det/) or the generator (GENERATOR: the forges that write the
 project) is judged by the port diff (mode "ports", then --ports; #4814, #4847). #5885: a shared file is narrowed
 to the cases it can move -- the baseline and infeasible_outcomes.json to the cases whose entries changed (KEYED), the
 corpora pin to the cases on a corpus whose pin changed, a harness / oracle file to the cases that use its component
@@ -125,6 +126,7 @@ def det_input(path: str) -> bool:
 
 # #4789: <case>.json, the det-sweep coverage ledger's entry of a case
 LEDGER_DIR = "tests/equivalence/det_sweep_coverage/"
+INFEASIBLE_DIR = "tests/equivalence/infeasible_outcomes/"  # #6072: one file per case, <case>.json
 
 
 def case_dirs(cases_dir: Path = CASES) -> dict[str, dict]:
@@ -269,6 +271,9 @@ def plan(
             continue
         if f.startswith(LEDGER_DIR) and f.endswith(".json") and f[len(LEDGER_DIR) : -5] in cases:
             touched.add(f[len(LEDGER_DIR) : -5])  # #4789: a case's ledger entry is checked by sweeping that case
+            continue
+        if f.startswith(INFEASIBLE_DIR) and f.endswith(".json") and f[len(INFEASIBLE_DIR) : -5] in cases:
+            touched.add(f[len(INFEASIBLE_DIR) : -5])  # #6072: a case's stated outcomes are checked by sweeping it
             continue
         if f in KEYED or f == CORPORA:
             got = None

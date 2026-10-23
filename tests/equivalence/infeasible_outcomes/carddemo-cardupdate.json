@@ -1,0 +1,118 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-cardupdate",
+  "entries": [
+    {
+      "unit": "1210-EDIT-ACCOUNT",
+      "line": 730,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF`: WS-RETURN-MSG is INITIALIZEd (374-375) and SET to SPACES at 384; 1210-EDIT-ACCOUNT is the first edit, PERFORMed only at 647 (0000-MAIN WHEN OTHER -> 1000-PROCESS-INPUTS -> 1100-RECEIVE-MAP -> 1200-EDIT-MAP-INPUTS), and nothing on that path (YYYY-STORE-PFKEY in CSSTRPFY writes only CCARD-AID-*, 1100 writes CC-ACCT-ID/CC-CARD-NUM/CCUP-NEW-*) writes WS-RETURN-MSG before it, so the message is always still off."
+    },
+    {
+      "unit": "1210-EDIT-ACCOUNT",
+      "line": 743,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF` at 743 is reached only when the blank test at 725-727 failed (that branch GOes TO the exit at 735), so this paragraph set no message either; as for line 730, WS-RETURN-MSG is still the SPACES set at 384."
+    },
+    {
+      "unit": "1230-EDIT-NAME",
+      "line": 816,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "1230-EDIT-NAME is PERFORMed only at 698, after the fetched-details branch of 1200-EDIT-MAP-INPUTS (1210/1220 run only in the not-fetched branch, which GOes TO the exit at 661). On that path the only write of WS-RETURN-MSG after 384 is `SET NO-CHANGES-DETECTED` at 682, and that is followed by the GO TO exit at 692 (685-692), so on reaching 698 WS-RETURN-MSG is SPACES and `IF WS-RETURN-MSG-OFF` is always true."
+    },
+    {
+      "unit": "1230-EDIT-NAME",
+      "line": 833,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "Reached only when the blank test at 811-813 failed (that branch GOes TO the exit at 819); as for line 816, WS-RETURN-MSG is still SPACES on entry to 1230 and the paragraph has set no message before 833."
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 949,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1011",
+      "family": "G",
+      "reason": "WHEN CCUP-CHANGES-OKAYED-AND-DONE ('C'): 2000-DECIDE-ACTION is PERFORMed only at 538, in 0000-MAIN's WHEN OTHER, which a 'C' action never reaches (WHEN CCUP-CHANGES-OKAYED-AND-DONE at 517 comes first, after 435-439 which GO on to XCTL); 1100/1200 write the action only as 'E' (696) or 'N' (713), and the 'C' SET at 1000 is inside this same EVALUATE's WHEN at 988."
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 972,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "WHEN CCUP-SHOW-DETAILS ('S'): an action of 'S' survives 1200-EDIT-MAP-INPUTS only through the GO TO at 692 -- 685-687 let 'S' through only when NO-CHANGES-DETECTED was SET at 682; otherwise 696 SETs CCUP-CHANGES-NOT-OK ('E'). Nothing between 692 and 972 (1000's MOVEs at 569-572 read WS-RETURN-MSG) writes WS-RETURN-MSG, so `IF INPUT-ERROR OR NO-CHANGES-DETECTED` is always true. (The 'S' SET at 964 is inside the WHEN 954/958 body, not this one.)"
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 1013,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "Inside WHEN CCUP-CHANGES-OKAYED-AND-DONE (1011), which 2000-DECIDE-ACTION never takes: see the WHEN@1011 entry (517 catches a 'C' action before 0000-MAIN's WHEN OTHER PERFORMs 2000 at 538)."
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 1013,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "Inside WHEN CCUP-CHANGES-OKAYED-AND-DONE (1011), which 2000-DECIDE-ACTION never takes: see the WHEN@1011 entry (517 catches a 'C' action before 0000-MAIN's WHEN OTHER PERFORMs 2000 at 538)."
+    },
+    {
+      "unit": "3200-SETUP-SCREEN-VARS",
+      "line": 1099,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "The EVALUATE runs only when not CDEMO-PGM-ENTER (1084), and its WHENs cover LOW-VALUES/SPACES (1100), 'S' (1107) and 'E','N','C','L','F' (1113). CCUP-CHANGE-ACTION reaches 3000-SEND-MAP with REENTER only from WHEN CDEMO-PGM-ENTER/CCARD-AID-PFK12 at 482-485 (which SETs CCUP-SHOW-DETAILS at 494) or from WHEN OTHER at 535 after 2000-DECIDE-ACTION. WHEN OTHER is reached only with an action other than 'C', 'L', 'F' (517-518 take those first); 1200-EDIT-MAP-INPUTS writes only 'E' (696) or 'N' (713); and in 2000 every value outside LOW-VALUES/SPACES, 'S', 'E', 'N' either takes WHEN 954/958 (PF12: 668-670 already set FOUND-CARDS-FOR-ACCOUNT and both filters valid, and 9100 never writes WS-INFO-MSG, so 963 SETs CCUP-SHOW-DETAILS) or WHEN OTHER at 1019, which PERFORMs ABEND-ROUTINE and ends the task with EXEC CICS ABEND (1550). The 517 path (523) and the 502/504 paths keep CDEMO-PGM-ENTER (502) or INITIALIZE the action to SPACES (506). So the action is always one of LOW-VALUES/SPACES, 'S', 'E', 'N', 'C', 'L', 'F', so WHEN OTHER is never taken."
+    },
+    {
+      "unit": "3250-SETUP-INFOMSG",
+      "line": 1140,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1157",
+      "family": "G",
+      "reason": "WHEN WS-NO-INFO-MESSAGE is tested only when not CDEMO-PGM-ENTER (1141) and the action matches none of 1143-1156 (LOW-VALUES/SPACES, 'S', 'E', 'N', 'C', 'L', 'F'). 3250 runs in 3000-SEND-MAP right after 3200 with the same state: CCUP-CHANGE-ACTION reaches 3000-SEND-MAP with REENTER only from WHEN CDEMO-PGM-ENTER/CCARD-AID-PFK12 at 482-485 (which SETs CCUP-SHOW-DETAILS at 494) or from WHEN OTHER at 535 after 2000-DECIDE-ACTION. WHEN OTHER is reached only with an action other than 'C', 'L', 'F' (517-518 take those first); 1200-EDIT-MAP-INPUTS writes only 'E' (696) or 'N' (713); and in 2000 every value outside LOW-VALUES/SPACES, 'S', 'E', 'N' either takes WHEN 954/958 (PF12: 668-670 already set FOUND-CARDS-FOR-ACCOUNT and both filters valid, and 9100 never writes WS-INFO-MSG, so 963 SETs CCUP-SHOW-DETAILS) or WHEN OTHER at 1019, which PERFORMs ABEND-ROUTINE and ends the task with EXEC CICS ABEND (1550). The 517 path (523) and the 502/504 paths keep CDEMO-PGM-ENTER (502) or INITIALIZE the action to SPACES (506). So the action is always one of LOW-VALUES/SPACES, 'S', 'E', 'N', 'C', 'L', 'F'."
+    },
+    {
+      "unit": "3250-SETUP-INFOMSG",
+      "line": 1140,
+      "kind": "EVALUATE",
+      "outcome": "none",
+      "family": "G",
+      "reason": "No WHEN matches only when the program is not CDEMO-PGM-ENTER (1141), the action is none of the 88 values tested at 1143-1156, and WS-INFO-MSG is non-blank (1157). CCUP-CHANGE-ACTION reaches 3000-SEND-MAP with REENTER only from WHEN CDEMO-PGM-ENTER/CCARD-AID-PFK12 at 482-485 (which SETs CCUP-SHOW-DETAILS at 494) or from WHEN OTHER at 535 after 2000-DECIDE-ACTION. WHEN OTHER is reached only with an action other than 'C', 'L', 'F' (517-518 take those first); 1200-EDIT-MAP-INPUTS writes only 'E' (696) or 'N' (713); and in 2000 every value outside LOW-VALUES/SPACES, 'S', 'E', 'N' either takes WHEN 954/958 (PF12: 668-670 already set FOUND-CARDS-FOR-ACCOUNT and both filters valid, and 9100 never writes WS-INFO-MSG, so 963 SETs CCUP-SHOW-DETAILS) or WHEN OTHER at 1019, which PERFORMs ABEND-ROUTINE and ends the task with EXEC CICS ABEND (1550). The 517 path (523) and the 502/504 paths keep CDEMO-PGM-ENTER (502) or INITIALIZE the action to SPACES (506). So the action is always one of LOW-VALUES/SPACES, 'S', 'E', 'N', 'C', 'L', 'F'."
+    },
+    {
+      "unit": "3300-SETUP-SCREEN-ATTRS",
+      "line": 1309,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "3300 is PERFORMed only by 3000-SEND-MAP (1042), right after 3250-SETUP-INFOMSG (1040), whose EVALUATE leaves WS-INFO-MSG non-blank: every WHEN (1141-1158) SETs a non-blank 88 value, and if none matches, WHEN WS-NO-INFO-MESSAGE (1157) failed, so it was already non-blank. Nothing at 1161-1308 writes WS-INFO-MSG, so `IF WS-NO-INFO-MESSAGE` at 1309 is never true."
+    },
+    {
+      "unit": "9200-WRITE-PROCESSING",
+      "line": 1455,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "DATA-WAS-CHANGED-BEFORE-UPDATE (an 88 of WS-RETURN-MSG) is SET only at 1511, and that branch GOes TO 9200-WRITE-PROCESSING-EXIT at 1518, leaving 9300 without returning to 1455. When 9300 returns normally its IF at 1503-1508 was true (CONTINUE), and on entry to 9200 (only from 990, with action 'N' so 1200 ran only 668-692) WS-RETURN-MSG is SPACES (384) or NO-CHANGES-DETECTED (682); 1446 is followed by its own GO TO at 1448. So `IF DATA-WAS-CHANGED-BEFORE-UPDATE` at 1455 is never true."
+    },
+    {
+      "unit": "ABEND-ROUTINE",
+      "line": 1533,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 28-29), outside the items INITIALIZEd at lines 374-376, and the program writes it only at line 1023 (a non-blank literal) and 1534. It is never LOW-VALUES."
+    }
+  ]
+}

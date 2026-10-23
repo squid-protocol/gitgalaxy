@@ -65,8 +65,8 @@ RUNTIME_OPTION_TABLE: dict[str, dict[str, Any]] = {
     "db2.bind.packages": {"kind": "value", "default": "none", "honoured": None, "policy": None,
         "reason": "the package list names where a bound program lives, not what it computes"},
     "db2.precompile.PARM": {"kind": "value", "default": "", "honoured": None, "policy": None,
-        "reason": "the precompiler PARM (HOST, APOST, XREF ...) is read from the source it was given; the corpus pin "
-                  "fixes that source"},
+        "reason": "the precompiler PARM is judged token by token (PRECOMPILE_OPTIONS): a listing or delimiter token "
+                  "changes no result, one that changes SQL text, dates, decimals or code pages is refused by name"},
     "db2.precompile.coprocessor": {"kind": "value", "default": "", "honoured": None, "policy": None,
         "reason": "how SQL reaches the compiler (precompiler or integrated coprocessor) is a build route; the det "
                   "translator reads the SQL statements themselves"},
@@ -129,6 +129,79 @@ def translator_rows() -> list[str]:
         f"{'recorded only' if r['policy'] is None else 'refused by name'} |"
         for key, r in TRANSLATOR_OPTIONS.items()
     ]
+
+
+# #4707: the Db2 precompiler PARM, judged token by token (the options file records it as one string). A token is NAME or
+# NAME(arg). policy None: no result depends on it. policy "refuse": it changes SQL text, dates, decimals or code pages,
+# so it is refused by name unless its argument is in `honoured` (the IBM default the harness runs under). A token with
+# no row is refused by name.
+PRECOMPILE_OPTIONS: dict[str, dict[str, Any]] = {
+    "HOST": {"policy": "refuse", "honoured": ("IBMCOB", "COBOL"),
+        "reason": "HOST names the host language whose declarations the precompiler reads; only COBOL is modelled"},
+    "APOST": {"policy": None, "reason": "the delimiter the precompiler writes into its own generated COBOL"},
+    "QUOTE": {"policy": None, "reason": "the delimiter the precompiler writes into its own generated COBOL"},
+    "XREF": {"policy": None, "reason": "a listing option"},
+    "NOXREF": {"policy": None, "reason": "a listing option"},
+    "SOURCE": {"policy": None, "reason": "a listing option"},
+    "NOSOURCE": {"policy": None, "reason": "a listing option"},
+    "FLAG": {"policy": None, "reason": "FLAG chooses which precompiler messages are listed"},
+    "LINECOUNT": {"policy": None, "reason": "a listing option (lines per page)"},
+    "ONEPASS": {"policy": None, "reason": "how many passes the precompiler makes over the source"},
+    "TWOPASS": {"policy": None, "reason": "how many passes the precompiler makes over the source"},
+    "APOSTSQL": {"policy": None, "reason": "the Db2 default: the apostrophe delimits an SQL string"},
+    "QUOTESQL": {"policy": "refuse", "honoured": (),
+        "reason": "QUOTESQL swaps the SQL string and delimited-identifier delimiters, so SQL text is read differently"},
+    "DATE": {"policy": "refuse", "honoured": ("ISO",),
+        "reason": "DATE decides the format of every date string; only ISO is modelled (db2.format.DATE)"},
+    "TIME": {"policy": "refuse", "honoured": ("ISO",),
+        "reason": "TIME decides the format of every time string; only ISO is modelled (db2.format.TIME)"},
+    "DEC": {"policy": "refuse", "honoured": ("15", "15."),
+        "reason": "DEC(31) changes decimal arithmetic precision; only DEC(15) is modelled (db2.format.DEC)"},
+    "DECPT": {"policy": "refuse", "honoured": (".", "PERIOD"),
+        "reason": "DECPT decides the decimal point of SQL literals; only the period is modelled (db2.format.DECPT)"},
+    "CCSID": {"policy": "refuse", "honoured": ("37", "1140"),
+        "reason": "CCSID decides the code page of SQL character data; see db2.ccsid.EBCDIC_CCSID"},
+    "STDSQL": {"policy": "refuse", "honoured": ("NO",),
+        "reason": "STDSQL(YES) changes SQLCODE / SQLSTATE handling and host-variable rules; not modelled"},
+    "SQL": {"policy": "refuse", "honoured": ("DB2",),
+        "reason": "SQL(ALL) changes which SQL statements the precompiler accepts; not modelled"},
+    "GRAPHIC": {"policy": "refuse", "honoured": (),
+        "reason": "GRAPHIC changes how DBCS literals in SQL are read; not modelled"},
+}  # fmt: skip
+PRECOMPILE_OPTION = "db2.precompile.PARM"
+_PARM_TOKEN = re.compile(r"([A-Za-z][A-Za-z0-9]*)(?:\(([^)]*)\))?")
+
+
+def precompile_tokens(value: Any) -> list[tuple[str, str | None]]:
+    """The (NAME, arg) pairs of a recorded precompiler PARM (`HOST(IBMCOB),XREF,FLAG(I)` is HOST IBMCOB, XREF None,
+    FLAG I): the text before a ' via ' note, a name upper-cased, an argument stripped and upper-cased."""
+    text = str(value if value is not None else "").split(" via ", 1)[0]
+    return [
+        (m.group(1).upper(), None if m.group(2) is None else m.group(2).strip().upper())
+        for m in _PARM_TOKEN.finditer(text)
+    ]
+
+
+def precompile_rows() -> list[str]:
+    """The PRECOMPILE_OPTIONS rows as the markdown table lines register C18 holds (tests pin the page to them)."""
+    return [
+        f"| `db2.precompile.PARM.{key}` | {'no' if r['policy'] is None else 'yes'}: {r['reason']} | "
+        f"{'recorded only' if r['policy'] is None else 'refused by name unless ' + (', '.join(r['honoured']) or 'never')} |"
+        for key, r in PRECOMPILE_OPTIONS.items()
+    ]
+
+
+def _precompile_hits(path: str, value: Any, source: str | None) -> list[dict[str, Any]]:
+    hits = []
+    for name, arg in precompile_tokens(value):
+        row = PRECOMPILE_OPTIONS.get(name)
+        if row is not None and (row["policy"] is None or (arg is not None and arg in row["honoured"])):
+            continue
+        token = name if arg is None else f"{name}({arg})"
+        why = row["reason"] if row else "no row in the precompiler PARM table"
+        hits.append({"option": path, "declared": token, "policy": "refuse", "applied": None, "source": source,
+                     "note": f"{path}={value}: {token}: {why} (#4707)"})  # fmt: skip
+    return hits
 
 
 # #4707: which burned estates exercise each judged option (policy refuse or declare): the corpora whose source holds the
@@ -195,6 +268,8 @@ def runtime_unhonoured(
                 state = state.lstrip("0")  # 037 is 37
             if path == TRANSLATOR_OPTION:
                 out.extend(_translator_hits(path, value, (sources or {}).get(path)))
+            elif path == PRECOMPILE_OPTION:
+                out.extend(_precompile_hits(path, value, (sources or {}).get(path)))
             if row["policy"] is None or state in row["honoured"] or (row["kind"] == "ccsid" and state == code_page):
                 continue
             out.append({"option": path, "declared": state, "policy": row["policy"], "source": (sources or {}).get(path),

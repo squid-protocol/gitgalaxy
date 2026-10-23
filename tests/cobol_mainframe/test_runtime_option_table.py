@@ -24,10 +24,13 @@ from gitgalaxy.core import estate_options as eo  # noqa: E402
 from gitgalaxy.core.runtime_options import (
     CICS_CONVENTIONS,
     RUNTIME_OPTION_TABLE,
+    PRECOMPILE_OPTIONS,
     RUNTIME_USED_BY,
     TRANSLATOR_OPTIONS,
     calibration_problems,
     conventions_rows,
+    precompile_rows,
+    precompile_tokens,
     runtime_effect,
     runtime_unhonoured,
     translator_rows,
@@ -398,6 +401,92 @@ def test_the_translator_table_rows_are_complete():
     for key, row in TRANSLATOR_OPTIONS.items():
         assert row["policy"] in (None, "refuse") and row["reason"], key
         assert key == key.upper(), key
+
+
+# --- the Db2 precompiler PARM, judged token by token (#4707) ---
+
+PARM = "db2.precompile.PARM"
+
+
+def _parm(value, sources=None):
+    return [h for h in runtime_unhonoured({"db2": {"precompile.PARM": value}}, sources) if h["option"] == PARM]
+
+
+def test_the_register_lists_every_precompiler_parm_row():
+    text = (ROOT / "docs" / "language_status" / "register" / "C18.md").read_text(encoding="utf-8")
+    assert not [row for row in precompile_rows() if row not in text]
+
+
+def test_precompile_tokens_split_a_recorded_value():
+    assert precompile_tokens("HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST") == [
+        ("HOST", "IBMCOB"), ("XREF", None), ("SOURCE", None), ("FLAG", "I"), ("APOST", None)]  # fmt: skip
+    assert precompile_tokens("date( iso ), dec(31) via the DSNHPC step") == [("DATE", "ISO"), ("DEC", "31")]
+    assert precompile_tokens(None) == [] and precompile_tokens("") == []
+
+
+def test_the_precompile_table_rows_are_complete():
+    for key, row in PRECOMPILE_OPTIONS.items():
+        assert row["policy"] in (None, "refuse") and row["reason"], key
+        assert key == key.upper(), key
+        if row["policy"]:
+            assert isinstance(row["honoured"], tuple), key
+
+
+@pytest.mark.parametrize("path", ESTATES, ids=lambda p: p.stem)
+def test_every_precompiler_token_an_estate_records_has_a_row_and_none_is_refused(path):
+    data = json.loads(path.read_text(encoding="utf-8"))
+    entry = ((data.get("db2") or {}).get("precompile") or {}).get("PARM")
+    if entry is None:
+        pytest.skip("this estate records no precompiler PARM")
+    names = [n for n, _ in precompile_tokens(entry["value"])]
+    assert names and all(n in PRECOMPILE_OPTIONS for n in names), names
+    hits = eo.effective_options({"program": "P"}, data).unhonoured_runtime()
+    assert [h for h in hits if h["option"] == PARM] == []
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST",
+        "DATE(ISO),TIME(ISO),DEC(15),DECPT(.),CCSID(1140)",
+        "SQL(DB2),STDSQL(NO),NOXREF",
+    ],
+)
+def test_a_precompiler_parm_at_the_honoured_defaults_is_clean(value):
+    assert _parm(value) == []
+
+
+@pytest.mark.parametrize(
+    ("value", "token"),
+    [
+        ("XREF,NEWTOK", "NEWTOK"),
+        ("DATE(USA)", "DATE(USA)"),
+        ("TIME(EUR)", "TIME(EUR)"),
+        ("DEC(31)", "DEC(31)"),
+        ("DECPT(,)", "DECPT(,)"),
+        ("CCSID(285)", "CCSID(285)"),
+        ("DATE", "DATE"),
+        ("HOST(PLI)", "HOST(PLI)"),
+        ("QUOTESQL", "QUOTESQL"),
+        ("STDSQL(YES)", "STDSQL(YES)"),
+        ("GRAPHIC", "GRAPHIC"),
+    ],
+)
+def test_a_precompiler_token_the_harness_cannot_honour_is_refused_by_name(value, token):
+    (hit,) = _parm(value, {PARM: "f:3"})
+    assert (hit["policy"], hit["declared"], hit["source"]) == ("refuse", token, "f:3")
+    assert token in hit["note"]
+
+
+def test_only_the_offending_tokens_of_a_parm_are_refused():
+    assert [h["declared"] for h in _parm("HOST(IBMCOB),DATE(USA),XREF,DEC(31)")] == ["DATE(USA)", "DEC(31)"]
+
+
+def test_a_precompiler_refusal_reaches_the_oracle_and_the_resolver(put_estate):
+    case = put_estate("db2", "precompile.PARM", "HOST(IBMCOB),DATE(USA)")
+    with pytest.raises(common.UnsupportedOption, match=re.escape("DATE(USA)")):
+        common.compile_options(case, PLAIN)
+    common.compile_options(put_estate("db2", "precompile.PARM", "HOST(IBMCOB),XREF"), PLAIN)
 
 
 # --- the calibration hook against every recorded measurement (#4702 part 2) ---

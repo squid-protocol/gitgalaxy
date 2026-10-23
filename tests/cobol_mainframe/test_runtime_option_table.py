@@ -22,11 +22,13 @@ import equivalence_common as common  # noqa: E402
 
 from gitgalaxy.core import estate_options as eo  # noqa: E402
 from gitgalaxy.core.runtime_options import (
+    BIND_OPTIONS,
     CICS_CONVENTIONS,
     RUNTIME_OPTION_TABLE,
     PRECOMPILE_OPTIONS,
     RUNTIME_USED_BY,
     TRANSLATOR_OPTIONS,
+    bind_rows,
     calibration_problems,
     conventions_rows,
     precompile_rows,
@@ -487,6 +489,76 @@ def test_a_precompiler_refusal_reaches_the_oracle_and_the_resolver(put_estate):
     with pytest.raises(common.UnsupportedOption, match=re.escape("DATE(USA)")):
         common.compile_options(case, PLAIN)
     common.compile_options(put_estate("db2", "precompile.PARM", "HOST(IBMCOB),XREF"), PLAIN)
+
+
+# --- the Db2 bind options, judged per value (#4707) ---
+
+BIND = "db2.bind."
+
+
+def _bind(key, value, sources=None):
+    return [h for h in runtime_unhonoured({"db2": {f"bind.{key}": value}}, sources) if h["option"].startswith(BIND)]
+
+
+def test_the_register_lists_every_bind_row():
+    text = (ROOT / "docs" / "language_status" / "register" / "C18.md").read_text(encoding="utf-8")
+    assert not [row for row in bind_rows() if row not in text]
+
+
+def test_the_bind_table_rows_are_complete_and_stay_unjudged_in_the_runtime_table():
+    for key, row in BIND_OPTIONS.items():
+        assert row["reason"] and row["values"] and all(v == v.upper() for v in row["values"]), key
+        assert RUNTIME_OPTION_TABLE[BIND + key]["policy"] is None, key
+
+
+@pytest.mark.parametrize("path", ESTATES, ids=lambda p: p.stem)
+def test_every_bind_value_an_estate_records_is_accepted(path):
+    data = json.loads(path.read_text(encoding="utf-8"))
+    bind = (data.get("db2") or {}).get("bind") or {}
+    if not bind:
+        pytest.skip("this estate records no bind option")
+    assert all(BIND + name in RUNTIME_OPTION_TABLE for name in bind)
+    hits = eo.effective_options({"program": "P"}, data).unhonoured_runtime()
+    assert [h for h in hits if h["option"].startswith(BIND)] == []
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        *[("ISOLATION", v) for v in ("CS", "UR", "RR", "RS", "cs", " ur ")],
+        *[("CURRENTDATA", v) for v in ("YES", "NO", "no")],
+        *[("DYNAMICRULES", v) for v in ("RUN", "BIND", "bind")],
+        *[("VALIDATE", v) for v in ("RUN", "BIND", "run")],
+        ("ACTION", "REPLACE"), ("ACTION", "ADD"), ("packages", "none"), ("packages", "COLL.PKG"),
+    ],
+)  # fmt: skip
+def test_an_accepted_bind_value_is_clean(key, value):
+    assert _bind(key, value) == []
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        ("ISOLATION", "XX"), ("ISOLATION", "NC"), ("ISOLATION", ""), ("CURRENTDATA", "MAYBE"),
+        ("DYNAMICRULES", "DEFINEBIND"), ("DYNAMICRULES", "INVOKERUN"), ("VALIDATE", "NEVER"), ("VALIDATE", ""),
+    ],
+)  # fmt: skip
+def test_a_bind_value_the_harness_cannot_accept_is_refused_by_name(key, value):
+    (hit,) = _bind(key, value, {BIND + key: "f:9"})
+    assert (hit["policy"], hit["declared"], hit["source"], hit["applied"]) == (
+        "refuse",
+        value.strip().upper(),
+        "f:9",
+        None,
+    )
+    assert BIND + key in hit["note"] and "#4707" in hit["note"]
+
+
+def test_a_bind_refusal_reaches_the_oracle_and_the_resolver(put_estate):
+    with pytest.raises(common.UnsupportedOption, match=re.escape("db2.bind.ISOLATION")):
+        common.compile_options(put_estate("db2", "bind.ISOLATION", "XX"), PLAIN)
+    common.compile_options(put_estate("db2", "bind.ISOLATION", "UR"), PLAIN)
+    assert eo.effective_options(put_estate("db2", "bind.ISOLATION", "UR")).unhonoured_runtime() == []
 
 
 # --- the calibration hook against every recorded measurement (#4702 part 2) ---

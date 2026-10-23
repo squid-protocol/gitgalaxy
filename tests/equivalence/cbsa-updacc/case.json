@@ -272,6 +272,102 @@
    },
    "dto_entry": true,
    "why": "a failing run (account 99 not found) through the typed DTO alone, with every COMM-* field the caller sends non-blank / non-zero: the program writes only SCODE and SUCCESS on this path, so the returned COMMAREA shows each other field exactly as in_ mapped it (#4049; the field-by-field moves and widths at the DTO entry)"
+  },
+  {
+   "name": "null-eyecatcher",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "10",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_EYECATCHER (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-customer-number",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "11",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_CUSTOMER_NUMBER (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-next-statement",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "12",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_NEXT_STATEMENT (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-available-balance",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "13",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_AVAILABLE_BALANCE (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-actual-balance",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "14",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_ACTUAL_BALANCE (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-account-type",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "15",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_ACCOUNT_TYPE (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-interest-rate",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "16",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_INTEREST_RATE (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-overdraft-limit",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "17",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_OVERDRAFT_LIMIT (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
   }
  ],
  "notes": "CBSA's update-account service (UPDACC, LINKed with the UPDACC copybook's COMMAREA): the account is read by the program's own sort code (987654) and COMM-ACCNO with a SELECT INTO from Db2 table ACCOUNT (unqualified: the bind's QUALIFIER, IBMUSER); a failed SELECT (+100, -305 ...) or an account type that is blank or starts with a space gives COMM-SUCCESS 'N' and no UPDATE; otherwise ACCOUNT_TYPE, ACCOUNT_INTEREST_RATE and ACCOUNT_OVERDRAFT_LIMIT are UPDATEd, and the COMMAREA is refilled from the host variables, each date reformatted from Db2's character form (YYYY-MM-DD) to DDMMYYYY. The table is compared after every scenario."

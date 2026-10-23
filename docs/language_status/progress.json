@@ -1,5 +1,5 @@
 {
- "commit": "81344e56d",
+ "commit": "0be6d0229",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-23T12:38:54Z",
+  "as_of": "2026-10-23T13:26:10Z",
   "core": {
    "closed": 163,
    "open": 23,
@@ -168,8 +168,8 @@
   },
   "core_last_window": {
    "closed": 55,
-   "net_closed": 14,
-   "opened": 41
+   "net_closed": 15,
+   "opened": 40
   },
   "core_milestone": {
    "closed": 89,
@@ -184,7 +184,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "12 days",
+  "eta": "11 days",
   "frontier": {
    "closed": 107,
    "found_last_window": 25,
@@ -199,8 +199,8 @@
   },
   "infra": {
    "closed": 197,
-   "open": 54,
-   "total": 251
+   "open": 55,
+   "total": 252
   },
   "measured": true,
   "milestones": [
@@ -375,9 +375,9 @@
    {
     "closed": 18,
     "number": 27,
-    "open": 3,
+    "open": 4,
     "title": "Save Integrity \ud83d\udcbe \u2014 Same Code, Same Answer",
-    "total": 21
+    "total": 22
    },
    {
     "closed": 250,

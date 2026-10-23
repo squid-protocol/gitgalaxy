@@ -335,3 +335,43 @@ def test_yaml_config_flag_actually_changes_standalone_xray_behavior(mock_apertur
             "binary_anomaly_detector.py main() -- the #332/#335 "
             "reachability gap is still open."
         )
+
+
+# ==============================================================================
+# #5500: the audits narrow SecurityLens to the signatures they read
+# ==============================================================================
+_NARROWING_SAMPLES = [
+    "x = a << 3 | b >> 2 ^ 0xFF\n",
+    'blob = "' + "aZ9xQ2" * 12 + 'kP7+/mN4vB1"\n',
+    "eval(compile(src, 'f', 'exec'))\npassword = 'hunter2hunter2'\n// commented()\n",
+    "​" + "hidden text\n",
+    "plain prose, nothing to see\n",
+    "",
+]
+
+
+@pytest.mark.parametrize("keys", [("bitwise_ops",), ("hardcoded_secrets",)])
+def test_restrict_signatures_keeps_the_kept_counts_and_skips_the_rest(keys):
+    from gitgalaxy.security.security_lens import SecurityLens
+
+    full, narrow = SecurityLens(), SecurityLens()
+    narrow.restrict_signatures(keys)
+    assert [key for key, _, _ in narrow._scan_plan] == list(keys)
+    for sample in _NARROWING_SAMPLES:
+        want, got = full.scan_content(sample), narrow.scan_content(sample)
+        for key in (*keys, "entropy"):
+            assert got["counts"].get(key, 0) == want["counts"].get(key, 0)
+            assert got["snippets"].get(key, []) == want["snippets"].get(key, [])
+        assert got["positions"].get("entropy") == want["positions"].get("entropy")
+
+
+def test_run_xray_audit_counts_match_the_unrestricted_lens(tmp_path):
+    from gitgalaxy.security.security_lens import SecurityLens
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    for index, sample in enumerate(_NARROWING_SAMPLES):
+        (repo / f"f{index}.py").write_text(sample, encoding="utf-8")
+    narrowed = xray_module.run_xray_audit(repo, config=_make_config())["anomalies_found"]
+    with patch.object(SecurityLens, "restrict_signatures", lambda self, keys: None):
+        assert narrowed == xray_module.run_xray_audit(repo, config=_make_config())["anomalies_found"]

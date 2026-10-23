@@ -76,10 +76,8 @@ def main():
     # the heavy AST and regex processors used for source code, we minimize CPU
     # overhead and prevent Catastrophic Backtracking on dense binary data.
     # ==============================================================================
-    security.THREAT_SIGNATURES = {
-        "reflection_metaprogramming": security.THREAT_SIGNATURES["reflection_metaprogramming"],
-        "bitwise_ops": security.THREAT_SIGNATURES["bitwise_ops"],
-    }
+    # Only the entropy and bitwise_ops counts decide an anomaly (#5500).
+    security.restrict_signatures(("bitwise_ops",))
 
     anomalies_found = 0
     anomalies_allowed = 0
@@ -267,10 +265,8 @@ def run_xray_audit(target_path: Path, config: ResolvedConfig | dict[str, Any] | 
         target_path, LANGUAGE_DEFINITIONS, resolved_config.get("APERTURE_CONFIG", {}), parent_logger=quiet_logger
     )
     security = SecurityLens()
-    security.THREAT_SIGNATURES = {
-        "reflection_metaprogramming": security.THREAT_SIGNATURES["reflection_metaprogramming"],
-        "bitwise_ops": security.THREAT_SIGNATURES["bitwise_ops"],
-    }
+    # Only the entropy and bitwise_ops counts decide an anomaly (#5500).
+    security.restrict_signatures(("bitwise_ops",))
 
     anomalies_found = 0
 

@@ -110,6 +110,15 @@ def _set_parts(sql: str) -> tuple[list[str], list[str]]:
 
 # #4269: the savepoint statements (Db2 for z/OS SQL Reference: SAVEPOINT, ROLLBACK ... TO SAVEPOINT, RELEASE SAVEPOINT)
 _WHENEVER = re.compile(r"WHENEVER\s+(SQLERROR|NOT\s+FOUND|SQLWARNING)\s+(?:(CONTINUE)|GO\s*TO\s+:?([A-Z0-9_-]+))", re.I)
+# #4269: the dynamic / connection verbs still refused, each with the form it stands for (register Q4)
+_REFUSED_VERBS = {
+    "PREPARE": "a PREPARE that is not FROM one INSERT ... VALUES string literal is not modelled",
+    "EXECUTE": "an EXECUTE that is not of a name PREPAREd earlier from a literal is not modelled",
+    "DESCRIBE": "DESCRIBE (an SQLDA of a prepared statement or table) is not modelled",
+    "CONNECT": "CONNECT (a Db2 location switch) is not modelled; the port has one connection",
+    "CALL": "EXEC SQL CALL (a stored procedure) is not modelled; the oracle has no procedure fixture",
+    "SET": "a SET that does not assign a host variable (SET CURRENT ...) is not modelled",
+}
 _WHENEVER_ORDER = ("SQLERROR", "NOT FOUND", "SQLWARNING")
 _SAVEPOINT = re.compile(r"SAVEPOINT\s.*|ROLLBACK(?:\s+WORK)?\s+TO\s+SAVEPOINT(?:\s+[A-Z0-9_]+)?|RELEASE(?:\s+TO)?\s+SAVEPOINT\s+"
                         r"[A-Z0-9_]+", re.S)  # fmt: skip
@@ -327,8 +336,8 @@ class Sql:
             return self._prepare(sql, line, ind)
         if verb == "EXECUTE" and _EXECUTE.fullmatch(sql):
             return self._execute_prepared(sql, line, ind)
-        if verb in ("PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL") and not assigns:
-            raise SqlError(f"EXEC SQL {verb}")
+        if verb in _REFUSED_VERBS and not assigns:
+            raise SqlError(f"EXEC SQL {verb}: {_REFUSED_VERBS[verb]} (register Q4; no burned program uses it)")
         if _SAVEPOINT.fullmatch(u):
             return self._savepoint(sql, u, line, ind)
         if verb in ("COMMIT", "ROLLBACK"):

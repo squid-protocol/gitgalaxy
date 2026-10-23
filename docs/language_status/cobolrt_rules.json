@@ -3325,10 +3325,12 @@
   {
    "id": "RT-LE-CEEQCEN",
    "family": "LE",
-   "title": "CEEQCEN: the century window's start (80: the run's default)",
+   "title": "CEEQCEN / CEESCEN: the century window's start (80 by default; CEESCEN sets 0 to 100, else CEE2533)",
    "methods": [
     "qcen",
-    "le/Ceeqcen.java:call"
+    "scen",
+    "le/Ceeqcen.java:call",
+    "le/Ceeqcen.java:set"
    ],
    "site": "le/LeTime.java:qcen",
    "ibm": {

@@ -20,7 +20,9 @@ A plain `pip install gitgalaxy` (no extras) runs the inventory: counts, feature 
 Without it the command prints `translate-only dry run skipped: pip install gitgalaxy[translator]` on standard error
 and writes the report without the `translation` fields (the same as `--no-translate`). A test builds the wheel, installs
 it into a fresh virtual environment with no extras and runs the installed command
-(`tests/cobol_mainframe/test_assess_clean_install.py`). The package is not published to PyPI for this yet; a post-publish
+(`tests/cobol_mainframe/test_assess_clean_install.py`). The same check runs standalone, stdlib only, as
+`python scripts/check_assess_install.py` (builds the wheel, installs it into a fresh venv with `--no-index`, assesses a planted
+estate with the network cut, and asserts the report; `--wheelhouse DIR` installs the translator extra from local wheels). The package is not published to PyPI for this yet; a post-publish
 install check is a follow-up of #4726. On an offline site, build the wheels on a connected machine
 (`pip wheel "gitgalaxy[translator]" -w wheels/`), copy them across, and install with
 `pip install --no-index --find-links wheels/ "gitgalaxy[translator]"`.

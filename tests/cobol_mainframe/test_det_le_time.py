@@ -577,22 +577,39 @@ def test_the_clock_services_refuse_without_a_pinned_clock(c_driver):
         ("CEESECI", 9),
         ("CEEDYWK", 3),
         ("CEEQCEN", 2),
+        ("CEESCEN", 2),
         ("CEEGMTO", 4),
         ("CEEUTCO", 4),
     ],
 )
 def test_every_service_is_a_library_routine_with_its_arity(prog, args):
-    cls = "Ceegmto" if prog == "CEEUTCO" else prog.title()  # CEEUTCO is CEEGMTO's service, as CEEUTC is CEEGMT's
+    # CEEUTCO is CEEGMTO's service, as CEEUTC is CEEGMT's; CEESCEN is CEEQCEN's class (one setting), its set entry
+    cls = {"CEEUTCO": "Ceegmto", "CEESCEN": "Ceeqcen"}.get(prog, prog.title())
     assert G.LIBRARY[prog][1] == args
-    assert G.LIBRARY[prog][0].endswith(f".{cls}.call")
+    assert G.LIBRARY[prog][0].endswith(f".{cls}.{'set' if prog == 'CEESCEN' else 'call'}")
     assert (RT / "le" / f"{cls}.java").is_file()
     assert (prog in G.LIBRARY_CHARSET) == (prog != "CEEDYWK")  # CEEDYWK has no float, so it takes no charset
 
 
 def test_ceescen_is_the_set_entry_of_the_ceeqcen_class():
-    """CEESCEN shares CEEQCEN's class (the window is one setting); the translator does not call it yet (still refused)."""
+    """CEESCEN shares CEEQCEN's class (the window is one setting); the translator calls its set entry, charset last."""
     assert "public static void set(Field century, Field fc, Charset cs)" in (RT / "le/Ceeqcen.java").read_text()
-    assert "CEESCEN" not in G.LIBRARY
+    assert G.LIBRARY["CEESCEN"][0] == "__PACKAGE__.cobolrt.le.Ceeqcen.set"
+    assert "CEESCEN" in G.LIBRARY_CHARSET and "CEESCEN" not in G.LIBRARY_FLOATS
+
+
+def test_a_ceescen_call_translates_to_the_set_entry_with_the_charset_last(tmp_path):
+    src = tmp_path / "SC.cbl"
+    src.write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. SC.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n"
+        "       01 CENT PIC S9(9) BINARY.\n       01 FC PIC X(12).\n       PROCEDURE DIVISION.\n"
+        "           CALL 'CEESCEN' USING CENT, FC.\n           CALL 'CEEQCEN' USING CENT, FC.\n           GOBACK.\n"
+    )
+    from gitgalaxy.tools.cobol_to_java.det.program import translate
+
+    out = str(translate(src, [], "package pk;\npublic class SC {\n}\n", "pk").__dict__)
+    assert "pk.cobolrt.le.Ceeqcen.set(f1_CENT, f2_FC, CS);" in out
+    assert "pk.cobolrt.le.Ceeqcen.call(f1_CENT, f2_FC, CS);" in out
 
 
 def test_the_comp2_arguments_are_by_value_and_the_clock_services_take_the_clock():

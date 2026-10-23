@@ -5,7 +5,7 @@
  "case": "cbsa-updacc",
  "entry": {
   "program": "UPDACC",
-  "commit": "f938fa64f7af99aacf68c3fb87ad20dcbd051077+uncommitted",
+  "commit": "6876b3623b0ce2bfdd7d8a2b3a96f2c3542e77db+uncommitted",
   "date": "2026-10-23",
   "mode": "fast",
   "seed": 0,
@@ -2800,23 +2800,23 @@
   ],
   "inputs": {
    "port": "83715e5a5b50dc20b2b8a5b3c8670ecc0b9659015d946c86c9dc5986d6c52d50",
-   "generator": "d5b49ff8a9c890ee52079c3a0d7e26829018798715ec332a4abc3155004eb349",
+   "generator": "140bceaf0d6727d934e5f0eeca6332e708567250dcb4326c21e7fded289bf18f",
    "case": "ff3b31fd41dbba45199c2f8405a5bc09b6f7203f4769d633a19854b12273f3d4",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-   "harness": "ca8a8c67f64f8eeb41d429d0f9a1cefbc0eae386bf31b40a0a415ad9f47262e4",
-   "oracle": "3372dd5e14af8b5689601aaf7e3fda2d13215d29ca604000faa2e88a9609ffea"
+   "harness": "d09524814ecca3a02bcc91b46c702b6c25258133a50ef19c0313a2425ee2d317",
+   "oracle": "fdceda3e470221a8af43d0b842e49129d60dfa5c0e683b9a0fae7f1444d4760e"
   },
   "components": {
    "generator": {
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "5f5c7cbac9fee0c3d0c0583cc23f9d0229714769ceb5db0fc1f5eff4aa6841db",
+    "generator:core": "5835676e90b8075f69e69802dc022e2830ebe3ffccae9b2ad090ee45a18931de",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
     "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
     "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dli": "59300231ec82938ae8606969155f9d0fef4962ad739e8d6da188a7b6202e9ebd",
+    "generator:det/dli": "8a81045734ca0b53157f70ed0a4708159a20472e80fa51c334c50fde312133e6",
     "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
@@ -2826,15 +2826,15 @@
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
     "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
-    "generator:det/stmt": "8f518e5842d991b85a674fa38bad7330402186981f3f25d037426b5a445b29d0"
+    "generator:det/stmt": "72ade7437769eb7b8d8e94511613964e6f5cb98f30b4a4c5d6295709534b5176"
    },
    "harness": {
-    "harness:cics": "629bbf2fcc1a9b97eb2d567dcdf4828d789f6fed128e17d2fa1532504da1c23e",
-    "harness:core": "8a927d757019c0302bc0c121f6aa91081140700270fb1e94de673d3b76fde0be",
-    "harness:db2": "f33f22bdc78ccbab35734e10c531a0ad98152ea0a73fafc4e034974e3a4fe657"
+    "harness:cics": "d5af25e3c2441a943f456b024eacfc93407a8f7d0a50122f8e97a3feee5d167a",
+    "harness:core": "265b33f3c82b0e0c5acbfc29f86267e91c1015c13bf3c1f137639d4374d9f59a",
+    "harness:db2": "df4cefe238f828f2233ef1ae1b7c77c21265c7f5ab3af61e753544d50120cd66"
    },
    "oracle": {
-    "oracle:cics-stub": "0bea0973289a9e5f5a4b542f4e611889fe24f724aa409be1ba003e134243d743",
+    "oracle:cics-stub": "44e3bd70cc343391ccef3d0a4b67bfa6a26c80b6f12f9f4984b42177b64b0c54",
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
     "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
@@ -2843,9 +2843,11 @@
   },
   "refreshed": {
    "from": "2026-10-23",
-   "survivors_rerun": 321,
+   "survivors_rerun": 294,
    "stale": [
-    "case"
+    "generator",
+    "harness",
+    "oracle"
    ]
   }
  }

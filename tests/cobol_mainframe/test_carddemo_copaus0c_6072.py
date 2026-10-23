@@ -8,7 +8,7 @@ import pytest
 
 EQUIV = Path(__file__).resolve().parents[1] / "equivalence"
 CASE = EQUIV / "carddemo-copaus0c" / "case.json"
-INFEASIBLE = EQUIV / "infeasible_outcomes.json"
+INFEASIBLE = EQUIV / "infeasible_outcomes" / "carddemo-copaus0c.json"
 
 # scenario -> the dli_faults it injects (None: none)
 NEW = {
@@ -38,5 +38,5 @@ def test_select_row_4_selects_the_fourth_row():
 
 
 def test_the_three_outcomes_stay_stated_infeasible():
-    entries = json.loads(INFEASIBLE.read_text(encoding="utf-8"))["cases"]["carddemo-copaus0c"]
+    entries = json.loads(INFEASIBLE.read_text(encoding="utf-8"))["entries"]
     assert {(e["line"], e["outcome"]) for e in entries} == {(542, "OTHER"), (612, "OTHER"), (668, "true")}

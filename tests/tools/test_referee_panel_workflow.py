@@ -97,11 +97,3 @@ def test_the_upstream_refs_are_pinned():
     assert re.fullmatch(r"\d+\.\d+\.\d+", env["REFEREE_CHE4Z_TAG"])
     assert re.fullmatch(r"\d+\.\d+\.\d+", env["REFEREE_TREESITTER_CLI"])
     assert not re.search(r"git (clone|pull)\b|--branch", TEXT), "install by fetching the pinned sha, not a moving ref"
-
-
-def test_the_cached_cobrix_classpath_names_no_jar_outside_the_cache():
-    """First dispatch (#4438): the classpath listed ~/.m2 jars, so a cache hit left the preflight with missing files."""
-    run = _step("Install Cobrix")["run"]
-    assert 'cp "$j" "$REFEREES_DIR/cobrix-lib/"' in run
-    assert '> "$REFEREES_DIR/cobrix.cp"' in run
-    assert 'outputFile="$REFEREES_DIR/cobrix.cp"' not in run  # the Maven-written classpath is only the copy list

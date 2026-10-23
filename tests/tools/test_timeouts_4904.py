@@ -262,7 +262,11 @@ def test_full_suite_gate_parts_are_complete_and_grids_agree():
 
 
 def test_full_suite_gate_has_no_310_leg_and_caps_stay_in_plan_range():
-    """#5156: the 3.10 legs are gone (#3322), and every leg's cap sits inside the shard plan's floor/ceiling."""
+    """#5156: the 3.10 legs are gone (#3322), and every leg's cap sits inside the shard plan's floor/ceiling.
+
+    Re-measured 2026-10-22 over 5 main runs (worst job wall min / cap): ubuntu 8/20, windows 3.11 11/27, windows 3.12 13/25,
+    macOS 12/26: every cap is >=1.9x, none outgrown, kept (#5776 added that headroom).
+    """
     import suite_shard_plan
 
     entries = _full_suite_grids()[0]

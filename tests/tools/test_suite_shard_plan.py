@@ -27,21 +27,34 @@ def _legs(m):
     return {(x["os"], x["python-version"]) for x in m}
 
 
-def test_todays_durations_reproduce_todays_smoke_parts(durations):
+def _fits(weight, n, setup_s, target_s):
+    return setup_s + sp.slowest_shard(weight, n) / plan.JOBS <= target_s
+
+
+# The part counts are deliberately not pinned: .test_durations is refreshed from warm runs (#6146 shrank the plan), so
+# the real file is checked for the planner's contract (fewest parts that fit the target, inside the cap), not a number.
+def test_the_committed_durations_plan_the_fewest_smoke_parts_that_fit(durations):
     p = plan.smoke_plan(durations)
-    assert p["splits"] == 3 and p["matrix"] == {"group": [1, 2, 3]}
+    n = p["splits"]
+    assert 1 <= n <= plan.SMOKE_MAX_PARTS and p["matrix"] == {"group": list(range(1, n + 1))}
     assert plan.SMOKE_TIMEOUT_FLOOR <= p["timeout"] <= plan.SMOKE_TIMEOUT_CEILING
+    assert n == plan.SMOKE_MAX_PARTS or _fits(durations, n, plan.SMOKE_SETUP_S, plan.SMOKE_TARGET_S)
+    assert n == 1 or not _fits(durations, n - 1, plan.SMOKE_SETUP_S, plan.SMOKE_TARGET_S)
 
 
-def test_todays_durations_reproduce_todays_gate_parts(durations):
+def test_the_committed_durations_plan_the_fewest_gate_parts_per_leg(durations):
     parts = {}
     for leg in plan.gate_plan(durations)["matrix"]:
         parts[(leg["os"], leg["python-version"])] = leg["splits"]
-    assert parts == {
-        ("ubuntu-latest", "3.11"): 2, ("ubuntu-latest", "3.12"): 2,
-        ("windows-latest", "3.11"): 3, ("windows-latest", "3.12"): 2,
-        ("macos-latest", "3.11"): 2, ("macos-latest", "3.12"): 2,
-    }  # fmt: skip
+    assert set(parts) == {(o, py) for o, py, _ in plan.LEGS}
+    mean = sum(durations.values()) / len(durations)
+    for os_name, py, speed in plan.LEGS:
+        even = os_name.startswith("windows")
+        weight = {k: (mean if even else v) * speed for k, v in durations.items()}
+        n = parts[(os_name, py)]
+        assert 1 <= n <= plan.GATE_MAX_PARTS
+        assert n == plan.GATE_MAX_PARTS or _fits(weight, n, plan.GATE_SETUP_S, plan.GATE_TARGET_S)
+        assert n == 1 or not _fits(weight, n - 1, plan.GATE_SETUP_S, plan.GATE_TARGET_S)
 
 
 def test_growth_adds_parts_without_a_yaml_edit(durations):

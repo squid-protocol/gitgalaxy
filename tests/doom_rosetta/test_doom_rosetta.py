@@ -178,7 +178,11 @@ def test_ts_oracle_scores_a_bound_function_expression_as_its_own_unit(tmp_path):
     )
     (tmp_path / "a.js").write_text(src)
     rows = [("a.js", "javascript", n, i + 1, []) for i, n in enumerate("ghk")]
-    rows += [("a.js", "javascript", "f", 4, ["k"]), ("a.js", "javascript", "a", 5, ["g"]), ("a.js", "javascript", "b", 8, ["h"])]
+    rows += [
+        ("a.js", "javascript", "f", 4, ["k"]),
+        ("a.js", "javascript", "a", 5, ["g"]),
+        ("a.js", "javascript", "b", 8, ["h"]),
+    ]
     res = ts.body_oracle(tmp_path, rows)
     assert (res["misses_by_shape"], res["engine_only_by_kind"], res["unmatched_functions"]) == ({}, {}, 0), res
 

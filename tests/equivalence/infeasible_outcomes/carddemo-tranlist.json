@@ -1,0 +1,46 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-tranlist",
+  "entries": [
+    {
+      "unit": "PROCESS-PAGE-BACKWARD",
+      "line": 339,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF EIBAID NOT = DFHENTER AND DFHPF8`: PROCESS-PAGE-BACKWARD is PERFORMed only from PROCESS-PF7-KEY (line 246), which MAIN-PARA PERFORMs only under `WHEN DFHPF7` of `EVALUATE EIBAID`; COTRN00C never changes EIBAID, so EIBAID = DFHPF7 here and the condition is always true."
+    },
+    {
+      "unit": "PROCESS-PAGE-BACKWARD",
+      "line": 361,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF NEXT-PAGE-YES`: PROCESS-PF7-KEY does `SET NEXT-PAGE-YES TO TRUE` (line 242) just before PERFORM PROCESS-PAGE-BACKWARD, and nothing on the way (STARTBR / READPREV / POPULATE / INITIALIZE / SEND paragraphs) sets NEXT-PAGE-NO -- only PROCESS-PAGE-FORWARD does, which PF7 never runs. The flag is always 'Y' here."
+    },
+    {
+      "unit": "POPULATE-TRAN-DATA",
+      "line": 390,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "C",
+      "reason": "`EVALUATE WS-IDX` WHEN 1 .. WHEN 10: POPULATE-TRAN-DATA is PERFORMed only at line 300, inside `PERFORM UNTIL WS-IDX >= 11 ...` (line 297; WS-IDX moved 1 at line 295, +1 per row at line 301), and at line 354, inside `PERFORM UNTIL WS-IDX <= 0 ...` (line 351; WS-IDX moved 10 at line 349, -1 per row at line 355). The loop test runs before each pass, so WS-IDX is in 1..10 every time."
+    },
+    {
+      "unit": "INITIALIZE-TRAN-DATA",
+      "line": 452,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "C",
+      "reason": "`EVALUATE WS-IDX` WHEN 1 .. WHEN 10: INITIALIZE-TRAN-DATA is PERFORMed only by `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > 10` (lines 290 and 344), so WS-IDX is in 1..10 every time."
+    },
+    {
+      "unit": "RETURN-TO-PREV-SCREEN",
+      "line": 512,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 108 moves 'COSGN00C' and line 123 'COMEN01C'; both fields PIC X(08), COCOM01Y). COTRN00C never moves SPACES or LOW-VALUES into it in between."
+    }
+  ]
+}

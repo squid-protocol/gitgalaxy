@@ -227,11 +227,12 @@ def _linked(path: Path) -> dict[str, Any]:
 
 
 def _uncovered(path: Path) -> list[str] | None:
-    """The branch outcomes the proof left uncovered ("line:outcome"), for the #4602 infeasible-outcome check."""
+    """What the proof left uncovered ("line:outcome" per branch outcome, "paragraph:NAME" per paragraph), for the
+    #4602 infeasible-outcome check."""
+    import infeasible_outcomes
+
     try:
-        return [
-            f"{u['line']}:{u['outcome']}" for u in json.loads(path.read_text(encoding="utf-8"))["branches"]["uncovered"]
-        ]
+        return infeasible_outcomes.uncovered_of(json.loads(path.read_text(encoding="utf-8")))
     except (OSError, ValueError, KeyError, TypeError):
         return None
 

@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 CASE = Path(__file__).resolve().parents[1] / "equivalence" / "carddemo-cardlist" / "case.json"
-INFEASIBLE = Path(__file__).resolve().parents[1] / "equivalence" / "infeasible_outcomes.json"
+INFEASIBLE = Path(__file__).resolve().parents[1] / "equivalence" / "infeasible_outcomes" / "carddemo-cardlist.json"
 
 # scenario -> (AID, the source line it exists to reach)
 STATED = {
@@ -55,5 +55,5 @@ def test_card_filter_scenario_names_a_card_that_follows_the_last_card():
 
 def test_the_two_outcomes_left_stay_stated_infeasible():
     text = INFEASIBLE.read_text(encoding="utf-8")
-    entries = json.loads(text)["cases"]["carddemo-cardlist"]
+    entries = json.loads(text)["entries"]
     assert {(e["line"], e["outcome"]) for e in entries} == {(757, "true"), (897, "OTHER")}

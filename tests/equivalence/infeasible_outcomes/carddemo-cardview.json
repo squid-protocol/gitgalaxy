@@ -1,0 +1,54 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-cardview",
+  "entries": [
+    {
+      "unit": "1300-SETUP-SCREEN-ATTRS",
+      "line": 553,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "1300-SETUP-SCREEN-ATTRS is only PERFORMed by 1000-SEND-MAP (line 417), right after 1200-SETUP-SCREEN-VARS (line 415), which ends with `IF WS-NO-INFO-MESSAGE SET WS-PROMPT-FOR-INPUT TO TRUE` (lines 490-492): WS-INFO-MSG leaves 1200 non-blank, and nothing at lines 494-552 writes it, so `IF WS-NO-INFO-MESSAGE` at line 553 is never true."
+    },
+    {
+      "unit": "2210-EDIT-ACCOUNT",
+      "line": 656,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF`: WS-RETURN-MSG is set to SPACES at line 264 and 2210-EDIT-ACCOUNT is the first edit (only PERFORMed at line 630, in 2200-EDIT-MAP-INPUTS after 2100-RECEIVE-MAP, neither of which writes it before), so the message is always still off here."
+    },
+    {
+      "unit": "2210-EDIT-ACCOUNT",
+      "line": 668,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF` at line 668 is reached only when the blank test at line 651 failed (it GOes TO the exit at line 660), so no message was set in this paragraph either; as for line 656, WS-RETURN-MSG is still the SPACES set at line 264."
+    },
+    {
+      "unit": "9100-GETCARD-BYACCTCARD",
+      "line": 759,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "9100 runs only through 9000-READ-DATA, PERFORMed at line 344 (entry from the card list: nothing sets WS-RETURN-MSG after line 264) and at line 365 (the ELSE of IF INPUT-ERROR at line 360). Every message 2200-EDIT-MAP-INPUTS sets (lines 657, 671, 697, 711, 639) comes with SET INPUT-ERROR, so at line 365 the message is still off: `IF WS-RETURN-MSG-OFF` (NOTFND) is always true."
+    },
+    {
+      "unit": "9100-GETCARD-BYACCTCARD",
+      "line": 764,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "Same as line 759: in WHEN OTHER of the READ at line 742, WS-RETURN-MSG is still the SPACES set at line 264 on both paths into 9100 (lines 344 and 365), so `IF WS-RETURN-MSG-OFF` is always true."
+    },
+    {
+      "unit": "ABEND-ROUTINE",
+      "line": 859,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 28-29), outside the items INITIALIZEd at lines 254-256, and the program writes it only at line 860 (a non-blank literal). It is never LOW-VALUES."
+    }
+  ]
+}

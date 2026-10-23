@@ -16,9 +16,8 @@ def _json(path: Path) -> dict:
 
 
 def test_every_crdtagy_case_states_its_delay_and_put_container_failure_arms():
-    cases = _json(EQ / "infeasible_outcomes.json")["cases"]
     for case in AGENCIES:
-        entries = cases[case]
+        entries = _json(EQ / "infeasible_outcomes" / f"{case}.json")["entries"]
         assert {(e["unit"], e["kind"], e["outcome"], e["family"]) for e in entries} == {("A010", "IF", "true", "R")}
         assert len({e["line"] for e in entries}) == 2
         assert all(e["reason"].strip() for e in entries)

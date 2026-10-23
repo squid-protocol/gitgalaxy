@@ -44,3 +44,29 @@ def test_an_unreadable_side_fails_even_when_audits_match(monkeypatch, tmp_path, 
 
 def test_identical_sides_pass(monkeypatch, tmp_path):
     assert _run(monkeypatch, tmp_path, lambda target, out: ({"k": 1}, None)) == 0
+
+
+_LOG = """\
+2026-10-23 10:00:00,000 [INFO] [galaxyscope] start
+2026-10-23 10:00:02,500 [INFO] [galaxyscope] Phase 10: Executing Ecosystem Security Audits
+a continuation line without a timestamp
+2026-10-23 10:00:20,000 [WARNING] [galaxyscope] SQLITE: Generating database
+2026-10-23 10:00:21,000 [INFO] [galaxyscope] PIPELINE_SUCCESS
+"""
+
+
+def test_slowest_gaps_name_the_line_that_ended_each_silence():
+    wall, gaps = cpc.slowest_gaps(_LOG, top=2)
+    assert wall == 21.0
+    assert gaps == [(17.5, "SQLITE: Generating database"), (2.5, "Phase 10: Executing Ecosystem Security Audits")]
+
+
+def test_slowest_gaps_of_an_empty_or_unstamped_log():
+    assert cpc.slowest_gaps("") == (0.0, [])
+    assert cpc.slowest_gaps("Traceback\n  boom\n") == (0.0, [])
+
+
+def test_timing_report_reads_the_scan_log_and_skips_a_missing_one(tmp_path):
+    (tmp_path / cpc.SCAN_LOG).write_text(_LOG, encoding="utf-8")
+    assert "17.5 s  SQLITE" in cpc.timing_report("neutral", tmp_path)
+    assert cpc.timing_report("neutral", tmp_path / "absent") == ""

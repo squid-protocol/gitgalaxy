@@ -45,8 +45,10 @@ Say in the plan what the scan showed. If the scan is wrong about a COBOL constru
 
 ## 3. The gaps, measured the way CI measures
 
-`tests/tools/ladder_gaps.py CASE` (when merged) prints each uncovered paragraph / branch outcome with file:line,
-condition, arm, PERFORM path and existing infeasible entries. Until then:
+`tests/tools/ladder_gaps.py CASE|PROGRAM...` prints each uncovered paragraph / branch outcome with file:line,
+condition, arm, PERFORM path and existing infeasible entries (`--json` for `ladder-gaps/1`; `--sweep DIR` reads a
+`proof_sweep --det-only` work dir, else the fresh ledger entry; `--no-scan` skips galaxyscope). With no fresh
+measurement it prints the `heavy-run.sh ... proof_sweep.py --det-only` command to run first. By hand, the same numbers:
 ```sh
 $PY tests/tools/proof_sweep.py --work $SCRATCH/sw --det-only --cases CASE --faults all   # CI's numbers (SQL-fault tasks count)
 $PY tests/tools/proof_blockers.py --sweep $SCRATCH/sw --branches ...                       # what is open
@@ -66,14 +68,17 @@ before/after numbers from it. `det_port.py run` does not write the ledger.
   SYNCPOINT, DELAY faults, CEEDAYS, judging past the X6 WRITEQ. Leave those outcomes open, cite #6271, move on.
 - **Infeasible outcomes**: only when no input can reach it (data-flow fact), each with its reason. WRITE THE ENTRY
   INTO THE FILE AS SOON AS YOU HAVE THE REASON -- reasons kept only in context were lost to a summary (0448Z). A
-  scenario that reaches a stated outcome refutes it. Paragraph-level entries only once the tooling slice lands
-  (CBPAUP0C `6000-EXIT` has been rediscovered 5+ times: check the file first).
+  scenario that reaches a stated outcome refutes it. Paragraph-level entries wait on PR #6279 (one file per
+  case, add CLI; check its state before relying on it). CBPAUP0C `6000-EXIT` has been rediscovered 5+ times: check the
+  infeasible entries first (`ladder_gaps.py` lists them).
 - **Owner holds**: CRECUST and the CEEDAYS rulings stay refused; BANKDATA held (PR #5958); EPSMPMT callers wait
   on #5867. Not your slice.
 
 ## 5. Refresh chain (after every edit AND after every `git merge origin/main`)
 
-`tests/tools/ladder_refresh.py CASE` (when merged). Until then, in order:
+`tests/tools/ladder_refresh.py CASE...` runs steps 1-3 below as one command and prints the before/after paragraph and
+net-branch table for the PR body (`--dry-run` lists the chain, `--work DIR`, `--skip-tests`; burned estates only; the
+ledger is updated only if every case proved). Run it again after every `git merge origin/main`. By hand, in order:
 1. `proof_sweep.py --det-only --cases CASE --faults all --work DIR`, then `det_coverage_ledger.py update DIR`
    (update takes a proof_sweep work dir, not a det_port run).
 2. `evidence.py prove KEY` when the case has an evidence record -- a missed re-prove is the most common CI send-back

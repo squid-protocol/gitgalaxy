@@ -576,6 +576,10 @@ def _td_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     if verb == "DELETEQ":
         return lines + _call("GGCDLTD", []) + _resp(opts, True, labels)
     into, length = opts.get("INTO"), opts.get("LENGTH")
+    if (
+        "NOSUSPEND" in opts
+    ):  # #5168 (X61): the stub reads (and clears) it: a planned QBUSY needs NOSUSPEND, else IBM suspends
+        lines.append("MOVE 'TDNOSUSPEND' TO GG-FLAGS")
     if opts.get(
         "SET"
     ):  # #5168 (X61): SET(pointer) LENGTH(data-area) -> GGCRDTS, the record as a new block (X58's lane)
@@ -3001,7 +3005,7 @@ def screen_key(f: dict[str, Any]) -> tuple[str, str]:
 CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC", "DUPKEY", "INVREQ", "IOERR", "NOSPACE",
                                      "NOTOPEN", "ILLOGIC", "LENGERR", "PGMIDERR", "NOTAUTH", "DISABLED", "LOADING",
                                      "ENDFILE", "TERMIDERR", "ITEMERR", "TRANSIDERR", "QIDERR", "SYSIDERR",
-                                     "ISCINVREQ", "LOCKED", "ENQBUSY")}  # fmt: skip
+                                     "ISCINVREQ", "LOCKED", "ENQBUSY", "QBUSY")}  # fmt: skip
 
 
 def enq_fault_key(resource: str | None) -> str:
@@ -3103,9 +3107,10 @@ FILE_FAULT_UNMODELLED = {
 }  # X49: ends the browse
 FILE_FAULT_COMMANDS = _FILE_CMDS
 # #5168 (X61): READQ TD's IOERR ("an input/output error ... the data record in error is skipped"; IBM states no RESP2), planned on
-# an open extrapartition input queue. IBM's other READQ TD conditions follow from the queue and the call (NOTOPEN, INVREQ, QZERO,
-# LENGERR, QIDERR, DISABLED) or need a second task (QBUSY), so no plan names them (refused by name).
-TD_READ_FAULTS = ("IOERR",)
+# an open extrapartition input queue; and QBUSY (no RESP2 either), "a logically recoverable intrapartition queue that another task is
+# writing to or deleting from, and no committed records remain", which needs a second task, so the plan states it. IBM's other
+# READQ TD conditions follow from the queue and the call (NOTOPEN, INVREQ, QZERO, LENGERR, QIDERR, DISABLED): no plan names them.
+TD_READ_FAULTS = ("IOERR", "QBUSY")
 TD_READ_COMMAND = (
     "READQ-TD"  # not in FAULT_COMMANDS: the strengthening loop plans from that list, with a NOTAUTH it cannot give here
 )

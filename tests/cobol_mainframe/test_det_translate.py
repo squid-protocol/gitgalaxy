@@ -3153,7 +3153,7 @@ def test_readq_td_set_puts_the_record_in_a_block_and_nosuspend_changes_nothing_5
     (DetCics.setBlock, key "READQ TD"), its length to the area; NOSUSPEND is accepted with no effect (no second task holds a queue);
     INTO with SET, SET without a LENGTH area or with a literal one are refused."""
     out = _PtrCics().command("READQ TD QUEUE('Q') SET(PTR) LENGTH(WS-N) NOSUSPEND RESP(R)", "")
-    assert out[0] == "CicsTask.TdResult td1 = task.readqTd('Q'.strip(), Integer.MAX_VALUE);"
+    assert out[0] == "CicsTask.TdResult td1 = task.readqTd('Q'.strip(), Integer.MAX_VALUE, true);"
     assert (
         out[1].startswith("if (td1.data() != null) DetCics.setBlock(task, ") and '"READQ TD", td1.data(), CS' in out[1]
     )

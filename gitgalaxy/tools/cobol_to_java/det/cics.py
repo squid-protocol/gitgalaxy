@@ -2061,7 +2061,7 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         goes INTO as the program's own text (a WRITEQ TD wrote it so); a record moved past INTO is refused at run time
         (DetCics.readTd), as READ INTO's is. LENGTH(data-area) is set to the record's length on NORMAL and LENGERR.
         #5168: SET(pointer) LENGTH(data-area) puts the record in a new block, valid to the next READQ TD; NOSUSPEND
-        changes nothing (no second task holds the queue)."""
+        is passed on: only a planned QBUSY (another task writing a LOGICAL queue) reads it."""
         g = self.g
         r = g.tmpname("td")
         setp = opts.get("SET")
@@ -2077,7 +2077,8 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         else:
             into = self.field(_arg(opts["INTO"]))
             maxlen = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{into}.length()"
-        out = [f"{ind}CicsTask.TdResult {r} = task.readqTd({self.name(_arg(opts['QUEUE']))}, {maxlen});"]
+        nos = ", true" if "NOSUSPEND" in opts else ""
+        out = [f"{ind}CicsTask.TdResult {r} = task.readqTd({self.name(_arg(opts['QUEUE']))}, {maxlen}{nos});"]
         if setp:
             out.append(f'{ind}if ({r}.data() != null) DetCics.setBlock(task, {ptr}, "READQ TD", {r}.data(), CS);')
         else:

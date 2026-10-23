@@ -31,7 +31,9 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import datetime
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -43,8 +45,12 @@ sys.path.insert(0, str(REPO_ROOT / "tests"))
 import golden_diff  # noqa: E402
 import golden_store  # noqa: E402
 
+from gitgalaxy.core.source_text import read_source  # noqa: E402
+
 NEUTRAL_PARENT = ("neutral",)
 SPECIAL_PARENT = ("tmp", "docs", "vendor", "src")
+SCAN_LOG = "scan.log"
+_LOG_LINE = re.compile(r"^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d),(\d{3}) \[\w+\] \[[^\]]*\] (.*)$")
 SCAN_TIMEOUT = int(os.environ.get("GITGALAXY_GOLDEN_SCAN_TIMEOUT", "600"))
 
 
@@ -62,23 +68,62 @@ def stage_corpus(corpus_data: Path, parent: Path) -> Path:
     return target
 
 
+def slowest_gaps(log_text: str, top: int = 6) -> tuple[float, list[tuple[float, str]]]:
+    """(wall seconds, the `top` longest silences) of a scan's stderr log (#5500). Each silence is the
+    time since the previous timestamped line, named by the line that ended it, so the single-threaded
+    stretches after the extraction pool show up without a debug-level scan."""
+    stamps: list[tuple[float, str]] = []
+    for line in log_text.splitlines():
+        m = _LOG_LINE.match(line)
+        if m:
+            t = datetime.datetime.strptime(m.group(1), "%Y-%m-%d %H:%M:%S").timestamp() + int(m.group(2)) / 1000
+            stamps.append((t, m.group(3)))
+    if len(stamps) < 2:
+        return 0.0, []
+    gaps = [(b[0] - a[0], b[1]) for a, b in zip(stamps, stamps[1:], strict=False)]
+    return stamps[-1][0] - stamps[0][0], sorted(gaps, reverse=True)[:top]
+
+
+def timing_report(label: str, out: Path) -> str:
+    """The slowest silences of the scan that wrote `out`/scan.log; empty when it has no log."""
+    try:
+        wall, gaps = slowest_gaps(read_source(out / SCAN_LOG).text)
+    except OSError:
+        return ""
+    lines = [f"{label}: {wall:.0f} s between first and last log line; longest silences before:"]
+    lines += [f"  {secs:6.1f} s  {msg[:110]}" for secs, msg in gaps]
+    return "\n".join(lines)
+
+
 def scan(target: Path, out: Path) -> tuple[dict, str | None]:
     """Scan `target`; returns (sanitized audit, error). The error is set when the sibling
     snapshots (DB/GPU/SARIF...) could not be read, in which case only the audit JSON is
     compared and the failure itself counts as a difference."""
     out.mkdir(parents=True)
+    with open(out / SCAN_LOG, "w", encoding="utf-8") as log:  # stderr carries timestamped INFO lines (#5500)
+        try:
+            _run_scan(target, out, log)
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+            log.flush()  # the log was this scan's visible stderr before #5500: show its tail on failure
+            tail = read_source(out / SCAN_LOG).text.splitlines()[-40:]
+            print("\n".join(tail), file=sys.stderr)
+            raise
+    audit_path = str(out / f"{target.name}_galaxy_audit.json")
+    try:
+        return golden_diff.load_and_sanitize(audit_path), None
+    except Exception as exc:  # any unreadable output is itself a finding
+        return golden_diff.sanitize(golden_store.load(audit_path)), f"{type(exc).__name__}: {exc}"
+
+
+def _run_scan(target: Path, out: Path, log) -> None:
     subprocess.run(  # noqa: S603 -- this interpreter + fixed module; paths are argv entries
         [sys.executable, "-m", "gitgalaxy.galaxyscope", str(target), "--output", str(out) + os.sep],
         check=True,
         timeout=SCAN_TIMEOUT,
         env={**os.environ, "GITGALAXY_LICENSE_KEY": "COMMUNITY_FREE_TIER", "GITGALAXY_DISABLE_GIT_HISTORY": "1"},
         stdout=subprocess.DEVNULL,
+        stderr=log,
     )
-    audit_path = str(out / f"{target.name}_galaxy_audit.json")
-    try:
-        return golden_diff.load_and_sanitize(audit_path), None
-    except Exception as exc:  # any unreadable output is itself a finding
-        return golden_diff.sanitize(golden_store.load(audit_path)), f"{type(exc).__name__}: {exc}"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -106,10 +151,12 @@ def main(argv: list[str] | None = None) -> int:
             neutral_future = pool.submit(scan, neutral_dir, work / "out-neutral")
             special_future = pool.submit(scan, special_dir, work / "out-special")
             (neutral, neutral_error), (special, special_error) = neutral_future.result(), special_future.result()
+        timings = [timing_report("neutral", work / "out-neutral"), timing_report("special", work / "out-special")]
     finally:
         if not args.keep:
             shutil.rmtree(work, ignore_errors=True)
 
+    print("\n".join(t for t in timings if t), flush=True)
     diffs = golden_diff.deep_compare(neutral, special)
     if neutral_error != special_error:
         diffs.append(

@@ -328,5 +328,9 @@
       "ENVIRONMENT": "TEST"
     },
     "why": "zECS's install jobs (JCL/DEFZC##.jcl, ZC##DC.jcl) replace ## / @id@ in the per-instance names (the CSD's ZC@ID@FILE and ZC@ID@KEY); they also replace @ecs_hlq@ and @environment@ in the CSD's DSNAMEs (ZECS.ZC01FILE.TEST style); this case installs one instance, 01, in high-level qualifier ZECS, environment TEST, so the transaction ZC01 reads and deletes in ZC01FILE and ZC01KEY (EIBTRNID(3:2) = '01')"
-  }
+  },
+  "compiler_options": [
+    "TRUNC(BIN)"
+  ],
+  "compiler_options_why": "#5089: the program MOVEs LENGTH OF ZF-RECORD (32700) to ZF-LENGTH, a PIC S9(04) COMP, then READs LENGTH(ZF-LENGTH): TRUNC(STD) stores 2700 there and every full-size record would be LENGERR (a record over 2700 bytes could never be read), so the program only works as shipped under TRUNC(BIN); ASMZECS.jcl's DFHYITVL step states no TRUNC option (assumption, register it)"
 }

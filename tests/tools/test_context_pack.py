@@ -116,3 +116,16 @@ def test_prior_files_reads_commits_mentioning_the_issue(tmp_path):
     git("update-ref", "refs/remotes/origin/main", "HEAD")
     assert cp.prior_files("77", tmp_path) == ["a.py"]
     assert cp.prior_files("not-a-number", tmp_path) == []
+
+
+def test_prior_files_matches_the_number_at_the_end_or_before_punctuation(tmp_path):
+    def git(*a):
+        subprocess.run(["git", "-c", "user.email=a@b", "-c", "user.name=x", *a], cwd=tmp_path, check=True)
+
+    git("init", "-q")
+    for name, msg in (("a.py", "a #77"), ("b.py", "b (see #77, again)"), ("c.py", "c #7")):
+        (tmp_path / name).write_text("1\n")
+        git("add", name)
+        git("commit", "-qm", msg)
+    git("update-ref", "refs/remotes/origin/main", "HEAD")
+    assert sorted(cp.prior_files("77", tmp_path)) == ["a.py", "b.py"]

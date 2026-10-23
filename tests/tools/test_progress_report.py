@@ -327,7 +327,13 @@ def test_fact_ownership_quotes_no_corpus_size():
 
 # ---- the READMEs that quoted a command / program count by hand (#5282, reusing the guard above) -----------------------
 
-SWEPT_READMES = ("gitgalaxy/standards/cics/README.md", "gitgalaxy/tools/cobol_to_cobol/README.md")
+SWEPT_READMES = (
+    "gitgalaxy/standards/cics/README.md",
+    "gitgalaxy/tools/cobol_to_cobol/README.md",
+    "tests/README.md",
+    "docs/ecosystem.md",
+    "docs/self_scan/README.md",
+)
 
 
 @pytest.mark.parametrize("rel", SWEPT_READMES)

@@ -518,6 +518,10 @@ def test_fact_lines_table_drives_the_section(recorder):
     assert md.index("### `big.cbl` (COBOL)") < md.index("### `small.cbl` (COBOL)")
     text = "\n".join(md)
     assert "- **DB2 schemas:** `1` columns" in text
-    bullets = [x.split(":**")[0] for x in md[md.index("### `big.cbl` (COBOL)") : md.index("### `small.cbl` (COBOL)")] if x.startswith("- **")]
+    bullets = [
+        x.split(":**")[0]
+        for x in md[md.index("### `big.cbl` (COBOL)") : md.index("### `small.cbl` (COBOL)")]
+        if x.startswith("- **")
+    ]
     assert bullets == ["- **Calls", "- **DB2 tables declared", "- **MQ queues", "- **Special names"]
     assert "`Q1 (put)`" in text and "Q2" not in text

@@ -242,7 +242,9 @@ def _line_csd(f: dict[str, Any]) -> list[str]:
     csd = f.get("csd_resources") or []
     if not csd:
         return []
-    out = ["- **CSD resources:** " + ", ".join(f"`{t} x{n}`" for t, n in sorted(_count_by(csd, "resource_type").items()))]
+    out = [
+        "- **CSD resources:** " + ", ".join(f"`{t} x{n}`" for t, n in sorted(_count_by(csd, "resource_type").items()))
+    ]
     joins = []
     for r in csd:
         target = r.get("dsname") or r.get("ddname") or r.get("plan") or r.get("db2_entry")
@@ -448,9 +450,11 @@ def _line_uow(f: dict[str, Any]) -> list[str]:
     resp = [u for u in uow if u.get("kind") == "RESP_CHECK"]
     untested = sum(1 for u in resp if not u.get("condition"))
     return [
-        f"- **Unit of work:** `{commits}` commit / `{rollbacks}` rollback points; "
-        f"handlers {', '.join(f'`{h}`' for h in handlers[:6]) or 'none'}; "
-        f"`{len(resp) - untested}/{len(resp)}` RESP results tested"
+        (
+            f"- **Unit of work:** `{commits}` commit / `{rollbacks}` rollback points; "
+            f"handlers {', '.join(f'`{h}`' for h in handlers[:6]) or 'none'}; "
+            f"`{len(resp) - untested}/{len(resp)}` RESP results tested"
+        )
     ]
 
 

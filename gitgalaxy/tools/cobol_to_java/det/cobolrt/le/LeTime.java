@@ -6,8 +6,8 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
 /**
- * The Language Environment date/time callable services CEEGMT / CEEUTC, CEEDATM, CEESECS, CEEDATE, CEEISEC and
- * CEEQCEN (#4949), as the equivalence harness models them for the COBOL side (tests/equivalence/le/le_time.c): the
+ * The Language Environment date/time callable services CEEGMT / CEEUTC, CEEDATM, CEESECS, CEEDATE, CEEISEC, CEESECI,
+ * CEEDYWK and CEEQCEN (#4949, #5003), as the equivalence harness models them for the COBOL side (tests/equivalence/le/le_time.c): the
  * same conditions, the same bytes, and the same refusals -- what that model does not model, this does not either
  * ("NAME: ... is not modelled"). Register L6 says what IBM documents, what is assumed and what is refused.
  *
@@ -350,6 +350,42 @@ final class LeTime {
     static void isec(Field y, Field mo, Field d, Field h, Field mi, Field s, Field ms, Field seconds, Field fc, Charset cs) {
         long[] v = {getInt(y), getInt(mo), getInt(d), getInt(h), getInt(mi), getInt(s), getInt(ms)};
         isec(v, seconds, fc, cs, 2511, 2514);
+    }
+
+    // [rule RT-LE-CEESECI]
+    static void seci(Field seconds, Field y, Field mo, Field d, Field h, Field mi, Field s, Field ms, Field fc, Charset cs) {
+        BigDecimal v = Cobol.num(seconds, cs);
+        BigDecimal whole = v.setScale(0, java.math.RoundingMode.FLOOR);
+        if (whole.compareTo(BigDecimal.valueOf(86400)) < 0 || whole.compareTo(BigDecimal.valueOf(MAX_SECONDS)) >= 0) {
+            for (Field f : new Field[] {y, mo, d, h, mi, s, ms}) {
+                putInt(f, 0);
+            }
+            putFc(fc, 2505);
+            return;
+        }
+        long w = whole.longValue();
+        int[] date = ymd(w / 86400);
+        long sod = w % 86400;
+        putInt(y, date[0]);
+        putInt(mo, date[1]);
+        putInt(d, date[2]);
+        putInt(h, sod / 3600);
+        putInt(mi, sod / 60 % 60);
+        putInt(s, sod % 60);
+        putInt(ms, v.subtract(whole).multiply(BigDecimal.valueOf(1000)).setScale(0, java.math.RoundingMode.FLOOR).longValue());
+        putFc(fc, 0);
+    }
+
+    // [rule RT-LE-CEEDYWK]
+    static void dywk(Field lilian, Field out, Field fc) {
+        long n = getInt(lilian);
+        if (n < 1 || n > MAX_DAY) {
+            putInt(out, 0);
+            putFc(fc, 2512);
+            return;
+        }
+        putInt(out, (n + 4) % 7 + 1);
+        putFc(fc, 0);
     }
 
     private static void zero(Field seconds, Charset cs) {

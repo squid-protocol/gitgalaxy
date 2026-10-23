@@ -17,6 +17,7 @@ or leading-blank timestamp, omitted leading zeros, a century-window YY, names / 
 
 from __future__ import annotations
 
+import datetime as _dt
 import os
 import re
 import shutil
@@ -32,6 +33,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from gitgalaxy.tools.cobol_to_java.det import gen as G  # noqa: E402
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -188,6 +190,49 @@ VECTORS: list[tuple[str, list[str], str | None]] = [
 ]
 
 
+def _lilian(y: int, m: int, d: int) -> int:
+    return (_dt.date(y, m, d) - _dt.date(1582, 10, 14)).days
+
+
+def _dow(n: int) -> int:
+    """IBM's CEEDYWK number for Lilian day n: 1 Sunday .. 7 Saturday (Python's weekday() is Monday 0)."""
+    return ((_dt.date(1582, 10, 14) + _dt.timedelta(days=n)).weekday() + 1) % 7 + 1
+
+
+def _ymd_row(y, mo, d, h, mi, s, ms):
+    return f"0|{y},{mo},{d},{h},{mi},{s},0.{ms:03d}"
+
+
+_FAILED_SECI = "2505|0,0,0,0,0,0,0.000"
+# CEESECI (#5003): Lilian seconds to year, month, day, hours, minutes, seconds, milliseconds (shown as 0.mmm). The
+# fractions are exact in binary (.125, .5): HFP and IEEE floor the same millisecond.
+VECTORS += [
+    ("CEESECI", [str(SECS_1988)], _ymd_row(1988, 5, 16, 19, 0, 1, 0)),
+    ("CEESECI", [f"{SECS_1988}.125"], _ymd_row(1988, 5, 16, 19, 0, 1, 125)),
+    ("CEESECI", ["86400"], _ymd_row(1582, 10, 15, 0, 0, 0, 0)),  # the first valid second
+    ("CEESECI", ["86400.9995"], _ymd_row(1582, 10, 15, 0, 0, 0, 999)),  # floored, never rounded
+    ("CEESECI", ["265621679999.5"], _ymd_row(9999, 12, 31, 23, 59, 59, 500)),  # the last valid second
+    ("CEESECI", [str(_lilian(2000, 2, 29) * 86400)], _ymd_row(2000, 2, 29, 0, 0, 0, 0)),
+    ("CEESECI", [str(_lilian(1900, 3, 1) * 86400 - 1)], _ymd_row(1900, 2, 28, 23, 59, 59, 0)),  # 1900 is not leap
+    ("CEESECI", [str(_lilian(1900, 3, 1) * 86400)], _ymd_row(1900, 3, 1, 0, 0, 0, 0)),
+    ("CEESECI", [str(_lilian(1989, 1, 1) * 86400 + 86399)], _ymd_row(1989, 1, 1, 23, 59, 59, 0)),
+    ("CEESECI", ["86399.999"], _FAILED_SECI),
+    ("CEESECI", ["0"], _FAILED_SECI),
+    ("CEESECI", ["-1"], _FAILED_SECI),
+    ("CEESECI", ["265621680000"], _FAILED_SECI),
+]
+# CEEDYWK (#5003): the day of the week, 1 Sunday .. 7 Saturday; Lilian day 1 (15 October 1582) was a Friday and
+# 16 May 1988 (day 148 138) a Monday. Every weekday from both ends, then the bounds and the failures.
+VECTORS += [("CEEDYWK", [str(n)], f"0|{_dow(n)}") for n in [*range(1, 15), *range(148138, 148145)]]
+VECTORS += [
+    ("CEEDYWK", ["3074324"], f"0|{_dow(3074324)}"),  # 31 December 9999
+    ("CEEDYWK", ["3074323"], f"0|{_dow(3074323)}"),
+    ("CEEDYWK", ["0"], "2512|0"),
+    ("CEEDYWK", ["-1"], "2512|0"),
+    ("CEEDYWK", ["3074325"], "2512|0"),
+]
+
+
 def _hex_fc(msgno: int) -> str:
     """The 12-byte token: severity 3, message number, case 1 / severity 3 / control 1, 'CEE' in EBCDIC, ISI zero."""
     return "000000000000000000000000" if msgno == 0 else f"0003{msgno:04X}59C3C5C500000000"
@@ -243,6 +288,10 @@ int CEEDATM(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
 int CEESECS(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
 int CEEISEC(unsigned char*, unsigned char*, unsigned char*, unsigned char*, unsigned char*, unsigned char*,
             unsigned char*, unsigned char*, unsigned char*);
+int CEESECI(unsigned char*, unsigned char*, unsigned char*, unsigned char*, unsigned char*, unsigned char*,
+            unsigned char*, unsigned char*, unsigned char*);
+int CEEDYWK(unsigned char*, unsigned char*, unsigned char*);
+static long rd4(const unsigned char *b) { return (int)(((unsigned)b[0] << 24) | (b[1] << 16) | (b[2] << 8) | b[3]); }
 static void vstr(unsigned char *o, const char *s) { size_t n = strlen(s); o[0] = n >> 8; o[1] = n & 255; memcpy(o + 2, s, n); }
 static void i4(unsigned char *o, long v) { o[0] = v >> 24; o[1] = v >> 16; o[2] = v >> 8; o[3] = v; }
 static void hexfc(const unsigned char *fc) { for (int i = 0; i < 12; i++) printf("%02X", fc[i]); }
@@ -267,6 +316,12 @@ int main(int argc, char **argv) {
         hexfc(fc); int n = (out[0] << 8) | out[1]; printf("|%.*s\n", n, out + 2); return 0; }
     if (!strcmp(svc, "CEESECS")) { vstr(in, argv[2]); vstr(pic, argv[3]); memset(sec, 0x55, 8); CEESECS(in, pic, sec, fc);
         memcpy(&d, sec, 8); hexfc(fc); printf("|%.3f\n", d); return 0; }
+    if (!strcmp(svc, "CEEDYWK")) { i4(l, atol(argv[2])); memset(a[0], 0x55, 4); CEEDYWK(l, a[0], fc);
+        hexfc(fc); printf("|%ld\n", rd4(a[0])); return 0; }
+    if (!strcmp(svc, "CEESECI")) { d = atof(argv[2]); memcpy(sec, &d, 8); for (int i = 0; i < 7; i++) memset(a[i], 0x55, 4);
+        CEESECI(sec, a[0], a[1], a[2], a[3], a[4], a[5], a[6], fc); hexfc(fc);
+        printf("|%ld,%ld,%ld,%ld,%ld,%ld,0.%03ld\n", rd4(a[0]), rd4(a[1]), rd4(a[2]), rd4(a[3]), rd4(a[4]), rd4(a[5]), rd4(a[6]));
+        return 0; }
     for (int i = 0; i < 7; i++) i4(a[i], atol(argv[2 + i]));
     memset(sec, 0x55, 8);
     CEEISEC(a[0], a[1], a[2], a[3], a[4], a[5], a[6], sec, fc); memcpy(&d, sec, 8); hexfc(fc); printf("|%.3f\n", d);
@@ -347,6 +402,16 @@ public class Probe {
                         Ceedatm.call(s, vstr(t[2]), o, fc, CS); System.out.println(hex(fc) + "|" + text(o)); }
                     case "CEESECS" -> { Field s = flt(); Ceesecs.call(vstr(t[1]), vstr(t[2]), s, fc, CS);
                         System.out.println(hex(fc) + "|" + secs(s)); }
+                    case "CEEDYWK" -> { Field o = raw(4); Ceedywk.call(i4(Long.parseLong(t[1])), o, fc);
+                        System.out.println(hex(fc) + "|" + lil(o)); }
+                    case "CEESECI" -> {
+                        Field s = flt(); Cobol.store(s, new BigDecimal(t[1]), false, CS);
+                        Field[] o = {raw(4), raw(4), raw(4), raw(4), raw(4), raw(4), raw(4)};
+                        for (Field f : o) java.util.Arrays.fill(f.storage().bytes, (byte) 0x55);
+                        Ceeseci.call(s, o[0], o[1], o[2], o[3], o[4], o[5], o[6], fc, CS);
+                        System.out.println(hex(fc) + "|" + lil(o[0]) + "," + lil(o[1]) + "," + lil(o[2]) + "," + lil(o[3]) + ","
+                            + lil(o[4]) + "," + lil(o[5]) + "," + String.format("0.%03d", lil(o[6])));
+                    }
                     default -> { Field s = flt(); Ceeisec.call(i4(Long.parseLong(t[1])), i4(Long.parseLong(t[2])), i4(Long.parseLong(t[3])),
                         i4(Long.parseLong(t[4])), i4(Long.parseLong(t[5])), i4(Long.parseLong(t[6])), i4(Long.parseLong(t[7])), s, fc, CS);
                         System.out.println(hex(fc) + "|" + secs(s)); }
@@ -488,6 +553,8 @@ def test_the_clock_services_refuse_without_a_pinned_clock(c_driver):
         ("CEESECS", 4),
         ("CEEDATE", 4),
         ("CEEISEC", 9),
+        ("CEESECI", 9),
+        ("CEEDYWK", 3),
         ("CEEQCEN", 2),
         ("CEEGMTO", 4),
         ("CEEUTCO", 4),
@@ -498,12 +565,12 @@ def test_every_service_is_a_library_routine_with_its_arity(prog, args):
     assert G.LIBRARY[prog][1] == args
     assert G.LIBRARY[prog][0].endswith(f".{cls}.call")
     assert (RT / "le" / f"{cls}.java").is_file()
-    assert prog in G.LIBRARY_CHARSET
+    assert (prog in G.LIBRARY_CHARSET) == (prog != "CEEDYWK")  # CEEDYWK has no float, so it takes no charset
 
 
 def test_the_comp2_arguments_are_by_value_and_the_clock_services_take_the_clock():
     assert G.LIBRARY_FLOATS == {
-        "CEELOCT": {1}, "CEEGMT": {1}, "CEEUTC": {1}, "CEEDATM": {0}, "CEESECS": {2}, "CEEISEC": {7},
+        "CEELOCT": {1}, "CEEGMT": {1}, "CEEUTC": {1}, "CEEDATM": {0}, "CEESECS": {2}, "CEEISEC": {7}, "CEESECI": {0},
         "CEEGMTO": {2}, "CEEUTCO": {2},
     }  # fmt: skip
     assert G.LIBRARY_CLOCK == {"CEELOCT", "CEEGMT", "CEEUTC"}
@@ -512,9 +579,25 @@ def test_the_comp2_arguments_are_by_value_and_the_clock_services_take_the_clock(
 def test_every_vector_service_is_covered_and_every_service_has_vectors():
     assert {v[0] for v in VECTORS} == {
         "CEEGMT", "CEEUTC", "CEEQCEN", "CEEDATE", "CEEDATM", "CEESECS", "CEEISEC", "CEEGMTO", "CEEUTCO",
+        "CEESECI", "CEEDYWK",
     }  # fmt: skip
-    for svc in {v[0] for v in VECTORS} - {"CEEUTC", "CEEQCEN", "CEEGMT", "CEEGMTO", "CEEUTCO"}:
+    # CEESECI / CEEDYWK take no picture and no field combination, so there is nothing to refuse by name
+    for svc in {v[0] for v in VECTORS} - {"CEEUTC", "CEEQCEN", "CEEGMT", "CEEGMTO", "CEEUTCO", "CEESECI", "CEEDYWK"}:
         mine = [v for v in VECTORS if v[0] == svc]
         assert any(v[2] and v[2].startswith("0|") for v in mine), svc  # a valid call
         assert any(v[2] == REFUSED for v in mine), svc  # a refusal by name
         assert any(v[2] and not v[2].startswith("0|") and v[2] != REFUSED for v in mine), svc  # a condition code
+
+
+def test_ceeseci_is_the_inverse_of_ceeisec(c_driver):
+    """Every CEEISEC row that succeeds, fed back through CEESECI, gives the fields it was made from."""
+    n = 0
+    for svc, args, want in VECTORS:
+        if svc != "CEEISEC" or not want or not want.startswith("0|") or args[6] != "0":
+            continue  # a fraction such as .12 is not exact in binary: the millisecond floor can differ by one
+        seconds = _run_c(c_driver, svc, args).split("|", 1)[1]
+        back = _run_c(c_driver, "CEESECI", [seconds]).split("|", 1)[1]
+        y, mo, d, h, mi, sec, ms = args
+        assert back == f"{y},{mo},{d},{h},{mi},{sec},0.{int(ms):03d}", (args, seconds, back)
+        n += 1
+    assert n >= 3

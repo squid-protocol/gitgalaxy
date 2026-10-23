@@ -60,6 +60,8 @@ MODELLED_CALLS = {
     "CEESECS",
     "CEEDATE",
     "CEEISEC",
+    "CEESECI",
+    "CEEDYWK",
     "CEEQCEN",
     "CBLTDLI",
 }  # tests/equivalence/le, faults/ggabend.c, ims/ggdli.c (#4893)

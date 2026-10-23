@@ -1,6 +1,6 @@
 /*
  * le_time.c -- models of the Language Environment date/time callable services CEEGMT / CEEUTC, CEEDATM, CEESECS,
- * CEEDATE, CEEISEC and CEEQCEN for the equivalence harness (#4949). GnuCOBOL has no LE services; a program that
+ * CEEDATE, CEEISEC, CEESECI, CEEDYWK and CEEQCEN for the equivalence harness (#4949). GnuCOBOL has no LE services; a program that
  * CALLs one (CBSA's BANKDATA: CEEGMT, CEEDATM) runs against this instead, and a port is proven against what this
  * returns. The twin of det/cobolrt/le/LeTime.java: the same conditions, the same bytes, the same refusals. Register
  * L6 (docs/language_status/register/L6.md) says what IBM documents, what is assumed and what is refused.
@@ -10,6 +10,8 @@
  *   CALL "CEESECS" USING input_timestamp, picture_string, output_seconds, fc
  *   CALL "CEEDATE" USING input_Lilian_date, picture_string, output_char_date, fc
  *   CALL "CEEISEC" USING year, month, day, hours, minutes, seconds, milliseconds, output_seconds, fc
+ *   CALL "CEESECI" USING input_seconds, year, month, day, hours, minutes, seconds, milliseconds, fc
+ *   CALL "CEEDYWK" USING input_Lilian_date, day_number, fc          (1 Sunday .. 7 Saturday)
  *   CALL "CEEQCEN" USING century_start, fc
  *   CALL "CEEGMTO" USING offset_hours, offset_minutes, offset_seconds, fc      (CEEUTCO: the same)
  * (IBM z/OS Language Environment Programming Reference; the message list per service is the one IBM publishes for the
@@ -339,6 +341,52 @@ int CEEISEC(unsigned char *y, unsigned char *mo, unsigned char *d, unsigned char
             unsigned char *s, unsigned char *ms, unsigned char *seconds, unsigned char *fc) {
     long v[7] = {get_int(y), get_int(mo), get_int(d), get_int(h), get_int(mi), get_int(s), get_int(ms)};
     isec(v, seconds, fc, 2511, 2514);
+    return 0;
+}
+
+/* CEESECI: Lilian seconds to integer fields, the inverse of CEEISEC; the range is CEEDATM's (CEE2505), the fraction is
+ * floored to a thousandth. A failing call writes zeros. */
+int CEESECI(unsigned char *seconds, unsigned char *y, unsigned char *mo, unsigned char *d, unsigned char *h,
+            unsigned char *mi, unsigned char *s, unsigned char *ms, unsigned char *fc) {
+    double v = get_double(seconds), whole = floor(v);
+    if (!(whole >= 86400.0 && whole < MAX_SECONDS)) {
+        put_int(y, 0);
+        put_int(mo, 0);
+        put_int(d, 0);
+        put_int(h, 0);
+        put_int(mi, 0);
+        put_int(s, 0);
+        put_int(ms, 0);
+        put_fc(fc, 2505);
+        return 0;
+    }
+    long long w = (long long)whole;
+    long long sod = w % 86400LL;
+    long yy;
+    int mm, dd;
+    ymd((long)(w / 86400LL), &yy, &mm, &dd);
+    put_int(y, yy);
+    put_int(mo, mm);
+    put_int(d, dd);
+    put_int(h, (long)(sod / 3600));
+    put_int(mi, (long)(sod / 60 % 60));
+    put_int(s, (long)(sod % 60));
+    put_int(ms, (long)floor((v - whole) * 1000.0));
+    put_fc(fc, 0);
+    return 0;
+}
+
+/* CEEDYWK: the day of the week of a Lilian day, 1 (Sunday) to 7 (Saturday); day 1 (15 October 1582) was a Friday.
+ * Outside 1 .. MAX_DAY the number is 0 and the code CEE2512. */
+int CEEDYWK(unsigned char *lilian, unsigned char *out, unsigned char *fc) {
+    long n = get_int(lilian);
+    if (n < 1 || n > MAX_DAY) {
+        put_int(out, 0);
+        put_fc(fc, 2512);
+        return 0;
+    }
+    put_int(out, (n + 4) % 7 + 1);
+    put_fc(fc, 0);
     return 0;
 }
 

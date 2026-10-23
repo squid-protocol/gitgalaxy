@@ -433,7 +433,7 @@ static int expand_cat(Ssa *s, int k) {
     for (int i = 0; i < depth; i++) {
         Ssa *x = &s[i];
         int t = path[depth - 1 - i];
-        x->first = x->last = x->par = x->enq = x->up = x->vee = 0;
+        x->first = x->last = x->par = x->path = x->enq = x->up = x->vee = x->norepl = 0; /* every flag: s[1..] is stale stack from the call before */
         x->cat = NULL;
         x->seg = t;
         x->fld = segs[t].key;
@@ -544,7 +544,7 @@ static void check_codes(const char *fn, const Ssa *s, int k) {
     int ps = 0;
     for (int i = 0; i < k; i++) {
         if (s[i].cat && (!gu || k != 1 || s[i].last)) refuse("the command code C other than alone on a GU, without L");
-        if (s[i].path && fn[0] != 'G') {
+        if (s[i].path && fn[0] != 'G' && !is) { /* D on an ISRT is the path insert (#5233) */
             char what[40];
             snprintf(what, sizeof what, "the command code D on a %.4s", fn);
             refuse(what);
@@ -873,6 +873,67 @@ static void get(Pcb *p, const char *fn, unsigned char *io, Ssa *s, int k, int ho
     }
 }
 
+/* Path ISRT (#5233, command code D on an SSA before the last): twin of DetDli.pathIsrt. The I/O area holds each D-coded segment and
+ * then the last, in hierarchic order; a level is found by the sequence field in its slice (D-coded) or by its SSA, and a missing
+ * D-coded one is inserted from its slice. A D-coded segment that exists is kept as is (a GU with a concatenated key resets every flag of the SSAs it expands: stale stack made it a path call). The area's size is the program's job here. */
+static void path_isrt(Pcb *p, unsigned char *io, Ssa *s, int k) {
+    if (segs[s[0].seg].parent >= 0) refuse("an ISRT whose SSAs leave out the root level");
+    unsigned char *at = io;
+    Node *parent = &dbs[p->db].root;
+    for (int i = 0; i < k; i++) {
+        int t = s[i].seg, coded = i == k - 1 || s[i].path;
+        const Fld *key = &flds[segs[t].key];
+        Node *found = NULL;
+        for (Node *c = parent->first; c; c = c->next)
+            if (c->seg == t && (coded ? key_cmp(c, at + key->start - 1) == 0 : satisfies(c, s, i + 1))) {
+                found = c;
+                break;
+            }
+        if (i == k - 1) {
+            if (found) {
+                status(p, "II");
+                feedback(p, parent->parent ? parent : NULL);
+                p->pos = POS_UNKNOWN;
+                p->par = PAR_UNKNOWN;
+                return;
+            }
+            Node *n = calloc(1, sizeof *n);
+            n->seg = t;
+            n->data = malloc(segs[t].bytes);
+            memcpy(n->data, at, segs[t].bytes);
+            link_child(parent, n);
+            status(p, "  ");
+            feedback(p, n);
+            p->pos = POS_AT;
+            p->at = n;
+            p->prevknown = 0;
+            p->par = PAR_UNKNOWN;
+            return;
+        }
+        if (!found && !coded) {
+            status(p, "GE");
+            feedback(p, parent->parent ? parent : NULL);
+            p->pos = POS_UNKNOWN;
+            p->par = PAR_UNKNOWN;
+            return;
+        }
+        if (!found) {
+            Node *n = calloc(1, sizeof *n);
+            n->seg = t;
+            n->data = malloc(segs[t].bytes);
+            memcpy(n->data, at, segs[t].bytes);
+            n->parent = parent; /* so the SSA's qualification can be read before the segment is linked */
+            if (!satisfies(n, s, i + 1)) refuse("a path ISRT whose segment does not satisfy its own SSA");
+            link_child(parent, n);
+            found = n;
+        } else if (!satisfies(found, s, i + 1)) {
+            refuse("a path ISRT whose existing segment does not satisfy its own SSA");
+        }
+        if (coded) at += segs[t].bytes;
+        parent = found;
+    }
+}
+
 /* ISRT: the last SSA names the type inserted (unqualified); the SSAs before it locate the parent, from the root, or
  * there are none and current position does */
 static void isrt(Pcb *p, unsigned char *io, Ssa *s, int k) {
@@ -887,6 +948,11 @@ static void isrt(Pcb *p, unsigned char *io, Ssa *s, int k) {
         status(p, bad);
         return;
     }
+    for (int i = 0; i < k - 1; i++)
+        if (s[i].path) {
+            path_isrt(p, io, s, k);
+            return;
+        }
     int t = s[k - 1].seg;
     Node *parent;
     if (segs[t].parent < 0) {

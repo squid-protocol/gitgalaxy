@@ -145,6 +145,27 @@ _STATEMENT_WORDS = frozenset(
     "ADDRESS ANNUITY BY CALL COMPUTE ENTRY EXEC FUNCTION IN INTO OF ON POINTER SET SIZE TO USING WITH ERROR".split()
 )
 _VERB = re.compile(r"[A-Z][A-Z-]*")
+# #5865 slice 2: the engine's own refusal / hole texts as fixed, name-free construct keys. A closed vocabulary: the key is
+# the table's string, never a slice of the source, so it cannot carry a census name. First match wins.
+_CONSTRUCTS: tuple[tuple[str, str], ...] = (
+    (r"^WRITE AFTER without ADVANCING", "WRITE: AFTER without ADVANCING"),
+    (r"^WRITE AFTER ADVANCING .*carriage control", "WRITE: carriage control (mnemonic-name) not modelled"),
+    (r"variable-length records without RECORD VARYING", "FD: variable-length records without RECORD VARYING"),
+    (r"no program of that name with a CALL entry", "CALL: target without a CALL entry in the estate"),
+    (r"^CALL <name>$", "CALL: other non-IBM target"),
+    (r"^JSON (PARSE|GENERATE)\b", r"JSON \1: not modelled"),
+    (r"^(MOVE|STRING) .*beyond the single-byte code page", r"\1: literal beyond the single-byte code page"),
+    (r"^STRING sender .*numeric item with a P or a decimal place", "STRING: numeric sender with P or a decimal place"),
+    (r"its bytes hold ", "<name>: bytes overlap another item"),
+    (r"^ACCEPT from SYSIN", "ACCEPT: from SYSIN / console"),
+    (r"^PERFORM .*undeclared paragraph", "PERFORM: undeclared paragraph"),
+    (r"^[A-Z0-9]+: undeclared item", "<name>: undeclared item"),
+    (r"^[A-Z0-9]+: no FD record", "FD: no record description"),
+    (r"^EXEC CICS map <name>: no ", "EXEC CICS map: no <name> field"),
+    (r"^STOP literal", "STOP: literal"),
+    (r"^EXHIBIT NAMED", "EXHIBIT NAMED: only plain names and literals"),
+    (r"^MOVE CORRESPONDING", "MOVE CORRESPONDING"),
+)
 _ROUTINE = re.compile(r"(?:CEE|CBLTDLI|CEETDLI|AIBTDLI|MQ|DFH|ILBO|IGZ|CKM|DSN)[A-Z0-9]*")
 
 
@@ -172,6 +193,9 @@ def scrub_key(gap: str) -> str:
         return gap
     if m := re.match(r"CALL ([A-Z0-9]+)", gap):
         return f"CALL {m.group(1)}" if _ROUTINE.fullmatch(m.group(1)) else "CALL other"
+    for pat, key in _CONSTRUCTS:
+        if m2 := re.search(pat, gap):
+            return m2.expand(key)
     verb = _VERB.match(gap)
     if verb and verb.group(0) in _STATEMENT_WORDS:
         words = set(re.findall(r"\b[A-Z][A-Z-]+\b", gap))

@@ -1,6 +1,7 @@
 """gap_prevalence (#5865): per-gap estate / program counts by era over synthetic survey rows and inventories."""
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -172,3 +173,51 @@ def test_render_adds_the_census_section(rows_and_inv):
     assert "## Census estates (1 estates, 1 programs, 0 translate whole today)" in page
     assert CENSUS[0] not in page
     assert "## Census estates" not in gp.render(gp.measure(rows, d))
+
+
+@pytest.mark.parametrize(
+    ("gap", "key"),
+    [
+        ("WRITE AFTER without ADVANCING", "WRITE: AFTER without ADVANCING"),
+        (
+            "WRITE AFTER ADVANCING identifier / mnemonic-name: carriage control is not modelled",
+            "WRITE: carriage control (mnemonic-name) not modelled",
+        ),
+        (
+            "PAYFILE: variable-length records without RECORD VARYING ... DEPENDING ON",
+            "FD: variable-length records without RECORD VARYING",
+        ),
+        (
+            "PAYSUB: no program of that name with a CALL entry in the estate",
+            "CALL: target without a CALL entry in the estate",
+        ),
+        ("CALL <name>", "CALL: other non-IBM target"),
+        ("JSON PARSE (…): not modelled", "JSON PARSE: not modelled"),
+        ("JSON GENERATE (…): not modelled", "JSON GENERATE: not modelled"),
+        (
+            "MOVE an alphanumeric literal holds a character beyond the single-byte code page (…)",
+            "MOVE: literal beyond the single-byte code page",
+        ),
+        (
+            "STRING an alphanumeric literal holds a character beyond the single-byte code page (…)",
+            "STRING: literal beyond the single-byte code page",
+        ),
+        (
+            "STRING sender <name>, PIC <name>(…)<name>: a numeric item with a P or a decimal place is a compile error",
+            "STRING: numeric sender with P or a decimal place",
+        ),
+        ("<name>: its bytes hold <name> <name>", "<name>: bytes overlap another item"),
+        ("ACCEPT from SYSIN / console", "ACCEPT: from SYSIN / console"),
+        ("PERFORM <name>: undeclared paragraph", "PERFORM: undeclared paragraph"),
+        ("SQLCA: undeclared item", "<name>: undeclared item"),
+        ("PAYMAPI: undeclared item", "<name>: undeclared item"),
+        ("PAYIN: no FD record", "FD: no record description"),
+        ("EXEC CICS map <name>: no PAYFLDA", "EXEC CICS map: no <name> field"),
+        ("STOP literal", "STOP: literal"),
+        ("EXHIBIT NAMED of <name> IN <name>: only plain names", "EXHIBIT NAMED: only plain names and literals"),
+        ("MOVE CORRESPONDING", "MOVE CORRESPONDING"),
+    ],
+)
+def test_scrub_key_itemises_the_other_buckets_without_names(gap, key):
+    assert gp.scrub_key(gap) == key
+    assert not re.search(r"PAY[A-Z]*", key)  # the key is the table's string, never a slice of the source

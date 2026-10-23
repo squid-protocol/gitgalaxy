@@ -4016,6 +4016,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   (`test_eib_fn_rcode_5126.py`, `test_eibds_5126.py`, `test_proof_blockers.py`: 101 passed, none skipped), so ZECS001
   is still the only reader. What remains of #5126 is EIBFN / EIBRCODE, blocked on IBM's verbatim function-code and
   condition tables; the other checklist boxes are done (#5144, #5186, #5221, #5261, #5346, #5664).
+- **Re-checked 2026-10-22 (#5126, origin/main 14ebb0303).** The guard (`test_eib_fn_rcode_5126.py`, `test_eibds_5126.py`,
+  `test_proof_blockers.py`: 101 passed) still finds ZECS001 as the only burned reader of the seven fields, so no whole
+  burned program reads EIBFN or EIBRCODE and the trigger above has not fired. The decision stands: no function-code or
+  condition table is copied without a program that runs it. Sibling gaps, none needed by a burned program: EIBCPOSN,
+  EIBREQID, EIBRSRCE, EIBERR / EIBERRCD (named, refused); ASSIGN FACILITY with no terminal (stub refuses, det port
+  returns INVREQ RESP2 5; align both with IBM).
 - **Evidence level.** Translated on both sides and pinned at the translator (the text each side emits); NOT
   executed-equivalent: no case's program reads EIBDS, so no scenario ran the stub's MOVE against the port's. The
   detail the pins cannot show is the MOVE's padding on the Java side (`Cobol.move` into the X(8) field).

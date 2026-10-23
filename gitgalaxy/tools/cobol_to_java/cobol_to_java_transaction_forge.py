@@ -1037,6 +1037,13 @@ public class CicsTask {
      *  scheme other than HTTP / HTTPS), INVREQ 138 (a port above 65535). Refused: two conditions at once, a port below 1,
      *  a HOSTLENGTH past HOST, a server the run does not state. */
     public WebOpened webOpenHost(String host, int hostLength, int port, boolean portGiven, int scheme) {
+        WebOpened o = webOpenHostChecked(host, hostLength, port, portGiven, scheme);
+        event("WEB-OPEN", "host", hostLength > 0 && hostLength <= host.length() ? host.substring(0, hostLength) : "",
+                "scheme", scheme == 1096 ? "HTTP" : scheme == 1029 ? "HTTPS" : null, "resp", o.resp(), "resp2", o.resp2());
+        return o;
+    }
+
+    private WebOpened webOpenHostChecked(String host, int hostLength, int port, boolean portGiven, int scheme) {
         java.util.List<HttpPeer> peers = statedPeers();
         java.util.List<int[]> c = new java.util.ArrayList<>();
         if (hostLength <= 0) {
@@ -1074,6 +1081,7 @@ public class CicsTask {
         String n = name == null ? "" : name.strip();
         for (HttpPeer peer : statedPeers()) {
             if (n.equals(peer.urimap())) {
+                event("WEB-OPEN", "host", peer.host(), "scheme", peer.scheme(), "resp", 0, "resp2", 0);
                 return webSession(peer, true);
             }
         }
@@ -1178,7 +1186,9 @@ public class CicsTask {
     public int[] webClose(String token) {
         CicsTask r = root();
         r.statedPeers();
-        return r.webSessions.remove(token) != null ? new int[] {0, 0} : new int[] {19, 27};
+        int[] out = r.webSessions.remove(token) != null ? new int[] {0, 0} : new int[] {19, 27};
+        event("WEB-CLOSE", "resp", out[0], "resp2", out[1]);
+        return out;
     }
 
     /** WEB SEND FROM(area) FROMLENGTH(n) [MEDIATYPE(area)] ACTION(cvda) [STATUSCODE(n)] [STATUSTEXT(area) [STATUSLEN(n)]]

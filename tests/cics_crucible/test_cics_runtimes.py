@@ -3449,9 +3449,18 @@ def test_the_stub_web_open_converse_close(tmp_path):
     out = subprocess.run([str(exe), *_X35_STEPS], env=env, capture_output=True, text=True, check=True)  # noqa: S603
     assert out.stdout.splitlines() == _X35_EXPECTED
     events = (tmp_path / "out" / "events.txt").read_text(encoding="latin-1").splitlines()
-    assert [e.split()[1] for e in events] == ["WEB-CONVERSE"] * 4
-    assert "method=PUT" in events[1] and "body=1" in events[1] and "media=746578742F706C61696E" in events[1]
-    assert "query=636C6561723D2A" in events[3] and "resp=22 resp2=57" in events[3]
+    assert [e.split()[1] for e in events] == ["WEB-OPEN"] * 5 + ["WEB-CONVERSE"] * 4 + ["WEB-CLOSE"] * 2
+    hx = lambda t: t.encode("latin-1").hex().upper()  # noqa: E731  # #4767: the connection as the program named it
+    assert events[0].endswith(f"host={hx('zecs.example')} scheme=HTTP resp=0 resp2=0")  # URIMAP: the peer's host
+    assert events[1].endswith(f"host={hx('ZECS.EXAMPLE')} scheme=HTTP resp=0 resp2=0")  # HOST: as the program wrote it
+    assert events[2].endswith("host=- scheme=HTTP resp=22 resp2=21")  # HOSTLENGTH 0: no host
+    assert events[3].endswith(f"host={hx('zecs.example')} scheme=HTTP resp=16 resp2=138")
+    assert events[4].endswith(f"host={hx('zecs.example')} scheme=- resp=16 resp2=40")  # a scheme that is neither
+    assert events[9].endswith("WEB-CLOSE pgm= resp=0 resp2=0")
+    assert events[10].endswith("WEB-CLOSE pgm= resp=19 resp2=27")
+    conv = events[5:9]
+    assert "method=PUT" in conv[1] and "body=1" in conv[1] and "media=746578742F706C61696E" in conv[1]
+    assert "query=636C6561723D2A" in conv[3] and "resp=22 resp2=57" in conv[3]
     for steps, why in _X35_REFUSED:
         bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
@@ -3520,7 +3529,7 @@ def test_cics_task_web_open_converse_close_as_the_stub_does(tmp_path):
         for (java.util.Map<String, Object> e : t.events()) {{
             System.out.println(e.get("event") + " " + e.get("host") + " " + e.get("method") + " " + e.get("path") + " ["
                     + e.get("query") + "] " + e.get("mediatype") + " " + e.get("body") + " " + e.get("resp") + "/"
-                    + e.get("resp2"));
+                    + e.get("resp2") + " " + e.get("scheme"));
         }}
         String[][] refused = {{{", ".join("{" + ", ".join('"' + x + '"' for x in steps) + "}" for steps, _ in _X35_REFUSED)}}};
         for (String[] steps : refused) {{
@@ -3561,12 +3570,20 @@ def test_cics_task_web_open_converse_close_as_the_stub_does(tmp_path):
     lines = out.splitlines()
     n = len(_X35_EXPECTED)
     assert lines[:n] == _X35_EXPECTED
-    assert lines[n:n + 4] == [
-        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0",
-        "WEB-CONVERSE zecs.example PUT /resources/zc01/k1 [] text/plain stored-data 0/0",
-        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0",
-        "WEB-CONVERSE zecs.example DELETE /deplicate/k2 [clear=*] null null 22/57"]  # fmt: skip
-    refusals = [ln for ln in lines[n + 4 :] if not ln.startswith(("open ", "conv "))]
+    # #4767: each connection opened and closed is recorded too (WEB-OPEN host and scheme as the connection names them)
+    assert lines[n:n + 11] == [
+        "WEB-OPEN zecs.example null null [null] null null 0/0 HTTP",
+        "WEB-OPEN ZECS.EXAMPLE null null [null] null null 0/0 HTTP",
+        "WEB-OPEN  null null [null] null null 22/21 HTTP",
+        "WEB-OPEN zecs.example null null [null] null null 16/138 HTTP",
+        "WEB-OPEN zecs.example null null [null] null null 16/40 null",
+        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0 null",
+        "WEB-CONVERSE zecs.example PUT /resources/zc01/k1 [] text/plain stored-data 0/0 null",
+        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0 null",
+        "WEB-CONVERSE zecs.example DELETE /deplicate/k2 [clear=*] null null 22/57 null",
+        "WEB-CLOSE null null null [null] null null 0/0 null",
+        "WEB-CLOSE null null null [null] null null 19/27 null"]  # fmt: skip
+    refusals = [ln for ln in lines[n + 11 :] if not ln.startswith(("open ", "conv "))]
     assert len(refusals) == len(_X35_REFUSED) + 1
     for got, (_steps, why) in zip(refusals, _X35_REFUSED):
         assert why in got and got.endswith(": not modelled"), (got, why)

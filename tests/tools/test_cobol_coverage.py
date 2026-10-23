@@ -148,6 +148,19 @@ def test_a_paragraph_holding_an_entry_statement_is_entered_by_it(tmp_path: Path)
     assert (got["covered"], got["live"]) == (1, 2)  # the program's own entry is not a unit: MAIN-PARA stays unrun
 
 
+def test_a_program_with_no_paragraph_is_one_unit_run_by_any_of_its_statements(tmp_path: Path) -> None:
+    """COBSWAIT shape (CardDemo): statements straight after PROCEDURE DIVISION, no header. The trace has no Paragraph
+    event for them, yet the unit is live (1, not 0/0 which reads as 'not measured') and entered when a statement ran."""
+    text = _cbl("PROGRAM-ID. T.", "PROCEDURE DIVISION.", "    DISPLAY 'X'.", "    STOP RUN.")
+    head = b"Source: 'T.cbl'\nProgram-Id:  T\n"
+    entry = head + b"Program-Id:  T                    Entry: T                               Line:      3\n"
+    ran = entry + b"Program-Id:  T                           DISPLAY                         Line:      3\n"
+    got = _measure(tmp_path, text, ran)["paragraphs"]
+    assert (got["covered"], got["live"], got["dead"], got["unread"]) == (1, 1, [], [])
+    got = _measure(tmp_path, text, entry)["paragraphs"]  # entered, no statement ran
+    assert (got["covered"], got["live"]) == (0, 1)
+
+
 def test_gnucobol_when_events_are_not_the_arm(tmp_path: Path) -> None:
     """GnuCOBOL traces some WHENs as statements; the arm is the first real statement after them."""
     trace = TRACE.replace(

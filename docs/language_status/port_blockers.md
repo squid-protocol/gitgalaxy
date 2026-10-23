@@ -19,22 +19,22 @@ an unfinished log, not a clean estate.
 | 7 | dbb-mortgage-application | 4 | 61 | 0 | 4 | 3 | 1.33 | 0 |
 | 8 | cics-async-api-credit-card-application-example | 2 | 63 | 0 | 2 | 0 | n/a | 0 |
 
-No single estate: 1 (P005 by sibling sweep after round 8).
+No single estate: 8 (P005 by sibling sweep after round 8, P065 by sibling sweep after round 8, P066 by review after round 8, P067 by review after round 8, P068 by review after round 8, P069 by sibling sweep after round 8, P070 by sibling sweep after round 8, P071 by sibling sweep after round 8).
 
 ## By side and class
 
 | side | blockers | | class | blockers | first seen |
 |---|---|---|---|---|---|
-| det | 30 | | cics-command | 12 | P024 |
-| transaction-forge | 4 | | cobol-dialect | 9 | P006 |
-| facade | 7 | | commarea-bytes | 13 | P028 |
-| harness | 22 | | data-layout | 4 | P027 |
+| det | 33 | | cics-command | 13 | P024 |
+| transaction-forge | 4 | | cobol-dialect | 10 | P006 |
+| facade | 8 | | commarea-bytes | 14 | P028 |
+| harness | 25 | | data-layout | 5 | P027 |
 | runtime | 1 | | control-flow | 6 | P015 |
-|  |  | | db2 | 6 | P026 |
+|  |  | | db2 | 7 | P026 |
 |  |  | | vsam | 5 | P019 |
 |  |  | | eib-fact | 1 | P005 |
 |  |  | | oracle-model | 4 | P025 |
-|  |  | | ci-gate | 2 | P001 |
+|  |  | | ci-gate | 4 | P001 |
 |  |  | | ims-mq | 2 | P040 |
 
 ## Discovery curve by round
@@ -51,12 +51,19 @@ logged blockers per program. A blocker with no estate is counted on its own row,
 | 7 | dbb-mortgage-application | 6 | 4 | 0.67 | 61 | 0 | 10 | 3 |
 | 8 | cics-async-api-credit-card-application-example | 10 | 2 | 0.20 | 63 | 0 | 10 | 4 |
 | 8 | none (sibling sweep, P005) | | 1 | | 64 | 1 | 11 | |
+| 8 | none (sibling sweep, P065) | | 1 | | 65 | 0 | 11 | |
+| 8 | none (review, P066) | | 1 | | 66 | 0 | 11 | |
+| 8 | none (review, P067) | | 1 | | 67 | 0 | 11 | |
+| 8 | none (review, P068) | | 1 | | 68 | 0 | 11 | |
+| 8 | none (sibling sweep, P069) | | 1 | | 69 | 0 | 11 | |
+| 8 | none (sibling sweep, P070) | | 1 | | 70 | 0 | 11 | |
+| 8 | none (sibling sweep, P071) | | 1 | | 71 | 0 | 11 | |
 
 ## Expected for the next estate
 
 Logged blockers per program over the last 3 estates: 0.57 pooled (range 0.20 to 1.20); over all 6 estates 0.50. For a next estate of N programs that is about 0.6*N logged blockers (between 0.2*N and 1.2*N): 5.7 per 10 programs, 23 for 40.
 
-New classes: 11 of the 64 logged blockers opened a class, and the last 4 estate(s) opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a floor on novelty, not a guarantee.
+New classes: 11 of the 71 logged blockers opened a class, and the last 4 estate(s) opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a floor on novelty, not a guarantee.
 
 Read this as an order of magnitude. The ledger is a partial backfill (the issue's keyword count is ~1.3 blockers per program on the first port falling to ~0.25 on the fifth, zECS excepted for new API areas, which is higher than the logged rate here), so the logged rate is a lower bound. There are 6 data points and no variance model: the range is the spread of the last 3, not a confidence interval.
 
@@ -128,3 +135,10 @@ Read this as an order of magnitude. The ledger is a partial backfill (the issue'
 | P005 | 8 | none | harness | eib-fact | yes |  | #5077 / #5125 | no | The harness could not state ASSIGN STARTCODE, EIBFN or EIBRCODE (3 estates, 7 programs one gap from proven); found by a measurement across estates, not on one. |
 | P033 | 8 | cics-async-api-credit-card-application-example | harness | commarea-bytes | no |  | #4642 | no | The equivalence harness could not run a CICS task with no COMMAREA (KeyError / IndexError on an empty LINKAGE SECTION) or state a COMMAREA length per scenario; the estate's Java side did not compile without BMS maps. |
 | P034 | 8 | cics-async-api-credit-card-application-example | harness | cics-command | no |  | #4647 | no | The equivalence harness had no input channel or output containers (RUN TRANSID CHANNEL / LINK CHANNEL callers, GET / PUT CONTAINER), which every async service takes. |
+| P065 | 8 | none | det | cics-command | no | copaus2c, lgtestc1, lgastat1 | #4737 / #4748 | no | Four CICS options were each the only gap in a program (FORMATTIME RESP, ASKTIME NOHANDLE, RECEIVE MAP ASIS, READQ TS LENGTH(LENGTH OF)); three burned programs (CardDemo, GenApp) were one option from whole, the fourth is in a non-burned repo. |
+| P066 | 8 | none | harness | ci-gate | no |  | #4530 / #4536 | no | 14 committed equivalence ports (11 CardDemo Javadoc, 3 GenApp handleTransaction) had drifted from what the generator writes today, and no CI gate caught it; ports resurfaced, re-proven, and port_surface --check gated. |
+| P067 | 8 | none | harness | ci-gate | no | cbact01c, cbact02c, cbact03c, cbact04c, cbcus01c, cbtrn01c, cbtrn02c, cbtrn03c, csutldtc, epsnbrvl, lgstsq | #5008 / #5011 | no | Batch and CALL det cases never got a det-sweep coverage ledger entry, so 11 programs stayed at L2 'coverage not measured' (CardDemo, DBB, GenApp). |
+| P068 | 8 | none | facade | commarea-bytes | no | lgtestp1, lgtestp2, lgtestp3, lgtestp4, cocrdupc, epscmort | #4870 / #4960 | no | The generated facade answered RETURN TRANSID COMMAREA as a DTO only, losing bytes the DTO cannot decode (non-digits in a numeric DISPLAY field); needed a bytes overload and an overload-aware port_surface (#4888), re-proving ~25 ports. |
+| P069 | 8 | none | det | cobol-dialect | no | epscsmrt, cotrtlic | #4736 / #4750 | no | Dynamic CALL was the only gap in two burned programs: a REDEFINES-over-VALUE-table target (DBB EPSCSMRT) found no candidates, and CALL DSNTIAC (CardDemo COTRTLIC) is refused by name because Db2's message text is not modelled. |
+| P070 | 8 | none | det | data-layout | no | epscsmrd, cocrdupc, cousr01c, cotrn02c, updacc | #5694 | no | Record layouts the engine cannot hand the translator: PROCEDURE/FUNCTION-POINTER width (#5841) and SYNC slack (#6117) are done; DFHAID, DFHBMSCA, DFHEIBLK, SQLCA and SQLDA keep the translator's own layout (open). |
+| P071 | 8 | none | harness | db2 | no | bankdata, cbstm03b | #5561 | no | Two whole-translated batch programs (CBSA BANKDATA, CardDemo CBSTM03B) had no equivalence case that runs them, so they stayed at L1; the harness needed the Db2 generated-rows path with VSAM output, and datasets for a CALLed program. |

@@ -1073,24 +1073,6 @@
    "reason": "condition() runs only for a CICS condition a command raises without RESP; UPDACC raises none"
   },
   {
-   "id": "2ad46547f3",
-   "op": "NEG",
-   "line": 255,
-   "before": "if (d == null) {",
-   "after": "if (!(d == null)) {",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "9dd6c18714",
-   "op": "ROR",
-   "line": 255,
-   "before": "if (d == null) {",
-   "after": "if (d != null) {",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
    "id": "35ebe9adf7",
    "op": "DEL",
    "line": 256,
@@ -1098,24 +1080,6 @@
    "after": "/* return; */",
    "verdict": "unreachable",
    "reason": "in_'s `d == null` guard: it is called only under `ca instanceof UpdaccDfhcommarea x`, never null, so the early return never runs"
-  },
-  {
-   "id": "494d78213f",
-   "op": "CON",
-   "line": 258,
-   "before": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
-   "after": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 1, 4, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "593937d8e8",
-   "op": "ROR",
-   "line": 258,
-   "before": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
-   "after": "Cobol.move(d.getCommEye() != null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
   },
   {
    "id": "a12d169d4b",
@@ -1132,8 +1096,8 @@
    "line": 258,
    "before": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 4, false), CS);",
    "after": "Cobol.move(d.getCommEye() == null ? \"\" : d.getCommEye(), Field.alphanumeric(s, base + 0, 5, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "the 5-wide COMM-EYE write puts a fifth byte on COMM-CUSTNO's first byte, which the next move (line 259) overwrites; only the 4 bytes of COMM-EYE and the rest are shown"
   },
   {
    "id": "12c9fe5a4e",
@@ -1141,26 +1105,8 @@
    "line": 259,
    "before": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 4, 10, false), CS);",
    "after": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 4, 11, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "6aea5a4e43",
-   "op": "CON",
-   "line": 259,
-   "before": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 4, 10, false), CS);",
-   "after": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 5, 10, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "ea1bd1537b",
-   "op": "ROR",
-   "line": 259,
-   "before": "Cobol.move(d.getCommCustno() == null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 4, 10, false), CS);",
-   "after": "Cobol.move(d.getCommCustno() != null ? \"\" : d.getCommCustno(), Field.alphanumeric(s, base + 4, 10, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "the 11-wide COMM-CUSTNO write puts an eleventh byte on COMM-SCODE's first byte, which the program overwrites (line 161) and the next move rewrites"
   },
   {
    "id": "73c3875c5c",
@@ -1168,8 +1114,8 @@
    "line": 260,
    "before": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 6, false), CS);",
    "after": "Cobol.move(d.getCommScode() != null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 6, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "COMM-SCODE is overwritten by MOVE SORTCODE TO COMM-SCODE (UPDACC.cbl line 161, before the SELECT) on every path, so what in_ maps into it never shows; the null test only picks which value goes in"
   },
   {
    "id": "989cdb3364",
@@ -1177,8 +1123,8 @@
    "line": 260,
    "before": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 6, false), CS);",
    "after": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 15, 6, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "COMM-SCODE is overwritten by MOVE SORTCODE TO COMM-SCODE (UPDACC.cbl line 161, before the SELECT) on every path, so what in_ maps into it never shows; a shifted start leaves the initial byte, overwritten by line 161 all the same"
   },
   {
    "id": "cfce0389f5",
@@ -1186,62 +1132,8 @@
    "line": 260,
    "before": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 6, false), CS);",
    "after": "Cobol.move(d.getCommScode() == null ? \"\" : d.getCommScode(), Field.alphanumeric(s, base + 14, 7, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "4dcbbe4579",
-   "op": "CON",
-   "line": 261,
-   "before": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 21, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "4f6fffafe9",
-   "op": "DEL",
-   "line": 261,
-   "before": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
-   "after": "/* Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS); */",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "875d39444c",
-   "op": "CON",
-   "line": 261,
-   "before": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 1, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "8c045636ac",
-   "op": "CON",
-   "line": 261,
-   "before": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 9, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "dac866915b",
-   "op": "ROR",
-   "line": 261,
-   "before": "Cobol.move(d.getCommAccno() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommAccno() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommAccno().toString()), Field.zoned(s, base + 20, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "11bca5d7bb",
-   "op": "CON",
-   "line": 262,
-   "before": "Cobol.move(d.getCommAccType() == null ? \"\" : d.getCommAccType(), Field.alphanumeric(s, base + 28, 8, false), CS);",
-   "after": "Cobol.move(d.getCommAccType() == null ? \"\" : d.getCommAccType(), Field.alphanumeric(s, base + 29, 8, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "COMM-SCODE is overwritten by MOVE SORTCODE TO COMM-SCODE (UPDACC.cbl line 161, before the SELECT) on every path, so what in_ maps into it never shows; a seventh byte lands on COMM-ACCNO's first byte, which the next move (line 261) overwrites"
   },
   {
    "id": "54614576f0",
@@ -1249,332 +1141,8 @@
    "line": 262,
    "before": "Cobol.move(d.getCommAccType() == null ? \"\" : d.getCommAccType(), Field.alphanumeric(s, base + 28, 8, false), CS);",
    "after": "Cobol.move(d.getCommAccType() == null ? \"\" : d.getCommAccType(), Field.alphanumeric(s, base + 28, 9, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "d56a30758b",
-   "op": "ROR",
-   "line": 262,
-   "before": "Cobol.move(d.getCommAccType() == null ? \"\" : d.getCommAccType(), Field.alphanumeric(s, base + 28, 8, false), CS);",
-   "after": "Cobol.move(d.getCommAccType() != null ? \"\" : d.getCommAccType(), Field.alphanumeric(s, base + 28, 8, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "0fdf160de7",
-   "op": "ROR",
-   "line": 263,
-   "before": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommIntRate() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "5dae043453",
-   "op": "CON",
-   "line": 263,
-   "before": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 3, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "5ed9a7fadd",
-   "op": "CON",
-   "line": 263,
-   "before": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 37, 6, 2, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "c7bc646d4c",
-   "op": "CON",
-   "line": 263,
-   "before": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 7, 2, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "d82148b9f5",
-   "op": "DEL",
-   "line": 263,
-   "before": "Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS);",
-   "after": "/* Cobol.move(d.getCommIntRate() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommIntRate().toString()), Field.zoned(s, base + 36, 6, 2, false, false, false), CS); */",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "50eb4d9a97",
-   "op": "CON",
-   "line": 264,
-   "before": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 1, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "671167ec32",
-   "op": "DEL",
-   "line": 264,
-   "before": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS);",
-   "after": "/* Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS); */",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "9fda523ebc",
-   "op": "CON",
-   "line": 264,
-   "before": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 9, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "b7c673a5f8",
-   "op": "CON",
-   "line": 264,
-   "before": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 43, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "ec5773cc57",
-   "op": "ROR",
-   "line": 264,
-   "before": "Cobol.move(d.getCommOpened() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommOpened() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommOpened().toString()), Field.zoned(s, base + 42, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "409250bf45",
-   "op": "CON",
-   "line": 265,
-   "before": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 1, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "5603ddb300",
-   "op": "ROR",
-   "line": 265,
-   "before": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommOverdraft() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "6c1d8cf71c",
-   "op": "CON",
-   "line": 265,
-   "before": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 51, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "733be44308",
-   "op": "DEL",
-   "line": 265,
-   "before": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS);",
-   "after": "/* Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS); */",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "7649ebc020",
-   "op": "CON",
-   "line": 265,
-   "before": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommOverdraft() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommOverdraft().toString()), Field.zoned(s, base + 50, 9, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "12163cfbcc",
-   "op": "ROR",
-   "line": 266,
-   "before": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommLastStmtDt() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "2a1e7d39f3",
-   "op": "CON",
-   "line": 266,
-   "before": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 1, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "2ea9afa891",
-   "op": "DEL",
-   "line": 266,
-   "before": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS);",
-   "after": "/* Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS); */",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "6edcffbd06",
-   "op": "CON",
-   "line": 266,
-   "before": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 9, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "9ea0bc0232",
-   "op": "CON",
-   "line": 266,
-   "before": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 58, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommLastStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommLastStmtDt().toString()), Field.zoned(s, base + 59, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "6715626453",
-   "op": "CON",
-   "line": 267,
-   "before": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 67, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "8b58848e75",
-   "op": "DEL",
-   "line": 267,
-   "before": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS);",
-   "after": "/* Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS); */",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "ac4866551c",
-   "op": "CON",
-   "line": 267,
-   "before": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 1, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "e15514d785",
-   "op": "ROR",
-   "line": 267,
-   "before": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommNextStmtDt() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "fad6c8d820",
-   "op": "CON",
-   "line": 267,
-   "before": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 8, 0, false, false, false), CS);",
-   "after": "Cobol.move(d.getCommNextStmtDt() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommNextStmtDt().toString()), Field.zoned(s, base + 66, 9, 0, false, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "1517f9b78e",
-   "op": "CON",
-   "line": 268,
-   "before": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS);",
-   "after": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 3, true, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "162485ca9b",
-   "op": "CON",
-   "line": 268,
-   "before": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS);",
-   "after": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 13, 2, true, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "45904ace9e",
-   "op": "ROR",
-   "line": 268,
-   "before": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS);",
-   "after": "Cobol.move(d.getCommAvailBal() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "795c973d62",
-   "op": "CON",
-   "line": 268,
-   "before": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS);",
-   "after": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 75, 12, 2, true, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "d16ef0ee44",
-   "op": "DEL",
-   "line": 268,
-   "before": "Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS);",
-   "after": "/* Cobol.move(d.getCommAvailBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommAvailBal().toString()), Field.zoned(s, base + 74, 12, 2, true, false, false), CS); */",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "1a516d745b",
-   "op": "CON",
-   "line": 269,
-   "before": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS);",
-   "after": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 3, true, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "27dbb34bc3",
-   "op": "ROR",
-   "line": 269,
-   "before": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS);",
-   "after": "Cobol.move(d.getCommActualBal() != null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "afd9ac6a2c",
-   "op": "DEL",
-   "line": 269,
-   "before": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS);",
-   "after": "/* Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS); */",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "d20eedb7ed",
-   "op": "CON",
-   "line": 269,
-   "before": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS);",
-   "after": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 13, 2, true, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "d8b4aa5b96",
-   "op": "CON",
-   "line": 269,
-   "before": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 86, 12, 2, true, false, false), CS);",
-   "after": "Cobol.move(d.getCommActualBal() == null ? BigDecimal.ZERO : new BigDecimal(d.getCommActualBal().toString()), Field.zoned(s, base + 87, 12, 2, true, false, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "the 9-wide COMM-ACC-TYPE write puts a ninth byte on COMM-INT-RATE's first byte, which the next move (line 263) overwrites"
   },
   {
    "id": "08db58c657",
@@ -1582,8 +1150,8 @@
    "line": 270,
    "before": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 1, false), CS);",
    "after": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 2, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "COMM-SUCCESS is set to 'N' or 'Y' on every path (lines 227, 268, 291, 327), so what in_ maps into it never shows; a second byte falls past the 99-byte record"
   },
   {
    "id": "89dfabba26",
@@ -1591,8 +1159,8 @@
    "line": 270,
    "before": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 1, false), CS);",
    "after": "Cobol.move(d.getCommSuccess() != null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
+   "verdict": "equivalent",
+   "reason": "COMM-SUCCESS is set to 'N' or 'Y' on every path (lines 227, 268, 291, 327), so the value in_ maps into it never shows"
   },
   {
    "id": "adb6e36a50",
@@ -1600,17 +1168,8 @@
    "line": 270,
    "before": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 98, 1, false), CS);",
    "after": "Cobol.move(d.getCommSuccess() == null ? \"\" : d.getCommSuccess(), Field.alphanumeric(s, base + 99, 1, false), CS);",
-   "verdict": "case-gap",
-   "reason": "in_UpdaccDfhcommarea is the typed-DTO entry path; every scenario is also passed as link-area bytes (linked:true), which then overwrite all 99 bytes of the COMMAREA and hide an in_ defect. A DTO-only run would kill it; the harness cannot state one yet"
-  },
-  {
-   "id": "40f70d4c5b",
-   "op": "CON",
-   "line": 274,
-   "before": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
-   "after": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 5, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
+   "verdict": "equivalent",
+   "reason": "COMM-SUCCESS is set to 'N' or 'Y' on every path (lines 227, 268, 291, 327), so the byte in_ leaves or skips never shows"
   },
   {
    "id": "52567399a1",
@@ -1622,119 +1181,11 @@
    "reason": "`base + 0` -> `base - 0`: the same offset"
   },
   {
-   "id": "6807dc9c6b",
-   "op": "CON",
-   "line": 274,
-   "before": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
-   "after": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 1, 4, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "688b643b14",
-   "op": "DEL",
-   "line": 274,
-   "before": "d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
-   "after": "/* d.setCommEye(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "4d76300592",
-   "op": "CON",
-   "line": 275,
-   "before": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 4, 10, false), CS));",
-   "after": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 5, 10, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "b193120df5",
-   "op": "CON",
-   "line": 275,
-   "before": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 4, 10, false), CS));",
-   "after": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 4, 11, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "f8f4e78391",
-   "op": "DEL",
-   "line": 275,
-   "before": "d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 4, 10, false), CS));",
-   "after": "/* d.setCommCustno(Cobol.text(Field.alphanumeric(s, base + 4, 10, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "3893c7f8cd",
-   "op": "DEL",
-   "line": 276,
-   "before": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 14, 6, false), CS));",
-   "after": "/* d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 14, 6, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "5487a1bc01",
-   "op": "CON",
-   "line": 276,
-   "before": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 14, 6, false), CS));",
-   "after": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 14, 7, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "7196bb58bd",
-   "op": "CON",
-   "line": 276,
-   "before": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 14, 6, false), CS));",
-   "after": "d.setCommScode(Cobol.text(Field.alphanumeric(s, base + 15, 6, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "5557f7e5fc",
-   "op": "CON",
-   "line": 277,
-   "before": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 21, 8, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "6941f69542",
-   "op": "CON",
-   "line": 277,
-   "before": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 1, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "7ab7251d55",
-   "op": "CON",
-   "line": 277,
-   "before": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 9, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
    "id": "9c7be3d8f9",
    "op": "DEL",
    "line": 277,
    "before": "d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
    "after": "/* d.setCommAccno(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "4e6445ca27",
-   "op": "CON",
-   "line": 278,
-   "before": "d.setCommAccType(Cobol.text(Field.alphanumeric(s, base + 28, 8, false), CS));",
-   "after": "d.setCommAccType(Cobol.text(Field.alphanumeric(s, base + 29, 8, false), CS));",
    "verdict": "harness-gap",
    "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
   },
@@ -1748,15 +1199,6 @@
    "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
   },
   {
-   "id": "fb6039a6a1",
-   "op": "CON",
-   "line": 278,
-   "before": "d.setCommAccType(Cobol.text(Field.alphanumeric(s, base + 28, 8, false), CS));",
-   "after": "d.setCommAccType(Cobol.text(Field.alphanumeric(s, base + 28, 9, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
    "id": "22b7feb365",
    "op": "DEL",
    "line": 279,
@@ -1766,236 +1208,11 @@
    "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
   },
   {
-   "id": "909797e7a6",
-   "op": "CON",
-   "line": 279,
-   "before": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 6, 2, false, false, false), CS));",
-   "after": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 6, 3, false, false, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "e129b16d56",
-   "op": "CON",
-   "line": 279,
-   "before": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 6, 2, false, false, false), CS));",
-   "after": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 7, 2, false, false, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "f4c484c066",
-   "op": "CON",
-   "line": 279,
-   "before": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 36, 6, 2, false, false, false), CS));",
-   "after": "d.setCommIntRate(Cobol.num(Field.zoned(s, base + 37, 6, 2, false, false, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "460436f4bc",
-   "op": "CON",
-   "line": 280,
-   "before": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 8, 1, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "afc49cc026",
-   "op": "DEL",
-   "line": 280,
-   "before": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 8, 0, false, false, false), CS).intValue());",
-   "after": "/* d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 8, 0, false, false, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "e494af6c72",
-   "op": "CON",
-   "line": 280,
-   "before": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 9, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "e882573264",
-   "op": "CON",
-   "line": 280,
-   "before": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 42, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommOpened(Cobol.num(Field.zoned(s, base + 43, 8, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "2f4b6b8c82",
-   "op": "CON",
-   "line": 281,
-   "before": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 9, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "787b68de25",
-   "op": "CON",
-   "line": 281,
-   "before": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 51, 8, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
    "id": "b1d3905e58",
    "op": "DEL",
    "line": 281,
    "before": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 0, false, false, false), CS).intValue());",
    "after": "/* d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 0, false, false, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "e49e90822f",
-   "op": "CON",
-   "line": 281,
-   "before": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommOverdraft(Cobol.num(Field.zoned(s, base + 50, 8, 1, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "15a84e77c0",
-   "op": "CON",
-   "line": 282,
-   "before": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 9, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "3ca02797c7",
-   "op": "CON",
-   "line": 282,
-   "before": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 59, 8, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "3d33078c03",
-   "op": "CON",
-   "line": 282,
-   "before": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 8, 1, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "735172404f",
-   "op": "DEL",
-   "line": 282,
-   "before": "d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 8, 0, false, false, false), CS).intValue());",
-   "after": "/* d.setCommLastStmtDt(Cobol.num(Field.zoned(s, base + 58, 8, 0, false, false, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "14136e087f",
-   "op": "CON",
-   "line": 283,
-   "before": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 67, 8, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "6627fb456e",
-   "op": "CON",
-   "line": 283,
-   "before": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 8, 1, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "73823e1e6d",
-   "op": "CON",
-   "line": 283,
-   "before": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 8, 0, false, false, false), CS).intValue());",
-   "after": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 9, 0, false, false, false), CS).intValue());",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "c28bddca9e",
-   "op": "DEL",
-   "line": 283,
-   "before": "d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 8, 0, false, false, false), CS).intValue());",
-   "after": "/* d.setCommNextStmtDt(Cobol.num(Field.zoned(s, base + 66, 8, 0, false, false, false), CS).intValue()); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "89ab499b97",
-   "op": "CON",
-   "line": 284,
-   "before": "d.setCommAvailBal(Cobol.num(Field.zoned(s, base + 74, 12, 2, true, false, false), CS));",
-   "after": "d.setCommAvailBal(Cobol.num(Field.zoned(s, base + 74, 12, 3, true, false, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "a4834b238a",
-   "op": "DEL",
-   "line": 284,
-   "before": "d.setCommAvailBal(Cobol.num(Field.zoned(s, base + 74, 12, 2, true, false, false), CS));",
-   "after": "/* d.setCommAvailBal(Cobol.num(Field.zoned(s, base + 74, 12, 2, true, false, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "a0e0fb58a8",
-   "op": "DEL",
-   "line": 285,
-   "before": "d.setCommActualBal(Cobol.num(Field.zoned(s, base + 86, 12, 2, true, false, false), CS));",
-   "after": "/* d.setCommActualBal(Cobol.num(Field.zoned(s, base + 86, 12, 2, true, false, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "f981669ba7",
-   "op": "CON",
-   "line": 285,
-   "before": "d.setCommActualBal(Cobol.num(Field.zoned(s, base + 86, 12, 2, true, false, false), CS));",
-   "after": "d.setCommActualBal(Cobol.num(Field.zoned(s, base + 86, 12, 3, true, false, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "28d1459833",
-   "op": "CON",
-   "line": 286,
-   "before": "d.setCommSuccess(Cobol.text(Field.alphanumeric(s, base + 98, 1, false), CS));",
-   "after": "d.setCommSuccess(Cobol.text(Field.alphanumeric(s, base + 99, 1, false), CS));",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "329d11361c",
-   "op": "DEL",
-   "line": 286,
-   "before": "d.setCommSuccess(Cobol.text(Field.alphanumeric(s, base + 98, 1, false), CS));",
-   "after": "/* d.setCommSuccess(Cobol.text(Field.alphanumeric(s, base + 98, 1, false), CS)); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
-  },
-  {
-   "id": "d7b18ea979",
-   "op": "CON",
-   "line": 286,
-   "before": "d.setCommSuccess(Cobol.text(Field.alphanumeric(s, base + 98, 1, false), CS));",
-   "after": "d.setCommSuccess(Cobol.text(Field.alphanumeric(s, base + 98, 2, false), CS));",
    "verdict": "harness-gap",
    "reason": "fill_UpdaccDfhcommarea builds the DTO the port returns, but when the port takes the link area the harness replaces the COMMAREA event's DTO with the area bytes (java_area), so a wrong DTO field (offset, length, dropped setter) is never compared; the harness must compare the DTO as well"
   },
@@ -2396,33 +1613,6 @@
    "reason": "calen starts at 0 and only a scenario with no COMMAREA keeps it: EIBCALEN is never read, and a cut at 0 or at 1 byte (when exactCommarea holds) raises the same PastFrom refusal on the first COMMAREA access at byte 14 or later"
   },
   {
-   "id": "54b627cfeb",
-   "op": "CON",
-   "line": 384,
-   "before": "in_UpdaccDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "in_UpdaccDfhcommarea(x, s_DFHCOMMAREA, 1);",
-   "verdict": "case-gap",
-   "reason": "the typed-DTO entry (`ca instanceof UpdaccDfhcommarea x`) is reached on every scenario, but the link area (linked:true) then overwrites the bytes in_ filled, so a dropped call cannot show; same gap as in_"
-  },
-  {
-   "id": "fd6af67419",
-   "op": "DEL",
-   "line": 384,
-   "before": "in_UpdaccDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "/* in_UpdaccDfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "case-gap",
-   "reason": "the typed-DTO entry (`ca instanceof UpdaccDfhcommarea x`) is reached on every scenario, but the link area (linked:true) then overwrites the bytes in_ filled, so a dropped call cannot show; same gap as in_"
-  },
-  {
-   "id": "f1751a4001",
-   "op": "DEL",
-   "line": 385,
-   "before": "caBack = () -> fill_UpdaccDfhcommarea(x, s_DFHCOMMAREA, 0);",
-   "after": "/* caBack = () -> fill_UpdaccDfhcommarea(x, s_DFHCOMMAREA, 0); */",
-   "verdict": "harness-gap",
-   "reason": "fill_UpdaccDfhcommarea (the caBack that refills the DTO) is replaced by the link area on the harness side: the returned DTO is built from the area bytes (java_area), so dropping it is never compared"
-  },
-  {
    "id": "4afb6ad67f",
    "op": "CON",
    "line": 386,
@@ -2446,8 +1636,8 @@
    "line": 391,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "case-gap",
-   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
   },
   {
    "id": "c8946fed55",
@@ -2455,8 +1645,8 @@
    "line": 391,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 1, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
   },
   {
    "id": "f4300f7a05",
@@ -2464,8 +1654,8 @@
    "line": 391,
    "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
    "after": "System.arraycopy(cb, 1, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
-   "verdict": "case-gap",
-   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
   },
   {
    "id": "8a1b3af6f8",
@@ -2473,8 +1663,8 @@
    "line": 392,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length <= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
   },
   {
    "id": "b601144cf6",
@@ -2482,8 +1672,8 @@
    "line": 392,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (!(cb.length > s_DFHCOMMAREA.bytes.length)) {",
-   "verdict": "case-gap",
-   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
   },
   {
    "id": "ccb3150631",
@@ -2491,8 +1681,8 @@
    "line": 392,
    "before": "if (cb.length > s_DFHCOMMAREA.bytes.length) {",
    "after": "if (cb.length >= s_DFHCOMMAREA.bytes.length) {",
-   "verdict": "case-gap",
-   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
   },
   {
    "id": "24742d2ca0",
@@ -2509,8 +1699,8 @@
    "line": 395,
    "before": "calen = cx(task, cb.length);",
    "after": "/* calen = cx(task, cb.length); */",
-   "verdict": "case-gap",
-   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO plus the link area. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
   },
   {
    "id": "2889b7ffd8",
@@ -2518,8 +1708,8 @@
    "line": 399,
    "before": "System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length));",
    "after": "/* System.arraycopy(raw, 0, s_DFHCOMMAREA.bytes, 0, Math.min(raw.length, s_DFHCOMMAREA.bytes.length)); */",
-   "verdict": "case-gap",
-   "reason": "the link-area copy into DFHCOMMAREA: the typed-DTO entry has already put the same bytes there (the DTO and the area carry one record), so dropping it cannot show; a case whose area differs from the DTO, or an area-only task, would kill it"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: the byte[] COMMAREA entry (`ca instanceof byte[]`) is reached only by a caller that hands the port a plain byte array; the harness gives a typed DTO (dto_entry) or the link-area bytes, so no case drives it"
   },
   {
    "id": "5c36770f8f",
@@ -2599,8 +1789,8 @@
    "line": 408,
    "before": "s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen);",
    "after": "/* s_DFHCOMMAREA.bytes = java.util.Arrays.copyOf(caWhole, calen); */",
-   "verdict": "case-gap",
-   "reason": "the cut-COMMAREA path (a stated EIBCALEN shorter than the 99-byte record: the `caWhole` copy and its write-back): only the no-COMMAREA / eibcalen-zero / -short / -98 scenarios reach it past eibcalen-full, and those fail the java-facade side of the proof (the facade comparator does not judge the X23 / X12 refusal), so they are not in the case yet; needs the facade comparator to judge a LINKed task's refused COMMAREA reference"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: reached only when EIBCALEN is under 99; a UPDACC scenario with commarea_length 98 was tried (#4049) and the java-facade side refuses it (`COMMAREA past EIBCALEN ... not modelled`, 0/1 events equal), the same as the earlier no-COMMAREA / short-EIBCALEN probes"
   },
   {
    "id": "9320b8755e",
@@ -2644,8 +1834,8 @@
    "line": 421,
    "before": "if (caWhole == null) {",
    "after": "if (caWhole != null) {",
-   "verdict": "case-gap",
-   "reason": "the cut-COMMAREA path (a stated EIBCALEN shorter than the 99-byte record: the `caWhole` copy and its write-back): only the no-COMMAREA / eibcalen-zero / -short / -98 scenarios reach it past eibcalen-full, and those fail the java-facade side of the proof (the facade comparator does not judge the X23 / X12 refusal), so they are not in the case yet; needs the facade comparator to judge a LINKed task's refused COMMAREA reference"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: reached only when EIBCALEN is under 99; a UPDACC scenario with commarea_length 98 was tried (#4049) and the java-facade side refuses it (`COMMAREA past EIBCALEN ... not modelled`, 0/1 events equal), the same as the earlier no-COMMAREA / short-EIBCALEN probes"
   },
   {
    "id": "edf8692d16",
@@ -2653,8 +1843,8 @@
    "line": 421,
    "before": "if (caWhole == null) {",
    "after": "if (!(caWhole == null)) {",
-   "verdict": "case-gap",
-   "reason": "the cut-COMMAREA path (a stated EIBCALEN shorter than the 99-byte record: the `caWhole` copy and its write-back): only the no-COMMAREA / eibcalen-zero / -short / -98 scenarios reach it past eibcalen-full, and those fail the java-facade side of the proof (the facade comparator does not judge the X23 / X12 refusal), so they are not in the case yet; needs the facade comparator to judge a LINKed task's refused COMMAREA reference"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: reached only when EIBCALEN is under 99; a UPDACC scenario with commarea_length 98 was tried (#4049) and the java-facade side refuses it (`COMMAREA past EIBCALEN ... not modelled`, 0/1 events equal), the same as the earlier no-COMMAREA / short-EIBCALEN probes"
   },
   {
    "id": "0ef54bdc45",
@@ -2680,8 +1870,8 @@
    "line": 427,
    "before": "caWhole(caWhole);",
    "after": "/* caWhole(caWhole); */",
-   "verdict": "case-gap",
-   "reason": "the cut-COMMAREA path (a stated EIBCALEN shorter than the 99-byte record: the `caWhole` copy and its write-back): only the no-COMMAREA / eibcalen-zero / -short / -98 scenarios reach it past eibcalen-full, and those fail the java-facade side of the proof (the facade comparator does not judge the X23 / X12 refusal), so they are not in the case yet; needs the facade comparator to judge a LINKed task's refused COMMAREA reference"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: reached only when EIBCALEN is under 99; a UPDACC scenario with commarea_length 98 was tried (#4049) and the java-facade side refuses it (`COMMAREA past EIBCALEN ... not modelled`, 0/1 events equal), the same as the earlier no-COMMAREA / short-EIBCALEN probes"
   },
   {
    "id": "4a199f7632",
@@ -2716,8 +1906,8 @@
    "line": 449,
    "before": "CicsTask task = region.linked(\"UPDACC\", request, area);",
    "after": "CicsTask task = region.linked(\"XPDACC\", request, area);",
-   "verdict": "case-gap",
-   "reason": "handleLink(request, area) / lastLinkBytes(): the overload that carries a raw COMMAREA is entered by a calling port's LINK with an explicit byte area; the harness enters a linked case through the one-parameter handleLink(request), and no caller LINKs UPDACC with LENGTH"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: handleLink(request, area) carries a raw COMMAREA from a calling port's LINK with LENGTH; the harness enters a linked case through the one-parameter handleLink(request) and no caller LINKs UPDACC that way"
   },
   {
    "id": "c94f1900db",
@@ -2725,8 +1915,8 @@
    "line": 450,
    "before": "region.run(task, \"UPDACC\", this::runTask);",
    "after": "region.run(task, \"XPDACC\", this::runTask);",
-   "verdict": "case-gap",
-   "reason": "handleLink(request, area) / lastLinkBytes(): the overload that carries a raw COMMAREA is entered by a calling port's LINK with an explicit byte area; the harness enters a linked case through the one-parameter handleLink(request), and no caller LINKs UPDACC with LENGTH"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: handleLink(request, area) carries a raw COMMAREA from a calling port's LINK with LENGTH; the harness enters a linked case through the one-parameter handleLink(request) and no caller LINKs UPDACC that way"
   },
   {
    "id": "4000bbd5f1",
@@ -2734,8 +1924,8 @@
    "line": 452,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() && left == null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "case-gap",
-   "reason": "handleLink(request, area) / lastLinkBytes(): the overload that carries a raw COMMAREA is entered by a calling port's LINK with an explicit byte area; the harness enters a linked case through the one-parameter handleLink(request), and no caller LINKs UPDACC with LENGTH"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: handleLink(request, area) carries a raw COMMAREA from a calling port's LINK with LENGTH; the harness enters a linked case through the one-parameter handleLink(request) and no caller LINKs UPDACC that way"
   },
   {
    "id": "5f8dfc2adf",
@@ -2743,8 +1933,8 @@
    "line": 452,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
-   "verdict": "case-gap",
-   "reason": "handleLink(request, area) / lastLinkBytes(): the overload that carries a raw COMMAREA is entered by a calling port's LINK with an explicit byte area; the harness enters a linked case through the one-parameter handleLink(request), and no caller LINKs UPDACC with LENGTH"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: handleLink(request, area) carries a raw COMMAREA from a calling port's LINK with LENGTH; the harness enters a linked case through the one-parameter handleLink(request) and no caller LINKs UPDACC that way"
   },
   {
    "id": "ba9505f7e8",
@@ -2752,8 +1942,8 @@
    "line": 452,
    "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
    "after": "/* lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null; */",
-   "verdict": "case-gap",
-   "reason": "handleLink(request, area) / lastLinkBytes(): the overload that carries a raw COMMAREA is entered by a calling port's LINK with an explicit byte area; the harness enters a linked case through the one-parameter handleLink(request), and no caller LINKs UPDACC with LENGTH"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: handleLink(request, area) carries a raw COMMAREA from a calling port's LINK with LENGTH; the harness enters a linked case through the one-parameter handleLink(request) and no caller LINKs UPDACC that way"
   },
   {
    "id": "8c4a586d4a",
@@ -2761,8 +1951,8 @@
    "line": 462,
    "before": "return lastLinkBytes == null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
    "after": "return lastLinkBytes != null ? null : java.util.Arrays.copyOf(lastLinkBytes, lastLinkBytes.length);",
-   "verdict": "case-gap",
-   "reason": "handleLink(request, area) / lastLinkBytes(): the overload that carries a raw COMMAREA is entered by a calling port's LINK with an explicit byte area; the harness enters a linked case through the one-parameter handleLink(request), and no caller LINKs UPDACC with LENGTH"
+   "verdict": "harness-gap",
+   "reason": "harness-gap: handleLink(request, area) carries a raw COMMAREA from a calling port's LINK with LENGTH; the harness enters a linked case through the one-parameter handleLink(request) and no caller LINKs UPDACC that way"
   },
   {
    "id": "7babefe6f3",

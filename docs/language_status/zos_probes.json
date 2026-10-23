@@ -260,6 +260,84 @@
         "R4=+000000068"
       ],
       "note": "The oracle keeps 0.68; the det port gives 0.67 (#4688, ASSUMED truncation). The z/OS result decides."
+    },
+    "c10-zoned-sign-zone-after-value-zero-and-initialize": {
+      "entries": [
+        "C10"
+      ],
+      "compile_options": "default (ZONEDATA(PFD) irrelevant: no invalid data)",
+      "question": "Last byte of a signed zoned S9(3) after VALUE ZERO and after INITIALIZE: the preferred positive sign C (X\"C0\") on IBM, the unsigned zone F (plain digit) on GnuCOBOL",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P10.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 Z1 PIC S9(3) VALUE ZERO.\n       01 Z1X REDEFINES Z1 PIC X(3).\n       01 Z2 PIC S9(3).\n       01 Z2X REDEFINES Z2 PIC X(3).\n       PROCEDURE DIVISION.\n           INITIALIZE Z2\n           IF Z1X(3:1) = \"0\"\n              DISPLAY \"VALUE=PLAIN\"\n           ELSE\n              DISPLAY \"VALUE=SIGNED\"\n           END-IF\n           IF Z2X(3:1) = \"0\"\n              DISPLAY \"INIT=PLAIN\"\n           ELSE\n              DISPLAY \"INIT=SIGNED\"\n           END-IF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "VALUE=PLAIN",
+        "INIT=PLAIN"
+      ],
+      "note": "Expected z/OS: VALUE=SIGNED, INIT=SIGNED (C zone). Register C10: the same positive value, different bytes; the comparator tolerates it per declared dataset."
+    },
+    "c16-comp5-one-and-two-digit-size": {
+      "entries": [
+        "C16",
+        "C7"
+      ],
+      "compile_options": "default (TRUNC(STD) irrelevant to COMP-5)",
+      "question": "A PIC S9(2) COMP-5 item: LENGTH OF (halfword, 2, on IBM; one byte in GnuCOBOL) and MOVE 99999 into it (COMP-5 keeps the halfword's capacity: -31073 on IBM)",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P16.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 C2 PIC S9(2) COMP-5.\n       01 LEN PIC 9(2).\n       01 NUM PIC -9(5).\n       PROCEDURE DIVISION.\n           COMPUTE LEN = LENGTH OF C2\n           DISPLAY \"LEN=\" LEN\n           MOVE 99999 TO C2\n           MOVE C2 TO NUM\n           DISPLAY \"VAL=\" NUM\n           STOP RUN.\n",
+      "oracle_expected": [
+        "LEN=01",
+        "VAL=-00097"
+      ],
+      "note": "Expected z/OS: LEN=02, VAL=-31073 (register C16, measured values for the oracle in its page)."
+    },
+    "c7-comp5-byte-order": {
+      "entries": [
+        "C7"
+      ],
+      "compile_options": "default",
+      "question": "A PIC S9(4) COMP-5 item holding 1, read through a PIC X(2) REDEFINES: X\"0001\" (big-endian, z/OS) or X\"0100\" (little-endian, x86 GnuCOBOL)",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P7.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 N PIC S9(4) COMP-5 VALUE 1.\n       01 NX REDEFINES N PIC X(2).\n       PROCEDURE DIVISION.\n           IF NX = X\"0001\"\n              DISPLAY \"BIG\"\n           ELSE\n              IF NX = X\"0100\"\n                 DISPLAY \"LITTLE\"\n              ELSE\n                 DISPLAY \"OTHER\"\n              END-IF\n           END-IF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "LITTLE"
+      ],
+      "note": "Expected z/OS: BIG. The det translator refuses a program that observes COMP-5 bytes (C7), so no burned program rests on this."
+    },
+    "c9-pointer-size": {
+      "entries": [
+        "C9"
+      ],
+      "compile_options": "default (31-bit AMODE; LP64 off)",
+      "question": "LENGTH OF a USAGE POINTER item: 4 on z/OS, 8 in GnuCOBOL on x86-64",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P9.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 P1 USAGE POINTER.\n       01 LEN PIC 9(2).\n       PROCEDURE DIVISION.\n           COMPUTE LEN = LENGTH OF P1\n           DISPLAY \"LEN=\" LEN\n           STOP RUN.\n",
+      "oracle_expected": [
+        "LEN=08"
+      ],
+      "note": "Expected z/OS: LEN=04. CBSA reaches only NULL pointers (register C9)."
+    },
+    "c17-initialize-replacing-table": {
+      "entries": [
+        "C17"
+      ],
+      "compile_options": "default",
+      "question": "INITIALIZE G REPLACING NUMERIC BY 5 where G is a table of a PIC XX and a PIC 99 item (XX is a category REPLACING does not name): IBM leaves occurrence 2 as it was (AB); GnuCOBOL copies occurrence 1 over it (spaces)",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P17.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 G.\n          05 GT OCCURS 3.\n             10 GA PIC XX VALUE SPACE.\n             10 GN PIC 99 VALUE ZERO.\n       PROCEDURE DIVISION.\n           MOVE 'AB' TO GA(2)\n           INITIALIZE G REPLACING NUMERIC BY 5\n           DISPLAY \"GA2=\" GA(2)\n           DISPLAY \"GN2=\" GN(2)\n           STOP RUN.\n",
+      "oracle_expected": [
+        "GA2=",
+        "GN2=05"
+      ],
+      "note": "Expected z/OS: GA2=AB, GN2=05. Register C17; the port follows IBM and stops by name when occurrences differ. Burned reach: CardDemo COPAUA0C 8400-UPDATE-SUMMARY."
+    },
+    "d1-ascii-vs-ebcdic-order": {
+      "entries": [
+        "D1"
+      ],
+      "compile_options": "default (no PROGRAM COLLATING SEQUENCE)",
+      "question": "Native collating order of three pairs: a vs A, 1 vs a, space vs 1. ASCII: a>A, 1<a, space<1; EBCDIC: a<A, 1>a, space<1",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P1.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 LA PIC X VALUE \"a\".\n       01 UA PIC X VALUE \"A\".\n       01 DG PIC X VALUE \"1\".\n       01 SP PIC X VALUE SPACE.\n       PROCEDURE DIVISION.\n           IF LA > UA\n              DISPLAY \"LOWER>UPPER\"\n           ELSE\n              DISPLAY \"LOWER<UPPER\"\n           END-IF\n           IF DG > LA\n              DISPLAY \"DIGIT>LOWER\"\n           ELSE\n              DISPLAY \"DIGIT<LOWER\"\n           END-IF\n           IF SP < DG\n              DISPLAY \"SPACE<DIGIT\"\n           ELSE\n              DISPLAY \"SPACE>DIGIT\"\n           END-IF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "LOWER>UPPER",
+        "DIGIT<LOWER",
+        "SPACE<DIGIT"
+      ],
+      "note": "Expected z/OS: LOWER<UPPER, DIGIT>LOWER, SPACE<DIGIT. Keys and comparisons are not audited for burned reach (register D1)."
     }
   }
 }

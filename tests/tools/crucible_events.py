@@ -43,7 +43,10 @@ EVENTS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     "RECEIVE": (("resp", "length", "data"), ()),
     "LINK": (("target", "length", "commarea", "resp"), ("resp2",)),
     "XCTL": (("target", "length", "commarea", "resp"), ("resp2",)),
-    "RETURN": (("level",), ("transid", "commarea", "caller_commarea", "immediate", "resp", "resp2")),  # #4270 (X27)
+    "RETURN": (
+        ("level",),
+        ("transid", "commarea", "channel", "caller_commarea", "immediate", "resp", "resp2"),
+    ),  # #4270 (X27)
     "START": (
         ("transid", "termid", "from", "protect", "resp", "expires"),
         ("interval", "time", "reqid", "rtransid", "rtermid", "queue", "resp2"),
@@ -54,7 +57,19 @@ EVENTS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     "READQ-TS": (("queue", "item", "resp", "data"), ("length",)),
     "WRITEQ-TS": (("queue", "data", "resp", "item"), ()),
     "WRITE-OPERATOR": (("data", "resp"), ()),  # #4270 zECS (X32): additive (SPEC rule 5)
-    "READ": (("file", "ridfld", "resp"), ()),
+    "READ": (("file", "ridfld", "resp"), ("length", "data", "resp2", "update", "set")),
+    # #5954: the events the pinned crucible's schema added after this table was written (the schema test was skipped in CI)
+    "READNEXT": (("file", "ridfld", "resp"), ("set", "resp2", "length", "data")),
+    "READPREV": (("file", "ridfld", "resp"), ("set", "resp2", "length", "data")),
+    "STARTBR": (("file", "ridfld", "mode", "resp"), ("resp2",)),
+    "ENDBR": (("file", "resp"), ("resp2",)),
+    "REWRITE": (("file", "data", "resp"), ("resp2",)),
+    "UNLOCK": (("file", "resp"), ("resp2",)),
+    "READQ-TD": (("queue", "resp", "data"), ("resp2", "length")),
+    "WRITEQ-TD": (("queue", "data", "resp"), ("resp2",)),
+    "DELETEQ-TD": (("queue", "resp"), ("resp2",)),
+    "WEB-RECEIVE": (("resp", "length", "data"), ("resp2",)),
+    "WEB-SEND": (("status", "from", "resp"), ("statustext", "mediatype", "resp2")),
     "ABEND": (("abcode", "cause", "outcome"), ("condition", "exit")),
 }
 ABEND_FOR = {

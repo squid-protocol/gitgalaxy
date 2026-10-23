@@ -409,6 +409,9 @@ CMD_EXPECTED = [
     "Q17 [  ] E001ALICE", "Q18 [  ] S1COBOL", "Q19 [  ] S2JAVA", "Q20 [GE]",
     # P with a qualification: D200's dependents, including the E004 inserted by Q09
     "Q21 [  ] E003CAROL", "Q22 [  ] S1DB2", "Q23 [GA] E004DAVE", "Q24 [GE]",
+    # C on a GU: the concatenated key names the segment (a dependent, a deeper one), parentage is the segment found
+    "Q25 [  ] E002BOB", "Q26 [  ] S2JAVA", "Q27 [GE]",  # S2 is the last skill of E001, which has no dependents
+    "Q28 [GE]", "Q29 [  ] E003CAROL",  # no such EMP under D100; an EMP under the second DEPT
 ]  # fmt: skip
 
 
@@ -435,7 +438,6 @@ def _swap(old: str, new: str):
 @pytest.mark.parametrize(
     "edit, why",
     [
-        (_swap("'DEPT    *L '", "'DEPT    *C '"), "the command code C"),
         (_swap("'DEPT    *L '", "'DEPT    *D '"), "the command code D"),
         (_swap("'DEPT    *L '", "'DEPT    *N '"), "the command code N"),
         (_swap("'DEPT    *L '", "'DEPT    *Q '"), "the command code Q"),
@@ -451,6 +453,9 @@ def _swap(old: str, new: str):
          "the command code P on a GN"),
         (_swap("F-ISRT PCB1 IOA C-DQ C-EF", "F-ISRT PCB1 IOA C-DQ C-EP"), "the command code P on a ISRT"),
         (_swap("IOA S-DEPT S-EMP C-SKL", "IOA C-DP C-EP C-SKL"), "the command code P on more than one SSA"),
+        (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-CE2"),
+         "the command code C other than"),
+        (_swap("IOA S-DEPT S-EMP C-SKL", "IOA C-CE2 C-CS2"), "the command code C other than"),
         (_swap("IOA S-DEPT C-EL", "IOA C-DL C-EL"), "the command code L other than"),  # L on a path SSA
         (_swap("IOA C-DQ C-EL", "IOA C-DQL C-EL"), "the command code L other than"),  # L on a qualified SSA
     ],

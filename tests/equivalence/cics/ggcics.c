@@ -2484,7 +2484,16 @@ int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int q
     web_hex(mt, hasf ? mtl : 0, hx[3]);
     snprintf(ev, sizeof ev, "WEB-CONVERSE host=%s method=%s path=%s query=%s media=%s body=%d resp=%d resp2=%d",
              hx[0], m, hx[1], hx[2], hx[3], hasf, c->resp, c->resp2);
-    event(ev, hasf ? from : NULL, hasf ? fl : 0);
+    {   /* #4767: the response the peer gave (status, TOLENGTH, the bytes INTO gets, hex; '-' none), for the crucible's event */
+        size_t el = strlen(ev);
+        char *big = malloc(el + 2 * (size_t)n + 64);
+        if (!big) refuse("WEB CONVERSE out of memory recording the response");
+        memcpy(big, ev, el);
+        el += (size_t)sprintf(big + el, " status=%d tolen=%d into=", web_xs[x].status, n);
+        web_hex(web_xs[x].body, n, big + el);
+        event(big, hasf ? from : NULL, hasf ? fl : 0);
+        free(big);
+    }
     if (n > intocap) refuse("WEB CONVERSE INTO beyond its area");
     memcpy(into, web_xs[x].body, (size_t)n);
     c->len = n;

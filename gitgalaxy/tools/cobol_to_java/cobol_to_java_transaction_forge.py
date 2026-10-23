@@ -1175,9 +1175,10 @@ public class CicsTask {
         byte[] data = x.body().getBytes(cs);
         int resp = data.length > maxLength ? 22 : 0;
         int resp2 = resp == 0 ? 0 : 57;
-        event("WEB-CONVERSE", "host", s.peer().host(), "method", m, "path", p, "query", q, "mediatype", mt,
-                "body", body, "resp", resp, "resp2", resp2);
         byte[] into = resp == 0 ? data : java.util.Arrays.copyOf(data, maxLength);
+        event("WEB-CONVERSE", "host", s.peer().host(), "method", m, "path", p, "query", q, "mediatype", mt,
+                "body", body, "resp", resp, "resp2", resp2, "status", x.status(),  // #4767: the response given
+                "tolength", into.length, "into", new String(into, cs));
         return new WebResponse(resp, resp2, into, into.length, x.status(), x.statusText(),
                 String.format(java.util.Locale.ROOT, "%-56.56s", x.mediaType()));
     }

@@ -122,3 +122,77 @@ def test_a_side_without_http_tasks_is_refused_by_name():
     mk = lambda on: cc.Capabilities("x", frozenset(), {}, http_tasks=on)  # noqa: E731
     assert any("http-triggered tasks" in b for b in cc.blockers(exp, mk(False)))
     assert not any("http-triggered tasks" in b for b in cc.blockers(exp, mk(True)))
+
+
+def test_plan_carries_the_requests_query_and_headers():
+    case = _case("a")
+    req = {**_req(0), "query": "a=1&b=2", "headers": {"X-One": "1", "X-Two": "2"}}
+    plan, why = runner.http_plan(case, {"requests": [req]})
+    assert why is None
+    assert plan[0]["request"]["query"] == "a=1&b=2"
+    assert plan[0]["request"]["headers"] == [["X-One", "1"], ["X-Two", "2"]]
+    bare = runner.http_plan(case, {"requests": [_req(0)]})[0][0]["request"]
+    assert (bare["query"], bare["headers"]) == ("", [])
+
+
+def test_client_events_have_the_spec_keys_and_resp_names():  # #4767 (X35)
+    opened = runner._web_client_event("WEB-OPEN", "orders.example", "HTTP", None, None, None, None, None, 0, 0)
+    assert opened == {"resp": "NORMAL", "host": "orders.example", "scheme": "HTTP"}
+    conv = runner._web_client_event(
+        "WEB-CONVERSE", "orders.example", None, "GET", "/gt/item", 404, 12, "no such item", 0, 0
+    )
+    assert conv["resp"] == "NORMAL" and conv["status"] == 404 and conv["tolength"] == 12
+    assert conv["into"].data == b"no such item" and "host" not in conv
+    short = runner._web_client_event("WEB-CONVERSE", None, None, "GET", "/p", 200, 0, "", 22, 57)
+    assert short["into"] is None and short["resp"] == "LENGERR" and short["resp2"] == 57
+    assert runner._web_client_event("WEB-CLOSE", None, None, None, None, None, None, None, 19, 27) == {
+        "resp": "NOTOPEN",
+        "resp2": 27,
+    }
+
+
+def _origin_case() -> cc.Case:
+    case = _case("a")
+    case.data["peers"] = {
+        "orders": {
+            "host": "orders.example",
+            "responses": [
+                {"status": 200, "mediatype": "text/plain", "body": "item=42"},
+                {"status": 404, "mediatype": "text/plain", "body": "gone"},
+            ],
+        },
+        "other": {"host": "other.example", "responses": [{"status": 200, "mediatype": "text/plain", "body": "o"}]},
+    }
+    ev = [
+        {"event": "WEB-OPEN", "host": "orders.example", "scheme": "HTTP", "resp": "NORMAL"},
+        {"event": "WEB-CONVERSE", "method": "GET", "path": "/gt/item", "status": 200, "resp": "NORMAL"},
+        {"event": "WEB-CONVERSE", "method": "GET", "path": "/gt/item", "query": "k=1", "status": 404, "resp": "NORMAL"},
+        {"event": "WEB-CLOSE", "resp": "NORMAL"},
+    ]
+    case.expected = {"s": {"tasks": [{"events": ev}]}}
+    return case
+
+
+def test_origin_peers_take_each_exchange_from_the_expected_conversation():
+    peers = runner.origin_peers(_origin_case(), {"id": "s"})
+    assert [(p["scheme"], p["host"], p["port"]) for p in peers] == [("HTTP", "orders.example", 80)]
+    assert [(x["method"], x["path"], x["query"], x["status"], x["body"]) for x in peers[0]["exchanges"]] == [
+        ("GET", "/gt/item", "", 200, "item=42"),
+        ("GET", "/gt/item", "k=1", 404, "gone"),
+    ]
+    import equivalence_cics as ec
+
+    assert ec.http_peers({}, {"name": "s", "http_peers": peers}) == peers  # the harness accepts what it is given
+
+
+def test_a_case_with_only_client_peers_states_no_origin_peer():
+    case = _case("a")
+    case.expected = {"s": {"tasks": []}}
+    assert runner.origin_peers(case, {"id": "s"}) is None
+
+
+def test_both_sides_model_the_client_events():
+    for caps in (runner.COBOL_CAPS, runner.JAVA_CAPS):
+        assert set(caps.events["WEB-CONVERSE"]) == set(cc.EVENT_KEYS["WEB-CONVERSE"])
+        assert set(caps.events["WEB-OPEN"]) == set(cc.EVENT_KEYS["WEB-OPEN"])
+        assert set(caps.events["WEB-CLOSE"]) == set(cc.EVENT_KEYS["WEB-CLOSE"])

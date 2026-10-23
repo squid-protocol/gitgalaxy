@@ -36,6 +36,8 @@ MAX_AMBIGUOUS = 4  # a bare name defined in more places than this is noise unles
 MAX_FUNCS = 12
 MAX_EDGES = 3  # callers and callees shown per function
 MAX_FILES = 8
+MAX_PRIOR = 6  # files earlier PRs for the same issue changed (an epic's bodies name no code)
+PRIOR_COMMITS = 30
 MIN_NAME_LEN = 4  # shorter names (`fp`, `py`, `run`) match too much unrelated code
 TEST_DEMOTION = 0.5  # a test file ranks below the source it exercises
 # Directories whose file stems are language names: an issue saying "GLSL" points at glsl.py.
@@ -113,9 +115,7 @@ def _symbol_hits(db: sqlite3.Connection, names: Counter, named_files: dict[int, 
             "FROM function_data f WHERE f.func_name = ?",
             (name,),
         ).fetchall()
-        crows = db.execute(
-            "SELECT id, file_id, class_name FROM class_data WHERE class_name = ?", (name,)
-        ).fetchall()
+        crows = db.execute("SELECT id, file_id, class_name FROM class_data WHERE class_name = ?", (name,)).fetchall()
         for rows, store, weight in ((frows, funcs, 2.0), (crows, classes, 2.0)):
             in_named = [r for r in rows if r[1] in named_files]
             # A name defined all over the repo is only useful when the issue names the file.
@@ -156,13 +156,42 @@ def _edge_text(rows: list) -> str:
     return ", ".join(f"`{n}` {_span(p, s, loc)}" for p, n, s, loc in rows)
 
 
-def build_pack(db: sqlite3.Connection, title: str, body: str, max_tokens: int = 3000) -> str:
+def prior_files(issue: str, repo: Path = REPO_ROOT) -> list[str]:
+    """Files changed by the newest commits whose message mentions `#<issue>`, most-touched first."""
+    if not issue.isdigit():
+        return []
+    try:
+        out = subprocess.run(
+            [
+                "git",
+                "log",
+                "origin/main",
+                f"--grep=#{issue}\\b",
+                "-E",
+                f"-n{PRIOR_COMMITS}",
+                "--name-only",
+                "--format=",
+            ],
+            capture_output=True,
+            text=True,
+            cwd=repo,
+            check=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return []
+    return [p for p, _ in Counter(ln for ln in out.splitlines() if ln).most_common()]
+
+
+def build_pack(
+    db: sqlite3.Connection, title: str, body: str, max_tokens: int = 3000, prior: list[str] | None = None
+) -> str:
     """Markdown pack for the issue text, or "" when nothing resolves."""
     paths, names = extract_mentions(title, body)
     named_files = _file_hits(db, paths)
     stem_files = _stem_hits(db, f"{title}\n{body}")
     funcs, classes = _symbol_hits(db, names, named_files)
-    if not (named_files or stem_files or funcs or classes):
+    prior_hits = {fid: 0.0 for fid in _file_hits(db, Counter(prior or []))}
+    if not (named_files or stem_files or funcs or classes or prior_hits):
         return ""
 
     file_scores: dict[int, float] = dict(named_files)
@@ -194,6 +223,12 @@ def build_pack(db: sqlite3.Connection, title: str, body: str, max_tokens: int = 
             lines.append(f"  - callers: {_edge_text(callers)}")
         if callees:
             lines.append(f"  - callees: {_edge_text(callees)}")
+    seen = set(ranked_files)
+    prior_ids = [f for f in prior_hits if f not in seen][:MAX_PRIOR]
+    if prior_ids:
+        lines.append("Earlier PRs for this issue changed:")
+        for fid in prior_ids:
+            lines.append(f"- `{_file_info(db, fid)[0]}`")
     ranked_classes = sorted(classes.values(), key=lambda t: -t[0])[:MAX_FUNCS]
     if ranked_classes:
         lines.append("Classes:")
@@ -208,9 +243,7 @@ def build_pack(db: sqlite3.Connection, title: str, body: str, max_tokens: int = 
 
 
 def fetch_issue(number: str) -> tuple[str, str]:
-    out = subprocess.run(
-        ["gh", "api", ISSUE_API.format(n=number)], capture_output=True, text=True, check=True
-    ).stdout
+    out = subprocess.run(["gh", "api", ISSUE_API.format(n=number)], capture_output=True, text=True, check=True).stdout
     data = json.loads(out)
     return data.get("title") or "", data.get("body") or ""
 
@@ -234,7 +267,7 @@ def main(argv: list[str] | None = None) -> int:
         title, body = fetch_issue(args.issue)
     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     try:
-        sys.stdout.write(build_pack(db, title, body, args.max_tokens))
+        sys.stdout.write(build_pack(db, title, body, args.max_tokens, prior_files(args.issue)))
     finally:
         db.close()
     return 0

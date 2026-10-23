@@ -1503,6 +1503,60 @@
    "why": "#4049: 101 on the ENDBR after PF7: the program's ENDBR has no RESP, so the condition abends the task before the screen is sent"
   },
   {
+   "name": "endbr-ioerr-after-a-page-forward",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "IOERR on the ENDBR after PF8: ENDBR has no RESP, so CICS takes its default action and abends the task (AEIQ)"
+    }
+   ],
+   "why": "#6166: IOERR on the ENDBR after PF8: the program's ENDBR has no RESP, so the condition abends the task (AEIQ) before the screen is sent"
+  },
+  {
+   "name": "endbr-ioerr-after-a-page-back",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "USER0006",
+    "CDEMO-CU00-USRID-LAST": "USER0015",
+    "CDEMO-CU00-PAGE-NUM": 2,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "IOERR on the ENDBR after PF7: ENDBR has no RESP, so CICS takes its default action and abends the task (AEIQ)"
+    }
+   ],
+   "why": "#6166: IOERR on the ENDBR after PF7: the program's ENDBR has no RESP, so the condition abends the task (AEIQ) before the screen is sent"
+  },
+  {
    "name": "short-commarea-187",
    "aid": "DFHPF5",
    "commarea": {

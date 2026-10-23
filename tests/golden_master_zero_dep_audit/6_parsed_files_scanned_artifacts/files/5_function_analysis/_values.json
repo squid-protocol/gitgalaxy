@@ -228248,17 +228248,17 @@
           "Structural Impact": 84.5
         },
         {
-          "Control Flow Branches": 48,
-          "Control Flow Ratio": "94.1%",
-          "End Line": 9415,
+          "Control Flow Branches": 51,
+          "Control Flow Ratio": "94.4%",
+          "End Line": 9578,
           "Function Name": "EditorNode::EditorNode",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 1112,
+          "Lines of Code (LOC)": 1275,
           "Reflection Hits": 0,
           "Start Line": 8304,
-          "Structural Impact": 75.0
+          "Structural Impact": 79.5
         },
         {
           "Control Flow Branches": 25,
@@ -337961,17 +337961,17 @@
       ],
       "javascript/threejs/WebGLRenderer.js": [
         {
-          "Control Flow Branches": 358,
-          "Control Flow Ratio": "80.1%",
-          "End Line": 2614,
+          "Control Flow Branches": 508,
+          "Control Flow Ratio": "81.9%",
+          "End Line": 3510,
           "Function Name": "constructor",
           "Input Parameters": 1,
           "Is Documented": 1,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2545,
+          "Lines of Code (LOC)": 3441,
           "Reflection Hits": 0,
           "Start Line": 70,
-          "Structural Impact": 635.0
+          "Structural Impact": 891.9
         },
         {
           "Control Flow Branches": 143,
@@ -373320,17 +373320,17 @@
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": [
         {
-          "Control Flow Branches": 342,
-          "Control Flow Ratio": "63.8%",
-          "End Line": 8350,
+          "Control Flow Branches": 381,
+          "Control Flow Ratio": "64.5%",
+          "End Line": 8463,
           "Function Name": "ProcessJPEG",
           "Input Parameters": 3,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 1103,
+          "Lines of Code (LOC)": 1216,
           "Reflection Hits": 0,
           "Start Line": 7248,
-          "Structural Impact": 741.1
+          "Structural Impact": 824.8
         },
         {
           "Control Flow Branches": 191,
@@ -399884,6 +399884,19 @@
         {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "25.0%",
+          "End Line": 6207,
+          "Function Name": "_wp_emoji_list",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 6194,
+          "Structural Impact": 3.5
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "25.0%",
           "End Line": 3643,
           "Function Name": "wp_iso_descrambler",
           "Input Parameters": 1,
@@ -400256,19 +400269,6 @@
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 5505,
-          "Structural Impact": 1.7
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 6198,
-          "Function Name": "_wp_emoji_list",
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 6194,
           "Structural Impact": 1.7
         },
         {
@@ -500250,6 +500250,19 @@
       "scheme/racket/LICENSE.txt": [],
       "scheme/racket/cpnanopass.ss": [
         {
+          "Control Flow Branches": 314,
+          "Control Flow Ratio": "53.5%",
+          "End Line": 10692,
+          "Function Name": "extract-trace-code",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2413,
+          "Reflection Hits": 21,
+          "Start Line": 8280,
+          "Structural Impact": 566.1
+        },
+        {
           "Control Flow Branches": 103,
           "Control Flow Ratio": "40.9%",
           "End Line": 1850,
@@ -500302,17 +500315,17 @@
           "Structural Impact": 251.8
         },
         {
-          "Control Flow Branches": 132,
-          "Control Flow Ratio": "52.2%",
-          "End Line": 9286,
-          "Function Name": "extract-trace-code",
-          "Input Parameters": 1,
+          "Control Flow Branches": 76,
+          "Control Flow Ratio": "62.8%",
+          "End Line": 6223,
+          "Function Name": "build-attachment-get",
+          "Input Parameters": 5,
           "Is Documented": 0,
           "Is Public": 0,
           "Lines of Code (LOC)": 1007,
-          "Reflection Hits": 6,
-          "Start Line": 8280,
-          "Structural Impact": 238.4
+          "Reflection Hits": 0,
+          "Start Line": 5217,
+          "Structural Impact": 239.0
         },
         {
           "Control Flow Branches": 106,
@@ -500326,19 +500339,6 @@
           "Reflection Hits": 4,
           "Start Line": 3960,
           "Structural Impact": 229.8
-        },
-        {
-          "Control Flow Branches": 69,
-          "Control Flow Ratio": "61.6%",
-          "End Line": 6077,
-          "Function Name": "build-attachment-get",
-          "Input Parameters": 5,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 861,
-          "Reflection Hits": 0,
-          "Start Line": 5217,
-          "Structural Impact": 214.5
         },
         {
           "Control Flow Branches": 96,
@@ -507954,17 +507954,17 @@
       ],
       "scheme/racket/schemify.rkt": [
         {
-          "Control Flow Branches": 164,
-          "Control Flow Ratio": "83.2%",
-          "End Line": 1117,
+          "Control Flow Branches": 165,
+          "Control Flow Ratio": "83.3%",
+          "End Line": 1124,
           "Function Name": "schemify-linklet",
           "Input Parameters": 14,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 1035,
+          "Lines of Code (LOC)": 1042,
           "Reflection Hits": 0,
           "Start Line": 83,
-          "Structural Impact": 690.8
+          "Structural Impact": 695.0
         },
         {
           "Control Flow Branches": 84,
@@ -555115,30 +555115,56 @@
       ],
       "typescript/typescript_compiler/checker.ts": [
         {
-          "Control Flow Branches": 374,
-          "Control Flow Ratio": "80.8%",
-          "End Line": 23341,
+          "Control Flow Branches": 970,
+          "Control Flow Ratio": "76.4%",
+          "End Line": 24900,
           "Function Name": "checkTypeRelatedTo",
           "Input Parameters": 7,
           "Is Documented": 1,
           "Is Public": 0,
-          "Lines of Code (LOC)": 962,
+          "Lines of Code (LOC)": 2521,
           "Reflection Hits": 0,
           "Start Line": 22380,
-          "Structural Impact": 1108.8
+          "Structural Impact": 2872.5
         },
         {
-          "Control Flow Branches": 372,
-          "Control Flow Ratio": "49.8%",
-          "End Line": 29994,
+          "Control Flow Branches": 1631,
+          "Control Flow Ratio": "62.9%",
+          "End Line": 11166,
+          "Function Name": "createNodeBuilder",
+          "Input Parameters": 0,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4858,
+          "Reflection Hits": 2,
+          "Start Line": 6309,
+          "Structural Impact": 1874.9
+        },
+        {
+          "Control Flow Branches": 482,
+          "Control Flow Ratio": "49.5%",
+          "End Line": 30221,
           "Function Name": "getFlowTypeOfReference",
           "Input Parameters": 5,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 991,
-          "Reflection Hits": 2,
+          "Lines of Code (LOC)": 1218,
+          "Reflection Hits": 4,
           "Start Line": 29004,
-          "Structural Impact": 963.2
+          "Structural Impact": 1244.0
+        },
+        {
+          "Control Flow Branches": 581,
+          "Control Flow Ratio": "73.4%",
+          "End Line": 11147,
+          "Function Name": "symbolTableToDeclarationStatements",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 1802,
+          "Reflection Hits": 2,
+          "Start Line": 9346,
+          "Structural Impact": 1098.2
         },
         {
           "Control Flow Branches": 292,
@@ -555180,30 +555206,17 @@
           "Structural Impact": 634.2
         },
         {
-          "Control Flow Branches": 286,
-          "Control Flow Ratio": "73.9%",
-          "End Line": 10191,
-          "Function Name": "symbolTableToDeclarationStatements",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 846,
-          "Reflection Hits": 0,
-          "Start Line": 9346,
-          "Structural Impact": 539.4
-        },
-        {
-          "Control Flow Branches": 280,
-          "Control Flow Ratio": "45.8%",
-          "End Line": 7591,
+          "Control Flow Branches": 320,
+          "Control Flow Ratio": "47.8%",
+          "End Line": 7708,
           "Function Name": "typeToTypeNodeWorker",
           "Input Parameters": 2,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 823,
+          "Lines of Code (LOC)": 940,
           "Reflection Hits": 0,
           "Start Line": 6769,
-          "Structural Impact": 527.9
+          "Structural Impact": 603.0
         },
         {
           "Control Flow Branches": 142,
@@ -555230,19 +555243,6 @@
           "Reflection Hits": 0,
           "Start Line": 51796,
           "Structural Impact": 354.7
-        },
-        {
-          "Control Flow Branches": 308,
-          "Control Flow Ratio": "48.1%",
-          "End Line": 7116,
-          "Function Name": "createNodeBuilder",
-          "Input Parameters": 0,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 808,
-          "Reflection Hits": 0,
-          "Start Line": 6309,
-          "Structural Impact": 349.4
         },
         {
           "Control Flow Branches": 108,
@@ -589307,17 +589307,17 @@
       ],
       "typescript/typescript_compiler/emitter.ts": [
         {
-          "Control Flow Branches": 323,
-          "Control Flow Ratio": "50.5%",
-          "End Line": 2387,
+          "Control Flow Branches": 1201,
+          "Control Flow Ratio": "65.9%",
+          "End Line": 6325,
           "Function Name": "createPrinter",
           "Input Parameters": 2,
           "Is Documented": 1,
           "Is Public": 1,
-          "Lines of Code (LOC)": 1177,
+          "Lines of Code (LOC)": 5115,
           "Reflection Hits": 0,
           "Start Line": 1211,
-          "Structural Impact": 620.0
+          "Structural Impact": 2337.7
         },
         {
           "Control Flow Branches": 221,
@@ -594887,17 +594887,17 @@
       "typescript/typescript_compiler/package.json": [],
       "typescript/typescript_compiler/parser.ts": [
         {
-          "Control Flow Branches": 277,
-          "Control Flow Ratio": "66.1%",
-          "End Line": 9866,
+          "Control Flow Branches": 285,
+          "Control Flow Ratio": "65.8%",
+          "End Line": 9923,
           "Function Name": "parseJSDocCommentWorker",
           "Input Parameters": 2,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 982,
+          "Lines of Code (LOC)": 1039,
           "Reflection Hits": 0,
           "Start Line": 8885,
-          "Structural Impact": 530.6
+          "Structural Impact": 547.3
         },
         {
           "Control Flow Branches": 62,
@@ -624578,17 +624578,17 @@
       "typescript/vscode/eslint.config.js": [],
       "typescript/vscode/extHost.api.impl.ts": [
         {
-          "Control Flow Branches": 132,
-          "Control Flow Ratio": "38.0%",
-          "End Line": 973,
+          "Control Flow Branches": 321,
+          "Control Flow Ratio": "37.5%",
+          "End Line": 2194,
           "Function Name": "createApiFactoryAndRegisterActors",
           "Input Parameters": 1,
           "Is Documented": 1,
           "Is Public": 1,
-          "Lines of Code (LOC)": 837,
-          "Reflection Hits": 3,
+          "Lines of Code (LOC)": 2058,
+          "Reflection Hits": 5,
           "Start Line": 137,
-          "Structural Impact": 229.9
+          "Structural Impact": 558.3
         },
         {
           "Control Flow Branches": 19,
@@ -661053,17 +661053,17 @@
       ],
       "zig/tigerbeetle/state_machine.zig": [
         {
-          "Control Flow Branches": 65,
-          "Control Flow Ratio": "54.2%",
-          "End Line": 1511,
+          "Control Flow Branches": 386,
+          "Control Flow Ratio": "54.3%",
+          "End Line": 4750,
           "Function Name": "StateMachineType",
           "Input Parameters": 1,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 1291,
-          "Reflection Hits": 3,
+          "Lines of Code (LOC)": 4530,
+          "Reflection Hits": 7,
           "Start Line": 221,
-          "Structural Impact": 154.3
+          "Structural Impact": 773.8
         },
         {
           "Control Flow Branches": 51,
@@ -683999,17 +683999,17 @@
       ],
       "zig/zig/main.zig": [
         {
-          "Control Flow Branches": 507,
-          "Control Flow Ratio": "79.5%",
-          "End Line": 1691,
+          "Control Flow Branches": 1061,
+          "Control Flow Ratio": "82.1%",
+          "End Line": 3686,
           "Function Name": "buildOutputType",
           "Input Parameters": 5,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 894,
+          "Lines of Code (LOC)": 2889,
           "Reflection Hits": 0,
           "Start Line": 798,
-          "Structural Impact": 1289.0
+          "Structural Impact": 2745.8
         },
         {
           "Control Flow Branches": 132,

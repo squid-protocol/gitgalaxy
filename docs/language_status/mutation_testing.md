@@ -625,6 +625,9 @@ an area of its own and an EIBCALEN of 8, 22 or 80. Three scenarios (`direct-8-by
 the negative balance); the third, `* 10000` for `% 10000` on the destination of `overlayVisits`, is equivalent
 (WS-V2's V2-VISITS is zero after INITIALIZE, so the destination digits are always 0000). CAXB is now 20/3 with 0 case gaps.
 This landed in #5505, so the "needs a cics-crucible CAXA mode" wording in #5490 and #5491 is superseded: no release or pin bump was needed.
+Re-checked 2026-10-22 (#5491, XCTL length 21-24): a fresh `mutation_crucible.py run --only ca-xctl-versions/CAXB --sample 24 --seed 0 --strengthened`
+gives 20/23 caught, and mutant `496bab0daf` (NEG `k == 0` -> `!(k == 0)`, `CaxbService.java:231`) is `killed`, `killed_by`
+`direct-22-byte-area`: the 22-byte area (EIBCALEN 22) is the one that reaches that branch.
 
 Spot-check 2026-10-22 (#4443): 22 of the 45 equivalent verdicts on the 13 re-run ports were re-read against the port source; all hold, no new case. The sample and its caveats: [mutation_equivalent_spot_check.md](mutation_equivalent_spot_check.md).
 

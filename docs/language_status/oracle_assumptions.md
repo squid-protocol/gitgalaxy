@@ -3594,6 +3594,13 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   right-adjusted." "BLANK specifies that blanks are to be inserted in any unfilled positions in an input field." "ZERO specifies that
   zeros are to be inserted in any unfilled positions in an input field." "If JUSTIFY is omitted, but the NUM attribute is specified,
   RIGHT and ZERO are assumed." "If JUSTIFY is omitted, but attributes other than NUM are specified, LEFT and BLANK are assumed."
+  Re-read 2026-10-23 (#5116, c:9d9ee016, every citation in this page against the live DFHMDF page): each sentence quoted above
+  (JUSTIFY, LEFT, RIGHT, BLANK, ZERO, both "If JUSTIFY is omitted" sentences, GRPNAME, "OCCURS and GRPNAME are mutually exclusive",
+  PICIN, PICOUT) matches word for word. The page's assumption table for a half-coded JUSTIFY reads LEFT assumes BLANK, RIGHT assumes
+  ZERO, BLANK assumes LEFT, ZERO assumes RIGHT. It also says JUSTIFY "is ignored for VTAM-supported 3600, 3650, and 3790 terminals,
+  because input mapping is not available" (not modelled: no burned map targets one), and that without PICIN/PICOUT "a character
+  definition of the field is automatically generated regardless of other operands that are coded, such as ATTRB=NUM". The page
+  states nothing about JUSTIFY on an OCCURS or GRPNAME field (per-occurrence JUSTIFY stays frontier, below).
   (Re-read 2026-10-19 (#5116, closing the NUM-default item): the two "If JUSTIFY is omitted" sentences still match the live page word for word.
   Re-read 2026-10-18 (#5116): every JUSTIFY sentence quoted above, and the two "If JUSTIFY is omitted" sentences, matches the
   live page's text word for word.)
@@ -3653,7 +3660,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   `test_no_burned_occurs_field_is_generated_as_map_input`, #4506).
 - **Not modelled: input over initialized data (#5116).** The DFHMDF page adds: "If a field is initialized by an output map or
   contains data from any other source, data that is typed as input overwrites only the equivalent length of the existing data;
-  surplus existing data remains in the field". The harness gives the program the typed text placed per JUSTIFY, never merged over
+  surplus existing data remains in the field and could cause unexpected interpretation of the new data.". The harness gives the program the typed text placed per JUSTIFY, never merged over
   an earlier value. Reachable: typable (not ASKIP/PROT) fields with an INITIAL exist in 15 burned maps (CBSA BNK1B2M/CAM/CDM/
   MAI/TFM, CardDemo COACTUP/COPAU00/CORPT00/COSGN00/COTRN00-02/COUSR00, mortgage epsmort, GenApp ssmap), pinned by
   `test_burned_maps_with_a_typable_initial_field`. Whether a 3270 buffer or the program's map area is what the note means is

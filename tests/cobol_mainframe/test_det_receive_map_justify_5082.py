@@ -264,3 +264,16 @@ def test_x54_records_picin_picout_no_runtime_conversion_5116():
     assert _IBM_PICOUT_SENTENCE in text
     assert "PICIN / PICOUT: out of scope, by name" in text
     assert "test_det_receive_and_send_map_never_read_a_picture_5116" in text
+
+
+# #5116 (c:9d9ee016): the register's citations were re-read against the live DFHMDF page and the result recorded.
+def test_x54_records_the_live_page_reread_5116():
+    text = " ".join(_X54.read_text(encoding="utf-8").split())
+    assert "Re-read 2026-10-23 (#5116, c:9d9ee016" in text
+    assert "If JUSTIFY is omitted, but the NUM attribute is specified, RIGHT and ZERO are assumed." in text
+    assert "If JUSTIFY is omitted, but attributes other than NUM are specified, LEFT and BLANK are assumed." in text
+    assert (
+        "The ATTRB operand specified on the first field of the group applies to all of the fields within the group."
+        in text
+    )
+    assert "per-occurrence JUSTIFY stays frontier" in text

@@ -238,3 +238,29 @@ def test_x54_records_send_map_justify_not_applicable_5116():
     assert _IBM_JUSTIFY_SENTENCE in text
     assert "JUSTIFY on SEND MAP: not applicable" in text
     assert "test_det_send_map_never_justifies_5116" in text
+
+
+# #5116: PICIN / PICOUT are compile-time pictures on the symbolic map; IBM gives BMS no run-time conversion.
+_IBM_PICIN_SENTENCE = (
+    "the validity of the input data is not checked by BMS or the high-level language when the map is used"
+)
+_IBM_PICOUT_SENTENCE = (
+    "is like PICIN, except that a picture to be applied to an output field in the OUT or INOUT map is generated."
+)
+
+
+def test_det_receive_and_send_map_never_read_a_picture_5116():
+    import inspect
+
+    for fn in (C.Cics.receive_map, C.Cics.send_map):
+        src = inspect.getsource(fn).lower()
+        assert "picin" not in src
+        assert "picout" not in src
+
+
+def test_x54_records_picin_picout_no_runtime_conversion_5116():
+    text = " ".join(_X54.read_text(encoding="utf-8").split())
+    assert _IBM_PICIN_SENTENCE in text
+    assert _IBM_PICOUT_SENTENCE in text
+    assert "PICIN / PICOUT: out of scope, by name" in text
+    assert "test_det_receive_and_send_map_never_read_a_picture_5116" in text

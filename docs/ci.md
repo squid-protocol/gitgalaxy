@@ -121,6 +121,20 @@ completed main smoke run after #5264: run 39108505787 was superseded (part 2 can
 `test_the_ground_truth_seconds_are_recorded_and_the_parts_balanced` pins both facts. The 8 warnings `time_ratchet.py check`
 now prints (10-11.4 s tests under `-n auto` contention in the ground-truth job) fail nothing: the limit is 15 s.
 
+**Cached scans and the queue-depth layout (#5616, #5543).** The warm scans are saved as an `actions/cache` entry on main only (key: `corpora.json` plus the engine-state hash, #5024). `plan` looks the key up (`lookup-only`): on a hit the warm job is skipped, the parts restore the scans and part 1 runs the (cheap) ledger gate; on a miss (a PR that changes engine code) the warm job runs as above. `plan` also counts queued PR jobs with the signal `post_merge_dispatch.waiting_pr_jobs` (`tests/tools/ci_layout.py`): above `BUSY_ABOVE` (8) a pull request gets the *busy* layout, 2 parts with no warm job that each warm their own scans (the pre-#5559 shape: 2 runners instead of 5 and no serial warm-up queue); push, nightly and manual runs are always calm. `plan` writes the chosen layout and why to its job summary and each part records it, so timings can be split by layout. The required check stays the final `ground-truth` job in every layout.
+
+**Measured (2026-10-22, #5543).** Evenly spaced samples of successful first-attempt runs of this workflow whose parts ran (`plan`-only skips left out); wall = `run_started_at` to `updated_at` (queue included); runner-min = the sum of every job's run time; critical path = plan + warm + slowest part + final job, run time only. The window for each row is the code that was on main: before #5559 (2 parts, 2026-10-17..19), after #5559 only, after #5616 (2026-10-20..22).
+
+| layout | runs | wall median | runner-min median | critical path (run time) | queue wait summed over jobs |
+|---|---|---|---|---|---|
+| 2 parts (before #5559) | 21 | 19.6 min | 19.2 | 12.2 min | 7.8 min |
+| warm + 4 parts (#5559 only) | 23 | 18.5 min | 21.1 | 9.8 min | 15.5 min |
+| warm + 4 parts, cache miss (after #5616) | 6 | 19.6 min | 17.2 | 8.6 min | 12.6 min |
+| 4 parts, cache hit (after #5616) | 6 | **7.5 min** (max 7.9) | **10.9** | **3.6 min** | 2.9 min |
+| busy: 2 parts (after #5616) | 8 | 19.1-20.1 min | 13.2-17.1 | 7.4-10.0 min | 12.6-16.1 min |
+
+Reading it: with the cache hit the check is at the 7.5 min target and uses about 45% fewer runner-minutes than the 2-part layout; the parts run 2-3 min each once nothing scans cold. Every other layout is dominated by queue waits (13-16 min summed over 3-5 serial jobs) while the repo's runner pool is full, not by compute: their wall time is about 19-20 min whichever layout ran, so the layout choice does not move it. Of the 20 post-#5616 runs sampled, 12 ran calm (6 cache hits, 6 misses) and 8 ran busy (2 of those also restored cached scans): both the cache-hit and the busy layouts have run on CI. The layouts are small samples (6-8 runs); treat a gap under a minute as noise. What would move the miss and busy rows is runner supply or fewer serial jobs, not another split. `.test_durations` was stale for these parts: it held 5747 of the 7079 `tests/cobol_mainframe/` tests the parts ran and its seconds summed to 2705 against 1298 measured on a warm-cache main run (39774013849). A replay of `least_duration` over the old file planned four equal 833 s parts that actually took 279-378 s (spread 26%); it is refreshed from that run's `test-times-ground-truth-part-N` artifacts, and the replay now plans four 325 s parts.
+
 `ground-truth` also has a `plan` job (#5164, `tests/tools/ground_truth_plan.py`, as `det` has `det_sweep_plan.py`): a PR whose every changed file is a provable non-input (docs outside `docs/language_status/`, `.claude/`, churn / shepherd tooling, workflows and test directories the job does not read) skips both parts and passes in about a minute. The list is an allow-list of what the job does not read: an unlisted file is an input, and push, nightly and manual runs are always full.
 
 ## Heavy jobs on the PR and again on the push (tested-tree, #4935)

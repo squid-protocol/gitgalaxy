@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, TypedDict, cast
 
 from gitgalaxy.core.call_resolver import encode_qualifiers, resolution_rates
-from gitgalaxy.core.fact_channels import CHANNELS
+from gitgalaxy.core.fact_channels import CHANNELS, CHANNELS_BY_NAME, create_channel_table
 from gitgalaxy.core.function_population import population_functions
 from gitgalaxy.metrics import archetype_classifier
 from gitgalaxy.metrics.archetype_parity import WITHHELD_LABEL
@@ -1023,38 +1023,7 @@ class RecordKeeper:
         # repository, so neither end could be a file_data FK.
         # access_modes is a comma-joined sorted list rather than a row per mode,
         # because "INPUT and OUTPUT" is one fact about one file, not two.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS dataset_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                step_name TEXT,
-                internal_name TEXT,
-                assign_name TEXT,
-                dd_name TEXT,
-                access_modes TEXT,
-                dsn TEXT,
-                line_number INTEGER,
-                dsn_resolved TEXT,
-                dsn_resolution TEXT,
-                open_sites TEXT,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        # #3345: a JCL DSN with its symbolic parameters (SET / PROC defaults /
-        # EXEC overrides) resolved where the file alone determines it. `dsn` stays
-        # the DSN as written; `dsn_resolved` is NULL unless every symbol resolved,
-        # and `dsn_resolution` says how (literal / resolved / proc_default /
-        # ambiguous / unresolved -- see mainframe_boundary._jcl_resolve_datasets).
-        # Both NULL on a COBOL row. Healed onto a table created before #3345.
-        _ensure_columns(cursor, "dataset_data", ["dsn_resolved TEXT", "dsn_resolution TEXT"])
-        # #3348: a COBOL row's OPEN sites, a JSON list of [mode, line] in line order, so
-        # the refractor can drop the OPENs in dead paragraphs. NULL on a JCL row.
-        _ensure_columns(cursor, "dataset_data", ["open_sites TEXT"])
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_file_id ON dataset_data(file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_dd_name ON dataset_data(dd_name);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_snapshot ON dataset_data(repo_name, commit_hash);")
+        create_channel_table(cursor, CHANNELS_BY_NAME["dataset"], _ensure_columns)
 
         # #3246: the DATA DIVISION item tree and FD record layouts -- the last
         # structural datum the forge parsers owned and the DB did not carry. One
@@ -1071,67 +1040,7 @@ class RecordKeeper:
         # INIT -> value_literal); `attributes` carries the item's full attribute
         # text for everything else (BASED(p), UNALIGNED, LIKE, POS, ...). NULL for
         # COBOL, whose clauses all have a column.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS record_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                section TEXT,
-                fd_name TEXT,
-                ordinal INTEGER,
-                parent_ordinal INTEGER,
-                level_number INTEGER,
-                item_name TEXT,
-                pic TEXT,
-                usage TEXT,
-                occurs_min INTEGER,
-                occurs_max INTEGER,
-                occurs_depending_on TEXT,
-                redefines TEXT,
-                value_literal TEXT,
-                line_number INTEGER,
-                attributes TEXT,
-                copy_members TEXT,
-                sign_separate INTEGER,
-                copy_libraries TEXT,
-                copy_replacing TEXT,
-                sync TEXT,
-                justified INTEGER,
-                blank_when_zero INTEGER,
-                renames TEXT,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        # #3250: heal a record_data table created before `attributes` existed.
-        _ensure_columns(cursor, "record_data", ["attributes TEXT"])
-        # #3355: `copy_members` -- the COPY member(s) that expand right after this
-        # entry (`01 DFHCOMMAREA.` + `COPY INQCUST.` -> 'INQCUST'), comma-separated
-        # in source order; NULL for an entry no COPY follows. Only the position is
-        # recorded: expanding the member is the reader's job (galaxy_ir), so a
-        # COMMAREA record and a callee's DFHCOMMAREA can be compared field by field.
-        _ensure_columns(cursor, "record_data", ["copy_members TEXT"])
-        # #3694: `sign_separate` -- 1 when a COBOL item codes SIGN [TRAILING] SEPARATE (its sign
-        # takes a byte of its own, after the digits), 2 for SIGN LEADING SEPARATE (before them),
-        # NULL otherwise; widths are the reader's job (galaxy_ir).
-        _ensure_columns(cursor, "record_data", ["sign_separate INTEGER"])
-        # #4265: `copy_libraries` -- the library-name each `copy_members` COPY names (`COPY X IN LIB`),
-        # comma-separated in the same order, "" for an unqualified COPY; NULL when none names one.
-        _ensure_columns(cursor, "record_data", ["copy_libraries TEXT"])
-        # #4265: `copy_replacing` -- each `copy_members` COPY's REPLACING operands, a JSON list in the same
-        # order: null for a COPY that replaces nothing, else [[from, to(, LEADING|TRAILING)], ...] with
-        # pseudo-text as written minus its `==` delimiters. NULL when no COPY on the entry replaces
-        # anything. The copybook keeps its own (tagged) names; the reader applies the REPLACING.
-        _ensure_columns(cursor, "record_data", ["copy_replacing TEXT"])
-        # #4266: `sync` -- 'SYNC' / 'SYNC LEFT' / 'SYNC RIGHT' when a COBOL item codes SYNCHRONIZED (slack
-        # bytes before it are the reader's job, galaxy_ir); `justified` / `blank_when_zero` -- 1 when it codes
-        # JUSTIFIED / BLANK WHEN ZERO; `renames` -- a 66 entry's `A [THRU B]` (qualifiers as `X OF Y`).
-        # All NULL otherwise.
-        _ensure_columns(
-            cursor, "record_data", ["sync TEXT", "justified INTEGER", "blank_when_zero INTEGER", "renames TEXT"]
-        )
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_file_id ON record_data(file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_snapshot ON record_data(repo_name, commit_hash);")
+        create_channel_table(cursor, CHANNELS_BY_NAME["record"], _ensure_columns)
 
         # #3347: BMS screen-field layouts -- one row per DFHMSD (mapset) / DFHMDI
         # (map) / DFHMDF (field) macro, in source order, the tree carried as
@@ -1143,33 +1052,7 @@ class RecordKeeper:
         # reaches the symbolic map). `attributes` keeps every other operand as
         # written (COLOR=, HILIGHT=, a map's SIZE=, a mapset's MODE=/LANG= ...).
         # Per-file, so it hangs off file_data with the usual cascade-delete.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS screen_field_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                kind TEXT,
-                ordinal INTEGER,
-                parent_ordinal INTEGER,
-                field_name TEXT,
-                pos_line INTEGER,
-                pos_column INTEGER,
-                length INTEGER,
-                attrb TEXT,
-                picin TEXT,
-                picout TEXT,
-                initial_value TEXT,
-                occurs INTEGER,
-                attributes TEXT,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_screen_field_file_id ON screen_field_data(file_id);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_screen_field_snapshot ON screen_field_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, CHANNELS_BY_NAME["screen_field"], _ensure_columns)
 
         # #3351-#3354: CICS resource operations -- one row per EXEC CICS command
         # that names a resource: a FILE (READ/WRITE/REWRITE/DELETE/browse), a BMS
@@ -1192,35 +1075,7 @@ class RecordKeeper:
         #                        the queue type, TS or TD
         #   record_clause     -- INTO | FROM | SET, and record_name its operand
         #   attributes        -- every other option as written (RIDFLD, UPDATE, ...)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS cics_resource_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                verb TEXT,
-                resource_kind TEXT,
-                access TEXT,
-                name_operand TEXT,
-                resource_name TEXT,
-                name_resolution TEXT,
-                name_candidates TEXT,
-                qualifier_operand TEXT,
-                qualifier TEXT,
-                record_clause TEXT,
-                record_name TEXT,
-                attributes TEXT,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_resource_file_id ON cics_resource_data(file_id);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_cics_resource_name ON cics_resource_data(resource_kind, resource_name);"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_cics_resource_snapshot ON cics_resource_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, CHANNELS_BY_NAME["cics_resource"], _ensure_columns)
 
         # #3449: CICS task control (core/cics_tasks.py) -- how tasks relate: a
         # parent RUNs / STARTs a child transaction, FETCHes or FREEs a child,
@@ -1770,42 +1625,7 @@ class RecordKeeper:
         #   attributes     the record's full operand text, whitespace-folded
         # Per-file (every fact is in the deck itself), cascade-deleted with
         # file_data and restored on delta scans; nothing here is resolved.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS csd_resource_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                resource_type TEXT,
-                resource_name TEXT,
-                group_name TEXT,
-                dsname TEXT,
-                ddname TEXT,
-                record_format TEXT,
-                key_length INTEGER,
-                record_size INTEGER,
-                queue_type TEXT,
-                plan TEXT,
-                db2_entry TEXT,
-                transid TEXT,
-                program TEXT,
-                attributes TEXT,
-                line_number INTEGER,
-                source TEXT,
-                macro_table TEXT,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        # #5120: provenance -- CSD or an assembled macro table (DFHFCT ...). A
-        # pre-#5120 database gets the columns healed in; its rows read as CSD.
-        _ensure_columns(cursor, "csd_resource_data", ["source TEXT", "macro_table TEXT"])
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_csd_resource_file_id ON csd_resource_data(file_id);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_csd_resource_name ON csd_resource_data(resource_type, resource_name);"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_csd_resource_snapshot ON csd_resource_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, CHANNELS_BY_NAME["csd_resource"], _ensure_columns)
 
         # #3344: the DB2 table shape a program binds to -- one row per column of
         # an `EXEC SQL DECLARE <table> TABLE (...)` (inline in a COBOL/PL/I
@@ -1823,28 +1643,7 @@ class RecordKeeper:
         #                  source writes none (DB2 defaults are not invented)
         #   nullable    -- 0 exactly when the column says NOT NULL
         #   attributes  -- every column option after the type, as written
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS sql_table_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                table_name TEXT,
-                table_line INTEGER,
-                colno INTEGER,
-                column_name TEXT,
-                sql_type TEXT,
-                length INTEGER,
-                scale INTEGER,
-                nullable INTEGER,
-                attributes TEXT,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_table_file_id ON sql_table_data(file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_table_name ON sql_table_data(table_name);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_table_snapshot ON sql_table_data(repo_name, commit_hash);")
+        create_channel_table(cursor, CHANNELS_BY_NAME["sql_table"], _ensure_columns)
 
         # #3446: embedded SQL statements -- which tables each program reads and
         # writes (db2_sql_statements). One row per (statement, table); a

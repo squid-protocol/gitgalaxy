@@ -378,6 +378,32 @@
     "reason": "`WHEN OTHER` ('9000') of the EVALUATE under `IF AUTH-RESP-DECLINED` (699): a decline is set only at 669 and 677 (each with `SET INSUFFICIENT-FUND`, the fourth arm) and at 681, which runs only when `FOUND-ACCT-IN-MSTR` is false. WS-ACCT-MASTER-READ-FLG is set found at 445-446 and becomes 'N' only through `SET NFOUND-ACCT-IN-MSTR` (492 in 5100 on an xref NOTFND, 539 in 5200 on an ACCTDAT NOTFND), which is the first arm; the other 5200 responses leave it found. Every decline therefore satisfies an earlier arm."
    }
   ],
+  "carddemo-copaus0c": [
+   {
+    "unit": "POPULATE-AUTH-LIST",
+    "line": 542,
+    "kind": "EVALUATE",
+    "outcome": "OTHER",
+    "family": "C",
+    "reason": "`EVALUATE WS-IDX` has WHEN 1 to 5. POPULATE-AUTH-LIST is performed only at 431, inside `PERFORM UNTIL WS-IDX > 5 ...` (424) with WS-IDX set to 1 at 420 and incremented once per pass (432), so it runs only with WS-IDX 1 to 5."
+   },
+   {
+    "unit": "INITIALIZE-AUTH-DATA",
+    "line": 612,
+    "kind": "EVALUATE",
+    "outcome": "OTHER",
+    "family": "C",
+    "reason": "`EVALUATE WS-IDX` has WHEN 1 to 5 inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > 5` (611): the loop index has fixed bounds, so no sixth value reaches the EVALUATE."
+   },
+   {
+    "unit": "RETURN-TO-PREV-SCREEN",
+    "line": 668,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "G",
+    "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES`: the only PERFORM of RETURN-TO-PREV-SCREEN is at 237 (the PF3 branch), directly after `MOVE WS-PGM-MENU TO CDEMO-TO-PROGRAM` (236), and WS-PGM-MENU is `VALUE 'COMEN01C'` (35) never written. CDEMO-TO-PROGRAM is never blank there."
+   }
+  ],
   "carddemo-cotrtupc": [
    {
     "unit": "ABEND-ROUTINE",

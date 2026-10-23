@@ -813,6 +813,106 @@
      "status": "AC"
     }
    ]
+  },
+  {
+   "name": "select-row-4",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CPVS-PAGE-NUM": 1,
+    "CDEMO-CPVS-PAUKEY-LAST": "vp\fv\u0090\u0091F\u009c",
+    "CDEMO-CPVS-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CPVS-PAUKEY-PREV-PG": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS": "vi\u009c\u0099\u0087GDL",
+    "CDEMO-CPVS-AUTH-KEYS(2)": "vi\u009c\u0099\u0087H8\u008c",
+    "CDEMO-CPVS-AUTH-KEYS(3)": "vp\fv\u0090\u0089\u0011\\",
+    "CDEMO-CPVS-AUTH-KEYS(4)": "vp\fv\u0090\u00904|",
+    "CDEMO-CPVS-AUTH-KEYS(5)": "vp\fv\u0090\u0091F\u009c"
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000001",
+     "SEL0004I": "S"
+    }
+   },
+   "why": "'S' beside row 4: the SEL0004I arm (the fourth WHEN of PROCESS-ENTER-KEY's EVALUATE) takes that row's key and XCTLs to COPAUS1C"
+  },
+  {
+   "name": "enter-account-probe-gnp-ends",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000007"
+    }
+   },
+   "why": "account 7: five details fill the page, then the probe GNP (the sixth call) answers GE (the harness plans it): AUTHS-EOF, NEXT-PAGE-NO although the page was full",
+   "dli_faults": [
+    {
+     "op": "GNP",
+     "nth": 6,
+     "status": "GE"
+    }
+   ]
+  },
+  {
+   "name": "enter-schd-tc-once",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000017"
+    }
+   },
+   "why": "DL/I fault: the first SCHD answers TC (the PSB is already held): SCHEDULE-PSB TERMs and schedules again, the second SCHD is clean and the page is shown as in enter-account-one-page",
+   "dli_faults": [
+    {
+     "op": "SCHD",
+     "nth": 1,
+     "status": "TC"
+    }
+   ]
+  },
+  {
+   "name": "enter-schd-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COPAU0A": {
+     "ACCTIDI": "00000000017"
+    }
+   },
+   "why": "DL/I fault: every SCHD answers TC (still held after the TERM): STATUS-OK is false, 'System error while scheduling PSB' is sent",
+   "dli_faults": [
+    {
+     "op": "SCHD",
+     "nth": "*",
+     "status": "TC"
+    }
+   ]
   }
  ]
 }

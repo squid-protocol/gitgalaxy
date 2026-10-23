@@ -1,32 +1,32 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 33,
+ "scenarios": 37,
  "paragraphs": {
   "covered": 20,
   "live": 20
  },
  "branches": {
-  "covered": 84,
+  "covered": 88,
   "total": 93
  },
  "inputs": {
-  "case": "214acfd6ef7493e8e6faf34525a3ca3902d113ff69402e427e8b2abe326bfe62",
+  "case": "2e902c55a4310c198b6293a6a4f9c52d3489f6afdc84ac0de3a7a4c8716f4c14",
   "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-  "harness": "efbe51075ec1adca1d2de680be9c28392f4d525f661d39c1d5f9eeaf7ae38c86",
-  "oracle": "e9e74c7b948ad1020416ad6ae58cb9ae52e4027557d0f25419d12926e20cc83e",
+  "harness": "da2c3ff87512c11dd74bd9daae9017fa3f4ee7e7dc962ead4c5cae60412c4c1a",
+  "oracle": "fc54c94c6f322224307466b0c54f8ccdda2b926b8214b3a0d496c74f429cb1a6",
   "components": {
    "harness": {
-    "harness:cics": "524c7ec5b94a8002f7cb66755e3328f295865ecc7399685916101df02b20703c",
-    "harness:core": "d62c9af2a5f83bb39a1deffe40cd7d7d63bb0d2945c4e8cec6b12503931f45ef",
+    "harness:cics": "8feec8001ee23f80c59f6c43d4895fae7bbd59b5e44d5eccc70af7a0cf403b6c",
+    "harness:core": "808b8ac9e553c3caffe3e5b89d7b7a1d8a04cd0b273490c8f2fb0e16aeb53e77",
     "harness:ims": "2fef9a49dc961b7fefeaf5059f3d8305d9e25293e58c05875789fd093bd4acf1"
    },
    "oracle": {
-    "oracle:cics-stub": "a87ec1941cad022e2a2706e2d20545b3da939139e7764b7aa9bec9358bcc82ae",
+    "oracle:cics-stub": "e0506eff6ce935b608cab4b0535b35c2cb81d8feb919f73e898afe2b0d81c6d8",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
-    "oracle:ims": "5048b2b498bdc267eb232a72d661beca284f91b6565ed6a58290d2b970e5b176",
-    "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
+    "oracle:ims": "2f8d39b56d9862cc280aa0b545bb219e8e84b931fa8cd928101bb06eda759974",
+    "oracle:le": "d3ad2b23aac02cd604a06ef216dc42a338c6584b5c475c9fddeaf1cf551bc668"
    }
   }
  },
- "measured_at": "28734a013e294b3a60b9d42c48375c826e01abde"
+ "measured_at": "de81421038bb462f03c46fb198e955122c2e24c9"
 }

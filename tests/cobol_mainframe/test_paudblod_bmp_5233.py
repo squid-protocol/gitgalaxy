@@ -112,3 +112,26 @@ def test_paudblod_is_a_bmp_whose_entry_hides_the_io_pcb_and_translates_whole(tmp
     assert not r.stats["holes"], r.stats["holes"]
     assert re.search(r"DetDli\.enterBmp\(", r.java) and "DetDli.enter(" not in r.java
     assert len(re.findall(r"DetDli\.call\(", r.java)) == 3  # ISRT root, GU root, ISRT child
+
+
+def _code(text: str) -> str:
+    """Columns 8-72 of every non-comment line, joined: a statement split over lines reads as one."""
+    return " ".join(ln[7:72] for ln in text.splitlines() if len(ln) > 7 and ln[6] not in "*/")
+
+
+@pytest.mark.skipif(not CBL.is_dir(), reason="needs the CardDemo corpus (GITGALAXY_MAINFRAME_CORPORA)")
+def test_no_burned_program_makes_an_ims_tm_message_call():
+    """Checklist [c:ee85cc1d] closes here: IMS TM / MFS (message calls on the I/O PCB, AIBTDLI, CHNG / SETO / PURG)
+    is needed by no burned program, so it stays refused by name (register I5) and nothing is built for it."""
+    seen = 0
+    for path in sorted(p for p in CBL.iterdir() if p.suffix.lower() in (".cbl", ".cob")):
+        code = _code(read_source(path).text).upper()
+        assert not re.search(r"'(AIBTDLI|CEETDLI)'", code), path.name
+        bmp = ei.bmp_using(read_source(path).text)
+        io_pcb = bmp[0].upper() if bmp else None
+        for m in re.finditer(r"CALL\s+'CBLTDLI'\s+USING\s+([\w-]+)\s+([\w-]+)", code):
+            seen += 1
+            assert m.group(2) != io_pcb, f"{path.name}: I/O PCB {m.group(2)} in a CBLTDLI call"
+            assert not re.search(r"VALUE\s+'(CHNG|SETO|PURG|CMD |GCMD|INQY)", code), path.name
+    assert seen >= 3  # PAUDBLOD's three calls at least
+    assert not list(CORPUS.rglob("*.mfs")) and not list(CORPUS.rglob("*.MFS"))

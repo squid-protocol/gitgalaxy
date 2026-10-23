@@ -355,6 +355,46 @@
    },
    "dto_entry": true,
    "why": "as eyecatcher-refilled-from-db, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+  },
+  {
+   "name": "dto-entry-account-not-found-full-record",
+   "commarea": {
+    "COMM-EYE": "WXYZ",
+    "COMM-CUSTNO": "1234567890",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "99",
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-INT-RATE": "12.34",
+    "COMM-OPENED": "15062020",
+    "COMM-OVERDRAFT": "4321",
+    "COMM-LAST-STMT-DT": "01072021",
+    "COMM-NEXT-STMT-DT": "02082022",
+    "COMM-AVAIL-BAL": "-1234.56",
+    "COMM-ACTUAL-BAL": "7890.12",
+    "COMM-SUCCESS": "Z"
+   },
+   "dto_entry": true,
+   "why": "the refused update leaves every COMMAREA field the caller sent except COMM-SCODE and COMM-SUCCESS: with every field populated, in_ reads and fill_ gives back each one through the typed DTO alone (#5863)"
+  },
+  {
+   "name": "dto-entry-other-sort-code-full-record",
+   "commarea": {
+    "COMM-EYE": "WXYZ",
+    "COMM-CUSTNO": "1234567890",
+    "COMM-SCODE": "123456",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-INT-RATE": "12.34",
+    "COMM-OPENED": "15062020",
+    "COMM-OVERDRAFT": "4321",
+    "COMM-LAST-STMT-DT": "01072021",
+    "COMM-NEXT-STMT-DT": "02082022",
+    "COMM-AVAIL-BAL": "-1234.56",
+    "COMM-ACTUAL-BAL": "7890.12",
+    "COMM-SUCCESS": "Z"
+   },
+   "dto_entry": true,
+   "why": "as dto-entry-account-not-found-full-record, refused on the sort code (#5863)"
   }
  ],
  "notes": "CBSA's update-account service (UPDACC, LINKed with the UPDACC copybook's COMMAREA): the account is read by the program's own sort code (987654) and COMM-ACCNO with a SELECT INTO from Db2 table ACCOUNT (unqualified: the bind's QUALIFIER, IBMUSER); a failed SELECT (+100, -305 ...) or an account type that is blank or starts with a space gives COMM-SUCCESS 'N' and no UPDATE; otherwise ACCOUNT_TYPE, ACCOUNT_INTEREST_RATE and ACCOUNT_OVERDRAFT_LIMIT are UPDATEd, and the COMMAREA is refilled from the host variables, each date reformatted from Db2's character form (YYYY-MM-DD) to DDMMYYYY. The table is compared after every scenario."

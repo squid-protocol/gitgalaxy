@@ -202,7 +202,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | I2 | IMS | twins and qualifications compare the field's stored bytes; a C / X key's order is the data page's (ASCII on both sides), not EBCDIC's; a P qualification only where packed and logical comparison agree | DIFFERS | no (CardDemo's keys are packed and binary bytes, the same in both pages) |
 | I3 | IMS | position and parentage kept per PCB as IBM describes them; after a call whose position IBM leaves to IMS's search, the next call that needs it is refused | ASSUMED | yes (PAUDBUNL: GN after GNP's GE) |
 | I4 | IMS | DBD name, level, status, PROCOPT, segment name, key feedback length, sensitive segments, key feedback as IBM lays them out; what IMS leaves there at entry and after GE / II assumed | ASSUMED | yes (PAUDBUNL tests PAUT-PCB-STATUS; its key feedback is only DISPLAYed on a path no scenario takes) |
-| I5 | IMS | EXEC DLI beyond SCHD / TERM / GU / GN / GNP / ISRT / REPL / DLET and a BMP's CHKP ID, MPP programs, GSAM PCBs, other calls (XRST, ROLB, CHKP with an option but ID, ...), command codes, boolean SSAs, AIBTDLI / CEETDLI, HDAM order, secondary indexes, logical relationships, load mode | REFUSED | — |
+| I5 | IMS | EXEC DLI beyond SCHD / TERM / GU / GN / GNP / ISRT / REPL / DLET and a BMP's CHKP ID, MPP programs, a GSAM PCB that reads, other calls (XRST, ROLB, CHKP with an option but ID, ...), command codes, boolean SSAs, AIBTDLI / CEETDLI, HDAM order, secondary indexes, logical relationships, load mode on a DB PCB | REFUSED | — |
 | I6 | IMS | an HD reorganization unload (DFSURGU0) read by the record layout observed in CardDemo's; the segment counts its trailer records must match what was read | ASSUMED | yes (carddemo-paudbunl: 22 roots, 202 children) |
 | W1 | MQ | CMQV / CMQODV / CMQMDV / CMQGMOV / CMQPMOV / CMQTML: stand-ins from IBM's docs, version-1 layouts, only the constants the model gives meaning to | ASSUMED | yes (carddemo-codate01, #4892) |
 | W2 | MQ | MQGMO_WAIT on an empty queue: 2033 at once (no concurrent producer); MQWI_UNLIMITED refused | ASSUMED | yes (carddemo-codate01, #4892) |
@@ -4755,6 +4755,12 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   - ASSUMPTION (#5233, no IBM text cited): a qualified GNP that finds nothing answers GE with the parent's feedback and
     parentage kept; position is open (I3), so the next GN / GNP is refused by name, as after a GU's GE. Whether a
     qualified GN answers GE or GB stays unsettled (I3), and is still refused.
+  - GSAM PCB in load mode (#5233, rule RT-DLI-GSAM; case `carddemo-dbunldgs`): a database with ACCESS=(GSAM,..) and a fixed
+    RECORD=(n) is a sequential output file, and a TYPE=GSAM PCB with PROCOPT LS ISRTs into it with no SSA, each ISRT
+    appending one record of n bytes from the I/O area; the harness compares the records in order, by field when the case
+    names a copybook (`ims.gsam`). ASSUMPTION (no IBM text cited): any function but ISRT on a GSAM PCB answers AM, and the
+    PCB mask's segment level is blank (a GSAM PCB has no segment). Refused by name on both runtimes: an ISRT with an SSA,
+    an I/O area shorter than the record, and two GSAM PCBs on one database.
   - A case's `ims.seed.<DBD>.skip` lists unload record numbers left out of the seed (the corpus unload of DBPAUTP0 ends
     with a root whose packed key is blank, which a qualified GU refuses by design).
   - CALL 'CBLTDLI' is refused in a program IMS does not enter at ENTRY 'DLITCBL' (a BMP, MPP or CICS program).
@@ -4762,10 +4768,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     phrase, and CALL 'AIBTDLI' or 'CEETDLI'.
 - **Refused by the harness** (`equivalence_ims.Unsupported`, "not runnable faithfully"):
   - HDAM and PHDAM: the root sequence is the randomizer's.
-  - GSAM, INDEX and LOGICAL databases.
+  - INDEX and LOGICAL databases, and a GSAM database with variable-length records or no fixed RECORD=(n).
   - Logical relationships, variable-length segments, a non-unique or missing sequence field.
-  - CMPAT=YES outside a BMP (IMS TM passes an I/O PCB first; taken under CICS, see the ASSUMPTION), and an I/O, alternate or GSAM PCB.
-  - PROCSEQ (a secondary index), PROCOPT L / LS (load mode), a segment-level PROCOPT, and a PCB not sensitive to every
+  - CMPAT=YES outside a BMP (IMS TM passes an I/O PCB first; taken under CICS, see the ASSUMPTION), and an I/O or alternate PCB, a GSAM PCB with a PROCOPT but LS (reading a GSAM file, PROCOPT G), and a PSB with
+    two GSAM PCBs on one database.
+  - PROCSEQ (a secondary index), PROCOPT L / LS (load mode) on a DB PCB, a segment-level PROCOPT, and a PCB not sensitive to every
     segment.
   - An ENTRY 'DLITCBL' that does not name one area per PCB.
 - **Refused by both runtimes at run time** ("CBLTDLI: ... is not modelled"; exit 98 on the COBOL side):

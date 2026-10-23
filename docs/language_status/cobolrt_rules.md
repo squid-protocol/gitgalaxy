@@ -16,7 +16,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | CICS: EXEC CICS data movement | `cics/DetCics.java`, `cics/DetJustify.java` | 27 | yes |
 | SQL: embedded SQL | `sql/DetSql.java` | 10 | yes |
 | LE: Language Environment callable services | `le/Ceedate.java`, `le/Ceedatm.java`, `le/Ceedays.java`, `le/Ceedywk.java`, `le/Ceegmt.java`, `le/Ceegmto.java`, `le/Ceeisec.java`, `le/Ceeloct.java`, `le/Ceeqcen.java`, `le/Ceeseci.java`, `le/Ceesecs.java`, `le/Ceeutc.java`, `le/Cobdatft.java`, `le/Dsntiac.java`, `le/LeTime.java`, `le/Mvswait.java`, `le/Zuidstck.java` | 19 | yes |
-| DLI: IMS DL/I database calls | `dli/DetDli.java` | 15 | yes |
+| DLI: IMS DL/I database calls | `dli/DetDli.java` | 16 | yes |
 | MQ: IBM MQ (MQI from CICS) | `mq/QueueManager.java`, `cics/DetMq.java` | 7 | yes |
 | DATA: items and storage | `Field.java`, `Storage.java`, `Lossless.java`, `Figurative.java`, `Hole.java` | 5 | yes |
 | SORT: SORT / MERGE and collating sequences | `Sort.java` | 6 | yes |
@@ -24,7 +24,7 @@ Status, against IBM (the reference; GnuCOBOL is the instrument): MATCHED -- the 
 | SYS: standalone SYSOUT and abends | `standalone/CobolAbend.java`, `standalone/Sysout.java` | 2 | yes |
 | MVS: z/OS control blocks a batch program reads | `DetMvs.java` | 1 | yes |
 
-185 rules: 87 MATCHED, 23 DIFFERS, 14 REFUSED, 61 ASSUMED; 0 measured on z/OS (#4702).
+186 rules: 87 MATCHED, 23 DIFFERS, 14 REFUSED, 62 ASSUMED; 0 measured on z/OS (#4702).
 
 ## IBM documents
 
@@ -277,6 +277,7 @@ A batch DL/I program's CALL 'CBLTDLI' through a DB PCB on a stated database: the
 | RT-DLI-ISRT | ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found | `ims-apis` ISRT call | - | I1 (ASSUMED); I3 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-DLI-CHANGE | REPL / DLET on the segment the previous get-hold call returned; DJ without one, DA when the I/O area changed the sequence field; DLET removes the segment's dependents | `ims-apis` REPL call; DLET call | - | I1 (ASSUMED); I3 (ASSUMED) | ASSUMED | uncalibrated |
 | RT-DLI-CALL | CALL 'CBLTDLI' USING function pcb io-area [ssa ...]: the PCB the program was passed, the function's dispatch (AD for an unknown function, AM for one PROCOPT does not allow), any other DL/I call refused | `ims-codes` DL/I status codes | - | I1 (ASSUMED); I5 (REFUSED) | ASSUMED | uncalibrated |
+| RT-DLI-GSAM | A GSAM PCB in load mode: ISRT appends one record of the DBD's length to the output file, any other function is AM, and the PCB mask's segment level is blank; an SSA or an I/O area shorter than the record is refused | `ims-codes` DL/I status codes | - | I5 (REFUSED) | ASSUMED | uncalibrated |
 | RT-DLI-SCHD | EXEC DLI SCHD PSB under CICS: the databases load at the first SCHD, the PSB's PCBs start with no position, DIBSTAT blank; a PSB already scheduled is TC (with NODHABEND), else refused; a planned TC (#5233) schedules the PSB first | `ims-apis` EXEC DLI SCHD / TERM | - | I5 (REFUSED) | ASSUMED | uncalibrated |
 | RT-DLI-TERM | EXEC DLI TERM: the scheduled PSB is released (the databases keep what was written), DIBSTAT blank; a TERM with no PSB scheduled is refused | `ims-apis` EXEC DLI SCHD / TERM | - | I5 (REFUSED) | ASSUMED | uncalibrated |
 | RT-DLI-FAULT-INJECTION | A planned DL/I fault (# DLI FUNCTION NTH\|* STATUS; a get-hold counts as its get) replaces that call's execution, the PCB answering the status as for any status it names | none: the faults are the harness's; the PCB feedback a fault leaves is assumed | - | I3 (ASSUMED) | ASSUMED | uncalibrated |

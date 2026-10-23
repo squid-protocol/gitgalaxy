@@ -1,12 +1,13 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID. DLICMD.
-      * #5233 command-code fixture: F, L, P and the null code - in SSAs on
+      * #5233 command-code fixture: F, L, P, C, D and the null code - in SSAs on
       * LVLDBD through PSB LVLPSB. IBM: L takes the last twin of the
       * type under its parent, F the first (the default start of a GU);
       * on an ISRT with a unique sequence field both are ignored. P on a
       * GU sets parentage at the level of its SSA, so a GNP afterwards
       * walks every dependent of that segment, not of the lowest one
-      * retrieved. The
+      * retrieved. D (a path call) hands back the D-coded segments and the
+      * one found, one after another, in hierarchic order (Q30-Q39). The
       * test pins the expected output, written from IBM's documentation
       * before either runtime ran it.
        DATA DIVISION.
@@ -14,6 +15,7 @@
        01  W-Q                   PIC 99 VALUE 0.
        01  W-IO                  PIC X(14).
        01  IOA                   PIC X(20).
+       01  IOP                   PIC X(60).
        01  F-GU                  PIC X(4) VALUE 'GU  '.
        01  F-GN                  PIC X(4) VALUE 'GN  '.
        01  F-ISRT                PIC X(4) VALUE 'ISRT'.
@@ -40,6 +42,26 @@
        01  C-EP.
            05 FILLER             PIC X(11) VALUE 'EMP     *P '.
        01  F-GNP                 PIC X(4) VALUE 'GNP '.
+       01  F-GHU                 PIC X(4) VALUE 'GHU '.
+       01  S-SKL.
+           05 FILLER             PIC X(9) VALUE 'SKILL    '.
+       01  C-DD.
+           05 FILLER             PIC X(11) VALUE 'DEPT    *D '.
+       01  C-ED.
+           05 FILLER             PIC X(11) VALUE 'EMP     *D '.
+       01  C-DDP.
+           05 FILLER             PIC X(12) VALUE 'DEPT    *DP '.
+       01  C-CDE.
+           05 FILLER             PIC X(11) VALUE 'EMP     *CD'.
+           05 FILLER             PIC X VALUE '('.
+           05 FILLER             PIC X(8) VALUE 'D100E002'.
+           05 FILLER             PIC X VALUE ')'.
+       01  C-DDQ.
+           05 FILLER             PIC X(11) VALUE 'DEPT    *D('.
+           05 FILLER             PIC X(8) VALUE 'DEPTNO'.
+           05 FILLER             PIC X(2) VALUE ' ='.
+           05 FILLER             PIC X(4) VALUE 'D200'.
+           05 FILLER             PIC X VALUE ')'.
        01  C-DQP.
            05 FILLER             PIC X(11) VALUE 'DEPT    *P('.
            05 FILLER             PIC X(8) VALUE 'DEPTNO'.
@@ -208,7 +230,50 @@
            MOVE SPACES TO IOA
            CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CE3
            PERFORM SHOW1
+           MOVE 30 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GU PCB1 IOP C-DD C-ED S-SKL
+           PERFORM SHOWP
+           MOVE 31 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GN PCB1 IOP C-ED S-SKL
+           PERFORM SHOWP
+           MOVE 32 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GU PCB1 IOP C-DD S-EMP
+           PERFORM SHOWP
+           MOVE 33 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GU PCB1 IOP C-DD
+           PERFORM SHOWP
+           MOVE 34 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GU PCB1 IOP C-DDQ C-ED S-SKL
+           PERFORM SHOWP
+           MOVE 35 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GU PCB1 IOP C-DDP S-EMP
+           PERFORM SHOWP
+           MOVE 36 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOP C-ED S-SKL
+           PERFORM SHOWP
+           MOVE 37 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOP C-ED S-SKL
+           PERFORM SHOWP
+           MOVE 38 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOP C-ED S-SKL
+           PERFORM SHOWP
+           MOVE 39 TO W-Q
+           MOVE SPACES TO IOP
+           CALL 'CBLTDLI' USING F-GHU PCB1 IOP C-DD S-EMP
+           PERFORM SHOWP
            GOBACK.
+       SHOWP.
+           DISPLAY 'Q' W-Q ' [' P1-STATUS '] ' IOP(1:4) '/'
+               IOP(21:4) '/' IOP(41:2).
        SHOW1.
            MOVE IOA(1:14) TO W-IO
            DISPLAY 'Q' W-Q ' [' P1-STATUS '] ' W-IO.

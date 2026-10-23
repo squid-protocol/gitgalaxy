@@ -1,6 +1,8 @@
 """equivalence_env: JDK 17 detection (refusing loudly without one), the exported environment, the pin escape hatch."""
 
 import os
+import shutil
+import stat
 import sys
 from pathlib import Path
 
@@ -255,6 +257,31 @@ def test_rmtree_writable_removes_read_only_files(tmp_path):
     obj = victim / "obj"
     obj.write_text("x")
     obj.chmod(0o444)
+    ee.rmtree_writable(tmp_path / "clone")
+    assert not (tmp_path / "clone").exists()
+
+
+def _windows_like_unlink(monkeypatch):
+    """Emulate Windows on any OS: unlinking a file without the write bit raises PermissionError (WinError 5)."""
+    real_unlink = os.unlink
+
+    def unlink(path, *args, dir_fd=None, **kwargs):
+        if not os.stat(path, dir_fd=dir_fd).st_mode & stat.S_IWRITE:
+            raise PermissionError(13, "Access is denied", str(path))
+        return real_unlink(path, *args, dir_fd=dir_fd, **kwargs)
+
+    monkeypatch.setattr(shutil.rmtree, "avoids_symlink_attacks", False, raising=False)  # Windows' path-based walk
+    monkeypatch.setattr(os, "unlink", unlink)
+
+
+def test_a_plain_rmtree_fails_on_a_read_only_object_where_rmtree_writable_succeeds(tmp_path, monkeypatch):
+    obj = tmp_path / "clone" / ".git" / "objects" / "6c" / "obj"
+    obj.parent.mkdir(parents=True)
+    obj.write_text("x")
+    obj.chmod(stat.S_IREAD)
+    _windows_like_unlink(monkeypatch)
+    with pytest.raises(PermissionError):
+        shutil.rmtree(tmp_path / "clone")
     ee.rmtree_writable(tmp_path / "clone")
     assert not (tmp_path / "clone").exists()
 

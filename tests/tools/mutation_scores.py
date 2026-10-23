@@ -12,6 +12,9 @@ A survivor's verdict is one of
   harness_gap  a run exercises it but the proof does not compare the output it changes (filed as an issue)
   equivalent   the change cannot alter any output (the reason says why)
   unreachable  dead code: no input reaches it, given the program's own data or the oracle's limits (with evidence)
+  declared_difference  the oracle and IBM differ by design in a documented class (DECLARED_CLASSES, a register entry), so
+               no proof can kill the mutant and it is not equivalent (owner, #5401); the triage entry also carries
+               "class" and "register", and it stays in the adjusted score's denominator
 
     python tests/tools/mutation_scores.py build --runs DIR [DIR ...] --triage T.json --commit SHA [--out FILE]
                                                 [--rejudged DIR ... --rejudged-commit SHA] [--keep-others]
@@ -26,7 +29,8 @@ A survivor's verdict is one of
 `rejudged` (the commit, how many were judged again and how many are now killed). A new input can only add kills (a
 mutant killed by the old runs is still killed by them), so this equals a full re-run of the same sample.
 
-Scores: raw = caught / (caught + survived); adjusted = caught / (caught + survived - equivalent - unreachable).
+Scores: raw = caught / (caught + survived); adjusted = caught / (caught + survived - equivalent - unreachable)
+(a declared difference is subtracted from neither).
 Stillborn mutants (javac refused them) count for nothing. A timeout counts as caught.
 """
 
@@ -43,12 +47,31 @@ BEGIN, END = "<!-- mutation-scores -->", "<!-- /mutation-scores -->"
 TRIAGE = ("case_gap", "harness_gap", "equivalent", "unreachable")
 TRIAGE_ALL = (*TRIAGE, "untriaged")
 COUNTS = ("killed", "survived", "stillborn", *TRIAGE_ALL)
+# #5401: the declared-difference verdict. Its count key is written only where non-zero (an always-present empty key
+# would change every other port's record), and the class names the register entry that documents the difference.
+DECLARED = "declared_difference"
+VERDICTS = (*TRIAGE, DECLARED)
+DECLARED_CLASSES = {"float-store-rounding": "C6"}  # GnuCOBOL truncates a float store, IBM rounds it
 # #4047: the reason an early bulk triage gave every survivor it had not read; it is no verdict (retriage replaces it)
 PLACEHOLDER = "not proven equivalent and no scenario of the case kills it"
 
 
 def _key(run: dict) -> str:
     return f"{run['case']}/{run['program']}"
+
+
+def check_declared(key: str, t: dict) -> None:
+    """#5401: a declared difference names its class and that class's register entry, or the triage is refused."""
+    if t.get("class") not in DECLARED_CLASSES or DECLARED_CLASSES[t["class"]] != t.get("register"):
+        raise SystemExit(f"{key}: a declared_difference needs class (one of {sorted(DECLARED_CLASSES)}) and the "
+                         f"class's register entry; got class={t.get('class')!r} register={t.get('register')!r}")
+
+
+def totals(ops: dict[str, dict[str, int]]) -> dict[str, int]:
+    out = {k: sum(c.get(k, 0) for c in ops.values()) for k in COUNTS}
+    if n := sum(c.get(DECLARED, 0) for c in ops.values()):
+        out[DECLARED] = n
+    return out
 
 
 def port_entry(run: dict, triage: dict, commit: str) -> dict:
@@ -65,11 +88,14 @@ def port_entry(run: dict, triage: dict, commit: str) -> dict:
         elif v == "survived":
             c["survived"] += 1
             t = triage.get(f"{_key(run)}:{r['id']}", {})
-            tv = t.get("verdict") if t.get("verdict") in TRIAGE else "untriaged"
-            c[tv] += 1
+            tv = t.get("verdict") if t.get("verdict") in VERDICTS else "untriaged"
+            if tv == DECLARED:
+                check_declared(f"{_key(run)}:{r['id']}", t)
+            c[tv] = c.get(tv, 0) + 1
             survivors.append({"id": r["id"], "op": r["op"], "at": f"{r['file']}:{r['line']}",
-                              "after": r["after"].strip()[:160], "verdict": tv, "reason": t.get("reason", "")})  # fmt: skip
-    total = {k: sum(c[k] for c in ops.values()) for k in COUNTS}
+                              "after": r["after"].strip()[:160], "verdict": tv, "reason": t.get("reason", ""),
+                              **({"class": t["class"], "register": t["register"]} if tv == DECLARED else {})})  # fmt: skip
+    total = totals(ops)
     return {"case": run["case"], "program": run["program"], "commit": commit, "seed": run.get("seed"),
             "mutants": run["mutants"], "chosen": run["chosen"], "total": total,
             "ops": {k: {n: v for n, v in c.items() if v} for k, c in sorted(ops.items())},
@@ -92,16 +118,22 @@ def retriage_port(p: dict, triage: dict) -> int:
     changed = 0
     for s in p["survivors"]:
         t = triage.get(f"{_key(p)}:{s['id']}")
-        if t and t["verdict"] in TRIAGE and (t["verdict"], t["reason"]) != (s["verdict"], s["reason"]):
-            s["verdict"], s["reason"] = t["verdict"], t["reason"]
-            changed += 1
+        if t and t["verdict"] in VERDICTS:
+            if t["verdict"] == DECLARED:
+                check_declared(f"{_key(p)}:{s['id']}", t)
+            extra = {"class": t["class"], "register": t["register"]} if t["verdict"] == DECLARED else {}
+            if (t["verdict"], t["reason"], extra) != (s["verdict"], s["reason"], {k: s.get(k) for k in extra}):
+                s.pop("class", None)
+                s.pop("register", None)
+                s.update(verdict=t["verdict"], reason=t["reason"], **extra)
+                changed += 1
     for c in p["ops"].values():
-        for k in TRIAGE_ALL:
+        for k in (*TRIAGE_ALL, DECLARED):
             c.pop(k, None)
     for s in p["survivors"]:
         c = p["ops"][s["op"]]
         c[s["verdict"]] = c.get(s["verdict"], 0) + 1
-    p["total"] = {k: sum(c.get(k, 0) for c in p["ops"].values()) for k in COUNTS}
+    p["total"] = totals(p["ops"])
     return changed
 
 
@@ -149,6 +181,12 @@ def operator_matrix(results: dict) -> str:
     return "\n".join(rows)
 
 
+def survivor_cells(t: dict) -> str:
+    """The survivors column: the five counts, then `+ N declared difference(s)` only where a port has one (#5401)."""
+    cells = " / ".join(str(t[k]) for k in TRIAGE_ALL)
+    return cells + (f" + {t[DECLARED]} declared" if t.get(DECLARED) else "")
+
+
 def table(results: dict) -> str:
     header = (
         "| port | harness | mutants run / all | raw score | without equivalent + unreachable "
@@ -162,25 +200,25 @@ def table(results: dict) -> str:
         harness = "crucible" if p["case"].startswith("crucible:") else "equivalence"
         name = f"{p['program']} ({p['case'].removeprefix('crucible:')})"
         rows.append(f"| {name} | {harness} | {p['chosen']}/{p['mutants']} | {_pct(caught, raw)} | {_pct(caught, adj)} "
-                    f"| {' / '.join(str(t[k]) for k in TRIAGE_ALL)} |")  # fmt: skip
+                    f"| {survivor_cells(t)} |")  # fmt: skip
         g = groups.setdefault(harness, dict.fromkeys(COUNTS, 0))
-        for k in COUNTS:
-            g[k] += t[k]
-    est = dict.fromkeys(COUNTS, 0)
+        for k in (*COUNTS, DECLARED):
+            g[k] = g.get(k, 0) + t.get(k, 0)
+    est: dict[str, int] = dict.fromkeys(COUNTS, 0)
     for g in groups.values():
-        for k in COUNTS:
-            est[k] += g[k]
+        for k in (*COUNTS, DECLARED):
+            est[k] = est.get(k, 0) + g.get(k, 0)
     for name, t in [*sorted(groups.items()), ("**estate**", est)]:
         caught, raw, adj = scores(t)
         rows.append(f"| **all {name.strip('*')}** | | {t['killed'] + t['survived'] + t['stillborn']} run "
                     f"| **{_pct(caught, raw)}** | **{_pct(caught, adj)}** "
-                    f"| {' / '.join(str(t[k]) for k in TRIAGE_ALL)} |")  # fmt: skip
+                    f"| {survivor_cells(t)} |")  # fmt: skip
     ops: dict[str, dict[str, int]] = {}
     for p in results["ports"]:
         for op, c in p["ops"].items():
             o = ops.setdefault(op, dict.fromkeys(COUNTS, 0))
             for k, v in c.items():
-                o[k] += v
+                o[k] = o.get(k, 0) + v
     rows += ["", "| operator | caught / judged | without equivalent + unreachable |", "|---|---|---|"]
     for op, t in sorted(ops.items()):
         caught, raw, adj = scores(t)
@@ -204,8 +242,8 @@ def load_triage(paths: list[Path]) -> dict:
     for p in paths:
         data = json.loads(p.read_text(encoding="utf-8"))
         if "ports" in data:
-            data = {f"{q['case']}/{q['program']}:{s['id']}": {"verdict": s["verdict"], "reason": s["reason"]}
-                    for q in data["ports"] for s in q["survivors"] if s["verdict"] in TRIAGE}  # fmt: skip
+            data = {f"{q['case']}/{q['program']}:{s['id']}": {k: s[k] for k in ("verdict", "reason", "class", "register") if k in s}
+                    for q in data["ports"] for s in q["survivors"] if s["verdict"] in VERDICTS}  # fmt: skip
         out.update(data)
     return out
 

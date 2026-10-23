@@ -322,8 +322,11 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 - UPDACC on generated Db2 rows (cbsa-updacc-generated, #4507, all 139 mutants run, seed 0): 103 killed, 36 survived
   (7 harness gaps, 17 equivalent, 12 unreachable). The seven harness gaps are the `-904` UPDATE-failure arm: a
   `sql_faults` scenario was tried and the proof refuses it ("no SQL fault hook in UPDACC": the model-written port
-  reaches Db2 through JDBC, not `cobolrt.sql.DetSql`), so the scenario was not kept. A det-translated UPDACC would
-  take the fault.
+  reaches Db2 through JDBC, not `cobolrt.sql.DetSql`), so the scenario was not kept. A det-translated UPDACC takes the
+  fault: `cbsa-updacc-faults` (no `port/`, the hand case's DDL and seed) injects `-904`, `-913` and `-803` on the UPDATE
+  (line 278) and `-904` / `-913` on the SELECT (line 191), and `det_port.py run` proves it on 10 scenarios covering
+  7/7 paragraphs and 6/6 branches. The seven stay recorded as harness gaps of the model port (its mutants are not
+  re-run against the det case); the det-port fault case is where that arm is judged.
 
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |

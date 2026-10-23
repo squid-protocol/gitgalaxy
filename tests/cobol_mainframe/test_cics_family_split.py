@@ -293,3 +293,19 @@ def test_the_harness_dispatches_temporary_storage_to_its_module():
     for body, stub in (("WRITEQ TS QUEUE('Q') FROM(WS-REC)", "GGCWRTQ"), ("READQ TS QUEUE('Q') INTO(WS-REC)", "GGCREADQ"),
                        ("DELETEQ TS QUEUE('Q')", "GGCDELQ")):  # fmt: skip
         assert any(stub in ln for ln in ec.translate_command(body)), body
+
+
+# ---- conditions (#5274, harness half): HANDLE CONDITION / AID / ABEND, PUSH / POP HANDLE, ASSIGN, AID after input -----
+def test_the_harness_dispatches_conditions_to_its_module():
+    import equivalence_cics_conditions as ecc  # noqa: E402
+
+    for name in ("aid", "input_resp", "handle", "handler_labels"):
+        assert callable(getattr(ecc, name)), name
+    for old in ("_aid", "_input_resp", "_handle", "AID_KEYS", "_HANDLE_KINDS"):
+        assert not hasattr(ec, old), old
+    assert ec.handler_labels is ecc.handler_labels
+    assert ecc.handler_labels(["HANDLE CONDITION ERROR(E1)", "HANDLE AID PF3(P3)"]) == ["E1", "P3"]
+    for body, stub in (("HANDLE CONDITION ERROR(ANY-ERROR)", "GGCHCND"), ("HANDLE AID PF3(DONE)", "GGCHAID"),
+                       ("HANDLE ABEND CANCEL", "GGCHABN"), ("PUSH HANDLE", "GGCPUSH"), ("POP HANDLE", "GGCPOP"),
+                       ("ASSIGN ABCODE(WS-AB)", "GGCASGN")):  # fmt: skip
+        assert any(stub in ln for ln in ec.translate_command(body, ["ANY-ERROR", "DONE"])), body

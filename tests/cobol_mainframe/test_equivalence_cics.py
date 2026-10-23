@@ -1774,6 +1774,27 @@ def test_http_peers_are_stated_alike_on_both_sides_and_requests_compared():
     assert differs["diffs"] and differs["diffs"][0]["fields"][0]["field"] == "body"
 
 
+def test_web_open_and_close_events_read_back_as_cicstask_records_them():
+    """#4767 zECS (X35): a WEB-OPEN line (host in hex, '-' none; the scheme as named, '-' none) and a WEB-CLOSE line read back
+    as CicsTask records them, a connection refused with a condition included; the host, scheme and RESP2 are compared."""
+    host = b"zecs.example".hex().upper()
+    cases = [({"host": host, "scheme": "HTTP", "resp": "0", "resp2": "0"}, "zecs.example", "HTTP"),
+             ({"host": "-", "scheme": "HTTPS", "resp": "22", "resp2": "21"}, "", "HTTPS"),
+             ({"host": host, "scheme": "-", "resp": "16", "resp2": "40"}, "zecs.example", None)]  # fmt: skip
+    for kv, want_host, want_scheme in cases:
+        got = ec._cobol_web_open(kv, "latin-1")
+        assert got == {"host": want_host, "scheme": want_scheme, "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}
+        java = {"event": "WEB-OPEN", **got}
+        assert ec.compare_events([java], [dict(java)])["equal"] == 1
+        for field, value in (("host", "other"), ("scheme", "HTTP" if want_scheme != "HTTP" else None), ("resp2", 99)):
+            differs = ec.compare_events([java], [{**java, field: value}])
+            assert differs["diffs"] and differs["diffs"][0]["fields"][0]["field"] == field
+    close = {"event": "WEB-CLOSE", "resp": 19, "resp2": 27}
+    assert ec.compare_events([close], [dict(close)])["equal"] == 1
+    differs = ec.compare_events([close], [{**close, "resp2": 0}])
+    assert differs["diffs"] and differs["diffs"][0]["fields"][0]["field"] == "resp2"
+
+
 def test_inquire_urimap_direct_and_program_status_become_stub_calls():
     """#4768 zECS (register X34): INQUIRE URIMAP(name) with no browse option -> the name in GG-NAME1, GGCURIB with GG-FLAGS
     'DIRECT' (NOTFND RESP2 3), then one GGCURIP per output option on NORMAL; INQUIRE PROGRAM STATUS -> GGCINQP, the CVDA

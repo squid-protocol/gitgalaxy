@@ -4025,6 +4025,10 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("operator", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
         elif verb == "WEB-CONVERSE":  # #4767 (X35): the request the program sent, as CicsTask records it
             res.setdefault("web", []).append(_cobol_web(kv, data, enc))
+        elif verb == "WEB-OPEN":  # #4767 (X35): the connection opened, as CicsTask records it
+            res.setdefault("webopen", []).append(_cobol_web_open(kv, enc))
+        elif verb == "WEB-CLOSE":  # #4767 (X35): the session closed, as CicsTask.webClose records it
+            res.setdefault("webclose", []).append({"resp": int(kv["resp"]), "resp2": int(kv["resp2"])})
         elif verb == "WEB-SEND":  # #4767 (X37): the response the program sent, as CicsTask records it
             res.setdefault("websend", []).append(_cobol_web_send(kv, data, enc))
         elif verb == "WEB-HEADER":  # #4767 (X38): a response header the program wrote
@@ -5689,6 +5693,14 @@ def _cobol_web(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
             "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
 
 
+def _cobol_web_open(kv: dict[str, str], enc: str) -> dict[str, Any]:
+    """#4767 (X35): a WEB-OPEN line of the stub's events (the host in hex, '-' none; the scheme as named, '-' none) as
+    CicsTask records it."""
+    return {"host": "" if kv["host"] == "-" else bytes.fromhex(kv["host"]).decode(enc),
+            "scheme": None if kv["scheme"] == "-" else kv["scheme"],
+            "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+
+
 def _cobol_web_send(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
     """#4767 (X37): a WEB-SEND line of the stub's events (hex fields in the data's page) as CicsTask records it."""
 
@@ -5725,6 +5737,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     retrieves = iter(res.get("retrieves", []))  # #5089: RETRIEVE
     mq_calls = iter(res.get("mq", []))  # #4892: MQI calls
     webs = iter(res.get("web", []))  # #4767 (X35): WEB CONVERSE
+    webopens = iter(res.get("webopen", []))  # #4767 (X35): WEB OPEN
+    webcloses = iter(res.get("webclose", []))  # #4767 (X35): WEB CLOSE
     websends = iter(res.get("websend", []))  # #4767 (X37): WEB SEND
     webheaders = iter(res.get("webheader", []))  # #4767 (X38): WEB WRITE HTTPHEADER
     webreceives = iter(res.get("webreceive", []))  # #4767 (X38): WEB RECEIVE
@@ -5751,6 +5765,10 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "WRITE-OPERATOR", "text": next(operator)})
         elif verb == "WEB-CONVERSE":  # #4767 (X35): CicsTask.webConverse records the request sent
             out.append({"event": "WEB-CONVERSE", **next(webs)})
+        elif verb == "WEB-OPEN":  # #4767 (X35): CicsTask.webOpenHost / webOpenUrimap record the connection
+            out.append({"event": "WEB-OPEN", **next(webopens)})
+        elif verb == "WEB-CLOSE":  # #4767 (X35): CicsTask.webClose records the session closed
+            out.append({"event": "WEB-CLOSE", **next(webcloses)})
         elif verb == "WEB-SEND":  # #4767 (X37): CicsTask.webSend records the response sent
             out.append({"event": "WEB-SEND", **next(websends)})
         elif verb == "WEB-HEADER":  # #4767 (X38): CicsTask.webWriteHeader records the header written
@@ -5913,6 +5931,12 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             for key in ("host", "method", "path", "query", "mediatype", "body", "resp2"):  # (exactly: blanks are sent)
                 if (key in c or key in j) and c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] == "WEB-OPEN":  # #4767 (X35): the connection each side opened, both ways
+            for key in ("host", "scheme", "resp2"):
+                if (key in c or key in j) and c.get(key) != j.get(key):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] == "WEB-CLOSE" and c.get("resp2") != j.get("resp2"):  # #4767 (X35): NOTOPEN 27 or normal
+            bad.append({"field": "resp2", "cobol": c.get("resp2"), "java": j.get("resp2")})
         if c["event"] == "WEB-HEADER":  # #4767 (X38): the response header each side wrote, both ways
             for key in ("name", "value", "resp2"):
                 if (key in c or key in j) and c.get(key) != j.get(key):

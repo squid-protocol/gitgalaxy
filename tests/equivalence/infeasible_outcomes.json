@@ -656,6 +656,26 @@
     "reason": "`WHEN DFHRESP(NOTFND)` after `EXEC CICS REWRITE DATASET(WS-USRSEC-FILE)` (line 360): REWRITE has no RIDFLD and updates the record the READ ... UPDATE at line 322 holds; IBM's REWRITE conditions do not include NOTFND (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewrite; our spec, gitgalaxy/standards/cics/commands/files.py, lists NORMAL and INVREQ)."
    }
   ],
+  "cbsa-bankdata": [
+   {
+    "unit": "GOD010",
+    "line": 917,
+    "kind": "IF",
+    "outcome": "true",
+    "family": "C",
+    "reason": "`IF OPENED-DATE-ATTEMPTS > 100` (GENERATE-OPENED-DATE, performed UNTIL OPENED-DATE-VALID = 'Y', line 730) needs 100 draws in a row where the opened year is not above the birth year (line 912). The year is ((2014 - CUSTOMER-BIRTH-YEAR) * FUNCTION RANDOM) + CUSTOMER-BIRTH-YEAR (lines 892-895) and the birth year is drawn from 1900-1999 (line 527), so a draw fails only when FUNCTION RANDOM is under 1 / (2014 - birth year), at most 1/15: 100 in a row has probability under 15^-100 and the PARM seed cannot be searched to it. Not a logical impossibility: reviewed as unreachable in practice, to be kept under owner review."
+   }
+  ],
+  "cbsa-delacc": [
+   {
+    "unit": "RAD010",
+    "line": 363,
+    "kind": "IF",
+    "outcome": "false",
+    "family": "G",
+    "reason": "`IF SQLCODE = 0` (the check after the SELECT INTO from ACCOUNT) is reached only with SQLCODE 0: the `IF SQLCODE NOT = 0 AND SQLCODE NOT = +100` above it (line 282) ends in EXEC CICS ABEND HRAC, which does not return, and the `IF SQLCODE = +100` above it (line 350) leaves by GO TO RAD999 (line 356), so no other SQLCODE falls through to line 363 and its false arm has no input."
+   }
+  ],
   "genapp-lgacdb01": [
    {
     "unit": "WRITE-ERROR-MESSAGE",

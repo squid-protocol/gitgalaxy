@@ -160,6 +160,11 @@ per-file docstrings cited below carry the complete citations.
 - **A macro-permissive kind can produce a placeholder name for an anonymous type**
   (`__anon2570bd640108` for `typedef struct { ... } Foo;`) — bookkeeping ctags needs internally,
   not a real name either GitGalaxy or tree-sitter would ever report.
+- **Convention: lambdas / anonymous functions are not `func_start` definitions in any language** (owner
+  ruling 2026-10-22, #5685). They are counted by the closures signal, and calls inside one belong to the enclosing
+  named unit (`calls_out_rule_contract.md`, graph_accuracy C8). So a ctags anonymous-function tag is dropped from
+  the reference side (`_is_ctags_synthetic_anon_name` in `tri_comparison_gatherer.py`: `__anon<hex>` in every
+  language, JavaScript's `AnonymousFunction<hex>`), never counted as a GitGalaxy miss.
 - **Structural, permanent per-language gaps**, not bugs: no CLASS-ID/INTERFACE-ID-equivalent kind
   for cobol's OOP syntax, no scope/layout-rule awareness in the Haskell parser (misses `where`-
   clause helpers, `instance ... where` methods, `let`-bound names), no kind at all for scheme's

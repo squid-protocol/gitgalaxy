@@ -856,192 +856,6 @@ int GGCXCTL(gg_cics *c, char *commarea, int len) {
 
 #include "ggcics_conditions.c"  /* #5274: the conditions and abends family (the per-level handler state, GGCPENT, HANDLE CONDITION and ABEND, PUSH/POP HANDLE) */
 
-/* ---- HANDLE AID (#4007) ---------------------------------------------------------------- *
- * The keys HANDLE AID names, and the EIBAID byte each one sends (the harness's DFHAID.cpy:
- * tests/equivalence/cics, kept equal by a test). ANYKEY is any PA or PF key or CLEAR, not
- * ENTER (IBM, HANDLE AID). */
-static const struct { const char *name; char eibaid; } aid_keys[] = {
-    {"ANYKEY", 0}, {"ENTER", '\''}, {"CLEAR", '_'}, {"CLRPARTN", 0x6A}, {"LIGHTPEN", '='}, {"OPERID", 'W'},
-    {"TRIGGER", '"'}, {"PA1", '%'}, {"PA2", '>'}, {"PA3", ','}, {"PF1", '1'}, {"PF2", '2'}, {"PF3", '3'},
-    {"PF4", '4'}, {"PF5", '5'}, {"PF6", '6'}, {"PF7", '7'}, {"PF8", '8'}, {"PF9", '9'}, {"PF10", ':'},
-    {"PF11", '#'}, {"PF12", '@'}, {"PF13", 'A'}, {"PF14", 'B'}, {"PF15", 'C'}, {"PF16", 'D'}, {"PF17", 'E'},
-    {"PF18", 'F'}, {"PF19", 'G'}, {"PF20", 'H'}, {"PF21", 'I'}, {"PF22", '['}, {"PF23", '.'}, {"PF24", '<'},
-};
-#define NAIDS ((int)(sizeof aid_keys / sizeof aid_keys[0]))
-
-/* HANDLE AID <key>(label): the key (GG-NAME1) gets label GG-ITEM; -1 deactivates it ("To ignore
- * an AID, issue a HANDLE AID command that specifies the associated option without a label"). */
-int GGCHAID(gg_cics *c) {
-    char key[9];
-    trim(c->name1, 8, key);
-    for (int i = 0; i < NAIDS; i++) {
-        if (strcmp(aid_keys[i].name, key) == 0) levels[lvl].h.aid[i] = (short)c->item;
-    }
-    c->resp = NORMAL;
-    c->resp2 = 0;
-    return 0;
-}
-
-/* After an input command that completed normally, with neither RESP nor NOHANDLE: the label of
- * the key that was pressed (the EIBAID byte in GG-NAME1), else ANYKEY's for a PA / PF key or CLEAR,
- * else 0 -- "control returns to the application program at the instruction immediately following
- * the input command" (IBM, HANDLE AID). #4414: called first with the condition the command raised
- * (GG-RESP not 0): when a label applies to the key, which of the two CICS acts on first is not
- * documented, so it is recorded as AID-REFUSED for the driver to refuse, and control goes on. */
-int GGCAID(gg_cics *c) {
-    handlers *h = &levels[lvl].h;
-    char aid = c->name1[0];
-    c->go_to = 0;
-    for (int i = 1; i < NAIDS; i++) {
-        if (aid_keys[i].eibaid != aid) continue;
-        if (h->aid[i] > 0) c->go_to = h->aid[i];
-        else if (h->aid[0] > 0 && (aid_keys[i].name[0] == 'P' || strcmp(aid_keys[i].name, "CLEAR") == 0)) {
-            /* #4414: a key deactivated (-1) while ANYKEY has a label: IBM does not say which applies */
-            if (h->aid[i] < 0) { event("AID-REFUSED deactivated=1", NULL, 0); return 0; }
-            c->go_to = h->aid[0];
-        }
-        break;
-    }
-    if (c->resp != NORMAL && c->go_to > 0) {
-        char ev[64];
-        snprintf(ev, sizeof ev, "AID-REFUSED resp=%d", c->resp);
-        event(ev, NULL, 0);
-        c->go_to = 0;
-    }
-    return 0;
-}
-
-/* The task abends with `code`: the first active HANDLE ABEND exit from this level upward gets
- * control ("CICS searches for an active abend exit, starting at the logical level of the
- * application program in which the abend occurred, and proceeding to successively higher
- * levels"), deactivated as it does; the levels below it are gone. At this level the program
- * GOes TO its label; above, it GOBACKs (GG-GOTO -1) until the LINK of that level (#4004).
- * With no exit (or CANCEL) the task terminates. */
-static int unwind_to = -1, unwind_goto = 0, terminated = 0;
-
-static void abend(gg_cics *c, const char *code, const char *cause, int cond, int cancel) {
-    char ev[200], what[40] = "";
-    int at = -1;
-    memcpy(task_abcode, code, 4);
-    if (cond) snprintf(what, sizeof what, " condition=%d", cond);
-    for (int i = lvl; i >= 0 && !cancel; i--) {
-        if (levels[i].h.exit_active) { at = i; break; }
-    }
-    if (at < 0) {
-        snprintf(ev, sizeof ev, "ABEND abcode=%s cause=%s%s outcome=terminated", code, cause, what);
-        uow_end(1); /* dynamic transaction backout: the terminated task's file changes are undone */
-        ended = 1;
-        terminated = 1;
-        unwind_to = -1;
-        c->go_to = -1;
-    } else {
-        handlers *h = &levels[at].h;
-        h->exit_active = 0;
-        snprintf(ev, sizeof ev, "ABEND abcode=%s cause=%s%s outcome=exit exit=%s.%s", code, cause, what,
-                 levels[at].prog, h->exit_name);
-        if (at == lvl) {
-            c->go_to = h->exit_label;
-        } else {
-            unwind_to = at;
-            unwind_goto = h->exit_label;
-            c->go_to = -1;
-        }
-    }
-    event(ev, NULL, 0);
-}
-
-/* EXEC CICS ABEND ABCODE(GG-NAME1) [CANCEL: GG-FLAGS]. */
-int GGCABND(gg_cics *c) {
-    char code[9], flags[41];
-    trim(c->name1, 8, code);
-    trim(c->flags, 40, flags);
-    while (strlen(code) < 4) strcat(code, " ");
-    abend(c, code, "command", 0, strstr(flags, "CANCEL") != NULL);
-    return 0;
-}
-
-/* A command raised condition GG-RESP and the program gave neither RESP nor NOHANDLE: IGNOREd
- * (GG-GOTO 0, control continues), its HANDLE CONDITION label, else the ERROR label ("If no
- * HANDLE CONDITION command is active for a condition, but one is active for ERROR, control
- * passes to the label for ERROR"), else the default action: abend with its AEIx code. */
-int GGCCOND(gg_cics *c) {
-    handlers *h = &levels[lvl].h;
-    int cond = c->resp;
-    short st = cond > 0 && cond < NCOND ? h->cond[cond] : 0;
-    c->go_to = 0;
-    if (st == -1) return 0;
-    if (st > 0) { c->go_to = st; return 0; }
-    /* #4413: EOC's default action is to ignore it (IBM, RECEIVE (LUTYPE2/LUTYPE3)); ERROR takes
-     * only a condition whose "default action ... terminates the task abnormally" (HANDLE CONDITION) */
-    if (cond == EOC) return 0;
-    if (h->cond[ERRCOND] > 0) { c->go_to = h->cond[ERRCOND]; return 0; }
-    abend(c, condition_abcode(cond), "condition", cond, 0);
-    return 0;
-}
-
-/* ASSIGN ABCODE: the task's current abend code, blanks when there has been none. */
-int GGCASGN(gg_cics *c) {
-    char want[9], line[256], key[16], value[16], path[4096];
-    trim(c->name2, 8, want);
-    memset(c->name1, ' ', 8);
-    c->resp = NORMAL;
-    c->resp2 = 0;
-    if (strcmp(want, "INVOKING") == 0) { /* INVOKINGPROG (GG-NAME2 holds 8): who LINKed / XCTLed here; blanks at first */
-        const char *p = levels[lvl].invoker;
-        memcpy(c->name1, p, strlen(p) < 8 ? strlen(p) : 8);
-        return 0;
-    }
-    if (strcmp(want, "PROGRAM") == 0) { /* ASSIGN PROGRAM: the program running at this level */
-        const char *p = current_program();
-        memcpy(c->name1, p, strlen(p) < 8 ? strlen(p) : 8);
-        return 0;
-    }
-    /* #4270 slice 3: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD, from what the runner states for the task
-     * ($GGCICS_STARTCODE: TD, S or SD; $GGCICS_USERID; $GGCICS_FACILITY: its terminal, empty for none;
-     * $GGCICS_SCREEN: "rows cols"); unstated, the option is refused, never guessed. TERMCHK: INVREQ RESP2 5 for a
-     * task with no terminal (IBM, ASSIGN: "The task is not associated with a terminal; or the task has no
-     * principal facility"), before any FACILITY / SCRNHT / SCRNWD data area is written. */
-    if (strcmp(want, "STARTCOD") == 0 || strcmp(want, "USERID") == 0 || strcmp(want, "FACILITY") == 0
-        || strcmp(want, "TERMCHK") == 0 || strcmp(want, "SCRNHT") == 0 || strcmp(want, "SCRNWD") == 0) {
-        const char *env = getenv(strcmp(want, "STARTCOD") == 0 ? "GGCICS_STARTCODE"
-                                 : strcmp(want, "USERID") == 0 ? "GGCICS_USERID"
-                                 : strncmp(want, "SCRN", 4) == 0 ? "GGCICS_SCREEN" : "GGCICS_FACILITY");
-        int rows = 0, cols = 0;
-        if (strcmp(want, "STARTCOD") == 0 && getenv("GGCICS_RUNCHILD"))
-            refuse("ASSIGN STARTCODE in a RUN TRANSID child task: IBM lists no code for it");
-        if (!env) {
-            snprintf(line, sizeof line, "ASSIGN %s: not stated for this task", want);
-            refuse(line);
-            return 0;
-        }
-        if (strcmp(want, "TERMCHK") == 0) {
-            if (!env[0]) { c->resp = INVREQ; c->resp2 = 5; }
-            return 0;
-        }
-        if (strncmp(want, "SCRN", 4) == 0) {
-            if (sscanf(env, "%d %d", &rows, &cols) != 2) refuse("ASSIGN SCRNHT / SCRNWD: $GGCICS_SCREEN");
-            c->num = strcmp(want, "SCRNHT") == 0 ? rows : cols;
-            return 0;
-        }
-        memcpy(c->name1, env, strlen(env) < 8 ? strlen(env) : 8);
-        return 0;
-    }
-    if (strcmp(want, "APPLID") != 0 && strcmp(want, "SYSID") != 0) { /* ASSIGN ABCODE */
-        memcpy(c->name1, task_abcode, 4);
-        return 0;
-    }
-    /* ASSIGN APPLID / SYSID: the region's identity, as the case declares it (region.cfg: "APPLID x", "SYSID y") */
-    snprintf(path, sizeof path, "%s/region.cfg", dir_in());
-    FILE *cfg = fopen(path, "r");
-    while (cfg && fgets(line, sizeof line, cfg)) {
-        if (sscanf(line, "%15s %15s", key, value) == 2 && strcmp(key, want) == 0) {
-            memcpy(c->name1, value, strlen(value) < 8 ? strlen(value) : 8);
-        }
-    }
-    if (cfg) fclose(cfg);
-    return 0;
-}
-
 #include "ggcics_transientdata.c"  /* #5274: the transient data family (READQ/WRITEQ/DELETEQ TD, SET/INQUIRE TDQUEUE) */
 
 /* ---- program levels: LINK, XCTL and the dispatcher (#4004) ---------------------------- */
@@ -1400,7 +1214,7 @@ int GGCSETT(gg_cics *c) {
     return 0;
 }
 
-/* ---- #4415 slice 2: INQUIRE ASSOCIATION, DELETEQ TS (IBM CICS TS, INQUIRE ASSOCIATION, DELETEQ TS; register X29) ----
+/* ---- #4415 slice 2: INQUIRE ASSOCIATION (IBM CICS TS, INQUIRE ASSOCIATION; register X29) ----
  * INQUIRE ASSOCIATION(EIBTASKN) ODAPPLID ODUSERID ODFACILNAME ODNETWORKID ODFACILTYPE: the task's own origin data, the
  * five values the runner states in $GGCICS_ORIGIN as "applid,userid,facilname,networkid,faciltype" (the facility type
  * one of IBM's CVDA names); unstated, refused. GG-FLAGS names the option wanted: the 8-character values come back in
@@ -1436,28 +1250,9 @@ int GGCINQA(gg_cics *c) {
     return 0;
 }
 
-/* DELETEQ TS QUEUE (c->qname): the whole queue and its READQ NEXT position. QIDERR (44) when it does not exist; INVREQ
- * (16) for a name of binary zeros only (IBM: "the queue name is all binary zeroes"); IBM lists no RESP2 (0). */
-int GGCDELQ(gg_cics *c) {
-    char dir[4096], hex[40], path[4200];
-    int last = -1, zeros = 1;
-    for (int i = 0; i < 16; i++) if (c->qname[i] != ' ') last = i;
-    for (int i = 0; i <= last; i++) if (c->qname[i] != '\0') zeros = 0;
-    c->resp = NORMAL;
-    c->resp2 = 0;
-    if (last >= 0 && zeros) { c->resp = INVREQ; return 0; }
-    ts_dir(c, dir, sizeof dir, hex);
-    int count = ts_count(dir);
-    if (count < 0) { c->resp = QIDERR; return 0; }
-    for (int i = 1; i <= count; i++) {
-        snprintf(path, sizeof path, "%s/%06d.bin", dir, i);
-        remove(path);
-    }
-    snprintf(path, sizeof path, "%s/next", dir);
-    remove(path);
-    RMDIR(dir); /* an empty directory: remove() would leave it on Windows (#4836) */
-    return 0;
-}
+#define GGCICS_TS_DELETEQ  /* the second part of the temporary storage family: DELETEQ TS */
+#include "ggcics_tempstorage.c"
+#undef GGCICS_TS_DELETEQ
 
 #include "ggcics_taskcontrol.c"  /* #5274: the task / interval control family (START, RETRIEVE, RUN, DELAY, POST, CANCEL ...) */
 

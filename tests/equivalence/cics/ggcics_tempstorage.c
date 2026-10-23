@@ -1,5 +1,6 @@
-/* #5274: the temporary storage family (READQ TS, WRITEQ TS) -- split out of ggcics.c, which includes it
+/* #5274: the temporary storage family (READQ TS, WRITEQ TS, DELETEQ TS) -- split out of ggcics.c, which includes it
  * where the block sat. */
+#ifndef GGCICS_TS_DELETEQ  /* the first part: READQ / WRITEQ TS */
 /* ---- temporary storage (#4002) ------------------------------------------------------ */
 /* The queue's directory; `hex` gets the name (trailing blanks and nulls dropped) in hex. */
 static void ts_dir(const gg_cics *c, char *dir, size_t size, char *hex) {
@@ -122,3 +123,28 @@ int GGCWRTQ(gg_cics *c, char *from) {
     event(ev, from, len > 0 && len <= 32763 ? len : 0);
     return 0;
 }
+#else  /* ggcics.c includes the file a second time, where DELETEQ TS sat */
+
+/* DELETEQ TS QUEUE (c->qname): the whole queue and its READQ NEXT position. QIDERR (44) when it does not exist; INVREQ
+ * (16) for a name of binary zeros only (IBM: "the queue name is all binary zeroes"); IBM lists no RESP2 (0). */
+int GGCDELQ(gg_cics *c) {
+    char dir[4096], hex[40], path[4200];
+    int last = -1, zeros = 1;
+    for (int i = 0; i < 16; i++) if (c->qname[i] != ' ') last = i;
+    for (int i = 0; i <= last; i++) if (c->qname[i] != '\0') zeros = 0;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (last >= 0 && zeros) { c->resp = INVREQ; return 0; }
+    ts_dir(c, dir, sizeof dir, hex);
+    int count = ts_count(dir);
+    if (count < 0) { c->resp = QIDERR; return 0; }
+    for (int i = 1; i <= count; i++) {
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, i);
+        remove(path);
+    }
+    snprintf(path, sizeof path, "%s/next", dir);
+    remove(path);
+    RMDIR(dir); /* an empty directory: remove() would leave it on Windows (#4836) */
+    return 0;
+}
+#endif

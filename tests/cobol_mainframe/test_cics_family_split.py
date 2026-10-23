@@ -56,6 +56,7 @@ def test_ggcics_includes_its_families_once():
         "ggcics_conditions.c",
         "ggcics_transientdata.c",
         "ggcics_containers.c",
+        "ggcics_tempstorage.c",  # the second part: DELETEQ TS, where it sat
         "ggcics_taskcontrol.c",
         "ggcics_enq.c",
     ]
@@ -175,7 +176,7 @@ def test_ggcics_holds_the_task_control_stubs_in_its_family_file():
             assert re.search(rf"^int {cmd.impl.c}\(", family, re.M), key
     # the include sits where the block did: after DELETEQ TS, before the ENQ include
     assert (
-        host.index("int GGCDELQ(")
+        host.index("#define GGCICS_TS_DELETEQ")
         < host.index('#include "ggcics_taskcontrol.c"')
         < host.index('#include "ggcics_enq.c"')
     )
@@ -234,7 +235,7 @@ def test_ggcics_holds_the_temporary_storage_stubs_in_its_family_file():
     host = (STUB / "ggcics.c").read_text(encoding="utf-8")
     family = (STUB / "ggcics_tempstorage.c").read_text(encoding="utf-8")
     assert "#include" not in family
-    for entry in ("GGCREADQ", "GGCWRTQ"):
+    for entry in ("GGCREADQ", "GGCWRTQ", "GGCDELQ"):
         assert re.search(rf"^int {entry}\(", family, re.M), entry
         assert not re.search(rf"^int {entry}\(", host, re.M), entry
     for helper in ("ts_dir", "ts_count", "ts_next", "ts_set_next"):
@@ -246,7 +247,8 @@ def test_ggcics_holds_the_condition_and_abend_handlers_in_its_family_file():
     host = (STUB / "ggcics.c").read_text(encoding="utf-8")
     family = (STUB / "ggcics_conditions.c").read_text(encoding="utf-8")
     assert "#include" not in family
-    for entry in ("GGCPENT", "GGCHCND", "GGCHABN", "GGCPUSH", "GGCPOP"):
+    for entry in ("GGCPENT", "GGCHCND", "GGCHABN", "GGCPUSH", "GGCPOP", "GGCHAID", "GGCAID", "GGCABND", "GGCCOND",
+                  "GGCASGN"):  # fmt: skip
         assert re.search(rf"^int {entry}\(", family, re.M), entry
         assert not re.search(rf"^int {entry}\(", host, re.M), entry
     # the include sits where the blocks did: file control, temporary storage, conditions, then transient data
@@ -258,8 +260,21 @@ def test_ggcics_holds_the_condition_and_abend_handlers_in_its_family_file():
     )
 
 
+def test_deleteq_ts_is_the_second_include_of_the_temporary_storage_family():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    family = (STUB / "ggcics_tempstorage.c").read_text(encoding="utf-8")
+    assert host.count('#include "ggcics_tempstorage.c"') == 2
+    assert (
+        host.index("int GGCINQA(")
+        < host.index("#define GGCICS_TS_DELETEQ")
+        < host.index('#include "ggcics_taskcontrol.c"')
+    )
+    assert family.index("#ifndef GGCICS_TS_DELETEQ") < family.index("int GGCREADQ(") < family.index("int GGCDELQ(")
+
+
 def test_the_ts_verbs_still_translate_to_their_stubs():
     for verb, stub in (
+        ("DELETEQ TS QUEUE('Q')", "GGCDELQ"),
         ("READQ TS QUEUE('Q') INTO(WS-REC)", "GGCREADQ"),
         ("WRITEQ TS QUEUE('Q') FROM(WS-REC)", "GGCWRTQ"),
     ):

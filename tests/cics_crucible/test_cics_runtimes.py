@@ -27,7 +27,9 @@ sys.path.insert(0, str(TESTS / "tools"))
 CC = shutil.which("cc") or shutil.which("gcc")
 needs_cc = pytest.mark.skipif(CC is None, reason="needs a C compiler")
 needs_javac = pytest.mark.skipif(shutil.which("javac") is None, reason="needs a JDK (javac)")
-javac = shutil.which("javac") or "javac"  # PATH's javac by its path: tests/tools/javac_server.py serves only an absolute one
+javac = (
+    shutil.which("javac") or "javac"
+)  # PATH's javac by its path: tests/tools/javac_server.py serves only an absolute one
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 _STUB_MAIN = r"""
@@ -868,7 +870,7 @@ def test_the_stubs_aid_bytes_are_the_harness_dfhaid():
     values = {}
     for m in re.finditer(r"02 (DFH\w+)\s+PIC X VALUE (X'([0-9A-F]{2})'|'(''|[^'])')\.", cpy):
         values[m.group(1)] = chr(int(m.group(3), 16)) if m.group(3) else ("'" if m.group(4) == "''" else m.group(4))
-    src = STUB.read_text()
+    src = STUB.read_text() + (STUB.parent / "ggcics_conditions.c").read_text()  # #5274: GGCAID moved to its family file
     for key, dfh in names.items():
         m = re.search(r'\{"' + key + r'", (\'\\\'\'|\'.\'|0x[0-9A-F]+)\}', src)
         assert m, key

@@ -54,6 +54,7 @@ def test_ggcics_includes_its_families_once():
         "ggcics_filecontrol.c",
         "ggcics_containers.c",
         "ggcics_taskcontrol.c",
+        "ggcics_enq.c",
     ]
     assert "#include" not in family  # one translation unit: the family sees everything ggcics.c declared before it
     for impl in FAMILY.values():
@@ -169,5 +170,31 @@ def test_ggcics_holds_the_task_control_stubs_in_its_family_file():
             and cmd.impl.c
         ):
             assert re.search(rf"^int {cmd.impl.c}\(", family, re.M), key
-    # the include sits where the block did: after DELETEQ TS, before ENQ
-    assert host.index("int GGCDELQ(") < host.index('#include "ggcics_taskcontrol.c"') < host.index("int GGCENQ(")
+    # the include sits where the block did: after DELETEQ TS, before the ENQ include
+    assert (
+        host.index("int GGCDELQ(")
+        < host.index('#include "ggcics_taskcontrol.c"')
+        < host.index('#include "ggcics_enq.c"')
+    )
+
+
+# ---- ENQ / DEQ (#5274, fourth stub family): one stub function; DEQ is translated inline, with no stub ---------------
+def test_ggcics_holds_the_enq_stub_in_its_family_file():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    family = (STUB / "ggcics_enq.c").read_text(encoding="utf-8")
+    assert "#include" not in family
+    assert re.search(r"^int GGCENQ\(", family, re.M) and not re.search(r"^int GGCENQ\(", host, re.M)
+    assert (
+        COMMANDS["ENQ"].impl is None and COMMANDS["DEQ"].impl is None
+    )  # no spec impl: the harness calls GGCENQ itself
+    # the include sits where the block did: after the task-control include, before GGCAOUT
+    assert (
+        host.index('#include "ggcics_taskcontrol.c"')
+        < host.index('#include "ggcics_enq.c"')
+        < host.index("int GGCAOUT(")
+    )
+
+
+def test_enq_still_translates_to_its_stub_and_deq_to_none():
+    assert any("GGCENQ" in ln for ln in ec.translate_command("ENQ RESOURCE(WS-RES)"))
+    assert not any("GGC" in ln and "CALL" in ln for ln in ec.translate_command("DEQ RESOURCE(WS-RES)"))

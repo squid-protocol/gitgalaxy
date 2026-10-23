@@ -70,6 +70,11 @@ EVENTS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     "DELETEQ-TD": (("queue", "resp"), ("resp2",)),
     "WEB-RECEIVE": (("resp", "length", "data"), ("resp2",)),
     "WEB-SEND": (("status", "from", "resp"), ("statustext", "mediatype", "resp2")),
+    # the pinned crucible's WEB client events (v0.10.0), each with the optional RESP2
+    "WEB-OPEN": (("host", "scheme", "resp"), ("resp2",)),
+    "WEB-WRITE-HTTPHEADER": (("name", "value", "resp"), ("resp2",)),
+    "WEB-CONVERSE": (("method", "path", "status", "tolength", "into", "resp"), ("resp2",)),
+    "WEB-CLOSE": (("resp",), ("resp2",)),
     "ABEND": (("abcode", "cause", "outcome"), ("condition", "exit")),
 }
 ABEND_FOR = {

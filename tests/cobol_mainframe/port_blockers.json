@@ -792,6 +792,179 @@
       "refused_by_name": false,
       "new_class": false,
       "summary": "The equivalence harness had no java-facade side: the 14 regenerated CardDemo ports were proven through runTask only, and cross-program facade sides carried an untyped Object."
+    },
+    {
+      "id": "P054",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "zecs001"
+      ],
+      "issue": 4770,
+      "fixed_by": "#5730",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "EXEC CICS GET DCOUNTER with INCREMENT and WRAP (the zECS key allocator) was refused by name; counters were signed fullword only, so ZECS001 could not translate whole."
+    },
+    {
+      "id": "P055",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "zecs000",
+        "zecs001",
+        "zecs003"
+      ],
+      "issue": 4769,
+      "fixed_by": "#4858",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "EXEC CICS DOCUMENT CREATE / RETRIEVE (the document handler) was refused, holding up the HTTP-facing zECS programs."
+    },
+    {
+      "id": "P056",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "ecs001",
+        "zecs000",
+        "zecs001",
+        "zecs003"
+      ],
+      "issue": 4768,
+      "fixed_by": "#4873",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "INQUIRE URIMAP(name) in its direct form and INQUIRE PROGRAM STATUS were refused (only the URIMAP browse and program existence were modelled)."
+    },
+    {
+      "id": "P057",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "zecs001"
+      ],
+      "issue": 5945,
+      "fixed_by": "#6006",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "CALL ZUIDSTCK (an assembler STCK wrapper the estate does not ship) was ZECS001's only hole; it needed a harness-stated TOD stand-in on both runtimes."
+    },
+    {
+      "id": "P058",
+      "estate": "dbb-mortgage-application",
+      "after_round": 7,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "epscsmrt"
+      ],
+      "issue": 4803,
+      "fixed_by": "#4868",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A CICS case's CALLed subprograms were compiled on the COBOL side but never det-translated, so EPSCSMRT (whole, 13/13) could not be cased."
+    },
+    {
+      "id": "P059",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "commarea-bytes",
+      "programs": [
+        "bnk1uac",
+        "inqacc"
+      ],
+      "issue": 4806,
+      "fixed_by": "#4818",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A LINK wrote the callee's DTO back over the caller's COMMAREA, so a numeric field holding spaces the callee never wrote came back as digits."
+    },
+    {
+      "id": "P060",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "db2",
+      "programs": [
+        "updacc"
+      ],
+      "issue": 4579,
+      "fixed_by": "#4580",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "SELECT INTO a binary (COMP) host variable gave SQLCODE -304 for an INTEGER beyond the PICTURE's digits; Db2 stores the full fullword."
+    },
+    {
+      "id": "P061",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "crecust"
+      ],
+      "issue": 4884,
+      "fixed_by": "#4885",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "CRECUST was refused whole only because COPY CEEIGZCT (an IBM LE system copybook) is not in the estate; a stand-in written from public LE documentation was needed."
+    },
+    {
+      "id": "P062",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "bankdata"
+      ],
+      "issue": 4949,
+      "fixed_by": "#5002",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "LE date/time services (CEEGMT, CEEDATM, CEESECS, CEEDATE, CEEISEC, CEEQCEN) were not modelled, so BANKDATA was refused."
+    },
+    {
+      "id": "P063",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "delcus"
+      ],
+      "issue": 5078,
+      "fixed_by": "#5090",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "READ / REWRITE / DELETE / UNLOCK TOKEN (file update tokens) were refused by name; DELCUS was one gap from whole."
+    },
+    {
+      "id": "P064",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "bnk1cac",
+        "bnk1tfn",
+        "bnk1uac"
+      ],
+      "issue": 4741,
+      "fixed_by": "#4759",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "FUNCTION NUMVAL in a fixed-point COMPUTE was exact decimal; IBM evaluates it in long HFP, which blocked the three BNK1 programs translating whole."
     }
   ]
 }

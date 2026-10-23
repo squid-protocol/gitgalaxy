@@ -41,25 +41,26 @@
    "1061:true",
    "1061:false",
    "1128:false",
-   "1218:true"
+   "1218:true",
+   "paragraph:IOT999"
   ]
  },
  "inputs": {
-  "case": "aa89d48dbce51e36a6ad2a396e2157229adf70c60061dc4d69ff472ef97b95e4",
+  "case": "76bce8c0337d81fb9bd0158a792877d8a71b460d97fed5b125338a38dfb71f95",
   "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-  "harness": "13b0a1cfd1f139b7c44d1f7ae670e62a66c43a4da9675cc46c7e3817e1fd8324",
-  "oracle": "757d4b4a2e691232080c80e5364b056a40e72224c201dbfd83799e11975a51c1",
+  "harness": "52a1779d5d5e873eae4d9f9c25daba88b02e8b6066be04e205ba9accd38e21ba",
+  "oracle": "db222f2e924eeb621f574c8b9d5918658851745fc1b1a7979c897e1664c5b908",
   "components": {
    "harness": {
-    "harness:cics": "b8955817c6cd9459f3ba89c4c747c90918a1b39f02fd7cf43c230b530fbb8f68",
+    "harness:cics": "070066aacf964eda0d55fd5512b8c4cedbca32ffbdb05cae06f5e2b70ff0f73a",
     "harness:core": "808b8ac9e553c3caffe3e5b89d7b7a1d8a04cd0b273490c8f2fb0e16aeb53e77"
    },
    "oracle": {
-    "oracle:cics-stub": "5732b57f0a68ad65f7ef562bb01150ed40676be5f67eebc356624c7472ad19c8",
+    "oracle:cics-stub": "e5b1f518fe40f9fa577c5f3e5c4b2746524349243a634f10fa50e984e438b6a1",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:le": "d3ad2b23aac02cd604a06ef216dc42a338c6584b5c475c9fddeaf1cf551bc668"
    }
   }
  },
- "measured_at": "93fc16ce9a6f801f715d5835524fa61e8e7edf7c"
+ "measured_at": "dd9841cc22f77a659a359cecd190ae1a114a4da1"
 }

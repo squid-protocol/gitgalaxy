@@ -186,6 +186,175 @@
     "COMM-INT-RATE": "1.25"
    },
    "why": "the caller's COMM-EYE differs from the row's ACCOUNT_EYECATCHER: the success path's MOVE HV-ACCOUNT-EYECATCHER TO COMM-EYE is the only thing that makes the returned eyecatcher the row's"
+  },
+  {
+   "name": "dto-entry-update-type-overdraft-rate",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "dto_entry": true,
+   "why": "as update-type-overdraft-rate, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+  },
+  {
+   "name": "dto-entry-update-negative-balance-account",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "3",
+    "COMM-ACC-TYPE": "LOAN",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "18.5"
+   },
+   "dto_entry": true,
+   "why": "as update-negative-balance-account, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+  },
+  {
+   "name": "dto-entry-update-max-values",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "6",
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-OVERDRAFT": "99999999",
+    "COMM-INT-RATE": "9999.99"
+   },
+   "dto_entry": true,
+   "why": "as update-max-values, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+  },
+  {
+   "name": "dto-entry-leap-day-opened",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "6",
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-OVERDRAFT": "2500",
+    "COMM-INT-RATE": "0"
+   },
+   "dto_entry": true,
+   "why": "as leap-day-opened, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+  },
+  {
+   "name": "dto-entry-account-not-found",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "99",
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0"
+   },
+   "dto_entry": true,
+   "why": "as account-not-found, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+  },
+  {
+   "name": "dto-entry-other-sort-code-not-found",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "123456",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0"
+   },
+   "dto_entry": true,
+   "why": "as other-sort-code-not-found, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+  },
+  {
+   "name": "dto-entry-blank-account-type",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "2",
+    "COMM-ACC-TYPE": "",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0"
+   },
+   "dto_entry": true,
+   "why": "as blank-account-type, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+  },
+  {
+   "name": "dto-entry-type-starts-with-space",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "2",
+    "COMM-ACC-TYPE": " SAVING",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0"
+   },
+   "dto_entry": true,
+   "why": "as type-starts-with-space, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+  },
+  {
+   "name": "dto-entry-null-statement-date",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "4",
+    "COMM-ACC-TYPE": "ISA",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "3.1"
+   },
+   "dto_entry": true,
+   "why": "as null-statement-date, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+  },
+  {
+   "name": "dto-entry-mortgage-update",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "5",
+    "COMM-ACC-TYPE": "MORTGAGE",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "3.99"
+   },
+   "dto_entry": true,
+   "why": "as mortgage-update, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+  },
+  {
+   "name": "dto-entry-eibcalen-full",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "dto_entry": true,
+   "why": "as eibcalen-full, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+  },
+  {
+   "name": "dto-entry-foreign-sort-code-blank-type",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "123456",
+    "COMM-ACCNO": "2",
+    "COMM-ACC-TYPE": "",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0"
+   },
+   "dto_entry": true,
+   "why": "as foreign-sort-code-blank-type, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+  },
+  {
+   "name": "dto-entry-eyecatcher-refilled-from-db",
+   "commarea": {
+    "COMM-EYE": "ZZZZ",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "dto_entry": true,
+   "why": "as eyecatcher-refilled-from-db, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
   }
  ],
  "notes": "CBSA's update-account service (UPDACC, LINKed with the UPDACC copybook's COMMAREA): the account is read by the program's own sort code (987654) and COMM-ACCNO with a SELECT INTO from Db2 table ACCOUNT (unqualified: the bind's QUALIFIER, IBMUSER); a failed SELECT (+100, -305 ...) or an account type that is blank or starts with a space gives COMM-SUCCESS 'N' and no UPDATE; otherwise ACCOUNT_TYPE, ACCOUNT_INTEREST_RATE and ACCOUNT_OVERDRAFT_LIMIT are UPDATEd, and the COMMAREA is refilled from the host variables, each date reformatted from Db2's character form (YYYY-MM-DD) to DDMMYYYY. The table is compared after every scenario."

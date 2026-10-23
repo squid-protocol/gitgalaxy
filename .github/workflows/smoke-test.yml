@@ -52,10 +52,10 @@ jobs:
 
   # #6278 item 3: how much of the suite a PR runs (tests/tools/suite_select_plan.py, the classifier's area()): `skip` runs no
   # part (full-suite below reports success), `select` runs only the readers of the changed docs / agent config, `full` (and
-  # every doubt, push, schedule, dispatch: the job does not run, the output is empty) runs everything. It fails open: a step
-  # that cannot plan leaves mode=full.
+  # every doubt, push, schedule, dispatch: the steps do not run, the output is empty) runs everything. It fails open: a step
+  # that cannot plan leaves mode=full. The job carries the draft condition (#5104); only its steps are PR-only.
   suite-plan:
-    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft == false }}
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -67,6 +67,7 @@ jobs:
       paths: ${{ steps.plan.outputs.paths }}
     steps:
       - name: Check out repository code
+        if: ${{ github.event_name == 'pull_request' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
@@ -74,6 +75,7 @@ jobs:
 
       - name: Plan the suite
         id: plan
+        if: ${{ github.event_name == 'pull_request' }}
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}

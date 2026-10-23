@@ -1,5 +1,30 @@
 {
-  "note": "z/OS calibration probes (#4702 Part 2): our own fixed-format COBOL, runnable on Enterprise COBOL and on cobc -std=ibm. Run each on z/OS, record the result per entry in zos_calibration.json (key: probe id). oracle_expected is GnuCOBOL 3.1.2 -std=ibm output (gitgalaxy-gnucobol:3), measured 2026-10-22, DISPLAY lines in order. Never Hercules; results only after counsel clears licence and publishing (Q16).",
+  "note": "z/OS calibration probes (#4702 Part 2): our own fixed-format COBOL, runnable on Enterprise COBOL and on cobc -std=ibm. Run each on z/OS, record the result per entry in zos_calibration.json (key: probe id). oracle_expected is GnuCOBOL 3.1.2 -std=ibm output (gitgalaxy-gnucobol:3), measured 2026-10-22, DISPLAY lines in order. Never Hercules; results only after counsel clears licence and publishing (Q16). runtime_options: the effective LE / Db2 / CICS option set (RUNTIME_OPTION_TABLE keys, the IBM default each) the region must hold when a probe runs; a probe's runtime_variants each name keys to replace for one more run. Every recorded result carries the set it was measured under.",
+  "runtime_options": {
+    "le.runtime_options.STORAGE": "NONE,NONE,NONE,0K",
+    "le.runtime_options.TRAP": "ON,SPIE",
+    "le.runtime_options.ABTERMENC": "ABEND",
+    "db2.format.DATE": "ISO",
+    "db2.format.TIME": "ISO",
+    "db2.format.DEC": "15",
+    "db2.format.DECPT": ".",
+    "db2.ccsid.EBCDIC_CCSID": "37",
+    "db2.ccsid.SQLCCSID": "NO",
+    "db2.bind.ISOLATION": "CS",
+    "db2.bind.CURRENTDATA": "NO",
+    "db2.bind.DYNAMICRULES": "RUN",
+    "db2.bind.VALIDATE": "RUN",
+    "db2.bind.ACTION": "REPLACE",
+    "db2.bind.packages": "none",
+    "db2.precompile.PARM": "",
+    "db2.precompile.coprocessor": "",
+    "cics.region.LOCALCCSID": "37",
+    "cics.region.CICS_TS": "",
+    "cics.region.DB2CONN": "",
+    "cics.translator.options": "",
+    "cics.program_definition.CONCURRENCY": "QUASIRENT",
+    "cics.program_definition.EXECKEY": "USER"
+  },
   "probes": {
     "c1-trunc-std": {
       "entries": [
@@ -189,7 +214,12 @@
         "P=+00000",
         "B=+00000"
       ],
-      "note": "The oracle gives spaces and zeros; z/OS shows whatever the storage held, so the expected outcome is a recorded difference (verdict differs), not a match. Record the STORAGE option in the options field."
+      "note": "The oracle gives spaces and zeros; z/OS shows whatever the storage held, so the expected outcome is a recorded difference (verdict differs), not a match. Record the STORAGE option in the options field.",
+      "runtime_variants": [
+        {
+          "le.runtime_options.STORAGE": "00"
+        }
+      ]
     }
   }
 }

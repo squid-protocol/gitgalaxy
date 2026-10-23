@@ -64,3 +64,8 @@ the Db2 container), debugging a differing scenario, and the checklists for a tra
 change. After a translator change, `det_port.py check --work DIR` lists the ports it moved against `origin/main`;
 re-prove exactly those. Every known or suspected difference between our oracle (GnuCOBOL plus our CICS, Db2 and LE
 models) and IBM z/OS is in `docs/language_status/oracle_assumptions.md`; a new model or refusal adds an entry file under `docs/language_status/register/` (ID from `python tests/tools/register.py next X`), and that file is all the PR commits: the page is rendered, never committed (#5057; `generated-docs.yml` publishes it to the `generated` branch, `register.py render` writes a local copy).
+
+Recording a z/OS run (#4702 Part 2; a real z/OS only, after counsel clears it, Q16): `zos_probes.py template > filled.json`, the operator
+fills `date`, `compiler` and `observed` (leaving `verdict` blank derives matched / differs against the probe's `oracle_expected`; `refused` /
+`abend` are given by hand), then `zos_probes.py ingest filled.json` (a dry run that names every rejection) and `--write` to merge into
+`zos_calibration.json`. A re-ingest of the same (entry, probe, date, compiler, runtime options) replaces the record. Then `register.py --check`.

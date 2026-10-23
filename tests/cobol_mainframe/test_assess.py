@@ -316,6 +316,20 @@ PLANTED = {
            GOBACK.""",
         "ZQXSEQ01",
     ),
+    # holes whose own text quotes the program: a file, a key, a data name (the dry run's `hole_texts`)
+    "PLANT4.cbl": _fixed(
+        """       ID DIVISION.
+       PROGRAM-ID. PLANT4.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-ZQX-REC PIC X(10).
+       PROCEDURE DIVISION.
+           EXEC CICS WRITE FILE('ZQXFILE') FROM(WS-ZQX-REC)
+             RIDFLD(WS-ZQX-REC) KEYLENGTH(ZQXLEN) END-EXEC.
+           MOVE ZQX-UNDECLARED TO WS-ZQX-REC.
+           GOBACK.""",
+        "ZQX00004",
+    ),
     "PLANT3.cbl": "ZQX THIS FILE IS NOT COBOL AT ALL 'ZQX QUOTED'\n<html>ZQX</html>\n",
 }
 
@@ -327,6 +341,7 @@ def _without_translation(report: dict) -> dict:
     for row in out["programs"]:
         for k in ("translation", "refusal", "statements", "translated_statements", "holes"):
             row.pop(k, None)
+    out.pop("rules", None)
     return out
 
 
@@ -376,7 +391,10 @@ def test_planted_text_never_reaches_the_report(planted):
         assert SC.validate(report) == []
         assert MARK not in json.dumps(report)
     assert {r["name"] for r in plain["programs"]} == set(PLANTED)
-    assert plain["totals"]["programs"] == 3
+    assert plain["totals"]["programs"] == 4
+    rules = {r["rule"] for r in plain["rules"]["ranked"]}  # the new field is in the marker scan above
+    assert {"EXEC CICS WRITE: key length not known", "MOVE: no such item"} <= rules
+    assert all(SC._rule_known(r["rule"]) for r in plain["rules"]["ranked"])
     rows = {r["name"]: r for r in plain["programs"]}
     assert (rows["PLANT2.cbl"]["status"], rows["PLANT2.cbl"]["reason"]) == ("unparsed", "missing copybook")
     assert plain["other"]["intrinsic_functions"]["keys"] == 1  # FUNCTION ZQXNOTAFUNCTION: counted, never printed
@@ -522,6 +540,84 @@ def test_the_scan_child_asks_its_workers_for_the_guard(monkeypatch, tmp_path):
 _NIGHTLY = pytest.mark.skipif(
     not os.environ.get("GITGALAXY_NIGHTLY"), reason="nightly (~40 s, five estates): set GITGALAXY_NIGHTLY=1"
 )
+# --- #4726 slice 2: the ranked rules ---------------------------------------------------------------------------
+
+# the shapes of real holes (CardDemo, CBSA, GenApp, DBB), each with a planted marker where the program's text sits
+HOLES = {
+    "line 191: EXEC EXEC SQL: no generated Db2 repository method for the statement at line 191": "EXEC SQL: no generated Db2 repository method",
+    "line 9: EXEC EXEC CICS: no generated screen for map ZQXMAP": "EXEC CICS: no generated screen for map",
+    "line 9: EXEC EXEC CICS: no generated DTO for COMMAREA ZQX-AREA": "EXEC CICS: no generated DTO for COMMAREA",
+    "line 1: EXEC EXEC CICS: WRITE KEYLENGTH(ZQX-LEN): not a known length on a known file, so maybe not the full key": "EXEC CICS WRITE: key length not known",
+    "line 1: EXEC EXEC CICS: EXEC CICS SOAPFAULT CREATE not modelled (web services are not)": "EXEC CICS SOAPFAULT CREATE: not modelled",
+    "line 4: OPEN ZQX-FILE: the generated project has no batch package (CobolFiles) to run files through": "OPEN: no batch package",
+    "line 7: CALL ZQXPROG: no program of that name with a CALL entry in the estate": "CALL: no program of that name",
+    "line 8: MOVE ZQX-FIELD: no such item": "MOVE: no such item",
+    "line 8: COMPUTE FUNCTION ANNUITY (IBM defines arg-1 but not the bits)": "COMPUTE",
+    "line 3: ZQX-DATA ADDRESS OF ZQX-X: not an item of ZQX-Y or LINKAGE (not modelled)": "other",
+    "line 3: EXEC EXEC CICS: ZQXVERB ZQXOPT(1): odd": "EXEC CICS",
+}
+
+
+@pytest.mark.parametrize("hole,expected", HOLES.items())
+def test_a_hole_reduces_to_a_closed_gap_class(hole, expected):
+    got = SC.gap_class(hole)
+    assert got == expected
+    assert MARK not in got and SC._rule_known(got)
+
+
+def test_the_rules_rank_as_the_census_does():
+    rows = [({"A"}, "1"), ({"A"}, "1"), ({"A"}, "none"), ({"B"}, "2"), ({"A", "B"}, "1"), ({"A", "B", "C"}, "1")]
+    rules = SC.rules_to_land(rows)
+    assert rules["classes"] == 3
+    by = {r["rule"]: r for r in rules["ranked"]}
+    assert (by["A"]["only"], by["A"]["one_away"], by["A"]["touched"]) == (3, 1, 5)
+    assert by["A"]["only_by_era"] == {"1": 2, "none": 1}
+    assert (by["B"]["only"], by["B"]["one_away"], by["B"]["touched"]) == (1, 1, 3)
+    assert (by["C"]["only"], by["C"]["one_away"]) == (0, 0)
+    assert [r["rule"] for r in rules["ranked"]] == ["A", "B", "C"]
+    assert SC.rules_to_land([]) == {"classes": 0, "ranked": []}
+
+
+def test_project_ranks_a_refusal_and_holes_by_class_never_by_text():
+    inv = _inventory("zecs")
+    progs = sorted(inv["eras"]["programs"])[:3]
+    tr = {
+        progs[0]: {"translation": "whole", "statements": 4, "translated_statements": 4, "holes": 0, "gap_classes": []},
+        progs[1]: {
+            "translation": "holes",
+            "statements": 5,
+            "translated_statements": 3,
+            "holes": 2,
+            "gap_classes": ["MOVE: no such item", "MOVE ZQX-A: no such item", "ZQX"],
+        },
+        progs[2]: {"translation": "refused", "refusal": "CopyNotFound"},
+    }
+    report = SC.project(inv, translation=tr)
+    assert SC.validate(report) == []
+    ranked = {r["rule"]: r for r in report["rules"]["ranked"]}
+    # a class outside the closed set (what a later change to dryrun could let through) is not printed: it is `other`
+    assert set(ranked) == {"MOVE: no such item", "other", "refused: CopyNotFound"}
+    assert ranked["MOVE: no such item"]["only"] == 0 and ranked["MOVE: no such item"]["one_away"] == 1
+    assert MARK not in json.dumps(report)
+    assert "rules" not in SC.project(inv)  # no dry run, no rules
+
+
+def test_validate_refuses_a_rule_off_the_closed_classes():
+    report = SC.project(_inventory("zecs"), translation={})
+    report["rules"] = {
+        "classes": 1,
+        "ranked": [{"rule": "MOVE: ZQX", "only": 1, "one_away": 0, "touched": 1, "only_by_era": {"1": 1}}],
+    }
+    assert any("closed gap class" in p for p in SC.validate(report))
+    for bad in ("MOVE WS-PASSWORD", "EXEC CICS ZQXVERB", "refused: not a class!", "ZQX: not modelled"):
+        report["rules"]["ranked"][0]["rule"] = bad
+        assert any("closed gap class" in p for p in SC.validate(report)), bad
+    report["rules"]["ranked"][0].update(rule="MOVE", only_by_era={"1": 2})
+    assert any("only_by_era" in p for p in SC.validate(report))
+    report["rules"]["ranked"][0].update(only_by_era={"1": 1}, source="x")
+    assert any("entry shape" in p for p in SC.validate(report))
+
+
 # zECS (3 s, and the one with assembler members refused by family) on every run; the rest nightly, beside
 # test_feature_inventory_cli_check, which re-scans the same estates against the same fixtures
 E2E = [e if e == "zecs" else pytest.param(e, marks=[pytest.mark.nightly, _NIGHTLY]) for e in BURNED]

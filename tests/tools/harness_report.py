@@ -78,6 +78,9 @@ def fix_for(gap: str, programs: list[str], cases: list[str], details: list[str])
         return f"Write an equivalence case for {noun}: {who}."
     if gap.startswith("no det port"):
         return f"Commit a det port for {noun} (their crucible case runs only the COBOL): {who}."
+    if gap == "cobc: does not compile":
+        why = clip("; ".join(sorted(set(details))) or "no diagnostic recorded")
+        return f"Make the COBOL of {noun} compile under cobc ({why}; fix the source, a copybook or the compile options): {who} (cases: {', '.join(cases)})."  # fmt: skip
     if gap.startswith("known unproven"):
         why = clip("; ".join(sorted(set(details))) or gap)
         return f"Fix {gap.split(':', 1)[1].strip()} ({why}) to prove {noun}: {who} (cases: {', '.join(cases)})."

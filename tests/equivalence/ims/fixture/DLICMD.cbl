@@ -1,9 +1,12 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID. DLICMD.
-      * #5233 command-code fixture: F, L and the null code - in SSAs on
+      * #5233 command-code fixture: F, L, P and the null code - in SSAs on
       * LVLDBD through PSB LVLPSB. IBM: L takes the last twin of the
       * type under its parent, F the first (the default start of a GU);
-      * on an ISRT with a unique sequence field both are ignored. The
+      * on an ISRT with a unique sequence field both are ignored. P on a
+      * GU sets parentage at the level of its SSA, so a GNP afterwards
+      * walks every dependent of that segment, not of the lowest one
+      * retrieved. The
       * test pins the expected output, written from IBM's documentation
       * before either runtime ran it.
        DATA DIVISION.
@@ -32,6 +35,17 @@
            05 FILLER             PIC X(11) VALUE 'SKILL   *L '.
        01  C-EF.
            05 FILLER             PIC X(11) VALUE 'EMP     *F '.
+       01  C-DP.
+           05 FILLER             PIC X(11) VALUE 'DEPT    *P '.
+       01  C-EP.
+           05 FILLER             PIC X(11) VALUE 'EMP     *P '.
+       01  F-GNP                 PIC X(4) VALUE 'GNP '.
+       01  C-DQP.
+           05 FILLER             PIC X(11) VALUE 'DEPT    *P('.
+           05 FILLER             PIC X(8) VALUE 'DEPTNO'.
+           05 FILLER             PIC X(2) VALUE ' ='.
+           05 FILLER             PIC X(4) VALUE 'D200'.
+           05 FILLER             PIC X VALUE ')'.
        01  C-DQ.
            05 FILLER             PIC X(11) VALUE 'DEPT    *-('.
            05 FILLER             PIC X(8) VALUE 'DEPTNO'.
@@ -101,6 +115,62 @@
            MOVE 10 TO W-Q
            MOVE SPACES TO IOA
            CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DQ C-EL
+           PERFORM SHOW1
+           MOVE 11 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DP S-EMP
+           PERFORM SHOW1
+           MOVE 12 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA
+           PERFORM SHOW1
+           MOVE 13 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA
+           PERFORM SHOW1
+           MOVE 14 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA
+           PERFORM SHOW1
+           MOVE 15 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA
+           PERFORM SHOW1
+           MOVE 16 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA
+           PERFORM SHOW1
+           MOVE 17 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA S-DEPT C-EP
+           PERFORM SHOW1
+           MOVE 18 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA
+           PERFORM SHOW1
+           MOVE 19 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA
+           PERFORM SHOW1
+           MOVE 20 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA
+           PERFORM SHOW1
+           MOVE 21 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DQP S-EMP
+           PERFORM SHOW1
+           MOVE 22 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA
+           PERFORM SHOW1
+           MOVE 23 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA
+           PERFORM SHOW1
+           MOVE 24 TO W-Q
+           MOVE SPACES TO IOA
+           CALL 'CBLTDLI' USING F-GNP PCB1 IOA
            PERFORM SHOW1
            GOBACK.
        SHOW1.

@@ -3590,7 +3590,7 @@
   {
    "id": "RT-DLI-SSA",
    "family": "DLI",
-   "title": "SSAs: segment name, unqualified (blank) or qualified (field, relational operator, value, ')'); qualification statements joined by AND (& or *) and OR (+ or |), AND binding tighter, at most 16; AC / AJ / AK as IBM answers them; command codes F, L and - (L only on the last unqualified SSA of a GU), the other codes, the independent AND (#) and missing levels refused",
+   "title": "SSAs: segment name, unqualified (blank) or qualified (field, relational operator, value, ')'); qualification statements joined by AND (& or *) and OR (+ or |), AND binding tighter, at most 16; AC / AJ / AK as IBM answers them; command codes F, L, P and - (L only on the last unqualified SSA of a GU, P only on a GU), the other codes, the independent AND (#) and missing levels refused",
    "methods": [
     "parseSsas",
     "chain",

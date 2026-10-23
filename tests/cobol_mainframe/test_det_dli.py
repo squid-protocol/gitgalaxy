@@ -412,6 +412,14 @@ CMD_EXPECTED = [
     # C on a GU: the concatenated key names the segment (a dependent, a deeper one), parentage is the segment found
     "Q25 [  ] E002BOB", "Q26 [  ] S2JAVA", "Q27 [GE]",  # S2 is the last skill of E001, which has no dependents
     "Q28 [GE]", "Q29 [  ] E003CAROL",  # no such EMP under D100; an EMP under the second DEPT
+    # D, a path call: DEPT, EMP and SKILL come back one after another (the first 4, 4 and 2 bytes of each); D on the last SSA adds nothing
+    "Q30 [  ] D100/E001/S1",
+    "Q31 [  ] E001/S2JA/",  # a GN of EMP*D, SKILL: the next skill, with its EMP in front
+    "Q32 [  ] D100/E001/", "Q33 [  ] D100/    /",  # DEPT*D, EMP; DEPT*D alone
+    "Q34 [  ] D200/E003/S1",  # a qualified DEPT with D
+    # DEPT*DP, EMP (parentage the DEPT), then GNPs of EMP*D, SKILL: each skill under D100 with its EMP, then GE
+    "Q35 [  ] D100/E001/", "Q36 [  ] E001/S1CO/", "Q37 [  ] E001/S2JA/", "Q38 [GE]     /    /",  # nothing found: the area is untouched (blank)
+    "Q39 [  ] D100/E001/",  # GHU
 ]  # fmt: skip
 
 
@@ -438,13 +446,12 @@ def _swap(old: str, new: str):
 @pytest.mark.parametrize(
     "edit, why",
     [
-        (_swap("'DEPT    *L '", "'DEPT    *D '"), "the command code D"),
         (_swap("'DEPT    *L '", "'DEPT    *N '"), "the command code N"),
         (_swap("'DEPT    *L '", "'DEPT    *Q '"), "the command code Q"),
         (_swap("'DEPT    *L '", "'DEPT    *U '"), "the command code U"),
         (_swap("'DEPT    *L '", "'DEPT    *V '"), "the command code V"),
         (_swap("'DEPT    *L '", "'DEPT    *3 '"), "the command code 3"),
-        (_swap("'DEPT    *L '", "'DEPT    *-D'"), "the command code D"),  # a refused code later in the list
+        (_swap("'DEPT    *L '", "'DEPT    *-N'"), "the command code N"),  # a refused code later in the list
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DF"),
          "the command code F on a GN"),
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DL"),
@@ -456,6 +463,9 @@ def _swap(old: str, new: str):
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-CE2"),
          "the command code C other than"),
         (_swap("IOA S-DEPT S-EMP C-SKL", "IOA C-CE2 C-CS2"), "the command code C other than"),
+        (_swap("F-ISRT PCB1 IOA C-DQ C-EF", "F-ISRT PCB1 IOA C-DQ C-ED"), "the command code D on a ISRT"),
+        (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CE2", "CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CDE"),
+         "the command code D beside C"),
         (_swap("IOA S-DEPT C-EL", "IOA C-DL C-EL"), "the command code L other than"),  # L on a path SSA
         (_swap("IOA C-DQ C-EL", "IOA C-DQL C-EL"), "the command code L other than"),  # L on a qualified SSA
     ],

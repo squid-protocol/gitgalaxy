@@ -35,6 +35,14 @@ def test_burned_estate_assumed_entries_have_a_probe():
     assert {"C5", "C12"} <= covered
 
 
+def test_the_4688_float_differences_have_probes():
+    # The three oracle-vs-IBM shapes the #4675 fuzz found (register C6), as z/OS-runnable probes.
+    probes = zos_probes.load()
+    ids = {"c6-float-move-to-edited", "c6-compound-float-compute", "c6-float-zero-add-to-packed"}
+    assert ids <= set(probes)
+    assert all(probes[i]["entries"] == ["C6"] for i in ids)
+
+
 def test_file_and_storage_assumed_entries_with_burned_reach_have_a_probe():
     # F1: CardDemo indexed FILE STATUS; F3: CardDemo READACCT VBRCFILE; L3: CardDemo READACCT OUTFILE, CBSA CRDTAGY.
     covered = {e for p in zos_probes.load().values() for e in p["entries"]}

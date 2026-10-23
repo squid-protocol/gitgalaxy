@@ -493,7 +493,7 @@ GitGalaxy is designed for local and air-gapped operation.
 
 ``` bash
 pip install gitgalaxy            # zero install dependencies
-pip install "gitgalaxy[full]"    # + tiktoken, xgboost, pandas, numpy, pyyaml
+pip install "gitgalaxy[full]"    # + tiktoken, xgboost, scikit-learn, pandas, numpy, pyyaml
 pip install "gitgalaxy[translator]"  # + tree-sitter-language-pack, for the CICS-to-Java translator
 ```
 
@@ -509,7 +509,7 @@ radius, betweenness, closeness, average path length, modularity, cyclic
 density, articulation points and assortativity is measured exactly as in full
 precision (these are computed natively). What needs the optional engines is
 token mass and read cost (`tiktoken`), ML threat
-classification (`xgboost`/`pandas`/`numpy`) and YAML config/OpenAPI parsing
+classification (`xgboost`/`scikit-learn`/`pandas`/`numpy`) and YAML config/OpenAPI parsing
 (`pyyaml`). A metric that was not computed is reported as absent (`n/a` /
 NULL), never as a zero. Each output says when a scan ran in this mode, and
 [`docs/zero_dependency_mode.md`](docs/zero_dependency_mode.md) lists, field by

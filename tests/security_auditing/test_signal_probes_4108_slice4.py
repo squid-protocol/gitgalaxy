@@ -99,7 +99,8 @@ def test_self_propagation_near_miss_is_silent(text):
 def _zip(first_entry: str) -> bytes:
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_STORED) as z:
-        z.writestr(first_entry, b"x")
+        # a fixed timestamp: writestr(name) stamps "now", which put different bytes in the parametrize id per xdist worker
+        z.writestr(zipfile.ZipInfo(first_entry, date_time=(1980, 1, 1, 0, 0, 0)), b"x")
     return buf.getvalue()
 
 

@@ -98,6 +98,7 @@ LIBRARY_CLOCK = {
     "CEELOCT",
     "CEEGMT",
     "CEEUTC",
+    "CEESECS",  # #5003: the system year the century window (a YY) is anchored on
 }  # the routines that read the run's clock (the harness pins it, like CURRENT-DATE)
 # The COMP-2 arguments (by position) a routine reads or stores by value (Cobol.num / Cobol.store), never by bytes: HFP on
 # z/OS, IEEE on the oracle (register C6). Every routine with one, and every clock routine, also takes the charset last.

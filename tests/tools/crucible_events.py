@@ -69,8 +69,9 @@ EVENTS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
     "WRITEQ-TD": (("queue", "data", "resp"), ("resp2",)),
     "DELETEQ-TD": (("queue", "resp"), ("resp2",)),
     "WEB-RECEIVE": (("resp", "length", "data"), ("resp2",)),
-    "WEB-WRITE-HTTPHEADER": (("name", "value", "resp"), ("resp2",)),  # cics-crucible v0.10.0 (#6230)
     "WEB-SEND": (("status", "from", "resp"), ("statustext", "mediatype", "resp2")),
+    # the v0.10.0 pin's client-side web events (#4767, X35), missed by #6234
+    "WEB-WRITE-HTTPHEADER": (("name", "value", "resp"), ("resp2",)),
     "WEB-OPEN": (("host", "scheme", "resp"), ("resp2",)),
     "WEB-CONVERSE": (("method", "path", "status", "tolength", "into", "resp"), ("resp2",)),
     "WEB-CLOSE": (("resp",), ("resp2",)),

@@ -164,6 +164,8 @@ def run_panel(
 ) -> tuple[dict[str, Any], int]:
     """Run every step; returns (run.json content, exit code). A failed step does not stop the other corpora."""
     report: dict[str, Any] = {"engine": MC.engine_key(), "steps": [], "corpora": {}, "problems": []}
+    parsed: dict[str, int] = {}
+    unparsed: list[tuple[str, str]] = []
     for corpus in corpora:
         name = corpus["name"]
         info: dict[str, Any] = {}
@@ -180,9 +182,18 @@ def run_panel(
             if not path.is_file():
                 continue
             info[src] = status_counts(path)
-            if src in REFEREES and info[src]["status"].get("fail", 0) == info[src]["members"]:
-                report["problems"].append(f"{name}: {src} parsed none of {info[src]['members']} members")
+            if src in REFEREES and info[src]["members"]:
+                parsed[src] = parsed.get(src, 0) + info[src]["members"] - info[src]["status"].get("fail", 0)
+                if info[src]["status"].get("fail", 0) == info[src]["members"]:
+                    unparsed.append((src, f"{name}: {src} parsed none of {info[src]['members']} members"))
         report["corpora"][name] = info
+    # A referee that parsed nothing anywhere is a broken install (a problem); one that cannot parse a single
+    # corpus's dialect (tree-sitter on CBL / PROCESS cards) is a finding, kept as a note in run.json.
+    for src, line in unparsed:
+        if parsed[src]:
+            report.setdefault("notes", []).append(line)
+        else:
+            report["problems"].append(line)
     t0 = time.monotonic()
     rc = runner(score_step(out, py), REPO_ROOT)
     report["steps"].append({"step": "score", "exit": rc, "seconds": round(time.monotonic() - t0, 1)})

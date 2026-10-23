@@ -15,9 +15,9 @@ import pytest
 np = pytest.importorskip("numpy")
 pytest.importorskip("pandas")
 xgb = pytest.importorskip("xgboost")
-# xgboost.XGBClassifier (what SecurityAuditor loads) raises ImportError without scikit-learn, and the
-# `full` extra does not install it: on such an install no model can load at all (sibling gap of #2986).
-pytest.importorskip("sklearn", reason="XGBClassifier needs scikit-learn, which the `full` extra omits")
+# xgboost.XGBClassifier (what SecurityAuditor loads) raises ImportError without scikit-learn; the `full`
+# extra installs it (pinned by test_ml_boundary_2986.py), so this skips only on a partial install.
+pytest.importorskip("sklearn", reason="XGBClassifier needs scikit-learn (part of the `full` extra)")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_ml_boundary_2986 import _artifacts, _recorded_columns  # noqa: E402

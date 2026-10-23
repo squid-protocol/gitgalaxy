@@ -332,7 +332,8 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
   INTEREST_RATE, OVERDRAFT_LIMIT) and a `null-*` scenario per row kill the seven `&&` / `||` mutants of the -305 test (the
   old seed's only NULL, ACCOUNT_LAST_STATEMENT, hid them); the eyecatcher one was already killed by the earlier
   eyecatcher scenarios. The `-904` arms of the SELECT and UPDATE are `harness-gap` (7), as in cbsa-updacc-generated, and the
-  six `handleLink(request, area)` mutants are `harness-gap` too (no caller LINKs with LENGTH). Stop reason: no case gap left.
+  six `handleLink(request, area)` mutants are `unreachable` (no proof calls it: the harness enters through the one-parameter
+  `handleLink(request)` and no caller LINKs with LENGTH). Stop reason: no case gap left.
 
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
@@ -367,7 +368,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR00C (carddemo-userlist) | equivalence | 510/510 | 377/505 (75%) | 377/379 (99%) | 0 / 2 / 55 / 71 / 0 |
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 57/82 (70%) | 57/59 (97%) | 2 / 0 / 14 / 9 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/470 | 63/131 (48%) | 63/106 (59%) | 43 / 0 / 11 / 14 / 0 |
-| UPDACC (cbsa-updacc) | equivalence | 139/139 | 103/139 (74%) | 103/116 (89%) | 0 / 13 / 17 / 6 / 0 |
+| UPDACC (cbsa-updacc) | equivalence | 139/139 | 103/139 (74%) | 103/110 (94%) | 0 / 7 / 17 / 12 / 0 |
 | UPDACC (cbsa-updacc-generated) | equivalence | 139/139 | 103/139 (74%) | 103/110 (94%) | 0 / 7 / 17 / 12 / 0 |
 | LGAPDB01 (genapp-lgapdb01) | equivalence | 150/444 | 58/137 (42%) | 58/129 (45%) | 71 / 0 / 1 / 7 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/184 | 72/125 (58%) | 72/113 (64%) | 0 / 41 / 1 / 11 / 0 |
@@ -397,20 +398,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 5052 run | **3173/4664 (68%)** | **3173/3637 (87%)** | 257 / 207 / 643 / 384 / 0 |
-| **all estate** | | 5556 run | **3492/5140 (68%)** | **3492/3991 (87%)** | 292 / 207 / 731 / 418 / 0 |
+| **all equivalence** | | 5052 run | **3173/4664 (68%)** | **3173/3631 (87%)** | 257 / 201 / 643 / 390 / 0 |
+| **all estate** | | 5556 run | **3492/5140 (68%)** | **3492/3985 (88%)** | 292 / 201 / 731 / 424 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
 | AOR | 227/283 (80%) | 227/251 (90%) |
 | BDM | 25/52 (48%) | 25/28 (89%) |
 | CON | 449/1040 (43%) | 449/562 (80%) |
-| COR | 219/346 (63%) | 219/259 (85%) |
-| DEL | 611/877 (70%) | 611/687 (89%) |
-| LIT | 727/986 (74%) | 727/813 (89%) |
+| COR | 219/346 (63%) | 219/258 (85%) |
+| DEL | 611/877 (70%) | 611/686 (89%) |
+| LIT | 727/986 (74%) | 727/811 (90%) |
 | NEG | 615/696 (88%) | 615/661 (93%) |
 | RET | 56/105 (53%) | 56/93 (60%) |
-| ROR | 563/755 (75%) | 563/637 (88%) |
+| ROR | 563/755 (75%) | 563/635 (89%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -653,6 +654,14 @@ Re-checked 2026-10-22 (#5491, negative balance): the same run (20/23 caught, `--
 `direct-negative-balance`: its V2-BALANCE of -12345.67 is the one value that takes the negate branch. No CAXA mode was needed.
 
 Spot-check 2026-10-22 (#4443): 22 of the 45 equivalent verdicts on the 13 re-run ports were re-read against the port source; all hold, no new case. The sample and its caveats: [mutation_equivalent_spot_check.md](mutation_equivalent_spot_check.md).
+
+Checked 2026-10-23 (#4443, READ ... INTO LENGTH -> LENGERR, #4436 / #4453): no cics-crucible release carries the scenario yet, so there is no
+branch to mutate. v0.9.0 is the latest release and tag. Its only keyed READ ... INTO LENGTH case, `hc-file-unlock` (HCUNLK), reads with
+LENGTH(16), the record's own length, and its NOTES say LENGERR (RESP2 10 / 13) "is not provoked". The one burned crucible port near it,
+`hc-perform-range` (HCQREAD), reads TS queues. GenApp LGUCVS01 / LGUPVS01 model the LENGTH (X14) but refuse LENGERR on READ UPDATE by name.
+What closes the item: a cics-crucible case with a non-UPDATE keyed READ INTO whose LENGTH is below the record's length (RESP LENGERR, RESP2
+11, INTO truncated, LENGTH set back to the record's length), a release, the pin bump with its re-baseline, a port, and a mutation run
+on that branch that kills a mutant of the truncation or the set-back.
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.

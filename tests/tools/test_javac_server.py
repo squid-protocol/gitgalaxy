@@ -108,3 +108,30 @@ def test_a_linked_launcher_is_served_by_its_own_jdk(tmp_path):
                  capture_output=True)  # fmt: skip
     assert r.returncode == 0 and (tmp_path / "o" / "A.class").is_file()
     assert [b.name for b in js._SERVERS] == ["bin"] and list(js._SERVERS)[0] == JAVAC.resolve().parent
+
+
+def test_warm_starts_one_server_and_a_later_compile_reuses_it(tmp_path):
+    assert js.warm() is True
+    (first,) = js._SERVERS.values()
+    assert js.warm() is True  # idempotent: the same server answers again
+    src = _src(tmp_path)
+    js.javac([str(JAVAC), "-encoding", "UTF-8", "-d", str(tmp_path / "o"), str(src)], check=True)
+    (again,) = js._SERVERS.values()
+    assert again is first and (tmp_path / "o" / "A.class").is_file()
+
+
+def test_warm_starts_nothing_when_switched_off_or_without_a_jdk(monkeypatch, tmp_path):
+    monkeypatch.setenv(js.ENV, "0")
+    assert js.warm() is False and not js._SERVERS
+    monkeypatch.delenv(js.ENV)
+    for var in ("JDK_17", "JAVA_HOME"):
+        monkeypatch.setenv(var, str(tmp_path / "no-jdk"))
+    assert js.jdk_bin() is None and js.warm() is False and not js._SERVERS
+
+
+def test_warm_never_fails_a_run_when_the_toolchain_is_broken(monkeypatch, tmp_path):
+    bin_dir = tmp_path / "jdk" / "bin"
+    bin_dir.mkdir(parents=True)
+    (bin_dir / "javac").symlink_to("/bin/false")
+    monkeypatch.setenv("JDK_17", str(tmp_path / "jdk"))
+    assert js.warm() is False

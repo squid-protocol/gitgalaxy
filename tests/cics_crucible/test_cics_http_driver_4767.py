@@ -196,3 +196,27 @@ def test_both_sides_model_the_client_events():
         assert set(caps.events["WEB-CONVERSE"]) == set(cc.EVENT_KEYS["WEB-CONVERSE"])
         assert set(caps.events["WEB-OPEN"]) == set(cc.EVENT_KEYS["WEB-OPEN"])
         assert set(caps.events["WEB-CLOSE"]) == set(cc.EVENT_KEYS["WEB-CLOSE"])
+
+
+def test_both_raw_shapes_of_a_client_session_match_the_expected_log(tmp_path):
+    """The stub's events.txt lines and CicsTask's raw events (what #4767 made them record) map to one SPEC event list."""
+    hx = "orders.example".encode().hex().upper()
+    (tmp_path / "events.txt").write_text(
+        f"001 WEB-OPEN pgm=P host={hx} scheme=HTTP resp=0 resp2=0\n"
+        f"002 WEB-CONVERSE pgm=P host={hx} method=GET path={b'/gt/item'.hex().upper()} query=- media=- body=0 "
+        f"resp=0 resp2=0 status=404 tolen=12 into={b'no such item'.hex().upper()}\n"
+        "003 WEB-CLOSE pgm=P resp=0 resp2=0\n",
+        encoding="latin-1",
+    )
+    stub = runner._cobol_events(tmp_path, "P")
+    java = [
+        runner._web_client_event(e["event"], e.get("host"), e.get("scheme"), e.get("method"), e.get("path"),
+                                 e.get("status"), e.get("tolength"), e.get("into"), e["resp"], e["resp2"])
+        for e in (
+            {"event": "WEB-OPEN", "host": "orders.example", "scheme": "HTTP", "resp": 0, "resp2": 0},
+            {"event": "WEB-CONVERSE", "host": "orders.example", "method": "GET", "path": "/gt/item", "query": "",
+             "status": 404, "tolength": 12, "into": "no such item", "resp": 0, "resp2": 0},
+            {"event": "WEB-CLOSE", "resp": 0, "resp2": 0},
+        )
+    ]  # fmt: skip
+    assert [{k: v for k, v in e.items() if k not in ("program", "event")} for e in stub] == java

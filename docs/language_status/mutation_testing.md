@@ -327,6 +327,13 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
   (line 278) and `-904` / `-913` on the SELECT (line 191), and `det_port.py run` proves it on 10 scenarios covering
   7/7 paragraphs and 6/6 branches. The seven stay recorded as harness gaps of the model port (its mutants are not
   re-run against the det case); the det-port fault case is where that arm is judged.
+- UPDACC on the hand case (cbsa-updacc, #4049, all 139 mutants run, seed 0): 95 killed -> 103, 15 case gaps -> 0. Eight
+  seed rows with a single NULL each (EYECATCHER, CUSTOMER_NUMBER, NEXT_STATEMENT, AVAILABLE / ACTUAL balance, ACCOUNT_TYPE,
+  INTEREST_RATE, OVERDRAFT_LIMIT) and a `null-*` scenario per row kill the seven `&&` / `||` mutants of the -305 test (the
+  old seed's only NULL, ACCOUNT_LAST_STATEMENT, hid them); the eyecatcher one was already killed by the earlier
+  eyecatcher scenarios. The `-904` arms of the SELECT and UPDATE are `harness-gap` (7), as in cbsa-updacc-generated, and the
+  six `handleLink(request, area)` mutants are `unreachable` (no proof calls it: the harness enters through the one-parameter
+  `handleLink(request)` and no caller LINKs with LENGTH). Stop reason: no case gap left.
 
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
@@ -361,7 +368,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR00C (carddemo-userlist) | equivalence | 510/510 | 377/505 (75%) | 377/379 (99%) | 0 / 2 / 55 / 71 / 0 |
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 57/82 (70%) | 57/59 (97%) | 2 / 0 / 14 / 9 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/470 | 63/131 (48%) | 63/106 (59%) | 43 / 0 / 11 / 14 / 0 |
-| UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/110 (86%) | 15 / 0 / 17 / 6 / 0 |
+| UPDACC (cbsa-updacc) | equivalence | 139/139 | 103/139 (74%) | 103/110 (94%) | 0 / 7 / 17 / 12 / 0 |
 | UPDACC (cbsa-updacc-generated) | equivalence | 139/139 | 103/139 (74%) | 103/110 (94%) | 0 / 7 / 17 / 12 / 0 |
 | LGAPDB01 (genapp-lgapdb01) | equivalence | 150/444 | 58/137 (42%) | 58/129 (45%) | 71 / 0 / 1 / 7 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/184 | 72/125 (58%) | 72/113 (64%) | 0 / 41 / 1 / 11 / 0 |
@@ -391,20 +398,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 5046 run | **3165/4658 (68%)** | **3165/3631 (87%)** | 272 / 194 / 643 / 384 / 0 |
-| **all estate** | | 5550 run | **3484/5134 (68%)** | **3484/3985 (87%)** | 307 / 194 / 731 / 418 / 0 |
+| **all equivalence** | | 5052 run | **3173/4664 (68%)** | **3173/3631 (87%)** | 257 / 201 / 643 / 390 / 0 |
+| **all estate** | | 5556 run | **3492/5140 (68%)** | **3492/3985 (88%)** | 292 / 201 / 731 / 424 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
 | AOR | 227/283 (80%) | 227/251 (90%) |
 | BDM | 25/52 (48%) | 25/28 (89%) |
 | CON | 449/1040 (43%) | 449/562 (80%) |
-| COR | 212/345 (61%) | 212/258 (82%) |
-| DEL | 610/876 (70%) | 610/686 (89%) |
-| LIT | 727/984 (74%) | 727/811 (90%) |
+| COR | 219/346 (63%) | 219/258 (85%) |
+| DEL | 611/877 (70%) | 611/686 (89%) |
+| LIT | 727/986 (74%) | 727/811 (90%) |
 | NEG | 615/696 (88%) | 615/661 (93%) |
 | RET | 56/105 (53%) | 56/93 (60%) |
-| ROR | 563/753 (75%) | 563/635 (89%) |
+| ROR | 563/755 (75%) | 563/635 (89%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -438,7 +445,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COUSR00C (carddemo-userlist) | 12/12 | - | 50/123 | 28/38 | 111/126 | 75/94 | 49/51 | - | 52/61 |
 | COUSR02C (carddemo-userupd) | 1/1 | - | 3/16 | 3/5 | 11/16 | 14/16 | 13/13 | - | 12/15 |
 | INQACC (cbsa-inqacc) | 3/3 | 1/2 | 4/21 | 2/5 | 10/21 | 6/21 | 14/21 | 8/16 | 15/21 |
-| UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 3/10 | 16/27 | 28/32 | 8/8 | - | 19/19 |
+| UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 10/11 | 17/28 | 28/34 | 8/8 | - | 19/21 |
 | UPDACC (cbsa-updacc-generated) | 4/4 | 0/3 | 17/30 | 10/11 | 17/28 | 28/34 | 8/8 | - | 19/21 |
 | LGAPDB01 (genapp-lgapdb01) | 5/13 | - | 8/23 | 0/2 | 7/21 | 12/23 | 13/23 | 2/10 | 11/22 |
 | LGAPVS01 (genapp-lgapvs01) | 14/16 | - | 25/41 | 0/1 | 6/11 | 12/28 | 6/9 | - | 9/19 |

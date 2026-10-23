@@ -247,3 +247,21 @@ def test_scratch_root_order(tmp_path, monkeypatch):
     monkeypatch.delenv("GG_SCRATCH")
     monkeypatch.setenv("GITGALAXY_WORKTREES", str(tmp_path / "wt"))
     assert ee.scratch_root() == tmp_path / "wt" / "_shared-scratch"
+
+
+def test_rmtree_writable_removes_read_only_files(tmp_path):
+    victim = tmp_path / "clone" / ".git" / "objects" / "6c"
+    victim.mkdir(parents=True)
+    obj = victim / "obj"
+    obj.write_text("x")
+    obj.chmod(0o444)
+    ee.rmtree_writable(tmp_path / "clone")
+    assert not (tmp_path / "clone").exists()
+
+
+def test_the_rmtree_hook_makes_a_read_only_file_writable_and_retries(tmp_path):
+    f = tmp_path / "ro"
+    f.write_text("x")
+    f.chmod(0o444)
+    ee._writable_retry(os.unlink, str(f), None)
+    assert not f.exists()

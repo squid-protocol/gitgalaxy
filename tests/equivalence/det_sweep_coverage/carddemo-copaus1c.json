@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 32,
+ "scenarios": 35,
  "paragraphs": {
   "covered": 15,
   "live": 15
  },
  "branches": {
-  "covered": 44,
+  "covered": 48,
   "total": 48
  },
  "linked": {
@@ -22,26 +22,26 @@
   }
  },
  "inputs": {
-  "case": "82eb3688ab9aaad9331fd19ac8d3d254cd90c669bf808c3b9c3057122113e884",
+  "case": "689b6d6fb25b02928b3066fa723facd37259e5744f8df2287acb157d1960383c",
   "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-  "harness": "efbe51075ec1adca1d2de680be9c28392f4d525f661d39c1d5f9eeaf7ae38c86",
-  "oracle": "e9e74c7b948ad1020416ad6ae58cb9ae52e4027557d0f25419d12926e20cc83e",
+  "harness": "6a39e3fdd7582d321fd4b43d444dbd4f0f17880558c46f44423122bf7bb43c5f",
+  "oracle": "647fb141f913b967d4aa46195f5c6e934043c59677c41d95a8c926fed8684ecb",
   "components": {
    "harness": {
-    "harness:cics": "524c7ec5b94a8002f7cb66755e3328f295865ecc7399685916101df02b20703c",
+    "harness:cics": "18640967ef2da9f5bc6d923c35029f363582311f687e664219dbda418777256c",
     "harness:core": "d62c9af2a5f83bb39a1deffe40cd7d7d63bb0d2945c4e8cec6b12503931f45ef",
     "harness:db2": "df4cefe238f828f2233ef1ae1b7c77c21265c7f5ab3af61e753544d50120cd66",
     "harness:ims": "2fef9a49dc961b7fefeaf5059f3d8305d9e25293e58c05875789fd093bd4acf1"
    },
    "oracle": {
-    "oracle:cics-stub": "a87ec1941cad022e2a2706e2d20545b3da939139e7764b7aa9bec9358bcc82ae",
+    "oracle:cics-stub": "12f06c4f6cd3ee0005243e374a882759096e94fbf7fb01fbbdaa8e70588664df",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
-    "oracle:ims": "5048b2b498bdc267eb232a72d661beca284f91b6565ed6a58290d2b970e5b176",
+    "oracle:ims": "f73eefb73f9f1980cc4d386fb96c853be1e6fbad424dc80e5b23a2fcd45ce20e",
     "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
    }
   }
  },
- "measured_at": "28734a013e294b3a60b9d42c48375c826e01abde"
+ "measured_at": "04a605c41ec1b5f2d599d94ac501398c2138564c"
 }

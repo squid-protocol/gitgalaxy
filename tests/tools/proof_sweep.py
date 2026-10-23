@@ -204,6 +204,8 @@ def det_sweep(
     for row in summary:
         cov = _coverage(work / row["case"] / "proof.log")
         out[row["case"]] = {"proved": port_proved(row), "coverage": cov,
+                            **({"cobol_compile_failed": True, "cobc_stderr": row.get("cobc_stderr", "")}
+                               if row.get("cobol_compile_failed") else {}),  # #4493, only when set
                             "called_holes": len(row.get("called_holes") or []),
                             "translated": f"{row.get('translated_statements')}/{row.get('statements')}",
                             "seconds": round(row.get("translate_seconds", 0) + row.get("proof_seconds", 0), 1),

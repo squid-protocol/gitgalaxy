@@ -119,6 +119,28 @@ def test_a_sweep_overrides_the_ratchet_and_names_the_diff(tmp_path):
     assert "a known cause" in known["detail"]["known unproven: #1"]
 
 
+def test_a_case_cobc_does_not_compile_is_a_gap_with_its_diagnostic_and_a_fix(tmp_path):
+    """#4493: `cobol_compile_failed` (recorded by the proof) outranks "scenario differs"; the fix names the diagnostic."""
+    import harness_report as hr
+
+    sweep = tmp_path / "sweep"
+    err = "a/DIFF.cbl:9: warning: x\na/DIFF.cbl:12: error: 'FOO' is not defined\n\n"
+    write(sweep / "sweep.json", {"det": {
+        "c-diff": {"proved": False, "cobol_compile_failed": True, "cobc_stderr": err, "coverage": ""},
+        "c-known": {"proved": False, "coverage": ""},
+    }})  # fmt: skip
+    res = run(tmp_path, sweeps=pb.load_sweeps([sweep]))
+    assert gaps_of(res, "DIFF") == [pb.COBC_NO_COMPILE]  # no "scenario differs", no coverage gap read off a dead run
+    diff = next(p for p in res["programs"] if p["program"].endswith("DIFF.cbl"))
+    assert diff["detail"][pb.COBC_NO_COMPILE] == "a/DIFF.cbl:12: error: 'FOO' is not defined"
+    assert gaps_of(res, "KNOWN") == ["known unproven: #1"]  # a sibling row without the flag is unchanged
+    assert pb.last_line("") == "" and pb.last_line(None) == ""
+    fix = hr.fix_for(pb.COBC_NO_COMPILE, ["DIFF"], ["c-diff"], [diff["detail"][pb.COBC_NO_COMPILE]])
+    assert "compile under cobc" in fix and "'FOO' is not defined" in fix and "c-diff" in fix
+    assert hr.gap_status(pb.COBC_NO_COMPILE) == hr.COULDNT_RUN
+    assert "no diagnostic recorded" in hr.fix_for(pb.COBC_NO_COMPILE, ["DIFF"], ["c-diff"], [])
+
+
 def test_the_case_with_fewest_gaps_speaks_for_a_program(tmp_path):
     cases, corpora, cru, det_baseline, rows = setup(tmp_path)
     case(cases, "c-cov-2", "estate", "a/COV.cbl")

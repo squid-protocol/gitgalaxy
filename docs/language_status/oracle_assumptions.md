@@ -4339,6 +4339,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **Declared difference.** GnuCOBOL has no CEE3ABD, so `ggabend.c` stands in for it: it records `U%04d` (the code
   modulo 4096, as a user completion code is) and exits. `timing` is not modelled (LE cleanup is not run); the abend
   code is the only thing compared. The reason code and any dump are not produced.
+- **Declared difference (#6072).** A bare `CALL 'CEE3ABD'` with no `USING` (CardDemo's CBSTM03A `9999-ABEND-PROGRAM`) has
+  no `abcode`: IBM's documentation defines only the two-parameter form, so the code is undefined there. `ggabend.c` reads
+  libcob's call-parameter count and records `U0000` for it, as the Java side does; what is compared is that the step
+  abends, not a code IBM does not define. A z/OS run of that step would show the real code; none has been made.
 
 ### L3. WORKING-STORAGE with no VALUE clause — ASSUMED
 - **What.** GnuCOBOL initialises such an alphanumeric item to spaces. On z/OS its first contents follow the LE

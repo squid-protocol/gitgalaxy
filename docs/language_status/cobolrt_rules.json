@@ -3728,9 +3728,10 @@
   {
    "id": "RT-DLI-ISRT",
    "family": "DLI",
-   "title": "ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found; with command code D, a path insert from the root (each D-coded level kept or created from its slice of the I/O area)",
+   "title": "ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found; with command code D, a path insert from the root (each D-coded level kept or created from its slice of the I/O area); on a load-mode PCB (PROCOPT L / LS) the segment is appended in sequence, LB / LC / LD / LE for a duplicate, out-of-sequence, parentless or type-order violation",
    "methods": [
     "isrt",
+    "loadIsrt",
     "pathIsrt"
    ],
    "ibm": {

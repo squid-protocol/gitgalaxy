@@ -133,6 +133,7 @@ def test_a_cics_family_module_stales_what_its_host_file_does():
         ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_containers.c"),
         ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_taskcontrol.c"),
         ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_enq.c"),
+        ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_transientdata.c"),
         ("tests/tools/equivalence_cics.py", "tests/tools/equivalence_cics_containers.py"),
         ("gitgalaxy/tools/cobol_to_java/det/cics.py", "gitgalaxy/tools/cobol_to_java/det/cics_containers.py"),
         ("gitgalaxy/tools/cobol_to_java/det/cics.py", "gitgalaxy/tools/cobol_to_java/det/cics_filecontrol.py"),

@@ -1,5 +1,5 @@
 {
- "commit": "8d9e33e47",
+ "commit": "a2c5f81e8",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -18,8 +18,8 @@
    "spec": {
     "engine_only": 2,
     "entries": 257,
-    "full": 100,
-    "name_only": 155
+    "full": 102,
+    "name_only": 153
    },
    "unlisted_or_unparsed": 7
   },
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-24T06:41:36Z",
+  "as_of": "2026-10-24T06:54:56Z",
   "core": {
    "closed": 171,
    "open": 16,

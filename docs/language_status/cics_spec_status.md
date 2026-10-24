@@ -6,7 +6,7 @@ Per command the spec (`gitgalaxy/standards/cics`, design: [cics_command_spec.md]
 
 Census use is `programs (burned / non-burned)`, counts only. A spec key is the det translator's: `parse_exec` + `command_key`, then the name-only entry `whole_refusal` finds.
 
-**257 entries:** 100 full, 2 engine-only, 155 name-only.
+**257 entries:** 102 full, 2 engine-only, 153 name-only.
 
 ## Spec PRs (cics_command_spec.md section 7)
 
@@ -35,6 +35,8 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | ENDBROWSE CONTAINER | full | yes (4 options) | yes | X42 | — | 0 | — |
 | DELETE CHANNEL | full | yes (4 options) | yes | X17, X44 | — | 0 | — |
 | QUERY CHANNEL | full | yes (5 options) | yes | X17, X44 | — | 0 | — |
+| PUT64 CONTAINER | full | yes (13 options, 1 refused by name) | refused whole | X17 | — | 0 | — |
+| GET64 CONTAINER | full | yes (12 options, 2 refused by name) | refused whole | X17 | — | 0 | — |
 | DOCUMENT CREATE | full | yes (8 options, 8 refused by name) | yes | X33 | doctemplates | 3 (3 / 0) | — |
 | DOCUMENT RETRIEVE | full | yes (8 options, 2 refused by name) | yes | X33 | — | 3 (3 / 0) | — |
 | START | full | yes (21 options, 6 refused by name) | yes | X18 | — | 3 (3 / 0) | gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce |
@@ -137,7 +139,7 @@ Refused whole by the translator and the stub, with the entry's reason. Ranked by
 |---|---|---|
 | SOAPFAULT CREATE | 1 (1 / 0) | — |
 
-154 more name-only entries no census program uses.
+152 more name-only entries no census program uses.
 
 ## Commands the translator keys to no spec entry
 

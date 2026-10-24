@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `8d9e33e47` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `a2c5f81e8` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -42,7 +42,7 @@ mutants caught (`definition_of_done.md`).
 
 CICS commands not modelled on both runtimes: `(unlisted) ASKTIME NOHANDLE`, `(unlisted) GET`, `(unlisted) INQUIRE`, `(unlisted) INQUIRE URIMAP`, `(unlisted) SET`, `(unlisted) SYNCPOINT NOHANDLE`, `(unparsed)`, `SOAPFAULT CREATE`.
 
-Frontier context, not the denominator above: the whole CICS spec has 257 entries, 100 full, 2 engine-only and 155 refused by name.
+Frontier context, not the denominator above: the whole CICS spec has 257 entries, 102 full, 2 engine-only and 153 refused by name.
 
 ## 3. Eras
 
@@ -59,7 +59,7 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-24T06:41:36Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-24T06:54:56Z.
 
 - `scope:core`: 16 open, 171 closed.
 - Milestone 28: 8 open, 95 closed.

@@ -389,6 +389,112 @@ def head_pushed_at(api: Api, sha: str) -> str | None:
     return stamps[0] if stamps else None
 
 
+# #6534: the per-PR reads of gather() in one GraphQL query (its own points quota, not REST's 5,000/h). Every list is
+# fetched whole or not used: a connection longer than what came back sends the PR down the REST path.
+PR_QUERY = """
+query($owner: String!, $name: String!, $n: Int!) {
+  rateLimit { cost }
+  repository(owner: $owner, name: $name) {
+    pullRequest(number: $n) {
+      number state merged isDraft body mergeStateStatus headRefOid headRefName baseRefName
+      headRepository { nameWithOwner }
+      autoMergeRequest { enabledAt }
+      labels(first: 100) { totalCount nodes { name } }
+      comments(last: 100) { totalCount nodes { author { __typename login } body } }
+      timelineItems(itemTypes: [LABELED_EVENT], last: 100) {
+        filteredCount nodes { ... on LabeledEvent { actor { __typename login } createdAt label { name } } }
+      }
+      commits(last: 1) { nodes { commit { oid
+        status { contexts { context state } }
+        checkSuites(first: 100) { totalCount nodes { createdAt app { slug }
+          checkRuns(first: 100) { totalCount nodes { databaseId name status conclusion detailsUrl url } } } }
+      } } }
+    }
+  }
+}"""
+
+
+class Truncated(ValueError):
+    """A GraphQL list came back shorter than its totalCount."""
+
+
+def _whole(conn: dict[str, Any], count: str = "totalCount") -> list[dict[str, Any]]:
+    nodes = conn["nodes"]
+    if conn[count] > len(nodes):
+        raise Truncated
+    return nodes
+
+
+def _login(who: dict[str, Any] | None) -> dict[str, Any] | None:
+    """REST's user object: an app's account reads `name[bot]` there, bare `name` in GraphQL."""
+    if not who:
+        return None
+    return {"login": who["login"] + ("[bot]" if who.get("__typename") == "Bot" else "")}
+
+
+def graphql_reads(p: dict[str, Any]) -> dict[str, Any]:
+    """The REST shapes gather() reads (the pull, its comments, the head's check runs, statuses, labeled events and push
+    time), from one PR_QUERY pullRequest. KeyError / TypeError / Truncated when anything is missing or cut short."""
+    commit = p["commits"]["nodes"][0]["commit"]
+    if commit["oid"] != p["headRefOid"]:
+        raise Truncated  # the head moved between the two fields
+    suites = _whole(commit["checkSuites"])
+    runs = []
+    for suite in suites:
+        slug = (suite.get("app") or {}).get("slug")
+        for r in _whole(suite["checkRuns"]):
+            runs.append({
+                "id": r["databaseId"], "name": r["name"], "status": r["status"].lower(),
+                "conclusion": r["conclusion"].lower() if r["conclusion"] else None, "app": {"slug": slug},
+                "details_url": r["detailsUrl"], "html_url": r["detailsUrl"] if slug == "github-actions" else r["url"],
+            })  # fmt: skip
+    stamps = sorted(s["createdAt"] for s in suites if s.get("createdAt"))
+    pr = {
+        "number": p["number"],
+        "state": "open" if p["state"] == "OPEN" else "closed",
+        "merged": bool(p["merged"]),
+        "draft": bool(p["isDraft"]),
+        "body": p["body"],
+        "mergeable_state": (p["mergeStateStatus"] or "unknown").lower(),
+        "auto_merge": p["autoMergeRequest"],
+        "head": {
+            "sha": p["headRefOid"],
+            "ref": p["headRefName"],
+            "repo": {"full_name": p["headRepository"]["nameWithOwner"]} if p["headRepository"] else None,
+        },
+        "base": {"ref": p["baseRefName"]},
+        "labels": [{"name": x["name"]} for x in _whole(p["labels"])],
+    }
+    return {
+        "pr": pr,
+        "comments": [{"body": c["body"], "user": _login(c["author"])} for c in _whole(p["comments"])],
+        "runs": runs,
+        "statuses": [
+            {"context": c["context"], "state": c["state"].lower()}
+            for c in ((commit.get("status") or {}).get("contexts") or [])
+        ],
+        "events": [
+            {
+                "event": "labeled",
+                "label": {"name": e["label"]["name"]},
+                "actor": _login(e["actor"]),
+                "created_at": e["createdAt"],
+            }
+            for e in _whole(p["timelineItems"], "filteredCount")  # totalCount counts every item type
+        ],
+        "pushed": stamps[0] if stamps else None,
+    }
+
+
+def _graphql_pr(graphql: pr_check.GraphQL, n: int) -> dict[str, Any] | None:
+    """graphql_reads for PR n, or None (the REST path) when the query fails or any list is incomplete."""
+    owner, name = REPO_SLUG.split("/")
+    try:
+        return graphql_reads(graphql(PR_QUERY, {"owner": owner, "name": name, "n": n})["repository"]["pullRequest"])
+    except (SystemExit, KeyError, TypeError, IndexError, AttributeError, ValueError):
+        return None
+
+
 def gather(
     n: int,
     api: Api = pr_check.gh_api,
@@ -397,6 +503,7 @@ def gather(
     on_main: set[str] | None = None,
     flaky: set[str] | None = None,
     main: tuple[str, set[str]] | None = None,
+    graphql: pr_check.GraphQL | None = None,
 ) -> dict[str, Any]:
     """The snapshot decide() reads for PR n. `event`: the facts of the pull_request_target payload that caused the pass
     (action, label, sender), when there was one. Reconcile passes have none.
@@ -414,8 +521,11 @@ def gather(
         (clean_main_merge) -> approved, carried over; any other new head is not;
       * the bot's update is between its two markers -> pending, no decision;
       * no trusted marker at all -> awaiting (the labeled run never happened, or was dropped): no drop, quiet;
-      * otherwise the head moved without approval -> the label is dropped."""
+      * otherwise the head moved without approval -> the label is dropped.
+    `graphql` (#6534): the PR, comments, head checks, labeled events and push time come from one PR_QUERY instead of
+    six REST reads; None, or a query that fails or comes back incomplete, reads them through REST."""
     event = event or {}
+    got = _graphql_pr(graphql, n) if graphql else None
     perms: dict[str, str | None] = {}
 
     def perm(login: str) -> str | None:
@@ -423,17 +533,26 @@ def gather(
             perms[login] = _perm(api, login)
         return perms[login]
 
-    pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
+    if got and got["pr"]["mergeable_state"] == "unknown":
+        # GraphQL reports UNKNOWN until something asks GitHub to compute it; the REST read does, and a dirty PR
+        # must not pass for clean. A head that moved in between leaves the rest of the record stale: REST for all.
+        rest = api(f"repos/{REPO_SLUG}/pulls/{n}")
+        got = {**got, "pr": rest} if rest["head"]["sha"] == got["pr"]["head"]["sha"] else None
+        pr = rest
+    else:
+        pr = got["pr"] if got else api(f"repos/{REPO_SLUG}/pulls/{n}")
     sha = pr["head"]["sha"]
     labels = [x["name"] for x in pr.get("labels") or []]
     head_repo = (pr["head"].get("repo") or {}).get("full_name")
-    comments = pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/comments") if labels else []
-    runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
-    statuses = (api(f"repos/{REPO_SLUG}/commits/{sha}/status") or {}).get("statuses", [])
+    comments = (
+        (got["comments"] if got else pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/comments")) if labels else []
+    )
+    runs = got["runs"] if got else pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
+    statuses = got["statuses"] if got else (api(f"repos/{REPO_SLUG}/commits/{sha}/status") or {}).get("statuses", [])
     checks = pr_check.classify(runs, statuses)
     digest: dict[str, Any] = {"failed": []}
     if checks["failed"]:
-        digest = ci_digest.digest(n, api, on_main=on_main, flaky=flaky)
+        digest = ci_digest.digest(n, api, on_main=on_main, flaky=flaky, pr=pr, runs=runs)
         attempts_by_run: dict[int, tuple[int, float | None]] = {}
         for f in digest["failed"]:
             if f["triage"] in ("infra", "flake") and f.get("run_id") is not None:
@@ -442,7 +561,7 @@ def gather(
                     attempts_by_run[rid] = _attempts(api, rid)
                 f["attempts"], f["updated_at"] = attempts_by_run[rid]
     # who last added each request label (the timeline; no commit ids are used)
-    events = pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/events") if labels else []
+    events = (got["events"] if got else pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/events")) if labels else []
     actors: dict[str, dict[str, Any] | None] = {}
     for name in labels:
         if name not in REQUESTS:
@@ -478,7 +597,7 @@ def gather(
     # start minutes late), so approval is read from state, never from which event arrived. The head was pushed when
     # GitHub created its first check suite (set by GitHub, unlike a commit date); a writer's label added after that is
     # an approval of this head, whichever pass sees it first -- that pass records the marker.
-    pushed = head_pushed_at(api, sha) if MERGE in labels else None
+    pushed = (got["pushed"] if got else head_pushed_at(api, sha)) if MERGE in labels else None
     labelled = m.get("at") if m else None
     after_push = bool(pushed and labelled and labelled > pushed)
     if MERGE in labels and m and writer(m["permission"]) and (approved_sha == sha or after_push):
@@ -711,6 +830,7 @@ def process(
     on_main: set[str] | None = None,
     flaky: set[str] | None = None,
     main: tuple[str, set[str]] | None = None,
+    graphql: pr_check.GraphQL | None = None,
 ) -> list[str]:
     event = event or {}
     lines: list[str] = []
@@ -739,7 +859,7 @@ def process(
             return lines  # no approval, so no auto-merge
         event = {**event, "approved": head}  # gather must not depend on reading back the comment it just posted
     try:
-        s = gather(n, api, event, on_main=on_main, flaky=flaky, main=main)
+        s = gather(n, api, event, on_main=on_main, flaky=flaky, main=main, graphql=graphql)
     except SystemExit as e:  # one PR's failed read must not stop the others
         return lines + [f"#{n} skipped: {e}"]
     acts = decide(s)
@@ -799,6 +919,9 @@ def ensure_labels(run: Run = _run) -> list[str]:
     return out
 
 
+API_CACHE_ENV = "SHEPHERD_API_CACHE"  # #6534: a directory for conditional (ETag) REST reads; unset, reads are plain
+
+
 PASS_CACHED = re.compile(r"^(user|repos/[^/]+/[^/]+/collaborators/[^/]+/permission)$")
 
 
@@ -818,7 +941,14 @@ def pass_cached(api: Api) -> Api:
     return cached
 
 
-def main(argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _run) -> int:
+def main(
+    argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _run, graphql: pr_check.GraphQL | None = None
+) -> int:
+    """`graphql`: defaults to `gh api graphql` when `api` is the real gh (a fake api never reaches the real GraphQL)."""
+    if api is pr_check.gh_api:
+        graphql = graphql or pr_check.gh_graphql
+        if os.environ.get(API_CACHE_ENV):
+            api = pr_check.conditional_api(Path(os.environ[API_CACHE_ENV]))
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     e = sub.add_parser("event")
@@ -835,16 +965,18 @@ def main(argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _
         lines = ensure_labels(run)
     elif args.cmd == "event":
         number, facts = event_facts(args.event_path)
-        lines = process(number, api, run, facts, args.dry_run, flaky=learned_flakes(args.flake_cache))
+        lines = process(number, api, run, facts, args.dry_run, flaky=learned_flakes(args.flake_cache), graphql=graphql)
     else:
         lines = []
-        api = pass_cached(api)
+        api = pass_cached(pr_check.pass_cache(api))  # #6534: plus the finished SHAs' reads
         flaky = learned_flakes(args.flake_cache)  # once per pass
         prs = prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api)
         on_main = ci_digest.main_failures(api) if len(prs) > 1 else None
         main_state = ci_digest.main_green(api)  # #5484: only a reconcile pass may merge main into a waiting PR
         for n in prs:
-            lines += process(n, api, run, None, args.dry_run, on_main=on_main, flaky=flaky, main=main_state)
+            lines += process(
+                n, api, run, None, args.dry_run, on_main=on_main, flaky=flaky, main=main_state, graphql=graphql
+            )
     for line in lines:
         print(line)
     return 1 if any("FAILED" in x for x in lines) else 0

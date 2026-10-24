@@ -283,6 +283,17 @@ CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION = re.compile(
     r"\s*\("
 )
 
+# #6454: Dart's form of the C3 generic pattern. A Dart type argument may be nullable
+# (`ValueNotifier<String?>(null)`, `Completer<T?>()`), so `?` is allowed inside the list; `:` is
+# not (no Dart type-argument list holds one), which keeps a ternary `a<b ? c : d>(e)` out.
+# Everything else is CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION's, bounds included.
+_DART_GENERIC_ARG_CHAR = r"[^<>()\n;{}=|!:\"']"
+CALLS_OUT_DART = re.compile(
+    rf"(?<!@)\b([{ID_START}][{ID_CONTINUE}]*)"
+    r"(?:<(?:" + _DART_GENERIC_ARG_CHAR + r"|<" + _DART_GENERIC_ARG_CHAR + r"{0,200}>\??){0,200}>[ \t]*)?"
+    r"\s*\("
+)
+
 # #3377: Ruby calls without parentheses. `name(` alone found a third of Ruby's
 # calls: idiomatic Ruby writes `obj.to_s`, `xs.each do`, `puts x`, and method
 # names end in `?`/`!` (`key?(k)`, `command! "brew"`). Group 1 is the callee,
@@ -470,6 +481,7 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_C_STYLE_NO_ANNOTATION,
     CALLS_OUT_C_STYLE_GENERIC,
     CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
+    CALLS_OUT_DART,
     CALLS_OUT_RUBY,
     CALLS_OUT_PERL,
     CALLS_OUT_RUST,

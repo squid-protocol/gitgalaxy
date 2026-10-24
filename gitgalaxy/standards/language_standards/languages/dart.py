@@ -14,7 +14,7 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
 from .._shared_patterns import (
-    CALLS_OUT_C_STYLE_NO_ANNOTATION,
+    CALLS_OUT_DART,
     COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
@@ -58,7 +58,7 @@ DEFINITION: dict[str, Any] = {
         # decision. See branch_rule_contract.md, "Literals".
         "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE_NO_ANNOTATION,  # #3359: `@Name(` is an annotation (C1)
+        "calls_out": CALLS_OUT_DART,  # #3359 C1; #6454 `f<T>(x)`, `C<T?>()`
         # #3359 (contract C2): keywords and special forms, never calls
         "_calls_out_ignore": frozenset(
             {

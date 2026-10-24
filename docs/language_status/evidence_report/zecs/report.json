@@ -669,7 +669,7 @@
    "cbsa-bnk1cra": [
     28,
     28,
-    55,
+    57,
     67
    ],
    "cbsa-bnk1cra-generated": [
@@ -711,7 +711,7 @@
    "cbsa-bnk1uac": [
     31,
     31,
-    78,
+    80,
     88
    ],
    "cbsa-bnk1uac-generated": [
@@ -1626,7 +1626,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
+   "sha": "ee5c97779b22d8ae3054fed45488814ff176c25a",
    "translator": {
     "files": 145,
     "sha256": "77ff59f7a5ce257d46f5eb0f091aeecfdfeeb48a913a8cd1b608459eea12c6f7"
@@ -5097,8 +5097,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
+   "python tests/tools/cics_census.py survey --baseline --sha ee5c97779b22d8ae3054fed45488814ff176c25a",
+   "python tests/tools/evidence_report.py zecs --baseline --sha ee5c97779b22d8ae3054fed45488814ff176c25a",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -5119,13 +5119,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
+   "sha": "ee5c97779b22d8ae3054fed45488814ff176c25a",
    "translator": {
     "files": 145,
     "sha256": "77ff59f7a5ce257d46f5eb0f091aeecfdfeeb48a913a8cd1b608459eea12c6f7"
    }
   },
-  "translator_commit": "6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
+  "translator_commit": "ee5c97779b22d8ae3054fed45488814ff176c25a",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

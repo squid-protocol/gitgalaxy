@@ -627,7 +627,7 @@
    "cbsa-bnk1cra": [
     28,
     28,
-    55,
+    57,
     67
    ],
    "cbsa-bnk1cra-generated": [
@@ -669,7 +669,7 @@
    "cbsa-bnk1uac": [
     31,
     31,
-    78,
+    80,
     88
    ],
    "cbsa-bnk1uac-generated": [
@@ -2867,7 +2867,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
+   "sha": "ee5c97779b22d8ae3054fed45488814ff176c25a",
    "translator": {
     "files": 145,
     "sha256": "77ff59f7a5ce257d46f5eb0f091aeecfdfeeb48a913a8cd1b608459eea12c6f7"
@@ -3222,7 +3222,7 @@
      },
      {
       "case": "cbsa-bnk1cra",
-      "case_scenarios": 26,
+      "case_scenarios": 28,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -3299,7 +3299,7 @@
      },
      {
       "case": "cbsa-bnk1uac",
-      "case_scenarios": 73,
+      "case_scenarios": 75,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -3511,7 +3511,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:c3109d101b203fe1b9712bdebca0070f9af9a9516a6c6ff603ebff4c4e54853b",
+       "oracle_image": "sha256:03d7363b6afc3b55e391020ce384e2c3a40043fafb926528d0370d1b13fe48bf",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -10004,7 +10004,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1uac",
-      "case_scenarios": 73,
+      "case_scenarios": 75,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -10054,7 +10054,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:c3109d101b203fe1b9712bdebca0070f9af9a9516a6c6ff603ebff4c4e54853b",
+       "oracle_image": "sha256:03d7363b6afc3b55e391020ce384e2c3a40043fafb926528d0370d1b13fe48bf",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -10152,7 +10152,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:c3109d101b203fe1b9712bdebca0070f9af9a9516a6c6ff603ebff4c4e54853b",
+      "oracle_image": "sha256:03d7363b6afc3b55e391020ce384e2c3a40043fafb926528d0370d1b13fe48bf",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -13174,26 +13174,24 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 94.8,
-    "branch_pct": 82.1,
+    "branch_net_pct": 95.0,
+    "branch_pct": 85.1,
     "branches": {
-     "covered": 55,
+     "covered": 57,
      "total": 67
     },
     "branches_net": {
-     "covered": 55,
-     "total": 58
+     "covered": 57,
+     "total": 60
     },
     "current": true,
     "infeasible_netted": [
      "A010:271:false",
      "A010:271:true",
-     "SM010:657:true",
      "SM010:722:true",
      "SM010:731:false",
      "SM010:731:true",
      "SM010:796:false",
-     "SM010:806:true",
      "STM010:884:true"
     ],
     "infeasible_refuted": [],
@@ -13215,15 +13213,6 @@
       "outcome": "true",
       "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OCRA') COMMAREA(WS-COMM-AREA) LENGTH(21)` (263-269): RETURN never comes back on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for it with a 21-byte COMMAREA and an installed TRANSID.",
       "unit": "A010"
-     },
-     {
-      "family": "R",
-      "key": "SM010:657:true",
-      "kind": "IF",
-      "line": 657,
-      "outcome": "true",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND MAP ERASE (648 on): IBM raises no condition for a map the program has just built from its own BNK1CDO, and no fault can be injected on it.",
-      "unit": "SM010"
      },
      {
       "family": "C",
@@ -13263,15 +13252,6 @@
      },
      {
       "family": "R",
-      "key": "SM010:806:true",
-      "kind": "IF",
-      "line": 806,
-      "outcome": "true",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND MAP DATAONLY ALARM (796 on): IBM raises no condition for a map the program has just built from its own BNK1CDO, and no fault can be injected on it.",
-      "unit": "SM010"
-     },
-     {
-      "family": "R",
       "key": "STM010:884:true",
       "kind": "IF",
       "line": 884,
@@ -13295,7 +13275,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1cra",
-      "case_scenarios": 26,
+      "case_scenarios": 28,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -13318,7 +13298,7 @@
     ],
     "chosen": {
      "case": "cbsa-bnk1cra",
-     "case_scenarios": 26,
+     "case_scenarios": 28,
      "db2": true,
      "det": {
       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -13337,7 +13317,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 82.1 raw, 94.8 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 85.1 raw, 95.0 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 4,
@@ -13902,7 +13882,7 @@
      "X31",
      "X46"
     ],
-    "branch_outcomes_unrun": 12,
+    "branch_outcomes_unrun": 10,
     "commands": 12,
     "commands_backed": 7,
     "commands_not_backed": [
@@ -15404,26 +15384,24 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 98.7,
-    "branch_pct": 88.6,
+    "branch_net_pct": 98.8,
+    "branch_pct": 90.9,
     "branches": {
-     "covered": 78,
+     "covered": 80,
      "total": 88
     },
     "branches_net": {
-     "covered": 78,
-     "total": 79
+     "covered": 80,
+     "total": 81
     },
     "current": true,
     "infeasible_netted": [
      "A010:303:false",
      "A010:303:true",
-     "SM010:1083:true",
      "SM010:1149:true",
      "SM010:1159:false",
      "SM010:1159:true",
      "SM010:1224:false",
-     "SM010:1235:true",
      "STM010:1314:true"
     ],
     "infeasible_refuted": [],
@@ -15445,15 +15423,6 @@
       "outcome": "true",
       "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OUAC') COMMAREA(WS-COMM-AREA) LENGTH(99)` (296-301): RETURN never comes back to the program on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for a RETURN whose COMMAREA is 99 bytes and TRANSID names an installed transaction.",
       "unit": "A010"
-     },
-     {
-      "family": "R",
-      "key": "SM010:1083:true",
-      "kind": "IF",
-      "line": 1083,
-      "outcome": "true",
-      "reason": "`RESP(WS-CICS-RESP)` is set by the SEND MAP ERASE at 1074-1081; IBM raises no condition here for a map the program has just built from its own BNK1UAO (a MAPFAIL belongs to RECEIVE MAP), and no fault can be injected on it.",
-      "unit": "SM010"
      },
      {
       "family": "C",
@@ -15493,15 +15462,6 @@
      },
      {
       "family": "R",
-      "key": "SM010:1235:true",
-      "kind": "IF",
-      "line": 1235,
-      "outcome": "true",
-      "reason": "`RESP(WS-CICS-RESP)` is set by the SEND MAP DATAONLY ALARM at 1225-1233; IBM raises no condition here for a map the program has just built from its own BNK1UAO (a MAPFAIL belongs to RECEIVE MAP), and no fault can be injected on it.",
-      "unit": "SM010"
-     },
-     {
-      "family": "R",
       "key": "STM010:1314:true",
       "kind": "IF",
       "line": 1314,
@@ -15525,7 +15485,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1uac",
-      "case_scenarios": 73,
+      "case_scenarios": 75,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -15548,7 +15508,7 @@
     ],
     "chosen": {
      "case": "cbsa-bnk1uac",
-     "case_scenarios": 73,
+     "case_scenarios": 75,
      "db2": true,
      "det": {
       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -15567,7 +15527,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 88.6 raw, 98.7 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 90.9 raw, 98.8 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 4,
@@ -16108,7 +16068,7 @@
      "X31",
      "X46"
     ],
-    "branch_outcomes_unrun": 10,
+    "branch_outcomes_unrun": 8,
     "commands": 10,
     "commands_backed": 7,
     "commands_not_backed": [
@@ -19044,7 +19004,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1cra",
-      "case_scenarios": 26,
+      "case_scenarios": 28,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -19634,7 +19594,7 @@
      },
      {
       "case": "cbsa-bnk1uac",
-      "case_scenarios": 73,
+      "case_scenarios": 75,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -19703,7 +19663,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:c3109d101b203fe1b9712bdebca0070f9af9a9516a6c6ff603ebff4c4e54853b",
+       "oracle_image": "sha256:03d7363b6afc3b55e391020ce384e2c3a40043fafb926528d0370d1b13fe48bf",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -19777,7 +19737,7 @@
         "option": "TRUNC"
        }
       ],
-      "oracle_image": "sha256:c3109d101b203fe1b9712bdebca0070f9af9a9516a6c6ff603ebff4c4e54853b",
+      "oracle_image": "sha256:03d7363b6afc3b55e391020ce384e2c3a40043fafb926528d0370d1b13fe48bf",
       "oracle_matches_pin": true,
       "records_compared": 29,
       "records_equal": 29,
@@ -22194,8 +22154,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
+   "python tests/tools/cics_census.py survey --baseline --sha ee5c97779b22d8ae3054fed45488814ff176c25a",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha ee5c97779b22d8ae3054fed45488814ff176c25a",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (37) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated",
@@ -22212,21 +22172,21 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
-   "sha256:c3109d101b203fe1b9712bdebca0070f9af9a9516a6c6ff603ebff4c4e54853b"
+   "sha256:03d7363b6afc3b55e391020ce384e2c3a40043fafb926528d0370d1b13fe48bf",
+   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
+   "sha": "ee5c97779b22d8ae3054fed45488814ff176c25a",
    "translator": {
     "files": 145,
     "sha256": "77ff59f7a5ce257d46f5eb0f091aeecfdfeeb48a913a8cd1b608459eea12c6f7"
    }
   },
-  "translator_commit": "6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
+  "translator_commit": "ee5c97779b22d8ae3054fed45488814ff176c25a",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

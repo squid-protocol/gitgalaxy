@@ -4574,7 +4574,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   text and touches nothing past it; a failing call writes a zero length and leaves the text. IBM says the output is
   blanks on error and cut to the output's length (CEE2526 / CEE2527) but states no COBOL layout for an output declared
   `PIC X(n)`, as BANKDATA's `DATM-CONV` is (it reads `DATM-CONV(1:14)` only in a debug line). The Java side refuses an
-  output item shorter than the result (the C model cannot see the item's size), so 2526 / 2527 are never produced.
+  output item shorter than the result (the C model is handed a bare pointer and cannot see the item's size), so 2526 / 2527 are never produced. `test_det_le_time.py` pins the Java side: for CEEDATE and CEEDATM an item one byte short of 2 + the result is refused, one of exactly that size is filled whole. A COBOL-side refusal is not possible in the oracle (GnuCOBOL passes no size to a CALLed C routine), so the census test (below) is what keeps a burned program from reaching it.
   (3) The milliseconds of a Lilian second are the fraction floored to a thousandth, so a value in `.9995` is `.999`;
   a seconds value is valid below 265 621 680 000. (4) CEESECS answers CEE2525 (picture mismatch) for a non-digit in
   a numeric position or a delimiter that differs from the picture's: IBM names the code, not its trigger. (5) A

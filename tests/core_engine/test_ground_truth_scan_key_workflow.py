@@ -46,6 +46,10 @@ def _hashed(path, patterns):
     return any(_glob(p).match(path) for p in inc) and not any(_glob(p).match(path) for p in exc)
 
 
+def _is_tool_readme(path):
+    return path.startswith("gitgalaxy/tools/") and path.endswith("/README.md")
+
+
 def _tracked():
     out = subprocess.run(["git", "ls-files", "gitgalaxy"], cwd=ROOT, capture_output=True, text=True, check=True)
     return out.stdout.splitlines()
@@ -101,7 +105,11 @@ def test_the_stand_in_copybooks_the_scan_reads_are_hashed():
 def test_non_python_engine_data_is_hashed():
     patterns = _patterns()
     standalone = ("/tools/cobol_to_java/", "/tools/cobol_to_cobol/", "/tools/terabyte_log_scanning/")
-    data = [f for f in _tracked() if not f.endswith(".py") and not any(d in f for d in standalone)]
+    data = [
+        f
+        for f in _tracked()
+        if not f.endswith(".py") and not any(d in f for d in standalone) and not _is_tool_readme(f)
+    ]
     assert data and all(_hashed(f, patterns) for f in data)
 
 
@@ -136,3 +144,23 @@ def test_the_standalone_tools_are_left_out_but_what_a_scan_imports_is_not():
     for f in left_out:
         assert _hashed(f, patterns) == (f in kept), f
     assert _hashed("gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py", patterns) is False
+
+
+def test_network_readiness_and_supply_chain_dirs_are_hashed_exactly_when_the_scan_imports_them():
+    """#5543: every tracked file of the three tool dirs is in the key iff the scan imports it; READMEs never are."""
+    patterns = _patterns()
+    closure = _import_closure()
+    dirs = ("network_auditing", "readiness", "supply_chain_security")
+    files = [f for f in _tracked() if any(f.startswith(f"gitgalaxy/tools/{d}/") for d in dirs)]
+    assert {f for f in files if f.endswith(".py")} & closure, "the closure reaches none of the three dirs"
+    for f in files:
+        assert _hashed(f, patterns) == (f in closure), f
+    kept = {
+        "gitgalaxy/tools/network_auditing/full_api_network_map.py",
+        "gitgalaxy/tools/readiness/__init__.py",
+        "gitgalaxy/tools/readiness/offline.py",
+        "gitgalaxy/tools/supply_chain_security/binary_anomaly_detector.py",
+        "gitgalaxy/tools/supply_chain_security/supply_chain_firewall.py",
+    }
+    assert all(_hashed(f, patterns) for f in kept)
+    assert not _hashed("gitgalaxy/tools/supply_chain_security/vault_sentinel.py", patterns)

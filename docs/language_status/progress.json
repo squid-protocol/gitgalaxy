@@ -1,5 +1,5 @@
 {
- "commit": "edd87d301",
+ "commit": "579940b0e",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-24T10:28:28Z",
+  "as_of": "2026-10-24T11:05:52Z",
   "core": {
    "closed": 171,
    "open": 16,
@@ -186,9 +186,9 @@
   },
   "eta": "12 days",
   "frontier": {
-   "closed": 107,
+   "closed": 108,
    "found_last_window": 25,
-   "open": 101,
+   "open": 100,
    "total": 208
   },
   "frontier_milestone": {
@@ -401,9 +401,9 @@
     "total": 48
    },
    {
-    "closed": 33,
+    "closed": 34,
     "number": 31,
-    "open": 12,
+    "open": 11,
     "title": "DOOM Port Speedrun",
     "total": 45
    }

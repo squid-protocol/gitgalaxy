@@ -321,19 +321,24 @@ def test_no_engine_non_input_is_in_the_sweeps_import_closure():
         ), pat
 
 
-def test_a_pull_request_ignores_cobol_mainframe_once_and_nothing_else_does():
-    """Ground Truth runs tests/cobol_mainframe/ on a PR; the parts drop it there only, via the plan step's env file."""
+def test_a_pull_request_or_push_ignores_cobol_mainframe_and_nothing_else_does():
+    """Ground Truth runs tests/cobol_mainframe/ on a PR and a main push; the parts drop it there only (the nightly and a
+    manual run keep it, #5953), via the plan step's env file."""
     yaml = pytest.importorskip("yaml")
     wf = yaml.safe_load((ROOT / ".github" / "workflows" / "smoke-test.yml").read_text(encoding="utf-8"))["jobs"]
     job = wf["full-suite-part"]
     plan_step = next(s for s in job["steps"] if s.get("id") == "sweeps")
     run_step = next(s for s in job["steps"] if s.get("name", "").startswith("Golden Record Integration Test"))
-    assert 'if [ "$GITHUB_EVENT_NAME" = "pull_request" ]' in plan_step["run"]
+    assert '[ "$GITHUB_EVENT_NAME" = "pull_request" ] || [ "$GITHUB_EVENT_NAME" = "push" ]' in plan_step["run"]
+    assert "schedule" not in plan_step["run"].split("PYTEST_ADDOPTS")[0].rsplit("if ", 1)[-1]
     assert "PYTEST_ADDOPTS=--ignore=tests/cobol_mainframe" in plan_step["run"]
     assert "cobol_mainframe/test_evidence_components.py" in run_step["run"]  # the older ignore is unchanged
     assert "PYTEST_ADDOPTS" not in run_step["run"]
     gate = (ROOT / ".github" / "workflows" / "full-suite-gate.yml").read_text(encoding="utf-8")
     assert "PYTEST_ADDOPTS" not in gate
+    # #5953: the nightly grid drops ubuntu / 3.12 (smoke-test.yml's nightly is that leg); a tag or manual run keeps it
+    assert '"${{ github.event_name }}" = "schedule" ]; then\n' in gate
+    assert '.os != "ubuntu-latest" or .["python-version"] != "3.12"' in gate
     gt = yaml.safe_load((ROOT / ".github" / "workflows" / "mainframe-ground-truth.yml").read_text(encoding="utf-8"))
     part = gt["jobs"]["ground-truth-part"]
     assert "fromJSON(needs.plan.outputs.matrix" in part["strategy"]["matrix"]  # #5543: the plan job picks 4 parts or 2

@@ -93,3 +93,9 @@ def test_missing_inventory_and_deterministic_render(rows_and_inv):
     assert first == second
     assert "| `EXEC CICS GETMAIN` | 2 | 3 |" in first
     assert gp.eras_of("no-such-corpus", d) == {}
+
+
+@pytest.mark.parametrize("service", ["CEEHDLR", "CEEHDLU", "CEEMGET", "CEESGL", "CEENCOD", "CEEMRCE", "CEE3SRP"])
+def test_every_le_condition_service_gap_is_owned_by_5106(service):
+    assert gp.owner_of(f"{service}: an LE condition service is not modelled") == "#5106 (le-condition-handling)"
+    assert gp.owner_of("CEEIGZCT: x") == "unowned"  # the stand-in copybook is not a condition service

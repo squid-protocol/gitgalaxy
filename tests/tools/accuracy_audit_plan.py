@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Does a pull request move a per-language accuracy audit? (the "plan" job of call-graph-accuracy-audit.yml and
-detection-accuracy-audit.yml, #6501)
+"""Does a pull request move a per-language accuracy audit? (the "plan" job of call-graph-accuracy-audit.yml,
+detection-accuracy-audit.yml, tree-sitter-accuracy-audit.yml and tree-sitter-accuracy-history.yml, #6501)
 
-    python tests/tools/accuracy_audit_plan.py --audit {call-graph,detection} [--event pull_request] [--base origin/main]
+    python tests/tools/accuracy_audit_plan.py --audit {call-graph,detection,tree-sitter,tree-sitter-history}
+                                              [--event pull_request|push] [--base origin/main]
                                               [--files FILE ...] [--github-output PATH]
     python tests/tools/accuracy_audit_plan.py --audit detection --replay 50
 
@@ -16,6 +17,17 @@ job runs before anything is installed, as graph_accuracy_plan.py does) and decid
   call-graph  Level 1 scores the languages in tests/call_graph_accuracy_baseline.json. For one of them any diff beyond
               comments, blank lines and `_meta` runs the audit; for any other language the detection rule above applies
               (a rule or extension change can still move which language a crucible file is read as).
+
+  tree-sitter the audit scans each baselined language's crucible corpus (tests/tree_sitter_accuracy_baseline_<lang>.json) and
+              compares it with tree-sitter, so a change selects the languages it can move (output `langs`, `all` or a
+              comma list; `run` is false when it is empty). Comments and `_meta` are inert, but an underscore rule is
+              not (`_dependency_capture` is read). A languages/<lang>.py diff selects <lang> (when it has a baseline),
+              unless it touches a key the lens reads, which can reclassify any language's files: then all. A baseline
+              file selects its language. A rule that scores another language's ambiguous files differently is not
+              chased: the nightly run and the detection audit cover it.
+  tree-sitter-history  the push-to-main companion: the same selection, planned on the diff since the last successful run (`--event
+              push --base <that run's commit>`; github.event.before would miss a push whose queued run was replaced). It re-measures every language, but `--history` appends nothing when
+              the numbers are unchanged, so a push that cannot move a language needs no run.
 
 Anything the planner cannot place runs the audit: a new, deleted or unreadable file, a hunk outside the DEFINITION dict,
 a non-pull_request event, an empty diff, a failed git call. Every other path in the audit's own list (EVERYTHING) runs it;
@@ -40,9 +52,18 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 T = "tests/tools/"
 LANG_DIR = "gitgalaxy/standards/language_standards/languages/"
 LANG_STANDARDS = "gitgalaxy/standards/language_standards/"
-CALL, DETECTION = "call-graph", "detection"
-WORKFLOWS = {CALL: "call-graph-accuracy-audit.yml", DETECTION: "detection-accuracy-audit.yml"}
+CALL, DETECTION, TREE, HISTORY = "call-graph", "detection", "tree-sitter", "tree-sitter-history"
+WORKFLOWS = {
+    CALL: "call-graph-accuracy-audit.yml",
+    DETECTION: "detection-accuracy-audit.yml",
+    TREE: "tree-sitter-accuracy-audit.yml",
+    HISTORY: "tree-sitter-accuracy-history.yml",
+}
+# The only event each audit is planned on; any other event (schedule, workflow_dispatch, ...) runs it.
+EVENTS = {CALL: "pull_request", DETECTION: "pull_request", TREE: "pull_request", HISTORY: "push"}
 BASELINE = "tests/call_graph_accuracy_baseline.json"
+TREE_BASELINE = "tests/tree_sitter_accuracy_baseline_"
+ALL_LANGS = "all"
 
 _COMMON = (
     "tests/crucible_pins.toml",
@@ -68,6 +89,20 @@ EVERYTHING = {
         T + "detection_accuracy_audit.py",
         "tests/detection_accuracy_baseline.json",
         ".github/workflows/detection-accuracy-audit.yml",
+    ),
+    TREE: (
+        *_COMMON,
+        "gitgalaxy/core/detector.py",
+        "gitgalaxy/core/prism.py",
+        T + "tree_sitter_accuracy_audit.py",
+        ".github/workflows/tree-sitter-accuracy-audit.yml",
+    ),
+    HISTORY: (
+        *_COMMON,
+        "gitgalaxy/core/detector.py",
+        "gitgalaxy/core/prism.py",
+        T + "tree_sitter_accuracy_audit.py",
+        ".github/workflows/tree-sitter-accuracy-history.yml",
     ),
 }
 # The top-level keys of a language DEFINITION that language_lens.py reads (test_accuracy_audit_plan pins this set
@@ -97,6 +132,12 @@ Place = tuple[str, str | None]  # (top-level key, the rule inside `rules` or Non
 
 def baseline_languages(root: Path = REPO_ROOT) -> frozenset[str]:
     return frozenset(_norm(k) for k in json.loads((root / BASELINE).read_text(encoding="utf-8")))
+
+
+def tree_sitter_languages(root: Path = REPO_ROOT) -> dict[str, str]:
+    """Normalised language -> the name in its baseline file (`objectivec` -> `objective-c`), one per committed baseline."""
+    prefix = TREE_BASELINE.rsplit("/", 1)[1]
+    return {_norm(p.stem[len(prefix) :]): p.stem[len(prefix) :] for p in (root / "tests").glob(f"{prefix}*.json")}
 
 
 def locate(lines: list[str], lineno: int) -> Place | None:
@@ -187,40 +228,88 @@ def language_moves(
     return any(moves_detection(p) for p in found)
 
 
+def tree_languages(path: str, langs: dict[str, str], places: Callable[[str], list[Place | None]]) -> set[str] | None:
+    """The tree-sitter languages a change of languages/<lang>.py can move; None = all of them."""
+    stem = path[len(LANG_DIR) : -3]
+    if stem.startswith("_"):
+        return None
+    try:
+        found = places(path)
+    except (RuntimeError, OSError, ValueError):  # a new or deleted file, an unreadable base: when in doubt, run
+        return None
+    if any(p is None or p[0] in DETECTION_KEYS for p in found):  # unplaceable, or a key that reclassifies files
+        return None
+    if any(p[0] != "_meta" for p in found if p) and _norm(stem) in langs:
+        return {langs[_norm(stem)]}
+    return set()
+
+
 def plan(
     files: list[str],
     event: str,
     audit: str,
     places: Callable[[str], list[Place | None]],
     baseline: frozenset[str] | None = None,
+    langs: dict[str, str] | None = None,
 ) -> dict:
-    if event != "pull_request":
-        return {"run": True, "reason": f"{event}: always", "inputs": []}
+    tree = audit in (TREE, HISTORY)
+    every = {"langs": ALL_LANGS} if tree else {}
+    if event != EVENTS[audit]:
+        return {"run": True, "reason": f"{event}: always", "inputs": [], **every}
     if not files:
-        return {"run": True, "reason": "no changed files found (the diff is unreadable or empty)", "inputs": []}
+        return {
+            "run": True,
+            "reason": "no changed files found (the diff is unreadable or empty)",
+            "inputs": [],
+            **every,
+        }
     baseline = baseline_languages() if baseline is None else baseline
+    langs = (tree_sitter_languages() if langs is None else langs) if tree else {}
     inputs: list[str] = []
+    selected: set[str] = set()
+    everything = False
     for f in sorted(files):
         if f in EVERYTHING[audit]:
             inputs.append(f)
+            everything = True
+        elif tree and f.startswith(TREE_BASELINE) and f.endswith(".json"):
+            inputs.append(f)
+            selected.add(f[len(TREE_BASELINE) : -5])
         elif f.startswith(LANG_DIR) and f.endswith(".py") and "/" not in f[len(LANG_DIR) :]:
-            if language_moves(audit, f, baseline, places):
+            if tree:
+                moved = tree_languages(f, langs, places)
+                if moved is None or moved:
+                    inputs.append(f)
+                    everything = everything or moved is None
+                    selected |= moved or set()
+            elif language_moves(audit, f, baseline, places):
                 inputs.append(f)
         elif f.startswith(LANG_STANDARDS):  # identifiers, _shared_patterns, a registry or a data file
             inputs.append(f)
+            everything = True
     if not inputs:
         areas = sorted({change_classifier.area(f) for f in files})
-        return {"run": False, "reason": f"no changed file can move {audit} (areas: {', '.join(areas)})", "inputs": []}
-    return {"run": True, "reason": f"{len(inputs)} changed file(s) feed it, first: {inputs[0]}", "inputs": inputs[:20]}
+        reason = f"no changed file can move {audit} (areas: {', '.join(areas)})"
+        return {"run": False, "reason": reason, "inputs": [], **({"langs": ""} if tree else {})}
+    out = {"run": True, "reason": f"{len(inputs)} changed file(s) feed it, first: {inputs[0]}", "inputs": inputs[:20]}
+    if tree:
+        out["langs"] = ALL_LANGS if everything or not langs else ",".join(sorted(selected))
+    return out
 
 
-def changed_files(base: str) -> list[str]:
-    return [ln for ln in _git("diff", "--name-only", f"{base}...HEAD").splitlines() if ln.strip()]
+def changed_files(base: str, event: str = "pull_request") -> list[str]:
+    """A pull request's files are `base...HEAD`; a push's are everything since the commit before it (`base`)."""
+    span = f"{base}...HEAD" if event == "pull_request" else base
+    return [
+        ln
+        for ln in _git("diff", "--name-only", span, *([] if event == "pull_request" else ["HEAD"])).splitlines()
+        if ln.strip()
+    ]
 
 
-def pr_places(base: str) -> Callable[[str], list[Place | None]]:
-    merge_base = _git("merge-base", base, "HEAD").strip()
-    return lambda path: git_places(path, merge_base, "HEAD")
+def pr_places(base: str, event: str = "pull_request") -> Callable[[str], list[Place | None]]:
+    start = _git("merge-base", base, "HEAD").strip() if event == "pull_request" else base
+    return lambda path: git_places(path, start, "HEAD")
 
 
 def workflow_paths(audit: str) -> list[str]:
@@ -236,24 +325,34 @@ def replay(prs: list[dict], audit: str, baseline: frozenset[str]) -> dict:
     paths = workflow_paths(audit)
     before = after = 0
     ran_after: list[int] = []
+    tree = audit in (TREE, HISTORY)
+    n_langs = len(tree_sitter_languages()) if tree else 0
+    langs_before = langs_after = 0  # tree-sitter: language corpora scanned
     for pr in prs:
         files = [f["path"] for f in pr.get("files") or [] if f.get("path")]
         oid = (pr.get("mergeCommit") or {}).get("oid")
+        selected = ALL_LANGS
         if len(files) >= 100:  # gh cuts the list: count it as running
             triggered, run = True, True
         else:
             triggered = any(_glob(f, paths) for f in files)
             if triggered and oid:
-                run = plan(files, "pull_request", audit, lambda p, o=oid: git_places(p, f"{o}^", o), baseline)["run"]
+                found = plan(files, EVENTS[audit], audit, lambda p, o=oid: git_places(p, f"{o}^", o), baseline)
+                run, selected = found["run"], found.get("langs", ALL_LANGS)
             else:
                 run = triggered
         before += triggered
         after += bool(triggered and run)
+        if tree and triggered:
+            langs_before += n_langs
+            langs_after += (n_langs if selected == ALL_LANGS else len(selected.split(","))) if run and selected else 0
         if triggered and run:
             ran_after.append(pr["number"])
     n = len(prs)
+    langs = {"language_corpora_before": langs_before, "language_corpora_now": langs_after} if tree else {}
     return {
         "audit": audit,
+        **langs,
         "prs": n,
         "ran_before": before,
         "runs_now": after,
@@ -280,7 +379,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--audit", required=True, choices=sorted(WORKFLOWS))
     ap.add_argument("--event", default="pull_request")
-    ap.add_argument("--base", default="origin/main")
+    ap.add_argument(
+        "--base", default="origin/main", help="the branch (pull_request) or the commit before the push (push)"
+    )
     ap.add_argument("--files", nargs="*", help="the changed files, instead of git diff --name-only BASE...HEAD")
     ap.add_argument("--github-output", type=Path, help="append `run=true|false` for later steps")
     ap.add_argument("--replay", type=int, metavar="N", help="plan the last N merged PRs (needs gh and the history)")
@@ -293,15 +394,22 @@ def main() -> int:
             return 1
         return 0
     try:
-        pull = args.event == "pull_request"
-        files = args.files if args.files is not None else (changed_files(args.base) if pull else [])
-        p = plan(files, args.event, args.audit, pr_places(args.base) if pull else (lambda _p: []))
+        planned = args.event == EVENTS[args.audit]
+        files = args.files if args.files is not None else (changed_files(args.base, args.event) if planned else [])
+        p = plan(files, args.event, args.audit, pr_places(args.base, args.event) if planned else (lambda _p: []))
     except (RuntimeError, OSError, ValueError, KeyError) as e:  # cannot tell what changed: run
-        p = {"run": True, "reason": f"cannot plan ({e})", "inputs": []}
+        p = {
+            "run": True,
+            "reason": f"cannot plan ({e})",
+            "inputs": [],
+            **({"langs": ALL_LANGS} if args.audit in (TREE, HISTORY) else {}),
+        }
     print(json.dumps(p, indent=1))
     if args.github_output:
         with args.github_output.open("a", encoding="utf-8") as fh:
             fh.write(f"run={'true' if p['run'] else 'false'}\n")
+            if "langs" in p:
+                fh.write(f"langs={p['langs']}\n")
     return 0
 
 

@@ -18,7 +18,8 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(TOOLS))
 import accuracy_audit_plan as aap  # noqa: E402
 
-CALL, DET = aap.CALL, aap.DETECTION
+CALL, DET, TREE, HIST = aap.CALL, aap.DETECTION, aap.TREE, aap.HISTORY
+LANGS = aap.tree_sitter_languages()
 LANG = aap.LANG_DIR
 BASELINE = aap.baseline_languages()
 WORKFLOWS = ROOT / ".github" / "workflows"
@@ -175,13 +176,15 @@ def test_detection_keys_cover_every_key_the_lens_reads():
     assert read <= aap.DETECTION_KEYS, sorted(read - aap.DETECTION_KEYS)
 
 
-def plan_with(files, audit, found, event="pull_request"):
+def plan_with(files, audit, found, event=None):
+    event = event or aap.EVENTS[audit]
+
     def places(_path):
         if isinstance(found, Exception):
             raise found
         return found
 
-    return aap.plan(files, event, audit, places, BASELINE)
+    return aap.plan(files, event, audit, places, BASELINE, LANGS)
 
 
 @pytest.mark.parametrize("audit", [CALL, DET])
@@ -205,10 +208,11 @@ def test_a_shared_language_standards_file_runs_the_audit(audit, path):
     assert plan_with([path], audit, [])["run"]
 
 
-@pytest.mark.parametrize("audit", [CALL, DET])
-@pytest.mark.parametrize("event", ["push", "schedule", "workflow_dispatch"])
+@pytest.mark.parametrize("audit", [CALL, DET, TREE, HIST])
+@pytest.mark.parametrize("event", ["push", "pull_request", "schedule", "workflow_dispatch"])
 def test_other_events_and_an_empty_diff_run_it(audit, event):
-    assert plan_with(["README.md"], audit, [], event=event)["run"]
+    if event != aap.EVENTS[audit]:
+        assert plan_with(["README.md"], audit, [], event=event)["run"]
     assert plan_with([], audit, [])["run"]
 
 
@@ -359,3 +363,222 @@ def test_every_path_the_workflow_filters_on_is_planned(audit):
             assert path.startswith(aap.LANG_STANDARDS), path
         else:
             assert path in aap.EVERYTHING[audit], path
+
+
+# ---- tree-sitter (and its push-to-main history) -----------------------------------------------------------------------
+
+TS = [TREE, HIST]
+
+
+def test_every_baseline_file_names_a_language_and_the_set_is_not_empty():
+    assert len(LANGS) > 20
+    assert LANGS["objectivec"] == "objective-c"
+    for norm, name in LANGS.items():
+        assert aap._norm(name) == norm
+        assert (ROOT / f"{aap.TREE_BASELINE}{name}.json").exists()
+
+
+@pytest.mark.parametrize("audit", TS)
+def test_every_shared_tree_sitter_input_runs_all_languages(audit):
+    for path in aap.EVERYTHING[audit]:
+        p = plan_with([path], audit, [])
+        assert p["run"] and p["langs"] == aap.ALL_LANGS, path
+
+
+@pytest.mark.parametrize("audit", TS)
+@pytest.mark.parametrize(
+    "path",
+    [
+        "gitgalaxy/standards/language_standards/identifiers.py",
+        "gitgalaxy/standards/language_standards/__init__.py",
+        "gitgalaxy/standards/language_standards/_shared_patterns.py",
+        f"{LANG}__init__.py",
+    ],
+)
+def test_a_shared_language_standards_file_runs_all_languages(audit, path):
+    p = plan_with([path], audit, [])
+    assert p["run"] and p["langs"] == aap.ALL_LANGS
+
+
+@pytest.mark.parametrize("audit", TS)
+@pytest.mark.parametrize("lang", ["python", "go", "objective-c", "typescript", "c", "zig"])
+def test_a_baseline_file_selects_its_language_only(audit, lang):
+    p = plan_with([f"{aap.TREE_BASELINE}{lang}.json"], audit, [])
+    assert p["run"] and p["langs"] == lang
+
+
+@pytest.mark.parametrize("audit", TS)
+@pytest.mark.parametrize("stem", ["python", "go", "objective_c", "typescript", "cpp", "powershell"])
+def test_a_language_rule_selects_that_language_and_an_underscore_rule_too(audit, stem):
+    f = [f"{LANG}{stem}.py"]
+    name = LANGS[aap._norm(stem)]
+    for found in (
+        [("rules", "func_start")],
+        [("rules", "_dependency_capture")],  # the audit reads it: unlike detection, an underscore rule counts
+        [("rules", "_args_arrow")],
+        [("case_insensitive_imports", None)],
+        [("rules", "func_start"), ("_meta", None)],
+    ):
+        p = plan_with(f, audit, found)
+        assert p["run"] and p["langs"] == name, found
+
+
+@pytest.mark.parametrize("audit", TS)
+@pytest.mark.parametrize("stem", ["python", "cobol"])
+def test_comments_and_meta_skip_every_language(audit, stem):
+    for found in ([], [("_meta", None)]):
+        p = plan_with([f"{LANG}{stem}.py"], audit, found)
+        assert p["run"] is False and p["langs"] == "" and p["inputs"] == []
+
+
+@pytest.mark.parametrize("audit", TS)
+def test_a_language_without_a_baseline_selects_nothing_unless_the_lens_reads_the_change(audit):
+    stem = "cobol"
+    assert aap._norm(stem) not in LANGS
+    f = [f"{LANG}{stem}.py"]
+    assert plan_with(f, audit, [("rules", "func_start")])["run"] is False
+    for key in sorted(aap.DETECTION_KEYS):
+        p = plan_with(f, audit, [(key, None)])
+        assert p["run"] and p["langs"] == aap.ALL_LANGS, key
+
+
+@pytest.mark.parametrize("audit", TS)
+@pytest.mark.parametrize("stem", ["python", "haskell"])
+def test_a_key_the_lens_reads_can_reclassify_any_language_so_it_selects_all(audit, stem):
+    f = [f"{LANG}{stem}.py"]
+    for key in sorted(aap.DETECTION_KEYS):
+        p = plan_with(f, audit, [("rules", "func_start"), (key, None)])
+        assert p["run"] and p["langs"] == aap.ALL_LANGS, key
+
+
+@pytest.mark.parametrize("audit", TS)
+def test_an_unplaceable_new_helper_or_unreadable_language_file_selects_all(audit):
+    for stem in ("python", "cobol"):
+        for found in ([None], RuntimeError("no such path in base")):
+            p = plan_with([f"{LANG}{stem}.py"], audit, found)
+            assert p["run"] and p["langs"] == aap.ALL_LANGS
+    assert plan_with([f"{LANG}_helper.py"], audit, [])["langs"] == aap.ALL_LANGS
+
+
+@pytest.mark.parametrize("audit", TS)
+def test_a_mixed_change_selects_the_union_and_all_beats_a_list(audit):
+    files = [f"{LANG}python.py", f"{LANG}go.py", f"{aap.TREE_BASELINE}rust.json", "README.md"]
+    assert plan_with(files, audit, [("rules", "func_start")])["langs"] == "go,python,rust"
+    p = plan_with([*files, aap.T + "tree_sitter_accuracy_audit.py"], audit, [("rules", "func_start")])
+    assert p["langs"] == aap.ALL_LANGS
+
+
+@pytest.mark.parametrize("audit", TS)
+@pytest.mark.parametrize(
+    "path",
+    [
+        "docs/graph_accuracy.md",
+        "README.md",
+        "tests/tools/test_foo.py",
+        "gitgalaxy/recorders/x.py",
+        "gitgalaxy/tools/x.py",
+    ],
+)
+def test_a_file_the_tree_sitter_audit_does_not_read_skips_it(audit, path):
+    p = plan_with([path], audit, [])
+    assert p["run"] is False and p["langs"] == ""
+
+
+def test_the_history_plans_a_push_and_the_audit_a_pull_request():
+    assert aap.EVENTS[TREE] == "pull_request" and aap.EVENTS[HIST] == "push"
+    assert plan_with(["README.md"], HIST, [])["run"] is False
+    assert plan_with(["README.md"], HIST, [], event="pull_request")["run"]  # not its event: always
+    assert plan_with(["README.md"], HIST, [], event="workflow_dispatch")["langs"] == aap.ALL_LANGS
+
+
+def test_a_push_diff_is_read_from_the_base_commit_and_an_unknown_base_runs(tmp_path, monkeypatch):
+    def git(*a):
+        return subprocess.run(
+            ["git", "-C", str(tmp_path), "-c", "user.name=t", "-c", "user.email=t@t", *a],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()  # noqa: S603, S607
+
+    lang_dir = tmp_path / LANG
+    lang_dir.mkdir(parents=True)
+    target = lang_dir / "python.py"
+    target.write_text(SAMPLE, encoding="utf-8")
+    git("init", "-q")
+    git("add", ".")
+    git("commit", "-qm", "base")
+    base = git("rev-parse", "HEAD")
+    monkeypatch.setattr(aap, "REPO_ROOT", tmp_path)
+
+    target.write_text(SAMPLE.replace("# header", "# header again"), encoding="utf-8")
+    git("commit", "-qam", "comment")
+    assert aap.changed_files(base, "push") == [f"{LANG}python.py"]
+    places = aap.pr_places(base, "push")
+    assert aap.plan([f"{LANG}python.py"], "push", HIST, places, BASELINE, LANGS)["run"] is False
+
+    target.write_text(SAMPLE.replace('+ r"b"', '+ r"c"'), encoding="utf-8")
+    git("commit", "-qam", "rule")
+    p = aap.plan(aap.changed_files(base, "push"), "push", HIST, aap.pr_places(base, "push"), BASELINE, LANGS)
+    assert p["run"] and p["langs"] == "python"  # the comment and the rule edit since `base` are one diff
+
+    with pytest.raises(RuntimeError):  # a commit that is gone (a force push): main() catches it and runs everything
+        aap.changed_files("0" * 40, "push")
+
+
+def test_main_runs_everything_when_the_diff_cannot_be_read(tmp_path, monkeypatch, capsys):
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        sys, "argv", ["x", "--audit", HIST, "--event", "push", "--base", "0" * 40, "--github-output", str(out)]
+    )
+    assert aap.main() == 0
+    assert out.read_text(encoding="utf-8") == f"run=true\nlangs={aap.ALL_LANGS}\n"
+    assert "cannot plan" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("audit", TS)
+def test_the_tree_sitter_workflow_gates_every_step_on_the_plan(audit):
+    name = aap.WORKFLOWS[audit]
+    text = (WORKFLOWS / name).read_text(encoding="utf-8")
+    job = name.removesuffix(".yml")
+    assert re.search(rf"^  {job}:\n    needs: \[plan\]\n    if: \$\{{\{{ always\(\)", text, re.M)
+    assert "\n  plan:\n" in text
+    body = text.split(f"\n  {job}:\n", 1)[1]
+    steps = re.split(r"^      - name: ", body, flags=re.M)[1:]
+    assert steps
+    for step in steps:
+        assert "needs.plan.outputs.run != 'false'" in step, step.splitlines()[0]
+    assert f"--audit {audit}" in text
+    plan_job = text.split("\n  plan:\n", 1)[1].split(f"\n  {job}:\n", 1)[0]
+    assert "persist-credentials: false" in plan_job and "contents: write" not in plan_job
+
+
+def test_the_audit_runs_the_selected_languages_from_the_environment_and_the_history_plans_from_the_last_success():
+    audit = (WORKFLOWS / aap.WORKFLOWS[TREE]).read_text(encoding="utf-8")
+    assert "LANGS: ${{ needs.plan.outputs.langs }}" in audit
+    assert 'langs="${{' not in audit  # a changed file name is never spliced into the script
+    assert '--lang "$lang" --ci' in audit and "--all --ci" in audit
+    for p in ("accuracy_audit_plan.py", "graph_accuracy_plan.py", "change_classifier.py"):
+        assert f'"tests/tools/{p}"' in audit
+    hist = (WORKFLOWS / aap.WORKFLOWS[HIST]).read_text(encoding="utf-8")
+    assert "--status success" in hist and "${{ github.event.before }}" not in hist
+
+
+@pytest.mark.parametrize("audit", TS)
+def test_every_path_the_tree_sitter_workflow_filters_on_is_planned(audit):
+    for path in aap.workflow_paths(audit):
+        if "*" in path:
+            assert path.startswith((aap.LANG_STANDARDS, aap.TREE_BASELINE)), path
+        else:
+            assert path in aap.EVERYTHING[audit], path
+
+
+def test_replay_counts_tree_sitter_runs(monkeypatch):
+    monkeypatch.setattr(aap, "git_places", lambda path, base, head: [("_meta", None)])
+    prs = [
+        {"number": 1, "files": [{"path": f"{LANG}cobol.py"}], "mergeCommit": {"oid": "a"}},
+        {"number": 2, "files": [{"path": f"{aap.TREE_BASELINE}go.json"}], "mergeCommit": {"oid": "b"}},
+    ]
+    r = aap.replay(prs, TREE, BASELINE)
+    assert (r["prs"], r["ran_before"], r["runs_now"]) == (2, 2, 1)
+    assert r["prs_that_still_run"] == [2]
+    assert r["language_corpora_before"] == 2 * len(LANGS) and r["language_corpora_now"] == 1  # PR 2: one baseline file

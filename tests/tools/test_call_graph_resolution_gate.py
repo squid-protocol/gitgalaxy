@@ -92,6 +92,62 @@ def test_verdict_order_agree_wrong_external_unconfirmed():
     assert cgr._verdict(ref, a, ("h.ts", "save", 5)) == "unconfirmed"
 
 
+def test_ts_callgraph_js_mode_resolves_commonjs_with_allow_js(tmp_path):
+    import json
+    import shutil
+    import subprocess
+
+    if shutil.which("node") is None:
+        pytest.skip("node is not installed")
+    env = callgraph_refs.node_env()
+    probe = "process.exit(typeof require('typescript').createProgram === 'function' ? 0 : 1)"
+    if subprocess.run(["node", "-e", probe], env=env, capture_output=True).returncode:
+        pytest.skip("no typescript with the JavaScript compiler API (<= 6.x) on NODE_PATH")
+    (tmp_path / "util.js").write_text("exports.clone = function clone(x) {\n  return x;\n};\n")
+    (tmp_path / "mod.cjs").write_text("module.exports = function build() {\n  return 1;\n};\n")
+    (tmp_path / "proto.mjs").write_text(
+        "export function Box() {}\nBox.prototype.open = function () {\n  return 2;\n};\nexport const make = () => new Box();\n"
+    )
+    (tmp_path / "main.js").write_text(
+        "var util = require('./util');\n"
+        "var build = require('./mod.cjs');\n"
+        "var proto = {};\n"
+        "proto.run = function run(s, box) {\n"
+        "  's'.trim();\n"
+        "  build();\n"
+        "  box.open();\n"
+        "  return util.clone(1);\n"
+        "};\n"
+    )
+    (tmp_path / "typed.ts").write_text("export function only() {\n  return 1;\n}\n")
+
+    def graph(*extra):
+        out = subprocess.run(
+            ["node", str(cgr.TOOLS / "ts_callgraph.js"), str(tmp_path), *extra], env=env, capture_output=True, text=True
+        )
+        assert out.returncode == 0, out.stderr
+        return json.loads(out.stdout)
+
+    g = graph("--js")
+    run = ["main.js", "run", 4]
+    assert ["typed.ts", "only", 1] not in g["defs"]  # the TypeScript files are not read in js mode
+    assert {tuple(d) for d in g["defs"]} >= {
+        ("util.js", "clone", 1),
+        ("mod.cjs", "build", 1),
+        ("proto.mjs", "open", 2),
+        ("proto.mjs", "make", 5),
+        tuple(run),
+    }
+    edges = {(tuple(e[0]), tuple(e[1])): e[2] for e in g["edges"]}
+    assert edges[(tuple(run), ("util.js", "clone", 1))] == 8  # exports.f = function through require()
+    assert edges[(tuple(run), ("mod.cjs", "build", 1))] == 6  # module.exports = function
+    assert edges[(("proto.mjs", "make", 5), ("proto.mjs", "Box", 1))] == 5  # `new Box()` runs the function
+    assert not any(e[0] == run and e[1][1] == "open" for e in g["edges"])  # an untyped receiver: silent, not wrong
+    assert [run, "trim"] in g["external"]  # a string literal's trim() is String.prototype.trim
+    # the typescript mode never reads .js
+    assert all(not d[0].endswith((".js", ".cjs", ".mjs")) for d in graph()["defs"])
+
+
 def test_ts_callgraph_resolves_calls_with_the_type_checker(tmp_path):
     import json
     import shutil

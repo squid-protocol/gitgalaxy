@@ -6,7 +6,7 @@
     python tests/tools/pr_check.py N --json
     python tests/tools/pr_check.py N --digest   # also: per failed check, its triage, error lines and local repro (ci_digest.py)
 
-Four REST calls through `gh api` (gh pr view / edit / issue view fail on this repo's Projects-classic GraphQL): the pull
+One GraphQL query (REST fallback, #6534), else four REST calls through `gh api` (gh pr view / edit / issue view fail on this repo's Projects-classic GraphQL): the pull
 request (mergeable state, draft, head SHA), the head SHA's check runs and its combined commit status (paginated at
 100), and the files touched. No polling: run it again later.
 
@@ -114,6 +114,72 @@ def runs_from_suites(suites: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "details_url": r["detailsUrl"], "html_url": r["detailsUrl"] if slug == "github-actions" else r["url"],
             })  # fmt: skip
     return runs
+
+
+# the per-PR reads of the shepherd's gather() as one selection (#6534): every list is fetched whole or not used
+PR_FIELDS = """
+      number state merged isDraft body mergeStateStatus headRefOid headRefName baseRefName
+      headRepository { nameWithOwner }
+      autoMergeRequest { enabledAt }
+      labels(first: 100) { totalCount nodes { name } }
+      comments(last: 100) { totalCount nodes { author { __typename login } body } }
+      timelineItems(itemTypes: [LABELED_EVENT], last: 100) {
+        filteredCount nodes { ... on LabeledEvent { actor { __typename login } createdAt label { name } } }
+      }
+      commits(last: 1) { nodes { commit { oid
+        status { contexts { context state } }
+        @@SUITES@@
+      } } }
+"""
+PR_FIELDS = PR_FIELDS.replace("@@SUITES@@", SUITES_SELECTION)
+# what check() reads: the pull, its head's runs and statuses, and the files touched (first 100; more goes to REST)
+CHECK_FIELDS = """
+      id number title state merged isDraft mergeable mergeStateStatus headRefOid
+      files(first: 100) { totalCount nodes { path additions deletions changeType } }
+      commits(last: 1) { nodes { commit { oid
+        status { contexts { context state } }
+        @@SUITES@@
+      } } }
+""".replace("@@SUITES@@", SUITES_SELECTION)
+CHECK_QUERY = (
+    "query($owner: String!, $name: String!, $n: Int!) {\n  rateLimit { cost }\n  repository(owner: $owner, name: $name) {\n"
+    "    pullRequest(number: $n) {" + CHECK_FIELDS + "    }\n  }\n}"
+)
+MERGEABLE = {"MERGEABLE": True, "CONFLICTING": False}
+CHANGE_STATUS = {"ADDED": "added", "MODIFIED": "modified", "REMOVED": "removed", "RENAMED": "renamed",
+                 "COPIED": "copied", "CHANGED": "changed"}  # fmt: skip
+
+
+def graphql_check_reads(p: dict[str, Any]) -> dict[str, Any]:
+    """check()'s REST shapes (pull, runs, statuses, files) from one CHECK_QUERY pullRequest. KeyError / TypeError /
+    Truncated when anything is missing or cut short; Truncated too when mergeability is still UNKNOWN (the REST read
+    asks GitHub to compute it, GraphQL does not: a dirty PR must not pass for clean)."""
+    commit = p["commits"]["nodes"][0]["commit"]
+    if commit["oid"] != p["headRefOid"] or p["mergeable"] == "UNKNOWN" or p["mergeStateStatus"] == "UNKNOWN":
+        raise Truncated
+    pr = {
+        "number": p["number"], "title": p["title"], "state": "open" if p["state"] == "OPEN" else "closed",
+        "merged": bool(p["merged"]), "draft": bool(p["isDraft"]), "mergeable": MERGEABLE[p["mergeable"]],
+        "mergeable_state": p["mergeStateStatus"].lower(), "node_id": p["id"], "head": {"sha": p["headRefOid"]},
+    }  # fmt: skip
+    return {
+        "pr": pr,
+        "runs": runs_from_suites(whole(commit["checkSuites"])),
+        "statuses": [{"context": c["context"], "state": c["state"].lower()}
+                     for c in ((commit.get("status") or {}).get("contexts") or [])],
+        "files": [{"filename": f["path"], "status": CHANGE_STATUS[f["changeType"]], "additions": f["additions"],
+                   "deletions": f["deletions"]} for f in whole(p["files"])],
+    }  # fmt: skip
+
+
+def _graphql_check(graphql: GraphQL, n: int) -> dict[str, Any] | None:
+    """graphql_check_reads for PR n, or None (the REST path) when the query fails or anything is incomplete."""
+    owner, name = REPO_SLUG.split("/")
+    try:
+        data = graphql(CHECK_QUERY, {"owner": owner, "name": name, "n": n})
+        return graphql_check_reads(data["repository"]["pullRequest"])
+    except (SystemExit, KeyError, TypeError, IndexError, AttributeError, ValueError):
+        return None
 
 
 SHA_PATH = re.compile(r"^repos/[^/]+/[^/]+/commits/[0-9a-f]{40}$")  # a commit by sha: its parents never change
@@ -232,13 +298,20 @@ def flag(path: str) -> str | None:
     return m.group(0).lower() if m else None
 
 
-def check(n: int, api: Api = gh_api) -> dict[str, Any]:
-    pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
+def check(n: int, api: Api = gh_api, graphql: GraphQL | None = None) -> dict[str, Any]:
+    """`graphql` (#6534): the four reads come from one CHECK_QUERY; None, or a query that fails or comes back
+    incomplete (over 100 files or runs, mergeability UNKNOWN), reads them through REST."""
+    got = _graphql_check(graphql, n) if graphql else None
+    if got:
+        pr, runs, files, statuses = got["pr"], got["runs"], got["files"], got["statuses"]
+    else:
+        pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
+        runs = paged(api, f"repos/{REPO_SLUG}/commits/{pr['head']['sha']}/check-runs", "check_runs")
+        status = api(f"repos/{REPO_SLUG}/commits/{pr['head']['sha']}/status")
+        files = paged(api, f"repos/{REPO_SLUG}/pulls/{n}/files", limit=30)
+        statuses = status.get("statuses", []) if status else []
     sha = pr["head"]["sha"]
-    runs = paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
-    status = api(f"repos/{REPO_SLUG}/commits/{sha}/status")
-    files = paged(api, f"repos/{REPO_SLUG}/pulls/{n}/files", limit=30)
-    checks = classify(runs, status.get("statuses", []) if status else [])
+    checks = classify(runs, statuses)
     reasons = []
     if pr["state"] != "open" or pr.get("merged"):
         reasons.append("merged already" if pr.get("merged") else f"the PR is {pr['state']}")
@@ -335,7 +408,7 @@ def main(argv: list[str] | None = None, api: Api = gh_api) -> int:
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--digest", action="store_true", help="also print each failed check's digest (ci_digest.py)")
     args = ap.parse_args(argv)
-    res = check(args.number, api)
+    res = check(args.number, api, gh_graphql if api is gh_api else None)
     print(json.dumps(res, indent=1) if args.json else report(res))
     if args.digest and res["checks"]["failed"]:
         import ci_digest  # noqa: PLC0415 -- fetches job logs; only when asked

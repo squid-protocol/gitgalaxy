@@ -264,6 +264,10 @@ The critical path (time-to-green) is unchanged on an engine PR: it is `full-suit
 ## Smoke suite plan (#6278 item 3)
 `suite_select_plan.py` (the classifier's `area()`) plans the `full-suite` on a PR: `skip` (prose nothing opens, `full-suite` reports success), `select` (docs / agent config only: just the tests that read them) or `full`; `shepherd:full` forces full. Push, nightly and dispatch always run the full suite. `push: paths-ignore: docs/**` stays on purpose: a push cannot be planned (the diff is not a PR's), and dropping it would run the full suite on every docs-bot push to main; the PR run already tested those docs.
 
+## Smoke on main is queued, not cancelled (#6514)
+
+A main push no longer cancels the previous push's Smoke run (`smoke-test.yml`): under a stream of merges 8 runs in a row were cancelled on 2026-10-24, so main never had a green run and `ci-red-main` could not close. One run goes on and the newest push waits behind it (GitHub keeps one pending run per group). A PR re-push and a manual dispatch still cancel. Cost: a main push run is about 5-6 min per full-suite part (see the #5543 measurement above), now paid for the runs that used to be cancelled early; at most two main runs exist at a time. `java-compile.yml` still cancels main pushes the same way.
+
 ## Ground-truth PR check re-measured (2026-10-24, #5543)
 The five newest first-attempt successful PR runs of `mainframe-ground-truth.yml` that ran `plan` (runs 40126177113, 40126269812, 40126275997, 40126298574, 40126320956, 19:37-19:40Z). Critical path = run time of `plan` + slowest part + final job, queue left out; runner-min = sum of each job's run time rounded up to the minute.
 

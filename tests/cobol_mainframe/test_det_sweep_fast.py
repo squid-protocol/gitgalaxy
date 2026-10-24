@@ -328,6 +328,15 @@ def test_db2_runner_count_and_full_sweeps():
     assert plan.db2_shards_for(full, 24) == ["1/2", "2/2"]
     assert len(plan.db2_shards_for(full, 25)) == 3
     assert len(plan.db2_shards_for(full, 1000)) == plan.DB2_MAX_SHARDS
+    # the whole input class: the per-runner boundary, the 70-case sweep that timed out (#5882), 100+ cases, the cap
+    for n_cases in range(1, 151):
+        want = max(1, min(plan.DB2_MAX_SHARDS, -(-n_cases // plan.DB2_FULL_PER_SHARD)))
+        got = plan.db2_shards_for(full, n_cases)
+        assert got == [f"{i}/{want}" for i in range(1, want + 1)], n_cases
+    assert len(plan.db2_shards_for(full, plan.DB2_FULL_PER_SHARD)) == 1
+    assert len(plan.db2_shards_for(full, plan.DB2_FULL_PER_SHARD + 1)) == 2
+    assert len(plan.db2_shards_for(full, 70)) == 6 and len(plan.db2_shards_for(full, 100)) == 6
+    assert len(plan.db2_shards_for(full, plan.DB2_MAX_SHARDS * plan.DB2_FULL_PER_SHARD + 1)) == plan.DB2_MAX_SHARDS
     on_disk = sum(plan.is_db2(c) for c in plan.case_dirs().values())
     assert plan.db2_shards_for(full) == plan.db2_shards_for(full, on_disk)
     # every full sweep proves the Db2 cases, except the nightly: Evidence Refresh's Db2 job does that

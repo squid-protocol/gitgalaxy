@@ -51,6 +51,7 @@ on:
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
       - "tests/tools/crucible_shard_plan.py"  # #5919: the plan job's shard count and timeout
       - "tests/tools/ci_shard_plan.py"
+      - "tests/tools/time_ratchet.py"  # #5257: the per-test time ratchet step
   # #5131/#5136: no main push trigger. post-merge.yml dispatches this on main (at most once per cadence window, only
   # when PR runners are idle and main changed a file this workflow reads); the nightly run covers a busy day.
   schedule:

@@ -217,5 +217,4 @@ Haiku). Details: `docs/agents/model-tiering.md`.
 
 ## Licensing
 
-PolyForm Noncommercial 1.0.0 — free for research/education/hobby use; commercial use requires a
-separate license. Contributions are licensed under the same terms (see `CONTRIBUTING.md`).
+PolyForm Noncommercial 1.0.0: commercial use needs a separate license; contributions use the same terms (`CONTRIBUTING.md`).

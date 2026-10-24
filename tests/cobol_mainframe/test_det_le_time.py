@@ -406,6 +406,9 @@ public class Probe {
     static Field flt() {
         return Field.hfp(new Storage(8), 0, true);
     }
+    static int outSize(String[] t) { // the output item's size: an optional last column, a roomy 600 by default
+        return t.length > 3 && !t[3].isEmpty() ? Integer.parseInt(t[3]) : 600;
+    }
     static String hex(Field fc) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 12; i++) sb.append(String.format("%02X", fc.storage().bytes[i] & 0xff));
@@ -448,9 +451,9 @@ public class Probe {
                         if (t[0].equals("CEEGMT")) Ceegmt.call(t[1], l, s, fc, CS); else Ceeutc.call(t[1], l, s, fc, CS);
                         System.out.println(hex(fc) + "|" + lil(l) + "," + secs(s));
                     }
-                    case "CEEDATE" -> { Field o = raw(600); Ceedate.call(i4(Long.parseLong(t[1])), vstr(t[2]), o, fc, CS);
+                    case "CEEDATE" -> { Field o = raw(outSize(t)); Ceedate.call(i4(Long.parseLong(t[1])), vstr(t[2]), o, fc, CS);
                         System.out.println(hex(fc) + "|" + text(o)); }
-                    case "CEEDATM" -> { Field s = flt(); Cobol.store(s, new BigDecimal(t[1]), false, CS); Field o = raw(600);
+                    case "CEEDATM" -> { Field s = flt(); Cobol.store(s, new BigDecimal(t[1]), false, CS); Field o = raw(outSize(t));
                         Ceedatm.call(s, vstr(t[2]), o, fc, CS); System.out.println(hex(fc) + "|" + text(o)); }
                     case "CEESECS" -> {
                         if (t.length > 3 && !t[3].isEmpty()) Ceeqcen.set(i4(Long.parseLong(t[3])), raw(12), CS);
@@ -530,9 +533,13 @@ def _java_line(svc: str, args: list[str]) -> str:
     return "|".join([svc, *args])
 
 
-@pytest.mark.slow(reason="translates, javac-compiles and runs a program per case (#5178, #5606)")
-@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
-def test_the_runtime_is_the_oracle_model_byte_for_byte(c_driver, tmp_path):
+@pytest.fixture(scope="module")
+def java_probe(tmp_path_factory):
+    """A function feeding the probe's rows (one per line) to the compiled runtime and returning its output lines."""
+    jdk = _jdk()
+    if jdk is None:
+        pytest.skip("needs a JDK 17 (JAVA_HOME / JDK_17)")
+    tmp_path = tmp_path_factory.mktemp("le_java")
     out = tmp_path / "src/p/cobolrt"
     (out / "le").mkdir(parents=True)
     for f in RT.glob("*.java"):
@@ -540,27 +547,34 @@ def test_the_runtime_is_the_oracle_model_byte_for_byte(c_driver, tmp_path):
     for f in (RT / "le").glob("*.java"):
         (out / "le" / f.name).write_text(f.read_text(encoding="utf-8").replace("__PACKAGE__", "p"), encoding="utf-8")
     (tmp_path / "src/Probe.java").write_text(JAVA_PROBE)
-    jdk = _jdk()
     files = [str(f) for f in (tmp_path / "src").rglob("*.java")]
     javac_run(
         [str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *files], check=True
     )  # noqa: S603
-    feed = "\n".join(_java_line(s, a) for s, a, _ in VECTORS) + "\n"
-    got = subprocess.run(  # noqa: S603
-        [
-            str(jdk / "java"),
-            "-Dfile.encoding=UTF-8",
-            "-Dstdout.encoding=UTF-8",
-            "-cp",
-            str(tmp_path / "classes"),
-            "Probe",
-        ],
-        input=feed,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        check=True,
-    ).stdout.splitlines()
+
+    def run(rows: list[str]) -> list[str]:
+        return subprocess.run(  # noqa: S603
+            [
+                str(jdk / "java"),
+                "-Dfile.encoding=UTF-8",
+                "-Dstdout.encoding=UTF-8",
+                "-cp",
+                str(tmp_path / "classes"),
+                "Probe",
+            ],
+            input="\n".join(rows) + "\n",
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=True,
+        ).stdout.splitlines()
+
+    return run
+
+
+@pytest.mark.slow(reason="translates, javac-compiles and runs a program per case (#5178, #5606)")
+def test_the_runtime_is_the_oracle_model_byte_for_byte(c_driver, java_probe):
+    got = java_probe([_java_line(s, a) for s, a, _ in VECTORS])
     assert len(got) == len(VECTORS)
     bad = []
     for (svc, args, want), java in zip(VECTORS, got, strict=True):
@@ -713,3 +727,29 @@ def test_ceeseci_is_the_inverse_of_ceeisec(c_driver):
         assert back == f"{y},{mo},{d},{h},{mi},{sec},0.{int(ms):03d}", (args, seconds, back)
         n += 1
     assert n >= 3
+
+
+# CEE2526 / CEE2527 (#5003 [c:a06ff706]): IBM cuts a result longer than its output item. The C model is handed a bare
+# pointer and cannot see the item's end, so only the Java runtime knows the size: it refuses a VSTRING item shorter than
+# its halfword length plus the text (2 + the result) rather than cut it, and writes it whole at exactly that size.
+# (service, the input, the picture, the result's length)
+SHORT_OUTPUT = [
+    ("CEEDATE", "148138", "YYYYMMDD", 8),
+    ("CEEDATE", "148141", "YYYY.DDD", 8),
+    ("CEEDATE", "148142", "YY/MM/DD HH:MI:SS.99", 20),
+    ("CEEDATM", "13312800000.000", "YYYYMMDDHHMISS", 14),
+    ("CEEDATM", "13312800000.000", "YYYY-MM-DD HH:MI:SS.999", 23),
+]
+
+
+@pytest.mark.slow(reason="javac-compiles and runs the probe (#5178)")
+@pytest.mark.parametrize("svc, value, pic, n", SHORT_OUTPUT, ids=[f"{v[0]}:{v[2]}" for v in SHORT_OUTPUT])
+def test_the_runtime_refuses_an_output_item_shorter_than_the_result_and_fills_one_that_fits(
+    java_probe, svc, value, pic, n
+):
+    sizes = [2 + n - 1, 2 + n, 2 + n + 1]
+    rows = java_probe([f"{svc}|{value}|{pic}|{k}" for k in sizes])
+    assert rows[0] == REFUSED, f"a {sizes[0]}-byte output cannot hold {2 + n} bytes: refuse, never truncate"
+    for row in rows[1:]:
+        fc, text = row.split("|")
+        assert fc == "0" * 24 and len(text) == n, row  # a zero feedback token and the whole result

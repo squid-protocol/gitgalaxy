@@ -17,7 +17,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="1054" height="1010"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 21, callee names 21, call resolution 6 of 65 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 21, callee names 21, call resolution 7 of 65 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -70,7 +70,18 @@
 <text class="n" x="630" y="155">n=13,064 calls</text>
 <text class="n" x="630" y="167">functions 2,561</text>
 </g>
-<text class="none" x="732" y="160.0">not measured</text>
+<g><title>c call resolution: precision 100.0% of 2,163, recall 25.3% of 8,536; vs libclang 18.1.1; corpus import_graph</title>
+<text class="pr" x="732" y="154.5">Precision</text>
+<rect class="track" x="778" y="147" width="110" height="8" rx="2"/>
+<rect x="778" y="147" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="155">100.0%</text>
+<text class="pr" x="732" y="166.5">Recall</text>
+<rect class="track" x="778" y="159" width="110" height="8" rx="2"/>
+<rect x="778" y="159" width="27.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="167">25.3%</text>
+<text class="n" x="936" y="155">n=8,536 edges</text>
+<text class="n" x="936" y="167">vs libclang 18.1.1</text>
+</g>
 <rect class="stripe" x="16" y="174" width="1022" height="34"/>
 <text class="lang" x="22" y="195.0">cpp</text>
 <g><title>cpp imports: precision 99.4% of 171, recall 100.0% of 171 (raw 99.4% / 100.0%; 1 shapes without a verdict); corpus fmtlib/fmt</title>

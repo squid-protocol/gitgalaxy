@@ -20,6 +20,7 @@ that baseline in the same PR.
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py rust` | rust-analyzer (pinned toolchain 1.90.0; SCIP, through `tests/tools/scip_callgraph.py`) | pinned rust repos, `tests/import_graph_corpus.json` (serde-rs/json) | `tests/call_graph_resolution_rust_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py go` | golang.org/x/tools 0.37.0 VTA call graph (`tests/tools/go_callgraph`, Go 1.24+) | pinned go repos, `tests/import_graph_corpus.json` (cobra) | `tests/call_graph_resolution_go_baseline.json` | none yet: CI has no Go step (#3782) |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py c` | libclang 18.1.1 resolved calls (`tests/tools/clang_callgraph.py`, pip `libclang`) | pinned c repos, `tests/import_graph_corpus.json` (hiredis, libuv) | `tests/call_graph_resolution_c_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py cpp` | libclang 18.1.1 resolved calls, linked by USR (`tests/tools/clang_callgraph.py cpp`, pip `libclang` plus a host g++ for the C++ system headers) | pinned c++ repo, `tests/import_graph_corpus.json` (fmtlib/fmt) | `tests/call_graph_resolution_cpp_baseline.json` | `graph-accuracy-audit.yml` |
 | Import edges | `tests/tools/import_graph_accuracy.py` | each language's import statements (Python `ast`, tree-sitter), resolved by the language's own rule | pinned real repos, `tests/import_graph_corpus.json` | `tests/import_graph_accuracy_baseline.json` | `graph-accuracy-audit.yml` |
 | Span anchoring | `tests/tools/span_anchor_audit.py` | the declaration line in the raw source | language-crucible | `tests/span_anchor_baseline.json` | `graph-accuracy-audit.yml` |
 
@@ -234,6 +235,25 @@ Headers libclang cannot find (the bundled build has no compiler headers) leave s
 call to a declared function still resolves.
 
 
+## Call resolution in C++ (#3784)
+
+C++ is scored against the same **libclang** adapter in `cpp` mode (`tests/tools/clang_callgraph.py cpp`,
+`pip install libclang==18.1.1`; the wheel ships no C++ system headers, so the host g++'s `#include <...>`
+list is passed as `-isystem`). Each `.cc`, `.cpp` or `.cxx` file is one translation unit.
+
+- Edges link by USR, so an overload resolves exactly; a call to a template resolves to the pattern, whatever the
+  instantiation. Internal linkage (`static`, an anonymous namespace) stays the translation unit's own definition.
+- A definition is named as the engine names it: bare, except an out-of-line member (`int Foo::bar() {...}`) is
+  `Foo::bar`. A callee with no def in the repo (std, libc) is `external`.
+
+**First numbers vs libclang** (fmt, 1,739 confident links judged): precision 91.1% (96.3% overload-blind, 81.5%
+strict), recall 16.3%, resolution recall 63.8%, 90 wrong-overload links, 204 external, 1,691 unmapped.
+
+**What the reference cannot see:** it parses one preprocessor configuration, and it deliberately does not mimic
+the engine's leading `::name` for out-of-line members of template classes, so those links count as unmapped.
+The low recall is mostly engine-side and is not tuned away: gtest `TEST` macros in `test/`, the `::name`
+convention, conversion-operator spelling, and template-overload line mismatches. They feed a later miss sweep.
+
 ## Span anchoring
 
 A unit is mis-anchored when its `start_line` opens before the declaration, on lines that belong
@@ -328,6 +348,8 @@ PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py typescript --ci   
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py javascript --ci   # same checker, allowJs
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py rust --ci         # needs rustup toolchain 1.90.0 + rust-analyzer
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py go --ci           # needs Go 1.24+ on PATH
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py c --ci            # needs libclang==18.1.1
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py cpp --ci          # libclang==18.1.1 plus a host g++
 PYTHONPATH="$PWD" python tests/tools/span_anchor_audit.py --ci
 python tests/tools/callgraph_triage.py typescript --samples 3     # ranked buckets of misses and wrong links
 python tests/tools/callgraph_check.py                             # the whole chain, one line per step

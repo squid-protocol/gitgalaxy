@@ -73,7 +73,11 @@ def _import_closure(entry="gitgalaxy.galaxyscope"):
             if isinstance(n, ast.Import):
                 todo += [a.name for a in n.names]
             elif isinstance(n, ast.ImportFrom):
-                base = ".".join(pkg[: len(pkg) - (n.level - 1)] + ([n.module] if n.module else [])) if n.level else n.module
+                base = (
+                    ".".join(pkg[: len(pkg) - (n.level - 1)] + ([n.module] if n.module else []))
+                    if n.level
+                    else n.module
+                )
                 if base:
                     todo += [base] + [f"{base}.{a.name}" for a in n.names]
     return {str(p.relative_to(ROOT)) for m, p in seen.items() if m.startswith("gitgalaxy")}
@@ -96,7 +100,8 @@ def test_the_stand_in_copybooks_the_scan_reads_are_hashed():
 
 def test_non_python_engine_data_is_hashed():
     patterns = _patterns()
-    data = [f for f in _tracked() if not f.endswith(".py") and "/tools/cobol_to_java/" not in f]
+    standalone = ("/tools/cobol_to_java/", "/tools/cobol_to_cobol/", "/tools/terabyte_log_scanning/")
+    data = [f for f in _tracked() if not f.endswith(".py") and not any(d in f for d in standalone)]
     assert data and all(_hashed(f, patterns) for f in data)
 
 
@@ -115,3 +120,19 @@ def test_each_exclusion_leaves_out_tracked_files():
     for p in exc:
         assert any(_glob(p).match(f) for f in tracked), f"exclusion {p} matches no tracked file (dead pattern)"
     assert not _hashed("gitgalaxy/tools/cobol_to_java/det/stmt.py", patterns)
+
+
+def test_the_standalone_tools_are_left_out_but_what_a_scan_imports_is_not():
+    """#5543: the cobol_to_cobol forges and terabyte_log_scanning are not scan inputs; galaxy_ir and pli_mapping are."""
+    patterns = _patterns()
+    tracked = _tracked()
+    left_out = [
+        f
+        for f in tracked
+        if f.startswith(("gitgalaxy/tools/terabyte_log_scanning/", "gitgalaxy/tools/cobol_to_cobol/"))
+    ]
+    kept = {"gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py", "gitgalaxy/tools/cobol_to_cobol/pli_mapping.py"}
+    assert kept <= set(tracked)
+    for f in left_out:
+        assert _hashed(f, patterns) == (f in kept), f
+    assert _hashed("gitgalaxy/tools/terabyte_log_scanning/terabyte_log_scanner.py", patterns) is False

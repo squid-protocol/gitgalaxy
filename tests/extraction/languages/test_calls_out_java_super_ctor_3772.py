@@ -110,3 +110,28 @@ def test_a_generic_superclass_is_named_without_its_type_arguments():
     edges = {(s["src_line"], s["dst_line"]) for s in sites if s["dst_line"]}
     assert (6, 3) in edges  # Blue -> Red<T>
     assert (14, 11) in edges  # Fra -> Ad<T, String>
+
+
+def test_lowercase_class_and_a_header_broken_before_implements_still_chain():
+    base = "package p;\npublic abstract class vertex_t {\n  public vertex_t() { }\n}\n"
+    sub = (
+        "package p;\npublic class z_vertex_t extends vertex_t implements\n    Aa, Bb {\n"
+        "  public z_vertex_t() {\n    super();\n  }\n}\n"
+    )
+    parsed, _ = _resolve(("p/vertex_t.java", base), ("p/z_vertex_t.java", sub))
+    assert _fn(parsed, "p/z_vertex_t.java", 4)["calls_out_to"] == ["vertex_t"]
+
+
+def test_a_nested_class_name_repeated_across_files_uses_its_own_files_parent():
+    mk = lambda outer, parent: (  # noqa: E731
+        f"package p;\nclass {outer} {{\n  static class Inner extends {parent} {{\n    Inner() {{\n      super();\n    }}\n  }}\n}}\n"
+    )
+    files = [
+        ("p/A.java", mk("A", "PA")),
+        ("p/B.java", mk("B", "PB")),
+        ("p/PA.java", "package p;\nclass PA {\n  PA() { }\n}\n"),
+        ("p/PB.java", "package p;\nclass PB {\n  PB() { }\n}\n"),
+    ]
+    parsed, _ = _resolve(*files)
+    assert _fn(parsed, "p/A.java", 4)["calls_out_to"] == ["PA"]
+    assert _fn(parsed, "p/B.java", 4)["calls_out_to"] == ["PB"]

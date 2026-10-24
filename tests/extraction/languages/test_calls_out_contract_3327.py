@@ -99,7 +99,6 @@ def test_assert_keyword_is_not_a_call(lang, code, fn):
     "lang, code, fn",
     [
         ("javascript", "class B extends A {\n  constructor(x) {\n    super(x);\n    go(x);\n  }\n}\n", "constructor"),
-        ("java", "class B extends A {\n  B(int x) {\n    super(x);\n    go(x);\n  }\n}\n", "B"),
         # typescript/groovy: #3361's `super` merged into #3359's keyword sets.
         ("typescript", "function run(x: number) {\n  super(x);\n  go(x);\n}\n", "run"),
         ("groovy", "class B extends A {\n  B(int x) {\n    super(x)\n    go(x)\n  }\n}\n", "B"),
@@ -109,6 +108,12 @@ def test_super_keyword_is_not_a_call(lang, code, fn):
     # C2 (#3361): constructor chaining through the `super` keyword, like java's `this(`.
     calls = _calls(lang, code)[fn]
     assert "super" not in calls and "go" in calls
+
+
+def test_java_super_ctor_is_a_call():
+    # #3772: java's `super(...)` is a call to the superclass constructor (the resolver edge needs it).
+    calls = _calls("java", "class B extends A {\n  B(int x) {\n    super(x);\n    go(x);\n  }\n}\n")["B"]
+    assert "super" in calls and "go" in calls
 
 
 def test_python_super_builtin_is_a_call():

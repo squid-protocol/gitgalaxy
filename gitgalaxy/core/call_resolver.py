@@ -1029,6 +1029,7 @@ def _expand_super_ctor(
     parents: dict[tuple[str, str], set[str]],
     group: str,
     lang: str,
+    local: dict[str, set[str]],
 ) -> None:
     """#3772: a constructor's `super(...)` becomes a call to its in-repo superclass's constructor.
 
@@ -1037,9 +1038,12 @@ def _expand_super_ctor(
     (`Exception`) leaves no call. The counts move to the parent name for overload choice.
     """
     owner = func.get("parent_class_name") or _leaf(str(func.get("name") or ""))[1]
-    direct = sorted(parents.get((group, _key(_leaf(str(owner))[0], lang)), ())) if owner else []
+    okey = _key(_leaf(str(owner))[0], lang) if owner else ""
+    # a nested class name repeats across files (`HiColor`): the declaration in the caller's own file wins
+    direct = sorted(local.get(okey) or parents.get((group, okey)) or set()) if owner else []
     # an `extends Base<T>` is recorded with its type arguments: `Base` names the class
-    named = sorted({_leaf(p.split("<")[0].strip())[0] for p in direct})
+    # (a header broken after `extends A` can leave `A implements` as one recorded name)
+    named = sorted({_leaf(p.split("<")[0].split()[0])[0] for p in direct if p.strip()})
     known = [p for p in named if _is_class(index, group, p, lang)]
     arities = func.setdefault("calls_out_arities", {})
     quals = func.setdefault("calls_out_qualifiers", {})
@@ -1470,6 +1474,11 @@ def resolve_calls(
             {a: _alias_scope(t, imports, star_exports) for a, t in (namespace_aliases or {}).get(src_path, {}).items()},
         )
         lang_counts = by_lang.setdefault(lang, Counter())
+        file_parents: dict[str, set[str]] = {}
+        for cls in f.get("classes", []) or []:
+            if cls.get("name"):
+                bases = {_leaf(str(b).strip())[0] for b in cls.get("inheritance", []) or [] if str(b).strip()}
+                file_parents.setdefault(_key(str(cls["name"]), lang), set()).update(_key(b, lang) for b in bases)
         # A module's own receiver types (`app = FastAPI()` at top level) hold in
         # every function of the file that does not bind that name itself.
         module_types: dict[str, str] = {}
@@ -1481,7 +1490,7 @@ def resolve_calls(
             # resolves by the same ladder (it names a unit the same way) but is
             # its own `kind`: it never counts toward the call-resolution rates.
             if lang in OVERLOAD_LANGS and "super" in (func.get("calls_out_to") or []):
-                _expand_super_ctor(func, index, parents, group, lang)
+                _expand_super_ctor(func, index, parents, group, lang, file_parents)
             callees = [(c, "call") for c in func.get("calls_out_to") or []]
             callees += [(t, "transfer") for t in func.get("transfers_to") or []]
             # Decorators: the decorated function -> each decorator applied to it

@@ -10658,7 +10658,7 @@ class StructuralExtractor:
                     if track_arities and callee == "this" and not qualifier and name[:1].isupper():
                         # #3772: `this(...)` chains to a sibling constructor, which is named like the unit
                         callee = name
-                    if track_arities and callee == "super" and not qualifier and name[:1].isupper():
+                    if track_arities and callee == "super" and not qualifier:
                         # #3772: `super(...)` chains to the superclass constructor; the resolver names the parent
                         kept_super = True
                     is_decl = callee_pos == m.start(1) and _is_declaration_header(decl_headers, m)

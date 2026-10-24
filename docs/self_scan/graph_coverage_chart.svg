@@ -17,7 +17,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="1054" height="1010"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 21, callee names 21, call resolution 6 of 65 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 21, callee names 21, call resolution 7 of 65 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -70,7 +70,18 @@
 <text class="n" x="630" y="155">n=13,064 calls</text>
 <text class="n" x="630" y="167">functions 2,561</text>
 </g>
-<text class="none" x="732" y="160.0">not measured</text>
+<g><title>c call resolution: precision 100.0% of 2,163, recall 25.3% of 8,536; vs libclang 18.1.1; corpus import_graph</title>
+<text class="pr" x="732" y="154.5">Precision</text>
+<rect class="track" x="778" y="147" width="110" height="8" rx="2"/>
+<rect x="778" y="147" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="155">100.0%</text>
+<text class="pr" x="732" y="166.5">Recall</text>
+<rect class="track" x="778" y="159" width="110" height="8" rx="2"/>
+<rect x="778" y="159" width="27.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="167">25.3%</text>
+<text class="n" x="936" y="155">n=8,536 edges</text>
+<text class="n" x="936" y="167">vs libclang 18.1.1</text>
+</g>
 <rect class="stripe" x="16" y="174" width="1022" height="34"/>
 <text class="lang" x="22" y="195.0">cpp</text>
 <g><title>cpp imports: precision 99.4% of 171, recall 100.0% of 171 (raw 99.4% / 100.0%; 1 shapes without a verdict); corpus fmtlib/fmt</title>
@@ -240,15 +251,15 @@
 <text class="n" x="630" y="359">n=2,524 calls</text>
 <text class="n" x="630" y="371">functions 802</text>
 </g>
-<g><title>java call resolution: precision 99.8% of 5,684, recall 72.2% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
+<g><title>java call resolution: precision 99.8% of 5,708, recall 72.5% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
 <text class="pr" x="732" y="358.5">Precision</text>
 <rect class="track" x="778" y="351" width="110" height="8" rx="2"/>
 <rect x="778" y="351" width="109.8" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="893" y="359">99.8%</text>
 <text class="pr" x="732" y="370.5">Recall</text>
 <rect class="track" x="778" y="363" width="110" height="8" rx="2"/>
-<rect x="778" y="363" width="79.4" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="371">72.2%</text>
+<rect x="778" y="363" width="79.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="371">72.5%</text>
 <text class="n" x="936" y="359">n=7,858 edges</text>
 <text class="n" x="936" y="371">vs scip-java 0.12.3</text>
 </g>
@@ -372,15 +383,15 @@
 <text class="n" x="324" y="529">n=49 imports</text>
 <text class="n" x="324" y="541">repos 1 · files 33</text>
 </g>
-<g><title>perl callee names: precision 94.3% of 4,567, recall 94.7% of 4,544 (raw 94.3% / 94.7%; 58 shapes without a verdict)</title>
+<g><title>perl callee names: precision 94.4% of 4,629, recall 96.2% of 4,544 (raw 94.4% / 96.2%; 58 shapes without a verdict)</title>
 <text class="pr" x="426" y="528.5">Precision</text>
 <rect class="track" x="472" y="521" width="110" height="8" rx="2"/>
-<rect x="472" y="521" width="103.7" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="529">94.3%*</text>
+<rect x="472" y="521" width="103.8" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="529">94.4%*</text>
 <text class="pr" x="426" y="540.5">Recall</text>
 <rect class="track" x="472" y="533" width="110" height="8" rx="2"/>
-<rect x="472" y="533" width="104.2" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="541">94.7%*</text>
+<rect x="472" y="533" width="105.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="541">96.2%*</text>
 <text class="n" x="630" y="529">n=4,544 calls</text>
 <text class="n" x="630" y="541">functions 943</text>
 </g>
@@ -648,7 +659,7 @@
 <text class="n" x="324" y="869">n=272 imports</text>
 <text class="n" x="324" y="881">repos 1 · files 91</text>
 </g>
-<g><title>zig callee names: precision 99.8% of 19,499, recall 92.6% of 20,686 (raw 98.2% / 92.6%; 9 shapes without a verdict)</title>
+<g><title>zig callee names: precision 99.8% of 19,490, recall 92.6% of 20,686 (raw 98.2% / 92.6%; 9 shapes without a verdict)</title>
 <text class="pr" x="426" y="868.5">Precision</text>
 <rect class="track" x="472" y="861" width="110" height="8" rx="2"/>
 <rect x="472" y="861" width="109.8" height="8" rx="2" fill="#4a3aa7"/>

@@ -7,7 +7,7 @@ Same contract as ``callgraph_oracle.body_oracle`` (and the same result shape, so
 scores it): each engine function is matched to the tree-sitter function node at its start line, every call in that
 body whose callee is a function the port defines (bare name) is an oracle call, self-edges are dropped on both sides
 (#3327). Covers the languages whose function nodes the scorer's tree-sitter oracle already knows (``SPECS``): go, java,
-csharp, rust, javascript, python. A language outside ``SPECS`` has no oracle: its functions are not read and a port
+csharp, rust, javascript, python, kotlin. A language outside ``SPECS`` has no oracle: its functions are not read and a port
 with none of ``SPECS`` reports ``callgraph`` as ``n/a`` (unscored), never a pass. An engine-only edge is ``absent``
 (callee not in the caller's body: scored), ``comment/string`` (scored), ``type`` (a constructor ``new T(..)``),
 ``function-pointer`` (a bare reference): the last two are reported, not scored. Needs ``tree_sitter_language_pack``.
@@ -32,13 +32,21 @@ NAME_FIELD = {
     "attribute": "attribute", "selector_expression": "field", "member_expression": "property",
     "member_access_expression": "name", "field_expression": "field", "scoped_identifier": "name",
     "generic_name": None, "generic_function": "function", "member_binding_expression": "name",
-    "conditional_access_expression": "name",
+    "conditional_access_expression": "name", "navigation_suffix": None,
 }  # fmt: skip
+# a qualified callee whose name is the LAST child (Kotlin ``a.b.f``: ``navigation_expression`` = receiver + suffix)
+LAST_CHILD = frozenset({"navigation_expression"})
 TEXT_NODES = {
     "comment", "line_comment", "block_comment", "string", "string_literal", "interpreted_string_literal",
     "raw_string_literal", "rune_literal", "template_string", "verbatim_string_literal", "character_literal",
     "string_content",
+    "multiline_comment", "multiline_string_literal",
 }  # fmt: skip
+
+
+# Kotlin stdlib scope / iteration functions called with only a trailing lambda (``x.run { .. }``, ``3.times { .. }``):
+# by name they collide with a port's own ``run()`` override, and the oracle cannot resolve receivers, so they are no calls
+KOTLIN_STDLIB = frozenset("run with apply let also takeIf takeUnless repeat times map filter forEach".split())
 
 
 # a function-valued expression bound to a name is a function of its own: ``window.f = () => {..}``, ``const f = () => ..``
@@ -80,6 +88,9 @@ SPECS = {
                        {"new_expression"},
                        {"arrow_function", "function_expression"}),
     "python": Spec("python", {"function_definition"}, {"call": "function"}),
+    # a callee of None is the call node's first named child (Kotlin has no field for it)
+    "kotlin": Spec("kotlin", {"function_declaration", "secondary_constructor", "anonymous_initializer"},
+                   {"call_expression": None}),
 }  # fmt: skip
 
 
@@ -106,11 +117,19 @@ def callee_name(node):
     while node is not None:
         if node.type in NAME_NODES:
             return text_of(node)
+        if node.type in LAST_CHILD:
+            node = (node.named_children or [None])[-1]
+            continue
         if node.type not in NAME_FIELD:
             return None
         field = NAME_FIELD[node.type]
         node = node.child_by_field_name(field) if field else (node.named_children or [None])[0]
     return None
+
+
+def _has_arguments(call):
+    """True when a Kotlin call carries a parenthesised argument list (not just a trailing lambda)."""
+    return any(c.type == "value_arguments" for k in call.children if k.type == "call_suffix" for c in k.children)
 
 
 class Body:
@@ -139,8 +158,11 @@ class Body:
             if spec.is_unit(n):
                 continue  # a nested function is its own unit
             if n.type in spec.calls:
-                fn = n.child_by_field_name(spec.calls[n.type])
+                field = spec.calls[n.type]
+                fn = n.child_by_field_name(field) if field else (n.named_children or [None])[0]
                 name = callee_name(fn) if fn is not None else None
+                if spec.parser == "kotlin" and name in KOTLIN_STDLIB and not _has_arguments(n):
+                    name = None
                 if name is not None:
                     self.calls.add(name)
                     if fn.type in NAME_NODES:

@@ -107,6 +107,13 @@ def from_strings(origin: str, paragraphs: list[str], branches: list[str]) -> dic
         paras.append({"name": name, "line": int(line) if line.isdigit() else None})
     branch = []
     for b in branches:
+        if b.startswith(
+            infeasible_outcomes.PARAGRAPH_MARK
+        ):  # a sweep row's "paragraph:NAME", no outcome (a copybook's)
+            name = b[len(infeasible_outcomes.PARAGRAPH_MARK) :]
+            if name not in {p["name"] for p in paras}:
+                paras.append({"name": name, "line": None})
+            continue
         line, outcome = _split_outcome(b)
         branch.append({"line": line, "outcome": outcome})
     return {"origin": origin, "paragraphs": paras, "branches": branch}
@@ -341,6 +348,11 @@ def _cell(v: Any) -> str:
     return " > ".join(v) if isinstance(v, list) else str(v).replace("|", "\\|")
 
 
+def _where(p: dict[str, Any]) -> str:
+    """file:line, or the file alone for a paragraph with no line of its own (a COPY member's)."""
+    return f"{p['file']}:{p['line']}" if p["line"] is not None else f"{p['file']} (COPY member)"
+
+
 def render_md(reports: list[dict[str, Any]]) -> str:
     out: list[str] = []
     for r in reports:
@@ -352,7 +364,7 @@ def render_md(reports: list[dict[str, Any]]) -> str:
                        f"{len(r['paragraphs'])} paragraph gap(s), {len(r['branches'])} branch gap(s)\n")  # fmt: skip
             if r["paragraphs"]:
                 out += ["| paragraph | file:line | complexity | loc | PERFORM path |", "|---|---|---|---|---|"]
-                out += [f"| `{p['name']}` | {p['file']}:{p['line']} | {p['complexity']} | {p['loc']} | {_cell(p['perform_path'])} |"
+                out += [f"| `{p['name']}` | {_where(p)} | {p['complexity']} | {p['loc']} | {_cell(p['perform_path'])} |"
                         for p in r["paragraphs"]]  # fmt: skip
                 out.append("")
             if r["branches"]:

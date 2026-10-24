@@ -73,3 +73,5 @@ diff be" is answered from data instead of a guess informed only by the issue tex
   - It doesn't parse inside large dict/list literals (e.g. it can't tell you where the
     `"scala"` key starts inside `language_standards.py`'s `LANGUAGE_DEFINITIONS`) — it's for
     orientation and prioritization, not symbol lookup. Read the actual file for that.
+
+Whether the DB pays off for agents is an open experiment: protocol and results in `docs/agents/self-scan-ab-protocol.md` (#4479).

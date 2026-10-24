@@ -674,6 +674,116 @@
      "resp2": 200
     }
    ]
+  },
+  {
+   "name": "from-select-storm-drain-923",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000002",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "100.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "sql_faults": [
+    {
+     "program": "XFRFUN",
+     "line": 930,
+     "nth": 1,
+     "sqlcode": 923,
+     "sqlstate": "57015",
+     "why": "DB2 connection lost (SQLCODE 923): the statement fails and CHECK-FOR-STORM-DRAIN-DB2 sees WHEN 923"
+    }
+   ],
+   "why": "#6271 (storm drain): the FROM SELECT (l.930) answers 923: the failure arm sets fail code '3' and PERFORMs CHECK-FOR-STORM-DRAIN-DB2 (l.976), which takes WHEN 923 and DISPLAYs the storm drain condition"
+  },
+  {
+   "name": "from-update-storm-drain-923",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000002",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "100.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "sql_faults": [
+    {
+     "program": "XFRFUN",
+     "line": 992,
+     "nth": 1,
+     "sqlcode": 923,
+     "sqlstate": "57015",
+     "why": "DB2 connection lost (SQLCODE 923): the statement fails and CHECK-FOR-STORM-DRAIN-DB2 sees WHEN 923"
+    }
+   ],
+   "why": "#6271 (storm drain): the first ACCOUNT UPDATE (l.992) answers 923: the failure arm PERFORMs CHECK-FOR-STORM-DRAIN-DB2 (l.1023) with WHEN 923"
+  },
+  {
+   "name": "to-select-storm-drain-923",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000002",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "100.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "sql_faults": [
+    {
+     "program": "XFRFUN",
+     "line": 1057,
+     "nth": 1,
+     "sqlcode": 923,
+     "sqlstate": "57015",
+     "why": "DB2 connection lost (SQLCODE 923): the statement fails and CHECK-FOR-STORM-DRAIN-DB2 sees WHEN 923"
+    }
+   ],
+   "why": "#6271 (storm drain): the TO SELECT (l.1057) answers 923 (not +100, so fail code '3', not '2'): CHECK-FOR-STORM-DRAIN-DB2 (l.1097) takes WHEN 923"
+  },
+  {
+   "name": "to-update-storm-drain-923",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000002",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "100.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "sql_faults": [
+    {
+     "program": "XFRFUN",
+     "line": 1362,
+     "nth": 1,
+     "sqlcode": 923,
+     "sqlstate": "57015",
+     "why": "DB2 connection lost (SQLCODE 923): the statement fails and CHECK-FOR-STORM-DRAIN-DB2 sees WHEN 923"
+    }
+   ],
+   "why": "#6271 (storm drain): the TO UPDATE (l.1362) answers 923: CHECK-FOR-STORM-DRAIN-DB2 (l.1395) takes WHEN 923 on a non-deadlock failure"
+  },
+  {
+   "name": "proctran-insert-storm-drain-923",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000002",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "100.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "sql_faults": [
+    {
+     "program": "XFRFUN",
+     "line": 1616,
+     "nth": 1,
+     "sqlcode": 923,
+     "sqlstate": "57015",
+     "why": "DB2 connection lost (SQLCODE 923): the statement fails and CHECK-FOR-STORM-DRAIN-DB2 sees WHEN 923"
+    }
+   ],
+   "why": "#6271 (storm drain): the PROCTRAN INSERT (l.1616) answers 923: CHECK-FOR-STORM-DRAIN-DB2 (l.1714) takes WHEN 923 before the data-inconsistency abend"
   }
  ],
  "notes": "CBSA's transfer service (XFRFUN, LINKed by BNK1TFN with SUBPGM-PARMS, the XFRFUN copybook's layout under the caller's names: the generated DTO is the caller's). Both sort codes are overwritten with the program's own (987654). COMM-AMT <= 0 fails '4'; FACCNO = TACCNO LINKs ABNDPROC and ABENDs SAME CANCEL. Otherwise the lower-numbered account is read and updated first (SELECT INTO, COMPUTE without ON SIZE ERROR, UPDATE): FROM loses COMM-AMT, TO gains it, with no funds, overdraft-limit or account-type check. A FROM SELECT +100 gives '1', a TO SELECT +100 '2'; either, after the other account was updated, is followed by EXEC CICS SYNCPOINT ROLLBACK, which backs out that UPDATE (Db2 change in the task's unit of work). Any other SQLCODE on the FROM SELECT (-305: a NULL date with no indicator) LINKs ABNDPROC and ABENDs FROM CANCEL; on the TO SELECT the program means to LINK ABNDPROC and ABEND RUF2, but that code sits inside IF SQLCODE = -911 (l.1197-1348, a misplaced END-IF), so it goes on to COMPUTE and UPDATE the TO row from host variables the failed SELECT left unset; Db2 rejects the UPDATE (-180) and the program LINKs ABNDPROC and ABENDs RUF3, which its HANDLE ABEND LABEL(ABEND-HANDLING) catches and re-issues. An abend backs out the task's Db2 changes; ABNDFILE is RECOVERY(NONE) in CBSA's CSD and keeps its record. On success a PROCTRAN row 'TFR' is INSERTed (FROM sort code/account, desc 'TRANSFER' + TO sort code + account, clock date DD.MM.YYYY and time, ref EIBTASKN) and COMM-SUCCESS is 'Y'. ACCOUNT, PROCTRAN and ABNDFILE are compared after every scenario. Not reached (M2: no SQL fault injection; no SYNCPOINT fault): an UPDATE or INSERT failing after its SELECT, -911 deadlock/timeout retries, SYNCPOINT ROLLBACK returning other than NORMAL, the RUF2 abend and timeout texts (only under -911), the 'TO  ' abends after a TO failure other than '2' (l.481-492, l.766-823: '3' always ends in the RUF3 abend inside UPDATE-ACCOUNT-DB2-TO), a FROM UPDATE failing (l.1014), and ABEND-HANDLING's AD2Z / AFCR-AFCT arms."

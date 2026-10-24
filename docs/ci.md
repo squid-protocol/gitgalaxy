@@ -259,3 +259,7 @@ PR CI is limited by queueing (a pool of about 20 concurrent jobs), so every job 
 
 The critical path (time-to-green) is unchanged on an engine PR: it is `full-suite` and `ground-truth`, set by #5133 / #5151. Runner-minutes are from one recent run of each workflow, not a controlled measurement. The nightly durations cache is recorded under `-n auto` contention and scaled to each part's pytest wall (see #5133 below).
 - **Network fetches in a workflow step** (apt, npm, `docker pull`, the corpus clone, hash-pinned `pip install`) go through `tests/tools/ci_retry.sh 4 10 --` so a hiccup is retried and a final failure prints the `INFRASTRUCTURE` marker the shepherd reruns (#5048). `test_ci_retry.py` pins the wrapped sites and caps the workflows still unwrapped.
+
+
+## Smoke suite plan (#6278 item 3)
+`suite_select_plan.py` (the classifier's `area()`) plans the `full-suite` on a PR: `skip` (prose nothing opens, `full-suite` reports success), `select` (docs / agent config only: just the tests that read them) or `full`; `shepherd:full` forces full. Push, nightly and dispatch always run the full suite. `push: paths-ignore: docs/**` stays on purpose: a push cannot be planned (the diff is not a PR's), and dropping it would run the full suite on every docs-bot push to main; the PR run already tested those docs.

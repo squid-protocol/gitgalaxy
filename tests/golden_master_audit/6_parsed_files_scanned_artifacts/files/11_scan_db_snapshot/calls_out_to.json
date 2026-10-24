@@ -179425,7 +179425,25 @@
         "performEagerlyIfNecessary@1147": [
           "perform"
         ],
-        "performSetupOperations@1233": [],
+        "performSetupOperations@1233": [
+          "dispatchPrecondition",
+          "onQueue",
+          "asURLRequest",
+          "validate",
+          "didFailToCreateURLRequest",
+          "asAFError",
+          "createURLRequestFailed",
+          "didCreateInitialURLRequest",
+          "adapter",
+          "shouldCreateTask",
+          "didCreateURLRequest",
+          "RequestAdapterState",
+          "adapt",
+          "get",
+          "didAdaptInitialRequest",
+          "didFailToAdaptURLRequest",
+          "requestAdaptationFailed"
+        ],
         "performUploadRequest@1207": [
           "dispatchPrecondition",
           "onQueue",
@@ -225891,7 +225909,10 @@
           "branchHint",
           "intFromEnum"
         ],
-        "escape@117": [],
+        "escape@117": [
+          "NapiHandleScope__escape",
+          "intFromEnum"
+        ],
         "fixDeadCodeElimination@2476": [
           "markBinding",
           "src",
@@ -228921,7 +228942,13 @@
           "path",
           "addImport"
         ],
-        "build_vsr_module@388": [],
+        "build_vsr_module@388": [
+          "addOptions",
+          "addOption",
+          "createModule",
+          "path",
+          "addImport"
+        ],
         "cpu_features@1309": [],
         "create@2005": [
           "assert",
@@ -229069,7 +229096,38 @@
         ]
       },
       "zig/tigerbeetle/build_multiversion.zig": {
-        "build_multiversion_body@422": [],
+        "build_multiversion_body@422": [
+          "readFileAllocOptions",
+          "allocator",
+          "parse_pe",
+          "parse_macho",
+          "parse_elf",
+          "sizeOf",
+          "init_from_bytes",
+          "parse",
+          "git_sha_to_binary",
+          "ArrayList",
+          "init",
+          "assert",
+          "fmt",
+          "tagName",
+          "macos_universal_binary_extract",
+          "exec",
+          "openFile",
+          "close",
+          "chmod",
+          "checksum_file",
+          "intCast",
+          "statFile",
+          "min",
+          "writeFile",
+          "add",
+          "append",
+          "verify",
+          "createFile",
+          "readFileAlloc",
+          "pwriteAll"
+        ],
         "build_multiversion_single_arch@111": [
           "assert",
           "fmt",
@@ -229518,7 +229576,8 @@
         ],
         "slice_pop@68": [
           "Elem",
-          "TypeOf"
+          "TypeOf",
+          "assert"
         ],
         "upper@56": [
           "TypeOf",
@@ -230408,7 +230467,11 @@
           "schema",
           "callback"
         ],
-        "schema@185": [],
+        "schema@185": [
+          "assert",
+          "ptrCast",
+          "zeroed"
+        ],
         "scope_close@2897": [],
         "scope_open@2876": [],
         "sum_overflows@5026": [
@@ -230432,7 +230495,11 @@
           "transient",
           "insert_orphaned_id"
         ],
-        "tree_values_count@4640": [],
+        "tree_values_count@4640": [
+          "assert",
+          "max",
+          "event_max"
+        ],
         "value_next@4888": [
           "alignCast",
           "fieldParentPtr",
@@ -230566,7 +230633,21 @@
           "intFromEnum",
           "addErrorMessage"
         ],
-        "addModuleTableToCacheHash@1826": [],
+        "addModuleTableToCacheHash@1826": [
+          "assert",
+          "count",
+          "keys",
+          "values",
+          "unwrap",
+          "fileByIndex",
+          "addModule",
+          "add",
+          "addBytes",
+          "toCachePath",
+          "join",
+          "addFilePath",
+          "addListOfBytes"
+        ],
         "addNonIncrementalStuffToCacheManifest@3416": [
           "assert",
           "addModuleTableToCacheHash",
@@ -230590,7 +230671,17 @@
           "addDebugFormat"
         ],
         "addReferenceTraceFrame@4472": [
-          "ArrayList"
+          "ArrayList",
+          "upgrade",
+          "getSource",
+          "unableToLoadZcuFile",
+          "span",
+          "findLineColumn",
+          "append",
+          "printString",
+          "addSourceLocation",
+          "fmt",
+          "intCast"
         ],
         "addResolvedTarget@1470": [
           "add",
@@ -230863,7 +230954,75 @@
           "This"
         ],
         "count@1068": [],
-        "create@1897": [],
+        "create@1897": [
+          "fail",
+          "dupeZ",
+          "detect",
+          "canBuildLibCompilerRt",
+          "zigBackend",
+          "putNoClobber",
+          "canBuildLibUbsanRt",
+          "lockStderrWriter",
+          "unlockStderrWriter",
+          "print",
+          "zigTriple",
+          "maxInt",
+          "makeOpenPath",
+          "addPrefix",
+          "cwd",
+          "close",
+          "addBytes",
+          "add",
+          "addDebugFormat",
+          "join",
+          "fromRoot",
+          "init",
+          "getIdCount",
+          "deinit",
+          "splat",
+          "resolve",
+          "keys",
+          "free",
+          "ensureUnusedCapacity",
+          "putAssumeCapacity",
+          "dupe",
+          "activate",
+          "deactivate",
+          "populateModuleRootTable",
+          "open",
+          "addListOfBytes",
+          "addModuleTableToCacheHash",
+          "addModule",
+          "peekBin",
+          "final",
+          "destroy",
+          "ensureTotalCapacity",
+          "putAssumeCapacityNoClobber",
+          "intFromBool",
+          "check",
+          "isDarwinLibC",
+          "get",
+          "resolveCrtPaths",
+          "typeInfo",
+          "TypeOf",
+          "field",
+          "appendAssumeCapacity",
+          "isMuslLibC",
+          "canBuildLibC",
+          "needsCrt0",
+          "intFromEnum",
+          "isGnuLibC",
+          "isFreeBSDLibC",
+          "isNetBSDLibC",
+          "isWasiLibC",
+          "execModelCrtFile",
+          "isMinGW",
+          "count",
+          "queueJob",
+          "wantBuildLibUnwindFromSource",
+          "debug",
+          "append"
+        ],
         "crtFileAsString@7665": [
           "get_libc_crt_file",
           "toString"
@@ -231014,10 +231173,43 @@
           "getSourceLocation"
         ],
         "fail@1892": [],
-        "failCObj@7315": [],
-        "failCObjWithOwnedDiagBundle@7340": [],
-        "failWin32Resource@7360": [],
-        "failWin32ResourceWithOwnedBundle@7383": [],
+        "failCObj@7315": [
+          "branchHint",
+          "create",
+          "destroy",
+          "ensureTotalCapacity",
+          "putAssumeCapacity",
+          "dupe",
+          "alloc",
+          "allocPrint",
+          "failCObjWithOwnedDiagBundle"
+        ],
+        "failCObjWithOwnedDiagBundle@7340": [
+          "branchHint",
+          "assert",
+          "lock",
+          "unlock",
+          "destroy",
+          "ensureUnusedCapacity",
+          "putAssumeCapacityNoClobber"
+        ],
+        "failWin32Resource@7360": [
+          "branchHint",
+          "init",
+          "deinit",
+          "addRootErrorMessage",
+          "printString",
+          "addSourceLocation",
+          "addString",
+          "toOwnedBundle",
+          "failWin32ResourceWithOwnedBundle"
+        ],
+        "failWin32ResourceWithOwnedBundle@7383": [
+          "branchHint",
+          "lock",
+          "unlock",
+          "putNoClobber"
+        ],
         "finish@360": [
           "now",
           "order",
@@ -231067,10 +231259,80 @@
           "dupe",
           "allocPrint"
         ],
-        "getAllErrorsAlloc@3889": [],
-        "getCrtPaths@8098": [],
+        "getAllErrorsAlloc@3889": [
+          "init",
+          "deinit",
+          "values",
+          "addToErrorBundle",
+          "addBundleAsRoots",
+          "as",
+          "intCast",
+          "addRootErrorMessage",
+          "addString",
+          "reserveNotes",
+          "intFromEnum",
+          "addErrorMessageAssumeCapacity",
+          "errorMessageCount",
+          "addBundleAsNotes",
+          "addFileInMultipleModulesError",
+          "assert",
+          "contains",
+          "fileByIndex",
+          "getTree",
+          "unableToLoadZcuFile",
+          "tokenStart",
+          "tokenSlice",
+          "findLineColumn",
+          "addSourceLocation",
+          "printString",
+          "fmt",
+          "sort",
+          "keys",
+          "addWholeFileError",
+          "allocPrint",
+          "free",
+          "addZirErrorMessages",
+          "addZoirErrorMessages",
+          "AutoArrayHashMapUnmanaged",
+          "clone",
+          "items",
+          "slice",
+          "resolveReferences",
+          "scoped",
+          "debug",
+          "fmtAnalUnit",
+          "addModuleErrorMsg",
+          "get",
+          "getMessages",
+          "getErrorMessage",
+          "nullTerminatedString",
+          "getSourceLocation",
+          "getNamesFromMainThread",
+          "addErrorMessage",
+          "addMessagesToBundle",
+          "count",
+          "ArrayList",
+          "append",
+          "src",
+          "toOptional",
+          "appendCompileLogLines",
+          "unwrap",
+          "toOwnedSlice",
+          "lockStderrWriter",
+          "unlockStderrWriter",
+          "writeAll",
+          "print",
+          "panic",
+          "toOwnedBundle"
+        ],
+        "getCrtPaths@8098": [
+          "getCrtPathsInner"
+        ],
         "getCrtPathsInner@8106": [
-          "StringHashMapUnmanaged"
+          "StringHashMapUnmanaged",
+          "get",
+          "resolveCrtPaths",
+          "crtFilePath"
         ],
         "getTarget@2775": [],
         "getZigBackend@7734": [
@@ -231156,7 +231418,9 @@
           "deinit",
           "isNested"
         ],
-        "isNested@681": [],
+        "isNested@681": [
+          "startsWith"
+        ],
         "join@604": [
           "fromUnresolved"
         ],
@@ -231203,7 +231467,12 @@
           "obtain",
           "add"
         ],
-        "openInfo@449": [],
+        "openInfo@449": [
+          "absToCwdRelative",
+          "cwd",
+          "assert",
+          "isAbsolute"
+        ],
         "openUnresolved@821": [
           "resolvePath",
           "fatal",
@@ -231369,8 +231638,22 @@
           "deleteTree",
           "makePath"
         ],
-        "reportRetryableCObjectError@6073": [],
-        "reportRetryableWin32ResourceError@6082": [],
+        "reportRetryableCObjectError@6073": [
+          "failCObj"
+        ],
+        "reportRetryableWin32ResourceError@6082": [
+          "init",
+          "deinit",
+          "addRootErrorMessage",
+          "printString",
+          "errorName",
+          "addSourceLocation",
+          "addString",
+          "toOwnedBundle",
+          "lock",
+          "unlock",
+          "putNoClobber"
+        ],
         "resolve@1804": [
           "assert",
           "cacheName",
@@ -231447,7 +231730,10 @@
           "now",
           "panic"
         ],
-        "tmpFilePath@6734": [],
+        "tmpFilePath@6734": [
+          "int",
+          "allocPrint"
+        ],
         "toAbsolute@667": [
           "resolve"
         ],
@@ -232447,7 +232733,17 @@
         "extraData@10507": [
           "extraDataTrail"
         ],
-        "extraDataTrail@10463": [],
+        "extraDataTrail@10463": [
+          "view",
+          "items",
+          "typeInfo",
+          "field",
+          "enumFromInt",
+          "bitCast",
+          "compileError",
+          "typeName",
+          "intCast"
+        ],
         "extraErrorSet@7499": [
           "extraDataTrail",
           "intCast",
@@ -233007,7 +233303,23 @@
         "getExtern@586": [
           "indexToKey"
         ],
-        "getExtern@9228": [],
+        "getExtern@9228": [
+          "getOrPutKey",
+          "deinit",
+          "getLocal",
+          "getMutableItems",
+          "getMutableExtra",
+          "ensureUnusedCapacity",
+          "typeInfo",
+          "getMutableNavs",
+          "wrap",
+          "createNav",
+          "addExtraAssumeCapacity",
+          "appendAssumeCapacity",
+          "assert",
+          "put",
+          "toOptional"
+        ],
         "getExtra@4778": [
           "getLocalShared",
           "acquire"
@@ -234767,13 +235079,17 @@
           "appendRefsAssumeCapacity",
           "addInst"
         ],
-        "addBinOp@623": [],
+        "addBinOp@623": [
+          "addInst"
+        ],
         "addBitCast@581": [
           "addInst",
           "internedToRef",
           "toIntern"
         ],
-        "addBr@609": [],
+        "addBr@609": [
+          "addInst"
+        ],
         "addCmpVector@736": [
           "addInst",
           "internedToRef",
@@ -234864,9 +235180,18 @@
           "intCast",
           "errNote"
         ],
-        "addInst@811": [],
-        "addInstAsIndex@815": [],
-        "addNoOp@591": [],
+        "addInst@811": [
+          "addInstAsIndex",
+          "toRef"
+        ],
+        "addInstAsIndex@815": [
+          "ensureUnusedCapacity",
+          "enumFromInt",
+          "appendAssumeCapacity"
+        ],
+        "addNoOp@591": [
+          "addInst"
+        ],
         "addNullTerminatedStrLit@5469": [
           "addStrLit",
           "toString",
@@ -235022,13 +235347,21 @@
           "addErrorSet",
           "errorUnionSet"
         ],
-        "addTy@555": [],
-        "addTyOp@566": [],
+        "addTy@555": [
+          "addInst"
+        ],
+        "addTyOp@566": [
+          "addInst",
+          "internedToRef",
+          "toIntern"
+        ],
         "addTypeReferenceEntry@31219": [
           "getOrPut",
           "addTypeReference"
         ],
-        "addUnOp@598": [],
+        "addUnOp@598": [
+          "addInst"
+        ],
         "addUnionInit@793": [
           "addInst",
           "internedToRef",
@@ -237240,7 +237573,28 @@
         "count@7092": [
           "intFromBool"
         ],
-        "createTypeName@3095": [],
+        "createTypeName@3095": [
+          "unwrap",
+          "toOptional",
+          "getFnInfo",
+          "funcZirBodyInst",
+          "resolve",
+          "items",
+          "init",
+          "deinit",
+          "print",
+          "fmt",
+          "intFromEnum",
+          "get",
+          "resolveValue",
+          "writeByte",
+          "fmtValueSemaFull",
+          "getOrPutString",
+          "written",
+          "toRef",
+          "getOrPutStringFmt",
+          "getStr"
+        ],
         "declareDependency@36901": [
           "getOrPut",
           "unwrap",
@@ -237700,7 +238054,22 @@
           "destroy",
           "errNote"
         ],
-        "failWithOwnedErrorMsg@2665": [],
+        "failWithOwnedErrorMsg@2665": [
+          "branchHint",
+          "init",
+          "panic",
+          "addModuleErrorMsg",
+          "print",
+          "toOwnedBundle",
+          "renderToStdErr",
+          "panicExtra",
+          "returnAddress",
+          "isComptime",
+          "errNote",
+          "toOptional",
+          "getOrPut",
+          "destroy"
+        ],
         "failWithStructInitNotSupported@2453": [
           "fail",
           "fmt"
@@ -238246,8 +238615,17 @@
           "maxInt",
           "alloc"
         ],
-        "insertInst@830": [],
-        "insertInstAsIndex@834": [],
+        "insertInst@830": [
+          "insertInstAsIndex",
+          "toRef"
+        ],
+        "insertInstAsIndex@834": [
+          "ensureUnusedCapacity",
+          "enumFromInt",
+          "appendAssumeCapacity",
+          "insert",
+          "intFromEnum"
+        ],
         "intCast@9882": [
           "typeOf",
           "checkIntOrVectorAllowComptime",
@@ -238377,7 +238755,14 @@
           "namespacePtr",
           "unwrap"
         ],
-        "lookupInNamespace@6619": [],
+        "lookupInNamespace@6619": [
+          "ensureNamespaceUpToDate",
+          "namespacePtr",
+          "fromInterned",
+          "typeDeclInst",
+          "declareDependency",
+          "getKeyAdapted"
+        ],
         "makePtrConst@4257": [
           "typeOf",
           "makePtrTyConst",
@@ -238519,7 +238904,24 @@
         "nodeOffset@417": [
           "src"
         ],
-        "notePathToComptimeAllocPtr@36989": [],
+        "notePathToComptimeAllocPtr@36989": [
+          "ArrayList",
+          "print",
+          "fmt",
+          "notePathToComptimeAllocPtrInner",
+          "indexToKey",
+          "toIntern",
+          "errNote",
+          "getComptimeAlloc",
+          "pointerDerivationAdvanced",
+          "panic",
+          "init",
+          "deinit",
+          "allocPrint",
+          "printPtrDerivation",
+          "written",
+          "fromInterned"
+        ],
         "notePathToComptimeAllocPtrInner@37077": [
           "ArrayList",
           "assert",
@@ -239030,7 +239432,24 @@
           "tagName",
           "getOrPutStringOpt"
         ],
-        "resolveExternOptions@25682": [],
+        "resolveExternOptions@25682": [
+          "resolveInst",
+          "getBuiltinType",
+          "coerce",
+          "src",
+          "fieldVal",
+          "getOrPutString",
+          "toConstString",
+          "resolveConstDefinedValue",
+          "interpretBuiltinType",
+          "optionalValue",
+          "internedToRef",
+          "toIntern",
+          "fail",
+          "handleExternLibName",
+          "getOrPutStringOpt",
+          "toBool"
+        ],
         "resolveFinalDeclValue@2322": [
           "resolveConstValue",
           "canMutateComptimeVarState",
@@ -239841,7 +240260,13 @@
           "memset",
           "finishStructInit"
         ],
-        "structZirInfo@35118": [],
+        "structZirInfo@35118": [
+          "items",
+          "intFromEnum",
+          "assert",
+          "bitCast",
+          "typeInfo"
+        ],
         "switchCond@10993": [
           "typeOf",
           "zigTypeTag",
@@ -245580,7 +246005,11 @@
         "abiSizeSema@1283": [
           "abiSizeInner"
         ],
-        "arrayBase@3533": [],
+        "arrayBase@3533": [
+          "zigTypeTag",
+          "arrayLenIncludingSentinel",
+          "childType"
+        ],
         "arrayInfo@97": [
           "arrayLen",
           "sentinel",
@@ -245653,7 +246082,13 @@
           "toIntern"
         ],
         "collectSubtypes@4063": [
-          "AutoArrayHashMapUnmanaged"
+          "AutoArrayHashMapUnmanaged",
+          "getOrPut",
+          "indexToKey",
+          "toIntern",
+          "fromInterned",
+          "ptrInfo",
+          "get"
         ],
         "comptimeOnly@2706": [
           "comptimeOnlyInner"
@@ -245866,8 +246301,12 @@
         "format@124": [
           "compileError"
         ],
-        "format@4185": [],
-        "format@4225": [],
+        "format@4185": [
+          "print"
+        ],
+        "format@4225": [
+          "print"
+        ],
         "fromInterned@432": [
           "assert"
         ],
@@ -245973,7 +246412,10 @@
           "toIntern",
           "fromInterned"
         ],
-        "init@4195": [],
+        "init@4195": [
+          "deinit",
+          "collectSubtypes"
+        ],
         "intInfo@2288": [
           "getTarget",
           "toIntern",
@@ -246416,7 +246858,13 @@
           "zigTypeTag",
           "childType"
         ],
-        "shouldDedupeType@4139": [],
+        "shouldDedupeType@4139": [
+          "get",
+          "init",
+          "print",
+          "intCast",
+          "put"
+        ],
         "slicePtrFieldType@1842": [
           "fromInterned",
           "slicePtrType",
@@ -246638,7 +247086,14 @@
         ]
       },
       "zig/zig/Zcu.zig": {
-        "access@592": [],
+        "access@592": [
+          "setEvalBranchQuota",
+          "tagName",
+          "lastIndexOfScalar",
+          "field",
+          "assert",
+          "intFromEnum"
+        ],
         "addFileInMultipleModulesError@4633": [
           "fileByIndex",
           "errorBundleWholeFileSrc",
@@ -246712,7 +247167,14 @@
         "baseSrcToken@1269": [
           "firstToken"
         ],
-        "callconvSupported@4418": [],
+        "callconvSupported@4418": [
+          "getTarget",
+          "zigBackend",
+          "archs",
+          "toLlvmCallConv",
+          "cCallingConvention",
+          "eql"
+        ],
         "clearCachedResolvedReferences@3714": [
           "deinit"
         ],
@@ -246830,7 +247292,11 @@
         "eql@859": [
           "getNav"
         ],
-        "errNote@3731": [],
+        "errNote@3731": [
+          "allocPrint",
+          "free",
+          "realloc"
+        ],
         "errorBundleTokenSrc@1169": [
           "tokenStart",
           "tokenSlice",
@@ -247196,7 +247662,14 @@
           "extension",
           "writeByte"
         ],
-        "resolveBaseNode@2672": [],
+        "resolveBaseNode@2672": [
+          "assert",
+          "resolveFull",
+          "fileByIndex",
+          "get",
+          "intFromEnum",
+          "extraData"
+        ],
         "resolveReferences@4018": [
           "AutoArrayHashMapUnmanaged",
           "resolveReferencesInner"
@@ -247568,7 +248041,18 @@
           "checkAny",
           "runOrTest"
         ],
-        "clangMain@5673": [],
+        "clangMain@5673": [
+          "fatal",
+          "init",
+          "deinit",
+          "allocator",
+          "argsCopyZ",
+          "ZigClang_main",
+          "as",
+          "intCast",
+          "bitCast",
+          "truncate"
+        ],
         "cmdAstCheck@6075": [
           "check",
           "startsWith",
@@ -248045,9 +248529,52 @@
           "wait",
           "cleanExit"
         ],
-        "lldMain@5706": [],
-        "llvmArMain@5687": [],
-        "loadManifest@7246": [],
+        "lldMain@5706": [
+          "fatal",
+          "warn",
+          "tagName",
+          "init",
+          "deinit",
+          "allocator",
+          "argsCopyZ",
+          "as",
+          "intCast",
+          "eql",
+          "LinkELF",
+          "LinkCOFF",
+          "LinkWasm",
+          "intFromBool"
+        ],
+        "llvmArMain@5687": [
+          "fatal",
+          "init",
+          "deinit",
+          "allocator",
+          "argsCopyZ",
+          "ZigLlvmAr_main",
+          "as",
+          "intCast",
+          "bitCast",
+          "truncate"
+        ],
+        "loadManifest@7246": [
+          "readFileAllocOptions",
+          "limited",
+          "writeSimpleTemplateFile",
+          "generate",
+          "int",
+          "fatal",
+          "errorName",
+          "parse",
+          "deinit",
+          "printAstErrorsToStderr",
+          "exit",
+          "init",
+          "addString",
+          "copyErrorsIntoBundle",
+          "toOwnedBundle",
+          "renderToStdErr"
+        ],
         "log@137": [
           "EnumLiteral",
           "intFromEnum",
@@ -248235,7 +248762,13 @@
           "dupeZ",
           "spawn"
         ],
-        "sanitizeExampleName@4756": [],
+        "sanitizeExampleName@4756": [
+          "ArrayList",
+          "append",
+          "isValidId",
+          "shrinkRetainingCapacity",
+          "toOwnedSlice"
+        ],
         "saveState@4060": [
           "warn",
           "errorName"
@@ -248407,7 +248940,18 @@
         "eql@43": [
           "This"
         ],
-        "finalize@384": [],
+        "finalize@384": [
+          "slice",
+          "items",
+          "intFromEnum",
+          "appendSlice",
+          "ptrCast",
+          "intCast",
+          "assert",
+          "unwrap",
+          "getScopeParent",
+          "count"
+        ],
         "get@110": [
           "fullFnProto",
           "init",
@@ -248465,7 +249009,18 @@
           "truncate",
           "final"
         ],
-        "init@488": [],
+        "init@488": [
+          "trace",
+          "src",
+          "end",
+          "deinit",
+          "walkContainerDecl",
+          "nodeData",
+          "startScope",
+          "intCast",
+          "walkNode",
+          "finalize"
+        ],
         "isContainer@236": [
           "This"
         ],
@@ -248484,9 +249039,42 @@
           "intFromBool",
           "as"
         ],
-        "pushChildScope@457": [],
-        "pushDeclaration@332": [],
-        "startScope@426": [],
+        "pushChildScope@457": [
+          "items",
+          "intFromEnum",
+          "append",
+          "toOptional",
+          "ensureUnusedCapacity",
+          "appendSliceAssumeCapacity",
+          "ptrCast",
+          "appendAssumeCapacity"
+        ],
+        "pushDeclaration@332": [
+          "assert",
+          "identifierTokenToNameSlice",
+          "eql",
+          "count",
+          "nameToken",
+          "getOrPut",
+          "append",
+          "enumFromInt",
+          "items",
+          "intFromEnum",
+          "toOptional",
+          "ensureUnusedCapacity",
+          "appendSliceAssumeCapacity",
+          "ptrCast",
+          "appendAssumeCapacity"
+        ],
+        "startScope@426": [
+          "append",
+          "splat",
+          "enumFromInt",
+          "unwrap",
+          "pushChildScope",
+          "toOptional",
+          "intCast"
+        ],
         "toOptional@153": [
           "enumFromInt",
           "intFromEnum"
@@ -248503,35 +249091,188 @@
           "enumFromInt",
           "intFromEnum"
         ],
-        "walkBinOpNode@1236": [],
-        "walkBlockNode@893": [],
-        "walkBlockNodeKeepOpen@902": [],
-        "walkCatchNode@998": [],
-        "walkContainerDecl@764": [],
-        "walkErrdeferNode@1212": [],
-        "walkErrorSetNode@830": [],
-        "walkForNode@1102": [],
-        "walkFuncNode@852": [],
-        "walkIfNode@959": [],
-        "walkNode@568": [],
-        "walkNodeAndOptNode@1248": [],
-        "walkNodeEnsureScope@540": [],
-        "walkOptNodeAndOptNode@1242": [],
-        "walkOtherNode@1254": [],
-        "walkSwitchNode@1155": [],
-        "walkUnaryOpNode@1232": [],
-        "walkWhileNode@1024": []
+        "walkBinOpNode@1236": [
+          "nodeData",
+          "walkNode"
+        ],
+        "walkBlockNode@893": [
+          "walkBlockNodeKeepOpen",
+          "firstToken",
+          "finalize"
+        ],
+        "walkBlockNodeKeepOpen@902": [
+          "lastToken",
+          "startScope",
+          "locToSmallLoc",
+          "tokensToLoc",
+          "blockLabel",
+          "pushDeclaration",
+          "blockStatements",
+          "walkNode",
+          "nodeTag",
+          "fullVarDecl",
+          "assignDestructure",
+          "intCast"
+        ],
+        "walkCatchNode@998": [
+          "nodeData",
+          "walkNode",
+          "nodeMainToken",
+          "tokenTag",
+          "walkNodeEnsureScope",
+          "pushDeclaration",
+          "toOptional",
+          "finalize"
+        ],
+        "walkContainerDecl@764": [
+          "trace",
+          "src",
+          "end",
+          "fullContainerDecl",
+          "startScope",
+          "locToSmallLoc",
+          "nodeToLoc",
+          "walkNode",
+          "nodeTag",
+          "fullContainerField",
+          "tokenTag",
+          "convertToNonTupleLike",
+          "pushDeclaration",
+          "fullFnProto",
+          "fullVarDecl",
+          "finalize"
+        ],
+        "walkErrdeferNode@1212": [
+          "nodeData",
+          "unwrap",
+          "walkNodeEnsureScope",
+          "pushDeclaration",
+          "finalize",
+          "walkNode"
+        ],
+        "walkErrorSetNode@830": [
+          "startScope",
+          "locToSmallLoc",
+          "nodeToLoc",
+          "nodeData",
+          "tokenTag",
+          "intCast",
+          "pushDeclaration",
+          "finalize"
+        ],
+        "walkForNode@1102": [
+          "fullFor",
+          "walkNode",
+          "walkNodeEnsureScope",
+          "tokenTag",
+          "intFromBool",
+          "pushDeclaration",
+          "finalize",
+          "unwrap",
+          "firstToken"
+        ],
+        "walkFuncNode@852": [
+          "fullFnProto",
+          "startScope",
+          "locToSmallLoc",
+          "nodeToLoc",
+          "init",
+          "next",
+          "pushDeclaration",
+          "walkNode",
+          "unwrap",
+          "nodeTag",
+          "nodeData",
+          "finalize"
+        ],
+        "walkIfNode@959": [
+          "fullIf",
+          "walkNode",
+          "intFromBool",
+          "tokenTag",
+          "walkNodeEnsureScope",
+          "pushDeclaration",
+          "finalize",
+          "unwrap",
+          "toOptional"
+        ],
+        "walkNode@568": [
+          "nodeTag",
+          "walkContainerDecl",
+          "walkErrorSetNode",
+          "walkFuncNode",
+          "walkBlockNode",
+          "walkIfNode",
+          "walkCatchNode",
+          "walkWhileNode",
+          "walkForNode",
+          "walkSwitchNode",
+          "walkErrdeferNode",
+          "walkUnaryOpNode",
+          "walkBinOpNode",
+          "walkOptNodeAndOptNode",
+          "walkNodeAndOptNode",
+          "walkOtherNode"
+        ],
+        "walkNodeAndOptNode@1248": [
+          "nodeData",
+          "walkNode",
+          "unwrap"
+        ],
+        "walkNodeEnsureScope@540": [
+          "assert",
+          "nodeTag",
+          "walkBlockNodeKeepOpen",
+          "startScope",
+          "locToSmallLoc",
+          "tokensToLoc",
+          "lastToken",
+          "walkNode"
+        ],
+        "walkOptNodeAndOptNode@1242": [
+          "nodeData",
+          "unwrap",
+          "walkNode"
+        ],
+        "walkOtherNode@1254": [
+          "init",
+          "next",
+          "walkNode"
+        ],
+        "walkSwitchNode@1155": [
+          "fullSwitch",
+          "startScope",
+          "locToSmallLoc",
+          "nodeToLoc",
+          "pushDeclaration",
+          "walkNode",
+          "fullSwitchCase",
+          "intFromBool",
+          "tokenTag",
+          "walkNodeEnsureScope",
+          "intCast",
+          "finalize"
+        ],
+        "walkUnaryOpNode@1232": [
+          "walkNode",
+          "nodeData"
+        ],
+        "walkWhileNode@1024": [
+          "fullWhile",
+          "walkNode",
+          "intFromBool",
+          "tokenTag",
+          "unwrap",
+          "walkNodeEnsureScope",
+          "firstToken",
+          "pushDeclaration",
+          "finalize",
+          "toOptional"
+        ]
       },
       "zig/zls/DocumentStore.zig": {
         "Lazy@595": [
-          "This",
-          "traceNamed",
-          "src",
-          "typeName",
-          "end",
-          "lockUncancelable",
-          "unlock",
-          "create"
+          "This"
         ],
         "await@589": [
           "wait"
@@ -248554,18 +249295,92 @@
           "destroy"
         ],
         "collectCMacros@1757": [
-          "ArrayList"
+          "ArrayList",
+          "assert",
+          "getAssociatedBuildFile",
+          "tryLockConfig",
+          "unlockConfig",
+          "get",
+          "ensureUnusedCapacity",
+          "appendAssumeCapacity",
+          "dupe"
         ],
         "collectImports@482": [
           "ArrayList",
-          "MultiArrayList"
+          "MultiArrayList",
+          "trace",
+          "src",
+          "end",
+          "toStdUri",
+          "items",
+          "enumFromInt",
+          "tokenToSlice",
+          "nodeMainToken",
+          "eql",
+          "ensureUnusedCapacity",
+          "builtinCallParams",
+          "nodeTag",
+          "endsWith",
+          "resolveImport",
+          "appendAssumeCapacity",
+          "convertCInclude",
+          "init",
+          "splat",
+          "update",
+          "finalResult"
         ],
         "collectIncludeDirs@1690": [
-          "ArrayList"
+          "ArrayList",
+          "assert",
+          "trace",
+          "src",
+          "end",
+          "init",
+          "deinit",
+          "default",
+          "allocator",
+          "detect",
+          "ensureUnusedCapacity",
+          "appendAssumeCapacity",
+          "dupe",
+          "getAssociatedBuildFile",
+          "tryLockConfig",
+          "unlockConfig",
+          "get",
+          "isAbsolute",
+          "toFsPath",
+          "dirname",
+          "join"
         ],
-        "collectPotentialBuildFiles@1473": [],
-        "create@646": [],
-        "create@663": [],
+        "collectPotentialBuildFiles@1473": [
+          "trace",
+          "src",
+          "end",
+          "isInStd",
+          "ArrayList",
+          "deinit",
+          "toFsPath",
+          "free",
+          "componentIterator",
+          "dirname",
+          "buildDotZigExists",
+          "join",
+          "ensureUnusedCapacity",
+          "fromPath",
+          "getOrLoadBuildFile",
+          "appendAssumeCapacity",
+          "reverse",
+          "toOwnedSlice"
+        ],
+        "create@646": [
+          "init",
+          "deinit",
+          "shrinkAndFree",
+          "setCapacity"
+        ],
+        "create@663": [
+          "init"
+        ],
         "createAndStoreDocument@1567": [
           "trace",
           "src",
@@ -248591,7 +249406,20 @@
           "readFile",
           "refresh"
         ],
-        "createBuildFile@1522": [],
+        "createBuildFile@1522": [
+          "trace",
+          "src",
+          "end",
+          "dupe",
+          "deinit",
+          "loadBuildAssociatedConfiguration",
+          "toFsPath",
+          "resolve",
+          "free",
+          "fromPath",
+          "debug",
+          "info"
+        ],
         "deinit@154": [],
         "deinit@1962": [
           "free"
@@ -248618,9 +249446,53 @@
           "values",
           "destroy"
         ],
-        "get@613": [],
-        "getAssociatedBuildFile@241": [],
-        "getAssociatedCompilationUnits@337": [],
+        "get@613": [
+          "traceNamed",
+          "src",
+          "typeName",
+          "end",
+          "lockUncancelable",
+          "unlock",
+          "create"
+        ],
+        "getAssociatedBuildFile@241": [
+          "assert",
+          "lock",
+          "unlock",
+          "collectPotentialBuildFiles",
+          "free",
+          "initEmpty",
+          "deinit",
+          "iterator",
+          "next",
+          "isAssociatedWith",
+          "set"
+        ],
+        "getAssociatedCompilationUnits@337": [
+          "getAssociatedBuildFile",
+          "tryLockConfig",
+          "unlockConfig",
+          "initEmpty",
+          "count",
+          "deinit",
+          "ArrayList",
+          "initCapacity",
+          "getIndex",
+          "StringArrayHashMapUnmanaged",
+          "ensureTotalCapacity",
+          "putAssumeCapacity",
+          "keys",
+          "unsetAll",
+          "clearRetainingCapacity",
+          "appendAssumeCapacity",
+          "pop",
+          "append",
+          "isSet",
+          "set",
+          "values",
+          "ensureUnusedCapacity",
+          "toOwnedSlice"
+        ],
         "getBuildFile@800": [
           "assert",
           "lockUncancelable",
@@ -248628,14 +249500,34 @@
           "get"
         ],
         "getCached@639": [],
-        "getDocumentScope@187": [],
+        "getDocumentScope@187": [
+          "get"
+        ],
         "getHandle@728": [
           "lockUncancelable",
           "unlock",
           "get"
         ],
-        "getOrLoadBuildFile@810": [],
-        "getOrLoadHandle@779": [],
+        "getOrLoadBuildFile@810": [
+          "assert",
+          "getBuildFile",
+          "lock",
+          "unlock",
+          "getOrPut",
+          "swapRemoveAt",
+          "create",
+          "destroy",
+          "createBuildFile",
+          "invalidateBuildFile"
+        ],
+        "getOrLoadHandle@779": [
+          "trace",
+          "src",
+          "end",
+          "isFileScheme",
+          "getHandle",
+          "createAndStoreDocument"
+        ],
         "getOrLoadHandleVoid@988": [
           "Value",
           "getOrLoadHandle",
@@ -248671,7 +249563,29 @@
           "TypedJsonRPCRequest",
           "as"
         ],
-        "isAssociatedWith@95": [],
+        "isAssociatedWith@95": [
+          "trace",
+          "src",
+          "end",
+          "init",
+          "deinit",
+          "allocator",
+          "ArrayList",
+          "tryLockConfig",
+          "unlockConfig",
+          "keys",
+          "ensureUnusedCapacity",
+          "appendAssumeCapacity",
+          "dupe",
+          "ArrayHashMap",
+          "put",
+          "fromPath",
+          "count",
+          "eql",
+          "isInStd",
+          "getOrLoadHandle",
+          "putAssumeCapacity"
+        ],
         "isBuildFile@1287": [
           "endsWith"
         ],
@@ -248748,7 +249662,26 @@
           "get",
           "store"
         ],
-        "loadTrigramStores@1035": [],
+        "loadTrigramStores@1035": [
+          "trace",
+          "src",
+          "end",
+          "ArrayList",
+          "deinit",
+          "next",
+          "toStdUri",
+          "componentIterator",
+          "startsWith",
+          "eql",
+          "eqlIgnoreCase",
+          "append",
+          "Value",
+          "init",
+          "getOrNull",
+          "async",
+          "load",
+          "toOwnedSlice"
+        ],
         "next@676": [
           "lockUncancelable",
           "unlock",
@@ -248766,9 +249699,40 @@
           "sendMessageToClient",
           "err"
         ],
-        "openLspSyncedDocument@840": [],
-        "parseTree@463": [],
-        "prepareBuildRunnerArgs@1327": [],
+        "openLspSyncedDocument@840": [
+          "trace",
+          "src",
+          "end",
+          "getHandle",
+          "warn",
+          "dupeSentinel",
+          "createAndStoreDocument"
+        ],
+        "parseTree@463": [
+          "traceNamed",
+          "src",
+          "end",
+          "parse",
+          "deinit",
+          "toMultiArrayList",
+          "setCapacity",
+          "slice"
+        ],
+        "prepareBuildRunnerArgs@1327": [
+          "trace",
+          "src",
+          "end",
+          "ArrayList",
+          "initCapacity",
+          "free",
+          "deinit",
+          "appendAssumeCapacity",
+          "dupe",
+          "getBuildFile",
+          "ensureUnusedCapacity",
+          "formatParam",
+          "toOwnedSlice"
+        ],
         "publishCimportDiagnostics@1897": [
           "init",
           "deinit",
@@ -248809,10 +249773,63 @@
           "limited",
           "of"
         ],
-        "refresh@406": [],
-        "refreshDocumentFromFileSystem@922": [],
-        "refreshLspSyncedDocument@894": [],
-        "resolveCImport@1790": [],
+        "refresh@406": [
+          "traceNamed",
+          "src",
+          "end",
+          "eql",
+          "extension",
+          "parseTree",
+          "deinit",
+          "ArrayList",
+          "MultiArrayList",
+          "items",
+          "free",
+          "collectImports",
+          "toOwnedSlice"
+        ],
+        "refreshDocumentFromFileSystem@922": [
+          "trace",
+          "src",
+          "end",
+          "getIndex",
+          "values",
+          "swapRemoveAt",
+          "deinit",
+          "destroy",
+          "getHandle",
+          "isFileScheme",
+          "createAndStoreDocument"
+        ],
+        "refreshLspSyncedDocument@894": [
+          "trace",
+          "src",
+          "end",
+          "getHandle",
+          "warn",
+          "createAndStoreDocument"
+        ],
+        "resolveCImport@1790": [
+          "assert",
+          "trace",
+          "src",
+          "end",
+          "findScalar",
+          "items",
+          "lock",
+          "unlock",
+          "get",
+          "ArrayList",
+          "free",
+          "deinit",
+          "collectIncludeDirs",
+          "err",
+          "collectCMacros",
+          "translate",
+          "getOrPutValue",
+          "publishCimportDiagnostics",
+          "debug"
+        ],
         "sendMessageToClient@1096": [
           "valueAlloc",
           "free",
@@ -248825,11 +249842,54 @@
         "unlockConfig@86": [
           "unlock"
         ],
-        "uriFromImportStr@1978": []
+        "uriFromImportStr@1978": [
+          "trace",
+          "src",
+          "end",
+          "endsWith",
+          "toStdUri",
+          "resolveImport",
+          "eql",
+          "join",
+          "free",
+          "fromPath",
+          "getAssociatedBuildFile",
+          "dupe",
+          "getAssociatedCompilationUnits",
+          "ArrayList",
+          "initCapacity",
+          "deinit",
+          "appendAssumeCapacity",
+          "toOwnedSlice",
+          "isBuildFile",
+          "getBuildFile",
+          "tryLockConfig",
+          "unlockConfig",
+          "get"
+        ]
       },
       "zig/zls/Server.zig": {
-        "addWorkspace@857": [],
-        "autofix@297": [],
+        "addWorkspace@857": [
+          "ensureUnusedCapacity",
+          "appendAssumeCapacity",
+          "init",
+          "isSupportedComptime",
+          "refreshBuildOnSave",
+          "loadDirectoryRecursive",
+          "err",
+          "info"
+        ],
+        "autofix@297": [
+          "ArrayList",
+          "getAstCheckDiagnostics",
+          "deinit",
+          "errorMessageCount",
+          "initAnalyser",
+          "init",
+          "generateCodeAction",
+          "assert",
+          "eql"
+        ],
         "autofixWorkaround@280": [],
         "changeDocumentHandler@1166": [
           "parse",
@@ -248960,7 +250020,22 @@
         "gotoTypeDefinitionHandler@1382": [
           "gotoHandler"
         ],
-        "handleConfiguration@684": [],
+        "handleConfiguration@684": [
+          "trace",
+          "src",
+          "end",
+          "err",
+          "resolveConfiguration",
+          "init",
+          "deinit",
+          "allocator",
+          "parseFromValueLeaky",
+          "toFsPath",
+          "field",
+          "isAbsolute",
+          "resolve",
+          "setConfiguration"
+        ],
         "handleResponse@1974": [
           "trace",
           "src",
@@ -248980,7 +250055,11 @@
           "deinit",
           "hover"
         ],
-        "init@766": [],
+        "init@766": [
+          "dupe",
+          "deinit",
+          "isSupportedComptime"
+        ],
         "initAnalyser@269": [
           "init"
         ],
@@ -249085,7 +250164,17 @@
           "errorName"
         ],
         "referencesHandler@1484": [],
-        "refreshBuildOnSave@794": [],
+        "refreshBuildOnSave@794": [
+          "assert",
+          "isSupportedComptime",
+          "isSupportedRuntime",
+          "debug",
+          "deinit",
+          "toFsPath",
+          "free",
+          "init",
+          "err"
+        ],
         "registerCapability@644": [
           "allocPrint",
           "free",
@@ -249106,7 +250195,27 @@
           "sendToClientRequest",
           "free"
         ],
-        "resolveConfiguration@978": [],
+        "resolveConfiguration@978": [
+          "deinit",
+          "showMessage",
+          "fields",
+          "field",
+          "info",
+          "fmt",
+          "createDocumentStoreConfig",
+          "isSupportedComptime",
+          "refreshBuildOnSave",
+          "keys",
+          "invalidateBuildFile",
+          "values",
+          "clearAndFree",
+          "next",
+          "generateDiagnostics",
+          "warn",
+          "isSupportedRuntime",
+          "sliceTo",
+          "autofixWorkaround"
+        ],
         "saveDocumentHandler@1190": [
           "parse",
           "isBuildFile",
@@ -249217,11 +250326,48 @@
           "selectionRangeHandler",
           "workspaceSymbolHandler"
         ],
-        "sendToClientInternal@206": [],
-        "sendToClientNotification@180": [],
-        "sendToClientRequest@164": [],
-        "sendToClientResponse@149": [],
-        "sendToClientResponseError@195": [],
+        "sendToClientInternal@206": [
+          "valueAlloc",
+          "free",
+          "traceNamed",
+          "src",
+          "end",
+          "writeJsonMessage",
+          "err"
+        ],
+        "sendToClientNotification@180": [
+          "traceNamed",
+          "src",
+          "typeName",
+          "TypeOf",
+          "end",
+          "TypedJsonRPCNotification",
+          "sendToClientInternal"
+        ],
+        "sendToClientRequest@164": [
+          "traceNamed",
+          "src",
+          "typeName",
+          "TypeOf",
+          "end",
+          "TypedJsonRPCRequest",
+          "sendToClientInternal"
+        ],
+        "sendToClientResponse@149": [
+          "traceNamed",
+          "src",
+          "typeName",
+          "TypeOf",
+          "end",
+          "TypedJsonRPCResponse",
+          "sendToClientInternal"
+        ],
+        "sendToClientResponseError@195": [
+          "trace",
+          "src",
+          "end",
+          "sendToClientInternal"
+        ],
         "setTransport@1734": [],
         "showMessage@226": [
           "allocPrint",
@@ -249270,12 +250416,39 @@
         "allDigits@1374": [
           "isDigit"
         ],
-        "allocType@71": [],
-        "arrayInfo@4445": [],
-        "bracketAccessTypeFromIPIndex@1082": [],
-        "coerceIP@1583": [],
+        "allocType@71": [
+          "create"
+        ],
+        "arrayInfo@4445": [
+          "indexToKey",
+          "fromIP"
+        ],
+        "bracketAccessTypeFromIPIndex@1082": [
+          "assert",
+          "typeOf",
+          "indexToKey",
+          "dupe",
+          "free",
+          "alloc",
+          "allocType",
+          "fromIP"
+        ],
+        "coerceIP@1583": [
+          "coerce"
+        ],
         "collectAllSymbolsAtSourceIndex@6136": [
-          "ArrayList"
+          "ArrayList",
+          "assert",
+          "getDocumentScope",
+          "iterateEnclosingScopes",
+          "next",
+          "unwrap",
+          "getScopeDeclarationsConst",
+          "get",
+          "intFromEnum",
+          "nodeTag",
+          "isContainerField",
+          "append"
         ],
         "collectDeclarationsOfContainer@6046": [
           "ArrayList",
@@ -249295,7 +250468,14 @@
           "firstParamIs",
           "append"
         ],
-        "collectDocComments@129": [],
+        "collectDocComments@129": [
+          "ArrayList",
+          "deinit",
+          "tokenTag",
+          "tokenSlice",
+          "append",
+          "join"
+        ],
         "compare@6175": [
           "This",
           "intFromEnum"
@@ -249356,8 +250536,16 @@
         ],
         "deinit@5317": [],
         "deinit@66": [],
-        "docComments@4503": [],
-        "docComments@5831": [],
+        "docComments@4503": [
+          "getDocComments",
+          "toNode"
+        ],
+        "docComments@5831": [
+          "getDocComments",
+          "get",
+          "collectDocComments",
+          "getDocCommentsBeforeToken"
+        ],
         "drain@352": [
           "fieldParentPtr",
           "assert",
@@ -249403,7 +250591,15 @@
         "fmtEscapedSnippet@388": [
           "Alt"
         ],
-        "fromEither@3899": [],
+        "fromEither@3899": [
+          "resolvePeerTypes",
+          "ArrayHashMapUnmanaged",
+          "deinit",
+          "put",
+          "count",
+          "dupe",
+          "keys"
+        ],
         "fromIP@3885": [
           "assert",
           "isType",
@@ -249415,8 +250611,29 @@
           "of",
           "resolveOptionalIPValue"
         ],
-        "getAllTypesWithHandles@3971": [],
-        "getAllTypesWithHandlesArraySet@4016": [],
+        "getAllTypesWithHandles@3971": [
+          "getAllTypesWithHandlesArraySet",
+          "keys"
+        ],
+        "getAllTypesWithHandlesArraySet@4016": [
+          "count",
+          "isConditional",
+          "put",
+          "getAllTypesWithHandles",
+          "allocType",
+          "unionInit",
+          "tagName",
+          "ArrayMap",
+          "init",
+          "next",
+          "alloc",
+          "get",
+          "values",
+          "keys",
+          "typeOf",
+          "memcpy",
+          "instanceUnchecked"
+        ],
         "getContainerKind@4269": [
           "toNode",
           "tokenTag",
@@ -249425,8 +250642,16 @@
         "getDocCommentTokenIndex@108": [
           "tokenTag"
         ],
-        "getDocComments@83": [],
-        "getDocCommentsBeforeToken@77": [],
+        "getDocComments@83": [
+          "nodeMainToken",
+          "nodeTag",
+          "collectDocComments",
+          "getDocCommentsBeforeToken"
+        ],
+        "getDocCommentsBeforeToken@77": [
+          "getDocCommentTokenIndex",
+          "collectDocComments"
+        ],
         "getFieldAccessType@4997": [
           "dupeSentinel",
           "locToSlice",
@@ -249456,7 +250681,35 @@
           "lastToken",
           "tokensToSlice"
         ],
-        "getPositionContext@5355": [],
+        "getPositionContext@5355": [
+          "trace",
+          "src",
+          "end",
+          "lineLocAtIndex",
+          "lineLocUntilIndex",
+          "startsWith",
+          "trimStart",
+          "locToSlice",
+          "endsWith",
+          "trimEnd",
+          "initCapacity",
+          "deinit",
+          "sourceIndexToTokenIndex",
+          "preferLeft",
+          "tokenTag",
+          "tokenToLoc",
+          "min",
+          "tokenStart",
+          "peek",
+          "find",
+          "tokenLocAppend",
+          "eql",
+          "isErrSetDef",
+          "loc",
+          "push",
+          "pop",
+          "assert"
+        ],
         "getSymbolEnumLiteral@6870": [
           "trace",
           "src",
@@ -249492,8 +250745,30 @@
           "locMerge",
           "getSymbolFieldAccessesArrayList"
         ],
-        "getVariableSignature@491": [],
-        "hasSelfParam@439": [],
+        "getVariableSignature@491": [
+          "unwrap",
+          "firstToken",
+          "tokensToSlice",
+          "lastToken",
+          "nodeTag",
+          "fullContainerDecl",
+          "tokensOnSameLine",
+          "ArrayList",
+          "lineLocUntilIndex",
+          "tokenStart",
+          "tokenToLoc",
+          "append",
+          "appendSlice",
+          "trimCommonIndentation",
+          "concat"
+        ],
+        "hasSelfParam@439": [
+          "assert",
+          "isFunc",
+          "typeOf",
+          "isNamespace",
+          "firstParamIs"
+        ],
         "hash32@3831": [
           "truncate",
           "hash64"
@@ -249557,11 +250832,35 @@
         ],
         "init@338": [],
         "init@4164": [
-          "ArrayMap"
+          "ArrayMap",
+          "resize",
+          "count",
+          "memcpy",
+          "keys",
+          "reIndex",
+          "values"
         ],
         "init@48": [],
-        "initCapacity@5312": [],
-        "innermostContainer@6236": [],
+        "initCapacity@5312": [
+          "assert"
+        ],
+        "innermostContainer@6236": [
+          "getDocumentScope",
+          "root",
+          "deinit",
+          "iterateEnclosingScopes",
+          "next",
+          "unwrap",
+          "getScopeTag",
+          "keys",
+          "values",
+          "put",
+          "clearRetainingCapacity",
+          "getScopeAstNode",
+          "fullFnProto",
+          "init",
+          "isMetaType"
+        ],
         "innermostScopeAtIndex@6214": [
           "innermostScopeAtIndexWithTag",
           "initFull",
@@ -249586,8 +250885,15 @@
           "resolveType",
           "instanceTypeVal"
         ],
-        "instanceTypeVal@4198": [],
-        "instanceUnchecked@4203": [],
+        "instanceTypeVal@4198": [
+          "instanceUnchecked"
+        ],
+        "instanceUnchecked@4203": [
+          "assert",
+          "fromIP",
+          "getUnknown",
+          "alloc"
+        ],
         "ipIndex@3871": [],
         "isCaptureByRef@5812": [
           "tokenTag",
@@ -249654,7 +250960,15 @@
           "fullFnProto"
         ],
         "isRoot@4258": [],
-        "isStatic@5871": [],
+        "isStatic@5871": [
+          "nodeTag",
+          "getDocumentScope",
+          "nodeMainToken",
+          "tokenStart",
+          "innermostScopeAtIndex",
+          "getScopeTag",
+          "isContainer"
+        ],
         "isStructType@4286": [
           "zigTypeTag",
           "isContainerKind",
@@ -249672,11 +250986,29 @@
           "isContainerKind"
         ],
         "iterateEnclosingScopes@6194": [],
-        "iterateLabels@6202": [],
+        "iterateLabels@6202": [
+          "getDocumentScope",
+          "iterateEnclosingScopes",
+          "next",
+          "unwrap",
+          "getScopeDeclarationsConst",
+          "get",
+          "intFromEnum",
+          "callback"
+        ],
         "loc@5241": [
           "tokenToLoc"
         ],
-        "lookupLabel@6290": [],
+        "lookupLabel@6290": [
+          "getDocumentScope",
+          "iterateEnclosingScopes",
+          "next",
+          "unwrap",
+          "getScopeDeclaration",
+          "get",
+          "intFromEnum",
+          "assert"
+        ],
         "lookupSymbol@4514": [
           "isEnumType",
           "isTaggedUnion",
@@ -249686,7 +251018,13 @@
           "firstParamIs",
           "typeOf"
         ],
-        "lookupSymbolContainer@6355": [],
+        "lookupSymbolContainer@6355": [
+          "getDocumentScope",
+          "getScopeDeclaration",
+          "unwrap",
+          "get",
+          "intFromEnum"
+        ],
         "lookupSymbolFieldInit@6380": [
           "resolveExpressionType",
           "nodeTag",
@@ -249699,9 +251037,28 @@
           "resolveReturnType",
           "eql"
         ],
-        "lookupSymbolGlobal@6312": [],
+        "lookupSymbolGlobal@6312": [
+          "getDocumentScope",
+          "innermostScopeAtIndex",
+          "getScopeDeclaration",
+          "unwrap",
+          "get",
+          "intFromEnum",
+          "assert",
+          "fullContainerField",
+          "convertToNonTupleLike",
+          "tokenToLoc",
+          "getScopeParent"
+        ],
         "nameToken@5690": [],
-        "next@1878": [],
+        "next@1878": [
+          "nodeTag",
+          "nodeData",
+          "unwrap",
+          "eql",
+          "identifierTokenToNameSlice",
+          "skip"
+        ],
         "next@4186": [
           "ArrayMap",
           "values"
@@ -249729,12 +251086,68 @@
         "pop@5333": [
           "peek"
         ],
-        "push@5321": [],
-        "rawStringify@4583": [],
-        "rawStringifyFunction@248": [],
-        "rawStringifyParameter@182": [],
-        "renderBuiltinFunctionSignature@392": [],
-        "resolveAddressOf@909": [],
+        "push@5321": [
+          "append"
+        ],
+        "rawStringify@4583": [
+          "writeByte",
+          "writeAll",
+          "print",
+          "fmt",
+          "toNode",
+          "nodeTag",
+          "toFsPath",
+          "stem",
+          "put",
+          "of",
+          "firstToken",
+          "tokenTag",
+          "tokenSlice",
+          "getDocumentScope",
+          "innermostScopeAtIndexWithTag",
+          "tokenStart",
+          "initOne",
+          "unwrap",
+          "getScopeAstNode",
+          "fullFnProto",
+          "tokenToSlice",
+          "init",
+          "next",
+          "isMetaType",
+          "resolveGenericType",
+          "nodeToSlice",
+          "fullContainerDecl",
+          "min",
+          "lastToken",
+          "tokensToSlice",
+          "rawStringifyFunction",
+          "getUnknown",
+          "assert",
+          "eql"
+        ],
+        "rawStringifyFunction@248": [
+          "init",
+          "writeAll",
+          "writeByte",
+          "print",
+          "rawStringifyParameter",
+          "typeOf",
+          "rawStringify"
+        ],
+        "rawStringifyParameter@182": [
+          "writeAll",
+          "rawStringify"
+        ],
+        "renderBuiltinFunctionSignature@392": [
+          "ArrayList",
+          "appendSlice",
+          "append"
+        ],
+        "resolveAddressOf@909": [
+          "typeOf",
+          "createPointerType",
+          "instanceUnchecked"
+        ],
         "resolveArrayCat@1394": [
           "arrayInfo",
           "add",
@@ -249783,8 +251196,17 @@
           "resolveDerefBinding",
           "resolveTypeOfNodeUncached"
         ],
-        "resolveBracketAccess@1133": [],
-        "resolveBracketAccessType@1076": [],
+        "resolveBracketAccess@1133": [
+          "intCast",
+          "instanceUnchecked",
+          "bracketAccessTypeFromIPIndex",
+          "eql",
+          "createArrayType",
+          "createPointerType"
+        ],
+        "resolveBracketAccessType@1076": [
+          "resolveBracketAccess"
+        ],
         "resolveCallsiteReferences@1744": [
           "trace",
           "src",
@@ -249821,8 +251243,14 @@
           "isUnknown"
         ],
         "resolveDeclLiteralResultType@4361": [],
-        "resolveDerefBinding@997": [],
-        "resolveDerefType@992": [],
+        "resolveDerefBinding@997": [
+          "instanceTypeVal",
+          "indexToKey",
+          "fromIP"
+        ],
+        "resolveDerefType@992": [
+          "resolveDerefBinding"
+        ],
         "resolveErrorSetIPIndex@1572": [
           "resolveTypeOfNodeInternal",
           "zigTypeTag"
@@ -249893,7 +251321,10 @@
           "resolveType",
           "isConst"
         ],
-        "resolveFuncProtoOfCallable@984": [],
+        "resolveFuncProtoOfCallable@984": [
+          "resolveDerefType",
+          "isFunc"
+        ],
         "resolveFunctionTypeFromCall@1825": [
           "isGenericType",
           "clone",
@@ -249907,9 +251338,36 @@
           "typeOf",
           "resolveGenericType"
         ],
-        "resolveGeneric@3655": [],
-        "resolveGenericType@780": [],
-        "resolveGenericTypeInternal@786": [],
+        "resolveGeneric@3655": [
+          "isGeneric",
+          "getOrPutContext",
+          "assert",
+          "removeContext",
+          "get",
+          "resolveGenericTypeInternal",
+          "createPointer",
+          "createArray",
+          "alloc",
+          "createTuple",
+          "createOptional",
+          "createErrorUnion",
+          "allocType",
+          "ensureTotalCapacity",
+          "count",
+          "keys",
+          "values",
+          "putAssumeCapacity"
+        ],
+        "resolveGenericType@780": [
+          "deinit",
+          "resolveGenericTypeInternal"
+        ],
+        "resolveGenericTypeInternal@786": [
+          "typeOf",
+          "assert",
+          "resolveGeneric",
+          "instanceUnchecked"
+        ],
         "resolveImportString@4845": [
           "uriFromImportStr",
           "getOrLoadHandle",
@@ -249948,15 +251406,55 @@
           "resolveInternPoolValue",
           "of"
         ],
-        "resolveOptionalUnwrap@875": [],
-        "resolveOrelseType@897": [],
-        "resolvePeerErrorSets@1614": [],
-        "resolvePeerTypes@1593": [],
-        "resolvePeerTypesIP@1608": [],
-        "resolvePeerTypesInternal@1627": [],
-        "resolvePrimitive@1512": [],
-        "resolvePropertyType@1246": [],
-        "resolveReturnType@831": [],
+        "resolveOptionalUnwrap@875": [
+          "instanceUnchecked",
+          "indexToKey",
+          "fromIP"
+        ],
+        "resolveOrelseType@897": [
+          "indexToKey",
+          "resolveOptionalUnwrap"
+        ],
+        "resolvePeerErrorSets@1614": [
+          "zigTypeTag",
+          "errorSetMerge",
+          "fromIP"
+        ],
+        "resolvePeerTypes@1593": [
+          "eql",
+          "resolvePeerTypesIP",
+          "fromIP",
+          "resolvePeerTypesInternal"
+        ],
+        "resolvePeerTypesIP@1608": [
+          "resolvePeerTypes"
+        ],
+        "resolvePeerTypesInternal@1627": [
+          "eql",
+          "typeOf",
+          "allocType",
+          "resolvePeerErrorSets",
+          "instanceTypeVal",
+          "resolvePeerTypes",
+          "zigTypeTag"
+        ],
+        "resolvePrimitive@1512": [
+          "get",
+          "parseUnsigned"
+        ],
+        "resolvePropertyType@1246": [
+          "eql",
+          "instanceTypeVal",
+          "fromIP",
+          "get",
+          "allDigits",
+          "parseInt",
+          "resolveBracketAccessType",
+          "indexToKey"
+        ],
+        "resolveReturnType@831": [
+          "resolveFuncProtoOfCallable"
+        ],
         "resolveReturnValueOfFuncNode@837": [
           "fullFnProto",
           "nodeTag",
@@ -250169,7 +251667,11 @@
           "isContainerField",
           "resolveUnionTag"
         ],
-        "resolveUnwrapErrorUnionType@917": [],
+        "resolveUnwrapErrorUnionType@917": [
+          "instanceTypeVal",
+          "indexToKey",
+          "fromIP"
+        ],
         "resolveVarDeclAlias@667": [
           "trace",
           "src",
@@ -250197,17 +251699,59 @@
           "findAnyPos",
           "findScalarPos"
         ],
-        "stringifyFunction@239": [],
-        "stringifyParameter@173": [],
-        "stringifyTypeOf@4554": [],
-        "stringifyTypeVal@4564": [],
+        "stringifyFunction@239": [
+          "init",
+          "deinit",
+          "rawStringifyFunction",
+          "toOwnedSlice"
+        ],
+        "stringifyParameter@173": [
+          "init",
+          "deinit",
+          "rawStringifyParameter",
+          "toOwnedSlice"
+        ],
+        "stringifyTypeOf@4554": [
+          "typeOf",
+          "init",
+          "deinit",
+          "rawStringify",
+          "toOwnedSlice"
+        ],
+        "stringifyTypeVal@4564": [
+          "assert",
+          "init",
+          "deinit",
+          "rawStringify",
+          "toOwnedSlice"
+        ],
         "toNode@4827": [
           "getCached",
           "getScopeAstNode"
         ],
         "tokenLocAppend@5343": [],
-        "trimCommonIndentation@583": [],
-        "typeDeclarationNode@5710": [],
+        "trimCommonIndentation@583": [
+          "splitScalar",
+          "next",
+          "isWhitespace",
+          "min",
+          "dupe",
+          "ArrayList",
+          "initCapacity",
+          "assert",
+          "compileError",
+          "appendAssumeCapacity",
+          "appendSliceAssumeCapacity"
+        ],
+        "typeDeclarationNode@5710": [
+          "nodeTag",
+          "fullVarDecl",
+          "unwrap",
+          "of",
+          "fullContainerField",
+          "getFullVarDecl",
+          "get"
+        ],
         "typeDefinitionToken@4465": [
           "toNode",
           "fullContainerDecl",
@@ -250221,7 +251765,10 @@
           "eql",
           "firstToken"
         ],
-        "typeOf@4226": [],
+        "typeOf@4226": [
+          "fromIP",
+          "alloc"
+        ],
         "withoutIPIndex@3878": [
           "fromIP"
         ],
@@ -250232,7 +251779,9 @@
       },
       "zig/zls/ast.zig": {
         "append@1661": [
-          "This"
+          "This",
+          "assert",
+          "nodeToLoc"
         ],
         "asmFull@153": [
           "nodeData",
@@ -250385,7 +251934,10 @@
           "containerField",
           "splat"
         ],
-        "init@1531": [],
+        "init@1531": [
+          "ArrayList",
+          "append"
+        ],
         "init@955": [],
         "initArray@1504": [
           "FieldType",
@@ -250454,16 +252006,54 @@
           "nodeMainToken",
           "nodeData"
         ],
-        "next@1550": [],
+        "next@1550": [
+          "assert",
+          "append",
+          "init"
+        ],
         "next@966": [
           "lastToken",
           "firstToken",
           "tokenTag"
         ],
-        "nextIgnoreClose@1567": [],
-        "nodesAtLoc@1653": [],
-        "nodesOverlappingIndex@1594": [],
-        "nodesOverlappingIndexIncludingParseErrors@1622": [],
+        "nextIgnoreClose@1567": [
+          "next"
+        ],
+        "nodesAtLoc@1653": [
+          "assert",
+          "ArrayList",
+          "append",
+          "deinit",
+          "ensureTotalCapacity",
+          "init",
+          "next",
+          "smallestEnclosingSubrange",
+          "clearRetainingCapacity",
+          "dupe",
+          "appendAssumeCapacity",
+          "toOwnedSlice"
+        ],
+        "nodesOverlappingIndex@1594": [
+          "assert",
+          "ArrayList",
+          "deinit",
+          "init",
+          "nextIgnoreClose",
+          "nodeToLoc",
+          "append",
+          "skip",
+          "reverse",
+          "toOwnedSlice"
+        ],
+        "nodesOverlappingIndexIncludingParseErrors@1622": [
+          "ArrayList",
+          "deinit",
+          "enumFromInt",
+          "nodeToLoc",
+          "append",
+          "sort",
+          "alloc"
+        ],
         "paramFirstToken@865": [
           "firstToken"
         ],
@@ -250512,8 +252102,16 @@
           "nodeMainToken"
         ],
         "skip@1576": [],
-        "smallestEnclosingSubrange@1707": [],
-        "testDeclNameAndToken@833": [],
+        "smallestEnclosingSubrange@1707": [
+          "locInside"
+        ],
+        "testDeclNameAndToken@833": [
+          "nodeData",
+          "unwrap",
+          "tokenTag",
+          "tokenToSlice",
+          "identifierTokenToNameSlice"
+        ],
         "whileCont@309": [
           "nodeData",
           "extraData",
@@ -250535,11 +252133,36 @@
         ]
       },
       "zig/zls/config_gen.zig": {
-        "collectBuiltinData@451": [],
+        "collectBuiltinData@451": [
+          "ArrayList",
+          "deinit",
+          "next",
+          "appendSlice",
+          "assert",
+          "eql",
+          "append",
+          "fromArrayList",
+          "writeMarkdownCode",
+          "toArrayList",
+          "replaceOwned",
+          "free",
+          "print",
+          "trimStart",
+          "toOwnedSlice"
+        ],
         "deinit@800": [
           "free"
         ],
-        "extractParametersAndReturnTypeFromSignature@810": [],
+        "extractParametersAndReturnTypeFromSignature@810": [
+          "ArrayList",
+          "deinit",
+          "init",
+          "next",
+          "append",
+          "toOwnedSlice",
+          "trim",
+          "print"
+        ],
         "fmtDefaultValue@75": [
           "Alt"
         ],
@@ -250641,7 +252264,11 @@
           "writeByte",
           "end"
         ],
-        "getTypescriptType@24": [],
+        "getTypescriptType@24": [
+          "assert",
+          "intFromBool",
+          "eql"
+        ],
         "main@992": [
           "DebugAllocator",
           "deinit",
@@ -250671,7 +252298,11 @@
           "writeByte",
           "print"
         ],
-        "snakeCaseToCamelCase@302": [],
+        "snakeCaseToCamelCase@302": [
+          "count",
+          "alloc",
+          "toUpper"
+        ],
         "writeLine@702": [
           "trim",
           "splitScalar",

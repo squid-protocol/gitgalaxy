@@ -370,3 +370,10 @@ changed files to the gates they can move: a language's standard selects its call
 `tests/import_graph_corpus.json`) and span anchoring; a gate's tool or baseline selects that gate, and a shared adapter selects every gate on it;
 shared core, the workflow and the corpus list select all; anything else selects none. Toolchains and corpora install only for the selected
 gates. A failed plan runs every gate; the check name `graph-accuracy-audit` is unchanged.
+
+**Call-graph and detection audits (#6501).** `call-graph-accuracy-audit.yml` and `detection-accuracy-audit.yml` each start with a `plan` job
+(`tests/tools/accuracy_audit_plan.py --audit call-graph|detection`, stdlib). A change to a shared input (the tool, its baseline, the crucible pins,
+`detector.py`/`prism.py` or `language_lens.py`/`gitgalaxy_config.py`, any `language_standards` file that is not one language's) runs the audit. A
+language file runs it only when the diff moves something the audit reads: for call-graph, any code line of a baseline language, else a detection
+key; for detection, a `rules` entry (every rule is scored) or a key the lens reads. Comments, `_meta` and underscore-prefixed rules skip it. A hunk
+the planner cannot place, a new file, a non-PR event or a failed plan runs it. The saving is small for detection by construction.

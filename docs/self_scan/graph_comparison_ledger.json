@@ -5522,6 +5522,176 @@
       "symbol_type": "import",
       "verdict": null
     },
+    "groovy/import/declaration-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T18:27:12Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "groovy",
+      "last_reconciled_at": "2026-10-24T18:27:12Z",
+      "last_seen_count": 41,
+      "last_seen_examples": [
+        {
+          "file_path": "spock/build-logic/base/src/test/groovy/org/spockframework/gradle/AsciiDocLinkVerifierTest.groovy",
+          "name": "spock/build-logic/base/src/test/groovy/org/spockframework/gradle/AsciiDocLinkVerifierTest.groovy -> build-logic/base/src/main/groovy/org/spockframework/gradle/AsciiDocLinkVerifier.groovy",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "spock/build-logic/base/src/test/groovy/org/spockframework/gradle/AsciiDocLinkVerifierTest.groovy",
+          "name": "spock/build-logic/base/src/test/groovy/org/spockframework/gradle/AsciiDocLinkVerifierTest.groovy -> build-logic/base/src/main/groovy/org/spockframework/gradle/AsciiDocLinkVerifier.groovy",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "spock/build.gradle",
+          "name": "spock/build.gradle -> build-logic/base/src/main/groovy/org/spockframework/gradle/AsciiDocLinkVerifier.groovy",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "spock/build.gradle",
+          "name": "spock/build.gradle -> build-logic/base/src/main/groovy/org/spockframework/gradle/AsciiDocLinkVerifier.groovy",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "spock/spock-specs/src/test/groovy/org/spockframework/mock/runtime/MockMakerRegistrySpec.groovy",
+          "name": "spock/spock-specs/src/test/groovy/org/spockframework/mock/runtime/MockMakerRegistrySpec.groovy -> spock-core/src/main/java/org/spockframework/mock/runtime/IMockMaker.java",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "declaration-unresolved",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "groovy/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T18:27:12Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "groovy",
+      "last_reconciled_at": "2026-10-24T18:27:12Z",
+      "last_seen_count": 5,
+      "last_seen_examples": [
+        {
+          "file_path": "spock/spock-specs/src/test/groovy/org/spockframework/runtime/RunListenerSpec.groovy",
+          "name": "spock/spock-specs/src/test/groovy/org/spockframework/runtime/RunListenerSpec.groovy -> spock-core/src/main/java/org/spockframework/mock/codegen/Target.java",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "spock/spock-specs/src/test/groovy/org/spockframework/runtime/extension/AnnotationDrivenExtensionSpec.groovy",
+          "name": "spock/spock-specs/src/test/groovy/org/spockframework/runtime/extension/AnnotationDrivenExtensionSpec.groovy -> spock-core/src/main/java/org/spockframework/mock/codegen/Target.java",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "spock/spock-specs/src/test/groovy/org/spockframework/smoke/extension/PendingFeatureExtensionSpec.groovy",
+          "name": "spock/spock-specs/src/test/groovy/org/spockframework/smoke/extension/PendingFeatureExtensionSpec.groovy -> spock-core/src/main/java/org/spockframework/runtime/Condition.java",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "spock/spock-specs/src/test/groovy/org/spockframework/smoke/extension/SnapshotterSpec.groovy",
+          "name": "spock/spock-specs/src/test/groovy/org/spockframework/smoke/extension/SnapshotterSpec.groovy -> spock-core/src/main/java/org/spockframework/compiler/model/Method.java",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "spock/spock-specs/src/test/groovy/org/spockframework/util/ReflectionUtilSpec.groovy",
+          "name": "spock/spock-specs/src/test/groovy/org/spockframework/util/ReflectionUtilSpec.groovy -> spock-core/src/main/java/org/spockframework/compiler/model/Method.java",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "target-not-imported",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "groovy/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T18:27:12Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "groovy",
+      "last_reconciled_at": "2026-10-24T18:27:12Z",
+      "last_seen_count": 3,
+      "last_seen_examples": [
+        {
+          "file_path": "spock/spock-core/src/main/groovy/spock/util/EmbeddedSpecRunner.groovy",
+          "name": "spock/spock-core/src/main/groovy/spock/util/EmbeddedSpecRunner.groovy -> spock-core/src/main/java/org/spockframework/util/Filter.java",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "spock/spock-specs/src/test/groovy/org/spockframework/smoke/extension/Fast.groovy",
+          "name": "spock/spock-specs/src/test/groovy/org/spockframework/smoke/extension/Fast.groovy -> spock-core/src/main/java/org/spockframework/mock/codegen/Target.java",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "spock/spock-specs/src/test/groovy/org/spockframework/smoke/extension/Slow.groovy",
+          "name": "spock/spock-specs/src/test/groovy/org/spockframework/smoke/extension/Slow.groovy -> spock-core/src/main/java/org/spockframework/mock/codegen/Target.java",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-sees-no-import-in-file",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "haskell/call/apply/apply/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"

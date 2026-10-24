@@ -49,13 +49,13 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 | CBCUS01C | carddemo-readcust | 91 | E2 | 7 runs / 6 fault | gnucobol-models | 5/5 / 21/22 | 63/74, open 7 | 0 | - | coverage short: 5/5 paragraphs, 21/22 branch outcomes |
 | CBACT03C | carddemo-readxref | 91 | E2 | 7 runs / 6 fault | gnucobol-models | 5/5 / 21/22 | 69/83, open 8 | 0 | - | coverage short: 5/5 paragraphs, 21/22 branch outcomes |
 | CORPT00C | carddemo-report | 383 | E1 | 30 runs / 2 fault | gnucobol-models | 10/10 / 52/59 | 59/87, open 0 | 0 | - | 1 hole(s) in the port itself (stub or ported_unproven method) |
-| COSGN00C | carddemo-signon | 140 | E3 | 20 runs / 3 fault | gnucobol-models | 6/6 / 17/17 | 67/99, open 5 | 0 | - | mutation score stale: port, case, harness, oracle changed since it was judged (bcb4f6f82) |
+| COSGN00C | carddemo-signon | 140 | E3 | 22 runs / 5 fault | gnucobol-models | 6/6 / 17/17 | 67/99, open 5 | 0 | - | mutation score stale: port, case, harness, oracle changed since it was judged (bcb4f6f82) |
 | COTRN02C | carddemo-tranadd | 550 | E2 | 78 runs / 11 fault | gnucobol-models | 18/18 / 72/75 | 70/91, open 3 | 0 | - | coverage short: 18/18 paragraphs, 72/75 branch outcomes |
 | COTRN00C | carddemo-tranlist | 479 | E2 | 36 runs / 6 fault | gnucobol-models | 16/16 / 96/101 | 66/91, open 13 | 0 | - | coverage short: 16/16 paragraphs, 96/101 branch outcomes |
-| COTRN01C | carddemo-tranview | 187 | E2 | 24 runs / 3 fault | gnucobol-models | 9/9 / 23/24 | 67/100, open 0 | 0 | - | coverage short: 9/9 paragraphs, 23/24 branch outcomes |
+| COTRN01C | carddemo-tranview | 187 | E2 | 25 runs / 4 fault | gnucobol-models | 9/9 / 23/24 | 67/100, open 0 | 0 | - | coverage short: 9/9 paragraphs, 23/24 branch outcomes |
 | CBTRN03C | carddemo-trnrpt | 433 | E2 | 25 runs / 24 fault | gnucobol-models | 26/26 / 81/82 | 68/86, open 11 | 0 | - | coverage short: 26/26 paragraphs, 81/82 branch outcomes |
-| COUSR01C | carddemo-useradd | 168 | E2 | 24 runs / 2 fault | gnucobol-models | 9/9 / 20/21 | 63/98, open 1 | 0 | - | coverage short: 9/9 paragraphs, 20/21 branch outcomes |
-| COUSR03C | carddemo-userdel | 209 | E2 | 31 runs / 5 fault | gnucobol-models | 11/11 / 31/32 | 67/87, open 0 | 0 | - | coverage short: 11/11 paragraphs, 31/32 branch outcomes |
+| COUSR01C | carddemo-useradd | 168 | E2 | 25 runs / 3 fault | gnucobol-models | 9/9 / 20/21 | 63/98, open 1 | 0 | - | coverage short: 9/9 paragraphs, 20/21 branch outcomes |
+| COUSR03C | carddemo-userdel | 209 | E2 | 32 runs / 6 fault | gnucobol-models | 11/11 / 31/32 | 67/87, open 0 | 0 | - | coverage short: 11/11 paragraphs, 31/32 branch outcomes |
 | COUSR00C | carddemo-userlist | 474 | E2 | 70 runs / 14 fault | gnucobol-models | 16/16 / 95/100 | 379/507, open 2 | 0 | - | coverage short: 16/16 paragraphs, 95/100 branch outcomes |
 | COUSR02C | carddemo-userupd | 261 | E2 | 32 runs / 4 fault | gnucobol-models | 11/11 / 44/46 | 57/82, open 2 | 0 | - | coverage short: 11/11 paragraphs, 44/46 branch outcomes |
 

@@ -194,3 +194,30 @@ def test_main_markdown_carries_a_proof_section_for_every_estate_with_whole_progr
     assert wholes
     assert text.count("### Proof blockers (") == len(wholes)
     assert text.count("### Rules to land (") == len(built["estates"])
+
+
+def _prog(named, reach="not measured"):
+    return {
+        "assumptions": {
+            "named_by_commands": [{"id": i, "status": "ASSUMED", "area": f"area {i}"} for i in named],
+            "reach": reach,
+        }
+    }
+
+
+def test_caveats_without_measured_reach_are_the_named_upper_bound():
+    rows = rr.caveats([_prog(["A1", "A2"]), _prog(["A2"])])
+    assert [(r["id"], r["programs"], r["named_only"]) for r in rows] == [("A2", 2, 2), ("A1", 1, 1)]
+
+
+def test_caveats_narrow_to_the_reached_entries_and_mix_with_unmeasured_programs():
+    reached = _prog(["A1", "A2", "A3"], {"registers": ["A2", "A9"]})  # A9 is not named: never counted
+    rows = {r["id"]: r for r in rr.caveats([reached, _prog(["A1", "A2"])])}
+    assert rows["A2"]["programs"] == 2 and rows["A2"]["named_only"] == 1
+    assert rows["A1"]["programs"] == 1 and rows["A1"]["named_only"] == 1
+    assert "A3" not in rows and "A9" not in rows
+
+
+def test_fully_measured_caveats_carry_no_named_only_key_and_render_without_upper_bound():
+    rows = rr.caveats([_prog(["A1", "A2"], {"registers": ["A1"]}), _prog(["A1"], {"registers": []})])
+    assert rows == [{"id": "A1", "status": "ASSUMED", "area": "area A1", "programs": 1}]

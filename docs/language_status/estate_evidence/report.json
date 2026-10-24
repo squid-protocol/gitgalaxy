@@ -8,14 +8,14 @@
      "case": "carddemo-acctview",
      "coverage": {
       "branches": [
-       59,
+       61,
        69
       ],
       "paragraphs": [
        32,
        32
       ],
-      "uncovered_branches": 10
+      "uncovered_branches": 8
      },
      "differences": 0,
      "estate": "aws-mainframe-modernization-carddemo",
@@ -36,7 +36,7 @@
       "judged": 137,
       "killed": 119,
       "open_survivors": 0,
-      "stale": "stale: harness, oracle changed since it was judged (776deaabf4eb9d65ef00c2a104c588d740f0425f)",
+      "stale": "stale: case, harness, oracle changed since it was judged (776deaabf4eb9d65ef00c2a104c588d740f0425f)",
       "stillborn": 13,
       "survivors": {
        "case_gap": 0,
@@ -49,10 +49,10 @@
      "oracle": "gnucobol-models",
      "program": "COACTVWC",
      "proof": {
-      "at": "2026-10-23T09:00:48Z",
+      "at": "2026-10-24T08:35:29Z",
       "fault_runs": 7,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde",
-      "runs": 36
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746",
+      "runs": 37
      },
      "reach": {
       "det_helper": 0,
@@ -115,9 +115,9 @@
      "oracle": "gnucobol-models",
      "program": "COADM01C",
      "proof": {
-      "at": "2026-10-23T09:00:24Z",
+      "at": "2026-10-24T08:54:40Z",
       "fault_runs": 5,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746",
       "runs": 34
      },
      "reach": {
@@ -181,9 +181,9 @@
      "oracle": "gnucobol-models",
      "program": "COBIL00C",
      "proof": {
-      "at": "2026-10-23T09:00:57Z",
+      "at": "2026-10-24T08:40:22Z",
       "fault_runs": 13,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746",
       "runs": 35
      },
      "reach": {
@@ -230,14 +230,14 @@
      },
      "mutation": {
       "adjusted_judged": 82,
-      "commit": "7470befa4",
+      "commit": "6d3d283347618d109842b3e8a7bd55709b974e45",
       "judged": 94,
-      "killed": 75,
-      "open_survivors": 7,
-      "stale": "stale: case, harness, oracle changed since it was judged (7470befa4)",
+      "killed": 82,
+      "open_survivors": 0,
+      "stale": "stale: case, harness, oracle changed since it was judged (6d3d283347618d109842b3e8a7bd55709b974e45)",
       "stillborn": 6,
       "survivors": {
-       "case_gap": 7,
+       "case_gap": 0,
        "equivalent": 12,
        "harness_gap": 0,
        "unreachable": 0,
@@ -247,10 +247,10 @@
      "oracle": "gnucobol-models",
      "program": "COCRDLIC",
      "proof": {
-      "at": "2026-10-23T08:50:08Z",
-      "fault_runs": 7,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde",
-      "runs": 42
+      "at": "2026-10-24T08:37:25Z",
+      "fault_runs": 9,
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746",
+      "runs": 46
      },
      "reach": {
       "det_helper": 0,
@@ -313,9 +313,9 @@
      "oracle": "gnucobol-models",
      "program": "COCRDSLC",
      "proof": {
-      "at": "2026-10-23T09:02:23Z",
+      "at": "2026-10-24T08:47:11Z",
       "fault_runs": 3,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746",
       "runs": 25
      },
      "reach": {
@@ -338,14 +338,14 @@
      "case": "carddemo-cbpaup0c",
      "coverage": {
       "branches": [
-       37,
+       38,
        40
       ],
       "paragraphs": [
        15,
        16
       ],
-      "uncovered_branches": 3
+      "uncovered_branches": 2
      },
      "differences": 0,
      "estate": "aws-mainframe-modernization-carddemo",
@@ -364,10 +364,10 @@
      "oracle": "gnucobol-models",
      "program": "CBPAUP0C",
      "proof": {
-      "at": "2026-10-23T09:02:08Z",
-      "fault_runs": 11,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
-      "runs": 12
+      "at": "2026-10-24T08:36:39Z",
+      "fault_runs": 12,
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
+      "runs": 13
      },
      "reach": {
       "det_helper": 2,
@@ -380,7 +380,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "coverage short: 15/16 paragraphs, 37/40 branch outcomes"
+      "coverage short: 15/16 paragraphs, 38/40 branch outcomes"
      ]
     },
     {
@@ -415,9 +415,9 @@
      "oracle": "gnucobol-models",
      "program": "CBSTM03A",
      "proof": {
-      "at": "2026-10-23T07:45:24Z",
+      "at": "2026-10-24T08:55:10Z",
       "fault_runs": 4,
-      "harness_commit": "b642c40aab3b2b7abfe713fa8df331aabd6c51dc",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 5
      },
      "reach": {
@@ -466,9 +466,9 @@
      "oracle": "gnucobol-models",
      "program": "COPAUA0C",
      "proof": {
-      "at": "2026-10-23T09:00:57Z",
+      "at": "2026-10-24T08:40:54Z",
       "fault_runs": 7,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 22
      },
      "reach": {
@@ -491,14 +491,14 @@
      "case": "carddemo-copaus0c",
      "coverage": {
       "branches": [
-       84,
+       88,
        93
       ],
       "paragraphs": [
        20,
        20
       ],
-      "uncovered_branches": 9
+      "uncovered_branches": 5
      },
      "differences": 0,
      "estate": "aws-mainframe-modernization-carddemo",
@@ -517,10 +517,10 @@
      "oracle": "gnucobol-models",
      "program": "COPAUS0C",
      "proof": {
-      "at": "2026-10-23T09:01:38Z",
-      "fault_runs": 9,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
-      "runs": 33
+      "at": "2026-10-24T08:37:57Z",
+      "fault_runs": 12,
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
+      "runs": 37
      },
      "reach": {
       "det_helper": 4,
@@ -533,7 +533,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "coverage short: 20/20 paragraphs, 84/93 branch outcomes"
+      "coverage short: 20/20 paragraphs, 88/93 branch outcomes"
      ]
     },
     {
@@ -544,14 +544,14 @@
      "case": "carddemo-copaus1c",
      "coverage": {
       "branches": [
-       44,
+       48,
        48
       ],
       "paragraphs": [
        15,
        15
       ],
-      "uncovered_branches": 4
+      "uncovered_branches": 0
      },
      "differences": 0,
      "estate": "aws-mainframe-modernization-carddemo",
@@ -570,10 +570,10 @@
      "oracle": "gnucobol-models",
      "program": "COPAUS1C",
      "proof": {
-      "at": "2026-10-23T09:16:59Z",
-      "fault_runs": 11,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde",
-      "runs": 32
+      "at": "2026-10-24T09:01:25Z",
+      "fault_runs": 14,
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746",
+      "runs": 35
      },
      "reach": {
       "det_helper": 12,
@@ -636,9 +636,9 @@
      "oracle": "gnucobol-models",
      "program": "CBTRN01C",
      "proof": {
-      "at": "2026-10-23T08:53:01Z",
+      "at": "2026-10-24T08:48:50Z",
       "fault_runs": 20,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 21
      },
      "reach": {
@@ -684,27 +684,27 @@
       "total": 114
      },
      "mutation": {
-      "adjusted_judged": 145,
-      "commit": "9c21df6c3",
-      "judged": 195,
-      "killed": 145,
+      "adjusted_judged": 197,
+      "commit": "69e7af7e3d5c2bf9e7169fb5c14fb0360bdb9d7d",
+      "judged": 260,
+      "killed": 197,
       "open_survivors": 0,
-      "stale": "stale: harness, oracle changed since it was judged (9c21df6c3)",
+      "stale": "stale: harness, oracle changed since it was judged (69e7af7e3d5c2bf9e7169fb5c14fb0360bdb9d7d)",
       "stillborn": 16,
       "survivors": {
        "case_gap": 0,
-       "equivalent": 10,
+       "equivalent": 13,
        "harness_gap": 0,
-       "unreachable": 40,
+       "unreachable": 50,
        "untriaged": 0
       }
      },
      "oracle": "gnucobol-models",
      "program": "CSUTLDTC",
      "proof": {
-      "at": "2026-10-23T09:02:42Z",
+      "at": "2026-10-24T08:36:54Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 1
      },
      "reach": {
@@ -768,9 +768,9 @@
      "oracle": "gnucobol-models",
      "program": "CBACT04C",
      "proof": {
-      "at": "2026-10-23T09:04:32Z",
+      "at": "2026-10-24T08:56:37Z",
       "fault_runs": 19,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 20
      },
      "reach": {
@@ -834,9 +834,9 @@
      "oracle": "gnucobol-models",
      "program": "COMEN01C",
      "proof": {
-      "at": "2026-10-23T09:01:22Z",
+      "at": "2026-10-24T08:41:20Z",
       "fault_runs": 2,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 16
      },
      "reach": {
@@ -900,9 +900,9 @@
      "oracle": "gnucobol-models",
      "program": "CBTRN02C",
      "proof": {
-      "at": "2026-10-23T09:05:35Z",
+      "at": "2026-10-24T08:41:03Z",
       "fault_runs": 28,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 29
      },
      "reach": {
@@ -966,9 +966,9 @@
      "oracle": "gnucobol-models",
      "program": "CBACT02C",
      "proof": {
-      "at": "2026-10-23T08:53:59Z",
+      "at": "2026-10-24T08:49:23Z",
       "fault_runs": 6,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 7
      },
      "reach": {
@@ -1032,9 +1032,9 @@
      "oracle": "gnucobol-models",
      "program": "CBCUS01C",
      "proof": {
-      "at": "2026-10-23T09:03:35Z",
+      "at": "2026-10-24T08:37:39Z",
       "fault_runs": 6,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 7
      },
      "reach": {
@@ -1098,9 +1098,9 @@
      "oracle": "gnucobol-models",
      "program": "CBACT03C",
      "proof": {
-      "at": "2026-10-23T09:05:26Z",
+      "at": "2026-10-24T08:57:10Z",
       "fault_runs": 6,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 7
      },
      "reach": {
@@ -1147,14 +1147,14 @@
      },
      "mutation": {
       "adjusted_judged": 60,
-      "commit": "7470befa4",
+      "commit": "51724c2b30114cad380308e36f6c99eb0b148bb0",
       "judged": 87,
-      "killed": 58,
-      "open_survivors": 2,
-      "stale": "stale: case, harness, oracle changed since it was judged (7470befa4)",
+      "killed": 59,
+      "open_survivors": 0,
+      "stale": "stale: harness, oracle changed since it was judged (51724c2b30114cad380308e36f6c99eb0b148bb0)",
       "stillborn": 13,
       "survivors": {
-       "case_gap": 2,
+       "case_gap": 0,
        "equivalent": 16,
        "harness_gap": 0,
        "unreachable": 11,
@@ -1164,9 +1164,9 @@
      "oracle": "gnucobol-models",
      "program": "CORPT00C",
      "proof": {
-      "at": "2026-10-23T09:01:51Z",
+      "at": "2026-10-24T08:41:48Z",
       "fault_runs": 2,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 30
      },
      "reach": {
@@ -1230,9 +1230,9 @@
      "oracle": "gnucobol-models",
      "program": "COSGN00C",
      "proof": {
-      "at": "2026-10-23T09:06:04Z",
+      "at": "2026-10-24T08:41:26Z",
       "fault_runs": 3,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 20
      },
      "reach": {
@@ -1279,14 +1279,14 @@
      },
      "mutation": {
       "adjusted_judged": 73,
-      "commit": "7470befa4",
+      "commit": "51724c2b30114cad380308e36f6c99eb0b148bb0",
       "judged": 91,
-      "killed": 61,
-      "open_survivors": 12,
-      "stale": "stale: case, harness, oracle changed since it was judged (7470befa4)",
+      "killed": 70,
+      "open_survivors": 3,
+      "stale": "stale: harness, oracle changed since it was judged (51724c2b30114cad380308e36f6c99eb0b148bb0)",
       "stillborn": 9,
       "survivors": {
-       "case_gap": 12,
+       "case_gap": 3,
        "equivalent": 10,
        "harness_gap": 0,
        "unreachable": 8,
@@ -1296,9 +1296,9 @@
      "oracle": "gnucobol-models",
      "program": "COTRN02C",
      "proof": {
-      "at": "2026-10-23T08:54:38Z",
+      "at": "2026-10-24T08:49:45Z",
       "fault_runs": 11,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 78
      },
      "reach": {
@@ -1362,9 +1362,9 @@
      "oracle": "gnucobol-models",
      "program": "COTRN00C",
      "proof": {
-      "at": "2026-10-23T09:04:09Z",
+      "at": "2026-10-24T08:38:06Z",
       "fault_runs": 6,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 36
      },
      "reach": {
@@ -1428,9 +1428,9 @@
      "oracle": "gnucobol-models",
      "program": "COTRN01C",
      "proof": {
-      "at": "2026-10-23T09:05:55Z",
+      "at": "2026-10-24T08:57:27Z",
       "fault_runs": 3,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 24
      },
      "reach": {
@@ -1494,9 +1494,9 @@
      "oracle": "gnucobol-models",
      "program": "CBTRN03C",
      "proof": {
-      "at": "2026-10-23T09:04:49Z",
+      "at": "2026-10-24T08:44:42Z",
       "fault_runs": 24,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 25
      },
      "reach": {
@@ -1560,9 +1560,9 @@
      "oracle": "gnucobol-models",
      "program": "COUSR01C",
      "proof": {
-      "at": "2026-10-23T09:06:34Z",
+      "at": "2026-10-24T08:41:48Z",
       "fault_runs": 2,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 24
      },
      "reach": {
@@ -1626,9 +1626,9 @@
      "oracle": "gnucobol-models",
      "program": "COUSR03C",
      "proof": {
-      "at": "2026-10-23T08:55:07Z",
+      "at": "2026-10-24T08:50:02Z",
       "fault_runs": 5,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 31
      },
      "reach": {
@@ -1674,12 +1674,12 @@
       "total": 531
      },
      "mutation": {
-      "adjusted_judged": 379,
-      "commit": "a4d1ebcfe9c4bbb277bbe4d08a810883010f456f",
-      "judged": 505,
-      "killed": 377,
+      "adjusted_judged": 381,
+      "commit": "da689648afea9cb103bbc337efaa492d54e94cf7",
+      "judged": 507,
+      "killed": 379,
       "open_survivors": 2,
-      "stale": "stale: harness, oracle changed since it was judged (a4d1ebcfe9c4bbb277bbe4d08a810883010f456f)",
+      "stale": "stale: case, harness, oracle changed since it was judged (da689648afea9cb103bbc337efaa492d54e94cf7)",
       "stillborn": 5,
       "survivors": {
        "case_gap": 0,
@@ -1692,10 +1692,10 @@
      "oracle": "gnucobol-models",
      "program": "COUSR00C",
      "proof": {
-      "at": "2026-10-23T09:04:41Z",
-      "fault_runs": 12,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
-      "runs": 59
+      "at": "2026-10-24T08:38:34Z",
+      "fault_runs": 14,
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
+      "runs": 70
      },
      "reach": {
       "det_helper": 0,
@@ -1758,9 +1758,9 @@
      "oracle": "gnucobol-models",
      "program": "COUSR02C",
      "proof": {
-      "at": "2026-10-23T09:06:23Z",
+      "at": "2026-10-24T08:57:44Z",
       "fault_runs": 4,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 32
      },
      "reach": {
@@ -1782,7 +1782,7 @@
     "approved_current": 0,
     "at_or_above_e2": 24,
     "branches": [
-     1440,
+     1451,
      1577
     ],
     "declared_differences": 0,
@@ -1809,17 +1809,17 @@
      "total": 12295
     },
     "mutation": {
-     "adjusted_judged": 2078,
-     "judged": 2670,
-     "killed": 1976,
-     "open_survivors": 102,
+     "adjusted_judged": 2132,
+     "judged": 2737,
+     "killed": 2047,
+     "open_survivors": 84,
      "programs_measured": 23,
      "stillborn": 215,
      "survivors": {
-      "case_gap": 93,
-      "equivalent": 377,
+      "case_gap": 75,
+      "equivalent": 380,
       "harness_gap": 9,
-      "unreachable": 215,
+      "unreachable": 225,
       "untriaged": 0
      }
     },
@@ -1883,9 +1883,9 @@
      "oracle": "gnucobol-models",
      "program": "INQACC",
      "proof": {
-      "at": "2026-10-23T09:17:44Z",
+      "at": "2026-10-24T09:02:15Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 14
      },
      "reach": {
@@ -1932,27 +1932,27 @@
      },
      "mutation": {
       "adjusted_judged": 110,
-      "commit": "ed188d3cb406da57b753e56b98ae9e75b6d2d2b0",
-      "judged": 133,
-      "killed": 95,
-      "open_survivors": 15,
-      "stale": "stale: port, case, harness, oracle changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "commit": "458322349fa13c498df8138fe8382db2eaf2fc4a",
+      "judged": 139,
+      "killed": 103,
+      "open_survivors": 7,
+      "stale": "stale: harness, oracle changed since it was judged (458322349fa13c498df8138fe8382db2eaf2fc4a)",
       "stillborn": 0,
       "survivors": {
-       "case_gap": 15,
+       "case_gap": 0,
        "equivalent": 17,
-       "harness_gap": 0,
-       "unreachable": 6,
+       "harness_gap": 7,
+       "unreachable": 12,
        "untriaged": 0
       }
      },
      "oracle": "gnucobol-models",
      "program": "UPDACC",
      "proof": {
-      "at": "2026-10-23T09:18:09Z",
+      "at": "2026-10-24T09:02:41Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
-      "runs": 13
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
+      "runs": 27
      },
      "reach": {
       "det_helper": 0,
@@ -2001,16 +2001,16 @@
     },
     "mutation": {
      "adjusted_judged": 216,
-     "judged": 264,
-     "killed": 158,
-     "open_survivors": 58,
+     "judged": 270,
+     "killed": 166,
+     "open_survivors": 50,
      "programs_measured": 2,
      "stillborn": 19,
      "survivors": {
-      "case_gap": 58,
+      "case_gap": 43,
       "equivalent": 28,
-      "harness_gap": 0,
-      "unreachable": 20,
+      "harness_gap": 7,
+      "unreachable": 26,
       "untriaged": 0
      }
     },
@@ -2061,7 +2061,7 @@
       "judged": 22,
       "killed": 15,
       "open_survivors": 0,
-      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stale": "stale: corpus, harness changed since it was judged (0e2e05254)",
       "stillborn": 2,
       "survivors": {
        "case_gap": 0,
@@ -2074,9 +2074,9 @@
      "oracle": "crucible-expected-logs",
      "program": "CALINK",
      "proof": {
-      "at": "2026-10-23T09:05:03Z",
+      "at": "2026-10-24T08:38:52Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 4
      },
      "reach": {
@@ -2090,7 +2090,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: harness changed since it was judged (0e2e05254)"
+      "mutation score stale: corpus, harness changed since it was judged (0e2e05254)"
      ]
     },
     {
@@ -2129,7 +2129,7 @@
       "judged": 24,
       "killed": 16,
       "open_survivors": 0,
-      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stale": "stale: corpus, harness changed since it was judged (0e2e05254)",
       "stillborn": 0,
       "survivors": {
        "case_gap": 0,
@@ -2142,9 +2142,9 @@
      "oracle": "crucible-expected-logs",
      "program": "CASUB",
      "proof": {
-      "at": "2026-10-23T09:06:46Z",
+      "at": "2026-10-24T08:57:58Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -2158,7 +2158,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: harness changed since it was judged (0e2e05254)"
+      "mutation score stale: corpus, harness changed since it was judged (0e2e05254)"
      ]
     },
     {
@@ -2197,7 +2197,7 @@
       "judged": 21,
       "killed": 16,
       "open_survivors": 0,
-      "stale": "stale: case, harness changed since it was judged (0e2e05254)",
+      "stale": "stale: case, corpus, harness changed since it was judged (0e2e05254)",
       "stillborn": 3,
       "survivors": {
        "case_gap": 0,
@@ -2210,9 +2210,9 @@
      "oracle": "crucible-expected-logs",
      "program": "CAXA",
      "proof": {
-      "at": "2026-10-23T09:06:03Z",
+      "at": "2026-10-24T08:45:55Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -2226,7 +2226,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: case, harness changed since it was judged (0e2e05254)"
+      "mutation score stale: case, corpus, harness changed since it was judged (0e2e05254)"
      ]
     },
     {
@@ -2265,7 +2265,7 @@
       "judged": 23,
       "killed": 20,
       "open_survivors": 0,
-      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stale": "stale: corpus, harness changed since it was judged (0e2e05254)",
       "stillborn": 1,
       "survivors": {
        "case_gap": 0,
@@ -2278,9 +2278,9 @@
      "oracle": "crucible-expected-logs",
      "program": "CAXB",
      "proof": {
-      "at": "2026-10-23T09:07:47Z",
+      "at": "2026-10-24T08:42:48Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -2294,7 +2294,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: harness changed since it was judged (0e2e05254)"
+      "mutation score stale: corpus, harness changed since it was judged (0e2e05254)"
      ]
     },
     {
@@ -2333,7 +2333,7 @@
       "judged": 22,
       "killed": 19,
       "open_survivors": 0,
-      "stale": "stale: case, harness changed since it was judged (0e2e05254)",
+      "stale": "stale: case, corpus, harness changed since it was judged (0e2e05254)",
       "stillborn": 2,
       "survivors": {
        "case_gap": 0,
@@ -2346,9 +2346,9 @@
      "oracle": "crucible-expected-logs",
      "program": "GTSTART",
      "proof": {
-      "at": "2026-10-23T08:56:23Z",
+      "at": "2026-10-24T08:50:46Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 6
      },
      "reach": {
@@ -2362,7 +2362,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: case, harness changed since it was judged (0e2e05254)"
+      "mutation score stale: case, corpus, harness changed since it was judged (0e2e05254)"
      ]
     },
     {
@@ -2401,7 +2401,7 @@
       "judged": 21,
       "killed": 20,
       "open_survivors": 0,
-      "stale": "stale: case, harness changed since it was judged (0e2e05254)",
+      "stale": "stale: case, corpus, harness changed since it was judged (0e2e05254)",
       "stillborn": 3,
       "survivors": {
        "case_gap": 0,
@@ -2414,9 +2414,9 @@
      "oracle": "crucible-expected-logs",
      "program": "GTWORK",
      "proof": {
-      "at": "2026-10-23T09:05:25Z",
+      "at": "2026-10-24T08:39:10Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 5
      },
      "reach": {
@@ -2430,7 +2430,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: case, harness changed since it was judged (0e2e05254)"
+      "mutation score stale: case, corpus, harness changed since it was judged (0e2e05254)"
      ]
     },
     {
@@ -2469,7 +2469,7 @@
       "judged": 23,
       "killed": 17,
       "open_survivors": 0,
-      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stale": "stale: corpus, harness changed since it was judged (0e2e05254)",
       "stillborn": 1,
       "survivors": {
        "case_gap": 0,
@@ -2482,9 +2482,9 @@
      "oracle": "crucible-expected-logs",
      "program": "GTSHOW",
      "proof": {
-      "at": "2026-10-23T09:07:07Z",
+      "at": "2026-10-24T08:58:11Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -2498,7 +2498,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: harness changed since it was judged (0e2e05254)"
+      "mutation score stale: corpus, harness changed since it was judged (0e2e05254)"
      ]
     },
     {
@@ -2537,7 +2537,7 @@
       "judged": 21,
       "killed": 17,
       "open_survivors": 0,
-      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stale": "stale: corpus, harness changed since it was judged (0e2e05254)",
       "stillborn": 3,
       "survivors": {
        "case_gap": 0,
@@ -2550,9 +2550,9 @@
      "oracle": "crucible-expected-logs",
      "program": "GTTERM",
      "proof": {
-      "at": "2026-10-23T09:06:25Z",
+      "at": "2026-10-24T08:46:17Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 4
      },
      "reach": {
@@ -2566,7 +2566,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: harness changed since it was judged (0e2e05254)"
+      "mutation score stale: corpus, harness changed since it was judged (0e2e05254)"
      ]
     },
     {
@@ -2605,7 +2605,7 @@
       "judged": 23,
       "killed": 14,
       "open_survivors": 0,
-      "stale": "stale: case, harness changed since it was judged (0e2e05254)",
+      "stale": "stale: case, corpus, harness changed since it was judged (0e2e05254)",
       "stillborn": 1,
       "survivors": {
        "case_gap": 0,
@@ -2618,9 +2618,9 @@
      "oracle": "crucible-expected-logs",
      "program": "HCMAIN",
      "proof": {
-      "at": "2026-10-23T09:08:10Z",
+      "at": "2026-10-24T08:43:07Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 5
      },
      "reach": {
@@ -2634,7 +2634,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: case, harness changed since it was judged (0e2e05254)"
+      "mutation score stale: case, corpus, harness changed since it was judged (0e2e05254)"
      ]
     },
     {
@@ -2673,7 +2673,7 @@
       "judged": 24,
       "killed": 18,
       "open_survivors": 0,
-      "stale": "stale: case, harness changed since it was judged (0e2e05254)",
+      "stale": "stale: case, corpus, harness changed since it was judged (0e2e05254)",
       "stillborn": 0,
       "survivors": {
        "case_gap": 0,
@@ -2686,9 +2686,9 @@
      "oracle": "crucible-expected-logs",
      "program": "HCSUB",
      "proof": {
-      "at": "2026-10-23T08:56:47Z",
+      "at": "2026-10-24T08:51:00Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -2702,7 +2702,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: case, harness changed since it was judged (0e2e05254)"
+      "mutation score stale: case, corpus, harness changed since it was judged (0e2e05254)"
      ]
     },
     {
@@ -2739,7 +2739,7 @@
       "judged": 21,
       "killed": 14,
       "open_survivors": 0,
-      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stale": "stale: corpus, harness changed since it was judged (0e2e05254)",
       "stillborn": 3,
       "survivors": {
        "case_gap": 0,
@@ -2752,9 +2752,9 @@
      "oracle": "crucible-expected-logs",
      "program": "HCQREAD",
      "proof": {
-      "at": "2026-10-23T09:05:47Z",
+      "at": "2026-10-24T08:39:28Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 4
      },
      "reach": {
@@ -2768,7 +2768,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: harness changed since it was judged (0e2e05254)"
+      "mutation score stale: corpus, harness changed since it was judged (0e2e05254)"
      ]
     },
     {
@@ -2805,7 +2805,7 @@
       "judged": 22,
       "killed": 17,
       "open_survivors": 0,
-      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stale": "stale: corpus, harness changed since it was judged (0e2e05254)",
       "stillborn": 2,
       "survivors": {
        "case_gap": 0,
@@ -2818,9 +2818,9 @@
      "oracle": "crucible-expected-logs",
      "program": "HXATTR",
      "proof": {
-      "at": "2026-10-23T09:07:29Z",
+      "at": "2026-10-24T08:58:24Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 4
      },
      "reach": {
@@ -2834,7 +2834,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: harness changed since it was judged (0e2e05254)"
+      "mutation score stale: corpus, harness changed since it was judged (0e2e05254)"
      ]
     },
     {
@@ -2871,7 +2871,7 @@
       "judged": 23,
       "killed": 20,
       "open_survivors": 0,
-      "stale": "stale: harness changed since it was judged (0e2e05254)",
+      "stale": "stale: corpus, harness changed since it was judged (0e2e05254)",
       "stillborn": 1,
       "survivors": {
        "case_gap": 0,
@@ -2884,9 +2884,9 @@
      "oracle": "crucible-expected-logs",
      "program": "HXEXT",
      "proof": {
-      "at": "2026-10-23T09:06:47Z",
+      "at": "2026-10-24T08:46:40Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -2900,7 +2900,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: harness changed since it was judged (0e2e05254)"
+      "mutation score stale: corpus, harness changed since it was judged (0e2e05254)"
      ]
     },
     {
@@ -2939,7 +2939,7 @@
       "judged": 24,
       "killed": 15,
       "open_survivors": 0,
-      "stale": "stale: case, harness changed since it was judged (9743bfb17)",
+      "stale": "stale: case, corpus, harness changed since it was judged (9743bfb17)",
       "stillborn": 0,
       "survivors": {
        "case_gap": 0,
@@ -2952,9 +2952,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCDETL",
      "proof": {
-      "at": "2026-10-23T09:08:33Z",
+      "at": "2026-10-24T08:43:26Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 3
      },
      "reach": {
@@ -2968,7 +2968,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: case, harness changed since it was judged (9743bfb17)"
+      "mutation score stale: case, corpus, harness changed since it was judged (9743bfb17)"
      ]
     },
     {
@@ -3007,7 +3007,7 @@
       "judged": 24,
       "killed": 16,
       "open_survivors": 0,
-      "stale": "stale: case, harness changed since it was judged (9743bfb17)",
+      "stale": "stale: case, corpus, harness changed since it was judged (9743bfb17)",
       "stillborn": 0,
       "survivors": {
        "case_gap": 0,
@@ -3020,9 +3020,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCMENU",
      "proof": {
-      "at": "2026-10-23T08:57:10Z",
+      "at": "2026-10-24T08:51:14Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 4
      },
      "reach": {
@@ -3036,7 +3036,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: case, harness changed since it was judged (9743bfb17)"
+      "mutation score stale: case, corpus, harness changed since it was judged (9743bfb17)"
      ]
     },
     {
@@ -3077,7 +3077,7 @@
       "judged": 22,
       "killed": 6,
       "open_survivors": 10,
-      "stale": "stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "stale": "stale: port, corpus, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
       "stillborn": 2,
       "survivors": {
        "case_gap": 10,
@@ -3090,9 +3090,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCIMMA",
      "proof": {
-      "at": "2026-10-23T09:06:09Z",
+      "at": "2026-10-24T08:39:47Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 4
      },
      "reach": {
@@ -3147,7 +3147,7 @@
       "judged": 23,
       "killed": 11,
       "open_survivors": 7,
-      "stale": "stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "stale": "stale: port, corpus, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
       "stillborn": 1,
       "survivors": {
        "case_gap": 7,
@@ -3160,9 +3160,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCIMMB",
      "proof": {
-      "at": "2026-10-23T09:07:51Z",
+      "at": "2026-10-24T08:58:38Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 1
      },
      "reach": {
@@ -3176,7 +3176,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)"
+      "mutation score stale: port, corpus, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)"
      ]
     },
     {
@@ -3217,7 +3217,7 @@
       "judged": 23,
       "killed": 9,
       "open_survivors": 10,
-      "stale": "stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "stale": "stale: port, corpus, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
       "stillborn": 1,
       "survivors": {
        "case_gap": 10,
@@ -3230,9 +3230,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCIMML",
      "proof": {
-      "at": "2026-10-23T09:07:10Z",
+      "at": "2026-10-24T08:47:02Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 2
      },
      "reach": {
@@ -3246,7 +3246,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)"
+      "mutation score stale: port, corpus, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)"
      ]
     },
     {
@@ -3287,7 +3287,7 @@
       "judged": 24,
       "killed": 8,
       "open_survivors": 8,
-      "stale": "stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
+      "stale": "stale: port, corpus, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)",
       "stillborn": 0,
       "survivors": {
        "case_gap": 8,
@@ -3300,9 +3300,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCIMMS",
      "proof": {
-      "at": "2026-10-23T09:08:57Z",
+      "at": "2026-10-24T08:43:46Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 1
      },
      "reach": {
@@ -3316,7 +3316,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: port, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)"
+      "mutation score stale: port, corpus, harness changed since it was judged (ed188d3cb406da57b753e56b98ae9e75b6d2d2b0)"
      ]
     },
     {
@@ -3355,7 +3355,7 @@
       "judged": 23,
       "killed": 15,
       "open_survivors": 0,
-      "stale": "stale: case, harness changed since it was judged (9743bfb17)",
+      "stale": "stale: case, corpus, harness changed since it was judged (9743bfb17)",
       "stillborn": 1,
       "survivors": {
        "case_gap": 0,
@@ -3368,9 +3368,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCCONF",
      "proof": {
-      "at": "2026-10-23T08:57:35Z",
+      "at": "2026-10-24T08:51:29Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 5
      },
      "reach": {
@@ -3384,7 +3384,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: case, harness changed since it was judged (9743bfb17)"
+      "mutation score stale: case, corpus, harness changed since it was judged (9743bfb17)"
      ]
     },
     {
@@ -3423,7 +3423,7 @@
       "judged": 23,
       "killed": 16,
       "open_survivors": 0,
-      "stale": "stale: case, harness changed since it was judged (9743bfb17)",
+      "stale": "stale: case, corpus, harness changed since it was judged (9743bfb17)",
       "stillborn": 1,
       "survivors": {
        "case_gap": 0,
@@ -3436,9 +3436,9 @@
      "oracle": "crucible-expected-logs",
      "program": "PCWIZ",
      "proof": {
-      "at": "2026-10-23T09:06:32Z",
+      "at": "2026-10-24T08:40:06Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 6
      },
      "reach": {
@@ -3452,7 +3452,7 @@
      "stale": [],
      "status": "proven, unapproved",
      "why": [
-      "mutation score stale: case, harness changed since it was judged (9743bfb17)"
+      "mutation score stale: case, corpus, harness changed since it was judged (9743bfb17)"
      ]
     }
    ],
@@ -3561,9 +3561,9 @@
      "oracle": "gnucobol-models",
      "program": "LGAPDB01",
      "proof": {
-      "at": "2026-10-23T09:18:55Z",
+      "at": "2026-10-24T09:03:29Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 6
      },
      "reach": {
@@ -3629,9 +3629,9 @@
      "oracle": "gnucobol-models",
      "program": "LGAPVS01",
      "proof": {
-      "at": "2026-10-23T09:05:40Z",
+      "at": "2026-10-24T08:45:32Z",
       "fault_runs": 2,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 11
      },
      "reach": {
@@ -3695,9 +3695,9 @@
      "oracle": "gnucobol-models",
      "program": "LGICDB01",
      "proof": {
-      "at": "2026-10-23T09:19:21Z",
+      "at": "2026-10-24T09:03:54Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 12
      },
      "reach": {
@@ -3761,9 +3761,9 @@
      "oracle": "gnucobol-models",
      "program": "LGSTSQ",
      "proof": {
-      "at": "2026-10-23T09:07:25Z",
+      "at": "2026-10-24T08:42:28Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 7
      },
      "reach": {
@@ -3829,9 +3829,9 @@
      "oracle": "gnucobol-models",
      "program": "LGUPDB01",
      "proof": {
-      "at": "2026-10-23T09:19:49Z",
+      "at": "2026-10-24T09:04:21Z",
       "fault_runs": 0,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 5
      },
      "reach": {
@@ -3897,9 +3897,9 @@
      "oracle": "gnucobol-models",
      "program": "LGUPVS01",
      "proof": {
-      "at": "2026-10-23T08:55:59Z",
+      "at": "2026-10-24T08:50:32Z",
       "fault_runs": 3,
-      "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+      "harness_commit": "93f1ded2032b4e213c58691790f601fd5ccda746+uncommitted",
       "runs": 10
      },
      "reach": {
@@ -3987,7 +3987,7 @@
   "approved_current": 0,
   "at_or_above_e2": 52,
   "branches": [
-   1603,
+   1614,
    1807
   ],
   "declared_differences": 13,
@@ -4014,17 +4014,17 @@
    "total": 15542
   },
   "mutation": {
-   "adjusted_judged": 3286,
-   "judged": 4139,
-   "killed": 2793,
-   "open_survivors": 493,
+   "adjusted_judged": 3340,
+   "judged": 4212,
+   "killed": 2872,
+   "open_survivors": 467,
    "programs_measured": 52,
    "stillborn": 372,
    "survivors": {
-    "case_gap": 307,
-    "equivalent": 513,
-    "harness_gap": 186,
-    "unreachable": 340,
+    "case_gap": 274,
+    "equivalent": 516,
+    "harness_gap": 193,
+    "unreachable": 356,
     "untriaged": 0
    }
   },

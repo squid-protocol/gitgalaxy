@@ -99,3 +99,35 @@ def test_the_marker_calls_the_stub_and_takes_the_exit():
     assert lines[:2] == ["MOVE 0 TO GG-GOTO", "MOVE 'DBCRFUN:391' TO GG-FLAGS"]
     assert "CALL 'GGCSQLAB' USING GG-CICS" in lines
     assert lines[-6:] == ["GO TO", "    AH010", "    DEPENDING ON GG-GOTO", "IF GG-GOTO < 0", "    GOBACK", "END-IF"]
+
+
+CURSOR_TABLE = (
+    "S 1 EXEC 0 0 - INQACCCU 246\nQ OPEN ACC-CURSOR\n"
+    "S 2 EXEC 0 0 - INQACCCU 466\nQ FETCH FROM ACC-CURSOR INTO :A\n"
+    "S 3 EXEC 0 0 - INQACCCU 348\nQ CLOSE ACC-CURSOR\n"
+)
+
+
+@pytest.mark.parametrize("line", [246, 466, 348])  # OPEN, FETCH, CLOSE: every cursor statement kind
+def test_an_ad2z_abend_is_planned_on_each_cursor_statement_kind(line):
+    sc = {"name": "s", "sql_faults": [{"program": "INQACCCU", "line": line, "nth": 2, "sqlcode": -911, "abend": "AD2Z"}]}
+    case = {"program": "INQACCCU", "scenarios": []}
+    assert ec.sql_fault_plan(case, sc, CURSOR_TABLE) == [f"INQACCCU {line} 2 -911 40001"]
+    assert ec.fault_lines(sc) == [f"SQL INQACCCU:{line} 2 -1 0 AD2Z"]
+
+
+@pytest.mark.parametrize("case_name", ["cbsa-inqacccu", "cbsa-inqacccu-generated"])
+def test_the_inqacccu_cases_abend_on_the_cursor_open_and_fetch(case_name):
+    import json
+
+    case = json.loads((TESTS / "equivalence" / case_name / "case.json").read_text(encoding="utf-8"))
+    planned = {
+        s["name"]: s["sql_faults"][0]
+        for s in case["scenarios"]
+        if s.get("sql_faults") and s["sql_faults"][0].get("abend")
+    }
+    assert {n: f["line"] for n, f in planned.items()} == {
+        "open-deadlock-abends-ad2z": 246,
+        "fetch-deadlock-abends-ad2z": 466,
+    }
+    assert all(f["sqlcode"] == -911 and f["abend"] == "AD2Z" and f["sqlerrmc"] for f in planned.values())

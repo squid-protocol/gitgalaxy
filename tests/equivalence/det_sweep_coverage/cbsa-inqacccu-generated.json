@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 36,
+ "scenarios": 38,
  "paragraphs": {
-  "covered": 16,
+  "covered": 18,
   "live": 22
  },
  "branches": {
-  "covered": 19,
+  "covered": 21,
   "total": 33
  },
  "linked": {
@@ -31,25 +31,51 @@
    }
   }
  },
+ "uncovered": {
+  "paragraphs": [
+   "AH999:825",
+   "POPULATE-TIME-DATE:866",
+   "PTD010:867",
+   "PTD999:881"
+  ],
+  "branches": [
+   "271:true",
+   "352:true",
+   "374:true",
+   "374:false",
+   "513:true",
+   "662:WHEN@664",
+   "672:true",
+   "703:WHEN@728",
+   "703:none",
+   "743:true",
+   "743:false",
+   "817:false",
+   "paragraph:AH999",
+   "paragraph:POPULATE-TIME-DATE",
+   "paragraph:PTD010",
+   "paragraph:PTD999"
+  ]
+ },
  "inputs": {
-  "case": "2dc1337186b64fdf369fa30ffcb5283ef7e0eb13be22dc17535adf60b540bd83",
+  "case": "32f58105fb14a27d4d653039a304f5b5796a061116cb948d2c4106bebf423b38",
   "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-  "harness": "efbe51075ec1adca1d2de680be9c28392f4d525f661d39c1d5f9eeaf7ae38c86",
-  "oracle": "e9e74c7b948ad1020416ad6ae58cb9ae52e4027557d0f25419d12926e20cc83e",
+  "harness": "877630edcfb380cace0b9911eeaba6067f2a8b6881eb269b7743e8ccc5ba9ecf",
+  "oracle": "0718a6bbb0847e15fd4f9a674b9bae5fba26928aae4a18dd15ac75841d660a63",
   "components": {
    "harness": {
-    "harness:cics": "524c7ec5b94a8002f7cb66755e3328f295865ecc7399685916101df02b20703c",
-    "harness:core": "d62c9af2a5f83bb39a1deffe40cd7d7d63bb0d2945c4e8cec6b12503931f45ef",
+    "harness:cics": "c44c22f4df9f66d70bf87faa864e9cffac15771e682bf42a7e36d3e5bf997687",
+    "harness:core": "808b8ac9e553c3caffe3e5b89d7b7a1d8a04cd0b273490c8f2fb0e16aeb53e77",
     "harness:db2": "df4cefe238f828f2233ef1ae1b7c77c21265c7f5ab3af61e753544d50120cd66"
    },
    "oracle": {
-    "oracle:cics-stub": "a87ec1941cad022e2a2706e2d20545b3da939139e7764b7aa9bec9358bcc82ae",
+    "oracle:cics-stub": "b09f953ea194130aa0d5ead1b5a21a017db6c98999c64b860ff85d61082a95d7",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
-    "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
+    "oracle:le": "4fec0fd2411f43c866dc95cbc9e40f5caf30ad88dd1f430b47625c41da044764"
    }
   }
  },
- "measured_at": "28734a013e294b3a60b9d42c48375c826e01abde"
+ "measured_at": "86e13f74ccb9027423edadf4fa6b2f1670921569"
 }

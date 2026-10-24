@@ -2895,7 +2895,7 @@ def screen_key(f: dict[str, Any]) -> tuple[str, str]:
 CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC", "DUPKEY", "INVREQ", "IOERR", "NOSPACE",
                                      "NOTOPEN", "ILLOGIC", "LENGERR", "PGMIDERR", "NOTAUTH", "DISABLED", "LOADING",
                                      "ENDFILE", "TERMIDERR", "ITEMERR", "TRANSIDERR", "QIDERR", "SYSIDERR",
-                                     "ISCINVREQ", "LOCKED", "ENQBUSY", "QBUSY", "INVMPSZ", "TSIOERR")}  # fmt: skip
+                                     "ISCINVREQ", "LOCKED", "ENQBUSY", "QBUSY", "INVMPSZ", "TSIOERR", "EXPIRED")}  # fmt: skip
 
 
 def enq_fault_key(resource: str | None) -> str:
@@ -2937,6 +2937,7 @@ FAULT_COMMANDS = (
     "RETURN",
     "SYNCPOINT",
     "ROLLBACK",
+    "DELAY",  # #6271 (register X72): nameless, like RETURN
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
 # #4986 (register X43): IBM's LINK conditions the region does not raise and that have no sourced abend code
@@ -3114,25 +3115,29 @@ UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
     "RETURN": {"INVREQ": (1, 2, 4, 200), "LENGERR": (11, 26, 27)},
     "SYNCPOINT": {"INVREQ": (200,)},
     "ROLLBACK": {"INVREQ": (200,)},
+    # #6271 (X72): DELAY -- EXPIRED (a TIME already past; no RESP2) and INVREQ RESP2 4 / 5 / 6 / 22 (hours / minutes / seconds /
+    # milliseconds out of range). IBM's NORMAL RESP2 23 (cancelled by another task) needs a second task: refused (X72)
+    "DELAY": {"EXPIRED": (), "INVREQ": (4, 5, 6, 22)},
 }
-UI_NAMELESS = ("RETURN", "SYNCPOINT", "ROLLBACK")
+UI_NAMELESS = ("RETURN", "SYNCPOINT", "ROLLBACK", "DELAY")
 
 
 def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int) -> int:
     """The RESP2 of a SEND MAP / RECEIVE MAP / RETURN / SYNCPOINT fault, or Unsupported naming register X71."""
     where = f"scenario {sc['name']}: fault {f}"
+    reg = "X72" if cmd == "DELAY" else "X71"
     ibm = UI_FAULT_CONDITIONS[cmd].get(f["resp"])
     if ibm is None:
         listed = "/".join(UI_FAULT_CONDITIONS[cmd])
-        raise Unsupported(f"{where}: {f['resp']} is not planned on {cmd}; planned: {listed} (register X71, refused)")
+        raise Unsupported(f"{where}: {f['resp']} is not planned on {cmd}; planned: {listed} (register {reg}, refused)")
     if not ibm:
         if resp2:
-            raise Unsupported(f"{where}: IBM states no RESP2 for {f['resp']} on {cmd} (register X71): name none")
+            raise Unsupported(f"{where}: IBM states no RESP2 for {f['resp']} on {cmd} (register {reg}): name none")
         return 0
     if resp2 == 0 and len(ibm) == 1:
         return ibm[0]
     if resp2 not in ibm:
-        raise Unsupported(f"{where}: IBM's {f['resp']} on {cmd} has RESP2 {'/'.join(map(str, ibm))}: name one (X71)")
+        raise Unsupported(f"{where}: IBM's {f['resp']} on {cmd} has RESP2 {'/'.join(map(str, ibm))}: name one ({reg})")
     return resp2
 
 

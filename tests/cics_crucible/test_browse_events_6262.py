@@ -217,7 +217,5 @@ def test_every_browse_key_is_compared():
     assert _verdict([_EXPECTED[7]], _actual([_raw("ENDBR", resp="INVREQ", resp2=35)])).status == "fail"
 
 
-def test_the_java_leg_supports_the_browse_events_and_the_stub_does_not_yet():
-    log = _log(_EXPECTED)
-    assert cc.blockers(log, runner.JAVA_CAPS) == []
-    assert any("stub: " in b for b in cc.blockers(log, runner.COBOL_CAPS))  # the C stub half is #6262's next slice
+def test_the_java_leg_supports_the_browse_events():
+    assert cc.blockers(_log(_EXPECTED), runner.JAVA_CAPS) == []  # the stub's half: test_browse_stub_events_6262.py

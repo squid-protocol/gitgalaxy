@@ -3,6 +3,7 @@
 
     python tests/tools/sweep_plan.py [--event pull_request] [--base origin/main] [--files FILE ...] [--labels L,L] [--github-output PATH]
     python tests/tools/sweep_plan.py --pr-files LIST --pr-file-count N ...   # the PR's own file list (the workflow)
+    python tests/tools/sweep_plan.py --replay 50                              # how many recent merged PRs would have skipped
 
 The sweeps are the tests under tests/extraction/ that tests/conftest.py marks `redos_sweep` (the name has `redos` or
 `linear_on_pathological`): about 18 of the 19 minutes of that directory. A pull request that changes nothing they read
@@ -119,6 +120,52 @@ def pr_files(path: Path, count: str) -> list[str]:
     return sorted({n for r in rows for n in (r.get("filename"), r.get("previous_filename")) if n})
 
 
+def sweep_seconds(durations: dict[str, float]) -> float:
+    """Serial seconds of the tests tests/conftest.py marks `redos_sweep`, from a pytest-split durations file
+    ({nodeid: seconds}): under tests/extraction, the function name (parameters dropped) has `redos` or
+    `linear_on_pathological`."""
+    total = 0.0
+    for nodeid, secs in durations.items():
+        path, _, name = nodeid.partition("::")
+        name = name.rsplit("::", 1)[-1].split("[", 1)[0]
+        if path.startswith("tests/extraction/") and ("redos" in name or "linear_on_pathological" in name):
+            total += secs
+    return total
+
+
+def replay(prs: list[dict], durations: dict[str, float]) -> dict:
+    """#5166: of the pull requests in `prs` (`gh pr list --json number,files`), how many plan "none". A PR whose `files`
+    list holds 100 entries may be cut short by gh: it counts as full (when in doubt, run)."""
+    skipped = []
+    for pr in prs:
+        files = [f["path"] for f in pr.get("files") or [] if f.get("path")]
+        if len(files) < 100 and plan(files, "pull_request")["mode"] == "none":
+            skipped.append(pr["number"])
+    per_run = sweep_seconds(durations)
+    return {
+        "prs": len(prs),
+        "skipped": len(skipped),
+        "share": round(len(skipped) / len(prs), 3) if prs else 0.0,
+        "sweep_serial_seconds_per_run": round(per_run, 1),
+        "serial_minutes_saved": round(len(skipped) * per_run / 60, 1),
+        "skipped_prs": skipped,
+    }
+
+
+def run_replay(n: int) -> dict:
+    proc = subprocess.run(
+        ["gh", "pr", "list", "--state", "merged", "-L", str(n), "--json", "number,files"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr.strip() or "gh pr list failed")
+    durations = json.loads((REPO_ROOT / ".test_durations").read_text(encoding="utf-8"))
+    return replay(json.loads(proc.stdout), durations)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--event", default="pull_request")
@@ -128,7 +175,17 @@ def main() -> int:
     ap.add_argument("--pr-file-count", default="", help="the PR's changed_files: the list must hold exactly this many")
     ap.add_argument("--labels", default="", help="the PR's labels, comma-separated (read live by the step)")
     ap.add_argument("--github-output", type=Path, help="append mode=none|full for later steps")
+    ap.add_argument(
+        "--replay", type=int, metavar="N", help="plan the last N merged PRs (needs gh) and report the skip share"
+    )
     args = ap.parse_args()
+    if args.replay:
+        try:
+            print(json.dumps(run_replay(args.replay), indent=1))
+        except (RuntimeError, OSError, ValueError) as e:
+            print(f"replay failed: {e}", file=sys.stderr)
+            return 1
+        return 0
     labels = [x for x in args.labels.split(",") if x]
     try:
         if args.pr_files is not None and args.event == "pull_request":

@@ -541,6 +541,12 @@ int GGCDLAY(gg_cics *c) {
     char msg[96];
     c->resp = NORMAL;
     c->resp2 = 0;
+    int fresp, fresp2; /* #6271 (X72): a planned EXPIRED / INVREQ: the delay is not performed (no children dispatched, no clock move) */
+    if (injected("DELAY", "-", &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        return 0;
+    }
     post_release();  /* #5079 (X63): IBM, POST: a subsequent DELAY ends the POST's area */
     if (strstr(c->flags, "INTERVAL")) {
         long long v = c->num;

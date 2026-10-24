@@ -62,8 +62,10 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   `PYTHONPATH` (#6129).
 * **Put options such as `--max-files-per-commit` before the subcommand:** a positional repo list swallows later flags (#6190).
   Don't use `Closes #N` as a fix label (#6190).
-* **In a worker shell `python` is not on PATH between Bash calls:** re-export the selfscan venv bin each call or
-  `heavy-run.sh` fails (#6180, #6202; see `golden-master-guidelines.md` section 4).
+* **A parametrize value whose repr lands in the test id** (raw bytes) must be deterministic across processes, or xdist
+  aborts collection: give lazily-built payloads explicit `ids=` (#6257).
+* **A freshness test for a generated list scans tracked files** (`git ls-files`), not whatever is on disk (#6306).
+* **Worker shell `python` / `mypy` not found:** see `golden-master-guidelines.md` section 4 (re-export the venv bin each Bash call).
 
 ## CI and workflow traps
 * **Never put a multi-line string inside `${{ }}`** (YAML folds newlines): use two `if:`-gated steps or a block scalar (#5612).

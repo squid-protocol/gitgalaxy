@@ -36,13 +36,13 @@
     "tp": 2632
   },
   "dart": {
-    "fn": 128,
-    "fp": 109,
+    "fn": 25,
+    "fp": 111,
     "matched_functions": 1734,
     "parse_failures": 0,
-    "precision_pct": 95.7,
-    "recall_pct": 95.0,
-    "tp": 2428
+    "precision_pct": 95.8,
+    "recall_pct": 99.0,
+    "tp": 2531
   },
   "go": {
     "fn": 29,
@@ -54,13 +54,13 @@
     "tp": 6648
   },
   "haskell": {
-    "fn": 231,
-    "fp": 130,
+    "fn": 50,
+    "fp": 125,
     "matched_functions": 142,
     "parse_failures": 0,
-    "precision_pct": 44.2,
-    "recall_pct": 30.8,
-    "tp": 103
+    "precision_pct": 69.4,
+    "recall_pct": 85.0,
+    "tp": 284
   },
   "java": {
     "fn": 0,

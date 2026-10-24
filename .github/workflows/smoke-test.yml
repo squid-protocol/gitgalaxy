@@ -271,10 +271,12 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
           # #5166: on a PR, mainframe-ground-truth.yml runs all of tests/cobol_mainframe/ whenever a ground-truth input
-          # changed, and nothing it reads changed otherwise; main, nightly and manual runs keep them here. Through
+          # changed, and nothing it reads changed otherwise; nightly and manual runs keep them here (the nightly stores
+          # their durations). #5953: a main push skips them too: ground truth runs the whole directory on every push
+          # (plus the corpus-backed tests), so Smoke running it again was ~2,000-2,500 test-s twice. Through
           # PYTEST_ADDOPTS so the pytest command line below stays as it is.
           # #6278: not for a `select` run, whose paths may be tests/cobol_mainframe itself (a register doc's reader)
-          if [ "$GITHUB_EVENT_NAME" = "pull_request" ] && [ "$PLAN" != "select" ]; then echo "PYTEST_ADDOPTS=--ignore=tests/cobol_mainframe" >> "$GITHUB_ENV"; fi
+          if { [ "$GITHUB_EVENT_NAME" = "pull_request" ] || [ "$GITHUB_EVENT_NAME" = "push" ]; } && [ "$PLAN" != "select" ]; then echo "PYTEST_ADDOPTS=--ignore=tests/cobol_mainframe" >> "$GITHUB_ENV"; fi
 
       # #6278: a `select` run is a few test files: part 1 runs them (no pytest-split), parts 2 and 3 only report
       - name: Golden Record Integration Test (Pytest), part ${{ matrix.group }}/3

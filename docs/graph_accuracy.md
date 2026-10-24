@@ -255,11 +255,15 @@ The low recall is mostly engine-side and is not tuned away: gtest `TEST` macros 
 convention and template-overload line mismatches. They feed a later miss sweep. A template conversion operator is
 named without its template arguments (`operator Box`), as the engine does.
 
-**gtest bodies are not a free win (#3784):** 6,117 of the 6,409 `caller_unmapped` misses are `TEST(suite, name)`
-bodies the reference names `suite_name_Test::TestBody`. Naming them `name` maps them, but then confident precision
-falls 91.1% -> 79.1% and resolution recall 63.8% -> 56.5%: their `fmt::format(...)` calls resolve (`qualified` step)
-to an unrelated `format` member such as `formatter<X>::format` in `test/format-test.cc`, wrong links that were hidden
-while the callers were unmapped. Fix the resolver's qualified step first, then map the bodies.
+**gtest bodies (#3784):** a `TEST(suite, name)` body is the reference's `suite_name_Test::TestBody`; the adapter now
+reads the macro line and names it `name`, as the engine does, so 6,117 of the former 6,409 `caller_unmapped` misses map.
+That alone dropped confident precision 91.1% -> 79.1%: their `fmt::format(...)` calls reached an unrelated `format`
+member such as `formatter<X>::format` through the import-stem step. With a namespace-qualified call no longer landing
+on a class member there (`_NAMESPACE_QUALIFIED_LANGS`, C++ only), the first numbers on the larger judged set
+(2,325 confident links, was 1,741) are precision 84.1% (92.9% overload-blind, 75.2% strict), recall 20.1% (was 16.3%),
+resolution recall 58.8%, 203 wrong-overload links. The `import` links to chrono/ranges `formatter::format` are gone.
+Still open: a `file`-step link of `fmt::format` to a `format` member of the caller's own file (26 in fmt) and
+`x.f()` on a variable, which the qualifier cannot tell from `ns::f()` (the detector normalises `::`, `.` and `->`).
 
 ## Span anchoring
 
@@ -364,3 +368,16 @@ python tests/tools/callgraph_check.py                             # the whole ch
 ```
 
 All of them refuse to pass on an empty measurement (#2682).
+
+**Which gates run (#6501).** `graph-accuracy-audit.yml` starts with a `plan` job (`tests/tools/graph_accuracy_plan.py`, stdlib) that maps the
+changed files to the gates they can move: a language's standard selects its call gate (if it has one), import-graph (if the language is in
+`tests/import_graph_corpus.json`) and span anchoring; a gate's tool or baseline selects that gate, and a shared adapter selects every gate on it;
+shared core, the workflow and the corpus list select all; anything else selects none. Toolchains and corpora install only for the selected
+gates. A failed plan runs every gate; the check name `graph-accuracy-audit` is unchanged.
+
+**Call-graph and detection audits (#6501).** `call-graph-accuracy-audit.yml` and `detection-accuracy-audit.yml` each start with a `plan` job
+(`tests/tools/accuracy_audit_plan.py --audit call-graph|detection`, stdlib). A change to a shared input (the tool, its baseline, the crucible pins,
+`detector.py`/`prism.py` or `language_lens.py`/`gitgalaxy_config.py`, any `language_standards` file that is not one language's) runs the audit. A
+language file runs it only when the diff moves something the audit reads: for call-graph, any code line of a baseline language, else a detection
+key; for detection, a `rules` entry (every rule is scored) or a key the lens reads. Comments, `_meta` and underscore-prefixed rules skip it. A hunk
+the planner cannot place, a new file, a non-PR event or a failed plan runs it. The saving is small for detection by construction.

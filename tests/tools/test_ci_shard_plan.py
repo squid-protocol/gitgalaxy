@@ -115,7 +115,9 @@ def test_db2_shards_follow_the_measured_work_and_timeout_follows_the_shards():
     assert 1 < len(m) <= plan.DB2_MAX_SHARDS and m[-1] == f"{len(m)}/{len(m)}"
     p["db2_matrix"], p["matrix"] = m, []
     t = plan.timeouts_for(p, dur)
-    assert plan.TIMEOUT_FLOOR <= t["db2_timeout"] <= plan.TIMEOUT_CEILING and t["timeout"] == plan.DEFAULT_TIMEOUT
+    assert (
+        plan.DB2_TIMEOUT_FLOOR <= t["db2_timeout"] <= plan.DB2_TIMEOUT_CEILING and t["timeout"] == plan.DEFAULT_TIMEOUT
+    )
 
 
 def test_db2_shards_busy_queue_halves_the_cap():
@@ -136,7 +138,7 @@ def test_no_durations_keeps_the_count_based_plan_and_default_timeouts():
     p, _ = _db2_plan(13)
     assert plan.db2_shards_for(p) == ["1/3", "2/3", "3/3"]
     assert plan.timeouts_for({**p, "matrix": [], "db2_matrix": ["1/1"]}, None) == {
-        "timeout": plan.DEFAULT_TIMEOUT, "db2_timeout": plan.DEFAULT_TIMEOUT}  # fmt: skip
+        "timeout": plan.DEFAULT_TIMEOUT, "db2_timeout": plan.DB2_TIMEOUT_FLOOR}  # fmt: skip
 
 
 def test_the_committed_durations_size_a_full_sweep_within_the_pool():
@@ -148,7 +150,8 @@ def test_the_committed_durations_size_a_full_sweep_within_the_pool():
     assert 1 <= len(m) <= plan.DB2_MAX_SHARDS
     full["matrix"], full["db2_matrix"] = [f"{i}/6" for i in range(1, 7)], m
     t = plan.timeouts_for(full, dur)
-    assert all(plan.TIMEOUT_FLOOR <= v <= plan.TIMEOUT_CEILING for v in t.values())
+    assert plan.TIMEOUT_FLOOR <= t["timeout"] <= plan.TIMEOUT_CEILING
+    assert plan.DB2_TIMEOUT_FLOOR <= t["db2_timeout"] <= plan.DB2_TIMEOUT_CEILING
 
 
 def _workflow(name: str) -> dict:

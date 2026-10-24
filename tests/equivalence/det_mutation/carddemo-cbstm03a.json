@@ -586,6 +586,7 @@
     "oracle:file-io": "e74b2733865b6c48f5ccf8d292c81c28e4827e0229e7383baeb7a3a26327f501",
     "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
    }
-  }
+  },
+  "port_moved": true
  }
 }

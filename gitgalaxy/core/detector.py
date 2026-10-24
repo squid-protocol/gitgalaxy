@@ -1944,6 +1944,29 @@ def _mark_macro_qualifier(lang_id: str, text: str, callee_end: int, qualifier: s
     return qualifier
 
 
+# #3784: a C++ call written `ns::f()` has its `::` read as `.`, so it looks like a member call `x.f()`. The
+# qualifier carries this prefix (`::fmt`, `::a.b`, `::` for a global `::f()`) so the resolver reaches free
+# functions first. `x.f()` and `p->f()` stay unmarked.
+_SCOPE_QUALIFIER_PREFIX = "::"
+
+
+def _mark_scope_qualifier(lang_id: str, text: str, callee_pos: int, qualifier: str) -> str:
+    if lang_id != "cpp":
+        return qualifier
+    j = callee_pos
+    while j > 0 and text[j - 1] in " \t\r\n":
+        j -= 1
+    if j < 2 or text[j - 2 : j] != _SCOPE_QUALIFIER_PREFIX:
+        return qualifier
+    if qualifier == "<expr>":
+        k = j - 2
+        while k > 0 and text[k - 1] in " \t\r\n":
+            k -= 1
+        # nothing before the `::`: the global scope; a template or call result stays unmarked
+        return _SCOPE_QUALIFIER_PREFIX if k == 0 or not (text[k - 1].isalnum() or text[k - 1] in "_>)]") else qualifier
+    return _SCOPE_QUALIFIER_PREFIX + qualifier
+
+
 _CALLS_OUT_GLOBAL_IGNORE = frozenset(
     {
         "if",
@@ -10695,8 +10718,9 @@ class StructuralExtractor:
                         invoked.add(callee)
                     raw_calls.append(callee)
                     seen = qualifiers_seen.setdefault(callee, [])
-                    if qualifier not in seen:
-                        seen.append(qualifier)
+                    marked = _mark_scope_qualifier(self.primary_lang_id, safe_block, callee_pos, qualifier)
+                    if marked not in seen:
+                        seen.append(marked)
                     if track_arities and not own_header_call:
                         arity = _call_arity(safe_block, callee_pos + call_len)
                         if arity is not None and arity not in arities_seen.setdefault(callee, []):

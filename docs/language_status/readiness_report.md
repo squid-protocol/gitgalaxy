@@ -44,23 +44,23 @@ era 0: 0, era 1: 5, era 2: 22, era 3: 15, era 4: 0, era none: 2
 - by estate_intake checklist section: 2: 10, 3: 3, 4: 5, 5: 1
 - missing copybooks: none
 
-### Oracle caveats the estate's commands name (upper bound)
+### Oracle caveats the estate relies on (upper bound where a program's reach is unmeasured)
 
-| id | status | area | programs |
-|---|---|---|---|
-| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 25 |
-| X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 21 |
-| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 13 |
-| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 13 |
-| X3 | MATCHED | CICS | 9 |
-| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 8 |
-| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 8 |
-| X67 | REFUSED | CICS | 5 |
-| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 |
-| X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 |
-| X16 | MATCHED (REFUSED where IBM is silent) | CICS | 1 |
-| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 1 |
-| X34 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
+| id | status | area | programs | named only |
+|---|---|---|---|---|
+| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 25 | 25 |
+| X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 21 | 21 |
+| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 13 | 13 |
+| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 13 | 13 |
+| X3 | MATCHED | CICS | 9 | 9 |
+| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 8 | 8 |
+| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 8 | 8 |
+| X67 | REFUSED | CICS | 5 | 5 |
+| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
+| X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
+| X16 | MATCHED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 1 | 1 |
+| X34 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 
 ## cics-async-api-credit-card-application-example
 
@@ -100,16 +100,16 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 7, era none: 3
 - by estate_intake checklist section: 1: 1, 2: 11, 3: 3, 4: 6, 5: 2
 - missing copybooks: none
 
-### Oracle caveats the estate's commands name (upper bound)
+### Oracle caveats the estate relies on (upper bound where a program's reach is unmeasured)
 
-| id | status | area | programs |
-|---|---|---|---|
-| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 10 |
-| X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 7 |
-| X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 7 |
-| X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 |
-| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 2 |
-| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 2 |
+| id | status | area | programs | named only |
+|---|---|---|---|---|
+| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 10 | 10 |
+| X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 7 | 7 |
+| X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 7 | 7 |
+| X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
+| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 2 | 2 |
+| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 2 | 2 |
 
 ## cics-banking-sample-application-cbsa
 
@@ -151,26 +151,26 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 - by estate_intake checklist section: 2: 10, 3: 3, 4: 5, 5: 1
 - missing copybooks: none
 
-### Oracle caveats the estate's commands name (upper bound)
+### Oracle caveats the estate relies on (upper bound where a program's reach is unmeasured)
 
-| id | status | area | programs |
-|---|---|---|---|
-| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 30 |
-| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 27 |
-| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 23 |
-| X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 10 |
-| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 9 |
-| X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 9 |
-| X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 8 |
-| X67 | REFUSED | CICS | 7 |
-| X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 6 |
-| X26 | ASSUMED (REFUSED where IBM is silent) | CICS | 6 |
-| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 5 |
-| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 5 |
-| X3 | MATCHED | CICS | 5 |
-| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 |
-| X60 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 |
-| X29 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
+| id | status | area | programs | named only |
+|---|---|---|---|---|
+| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 30 | 30 |
+| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 27 | 27 |
+| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 23 | 23 |
+| X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 10 | 10 |
+| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 9 | 9 |
+| X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 9 | 9 |
+| X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 8 | 8 |
+| X67 | REFUSED | CICS | 7 | 7 |
+| X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 6 | 6 |
+| X26 | ASSUMED (REFUSED where IBM is silent) | CICS | 6 | 6 |
+| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 5 | 5 |
+| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 5 | 5 |
+| X3 | MATCHED | CICS | 5 | 5 |
+| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
+| X60 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
+| X29 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 
 ## cics-genapp
 
@@ -212,29 +212,29 @@ era 0: 0, era 1: 4, era 2: 24, era 3: 0, era 4: 3, era none: 0
 - by estate_intake checklist section: 2: 10, 3: 3, 4: 4, 5: 1
 - missing copybooks: none
 
-### Oracle caveats the estate's commands name (upper bound)
+### Oracle caveats the estate relies on (upper bound where a program's reach is unmeasured)
 
-| id | status | area | programs |
-|---|---|---|---|
-| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 31 |
-| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 22 |
-| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 9 |
-| X3 | MATCHED | CICS | 6 |
-| X16 | MATCHED (REFUSED where IBM is silent) | CICS | 5 |
-| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 5 |
-| X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 5 |
-| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 |
-| X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 |
-| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 4 |
-| X30 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 |
-| X45 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 |
-| X29 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 |
-| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 |
-| X53 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 |
-| X60 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 |
-| X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X50 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
+| id | status | area | programs | named only |
+|---|---|---|---|---|
+| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 31 | 31 |
+| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 22 | 22 |
+| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 9 | 9 |
+| X3 | MATCHED | CICS | 6 | 6 |
+| X16 | MATCHED (REFUSED where IBM is silent) | CICS | 5 | 5 |
+| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 5 | 5 |
+| X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 5 | 5 |
+| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
+| X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
+| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 4 | 4 |
+| X30 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
+| X45 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
+| X29 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
+| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
+| X53 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
+| X60 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
+| X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X50 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
 
 ## dbb-mortgage-application
 
@@ -285,18 +285,18 @@ era 0: 0, era 1: 0, era 2: 2, era 3: 0, era 4: 1, era none: 3
 - by estate_intake checklist section: 2: 10, 3: 3, 4: 6, 5: 1
 - missing copybooks: none
 
-### Oracle caveats the estate's commands name (upper bound)
+### Oracle caveats the estate relies on (upper bound where a program's reach is unmeasured)
 
-| id | status | area | programs |
-|---|---|---|---|
-| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 3 |
-| X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 2 |
-| X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 1 |
-| X42 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X47 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X65 | REFUSED | CICS | 1 |
+| id | status | area | programs | named only |
+|---|---|---|---|---|
+| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 3 | 3 |
+| X31 | ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name) | CICS | 2 | 2 |
+| X17 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 1 | 1 |
+| X42 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X47 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X65 | REFUSED | CICS | 1 | 1 |
 
 ## zecs
 
@@ -342,30 +342,30 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 4, era none: 3
 - by estate_intake checklist section: 1: 1, 2: 9, 3: 3, 4: 1, 5: 2
 - missing copybooks: none
 
-### Oracle caveats the estate's commands name (upper bound)
+### Oracle caveats the estate relies on (upper bound where a program's reach is unmeasured)
 
-| id | status | area | programs |
-|---|---|---|---|
-| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 5 |
-| X32 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 |
-| X35 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 |
-| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 |
-| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 3 |
-| X33 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 |
-| X36 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 |
-| X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 |
-| X3 | MATCHED | CICS | 2 |
-| X37 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 |
-| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 |
-| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 |
-| X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 1 |
-| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 1 |
-| X30 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X34 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X38 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X45 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X47 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X53 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X60 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 |
-| X67 | REFUSED | CICS | 1 |
+| id | status | area | programs | named only |
+|---|---|---|---|---|
+| X27 | ASSUMED (the STARTCODE; REFUSED where IBM is silent) | CICS | 5 | 5 |
+| X32 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
+| X35 | ASSUMED (REFUSED where IBM is silent) | CICS | 4 | 4 |
+| X14 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
+| X22 | ASSUMED (REFUSED where IBM is silent or the layout decides) | CICS | 3 | 3 |
+| X33 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
+| X36 | ASSUMED (REFUSED where IBM is silent) | CICS | 3 | 3 |
+| X18 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
+| X3 | MATCHED | CICS | 2 | 2 |
+| X37 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
+| X46 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
+| X52 | ASSUMED (REFUSED where IBM is silent) | CICS | 2 | 2 |
+| X15 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X19 | ASSUMED (REFUSED where the harness cannot decide) | CICS | 1 | 1 |
+| X20 | MATCHED (REFUSED where the region cannot decide) | CICS | 1 | 1 |
+| X30 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X34 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X38 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X45 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X47 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X53 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X60 | ASSUMED (REFUSED where IBM is silent) | CICS | 1 | 1 |
+| X67 | REFUSED | CICS | 1 | 1 |

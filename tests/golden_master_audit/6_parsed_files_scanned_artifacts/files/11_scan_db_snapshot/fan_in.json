@@ -18387,7 +18387,7 @@
         "event_valueChange@2585": 0,
         "expand@1058": 1,
         "fetch@415": 14,
-        "find@155": 1,
+        "find@155": 0,
         "findOverlayClasses@1194": 0,
         "getActionName@2286": 0,
         "getNormalizedUIATextRangeFromElement@1523": 0,
@@ -18506,7 +18506,7 @@
         "bufferPosToWindowPos@1928": 1,
         "bufferPositionsToRawText@1907": 1,
         "check@3523": 1,
-        "clear@1835": 11,
+        "clear@1835": 0,
         "clearBrailleRegions@2623": 2,
         "display@3601": 4,
         "displaySize@2372": 2,
@@ -23658,7 +23658,7 @@
         "perform_health_audit@522": 0,
         "safe_stop@275": 2,
         "set_target@229": 1,
-        "update@421": 2,
+        "update@421": 0,
         "update_verification@321": 1
       },
       "embedded_python/meow_turtle/app.py": {
@@ -23712,7 +23712,7 @@
         "run_ghost_mode@438": 1,
         "start@362": 1,
         "warn@41": 3,
-        "write@388": 3,
+        "write@388": 1,
         "write_int_file@163": 3
       },
       "embedded_python/meow_turtle/diagnostics.py": {
@@ -23735,7 +23735,7 @@
         "error@101": 17,
         "has_msg@69": 0,
         "info@93": 22,
-        "pop@78": 2,
+        "pop@78": 0,
         "warn@97": 1
       },
       "embedded_python/meow_turtle/meowprotocol.py": {
@@ -35457,7 +35457,7 @@
         "__get_pydantic_json_schema__@139": 0,
         "__init__@161": 1,
         "_validate@133": 2,
-        "close@124": 16,
+        "close@124": 1,
         "read@86": 1,
         "seek@104": 1,
         "write@66": 1
@@ -35554,7 +35554,7 @@
         "decorator@1572": 1,
         "decorator@4952": 1,
         "delete@2972": 0,
-        "get@1831": 71,
+        "get@1831": 68,
         "get_request_handler@351": 1,
         "get_route_handler@978": 1,
         "get_websocket_app@732": 1,
@@ -37927,7 +37927,7 @@
         "__init__@12": 1,
         "ioctl@24": 0,
         "readinto@19": 0,
-        "write@16": 1
+        "write@16": 0
       },
       "python/micropython_usb_tls/usb_simple_host_pyusb.py": {
         "main@19": 1
@@ -38161,9 +38161,9 @@
         "compressed@7269": 0,
         "concatenate@7308": 1,
         "convolve@8424": 0,
-        "copy@6825": 7,
+        "copy@6825": 0,
         "correlate@8365": 0,
-        "count@4603": 3,
+        "count@4603": 2,
         "cumprod@5354": 0,
         "cumsum@5270": 0,
         "default_fill_value@260": 2,
@@ -38441,7 +38441,7 @@
         "check_td_order@126": 1,
         "english_upper@237": 1,
         "finish_signature@85": 1,
-        "get@23": 3,
+        "get@23": 1,
         "indent@1398": 1,
         "main@1669": 1,
         "make_arrays@1440": 1,
@@ -38776,7 +38776,7 @@
         "callLater@3231": 2,
         "checkPersistence@2626": 1,
         "clientproto@3068": 2,
-        "close@3307": 3,
+        "close@3307": 0,
         "code@3076": 1,
         "combinedLogFormatter@2995": 2,
         "connectionLost@1727": 0,
@@ -38988,7 +38988,7 @@
         "ssh_SERVICE_ACCEPT@2109": 0,
         "ssh_SERVICE_REQUEST@1730": 0,
         "ssh_UNIMPLEMENTED@1012": 0,
-        "update@2170": 8,
+        "update@2170": 0,
         "verify@266": 4,
         "verifyHostKey@2142": 3
       }

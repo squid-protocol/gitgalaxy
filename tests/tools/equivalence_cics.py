@@ -1777,6 +1777,10 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         return cics_conditions.handle(pairs, labels)  # fmt: skip
     if verb in ("PUT", "GET", "DELETE") and "CONTAINER" in opts:  # #4270
         return cics_containers._container_command(verb, opts, labels)
+    if verb in ("PUT64", "GET64") and "CONTAINER" in opts:  # #5005 (X17): the base command; SET (64-bit pointer) refused
+        if "SET" in opts:
+            raise Unsupported(SPEC[f"{verb} CONTAINER"].refusal_message(["SET"]), [f"{verb} CONTAINER SET"])
+        return cics_containers._container_command(verb[:3], {o: v for o, v in opts.items() if o != verb}, labels)
     if verb in ("MOVE", "STARTBROWSE", "GETNEXT", "ENDBROWSE") and "CONTAINER" in opts:  # #4951
         return cics_containers._container_browse_command(verb, opts, labels)
     if verb in ("DELETE", "QUERY") and "CHANNEL" in opts and "CONTAINER" not in opts:  # #5005

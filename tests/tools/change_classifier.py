@@ -27,6 +27,7 @@ import ast
 import fnmatch
 import functools
 import re
+import subprocess
 import sys
 from collections.abc import Iterable
 from pathlib import Path
@@ -223,7 +224,18 @@ def refs_of_source(src: str, known: set[str] | None = None) -> set[str]:
 
 
 def _known_names(root: Path) -> set[str]:
-    return {p.name for d in _ROOTS if (root / d).is_dir() for p in (root / d).rglob("*") if p.is_file()}
+    """Basenames of the TRACKED files under docs/ and .claude/: an ignored file an earlier test materialised (the
+    evidence report's report.json) must not change the committed list (#6302). Without git, the files on disk."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "-z", "--", *_ROOTS],
+            capture_output=True,
+            check=True,
+            timeout=60,
+        ).stdout.decode("utf-8", "replace")
+    except (OSError, subprocess.SubprocessError):
+        return {p.name for d in _ROOTS if (root / d).is_dir() for p in (root / d).rglob("*") if p.is_file()}
+    return {name.rsplit("/", 1)[-1] for name in out.split("\0") if name}
 
 
 def scan(root: Path = REPO_ROOT) -> dict[str, list[str]]:

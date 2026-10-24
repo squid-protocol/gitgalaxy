@@ -151,11 +151,12 @@ def node_env() -> dict[str, str]:
     return env
 
 
-def tsc_contract(repo: Path) -> dict[str, Any]:
-    """The TypeScript checker's call graph of `repo` (tests/tools/ts_callgraph.js)."""
+def tsc_contract(repo: Path, js: bool = False) -> dict[str, Any]:
+    """The TypeScript checker's call graph of `repo` (tests/tools/ts_callgraph.js);
+    `js` reads the JavaScript files with allowJs (#3781)."""
     try:
         proc = subprocess.run(  # noqa: S603 -- fixed argv, a corpus path
-            ["node", str(TOOLS / "ts_callgraph.js"), str(repo)],  # noqa: S607
+            ["node", str(TOOLS / "ts_callgraph.js"), str(repo), *(["--js"] if js else [])],  # noqa: S607
             capture_output=True,
             text=True,
             env=node_env(),
@@ -165,6 +166,11 @@ def tsc_contract(repo: Path) -> dict[str, Any]:
     if proc.returncode != 0:
         raise SystemExit(f"callgraph_refs: ts_callgraph.js failed on {repo}:\n{proc.stderr[-2000:]}")
     return json.loads(proc.stdout)
+
+
+def tsc_js_contract(repo: Path) -> dict[str, Any]:
+    """The same checker over a repo's .js/.cjs/.mjs files (allowJs)."""
+    return tsc_contract(repo, js=True)
 
 
 def _pyan_version() -> str | None:
@@ -223,6 +229,18 @@ REFERENCES: dict[str, Reference] = {
         "6.0.2",
         "import_graph",
         tsc_contract,
+        _tsc_version,
+        (Path(__file__), TOOLS / "ts_callgraph.js"),
+        True,
+        'npm install --global "typescript@6.0.2"  (7.x has no JavaScript compiler API)',
+    ),
+    # untyped JavaScript through the same checker (#3781); a distinct tool name keeps BY_TOOL unambiguous
+    "javascript": Reference(
+        "javascript",
+        "tsc (allowJs)",
+        "6.0.2",
+        "import_graph",
+        tsc_js_contract,
         _tsc_version,
         (Path(__file__), TOOLS / "ts_callgraph.js"),
         True,

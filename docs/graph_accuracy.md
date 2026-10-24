@@ -15,6 +15,7 @@ that baseline in the same PR.
 | Callee names (call graph, Level 1) | `tests/tools/call_graph_accuracy.py` | tree-sitter call nodes | language-crucible | `tests/call_graph_accuracy_baseline.json` | `call-graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py python` | pyan3 2.9.0 call graph | language-crucible Python | `tests/call_graph_resolution_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py typescript` | the TypeScript 6.0.2 type checker (`tests/tools/ts_callgraph.js`) | pinned typescript repos, `tests/import_graph_corpus.json` (zod) | `tests/call_graph_resolution_typescript_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py javascript` | the TypeScript 6.0.2 type checker with `allowJs` (`tests/tools/ts_callgraph.js --js`) | pinned javascript repos, `tests/import_graph_corpus.json` (express) | `tests/call_graph_resolution_javascript_baseline.json` | not yet in CI (#3781 follow-up: `graph-accuracy-audit.yml` gate step) |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py java` | scip-java 0.12.3 (javac-resolved SCIP, through `tests/tools/scip_callgraph.py`) | pinned java repos, `tests/import_graph_corpus.json` (gson) | `tests/call_graph_resolution_java_baseline.json` | `graph-accuracy-audit.yml` |
 | Import edges | `tests/tools/import_graph_accuracy.py` | each language's import statements (Python `ast`, tree-sitter), resolved by the language's own rule | pinned real repos, `tests/import_graph_corpus.json` | `tests/import_graph_accuracy_baseline.json` | `graph-accuracy-audit.yml` |
 | Span anchoring | `tests/tools/span_anchor_audit.py` | the declaration line in the raw source | language-crucible | `tests/span_anchor_baseline.json` | `graph-accuracy-audit.yml` |
@@ -214,6 +215,17 @@ A fresh Claude Code on the web session installs all of this at CI's pins through
 tools, and both corpora, and it reports up front when the environment can't run
 full-precision golden masters.
 
+### What the JavaScript reference cannot see (#3781)
+
+`javascript` runs the TypeScript checker with `allowJs` over express's `.js/.cjs/.mjs` files
+(`ts_callgraph.js --js`). CommonJS `require` and `exports.f = function` /
+`module.exports = function` declarations resolve and are named as the engine names them
+(no unmapped ends). The checker has little to go on without types: `this.route(...)` inside a
+function assigned to `app.x` and calls on untyped parameters get no edge, so those engine
+links come back `unconfirmed` or the reference edge is simply absent (express: 29 reference
+edges in 341 definitions). Read those as the reference's blind spot, not engine error. All
+numbers are "vs tsc (allowJs)".
+
 ## Running locally
 
 ```sh
@@ -221,6 +233,7 @@ PYTHONPATH="$PWD" python tests/tools/import_graph_accuracy.py --fetch-only      
 PYTHONPATH="$PWD" python tests/tools/import_graph_accuracy.py --samples 5        # report + examples
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py python --ci       # needs pyan3==2.9.0
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py typescript --ci   # needs node + typescript@6.0.2
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py javascript --ci   # same checker, allowJs
 PYTHONPATH="$PWD" python tests/tools/span_anchor_audit.py --ci
 python tests/tools/callgraph_triage.py typescript --samples 3     # ranked buckets of misses and wrong links
 python tests/tools/callgraph_check.py                             # the whole chain, one line per step

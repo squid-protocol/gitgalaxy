@@ -490,7 +490,7 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
     import infeasible_outcomes as io
 
     out["infeasible_stated"] = [
-        {k: e[k] for k in ("key", "unit", "line", "kind", "outcome", "family", "reason")}
+        {k: e[k] for k in ("key", "unit", "line", "kind", "outcome", "family", "reason") if k in e}
         for e in io.stated(case["case"])
     ]
     for e in out["infeasible_stated"]:

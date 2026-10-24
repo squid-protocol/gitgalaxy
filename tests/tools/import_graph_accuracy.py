@@ -109,6 +109,14 @@ RESOLUTION RULES (the language's, never the engine's)
               package.json in the repo named @scope/pkg (npm remapping); else
               from the project root; otherwise a dependency.
 
+  csharp      by NAMESPACE and NAME, never by path (a .cs file's directory means nothing):
+              `using A.B;` names a namespace (block or file-scoped declaration), which has
+              no file of its own: import contract C7, so no edge, never one per declaring
+              file; `using static A.B.C;` the files declaring type C in A.B (a nested type
+              falls back to its owner); `using X = A.B.C;` the same when C is a type;
+              `global using` alike. `#if` / `#region` bodies are read, every branch. A using inside `namespace N { }` is also tried under each
+              enclosing namespace of N. A namespace nothing in the repo declares (System.*) is external.
+
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
   ERROR node spans lines 85-127, taking three COPYs with it) -- it found 64 of
@@ -182,6 +190,7 @@ LANGS = (
     "haskell",
     "shell",
     "solidity",
+    "csharp",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -1267,6 +1276,108 @@ def solidity_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_CS_TYPES = frozenset(
+    {
+        "class_declaration",
+        "struct_declaration",
+        "interface_declaration",
+        "enum_declaration",
+        "record_declaration",
+        "record_struct_declaration",
+        "delegate_declaration",
+    }
+)
+
+
+def _cs_name(node: Any, src: bytes) -> list[str]:
+    return [p for p in _text(node, src).replace(" ", "").split(".") if p] if node is not None else []
+
+
+def _cs_scan(node: Any, src: bytes, ns: list[str], on_type: Any, on_ns: Any, on_using: Any) -> list[str]:
+    """Walk one compilation unit's declarations. `ns` is the enclosing namespace; a file-scoped
+    `namespace N;` extends it for what follows. Returns the (possibly extended) namespace."""
+    for c in node.children:
+        t = c.type
+        if t == "namespace_declaration":
+            inner = [*ns, *_cs_name(c.child_by_field_name("name"), src)]
+            on_ns(inner)
+            body = c.child_by_field_name("body")
+            if body is not None:
+                _cs_scan(body, src, inner, on_type, on_ns, on_using)
+        elif t == "file_scoped_namespace_declaration":
+            ns = [*ns, *_cs_name(c.child_by_field_name("name"), src)]
+            on_ns(ns)
+        elif t in _CS_TYPES:
+            name = c.child_by_field_name("name")
+            if name is not None:
+                on_type(ns, _text(name, src))
+        elif t == "using_directive":
+            on_using(c, ns)
+        elif t.startswith("preproc_"):
+            # `#if` / `#region` wrap whole files' declarations (Newtonsoft's LinqBridge.cs): every
+            # branch is read, as the parser cannot tell which symbols the build defines.
+            ns = _cs_scan(c, src, ns, on_type, on_ns, on_using)
+    return ns
+
+
+def _cs_index(group: Group) -> dict[str, Any]:
+    """Every .cs file's declared namespaces and top-level types, parsed once."""
+    if "cs" in group._cache:
+        return group._cache["cs"]
+    by_ns: dict[str, set[str]] = collections.defaultdict(set)
+    by_type: dict[tuple[str, str], set[str]] = collections.defaultdict(set)
+    for f in sorted(group.files):
+        if not f.endswith(".cs") or group.root is None:
+            continue
+        try:
+            src = (group.root / f).read_bytes()
+        except OSError:
+            continue
+
+        def on_ns(parts: list[str], f: str = f) -> None:
+            by_ns[".".join(parts)].add(f)
+
+        def on_type(ns: list[str], name: str, f: str = f) -> None:
+            by_type[(".".join(ns), name)].add(f)
+
+        _cs_scan(_ts_tree("csharp", src), src, [], on_type, on_ns, lambda *_: None)
+    group._cache["cs"] = {"ns": by_ns, "type": by_type}
+    return group._cache["cs"]
+
+
+def _cs_resolve(index: dict[str, Any], parts: list[str], enclosing: list[str], static: bool) -> set[str]:
+    """`parts` as a namespace (unless `static`; import contract C7, so no file), else as `ns.Type`
+    (a nested type falls back to its owner), tried absolutely then under each enclosing namespace,
+    innermost first."""
+    for cut in range(len(enclosing), -1, -1):
+        full = [*enclosing[:cut], *parts]
+        if not static and index["ns"].get(".".join(full)):
+            return set()  # import contract C7: a whole-namespace import is no edge (C# has no namespace file)
+        for drop in (0, 1):
+            head = full[: len(full) - drop]
+            if len(head) >= 2 or (len(head) == 1 and head[0]):
+                hit = index["type"].get((".".join(head[:-1]), head[-1]))
+                if hit:
+                    return set(hit)
+    return set()
+
+
+def csharp_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _cs_index(group)
+    found: list[tuple[Any, list[str]]] = []
+    _cs_scan(_ts_tree("csharp", src), src, [], lambda *_: None, lambda *_: None, lambda c, ns: found.append((c, ns)))
+    out = []
+    for c, ns in found:
+        static = any(x.type == "static" for x in c.children)
+        # `using X = A.B;` names its target after the `=`; the alias is the `name` field.
+        alias = c.child_by_field_name("name")
+        target = next((x for x in c.children if x.type in ("qualified_name", "identifier") and x != alias), None)
+        if target is None:
+            continue
+        out.append(_cs_resolve(index, _cs_name(target, src), ns, static))
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -1288,6 +1399,7 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "haskell": haskell_imports,
     "shell": shell_imports,
     "solidity": solidity_imports,
+    "csharp": csharp_imports,
 }
 
 

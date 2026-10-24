@@ -444,6 +444,21 @@
     "CDEMO-PGM-CONTEXT": 1
    },
    "why": "#4628 slice 4 (det-port mutation survivors): ENTER on a re-entry with no map received (MAPFAIL): the program never tests RESP, so the screen is the working storage it began with"
+  },
+  {
+   "name": "no-commarea-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#6166: EIBCALEN 0 sets the target COSGN00C and RETURN-TO-PREV-SCREEN's XCTL answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
   }
  ],
  "notes": "CardDemo's view-transaction screen (transaction CT01, program COTRN01C): entered from the transaction list with a selected transaction it reads it and shows every field (the amount through an edited picture); ENTER looks one up, PF3 returns, PF4 clears, PF5 goes to the list. The TRANSACT file is loaded from CardDemo's own dailytran.txt (the same 350-byte layout, CVTRA05Y / CVTRA06Y, that POSTTRAN posts into it). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

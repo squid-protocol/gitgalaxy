@@ -225,3 +225,42 @@ def test_haskell_shell_and_solidity_rules(tmp_path):
         {"contracts/access/Ownable.sol"},
         set(),
     ]
+
+
+@needs_ts
+def test_csharp_resolves_by_namespace_and_type_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            # file name and directory mean nothing: the type is found by what the file declares
+            "src/Misc/Odd.cs": "namespace Acme.Util\n{\n    public class Helper { public enum Kind { A } }\n}\n",
+            "src/Scoped.cs": "namespace Acme.Scoped;\n\npublic struct Pair { }\n",
+            # declarations wrapped in #if / #region are still declarations
+            "src/Wrapped.cs": "#if NET\n#region r\nnamespace Acme.Wrapped\n{\n    public interface IThing { }\n}\n#endregion\n#endif\n",
+            "src/Partial1.cs": "namespace Acme.Util { public partial class Split { } }\n",
+            "src/Partial2.cs": "namespace Acme.Util { public partial class Split { } }\n",
+        },
+    )
+    src = (
+        b"using System;\n"
+        b"using Acme.Util;\n"  # a namespace: contract C7, no edge
+        b"using static Acme.Util.Helper;\n"
+        b"using static Acme.Util.Helper.Kind;\n"  # a nested type falls back to its owner
+        b"using Pair = Acme.Scoped.Pair;\n"
+        b"using Ns = Acme.Wrapped;\n"  # an alias of a namespace is a namespace
+        b"global using static Acme.Util.Split;\n"
+        b"using static Missing.Thing;\n"
+        b"namespace Acme.Util { using Scoped; using static Helper; class C { void M() { using (var x = new D()) { } } } }\n"
+    )
+    assert iga.csharp_imports(src, "src/Use.cs", g) == [
+        set(),  # System
+        set(),
+        {"src/Misc/Odd.cs"},
+        {"src/Misc/Odd.cs"},
+        {"src/Scoped.cs"},
+        set(),
+        {"src/Partial1.cs", "src/Partial2.cs"},  # a partial type is several files
+        set(),
+        set(),  # relative `using Scoped;` under Acme.Util is no namespace of the repo
+        {"src/Misc/Odd.cs"},  # `using static Helper;` under the enclosing Acme.Util
+    ]

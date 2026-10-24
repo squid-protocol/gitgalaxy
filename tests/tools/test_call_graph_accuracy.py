@@ -148,3 +148,60 @@ def test_swift_subscript_is_not_a_call_but_a_call_on_one_is():
 def test_scala_qualified_generic_constructor_names_the_type():
     got = _calls("scala", "object A {\n  def run() = new util.HashSet[T]()\n}\n")
     assert got == {"run": {"HashSet"}}
+
+
+@pytest.mark.parametrize(
+    "lang, src, expected",
+    [
+        (
+            "zig",
+            'fn run(x: u8) void {\n  a.b.save(x);\n  foo(1);\n  _ = @intCast(x);\n  _ = @import("x");\n}\n',
+            {"save", "foo", "intCast", "import"},
+        ),
+        (
+            "dart",
+            "class A {\n  void run(int x) {\n    a.b.save(x);\n    w?.call(1);\n    xs..sort()..clear();\n"
+            "    foo(1);\n    var f = Foo(2);\n    new Bar();\n    Baz<int>(1);\n    xs.map((y) => load(y));\n  }\n}\n",
+            {"save", "call", "sort", "clear", "foo", "Foo", "Bar", "Baz", "map", "load"},
+        ),
+        (
+            "haskell",
+            "run x = do\n  save x\n  Map.insert 1 x\n  print $ load x\n  return (Just x)\n",
+            {"save", "insert", "print", "load", "return", "Just"},
+        ),
+        (
+            "perl",
+            'sub run {\n  my $x = shift;\n  save($x);\n  $o->meth(1);\n  Foo::bar(2);\n  print "x";\n}\n',
+            {"shift", "save", "meth", "bar", "print"},
+        ),
+    ],
+)
+def test_zig_dart_haskell_perl_callee_names(lang, src, expected):
+    """Step 2 of #3641: zig / dart / haskell / perl name the rightmost identifier (a zig builtin
+    without its `@`), count a constructor, and keep a callback's calls with the enclosing unit."""
+    assert _calls(lang, src)["run"] == expected
+
+
+def test_zig_and_dart_bodies_are_siblings_of_the_signature_yet_belong_to_it():
+    assert _calls("zig", "fn a() void { x(); }\nfn b() void { y(); }\n") == {"a": {"x"}, "b": {"y"}}
+    got = _calls("dart", "class A {\n  void a() { x(); }\n  int get b => y();\n}\nvoid c() { z(); }\n")
+    assert got["a"] == {"x"} and got["c"] == {"z"}
+
+
+@pytest.mark.parametrize(
+    "lang, src",
+    [
+        ("zig", 'fn run() void {\n  const s = "save(1)"; // load(2)\n  keep();\n}\n'),
+        ("dart", "void run() {\n  var s = 'save(1)'; // load(2)\n  keep();\n}\n"),
+        ("haskell", 'run x = keep "save 1" -- load 2\n'),
+        ("perl", 'sub run {\n  my $s = "save(1)"; # load(2)\n  keep();\n}\n'),
+    ],
+)
+def test_decoys_in_string_and_comment_are_not_calls(lang, src):
+    assert _calls(lang, src)["run"] == {"keep"}
+
+
+def test_dart_index_and_list_are_not_calls_and_only_the_dollar_operator_applies_in_haskell():
+    assert _calls("dart", "void run(m) {\n  var a = m['k'];\n  var b = [1];\n}\n")["run"] == set()
+    assert _calls("haskell", "run x = f $ g x\n")["run"] == {"f", "g"}
+    assert _calls("haskell", "run x = f x <> g . h\n")["run"] == {"f"}

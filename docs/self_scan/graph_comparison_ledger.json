@@ -10839,6 +10839,4962 @@
       "still_reproduces": true,
       "symbol_type": "call",
       "verdict": null
+    },
+    "dart/call/argument_part/-+generic+bang/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/navigator.dart",
+          "name": "pushNamed -> push",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 4747
+          }
+        }
+      ],
+      "metric": "argument_part/-+generic+bang",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "dart/call/argument_part/-+generic/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 88,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "build -> UndoHistory",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 5687
+          }
+        },
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "build -> NotificationListener",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 5736
+          }
+        },
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "_formatAndSetValue -> fold",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 4552
+          }
+        },
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "_scrollableNotificationIsFromSameSubtree -> findAncestorStateOfType",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 4144
+          }
+        },
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "debugFillProperties -> EnumProperty",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2378
+          }
+        }
+      ],
+      "metric": "argument_part/-+generic",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "dart/call/argument_part/-/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 12,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "toString -> shortHash",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 216
+          }
+        },
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "toString -> describeIdentity",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 218
+          }
+        },
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "toStringShort -> describeIdentity",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 5257
+          }
+        },
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "toString -> describeIdentity",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 273
+          }
+        },
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "toString -> describeIdentity",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 110
+          }
+        }
+      ],
+      "metric": "argument_part/-",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "dart/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 27,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "finalizeTree -> join",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3417
+          }
+        },
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "finalizeTree -> map",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3361
+          }
+        },
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "scheduleBuildFor -> contains",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2943
+          }
+        },
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "_debugCheckCompetingAncestors -> debugGetCreatorChain",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 6717
+          }
+        },
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "attachRenderObject -> debugGetCreatorChain",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 6929
+          }
+        }
+      ],
+      "metric": "engine-attributes-to-another-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "dart/call/not-a-call-in-ts:const_object_expression<optional_formal_parameters/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "EditableText -> all",
+          "readings": {
+            "gitgalaxy": 888,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:const_object_expression<optional_formal_parameters",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "dart/call/not-a-call-in-ts:factory_constructor_signature<method_signature/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/navigator.dart",
+          "name": "_RestorationInformation.fromSerializableData -> fromSerializableData",
+          "readings": {
+            "gitgalaxy": 5976,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:factory_constructor_signature<method_signature",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "dart/call/not-a-call-in-ts:formal_parameter<formal_parameter_list/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "_handleContextMenuOnParentScroll -> ScrollNotification",
+          "readings": {
+            "gitgalaxy": 4159,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:formal_parameter<formal_parameter_list",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "dart/call/not-a-call-in-ts:formal_parameter<optional_formal_parameters/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 51,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "EditableText -> ToolbarOptions",
+          "readings": {
+            "gitgalaxy": 900,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "buildTextSpan -> TextStyle",
+          "readings": {
+            "gitgalaxy": 301,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "BuildOwner -> FocusManager",
+          "readings": {
+            "gitgalaxy": 2909,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/flutter/navigator.dart",
+          "name": "Route -> RouteSettings",
+          "readings": {
+            "gitgalaxy": 171,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/flutter/theme_data.dart",
+          "name": "ThemeData -> FloatingActionButtonThemeData",
+          "readings": {
+            "gitgalaxy": 342,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:formal_parameter<optional_formal_parameters",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "dart/call/not-a-call-in-ts:unconditional_assignable_selector<selector/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "EditableText -> disabled",
+          "readings": {
+            "gitgalaxy": 916,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:unconditional_assignable_selector<selector",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "dart/call/outside-ts-function/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 54,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "EditableText -> empty",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "EditableText -> _inferKeyboardType",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "EditableText -> _inferAutocorrect",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "didUpdateWidget -> TextStyle",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/flutter/editable_text.dart",
+          "name": "build -> _NeverUserScrollableScrollPhysics",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "outside-ts-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/apply/apply/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 53,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "getMetadataFromFiles -> yamlToMeta",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 408
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> createDirectoryIfMissing",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 122
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> hPutStrLn",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 96
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> convertWithOpts'",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 107
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> writeFnBinary",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 125
+          }
+        }
+      ],
+      "metric": "apply/apply",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/apply/constructor/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 69,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "getMetadataFromFiles -> Just",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 408
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> Left",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 109
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> ZipOutput",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 126
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> BinaryOutput",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 125
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> OptDestination",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 131
+          }
+        }
+      ],
+      "metric": "apply/constructor",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/apply/qualified/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 19,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> throwIO",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 109
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "ensureNl -> null",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 331
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "ensureNl -> last",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 331
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "ensureNl -> singleton",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 331
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "writerFn -> putStrWith",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 425
+          }
+        }
+      ],
+      "metric": "apply/qualified",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/apply/variable/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 68,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "getMetadataFromFiles -> return",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 398
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "getMetadataFromFiles -> readMetadataFile",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 407
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> optDataDir",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 86
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> null",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 127
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> optEol",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 117
+          }
+        }
+      ],
+      "metric": "apply/variable",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 33,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> optVerbosity",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 132
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> takeExtension",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 127
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> any",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 115
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> pack",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 96
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> optInputFiles",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 98
+          }
+        }
+      ],
+      "metric": "engine-attributes-to-another-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/infix/-+generic/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 8,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "getMetadataFromFiles -> forM",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 406
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "createPngFallbacks -> forM_",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 384
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Options.hs",
+          "name": "parseJSON -> fail",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 305
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Options.hs",
+          "name": "parseJSON -> fail",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 257
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Options.hs",
+          "name": "parseJSON -> fail",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 279
+          }
+        }
+      ],
+      "metric": "infix/-+generic",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/infix/-/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 23,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> runIO",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 107
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> return",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 90
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> PandocShouldNeverHappenError",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 135
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "configureCommonState -> report",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 367
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "configureCommonState -> setTranslations",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 365
+          }
+        }
+      ],
+      "metric": "infix/-",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/inner-named-function/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 10,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> combineAttr",
+          "readings": {
+            "gitgalaxy": 573,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> break",
+          "readings": {
+            "gitgalaxy": 542,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> unless",
+          "readings": {
+            "gitgalaxy": 541,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> headerLtEq",
+          "readings": {
+            "gitgalaxy": 542,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> map",
+          "readings": {
+            "gitgalaxy": 549,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "inner-named-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:apply<apply/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 7,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> stdout",
+          "readings": {
+            "gitgalaxy": 96,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "makeSandboxed -> opts",
+          "readings": {
+            "gitgalaxy": 168,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Filter.hs",
+          "name": "filterWithPath -> missingPath",
+          "readings": {
+            "gitgalaxy": 52,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> level",
+          "readings": {
+            "gitgalaxy": 526,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "go -> level",
+          "readings": {
+            "gitgalaxy": 532,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:apply<apply",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:apply<boolean/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "trimMath -> pref",
+          "readings": {
+            "gitgalaxy": 203,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "stripBeginSpace -> pref",
+          "readings": {
+            "gitgalaxy": 203,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:apply<boolean",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:apply<infix/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 4,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "stringify -> fixInlines",
+          "readings": {
+            "gitgalaxy": 364,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "stringify -> go",
+          "readings": {
+            "gitgalaxy": 364,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "removeFormatting -> go",
+          "readings": {
+            "gitgalaxy": 345,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "hasLineBreaks -> removeNote",
+          "readings": {
+            "gitgalaxy": 615,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:apply<infix",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:apply<match/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 5,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "inlineListToIdentifier -> unEmoji",
+          "readings": {
+            "gitgalaxy": 475,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "taskListItemToAscii -> toMd",
+          "readings": {
+            "gitgalaxy": 665,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "taskListItemFromAscii -> fromMd",
+          "readings": {
+            "gitgalaxy": 655,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "isTightList -> isPlainItem",
+          "readings": {
+            "gitgalaxy": 644,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "capitalize -> go",
+          "readings": {
+            "gitgalaxy": 397,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:apply<match",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:apply<parens/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "blockToInlines -> ils",
+          "readings": {
+            "gitgalaxy": 795,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "combine -> xs",
+          "readings": {
+            "gitgalaxy": 693,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:apply<parens",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:as<parens/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "stringify -> q",
+          "readings": {
+            "gitgalaxy": 379,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:as<parens",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:as<patterns/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "collapseFilePath -> r",
+          "readings": {
+            "gitgalaxy": 769,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:as<patterns",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:bind<do/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 4,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Filter.hs",
+          "name": "parseJSON -> ty",
+          "readings": {
+            "gitgalaxy": 49,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Filter.hs",
+          "name": "withMessages -> verbosity",
+          "readings": {
+            "gitgalaxy": 94,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> lastnum",
+          "readings": {
+            "gitgalaxy": 533,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "go -> lastnum",
+          "readings": {
+            "gitgalaxy": 533,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:bind<do",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:bind<local_binds/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 6,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "getMetadataFromFiles -> readerOptsMeta",
+          "readings": {
+            "gitgalaxy": 402,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Filter.hs",
+          "name": "parseJSON -> missingPath",
+          "readings": {
+            "gitgalaxy": 51,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> divattr",
+          "readings": {
+            "gitgalaxy": 551,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "go -> divattr",
+          "readings": {
+            "gitgalaxy": 551,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "extractSpaces -> left",
+          "readings": {
+            "gitgalaxy": 333,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:bind<local_binds",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:function<local_binds/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 3,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> getLevel",
+          "readings": {
+            "gitgalaxy": 526,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> isHeadingAttr",
+          "readings": {
+            "gitgalaxy": 552,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "go -> isHeadingAttr",
+          "readings": {
+            "gitgalaxy": 552,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:function<local_binds",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:infix<parens/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 8,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "readAbbreviations -> not",
+          "readings": {
+            "gitgalaxy": 377,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> x",
+          "readings": {
+            "gitgalaxy": 579,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "textToIdentifier -> not",
+          "readings": {
+            "gitgalaxy": 490,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "inlineListToIdentifier -> a",
+          "readings": {
+            "gitgalaxy": 481,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "go -> tabStop",
+          "readings": {
+            "gitgalaxy": 266,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:infix<parens",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:patterns<function/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 11,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Filter.hs",
+          "name": "applyFilter -> doc",
+          "readings": {
+            "gitgalaxy": 87,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "toRomanNumeral -> x",
+          "readings": {
+            "gitgalaxy": 238,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "splitTextBy -> isSep",
+          "readings": {
+            "gitgalaxy": 134,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "stripFirstAndLast -> t",
+          "readings": {
+            "gitgalaxy": 211,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "figureDiv -> body",
+          "readings": {
+            "gitgalaxy": 453,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:patterns<function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:qualified<match/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "extractSpaces -> space",
+          "readings": {
+            "gitgalaxy": 334,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:qualified<match",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:tuple<alternative/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "normalizeDate' -> y",
+          "readings": {
+            "gitgalaxy": 284,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "rejectBadYear -> y",
+          "readings": {
+            "gitgalaxy": 284,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:tuple<alternative",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:tuple<apply/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> ident",
+          "readings": {
+            "gitgalaxy": 532,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "go -> ident",
+          "readings": {
+            "gitgalaxy": 532,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:tuple<apply",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:tuple<as/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> dident",
+          "readings": {
+            "gitgalaxy": 560,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:tuple<as",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:tuple<bind/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 5,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "makeSectionsWithOffsets -> sectionContents",
+          "readings": {
+            "gitgalaxy": 542,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "go -> sectionContents",
+          "readings": {
+            "gitgalaxy": 542,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "splitTextBy -> first",
+          "readings": {
+            "gitgalaxy": 136,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "go -> s1",
+          "readings": {
+            "gitgalaxy": 262,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "splitTextByIndices -> first",
+          "readings": {
+            "gitgalaxy": 147,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:tuple<bind",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:tuple<infix/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "compactifyDL -> t",
+          "readings": {
+            "gitgalaxy": 427,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "safeStrRead -> d",
+          "readings": {
+            "gitgalaxy": 850,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:tuple<infix",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:tuple<patterns/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 8,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "createPngFallbacks -> fp",
+          "readings": {
+            "gitgalaxy": 384,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "combineAttr -> id2",
+          "readings": {
+            "gitgalaxy": 585,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "combineAttr -> id1",
+          "readings": {
+            "gitgalaxy": 585,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "combineAttr -> k",
+          "readings": {
+            "gitgalaxy": 588,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "combineAttr -> classes1",
+          "readings": {
+            "gitgalaxy": 585,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:tuple<patterns",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/not-a-call-in-ts:view_pattern<parens/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "collapseFilePath -> checkPathSeperator",
+          "readings": {
+            "gitgalaxy": 771,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:view_pattern<parens",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "haskell/call/outside-ts-function/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "haskell",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 44,
+      "last_seen_examples": [
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "configureCommonState -> m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "createPngFallbacks -> m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "readAbbreviations -> m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "writeFnBinary -> writeFile",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "go -> combineAttr",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "outside-ts-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/ambiguous_function_call_expression/function/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 188,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/ack3_tests/file-permission.t",
+          "name": "check_with -> subtest",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 65
+          }
+        },
+        {
+          "file_path": "perl/ack3_tests/file-permission.t",
+          "name": "check_with -> plan",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 66
+          }
+        },
+        {
+          "file_path": "perl/ack3_tests/file-permission.t",
+          "name": "o -> sprintf",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 33
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "check_can_change_field -> first",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 4558
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "_set_product -> uniq",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2802
+          }
+        }
+      ],
+      "metric": "ambiguous_function_call_expression/function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 731,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "update -> name",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1001
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "update -> defined",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1139
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "update -> type",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1093
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "update -> delete",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 918
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "update -> id",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 935
+          }
+        }
+      ],
+      "metric": "engine-attributes-to-another-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/-x/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 20,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Requirements.pm",
+          "name": "check_graphviz -> -x",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 695
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Requirements.pm",
+          "name": "check_graphviz -> -e",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 708
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ExtractInfo -> -p",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2888
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ExtractInfo -> -f",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2878
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ExtractInfo -> -s",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2836
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/-x",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/caller/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/spamassassin/AsyncLoop.pm",
+          "name": "bgsend_and_start_lookup -> caller",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 218
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/AsyncLoop.pm",
+          "name": "start_lookup -> caller",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 399
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/caller",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/chomp/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 10,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> chomp",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2225
+          }
+        },
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "ScanDir -> chomp",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 4321
+          }
+        },
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "FindFileWindows -> chomp",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 4468
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/AsyncLoop.pm",
+          "name": "bgsend_and_start_lookup -> chomp",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 291
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/AsyncLoop.pm",
+          "name": "complete_lookups -> chomp",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 635
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/chomp",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/close/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 5,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ExtractInfo -> close",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3169
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/PerMsgStatus.pm",
+          "name": "create_fulltext_tmpfile -> close",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3546
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/SpamAssassin.pm",
+          "name": "create_default_prefs -> close",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2179
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/SpamAssassin.pm",
+          "name": "read_cf_file -> close",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1979
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/SpamAssassin.pm",
+          "name": "read_scoreonly_config -> close",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1353
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/close",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/closedir/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/spamassassin/SpamAssassin.pm",
+          "name": "_get_cf_pre_files_in_dir -> closedir",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2331
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/SpamAssassin.pm",
+          "name": "test_global_state_dir -> closedir",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2081
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/closedir",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/defined/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 21,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/DB.pm",
+          "name": "bz_add_column -> defined",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 673
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/DB.pm",
+          "name": "bz_alter_column_raw -> defined",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 808
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/DB.pm",
+          "name": "bz_alter_column -> defined",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 761
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/DB.pm",
+          "name": "_bz_init_schema_storage -> defined",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1446
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/DB.pm",
+          "name": "bz_check_requirements -> defined",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 191
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/defined",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/delete/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 54,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/DB.pm",
+          "name": "bz_add_column -> delete",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 685
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ProcessJPEG -> delete",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 7515
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ExtractInfo -> delete",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2736
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "DoProcessTIFF -> delete",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 8547
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ProcessBinaryData -> delete",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 10125
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/delete",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/each/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 13,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/DB.pm",
+          "name": "bz_populate_enum_tables -> each",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 597
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/AsyncLoop.pm",
+          "name": "complete_lookups -> each",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 546
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/AsyncLoop.pm",
+          "name": "abort_remaining_lookups -> each",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 662
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/HTML.pm",
+          "name": "html_uri -> each",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 414
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/HTML.pm",
+          "name": "display_text -> each",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 959
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/each",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/exists/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 54,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "update -> exists",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1191
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "set_all -> exists",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2442
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "ValidateDependencies -> exists",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 4739
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "match -> exists",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 455
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "set_comment_is_private -> exists",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2592
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/exists",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/exit/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 9,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "_set_product -> exit",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2832
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "_check_dup_id -> exit",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1844
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/CGI.pm",
+          "name": "_prevent_unsafe_response -> exit",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 371
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/CGI.pm",
+          "name": "redirect_search_url -> exit",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 620
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/CGI.pm",
+          "name": "redirect_to_https -> exit",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 644
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/exit",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/fileno/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/spamassassin/Message.pm",
+          "name": "new -> fileno",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 162
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/fileno",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/int/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/mojo/IOLoop.pm",
+          "name": "server -> int",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 116
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/AsyncLoop.pm",
+          "name": "complete_lookups -> int",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 555
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/int",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/keys/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 77,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "update -> keys",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1045
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "create -> keys",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 794
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "set_all -> keys",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2492
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "ValidateDependencies -> keys",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 4770
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "_check_strict_isolation -> keys",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2098
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/keys",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/lc/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 12,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/spamassassin/Parser.pm",
+          "name": "parse -> lc",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 284
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/Parser.pm",
+          "name": "set_duration_value -> lc",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 786
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/Parser.pm",
+          "name": "set_bool_value -> lc",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 799
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/Parser.pm",
+          "name": "add_to_addrlist_rcvd -> lc",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1587
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/Parser.pm",
+          "name": "add_to_addrlist -> lc",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1568
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/lc",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/length/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/mojo/Template.pm",
+          "name": "_compile -> length",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 193
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/length",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/pop/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 6,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "get_activity -> pop",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 4386
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "comments -> pop",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3769
+          }
+        },
+        {
+          "file_path": "perl/mojo/IOLoop.pm",
+          "name": "server -> pop",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 105
+          }
+        },
+        {
+          "file_path": "perl/mojo/IOLoop.pm",
+          "name": "client -> pop",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 47
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/Parser.pm",
+          "name": "parse -> pop",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 295
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/pop",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/quotemeta/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 3,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "FindFileWindows -> quotemeta",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 4453
+          }
+        },
+        {
+          "file_path": "perl/mojo/Template.pm",
+          "name": "_compile -> quotemeta",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 191
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/SpamAssassin.pm",
+          "name": "remove_spamassassin_markup -> quotemeta",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1278
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/quotemeta",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/rand/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/mojo/IOLoop.pm",
+          "name": "server -> rand",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 116
+          }
+        },
+        {
+          "file_path": "perl/mojo/IOLoop.pm",
+          "name": "_id -> rand",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 161
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/rand",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/ref/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 19,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> ref",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2656
+          }
+        },
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "SetImageInfo -> ref",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3227
+          }
+        },
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "FormatXML -> ref",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3756
+          }
+        },
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "FormatJSON -> ref",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3840
+          }
+        },
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "ConvertBinary -> ref",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3956
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/ref",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/scalar/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 9,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/ack3_tests/file-permission.t",
+          "name": "check_with -> scalar",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 82
+          }
+        },
+        {
+          "file_path": "perl/mojo/IOLoop.pm",
+          "name": "_in -> scalar",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 165
+          }
+        },
+        {
+          "file_path": "perl/mojo/IOLoop.pm",
+          "name": "_out -> scalar",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 185
+          }
+        },
+        {
+          "file_path": "perl/mojo/Promise.pm",
+          "name": "_all -> scalar",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 130
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/AsyncLoop.pm",
+          "name": "bgsend_and_start_lookup -> scalar",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 276
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/scalar",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/shift/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 214,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/ack3_tests/file-permission.t",
+          "name": "o -> shift",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 33
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "update -> shift",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 893
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "check_can_change_field -> shift",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 4515
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "set_all -> shift",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2429
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "ValidateDependencies -> shift",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 4707
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/shift",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/srand/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/spamassassin/SpamAssassin.pm",
+          "name": "init -> srand",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1751
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/srand",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/stat/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ExtractInfo -> stat",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2874
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "GetFileTime -> stat",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 5006
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/stat",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/ucfirst/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/spamassassin/PerMsgStatus.pm",
+          "name": "rewrite_no_report_safe -> ucfirst",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1442
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/ucfirst",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/func1op_call_expression/values/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 5,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "_check_groups -> values",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1885
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "modify_keywords -> values",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3104
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "_check_keywords -> values",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1906
+          }
+        },
+        {
+          "file_path": "perl/mojo/IOLoop.pm",
+          "name": "_maybe_accepting -> values",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 174
+          }
+        },
+        {
+          "file_path": "perl/mojo/IOLoop.pm",
+          "name": "_not_accepting -> values",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 181
+          }
+        }
+      ],
+      "metric": "func1op_call_expression/values",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/function_call_expression/function/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 17,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/DB.pm",
+          "name": "import -> die",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 391
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/DB.pm",
+          "name": "_connect -> die",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 167
+          }
+        },
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> ConvertBinary",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2707
+          }
+        },
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> OpenOutputFile",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2282
+          }
+        },
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> IsEqual",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2494
+          }
+        }
+      ],
+      "metric": "function_call_expression/function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/method_call_expression/method/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 490,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Auth.pm",
+          "name": "_handle_login_result -> timezone",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 237
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Auth.pm",
+          "name": "_handle_login_result -> dbh",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 145
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Auth.pm",
+          "name": "_handle_login_result -> local_timezone",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 204
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Auth.pm",
+          "name": "_handle_login_result -> requires_persistence",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 155
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Auth.pm",
+          "name": "_handle_login_result -> user",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 173
+          }
+        }
+      ],
+      "metric": "method_call_expression/method",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:array<variable_declaration/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/CGI.pm",
+          "name": "set_dated_content_disp -> time",
+          "readings": {
+            "gitgalaxy": 681,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "DoneExtract -> city",
+          "readings": {
+            "gitgalaxy": 4436,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:array<variable_declaration",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:binary_expression<assignment_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ProcessJPEG -> x",
+          "readings": {
+            "gitgalaxy": 7373,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:binary_expression<assignment_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:binary_expression<conditional_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "NextUnusedFilename -> x",
+          "readings": {
+            "gitgalaxy": 4750,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:binary_expression<conditional_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:binary_expression<list_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "DoProcessTIFF -> x",
+          "readings": {
+            "gitgalaxy": 8870,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:binary_expression<list_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:binary_expression<parenthesized_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ConvertDateTime -> x",
+          "readings": {
+            "gitgalaxy": 6619,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> x",
+          "readings": {
+            "gitgalaxy": 2123,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:binary_expression<parenthesized_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:eval_expression<assignment_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ProcessBinaryData -> eval",
+          "readings": {
+            "gitgalaxy": 9961,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:eval_expression<assignment_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:eval_expression<binary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/DB.pm",
+          "name": "_connect -> eval",
+          "readings": {
+            "gitgalaxy": 166,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:eval_expression<binary_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:hash_element_expression<func1op_call_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 3,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "create -> alias",
+          "readings": {
+            "gitgalaxy": 728,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Requirements.pm",
+          "name": "print_module_instructions -> package",
+          "readings": {
+            "gitgalaxy": 599,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/PerMsgStatus.pm",
+          "name": "check_cleanup -> msg",
+          "readings": {
+            "gitgalaxy": 496,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:hash_element_expression<func1op_call_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:map_grep_expression<anonymous_array_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/spamassassin/Message.pm",
+          "name": "get_mimepart_digests -> map",
+          "readings": {
+            "gitgalaxy": 1251,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:map_grep_expression<anonymous_array_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:map_grep_expression<assignment_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 4,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/DB.pm",
+          "name": "bz_check_server_version -> grep",
+          "readings": {
+            "gitgalaxy": 264,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/DB.pm",
+          "name": "sql_fulltext_search -> map",
+          "readings": {
+            "gitgalaxy": 517,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Requirements.pm",
+          "name": "have_vers -> grep",
+          "readings": {
+            "gitgalaxy": 760,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/PerMsgStatus.pm",
+          "name": "report_unsatisfied_actions -> grep",
+          "readings": {
+            "gitgalaxy": 1741,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:map_grep_expression<assignment_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:map_grep_expression<binary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ExtractInfo -> grep",
+          "readings": {
+            "gitgalaxy": 2943,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:map_grep_expression<binary_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:map_grep_expression<conditional_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "in_group -> grep",
+          "readings": {
+            "gitgalaxy": 4056,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "CanWrite -> grep",
+          "readings": {
+            "gitgalaxy": 4263,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:map_grep_expression<conditional_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:map_grep_expression<for_statement/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "create -> map",
+          "readings": {
+            "gitgalaxy": 766,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:map_grep_expression<for_statement",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:map_grep_expression<function_call_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/DB.pm",
+          "name": "_bz_populate_enum_table -> map",
+          "readings": {
+            "gitgalaxy": 1568,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Requirements.pm",
+          "name": "print_module_instructions -> map",
+          "readings": {
+            "gitgalaxy": 599,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:map_grep_expression<function_call_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:map_grep_expression<list_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/spamassassin/PerMsgStatus.pm",
+          "name": "get_names_of_tests_hit_with_scores -> map",
+          "readings": {
+            "gitgalaxy": 929,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:map_grep_expression<list_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:map_grep_expression<map_grep_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "_set_product -> grep",
+          "readings": {
+            "gitgalaxy": 2791,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:map_grep_expression<map_grep_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:map_grep_expression<parenthesized_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/spamassassin/Parser.pm",
+          "name": "compile_meta_rules -> grep",
+          "readings": {
+            "gitgalaxy": 1124,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:map_grep_expression<parenthesized_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:map_grep_expression<sort_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "SetFoundTags -> grep",
+          "readings": {
+            "gitgalaxy": 5312,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ConvertDateTime -> grep",
+          "readings": {
+            "gitgalaxy": 6569,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:map_grep_expression<sort_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:map_grep_expression<unary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 6,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "set_all -> grep",
+          "readings": {
+            "gitgalaxy": 2477,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "choices -> grep",
+          "readings": {
+            "gitgalaxy": 4100,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "_refine_available_statuses -> grep",
+          "readings": {
+            "gitgalaxy": 3932,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "add_cc -> grep",
+          "readings": {
+            "gitgalaxy": 3003,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/CGI.pm",
+          "name": "new -> grep",
+          "readings": {
+            "gitgalaxy": 64,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:map_grep_expression<unary_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:match_regexp<binary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "WindowsLongPath -> m",
+          "readings": {
+            "gitgalaxy": 4787,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "IdentifyTrailer -> m",
+          "readings": {
+            "gitgalaxy": 6992,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:match_regexp<binary_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:scalar<for_statement/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 170,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/ack3_tests/file-permission.t",
+          "name": "check_with -> arg",
+          "readings": {
+            "gitgalaxy": 69,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "update -> lv",
+          "readings": {
+            "gitgalaxy": 1186,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "update -> field",
+          "readings": {
+            "gitgalaxy": 917,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "update -> comment",
+          "readings": {
+            "gitgalaxy": 1067,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "update -> user_id",
+          "readings": {
+            "gitgalaxy": 944,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:scalar<for_statement",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:scalar<func1op_call_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ProcessJPEG -> exifAPP1hdr",
+          "readings": {
+            "gitgalaxy": 7731,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:scalar<func1op_call_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:scalar<localization_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ExtractInfo -> _",
+          "readings": {
+            "gitgalaxy": 2713,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:scalar<localization_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:scalar<replacement/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/spamassassin/PerMsgStatus.pm",
+          "name": "_replace_tags -> _",
+          "readings": {
+            "gitgalaxy": 1620,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:scalar<replacement",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:scalar<variable_declaration/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 79,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "_add_remove -> remove_method",
+          "readings": {
+            "gitgalaxy": 2560,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "_add_remove -> add_method",
+          "readings": {
+            "gitgalaxy": 2559,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ProcessJPEG -> guid",
+          "readings": {
+            "gitgalaxy": 7562,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ExtractInfo -> func",
+          "readings": {
+            "gitgalaxy": 3046,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ProcessBinaryData -> index",
+          "readings": {
+            "gitgalaxy": 9901,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:scalar<variable_declaration",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:sort_expression<for_statement/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/CGI.pm",
+          "name": "canonicalise_query -> sort",
+          "readings": {
+            "gitgalaxy": 120,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:sort_expression<for_statement",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:sort_expression<list_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "PrintErrors -> sort",
+          "readings": {
+            "gitgalaxy": 5061,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:sort_expression<list_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:string_literal<binary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "GetGroup -> MIE",
+          "readings": {
+            "gitgalaxy": 3868,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:string_literal<binary_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:string_literal<equality_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/spamassassin/PerMsgStatus.pm",
+          "name": "_get -> addr",
+          "readings": {
+            "gitgalaxy": 2263,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:string_literal<equality_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:substitution_regexp<binary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 3,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "ScanDir -> s",
+          "readings": {
+            "gitgalaxy": 4322,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "CreateDirectory -> s",
+          "readings": {
+            "gitgalaxy": 4787,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/spamassassin/Message.pm",
+          "name": "new -> s",
+          "readings": {
+            "gitgalaxy": 276,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:substitution_regexp<binary_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:transliteration_expression<binary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "WindowsLongPath -> tr",
+          "readings": {
+            "gitgalaxy": 4798,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "SetWindowTitle -> tr",
+          "readings": {
+            "gitgalaxy": 4219,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:transliteration_expression<binary_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:undef_expression<assignment_expression/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/ExifTool.pm",
+          "name": "ExtractInfo -> undef",
+          "readings": {
+            "gitgalaxy": 2748,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:undef_expression<assignment_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/not-a-call-in-ts:undef_expression<expression_statement/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/exiftool/exiftool",
+          "name": "GetImageInfo -> undef",
+          "readings": {
+            "gitgalaxy": 2132,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:undef_expression<expression_statement",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "perl/call/outside-ts-function/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 54,
+      "last_seen_examples": [
+        {
+          "file_path": "perl/bugzilla/Bug.pm",
+          "name": "_extract_bug_ids -> E",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/CGI.pm",
+          "name": "_prevent_unsafe_response -> x",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/CGI.pm",
+          "name": "_prevent_unsafe_response -> E",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/CGI.pm",
+          "name": "_prevent_unsafe_response -> c",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "perl/bugzilla/CGI.pm",
+          "name": "_prevent_unsafe_response -> ml",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "outside-ts-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "zig/call/FnCallArguments/-/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "zig",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 580,
+      "last_seen_examples": [
+        {
+          "file_path": "zig/bun/napi.zig",
+          "name": "fixDeadCodeElimination -> import",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2495
+          }
+        },
+        {
+          "file_path": "zig/bun/napi.zig",
+          "name": "escape -> NapiHandleScope__escape",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 118
+          }
+        },
+        {
+          "file_path": "zig/mach/win32.zig",
+          "name": "CreateWindowExW -> import",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1409
+          }
+        },
+        {
+          "file_path": "zig/mach/win32.zig",
+          "name": "SetWindowPos -> import",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 291
+          }
+        },
+        {
+          "file_path": "zig/mach/win32.zig",
+          "name": "DirectInput8Create -> import",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 61
+          }
+        }
+      ],
+      "metric": "FnCallArguments/-",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "zig/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "zig",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 959,
+      "last_seen_examples": [
+        {
+          "file_path": "zig/bun/napi.zig",
+          "name": "escape -> intFromEnum",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 118
+          }
+        },
+        {
+          "file_path": "zig/tigerbeetle/build.zig",
+          "name": "build_vsr_module -> createModule",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 407
+          }
+        },
+        {
+          "file_path": "zig/tigerbeetle/build.zig",
+          "name": "build_vsr_module -> addOptions",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 401
+          }
+        },
+        {
+          "file_path": "zig/tigerbeetle/build.zig",
+          "name": "build_vsr_module -> addOption",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 402
+          }
+        },
+        {
+          "file_path": "zig/tigerbeetle/build.zig",
+          "name": "build_vsr_module -> path",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 408
+          }
+        }
+      ],
+      "metric": "engine-attributes-to-another-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "zig/call/inner-named-FnProto/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "zig",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "zig/zig/InternPool.zig",
+          "name": "List -> PtrElem",
+          "readings": {
+            "gitgalaxy": 1187,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "inner-named-FnProto",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "zig/call/outside-ts-function/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T07:26:48Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "zig",
+      "last_reconciled_at": "2026-10-24T07:26:48Z",
+      "last_seen_count": 351,
+      "last_seen_examples": [
+        {
+          "file_path": "zig/tigerbeetle/build.zig",
+          "name": "build_node_client -> add",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "zig/tigerbeetle/build.zig",
+          "name": "build_node_client -> from",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "zig/tigerbeetle/build.zig",
+          "name": "build_node_client -> values",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "zig/tigerbeetle/build.zig",
+          "name": "build_node_client -> join",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "zig/tigerbeetle/build.zig",
+          "name": "build_node_client -> write",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "outside-ts-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
     }
   }
 }

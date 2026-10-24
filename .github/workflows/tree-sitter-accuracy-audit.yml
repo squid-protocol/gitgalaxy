@@ -10,6 +10,10 @@ name: Tree-sitter Accuracy Audit
 # language-crucible clone + one galaxyscope scan per language), cheap enough to run on
 # every relevant PR, but there's no reason to pay even that on a PR that only touches
 # e.g. gitgalaxy/recorders/.
+#
+# #6501: a `plan` job (tests/tools/accuracy_audit_plan.py) reads the diff and selects the languages it can move (a comment or
+# `_meta` edit selects none; one language's rules select that language), so the install, the corpus clone and the scan run only
+# for them. A failed plan runs every language; the check name is unchanged.
 
 on:
   pull_request:
@@ -25,6 +29,9 @@ on:
       - ".github/workflows/tree-sitter-accuracy-audit.yml"
       - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
+      - "tests/tools/accuracy_audit_plan.py"  # #6501: the plan job's own code
+      - "tests/tools/graph_accuracy_plan.py"  # #6501: imported by the planner
+      - "tests/tools/change_classifier.py"  # #6501: imported by the planner
   # #5131/#5136: no main push trigger. post-merge.yml dispatches this on main (at most once per cadence window, only
   # when PR runners are idle and main changed); the nightly run covers a busy day.
   # #4599's point (an engine change outside the PR filter, e.g. aperture.py, moving every baseline) still holds:
@@ -47,18 +54,50 @@ concurrency:
   cancel-in-progress: true  # #4825: read-only, so a superseded main run is cancelled too (frees runners for PRs)
 
 jobs:
-  tree-sitter-accuracy-audit:
+  # #6501: which languages does the diff move? (accuracy_audit_plan.py: `langs` is `all` or a comma list, empty = none.)
+  plan:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.plan.outputs.run }}
+      langs: ${{ steps.plan.outputs.langs }}
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # the diff needs the merge base (or the commit before the push)
+          filter: blob:none  # #5882: history without file contents
+          persist-credentials: false
+
+      - name: Plan the audit
+        id: plan
+        run: |
+          git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
+          python3 tests/tools/accuracy_audit_plan.py --audit tree-sitter --event "$GITHUB_EVENT_NAME" --base origin/main \
+            --github-output "$GITHUB_OUTPUT" | tee plan.json
+          {
+            echo "## Accuracy-audit plan"
+            echo '```json'
+            cat plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  tree-sitter-accuracy-audit:
+    needs: [plan]
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI; always(): a failed plan runs the audit
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Checkout GitGalaxy PR
+        if: needs.plan.outputs.run != 'false'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
           persist-credentials: false
 
       - name: Setup Python
+        if: needs.plan.outputs.run != 'false'
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
@@ -68,6 +107,7 @@ jobs:
             gitgalaxy/ci/requirements/*.txt
 
       - name: Install GitGalaxy + tree-sitter-language-pack
+        if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
@@ -77,17 +117,30 @@ jobs:
       # Same pin golden-crucible.yml uses -- this tool reuses that corpus rather than
       # a fresh clone (see tests/tools/tree_sitter_accuracy_audit.py's own CORPUS section).
       - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml)
+        if: needs.plan.outputs.run != 'false'
         run: |
           # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
           ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
           gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
 
       - name: Run baseline-gated regression check across every baselined language
+        if: needs.plan.outputs.run != 'false'
+        env:
+          LANGS: ${{ needs.plan.outputs.langs }}  # via env, never spliced into the script: it comes from changed file names
         run: |
           cd gitgalaxy
-          python tests/tools/tree_sitter_accuracy_audit.py --all --ci
+          failed=""
+          if [ -z "$LANGS" ] || [ "$LANGS" = all ]; then  # empty: the plan job failed
+            python tests/tools/tree_sitter_accuracy_audit.py --all --ci
+          else
+            for lang in ${LANGS//,/ }; do
+              python tests/tools/tree_sitter_accuracy_audit.py --lang "$lang" --ci || failed="$failed $lang"
+            done
+            [ -z "$failed" ] || { echo "::error::regressed:$failed"; exit 1; }
+          fi
 
       - name: Verify the summary table matches the committed baselines
+        if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
           python tests/tools/tree_sitter_accuracy_audit.py --summary-table

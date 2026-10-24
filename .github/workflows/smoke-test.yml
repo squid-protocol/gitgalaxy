@@ -22,8 +22,13 @@ concurrency:
   # Full Suite Gate runs and five rosetta-audit runs for one commit), and a
   # re-push leaves the superseded run occupying the queue. cancel-in-progress
   # #4825: on for every event; these runs commit nothing, so a superseded run is safe to cancel.
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true  # #4825: read-only, so a superseded main run is cancelled too (frees runners for PRs)
+  # #5133: the nightly has its own group and is never cancelled. It shared main's group, so the next push cancelled it ~5 min in
+  # (all 8 nightlies of 2026-10-15..22) and `full-suite-durations` never stored the calibrated durations.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || (github.event_name == 'schedule' && 'nightly') || github.ref }}
+  # #6514: only a PR (or a dispatch) cancels a superseded run. A main push used to cancel the previous push's run, and under
+  # a stream of merges no run ever finished (8 in a row cancelled 2026-10-24), so main had no green verdict and ci-red-main
+  # could not close. Now one run goes on and the newest push waits behind it (GitHub drops older pending ones).
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
 
 jobs:
   # #5130: the 3 OS x 3 Python smoke grid (package installs, CLI entry points) moved to os-smoke-grid.yml, dispatched
@@ -269,10 +274,12 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
           # #5166: on a PR, mainframe-ground-truth.yml runs all of tests/cobol_mainframe/ whenever a ground-truth input
-          # changed, and nothing it reads changed otherwise; main, nightly and manual runs keep them here. Through
+          # changed, and nothing it reads changed otherwise; nightly and manual runs keep them here (the nightly stores
+          # their durations). #5953: a main push skips them too: ground truth runs the whole directory on every push
+          # (plus the corpus-backed tests), so Smoke running it again was ~2,000-2,500 test-s twice. Through
           # PYTEST_ADDOPTS so the pytest command line below stays as it is.
           # #6278: not for a `select` run, whose paths may be tests/cobol_mainframe itself (a register doc's reader)
-          if [ "$GITHUB_EVENT_NAME" = "pull_request" ] && [ "$PLAN" != "select" ]; then echo "PYTEST_ADDOPTS=--ignore=tests/cobol_mainframe" >> "$GITHUB_ENV"; fi
+          if { [ "$GITHUB_EVENT_NAME" = "pull_request" ] || [ "$GITHUB_EVENT_NAME" = "push" ]; } && [ "$PLAN" != "select" ]; then echo "PYTEST_ADDOPTS=--ignore=tests/cobol_mainframe" >> "$GITHUB_ENV"; fi
 
       # #6278: a `select` run is a few test files: part 1 runs them (no pytest-split), parts 2 and 3 only report
       - name: Golden Record Integration Test (Pytest), part ${{ matrix.group }}/3

@@ -355,6 +355,23 @@ def clean_main_merge(api: Api, approved: str, head: str, base_ref: str) -> bool:
     return merged == theirs and not (set(mine) & set(theirs))
 
 
+TRUSTED_BOTS_ENV = "SHEPHERD_TRUSTED_BOTS"
+
+
+def trusted_bots(api: Api) -> set[str]:
+    """The accounts whose approval markers count. promoter-bot#64 (2026-10-24): the shepherd moves from AUTOMATION_PAT
+    to a GitHub App (its own API quota), and an App's installation token cannot read `user`; its comments come from
+    `<app>[bot]`. The workflow names the trusted accounts in SHEPHERD_TRUSTED_BOTS (the App, plus the PAT's account
+    while markers it wrote are still on open PRs); without it, the token's own account, as before."""
+    if names := {x.strip() for x in os.environ.get(TRUSTED_BOTS_ENV, "").split(",") if x.strip()}:
+        return names
+    try:
+        login = (api("user") or {}).get("login")
+    except SystemExit:
+        return set()
+    return {login} if login else set()
+
+
 def _perm(api: Api, login: str) -> str | None:
     try:
         return api(f"repos/{REPO_SLUG}/collaborators/{login}/permission").get("permission")
@@ -372,6 +389,133 @@ def head_pushed_at(api: Api, sha: str) -> str | None:
     return stamps[0] if stamps else None
 
 
+# #6534: the per-PR reads of gather() in one GraphQL query (its own points quota, not REST's 5,000/h). Every list is
+# fetched whole or not used: a connection longer than what came back sends the PR down the REST path.
+PR_FIELDS = """
+      number state merged isDraft body mergeStateStatus headRefOid headRefName baseRefName
+      headRepository { nameWithOwner }
+      autoMergeRequest { enabledAt }
+      labels(first: 100) { totalCount nodes { name } }
+      comments(last: 100) { totalCount nodes { author { __typename login } body } }
+      timelineItems(itemTypes: [LABELED_EVENT], last: 100) {
+        filteredCount nodes { ... on LabeledEvent { actor { __typename login } createdAt label { name } } }
+      }
+      commits(last: 1) { nodes { commit { oid
+        status { contexts { context state } }
+        @@SUITES@@
+      } } }
+"""
+PR_FIELDS = PR_FIELDS.replace("@@SUITES@@", pr_check.SUITES_SELECTION)
+PR_QUERY = (
+    "query($owner: String!, $name: String!, $n: Int!) {\n  rateLimit { cost }\n  repository(owner: $owner, name: $name) {\n"
+    "    pullRequest(number: $n) {" + PR_FIELDS + "    }\n  }\n}"
+)
+BATCH = 5  # PRs per query: a PR_FIELDS read is ~3 points; five keep a query well inside GitHub's node limit
+
+
+def batch_query(numbers: list[int]) -> str:
+    """One query for several PRs: each is the alias `p<N>` of the same PR_FIELDS selection."""
+    pulls = "".join(f"    p{n}: pullRequest(number: {int(n)}) {{{PR_FIELDS}    }}\n" for n in numbers)
+    return f"query($owner: String!, $name: String!) {{\n  rateLimit {{ cost }}\n  repository(owner: $owner, name: $name) {{\n{pulls}  }}\n}}"
+
+
+LABELLED_QUERY = """
+query($owner: String!, $name: String!) {
+  rateLimit { cost }
+  repository(owner: $owner, name: $name) {
+    pullRequests(states: OPEN, first: 100, orderBy: {field: CREATED_AT, direction: DESC}) {
+      pageInfo { hasNextPage }
+      nodes { number labels(first: 100) { totalCount nodes { name } } }
+    }
+  }
+}"""
+
+
+Truncated = pr_check.Truncated
+_whole = pr_check.whole
+
+
+def _login(who: dict[str, Any] | None) -> dict[str, Any] | None:
+    """REST's user object: an app's account reads `name[bot]` there, bare `name` in GraphQL."""
+    if not who:
+        return None
+    return {"login": who["login"] + ("[bot]" if who.get("__typename") == "Bot" else "")}
+
+
+def graphql_reads(p: dict[str, Any]) -> dict[str, Any]:
+    """The REST shapes gather() reads (the pull, its comments, the head's check runs, statuses, labeled events and push
+    time), from one PR_QUERY pullRequest. KeyError / TypeError / Truncated when anything is missing or cut short."""
+    commit = p["commits"]["nodes"][0]["commit"]
+    if commit["oid"] != p["headRefOid"]:
+        raise Truncated  # the head moved between the two fields
+    suites = _whole(commit["checkSuites"])
+    runs = pr_check.runs_from_suites(suites)
+    stamps = sorted(s["createdAt"] for s in suites if s.get("createdAt"))
+    pr = {
+        "number": p["number"],
+        "state": "open" if p["state"] == "OPEN" else "closed",
+        "merged": bool(p["merged"]),
+        "draft": bool(p["isDraft"]),
+        "body": p["body"],
+        "mergeable_state": (p["mergeStateStatus"] or "unknown").lower(),
+        "auto_merge": p["autoMergeRequest"],
+        "head": {
+            "sha": p["headRefOid"],
+            "ref": p["headRefName"],
+            "repo": {"full_name": p["headRepository"]["nameWithOwner"]} if p["headRepository"] else None,
+        },
+        "base": {"ref": p["baseRefName"]},
+        "labels": [{"name": x["name"]} for x in _whole(p["labels"])],
+    }
+    return {
+        "pr": pr,
+        "comments": [{"body": c["body"], "user": _login(c["author"])} for c in _whole(p["comments"])],
+        "runs": runs,
+        "statuses": [
+            {"context": c["context"], "state": c["state"].lower()}
+            for c in ((commit.get("status") or {}).get("contexts") or [])
+        ],
+        "events": [
+            {
+                "event": "labeled",
+                "label": {"name": e["label"]["name"]},
+                "actor": _login(e["actor"]),
+                "created_at": e["createdAt"],
+            }
+            for e in _whole(p["timelineItems"], "filteredCount")  # totalCount counts every item type
+        ],
+        "pushed": stamps[0] if stamps else None,
+    }
+
+
+def _graphql_pr(graphql: pr_check.GraphQL, n: int) -> dict[str, Any] | None:
+    """graphql_reads for PR n, or None (the REST path) when the query fails or any list is incomplete."""
+    owner, name = REPO_SLUG.split("/")
+    try:
+        return graphql_reads(graphql(PR_QUERY, {"owner": owner, "name": name, "n": n})["repository"]["pullRequest"])
+    except (SystemExit, KeyError, TypeError, IndexError, AttributeError, ValueError):
+        return None
+
+
+def _graphql_prs(graphql: pr_check.GraphQL, numbers: list[int]) -> dict[int, dict[str, Any] | None]:
+    """graphql_reads for each PR in `numbers`, BATCH of them per query. A PR whose part is missing, null or incomplete
+    (or whose batch failed) maps to None: gather() reads that one through REST."""
+    owner, name = REPO_SLUG.split("/")
+    out: dict[int, dict[str, Any] | None] = {}
+    for i in range(0, len(numbers), BATCH):
+        chunk = list(dict.fromkeys(numbers[i : i + BATCH]))
+        try:
+            repo = graphql(batch_query(chunk), {"owner": owner, "name": name})["repository"]
+        except (SystemExit, KeyError, TypeError, AttributeError, ValueError):
+            repo = {}
+        for n in chunk:
+            try:
+                out[n] = graphql_reads(repo[f"p{n}"])
+            except (KeyError, TypeError, IndexError, AttributeError, ValueError):
+                out[n] = None
+    return out
+
+
 def gather(
     n: int,
     api: Api = pr_check.gh_api,
@@ -380,6 +524,8 @@ def gather(
     on_main: set[str] | None = None,
     flaky: set[str] | None = None,
     main: tuple[str, set[str]] | None = None,
+    graphql: pr_check.GraphQL | None = None,
+    prefetched: dict[int, dict[str, Any] | None] | None = None,
 ) -> dict[str, Any]:
     """The snapshot decide() reads for PR n. `event`: the facts of the pull_request_target payload that caused the pass
     (action, label, sender), when there was one. Reconcile passes have none.
@@ -389,7 +535,7 @@ def gather(
     Approval (#4853 review): a maintainer's `shepherd:merge` is approved by a marker the bot writes itself, when the
     labeled event arrives from a writer: `<!-- shepherd:approved sha=<head> by=<login> -->`, with the head from the
     event payload (the head the maintainer labelled). Trust: only comments written by the bot's own account (the
-    AUTOMATION_PAT user) count; anyone can post a comment. The newest trusted marker decides:
+    accounts in SHEPHERD_TRUSTED_BOTS, else the token's own) count; anyone can post a comment. The newest trusted marker decides:
       * its sha is the current head -> approved;
       * the head is the bot's own update-branch result (its marker pair from=<approved> to=<head>, and the head's
         first parent is the approved commit) -> approved, carried over;
@@ -397,8 +543,15 @@ def gather(
         (clean_main_merge) -> approved, carried over; any other new head is not;
       * the bot's update is between its two markers -> pending, no decision;
       * no trusted marker at all -> awaiting (the labeled run never happened, or was dropped): no drop, quiet;
-      * otherwise the head moved without approval -> the label is dropped."""
+      * otherwise the head moved without approval -> the label is dropped.
+    `graphql` (#6534): the PR, comments, head checks, labeled events and push time come from one PR_QUERY instead of
+    six REST reads; None, or a query that fails or comes back incomplete, reads them through REST.
+    `prefetched`: _graphql_prs' answer for a whole pass (several PRs per query); an entry that is None reads through REST."""
     event = event or {}
+    if prefetched is not None and n in prefetched:
+        got = prefetched[n]
+    else:
+        got = _graphql_pr(graphql, n) if graphql else None
     perms: dict[str, str | None] = {}
 
     def perm(login: str) -> str | None:
@@ -406,17 +559,26 @@ def gather(
             perms[login] = _perm(api, login)
         return perms[login]
 
-    pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
+    if got and got["pr"]["mergeable_state"] == "unknown":
+        # GraphQL reports UNKNOWN until something asks GitHub to compute it; the REST read does, and a dirty PR
+        # must not pass for clean. A head that moved in between leaves the rest of the record stale: REST for all.
+        rest = api(f"repos/{REPO_SLUG}/pulls/{n}")
+        got = {**got, "pr": rest} if rest["head"]["sha"] == got["pr"]["head"]["sha"] else None
+        pr = rest
+    else:
+        pr = got["pr"] if got else api(f"repos/{REPO_SLUG}/pulls/{n}")
     sha = pr["head"]["sha"]
     labels = [x["name"] for x in pr.get("labels") or []]
     head_repo = (pr["head"].get("repo") or {}).get("full_name")
-    comments = pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/comments") if labels else []
-    runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
-    statuses = (api(f"repos/{REPO_SLUG}/commits/{sha}/status") or {}).get("statuses", [])
+    comments = (
+        (got["comments"] if got else pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/comments")) if labels else []
+    )
+    runs = got["runs"] if got else pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
+    statuses = got["statuses"] if got else (api(f"repos/{REPO_SLUG}/commits/{sha}/status") or {}).get("statuses", [])
     checks = pr_check.classify(runs, statuses)
     digest: dict[str, Any] = {"failed": []}
     if checks["failed"]:
-        digest = ci_digest.digest(n, api, on_main=on_main, flaky=flaky)
+        digest = ci_digest.digest(n, api, on_main=on_main, flaky=flaky, pr=pr, runs=runs)
         attempts_by_run: dict[int, tuple[int, float | None]] = {}
         for f in digest["failed"]:
             if f["triage"] in ("infra", "flake") and f.get("run_id") is not None:
@@ -425,7 +587,7 @@ def gather(
                     attempts_by_run[rid] = _attempts(api, rid)
                 f["attempts"], f["updated_at"] = attempts_by_run[rid]
     # who last added each request label (the timeline; no commit ids are used)
-    events = pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/events") if labels else []
+    events = (got["events"] if got else pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/events")) if labels else []
     actors: dict[str, dict[str, Any] | None] = {}
     for name in labels:
         if name not in REQUESTS:
@@ -447,8 +609,8 @@ def gather(
         if state == "open":
             depends_open.append(d)
     # approval of shepherd:merge (see the docstring): only the bot's own comments are trusted
-    bot = (api("user") or {}).get("login") or ""
-    trusted = "\n".join(c.get("body") or "" for c in comments if bot and (c.get("user") or {}).get("login") == bot)
+    bots = trusted_bots(api)
+    trusted = "\n".join(c.get("body") or "" for c in comments if (c.get("user") or {}).get("login") in bots)
     if (event or {}).get("approved"):  # this pass just wrote it: a comment read right after its POST can lag behind it
         trusted += f"\n<!-- shepherd:approved sha={event['approved']} by={event.get('sender')} -->"
     approvals = APPROVE_MARK.findall(trusted)
@@ -461,7 +623,7 @@ def gather(
     # start minutes late), so approval is read from state, never from which event arrived. The head was pushed when
     # GitHub created its first check suite (set by GitHub, unlike a commit date); a writer's label added after that is
     # an approval of this head, whichever pass sees it first -- that pass records the marker.
-    pushed = head_pushed_at(api, sha) if MERGE in labels else None
+    pushed = (got["pushed"] if got else head_pushed_at(api, sha)) if MERGE in labels else None
     labelled = m.get("at") if m else None
     after_push = bool(pushed and labelled and labelled > pushed)
     if MERGE in labels and m and writer(m["permission"]) and (approved_sha == sha or after_push):
@@ -694,6 +856,8 @@ def process(
     on_main: set[str] | None = None,
     flaky: set[str] | None = None,
     main: tuple[str, set[str]] | None = None,
+    graphql: pr_check.GraphQL | None = None,
+    prefetched: dict[int, dict[str, Any] | None] | None = None,
 ) -> list[str]:
     event = event or {}
     lines: list[str] = []
@@ -722,7 +886,7 @@ def process(
             return lines  # no approval, so no auto-merge
         event = {**event, "approved": head}  # gather must not depend on reading back the comment it just posted
     try:
-        s = gather(n, api, event, on_main=on_main, flaky=flaky, main=main)
+        s = gather(n, api, event, on_main=on_main, flaky=flaky, main=main, graphql=graphql, prefetched=prefetched)
     except SystemExit as e:  # one PR's failed read must not stop the others
         return lines + [f"#{n} skipped: {e}"]
     acts = decide(s)
@@ -769,7 +933,20 @@ def prs_for_head(api: Api, sha: str) -> list[int]:
     ]
 
 
-def open_labelled(api: Api) -> list[int]:
+def open_labelled(api: Api, graphql: pr_check.GraphQL | None = None) -> list[int]:
+    """The open PRs carrying a request or status label: one GraphQL read (#6534), the REST listing when it fails or is
+    cut short (more than 100 open PRs, or a PR with more than 100 labels)."""
+    if graphql:
+        owner, name = REPO_SLUG.split("/")
+        try:
+            conn = graphql(LABELLED_QUERY, {"owner": owner, "name": name})["repository"]["pullRequests"]
+            if conn["pageInfo"]["hasNextPage"]:
+                raise pr_check.Truncated
+            return [
+                p["number"] for p in conn["nodes"] if any(x["name"] in REQUESTS + STATUS for x in _whole(p["labels"]))
+            ]
+        except (SystemExit, KeyError, TypeError, AttributeError, ValueError):
+            pass
     prs = pr_check.paged(api, f"repos/{REPO_SLUG}/pulls?state=open")
     return [p["number"] for p in prs if any(x["name"] in REQUESTS + STATUS for x in p.get("labels") or [])]
 
@@ -782,7 +959,36 @@ def ensure_labels(run: Run = _run) -> list[str]:
     return out
 
 
-def main(argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _run) -> int:
+API_CACHE_ENV = "SHEPHERD_API_CACHE"  # #6534: a directory for conditional (ETag) REST reads; unset, reads are plain
+
+
+PASS_CACHED = re.compile(r"^(user|repos/[^/]+/[^/]+/collaborators/[^/]+/permission)$")
+
+
+def pass_cached(api: Api) -> Api:
+    """One reconcile pass reads the bot's own login and each labeller's permission for EVERY PR, though neither can
+    change within the pass: memoise those two reads for the pass (#64, 2026-10-24: the shepherd shares the account's
+    5,000/h API quota with the fleet and failed 25 times in a day when it ran out)."""
+    memo: dict[str, Any] = {}
+
+    def cached(path: str, *a: Any, **kw: Any) -> Any:
+        if not PASS_CACHED.match(path):
+            return api(path, *a, **kw)
+        if path not in memo:
+            memo[path] = api(path, *a, **kw)
+        return memo[path]
+
+    return cached
+
+
+def main(
+    argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _run, graphql: pr_check.GraphQL | None = None
+) -> int:
+    """`graphql`: defaults to `gh api graphql` when `api` is the real gh (a fake api never reaches the real GraphQL)."""
+    if api is pr_check.gh_api:
+        graphql = graphql or pr_check.gh_graphql
+        if os.environ.get(API_CACHE_ENV):
+            api = pr_check.conditional_api(Path(os.environ[API_CACHE_ENV]))
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     e = sub.add_parser("event")
@@ -799,15 +1005,21 @@ def main(argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _
         lines = ensure_labels(run)
     elif args.cmd == "event":
         number, facts = event_facts(args.event_path)
-        lines = process(number, api, run, facts, args.dry_run, flaky=learned_flakes(args.flake_cache))
+        lines = process(number, api, run, facts, args.dry_run, flaky=learned_flakes(args.flake_cache), graphql=graphql)
     else:
         lines = []
+        api = pass_cached(pr_check.pass_cache(api))  # #6534: plus the finished SHAs' reads
         flaky = learned_flakes(args.flake_cache)  # once per pass
-        prs = prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api)
-        on_main = ci_digest.main_failures(api) if len(prs) > 1 else None
-        main_state = ci_digest.main_green(api)  # #5484: only a reconcile pass may merge main into a waiting PR
+        prs = prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api, graphql)
+        tip = ci_digest.main_tip(api, graphql)  # one read of main's tip for both below
+        on_main = ci_digest.main_failures(api, graphql=graphql, tip=tip) if len(prs) > 1 else None
+        main_state = ci_digest.main_green(api, graphql=graphql, tip=tip)  # #5484: only a reconcile merges main
+        prefetched = _graphql_prs(graphql, prs) if graphql else None  # #6534: several PRs per query
         for n in prs:
-            lines += process(n, api, run, None, args.dry_run, on_main=on_main, flaky=flaky, main=main_state)
+            lines += process(
+                n, api, run, None, args.dry_run, on_main=on_main, flaky=flaky, main=main_state, graphql=graphql,
+                prefetched=prefetched,
+            )  # fmt: skip
     for line in lines:
         print(line)
     return 1 if any("FAILED" in x for x in lines) else 0

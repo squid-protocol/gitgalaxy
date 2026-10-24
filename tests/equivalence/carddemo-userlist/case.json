@@ -2189,6 +2189,47 @@
     }
    },
    "why": "#6166: row 1 has an id but no flag received (NUL): the WHEN is skipped and row 2's 'D' wins, XCTL to COUSR03C with ADMIN002."
+  },
+  {
+   "name": "first-entry-endbr-ioerr",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "IOERR on the ENDBR of the first page: no RESP, so CICS abends the task (AEIQ) before the first screen is sent"
+    }
+   ],
+   "why": "#6166: the first-entry path reaches PROCESS-ENTER-KEY -> PROCESS-PAGE-FORWARD; an abend there ends the task, so nothing may be sent after it (the port's `if (ended) return` after processEnterKey)"
+  },
+  {
+   "name": "no-commarea-xctl-fails-browse-fault-unreached",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    },
+    {
+     "cmd": "STARTBR",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "never reached: the XCTL above abends the task first, so a port that runs on after it would take this fault"
+    }
+   ],
+   "why": "#6166: as no-commarea-xctl-to-signon-fails, plus a STARTBR fault only a command issued after the dead XCTL would reach"
   }
  ],
  "notes": "CardDemo's user list (transaction CU00, program COUSR00C): a page of ten users browsed from USRSEC (STARTBR / READNEXT, ENDBR), PF8 / PF7 page forward and back from the page's last / first id (a READNEXT / READPREV first steps over the record the browse starts on), a 'U' or 'D' beside a user XCTLs to the update / delete screen. usrsec.txt is CardDemo's ten DUSRSECJ users plus fifteen synthetic ones (USER0006-USER0020, named for computing pioneers, written for this case) so that three pages exist. A defect of the original the case shows: a search past the last id makes STARTBR NOTFND, and the ENDBR that follows (no RESP) abends with INVREQ. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

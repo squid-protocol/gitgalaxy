@@ -45,13 +45,49 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # #6501: can the diff since the last successful run move this? (accuracy_audit_plan.py; an unknown base runs it)
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read  # gh run list: the last successful run's commit
+    outputs:
+      run: ${{ steps.plan.outputs.run }}
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # the diff needs the last planned commit
+          filter: blob:none  # #5882: history without file contents
+          persist-credentials: false
+
+      - name: Plan the run
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          base=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow graph-comparison-history.yml --branch main \
+            --event push --status success --limit 1 --json headSha --jq '.[0].headSha' 2>/dev/null || true)
+          python3 tests/tools/accuracy_audit_plan.py --audit graph-comparison-history --event "$GITHUB_EVENT_NAME" --base "${base:-HEAD}" \
+            --github-output "$GITHUB_OUTPUT" | tee plan.json
+          {
+            echo "## Accuracy-history plan"
+            echo '```json'
+            cat plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   graph-comparison-history:
+    needs: [plan]
+    if: ${{ always() }}  # a failed plan runs it
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
       contents: write
     steps:
       - name: Checkout GitGalaxy
+        if: needs.plan.outputs.run != 'false'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
@@ -61,6 +97,7 @@ jobs:
           persist-credentials: true
 
       - name: Setup Python
+        if: needs.plan.outputs.run != 'false'
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
@@ -72,6 +109,7 @@ jobs:
       # The same install as call-graph-accuracy-audit.yml, so the ledger records exactly the
       # numbers the PR gate measures.
       - name: Install GitGalaxy + tree-sitter-language-pack
+        if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
@@ -79,12 +117,14 @@ jobs:
           pip install --require-hashes -r ci/requirements/treesitter.txt
 
       - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml)
+        if: needs.plan.outputs.run != 'false'
         run: |
           # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
           ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
           gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
 
       - name: Refresh the graph comparison ledger (calls)
+        if: needs.plan.outputs.run != 'false'
         env:
           GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
         run: |
@@ -94,6 +134,7 @@ jobs:
       # Same pinned repos as graph-accuracy-audit.yml. Each tool refreshes only its own
       # symbol type's shapes (graph_ledger.merge), so the two steps never stale each other.
       - name: Refresh the graph comparison ledger (imports)
+        if: needs.plan.outputs.run != 'false'
         env:
           GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
           IMPORT_GRAPH_CORPUS_PATH: ${{ github.workspace }}/import-graph-corpus
@@ -106,12 +147,14 @@ jobs:
       # The series is appended to, so it starts from what `generated` last published (the copy committed on main is
       # only the seed and the fallback when the branch has none yet).
       - name: Restore the published series from the generated branch
+        if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
           python tests/tools/generated_branch.py fetch \
             docs/self_scan/graph_coverage_history.csv
 
       - name: Regenerate the graph coverage chart and history
+        if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
           python tests/tools/graph_coverage_chart.py --write --history docs/self_scan/graph_coverage_history.csv \
@@ -120,7 +163,7 @@ jobs:
       # #4847: output goes to the `generated` branch, never to main (no PR, no auto-merge: main no longer takes a bot
       # commit per run). Only main may write it; a dispatch from another ref publishes nothing.
       - name: Publish to the generated branch
-        if: github.ref == 'refs/heads/main'
+        if: needs.plan.outputs.run != 'false' && github.ref == 'refs/heads/main'
         run: |
           cd gitgalaxy
           python tests/tools/generated_branch.py publish --stamp graph-comparison-history \

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Whether a pull request needs the Python audits (the plan step of ruff-audit.yml, mypy-audit.yml, small-audits.yml, #6278).
+"""Whether a pull request needs the Python audits (the plan step of ruff-audit.yml, mypy-audit.yml, small-audits.yml, gitgalaxy.yml, #6278).
 
-    python tests/tools/audit_skip_plan.py --profile lint|small [--event pull_request] [--base origin/main]
+    python tests/tools/audit_skip_plan.py --profile lint|small|gate [--event pull_request] [--base origin/main]
                                           [--files FILE ...] [--labels a,b] [--github-output PATH]
 
 The three audits are required (or share a slot with one), so their workflows cannot take a path filter: they always
@@ -14,6 +14,9 @@ extension that no audit lints, type-checks or loads as config:
 * `lint` (ruff, mypy: they read .py / .pyi under the repo and pyproject.toml): `prose`, `test-read-doc`, `agent-config`.
 * `small` (dead-key, ast-accuracy, signal-contract, golden-master guard: they read tests/, docs/signal_contracts.md and the
   whole engine): `prose` only, since a `test-read-doc` is what a test (these audits are tests/*.py) may open.
+
+* `gate` (gitgalaxy.yml's pre-gate: Vault Sentinel, X-Ray, Supply Chain Firewall scan code and manifests): the `lint`
+  areas. The workflow used to ignore `docs/**` altogether; it now asks this plan instead, so prose outside docs/ skips too.
 
 Anything else, a `.py` / `.pyi` / `.toml` / `.json` / `.txt` / `.yml` / `.sh` file even under docs or .claude, a rename from
 such a file, the `shepherd:full` label, an unreadable or empty diff, and every event that is not a pull_request is `full`.
@@ -36,6 +39,7 @@ FULL_LABEL = "shepherd:full"
 PROFILES = {
     "lint": ("prose", "test-read-doc", "agent-config"),
     "small": ("prose",),
+    "gate": ("prose", "test-read-doc", "agent-config"),
 }
 # a file the audits could read as code or config, wherever it sits (docs/x.py, .claude/hooks/y.sh ...)
 CODE_SUFFIXES = (".py", ".pyi", ".toml", ".json", ".jsonl", ".txt", ".yml", ".yaml", ".cfg", ".ini", ".sh", ".ipynb")

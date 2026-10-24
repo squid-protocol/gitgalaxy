@@ -2694,14 +2694,14 @@
       "powershell/core/Microsoft.WSMan.Management.psd1": -0.142,
       "powershell/core/PSDiagnostics.psd1": -0.123,
       "powershell/core/Parse-MarkdownLink.ps1": 1.963,
-      "powershell/core/PowerShell__build.psm1": 1.039,
+      "powershell/core/PowerShell__build.psm1": 1.508,
       "powershell/core/RegisterManifest.ps1": 2.436,
       "powershell/core/RegisterMicrosoftUpdate.ps1": -0.261,
       "powershell/core/Run-AttackSurfaceAnalyzer.ps1": 0.557,
       "powershell/core/Run.ps1": 1.801,
       "powershell/core/SSHRemoting.Basic.Tests.ps1": 1.404,
       "powershell/core/analyze-pr-test-failures.ps1": 0.729,
-      "powershell/core/build.psm1": 1.202,
+      "powershell/core/build.psm1": 1.77,
       "powershell/core/ci.psm1": 1.393,
       "powershell/core/ciModule.Tests.ps1": 1.131,
       "powershell/core/install-powershell.ps1": 0.641,
@@ -3103,7 +3103,7 @@
       "python/numpy/genapi.py": 0.596,
       "python/numpy/generate_numpy_api.py": 1.511,
       "python/numpy/generate_ufunc_api.py": 1.152,
-      "python/numpy/generate_umath.py": -0.09,
+      "python/numpy/generate_umath.py": -0.297,
       "python/numpy/generate_umath_doc.py": 1.151,
       "python/numpy/lapack_litemodule.c": 0.936,
       "python/numpy/numpy_api.py": -0.441,
@@ -3755,7 +3755,7 @@
       "swift/alamofire/ParameterEncoder.swift": 1.985,
       "swift/alamofire/Request.swift": 0.401,
       "swift/alamofire/Response.swift": 0.978,
-      "swift/alamofire/Session.swift": 0.141
+      "swift/alamofire/Session.swift": 0.151
     },
     "tabular": {
       "tabular/SOURCES.md": 0.0
@@ -4055,7 +4055,7 @@
       "zig/bun/MimallocArena.zig": 0.33,
       "zig/bun/Parser.zig": 0.423,
       "zig/bun/comptime_string_map.zig": 0.56,
-      "zig/bun/napi.zig": 0.181
+      "zig/bun/napi.zig": 0.176
     },
     "zig/mach": {
       "zig/mach/Core.zig": 1.1,
@@ -4069,8 +4069,8 @@
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 0.522,
-      "zig/tigerbeetle/build.zig": 0.686,
-      "zig/tigerbeetle/build_multiversion.zig": -0.498,
+      "zig/tigerbeetle/build.zig": 0.633,
+      "zig/tigerbeetle/build_multiversion.zig": -0.167,
       "zig/tigerbeetle/cluster.zig": 0.495,
       "zig/tigerbeetle/config.zig": 1.463,
       "zig/tigerbeetle/constants.zig": 0.938,
@@ -4079,26 +4079,26 @@
       "zig/tigerbeetle/direction.zig": 1.142,
       "zig/tigerbeetle/download.sh": 1.659,
       "zig/tigerbeetle/download.win.ps1": 0.796,
-      "zig/tigerbeetle/state_machine.zig": -0.051
+      "zig/tigerbeetle/state_machine.zig": -0.092
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 0.078,
-      "zig/zig/InternPool.zig": 0.175,
-      "zig/zig/Sema.zig": 0.171,
-      "zig/zig/Type.zig": 0.383,
-      "zig/zig/Zcu.zig": 0.885,
-      "zig/zig/main.zig": 0.297
+      "zig/zig/Compilation.zig": -0.188,
+      "zig/zig/InternPool.zig": 0.177,
+      "zig/zig/Sema.zig": 0.203,
+      "zig/zig/Type.zig": 0.388,
+      "zig/zig/Zcu.zig": 0.805,
+      "zig/zig/main.zig": 0.071
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 1.8
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": 0.851,
-      "zig/zls/DocumentStore.zig": 1.371,
-      "zig/zls/Server.zig": -0.217,
-      "zig/zls/analysis.zig": 0.769,
-      "zig/zls/ast.zig": 0.467,
-      "zig/zls/config_gen.zig": 0.02,
+      "zig/zls/DocumentScope.zig": 0.355,
+      "zig/zls/DocumentStore.zig": 0.05,
+      "zig/zls/Server.zig": -0.032,
+      "zig/zls/analysis.zig": -0.092,
+      "zig/zls/ast.zig": 0.654,
+      "zig/zls/config_gen.zig": -0.203,
       "zig/zls/langref.html.in": 0.0,
       "zig/zls/print_ast.zig": 1.197
     }

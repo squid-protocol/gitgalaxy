@@ -32,6 +32,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import math
 import os
 import subprocess
 import sys
@@ -63,6 +64,11 @@ MAX_RATIO = 1.3  # planned slowest / fastest shard (det_sweep_timing.MAX_RATIO)
 PROOF_JOBS = 4  # proof_sweep.py --jobs: cases proven at once in a shard
 TIMEOUT_FLOOR, TIMEOUT_CEILING = 25, 45  # minutes
 DEFAULT_TIMEOUT = 30  # minutes, when there are no durations to size from
+# #5604: a Db2 job may sit in det-sweep.yml's "Wait for the first Db2 database" (660 x 5 s) before its first proof, so its
+# timeout is that wait + checkout + the proving, not the 25..45 min band of a job without the wait.
+DB2_WAIT_S = 3300  # #5601: the workflow wait (test_db2_wait_bound pins it)
+DB2_TIMEOUT_FLOOR = -(-(SHARD_SETUP_S + DB2_WAIT_S + DB2_TARGET_S) // 60)  # minutes: the wait plus a target-sized sweep
+DB2_TIMEOUT_CEILING = 90
 # #5919: Evidence Refresh's own jobs (--evidence-plan). Its 20-job share: sweep + records + Db2 parts (6) + lane, refresh,
 # det-mutation. Records are re-proved one at a time (evidence.py has no --jobs); the stale list is unknowable in the lane
 # job's sparse checkout, so every evidence.json counts, at RECORD_S each (2002-2579 s for ~40 records, sequential).
@@ -457,7 +463,7 @@ def db2_shards_for(p: dict, n_db2: int | None = None, durations: dict[str, float
 def timeouts_for(p: dict, durations: dict[str, float] | None, db2_setup_s: float | None = None) -> dict[str, int]:
     """#5919: the `timeout` (non-Db2 shard) and `db2_timeout` job minutes, from the slowest planned shard of the plan's
     matrices; DEFAULT_TIMEOUT for a kind with no durations or no shards."""
-    out = {"timeout": DEFAULT_TIMEOUT, "db2_timeout": DEFAULT_TIMEOUT}
+    out = {"timeout": DEFAULT_TIMEOUT, "db2_timeout": DB2_TIMEOUT_FLOOR}
     if durations is None:
         return out
     cases = case_dirs()
@@ -469,7 +475,12 @@ def timeouts_for(p: dict, durations: dict[str, float] | None, db2_setup_s: float
         if n and names:
             shard_plan = _shard_plan()
             w, _ = shard_plan.weights(names, durations)
-            out[key] = shard_plan.timeout_minutes(w, n, setup, PROOF_JOBS, TIMEOUT_FLOOR, TIMEOUT_CEILING)
+            if key == "db2_timeout":
+                proving = shard_plan.slowest_shard(w, n) / PROOF_JOBS
+                planned = SHARD_SETUP_S + DB2_WAIT_S + proving * shard_plan.MARGIN
+                out[key] = max(DB2_TIMEOUT_FLOOR, min(DB2_TIMEOUT_CEILING, math.ceil(planned / 60)))
+            else:
+                out[key] = shard_plan.timeout_minutes(w, n, setup, PROOF_JOBS, TIMEOUT_FLOOR, TIMEOUT_CEILING)
     return out
 
 

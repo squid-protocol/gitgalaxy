@@ -157,7 +157,7 @@ fixed it: the census below predates that fix.
 | glsl | C-style | 0 | 0 | no functions sliced on the crucible (no evidence) |
 | go | C-style | 897 | 4,732 | K: `func` literal (436); conversions `uint32(x)` are calls (C3) |
 | groovy | C-style | 745 | 1,760 | A: `@Issue(` etc. (71) |
-| haskell | own | 147 | 281 | own juxtaposition rule; captures lambda/pattern variables (`x`, `m`, `f`) -- R (recall/precision gap, ledgered #3264) |
+| haskell | own | 147 | 281 | own juxtaposition rule (#6454: `f x`, `f (g x)`, `Just x`, signatures masked, `return`/`try`/`catch`/`finally` are calls); `f $ x` / `f $! x` / `withObject "k" $ ...` heads are calls and a definition's left side (`f (Foo a) = ...`, `let g x = ...`) is masked; still misses calls past a `#ifdef` span cut and attributes where-bound bodies to the parent -- R (ledgered #3264) |
 | hlasm | own | 1 | 0 | agrees (`=V()` only; system macros a ledgered recall gap) |
 | hlo | own | 0 | 0 | agrees (`calls=`/`to_apply=`); no functions sliced |
 | html | blind | -- | -- | agrees (C7: declared blind) |
@@ -176,7 +176,7 @@ fixed it: the census below predates that fix.
 | nix | blind | -- | -- | agrees (C7: declared blind) |
 | objective-c | own | 156 | 269 | own rule: unary selectors are a ledgered recall gap; agrees otherwise |
 | pbtxt | blind | -- | -- | agrees (C7: declared blind) |
-| perl | C-style | 886 | 2,580 | K: `qw(` 30, `and`/`or`/`do`/`until` |
+| perl | C-style | 886 | 2,580 | K: `qw(` 30, `and`/`or`/`do`/`until`; `die` is a call (#6433), `or`/`and` are anchors, not callees |
 | php | C-style | 1,703 | 7,104 | K: `foreach` 237, `isset` 209, `empty` 152, `elseif` 114, `array` 111, `unset` 78, `use` 44, `fn` 44, `match`, `die` |
 | plaintext | blind | -- | -- | agrees (C7: declared blind) |
 | pli | CALL verb | 7 | 6 | agrees (CALL) |

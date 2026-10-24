@@ -36,13 +36,13 @@
     "tp": 2632
   },
   "dart": {
-    "fn": 128,
-    "fp": 109,
+    "fn": 25,
+    "fp": 111,
     "matched_functions": 1734,
     "parse_failures": 0,
-    "precision_pct": 95.7,
-    "recall_pct": 95.0,
-    "tp": 2428
+    "precision_pct": 95.8,
+    "recall_pct": 99.0,
+    "tp": 2531
   },
   "go": {
     "fn": 29,
@@ -54,13 +54,13 @@
     "tp": 6648
   },
   "haskell": {
-    "fn": 273,
-    "fp": 130,
+    "fn": 50,
+    "fp": 125,
     "matched_functions": 142,
     "parse_failures": 0,
-    "precision_pct": 44.2,
-    "recall_pct": 27.4,
-    "tp": 103
+    "precision_pct": 69.4,
+    "recall_pct": 85.0,
+    "tp": 284
   },
   "java": {
     "fn": 0,
@@ -99,13 +99,13 @@
     "tp": 1331
   },
   "perl": {
-    "fn": 239,
-    "fp": 262,
+    "fn": 174,
+    "fp": 259,
     "matched_functions": 943,
     "parse_failures": 0,
-    "precision_pct": 94.3,
-    "recall_pct": 94.7,
-    "tp": 4305
+    "precision_pct": 94.4,
+    "recall_pct": 96.2,
+    "tp": 4370
   },
   "php": {
     "fn": 73,
@@ -116,14 +116,23 @@
     "recall_pct": 98.8,
     "tp": 6241
   },
+  "powershell": {
+    "fn": 1640,
+    "fp": 294,
+    "matched_functions": 460,
+    "parse_failures": 0,
+    "precision_pct": 77.7,
+    "recall_pct": 38.4,
+    "tp": 1022
+  },
   "python": {
-    "fn": 99,
+    "fn": 92,
     "fp": 42,
     "matched_functions": 4210,
     "parse_failures": 0,
     "precision_pct": 99.6,
-    "recall_pct": 99.1,
-    "tp": 11500
+    "recall_pct": 99.2,
+    "tp": 11507
   },
   "ruby": {
     "fn": 67,
@@ -162,13 +171,22 @@
     "tp": 146
   },
   "swift": {
-    "fn": 94,
+    "fn": 77,
     "fp": 3,
     "matched_functions": 132,
     "parse_failures": 0,
     "precision_pct": 99.0,
-    "recall_pct": 75.2,
-    "tp": 285
+    "recall_pct": 79.7,
+    "tp": 302
+  },
+  "tcl": {
+    "fn": 642,
+    "fp": 688,
+    "matched_functions": 369,
+    "parse_failures": 0,
+    "precision_pct": 69.8,
+    "recall_pct": 71.2,
+    "tp": 1589
   },
   "typescript": {
     "fn": 260,
@@ -180,12 +198,12 @@
     "tp": 27296
   },
   "zig": {
-    "fn": 1539,
-    "fp": 352,
+    "fn": 91,
+    "fp": 336,
     "matched_functions": 3539,
     "parse_failures": 0,
-    "precision_pct": 98.2,
-    "recall_pct": 92.6,
-    "tp": 19147
+    "precision_pct": 98.4,
+    "recall_pct": 99.6,
+    "tp": 20595
   }
 }

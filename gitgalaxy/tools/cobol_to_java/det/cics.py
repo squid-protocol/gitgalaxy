@@ -1025,10 +1025,12 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
                 if not opts.get("LENGTH") or (fixed_len is not None and fixed_len <= self.size(_arg(opts["FROM"])))
                 else 'new String(DetCics.withinRecord({}, {}, "SEND TEXT"), CS)'
             ).format(f, n)
+            pl = g.tmpname("planned")  # #6271 (X71): a planned TSIOERR / INVREQ / LENGERR sends nothing
             return [f"{ind}String {t} = {text};",
-                    f"{ind}task.sendText({t}.substring(0, Math.min({t}.length(), {n})), {n}"
+                    f'{ind}int[] {pl} = task.planned("SEND-TEXT", "-");',
+                    f"{ind}if ({pl}[0] == 0) task.sendText({t}.substring(0, Math.min({t}.length(), {n})), {n}"
                     f"{''.join(', ' + G_jstr(x) for x in flags)});",
-                    *self.outcome(opts, "0", "0", ind)]  # fmt: skip
+                    *self.outcome(opts, f"{pl}[0]", f"{pl}[1]", ind)]  # fmt: skip
         if verb == "RECEIVE" and "MAP" in opts:
             return self.receive_map(opts, ind)
         if verb == "LINK":

@@ -92,3 +92,21 @@ def test_the_committed_pc_return_immediate_det_ports_translate_whole_and_no_port
     cells = {k: v for k, v in ledger.items() if k.startswith("pc-return-immediate/")}
     assert cells, "the java side of the case is ledgered"
     assert {k.rsplit("/", 1)[1] for k in cells} == {"java"}
+
+
+def test_the_pc_return_immediate_java_cells_fail_as_every_unported_stub_does_and_the_ports_have_coverage():
+    """The `java` cell is the generated stub with no ported PROCEDURE DIVISION: it stops before its first event, the
+    way every ledgered `java` cell of a ported case does. The four ports carry scenario coverage in coverage.json."""
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2] / "tests/cics_crucible"
+    cells = json.loads((root / "baseline.json").read_text(encoding="utf-8"))["cells"]
+    mine = {k: v for k, v in cells.items() if k.startswith("pc-return-immediate/")}
+    assert len(mine) == 4
+    for key, cell in mine.items():
+        assert cell["status"] == "fail", key
+        assert cell["reason"].endswith("expected, the side recorded no further event"), key
+    programs = json.loads((root / "coverage.json").read_text(encoding="utf-8"))["programs"]
+    for program in ("PCIMMA", "PCIMMB", "PCIMML", "PCIMMS"):
+        assert programs[f"pc-return-immediate/{program}"], program

@@ -283,6 +283,17 @@ CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION = re.compile(
     r"\s*\("
 )
 
+# #6454: Dart's form of the C3 generic pattern. A Dart type argument may be nullable
+# (`ValueNotifier<String?>(null)`, `Completer<T?>()`), so `?` is allowed inside the list; `:` is
+# not (no Dart type-argument list holds one), which keeps a ternary `a<b ? c : d>(e)` out.
+# Everything else is CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION's, bounds included.
+_DART_GENERIC_ARG_CHAR = r"[^<>()\n;{}=|!:\"']"
+CALLS_OUT_DART = re.compile(
+    rf"(?<!@)\b([{ID_START}][{ID_CONTINUE}]*)"
+    r"(?:<(?:" + _DART_GENERIC_ARG_CHAR + r"|<" + _DART_GENERIC_ARG_CHAR + r"{0,200}>\??){0,200}>[ \t]*)?"
+    r"\s*\("
+)
+
 # #3377: Ruby calls without parentheses. `name(` alone found a third of Ruby's
 # calls: idiomatic Ruby writes `obj.to_s`, `xs.each do`, `puts x`, and method
 # names end in `?`/`!` (`key?(k)`, `command! "brew"`). Group 1 is the callee,
@@ -355,15 +366,23 @@ _PERL_BUILTIN = (
     r"(?:shift|pop|delete|defined|exists|ref|scalar|lc|uc|lcfirst|ucfirst|length|chomp|chop|chr|ord|int|abs|hex"
     r"|oct|sqrt|log|exp|sin|cos|keys|values|each|caller|undef|rmdir|readlink|chdir|quotemeta|sleep|rand|srand"
     r"|exit|localtime|gmtime|close|readdir|closedir|stat|lstat|umask|fc|lock)"
-    rf"(?![{ID_CONTINUE}])(?![ \t]*(?:=>|\}}))"
+    rf"(?![{ID_CONTINUE}])(?![ \t]*=>)(?!\}})"
 )
-_PERL_ARG = rf"(?:[$@\\\"']|<<[\"'A-Z_~]|{_PERL_NAME}[ \t]*=>)"
+# #6433: a block (`first { $_ > 0 } @l`, `bless {}, $c`), a `%hash`, a `qq{..}` string, or an
+# upper-case file handle (`print OUT $x`) also opens an argument list.
+_PERL_ARG = (
+    rf"(?:[$@\\\"']|%[{ID_START}$]|<<[\"'A-Z_~]|{_PERL_NAME}[ \t]*=>|q[qwx]?[{{(\[<]"
+    r"|\{[^{}\n]{0,200}\}[ \t]*[@$(,]|[A-Z][A-Z0-9_]*[ \t]+[$\"'@])"
+)
+_PERL_NOT_CALL = rf"(?:map|grep|sort)(?![{ID_CONTINUE}])"
 CALLS_OUT_PERL = re.compile(
     r"(?:(?<=->)(?:SUPER::)?"
     rf"|(?<![$@%{ID_CONTINUE}>-])(?={_PERL_NAME}[ \t]*\()"
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?={_PERL_BUILTIN})"
-    rf"|(?:^[ \t]*|(?<==[ \t])|(?<=\()|(?<=!)|(?<=,[ \t])|(?<=&&[ \t])|(?<=\|\|[ \t])|(?<=return[ \t]))"
-    rf"(?!{_PERL_KEYWORD})(?={_PERL_NAME}[ \t]+{_PERL_ARG}))"
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=split(?![{ID_CONTINUE}])[ \t]*/)"
+    rf"|(?:^[ \t]*|(?<==[ \t])|(?<=\()|(?<=!)|(?<=,[ \t])|(?<=&&[ \t])|(?<=\|\|[ \t])|(?<=return[ \t])"
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?:or|and|xor|not)[ \t]+)"
+    rf"(?!{_PERL_KEYWORD})(?!{_PERL_NOT_CALL})(?={_PERL_NAME}[ \t]+{_PERL_ARG}))"
     rf"({_PERL_NAME})",
     re.M,
 )
@@ -462,6 +481,7 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_C_STYLE_NO_ANNOTATION,
     CALLS_OUT_C_STYLE_GENERIC,
     CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
+    CALLS_OUT_DART,
     CALLS_OUT_RUBY,
     CALLS_OUT_PERL,
     CALLS_OUT_RUST,

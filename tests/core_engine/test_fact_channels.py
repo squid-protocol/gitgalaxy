@@ -101,7 +101,7 @@ def test_a_channel_payload_round_trips_through_record_and_rehydrate(tmp_path):
 
 def test_a_resolved_channel_inserts_from_the_site_list_and_restores_per_file(tmp_path):
     call_site = CHANNELS_BY_NAME["call_site"]
-    assert call_site.resolved and [c.name for c in CHANNELS if c.resolved] == ["call_site"]
+    assert call_site.resolved and [c.name for c in CHANNELS if c.resolved] == ["call_site", "transaction"]
     files = [{"path": p, "lang_id": "cobol", "raw_imports": []} for p in ("a.cbl", "b.cbl")]
     sites = [
         {
@@ -148,6 +148,32 @@ def test_a_resolved_channel_inserts_from_the_site_list_and_restores_per_file(tmp
     assert node["b.cbl"]["call_sites"] == []
 
 
+def test_the_transaction_channel_inserts_resolved_and_restores_per_deck(tmp_path):
+    files = [{"path": p, "lang_id": "cobol", "raw_imports": []} for p in ("d.csd", "p.cbl")]
+    txns = [
+        {"src_path": "d.csd", "transid": "ABCD", "program": "P", "group": "G", "resolved_path": "p.cbl", "line": 3},
+        {"src_path": "d.csd", "transid": "WXYZ", "program": "EXT", "line": 4},
+        {"src_path": "gone.csd", "transid": "NONE", "program": "Q"},
+    ]
+    db = tmp_path / "m.db"
+    RecordKeeper().record_mission(files, [], {}, SESSION, str(db), transactions=txns)
+    conn = sqlite3.connect(db)
+    try:
+        ids = dict(conn.execute("SELECT file_path, id FROM file_data"))
+        rows = conn.execute("SELECT file_id, transid, group_name, dst_file_id FROM transaction_data ORDER BY id")
+        rows = rows.fetchall()
+    finally:
+        conn.close()
+    # gone.csd has no file row; an unresolved program keeps a NULL destination
+    assert rows == [(ids["d.csd"], "ABCD", "G", ids["p.cbl"]), (ids["d.csd"], "WXYZ", None, None)]
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]
+    assert node["d.csd"]["transaction_defs"] == [
+        {"transid": "ABCD", "program": "P", "group": "G", "profile": None, "line": 3},
+        {"transid": "WXYZ", "program": "EXT", "group": None, "profile": None, "line": 4},
+    ]
+    assert node["p.cbl"]["transaction_defs"] == []
+
+
 def test_a_baseline_without_the_healed_call_site_columns_restores_without_the_keys():
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -170,6 +196,131 @@ def test_a_baseline_without_the_healed_call_site_columns_restores_without_the_ke
         conn.close()
 
 
+def test_the_sql_statement_channel_round_trips_a_table_less_and_a_call_statement(tmp_path):
+    statements = [
+        {
+            "ordinal": 1,
+            "verb": "SELECT",
+            "table": "ACCT",
+            "access": "read",
+            "host_variables": "A,B",
+            "line": 5,
+            "statement": "SELECT 1",
+        },
+        {"ordinal": 2, "verb": "OPEN", "cursor": "C1", "line": 9},
+        {"ordinal": 3, "verb": "CALL", "line": 12, "routine": "S.PROC"},
+    ]
+    files = [{"path": "a.cbl", "lang_id": "cobol", "raw_imports": [], "sql_statements": statements}]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["a.cbl"]
+    assert [{k: v for k, v in r.items() if v is not None} for r in node["sql_statements"]] == statements
+    assert "routine" not in node["sql_statements"][0]  # a non-CALL row restores without the key
+
+
+def test_a_baseline_without_statement_text_or_routine_restores_them_as_null():
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "CREATE TABLE file_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, file_path TEXT)"
+        )
+        cursor.execute(
+            "CREATE TABLE sql_statement_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, file_id INTEGER,"
+            " stmt_ordinal INTEGER, verb TEXT, table_name TEXT, access TEXT, cursor_name TEXT, host_variables TEXT,"
+            " line_number INTEGER)"
+        )
+        cursor.execute("INSERT INTO file_data VALUES (1, 'r', 'c', 'a.cbl')")
+        cursor.execute(
+            "INSERT INTO sql_statement_data VALUES (1, 'r', 'c', 1, 1, 'DELETE', 'T', 'delete', NULL, NULL, 3)"
+        )
+        channel = CHANNELS_BY_NAME["sql_statement"]
+        sql = channel.select_sql(cursor, _has_table, _has_column)
+        restored = _restore_child_table(cursor, "r", "c", channel.table, sql, channel.to_payload)
+        assert restored["a.cbl"][0]["statement"] is None and "routine" not in restored["a.cbl"][0]
+    finally:
+        conn.close()
+
+
+def test_the_cics_task_and_data_move_channels_round_trip_every_payload_key(tmp_path):
+    tasks = [
+        {
+            "verb": "START",
+            "target_kind": "transaction",
+            "operand": "'TRN1'",
+            "name": "TRN1",
+            "resolution": "literal",
+            "candidates": None,
+            "channel_operand": None,
+            "channel": None,
+            "token": "REQ",
+            "record_clause": "FROM",
+            "record": "WS-REC",
+            "timing": "AFTER 5",
+            "attributes": "LENGTH(10)",
+            "line": 7,
+        }
+    ]
+    moves = [
+        {
+            "verb": "MOVE",
+            "source": "A",
+            "source_kind": "item",
+            "target": "B",
+            "corresponding": True,
+            "source_refmod": True,
+            "target_refmod": False,
+            "line": 4,
+            "source_refmod_text": "1:2",
+            "target_refmod_text": None,
+        },
+        {
+            "verb": "INITIALIZE",
+            "source": None,
+            "source_kind": None,
+            "target": "C",
+            "corresponding": False,
+            "source_refmod": False,
+            "target_refmod": False,
+            "line": 9,
+            "source_refmod_text": None,
+            "target_refmod_text": None,
+        },
+    ]
+    files = [{"path": "a.cbl", "lang_id": "cobol", "raw_imports": [], "cics_tasks": tasks, "data_moves": moves}]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["a.cbl"]
+    assert node["cics_tasks"] == tasks
+    assert node["data_moves"] == moves
+
+
+def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "CREATE TABLE file_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, file_path TEXT)"
+        )
+        cursor.execute(
+            "CREATE TABLE data_move_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, file_id INTEGER,"
+            " verb TEXT, source TEXT, source_kind TEXT, target TEXT, corresponding INTEGER, source_refmod INTEGER,"
+            " target_refmod INTEGER, line_number INTEGER)"
+        )
+        cursor.execute("INSERT INTO file_data VALUES (1, 'r', 'c', 'a.cbl')")
+        cursor.execute("INSERT INTO data_move_data VALUES (1, 'r', 'c', 1, 'MOVE', 'A', 'item', 'B', 0, 1, 0, 3)")
+        channel = CHANNELS_BY_NAME["data_move"]
+        sql = channel.select_sql(cursor, _has_table, _has_column)
+        restored = _restore_child_table(cursor, "r", "c", channel.table, sql, channel.to_payload)
+        row = restored["a.cbl"][0]
+        assert row["source_refmod"] is True and row["source_refmod_text"] is None
+    finally:
+        conn.close()
+
+
+_HEALED_ONLY = {"sql_statement": ("routine_name",)}
+
+
 def test_every_channel_declares_a_schema_that_names_its_own_table():
     assert set(CHANNELS_BY_NAME) == {c.name for c in CHANNELS}
     for channel in CHANNELS:
@@ -179,7 +330,12 @@ def test_every_channel_declares_a_schema_that_names_its_own_table():
         for statement in channel.indexes:
             assert statement.startswith("CREATE INDEX IF NOT EXISTS") and f" ON {channel.table}(" in statement
         healed = [col.split()[0] for group in channel.extra_columns for col in group]
-        assert all(f"                {name} " in channel.ddl for name in healed), channel.name
+        healed_only = _HEALED_ONLY.get(
+            channel.name, ()
+        )  # added by ALTER on a fresh DB too: the stored text is unchanged
+        assert all(f"                {name} " in channel.ddl for name in healed if name not in healed_only), (
+            channel.name
+        )
 
 
 def test_a_table_created_before_a_healed_column_gains_it_and_keeps_its_rows():
@@ -211,13 +367,10 @@ _GALAXY_IR = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobo
 # slices). A table leaves this set when its channel is migrated; a new channel is never added here.
 _UNMIGRATED_IR_TABLES = frozenset(
     {
-        "transaction_data",
-        "sql_statement_data",
         "web_service_data",
         "copy_statement_data",
         "special_names_data",
         "compiler_options_data",
-        "data_move_data",
         "ims_gen_data",
         "dli_call_data",
         "entry_point_data",
@@ -227,7 +380,6 @@ _UNMIGRATED_IR_TABLES = frozenset(
         "uow_handler_data",
         "mq_call_data",
         "job_submit_data",
-        "cics_task_data",
     }
 )
 
@@ -260,7 +412,7 @@ _RECIPE = Path(__file__).resolve().parents[2] / "gitgalaxy" / "core" / "how_to_a
 # Tables the recipe table names that are not registry channels yet: the unmigrated galaxy_ir tables
 # the recipe has a row for, plus wrapper_data (global/resolved, no galaxy_ir loader) and file_data
 # (the host of the wrapper_facts column, not a channel). A table leaves this set when migrated.
-_UNMIGRATED_RECIPE_TABLES = (_UNMIGRATED_IR_TABLES - {"transaction_data", "copy_statement_data"}) | {
+_UNMIGRATED_RECIPE_TABLES = (_UNMIGRATED_IR_TABLES - {"copy_statement_data"}) | {
     "wrapper_data",
     "file_data",
 }

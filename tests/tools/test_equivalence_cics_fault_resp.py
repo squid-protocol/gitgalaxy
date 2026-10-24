@@ -144,3 +144,48 @@ def test_the_driver_lets_only_a_resp_coded_plain_return_fail():
     assert plain[-1] == "GOBACK" and "MOVE 2 TO GG-ITEM" not in plain
     assert "MOVE 2 TO GG-ITEM" in tested and "MOVE GG-RESP TO R" in tested and tested[-1] != "GOBACK"
     assert "IF GG-RESP = 0" in tested
+
+
+# #6271 (X71): SEND TEXT (IBM, the Conditions of -send-text): TSIOERR 35; INVREQ 16 (RESP2 200, the only RESP2 it lists); LENGERR 22
+# (no RESP2). Nameless (`-`), like RETURN.
+TEXT_ACCEPTED = [
+    ({"cmd": "SEND-TEXT", "resp": "TSIOERR"}, "SEND-TEXT - 1 35 0"),
+    ({"cmd": "SEND-TEXT", "resp": "INVREQ"}, "SEND-TEXT - 1 16 200"),
+    ({"cmd": "SEND-TEXT", "resp": "INVREQ", "resp2": 200, "nth": 2}, "SEND-TEXT - 2 16 200"),
+    ({"cmd": "SEND-TEXT", "resp": "LENGERR", "nth": "*"}, "SEND-TEXT - * 22 0"),
+]
+
+
+@pytest.mark.parametrize(("fault", "line"), TEXT_ACCEPTED)
+def test_send_text_conditions_are_planned(fault, line):
+    assert _lines(**fault) == [line]
+
+
+TEXT_REFUSED = [
+    {"cmd": "SEND-TEXT", "resp": "TSIOERR", "resp2": 1},  # IBM states no RESP2
+    {"cmd": "SEND-TEXT", "resp": "INVREQ", "resp2": 5},  # not IBM's 200
+    {"cmd": "SEND-TEXT", "resp": "LENGERR", "resp2": 1},
+    *({"cmd": "SEND-TEXT", "resp": r} for r in ("IGREQCD", "IGREQID", "INVLDC", "INVPARTN", "RETPAGE", "WRBRK")),
+    {"cmd": "SEND-CONTROL", "resp": "TSIOERR"},  # a sibling gap: not planned yet
+]
+
+
+@pytest.mark.parametrize("fault", TEXT_REFUSED)
+def test_every_other_send_text_condition_is_refused(fault):
+    with pytest.raises(ec.Unsupported):
+        _lines(**fault)
+
+
+def test_the_send_text_refusal_names_register_x71():
+    with pytest.raises(ec.Unsupported, match="X71"):
+        _lines(cmd="SEND-TEXT", resp="TSIOERR", resp2=1)
+
+
+def test_the_send_text_stub_and_translator_read_the_same_plan():
+    stub = (REPO / "tests/equivalence/cics/ggcics.c").read_text(encoding="utf-8")
+    cics = (REPO / "gitgalaxy/tools/cobol_to_java/det/cics.py").read_text(encoding="utf-8")
+    assert 'injected("SEND-TEXT", "-"' in stub
+    assert 'task.planned("SEND-TEXT", "-")' in cics
+    assert "if ({pl}[0] == 0) task.sendText(" in cics
+    # CONVERSE writes its data without consulting a SEND TEXT plan
+    assert "send_text_event(c, from, fromlen)" in stub

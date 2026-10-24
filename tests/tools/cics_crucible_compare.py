@@ -73,6 +73,11 @@ EVENT_KEYS: dict[str, tuple[str, ...]] = {
     "READ": ("file", "ridfld", "update", "resp", "resp2", "set", "length", "data"),
     "REWRITE": ("file", "data", "resp", "resp2"),
     "UNLOCK": ("file", "resp", "resp2"),
+    # #6262: the browse (SPEC 6.2): `ridfld` is the key on entry; `set` only on the SET form, `length` / `data` with INTO
+    "STARTBR": ("file", "ridfld", "mode", "resp", "resp2"),
+    "READNEXT": ("file", "ridfld", "set", "resp", "resp2", "length", "data"),
+    "READPREV": ("file", "ridfld", "set", "resp", "resp2", "length", "data"),
+    "ENDBR": ("file", "resp", "resp2"),
     # #4767 zECS (X37, X38): an `http` task's request body and its response (SPEC 6.2; resp2 only where IBM documents it)
     "WEB-RECEIVE": ("resp", "resp2", "length", "data"),
     "WEB-SEND": ("status", "statustext", "mediatype", "from", "resp", "resp2"),

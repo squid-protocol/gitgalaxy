@@ -280,6 +280,55 @@ FILECONTROL_JAVA = """\
         return resp;
     }
 
+    /** #6262 STARTBR FILE(file) RIDFLD(ridfld) [GTEQ | EQUAL], recorded as the SPEC 6.2 STARTBR event: as startbr;
+     *  `mode` is GTEQ or EQUAL, `ridfld` the key on entry, RESP2 where the command is not NORMAL. */
+    public int startbrEvent(String file, byte[] ridfld, String key, boolean equal,
+                            java.util.function.Supplier<java.util.NavigableSet<String>> keys) {
+        int resp = startbr(file, key, equal, keys);
+        event("STARTBR", "file", file, "ridfld", ridfld, "mode", equal ? "EQUAL" : "GTEQ", "resp", respName(resp),
+                "resp2", resp == 0 ? null : resp2());
+        return resp;
+    }
+
+    /** #6262 READNEXT / READPREV FILE(file) RIDFLD(ridfld) INTO LENGTH(intoLength), recorded as the SPEC 6.2 event of
+     *  that name: as readnext / readprev, then `lookup` fetches the record of the key read. `ridfld` is the key on
+     *  entry; the event carries `length` (the record's) and `data` when the read delivered the record, RESP2 where it
+     *  is not NORMAL. A record longer than `intoLength` is LENGERR (22) RESP2 11, as readInto; a negative LENGTH is refused. */
+    public Browsed readnextInto(String file, byte[] ridfld, String key, int intoLength,
+                                java.util.function.Function<String, Optional<byte[]>> lookup) {
+        return browseEvent("READNEXT", readnext(file, key), file, ridfld, intoLength, lookup);
+    }
+
+    public Browsed readprevInto(String file, byte[] ridfld, String key, int intoLength,
+                                java.util.function.Function<String, Optional<byte[]>> lookup) {
+        return browseEvent("READPREV", readprev(file, key), file, ridfld, intoLength, lookup);
+    }
+
+    private Browsed browseEvent(String kind, Browsed b, String file, byte[] ridfld, int intoLength,
+                                java.util.function.Function<String, Optional<byte[]>> lookup) {
+        if (intoLength < 0) {
+            throw new UnsupportedOperationException(kind + " LENGTH " + intoLength + " (negative): not modelled");
+        }
+        byte[] record = b.normal() ? lookup.apply(b.key()).orElse(null) : null;
+        int resp = b.resp();
+        int resp2 = b.resp2();
+        if (record != null && record.length > intoLength) {
+            resp = 22;
+            resp2 = 11;
+        }
+        boolean normal = resp == 0 || resp == 15;
+        event(kind, "file", file, "ridfld", ridfld, "resp", respName(resp), "resp2", resp == 0 ? null : resp2,
+                "length", record == null ? null : record.length, "data", normal ? record : null);
+        return new Browsed(resp, resp2, b.key());
+    }
+
+    /** #6262 ENDBR FILE(file), recorded as the SPEC 6.2 ENDBR event: as endbr. */
+    public int endbrEvent(String file) {
+        int resp = endbr(file);
+        event("ENDBR", "file", file, "resp", respName(resp), "resp2", resp == 0 ? null : resp2());
+        return resp;
+    }
+
     /** One file's browse: its keys (asked again on every command, so a record written meanwhile is seen), how it
      *  started, and the last key read and in which direction (0: none yet). An RBA browse (#4213) keeps RBAs. */
     private static final class Browse {

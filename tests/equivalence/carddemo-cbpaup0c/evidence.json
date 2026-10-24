@@ -25,7 +25,7 @@
     "tests/equivalence/carddemo-cbpaup0c/**"
    ],
    "files": 1,
-   "sha256": "cd842fee2b1b8de96e37b5036d41b9b03999efc790cfeab2f0dfee4a14b1c635"
+   "sha256": "584c91ff1052b4aa695ad029e729afce297aa8cef0529c53567190e4f625cabd"
   },
   "harness": {
    "paths": [
@@ -36,6 +36,8 @@
     "tests/tools/equivalence_cics.py",
     "tests/tools/equivalence_cics_containers.py",
     "tests/tools/equivalence_cics_filecontrol.py",
+    "tests/tools/equivalence_cics_conditions.py",
+    "tests/tools/equivalence_cics_tempstorage.py",
     "tests/tools/equivalence_call.py",
     "tests/tools/equivalence_cache.py",
     "tests/tools/equivalence_db2.py",
@@ -44,11 +46,11 @@
     "tests/tools/java_target_matrix.py",
     "tests/tools/equivalence_ims.py"
    ],
-   "files": 14,
-   "sha256": "efbe51075ec1adca1d2de680be9c28392f4d525f661d39c1d5f9eeaf7ae38c86",
+   "files": 16,
+   "sha256": "1f009ab1105b97951179cbc026155ee26a21129ab41fb526e3924cc10fbb35d0",
    "components": {
-    "harness:core": "d62c9af2a5f83bb39a1deffe40cd7d7d63bb0d2945c4e8cec6b12503931f45ef",
-    "harness:ims": "2fef9a49dc961b7fefeaf5059f3d8305d9e25293e58c05875789fd093bd4acf1"
+    "harness:core": "808b8ac9e553c3caffe3e5b89d7b7a1d8a04cd0b273490c8f2fb0e16aeb53e77",
+    "harness:ims": "2052ea1c6e9abab4bfcccf43b295d2b829b5a99fb66170bb00e2c342161dfcd9"
    }
   },
   "oracle": {
@@ -64,20 +66,20 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 44,
-   "sha256": "e9e74c7b948ad1020416ad6ae58cb9ae52e4027557d0f25419d12926e20cc83e",
+   "sha256": "69759f65c0dd6843b5d59fb2d32ae7f1af1582260379465dfa6d64aca2d2ada0",
    "components": {
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:file-io": "e74b2733865b6c48f5ccf8d292c81c28e4827e0229e7383baeb7a3a26327f501",
-    "oracle:ims": "5048b2b498bdc267eb232a72d661beca284f91b6565ed6a58290d2b970e5b176",
-    "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
+    "oracle:ims": "2fa9d872d0bbc1d6dd15a1ec51ed261d56219565607bef18489e4be7be3857d7",
+    "oracle:le": "4fec0fd2411f43c866dc95cbc9e40f5caf30ad88dd1f430b47625c41da044764"
    }
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 105,
-   "sha256": "140bceaf0d6727d934e5f0eeca6332e708567250dcb4326c21e7fded289bf18f",
+   "files": 106,
+   "sha256": "c0ebf82525ee47b02ac0cc2302cbd1d6d21422cba5afafb1aa1d3789d18d4aa9",
    "components": {
     "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
     "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
@@ -93,10 +95,10 @@
     "generator:cobolrt/Storage.java": "597fe5b2cd4190c4b87dfafd7facc73de3079efebe6188bac5862b78d3b3edf3",
     "generator:cobolrt/Zoned.java": "089f829155664fdd82f2f99a0699cfb58e40910621b1136eabd2b16c51415349",
     "generator:cobolrt/batch/DetFiles.java": "fe03a6459ba1dcc2a8ad367c4b7cd1debaf1ab9c661697c4841c726f99354ba1",
-    "generator:cobolrt/dli/DetDli.java": "0939bd201cf7ffdbbf1fc4180712fe3eeafbdeaaa305a4139c26a966cb560a89",
+    "generator:cobolrt/dli/DetDli.java": "56e263bc5b387bd987e6a86ee14ec69a1f72f489bdd2aa921b3e8ae4c96c8902",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "5835676e90b8075f69e69802dc022e2830ebe3ffccae9b2ad090ee45a18931de",
+    "generator:core": "de68a1cdf1fea3fe5d06ccac3ef087267498abbf0851006fb01332071db14b39",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd"
    }
@@ -182,13 +184,13 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "c1a9213070400d8b8f9c751e58dc2ac79740c8ecbbafde4a91945c9ba2211149"
+  "digest": "015c748b6d42cc0171bbd4e32b908f200e18616579c753a4af21a9eaf544c30c"
  },
  "proof": {
-  "at": "2026-10-23T09:02:08Z",
+  "at": "2026-10-24T02:28:53Z",
   "verdict": "proven",
-  "runs": 12,
-  "fault_runs": 11,
+  "runs": 13,
+  "fault_runs": 12,
   "environments": null,
   "outputs": {
    "IMS DBPAUTP0": {
@@ -200,8 +202,8 @@
   "sysout_compared": true,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
-  "inputs_digest": "c1a9213070400d8b8f9c751e58dc2ac79740c8ecbbafde4a91945c9ba2211149"
+  "harness_commit": "7737fe0d7ab39a4a1718481e937b6ac2716baa96+uncommitted",
+  "inputs_digest": "015c748b6d42cc0171bbd4e32b908f200e18616579c753a4af21a9eaf544c30c"
  },
  "coverage": {
   "paragraphs": {
@@ -209,16 +211,10 @@
    "live": 16
   },
   "branches": {
-   "covered": 37,
+   "covered": 38,
    "total": 40
   },
   "uncovered_branches": [
-   {
-    "line": 160,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "MAIN-PARA"
-   },
    {
     "line": 287,
     "kind": "IF",
@@ -237,7 +233,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "c1a9213070400d8b8f9c751e58dc2ac79740c8ecbbafde4a91945c9ba2211149"
+  "inputs_digest": "015c748b6d42cc0171bbd4e32b908f200e18616579c753a4af21a9eaf544c30c"
  },
  "reach": {
   "entry_points": [
@@ -276,7 +272,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+   "id": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -296,7 +292,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "81f6b8b8e1075f6a92807578a3d1d52117369716f1bbaa7982296dbd12752c3c"
+    "sha256": "44bb673a2b340b3771c90c632eaadea47ea45081b8d90d30cfd1d5b71e3575ce"
    },
    {
     "path": "tests/equivalence/cics/ggcics_conditions.c",
@@ -312,11 +308,11 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics_filecontrol.c",
-    "sha256": "73a09eb183c091d3989ec16786467e091f4d6ff0e7c1ad6b6376cf02031cb5d7"
+    "sha256": "2cabac65cae1caaa2947da91505a3133cda73c4f6af87c8df8d6aa6eb6b11d50"
    },
    {
     "path": "tests/equivalence/cics/ggcics_spec.h",
-    "sha256": "b6a172241cbbef3fb8f82e1b8131225e74b868f6532019327879c8aefbb06d81"
+    "sha256": "daf90987e6ca9d3067015c60eaaa384ec63194032d8c46fd4b643c6491ba4b79"
    },
    {
     "path": "tests/equivalence/cics/ggcics_taskcontrol.c",
@@ -328,7 +324,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics_transientdata.c",
-    "sha256": "f85e46ac4a537e793c236b9bb2002c998169f54b67868775a2792a9494ff7a67"
+    "sha256": "00961a38063f8fe5179068dee7457d1dc5b5eab7bfd48f1323f637888df5a265"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -416,11 +412,11 @@
    },
    {
     "path": "tests/equivalence/ims/ggdli.c",
-    "sha256": "e8cdf81458208a8968093245d7d483d350e0cd8a9615bb62ebe609ef66b7cee9"
+    "sha256": "7a3010fdca8a18bd8bb76b6ff75bd6f284382aac395ae90ff2e704c8ab938dbc"
    },
    {
     "path": "tests/equivalence/le/ceedays.c",
-    "sha256": "7b924457953ecad2c75ba6d4062b71bd5424b3b0314dc922d911abb419e77828"
+    "sha256": "09df0023b04d6bbf5e6e92bb50c394532ddf1c54c516c6e87324ede2d6bc6b2c"
    },
    {
     "path": "tests/equivalence/le/ceeloct.c",
@@ -440,7 +436,7 @@
    },
    {
     "path": "tests/equivalence/le/le_time.c",
-    "sha256": "5f3857f13e0e9e43cb689ab2b2999f148c6d2dfd7bfb3618a2f0fc806b4519c1"
+    "sha256": "073fe9a311428333bc4e3521bf841c1ba8ac1135aa45c3ecef18f810da393d77"
    },
    {
     "path": "tests/equivalence/le/mvswait.c",

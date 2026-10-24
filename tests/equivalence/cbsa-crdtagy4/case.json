@@ -12,11 +12,26 @@
   "applid": "CBSAREGN",
   "sysid": "CICA"
  },
- "datasets": {},
+ "programs": [
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  }
+ },
  "commarea": null,
  "linked": true,
  "screens": {},
- "notes": "CBSA's credit agency 4 (CRDTAGY4, transaction OCR4): one of the five 'credit agencies' CRECUST (create customer) starts asynchronously with EXEC CICS RUN TRANSID(OCR4) CHANNEL(CIPCREDCHANN), after PUTting its 261-byte COMMAREA (the CRECUST copybook: the new customer) into containers CIPA-CIPE, then FETCHes the children and averages the scores. CRDTAGY4 DELAYs a random 1 to 2 seconds ((3 - 1) * FUNCTION RANDOM(EIBTASKN) + 1 into PIC S9(8) COMP), GETs CONTAINER(CIPD) of CHANNEL(CIPCREDCHANN) INTO WS-CONT-IN, sets WS-CONT-IN-CREDIT-SCORE to (999 - 1) * FUNCTION RANDOM + 1, PUTs it back and RETURNs; a GET or PUT failure is DISPLAYed and RETURNs; a DELAY failure fills ABNDINFO, LINKs ABNDPROC and ABENDs PLOP. No COMMAREA (its LINKAGE SECTION is empty: \"commarea\": null). The task starts with the channel its parent passed (oracle_assumptions.md X24); the containers on it are compared at the task's end, as CRECUST's FETCH CHILD sees them. FUNCTION RANDOM runs on the oracle's generator (C12) seeded by EIBTASKN, a stated fact of the run (X21): the scores are the oracle's, not z/OS's. A task takes no time: DELAY is NORMAL and EIBTIME does not move (X4). Not reached: the DELAY failure branch (A010's first IF, with POPULATE-TIME-DATE and the LINK to ABNDPROC): DELAY FOR SECONDS of 1 or 2 raises no condition IBM documents, and the harness injects none on DELAY; and the PUT CONTAINER failure branch (after a GET CONTAINER NORMAL on a channel in scope, nothing documented makes the PUT fail). Data: the containers are SYNTHETIC customers in the CRECUST layout. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
+ "notes": "CBSA's credit agency 4 (CRDTAGY4, transaction OCR4): one of the five 'credit agencies' CRECUST (create customer) starts asynchronously with EXEC CICS RUN TRANSID(OCR4) CHANNEL(CIPCREDCHANN), after PUTting its 261-byte COMMAREA (the CRECUST copybook: the new customer) into containers CIPA-CIPE, then FETCHes the children and averages the scores. CRDTAGY4 DELAYs a random 1 to 2 seconds ((3 - 1) * FUNCTION RANDOM(EIBTASKN) + 1 into PIC S9(8) COMP), GETs CONTAINER(CIPD) of CHANNEL(CIPCREDCHANN) INTO WS-CONT-IN, sets WS-CONT-IN-CREDIT-SCORE to (999 - 1) * FUNCTION RANDOM + 1, PUTs it back and RETURNs; a GET or PUT failure is DISPLAYed and RETURNs; a DELAY failure fills ABNDINFO, LINKs ABNDPROC and ABENDs PLOP. No COMMAREA (its LINKAGE SECTION is empty: \"commarea\": null). The task starts with the channel its parent passed (oracle_assumptions.md X24); the containers on it are compared at the task's end, as CRECUST's FETCH CHILD sees them. FUNCTION RANDOM runs on the oracle's generator (C12) seeded by EIBTASKN, a stated fact of the run (X21): the scores are the oracle's, not z/OS's. A task takes no time: DELAY is NORMAL and EIBTIME does not move (X4). The DELAY failure branch (A010's first IF, with POPULATE-TIME-DATE and the LINK to ABNDPROC) is reached by a planned INVREQ RESP2 6 (register X72: DELAY FOR SECONDS of 1 or 2 raises no condition on its own). Not reached: the PUT CONTAINER failure branch (after a GET CONTAINER NORMAL on a channel in scope, nothing documented makes the PUT fail). Data: the containers are SYNTHETIC customers in the CRECUST layout. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
  "scenarios": [
   {
    "name": "credit-score",
@@ -113,6 +128,38 @@
     }
    },
    "why": "CIPD only 100 bytes: GET CONTAINER NORMAL, FLENGTH 100, WS-CONT-IN past byte 100 keeps its initial value (no VALUE clause: oracle_assumptions.md L3); the new score is set and PUT CONTAINER writes all 261 bytes back, so CIPD grows to 261"
+  },
+  {
+   "name": "delay-invreq-seconds-out-of-range",
+   "commarea": null,
+   "channel": {
+    "name": "CIPCREDCHANN",
+    "containers": {
+     "CIPA": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPB": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPC": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPD": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     },
+     "CIPE": {
+      "text": "CUST9876540000000042Mrs Fiona K Laidlaw                                         17 Abbey Road, Winchester, SO23 7AA                                                                                                                             1207198500007102026  "
+     }
+    }
+   },
+   "faults": [
+    {
+     "cmd": "DELAY",
+     "resp": "INVREQ",
+     "resp2": 6
+    }
+   ],
+   "why": "the DELAY fails with INVREQ RESP2 6 (seconds out of range; IBM, EXEC CICS DELAY, planned by the scenario, register X72): A010's failure branch fills ABNDINFO from EIBRESP / EIBRESP2, ASSIGNs APPLID and PROGRAM, PERFORMs POPULATE-TIME-DATE, LINKs ABNDPROC (which logs the record on ABNDFILE) and ABENDs PLOP. No container is read or written: the channel is as the parent left it"
   }
  ]
 }

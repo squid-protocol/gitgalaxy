@@ -4,14 +4,6 @@
   "entries": [
     {
       "unit": "A010",
-      "line": 133,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 133, after `EXEC CICS DELAY FOR SECONDS(WS-DELAY-AMT)`: WS-DELAY-AMT is `COMPUTE ((3 - 1) * FUNCTION RANDOM(WS-SEED)) + 1` into a PIC S9(8) COMP, and RANDOM is below 1, so the interval is always 1 or 2 seconds. IBM's DELAY conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delay) are EXPIRED (a time already past; intervals under 250 ms), and INVREQ for hours, minutes, seconds or milliseconds out of range (RESP2 4, 5, 6, 22) or a command CICS cannot process; a FOR SECONDS of 1 or 2 meets none (no HOURS/MINUTES/MILLISECONDS operand, no TIME/UNTIL), and the harness plans no fault on DELAY. The paragraphs this arm PERFORMs (POPULATE-TIME-DATE, PTD010, PTD999) are reachable only through it: they stay uncovered, as this ledger states branches, not paragraphs."
-    },
-    {
-      "unit": "A010",
       "line": 233,
       "kind": "IF",
       "outcome": "true",

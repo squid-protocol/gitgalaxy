@@ -78,13 +78,13 @@ before/after numbers from it. `det_port.py run` does not write the ledger.
 
 `tests/tools/ladder_refresh.py CASE...` runs steps 1-3 below as one command and prints the before/after paragraph and
 net-branch table for the PR body (`--dry-run` lists the chain, `--work DIR`, `--skip-tests`; burned estates only; the
-ledger is updated only if every case proved). Run it again after every `git merge origin/main`. By hand, in order:
+ledger is updated only if every case proved). Its "before" column reads the working-tree ledger: take before numbers from `git show origin/main:tests/equivalence/det_sweep_coverage/<case>.json` (#6292). Run it again after every `git merge origin/main`. By hand, in order:
 1. `proof_sweep.py --det-only --cases CASE --faults all --work DIR`, then `det_coverage_ledger.py update DIR`
    (update takes a proof_sweep work dir, not a det_port run).
 2. `evidence.py prove KEY` when the case has an evidence record -- a missed re-prove is the most common CI send-back
    (`test_every_committed_record_is_current`).
 3. Pin tests that name the case or program: `grep -rln "CASE\|PROGRAM" tests/ --include=test_*.py` -- e.g.
-   `test_carddemo_copaus1c_5233.py` pins scenario lists and fault counts; a new input rule must join `STATED_RULES` in
+   `test_carddemo_copaus1c_5233.py` pins scenario lists and fault counts (grep BEFORE adding scenarios to an existing case, #6273); a new input rule must join `STATED_RULES` in
    `tests/tools/test_harness_report.py`.
 4. A Db2 case with a new `seed.sql` needs its `-generated` twin (`test_cbsa_generated_siblings.py`, #4507).
 Run targeted tests, not the whole `tests/cobol_mainframe` (it times out); CI runs the rest.

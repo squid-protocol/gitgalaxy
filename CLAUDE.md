@@ -131,6 +131,9 @@ has no stubs and fails. Import lazily inside the function.
 - **Every engine or forge defect found on a mainframe estate is logged in
   `tests/cobol_mainframe/field_testing.json`, in the same PR that finds or fixes it** (CI fails on an invalid record or
   stale report; regenerate with `tests/tools/field_testing.py report --write`). Quote coverage only from that report.
+- **Every port-side blocker (det port, transaction forge, facade, harness, runtime) goes in
+  `tests/cobol_mainframe/port_blockers.json` the same way** (regenerate with `tests/tools/port_blockers.py report --write`;
+  `test_port_blockers.py` fails on an invalid ledger or stale page, #5051).
 - Porting loop (`porting-loop` skill) and deterministic port (`det-port` skill; after a translator change run
   `det_port.py check --work DIR` and re-prove exactly the ports it lists).
 - Full text (tiers, cross-verify, oracle register, #5057 render rule, epic #3445): `docs/agents/mainframe.md`.

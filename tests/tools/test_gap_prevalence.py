@@ -109,7 +109,14 @@ CENSUS = ("some-census-repo", "other-census-repo")
         ("EXEC SQL: SELECT FROM PAYROLL", "EXEC SQL: other"),  # a table name could name the repo
         ("EXEC SQL: <name> host variable", "EXEC SQL: other"),
         ("EXEC DLI: GU SEGMENT PAYSEG", "EXEC DLI"),
-        ("missing copybook PAYREC (ambiguous)", "missing copybook"),
+        ("missing copybook PAYREC (ambiguous)", "missing copybook: estate-owned"),
+        ("missing copybook PAYREC", "missing copybook: estate-owned"),
+        ("missing copybook DFHAID", "missing copybook: CICS system"),
+        ("missing copybook SQLCA", "missing copybook: Db2 system"),
+        ("missing copybook CMQV", "missing copybook: MQ system"),
+        ("missing copybook AIBLK", "missing copybook: IMS system"),
+        ("missing copybook CEEIGZCT", "missing copybook: LE system"),
+        ("missing copybook MYDFHREC", "missing copybook: estate-owned"),  # a prefix inside the name is not a prefix
         ("refused: CICS Assembler", "refused: CICS Assembler"),
         ("refused: ExprError: PAYROLL thing", "refused: ExprError"),
         ("grammar: does not parse", "grammar: does not parse"),
@@ -221,3 +228,17 @@ def test_render_adds_the_census_section(rows_and_inv):
 def test_scrub_key_itemises_the_other_buckets_without_names(gap, key):
     assert gp.scrub_key(gap) == key
     assert not re.search(r"PAY[A-Z]*", key)  # the key is the table's string, never a slice of the source
+
+
+def test_copybook_family_owner_and_status():
+    assert gp.owner_of("missing copybook: MQ system") == "#4892"
+    assert gp.owner_of("missing copybook: IMS system") == "#4893"
+    assert gp.owner_of("missing copybook: CICS system") == "#4270 (cics-command-slice)"
+    assert gp.owner_of("missing copybook: estate-owned") == "unowned (copybook family)"
+    assert gp.status_of("missing copybook: LE system") == "unknown"
+
+
+def test_copybook_family_keys_never_carry_the_member_name():
+    for member in ("PAYREC", "DFHPAYX", "SQLCAPAY", "CMQPAY", "AIBPAY", "CEEPAY"):
+        key = gp.scrub_key(f"missing copybook {member} (ambiguous)")
+        assert "PAY" not in key and key.startswith("missing copybook: ")

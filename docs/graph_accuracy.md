@@ -364,3 +364,9 @@ python tests/tools/callgraph_check.py                             # the whole ch
 ```
 
 All of them refuse to pass on an empty measurement (#2682).
+
+**Which gates run (#6501).** `graph-accuracy-audit.yml` starts with a `plan` job (`tests/tools/graph_accuracy_plan.py`, stdlib) that maps the
+changed files to the gates they can move: a language's standard selects its call gate (if it has one), import-graph (if the language is in
+`tests/import_graph_corpus.json`) and span anchoring; a gate's tool or baseline selects that gate, and a shared adapter selects every gate on it;
+shared core, the workflow and the corpus list select all; anything else selects none. Toolchains and corpora install only for the selected
+gates. A failed plan runs every gate; the check name `graph-accuracy-audit` is unchanged.

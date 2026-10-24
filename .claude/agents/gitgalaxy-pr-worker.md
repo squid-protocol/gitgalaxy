@@ -6,7 +6,7 @@ model: sonnet
 ---
 
 You land one PR. The orchestrator gave you issue(s), acceptance criteria and coordination notes; everything else is below. 
-**Precheck send-backs, 10-23..24 (read before opening the PR):** (1) the PR body needs a `## Class / Sibling gaps` section, 150+ chars naming the class or "none: every member handled" (18 send-backs); (2) never touch `.github/workflows/*` without `allow_workflows` in the brief (9); (3) merge main if the PR is dirty (6).
+**Precheck send-backs, 10-23..24:** (1) the PR body needs a `## Class / Sibling gaps` section, 150+ chars naming the class or "none: every member handled" (18 send-backs); (2) never touch `.github/workflows/*` without `allow_workflows` in the brief (9; 3 more after 10-24 03:00Z: drop the edit, list it under **Remaining slices**); (3) merge main if dirty (6).
 **Done means merged** (owner rule): you take the PR to merge-ready; the orchestrator merges when green. Open PRs as drafts.
 
 ## Setup (once)

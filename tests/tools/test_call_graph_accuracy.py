@@ -225,3 +225,24 @@ def test_solidity_value_call_names_the_call_and_apex_constructors_and_methods():
 
 def test_solidity_and_apex_are_measured():
     assert {"solidity", "apex"} <= set(cga.LANGS)
+
+
+def test_haskell_constructor_patterns_are_not_calls_but_constructor_applications_are():
+    """C3: `Para _` on a clause's left side, a case alternative, a lambda or a do-bind pattern matches; it does not call."""
+    src = (
+        "isPara (Para _) = True\n"
+        "isPara _ = False\n"
+        "run m = case m of\n"
+        "  Left e -> fail e\n"
+        "  Just (Wrap k) -> keep (Box k)\n"
+        "  _ -> Nothing\n"
+        "lam z = (\\(Pair a b) -> mk a b) z\n"
+        "dobind m = do\n"
+        "  Just x <- m\n"
+        "  return (Some x)\n"
+    )
+    got = _calls("haskell", src)
+    assert got["isPara"] == set()
+    assert got["run"] == {"fail", "keep", "Box"}
+    assert got["lam"] == {"mk"}
+    assert got["dobind"] == {"return", "Some"}

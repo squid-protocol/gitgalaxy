@@ -7922,21 +7922,21 @@
     },
     "powershell/core": {
       "Average Risk Exposures": {
-        "API Exposure": "3.1%",
+        "API Exposure": "3.11%",
         "Cognitive Load Exposure": "34.79%",
         "Commented Logic Exposure": "3.85%",
         "Concurrency Exposure": "3.71%",
-        "Documentation Exposure": "43.03%",
+        "Documentation Exposure": "43.04%",
         "Error & Exception Exposure": "61.79%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "48.61%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "63.71%",
-        "Tech Debt Exposure": "7.29%",
+        "Tech Debt Exposure": "7.31%",
         "Testing Exposure": "23.83%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 14095.66,
+      "Directory Group Magnitude": 14141.46,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "2.8%",
         "file_cluster_10": "16.7%",

@@ -343,6 +343,7 @@ def test_clang_callgraph_resolves_cpp_calls_by_usr_with_engine_names(tmp_path):
     assert (tuple(foo_inl), tuple(proto)) in edges  # the header prototype is linked to its .cc body
     assert (tuple(proto), tuple(hidden_a)) in edges and (tuple(run), tuple(hidden_b)) in edges  # each TU's own hidden
     assert (tuple(proto), tuple(hidden_b)) not in edges
+
     assert (tuple(run), tuple(proto)) in edges  # through the macro
     # overloads: the int and the double `out` are told apart, not linked by name
     assert (tuple(deep), tuple(out_int)) in edges and (tuple(deep), tuple(out_dbl)) not in edges
@@ -351,3 +352,17 @@ def test_clang_callgraph_resolves_cpp_calls_by_usr_with_engine_names(tmp_path):
     assert (tuple(run), tuple(twice)) in edges
     # strlen is outside the repo
     assert [run, "strlen"] in g["external"]
+
+
+def test_clang_callgraph_names_a_template_conversion_operator_as_the_engine_does(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None or not clang_callgraph._system_includes():
+        pytest.skip("libclang (pip install libclang==18.1.1) or a host g++ is not available")
+    (tmp_path / "t.cc").write_text(
+        "template <typename T> struct Box { T v; operator Box<int>() const { return Box<int>{1}; } };\n"  # 1
+        "int use() { Box<long> b{2}; Box<int> c = b; (void)c; return 0; }\n"
+    )
+    g = clang_callgraph.build(tmp_path, "cpp")
+    # the engine spells it `operator Box`, without the template arguments libclang appends
+    assert ("operator Box", 1) in {(d[1], d[2]) for d in g["defs"]}

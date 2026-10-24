@@ -460,10 +460,34 @@ _BUILTIN_INSTANCE_METHODS_JAVA = frozenset(
         "findAny",
     }
 )
+# #4991: methods of the Python built-in types (str / bytes, list, dict, set, tuple, file objects).
+# `d.get(k)` / `s.strip()` / `items.append(x)` on a receiver the scan cannot type is the built-in
+# far more often than a repo class's method of the same name.
+_BUILTIN_INSTANCE_METHODS_PYTHON = frozenset(
+    {
+        # str / bytes
+        *("capitalize", "casefold", "center", "count", "decode", "encode", "endswith", "expandtabs"),
+        *("find", "format", "format_map", "hex", "index", "isalnum", "isalpha", "isascii", "isdecimal"),
+        *("isdigit", "isidentifier", "islower", "isnumeric", "isprintable", "isspace", "istitle"),
+        *("isupper", "join", "ljust", "lower", "lstrip", "partition", "removeprefix", "removesuffix"),
+        *("replace", "rfind", "rindex", "rjust", "rpartition", "rsplit", "rstrip", "split"),
+        *("splitlines", "startswith", "strip", "swapcase", "title", "translate", "upper", "zfill"),
+        # list / tuple / set / frozenset
+        *("append", "clear", "copy", "extend", "insert", "pop", "remove", "reverse", "sort"),
+        *("add", "difference", "difference_update", "discard", "intersection", "intersection_update"),
+        *("isdisjoint", "issubset", "issuperset", "symmetric_difference", "union", "update"),
+        # dict
+        *("fromkeys", "get", "items", "keys", "popitem", "setdefault", "values"),
+        # file objects
+        *("close", "flush", "read", "readline", "readlines", "seek", "tell", "write", "writelines"),
+    }
+)
 _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
     "typescript": _BUILTIN_INSTANCE_METHODS_JS,
     "javascript": _BUILTIN_INSTANCE_METHODS_JS,
     "java": _BUILTIN_INSTANCE_METHODS_JAVA,
+    "python": _BUILTIN_INSTANCE_METHODS_PYTHON,
+    "embedded_python": _BUILTIN_INSTANCE_METHODS_PYTHON,
 }
 
 # #3756: JS/TS global namespaces whose static members (`Number.isFinite`,

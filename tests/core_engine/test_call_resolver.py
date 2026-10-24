@@ -1153,10 +1153,30 @@ def test_global_namespace_static_is_no_repo_edge_3756():
 
 
 def test_other_languages_keep_the_untyped_receiver_rule_3756():
-    # the built-in list is JS/TS/Java only (Python/Ruby/... unmeasured): `get` on a ruby file stays `file`
+    # the built-in list is JS/TS/Java/Python only (Ruby/... unmeasured): `get` on a ruby file stays `file`
     files = _builtin_universe("ruby", "get", "d", "rb")
     row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
     assert row["step"] == "file"
+
+
+def test_python_builtin_method_on_untyped_receiver_is_ambiguous_4991():
+    # one case per built-in family: str, list, set, dict, file object
+    for lang in ("python", "embedded_python"):
+        for callee in ("strip", "join", "startswith", "append", "extend", "add", "update", "get", "items", "read"):
+            files = _builtin_universe(lang, callee, "items", "py")
+            row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+            assert row["step"] == "receiver", (lang, callee)
+            assert row["resolution"] not in CONFIDENT_RESOLUTIONS
+
+
+def test_python_non_builtin_method_and_known_receivers_stay_confident_4991():
+    files = _builtin_universe("python", "save", "repo", "py")
+    assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "file"
+    # `self.get()` is the caller's own method, built-in name or not
+    files = _builtin_universe("python", "get", "self", "py", run_owner="Box")
+    row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+    assert row["step"] != "receiver"
+    assert row["resolution"] in CONFIDENT_RESOLUTIONS
 
 
 # --- a package split over a module's source sets (Maven / Gradle layout) -------

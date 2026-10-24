@@ -126,6 +126,14 @@ RESOLUTION RULES (the language's, never the engine's)
               Sources/<Name>, Tests/<Name> (testTarget), Plugins/<Name> (plugin). `#if` bodies
               are read, every branch. A module no target names (Foundation, WinSDK) is external.
 
+  groovy      by PACKAGE and NAME, never by path (as Kotlin / Scala): `import a.b.C`, `import a.b.C as D`
+              and `import static a.b.C.m` the files declaring C in a.b (a nested or member name falls
+              back to its owner); `import a.b.*` names a package: import contract C7, so no edge;
+              `import static a.b.C.*` is C's file. Read by pattern on text with comments and strings
+              blanked (the tree-sitter grammar parses `import` as a generic command and breaks on
+              `a.b.*` followed by another import). A script file with no class declares its file stem.
+              A Java class is found by Java's rule (a/b/C.java); java.* / groovy.* are external.
+
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
   ERROR node spans lines 85-127, taking three COPYs with it) -- it found 64 of
@@ -177,7 +185,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import graph_ledger as gl  # noqa: E402
 
 from gitgalaxy.core.graph_engine import GraphIndex, pagerank
-from gitgalaxy.core.source_text import read_source
+from gitgalaxy.core.source_text import decode_bytes, read_source
 
 LANGS = (
     "python",
@@ -202,6 +210,7 @@ LANGS = (
     "solidity",
     "csharp",
     "swift",
+    "groovy",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -1042,6 +1051,18 @@ def _index_members(
         _index_members(body.children, pkg_of_block, f, src, by_name, by_pkg, pkg_object)
 
 
+def _jvm_java_finder(group: Group) -> Callable[[list[str]], set[str]]:
+    def java_file(parts: list[str]) -> set[str]:
+        for cut in range(0, min(3, len(parts))):
+            head = parts[: len(parts) - cut]
+            hit = group.suffix("/".join(head) + ".java") if head else set()
+            if hit:
+                return hit
+        return set()
+
+    return java_file
+
+
 def _jvm_decl_index(group: Group, lang: str, exts: tuple[str, ...]) -> dict[str, Any]:
     """Kotlin / Scala: a declaration's file is found by PACKAGE and NAME, not by
     path -- neither language ties the directory or the file name to what it
@@ -1063,15 +1084,7 @@ def _jvm_decl_index(group: Group, lang: str, exts: tuple[str, ...]) -> dict[str,
             continue
         _index_members(_ts_tree(lang, src).children, [], f, src, by_name, by_pkg, pkg_object)
 
-    def java_file(parts: list[str]) -> set[str]:
-        for cut in range(0, min(3, len(parts))):
-            head = parts[: len(parts) - cut]
-            hit = group.suffix("/".join(head) + ".java") if head else set()
-            if hit:
-                return hit
-        return set()
-
-    group._cache[key] = {"name": by_name, "pkg": by_pkg, "pkg_object": pkg_object, "java": java_file}
+    group._cache[key] = {"name": by_name, "pkg": by_pkg, "pkg_object": pkg_object, "java": _jvm_java_finder(group)}
     return group._cache[key]
 
 
@@ -1499,6 +1512,70 @@ def swift_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_GV_COMMENT_STRING = re.compile(
+    r"/\*.*?\*/|//[^\n]*|\"\"\".*?\"\"\"|\'\'\'.*?\'\'\'|\"(?:\\.|[^\"\\\n]){0,500}\"|\'(?:\\.|[^\'\\\n]){0,500}\'",
+    re.DOTALL,
+)
+_GV_IMPORT = re.compile(
+    r"^[ \t]*import[ \t]+(static[ \t]+)?([A-Za-z_$][\w$]*(?:[ \t]*\.[ \t]*(?:[A-Za-z_$][\w$]*|\*))*)(?:[ \t]+as[ \t]+[A-Za-z_$][\w$]*)?",
+    re.MULTILINE,
+)
+_GV_PACKAGE = re.compile(r"^[ \t]*package[ \t]+([A-Za-z_$][\w$]*(?:[ \t]*\.[ \t]*[A-Za-z_$][\w$]*)*)", re.MULTILINE)
+_GV_DECL = re.compile(
+    r"^[ \t]*(?:@[\w$.]+(?:\([^)\n]*\))?[ \t]*|[a-z]+[ \t]+)*(?:class|interface|trait|enum|record|@interface)[ \t]+([A-Za-z_$][\w$]*)",
+    re.MULTILINE,
+)
+
+
+def _gv_mask(text: str) -> str:
+    """Comments and string literals blanked (newlines kept), so an `import` inside one is not read."""
+    return _GV_COMMENT_STRING.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), text)
+
+
+def _gv_index(group: Group) -> dict[str, Any]:
+    """package -> declared name -> files, over every .groovy / .gradle file, parsed once."""
+    if "gv" in group._cache:
+        return group._cache["gv"]
+    by_name: dict[tuple[str, str], set[str]] = collections.defaultdict(set)
+    by_pkg: dict[str, set[str]] = collections.defaultdict(set)
+    for f in sorted(group.files):
+        if not f.endswith((".groovy", ".gradle")) or group.root is None:
+            continue
+        try:
+            text = _gv_mask(read_source(group.root / f).text)
+        except OSError:
+            continue
+        pm = _GV_PACKAGE.search(text)
+        pkg = re.sub(r"\s+", "", pm.group(1)) if pm else ""
+        by_pkg[pkg].add(f)
+        names = {m.group(1) for m in _GV_DECL.finditer(text)}
+        if not names:
+            names = {posixpath.basename(f).rsplit(".", 1)[0]}  # a script is a class named for its file
+        for nm in names:
+            by_name[(pkg, nm)].add(f)
+    group._cache["gv"] = {"name": by_name, "pkg": by_pkg, "pkg_object": {}, "java": _jvm_java_finder(group)}
+    return group._cache["gv"]
+
+
+def groovy_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _gv_index(group)
+    text = _gv_mask(decode_bytes(src))
+    out = []
+    for m in _GV_IMPORT.finditer(text):
+        parts = [p.strip() for p in m.group(2).split(".")]
+        wildcard = parts[-1] == "*"
+        if wildcard:
+            parts = parts[:-1]
+        if not parts:
+            continue
+        # import contract C7: `import a.b.*` names a package, which has no file of its own
+        if wildcard and not m.group(1):
+            out.append(set())
+            continue
+        out.append(_jvm_resolve(index, parts, wildcard, ""))
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -1522,6 +1599,7 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "solidity": solidity_imports,
     "csharp": csharp_imports,
     "swift": swift_imports,
+    "groovy": groovy_imports,
 }
 
 

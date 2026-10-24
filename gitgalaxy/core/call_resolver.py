@@ -138,6 +138,12 @@ _OWNERLESS_METHOD_LANGS = frozenset({"go"})
 # other receiver still cannot (an untyped `x.len()` would link to every repo `len`).
 _IMPL_SELF_LANGS = frozenset({"rust"})
 
+# #3784: languages whose detector marks a `ns::f()` qualifier with a leading `::` (`::fmt`, `::` for a global
+# `::f()`). A scope qualifier that is no known class is usually a NAMESPACE, which reaches free functions
+# first: neither the import-stem step nor the untyped-receiver method ladder lands on a same-name member
+# (`formatter<T>::format`) before a free `fmt::format` is tried.
+_NAMESPACE_QUALIFIED_LANGS = frozenset({"cpp"})
+
 # #3401: names a BARE call always means as the language's built-in, whatever
 # the repository defines. Perl's named operators and built-in functions take
 # precedence over a user `sub` of the same name -- `sub map` in Mojo's
@@ -1294,6 +1300,13 @@ def _resolve_one(
 
     ownerless = caller.lang in _OWNERLESS_METHOD_LANGS
 
+    ns = False
+    if qualifier is not None and qualifier.startswith("::") and caller.lang in _NAMESPACE_QUALIFIED_LANGS:
+        ns, qualifier = True, qualifier[2:]
+        if not qualifier:
+            step, d = _ladder(bucket.free, caller, True, cache)  # a global `::f()`: a visible free function only
+            return (step, d) if step in ("file", "import") else ("none", None)
+
     if caller.lang == "objective-c":
         # #5639: a send's receiver is recorded as its qualifier, but objc methods carry no owner here, so
         # the receiver (`self`, an ivar) cannot narrow a lookup; resolved by selector name, as before.
@@ -1322,7 +1335,7 @@ def _resolve_one(
             return "unseen", d  # #3443: the only definition, but not one this caller can see
         return step, d
 
-    if qualifier in _SELF_RECEIVERS:
+    if qualifier in _SELF_RECEIVERS and not ns:
         hit = walk(lineage)
         if hit is not None:
             return hit
@@ -1333,7 +1346,7 @@ def _resolve_one(
             if d is not None:
                 return "class", d
         return "none", None
-    if typed and qualifier in typed:
+    if typed and qualifier in typed and not ns:
         # The receiver's class is known from this function (`app = FastAPI()`):
         # the method on that class, or on the nearest ancestor that has it.
         for owner_key in typed[qualifier]:
@@ -1367,7 +1380,9 @@ def _resolve_one(
         via = [
             d
             for p, d in bucket.all.by_path.items()
-            if p in caller.imported and (d.stem in (head, last) or posixpath.basename(d.dir) == last)
+            if p in caller.imported
+            and (d.stem in (head, last) or posixpath.basename(d.dir) == last)
+            and not (d.owner_key is not None and ns)
         ]
         if via:
             return "import", (_nearest_of(via, caller.parts) or min(via, key=lambda d: d.path))
@@ -1376,6 +1391,11 @@ def _resolve_one(
     # through a receiver), and only a visible one confidently.
     if qualifier in _BUILTIN_NAMESPACES.get(caller.lang, ()) and bucket.defs:
         return "none", None  # #3756: `Number.isFinite`, `JSON.parse`: the global, not a repo method
+    if ns:
+        # only a free function the caller can see: `std::move(x)` must not reach a repo `move` elsewhere
+        step, d = _ladder(bucket.free, caller, True, cache)
+        if step in ("file", "import"):
+            return step, d
     cset = bucket.all if ownerless else bucket.methods
     step, d = _ladder(cset, caller, True, cache)
     if (

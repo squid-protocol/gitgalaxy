@@ -120,12 +120,12 @@ jobs:
       # #5543: what a scan reads: the engine, the corpus pins, the scan driver and what pip installs. A content hash (not
       # the commit), so a commit that changes none of them finds the scans an earlier one saved. Every job of the run
       # takes the same key from here (MAINFRAME_ENGINE_KEY names the scan directory). The COBOL-to-Java translator is not
-      # imported by a scan (only det/copy is read), so it is left out; tests/core_engine/test_ground_truth_scan_key_workflow.py
+      # imported by a scan (only det/copy is read), so it is left out, as are the standalone cobol_to_cobol forges and terabyte_log_scanning (galaxy_ir and pli_mapping stay in: a scan imports them), the tool READMEs, vault_sentinel and the readiness assess pipeline (readiness/__init__ and offline, full_api_network_map and the supply-chain firewall and X-ray stay in: galaxyscope imports them); tests/core_engine/test_ground_truth_scan_key_workflow.py
       # fails if a file the scan imports or reads falls out of the key.
       - name: Key the scans by engine state
         id: key
         env:
-          ENGINE: ${{ hashFiles('gitgalaxy/**', '!gitgalaxy/tools/cobol_to_java/*', '!gitgalaxy/tools/cobol_to_java/det/*', '!gitgalaxy/tools/cobol_to_java/det/cobolrt/**', '!gitgalaxy/cobol_to_java_controller.py', '!gitgalaxy/cobol_refractor_controller.py', 'tests/tools/mainframe_corpus.py', 'pyproject.toml', 'ci/requirements/*.txt') }}
+          ENGINE: ${{ hashFiles('gitgalaxy/**', '!gitgalaxy/tools/terabyte_log_scanning/*', '!gitgalaxy/tools/cobol_to_cobol/cobol_*.py', '!gitgalaxy/tools/cobol_to_cobol/cics_transaction_reader.py', '!gitgalaxy/tools/cobol_to_cobol/completeness_report.py', '!gitgalaxy/tools/cobol_to_cobol/engine_sourcing.py', '!gitgalaxy/tools/cobol_to_cobol/skeleton_export.py', '!gitgalaxy/tools/cobol_to_cobol/README.md', '!gitgalaxy/tools/readiness/assess.py', '!gitgalaxy/tools/readiness/dryrun.py', '!gitgalaxy/tools/readiness/era_tags.py', '!gitgalaxy/tools/readiness/inventory.py', '!gitgalaxy/tools/readiness/jcl_options.py', '!gitgalaxy/tools/readiness/schema.py', '!gitgalaxy/tools/readiness/README.md', '!gitgalaxy/tools/supply_chain_security/vault_sentinel.py', '!gitgalaxy/tools/supply_chain_security/README.md', '!gitgalaxy/tools/network_auditing/README.md', '!gitgalaxy/tools/cobol_to_java/*', '!gitgalaxy/tools/cobol_to_java/det/*', '!gitgalaxy/tools/cobol_to_java/det/cobolrt/**', '!gitgalaxy/cobol_to_java_controller.py', '!gitgalaxy/cobol_refractor_controller.py', 'tests/tools/mainframe_corpus.py', 'pyproject.toml', 'ci/requirements/*.txt') }}
         run: |
           {
             echo "engine=$ENGINE"

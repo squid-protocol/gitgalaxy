@@ -255,11 +255,21 @@ The low recall is mostly engine-side and is not tuned away: gtest `TEST` macros 
 convention and template-overload line mismatches. They feed a later miss sweep. A template conversion operator is
 named without its template arguments (`operator Box`), as the engine does.
 
-**gtest bodies are not a free win (#3784):** 6,117 of the 6,409 `caller_unmapped` misses are `TEST(suite, name)`
-bodies the reference names `suite_name_Test::TestBody`. Naming them `name` maps them, but then confident precision
-falls 91.1% -> 79.1% and resolution recall 63.8% -> 56.5%: their `fmt::format(...)` calls resolve (`qualified` step)
-to an unrelated `format` member such as `formatter<X>::format` in `test/format-test.cc`, wrong links that were hidden
-while the callers were unmapped. Fix the resolver's qualified step first, then map the bodies.
+**gtest bodies (#3784):** a `TEST(suite, name)` body is the reference's `suite_name_Test::TestBody`; the adapter now
+reads the macro line and names it `name`, as the engine does, so 6,117 of the former 6,409 `caller_unmapped` misses map.
+That alone dropped confident precision 91.1% -> 79.1%: their `fmt::format(...)` calls reached an unrelated `format`
+member such as `formatter<X>::format` through the import-stem step. With a namespace-qualified call no longer landing
+on a class member there (`_NAMESPACE_QUALIFIED_LANGS`, C++ only), the first numbers on the larger judged set
+(2,325 confident links, was 1,741) are precision 84.1% (92.9% overload-blind, 75.2% strict), recall 20.1% (was 16.3%),
+resolution recall 58.8%, 203 wrong-overload links. The `import` links to chrono/ranges `formatter::format` are gone.
+**Scope marker (#3784):** the detector also marks a C++ call written `ns::f()` by prefixing its qualifier with `::`
+(`::fmt`, `::a.b`, `::` for a global `::f()`); `x.f()` and `p->f()` stay unmarked. The resolver then tries a free
+function the caller can see (its own file, or one it imports) before the untyped-receiver method ladder, so `fmt::format`
+no longer lands on a `format` member of the caller's own file (the `file` step), and an unmarked `x.f()` can reach a
+member by import stem again. A marked call with no visible free definition falls back to the method ladder; a free
+function the caller cannot see is never linked (`std::move` must not reach a repo `move`). Measured on fmt (2,479
+confident links judged, was 2,325): precision 84.1% (unchanged), recall 21.5% (was 20.1%), resolution recall 63.3% (was
+58.8%), ambiguous precision 35.1% (was 34.1%), 220 wrong-overload links (was 203; more links are judged).
 
 ## Span anchoring
 
@@ -377,3 +387,8 @@ gates. A failed plan runs every gate; the check name `graph-accuracy-audit` is u
 language file runs it only when the diff moves something the audit reads: for call-graph, any code line of a baseline language, else a detection
 key; for detection, a `rules` entry (every rule is scored) or a key the lens reads. Comments, `_meta` and underscore-prefixed rules skip it. A hunk
 the planner cannot place, a new file, a non-PR event or a failed plan runs it. The saving is small for detection by construction.
+
+**Tree-sitter audit and history (#6501).** `tree-sitter-accuracy-audit.yml` and `tree-sitter-accuracy-history.yml` also start with a `plan` job
+(`accuracy_audit_plan.py --audit tree-sitter|tree-sitter-history`) that outputs `langs`: a language's file selects that language (an underscore rule
+counts, `_dependency_capture` is read), a baseline file selects its language, a key the lens reads or any shared input selects all; comments and `_meta` select none.
+The history plans the diff since the last successful run, not `github.event.before` (a replaced queued run would drop its push).

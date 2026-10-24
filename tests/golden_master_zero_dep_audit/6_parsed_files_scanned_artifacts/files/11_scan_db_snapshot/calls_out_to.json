@@ -55006,7 +55006,6 @@
           "ED_SHORTCUT_ARRAY_AND_COMMAND",
           "int32_t",
           "ED_SHORTCUT_OVERRIDE_ARRAY",
-          "bool",
           "has_system_menu",
           "set_system_menu",
           "_add_to_main_menu",
@@ -55418,7 +55417,6 @@
           "is_using_folding",
           "set_use_folding",
           "is_class",
-          "bool",
           "has_method",
           "call",
           "TTR",
@@ -55762,7 +55760,6 @@
         "EditorNode::_load_open_scenes_from_config@6391": [
           "get_singleton",
           "is_recovery_mode_hint",
-          "bool",
           "EDITOR_GET",
           "has_section",
           "has_section_key",
@@ -55984,7 +55981,6 @@
           "get_window",
           "_update_theme",
           "set_low_processor_usage_mode_sleep_usec",
-          "int",
           "EDITOR_GET",
           "get_root",
           "set_as_audio_listener_3d",
@@ -56175,7 +56171,6 @@
           "popup_dialog_centered_ratio"
         ],
         "EditorNode::_project_run_started@5490": [
-          "bool",
           "EDITOR_GET",
           "clear",
           "open_dock",
@@ -56818,7 +56813,6 @@
           "set_locale_override",
           "propagate_notification",
           "DOFBokehShape",
-          "int",
           "camera_attributes_set_dof_blur_bokeh_shape",
           "DOFBlurQuality",
           "camera_attributes_set_dof_blur_quality",
@@ -56845,7 +56839,6 @@
           "voxel_gi_set_quality",
           "environment_set_volumetric_fog_volume_size",
           "environment_set_volumetric_fog_filter_active",
-          "bool",
           "canvas_set_shadow_texture_size",
           "gi_set_use_half_resolution",
           "set_snap_2d_transforms_to_pixel",
@@ -56872,6 +56865,7 @@
           "set_debug_collisions_color",
           "set_debug_collision_contact_color",
           "check_changed_settings_in_group",
+          "bool",
           "get_instance",
           "push_back",
           "erase",
@@ -56909,7 +56903,6 @@
           "set_item_auto_translate_mode"
         ],
         "EditorNode::_update_main_menu_type@8140": [
-          "bool",
           "EDITOR_GET",
           "get_singleton",
           "has_feature",
@@ -57081,7 +57074,6 @@
         ],
         "EditorNode::_update_vsync_mode@464": [
           "VSyncMode",
-          "int",
           "EDITOR_GET",
           "get_singleton",
           "window_set_vsync_mode"
@@ -57564,7 +57556,6 @@
           "is_empty"
         ],
         "EditorNode::has_scenes_in_session@6429": [
-          "bool",
           "EDITOR_GET",
           "instantiate",
           "load",
@@ -57872,7 +57863,6 @@
           "USEC_TO_SEC",
           "get_singleton",
           "get_ticks_usec",
-          "float",
           "print_line_rich",
           "vformat",
           "task_step"
@@ -58361,7 +58351,6 @@
           "_menu_option_confirm"
         ],
         "EditorNode::try_autosave@2591": [
-          "bool",
           "EDITOR_GET",
           "get_edited_scene_root",
           "get_scene_file_path",
@@ -59003,7 +58992,6 @@
           "get_create_function_name",
           "GLOBAL_DEF_BASIC",
           "set_early_window_clear_color_override",
-          "bool",
           "int64_t",
           "WARN_VERBOSE",
           "vformat",
@@ -59292,7 +59280,6 @@
           "String",
           "load_default",
           "load_from_project_settings",
-          "bool",
           "set_flush_stdout_on_print",
           "FORCE_ANGLE",
           "GLOBAL_DEF_RST_NOVAL",
@@ -62037,7 +62024,6 @@
           "GodotProfileZoneGrouped",
           "pre_render",
           "update",
-          "double",
           "update_particles",
           "render_probes",
           "draw_viewports",
@@ -65283,7 +65269,6 @@
           "KillTimer",
           "GetAsyncKeyState",
           "static_cast",
-          "bool",
           "find",
           "end",
           "action",

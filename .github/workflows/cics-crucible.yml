@@ -51,6 +51,7 @@ on:
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
       - "tests/tools/crucible_shard_plan.py"  # #5919: the plan job's shard count and timeout
       - "tests/tools/ci_shard_plan.py"
+      - "tests/tools/time_ratchet.py"  # #5257: the per-test time ratchet step
   # #5131/#5136: no main push trigger. post-merge.yml dispatches this on main (at most once per cadence window, only
   # when PR runners are idle and main changed a file this workflow reads); the nightly run covers a busy day.
   schedule:
@@ -284,6 +285,7 @@ jobs:
           EQUIVALENCE_E2E: "1"
           GITGALAXY_ORACLE_STRICT: "1"
           CICS_CRUCIBLE_PATH: ${{ github.workspace }}/cics-crucible  # #5954: un-skips test_det_port_bytes_4965
+          GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-cics-crucible-e2e.json  # #5257: tests/conftest.py writes each test's seconds
         run: |
           cd gitgalaxy
           python -m pytest -q -p no:cacheprovider tests/cics_crucible -m e2e
@@ -292,9 +294,27 @@ jobs:
       - name: The tests that read the crucible checkout
         env:
           CICS_CRUCIBLE_PATH: ${{ github.workspace }}/cics-crucible
+          GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-cics-crucible-checkout.json  # #5257
         run: |
           cd gitgalaxy
           python -m pytest -q -p no:cacheprovider -m "not e2e" tests/cics_crucible/test_cics_crucible_runner.py tests/tools/test_blocker_report.py tests/tools/test_crucible_case.py
+
+      # #5257 (sibling of #5166): the e2e tests run only here, so this is the one run that times them
+      - name: Per-test time ratchet (#5257)
+        run: |
+          cd gitgalaxy
+          python tests/tools/time_ratchet.py check --times "$RUNNER_TEMP/times-cics-crucible-e2e.json" "$RUNNER_TEMP/times-cics-crucible-checkout.json"
+
+      - name: Upload this job's test times (#5257)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-times-cics-crucible
+          path: |
+            ${{ runner.temp }}/times-cics-crucible-e2e.json
+            ${{ runner.temp }}/times-cics-crucible-checkout.json
+          retention-days: 7
+          if-no-files-found: ignore
 
   # The required check (its name is the job id). Always runs: a shard that failed or never started is a failure here,
   # never a pass by absence.

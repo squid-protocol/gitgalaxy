@@ -64,9 +64,9 @@ MAX_RATIO = 1.3  # planned slowest / fastest shard (det_sweep_timing.MAX_RATIO)
 PROOF_JOBS = 4  # proof_sweep.py --jobs: cases proven at once in a shard
 TIMEOUT_FLOOR, TIMEOUT_CEILING = 25, 45  # minutes
 DEFAULT_TIMEOUT = 30  # minutes, when there are no durations to size from
-# #5604: a Db2 job may sit in det-sweep.yml's "Wait for the first Db2 database" (540 x 5 s) before its first proof, so its
+# #5604: a Db2 job may sit in det-sweep.yml's "Wait for the first Db2 database" (660 x 5 s, #5601) before its first proof, so its
 # timeout is that wait + checkout + the proving, not the 25..45 min band of a job without the wait.
-DB2_WAIT_S = 2700
+DB2_WAIT_S = 3300
 DB2_TIMEOUT_FLOOR = -(-(SHARD_SETUP_S + DB2_WAIT_S + DB2_TARGET_S) // 60)  # minutes: the wait plus a target-sized sweep
 DB2_TIMEOUT_CEILING = 90
 # #5919: Evidence Refresh's own jobs (--evidence-plan). Its 20-job share: sweep + records + Db2 parts (6) + lane, refresh,

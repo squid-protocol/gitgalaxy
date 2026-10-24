@@ -64,6 +64,7 @@
 /SYSTOY.cbl	tests/cobol_mainframe
 /TAGCOPY.cpy	tests/cobol_mainframe
 /Z*.cpy	tests/cobol_mainframe
+/ZZPGMONE.cbl	tests/tools/test_blocker_estate_feed.py
 /__init__.py	tests/tools/import_graph_accuracy.py
 /a	tests/cobol_mainframe
 /action.yml	tests/core_engine
@@ -267,6 +268,7 @@ docs/language_status	tests/tools/test_progress_report.py
 docs/language_status/	tests/tools/test_progress_report.py,tests/tools/test_status_page_snapshots.py
 docs/language_status/README.md	tests/tools/language_addition_audit.py,tests/tools/test_status_page_snapshots.py
 docs/language_status/blockers	tests/tools/cics_census.py
+docs/language_status/blockers/blocker_feed.json	tests/tools/blocker_estate_feed.py
 docs/language_status/blockers/census_history.jsonl	tests/tools/test_census_nightly.py
 docs/language_status/blockers_history.jsonl	tests/tools/cics_census.py
 docs/language_status/cics_command_spec.md	tests/tools/cics_spec_status.py

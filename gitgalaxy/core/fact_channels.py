@@ -10,9 +10,10 @@
 # See gitgalaxy/core/how_to_add_a_fact_channel.md.
 #
 # SCOPE AND NON-SCOPE:
-#   - Persist, restore and schema (DDL, _ensure_columns heals, indexes). The
-#     differential, answer key, IR reader and recorder sections are not
-#     registry-driven yet (#3383 remaining slices).
+#   - Persist, restore and schema (DDL, _ensure_columns heals, indexes), plus the
+#     galaxy_ir `ir_field` that test_fact_channels.py checks against galaxy_ir's SCOPE
+#     comment and loader (checked, not generated). The recipe channel table and
+#     custom-insert channels are not registry-driven yet (#3383 remaining slices).
 #   - Channels with a custom insert or restore (call_site_data, transaction_data,
 #     sql_statement_data and the later per-file channels) are not migrated yet.
 #   - Order of CHANNELS is the insert order; each table is independent, so it
@@ -50,6 +51,9 @@ class FactChannel:
     ddl: str = ""
     extra_columns: tuple = ()
     indexes: tuple = ()
+    # galaxy_ir reader (#3383): the `EngineFile` field its loader fills from this table. Checked
+    # against the real dataclass and the loader's `_has_table` guard by test_fact_channels.py.
+    ir_field: str = ""
 
     def select_sql(self, cursor: sqlite3.Cursor, has_table: Callable, has_column: Callable) -> str:
         if callable(self.restore_select):
@@ -358,6 +362,7 @@ CHANNELS = (
     # resolution, unlike call_site_data above).
     FactChannel(
         name="dataset",
+        ir_field="datasets",
         table="dataset_data",
         ddl=_DATASET_DDL,
         extra_columns=(("dsn_resolved TEXT", "dsn_resolution TEXT"), ("open_sites TEXT",)),
@@ -412,6 +417,7 @@ CHANNELS = (
     # per-file fact-channel shape as the dataset bindings above.
     FactChannel(
         name="record",
+        ir_field="records",
         table="record_data",
         ddl=_RECORD_DDL,
         extra_columns=(
@@ -510,6 +516,7 @@ CHANNELS = (
     # name). A pre-#3344 baseline has no table and restores nothing.
     FactChannel(
         name="sql_table",
+        ir_field="sql_tables",
         table="sql_table_data",
         ddl=_SQL_TABLE_DDL,
         extra_columns=(),
@@ -568,6 +575,7 @@ CHANNELS = (
     # pre-#3356 baseline has no table and restores nothing.
     FactChannel(
         name="csd_resource",
+        ir_field="csd_resources",
         table="csd_resource_data",
         ddl=_CSD_RESOURCE_DDL,
         extra_columns=(("source TEXT", "macro_table TEXT"),),
@@ -640,6 +648,7 @@ CHANNELS = (
     # keys (field_name -> name, initial_value -> initial).
     FactChannel(
         name="screen_field",
+        ir_field="screen_fields",
         table="screen_field_data",
         ddl=_SCREEN_FIELD_DDL,
         extra_columns=(),
@@ -709,6 +718,7 @@ CHANNELS = (
     # extractor's payload keys. A pre-channel baseline restores nothing.
     FactChannel(
         name="cics_resource",
+        ir_field="cics_resources",
         table="cics_resource_data",
         ddl=_CICS_RESOURCE_DDL,
         extra_columns=(),

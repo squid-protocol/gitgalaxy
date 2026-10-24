@@ -128,3 +128,32 @@ def test_fld_pos_and_inqy_are_refused_by_name_on_both_runtimes(fn):
     c = (ROOT / "tests/equivalence/ims/ggdli.c").read_text(encoding="utf-8")
     assert f'"{fn}"' in java.split("OTHER = List.of(", 1)[1].split(");", 1)[0]
     assert fn in c, fn
+
+
+# the SSA members of the same census: only a program that issues DL/I can carry one
+DLI_USERS = r"CBLTDLI|CEETDLI|EXEC\s+DLI"
+SSA_MEMBERS = {
+    "# (independent AND) operator": r"'#'",
+    "subset-pointer command code (M R S W Z 1-9)": r"'[A-Z0-9 ]{8}\*[A-Z0-9-]*[MRSWZ1-9][A-Z0-9-]*[ (]",
+}
+
+
+@pytest.mark.parametrize("member", sorted(SSA_MEMBERS))
+def test_no_burned_dli_program_uses_an_ssa_member_the_model_refuses(census, member):
+    hits = [p.name for p, text in census
+            if re.search(DLI_USERS, text) and re.search(SSA_MEMBERS[member], text)]  # fmt: skip
+    assert hits == [], f"{member} is now used by a burned program ({hits}): model it, then drop its refusal"
+
+
+@pytest.mark.parametrize("member", sorted(SSA_MEMBERS))
+def test_the_ssa_census_patterns_match_what_they_name(member):
+    sample = {"# (independent AND) operator": "VALUE '#'",
+              "subset-pointer command code (M R S W Z 1-9)": "VALUE 'DEPT    *M '"}  # fmt: skip
+    assert re.search(SSA_MEMBERS[member], sample[member])
+    assert not re.search(SSA_MEMBERS[member], "VALUE 'DEPT    *L '")
+
+
+def test_the_oracle_refuses_what_the_census_names():
+    c = (ROOT / "tests/equivalence/ims/ggdli.c").read_text(encoding="utf-8")
+    assert "the independent AND operator (#)" in c
+    assert 'snprintf(what, sizeof what, "the command code %c"' in c

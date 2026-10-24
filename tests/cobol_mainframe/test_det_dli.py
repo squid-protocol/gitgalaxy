@@ -513,6 +513,8 @@ def _swaps(*pairs: tuple[str, str]):
                                                        "CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CDE")),
          "the command code U beside C"),
         (_swap("'DEPT    *L '", "'DEPT    *3 '"), "the command code 3"),
+        # #5233: the DEDB subset-pointer codes no burned program uses stay refused by name
+        *[(_swap("'DEPT    *L '", f"'DEPT    *{c} '"), f"the command code {c}") for c in "MRSWZ19"],
         (_swap("PIC X(11) VALUE 'DEPT    *L '", "PIC X(12) VALUE 'DEPT    *-N '"),
          "the command code N other than with D on a get-hold call"),  # N later in the list, on a GU
         (_swap("F-GHU PCB1 IOP C-DDN S-EMP", "F-GU PCB1 IOP C-DDN S-EMP"), "the command code N other than with D on a get-hold call"),

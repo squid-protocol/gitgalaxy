@@ -8,7 +8,7 @@
  *
  *   CALL 'GGDLINIT' USING pcb-1 ... pcb-n      the harness's driver, before it enters the program: binds each DB PCB of
  *                                              the PSB (psb.cfg, in order) to the area passed, and fills its mask
- *   CALL 'CBLTDLI'  USING function pcb io-area [ssa-1 ... ssa-15]
+ *   CALL 'CBLTDLI'  USING function pcb io-area [ssa-1 ... ssa-15]   (CEETDLI, #5233: the same list)
  *   CALL 'GGDLIEND'                            the driver, after the program returns: writes each database
  *   CALL 'GGDLIBMP' USING io-pcb pcb-1 ... pcb-n   the driver of a BMP (#5857): IMS passes the I/O PCB first (PSB
  *                                              CMPAT=YES); the DB PCBs are bound as GGDLINIT does, the PSB scheduled
@@ -1183,6 +1183,13 @@ static int do_call(P *args, int n) {
 }
 
 int CBLTDLI(P a0, P a1, P a2, P a3, P a4, P a5, P a6, P a7, P a8, P a9, P a10, P a11, P a12, P a13, P a14, P a15,
+            P a16, P a17) {
+    P args[18] = {a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17};
+    return do_call(args, cob_get_num_params());
+}
+
+/* #5233: CALL 'CEETDLI' (Language Environment's interface) takes the same USING list as CBLTDLI. */
+int CEETDLI(P a0, P a1, P a2, P a3, P a4, P a5, P a6, P a7, P a8, P a9, P a10, P a11, P a12, P a13, P a14, P a15,
             P a16, P a17) {
     P args[18] = {a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17};
     return do_call(args, cob_get_num_params());

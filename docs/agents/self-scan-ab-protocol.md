@@ -42,6 +42,7 @@ cost is a loss. Differences under 10% are inconclusive until a third paired run.
 | 2 | #4548 (item 1 only) | 50,705 | 49,817 | 14 | 11 | 1.4 | 0.75 | no PR from either arm: item 1 already fixed on main (#4983, #5574); both confirmed it on fixtures. A did one more e2e SARIF scan | none |
 | 2 | #4991 | 69,991 | 71,193 | 19 | 26 | 2.3 | 1.7 | same root cause (untyped-receiver fallback has lists for TS/JS/Java only); both added Kotlin, C#, Ruby lists + tests, same sibling gaps; A +353 lines, B +339 | #6388 (A), #6387 (B) |
 | 2 | #3303 | 71,435 | 90,827 | 35 | 27 | 2.7 | 2.4 | both fixed the glued-return-type method rule (`\]\s+` to `\]\s*`); A also found the `script:` scope-name audit artifact (444 to 474 of 487 exact vs B 444 to 460); A 3 files +62, B 2 files +10 | #6386 (A), #6385 (B) |
+| 3 | #138 (names no file or function) | 62,792 | 54,783 | 18 | 20 | 1.9 | 1.2 | same root cause (the full-scan census `git ls-files` never lists untracked files; only the delta path warned) and same fix (shared helpers, warning in `_build_file_census`); A also kept the list on the scope and excluded the engine's own `.gitgalaxy/` cache dir from the warning; A +118/-18, B +124/-19, 7 vs 8 tests | #6394 (A), #6393 (B) |
 
 Minutes and tokens are the harness numbers; A's minutes include the ~25 s DB regeneration. Golden bless,
 crucible_check and pr_gates were not run in any arm (cost cap), so the fixes are unmeasured on the goldens.
@@ -51,12 +52,20 @@ body (#4548: `rust.py`, `shell.py`; #4991: `call_resolver.py` and four more; #33
 a multi-item issue with earlier PRs, so the slice (item 1) had already landed and the pair measured only the
 "is it still broken" check. Treat the round as weaker evidence than a vague-issue round.
 
-## Verdict on #4479 (2026-10-24, provisional)
-Across the four paired runs, tokens for arm A versus B were +9%, -1.7%, -21% and +1.8% (#4472, #4991, #3303,
-#4548); only #3303 clears the 10% bar, and there arm A also had the better outcome (it found the audit
-artifact B missed). Arm A was slower in wall-clock in every pair (+10% to +88%), the DB regeneration being
-the fixed cost. By the verdict rule that is one win and three inconclusive: **no evidence the DB saves cost
-on these tasks, weak evidence it improves the outcome when the issue is vague about where the fault is.**
-Keep the self-scan step optional in agent briefs. Candidates that resolve no paths from the issue body were
-not available in round 2 (all three resolved paths); a round 3 on an issue that names no file or function
-is the remaining open test, and n is still too small for a firm conclusion.
+**Round 3 qualification.** #138 ("Files scanned if not commited") is one sentence and names no file or function;
+`context_pack.py 138` resolved nothing from the body, so it is the first strictly qualifying task. Both arms
+found the census in `galaxyscope._build_file_census` (not aperture) unaided; arm A's three DB queries
+confirmed what two greps showed. Golden bless, crucible_check and pr_gates were not run (cost cap).
+
+## Verdict on #4479 (2026-10-24, firm)
+Tokens for arm A versus B across the five paired runs: +9%, -1.7%, -21%, +1.8% and +14.6% (#4472, #4991, #3303,
+#4548, #138). By the verdict rule that is one win (#3303, where A also found the audit artifact B missed), three
+inconclusive (under 10%) and one loss on cost (#138, same outcome at 15% more tokens). Wall-clock: arm A was
+slower in all five pairs (+10% to +88%), the ~25 s DB regeneration being a fixed cost that a small task never
+recovers. On the one task that named no file or function the DB did not help: two greps already found the code.
+
+**Conclusion: the self-scan DB does not make an agent cheaper or faster on this repo.** It may improve the
+outcome when the fault location is genuinely unclear and the change is wide (#3303), but that is one
+observation. Keep the self-scan step optional in agent briefs; use it for blast-radius or "who calls this"
+questions before a refactor, not for orientation on a task. No further rounds are planned; reopen the
+question only if the repo's size or the DB's cost changes materially.

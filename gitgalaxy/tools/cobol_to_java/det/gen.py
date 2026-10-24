@@ -2999,8 +2999,8 @@ class Gen:
             target = self.field_expr(ret_ref)
             out.append(f"{ind}Cobol.store({target}, BigDecimal.valueOf({rc}), false, CS);")
             return out
-        if prog in ("CBLTDLI", *dli.REFUSED_BY_NAME):  # #4893: IMS DL/I (det/dli.py, register family I)
-            if prog != "CBLTDLI":
+        if prog in (*dli.CALLS, *dli.REFUSED_BY_NAME):  # #4893: IMS DL/I (det/dli.py, register family I)
+            if prog not in dli.CALLS:
                 raise Untranslatable(dli.REFUSED_BY_NAME[prog])
             return dli.call(self, s, ind)
         lib = LIBRARY.get(prog)

@@ -45,7 +45,7 @@ class FactChannel:
     table: str
     payload_key: str
     columns: tuple
-    to_row: Callable[[Any], tuple]
+    to_row: Callable[..., tuple]
     restore_select: "str | Callable[[sqlite3.Cursor, Callable, Callable], str]"
     to_payload: Callable[[Any], dict]
     # Schema: the CREATE TABLE text, the `_ensure_columns` groups that heal an older

@@ -167,6 +167,7 @@ BASELINE = REPO_ROOT / "tests" / "import_graph_accuracy_baseline.json"
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import graph_ledger as gl  # noqa: E402
 
+from gitgalaxy.core.graph_engine import GraphIndex, pagerank
 from gitgalaxy.core.source_text import read_source
 
 LANGS = (
@@ -1535,6 +1536,71 @@ def import_cause(kind: str, truth: set[str], union: set[str], tokens: list[str],
 # ----------------------------------------------------------------------------- scoring
 
 
+HUB_K = 10
+
+
+def _ranks(edges: set[tuple[str, str]], nodes: list[str]) -> dict[str, float] | None:
+    """File -> rank (1 = top PageRank, ties averaged) from the engine's own pagerank, or None."""
+    try:
+        scores = pagerank(GraphIndex(nodes, ((s, d, 1.0) for s, d in sorted(edges))))
+    except RuntimeError:  # did not converge
+        return None
+    order = sorted(range(len(nodes)), key=lambda i: (-scores[i], nodes[i]))
+    ranks: dict[str, float] = {}
+    i = 0
+    while i < len(order):
+        j = i
+        while j + 1 < len(order) and scores[order[j + 1]] == scores[order[i]]:
+            j += 1
+        for x in order[i : j + 1]:
+            ranks[nodes[x]] = (i + j) / 2 + 1
+        i = j + 1
+    return ranks
+
+
+def _top(ranks: dict[str, float], k: int) -> list[str]:
+    return sorted(ranks, key=lambda n: (ranks[n], n))[:k]
+
+
+def _spearman(a: list[float], b: list[float]) -> float | None:
+    n = len(a)
+    ma, mb = sum(a) / n, sum(b) / n
+    va = sum((x - ma) ** 2 for x in a)
+    vb = sum((y - mb) ** 2 for y in b)
+    if not va or not vb:
+        return None
+    return sum((x - ma) * (y - mb) for x, y in zip(a, b, strict=True)) / (va * vb) ** 0.5
+
+
+def hub_agreement(
+    engine_edges: set[tuple[str, str]], truth_edges: set[tuple[str, str]], nodes: Iterable[str], k: int = HUB_K
+) -> dict[str, Any] | None:
+    """Do the engine's top-k PageRank files match the top-k on the parser-truth graph (#3797)?
+
+    Both graphs share one node set (the group's files of the language); edges are distinct pairs of
+    weight 1.0 with both ends in it. `overlap_at_k` = |top-k & top-k| / k; `spearman` is the rank
+    correlation (full-graph average ranks) over the union of the two top-k sets. None when the group
+    has fewer than k files, no truth edges, or a graph's PageRank does not converge."""
+    names = sorted(set(nodes))
+    have = set(names)
+    eng = {e for e in engine_edges if e[0] in have and e[1] in have}
+    tru = {e for e in truth_edges if e[0] in have and e[1] in have}
+    if len(names) < k or not tru:
+        return None
+    re, rt = _ranks(eng, names), _ranks(tru, names)
+    if re is None or rt is None:
+        return None
+    te, tt = _top(re, k), _top(rt, k)
+    union = sorted(set(te) | set(tt))
+    rho = _spearman([re[n] for n in union], [rt[n] for n in union])
+    return {
+        "overlap_at_k": len(set(te) & set(tt)) / k,
+        "spearman": None if rho is None else round(rho, 4),
+        "k": k,
+        "n": len(names),
+    }
+
+
 def score_group(
     group_dir: Path,
     langs: dict[str, str],
@@ -1549,6 +1615,7 @@ def score_group(
     out_edges: dict[str, set[str]] = collections.defaultdict(set)
     for s, d in edges:
         out_edges[s].add(d)
+    truth_edges: dict[str, set[tuple[str, str]]] = collections.defaultdict(set)
     for rel, lang in langs.items():
         if lang not in wanted or lang not in EXTRACTORS:
             continue
@@ -1563,6 +1630,7 @@ def score_group(
         mine = out_edges.get(rel, set())
         tokens = (raw or {}).get(rel, [])
         union = set().union(*resolvable) if resolvable else set()
+        truth_edges[lang] |= {(rel, d) for d in union}  # a multi-file statement adds an edge to each file
         for t in resolvable:
             r["imports"] += 1
             if mine & t:
@@ -1578,6 +1646,10 @@ def score_group(
             else:
                 r["fp"].append(f"{rel} -> {d}")
                 r["causes"].append((import_cause("fp", {d}, union, tokens, True), rel, f"{rel} -> {d}"))
+    for lang, r in per.items():
+        hubs = hub_agreement(edges, truth_edges[lang], [p for p, lg in langs.items() if lg == lang])
+        if hubs:
+            r["hubs"] = hubs
     return per
 
 
@@ -1639,9 +1711,12 @@ def measure(
                         "fp": [],
                         "fn": [],
                         "causes": [],
+                        "hubs": [],
                     },
                 )
                 t["repos"].append(e["repo"])
+                if r.get("hubs"):
+                    t["hubs"].append(r["hubs"])
                 for k in ("files", "imports", "found", "edges", "correct"):
                     t[k] += r[k]
                 name = e["repo"].split("/")[1]
@@ -1666,6 +1741,7 @@ def measure(
             "sample_fn": sorted(t["fn"])[:samples],
             "correct": t["correct"],
             "found": t["found"],
+            **_hub_means(t["hubs"]),
         }
         if buckets:
             counts = collections.Counter(c for c, _, _ in t["causes"])
@@ -1679,18 +1755,37 @@ def measure(
     return results
 
 
+def _hub_means(hubs: list[dict[str, Any]]) -> dict[str, Any]:
+    """Language-level hub agreement: the mean over repos that have one (PageRank does not pool
+    across repos). Absent when no repo qualified, so older baselines and exact-equality stay valid."""
+    if not hubs:
+        return {}
+    rhos = [h["spearman"] for h in hubs if h["spearman"] is not None]
+    out: dict[str, Any] = {
+        "hub_overlap_at_10": round(sum(h["overlap_at_k"] for h in hubs) / len(hubs), 3),
+        "hub_repos": len(hubs),
+    }
+    if rhos:
+        out["hub_spearman"] = round(sum(rhos) / len(rhos), 3)
+    return out
+
+
 def render(results: dict[str, dict[str, Any]]) -> str:
     def pct(v: float | None) -> str:
         return "n/a" if v is None else f"{v}%"
 
+    def num(v: float | None) -> str:
+        return "n/a" if v is None else f"{v:.2f}"
+
     lines = [
-        "| language | repos | files | resolvable imports | engine edges | precision | recall | FP | FN |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| language | repos | files | resolvable imports | engine edges | precision | recall | FP | FN | hub overlap@10 | hub Spearman |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for lang, r in results.items():
         lines.append(
             f"| {lang} | {r['repos']} | {r['files']} | {r['imports']} | {r['engine_edges']} | "
-            f"{pct(r['precision_pct'])} | {pct(r['recall_pct'])} | {r['fp']} | {r['fn']} |"
+            f"{pct(r['precision_pct'])} | {pct(r['recall_pct'])} | {r['fp']} | {r['fn']} | "
+            f"{num(r.get('hub_overlap_at_10'))} | {num(r.get('hub_spearman'))} |"
         )
     return "\n".join(lines)
 

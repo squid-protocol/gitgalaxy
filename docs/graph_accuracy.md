@@ -62,6 +62,13 @@ asks whether an edge joins the two files the source actually joins.
 - **Each repo is scanned on its own**, in a subprocess pinned to the checkout under test.
   Scanning several repos as one lets an import resolve into a different repo, which no real scan
   can do.
+- **Hub agreement (#3797).** Edge precision and recall do not say whether the engine's most
+  depended-on files are the right ones. Per repo and language, both graphs (engine edges; the
+  parser's resolved sets, one edge to each file a statement names) go through the engine's own
+  `graph_engine.pagerank` over the same file set. `hub_overlap_at_10` is the share of the top 10
+  the two agree on; `hub_spearman` is the rank correlation over the union of both top 10s. The
+  language figure is the mean over repos with at least 10 files and a truth edge (PageRank does
+  not pool across repos). It is recorded in the baseline, not yet gated.
 
 A disagreement is a lead, not a verdict. Check it against the source before quoting a number
 (CLAUDE.md, "Comparative-correctness claims"). The known ones: a dynamic import the parser cannot

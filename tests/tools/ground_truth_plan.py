@@ -31,7 +31,7 @@ import change_classifier  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-LANGUAGE_STATUS = "docs/language_status/"
+DOCS = "docs/"
 
 # fnmatch: `*` also crosses `/`. Checked first: these are inputs even where a NON_INPUTS pattern would match.
 INPUTS = (
@@ -53,7 +53,7 @@ INPUTS = (
 
 # What the job does not read. Anything matching neither list is an input.
 NON_INPUTS = (
-    "docs/*",  # minus the INPUTS above and docs/language_status/ files the job's code names (is_input asks the classifier)
+    "docs/*",  # minus the INPUTS above and the docs/ files the job's code names (is_input asks the classifier)
     "*.md",  # minus the INPUTS above (gitgalaxy/, tests/cobol_mainframe/)
     ".claude/*",
     ".github/*",  # minus the workflows above; issue templates, dependabot, the other workflows
@@ -86,13 +86,13 @@ def matches(path: str, patterns: tuple[str, ...]) -> bool:
 def is_input(path: str) -> bool:
     """True unless `path` is provably something the ground-truth job does not read (when in doubt, an input).
 
-    docs/language_status/ used to be all input. It is now an input only when code the job runs names the file
-    (change_classifier.py, #6278): the register, oracle_assumptions.md and the rule catalogue are read; zos_probes.json
-    and unread prose there are not. A tests/tools module nothing the job runs names is not either. Every other skip is
+    A docs/ file is an input only when code the job runs names it (change_classifier.py, #6278): the register,
+    oracle_assumptions.md, the rule catalogue and the self_scan ledgers a tool reads are; zos_probes.json and unread prose
+    are not. (Before, only docs/language_status/ asked; the rest of docs/ was skipped even where a reader opened it.) A tests/tools module nothing the job runs names is not either. Every other skip is
     the NON_INPUTS list, as before."""
     if matches(path, INPUTS):
         return True
-    if path.startswith(LANGUAGE_STATUS):
+    if path.startswith(DOCS):
         return change_classifier.read_by_ground_truth(path)
     if path.startswith("tests/tools/") and not matches(path, NON_INPUTS):
         return change_classifier.runs_in_ground_truth(path)  # a tool nothing the job runs names (ladder_refresh.py)

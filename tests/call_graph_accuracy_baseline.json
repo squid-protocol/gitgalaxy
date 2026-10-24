@@ -99,13 +99,13 @@
     "tp": 1331
   },
   "perl": {
-    "fn": 239,
-    "fp": 262,
+    "fn": 174,
+    "fp": 259,
     "matched_functions": 943,
     "parse_failures": 0,
-    "precision_pct": 94.3,
-    "recall_pct": 94.7,
-    "tp": 4305
+    "precision_pct": 94.4,
+    "recall_pct": 96.2,
+    "tp": 4370
   },
   "php": {
     "fn": 73,
@@ -181,7 +181,7 @@
   },
   "zig": {
     "fn": 1539,
-    "fp": 352,
+    "fp": 343,
     "matched_functions": 3539,
     "parse_failures": 0,
     "precision_pct": 98.2,

@@ -53,6 +53,18 @@ def _callees(line: str) -> list[str]:
         ("my $v = fetch $k;", ["fetch"]),
         ("return blessed $x;", ["blessed"]),
         ("print <<EOF;", ["print"]),
+        # slice 2: after a low-precedence operator, however many blanks
+        ('defined $n  or die "x: $!";', ["defined", "die"]),
+        ('eval { 1 } or warn "failed";', ["warn"]),
+        ("$ok and print OUT $line;", ["print"]),
+        # a regex, block, hash, qq string or file handle opens the argument list
+        ("my @a = split /,/, $s;", ["split"]),
+        ("my $v = first { $_ > 0 } @l;", ["first"]),
+        ("my $s = bless {}, $class;", ["bless"]),
+        ("tie %q, 'Pkg';", ["tie"]),
+        ("system qq{title $t};", ["system"]),
+        ('die "bad";', ["die"]),
+        ("sub o { return sprintf '%o', shift }", ["sprintf", "shift"]),
     ],
 )
 def test_callees(line, expected):
@@ -79,6 +91,13 @@ def test_callees(line, expected):
         "$o->{name} = 1;",
         "$o->$method;",
         "   name => $x,",
+        "$h{shift}",
+        "my @x = map { $_ } @l;",
+        "my @x = grep { $_ } @l;",
+        "BEGIN { 1 }",
+        "$o->{or} die",
+        "my $r = $a % 3;",
+        "$x = foo {a} + 1;",
     ],
 )
 def test_not_calls(line):
@@ -119,7 +138,19 @@ sub run {
         "$o" + "->a" * 5000,
         "x" * 20000 + " ",
         "\n" + " \t" * 10000 + "name",
+        "x " + "{" * 5000,
+        "x { " + "a" * 20000,
+        "or " * 10000,
+        "x " + "A_" * 10000,
     ],
 )
 def test_redos_immune(payload):
     assert_redos_immune(CALLS_OUT_PERL, payload, timeout_sec=3.0)
+
+
+def test_die_is_a_call():
+    perl = LANGUAGE_DEFINITIONS["perl"]
+    assert "die" not in perl["rules"]["_calls_out_ignore"]
+    code = "sub run {\n    open(my $f, '<', $p) or die \"no $p\";\n    die 'x' unless $f;\n}\n"
+    res = StructuralExtractor("perl", {"perl": perl}).splice(code, "")
+    assert "die" in res["functions"][0]["calls_out_to"]

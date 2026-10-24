@@ -202,6 +202,12 @@ def redefines_choices(items: list[dict[str, Any]], record: str = "") -> list[str
     return out
 
 
+def copy_dirs(base: Path, case: dict[str, Any], cpy: str) -> list[Path]:
+    """Where a COPY inside the record resolves, as the generator reads it (#5233): the file's own directory, the case's
+    `copy_dirs`, then the corpus."""
+    return [(base / cpy).parent, *(base / d for d in case.get("copy_dirs", [])), base]
+
+
 def record_limit(roots: list[Path], case: dict[str, Any], dataset: str) -> tuple[str, str]:
     """(cause, symbols) of one generated record's layout limit: a key of FIX_LAYOUT or "", and the names involved."""
     gen = case["datasets"][dataset].get("generate") or {}
@@ -214,7 +220,7 @@ def record_limit(roots: list[Path], case: dict[str, Any], dataset: str) -> tuple
 
     record = gen.get("record") or case["datasets"][dataset].get("record") or None
     try:
-        common.layout_fields(base, cpy, record)
+        common.layout_fields(base, cpy, record, copy_dirs=copy_dirs(base, case, cpy))
     except common.LayoutError as e:
         return ("no layout" if "no record" in str(e) else "unresolved copy"), ""
     from gitgalaxy.core.source_text import read_source
@@ -228,8 +234,8 @@ def record_limit(roots: list[Path], case: dict[str, Any], dataset: str) -> tuple
         import cobol_answer_key as ak
 
         path = base / cpy
-        lines = common._expanded_lines(path, [path.parent, base], [])
-        items = [it for it in ak._data_items(ak.Source(path, list(enumerate(lines, 1))))]
+        lines = common._expanded_lines(path, copy_dirs(base, case, cpy), [])
+        items = list(ak._data_items(ak.Source(path, list(enumerate(lines, 1)))))
         if chosen := redefines_choices(items, record or ""):
             return "redefines", "; ".join(chosen)
     return "", ""

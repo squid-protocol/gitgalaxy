@@ -74,7 +74,7 @@
 /asset.blob	tests/security_auditing
 /asset.png	tests/security_auditing
 /bad.forbidden	tests/security_auditing
-/baseline.json	tests/tools/test_content_keyed_baseline.py
+/baseline.json	tests/cobol_mainframe,tests/tools/test_content_keyed_baseline.py
 /bitbucket-pipelines.yml	tests/core_engine
 /bms_src	tests/cobol_mainframe
 /case.json	tests/tools/test_det_mutation.py

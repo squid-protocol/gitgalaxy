@@ -2066,13 +2066,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T13:10:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 59,
@@ -2119,10 +2121,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:declaration<compound_statement",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right: a declaration with a constructor-style initializer inside a function body (`Foo f(a, b);`) constructs an object, a call by C3 (constructors are calls); tree-sitter parses it as a declaration with an init_declarator and reports no call node. Read the recorded examples. Residual engine defect: some hits are plain declared type names with `=` initializers (`int x = ..`) counted as callees; those are not calls."
     },
     "cpp/call/not-a-call-in-ts:destructor_name<function_declarator/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -3836,13 +3838,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T08:09:09Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T13:10:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "csharp",
       "last_reconciled_at": "2026-10-24T08:09:09Z",
       "last_seen_count": 102,
@@ -3889,10 +3893,10 @@
         }
       ],
       "metric": "truth-sees-no-import-in-file",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "GitGalaxy right: each test file has `using ...Utilities.LinqBridge;` under `#if NET20`, and NET20 is a real build variant (the test csproj and library csproj both define NET20; the library variant omits HAVE_LINQ, so LinqBridge.cs compiles there). By C8 a build-variant copy is the importer's own variant, so the edge is a genuine binding; the reference reads the file with the branch inactive and sees no import. Read TestFixtureBase.cs, MergeTests.cs, BsonWriterTests.cs and the csproj DefineConstants. No engine defect."
     },
     "dart/call/argument_part/-+generic+bang/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -3928,13 +3932,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T13:10:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "dart",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 88,
@@ -3981,10 +3987,10 @@
         }
       ],
       "metric": "argument_part/-+generic",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it: a generic call `f<T>(x)` / `Foo<T>(x)` is a call (C3) and tree-sitter finds it through argument_part after a type_arguments node; the engine's call capture needs the name directly before `(` and skips the `<...>` between. Read the recorded examples. Engine defect: dart generic invocations are dropped."
     },
     "dart/call/argument_part/-/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -4443,8 +4449,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T13:10:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "dart",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 51,
@@ -4491,10 +4497,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:formal_parameter<optional_formal_parameters",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong: the name is a parameter TYPE in an optional/named parameter list (`{Foo? x, int y = 0}`), a declaration, not a call (C3). The engine matches `Type name(` shapes inside the braces/brackets. Read the recorded examples. Engine defect: type names in optional_formal_parameters are counted as callees."
     },
     "dart/call/not-a-call-in-ts:initialized_variable_definition<local_variable_declaration/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5510,13 +5516,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T13:10:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "haskell",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 53,
@@ -5563,22 +5571,24 @@
         }
       ],
       "metric": "apply/apply",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it: the outer node of a curried multi-argument application (`f a b` parses as apply(apply(f,a),b)) names the same callee as the inner one; the engine misses these for the same reason as apply/variable (no delimiter between head and arguments). Read the recorded examples. Same engine defect as haskell apply/variable."
     },
     "haskell/call/apply/constructor/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T13:10:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "haskell",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 69,
@@ -5625,10 +5635,10 @@
         }
       ],
       "metric": "apply/constructor",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it: a data-constructor application in expression position (`Box x`, `Some v`) is a call (C3, constructors are calls). The engine's haskell call capture takes lowercase function heads only. Constructor PATTERNS (clause, case alternative, lambda, do-bind) were counted by the harness as calls and are now excluded in call_graph_accuracy.py (harness fix, not an exclusion); the remaining occurrences are real applications. Engine defect: constructor application missed."
     },
     "haskell/call/apply/qualified/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -5696,13 +5706,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T13:10:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "haskell",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 68,
@@ -5749,10 +5761,10 @@
         }
       ],
       "metric": "apply/variable",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it: `f x y` juxtaposition application of a variable is a call; the engine finds a haskell call only for forms with an explicit delimiter or infix `$`/backtick, so plain curried application is dropped. Read the recorded examples. Engine defect: function application by juxtaposition missed."
     },
     "haskell/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -14096,13 +14108,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:24Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T13:10:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "rust",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 222,
@@ -14149,10 +14163,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:token_tree<macro_invocation",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right: the callee sits in the token tree of a macro invocation (format args, vec!/assert! operands); by C3 a macro body expression is a call the unit makes, and tree-sitter leaves token_tree opaque so it reports none. Read the recorded examples. Residual engine defect: tokens inside matches!/pattern positions of a token tree are also counted as calls (a pattern is no call, C3)."
     },
     "rust/call/not-a-call-in-ts:token_tree<token_tree/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [

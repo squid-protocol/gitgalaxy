@@ -1151,7 +1151,50 @@ def test_global_namespace_static_is_no_repo_edge_3756():
 
 
 def test_other_languages_keep_the_untyped_receiver_rule_3756():
-    # the built-in list is JS/TS/Java only (Python/Ruby/... unmeasured): `get` on a ruby file stays `file`
-    files = _builtin_universe("ruby", "get", "d", "rb")
+    # languages with no built-in list yet (Python/PHP/Go: sibling gaps of #4991) stay `file`
+    files = _builtin_universe("php", "get", "d", "php")
     row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
     assert row["step"] == "file"
+
+
+_SIBLING_BUILTINS_4991 = {
+    "kotlin": (
+        "kt",
+        ("add", "get", "toString", "firstOrNull", "mapNotNull", "joinToString", "isNullOrEmpty"),
+        "visitNode",
+    ),
+    "csharp": ("cs", ("Add", "TryGetValue", "Trim", "ToString", "Contains", "Select", "AppendLine"), "VisitNode"),
+    "ruby": ("rb", ("each", "map", "include?", "fetch", "to_s", "gsub", "empty?"), "visit_node"),
+}
+
+
+def test_sibling_language_builtin_on_untyped_receiver_is_ambiguous_4991():
+    for lang, (ext, callees, _other) in _SIBLING_BUILTINS_4991.items():
+        for callee in callees:
+            files = _builtin_universe(lang, callee, "items", ext)
+            row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+            assert row["step"] == "receiver", (lang, callee)
+            assert row["resolution"] not in CONFIDENT_RESOLUTIONS
+
+
+def test_sibling_language_non_builtin_and_known_receivers_stay_confident_4991():
+    for lang, (ext, callees, other) in _SIBLING_BUILTINS_4991.items():
+        files = _builtin_universe(lang, other, "items", ext)
+        assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "file", lang
+        files = _builtin_universe(lang, callees[0], "this", ext, run_owner="Box")
+        assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "class", lang
+        files = _builtin_universe(lang, callees[0], "Box", ext)  # a repo class
+        assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "qualified", lang
+
+
+def test_sibling_language_global_namespace_static_is_no_repo_edge_4991():
+    for lang, ext, callee, ns in (
+        ("kotlin", "kt", "max", "Math"),
+        ("csharp", "cs", "Max", "Math"),
+        ("csharp", "cs", "Parse", "Convert"),
+        ("ruby", "rb", "read", "File"),
+    ):
+        files = [
+            _file(f"A.{ext}", lang, [_fn(callee, 5, owner="Box"), _fn("run", 20, calls=[callee], quals={callee: [ns]})])
+        ]
+        assert _site(resolve_calls(files)[0], callee)["step"] == "none", (lang, callee)

@@ -17,7 +17,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="1054" height="942"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 20, callee names 11, call resolution 3 of 65 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 20, callee names 11, call resolution 4 of 65 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -218,7 +218,18 @@
 <text class="n" x="630" y="359">n=2,365 calls</text>
 <text class="n" x="630" y="371">functions 619</text>
 </g>
-<text class="none" x="732" y="364.0">not measured</text>
+<g><title>javascript call resolution: precision 100.0% of 16, recall 55.2% of 29; vs tsc (allowJs) 6.0.2; corpus import_graph; small n</title>
+<text class="pr" x="732" y="358.5">Precision</text>
+<rect class="track" x="778" y="351" width="110" height="8" rx="2"/>
+<rect x="778" y="351" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="893" y="359">100.0%</text>
+<text class="pr" x="732" y="370.5">Recall</text>
+<rect class="track" x="778" y="363" width="110" height="8" rx="2"/>
+<rect x="778" y="363" width="60.7" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="893" y="371">55.2%</text>
+<text class="n" x="936" y="359">n=29 edges</text>
+<text class="n" x="936" y="371">vs tsc (allowJs) 6.0.2</text>
+</g>
 <rect class="stripe" x="16" y="378" width="1022" height="34"/>
 <text class="lang" x="22" y="399.0">kotlin</text>
 <g><title>kotlin imports: precision 100.0% of 218, recall 99.2% of 377; corpus square/kotlinpoet</title>

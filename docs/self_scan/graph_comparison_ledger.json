@@ -8,11 +8,11 @@
       "dissenting_tools": [
         "tree_sitter"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "apex",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -38,11 +38,11 @@
       "dissenting_tools": [
         "tree_sitter"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "apex",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -100,11 +100,11 @@
       "dissenting_tools": [
         "tree_sitter"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "apex",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -130,11 +130,11 @@
       "dissenting_tools": [
         "gitgalaxy"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "apex",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -147,18 +147,18 @@
         },
         {
           "file_path": "apex/apex-recipes/SOQLRecipes_Tests.cls",
-          "name": "testGetAccountsAndContactsPositive -> List",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 402
-          }
-        },
-        {
-          "file_path": "apex/apex-recipes/SOQLRecipes_Tests.cls",
           "name": "testGetAccountsAndContactsPositive -> Map",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 420
+          }
+        },
+        {
+          "file_path": "apex/apex-recipes/SOQLRecipes_Tests.cls",
+          "name": "testGetAccountsAndContactsPositive -> List",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 402
           }
         },
         {
@@ -192,11 +192,11 @@
       "dissenting_tools": [
         "tree_sitter"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "apex",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -2157,8 +2157,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T08:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799 sweep)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-12T03:36:10Z",
       "last_seen_count": 94,
@@ -2205,10 +2205,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:field_initializer<field_initializer_list",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong on the recorded examples. NVDA storage.cpp:313 `: parent(NULL), previous(NULL), next(NULL), firstChild(NULL)..` lists the constructor's own DATA MEMBERS, which the engine takes as callees (`parent`, `previous`, `next`, `isBlock`, `identifier`); initialising a member is not invoking a function of that name. The one genuine call in the sample is the base-class initializer `VBufStorage_fieldNode_t(0,isBlockArg)` (:373), a constructor call by C3 that tree-sitter files under field_initializer too; it is a minority of the shape and no credit is given, so the validated number does not rise. Engine gap: constructor-initializer list names are members unless they name a base class."
     },
     "cpp/call/not-a-call-in-ts:function_declarator<declaration/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -7184,13 +7184,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T06:57:11Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T08:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799 sweep)",
       "language": "kotlin",
       "last_reconciled_at": "2026-10-24T06:57:11Z",
       "last_seen_count": 3,
@@ -7221,10 +7223,10 @@
         }
       ],
       "metric": "call_expression/-",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Recorded examples (okhttp Dispatcher.kt :208, :279, :283) are `.also { .. }` and `.map { .. }` trailing-lambda calls with no parentheses. A call with a lambda argument is an invocation (C3)."
     },
     "kotlin/call/outside-ts-function/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -11826,13 +11828,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T08:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799 sweep)",
       "language": "python",
       "last_reconciled_at": "2026-10-12T03:36:10Z",
       "last_seen_count": 47,
@@ -11879,10 +11883,10 @@
         }
       ],
       "metric": "engine-attributes-to-another-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. The recorded examples are calls inside an f-string replacement field -- `f\"{''.join(textList)}\"` (braille.py:1301), `f\"..{code.error_goto(self.pos)}\"` (Nodes.py:4582) -- plus a call on a parenthesised conditional `(A if review else B)(obj, ..)` (braille.py:2313). The f-string fields are executed code, so the calls are real; the engine shields string literals and never looks inside the field."
     },
     "python/call/inner-named-function_definition/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -12132,13 +12136,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:24Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T08:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799 sweep)",
       "language": "ruby",
       "last_reconciled_at": "2026-10-12T03:36:10Z",
       "last_seen_count": 58,
@@ -12185,10 +12191,10 @@
         }
       ],
       "metric": "call/identifier",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. The recorded examples (rails base.rb :26, :150, :197) are receiver method calls with no parentheses: `controller.class.action_methods`, `self.class.config.inheritable_copy`, `self.class.name`, and `raise ActionNotFound.new(..)`. A paren-less method call with a receiver is a call; `class` after a dot is a method, not the keyword, and `raise` is Kernel#raise, a built-in (decision 1). The engine needs a paren."
     },
     "ruby/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -13940,13 +13946,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T06:57:11Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T08:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799 sweep)",
       "language": "scala",
       "last_reconciled_at": "2026-10-24T06:57:11Z",
       "last_seen_count": 252,
@@ -13993,10 +14001,10 @@
         }
       ],
       "metric": "engine-attributes-to-another-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Read the 5 recorded examples in kafka KafkaApis.scala: each is a real call the engine's `name(` pattern cannot see -- a type-argument call `mutable.Map[K, V]()` (:3291, :409) and `Collections.emptyMap[Uuid, String]()` (:572), and a brace-block call with no parentheses `partitionDatas.foreach { case (..) =>` (:613) / `produceRequest.data.topicData.forEach { topic =>` (:415). All are calls by C3 (a call with a block argument is an invocation). The engine lists the same names on other functions, hence the cause label. Engine gap: Scala calls_out needs the `name[T](` and `name {` forms."
     },
     "scala/call/inner-named-function_definition/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -14107,8 +14115,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T06:57:11Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T08:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799 sweep)",
       "language": "scala",
       "last_reconciled_at": "2026-10-24T06:57:11Z",
       "last_seen_count": 44,
@@ -14155,10 +14163,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:case_class_pattern<case_clause",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. All 5 recorded examples are `case Some(x) =>`, `case Left(x) =>`, `case Right(x) =>` (KafkaApis.scala:382-387, :1763, :3332): case-clause patterns that only test and bind. A pattern is not a call (C3 amendment 2026-09-25, same ruling as the rust tuple_struct_pattern shapes). The engine counts them."
     },
     "scala/call/not-a-call-in-ts:field_expression<indented_block/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -14652,11 +14660,11 @@
       "dissenting_tools": [
         "gitgalaxy"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -14698,11 +14706,11 @@
       "dissenting_tools": [
         "tree_sitter"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 11,
       "last_seen_examples": [
         {
@@ -14760,11 +14768,11 @@
       "dissenting_tools": [
         "tree_sitter"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 23,
       "last_seen_examples": [
         {
@@ -14785,14 +14793,6 @@
         },
         {
           "file_path": "solidity/openzeppelin/ERC2771Forwarder.sol",
-          "name": "_execute -> ERC2771UntrustfulTarget",
-          "readings": {
-            "gitgalaxy": 272,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "solidity/openzeppelin/ERC2771Forwarder.sol",
           "name": "_execute -> ERC2771ForwarderExpiredRequest",
           "readings": {
             "gitgalaxy": 276,
@@ -14804,6 +14804,14 @@
           "name": "_execute -> ERC2771ForwarderInvalidSigner",
           "readings": {
             "gitgalaxy": 280,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "solidity/openzeppelin/ERC2771Forwarder.sol",
+          "name": "_execute -> ERC2771UntrustfulTarget",
+          "readings": {
+            "gitgalaxy": 272,
             "tree_sitter": null
           }
         }
@@ -14822,11 +14830,11 @@
       "dissenting_tools": [
         "tree_sitter"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -14868,11 +14876,11 @@
       "dissenting_tools": [
         "tree_sitter"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -14906,11 +14914,11 @@
       "dissenting_tools": [
         "tree_sitter"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -14944,11 +14952,11 @@
       "dissenting_tools": [
         "tree_sitter"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -15006,11 +15014,11 @@
       "dissenting_tools": [
         "tree_sitter"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -15068,16 +15076,16 @@
       "dissenting_tools": [
         "tree_sitter"
       ],
-      "first_seen_at": "2026-10-24T07:59:08Z",
+      "first_seen_at": "2026-10-24T08:32:45Z",
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-24T07:59:08Z",
+      "last_reconciled_at": "2026-10-24T08:32:45Z",
       "last_seen_count": 18,
       "last_seen_examples": [
         {
           "file_path": "solidity/openzeppelin/ERC2771Forwarder.sol",
-          "name": "_execute -> add",
+          "name": "_execute -> call",
           "readings": {
             "gitgalaxy": 297,
             "tree_sitter": null
@@ -15093,7 +15101,7 @@
         },
         {
           "file_path": "solidity/openzeppelin/ERC2771Forwarder.sol",
-          "name": "_execute -> call",
+          "name": "_execute -> add",
           "readings": {
             "gitgalaxy": 297,
             "tree_sitter": null
@@ -15109,9 +15117,9 @@
         },
         {
           "file_path": "solidity/openzeppelin/ERC2771Forwarder.sol",
-          "name": "_isTrustedByTarget -> add",
+          "name": "_isTrustedByTarget -> returndatasize",
           "readings": {
-            "gitgalaxy": 328,
+            "gitgalaxy": 329,
             "tree_sitter": null
           }
         }
@@ -15264,13 +15272,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T06:57:11Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T08:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799 sweep)",
       "language": "swift",
       "last_reconciled_at": "2026-10-24T06:57:11Z",
       "last_seen_count": 82,
@@ -15317,10 +15327,10 @@
         }
       ],
       "metric": "call_expression/-",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. All 5 recorded examples (alamofire Request.swift) are calls with a trailing closure and no parentheses: `cookies.map { .. }` (:1182), `underlyingQueue.async { .. }` (:571), `mutableState.write { mutableState in` (:562), `completions.forEach { $0() }` (:613, which also calls the closure parameter `$0()`). A trailing-closure call is an invocation (C3). The C-style `name(` pattern needs a parenthesis."
     },
     "swift/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -15640,13 +15650,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T08:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799 sweep)",
       "language": "typescript",
       "last_reconciled_at": "2026-10-12T03:36:10Z",
       "last_seen_count": 78,
@@ -15693,10 +15705,10 @@
         }
       ],
       "metric": "call_expression/member_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. All 5 recorded examples (assemblyscript compiler.ts :727, :729, :4598, :6768, :7731) are calls to a method whose NAME is a reserved word: `module.if(..)`, `module.return()`. After a `.` a reserved word is a property name, not a keyword, so C2 does not apply; the engine drops them via its keyword set. Engine gap: a keyword directly after `.` is a method call."
     },
     "typescript/call/call_expression/non_null_expression+bang/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

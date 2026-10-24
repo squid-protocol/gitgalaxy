@@ -1077,13 +1077,15 @@ int GGCLINK(gg_cics *c, char *area) {
     }
     c->resp = NORMAL;
     c->resp2 = 0;
+    c->go_to = 0;
     if (has && (len < 0 || len > 32763)) { c->resp = LENGERR; c->resp2 = 11; }
     else if (!program_defined(program)) { c->resp = PGMIDERR; c->resp2 = 1; }
     else if (lvl + 1 >= MAX_LEVELS) { c->resp = INVREQ; }
     else if (injected("LINK", program, &fresp, &fresp2)) { c->resp = fresp; c->resp2 = fresp2; }  /* #4648: as XCTL's */
     snprintf(ev, sizeof ev, "LINK target=%s len=%d area=%d resp=%d resp2=%d", program, len, has, c->resp, c->resp2);
     event(ev, has ? area : NULL, has && len > 0 && len <= 32763 ? len : 0);
-    if (c->resp != NORMAL) return 0;
+    /* #6271 (X70): a planned abend (`LINK PROGRAM 1 -1 0 ABCODE`) went to the exit or ended the task: the callee never runs */
+    if (c->resp != NORMAL || c->go_to != 0 || terminated) return 0;
     const char *linker = current_program();
     char by[9];
     snprintf(by, sizeof by, "%s", linker);

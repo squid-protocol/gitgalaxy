@@ -53,6 +53,7 @@
 # confident links at ~96% precision against pyan3 before this was switched on.
 # ==============================================================================
 import posixpath
+import re
 from collections import Counter
 from typing import Any
 
@@ -617,6 +618,28 @@ def _dirname(path: str) -> str:
     return posixpath.dirname(path.replace("\\", "/"))
 
 
+# A Maven/Gradle source root: the package starts below `src/<set>/<language>/`, and
+# `src/main` and `src/test` (or any other set) of one module share it.
+_SOURCE_ROOT = re.compile(r"^(?P<module>(?:.*/)?)src/[^/]+/(?:java|kotlin|scala|groovy)(?:/(?P<rest>.*))?$")
+_SOURCE_ROOT_LANGS = frozenset({"java", "kotlin", "scala", "groovy"})
+
+
+def _package_dir(dir_: str, lang: str) -> str:
+    """The directory a file's package lives in, for visibility without an import.
+
+    Where a directory is the package it is `dir_` itself. The JVM languages split
+    one package over the source sets of a module (`m/src/main/java/p` and
+    `m/src/test/java/p`): both map to `m/` + `p`, so a test sees the class under
+    test. The module prefix stays in the key: a same-named package of another
+    module is not visible.
+    """
+    if lang in _SOURCE_ROOT_LANGS:
+        m = _SOURCE_ROOT.match(dir_)
+        if m:
+            return m.group("module") + "|" + (m.group("rest") or "")
+    return dir_
+
+
 def _parts(dir_: str) -> tuple[str, ...]:
     return tuple(dir_.split("/")) if dir_ else ()
 
@@ -634,7 +657,7 @@ def _rank(src_parts: tuple[str, ...], d: "_Definition") -> tuple[int, int]:
 
 
 class _Definition:
-    __slots__ = ("arity", "dir", "kind", "line", "name", "owner_key", "parts", "path", "shape", "stem")
+    __slots__ = ("arity", "dir", "kind", "line", "name", "owner_key", "parts", "path", "pkg", "shape", "stem")
 
     def __init__(
         self,
@@ -648,9 +671,11 @@ class _Definition:
         kind: str,
         shape: str | None = None,
         arity: int | None = None,
+        pkg: str | None = None,
     ) -> None:
         self.path = path
         self.dir = dir_
+        self.pkg = dir_ if pkg is None else pkg  # the package directory (`_package_dir`)
         self.parts = parts
         self.stem = stem
         self.name = name
@@ -684,7 +709,7 @@ class _Set:
             self.owners.setdefault(d.path, set()).add(d.owner_key)
             if d.path not in self.by_path:
                 self.by_path[d.path] = d
-                self.by_dir.setdefault(d.dir, []).append(d)
+                self.by_dir.setdefault(d.pkg, []).append(d)
         self.n_paths = len(self.by_path)
         self._prefix: dict[tuple[str, ...], list[_Definition]] | None = None
 
@@ -777,6 +802,7 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
         group = _group(lang)
         dir_, stem = _dirname(path), _stem(path)
         parts = _parts(dir_)
+        pkg = _package_dir(dir_, lang)
         for func in f.get("functions", []) or []:
             if func.get("is_synthetic_slice"):
                 continue
@@ -803,6 +829,7 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
                             owner_key,
                             "function",
                             shape,
+                            pkg=pkg,
                         )
                     )
                 continue
@@ -818,13 +845,16 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
                     "function",
                     shape,
                     int(func.get("args", 0) or 0),
+                    pkg=pkg,
                 )
             )
         for cls in f.get("classes", []) or []:
             name = str(cls.get("name") or "")
             if name:
                 index.setdefault((group, _key(name, lang)), _Bucket()).add(
-                    _Definition(path, dir_, parts, stem, name, int(cls.get("start_line", 0) or 0), None, "class")
+                    _Definition(
+                        path, dir_, parts, stem, name, int(cls.get("start_line", 0) or 0), None, "class", pkg=pkg
+                    )
                 )
     return index
 
@@ -1022,7 +1052,7 @@ def _alias_scope(
 class _File:
     """What one calling file brings to every lookup made from it."""
 
-    __slots__ = ("aliases", "dir", "imported", "imported_dirs", "imported_stems", "lang", "parts", "path")
+    __slots__ = ("aliases", "dir", "imported", "imported_dirs", "imported_stems", "lang", "parts", "path", "pkg")
 
     def __init__(self, path: str, lang: str, imported: set[str], aliases: dict[str, set[str]] | None = None) -> None:
         self.path = path
@@ -1031,6 +1061,7 @@ class _File:
         self.lang = lang
         self.dir = _dirname(path)
         self.parts = _parts(self.dir)
+        self.pkg = _package_dir(self.dir, lang)
         self.imported = imported
         self.imported_stems = {_stem(p) for p in imported}
         self.imported_dirs = {posixpath.basename(_dirname(p)) for p in imported}
@@ -1062,9 +1093,9 @@ def _nearest_imported(cset: _Set, caller: _File, cache: _Cache) -> _Definition |
 
 def _nearest_local(cset: _Set, caller: _File, cache: _Cache) -> _Definition | None:
     """Nearest file in the caller's own directory (a package)."""
-    ck = ("loc", caller.dir, id(cset))
+    ck = ("loc", caller.pkg, id(cset))
     if ck not in cache:
-        local = cset.by_dir.get(caller.dir)
+        local = cset.by_dir.get(caller.pkg)
         cache[ck] = (_nearest_of(local, caller.parts) or min(local, key=lambda d: d.path)) if local else None
     return cache[ck]
 
@@ -1090,7 +1121,7 @@ def _visible_receiver(cset: _Set, caller: _File, cache: _Cache) -> tuple[str, _D
             return ("import", hit) if classes(visible) == 1 else ("receiver", hit)
     hit = _nearest_local(cset, caller, cache) if caller.lang in _PACKAGE_DIR_LANGS else None
     if hit is not None:
-        local = [d.path for d in cset.by_dir.get(caller.dir, [])]
+        local = [d.path for d in cset.by_dir.get(caller.pkg, [])]
         return ("import", hit) if classes(local) == 1 else ("receiver", hit)
     return "receiver", _nearest(cset, caller, cache)
 
@@ -1100,7 +1131,7 @@ def _other_visible_class(cset: _Set, caller: _File) -> bool:
     if any(p in cset.owners for p in caller.imported if p != caller.path):
         return True
     if caller.lang in _PACKAGE_DIR_LANGS:
-        return any(d.path != caller.path for d in cset.by_dir.get(caller.dir, []))
+        return any(d.path != caller.path for d in cset.by_dir.get(caller.pkg, []))
     return False
 
 
@@ -1194,7 +1225,7 @@ def _resolve_one(
             step == "unique"
             and qualifier == ""
             and caller.lang in _PACKAGE_SCOPED_LANGS
-            and not (caller.lang in _PACKAGE_DIR_LANGS and d is not None and d.dir == caller.dir)
+            and not (caller.lang in _PACKAGE_DIR_LANGS and d is not None and d.pkg == caller.pkg)
         ):
             return "unseen", d  # #3443: the only definition, but not one this caller can see
         return step, d

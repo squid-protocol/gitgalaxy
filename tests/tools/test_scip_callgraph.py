@@ -217,3 +217,67 @@ def test_arg_count_skips_type_arguments_literals_and_nesting():
     assert sc._arg_count(["(Map<String, X> m, int n)"], 0, 0, declaration=True) == 2
     assert sc._arg_count(["(", "  a,", "  b)"], 0, 0) == 2  # across lines
     assert sc._arg_count([" = 1;"], 0, 0) is None
+
+
+RUST = (
+    "struct S;\n"  # 0
+    "trait T {\n"  # 1
+    "    fn sig(&self);\n"  # 2: no default body
+    "    fn dflt(&self) { helper::<u8>(1); }\n"  # 3: turbofish call
+    "}\n"  # 4
+    "impl S {\n"  # 5
+    "    fn new() -> S { S }\n"  # 6
+    '    fn go(&self) { Self::new(); println!("x"); let _ = Vec::<u8>::len(&v); }\n'  # 7
+    "}\n"  # 8
+    "fn helper<X>(x: X) { let f = go; }\n"  # 9: `go` as a value, not a call
+)
+RP = "rust-analyzer cargo demo 0.1.0 "
+
+
+def test_rust_contract_names_impl_methods_and_skips_bodyless_trait_methods(tmp_path):
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "lib.rs").write_text(RUST)
+    lines = RUST.splitlines()
+
+    def at(line: int, text: str, nth: int = 0) -> list[int]:
+        start = -1
+        for _ in range(nth + 1):
+            start = lines[line].index(text, start + 1)
+        return [line, start, start + len(text)]
+
+    whole = lambda n: [n, 4, n, len(lines[n])]  # noqa: E731
+    sig, dflt, new, go = RP + "T#sig().", RP + "T#dflt().", RP + "impl#[`S`]new().", RP + "impl#[`S`]go()."
+    helper = RP + "helper()."
+    occ = [
+        _occ(at(2, "sig"), sig, True, whole(2)),
+        _occ(at(3, "dflt"), dflt, True, whole(3)),
+        _occ(at(3, "helper"), helper),
+        _occ(at(6, "new"), new, True, whole(6)),
+        _occ(at(7, "go"), go, True, whole(7)),
+        _occ(at(7, "new"), new),
+        _occ(at(7, "println"), "rust-analyzer cargo std 1.90.0 macros/println!"),
+        _occ(at(7, "len"), "rust-analyzer cargo alloc 1.90.0 vec/Vec#len()."),
+        _occ([9, 3, 9, 9], helper, True, [9, 0, 9, len(lines[9])]),
+        _occ(at(9, "go"), go),
+    ]
+    syms = [
+        _sym(sig, 26),
+        _sym(dflt, 26),
+        _sym(new, 26),
+        _sym(go, 26),
+        _sym(helper, 17),
+        _sym("rust-analyzer cargo alloc 1.90.0 vec/Vec#len().", 26),
+    ]
+    index = _index("src/lib.rs", occ, syms)
+    c = sc.contract_from_index(index, tmp_path, "rust")
+    f = "src/lib.rs"
+    # `sig` has no body so it is no def; the macro and the `go` value are not call edges
+    assert c["defs"] == [[f, "dflt", 4], [f, "go", 8], [f, "helper", 10], [f, "new", 7]]
+    assert c["edges"] == [[[f, "dflt", 4], [f, "helper", 10], 4], [[f, "go", 8], [f, "new", 7], 8]]
+    assert c["external"] == [[[f, "go", 8], "len"]]
+
+
+def test_rust_descriptors_keep_a_quoted_slice_type_whole():
+    sym = RP + "impl#[`[u8]`]first()."
+    assert sc._descriptors(sym)[-1] == ("first", "().")
+    assert sc._name(sym, "", "rust") == "first"

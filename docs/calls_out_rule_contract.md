@@ -198,7 +198,7 @@ fixed it: the census below predates that fix.
 | xml | blind | -- | -- | agrees (C7: declared blind) |
 | yacc | C-style | 27 | 89 | agrees (C actions) |
 | yaml | blind | -- | -- | agrees (C7: declared blind) |
-| zig | C-style | 3,525 | 19,370 | D (nested `fn`, 296); K: `and (`/`or (`, `union(enum)`; `@builtin(` are calls (C2) |
+| zig | C-style | 3,525 | 19,370 | D (nested `fn`, 296); K: `and (`/`or (`, `union(enum)`; `@builtin(` are calls (C2); a `\\` multiline-string line is shielded whole (#6435) |
 
 Summary: 37 of 65 languages agree outside the global **B**. The rest are **K** (19), **A** (6),
 **D** (8), **S** (1: tcl), **G** (1: cobol), **I** (1: matlab) and **R** (1: haskell). Every

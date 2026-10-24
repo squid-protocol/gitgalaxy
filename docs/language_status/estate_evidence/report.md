@@ -14,7 +14,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 
 - Programs: 57; at E0 0, E1 5, E2 31, E3 21, E4 0; executed equivalent or above (E2+): 52/57 (91.2%).
 - Coverage over the programs with a record: paragraphs 567/574 (98.8%), branch outcomes 1614/1807 (89.3%).
-- Mutation: 52 program(s) measured, killed 2872/4212 (68.2%) raw (adjusted for equivalent / unreachable survivors: 2872/3340 (86.0%)); survivors case_gap 274, harness_gap 193, equivalent 516, unreachable 356, untriaged 0; open survivors 467.
+- Mutation: 52 program(s) measured, killed 2874/4212 (68.2%) raw (adjusted for equivalent / unreachable survivors: 2874/3340 (86.0%)); survivors case_gap 274, harness_gap 191, equivalent 516, unreachable 356, untriaged 0; open survivors 465.
 - Holes (stub / ported_unproven methods): 4. Declared differences: 13.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 52).
 - Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 57 of 57 programs measured): 11945 (15542 code lines in all); in programs at E2+ 10057/11945 (84.2%), E3+ 862/11945 (7.2%), E4 0/11945 (0.0%); paragraph coverage weighted by lines 11775/11945 (98.6%).
@@ -23,7 +23,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 
 - Programs: 28; at E0 0, E1 4, E2 23, E3 1, E4 0; executed equivalent or above (E2+): 24/28 (85.7%).
 - Coverage over the programs with a record: paragraphs 460/461 (99.8%), branch outcomes 1451/1577 (92.0%).
-- Mutation: 23 program(s) measured, killed 2047/2737 (74.8%) raw (adjusted for equivalent / unreachable survivors: 2047/2132 (96.0%)); survivors case_gap 75, harness_gap 9, equivalent 380, unreachable 225, untriaged 0; open survivors 84.
+- Mutation: 23 program(s) measured, killed 2049/2737 (74.9%) raw (adjusted for equivalent / unreachable survivors: 2049/2132 (96.1%)); survivors case_gap 75, harness_gap 7, equivalent 380, unreachable 225, untriaged 0; open survivors 82.
 - Holes (stub / ported_unproven methods): 3. Declared differences: 0.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 23).
 - Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 28 of 28 programs measured): 9642 (12295 code lines in all); in programs at E2+ 8278/9642 (85.9%), E3+ 140/9642 (1.5%), E4 0/9642 (0.0%); paragraph coverage weighted by lines 9631/9642 (99.9%).
@@ -56,7 +56,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 | CBTRN03C | carddemo-trnrpt | 433 | E2 | 25 runs / 24 fault | gnucobol-models | 26/26 / 81/82 | 68/86, open 11 | 0 | - | coverage short: 26/26 paragraphs, 81/82 branch outcomes |
 | COUSR01C | carddemo-useradd | 168 | E2 | 25 runs / 3 fault | gnucobol-models | 9/9 / 20/21 | 63/98, open 1 | 0 | - | coverage short: 9/9 paragraphs, 20/21 branch outcomes |
 | COUSR03C | carddemo-userdel | 209 | E2 | 32 runs / 6 fault | gnucobol-models | 11/11 / 31/32 | 67/87, open 0 | 0 | - | coverage short: 11/11 paragraphs, 31/32 branch outcomes |
-| COUSR00C | carddemo-userlist | 474 | E2 | 70 runs / 14 fault | gnucobol-models | 16/16 / 95/100 | 379/507, open 2 | 0 | - | coverage short: 16/16 paragraphs, 95/100 branch outcomes |
+| COUSR00C | carddemo-userlist | 474 | E2 | 72 runs / 16 fault | gnucobol-models | 16/16 / 95/100 | 381/507, open 0 | 0 | - | coverage short: 16/16 paragraphs, 95/100 branch outcomes |
 | COUSR02C | carddemo-userupd | 261 | E2 | 32 runs / 4 fault | gnucobol-models | 11/11 / 44/46 | 57/82, open 2 | 0 | - | coverage short: 11/11 paragraphs, 44/46 branch outcomes |
 
 ## cics-banking-sample-application-cbsa

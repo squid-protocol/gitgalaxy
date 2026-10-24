@@ -17418,6 +17418,68 @@
       "symbol_type": "call",
       "verdict": null
     },
+    "swift/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T15:45:09Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "swift",
+      "last_reconciled_at": "2026-10-24T15:45:09Z",
+      "last_seen_count": 22,
+      "last_seen_examples": [
+        {
+          "file_path": "swift-argument-parser/Examples/count-lines/CountLines.swift",
+          "name": "swift-argument-parser/Examples/count-lines/CountLines.swift -> Sources/ArgumentParser/Utilities/Foundation.swift",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "swift-argument-parser/Plugins/GenerateCommon/GeneratePlugin.swift",
+          "name": "swift-argument-parser/Plugins/GenerateCommon/GeneratePlugin.swift -> Sources/ArgumentParser/Utilities/Foundation.swift",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "swift-argument-parser/Plugins/GenerateCommon/GeneratePluginError.swift",
+          "name": "swift-argument-parser/Plugins/GenerateCommon/GeneratePluginError.swift -> Sources/ArgumentParser/Utilities/Foundation.swift",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "swift-argument-parser/Plugins/GenerateCommon/PackagePlugin+Helpers.swift",
+          "name": "swift-argument-parser/Plugins/GenerateCommon/PackagePlugin+Helpers.swift -> Sources/ArgumentParser/Utilities/Foundation.swift",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "swift-argument-parser/Plugins/GenerateDoccReference/GenerateDoccReference.swift",
+          "name": "swift-argument-parser/Plugins/GenerateDoccReference/GenerateDoccReference.swift -> Sources/ArgumentParser/Utilities/Foundation.swift",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-sees-no-import-in-file",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "tcl/call/command/simple_word/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"

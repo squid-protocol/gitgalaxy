@@ -320,3 +320,72 @@ def test_regressions_ignore_hub_fields_and_old_baselines_still_load():
     cur = {"python": {"precision_pct": 90.0, "recall_pct": 60.0, "hub_overlap_at_10": 0.0, "hub_spearman": -1.0}}
     assert iga.regressions(cur, base) == []
     assert "n/a" in iga.render({"python": {**base["python"], "repos": "r", "files": 1, "fp": 0, "fn": 0}})
+
+
+@needs_ts
+def test_swift_resolves_by_target_and_declared_type_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "Package.swift": (
+                "import PackageDescription\n"
+                "let package = Package(name: \"P\", targets: [\n"
+                "  .target(name: \"Core\", dependencies: [\"Odd\"]),\n"
+                "  .target(name: \"Odd\", path: \"Vendor/odd\"),\n"
+                "  .testTarget(name: \"CoreTests\", dependencies: [\"Core\"]),\n"
+                "])\n"
+            ),
+            # file name and directory mean nothing: the name is found by what the file declares
+            "Sources/Core/Misc.swift": (
+                "public struct Pair { public enum Kind { case a } }\n"
+                "public protocol Proto {}\n"
+                "public typealias Alias = Int\n"
+                "public func helper() {}\n"
+                "public let limit = 1\n"
+                "public var counter = 0\n"
+                "#if os(Linux)\npublic final class Wrapped {}\n#endif\n"
+            ),
+            "Sources/Core/Split1.swift": "public struct Split {}\n",
+            "Sources/Core/Split2.swift": "extension Split {}\n",
+            "Vendor/odd/Thing.swift": "public class Thing {}\n",
+            "Tests/CoreTests/Pair.swift": "struct Pair {}\n",
+        },
+    )
+    src = (
+        b"import Foundation\n"
+        b"import Core\n"  # a module: contract C7, no edge
+        b"@testable import Core\n"
+        b"@_exported import Odd\n"
+        b"public import Core\n"
+        b"import struct Core.Pair\n"
+        b"import struct Core.Pair.Kind\n"  # a nested type falls back to its owner
+        b"import protocol Core.Proto\n"
+        b"import typealias Core.Alias\n"
+        b"import func Core.helper\n"
+        b"import let Core.limit\n"
+        b"import var Core.counter\n"
+        b"import class Core.Wrapped\n"
+        b"import struct Core.Split\n"  # a type and its extension are two files
+        b"import class Odd.Thing\n"  # a custom `path:` is honoured
+        b"import struct WinSDK.CONSOLE_SCREEN_BUFFER_INFO\n"  # no target of the repo
+        b"import struct Core.Missing\n"
+    )
+    assert iga.swift_imports(src, "Sources/App/Use.swift", g) == [
+        set(),
+        set(),
+        set(),
+        set(),
+        set(),
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Split1.swift", "Sources/Core/Split2.swift"},
+        {"Vendor/odd/Thing.swift"},
+        set(),
+        set(),
+    ]

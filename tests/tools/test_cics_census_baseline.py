@@ -345,3 +345,14 @@ def test_a_no_census_run_with_no_non_burned_says_not_surveyed(tmp_path, capsys):
     hist.write_text(json.dumps(entry) + "\n")
     assert cc.main(["history", "show", "--file", str(hist)]) == 0
     assert "not surveyed" in capsys.readouterr().out
+
+
+def test_a_bad_census_root_from_the_env_is_refused(stubbed, tmp_path, monkeypatch):
+    """#6064: $CICS_CENSUS_CORPORA naming a placeholder root is refused the same as --census-corpora."""
+    bad = tmp_path / "badcensus"
+    (bad / "scratch").mkdir(parents=True)
+    (bad / "scratch" / "A.cbl").write_text(CICS)
+    monkeypatch.setenv(cc.CENSUS_ENV, str(bad))
+    with pytest.raises(SystemExit, match="unexpected: scratch"):
+        cc.main(["survey", "--out", str(tmp_path / "s"), "--corpora", str(stubbed["main"])])
+    assert not stubbed["calls"]

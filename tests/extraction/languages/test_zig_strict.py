@@ -473,3 +473,49 @@ def test_zig_globals_anchor_bug_regression():
 
     assert not globals_rule.search("    const local_var = 1;"), "indented const must NOT count as global"
     assert not globals_rule.search("\tvar local_var: i32 = 0;"), "tab-indented var must NOT count as global"
+
+
+# ---------------------------------------------------------------------------
+# #6435: a `\\` line is a multiline string literal line, shielded whole
+# ---------------------------------------------------------------------------
+
+
+def _zig_shield(src):
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    return StructuralExtractor("zig", LANGUAGE_DEFINITIONS)._apply_literal_shield(src, "zig")
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "    \\\\ run(1)",
+        '    \\\\ say "hi',
+        "    \\\\ a // b { run(2)",
+        "    \\\\",
+        "const s =\n    \\\\ run(1)\n    \\\\ run(2)\n;",
+        "const s = \\\\ run(1)",
+    ],
+)
+def test_zig_multiline_string_lines_hold_no_code(line):
+    out = _zig_shield(line)
+    assert "run" not in out and "say" not in out
+    assert out.count("\n") == line.count("\n")
+
+
+def test_zig_multiline_shield_keeps_code_and_ordinary_literals():
+    src = (
+        "fn f() void {\n    const s =\n        \\\\ run(1)\n    ;\n    keep(\"\\\\\");\n    c = '\\\\';\n} // \\\\ x\n"
+    )
+    out = _zig_shield(src)
+    assert "keep(" in out and "run" not in out
+    assert out.count("\n") == src.count("\n")
+
+
+def test_zig_multiline_string_lines_are_not_calls_out():
+    """#6435: text on a `\\` line is not a call; a real call around the literal stays."""
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    src = 'fn a() void {\n    const s =\n        \\\\ run(1) // x\n        \\\\ "open(2)\n    ;\n    keep();\n}\n'
+    functions = StructuralExtractor("zig", LANGUAGE_DEFINITIONS).splice(src, "")["functions"]
+    assert {f["name"]: f["calls_out_to"] for f in functions} == {"a": ["keep"]}

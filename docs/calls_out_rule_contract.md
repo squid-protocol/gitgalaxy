@@ -176,7 +176,7 @@ fixed it: the census below predates that fix.
 | nix | blind | -- | -- | agrees (C7: declared blind) |
 | objective-c | own | 156 | 269 | own rule: unary selectors are a ledgered recall gap; agrees otherwise |
 | pbtxt | blind | -- | -- | agrees (C7: declared blind) |
-| perl | C-style | 886 | 2,580 | K: `qw(` 30, `and`/`or`/`do`/`until` |
+| perl | C-style | 886 | 2,580 | K: `qw(` 30, `and`/`or`/`do`/`until`; `die` is a call (#6433), `or`/`and` are anchors, not callees |
 | php | C-style | 1,703 | 7,104 | K: `foreach` 237, `isset` 209, `empty` 152, `elseif` 114, `array` 111, `unset` 78, `use` 44, `fn` 44, `match`, `die` |
 | plaintext | blind | -- | -- | agrees (C7: declared blind) |
 | pli | CALL verb | 7 | 6 | agrees (CALL) |
@@ -198,7 +198,7 @@ fixed it: the census below predates that fix.
 | xml | blind | -- | -- | agrees (C7: declared blind) |
 | yacc | C-style | 27 | 89 | agrees (C actions) |
 | yaml | blind | -- | -- | agrees (C7: declared blind) |
-| zig | C-style | 3,525 | 19,370 | D (nested `fn`, 296); K: `and (`/`or (`, `union(enum)`; `@builtin(` are calls (C2) |
+| zig | C-style | 3,525 | 19,370 | D (nested `fn`, 296); K: `and (`/`or (`, `union(enum)`; `@builtin(` are calls (C2); a `\\` multiline-string line is shielded whole (#6435) |
 
 Summary: 37 of 65 languages agree outside the global **B**. The rest are **K** (19), **A** (6),
 **D** (8), **S** (1: tcl), **G** (1: cobol), **I** (1: matlab) and **R** (1: haskell). Every

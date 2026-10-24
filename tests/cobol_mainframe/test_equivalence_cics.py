@@ -88,7 +88,7 @@ def test_a_link_runs_a_new_level_on_the_callers_own_commarea():
     got = ec.translate_command("LINK PROGRAM('CASUB') COMMAREA(WS-CA100) LENGTH(100)", ["MAIN-ABEND"])
     assert got[:5] == ["MOVE 'CASUB' TO GG-NAME1", "MOVE 100 TO GG-LEN", "MOVE 1 TO GG-ITEM",
                        "MOVE SPACES TO GG-FLAGS", "CALL 'GGCLINK' USING GG-CICS"]  # fmt: skip
-    assert got[6:13] == ["IF GG-RESP = 0", "    CALL 'GGCRUN' USING WS-CA100", "    CALL 'GGCLRET' USING GG-CICS",
+    assert got[12:19] == ["IF GG-RESP = 0", "    CALL 'GGCRUN' USING WS-CA100", "    CALL 'GGCLRET' USING GG-CICS",
                          "    GO TO", "        MAIN-ABEND", "        DEPENDING ON GG-GOTO", "    IF GG-GOTO < 0"]  # fmt: skip
     assert "    CALL 'GGCCOND' USING GG-CICS" in got  # PGMIDERR without RESP: the default action
     bare = ec.translate_command("LINK PROGRAM(WS-PGM) RESP(WS-R)")
@@ -218,7 +218,8 @@ def test_channels_and_containers_become_stub_calls():
     """#4270: PUT / GET / DELETE CONTAINER -> GGCPUTC / GGCGETC / GGCDELC with the container in GG-QNAME, the channel
     in GG-CHAN (GG-FLAGS CHANNEL; none: the current channel), the data type / APPEND / NODATA in GG-FLAGS and FLENGTH
     in GG-LEN -- set back on NORMAL / LENGERR only (IBM, GET CONTAINER (CHANNEL)); LINK / XCTL CHANNEL pass the
-    channel; ASSIGN CHANNEL reads it back. The CCSID options, SET and RETURN CHANNEL are refused by name."""
+    channel; ASSIGN CHANNEL reads it back. The CCSID options and SET are refused by name; RETURN CHANNEL: see
+    test_return_channel_becomes_a_stub_call."""
     put = ec.translate_command("PUT CONTAINER('REQ') CHANNEL(WS-CH) FROM(WS-A) FLENGTH(WS-N) CHAR APPEND RESP(R)")
     assert put[:5] == ["MOVE 'REQ' TO GG-QNAME", "MOVE WS-CH TO GG-CHAN", "MOVE 'CHANNEL CHAR APPEND' TO GG-FLAGS",
                        "MOVE WS-N TO GG-LEN", "IF GG-LEN > LENGTH OF WS-A"]  # fmt: skip
@@ -249,7 +250,9 @@ def test_channels_and_containers_become_stub_calls():
         "GET CONTAINER(C) INTO(A) INTOCCSID(1140) CONVERTST(DFHVALUE(NOCONVERT))",
         "GET CONTAINER(C) INTO(A) CCSID(N)",
         "GET CONTAINER(C) FLENGTH(L)",
-        "RETURN TRANSID('T') CHANNEL(C)",
+        "RETURN CHANNEL(C)",
+        "RETURN TRANSID('T') CHANNEL(C) COMMAREA(A)",
+        "RETURN TRANSID('T') CHANNEL(C) IMMEDIATE",
         "LINK PROGRAM('P') CHANNEL(C) COMMAREA(A)",
         "MOVE CONTAINER(A)",
         "MOVE CONTAINER(A) AS(B) CONTAINERTYPE(X)",
@@ -259,6 +262,18 @@ def test_channels_and_containers_become_stub_calls():
         "PUT CONTAINER(C) FROM(A) BIT CHAR",
     ):
         with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+
+
+def test_return_channel_becomes_a_stub_call():
+    """#5005 (X17): RETURN TRANSID CHANNEL -> GGCRETC with the transid in GG-NAME1 and the channel in GG-CHAN. It
+    returns to the program (GOBACK only on success) when the RETURN fails below level 1 (INVREQ RESP2 2); CHANNEL
+    without TRANSID, or beside COMMAREA / LENGTH / IMMEDIATE, is refused by name."""
+    ret = ec.translate_command("RETURN TRANSID('PC62') CHANNEL(WS-CUR) RESP(R)")
+    assert ret[:3] == ["MOVE 'PC62' TO GG-NAME1", "MOVE WS-CUR TO GG-CHAN", "CALL 'GGCRETC' USING GG-CICS"]
+    assert ret[5:8] == ["IF GG-RESP = 0", "    GOBACK", "END-IF"] and "MOVE GG-RESP TO R" in ret
+    for bad in ("RETURN CHANNEL(C)", "RETURN TRANSID('T') CHANNEL(C) LENGTH(4)"):
+        with pytest.raises(ec.Unsupported, match="RETURN CHANNEL"):
             ec.translate_command(bad)
 
 
@@ -296,6 +311,51 @@ def test_container_byteoffset_and_prepend_become_stub_arguments():
     ):
         with pytest.raises(ec.Unsupported):
             ec.translate_command(bad)
+
+
+@pytest.mark.parametrize(
+    "base",
+    [
+        "PUT CONTAINER('REQ') CHANNEL(WS-CH) FROM(WS-A) FLENGTH(WS-N) CHAR APPEND RESP(R)",
+        "PUT CONTAINER(C) FROM(WS-A) DATATYPE(DFHVALUE(BIT)) PREPEND",
+        "PUT CONTAINER(C) FROM(WS-A) FROMCCSID(1140)",
+        "GET CONTAINER(C) INTO(WS-A) FLENGTH(WS-N) RESP(R) RESP2(R2)",
+        "GET CONTAINER(C) CHANNEL('CH') INTO(WS-A) BYTEOFFSET(WS-OFF)",
+        "GET CONTAINER(C) NODATA FLENGTH(WS-N)",
+        "GET CONTAINER(C) INTO(WS-A) INTOCCSID(500) FLENGTH(WS-N)",
+    ],
+)
+def test_get64_and_put64_container_become_the_base_commands_stub_calls(base):
+    """#5005 (X17): GET64 / PUT64 CONTAINER take the same options and answer with the same conditions as GET / PUT
+    CONTAINER (INTO / FROM an ordinary item, ASSUMED), so the stub gets the very same calls; SET (a 64-bit pointer)
+    is refused by name."""
+    sixty_four = base.replace("GET ", "GET64 ", 1).replace("PUT ", "PUT64 ", 1)
+    assert ec.translate_command(sixty_four) == ec.translate_command(base)
+
+
+def test_get64_container_set_is_refused_by_name():
+    for bad in ("GET64 CONTAINER(C) SET(PTR) FLENGTH(WS-N)", "GET64 CONTAINER(C) SET(PTR) FLENGTH(WS-N) INTOCCSID(1140)"):
+        with pytest.raises(ec.Unsupported, match="64-bit pointer"):
+            ec.translate_command(bad)
+
+
+@pytest.mark.parametrize(
+    "base",
+    [
+        "GET CONTAINER(C) FLENGTH(WS-N)",
+        "GET CONTAINER(C) INTO(A) INTOCODEPAGE('UTF-8')",
+        "PUT CONTAINER(C) FROM(A) FROMCODEPAGE('IBM037')",
+        "PUT CONTAINER(C) FROM(A) APPEND PREPEND",
+        "PUT CONTAINER(C) FROM(A) BIT CHAR",
+    ],
+)
+def test_get64_and_put64_container_refuse_what_the_base_command_refuses(base):
+    sixty_four = base.replace("GET ", "GET64 ", 1).replace("PUT ", "PUT64 ", 1)
+    with pytest.raises(ec.Unsupported) as want:
+        ec.translate_command(base)
+    with pytest.raises(ec.Unsupported) as got:
+        ec.translate_command(sixty_four)
+    assert str(got.value) == str(want.value)
 
 
 def test_move_container_and_the_container_browse_call_the_stub():

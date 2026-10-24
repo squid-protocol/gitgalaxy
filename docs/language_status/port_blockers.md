@@ -12,28 +12,28 @@ an unfinished log, not a clean estate.
 
 | round | estate | blockers | cumulative | new classes | repeats | programs named | blockers per program named | refused by name |
 |---|---|---|---|---|---|---|---|---|
-| 2 | cics-banking-sample-application-cbsa | 16 | 16 | 7 | 9 | 10 | 1.60 | 0 |
-| 3 | aws-mainframe-modernization-carddemo | 30 | 46 | 3 | 27 | 23 | 1.30 | 1 |
-| 4 | cics-genapp | 7 | 53 | 0 | 7 | 4 | 1.75 | 0 |
-| 5 | zecs | 6 | 59 | 0 | 6 | 4 | 1.50 | 0 |
-| 7 | dbb-mortgage-application | 4 | 63 | 0 | 4 | 3 | 1.33 | 0 |
-| 8 | cics-async-api-credit-card-application-example | 2 | 65 | 0 | 2 | 0 | n/a | 0 |
+| 2 | cics-banking-sample-application-cbsa | 17 | 17 | 7 | 10 | 11 | 1.55 | 0 |
+| 3 | aws-mainframe-modernization-carddemo | 31 | 48 | 3 | 28 | 24 | 1.29 | 1 |
+| 4 | cics-genapp | 7 | 55 | 0 | 7 | 4 | 1.75 | 0 |
+| 5 | zecs | 6 | 61 | 0 | 6 | 4 | 1.50 | 0 |
+| 7 | dbb-mortgage-application | 4 | 65 | 0 | 4 | 3 | 1.33 | 0 |
+| 8 | cics-async-api-credit-card-application-example | 3 | 68 | 0 | 3 | 1 | 3.00 | 0 |
 
-No single estate: 23 (P005 by sibling sweep after round 8, P065 by sibling sweep after round 8, P066 by review after round 8, P067 by review after round 8, P068 by review after round 8, P069 by sibling sweep after round 8, P070 by sibling sweep after round 8, P071 by sibling sweep after round 8, P072 by sibling sweep after round 8, P073 by sibling sweep after round 8, P074 by sibling sweep after round 8, P075 by sibling sweep after round 8, P076 by sibling sweep after round 8, P079 by sibling sweep after round 8, P080 by sibling sweep after round 8, P081 by sibling sweep after round 8, P082 by sibling sweep after round 8, P083 by review after round 8, P084 by review after round 8, P085 by review after round 8, P086 by review after round 8, P087 by review after round 8, P088 by review after round 8).
+No single estate: 48 (P005 by sibling sweep after round 8, P065 by sibling sweep after round 8, P066 by review after round 8, P067 by review after round 8, P068 by review after round 8, P069 by sibling sweep after round 8, P070 by sibling sweep after round 8, P071 by sibling sweep after round 8, P072 by sibling sweep after round 8, P073 by sibling sweep after round 8, P074 by sibling sweep after round 8, P075 by sibling sweep after round 8, P076 by sibling sweep after round 8, P079 by sibling sweep after round 8, P081 by sibling sweep after round 8, P082 by sibling sweep after round 8, P083 by review after round 8, P084 by review after round 8, P085 by review after round 8, P086 by review after round 8, P087 by review after round 8, P088 by review after round 8, P089 by review after round 8, P090 by crucible after round 8, P091 by crucible after round 8, P092 by sibling sweep after round 8, P093 by sibling sweep after round 8, P095 by crucible after round 8, P096 by crucible after round 8, P097 by crucible after round 8, P098 by crucible after round 8, P099 by crucible after round 8, P100 by crucible after round 8, P101 by crucible after round 8, P102 by crucible after round 8, P103 by review after round 8, P104 by crucible after round 8, P105 by review after round 8, P106 by review after round 8, P108 by sibling sweep after round 8, P109 by sibling sweep after round 8, P110 by sibling sweep after round 8, P111 by sibling sweep after round 8, P112 by sibling sweep after round 8, P113 by sibling sweep after round 8, P114 by sibling sweep after round 8, P115 by sibling sweep after round 8, P116 by sibling sweep after round 8).
 
 ## By side and class
 
 | side | blockers | | class | blockers | first seen |
 |---|---|---|---|---|---|
-| det | 46 | | cics-command | 16 | P024 |
-| transaction-forge | 4 | | cobol-dialect | 14 | P006 |
-| facade | 8 | | commarea-bytes | 19 | P028 |
-| harness | 29 | | data-layout | 5 | P027 |
-| runtime | 1 | | control-flow | 6 | P015 |
+| det | 71 | | cics-command | 22 | P024 |
+| transaction-forge | 4 | | cobol-dialect | 23 | P006 |
+| facade | 8 | | commarea-bytes | 23 | P028 |
+| harness | 32 | | data-layout | 8 | P027 |
+| runtime | 1 | | control-flow | 7 | P015 |
 |  |  | | db2 | 8 | P026 |
-|  |  | | vsam | 7 | P019 |
+|  |  | | vsam | 8 | P019 |
 |  |  | | eib-fact | 1 | P005 |
-|  |  | | oracle-model | 6 | P025 |
+|  |  | | oracle-model | 10 | P025 |
 |  |  | | ci-gate | 4 | P001 |
 |  |  | | ims-mq | 2 | P040 |
 
@@ -44,41 +44,66 @@ logged blockers per program. A blocker with no estate is counted on its own row,
 
 | round | estate | programs | blockers | per program | cumulative blockers | new classes | classes seen | rounds since a new class |
 |---|---|---|---|---|---|---|---|---|
-| 2 | cics-banking-sample-application-cbsa | 31 | 16 | 0.52 | 16 | 7 | 7 | 0 |
-| 3 | aws-mainframe-modernization-carddemo | 44 | 30 | 0.68 | 46 | 3 | 10 | 0 |
-| 4 | cics-genapp | 31 | 7 | 0.23 | 53 | 0 | 10 | 1 |
-| 5 | zecs | 5 | 6 | 1.20 | 59 | 0 | 10 | 2 |
-| 7 | dbb-mortgage-application | 6 | 4 | 0.67 | 63 | 0 | 10 | 3 |
-| 8 | cics-async-api-credit-card-application-example | 10 | 2 | 0.20 | 65 | 0 | 10 | 4 |
-| 8 | none (sibling sweep, P005) | | 1 | | 66 | 1 | 11 | |
-| 8 | none (sibling sweep, P065) | | 1 | | 67 | 0 | 11 | |
-| 8 | none (review, P066) | | 1 | | 68 | 0 | 11 | |
-| 8 | none (review, P067) | | 1 | | 69 | 0 | 11 | |
-| 8 | none (review, P068) | | 1 | | 70 | 0 | 11 | |
-| 8 | none (sibling sweep, P069) | | 1 | | 71 | 0 | 11 | |
-| 8 | none (sibling sweep, P070) | | 1 | | 72 | 0 | 11 | |
-| 8 | none (sibling sweep, P071) | | 1 | | 73 | 0 | 11 | |
-| 8 | none (sibling sweep, P072) | | 1 | | 74 | 0 | 11 | |
-| 8 | none (sibling sweep, P073) | | 1 | | 75 | 0 | 11 | |
-| 8 | none (sibling sweep, P074) | | 1 | | 76 | 0 | 11 | |
-| 8 | none (sibling sweep, P075) | | 1 | | 77 | 0 | 11 | |
-| 8 | none (sibling sweep, P076) | | 1 | | 78 | 0 | 11 | |
-| 8 | none (sibling sweep, P079) | | 1 | | 79 | 0 | 11 | |
-| 8 | none (sibling sweep, P080) | | 1 | | 80 | 0 | 11 | |
-| 8 | none (sibling sweep, P081) | | 1 | | 81 | 0 | 11 | |
-| 8 | none (sibling sweep, P082) | | 1 | | 82 | 0 | 11 | |
-| 8 | none (review, P083) | | 1 | | 83 | 0 | 11 | |
-| 8 | none (review, P084) | | 1 | | 84 | 0 | 11 | |
-| 8 | none (review, P085) | | 1 | | 85 | 0 | 11 | |
-| 8 | none (review, P086) | | 1 | | 86 | 0 | 11 | |
-| 8 | none (review, P087) | | 1 | | 87 | 0 | 11 | |
-| 8 | none (review, P088) | | 1 | | 88 | 0 | 11 | |
+| 2 | cics-banking-sample-application-cbsa | 31 | 17 | 0.55 | 17 | 7 | 7 | 0 |
+| 3 | aws-mainframe-modernization-carddemo | 44 | 31 | 0.70 | 48 | 3 | 10 | 0 |
+| 4 | cics-genapp | 31 | 7 | 0.23 | 55 | 0 | 10 | 1 |
+| 5 | zecs | 5 | 6 | 1.20 | 61 | 0 | 10 | 2 |
+| 7 | dbb-mortgage-application | 6 | 4 | 0.67 | 65 | 0 | 10 | 3 |
+| 8 | cics-async-api-credit-card-application-example | 10 | 3 | 0.30 | 68 | 0 | 10 | 4 |
+| 8 | none (sibling sweep, P005) | | 1 | | 69 | 1 | 11 | |
+| 8 | none (sibling sweep, P065) | | 1 | | 70 | 0 | 11 | |
+| 8 | none (review, P066) | | 1 | | 71 | 0 | 11 | |
+| 8 | none (review, P067) | | 1 | | 72 | 0 | 11 | |
+| 8 | none (review, P068) | | 1 | | 73 | 0 | 11 | |
+| 8 | none (sibling sweep, P069) | | 1 | | 74 | 0 | 11 | |
+| 8 | none (sibling sweep, P070) | | 1 | | 75 | 0 | 11 | |
+| 8 | none (sibling sweep, P071) | | 1 | | 76 | 0 | 11 | |
+| 8 | none (sibling sweep, P072) | | 1 | | 77 | 0 | 11 | |
+| 8 | none (sibling sweep, P073) | | 1 | | 78 | 0 | 11 | |
+| 8 | none (sibling sweep, P074) | | 1 | | 79 | 0 | 11 | |
+| 8 | none (sibling sweep, P075) | | 1 | | 80 | 0 | 11 | |
+| 8 | none (sibling sweep, P076) | | 1 | | 81 | 0 | 11 | |
+| 8 | none (sibling sweep, P079) | | 1 | | 82 | 0 | 11 | |
+| 8 | none (sibling sweep, P081) | | 1 | | 83 | 0 | 11 | |
+| 8 | none (sibling sweep, P082) | | 1 | | 84 | 0 | 11 | |
+| 8 | none (review, P083) | | 1 | | 85 | 0 | 11 | |
+| 8 | none (review, P084) | | 1 | | 86 | 0 | 11 | |
+| 8 | none (review, P085) | | 1 | | 87 | 0 | 11 | |
+| 8 | none (review, P086) | | 1 | | 88 | 0 | 11 | |
+| 8 | none (review, P087) | | 1 | | 89 | 0 | 11 | |
+| 8 | none (review, P088) | | 1 | | 90 | 0 | 11 | |
+| 8 | none (review, P089) | | 1 | | 91 | 0 | 11 | |
+| 8 | none (crucible, P090) | | 1 | | 92 | 0 | 11 | |
+| 8 | none (crucible, P091) | | 1 | | 93 | 0 | 11 | |
+| 8 | none (sibling sweep, P092) | | 1 | | 94 | 0 | 11 | |
+| 8 | none (sibling sweep, P093) | | 1 | | 95 | 0 | 11 | |
+| 8 | none (crucible, P095) | | 1 | | 96 | 0 | 11 | |
+| 8 | none (crucible, P096) | | 1 | | 97 | 0 | 11 | |
+| 8 | none (crucible, P097) | | 1 | | 98 | 0 | 11 | |
+| 8 | none (crucible, P098) | | 1 | | 99 | 0 | 11 | |
+| 8 | none (crucible, P099) | | 1 | | 100 | 0 | 11 | |
+| 8 | none (crucible, P100) | | 1 | | 101 | 0 | 11 | |
+| 8 | none (crucible, P101) | | 1 | | 102 | 0 | 11 | |
+| 8 | none (crucible, P102) | | 1 | | 103 | 0 | 11 | |
+| 8 | none (review, P103) | | 1 | | 104 | 0 | 11 | |
+| 8 | none (crucible, P104) | | 1 | | 105 | 0 | 11 | |
+| 8 | none (review, P105) | | 1 | | 106 | 0 | 11 | |
+| 8 | none (review, P106) | | 1 | | 107 | 0 | 11 | |
+| 8 | none (sibling sweep, P108) | | 1 | | 108 | 0 | 11 | |
+| 8 | none (sibling sweep, P109) | | 1 | | 109 | 0 | 11 | |
+| 8 | none (sibling sweep, P110) | | 1 | | 110 | 0 | 11 | |
+| 8 | none (sibling sweep, P111) | | 1 | | 111 | 0 | 11 | |
+| 8 | none (sibling sweep, P112) | | 1 | | 112 | 0 | 11 | |
+| 8 | none (sibling sweep, P113) | | 1 | | 113 | 0 | 11 | |
+| 8 | none (sibling sweep, P114) | | 1 | | 114 | 0 | 11 | |
+| 8 | none (sibling sweep, P115) | | 1 | | 115 | 0 | 11 | |
+| 8 | none (sibling sweep, P116) | | 1 | | 116 | 0 | 11 | |
 
 ## Expected for the next estate
 
-Logged blockers per program over the last 3 estates: 0.57 pooled (range 0.20 to 1.20); over all 6 estates 0.51. For a next estate of N programs that is about 0.6*N logged blockers (between 0.2*N and 1.2*N): 5.7 per 10 programs, 23 for 40.
+Logged blockers per program over the last 3 estates: 0.62 pooled (range 0.30 to 1.20); over all 6 estates 0.54. For a next estate of N programs that is about 0.6*N logged blockers (between 0.3*N and 1.2*N): 6.2 per 10 programs, 25 for 40.
 
-New classes: 11 of the 88 logged blockers opened a class, and the last 4 estate(s) opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a floor on novelty, not a guarantee.
+New classes: 11 of the 116 logged blockers opened a class, and the last 4 estate(s) opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a floor on novelty, not a guarantee.
 
 Read this as an order of magnitude. The ledger is a partial backfill (the issue's keyword count is ~1.3 blockers per program on the first port falling to ~0.25 on the fifth, zECS excepted for new API areas, which is higher than the logged rate here), so the logged rate is a lower bound. There are 6 data points and no variance model: the range is the spread of the last 3, not a confidence interval.
 
@@ -102,6 +127,7 @@ Read this as an order of magnitude. The ledger is a partial backfill (the issue'
 | P064 | 2 | cics-banking-sample-application-cbsa | det | cobol-dialect | no | bnk1cac, bnk1tfn, bnk1uac | #4741 / #4759 | no | FUNCTION NUMVAL in a fixed-point COMPUTE was exact decimal; IBM evaluates it in long HFP, which blocked the three BNK1 programs translating whole. |
 | P077 | 2 | cics-banking-sample-application-cbsa | harness | cics-command | no | crecust | #4950 / #5013 | no | The async CICS API members the first slice left: FETCH that waits or has TIMEOUT needed a child scheduler (harness redesign), FREE CHILD and START CHANNEL were refused, RUN CHANNEL symbol names were unsourced. CBSA CRECUST exercises the FETCH path; FETCH stayed DIFFERS (never equal) until the scheduler landed. |
 | P078 | 2 | cics-banking-sample-application-cbsa | harness | db2 | no | crecust | #4952 | no | CBSA CRECUST translated whole (LE + async CICS commands) but had no equivalence case: it needs a Db2 seed and running RUN TRANSID children; never counted proven while a FETCH is DIFFERS or a LINK/CALL target has holes. |
+| P107 | 2 | cics-banking-sample-application-cbsa | harness | commarea-bytes | no | inqacccu | #4765 / #4772 | no | A COMMAREA with an OCCURS was compared at its first occurrence only, and a det LINK of an OCCURS DTO passed the first occurrence's extent; CBSA INQACCCU (up to 20 accounts) was never proven past account 1. The harness now compares every occurrence and the whole table travels. |
 | P008 | 3 | aws-mainframe-modernization-carddemo | det | cobol-dialect | no |  | #3823 | no | Generated code used String.format / toUpperCase / toLowerCase without Locale.ROOT, so output depended on the JVM locale. |
 | P012 | 3 | aws-mainframe-modernization-carddemo | facade | commarea-bytes | no |  | #4441 | no | The 14 CardDemo equivalence ports' facades still used the old typed COMMAREA after #4427 and needed regenerating. |
 | P013 | 3 | aws-mainframe-modernization-carddemo | facade | commarea-bytes | no | cosgn00c | #4464 | no | COSGN00C's facade took no COMMAREA although its pseudo-conversation RETURNs one to itself (opaque ODO). |
@@ -132,6 +158,7 @@ Read this as an order of magnitude. The ledger is a partial backfill (the issue'
 | P051 | 3 | aws-mainframe-modernization-carddemo | harness | cics-command | no | cocrdslc, cocrdlic | #5401 / #5412 | no | Mutation-survivor gaps across seven CardDemo ports: the harness compared SEND TEXT by text only, so an options-changing mutant read as proven (#5412); the oracle refuses 16 of COCRDLIC's 46 scenarios (register X8, open). |
 | P052 | 3 | aws-mainframe-modernization-carddemo | harness | oracle-model | no | cousr00c | #6166 | no | IOERR has no oracle abend code (abendOn defaults to INVREQ) and two COUSR00C harness gaps return after an XCTL; found while faulting its XCTL sites. |
 | P053 | 3 | aws-mainframe-modernization-carddemo | harness | commarea-bytes | no |  | #4449 | no | The equivalence harness had no java-facade side: the 14 regenerated CardDemo ports were proven through runTask only, and cross-program facade sides carried an untyped Object. |
+| P080 | 3 | aws-mainframe-modernization-carddemo | det | vsam | no | cbstm03b | #5034 / #5068 | no | A CALLed subprogram's DDs are bound in its caller's JCL step, not its own (CardDemo CBSTM03B, called by CBSTM03A): det refused every file statement with 'no repository for this file'; the only such refusal left across the surveyed corpora. Fixed by propagating the job's bindings to static CALL targets. |
 | P002 | 4 | cics-genapp | harness | oracle-model | no | lgtestp4 | #4652 / #4693 | no | A space-filled zoned item moved to a binary host variable: GnuCOBOL gave 931773840, the det port 0; IBM documents no result for non-digit data (oracle assumption C11). |
 | P007 | 4 | cics-genapp | transaction-forge | control-flow | no |  | #3510 | no | Forge reachability treated an exhaustive EVALUATE whose every branch transfers control as falling through. |
 | P009 | 4 | cics-genapp | harness | db2 | no |  | #4173 | no | The equivalence harness could not inject SQL faults, so SQLCODE error branches were never proven (register M2). |
@@ -165,7 +192,6 @@ Read this as an order of magnitude. The ledger is a partial backfill (the issue'
 | P075 | 8 | none | det | commarea-bytes | no |  | #5060 / #5651 | yes | Model-port scalar fields (a String or numeric DTO field) passed as an XCTL COMMAREA could not be traced to the caller's DFHCOMMAREA, so X39 was not refused; the burned-estate reach was re-checked, and copy-vs-same-storage stays refused until a real CICS calibration run (#4702). |
 | P076 | 8 | none | det | cics-command | no |  | #4951 / #5004 | no | MOVE CONTAINER and the container browse commands (STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER) were refused whole; found in the #4884 class sweep (channels and containers in the det runtime), modelled with RESP / RESP2 conditions and register entries. |
 | P079 | 8 | none | harness | commarea-bytes | no |  | #4778 / #4780 | no | The batch CALL compare (equivalence_call.compare_dto) checked only DTO-mapped fields, and DTOs with a trailing FILLER (CBSA CustctrlDfhcommarea, GenApp Lg* DTOs) kept a short extent, so unmapped LINKAGE bytes were never compared; BMS OCCURS is refused. |
-| P080 | 8 | none | det | vsam | no | cbstm03b | #5034 / #5068 | no | A CALLed subprogram's DDs are bound in its caller's JCL step, not its own (CardDemo CBSTM03B, called by CBSTM03A): det refused every file statement with 'no repository for this file'; the only such refusal left across the surveyed corpora. Fixed by propagating the job's bindings to static CALL targets. |
 | P081 | 8 | none | det | vsam | no |  | #5072 | yes | DD bindings still coarser than IBM's run unit after #5068: step-level scoping (dataset_lineage is job-wide, so a callee in a job whose two steps bind one DD to different DSNs is refused) and a CALL through a data item; both refused today, not a wrong translation. |
 | P082 | 8 | none | harness | cics-command | no | zecs000, asyncpnt, zecs003 | #5089 / #5147 | no | Burned CICS programs translated whole with no runnable equivalence case: ZECS000's install-symbol dataset names, ASYNCPNT's nested RUN TRANSID grandchild, and a proof_blockers EIBFN false positive from a record literal; the harness refused each by name until stated. |
 | P083 | 8 | none | det | cobol-dialect | no |  | #4874 / #4897 | no | A fixed-form inline *> comment inside a condition became a statement hole, or crashed the PROCEDURE DIVISION parse after NOT; found fixing #4682 by fuzz, not on a burned program. Dropped at the source layer. |
@@ -174,3 +200,30 @@ Read this as an order of magnitude. The ledger is a partial backfill (the issue'
 | P086 | 8 | none | det | oracle-model | no |  | #4687 / #5330 | yes | A zero divisor inside a larger COMP-1/COMP-2 expression is a run-time stop in the port while the oracle aligns the NaN; kept as a named stop and registered, not modelled. |
 | P087 | 8 | none | det | oracle-model | no |  | #4688 / #5329 | no | Three float expressions the oracle evaluates differently from IBM (MOVE COMP-1 to an edited item, a compound float COMPUTE, ADD of a COMP-2 zero to COMP-3); pinned as IBM vectors and documented in C6, not made to follow the oracle. |
 | P088 | 8 | none | det | cobol-dialect | no |  | #4690 / #4696 | no | A hex literal holding X'0A' or X'0D' in a MOVE emitted a Java string literal that javac cannot compile (the unicode escape ends the line); emitted byte-safe. |
+| P089 | 8 | none | det | cobol-dialect | no |  | #4523 / #4526 | no | A single-quoted literal continued onto the next line ('-' in column 7, the continuation opening with an apostrophe) did not parse, nor did a doubled quote inside a literal; the det grammar read only the double-quoted form, so the program was refused. |
+| P090 | 8 | none | det | commarea-bytes | no |  | #4528 / #4533 | no | Det ports on the CICS crucible encoded and decoded TS and COMMAREA bytes in the wrong charset, and det/cics.py read DTO copybooks as latin-1, so byte-level proofs failed with the logic right; both now take the region's declared code page. |
+| P091 | 8 | none | det | commarea-bytes | no |  | #4534 / #4541 | no | A LINKed program's COMMAREA writes were copied back to the caller only on a normal RETURN, so after the callee abended the caller no longer saw them (CICS passes a local LINK COMMAREA by reference). |
+| P092 | 8 | none | det | cobol-dialect | no |  | #4539 / #4556 | no | PROGRAM COLLATING SEQUENCE was read only by SORT / MERGE: an alphanumeric relation condition compared in byte order whatever the program's sequence, silently; IBM and GnuCOBOL both apply it. |
+| P093 | 8 | none | det | cobol-dialect | no |  | #4557 / #4567 | no | A relation with an ALL literal (IF X = ALL 'ab') made the det generator emit Cobol.compareAll, which the runtime lacked, so the port failed at javac instead of translating or being refused. |
+| P094 | 8 | cics-async-api-credit-card-application-example | det | control-flow | no | getpol | #4630 / #4643 | no | A lone program's last paragraph or section extent ran over its END PROGRAM 'X'. line in all 10 async credit-card programs, so the translator's unit extents disagreed with the engine and the answer key (20 fact cross-check disagreements). |
+| P095 | 8 | none | det | oracle-model | no |  | #4655 / #4677 | no | A zero divisor in COMPUTE / DIVIDE without ON SIZE ERROR threw ArithmeticException in the det runtime; the oracle sets the size-error condition and leaves the receivers unchanged (reachable from non-zero data under ARITHMETIC-OSVS truncation). |
+| P096 | 8 | none | det | cobol-dialect | no |  | #4656 / #4680 | no | Three statements GnuCOBOL compiles were refused: ZERO inside condition arithmetic ((ZERO + 3) / 12 NOT > D0), ZERO in an EVALUATE WHEN object, and a relation split after NOT across a line end (rejecting the whole PROCEDURE DIVISION); found by the randomized differential run. |
+| P097 | 8 | none | det | oracle-model | no |  | #4662 / #4693 | no | The rest of oracle register C11: non-digit zoned data as MOVE sender, arithmetic operand and comparand (and the sign rewrite on a MOVE to binary) gave answers that differ from the oracle; modelled as the oracle computes them. |
+| P098 | 8 | none | det | data-layout | no |  | #4664 / #4854 | no | A data name holding a single-byte national letter of the declared code page (cp273 BETRAEGE / GEBUEHR in an estate-crucible program) was refused by name, so the program got no translation and no translator facts; now accepted. |
+| P099 | 8 | none | det | cobol-dialect | no |  | #4665 / #4668 | no | A numeric-edited item compared with a numeric literal was de-edited and compared as a number in the port, while GnuCOBOL compares the edited text, so the program took the other branch with no hole reported. |
+| P100 | 8 | none | det | data-layout | no |  | #4669 / #4685 | yes | A PIC SVPP99 COMP-3 item (P scaling left of the digits, packed) crashed the translator with ValueError instead of refusing by name; P-scaled pictures are modelled as cobc stores them and the rest refused by name. |
+| P101 | 8 | none | det | data-layout | no |  | #4670 / #4685 | no | MOVE 1200 into a PIC 99PP receiver threw in Cobol.store instead of storing the scaled value (12, scale -2) as cobc does; fixed with the P-scaled picture work for the left- and right-P, COMP-3, binary and zoned receivers. |
+| P102 | 8 | none | det | cobol-dialect | no |  | #4671 / #5342 | no | A comparison of a group (alphanumeric class) operand with a numeric item or literal was neither modelled nor measured against the oracle; a numeric item compared with a group is now compared as its digits. |
+| P103 | 8 | none | det | cobol-dialect | no |  | #4674 / #4680 | no | A relational operator on the line after NOT lost the break in statement splitting and made the det translator reject the whole PROCEDURE DIVISION, so the program got no port; GnuCOBOL (-std=ibm) compiles it. |
+| P104 | 8 | none | det | cobol-dialect | no |  | #4676 / #4686 | no | A NOT ON SIZE ERROR after a nested unterminated arithmetic statement bound to the outer statement; the phrase belongs to the innermost open one, so the port ran different statements than the oracle. |
+| P105 | 8 | none | det | oracle-model | no |  | #4684 / #4689 | no | A result overflowing an unsigned binary receiver's bytes (no ON SIZE ERROR) was stored unlike GnuCOBOL's native arithmetic; found by the P-scaled fuzz, reproduced with an unscaled PICTURE. The det runtime now wraps an unsigned binary ADD / SUBTRACT as cobc does. |
+| P106 | 8 | none | harness | oracle-model | no |  | #4751 / #4754 | yes | GnuCOBOL lays out a 1-2 digit COMP-5 item in one byte where IBM uses a halfword, so a group holding one gets different offsets and a value past the byte wraps differently; found fuzzing typed binary stores. Refused on the oracle side and declared as register C16, not modelled. |
+| P108 | 8 | none | det | cics-command | no |  | #4940 / #4971 | no | WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (HTTPHEADER, FORMFIELD, QUERYPARM) were name-only, so a program reading its inbound request got no port; modelled over the stated request (register X38). No burned program is known to use them. |
+| P109 | 8 | none | det | cics-command | no |  | #4941 / #5036 | no | WEB RETRIEVE (server) was name-only: a program retrieving the document it received was refused whole; modelled on both runtimes (register X41), the NORMAL form and SEND ACTION(EVENTUAL) in a later PR. |
+| P110 | 8 | none | det | cics-command | no |  | #4972 / #5026 | no | EXTRACT WEB and EXTRACT TCPIP (client/server address, port, SSL type) were name-only, the older request-reading forms next to WEB EXTRACT; modelled from the stated request (register X38) on both runtimes and translators. |
+| P111 | 8 | none | harness | commarea-bytes | no |  | #4965 / #5050 | no | The CICS crucible and the equivalence harness entered only through handleTransaction(String, T): the byte-carrying overload and lastAnswerBytes() were driven by no scenario, leaving 5 mutation survivors in it triaged unreachable. The harness now drives it and compares the answered bytes with the RETURN's. |
+| P112 | 8 | none | det | cics-command | no |  | #5039 / #5098 | no | CICS fullword named-counter commands (DEFINE / QUERY COUNTER MINIMUM / MAXIMUM, GET INCREMENT WRAP, REWIND, UPDATE, REDUCE / COMPAREMIN / COMPAREMAX, NOSUSPEND) were refused by name after the DCOUNTER slice; modelled on both runtimes, X30's signed reading of low-values stays an assumption. |
+| P113 | 8 | none | det | cics-command | no |  | #5082 / #5115 | no | Det RECEIVE MAP ignored DFHMDF JUSTIFY: AMT is JUSTIFY=(RIGHT,ZERO), IBM right-justifies and zero-fills the input and the COBOL side does, so a det PCCONF (translated whole, 47/47) failed 4 of 6 cells against pc-wizard; also proof_reach counted det helpers as ported-unproven. |
+| P114 | 8 | none | det | cics-command | no |  | #5092 / #5204 | no | Tokenless update holds recorded INVREQ RESP2 0 in both runtimes (REWRITE with no prior READ UPDATE: 30; DELETE without RIDFLD: 31; a second tokenless READ UPDATE: 28, not modelled); modelled with the full-key READ and DELETE INVREQ / NOTFND RESP2 values checked against IBM's pages. |
+| P115 | 8 | none | det | cobol-dialect | no |  | #5645 / #5654 | no | The det translator resolved COPY with its own regex that did not match a quoted copybook literal with an extension (COPY "x.cpy".), so the copybook was never expanded and its items were unresolved in the generated Java; the scanner and translator now share one COPY / REPLACING rule. |
+| P116 | 8 | none | det | vsam | no |  | #6065 / #6111 | no | In an estate with no application JCL job the batch forge emitted no batch package (CobolFiles), so every OPEN / READ / WRITE / CLOSE was a hole (~50 statements), and WRITE ... ADVANCING phrases were holes too (33); about two-thirds of the holes in two non-burned survey corpora. Batch file runtime now generated for file-owning estates; unmodelled WRITE phrases are named. |

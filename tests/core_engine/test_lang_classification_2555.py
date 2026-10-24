@@ -48,7 +48,6 @@ MOCK_GUIDESTAR_CONFIG = {
         "pyproject.toml": "python",
     },
     "INTENT_BIASED_SECTORS": ["src"],
-    "EXEC_PREFIX_MAP": {},
 }
 
 

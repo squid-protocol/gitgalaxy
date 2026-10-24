@@ -3100,10 +3100,10 @@
       "python/numpy/crackfortran.py": 5823.06,
       "python/numpy/cversions.txt": 1.76,
       "python/numpy/func2subr.py": 495.5,
-      "python/numpy/genapi.py": 604.66,
+      "python/numpy/genapi.py": 610.76,
       "python/numpy/generate_numpy_api.py": 124.32,
       "python/numpy/generate_ufunc_api.py": 81.24,
-      "python/numpy/generate_umath.py": 616.72,
+      "python/numpy/generate_umath.py": 641.22,
       "python/numpy/generate_umath_doc.py": 26.66,
       "python/numpy/lapack_litemodule.c": 99.9,
       "python/numpy/numpy_api.py": 21.92,
@@ -3755,7 +3755,7 @@
       "swift/alamofire/ParameterEncoder.swift": 102.52,
       "swift/alamofire/Request.swift": 625.92,
       "swift/alamofire/Response.swift": 139.96,
-      "swift/alamofire/Session.swift": 749.12
+      "swift/alamofire/Session.swift": 767.12
     },
     "tabular": {
       "tabular/SOURCES.md": 1.0
@@ -4055,7 +4055,7 @@
       "zig/bun/MimallocArena.zig": 126.68,
       "zig/bun/Parser.zig": 732.94,
       "zig/bun/comptime_string_map.zig": 297.46,
-      "zig/bun/napi.zig": 2401.4
+      "zig/bun/napi.zig": 2403.3
     },
     "zig/mach": {
       "zig/mach/Core.zig": 200.24,
@@ -4069,36 +4069,36 @@
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 392.32,
-      "zig/tigerbeetle/build.zig": 565.84,
-      "zig/tigerbeetle/build_multiversion.zig": 102.76,
+      "zig/tigerbeetle/build.zig": 566.84,
+      "zig/tigerbeetle/build_multiversion.zig": 135.16,
       "zig/tigerbeetle/cluster.zig": 569.72,
       "zig/tigerbeetle/config.zig": 35.22,
       "zig/tigerbeetle/constants.zig": 111.32,
       "zig/tigerbeetle/copyhound.zig": 81.56,
       "zig/tigerbeetle/counting_allocator.zig": 55.32,
-      "zig/tigerbeetle/direction.zig": 58.8,
+      "zig/tigerbeetle/direction.zig": 60.9,
       "zig/tigerbeetle/download.sh": 75.36,
       "zig/tigerbeetle/download.win.ps1": 29.3,
-      "zig/tigerbeetle/state_machine.zig": 2337.9
+      "zig/tigerbeetle/state_machine.zig": 2342.4
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 2973.98,
-      "zig/zig/InternPool.zig": 4635.44,
-      "zig/zig/Sema.zig": 18798.88,
-      "zig/zig/Type.zig": 2114.3,
-      "zig/zig/Zcu.zig": 1591.28,
-      "zig/zig/main.zig": 6447.28
+      "zig/zig/Compilation.zig": 3468.98,
+      "zig/zig/InternPool.zig": 4648.54,
+      "zig/zig/Sema.zig": 18922.48,
+      "zig/zig/Type.zig": 2150.4,
+      "zig/zig/Zcu.zig": 1676.48,
+      "zig/zig/main.zig": 6494.08
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 65.44
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": 223.9,
-      "zig/zls/DocumentStore.zig": 537.58,
-      "zig/zls/Server.zig": 917.3,
-      "zig/zls/analysis.zig": 2970.68,
-      "zig/zls/ast.zig": 856.42,
-      "zig/zls/config_gen.zig": 531.28,
+      "zig/zls/DocumentScope.zig": 435.0,
+      "zig/zls/DocumentStore.zig": 881.78,
+      "zig/zls/Server.zig": 1076.2,
+      "zig/zls/analysis.zig": 4057.38,
+      "zig/zls/ast.zig": 930.62,
+      "zig/zls/config_gen.zig": 670.98,
       "zig/zls/langref.html.in": 194.78,
       "zig/zls/print_ast.zig": 215.04
     }

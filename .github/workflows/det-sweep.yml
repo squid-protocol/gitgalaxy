@@ -357,7 +357,7 @@ jobs:
 
           if (snapshot / "snapshot.json").is_file():  # #5882: the cached first start, once the pinned image is here
               pulled = Path(os.environ["RUNNER_TEMP"]) / "pull-done"
-              for _ in range(900):
+              for _ in range(1800):  # #5604: one pull attempt's own bound (1800 s), not half of it
                   if pulled.exists():
                       break
                   time.sleep(1)

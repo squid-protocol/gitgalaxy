@@ -318,6 +318,11 @@ class SecurityLens:
                 r"\b(?:verify_ssl|ssl_verify|verify_certs?)[ \t]*[=:][ \t]*(?:False|0)\b|"
                 r"\bsslVerify[ \t]*[=]?[ \t]*(?:false|0)\b|"
                 r"\bPYTHONHTTPSVERIFY[ \t]*=[ \t]*[\"']?0\b|"
+                # #6239: Java trust-all forms: named helpers, a HostnameVerifier that returns true, an empty checkServerTrusted.
+                r"\b(?:NoopHostnameVerifier|ALLOW_ALL_HOSTNAME_VERIFIER|InsecureTrustManagerFactory|TrustAllStrategy)\b|"
+                r"\b(?:set(?:Default)?HostnameVerifier|HostnameVerifier)\b[^\n;]{0,100}->[ \t]*true\b|"
+                r"\bboolean[ \t]+verify[ \t]*\([^)\n]{0,80}\bSSLSession\b[^)\n]{0,40}\)[ \t\r\n]{0,40}\{[ \t\r\n]{0,40}return[ \t]+true[ \t]*;|"
+                r"\bcheckServerTrusted[ \t]*\([^)\n]{0,160}\)[ \t\r\n]{0,20}(?:throws[ \t]+[\w., \t]{1,60}?[ \t\r\n]{0,20})?\{[ \t\r\n]{0,40}\}|"
                 r"\bNODE_TLS_REJECT_UNAUTHORIZED\b[\"'\]]{0,2}[ \t]*[=:][ \t]*[\"']?0\b|"
                 # `-k` is curl's --insecure; `-K` (config file) must stay silent, so the case flag is scoped off.
                 r"\bcurl\b[^\n|;&]{0,120}?(?:[ \t]--insecure\b|(?-i:[ \t]-[A-Za-z]{0,6}k[A-Za-z]{0,6})(?=[ \t]|$))",

@@ -62,9 +62,12 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   `PYTHONPATH` (#6129).
 * **Put options such as `--max-files-per-commit` before the subcommand:** a positional repo list swallows later flags (#6190).
   Don't use `Closes #N` as a fix label (#6190).
+* **The Java crucible leg prints null event values:** a key is present with a null value, so assert `e.get("length") is None`, not `"length" not in e` (#6348).
 * **A parametrize value whose repr lands in the test id** (raw bytes) must be deterministic across processes, or xdist
   aborts collection: give lazily-built payloads explicit `ids=` (#6257).
 * **A freshness test for a generated list scans tracked files** (`git ls-files`), not whatever is on disk (#6306).
+* **A bare `cat > file` (no heredoc) truncates the file to empty:** check `wc -c` before `-F body=@file`, or the PR body
+  lands empty (#6323).
 * **Worker shell `python` / `mypy` not found:** see `golden-master-guidelines.md` section 4 (re-export the venv bin each Bash call).
 
 ## CI and workflow traps

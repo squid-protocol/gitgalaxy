@@ -658,8 +658,11 @@ def proof_blockers(rows: dict[tuple[str, str], dict[str, Any]], roots: list[Path
         text = read_text(roots, *key)
         if not cc.whole(row):  # #4493 classes 4 / 5: refused or holey, so no proof subject yet; the page says why
             if not only_cics or (text is not None and cc.commands(text)):
-                untranslated.append({"corpus": key[0], "program": key[1], "burned": cc.is_burned(key[0], burned),
-                                     "classes": sorted(cc.gap_classes(row))})  # fmt: skip
+                entry = {"corpus": key[0], "program": key[1], "burned": cc.is_burned(key[0], burned),
+                         "classes": sorted(cc.gap_classes(row))}  # fmt: skip
+                if str(row.get("error", "")).startswith("Copy"):  # #4468: the class drops the member's name; keep it
+                    entry["error"] = " ".join(str(row["error"]).split())[:300]
+                untranslated.append(entry)
             continue
         unreadable += text is None
         if only_cics and text is not None and not cc.commands(text):

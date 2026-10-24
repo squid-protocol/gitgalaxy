@@ -137,6 +137,7 @@ def test_a_cics_family_module_stales_what_its_host_file_does():
         ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_tempstorage.c"),
         ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_conditions.c"),
         ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_filecontrol.c"),
+        ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_faults.c"),
         ("tests/tools/equivalence_cics.py", "tests/tools/equivalence_cics_containers.py"),
         ("tests/tools/equivalence_cics.py", "tests/tools/equivalence_cics_conditions.py"),
         ("tests/tools/equivalence_cics.py", "tests/tools/equivalence_cics_filecontrol.py"),
@@ -145,12 +146,17 @@ def test_a_cics_family_module_stales_what_its_host_file_does():
         ("gitgalaxy/tools/cobol_to_java/det/cics.py", "gitgalaxy/tools/cobol_to_java/det/cics_filecontrol.py"),
         ("gitgalaxy/tools/cobol_to_java/det/cics.py", "gitgalaxy/tools/cobol_to_java/det/cics_taskcontrol.py"),
         ("gitgalaxy/tools/cobol_to_java/det/cics.py", "gitgalaxy/tools/cobol_to_java/det/cics_conditions.py"),
+        ("gitgalaxy/tools/cobol_to_java/det/cics.py", "gitgalaxy/tools/cobol_to_java/det/cics_faults.py"),
         ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
          "gitgalaxy/tools/cobol_to_java/cics_task_containers.py"),
         ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
          "gitgalaxy/tools/cobol_to_java/cics_task_taskcontrol.py"),
         ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
          "gitgalaxy/tools/cobol_to_java/cics_task_filecontrol.py"),
+        ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
+         "gitgalaxy/tools/cobol_to_java/cics_task_conditions.py"),
+        ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
+         "gitgalaxy/tools/cobol_to_java/cics_task_faults.py"),
     ):  # fmt: skip
         for t in (CRUCIBLE, LINKING, DB2_ONLINE, ONLINE, BATCH, CALL, IMS):
             assert stale_after(t, family) == stale_after(t, host), (t.key, family)

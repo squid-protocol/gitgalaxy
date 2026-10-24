@@ -64,6 +64,7 @@ jobs:
             /templates/
             /pyproject.toml
             /requirements*.txt
+            /tests/requirements-mypy.txt
             /action.yml
             /muninn.yml
             /zizmor.yml

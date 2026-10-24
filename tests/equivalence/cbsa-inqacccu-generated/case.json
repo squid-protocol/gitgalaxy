@@ -130,6 +130,93 @@
     "COMM-ACC-TYPE": "OLDTYPE"
    },
    "why": "the caller's COMMAREA arrives with account 1's fields already holding text; every field after the POINTER is overwritten when the customer has accounts"
+  },
+  {
+   "name": "open-deadlock-abends-ad2z",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 246,
+     "sqlcode": -911,
+     "sqlerrmc": "00C90088",
+     "abend": "AD2Z"
+    }
+   ],
+   "why": "#6271 (X73): OPEN ACC-CURSOR deadlocks (-911) and the CICS-Db2 attach's syncpoint rollback fails: the task abends AD2Z, so ABEND-HANDLING takes its AD2Z arm (SQLERRMC the deadlock reason code 00C90088) before the program's own abend path LINKs ABNDPROC"
+  },
+  {
+   "name": "fetch-deadlock-abends-ad2z",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 466,
+     "sqlcode": -911,
+     "sqlerrmc": "00C90088",
+     "abend": "AD2Z"
+    }
+   ],
+   "why": "#6271 (X73): the first FETCH of ACC-CURSOR deadlocks (-911) and the attach's rollback fails: AD2Z, so the arm takes the abend path from inside the FETCH loop (generated rows give customer 1 fewer than two accounts, so the second FETCH of the hand case is not reachable here)"
+  },
+  {
+   "name": "link-inqcust-abends-afcr",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQCUST",
+     "resp": "ABEND",
+     "abcode": "AFCR"
+    }
+   ],
+   "why": "#6271 (X70): the LINK to INQCUST abends AFCR (RLS file control abend seen at the caller): INQACCCU's own HANDLE ABEND exit takes it and the callee never runs"
+  },
+  {
+   "name": "link-inqcust-abends-afcs",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQCUST",
+     "resp": "ABEND",
+     "abcode": "AFCS"
+    }
+   ],
+   "why": "#6271 (X70): the LINK to INQCUST abends AFCS (RLS file control abend seen at the caller): INQACCCU's own HANDLE ABEND exit takes it and the callee never runs"
+  },
+  {
+   "name": "link-inqcust-abends-afct",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQCUST",
+     "resp": "ABEND",
+     "abcode": "AFCT"
+    }
+   ],
+   "why": "#6271 (X70): the LINK to INQCUST abends AFCT (RLS file control abend seen at the caller): INQACCCU's own HANDLE ABEND exit takes it and the callee never runs"
   }
  ],
  "notes": "CBSA's INQACCCU on GENERATED Db2 rows (#4507): 30 IBMUSER.ACCOUNT rows built from CRETB01's CREATE TABLE and CREI101's index (every column at its boundaries, a NULL in every nullable column; a quarter under sort code 123456), their ACCOUNT_CUSTOMER_NUMBER cycling through customers 1, 2, 4 and 5 (customer.txt holds 1, 2, 4 under 987654, not 5), so ACC-CURSOR meets customers with several, one and no accounts; 30 generated LINKs draw CUSTOMER-NUMBER from those rows (a fifth of the time one the table does not hold). Every task's statements are compared with what Db2 answered (compare_sql), and ACCOUNT after every task. The hand scenarios of cbsa-inqacccu that do not depend on its seed.sql rows (customer 0, 9999999999, 5 not on file, a caller's data left in the COMMAREA) stay. Data: customer.txt is SYNTHETIC (cbsa-updcust's). Burned estate (CBSA). Derived from the CICS Bank Sample Application (CBSA), Copyright IBM Corp. 2023, EPL-2.0: LICENSE is the corpus's own. A customer whose rows include a generated NULL date reaches FETCH -305 and the program's failure path; customer 2's rows hold none, so it is the one that returns accounts.",

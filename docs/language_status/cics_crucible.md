@@ -12,11 +12,11 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 48 | 0 | 0 | 48 |
 | forge-compile | 48 | 0 | 0 | 48 |
-| cobol-stub | 130 | 6 | 35 | 171 |
+| cobol-stub | 135 | 4 | 32 | 171 |
 | java | 0 | 171 | 0 | 171 |
-| java-ported | 48 | 123 | 0 | 171 |
-| java-facade | 48 | 123 | 0 | 171 |
-| **all** | **322** | **423** | **35** | **780** |
+| java-ported | 56 | 115 | 0 | 171 |
+| java-facade | 53 | 118 | 0 | 171 |
+| **all** | **340** | **408** | **32** | **780** |
 
 ## By trap and case
 
@@ -62,14 +62,14 @@ Pass counts per side (scenario sides: passing / scenarios).
 | ghost-tasks | `gt-start-retrieve` | pass | pass | 6 / 6 | 0 / 6 | 6 / 6 | 6 / 6 |
 | ghost-tasks | `gt-terminal-coalesce` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | ghost-tasks | `gt-urimap-browse` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| ghost-tasks | `gt-web-client` | pass | pass | 2 / 2 | 0 / 2 | 0 / 2 | 0 / 2 |
-| ghost-tasks | `gt-web-parse-url` | pass | pass | 1 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
+| ghost-tasks | `gt-web-client` | pass | pass | 2 / 2 | 0 / 2 | 2 / 2 | 2 / 2 |
+| ghost-tasks | `gt-web-parse-url` | pass | pass | 3 / 3 | 0 / 3 | 3 / 3 | 3 / 3 |
 | ghost-tasks | `gt-web-server-receive` | pass | pass | 0 / 4 | 0 / 4 | 0 / 4 | 0 / 4 |
 | ghost-tasks | `gt-web-server-send` | pass | pass | 0 / 1 | 0 / 1 | 0 / 1 | 0 / 1 |
 | hex-attributes | `hx-attr-bytes` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | hex-attributes | `hx-extended-cursor` | pass | pass | 3 / 3 | 0 / 3 | 3 / 3 | 3 / 3 |
 | pseudo-conversational | `pc-aid-menu` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
-| pseudo-conversational | `pc-return-channel` | pass | pass | 0 / 3 | 0 / 3 | 0 / 3 | 0 / 3 |
+| pseudo-conversational | `pc-return-channel` | pass | pass | 3 / 3 | 0 / 3 | 3 / 3 | 0 / 3 |
 | pseudo-conversational | `pc-return-immediate` | pass | pass | 4 / 4 | 0 / 4 | 4 / 4 | 4 / 4 |
 | pseudo-conversational | `pc-wizard` | pass | pass | 6 / 6 | 0 / 6 | 6 / 6 | 6 / 6 |
 
@@ -109,8 +109,8 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `gt-terminal-coalesce` | GTTERM | 4 | 1/1 | 4/4 | 0/0 | 0 | proven on 4 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `gt-urimap-browse` | GTUBROW | 2 | 2/2 | 6/6 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/6 branches |
 | `gt-urimap-browse` | GTUNEXT | 2 | 1/1 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/0 branches |
-| `gt-web-client` | GTWCLI | 2 | 1/1 | 2/2 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/2 branches |
-| `gt-web-parse-url` | GTWPARS | 1 | 3/5 | 2/10 | 0/0 | 0 | proven on 0 scenarios, covering 0/5 paragraphs and 0/10 branches |
+| `gt-web-client` | GTWCLI | 2 | 1/1 | 2/2 | 0/0 | 0 | proven on 2 scenarios, covering 1/1 paragraphs and 2/2 branches |
+| `gt-web-parse-url` | GTWPARS | 3 | 5/5 | 7/10 | 0/0 | 0 | proven on 3 scenarios, covering 5/5 paragraphs and 7/10 branches |
 | `hc-abend-link` | HCMAIN | 5 | 4/4 | 4/4 | 2/2 | 0 | proven on 5 scenarios, covering 4/4 paragraphs and 4/4 branches |
 | `hc-abend-link` | HCSUB | 3 | 2/2 | 3/3 | 1/1 | 0 | proven on 3 scenarios, covering 2/2 paragraphs and 3/3 branches |
 | `hc-counter-increment-wrap` | HCCWRP | 1 | 7/10 | 3/8 | 0/0 | 0 | proven on 0 scenarios, covering 0/10 paragraphs and 0/8 branches |
@@ -133,6 +133,9 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `hx-extended-cursor` | HXEXT | 3 | 3/3 | 6/6 | 0/0 | 0 | proven on 3 scenarios, covering 3/3 paragraphs and 6/6 branches |
 | `pc-aid-menu` | PCDETL | 3 | 1/1 | 2/2 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 2/2 branches |
 | `pc-aid-menu` | PCMENU | 4 | 4/4 | 9/9 | 2/2 | 0 | proven on 4 scenarios, covering 4/4 paragraphs and 9/9 branches |
+| `pc-return-channel` | PCRCA | 3 | 5/5 | 3/4 | 0/0 | 0 | proven on 3 scenarios, covering 5/5 paragraphs and 3/4 branches |
+| `pc-return-channel` | PCRCB | 2 | 7/7 | 6/6 | 0/0 | 0 | proven on 2 scenarios, covering 7/7 paragraphs and 6/6 branches |
+| `pc-return-channel` | PCRCL | 1 | 2/2 | 0/0 | 0/0 | 0 | proven on 1 scenario, covering 2/2 paragraphs and 0/0 branches |
 | `pc-return-immediate` | PCIMMA | 4 | 6/6 | 4/5 | 0/0 | 0 | proven on 4 scenarios, covering 6/6 paragraphs and 4/5 branches |
 | `pc-return-immediate` | PCIMMB | 1 | 2/2 | 2/2 | 0/0 | 0 | proven on 1 scenario, covering 2/2 paragraphs and 2/2 branches |
 | `pc-return-immediate` | PCIMML | 2 | 1/1 | 2/2 | 0/0 | 0 | proven on 2 scenarios, covering 1/1 paragraphs and 2/2 branches |
@@ -170,16 +173,9 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 #### `gt-web-parse-url` GTWPARS
 
-- paragraph `PARSE-PARA` (line 72)
-- paragraph `LENGTH-PARA` (line 102)
-- EVALUATE at line 61 in `MAIN-PARA`: `WHEN at line 62` never taken
-- EVALUATE at line 61 in `MAIN-PARA`: `WHEN at line 66` never taken
 - EVALUATE at line 61 in `MAIN-PARA`: no WHEN arm matched: never
-- IF at line 134 in `DO-PARSE`: never true
-- IF at line 139 in `DO-PARSE`: never true
 - IF at line 139 in `DO-PARSE`: never false
 - IF at line 144 in `DO-PARSE`: never true
-- IF at line 144 in `DO-PARSE`: never false
 
 #### `hc-counter-increment-wrap` HCCWRP
 
@@ -249,6 +245,10 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 - EVALUATE at line 58 in `MAIN-PARA`: no WHEN arm matched: never
 
+#### `pc-return-channel` PCRCA
+
+- EVALUATE at line 29 in `MAIN-PARA`: no WHEN arm matched: never
+
 #### `pc-return-immediate` PCIMMA
 
 - EVALUATE at line 34 in `MAIN-PARA`: no WHEN arm matched: never
@@ -258,71 +258,50 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (35 unsupported)
+### cobol-stub (32 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | ADDRESS COMMAREA | 6 | 5 | 5 |
 | 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 4 | 10 |
-| 3 | RETURN CHANNEL | 3 | 3 | 13 |
-| 4 | terminal RECEIVE (unformatted input) | 3 | 3 | 16 |
-| 5 | DELETEQ-TD event | 2 | 0 | 18 |
-| 6 | FREEMAIN DATA | 2 | 1 | 19 |
-| 7 | GETMAIN | 1 | 0 | 20 |
-| 8 | WEB SEND CHARACTERSET | 6 | 0 | 20 |
-| 9 | WEB SEND HOSTCODEPAGE | 6 | 0 | 20 |
-| 10 | WEB READ HTTPHEADER | 5 | 0 | 20 |
-| 11 | WEB WRITE HTTPHEADER | 1 | 0 | 21 |
-| 12 | WEB RECEIVE CHARACTERSET | 5 | 0 | 21 |
-| 13 | WEB RECEIVE HOSTCODEPAGE | 5 | 0 | 26 |
-| 14 | READ | 4 | 0 | 26 |
-| 15 | READNEXT | 4 | 0 | 26 |
-| 16 | READPREV | 4 | 0 | 26 |
-| 17 | READ set | 1 | 0 | 27 |
-| 18 | ADDRESS TCTUA | 3 | 0 | 27 |
-| 19 | ADDRESS TWA | 3 | 0 | 30 |
-| 20 | ENDBR event | 3 | 0 | 30 |
-| 21 | STARTBR event | 3 | 0 | 30 |
-| 22 | READNEXT event | 2 | 0 | 32 |
-| 23 | READPREV event | 1 | 0 | 33 |
-| 24 | LOAD | 2 | 0 | 33 |
-| 25 | RELEASE | 2 | 0 | 35 |
+| 3 | terminal RECEIVE (unformatted input) | 3 | 3 | 13 |
+| 4 | DELETEQ-TD event | 2 | 0 | 15 |
+| 5 | FREEMAIN DATA | 2 | 1 | 16 |
+| 6 | GETMAIN | 1 | 0 | 17 |
+| 7 | WEB SEND CHARACTERSET | 6 | 0 | 17 |
+| 8 | WEB SEND HOSTCODEPAGE | 6 | 0 | 17 |
+| 9 | WEB READ HTTPHEADER | 5 | 0 | 17 |
+| 10 | WEB WRITE HTTPHEADER | 1 | 0 | 18 |
+| 11 | WEB RECEIVE CHARACTERSET | 5 | 0 | 18 |
+| 12 | WEB RECEIVE HOSTCODEPAGE | 5 | 0 | 23 |
+| 13 | READ | 4 | 0 | 23 |
+| 14 | READNEXT | 4 | 0 | 23 |
+| 15 | READPREV | 4 | 0 | 27 |
+| 16 | ADDRESS TCTUA | 3 | 0 | 27 |
+| 17 | ADDRESS TWA | 3 | 0 | 30 |
+| 18 | LOAD | 2 | 0 | 30 |
+| 19 | RELEASE | 2 | 0 | 32 |
 
 ### java (0 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | DELETEQ-TD event | 2 | 0 | 0 |
-| 2 | ENDBR event | 3 | 0 | 0 |
-| 3 | READ set | 1 | 0 | 0 |
-| 4 | READNEXT event | 2 | 0 | 0 |
-| 5 | READPREV event | 1 | 0 | 0 |
-| 6 | STARTBR event | 3 | 0 | 0 |
-| 7 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
+| 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
 
 ### java-ported (0 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | DELETEQ-TD event | 2 | 0 | 0 |
-| 2 | ENDBR event | 3 | 0 | 0 |
-| 3 | READ set | 1 | 0 | 0 |
-| 4 | READNEXT event | 2 | 0 | 0 |
-| 5 | READPREV event | 1 | 0 | 0 |
-| 6 | STARTBR event | 3 | 0 | 0 |
-| 7 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
+| 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
 
 ### java-facade (0 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | DELETEQ-TD event | 2 | 0 | 0 |
-| 2 | ENDBR event | 3 | 0 | 0 |
-| 3 | READ set | 1 | 0 | 0 |
-| 4 | READNEXT event | 2 | 0 | 0 |
-| 5 | READPREV event | 1 | 0 | 0 |
-| 6 | STARTBR event | 3 | 0 | 0 |
-| 7 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
+| 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 7 | 0 | 0 |
 
 ## Unsupported features, by how many cells need them
 
@@ -343,19 +322,13 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | translator: READ | 4 | READ |
 | translator: READNEXT | 4 | READNEXT |
 | translator: READPREV | 4 | READPREV |
-| stub: ENDBR event | 3 | ENDBR event |
-| stub: STARTBR event | 3 | STARTBR event |
 | translator: ADDRESS TCTUA | 3 | ADDRESS TCTUA |
 | translator: ADDRESS TWA | 3 | ADDRESS TWA |
 | translator: RECEIVE SET | 3 | terminal RECEIVE (unformatted input) |
-| translator: RETURN CHANNEL | 3 | RETURN CHANNEL |
 | stub: DELETEQ-TD event | 2 | DELETEQ-TD event |
-| stub: READNEXT event | 2 | READNEXT event |
 | translator: FREEMAIN DATA | 2 | FREEMAIN DATA |
 | translator: LOAD | 2 | LOAD |
 | translator: RELEASE | 2 | RELEASE |
-| stub: READ set | 1 | READ set |
-| stub: READPREV event | 1 | READPREV event |
 | translator: GETMAIN | 1 | GETMAIN |
 | translator: WEB WRITE HTTPHEADER | 1 | WEB WRITE HTTPHEADER |
 
@@ -365,12 +338,7 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 |---|---|---|
 | CicsTask: READQ-TD event | 7 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | CicsTask: WRITEQ-TD event | 5 | TS queues: READQ / WRITEQ TS, seeding, final state |
-| CicsTask: ENDBR event | 3 | ENDBR event |
-| CicsTask: STARTBR event | 3 | STARTBR event |
 | CicsTask: DELETEQ-TD event | 2 | DELETEQ-TD event |
-| CicsTask: READNEXT event | 2 | READNEXT event |
-| CicsTask: READ set | 1 | READ set |
-| CicsTask: READPREV event | 1 | READPREV event |
 
 ### java-ported
 
@@ -378,12 +346,7 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 |---|---|---|
 | CicsTask: READQ-TD event | 7 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | CicsTask: WRITEQ-TD event | 5 | TS queues: READQ / WRITEQ TS, seeding, final state |
-| CicsTask: ENDBR event | 3 | ENDBR event |
-| CicsTask: STARTBR event | 3 | STARTBR event |
 | CicsTask: DELETEQ-TD event | 2 | DELETEQ-TD event |
-| CicsTask: READNEXT event | 2 | READNEXT event |
-| CicsTask: READ set | 1 | READ set |
-| CicsTask: READPREV event | 1 | READPREV event |
 
 ### java-facade
 
@@ -391,22 +354,18 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 |---|---|---|
 | CicsTask: READQ-TD event | 7 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | CicsTask: WRITEQ-TD event | 5 | TS queues: READQ / WRITEQ TS, seeding, final state |
-| CicsTask: ENDBR event | 3 | ENDBR event |
-| CicsTask: STARTBR event | 3 | STARTBR event |
 | CicsTask: DELETEQ-TD event | 2 | DELETEQ-TD event |
-| CicsTask: READNEXT event | 2 | READNEXT event |
-| CicsTask: READ set | 1 | READ set |
-| CicsTask: READPREV event | 1 | READPREV event |
 
 ## Failure reasons, grouped
 
 | side | reason | cells |
 |---|---|---|
-| cobol-stub | WRITEQ-TS missing | 5 |
+| cobol-stub | WRITEQ-TS missing | 3 |
 | cobol-stub | data bytes differ | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 171 |
-| java-ported | not ported | 123 |
-| java-facade | not ported | 123 |
+| java-ported | not ported | 115 |
+| java-facade | not ported | 115 |
+| java-facade | RECEIVE expected, other event | 3 |
 
 ## Every cell that does not pass
 
@@ -579,22 +538,10 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `gt-urimap-browse/browse/java-facade` | fail | no port of any of its programs |
 | `gt-urimap-browse/browse/java-ported` | fail | no port of any of its programs |
 | `gt-web-client/notfound/java` | fail | task 1 (GT85) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-web-client/notfound/java-facade` | fail | no port of any of its programs |
-| `gt-web-client/notfound/java-ported` | fail | no port of any of its programs |
 | `gt-web-client/ok/java` | fail | task 1 (GT85) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-web-client/ok/java-facade` | fail | no port of any of its programs |
-| `gt-web-client/ok/java-ported` | fail | no port of any of its programs |
 | `gt-web-parse-url/errors/java` | fail | task 1 (GT71) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-web-parse-url/errors/java-facade` | fail | no port of any of its programs |
-| `gt-web-parse-url/errors/java-ported` | fail | no port of any of its programs |
-| `gt-web-parse-url/lengerr/cobol-stub` | fail | task 1 (GT71) event 2: WRITEQ-TS expected, the side recorded no further event |
 | `gt-web-parse-url/lengerr/java` | fail | task 1 (GT71) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-web-parse-url/lengerr/java-facade` | fail | no port of any of its programs |
-| `gt-web-parse-url/lengerr/java-ported` | fail | no port of any of its programs |
-| `gt-web-parse-url/parse/cobol-stub` | fail | task 1 (GT71) event 6: WRITEQ-TS expected, the side recorded no further event |
 | `gt-web-parse-url/parse/java` | fail | task 1 (GT71) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-web-parse-url/parse/java-facade` | fail | no port of any of its programs |
-| `gt-web-parse-url/parse/java-ported` | fail | no port of any of its programs |
 | `gt-web-server-receive/extract/cobol-stub` | unsupported | translator: WEB RECEIVE CHARACTERSET; translator: WEB RECEIVE HOSTCODEPAGE; translator: WEB READ HTTPHEADER; translator: WEB SEND CHARACTERSET; translator: WEB SEND HOSTCODEPAGE |
 | `gt-web-server-receive/extract/java` | fail | task 1 (GT82) event 1: WEB-RECEIVE expected, the side recorded no further event |
 | `gt-web-server-receive/extract/java-facade` | fail | no port of any of its programs |
@@ -848,18 +795,12 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `pc-aid-menu/invalid-option/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-aid-menu/option1-xctl/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-aid-menu/option2-next-transid/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-return-channel/carry/cobol-stub` | unsupported | translator: RETURN CHANNEL |
 | `pc-return-channel/carry/java` | fail | task 1 (PC61) event 1: RECEIVE expected, the side recorded no further event |
-| `pc-return-channel/carry/java-facade` | fail | no port of any of its programs |
-| `pc-return-channel/carry/java-ported` | fail | no port of any of its programs |
-| `pc-return-channel/link-level2/cobol-stub` | unsupported | translator: RETURN CHANNEL |
+| `pc-return-channel/carry/java-facade` | fail | task 1 (PC61) event 1: RECEIVE expected, got DRIVER-ERROR (runTask threw java.lang.UnsupportedOperationException: handleTransaction: the program has no task facade (a channel program); it runs as runTask) |
 | `pc-return-channel/link-level2/java` | fail | task 1 (PC61) event 1: RECEIVE expected, the side recorded no further event |
-| `pc-return-channel/link-level2/java-facade` | fail | no port of any of its programs |
-| `pc-return-channel/link-level2/java-ported` | fail | no port of any of its programs |
-| `pc-return-channel/modify/cobol-stub` | unsupported | translator: RETURN CHANNEL |
+| `pc-return-channel/link-level2/java-facade` | fail | task 1 (PC61) event 1: RECEIVE expected, got DRIVER-ERROR (runTask threw java.lang.UnsupportedOperationException: handleTransaction: the program has no task facade (a channel program); it runs as runTask) |
 | `pc-return-channel/modify/java` | fail | task 1 (PC61) event 1: RECEIVE expected, the side recorded no further event |
-| `pc-return-channel/modify/java-facade` | fail | no port of any of its programs |
-| `pc-return-channel/modify/java-ported` | fail | no port of any of its programs |
+| `pc-return-channel/modify/java-facade` | fail | task 1 (PC61) event 1: RECEIVE expected, got DRIVER-ERROR (runTask threw java.lang.UnsupportedOperationException: handleTransaction: the program has no task facade (a channel program); it runs as runTask) |
 | `pc-return-immediate/immediate/java` | fail | task 1 (PC51) event 1: RECEIVE expected, the side recorded no further event |
 | `pc-return-immediate/link-level2/java` | fail | task 1 (PC51) event 1: RECEIVE expected, the side recorded no further event |
 | `pc-return-immediate/no-terminal/java` | fail | task 1 (PC51) event 1: RECEIVE expected, the side recorded no further event |

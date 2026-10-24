@@ -28,7 +28,7 @@ sys.path.insert(0, str(TOOLS))
 import blocker_report as br  # noqa: E402
 
 SIGNATURES = REPO / "tests" / "cobol_mainframe" / "blocker_signatures.json"
-SUPPORTED = ("1.1",)
+SUPPORTED = ("1.1", "1.2")
 
 # blocker_report category -> (#5051 side, class). Every CATEGORIES value has one.
 CATEGORY_CLASS = {
@@ -68,6 +68,8 @@ def check_report(rep: dict[str, Any]) -> list[str]:
             errors.append(f"{where}: unknown category {b.get('category')!r}")
         if not re.fullmatch(r"BLK_[0-9a-f]{%d}" % br.HASH_HEX, str(b.get("id"))):
             errors.append(f"{where}: id must be a BLK_xxxxxx hash")
+        if "construct" in b and (_ANY_HASH.search(str(b["construct"])) or len(str(b["construct"])) > 160):
+            errors.append(f"{where}: construct is not a ranking key")
         for word in re.split(r"\s+", str(b.get("signature", ""))):
             if not (_ANY_HASH.fullmatch(word) or word in vocab or _public_word(word)):
                 errors.append(f"{where}: signature word outside the allow-list: {word!r}")
@@ -124,7 +126,7 @@ def ingest(rep: dict[str, Any], ledger: dict[str, Any], catalogue: list[dict[str
         if row is None:
             row = {"id": rid, "estate": estate, "side": side, "class": cls, "category": b["category"],
                    "signature": b["signature"], "issue": issue, "seen_in": []}  # fmt: skip
-            for k in ("subclass", "repro"):
+            for k in ("subclass", "construct", "repro"):
                 if k in b:
                     row[k] = b[k]
             rows[rid] = row

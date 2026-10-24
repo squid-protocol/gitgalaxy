@@ -98,7 +98,9 @@ GENERATOR = tuple(
 # #5274: the transaction forge's CicsTask family, split out of it
 GENERATOR += ("gitgalaxy/tools/cobol_to_java/cics_task_containers.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_filecontrol.py",  # #5448 split it out too (#5885)
-              "gitgalaxy/tools/cobol_to_java/cics_task_taskcontrol.py")  # fmt: skip
+              "gitgalaxy/tools/cobol_to_java/cics_task_taskcontrol.py",
+              "gitgalaxy/tools/cobol_to_java/cics_task_conditions.py",
+              "gitgalaxy/tools/cobol_to_java/cics_task_faults.py")  # fmt: skip
 
 
 def port_diff_input(path: str) -> bool:

@@ -130,6 +130,13 @@ _PREPARE = re.compile(r"PREPARE\s+([A-Z0-9_-]+)\s+FROM\s+'((?:[^']|'')*)'", re.I
 _EXECUTE = re.compile(r"EXECUTE\s+([A-Z0-9_-]+)(?:\s+USING\s+(.+))?", re.I)
 _IMMEDIATE_INSERT = re.compile(r"INSERT\s+INTO\s.*\bVALUES\b.*", re.I | re.S)
 _QUOTED = re.compile(r"'(?:[^']|'')*'")
+# #4269: a scroll cursor's FETCH orientation (IBM Db2 for z/OS SQL Reference, FETCH): NEXT is what a plain FETCH means
+_ORIENT = re.compile(
+    r"FETCH\s+(?:(?:INSENSITIVE|SENSITIVE)\s+)?(PRIOR|FIRST|LAST|CURRENT|BEFORE|AFTER|ABSOLUTE|RELATIVE)(?![A-Z0-9_-])",
+    re.I,
+)
+# #4269: a multi-row (rowset) FETCH / INSERT: `FETCH ... ROWSET`, `FOR :N ROWS`
+_ROWSET = re.compile(r"\bROWSET\b|\bFOR\s+(?::?[A-Z0-9_-]+)\s+ROWS?\b", re.I)
 _HOLD = re.compile(r"\bDECLARE\s+([A-Z0-9_-]+)\s+(?:[A-Z]+\s+){0,2}?CURSOR\s+WITH\s+HOLD\b", re.I)
 
 
@@ -212,7 +219,7 @@ class Sql:
         if it.pic or self._varchar(it):
             return [it]
         if it.occurs > 1:
-            raise SqlError(f"host variable array {it.name}")
+            raise SqlError(f"host variable array {it.name}: a host-variable array in SQL is not modelled (register Q4)")
         out: list[L.Item] = []
         for k in it.children:
             if k.name != "FILLER":
@@ -282,6 +289,14 @@ class Sql:
     def command(self, text: str, line: int, ind: str) -> list[str]:
         ca = self.g.field_expr(E.Ref("SQLCA"))
         out = self._command(text, line, ind)
+        if out and getattr(self.g.cics, "handle_abend", False):
+            # #6271 (X73): a scenario's planned Db2 abend (AD2Z) at this statement went to this program's HANDLE ABEND
+            # exit, or unwound past this level; checked before the WHENEVER tests, as the stub's GGCSQLAB is
+            ex = self.g.tmpname("exit")
+            out += [f'{ind}task.planned("SQL", {self.g_str(f"{self.program}:{line}")});',
+                    f"{ind}String {ex} = task.abendExit();",
+                    f"{ind}if ({ex} != null) {self.g.jump(f'paragraph({ex})')}",
+                    f"{ind}if (task.ended()) throw abended();"]  # fmt: skip
         if out:
             out += self._whenever_tests(text, line, ind)
         return [ln.replace("SQLCA_AREA", ca) for ln in out]
@@ -342,6 +357,7 @@ class Sql:
             return self._savepoint(sql, u, line, ind)
         if verb in ("COMMIT", "ROLLBACK"):
             return self._end_unit_of_work(verb, u, line, ind)
+        self._refuse_scroll_and_rowset(verb, sql)
         pos = re.search(r"\bWHERE\s+CURRENT\s+OF\s+([A-Z0-9_-]+)", u)
         meth = self.methods.get((self.program, line))
         if meth is None:
@@ -394,6 +410,21 @@ class Sql:
         if verb == "CLOSE" and meth.verb == "CURSOR":
             return [f"{ind}DetSql.close(SQLCA_AREA, {at}, {self.g_str(u.split()[1])}, CS);"]
         raise SqlError(f"EXEC SQL {verb}")
+
+    @staticmethod
+    def _refuse_scroll_and_rowset(verb: str, sql: str) -> None:
+        """#4269 (register Q4): a scroll FETCH orientation and a multi-row FETCH / INSERT stop by name; the port steps
+        a cursor forward one row (FETCH, FETCH NEXT) and the oracle has no rowset or scroll fixture."""
+        bare = _QUOTED.sub("''", sql)
+        if verb == "FETCH":
+            o = _ORIENT.match(bare)
+            if o:
+                raise SqlError(f"EXEC SQL FETCH {o.group(1).upper()}: a scroll-cursor FETCH orientation (PRIOR, FIRST, "
+                               "LAST, CURRENT, BEFORE, AFTER, ABSOLUTE, RELATIVE) is not modelled; only FETCH [NEXT] "
+                               "is (register Q4; no burned program uses it)")  # fmt: skip
+        if verb in ("FETCH", "INSERT") and _ROWSET.search(bare):
+            raise SqlError(f"EXEC SQL {verb}: a multi-row {verb} (ROWSET / FOR n ROWS, host-variable arrays) is not "
+                           "modelled (register Q4; no burned program uses it)")  # fmt: skip
 
     def _end_unit_of_work(self, verb: str, u: str, line: int, ind: str) -> list[str]:
         """#4269: COMMIT / ROLLBACK [WORK] (IBM Db2 for z/OS SQL Reference, COMMIT and ROLLBACK statements)."""

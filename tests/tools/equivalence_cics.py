@@ -1761,6 +1761,7 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         ref = area or "GG-FLAGS"
         return ([name(opts["PROGRAM"], "GG-NAME1"), f"MOVE {length} TO GG-LEN", f"MOVE {1 if area else 0} TO GG-ITEM"]
                 + chan + _call("GGCLINK", [f"BY REFERENCE {ref}"])
+                + _map_abend(labels)  # #6271 (X70): a planned abend at the LINK went to the exit, or ended the task
                 + ["IF GG-RESP = 0", f"    CALL 'GGCRUN' USING {ref}", "    CALL 'GGCLRET' USING GG-CICS"]
                 + [f"    {ln}" for ln in _transfer(labels)]
                 + ["    IF GG-GOTO < 0", "        GOBACK", "    END-IF", "END-IF"]
@@ -3099,10 +3100,10 @@ FILE_ABEND_CODES = ("AFCR", "AFCS", "AFCT")
 def _abend_fault_line(sc: dict[str, Any], f: dict[str, Any], cmd: str) -> str:
     """One `{"cmd", "file", "resp": "ABEND", "abcode", "nth"}` fault as the `CMD NAME NTH -1 0 ABCODE` line both sides read."""
     where = f"scenario {sc['name']}: fault {f}"
-    if cmd not in FILE_FAULT_COMMANDS or f.get("abcode") not in FILE_ABEND_CODES or f.get("resp2"):
+    if cmd not in (*FILE_FAULT_COMMANDS, "LINK") or f.get("abcode") not in FILE_ABEND_CODES or f.get("resp2"):
         raise Unsupported(
-            f"{where}: an ABEND is planned on a file control command ({'/'.join(FILE_FAULT_COMMANDS)}) with "
-            f"abcode {'/'.join(FILE_ABEND_CODES)} and no resp2 (register X70: no other command or code is sourced)"
+            f"{where}: an ABEND is planned on a file control command ({'/'.join(FILE_FAULT_COMMANDS)}) or a LINK "
+            f"with abcode {'/'.join(FILE_ABEND_CODES)} and no resp2 (register X70: no other command or code is sourced)"
         )
     nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
     name = next((f[k] for k in _FAULT_NAME if f.get(k)), None)

@@ -47,7 +47,6 @@ def test_an_abend_plan_sits_beside_a_condition_plan():
         {"abcode": None},
         {"abcode": "afcr"},
         {"cmd": "SEND"},  # not a file control command
-        {"cmd": "LINK", "file": None, "program": "P"},
         {"resp2": 100},  # IBM states none
         {"file": None},  # names nothing
     ],
@@ -103,3 +102,29 @@ def test_a_det_port_checks_for_the_exit_after_a_file_command_in_a_handle_abend_p
 def test_a_det_port_checks_only_file_commands():
     lines = _AbendCics(True).command("ASKTIME", "")
     assert not any("abendExit" in ln for ln in lines)
+
+
+@pytest.mark.parametrize("code", ["AFCR", "AFCS", "AFCT"])
+def test_a_link_abend_is_planned_on_the_program_it_names(code):
+    plan = {"cmd": "LINK", "program": "INQCUST", "resp": "ABEND", "abcode": code}
+    assert ec.fault_lines({"name": "s", "faults": [plan]}) == [f"LINK INQCUST 1 -1 0 {code}"]
+
+
+@pytest.mark.parametrize(
+    "plan",
+    [
+        {"cmd": "LINK", "program": "INQCUST", "abcode": "ASRA"},
+        {"cmd": "LINK", "program": "INQCUST", "abcode": "AFCR", "resp2": 4},
+        {"cmd": "LINK", "abcode": "AFCR"},
+        {"cmd": "ASKTIME", "file": "X", "abcode": "AFCR"},
+    ],
+)
+def test_a_link_abend_refuses_other_codes_a_resp2_no_name_and_other_commands(plan):
+    with pytest.raises(ec.Unsupported):
+        ec.fault_lines({"name": "s", "faults": [{"resp": "ABEND", **plan}]})
+
+
+def test_a_link_with_an_abend_exit_goes_to_it_before_the_callee_runs():
+    lines = ec.translate_command("LINK PROGRAM('INQCUST') COMMAREA(DFHCOMMAREA) LENGTH(10)", labels=["ABEND-ROUTINE"])
+    text = "\n".join(lines)
+    assert text.index("GGCLINK") < text.index("DEPENDING ON GG-GOTO") < text.index("GGCRUN")

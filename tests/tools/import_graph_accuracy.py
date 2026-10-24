@@ -138,7 +138,7 @@ RESOLUTION RULES (the language's, never the engine's)
               declaring `module m` (case-insensitive; a name two files declare is both). `use,
               intrinsic :: m` is the standard's module, no edge. `module procedure/subroutine/
               function` are not module declarations; `submodule (p) s` declares no usable name.
-              `include 'f'` / `#include "f"` are the file by path suffix. Comments and strings
+              `include 'f'` / `#include "f"` are the file by path suffix. Comments
               blanked first (`!` to end of line; fixed-form `c`/`*` in column 1).
 
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its

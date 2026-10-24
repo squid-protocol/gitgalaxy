@@ -17,7 +17,7 @@ that baseline in the same PR.
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py typescript` | the TypeScript 6.0.2 type checker (`tests/tools/ts_callgraph.js`) | pinned typescript repos, `tests/import_graph_corpus.json` (zod) | `tests/call_graph_resolution_typescript_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py javascript` | the TypeScript 6.0.2 type checker with `allowJs` (`tests/tools/ts_callgraph.js --js`) | pinned javascript repos, `tests/import_graph_corpus.json` (express) | `tests/call_graph_resolution_javascript_baseline.json` | not yet in CI (#3781 follow-up: `graph-accuracy-audit.yml` gate step) |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py java` | scip-java 0.12.3 (javac-resolved SCIP, through `tests/tools/scip_callgraph.py`) | pinned java repos, `tests/import_graph_corpus.json` (gson) | `tests/call_graph_resolution_java_baseline.json` | `graph-accuracy-audit.yml` |
-| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py rust` | rust-analyzer (pinned toolchain 1.90.0; SCIP, through `tests/tools/scip_callgraph.py`) | pinned rust repos, `tests/import_graph_corpus.json` (serde-rs/json) | none yet (no Rust toolchain on the box that wrote the adapter; `--regenerate` writes `tests/call_graph_resolution_rust_baseline.json`) | not yet in CI |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py rust` | rust-analyzer (pinned toolchain 1.90.0; SCIP, through `tests/tools/scip_callgraph.py`) | pinned rust repos, `tests/import_graph_corpus.json` (serde-rs/json) | `tests/call_graph_resolution_rust_baseline.json` | not yet in CI (the toolchain install and a gate step are a follow-up) |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py go` | golang.org/x/tools 0.37.0 VTA call graph (`tests/tools/go_callgraph`, Go 1.24+) | pinned go repos, `tests/import_graph_corpus.json` (cobra) | `tests/call_graph_resolution_go_baseline.json` | none yet: CI has no Go step (#3782) |
 | Import edges | `tests/tools/import_graph_accuracy.py` | each language's import statements (Python `ast`, tree-sitter), resolved by the language's own rule | pinned real repos, `tests/import_graph_corpus.json` | `tests/import_graph_accuracy_baseline.json` | `graph-accuracy-audit.yml` |
 | Span anchoring | `tests/tools/span_anchor_audit.py` | the declaration line in the raw source | language-crucible | `tests/span_anchor_baseline.json` | `graph-accuracy-audit.yml` |
@@ -257,8 +257,25 @@ a call. Macro-generated calls (the `serde` derives, `format_args!` expansions) a
 to a text extractor and to the index's call positions: a deliberate limit, not an engine
 defect. Calls through a trait object or a generic bound resolve to the bodyless trait
 declaration, so they count as neither an edge nor `external`. All numbers are "vs
-rust-analyzer". The adapter is tested against a hand-built index; the baseline, the CI gate
-and the session-hook install wait for a machine with the toolchain.
+rust-analyzer".
+
+Measured against rust-analyzer 1.90.0 on serde-rs/json: confident precision 92.1% (469 judged),
+ambiguous 52.3%, recall 39.9%, resolution recall 43.1%; 40 confident links resolve outside the
+repo and 158 end at a function the index has none for. Read from the real index:
+
+- rust-analyzer emits **no `enclosing_range`**, so the adapter reads a fn's extent from the
+  source (`scip_callgraph._rust_enclosing`: to the `;` of a bodyless declaration, else through
+  the matching `}`).
+- Code behind a `cfg` feature the index was not built with (`arbitrary_precision`) is not
+  indexed: its links are unmapped.
+- A call through a generic bound or trait object (`visitor.visit_bool(v)`, `R::set_failed`)
+  resolves to the trait declaration or a dependency, so the engine's link to one concrete impl
+  is `external` or `unconfirmed`, not wrong. A bare `Type::new(` the engine ties to the wrong
+  `new` (`from_slice` -> `IoRead::new`, not `SliceRead::new`) and a same-name fn in a sibling
+  module (`normalize`, `iadd_impl` in `lexical/math.rs`) are real engine errors.
+- A call inside a `macro_rules!` body (`tests/test.rs`) is a macro limit.
+
+The baseline is committed; the CI gate and the session-hook install wait for a follow-up.
 
 ## Running locally
 

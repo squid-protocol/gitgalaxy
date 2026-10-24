@@ -178,6 +178,19 @@ def test_the_db2_shard_waits_only_for_the_first_database():
     assert "GGDB.ready" in wait["run"]
 
 
+def test_the_db2_shard_wait_outlasts_the_harness_start_and_its_retry():
+    """#5601: the wait for GGDB failed the step (cause db2_start) while the harness was still in its retry of a stuck start."""
+    import re
+
+    import equivalence_db2 as d
+
+    jobs = yaml.safe_load((ROOT / ".github" / "workflows" / "det-sweep.yml").read_text(encoding="utf-8"))["jobs"]
+    (wait,) = [s for s in jobs["db2"]["steps"] if s.get("name") == "Wait for the first Db2 database"]
+    polls = int(re.search(r"seq 1 (\d+)", wait["run"]).group(1))
+    seconds = polls * int(re.search(r"sleep (\d+)", wait["run"]).group(1))
+    assert seconds >= d.LOAD_WAIT + 2 * d.READY_POLLS * 10, seconds
+
+
 def test_a_container_that_passed_the_full_check_is_not_checked_again(tmp_path, monkeypatch):
     """#5882: the ready mark (container id, start time, COBOL image id) skips the full check in a later process; a
     restarted container (another start time) does not match and is checked in full."""

@@ -1862,6 +1862,89 @@
     }
    }
   },
+  "pc-return-channel/PCRCA": {
+   "live": 5,
+   "outcomes": 4,
+   "scenarios": {
+    "carry": {
+     "units": [
+      "CARRY-PARA",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "29:WHEN@30"
+     ]
+    },
+    "modify": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA",
+      "MODIFY-PARA"
+     ],
+     "outcomes": [
+      "29:WHEN@32"
+     ]
+    },
+    "link-level2": {
+     "units": [
+      "LINK-PARA",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "29:WHEN@34"
+     ]
+    }
+   }
+  },
+  "pc-return-channel/PCRCB": {
+   "live": 7,
+   "outcomes": 6,
+   "scenarios": {
+    "carry": {
+     "units": [
+      "LOG-ENTRY",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "42:none"
+     ]
+    },
+    "modify": {
+     "units": [
+      "GET-EXTRA",
+      "LOG-ENTRY",
+      "LOG-RESP",
+      "MAIN-PARA",
+      "STAGE-1",
+      "STAGE-2",
+      "STAGE-3"
+     ],
+     "outcomes": [
+      "42:WHEN@43",
+      "42:WHEN@45",
+      "42:WHEN@47",
+      "87:false",
+      "87:true"
+     ]
+    }
+   }
+  },
+  "pc-return-channel/PCRCL": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "link-level2": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
   "pc-return-immediate/PCIMMA": {
    "live": 6,
    "outcomes": 5,

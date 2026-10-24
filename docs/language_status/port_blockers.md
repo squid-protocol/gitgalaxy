@@ -13,13 +13,13 @@ an unfinished log, not a clean estate.
 | round | estate | blockers | cumulative | new classes | repeats | programs named | blockers per program named | refused by name |
 |---|---|---|---|---|---|---|---|---|
 | 2 | cics-banking-sample-application-cbsa | 16 | 16 | 7 | 9 | 10 | 1.60 | 0 |
-| 3 | aws-mainframe-modernization-carddemo | 30 | 46 | 3 | 27 | 23 | 1.30 | 1 |
-| 4 | cics-genapp | 7 | 53 | 0 | 7 | 4 | 1.75 | 0 |
-| 5 | zecs | 6 | 59 | 0 | 6 | 4 | 1.50 | 0 |
-| 7 | dbb-mortgage-application | 4 | 63 | 0 | 4 | 3 | 1.33 | 0 |
-| 8 | cics-async-api-credit-card-application-example | 2 | 65 | 0 | 2 | 0 | n/a | 0 |
+| 3 | aws-mainframe-modernization-carddemo | 31 | 47 | 3 | 28 | 24 | 1.29 | 1 |
+| 4 | cics-genapp | 7 | 54 | 0 | 7 | 4 | 1.75 | 0 |
+| 5 | zecs | 6 | 60 | 0 | 6 | 4 | 1.50 | 0 |
+| 7 | dbb-mortgage-application | 4 | 64 | 0 | 4 | 3 | 1.33 | 0 |
+| 8 | cics-async-api-credit-card-application-example | 2 | 66 | 0 | 2 | 0 | n/a | 0 |
 
-No single estate: 23 (P005 by sibling sweep after round 8, P065 by sibling sweep after round 8, P066 by review after round 8, P067 by review after round 8, P068 by review after round 8, P069 by sibling sweep after round 8, P070 by sibling sweep after round 8, P071 by sibling sweep after round 8, P072 by sibling sweep after round 8, P073 by sibling sweep after round 8, P074 by sibling sweep after round 8, P075 by sibling sweep after round 8, P076 by sibling sweep after round 8, P079 by sibling sweep after round 8, P080 by sibling sweep after round 8, P081 by sibling sweep after round 8, P082 by sibling sweep after round 8, P083 by review after round 8, P084 by review after round 8, P085 by review after round 8, P086 by review after round 8, P087 by review after round 8, P088 by review after round 8).
+No single estate: 22 (P005 by sibling sweep after round 8, P065 by sibling sweep after round 8, P066 by review after round 8, P067 by review after round 8, P068 by review after round 8, P069 by sibling sweep after round 8, P070 by sibling sweep after round 8, P071 by sibling sweep after round 8, P072 by sibling sweep after round 8, P073 by sibling sweep after round 8, P074 by sibling sweep after round 8, P075 by sibling sweep after round 8, P076 by sibling sweep after round 8, P079 by sibling sweep after round 8, P081 by sibling sweep after round 8, P082 by sibling sweep after round 8, P083 by review after round 8, P084 by review after round 8, P085 by review after round 8, P086 by review after round 8, P087 by review after round 8, P088 by review after round 8).
 
 ## By side and class
 
@@ -45,26 +45,25 @@ logged blockers per program. A blocker with no estate is counted on its own row,
 | round | estate | programs | blockers | per program | cumulative blockers | new classes | classes seen | rounds since a new class |
 |---|---|---|---|---|---|---|---|---|
 | 2 | cics-banking-sample-application-cbsa | 31 | 16 | 0.52 | 16 | 7 | 7 | 0 |
-| 3 | aws-mainframe-modernization-carddemo | 44 | 30 | 0.68 | 46 | 3 | 10 | 0 |
-| 4 | cics-genapp | 31 | 7 | 0.23 | 53 | 0 | 10 | 1 |
-| 5 | zecs | 5 | 6 | 1.20 | 59 | 0 | 10 | 2 |
-| 7 | dbb-mortgage-application | 6 | 4 | 0.67 | 63 | 0 | 10 | 3 |
-| 8 | cics-async-api-credit-card-application-example | 10 | 2 | 0.20 | 65 | 0 | 10 | 4 |
-| 8 | none (sibling sweep, P005) | | 1 | | 66 | 1 | 11 | |
-| 8 | none (sibling sweep, P065) | | 1 | | 67 | 0 | 11 | |
-| 8 | none (review, P066) | | 1 | | 68 | 0 | 11 | |
-| 8 | none (review, P067) | | 1 | | 69 | 0 | 11 | |
-| 8 | none (review, P068) | | 1 | | 70 | 0 | 11 | |
-| 8 | none (sibling sweep, P069) | | 1 | | 71 | 0 | 11 | |
-| 8 | none (sibling sweep, P070) | | 1 | | 72 | 0 | 11 | |
-| 8 | none (sibling sweep, P071) | | 1 | | 73 | 0 | 11 | |
-| 8 | none (sibling sweep, P072) | | 1 | | 74 | 0 | 11 | |
-| 8 | none (sibling sweep, P073) | | 1 | | 75 | 0 | 11 | |
-| 8 | none (sibling sweep, P074) | | 1 | | 76 | 0 | 11 | |
-| 8 | none (sibling sweep, P075) | | 1 | | 77 | 0 | 11 | |
-| 8 | none (sibling sweep, P076) | | 1 | | 78 | 0 | 11 | |
-| 8 | none (sibling sweep, P079) | | 1 | | 79 | 0 | 11 | |
-| 8 | none (sibling sweep, P080) | | 1 | | 80 | 0 | 11 | |
+| 3 | aws-mainframe-modernization-carddemo | 44 | 31 | 0.70 | 47 | 3 | 10 | 0 |
+| 4 | cics-genapp | 31 | 7 | 0.23 | 54 | 0 | 10 | 1 |
+| 5 | zecs | 5 | 6 | 1.20 | 60 | 0 | 10 | 2 |
+| 7 | dbb-mortgage-application | 6 | 4 | 0.67 | 64 | 0 | 10 | 3 |
+| 8 | cics-async-api-credit-card-application-example | 10 | 2 | 0.20 | 66 | 0 | 10 | 4 |
+| 8 | none (sibling sweep, P005) | | 1 | | 67 | 1 | 11 | |
+| 8 | none (sibling sweep, P065) | | 1 | | 68 | 0 | 11 | |
+| 8 | none (review, P066) | | 1 | | 69 | 0 | 11 | |
+| 8 | none (review, P067) | | 1 | | 70 | 0 | 11 | |
+| 8 | none (review, P068) | | 1 | | 71 | 0 | 11 | |
+| 8 | none (sibling sweep, P069) | | 1 | | 72 | 0 | 11 | |
+| 8 | none (sibling sweep, P070) | | 1 | | 73 | 0 | 11 | |
+| 8 | none (sibling sweep, P071) | | 1 | | 74 | 0 | 11 | |
+| 8 | none (sibling sweep, P072) | | 1 | | 75 | 0 | 11 | |
+| 8 | none (sibling sweep, P073) | | 1 | | 76 | 0 | 11 | |
+| 8 | none (sibling sweep, P074) | | 1 | | 77 | 0 | 11 | |
+| 8 | none (sibling sweep, P075) | | 1 | | 78 | 0 | 11 | |
+| 8 | none (sibling sweep, P076) | | 1 | | 79 | 0 | 11 | |
+| 8 | none (sibling sweep, P079) | | 1 | | 80 | 0 | 11 | |
 | 8 | none (sibling sweep, P081) | | 1 | | 81 | 0 | 11 | |
 | 8 | none (sibling sweep, P082) | | 1 | | 82 | 0 | 11 | |
 | 8 | none (review, P083) | | 1 | | 83 | 0 | 11 | |
@@ -76,7 +75,7 @@ logged blockers per program. A blocker with no estate is counted on its own row,
 
 ## Expected for the next estate
 
-Logged blockers per program over the last 3 estates: 0.57 pooled (range 0.20 to 1.20); over all 6 estates 0.51. For a next estate of N programs that is about 0.6*N logged blockers (between 0.2*N and 1.2*N): 5.7 per 10 programs, 23 for 40.
+Logged blockers per program over the last 3 estates: 0.57 pooled (range 0.20 to 1.20); over all 6 estates 0.52. For a next estate of N programs that is about 0.6*N logged blockers (between 0.2*N and 1.2*N): 5.7 per 10 programs, 23 for 40.
 
 New classes: 11 of the 88 logged blockers opened a class, and the last 4 estate(s) opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a floor on novelty, not a guarantee.
 
@@ -132,6 +131,7 @@ Read this as an order of magnitude. The ledger is a partial backfill (the issue'
 | P051 | 3 | aws-mainframe-modernization-carddemo | harness | cics-command | no | cocrdslc, cocrdlic | #5401 / #5412 | no | Mutation-survivor gaps across seven CardDemo ports: the harness compared SEND TEXT by text only, so an options-changing mutant read as proven (#5412); the oracle refuses 16 of COCRDLIC's 46 scenarios (register X8, open). |
 | P052 | 3 | aws-mainframe-modernization-carddemo | harness | oracle-model | no | cousr00c | #6166 | no | IOERR has no oracle abend code (abendOn defaults to INVREQ) and two COUSR00C harness gaps return after an XCTL; found while faulting its XCTL sites. |
 | P053 | 3 | aws-mainframe-modernization-carddemo | harness | commarea-bytes | no |  | #4449 | no | The equivalence harness had no java-facade side: the 14 regenerated CardDemo ports were proven through runTask only, and cross-program facade sides carried an untyped Object. |
+| P080 | 3 | aws-mainframe-modernization-carddemo | det | vsam | no | cbstm03b | #5034 / #5068 | no | A CALLed subprogram's DDs are bound in its caller's JCL step, not its own (CardDemo CBSTM03B, called by CBSTM03A): det refused every file statement with 'no repository for this file'; the only such refusal left across the surveyed corpora. Fixed by propagating the job's bindings to static CALL targets. |
 | P002 | 4 | cics-genapp | harness | oracle-model | no | lgtestp4 | #4652 / #4693 | no | A space-filled zoned item moved to a binary host variable: GnuCOBOL gave 931773840, the det port 0; IBM documents no result for non-digit data (oracle assumption C11). |
 | P007 | 4 | cics-genapp | transaction-forge | control-flow | no |  | #3510 | no | Forge reachability treated an exhaustive EVALUATE whose every branch transfers control as falling through. |
 | P009 | 4 | cics-genapp | harness | db2 | no |  | #4173 | no | The equivalence harness could not inject SQL faults, so SQLCODE error branches were never proven (register M2). |
@@ -165,7 +165,6 @@ Read this as an order of magnitude. The ledger is a partial backfill (the issue'
 | P075 | 8 | none | det | commarea-bytes | no |  | #5060 / #5651 | yes | Model-port scalar fields (a String or numeric DTO field) passed as an XCTL COMMAREA could not be traced to the caller's DFHCOMMAREA, so X39 was not refused; the burned-estate reach was re-checked, and copy-vs-same-storage stays refused until a real CICS calibration run (#4702). |
 | P076 | 8 | none | det | cics-command | no |  | #4951 / #5004 | no | MOVE CONTAINER and the container browse commands (STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER) were refused whole; found in the #4884 class sweep (channels and containers in the det runtime), modelled with RESP / RESP2 conditions and register entries. |
 | P079 | 8 | none | harness | commarea-bytes | no |  | #4778 / #4780 | no | The batch CALL compare (equivalence_call.compare_dto) checked only DTO-mapped fields, and DTOs with a trailing FILLER (CBSA CustctrlDfhcommarea, GenApp Lg* DTOs) kept a short extent, so unmapped LINKAGE bytes were never compared; BMS OCCURS is refused. |
-| P080 | 8 | none | det | vsam | no | cbstm03b | #5034 / #5068 | no | A CALLed subprogram's DDs are bound in its caller's JCL step, not its own (CardDemo CBSTM03B, called by CBSTM03A): det refused every file statement with 'no repository for this file'; the only such refusal left across the surveyed corpora. Fixed by propagating the job's bindings to static CALL targets. |
 | P081 | 8 | none | det | vsam | no |  | #5072 | yes | DD bindings still coarser than IBM's run unit after #5068: step-level scoping (dataset_lineage is job-wide, so a callee in a job whose two steps bind one DD to different DSNs is refused) and a CALL through a data item; both refused today, not a wrong translation. |
 | P082 | 8 | none | harness | cics-command | no | zecs000, asyncpnt, zecs003 | #5089 / #5147 | no | Burned CICS programs translated whole with no runnable equivalence case: ZECS000's install-symbol dataset names, ASYNCPNT's nested RUN TRANSID grandchild, and a proof_blockers EIBFN false positive from a record literal; the harness refused each by name until stated. |
 | P083 | 8 | none | det | cobol-dialect | no |  | #4874 / #4897 | no | A fixed-form inline *> comment inside a condition became a statement hole, or crashed the PROCEDURE DIVISION parse after NOT; found fixing #4682 by fuzz, not on a burned program. Dropped at the source layer. |

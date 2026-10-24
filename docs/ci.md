@@ -263,3 +263,15 @@ The critical path (time-to-green) is unchanged on an engine PR: it is `full-suit
 
 ## Smoke suite plan (#6278 item 3)
 `suite_select_plan.py` (the classifier's `area()`) plans the `full-suite` on a PR: `skip` (prose nothing opens, `full-suite` reports success), `select` (docs / agent config only: just the tests that read them) or `full`; `shepherd:full` forces full. Push, nightly and dispatch always run the full suite. `push: paths-ignore: docs/**` stays on purpose: a push cannot be planned (the diff is not a PR's), and dropping it would run the full suite on every docs-bot push to main; the PR run already tested those docs.
+
+## Ground-truth PR check re-measured (2026-10-24, #5543)
+The five newest first-attempt successful PR runs of `mainframe-ground-truth.yml` that ran `plan` (runs 40126177113, 40126269812, 40126275997, 40126298574, 40126320956, 19:37-19:40Z). Critical path = run time of `plan` + slowest part + final job, queue left out; runner-min = sum of each job's run time rounded up to the minute.
+
+| run | what ran | critical path | runner-min | wall (queue included) |
+|---|---|---|---|---|
+| 40126320956 | 2 parts, scans restored from cache | 4.3 min | 10 | 15.7 min |
+| 40126177113 | busy: 2 self-warming parts | 8.6 min | 19 | 22.9 min |
+| 40126269812 | busy: 2 self-warming parts | 10.5 min | 21 | 22.5 min |
+| 40126275997, 40126298574 | `plan` only (no input changed) | 0.4 min | 2 | 3.8-4.5 min |
+
+Against the 7.5 min target: the cache hit and plan-only rows meet it on run time. The two busy-layout runs miss it by 1.1-3.0 min of compute, and every row with parts misses it on wall because each job waited 8-10 min for a runner. In the busy runs each part spent 2.4-3.2 min scanning cold and 3.5-5.6 min in pytest (part 1 also runs the 0.5 min ledger gate). That is a sample of 3 part-running runs, so a gap under a minute is noise. Next cut, not done here: in the busy layout let each part scan only the corpora its pytest share reads (option (b) of #5543); it needs the per-test corpus map and changes the workflow, so it is its own slice.

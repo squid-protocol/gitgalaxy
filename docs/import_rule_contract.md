@@ -120,7 +120,9 @@ tilt PageRank and blast radius toward big packages. A wildcard over an object's 
 (`import_graph_accuracy.py`) scores Scala and Kotlin by this rule, and C# by it too (#3798: `using A.B;` imports a
 namespace, which has no file of its own, so only `using static` and an alias of a type are scored; the engine's
 edge from a `using` to a file named like the namespace's last segment is an open FP shape in the graph comparison
-ledger, not yet ruled on); Java and Go, where the
+ledger, not yet ruled on) and Swift (#3798: `import Mod` names a SwiftPM target, so no edge; only `import struct|class|...
+Mod.Name` is scored, against the files of Mod declaring Name; the engine's edge from `import Foundation` to a file named
+`Foundation.swift` is an open FP shape in the same ledger, not yet ruled on); Java and Go, where the
 engine's edge already lands inside the package and nothing disagrees, keep the "any file of the
 package" scoring.
 

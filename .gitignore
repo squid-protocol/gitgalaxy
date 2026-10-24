@@ -253,6 +253,8 @@ tests/telemetry_out/
 # #4825: the per-program evidence pages are rendered from the records and published to the `generated` branch by
 # .github/workflows/evidence-pages.yml; main never commits them (PRs collided on them).
 docs/language_status/evidence/
+# #4493: the equivalence-harness report is built by evidence-refresh.yml and published to `generated`; never committed.
+docs/language_status/harness/
 # #5057: the aggregate pages rendered from committed sources (tests/tools/generated_docs.py) are published to the
 # `generated` branch by .github/workflows/generated-docs.yml; PRs commit their sources only (they collided on the pages).
 docs/language_status/oracle_assumptions.md

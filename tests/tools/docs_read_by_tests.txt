@@ -305,6 +305,8 @@ docs/language_status/fact_ownership.md	tests/tools/test_progress_report.py
 docs/language_status/fresh_estate_trials.md	tests/tools/trial.py
 docs/language_status/fresh_estate_trials.svg	tests/tools/trial.py
 docs/language_status/gap_prevalence.md	tests/tools/gap_prevalence.py
+docs/language_status/harness	tests/tools/test_generated_branch.py
+docs/language_status/harness/	tests/tools/test_generated_branch.py
 docs/language_status/mutation_equivalent_spot_check.md	tests/cobol_mainframe
 docs/language_status/mutation_scores.json	tests/cobol_mainframe,tests/tools/evidence.py,tests/tools/mutation_crucible.py,tests/tools/mutation_scores.py,tests/tools/progress_report.py,tests/tools/strengthen.py
 docs/language_status/mutation_testing.md	tests/tools/mutation.py,tests/tools/mutation_scores.py
@@ -416,7 +418,7 @@ graph_comparison_ledger.json	tests/tools/graph_ledger.py
 graph_coverage_chart.svg	tests/tools/graph_coverage_chart.py
 graph_coverage_history.csv	tests/tools/graph_coverage_chart.py
 ground_truth_history.jsonl	tests/tools/ground_truth_ledger.py
-harness_report.md	tests/tools/harness_report.py
+harness_report.md	tests/tools/harness_report.py,tests/tools/test_harness_report.py
 how_to_add_a_fact_channel.md	tests/core_engine
 how_to_add_a_language.md	tests/signal_contract_audit.py,tests/tools/language_addition_audit.py
 issue.md	tests/tools/test_context_pack.py

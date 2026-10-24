@@ -368,3 +368,18 @@ def test_copy_inside_a_record_resolves_in_the_cases_copy_dirs(tmp_path):
     tpb.write(corpora / "estate" / "cpy" / "INNER.cpy", cpy("   05 B PIC X(2)."))
     case["copy_dirs"] = ["cpy"]
     assert hr.record_cause([corpora], case, "TOP") == ""
+
+
+def test_cli_writes_the_page_from_a_proof_blockers_file_deterministically(tmp_path, monkeypatch):
+    """#4493: the nightly CI step is this command; a run writes the page (md + json) and a re-run is byte-identical."""
+    cases, *rest = fixture(tmp_path)
+    src = tmp_path / "proof_blockers.json"
+    src.write_text(json.dumps(proof(cases, *rest)), encoding="utf-8")
+    monkeypatch.setenv("GITGALAXY_MAINFRAME_CORPORA", str(tmp_path / "no-corpora"))
+    pages = []
+    for n in ("a", "b"):
+        assert hr.main([str(src), "--out", str(tmp_path / n), "--estate", "est", "--cases-dir", str(cases)]) == 0
+        pages.append((tmp_path / n / "harness_report.md", tmp_path / n / "harness_report.json"))
+    assert pages[0][0].read_text(encoding="utf-8").startswith("# Equivalence harness report -- est")
+    assert json.loads(pages[0][1].read_text(encoding="utf-8"))["estate"] == "est"
+    assert [p.read_bytes() for p in pages[0]] == [p.read_bytes() for p in pages[1]]

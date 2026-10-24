@@ -454714,6 +454714,19 @@
         },
         {
           "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 438,
+          "Function Name": "define_from_array_api_string",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 10,
+          "Reflection Hits": 0,
+          "Start Line": 429,
+          "Structural Impact": 3.3
+        },
+        {
+          "Control Flow Branches": 1,
           "Control Flow Ratio": "25.0%",
           "End Line": 137,
           "Function Name": "__str__",
@@ -454793,6 +454806,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 126,
+          "Function Name": "add_guard",
+          "Input Parameters": 3,
+          "Is Documented": 1,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 118,
+          "Structural Impact": 2.5
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 387,
           "Function Name": "__init__",
           "Input Parameters": 4,
@@ -454828,19 +454854,6 @@
           "Reflection Hits": 0,
           "Start Line": 173,
           "Structural Impact": 2.4
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 120,
-          "Function Name": "add_guard",
-          "Input Parameters": 3,
-          "Is Documented": 1,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 118,
-          "Structural Impact": 2.1
         },
         {
           "Control Flow Branches": 0,
@@ -454944,19 +454957,6 @@
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 375,
-          "Structural Impact": 1.6
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 431,
-          "Function Name": "define_from_array_api_string",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 429,
           "Structural Impact": 1.6
         },
         {
@@ -455200,17 +455200,30 @@
           "Structural Impact": 67.0
         },
         {
-          "Control Flow Branches": 22,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 1525,
+          "Control Flow Branches": 23,
+          "Control Flow Ratio": "65.7%",
+          "End Line": 1538,
           "Function Name": "make_arrays",
           "Input Parameters": 1,
           "Is Documented": 0,
           "Is Public": 1,
-          "Lines of Code (LOC)": 86,
+          "Lines of Code (LOC)": 99,
           "Reflection Hits": 0,
           "Start Line": 1440,
-          "Structural Impact": 36.8
+          "Structural Impact": 38.9
+        },
+        {
+          "Control Flow Branches": 15,
+          "Control Flow Ratio": "88.2%",
+          "End Line": 1631,
+          "Function Name": "make_ufuncs",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 92,
+          "Reflection Hits": 0,
+          "Start Line": 1540,
+          "Structural Impact": 27.2
         },
         {
           "Control Flow Branches": 11,
@@ -455278,19 +455291,6 @@
           "Structural Impact": 6.3
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
-          "End Line": 1550,
-          "Function Name": "make_ufuncs",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 11,
-          "Reflection Hits": 0,
-          "Start Line": 1540,
-          "Structural Impact": 6.2
-        },
-        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "33.3%",
           "End Line": 1690,
@@ -455319,6 +455319,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 1666,
+          "Function Name": "make_code",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 33,
+          "Reflection Hits": 0,
+          "Start Line": 1634,
+          "Structural Impact": 3.4
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 264,
           "Function Name": "english_upper",
           "Input Parameters": 1,
@@ -455340,19 +455353,6 @@
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 1398,
-          "Structural Impact": 2.0
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 1639,
-          "Function Name": "make_code",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
-          "Start Line": 1634,
           "Structural Impact": 2.0
         },
         {

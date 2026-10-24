@@ -38445,7 +38445,7 @@
         "indent@1398": "Parameter Forwarders",
         "main@1669": "I/O & Config Routines",
         "make_arrays@1440": "Compute Cores",
-        "make_code@1634": "Parameter Forwarders",
+        "make_code@1634": "Compute Cores",
         "make_ufuncs@1540": "Compute Cores"
       },
       "python/numpy/generate_umath_doc.py": {

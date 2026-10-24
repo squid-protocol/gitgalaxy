@@ -2625,6 +2625,10 @@ def _blank_line(line: str) -> str:
     return " " * len(body) + line[len(body) :]
 
 
+# Languages whose indentation scan treats an open bracket as a continuation (#6266).
+_BRACKET_CONTINUATION_LANGS = frozenset({"python", "micropython", "embedded_python"})
+
+
 class StructuralExtractor:
     """
     GitGalaxy Structural Extractor (Primary Heuristic Logic & Function Mapper).
@@ -7863,6 +7867,13 @@ class StructuralExtractor:
 
             equation_start_idx = None
 
+            # #6266: inside an open bracket Python ignores indentation, and PRISM
+            # blanks a multi-line string argument down to bare newlines, so the
+            # string's closing line tail (`, (id,))`) lands at column 0. Track the
+            # bracket depth so such a line is a continuation, not a dedent.
+            bracket_depth = 0
+            track_brackets = lang_id in _BRACKET_CONTINUATION_LANGS
+
             # --- FAST O(N) INDENT TRACKER ---
             # Replaced O(N^2) array allocations with zero-copy index jumping
             while scan_pos < len(safe_code):
@@ -7874,6 +7885,14 @@ class StructuralExtractor:
 
                 if stripped:
                     current_indent = len(f_line) - len(stripped)
+                    if track_brackets:
+                        was_open = bracket_depth > 0
+                        opened = f_line.count("(") + f_line.count("[") + f_line.count("{")
+                        closed = f_line.count(")") + f_line.count("]") + f_line.count("}")
+                        bracket_depth = max(0, bracket_depth + opened - closed)
+                        if was_open:
+                            scan_pos = line_end
+                            continue
                     if current_indent <= base_indent:
                         # #1266: Haskell's convention puts a function's type
                         # signature and its defining equation(s) on SEPARATE

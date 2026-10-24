@@ -9644,11 +9644,11 @@
         "Parameter Forwarders": 1
       },
       "python/numpy/generate_umath.py": {
-        "Compute Cores": 3,
+        "Compute Cores": 4,
         "Defensive Guards": 1,
         "I/O & Config Routines": 2,
         "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 5,
+        "Parameter Forwarders": 4,
         "Stateful Encapsulated Methods": 1
       },
       "python/numpy/generate_umath_doc.py": {

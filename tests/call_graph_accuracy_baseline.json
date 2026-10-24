@@ -54,13 +54,13 @@
     "tp": 6648
   },
   "haskell": {
-    "fn": 72,
-    "fp": 138,
+    "fn": 50,
+    "fp": 125,
     "matched_functions": 142,
     "parse_failures": 0,
-    "precision_pct": 65.5,
-    "recall_pct": 78.4,
-    "tp": 262
+    "precision_pct": 69.4,
+    "recall_pct": 85.0,
+    "tp": 284
   },
   "java": {
     "fn": 0,

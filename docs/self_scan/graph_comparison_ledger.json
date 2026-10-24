@@ -5536,23 +5536,15 @@
       "investigated_at": "2026-10-24T13:10:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
           "file_path": "haskell/pandoc/App.hs",
-          "name": "convertWithOpts -> createDirectoryIfMissing",
+          "name": "convertWithOpts -> writeFnBinary",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 122
-          }
-        },
-        {
-          "file_path": "haskell/pandoc/App.hs",
-          "name": "convertWithOpts -> writerFn",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 124
+            "tree_sitter": 125
           }
         },
         {
@@ -5573,10 +5565,18 @@
         },
         {
           "file_path": "haskell/pandoc/App.hs",
-          "name": "convertWithOpts -> writeFnBinary",
+          "name": "convertWithOpts -> writerFn",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 125
+            "tree_sitter": 124
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> createDirectoryIfMissing",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 122
           }
         }
       ],
@@ -5600,7 +5600,7 @@
       "investigated_at": "2026-10-24T13:10:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -5638,7 +5638,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -5694,23 +5694,15 @@
       "investigated_at": "2026-10-24T13:10:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
-      "last_seen_count": 11,
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
+      "last_seen_count": 12,
       "last_seen_examples": [
         {
           "file_path": "haskell/pandoc/App.hs",
-          "name": "convertWithOpts -> encodeLogMessages",
+          "name": "convertWithOpts -> optFailIfWarnings",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 113
-          }
-        },
-        {
-          "file_path": "haskell/pandoc/App.hs",
-          "name": "convertWithOpts -> takeDirectory",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 121
+            "tree_sitter": 115
           }
         },
         {
@@ -5723,6 +5715,14 @@
         },
         {
           "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> optEol",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 117
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
           "name": "convertWithOpts -> toArchiveOrFail",
           "readings": {
             "gitgalaxy": null,
@@ -5731,10 +5731,10 @@
         },
         {
           "file_path": "haskell/pandoc/App.hs",
-          "name": "convertWithOpts -> optEol",
+          "name": "convertWithOpts -> takeDirectory",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 117
+            "tree_sitter": 121
           }
         }
       ],
@@ -5758,31 +5758,23 @@
       "investigated_at": "2026-10-24T14:33:04Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
-      "last_seen_count": 21,
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
+      "last_seen_count": 19,
       "last_seen_examples": [
-        {
-          "file_path": "haskell/pandoc/App.hs",
-          "name": "convertWithOpts -> takeExtension",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 127
-          }
-        },
-        {
-          "file_path": "haskell/pandoc/App.hs",
-          "name": "convertWithOpts -> writeFile",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 113
-          }
-        },
         {
           "file_path": "haskell/pandoc/App.hs",
           "name": "convertWithOpts -> any",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 115
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> null",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 127
           }
         },
         {
@@ -5795,7 +5787,15 @@
         },
         {
           "file_path": "haskell/pandoc/App.hs",
-          "name": "convertWithOpts -> null",
+          "name": "convertWithOpts -> writeFile",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 113
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "convertWithOpts -> takeExtension",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 127
@@ -5820,7 +5820,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -5866,7 +5866,7 @@
       ],
       "metric": "infix/-+generic",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -5882,17 +5882,9 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
-      "last_seen_count": 16,
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
+      "last_seen_count": 3,
       "last_seen_examples": [
-        {
-          "file_path": "haskell/pandoc/App.hs",
-          "name": "convertWithOpts -> runIO",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 107
-          }
-        },
         {
           "file_path": "haskell/pandoc/App.hs",
           "name": "convertWithOpts -> PandocShouldNeverHappenError",
@@ -5903,26 +5895,18 @@
         },
         {
           "file_path": "haskell/pandoc/App.hs",
-          "name": "configureCommonState -> setTranslations",
+          "name": "convertWithOpts -> runIO",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 365
+            "tree_sitter": 107
           }
         },
         {
-          "file_path": "haskell/pandoc/App.hs",
-          "name": "configureCommonState -> report",
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "orderedListMarkers -> cycle",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 367
-          }
-        },
-        {
-          "file_path": "haskell/pandoc/App.hs",
-          "name": "createPngFallbacks -> report",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 392
+            "tree_sitter": 313
           }
         }
       ],
@@ -5944,22 +5928,22 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
-        {
-          "file_path": "haskell/pandoc/Shared.hs",
-          "name": "inlineListToIdentifier -> extensionEnabled",
-          "readings": {
-            "gitgalaxy": 474,
-            "tree_sitter": null
-          }
-        },
         {
           "file_path": "haskell/pandoc/Shared.hs",
           "name": "inlineListToIdentifier -> walk",
           "readings": {
             "gitgalaxy": 475,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Shared.hs",
+          "name": "inlineListToIdentifier -> extensionEnabled",
+          "readings": {
+            "gitgalaxy": 474,
             "tree_sitter": null
           }
         }
@@ -5982,8 +5966,8 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
-      "last_seen_count": 50,
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
+      "last_seen_count": 52,
       "last_seen_examples": [
         {
           "file_path": "haskell/pandoc/Filter.hs",
@@ -5995,31 +5979,31 @@
         },
         {
           "file_path": "haskell/pandoc/Shared.hs",
-          "name": "makeSectionsWithOffsets -> return",
+          "name": "makeSectionsWithOffsets -> zipWith",
           "readings": {
-            "gitgalaxy": 558,
+            "gitgalaxy": 539,
             "tree_sitter": null
           }
         },
         {
           "file_path": "haskell/pandoc/Shared.hs",
-          "name": "makeSectionsWithOffsets -> repeat",
+          "name": "makeSectionsWithOffsets -> map",
           "readings": {
-            "gitgalaxy": 540,
+            "gitgalaxy": 549,
             "tree_sitter": null
           }
         },
         {
           "file_path": "haskell/pandoc/Shared.hs",
-          "name": "makeSectionsWithOffsets -> Min",
+          "name": "makeSectionsWithOffsets -> Div",
           "readings": {
-            "gitgalaxy": 526,
+            "gitgalaxy": 559,
             "tree_sitter": null
           }
         },
         {
           "file_path": "haskell/pandoc/Shared.hs",
-          "name": "makeSectionsWithOffsets -> put",
+          "name": "makeSectionsWithOffsets -> unless",
           "readings": {
             "gitgalaxy": 541,
             "tree_sitter": null
@@ -6044,7 +6028,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -6082,7 +6066,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6096,7 +6080,7 @@
       ],
       "metric": "not-a-call-in-ts:apply<apply",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -6112,7 +6096,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -6150,8 +6134,8 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
-      "last_seen_count": 6,
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
+      "last_seen_count": 4,
       "last_seen_examples": [
         {
           "file_path": "haskell/pandoc/Shared.hs",
@@ -6184,14 +6168,6 @@
             "gitgalaxy": 364,
             "tree_sitter": null
           }
-        },
-        {
-          "file_path": "haskell/pandoc/Shared.hs",
-          "name": "removeFormatting -> go",
-          "readings": {
-            "gitgalaxy": 345,
-            "tree_sitter": null
-          }
         }
       ],
       "metric": "not-a-call-in-ts:apply<infix",
@@ -6212,7 +6188,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -6258,7 +6234,7 @@
       ],
       "metric": "not-a-call-in-ts:apply<match",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -6274,7 +6250,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -6312,7 +6288,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6342,7 +6318,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6372,7 +6348,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -6426,7 +6402,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -6488,7 +6464,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -6518,7 +6494,7 @@
       ],
       "metric": "not-a-call-in-ts:function<local_binds",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -6534,7 +6510,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6564,7 +6540,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -6626,7 +6602,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6656,7 +6632,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6686,7 +6662,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6716,7 +6692,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -6754,12 +6730,12 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
           "file_path": "haskell/pandoc/Shared.hs",
-          "name": "makeSectionsWithOffsets -> ident",
+          "name": "makeSectionsWithOffsets -> kvs",
           "readings": {
             "gitgalaxy": 532,
             "tree_sitter": null
@@ -6767,7 +6743,7 @@
         },
         {
           "file_path": "haskell/pandoc/Shared.hs",
-          "name": "go -> ident",
+          "name": "go -> kvs",
           "readings": {
             "gitgalaxy": 532,
             "tree_sitter": null
@@ -6776,7 +6752,7 @@
       ],
       "metric": "not-a-call-in-ts:tuple<apply",
       "status": "unvalidated",
-      "still_reproduces": false,
+      "still_reproduces": true,
       "symbol_type": "call",
       "verdict": null
     },
@@ -6792,7 +6768,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6822,7 +6798,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -6884,7 +6860,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -6922,7 +6898,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -6984,7 +6960,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7014,20 +6990,12 @@
       "investigated_at": "2026-10-24T13:50:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "haskell",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
-      "last_seen_count": 64,
+      "last_reconciled_at": "2026-10-24T16:49:56Z",
+      "last_seen_count": 58,
       "last_seen_examples": [
         {
           "file_path": "haskell/pandoc/App.hs",
           "name": "writerFn -> writeFileWith",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "haskell/pandoc/App.hs",
-          "name": "writeFnBinary -> encodePath",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -7042,8 +7010,8 @@
           }
         },
         {
-          "file_path": "haskell/pandoc/Filter.hs",
-          "name": "applyFilter -> processCitations",
+          "file_path": "haskell/pandoc/App.hs",
+          "name": "writeFnBinary -> encodePath",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -7052,6 +7020,14 @@
         {
           "file_path": "haskell/pandoc/Filter.hs",
           "name": "applyFilter -> engineApplyFilter",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "haskell/pandoc/Filter.hs",
+          "name": "applyFilter -> processCitations",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null

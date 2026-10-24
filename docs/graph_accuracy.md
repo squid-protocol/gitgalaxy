@@ -271,6 +271,15 @@ function the caller cannot see is never linked (`std::move` must not reach a rep
 confident links judged, was 2,325): precision 84.1% (unchanged), recall 21.5% (was 20.1%), resolution recall 63.3% (was
 58.8%), ambiguous precision 35.1% (was 34.1%), 220 wrong-overload links (was 203; more links are judged).
 
+**Overload choice (#3784):** C++ joins `OVERLOAD_LANGS`: the detector records each callee's argument counts
+(`calls_out_arities`), and the resolver picks the same-class, same-file overload declaring that many parameters. A
+count that matches several overloads or none (a default argument, a variadic, an uncounted `Type x(args)`
+construction) leaves an ambiguous `overload` row, never an edge. Measured on fmt (2,188 confident links judged, was
+2,479): precision 92.3% (was 84.1%), strict 82.0% (was 74.9%), wrong-overload links 23 (was 220), recall 20.8% (was
+21.5%), resolution recall 60.5% (was 63.3%). The recall dip is the trade: calls the counts cannot choose are no longer
+guessed. **C (hiredis, libuv)** has no overloads; the reference run is unchanged (2,163 judged, precision 100.0%,
+recall 25.3%, resolution recall 58.8%), so the unmapped links (2,789) are the open C item.
+
 ## Span anchoring
 
 A unit is mis-anchored when its `start_line` opens before the declaration, on lines that belong

@@ -346,3 +346,13 @@ def test_updacc_typed_dto_entry_scenarios_and_no_open_case_gap():
         assert kept[field] not in ("", "0")
     survivors = json.loads((dm.CASES / "det_mutation_survivors" / "cbsa-updacc.json").read_text())["survivors"]
     assert "case-gap" not in {s["verdict"] for s in survivors}
+
+
+def test_tranadd_survivors_are_all_stated_and_none_is_a_gap():
+    """#5862: COTRN02C's committed survivors are all stated `equivalent` / `unreachable` with a reason, so the case is L5."""
+    import json
+
+    survivors = json.loads((dm.CASES / "det_mutation_survivors" / "carddemo-tranadd.json").read_text())["survivors"]
+    assert len(survivors) >= 37
+    assert {s["verdict"] for s in survivors} <= set(dm.ACCOUNTED)
+    assert all(s["reason"].strip() for s in survivors)

@@ -714,7 +714,7 @@ jobs:
   # reads the pin) and is PR-only: the schedule and dispatch runs have no diff to scope to.
   detmut:
     name: detmut
-    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && github.event_name == 'pull_request' }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -745,6 +745,7 @@ jobs:
           pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Cache the pinned corpora
+        id: corpora
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
@@ -754,6 +755,15 @@ jobs:
         run: |
           cd gitgalaxy
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      # #5024: restore-only on pull requests; this job is PR-only, so the save is the shared pairing and never runs here.
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
 
       - name: Check the ledgers of the cases this PR changes
         run: |

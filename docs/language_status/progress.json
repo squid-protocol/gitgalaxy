@@ -1,5 +1,5 @@
 {
- "commit": "6fca5bd9a",
+ "commit": "4dcd9c55c",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-24T02:59:06Z",
+  "as_of": "2026-10-24T03:16:21Z",
   "core": {
    "closed": 171,
    "open": 16,
@@ -198,8 +198,8 @@
    "total": 48
   },
   "infra": {
-   "closed": 198,
-   "open": 55,
+   "closed": 199,
+   "open": 54,
    "total": 253
   },
   "measured": true,
@@ -338,9 +338,9 @@
     "total": 8
    },
    {
-    "closed": 62,
+    "closed": 63,
     "number": 22,
-    "open": 5,
+    "open": 4,
     "title": "Does It Actually Crit? \ud83c\udfb2 \u2014 Metrics That Earn Their Place",
     "total": 67
    },

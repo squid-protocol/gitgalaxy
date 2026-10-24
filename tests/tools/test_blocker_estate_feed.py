@@ -100,3 +100,49 @@ def test_other_salt_gives_other_ids():
 def test_cli_refuses_a_directory_with_no_survey(tmp_path):
     with pytest.raises(SystemExit):
         bef.main([str(tmp_path), "--out", str(tmp_path / "o"), "--corpora", str(tmp_path)])
+
+
+def test_sources_resolve_under_a_root_or_as_the_root(tmp_path):
+    (tmp_path / "zecs").mkdir()
+    crucible = tmp_path / "ws" / "cics-crucible"
+    crucible.mkdir(parents=True)
+    assert bef.find_sources([tmp_path], "zecs") == tmp_path / "zecs"
+    assert bef.find_sources([crucible], "cics-crucible") == crucible
+    assert bef.find_sources([tmp_path], "cics-genapp") is None
+
+
+def test_require_sources_fails_when_the_leak_scan_cannot_run(tmp_path):
+    problems, _ = bef.run(survey(["zecs"]), [], tmp_path, compute=compute_for(KNOWN), require_sources=True)
+    assert any("leak scan did not run" in p for p in problems)
+    (tmp_path / "c" / "zecs").mkdir(parents=True)
+    problems, summaries = bef.run(
+        survey(["zecs"]), [tmp_path / "c"], tmp_path / "o", compute=compute_for(KNOWN), require_sources=True
+    )
+    assert problems == [] and summaries[0]["leak_checked"]
+
+
+def test_the_crucible_checkout_passed_as_a_root_is_leak_scanned(tmp_path):
+    root = tmp_path / "cics-crucible"
+    root.mkdir()
+    (root / "ZZPGMONE.cbl").write_text("       PROGRAM-ID. ZZPGMONE.\n", encoding="utf-8")
+    problems, summaries = bef.run(
+        survey(["cics-crucible"]), [root], tmp_path / "o", compute=compute_for(KNOWN), require_sources=True
+    )
+    assert problems == [] and summaries[0]["leak_checked"]
+
+
+def test_unmatched_rows_become_a_deduped_queue(tmp_path, capsys):
+    gaps = {**KNOWN, "P9": ["something never seen: SECRETFLD"]}
+    feed(tmp_path, ["cics-genapp", "zecs"], gaps)
+    data = json.loads((tmp_path / "feed.json").read_text(encoding="utf-8"))
+    assert data["schema"] == 1
+    items = bef.queue(data)
+    assert items and all(i["body"].startswith("### Customer blocker") for i in items)
+    assert len({i["id"] for i in items}) == len(items) <= sum(len(v) for v in data["unmatched"].values())
+    assert bef.queue({"unmatched": {"a": data["unmatched"]["zecs"], "b": data["unmatched"]["zecs"]}}) == bef.queue(
+        {"unmatched": {"a": data["unmatched"]["zecs"]}}
+    )
+    out = tmp_path / "q.json"
+    assert bef.main(["queue", "--feed", str(tmp_path / "feed.json"), "--out", str(out)]) == 0
+    assert json.loads(out.read_text(encoding="utf-8")) == items
+    assert "SECRETFLD" not in out.read_text(encoding="utf-8")

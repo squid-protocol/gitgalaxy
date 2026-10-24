@@ -89,6 +89,11 @@ def test_the_full_label_keeps_every_db2_case():
     assert p["db2_cases"] == "all"
 
 
+# The db2 job runs on ubuntu; on a Windows runner `bash` is the WSL launcher (no distribution installed, UTF-16 output,
+# no /usr/bin), so the script-behaviour tests are Linux-only like test_ci_retry.py and test_box_tools.py.
+needs_linux_bash = pytest.mark.skipif(sys.platform != "linux", reason="the db2 job's bash runs on the Linux runners")
+
+
 def _pool_for(tmp_path, cases, shard):
     """Run the db2 job's pool-sizing lines (up to the ready dir) the way the workflow does; return GITGALAXY_DB2_POOL."""
     import shutil
@@ -111,6 +116,7 @@ def _pool_for(tmp_path, cases, shard):
     return int(dict(ln.split("=", 1) for ln in env_file.read_text().split())["GITGALAXY_DB2_POOL"])
 
 
+@needs_linux_bash
 @pytest.mark.parametrize(
     ("n_cases", "shard", "expected"),
     [
@@ -129,5 +135,6 @@ def test_a_db2_shard_creates_only_the_databases_its_share_of_cases_uses(tmp_path
     assert _pool_for(tmp_path, cases, shard) == expected
 
 
+@needs_linux_bash
 def test_a_full_sweep_shard_keeps_the_whole_pool(tmp_path):
     assert _pool_for(tmp_path, "all", "3/6") == 4

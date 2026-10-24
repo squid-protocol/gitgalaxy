@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 28,
+ "scenarios": 43,
  "paragraphs": {
   "covered": 27,
   "live": 28
  },
  "branches": {
-  "covered": 47,
+  "covered": 76,
   "total": 81
  },
  "linked": {
@@ -27,55 +27,26 @@
   ],
   "branches": [
    "406:false",
-   "413:true",
-   "512:true",
-   "687:true",
    "766:true",
-   "832:true",
-   "1116:true",
-   "1197:true",
-   "1199:true",
-   "1199:false",
-   "1203:true",
-   "1203:false",
-   "1210:true",
-   "1210:false",
-   "1288:true",
-   "1288:false",
-   "1329:true",
-   "1329:false",
-   "1397:true",
-   "1398:true",
-   "1398:false",
-   "1402:true",
-   "1402:false",
-   "1409:true",
-   "1409:false",
-   "1485:true",
-   "1485:false",
-   "1529:true",
    "1744:WHEN@1746",
    "1754:true",
-   "1786:WHEN@1807",
-   "1821:true",
-   "1821:false",
    "1897:false",
    "paragraph:AH999"
   ]
  },
  "inputs": {
-  "case": "21ce7e8986191284d614a7fbecc748061cff55c30de799f9446d6ceedce1ce70",
+  "case": "72303f6009033f80f3a505d777c236927afeaccaf86e2a3a6d9538ad84a68be1",
   "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-  "harness": "6441bd8198cf2cdd09bd12ac0efdfe086d5b7d26f266243cf24d62e1287e93b0",
-  "oracle": "40125dfe18c69da257454d872d15341a5fd2169016e8ce044af780848360b910",
+  "harness": "9cbaac73873e515cc3732b7bb7baa435afd359b30e0be41281fa9d52920ea1c5",
+  "oracle": "7091f87cf223bccfbe72e68149361e09ecbd54d25c8c3912a5108ef6c63c6f8d",
   "components": {
    "harness": {
-    "harness:cics": "0f6972ac54b3ac55e9e2235e5a42e31a79d8f10c194cefa71385eff4d024d2e2",
-    "harness:core": "808b8ac9e553c3caffe3e5b89d7b7a1d8a04cd0b273490c8f2fb0e16aeb53e77",
+    "harness:cics": "f57f3006faeb437f89e2c38d1342c90f6267381148e72bce38fc1bcdb4d1773e",
+    "harness:core": "7e08e5e0849996c23ddf4e3cc22a74a932455ae21291cadb431d411566062741",
     "harness:db2": "df4cefe238f828f2233ef1ae1b7c77c21265c7f5ab3af61e753544d50120cd66"
    },
    "oracle": {
-    "oracle:cics-stub": "0859aaa0a70ffc08981009462e43cd42fc03c0b24310b039eb8fdf6f59be897a",
+    "oracle:cics-stub": "df8f39024e7d29b8a78f52c0e835582a06daea8d913c553782c45ae7e5666e1c",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
@@ -83,5 +54,5 @@
    }
   }
  },
- "measured_at": "2993e26309714ff01d97aba367b077f44005b02b"
+ "measured_at": "edd87d301b4f9643ed4e67883049b7ef78ba003c"
 }

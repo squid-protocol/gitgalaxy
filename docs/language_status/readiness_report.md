@@ -11,9 +11,9 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 |---|---|
 | L0 inventoried | 2 |
 | L1 translated whole | 0 |
-| L2 executed equivalent | 4 |
-| L3 paragraph coverage | 10 |
-| L4 branch coverage | 28 |
+| L2 executed equivalent | 2 |
+| L3 paragraph coverage | 8 |
+| L4 branch coverage | 32 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 42 / 44 (95%); with holes: 2; refused: 0
@@ -31,12 +31,12 @@ era 0: 0, era 1: 5, era 2: 22, era 3: 15, era 4: 0, era none: 2
 |---|---|---|---|---|---|
 | 1 | <name>: <name> is not defined in a record of file <name> | 2 | 0 | 2 | era 3: 2 |
 
-### Proof blockers (42 programs translated whole, 28 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
+### Proof blockers (42 programs translated whole, 32 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 10 | 0 | 10 |
-| 2 | coverage: paragraphs below the bar | 4 | 0 | 4 |
+| 1 | coverage: branch outcomes below the bar | 8 | 0 | 8 |
+| 2 | coverage: paragraphs below the bar | 2 | 0 | 2 |
 
 ### Missing inputs
 
@@ -119,9 +119,9 @@ era 0: 0, era 1: 0, era 2: 0, era 3: 0, era 4: 7, era none: 3
 |---|---|
 | L0 inventoried | 0 |
 | L1 translated whole | 0 |
-| L2 executed equivalent | 13 |
-| L3 paragraph coverage | 8 |
-| L4 branch coverage | 10 |
+| L2 executed equivalent | 7 |
+| L3 paragraph coverage | 9 |
+| L4 branch coverage | 15 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 31 / 31 (100%); with holes: 0; refused: 0
@@ -138,12 +138,12 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 
-### Proof blockers (31 programs translated whole, 10 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
+### Proof blockers (31 programs translated whole, 15 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: paragraphs below the bar | 13 | 0 | 13 |
-| 2 | coverage: branch outcomes below the bar | 8 | 0 | 8 |
+| 1 | coverage: branch outcomes below the bar | 9 | 0 | 9 |
+| 2 | coverage: paragraphs below the bar | 7 | 0 | 7 |
 
 ### Missing inputs
 

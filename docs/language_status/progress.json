@@ -1,5 +1,5 @@
 {
- "commit": "8d7aff6a5",
+ "commit": "67226f5d4",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -134,12 +134,12 @@
   },
   "1": {
    "l2_plus": 9,
-   "l4_plus": 1,
+   "l4_plus": 4,
    "programs": 9
   },
   "2": {
    "l2_plus": 69,
-   "l4_plus": 34,
+   "l4_plus": 35,
    "programs": 70
   },
   "3": {
@@ -149,7 +149,7 @@
   },
   "4": {
    "l2_plus": 20,
-   "l4_plus": 12,
+   "l4_plus": 17,
    "programs": 21
   },
   "none": {
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-24T09:27:13Z",
+  "as_of": "2026-10-24T09:38:28Z",
   "core": {
    "closed": 171,
    "open": 16,
@@ -430,15 +430,15 @@
    "aws-mainframe-modernization-carddemo": {
     "l2_plus": 42,
     "l2_plus_pct": 95.5,
-    "l4_plus": 28,
-    "l4_plus_pct": 63.6,
+    "l4_plus": 32,
+    "l4_plus_pct": 72.7,
     "l5": 0,
     "levels": {
      "L0": 2,
      "L1": 0,
-     "L2": 4,
-     "L3": 10,
-     "L4": 28,
+     "L2": 2,
+     "L3": 8,
+     "L4": 32,
      "L5": 0
     },
     "programs": 44,
@@ -464,15 +464,15 @@
    "cics-banking-sample-application-cbsa": {
     "l2_plus": 31,
     "l2_plus_pct": 100.0,
-    "l4_plus": 10,
-    "l4_plus_pct": 32.3,
+    "l4_plus": 15,
+    "l4_plus_pct": 48.4,
     "l5": 0,
     "levels": {
      "L0": 0,
      "L1": 0,
-     "L2": 13,
-     "L3": 8,
-     "L4": 10,
+     "L2": 7,
+     "L3": 9,
+     "L4": 15,
      "L5": 0
     },
     "programs": 31,
@@ -533,15 +533,15 @@
   "total": {
    "l2_plus": 121,
    "l2_plus_pct": 93.8,
-   "l4_plus": 65,
-   "l4_plus_pct": 50.4,
+   "l4_plus": 74,
+   "l4_plus_pct": 57.4,
    "l5": 0,
    "levels": {
     "L0": 6,
     "L1": 2,
-    "L2": 25,
-    "L3": 31,
-    "L4": 65,
+    "L2": 17,
+    "L3": 30,
+    "L4": 74,
     "L5": 0
    },
    "programs": 129,

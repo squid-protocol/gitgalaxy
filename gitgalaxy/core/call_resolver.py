@@ -1023,6 +1023,38 @@ def _ancestry(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], set[s
     return parents
 
 
+def _expand_super_ctor(
+    func: dict[str, Any],
+    index: dict[tuple[str, str], "_Bucket"],
+    parents: dict[tuple[str, str], set[str]],
+    group: str,
+    lang: str,
+) -> None:
+    """#3772: a constructor's `super(...)` becomes a call to its in-repo superclass's constructor.
+
+    The detector keeps `super` (with its argument counts) only in a constructor; here it is
+    replaced by the direct parent classes the scan knows. A parent outside the repo
+    (`Exception`) leaves no call. The counts move to the parent name for overload choice.
+    """
+    owner = func.get("parent_class_name") or _leaf(str(func.get("name") or ""))[1]
+    direct = sorted(parents.get((group, _key(_leaf(str(owner))[0], lang)), ())) if owner else []
+    # an `extends Base<T>` is recorded with its type arguments: `Base` names the class
+    named = sorted({_leaf(p.split("<")[0].strip())[0] for p in direct})
+    known = [p for p in named if _is_class(index, group, p, lang)]
+    arities = func.setdefault("calls_out_arities", {})
+    quals = func.setdefault("calls_out_qualifiers", {})
+    counts = arities.pop("super", None)
+    quals.pop("super", None)
+    calls = [c for c in func["calls_out_to"] if c != "super"]
+    for p in known:
+        if p not in calls:
+            calls.append(p)
+        if counts:
+            arities.setdefault(p, []).extend(a for a in counts if a not in arities.get(p, []))
+        quals.setdefault(p, [""])
+    func["calls_out_to"] = calls
+
+
 def _is_class(index: dict[tuple[str, str], "_Bucket"], group: str, name: str, lang: str) -> bool:
     bucket = index.get((group, _key(name, lang)))
     return bucket is not None and any(d.kind == "class" for d in bucket.defs)
@@ -1447,6 +1479,8 @@ def resolve_calls(
             # #3362: calls, then unconditional transfers (COBOL GO TO). A transfer
             # resolves by the same ladder (it names a unit the same way) but is
             # its own `kind`: it never counts toward the call-resolution rates.
+            if lang in OVERLOAD_LANGS and "super" in (func.get("calls_out_to") or []):
+                _expand_super_ctor(func, index, parents, group, lang)
             callees = [(c, "call") for c in func.get("calls_out_to") or []]
             callees += [(t, "transfer") for t in func.get("transfers_to") or []]
             # Decorators: the decorated function -> each decorator applied to it

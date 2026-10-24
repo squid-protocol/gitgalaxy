@@ -35,8 +35,8 @@ Census use is `programs (burned / non-burned)`, counts only. A spec key is the d
 | ENDBROWSE CONTAINER | full | yes (4 options) | yes | X42 | — | 0 | — |
 | DELETE CHANNEL | full | yes (4 options) | yes | X17, X44 | — | 0 | — |
 | QUERY CHANNEL | full | yes (5 options) | yes | X17, X44 | — | 0 | — |
-| PUT64 CONTAINER | full | yes (13 options, 1 refused by name) | refused whole | X17 | — | 0 | — |
-| GET64 CONTAINER | full | yes (12 options, 2 refused by name) | refused whole | X17 | — | 0 | — |
+| PUT64 CONTAINER | full | yes (13 options, 1 refused by name) | yes | X17 | — | 0 | — |
+| GET64 CONTAINER | full | yes (12 options, 2 refused by name) | yes | X17 | — | 0 | — |
 | DOCUMENT CREATE | full | yes (8 options, 8 refused by name) | yes | X33 | doctemplates | 3 (3 / 0) | — |
 | DOCUMENT RETRIEVE | full | yes (8 options, 2 refused by name) | yes | X33 | — | 3 (3 / 0) | — |
 | START | full | yes (21 options, 6 refused by name) | yes | X18 | — | 3 (3 / 0) | gt-assign-startcode, gt-start-options, gt-start-retrieve, gt-terminal-coalesce |

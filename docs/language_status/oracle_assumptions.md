@@ -2000,10 +2000,12 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   the next program" (a channel that does not exist is created empty); COMMAREA is its alternative, and a RETURN below the
   highest logical level fails with INVREQ RESP2 2 and returns to the program. The port (`CicsTask.returnChannel`) ends the
   task with the channel recorded as `returnedChannel` and a RETURN event naming it and its containers; the translator
-  refuses CHANNEL without TRANSID, and beside COMMAREA / LENGTH / IMMEDIATE (IBM does not say), by name. **Not carried yet:**
-  neither crucible harness hands the channel to the next task (the Java runner's `pending*` fields and the stub's
-  process-per-task state), and the stub translator refuses RETURN CHANNEL as a stub-only feature, so the
-  pc-return-channel cells do not move.
+  refuses CHANNEL without TRANSID, and beside COMMAREA / LENGTH / IMMEDIATE (IBM does not say), by name. **Carried on the Java leg:**
+  the Java runner hands the channel to the next terminal task (`pendingChannel` -> `withChannel`; none after an abend, a
+  RETURN without CHANNEL or a failed RETURN), the log's RETURN event records `channel`, and the deterministic port on the
+  java-ported side passes pc-return-channel carry / modify / link-level2 (`tests/cics_crucible/det-ports/`; a channel
+  program has no java-facade). **Not carried yet:** the stub (process-per-task state), whose translator refuses RETURN
+  CHANNEL as a stub-only feature, so the cobol-stub cells stay unsupported and the baseline does not move.
 - **Assumed.** A container holds the program's bytes. A BIT container is never converted; a CHAR one put and got
   with no CCSID option is in the region's CCSID both ways, so it is not converted either -- the port keeps the bytes
   in its storage's page and the stub in its own, as each side keeps every other area.
@@ -2034,7 +2036,7 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   LENGERR only (on another condition IBM does not say).
 - **Refused by name** (`CicsError` / `Unsupported` at translation, exit 98 / UnsupportedOperationException at run
   time): BYTEOFFSET and PREPEND on a CHAR container (below); RETURN
-  CHANNEL (the next task's channel: neither harness carries it, and no corpus program uses it); LINK / XCTL with both CHANNEL and COMMAREA. At run
+  CHANNEL on the stub (the next task's channel: only the Java runner carries it); LINK / XCTL with both CHANNEL and COMMAREA. At run
   time: a CCSID other than 37, 500, 1140 and 1208 (IBM: CCSIDERR RESP2 1 outside the valid range, 2 for an unsupported pair; a
   real region converts many more); a CCSID 1208 byte beyond ASCII, or a character beyond ASCII converted to 1208 (multibyte:
   the length would change); a character the target CCSID lacks (037 / 500 <-> 1140: the currency sign and the euro),
@@ -4572,7 +4574,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 - **IBM references.** The pages above; CEELOCT's example (L5) and the symbolic feedback codes (L4).
 - **Not modelled, no burned program needs them (#5003).** CEEFMDA / CEEFMDT / CEEFMDV, null (default) pictures and CEE2526 / CEE2527
   truncation (CEESECI and CEEDYWK are modelled, above). A sweep of the burned estates finds no call to any of them (CRECUST and CSUTLDTC call CEEDAYS, BANKDATA CEEGMT and
-  CEEDATM with a 14-byte picture and an 80-byte output), so there is nothing to prove; they stay refused by name.
+  CEEDATM with a 14-byte picture and an 80-byte output), so there is nothing to prove; they stay refused by name (the CALL is a hole that names the service). `tests/cobol_mainframe/test_le_fmd_census_5003.py` pins the census: it fails when a burned source calls CEEFMDx, omits a picture, or writes an output shorter than the picture's result, and when the translator stops refusing CEEFMDx.
 
 ## Assembler routines
 
@@ -5081,7 +5083,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     census over the burned estates. The UIB-addressed PCB list a CICS CBLTDLI program reads is not modelled.
 - **Needed by no burned program** (#5233, `test_dli_unburned_census_5233.py` pins the census over the six burned estates): CALL 'AIBTDLI',
   the FLD / POS / INQY calls, XDFLD / PROCSEQ secondary indexes, logical relationships (PAIR, LPARENT, a non-index LCHILD),
-  HDAM / PHDAM / DEDB access. All stay refused by name below. CardDemo's DBPAUTP0 / DBPAUTX0 are a HIDAM primary index, not a
+  HDAM / PHDAM / DEDB access, the `#` (independent AND) operator and the DEDB subset-pointer command codes (M R S W Z 1-9; the
+  census scans burned programs that issue DL/I, and the refusals are run on both runtimes in `test_det_dli.py`). All stay refused by name below. CardDemo's DBPAUTP0 / DBPAUTX0 are a HIDAM primary index, not a
   secondary one. A burned program that starts to need one fails the census first.
 - **Refused by the harness** (`equivalence_ims.Unsupported`, "not runnable faithfully"):
   - HDAM and PHDAM: the root sequence is the randomizer's.

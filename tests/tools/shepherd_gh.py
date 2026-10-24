@@ -452,13 +452,19 @@ def graphql_reads(p: dict[str, Any]) -> dict[str, Any]:
         "pr": pr,
         "comments": [{"body": c["body"], "user": _login(c["author"])} for c in _whole(p["comments"])],
         "runs": runs,
-        "statuses": [{"context": c["context"], "state": c["state"].lower()}
-                     for c in ((commit.get("status") or {}).get("contexts") or [])],  # fmt: skip
+        "statuses": [
+            {"context": c["context"], "state": c["state"].lower()}
+            for c in ((commit.get("status") or {}).get("contexts") or [])
+        ],
         "events": [
-            {"event": "labeled", "label": {"name": e["label"]["name"]}, "actor": _login(e["actor"]),
-             "created_at": e["createdAt"]}
+            {
+                "event": "labeled",
+                "label": {"name": e["label"]["name"]},
+                "actor": _login(e["actor"]),
+                "created_at": e["createdAt"],
+            }
             for e in _whole(p["timelineItems"], "filteredCount")  # totalCount counts every item type
-        ],  # fmt: skip
+        ],
         "pushed": stamps[0] if stamps else None,
     }
 
@@ -521,7 +527,9 @@ def gather(
     sha = pr["head"]["sha"]
     labels = [x["name"] for x in pr.get("labels") or []]
     head_repo = (pr["head"].get("repo") or {}).get("full_name")
-    comments = (got["comments"] if got else pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/comments")) if labels else []
+    comments = (
+        (got["comments"] if got else pr_check.paged(api, f"repos/{REPO_SLUG}/issues/{n}/comments")) if labels else []
+    )
     runs = got["runs"] if got else pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
     statuses = got["statuses"] if got else (api(f"repos/{REPO_SLUG}/commits/{sha}/status") or {}).get("statuses", [])
     checks = pr_check.classify(runs, statuses)
@@ -949,7 +957,9 @@ def main(
         on_main = ci_digest.main_failures(api) if len(prs) > 1 else None
         main_state = ci_digest.main_green(api)  # #5484: only a reconcile pass may merge main into a waiting PR
         for n in prs:
-            lines += process(n, api, run, None, args.dry_run, on_main=on_main, flaky=flaky, main=main_state, graphql=graphql)
+            lines += process(
+                n, api, run, None, args.dry_run, on_main=on_main, flaky=flaky, main=main_state, graphql=graphql
+            )
     for line in lines:
         print(line)
     return 1 if any("FAILED" in x for x in lines) else 0

@@ -555,7 +555,9 @@ def test_main_computes_the_learned_set_once_per_pass(monkeypatch, tmp_path):
     monkeypatch.setattr(sg.ci_digest, "main_failures", lambda api: set())
     monkeypatch.setattr(sg.ci_digest, "main_green", lambda api: ("", set()))
     monkeypatch.setattr(
-        sg, "process", lambda n, api, run, event, dry, on_main=None, flaky=None, main=None, **kw: got.append(flaky) or []
+        sg,
+        "process",
+        lambda n, api, run, event, dry, on_main=None, flaky=None, main=None, **kw: got.append(flaky) or [],
     )
     calls = []
     monkeypatch.setattr(sg, "learned_flakes", lambda path=None: calls.append(path) or {"x"})
@@ -748,22 +750,37 @@ def _pr(**kw):
 
 STATES = {
     "approved head": lambda gh: None,
-    "non-writer labeller": lambda gh: (
-        _set(perm="read", events=[{"event": "labeled", "label": {"name": sg.MERGE}, "actor": {"login": "rando"},
-                                   "created_at": "2026-10-10T19:00:00Z"}])(gh)),  # fmt: skip
+    "non-writer labeller": lambda gh: _set(
+        perm="read",
+        events=[
+            {
+                "event": "labeled",
+                "label": {"name": sg.MERGE},
+                "actor": {"login": "rando"},
+                "created_at": "2026-10-10T19:00:00Z",
+            }
+        ],
+    )(gh),
     "unapproved push": lambda gh: (gh.pr["head"].update(sha="b" * 40), _set(parents={"b" * 40: [SHA, "c" * 40]})(gh)),
     "bot update carried": lambda gh: (
-        gh.pr["head"].update(sha="b" * 40), _set(parents={"b" * 40: [SHA, "c" * 40]})(gh),
-        gh.comments.append(bot_comment(f"<!-- shepherd-update from={SHA} to={'b' * 40} -->"))),  # fmt: skip
+        gh.pr["head"].update(sha="b" * 40),
+        _set(parents={"b" * 40: [SHA, "c" * 40]})(gh),
+        gh.comments.append(bot_comment(f"<!-- shepherd-update from={SHA} to={'b' * 40} -->")),
+    ),
     "bot update pending": lambda gh: (
-        gh.pr["head"].update(sha="b" * 40), gh.comments.append(bot_comment(f"<!-- shepherd-update from={SHA} -->"))),
+        gh.pr["head"].update(sha="b" * 40),
+        gh.comments.append(bot_comment(f"<!-- shepherd-update from={SHA} -->")),
+    ),
     "app-account comment": lambda gh: gh.comments.append(bot_comment("hi", user="github-actions[bot]")),
-    "bot is an app account": lambda gh: _set(me="github-actions[bot]", comments=[
-        bot_comment(f"<!-- shepherd:approved sha={SHA} by=joe -->", user="github-actions[bot]")])(gh),  # fmt: skip
+    "bot is an app account": lambda gh: _set(
+        me="github-actions[bot]",
+        comments=[bot_comment(f"<!-- shepherd:approved sha={SHA} by=joe -->", user="github-actions[bot]")],
+    )(gh),
     "failing check": _failing,
     "failing check also failing on main": _failing,  # with on_main below
-    "pending check": lambda gh: gh.runs.append({**gh.runs[0], "id": 3, "name": "slow", "status": "in_progress",
-                                                "conclusion": None}),  # fmt: skip
+    "pending check": lambda gh: gh.runs.append(
+        {**gh.runs[0], "id": 3, "name": "slow", "status": "in_progress", "conclusion": None}
+    ),
     "failing status": _set(statuses=[{"context": "ci/legacy", "state": "failure"}]),
     "pending status": _set(statuses=[{"context": "ci/legacy", "state": "pending"}]),
     "dirty": _pr(mergeable_state="dirty"),
@@ -783,7 +800,9 @@ STATES = {
 @pytest.fixture
 def stub_logs(monkeypatch):
     real = sg.ci_digest.digest
-    monkeypatch.setattr(sg.ci_digest, "digest", lambda n, api, **kw: real(n, api, logs=lambda _id: "Error: boom\n", **kw))
+    monkeypatch.setattr(
+        sg.ci_digest, "digest", lambda n, api, **kw: real(n, api, logs=lambda _id: "Error: boom\n", **kw)
+    )
 
 
 @pytest.mark.parametrize("state", sorted(STATES))
@@ -793,7 +812,9 @@ def test_gather_reads_the_same_snapshot_through_graphql_and_decides_the_same(sta
         STATES[state](gh)
         on_main = {"det-db2 (1)"} if "on main" in state else set()
         main = ("f" * 40, set())
-        return gh, sg.gather(7, gh.api, None, now=NOW, on_main=on_main, flaky=set(), main=main, graphql=graphql and gh.graphql)
+        return gh, sg.gather(
+            7, gh.api, None, now=NOW, on_main=on_main, flaky=set(), main=main, graphql=graphql and gh.graphql
+        )
 
     _, rest = snapshot(False)
     gh, via = snapshot(True)
@@ -908,7 +929,7 @@ def test_conditional_api_sends_the_kept_etag_and_a_304_returns_the_kept_body(tmp
 
     def run(argv):
         argvs.append(argv)
-        if "If-None-Match: W/\"e1\"" in argv:
+        if 'If-None-Match: W/"e1"' in argv:
             return subprocess.CompletedProcess(argv, 1, 'HTTP/2.0 304 Not Modified\nEtag: W/"e1"\n\n', "")
         return subprocess.CompletedProcess(argv, 0, 'HTTP/2.0 200 OK\r\nETag: W/"e1"\r\n\r\n{"n": 1}', "")
 

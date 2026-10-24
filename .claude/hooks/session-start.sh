@@ -63,6 +63,21 @@ else
   warn "no java/mvn: the java call-graph gate (scip-java) cannot run"
 fi
 
+# --- rust: the rust-analyzer reference (#3785) is pinned to toolchain 1.90.0 (scip_callgraph.RUST_ANALYZER_VERSION).
+RUST_PIN="1.90.0"
+export PATH="$HOME/.cargo/bin:$PATH"
+if ! command -v rustup >/dev/null 2>&1; then
+  curl -fsS --max-time 60 https://sh.rustup.rs 2>/dev/null | sh -s -- -y --profile minimal --default-toolchain none >/dev/null 2>&1 \
+    || warn "could not install rustup: the rust call-graph gate cannot run"
+fi
+if command -v rustup >/dev/null 2>&1; then
+  if [ "$(rust-analyzer --version 2>/dev/null | awk '{print $2}')" != "$RUST_PIN" ]; then
+    rustup toolchain install "$RUST_PIN" --profile minimal --component rust-analyzer >/dev/null 2>&1 \
+      && rustup default "$RUST_PIN" >/dev/null 2>&1 \
+      || warn "rustup toolchain ${RUST_PIN} with rust-analyzer failed: the rust call-graph gate cannot run"
+  fi
+fi
+
 # --- PATH for the session: keep the current `node` first (another node in the
 # python scripts dir would switch npm's global root away from typescript), then
 # this interpreter's scripts, ahead of the uv tool shims -- so `pytest`, `mypy`
@@ -71,7 +86,7 @@ if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
   py_scripts="$(python -c 'import sysconfig; print(sysconfig.get_path("scripts"))')"
   node_dir="$(dirname "$(command -v node 2>/dev/null || echo /nonexistent/node)")"
   {
-    echo "export PATH=\"${node_dir}:${py_scripts}:\$PATH\""
+    echo "export PATH=\"${node_dir}:${py_scripts}:\$HOME/.cargo/bin:\$PATH\""
     echo "export NODE_PATH=\"\$(npm root -g 2>/dev/null)\""
   } >> "$CLAUDE_ENV_FILE"
 fi

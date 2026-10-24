@@ -11,7 +11,8 @@ name: Graph Accuracy Audit
 #     type checker on the pinned typescript repo(s) of import_graph_corpus.json
 #     (tests/tools/call_graph_resolution.py + ts_callgraph.js), and vs scip-java
 #     (javac-resolved, through the shared SCIP adapter tests/tools/scip_callgraph.py,
-#     #3783) on the pinned java repo;
+#     #3783) on the pinned java repo, and vs rust-analyzer 1.90.0 (SCIP, same adapter,
+#     #3785) on the pinned serde-rs/json;
 #   - span anchoring: functions whose start_line opens on other code before the
 #     declaration, lower is better (#3543, tests/tools/span_anchor_audit.py).
 # Level 1 (callee names vs tree-sitter) stays in call-graph-accuracy-audit.yml.
@@ -44,6 +45,7 @@ on:
       - "tests/call_graph_resolution_baseline.json"
       - "tests/call_graph_resolution_typescript_baseline.json"
       - "tests/call_graph_resolution_java_baseline.json"
+      - "tests/call_graph_resolution_rust_baseline.json"
       - "tests/span_anchor_baseline.json"
       - ".github/workflows/graph-accuracy-audit.yml"
       - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
@@ -112,6 +114,22 @@ jobs:
           key: scip-java-${{ hashFiles('gitgalaxy/tests/tools/scip_callgraph.py', 'gitgalaxy/tests/import_graph_corpus.json') }}
           restore-keys: scip-java-
 
+      # rust-analyzer (the rust reference) comes with the pinned toolchain; its version is the
+      # baseline's (scip_callgraph.RUST_ANALYZER_VERSION). Dependencies are fetched by cargo metadata.
+      - name: Install the Rust toolchain 1.90.0 with rust-analyzer (call-resolution reference)
+        run: |
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- rustup toolchain install 1.90.0 --profile minimal --component rust-analyzer
+          rustup default 1.90.0
+
+      - name: Cache cargo registry
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: cargo-registry-${{ hashFiles('gitgalaxy/tests/import_graph_corpus.json') }}
+          restore-keys: cargo-registry-
+
       # The two corpora are fetched in parallel, once for every gate that reads them.
       - name: Fetch the pinned import-graph repos and the Language Crucible corpus
         run: |
@@ -139,12 +157,13 @@ jobs:
           }
           ( gate span-anchoring python tests/tools/span_anchor_audit.py --samples 3 ) &
           ( gate import-graph python tests/tools/import_graph_accuracy.py --samples 5
-            gate call-typescript python tests/tools/call_graph_resolution.py typescript --samples 5 ) &
+            gate call-typescript python tests/tools/call_graph_resolution.py typescript --samples 5
+            gate call-rust python tests/tools/call_graph_resolution.py rust --samples 5 ) &
           ( gate call-java python tests/tools/call_graph_resolution.py java --samples 5
             gate call-python python tests/tools/call_graph_resolution.py python --samples 5 ) &
           wait
           cat "$RUNNER_TEMP/gaa/times"
-          for n in import-graph call-typescript call-java call-python span-anchoring; do
+          for n in import-graph call-typescript call-rust call-java call-python span-anchoring; do
             cat "$RUNNER_TEMP/gaa/$n.log"
             cat "$RUNNER_TEMP/gaa/$n.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
           done

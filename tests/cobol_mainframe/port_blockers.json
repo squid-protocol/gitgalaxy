@@ -728,7 +728,7 @@
         "copaua0c"
       ],
       "issue": 5278,
-      "fixed_by": null,
+      "fixed_by": "#5300",
       "refused_by_name": false,
       "new_class": false,
       "summary": "The remaining CardDemo MQ program and the MQINQ / MQSET calls it uses were not modelled; CMQGMOV / CMQODV copybooks refused the program whole."

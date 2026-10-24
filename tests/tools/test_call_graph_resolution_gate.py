@@ -287,3 +287,67 @@ def test_clang_callgraph_resolves_c_calls_across_translation_units(tmp_path):
     # strlen resolves only in a system header; the call through `fp` names no function
     assert g["external"] == [[run, "strlen"]]
     assert g["files"] == 3
+
+
+def test_clang_callgraph_resolves_cpp_calls_by_usr_with_engine_names(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None or not clang_callgraph._system_includes():
+        pytest.skip("libclang (pip install libclang==18.1.1) or a host g++ is not available")
+    (tmp_path / "inc").mkdir()
+    (tmp_path / "inc" / "lib.h").write_text(
+        "#pragma once\n"
+        "#include <cstring>\n"
+        "int proto(int x);\n"  # 3: a prototype is no def
+        "struct Foo {\n"  # 4
+        "  Foo() {}\n"  # 5
+        "  int inl() { return proto(1); }\n"  # 6
+        "  int out(int x);\n"
+        "  int out(double x);\n"
+        "};\n"
+        "template <typename T> T twice(T v) { return v + v; }\n"  # 10
+        "#define VIA(x) proto(x)\n"
+    )
+    (tmp_path / "a.cc").write_text(
+        '#include "lib.h"\n'
+        "namespace {\n"
+        "int hidden() { return 1; }\n"  # 3: internal linkage
+        "}\n"
+        "int proto(int x) { return hidden() + x; }\n"  # 5
+        "int Foo::out(int x) { return proto(x); }\n"  # 6
+        "int Foo::out(double x) { return (int)x; }\n"  # 7
+        "namespace ns { int deep() { return Foo().out(1); } }\n"  # 8
+    )
+    (tmp_path / "b.cc").write_text(
+        '#include "lib.h"\n'
+        "namespace {\n"
+        "int hidden() { return 2; }\n"  # 3
+        "}\n"
+        "int run(const char *s) {\n"  # 5
+        "  Foo f;\n"
+        "  int n = (int)strlen(s);\n"
+        "  return twice(n) + twice(1.5) + hidden() + VIA(n) + f.out(2.0) + f.inl();\n"
+        "}\n"
+    )
+    g = clang_callgraph.build(tmp_path, "cpp")
+    foo_inl, twice = ["inc/lib.h", "inl", 6], ["inc/lib.h", "twice", 10]
+    proto, out_int, out_dbl = ["a.cc", "proto", 5], ["a.cc", "Foo::out", 6], ["a.cc", "Foo::out", 7]
+    deep, run = ["a.cc", "deep", 8], ["b.cc", "run", 5]
+    hidden_a, hidden_b = ["a.cc", "hidden", 3], ["b.cc", "hidden", 3]
+    # in-class definitions keep their bare name, out-of-line ones are Class::name; the prototype is no def
+    assert ["inc/lib.h", "Foo", 5] in g["defs"]
+    assert sorted(d for d in g["defs"] if d[1] != "Foo") == sorted(
+        [foo_inl, twice, proto, out_int, out_dbl, deep, run, hidden_a, hidden_b]
+    )
+    edges = {(tuple(a), tuple(b)) for a, b, _ in g["edges"]}
+    assert (tuple(foo_inl), tuple(proto)) in edges  # the header prototype is linked to its .cc body
+    assert (tuple(proto), tuple(hidden_a)) in edges and (tuple(run), tuple(hidden_b)) in edges  # each TU's own hidden
+    assert (tuple(proto), tuple(hidden_b)) not in edges
+    assert (tuple(run), tuple(proto)) in edges  # through the macro
+    # overloads: the int and the double `out` are told apart, not linked by name
+    assert (tuple(deep), tuple(out_int)) in edges and (tuple(deep), tuple(out_dbl)) not in edges
+    assert (tuple(run), tuple(out_dbl)) in edges and (tuple(run), tuple(out_int)) not in edges
+    # both instantiations of the template are its one pattern
+    assert (tuple(run), tuple(twice)) in edges
+    # strlen is outside the repo
+    assert [run, "strlen"] in g["external"]

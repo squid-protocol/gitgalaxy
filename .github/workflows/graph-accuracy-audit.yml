@@ -13,7 +13,8 @@ name: Graph Accuracy Audit
 #     through the same checker with allowJs (#3781), and vs scip-java
 #     (javac-resolved, through the shared SCIP adapter tests/tools/scip_callgraph.py,
 #     #3783) on the pinned java repo, vs libclang (tests/tools/clang_callgraph.py, #3784)
-#     on the pinned c repos (the pip `libclang` wheel comes with callgraph.txt), and vs
+#     on the pinned c repos (the pip `libclang` wheel comes with callgraph.txt) and the pinned
+#     c++ repo (same adapter, `cpp` mode; the host g++ supplies the C++ system headers), and vs
 #     rust-analyzer 1.90.0 (SCIP, same adapter, #3785) on the pinned serde-rs/json, and vs
 #     golang.org/x/tools 0.37.0's VTA call graph (tests/tools/go_callgraph, Go 1.24+, #3782) on the
 #     pinned spf13/cobra;
@@ -55,6 +56,7 @@ on:
       - "tests/call_graph_resolution_rust_baseline.json"
       - "tests/call_graph_resolution_go_baseline.json"
       - "tests/call_graph_resolution_c_baseline.json"
+      - "tests/call_graph_resolution_cpp_baseline.json"
       - "tests/span_anchor_baseline.json"
       - ".github/workflows/graph-accuracy-audit.yml"
       - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
@@ -179,11 +181,12 @@ jobs:
             gate call-c python tests/tools/call_graph_resolution.py c --samples 5 ) &
           ( gate call-java python tests/tools/call_graph_resolution.py java --samples 5
             gate call-python python tests/tools/call_graph_resolution.py python --samples 5
+            gate call-cpp python tests/tools/call_graph_resolution.py cpp --samples 5
             gate call-rust python tests/tools/call_graph_resolution.py rust --samples 5
             gate call-go python tests/tools/call_graph_resolution.py go --samples 5 ) &
           wait
           cat "$RUNNER_TEMP/gaa/times"
-          for n in import-graph call-typescript call-javascript call-c call-java call-python call-rust call-go span-anchoring; do
+          for n in import-graph call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
             cat "$RUNNER_TEMP/gaa/$n.log"
             cat "$RUNNER_TEMP/gaa/$n.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
           done

@@ -201,6 +201,26 @@ def _hs_callee(node: Any) -> str | None:
     return fn.text.decode("utf-8", "replace") if fn is not None and fn.type in ("variable", "constructor") else None
 
 
+_HS_PATTERN_SPINE = frozenset({"apply", "parens", "infix", "tuple", "list", "as_pattern", "irrefutable"})
+
+
+def _hs_is_pattern(node: Any) -> bool:
+    """haskell `isPara (Para _) = True`, `Left e -> ..`, `\\(Just x) -> ..`: tree-sitter parses a constructor
+    pattern as an `apply`, but a pattern is no call (C3). True when `node` sits in a pattern position."""
+    cur = node
+    while cur.parent is not None:
+        par = cur.parent
+        if par.type == "patterns":
+            return True
+        pat = par.child_by_field_name("pattern")
+        if pat is not None and pat.id == cur.id:
+            return True
+        if par.type not in _HS_PATTERN_SPINE:
+            return False
+        cur = par
+    return False
+
+
 def _dart_callee(node: Any) -> str | None:
     """dart has no call node: `a.b.save(x)` is identifier, selector(.b), selector(.save), selector(argument_part).
 
@@ -329,6 +349,8 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
         elif node.type in CALL_NODE_TYPES and owners:
             name = _callee(node)
             owner, calls = owners[-1]
+            if lang == "haskell" and node.type == "apply" and _hs_is_pattern(node):
+                name = None
             if name and name not in non_calls and not _is_own_leaf_call(node, name, owner):
                 calls.add(name)
         stack.extend((child, owners) for child in reversed(node.children))

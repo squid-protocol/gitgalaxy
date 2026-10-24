@@ -461,6 +461,72 @@
      "status": "TC"
     }
    ]
+  },
+  {
+   "name": "open-request-queue-fails",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "why": "MQ fault: the MQOPEN of the request queue answers 2009 (MQRC_CONNECTION_BROKEN, CompCode 2): critical M001 and the end routine; the request queue was never opened, so no MQCLOSE is made",
+   "mq_faults": [
+    {
+     "call": "MQOPEN",
+     "nth": 1,
+     "reason": 2009
+    }
+   ]
+  },
+  {
+   "name": "get-request-fails",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "why": "MQ fault: the first MQGET of the request queue answers 2009 (not 2033, which ends the loop quietly): critical M003 and the end routine, which closes the request queue; the request is left unread",
+   "mq_faults": [
+    {
+     "call": "MQGET",
+     "nth": 1,
+     "reason": 2009
+    }
+   ]
+  },
+  {
+   "name": "close-request-queue-fails",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "why": "MQ fault: the MQCLOSE of the request queue at 9100 answers 2009 (MQRC_CONNECTION_BROKEN, CompCode 2) after the request was approved as in approve-summary-found: warning M005 'FAILED TO CLOSE REQUEST MQ' (line 963 false), the task ends",
+   "mq_faults": [
+    {
+     "call": "MQCLOSE",
+     "nth": 1,
+     "reason": 2009
+    }
+   ]
   }
  ]
 }

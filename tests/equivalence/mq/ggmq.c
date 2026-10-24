@@ -45,6 +45,12 @@ static int nmsgs = 0, cap = 0;
 static long seqc = 0, msgidc = 0;
 static struct { int q, opts, open; } handles[MAXH];
 static int nh = 0, loaded = 0;
+/* the calls the case plans to fail (mq.cfg `FAULT VERB NTH REASON`): the nth call of that verb answers the reason, unperformed */
+#define MAXF 32
+static struct { char verb[16]; int nth, reason; } faults[MAXF];
+static int nfaults = 0;
+static struct { char verb[16]; int n; } counts[8];
+static int ncounts = 0;
 
 static void refuse(const char *call, const char *what) {
     fprintf(stderr, "%s: %s is not modelled\n", call, what);
@@ -140,6 +146,10 @@ static void load(const char *call) {
             strcpy(qnames[nq], a);
             qprio[nq] = x;
             qpers[nq++] = y;
+        } else if (sscanf(line, "FAULT %15s %d %d", a, &x, &y) == 3 && nfaults < MAXF) {
+            strcpy(faults[nfaults].verb, a);
+            faults[nfaults].nth = x;
+            faults[nfaults++].reason = y;
         } else if (sscanf(line, "M %48s %1000s %8000s", b, c, e) == 3) {
             int q = find_q(b);
             if (q < 0 || unhex(c, md, MDLEN) != MDLEN) refuse(call, "a malformed mq.cfg message line");
@@ -218,6 +228,22 @@ static void done(unsigned char *cc, unsigned char *rc, int r) {
     put32(rc, r);
 }
 
+/* the reason the case plans for this call of `verb` (every call of it counts), or 0; the call is then not performed. The
+ * twin of QueueManager.planned. */
+static int planned(const char *verb) {
+    int i, n = 0;
+    for (i = 0; i < ncounts; i++)
+        if (!strcmp(counts[i].verb, verb)) break;
+    if (i == ncounts) {
+        strcpy(counts[ncounts].verb, verb);
+        counts[ncounts++].n = 0;
+    }
+    n = ++counts[i].n;
+    for (i = 0; i < nfaults; i++)
+        if (!strcmp(faults[i].verb, verb) && faults[i].nth == n) return faults[i].reason;
+    return 0;
+}
+
 static const char *qname(int q) { return q >= 0 ? qnames[q] : ""; }
 
 static int handle(const unsigned char *hobj) {
@@ -249,7 +275,14 @@ int MQOPEN(unsigned char *hconn, unsigned char *od, unsigned char *options, unsi
     char name[49], extra[64];
     load("MQOPEN");
     hconn_ok("MQOPEN", hconn);
-    int o = be32(options);
+    int o = be32(options), fr = planned("MQOPEN");
+    if (fr) {
+        name48(od + 12, name);
+        done(cc, rc, fr);
+        snprintf(extra, sizeof extra, " options=%d hobj=0", o);
+        ev("MQOPEN", name, comp(fr), fr, extra, NULL, 0);
+        return 0;
+    }
     if (o & ~OO_MODELLED) refuse("MQOPEN", "an option other than INPUT-*, OUTPUT, SAVE-ALL-CONTEXT, PASS-*-CONTEXT, FAIL-IF-QUIESCING");
     int q = resolve_od("MQOPEN", od, name);
     int inputs = !!(o & 1) + !!(o & 2) + !!(o & 4);
@@ -281,6 +314,13 @@ int MQOPEN(unsigned char *hconn, unsigned char *od, unsigned char *options, unsi
 int MQCLOSE(unsigned char *hconn, unsigned char *hobj, unsigned char *options, unsigned char *cc, unsigned char *rc) {
     load("MQCLOSE");
     hconn_ok("MQCLOSE", hconn);
+    int fr = planned("MQCLOSE");
+    if (fr) {
+        int fh = handle(hobj);
+        done(cc, rc, fr);
+        ev("MQCLOSE", qname(fh >= 0 ? handles[fh].q : -1), comp(fr), fr, "", NULL, 0);
+        return 0;
+    }
     if (be32(options) != 0) refuse("MQCLOSE", "an option other than MQCO_NONE");
     int h = handle(hobj), q = h >= 0 ? handles[h].q : -1, r = h < 0 ? 2019 : 0; /* MQRC_HOBJ_ERROR */
     if (h >= 0) {
@@ -307,6 +347,13 @@ int MQGET(unsigned char *hconn, unsigned char *hobj, unsigned char *md, unsigned
     char extra[64];
     load("MQGET");
     hconn_ok("MQGET", hconn);
+    int fr = planned("MQGET");
+    if (fr) {
+        int fh = handle(hobj);
+        done(cc, rc, fr);
+        ev("MQGET", qname(fh >= 0 ? handles[fh].q : -1), comp(fr), fr, " len=-1", buffer, 0);
+        return 0;
+    }
     if (memcmp(md, "MD  ", 4) != 0 || be32(md + 4) != 1) refuse("MQGET", "an MQMD other than version 1");
     if (memcmp(gmo, "GMO ", 4) != 0 || be32(gmo + 4) != 1) refuse("MQGET", "an MQGMO other than version 1");
     int o = be32(gmo + 8), h = handle(hobj), q = h >= 0 ? handles[h].q : -1, bl = be32(buflen), r = 0;
@@ -431,6 +478,13 @@ int MQPUT(unsigned char *hconn, unsigned char *hobj, unsigned char *md, unsigned
           unsigned char *buffer, unsigned char *cc, unsigned char *rc) {
     load("MQPUT");
     hconn_ok("MQPUT", hconn);
+    int fr = planned("MQPUT");
+    if (fr) {
+        int fh = handle(hobj);
+        done(cc, rc, fr);
+        put_event("MQPUT", qname(fh >= 0 ? handles[fh].q : -1), fr, md, buffer, be32(buflen));
+        return 0;
+    }
     int h = handle(hobj), q = h >= 0 ? handles[h].q : -1, r;
     if (h < 0) r = 2019;                                   /* MQRC_HOBJ_ERROR */
     else if (!(handles[h].opts & OO_OUTPUT)) r = 2039;     /* MQRC_NOT_OPEN_FOR_OUTPUT */
@@ -446,6 +500,13 @@ int MQPUT1(unsigned char *hconn, unsigned char *od, unsigned char *md, unsigned 
     char name[49];
     load("MQPUT1");
     hconn_ok("MQPUT1", hconn);
+    int fr = planned("MQPUT1");
+    if (fr) {
+        name48(od + 12, name);
+        done(cc, rc, fr);
+        put_event("MQPUT1", name, fr, md, buffer, be32(buflen));
+        return 0;
+    }
     int q = resolve_od("MQPUT1", od, name), r = q < 0 ? 2085 : put("MQPUT1", q, md, pmo, buflen, buffer);
     done(cc, rc, r);
     put_event("MQPUT1", name, r, md, buffer, be32(buflen));

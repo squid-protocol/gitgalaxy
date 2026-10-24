@@ -1260,7 +1260,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -1282,13 +1282,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -1303,22 +1305,24 @@
         }
       ],
       "metric": "call_expression/compound_literal_expression+generic",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it. `std::hash<std::wstring>{}(moduleName)` (powertoys centralized_kb_hook.cpp:200) calls a temporary's operator(); the `<..>{}` between the type and `(` defeats the engine's `name(` pattern."
     },
     "cpp/call/call_expression/field_expression+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 2,
@@ -1341,22 +1345,24 @@
         }
       ],
       "metric": "call_expression/field_expression+generic",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. `registry.insert<mlir::arith::ArithDialect, ..>(..)` (mlir pass.cc:166, tf_tfl_translate.cc:107) are member template calls spanning lines; the explicit template arguments before `(` defeat the pattern, the same gap as the validated `template_function+generic` shape."
     },
     "cpp/call/call_expression/field_expression/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -1371,10 +1377,10 @@
         }
       ],
       "metric": "call_expression/field_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it. `FancyZonesDataInstance().ReplaceZoneSettingsFileFromOlderVersions();` (powertoys FancyZones.cpp:88) is a member call on the result of a call, `)` `.` name `(`; the engine misses a method called on a call result."
     },
     "cpp/call/call_expression/identifier/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -1442,13 +1448,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 2,
@@ -1471,10 +1479,10 @@
         }
       ],
       "metric": "call_expression/parenthesized_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. `(*func)()` (NVDA inProcess.cpp:123) is a call through a function pointer, and `(LPARAM)(handles[0])` (inProcess.cpp:179) is a cast tree-sitter types as a call with a parenthesised callee. The first is a real call, the second a conversion; both count under C3. Same parenthesised-callee gap as the validated c shape."
     },
     "cpp/call/call_expression/qualified_identifier+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -1590,13 +1598,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 2,
@@ -1619,10 +1629,10 @@
         }
       ],
       "metric": "call_expression/subscript_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. `plugin_init_callbacks[i]();` and `build_callbacks[i]()` (godot editor_node.cpp:9374, :7625) call an element of an array of callables. The engine records `i`, the subscript, as the callee on the line; the call target is the subscripted expression. Real calls with a wrong name; the miss stays."
     },
     "cpp/call/call_expression/template_function+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -1660,13 +1670,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 9,
@@ -1713,22 +1725,24 @@
         }
       ],
       "metric": "engine-attributes-to-another-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Every recorded example is a real call: `std::make_unique<decltype(..)>(..)`, `isa<A, B, ..>(..)` over several lines, `PostMessageW(..)`, `LayoutTemplates::instance().LoadData()`, `std::move(..)`, `Logger::warn(..)`, `FancyZonesSettings::instance().LoadSettings()`. Template arguments or a chained call before the callee defeat the pattern, so the call is lost or attributed to a neighbouring unit (FancyZones is an inline constructor body)."
     },
     "cpp/call/inner-named-function_definition/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 3,
@@ -1759,22 +1773,24 @@
         }
       ],
       "metric": "inner-named-function_definition",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `p_groups->push_back(gi);`, `script_instance->callp(..)`, `script_instance->call_const(..)` (godot node.cpp:2523, object.cpp:787, :830) are real calls made by the enclosing method. Each sits in a method whose body opens with a semicolon-less statement macro (`ERR_THREAD_GUARD`, `OBJ_DEBUG_LOCK`); tree-sitter's parse of that body puts the call inside an inner function_definition, so the reference drops it from the outer unit (cause read from the sources, the parse itself not traced)."
     },
     "cpp/call/not-a-call-in-ts:call_expression<argument_list/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 4,
@@ -1813,22 +1829,24 @@
         }
       ],
       "metric": "not-a-call-in-ts:call_expression<argument_list",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `operator int()`, `operator int64_t()`, `operator uint64_t()` (godot variant.cpp:1986, variant.h:477, :479) explicitly invoke a conversion operator; a conversion is a call (C3). Tree-sitter reads `operator int` as a declarator type."
     },
     "cpp/call/not-a-call-in-ts:call_expression<assignment_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 5,
@@ -1875,10 +1893,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:call_expression<assignment_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `_data._int = int64_t(p_uint64);` and its siblings (godot variant.cpp:2337-2372) are functional-style conversions; conversions are calls (C3). Tree-sitter types `int64_t(x)` as a cast of a primitive and reports no call node."
     },
     "cpp/call/not-a-call-in-ts:call_expression<binary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -1944,13 +1962,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -1965,22 +1985,24 @@
         }
       ],
       "metric": "not-a-call-in-ts:call_expression<initializer_list",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `{ int32_t(KeyModifierMask::SHIFT + Key::P) }` (godot editor_node.cpp:8892) is a functional conversion inside a braced list, a call by C3."
     },
     "cpp/call/not-a-call-in-ts:call_expression<return_statement/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -1995,10 +2017,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:call_expression<return_statement",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `return operator uint32_t();` (godot variant.cpp:1528) invokes a conversion operator, a call by C3."
     },
     "cpp/call/not-a-call-in-ts:call_expression<unary_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -2411,8 +2433,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T20:32:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -2427,10 +2449,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:function_definition<template_declaration",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. `String stringify_vector(const T &vec, int recursion_count) {` (godot variant.cpp:1584) is the definition header of a template function; the engine reads the return type `String` followed by the name as a call to `String`. A declaration is not a call (C5)."
     },
     "cpp/call/not-a-call-in-ts:function_definition<translation_unit/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -2471,8 +2493,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-03T22:36:34Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -2487,10 +2509,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:gnu_asm_expression<expression_statement",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. `asm(\"cpuid\" ..)` (serenity CPUFeatures.cpp:23) is an inline-assembly statement, not a function call; the engine reads the keyword as a callee."
     },
     "cpp/call/not-a-call-in-ts:init_declarator<declaration/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -2601,8 +2623,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 5,
@@ -2649,22 +2671,24 @@
         }
       ],
       "metric": "not-a-call-in-ts:parameter_declaration<parameter_list",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. `bool useMarkup` inside the signature `getTextInRange(int startOffset, int endOffset, std::wstring& text, bool useMarkup ..)` (NVDA storage.cpp:274, :402) is a parameter declaration; the engine reads the parameter type as a callee."
     },
     "cpp/call/not-a-call-in-ts:qualified_identifier<declaration/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T20:32:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 14,
@@ -2711,10 +2735,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:qualified_identifier<declaration",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `llvm::raw_string_ostream os(op_str);`, `mlir::OpBuilder b(..)`, `tflite::SignatureDefBuilder sig_def_builder(builder_);` (mlir flatbuffer_export.cc) are constructor-style initialisations of a qualified type; the constructor of the TYPE is the callee, which the engine names (`raw_string_ostream`, `OpBuilder`). Constructors are calls (C3); same ruling as the validated `declaration<compound_statement` shape."
     },
     "cpp/call/not-a-call-in-ts:qualified_identifier<function_declarator/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -2787,8 +2811,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 2,
@@ -2811,22 +2835,24 @@
         }
       ],
       "metric": "not-a-call-in-ts:qualified_identifier<operator_cast",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. `Variant::operator Math::int_alt_t() const {` and the uint_alt_t sibling (godot variant.cpp:1493, :1513) are conversion-operator definition headers; the engine takes the target type as a callee of the operator it defines. Same as the validated `operator_cast<qualified_identifier` shape."
     },
     "cpp/call/not-a-call-in-ts:qualified_identifier<qualified_identifier/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 3,
@@ -2857,10 +2883,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:qualified_identifier<qualified_identifier",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `tensorflow::metrics::ScopedCounter<2> timings(..)`, `mlir::TFL::PassConfig pass_config(quant_specs);`, `std::filesystem::path logFilePath(..)` construct an object of the named type; the engine names the type as callee. Constructors are calls (C3)."
     },
     "cpp/call/not-a-call-in-ts:template_function<function_declarator/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -2871,8 +2897,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T20:32:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 3,
@@ -2903,22 +2929,24 @@
         }
       ],
       "metric": "not-a-call-in-ts:template_function<function_declarator",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. `_FORCE_INLINE_ operator BitField<T>() const {..}`, `operator TypedArray<T>()`, `operator TypedDictionary<K, V>()` (godot variant.h:479-483) are conversion-operator definition headers with a templated target type; the engine takes the target type as a callee. The calls inside the bodies (`operator uint64_t()`, `operator Array()`) are separate."
     },
     "cpp/call/not-a-call-in-ts:template_type<declaration/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T20:32:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 5,
@@ -2965,10 +2993,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:template_type<declaration",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. `Ref<MeshLibrary> ml(memnew(..));`, `const Pair<String, String> key(..)`, `List<Node *> owned(data.owned);`, `HashMap<..> global_groups(..)` (godot editor_node.cpp, node.cpp) are constructor-style initialisations of a templated type; the callee the engine names (`Ref`, `Pair`, `List`, `HashMap`) is the constructed type. Constructors are calls (C3). `Vector<int> addr = operator Vector<int>();` (variant.cpp:2296) is an explicit conversion-operator call, also a call."
     },
     "cpp/call/not-a-call-in-ts:template_type<operator_cast/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -2979,8 +3007,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T20:32:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 5,
@@ -3027,10 +3055,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:template_type<operator_cast",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. `Variant::operator Vector<Plane>() const {` and siblings (godot variant.cpp:2219-2283) are conversion-operator definition headers; the engine takes the templated target type `Vector` as a callee. Same as the validated `operator_cast<qualified_identifier` shape."
     },
     "cpp/call/not-a-call-in-ts:template_type<parameter_declaration/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -3157,8 +3185,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 4,
@@ -3197,10 +3225,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:type_descriptor<template_argument_list",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. `std::function<void()>`, `std::function<bool()>` (powertoys FancyZones.cpp:72, :1190, centralized_kb_hook.cpp:190, :197) name a function TYPE as a template argument; `void` and `bool` are types, not callees. The engine reads the function-type syntax `void()` as a call."
     },
     "cpp/call/outside-ts-function/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -3282,7 +3310,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3706,7 +3734,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -3768,7 +3796,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -3814,7 +3842,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -3854,7 +3882,7 @@
       "investigated_at": "2026-10-24T13:10:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "csharp",
-      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 102,
       "last_seen_examples": [
         {
@@ -4770,7 +4798,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "dart",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 35,
       "last_seen_examples": [
         {
@@ -4832,7 +4860,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -4886,7 +4914,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5474,7 +5502,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:16Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5504,7 +5532,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:16Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8180,7 +8208,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8290,7 +8318,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8330,7 +8358,7 @@
       "investigated_at": "2026-10-02T15:31:51Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799 JVM sweep)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8730,7 +8758,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "lua",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -8776,7 +8804,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "lua",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -8824,7 +8852,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "objective-c",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 18,
       "last_seen_examples": [
         {
@@ -12092,7 +12120,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12938,7 +12966,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -13742,6 +13770,36 @@
       "symbol_type": "call",
       "verdict": null
     },
+    "powershell/import/capture-none-in-file/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T19:18:17Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "powershell",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "Pester/publish/release.ps1",
+          "name": "Pester/publish/release.ps1 -> publish/filesToPublish.ps1",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-none-in-file",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "python/call/call/attribute/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
@@ -14288,7 +14346,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:16Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14318,7 +14376,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:16Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14504,7 +14562,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14534,7 +14592,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14596,13 +14654,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:24Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "rust",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 3,
@@ -14633,10 +14693,10 @@
         }
       ],
       "metric": "engine-attributes-to-another-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. `world.query::<AnyOf<(&A, &B)>>()` and `world.query::<(&A, Has<B>)>()` (bevy_ecs query.rs:489, :506) and the turbofish `input.parse::<Token![+]>()` (serde attr.rs:1562) are calls with a turbofish between the name and `(`; the same gap as the validated `generic_function+generic` shape. Nested angle brackets or a `![..]` inside the turbofish put them beyond the engine's generic-argument class, so the callee lands on another name or none."
     },
     "rust/call/inner-named-function_item/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -14819,8 +14879,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-06T14:36:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "rust",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -14835,10 +14895,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:field_pattern<struct_pattern",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. `opcode: Opcode::StackSwitch,` (wasmtime instructions.rs:614) is a field of a struct pattern; it constructs and invokes nothing, and a pattern is not a call (C3). The engine takes the field name as a callee."
     },
     "rust/call/not-a-call-in-ts:function_item<block/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -14849,8 +14909,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:24Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "rust",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -14865,10 +14925,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:function_item<block",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. `fn to_type_ids(component_infos: ..) -> HashSet<..> {` (bevy_ecs world.rs:4289) is a nested function declaration inside the body of `inspect_entity_components`; a declaration is not a call (C5), and the engine lists the nested function's own name as a callee of the outer one."
     },
     "rust/call/not-a-call-in-ts:function_type<abstract_type/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -15033,8 +15093,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:24Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "rust",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 3,
@@ -15065,10 +15125,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:let_declaration<block",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. `let func = quote_spanned!(..);` and `let delife = params.borrowed.de_lifetime();` (serde derive de.rs:484, :672, :770) bind a local; the engine takes the bound name (`func`, `delife`) as a callee. The real calls on those lines (`quote_spanned!`, `de_lifetime`) are separate callees."
     },
     "rust/call/not-a-call-in-ts:reference_type<parameter/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -15423,8 +15483,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:24Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "rust",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -15439,10 +15499,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:string_literal<arguments",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. `attr.path().is_ident(\"from_world\")` (bevy_ecs macros.rs:737): `from_world` is the text of a string literal, an argument value, not a callee. The engine reads inside the literal."
     },
     "rust/call/not-a-call-in-ts:struct_item<block/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -15453,8 +15513,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:24Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "rust",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 3,
@@ -15485,10 +15545,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:struct_item<block",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. `struct QueryDataA(Entity, &'static A);`, `struct Tuple(u32, bool);`, `struct Newtype(bool);` are tuple-struct declarations inside a function body; a declaration is not a call (C5) and constructs nothing. The engine reads the struct name followed by `(` as a call."
     },
     "rust/call/not-a-call-in-ts:token_tree<macro_invocation/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -15813,8 +15873,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:24Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:40:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "rust",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 3,
@@ -15845,10 +15905,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:tuple_struct_pattern<tuple_pattern",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. `(Some(c), None) => ..` and `(Some(_), None, None) => ..` (serde de impls.rs:561, attr.rs:635, :695) are tuple patterns whose elements are tuple-struct patterns; a pattern is not a call (C3), same as the validated `tuple_struct_pattern<match_pattern` and `<let_condition` shapes."
     },
     "rust/call/not-a-call-in-ts:tuple_type<type_arguments/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -16546,7 +16606,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -16610,7 +16670,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -16674,7 +16734,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -16712,7 +16772,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -16750,7 +16810,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -16782,7 +16842,7 @@
       "investigated_at": "2026-09-25T18:40:28Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -16846,7 +16906,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -17356,7 +17416,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -17394,7 +17454,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "solidity",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 24,
       "last_seen_examples": [
         {
@@ -17688,7 +17748,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-10-24T15:45:09Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 22,
       "last_seen_examples": [
         {
@@ -18925,6 +18985,222 @@
       "still_reproduces": true,
       "symbol_type": "call",
       "verdict": "GitGalaxy right on the large majority; tree-sitter had no usable tree. The files in this shape (fetch_common.tcl, portfetch.tcl, portdestroot.tcl, portinstall.tcl, portlint.tcl, portbump.tcl) parse with errors, so tree-sitter reports no calls in the affected procs. Of the 40 sampled, about 33 are real commands in the procs' bodies (`upvar #0 $listname $listname`, `lassign $extras sglobal senv`, `regexp $tagged_url_re $env_site`, `lappend untagged_env_sites $env_site`, `llength`, `dict`, `info exists`, `glob`, `umask`, `lshift`, `fileIsSparse`). About 7 are not: data words that open a line inside a braced literal (`intel i386` in portlint.tcl:453, `os.subplatform ...` in a list, `http`/`https` in a proxy table) and the `default {` arm of a switch. Majority credited to GitGalaxy; the minority is a line-start-in-braces false positive."
+    },
+    "tcl/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T19:18:17Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "tcl",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_seen_count": 278,
+      "last_seen_examples": [
+        {
+          "file_path": "tcllib/apps/nns",
+          "name": "tcllib/apps/nns -> modules/nns/nns_auto.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/nnslog",
+          "name": "tcllib/apps/nnslog -> modules/nns/nns_auto.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/pt",
+          "name": "tcllib/apps/pt -> modules/pt/pt_pgen.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/pt",
+          "name": "tcllib/apps/pt -> modules/pt/pt_util.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/examples/ftpd/ftpd",
+          "name": "tcllib/examples/ftpd/ftpd -> modules/ftpd/ftpd.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "tcl/import/capture-none-in-file/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T19:18:17Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "tcl",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "tcllib/modules/udpcluster/pkgIndex.tcl",
+          "name": "tcllib/modules/udpcluster/pkgIndex.tcl -> modules/udpcluster/udpcluster.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-none-in-file",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "tcl/import/token-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T19:18:17Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "tcl",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_seen_count": 437,
+      "last_seen_examples": [
+        {
+          "file_path": "tcllib/apps/dtplite",
+          "name": "tcllib/apps/dtplite -> modules/dtplite/dtplite.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/nns",
+          "name": "tcllib/apps/nns -> modules/struct/matrix.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/nnsd",
+          "name": "tcllib/apps/nnsd -> modules/nns/server.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/page",
+          "name": "tcllib/apps/page -> modules/page/pluginmgr.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/page",
+          "name": "tcllib/apps/page -> modules/struct/matrix.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "token-unresolved",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "tcl/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T19:18:17Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "tcl",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_seen_count": 53,
+      "last_seen_examples": [
+        {
+          "file_path": "tcllib/examples/httpd/httpd.tcl",
+          "name": "tcllib/examples/httpd/httpd.tcl -> modules/try/fhome.tcl (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/examples/mime/mbot/impersonal.tcl",
+          "name": "tcllib/examples/mime/mbot/impersonal.tcl -> modules/try/fhome.tcl (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/examples/mime/mbot/personal.tcl",
+          "name": "tcllib/examples/mime/mbot/personal.tcl -> modules/try/fhome.tcl (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/examples/nntp/dirstore",
+          "name": "tcllib/examples/nntp/dirstore -> modules/sha1/sha1.tcl (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/modules/doctools2idx/parse.tcl",
+          "name": "tcllib/modules/doctools2idx/parse.tcl -> modules/struct/tree.tcl (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-names-several-files",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
     },
     "typescript/call/call_expression/call_expression+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

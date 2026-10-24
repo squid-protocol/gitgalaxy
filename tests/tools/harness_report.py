@@ -6,7 +6,8 @@
 
 PROOF_BLOCKERS.json is `proof_blockers.py DIR --json` (nothing is re-derived here: the gaps, cases and verdicts are its).
 `--survey DIR` runs proof_blockers on a `cics_census.py survey` directory first. Writes DIR/harness_report.{md,json}.
-The page is generated output: it is not committed (evidence pages are published to the `generated` branch, #5206).
+The page is generated output: it is not committed. evidence-refresh.yml builds it nightly after its survey (`--survey`)
+and publishes it to the `generated` branch under docs/language_status/harness/ (#4493).
 
 The page has four parts:
   coverage      programs in the estate, with a runnable case, proven (counts and %), and the share of paragraphs and

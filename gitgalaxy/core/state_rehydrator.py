@@ -475,37 +475,6 @@ class StateRehydrator:
                     for channel in CHANNELS
                 }
 
-                # #3449: CICS task control, aliased back to the extractor's payload
-                # keys. A pre-#3449 baseline has no table and restores nothing.
-                cics_tasks_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "cics_task_data",
-                    "SELECT fd.file_path AS _fp, ct.verb, ct.target_kind, ct.target_operand AS operand, "
-                    "ct.target_name AS name, ct.target_resolution AS resolution, ct.target_candidates AS candidates, "
-                    "ct.channel_operand, ct.channel_name AS channel, ct.token, ct.record_clause, "
-                    "ct.record_name AS record, ct.timing, ct.attributes, ct.line_number AS line "
-                    "FROM cics_task_data ct JOIN file_data fd ON ct.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ct.id",
-                    lambda r: {
-                        "verb": r["verb"],
-                        "target_kind": r["target_kind"],
-                        "operand": r["operand"],
-                        "name": r["name"],
-                        "resolution": r["resolution"],
-                        "candidates": r["candidates"],
-                        "channel_operand": r["channel_operand"],
-                        "channel": r["channel"],
-                        "token": r["token"],
-                        "record_clause": r["record_clause"],
-                        "record": r["record"],
-                        "timing": r["timing"],
-                        "attributes": r["attributes"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
                 # #3448: job-submission evidence, aliased back to the payload keys.
                 job_submits_by_file = _restore_child_table(
                     cursor,
@@ -800,37 +769,6 @@ class StateRehydrator:
                     },
                 )
 
-                # #3452: field-level data movement.
-                # #3655: the refmod texts; a pre-#3655 DB has neither column.
-                refmod_cols = (
-                    "dm.source_refmod_text, dm.target_refmod_text"
-                    if _has_table(cursor, "data_move_data")
-                    and _has_column(cursor, "data_move_data", "source_refmod_text")
-                    else "NULL AS source_refmod_text, NULL AS target_refmod_text"
-                )
-                moves_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "data_move_data",
-                    "SELECT fd.file_path AS _fp, dm.verb, dm.source, dm.source_kind, dm.target, dm.corresponding, "  # noqa: S608 -- refmod_cols is one of two literals
-                    f'dm.source_refmod, dm.target_refmod, dm.line_number AS "line", {refmod_cols} '
-                    "FROM data_move_data dm JOIN file_data fd ON dm.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY dm.id",
-                    lambda r: {
-                        "verb": r["verb"],
-                        "source": r["source"],
-                        "source_kind": r["source_kind"],
-                        "target": r["target"],
-                        "corresponding": bool(r["corresponding"]),
-                        "source_refmod": bool(r["source_refmod"]),
-                        "target_refmod": bool(r["target_refmod"]),
-                        "line": int(r["line"] or 0),
-                        "source_refmod_text": r["source_refmod_text"],
-                        "target_refmod_text": r["target_refmod_text"],
-                    },
-                )
-
                 # The slicer's synthetic top-level buckets: callers without a
                 # function_data row, restored so their calls re-resolve.
                 synthetic_by_file = _restore_child_table(
@@ -862,7 +800,6 @@ class StateRehydrator:
                     node["classes"] = classes_by_file.get(rel_path, [])
                     for channel in CHANNELS:
                         node[channel.payload_key] = channel_rows[channel.name].get(rel_path, [])
-                    node["cics_tasks"] = cics_tasks_by_file.get(rel_path, [])
                     node["job_submits"] = job_submits_by_file.get(rel_path, [])
                     node["mq_calls"] = mq_calls_by_file.get(rel_path, [])
                     node["uow_handlers"] = uow_by_file.get(rel_path, [])
@@ -872,7 +809,6 @@ class StateRehydrator:
                     node["entry_points"] = entry_points_by_file.get(rel_path, [])
                     node["dli_calls"] = dli_by_file.get(rel_path, [])
                     node["ims_gen"] = ims_gen_by_file.get(rel_path, [])
-                    node["data_moves"] = moves_by_file.get(rel_path, [])
                     node["web_services"] = web_by_file.get(rel_path, [])
                     node["special_names"] = special_by_file.get(rel_path, [])  # #3820
                     node["compiler_options"] = options_by_file.get(rel_path, [])  # #3828

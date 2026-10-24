@@ -214,6 +214,7 @@ hung test fails by name after 10 minutes instead of running the job into its tim
 ## Nightly blockers baseline (#4863)
 Evidence Refresh surveys main once a night; its `publish-blockers` job writes `docs/language_status/blockers/` (blockers.txt/json, meta.json, blockers_history.jsonl with one nightly line) to the `generated` branch, and only when the run's ref is `refs/heads/main`. A dispatch from any other ref lays the same output into a scratch dir and uploads it as the `blockers-generated-preview` artifact; it never writes `generated`. Read the published data with `cics_census.py blockers --generated` / `history show --generated`. Blocker Baseline (`blocker-baseline.yml`) is dispatch-only.
 A customer's blocker list comes in two forms from one run, a full report and a salted-hash anonymized twin they can send us: `tests/tools/blocker_report.py`, schema in `docs/language_status/blocker_report_schema.md` (#5054).
+Evidence Refresh runs `tests/tools/blocker_estate_feed.py` on the survey it just cached (a `continue-on-error` step): each burned estate (and the cics-crucible cells) goes through `blocker_report` and `blocker_ingest` as a customer's report would, and the step fails when a ledger row's category or counts differ from the full report, a catalogued signature does not link to its issue, ids change under the same salt or stay equal under another, or a source identifier of the estate appears in the anonymized output. `feed.json` lists the rows that match no issue yet (#5054).
 
 ## Evidence pages publish (#4925)
 `evidence-pages.yml` writes the `generated` branch only when the run's ref is `refs/heads/main`. A `workflow_dispatch` from any other ref renders the pages into a scratch dir and uploads them as the `evidence-pages-preview` artifact; it never writes `generated` (same rule as the `publish-blockers` job in Evidence Refresh, #4924).
@@ -263,3 +264,19 @@ The critical path (time-to-green) is unchanged on an engine PR: it is `full-suit
 
 ## Smoke suite plan (#6278 item 3)
 `suite_select_plan.py` (the classifier's `area()`) plans the `full-suite` on a PR: `skip` (prose nothing opens, `full-suite` reports success), `select` (docs / agent config only: just the tests that read them) or `full`; `shepherd:full` forces full. Push, nightly and dispatch always run the full suite. `push: paths-ignore: docs/**` stays on purpose: a push cannot be planned (the diff is not a PR's), and dropping it would run the full suite on every docs-bot push to main; the PR run already tested those docs.
+
+## Smoke on main is queued, not cancelled (#6514)
+
+A main push no longer cancels the previous push's Smoke run (`smoke-test.yml`): under a stream of merges 8 runs in a row were cancelled on 2026-10-24, so main never had a green run and `ci-red-main` could not close. One run goes on and the newest push waits behind it (GitHub keeps one pending run per group). A PR re-push and a manual dispatch still cancel. Cost: a main push run is about 5-6 min per full-suite part (see the #5543 measurement above), now paid for the runs that used to be cancelled early; at most two main runs exist at a time. `java-compile.yml` still cancels main pushes the same way.
+
+## Ground-truth PR check re-measured (2026-10-24, #5543)
+The five newest first-attempt successful PR runs of `mainframe-ground-truth.yml` that ran `plan` (runs 40126177113, 40126269812, 40126275997, 40126298574, 40126320956, 19:37-19:40Z). Critical path = run time of `plan` + slowest part + final job, queue left out; runner-min = sum of each job's run time rounded up to the minute.
+
+| run | what ran | critical path | runner-min | wall (queue included) |
+|---|---|---|---|---|
+| 40126320956 | 2 parts, scans restored from cache | 4.3 min | 10 | 15.7 min |
+| 40126177113 | busy: 2 self-warming parts | 8.6 min | 19 | 22.9 min |
+| 40126269812 | busy: 2 self-warming parts | 10.5 min | 21 | 22.5 min |
+| 40126275997, 40126298574 | `plan` only (no input changed) | 0.4 min | 2 | 3.8-4.5 min |
+
+Against the 7.5 min target: the cache hit and plan-only rows meet it on run time. The two busy-layout runs miss it by 1.1-3.0 min of compute, and every row with parts misses it on wall because each job waited 8-10 min for a runner. In the busy runs each part spent 2.4-3.2 min scanning cold and 3.5-5.6 min in pytest (part 1 also runs the 0.5 min ledger gate). That is a sample of 3 part-running runs, so a gap under a minute is noise. Next cut, not done here: in the busy layout let each part scan only the corpora its pytest share reads (option (b) of #5543); it needs the per-test corpus map and changes the workflow, so it is its own slice.

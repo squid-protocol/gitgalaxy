@@ -291,6 +291,54 @@ _SQL_STATEMENT_DDL = """
         """
 
 
+# #3449: CICS task control (RUN/START/FETCH/RETRIEVE/DELAY/ENQ ...), per-file.
+_CICS_TASK_DDL = """
+            CREATE TABLE IF NOT EXISTS cics_task_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                verb TEXT,
+                target_kind TEXT,
+                target_operand TEXT,
+                target_name TEXT,
+                target_resolution TEXT,
+                target_candidates TEXT,
+                channel_operand TEXT,
+                channel_name TEXT,
+                token TEXT,
+                record_clause TEXT,
+                record_name TEXT,
+                timing TEXT,
+                attributes TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3452: field-level data movement, per-file.
+_DATA_MOVE_DDL = """
+            CREATE TABLE IF NOT EXISTS data_move_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                verb TEXT,
+                source TEXT,
+                source_kind TEXT,
+                target TEXT,
+                corresponding INTEGER,
+                source_refmod INTEGER,
+                target_refmod INTEGER,
+                line_number INTEGER,
+                source_refmod_text TEXT,
+                target_refmod_text TEXT,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
 # #3200: one row per mainframe INVOCATION SITE -- COBOL `CALL`, CICS
 # `LINK`/`XCTL PROGRAM(...)`, JCL `EXEC PGM=`. edge_data carries the
 # resolved program-to-program edges aggregated from these, but it
@@ -511,6 +559,20 @@ def _sql_statement_select(cursor, has_table, has_column):
         f"{col('statement_text', 'statement')}, {col('routine_name', 'routine')} "
         "FROM sql_statement_data ss JOIN file_data fd ON ss.file_id = fd.id "
         "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ss.id"
+    )
+
+
+def _data_move_select(cursor, has_table, has_column):
+    # #3655: a pre-#3655 baseline has no refmod texts; its rows come back with NULL.
+    if has_table(cursor, "data_move_data") and has_column(cursor, "data_move_data", "source_refmod_text"):
+        refmod_cols = "dm.source_refmod_text, dm.target_refmod_text"
+    else:
+        refmod_cols = "NULL AS source_refmod_text, NULL AS target_refmod_text"
+    return (
+        "SELECT fd.file_path AS _fp, dm.verb, dm.source, dm.source_kind, dm.target, dm.corresponding, "  # noqa: S608 -- refmod_cols is one of two literals
+        f'dm.source_refmod, dm.target_refmod, dm.line_number AS "line", {refmod_cols} '
+        "FROM data_move_data dm JOIN file_data fd ON dm.file_id = fd.id "
+        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY dm.id"
     )
 
 
@@ -786,6 +848,125 @@ CHANNELS = (
             "line": int(r["line"] or 0),
             "statement": r["statement"],
             **({"routine": r["routine"]} if r["routine"] else {}),
+        },
+    ),
+    # #3449: CICS task control -- per-file. A pre-#3449 baseline has no table and restores nothing.
+    FactChannel(
+        name="cics_task",
+        ir_field="cics_tasks",
+        table="cics_task_data",
+        ddl=_CICS_TASK_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_cics_task_file_id ON cics_task_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_cics_task_target ON cics_task_data(verb, target_name);",
+            "CREATE INDEX IF NOT EXISTS idx_cics_task_snapshot ON cics_task_data(repo_name, commit_hash);",
+        ),
+        payload_key="cics_tasks",
+        columns=(
+            "verb",
+            "target_kind",
+            "target_operand",
+            "target_name",
+            "target_resolution",
+            "target_candidates",
+            "channel_operand",
+            "channel_name",
+            "token",
+            "record_clause",
+            "record_name",
+            "timing",
+            "attributes",
+            "line_number",
+        ),
+        to_row=lambda t: (
+            t.get("verb"),
+            t.get("target_kind"),
+            t.get("operand"),
+            t.get("name"),
+            t.get("resolution"),
+            t.get("candidates"),
+            t.get("channel_operand"),
+            t.get("channel"),
+            t.get("token"),
+            t.get("record_clause"),
+            t.get("record"),
+            t.get("timing"),
+            t.get("attributes"),
+            int(t.get("line", 0) or 0),
+        ),
+        restore_select=(
+            "SELECT fd.file_path AS _fp, ct.verb, ct.target_kind, ct.target_operand AS operand, "
+            "ct.target_name AS name, ct.target_resolution AS resolution, ct.target_candidates AS candidates, "
+            "ct.channel_operand, ct.channel_name AS channel, ct.token, ct.record_clause, "
+            "ct.record_name AS record, ct.timing, ct.attributes, ct.line_number AS line "
+            "FROM cics_task_data ct JOIN file_data fd ON ct.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ct.id"
+        ),
+        to_payload=lambda r: {
+            "verb": r["verb"],
+            "target_kind": r["target_kind"],
+            "operand": r["operand"],
+            "name": r["name"],
+            "resolution": r["resolution"],
+            "candidates": r["candidates"],
+            "channel_operand": r["channel_operand"],
+            "channel": r["channel"],
+            "token": r["token"],
+            "record_clause": r["record_clause"],
+            "record": r["record"],
+            "timing": r["timing"],
+            "attributes": r["attributes"],
+            "line": int(r["line"] or 0),
+        },
+    ),
+    # #3452: field-level data movement -- per-file. #3655: the refmod texts (healed onto an older table).
+    FactChannel(
+        name="data_move",
+        ir_field="data_moves",
+        table="data_move_data",
+        ddl=_DATA_MOVE_DDL,
+        extra_columns=(("source_refmod_text TEXT", "target_refmod_text TEXT"),),
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_data_move_file_id ON data_move_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_data_move_snapshot ON data_move_data(repo_name, commit_hash);",
+        ),
+        payload_key="data_moves",
+        columns=(
+            "verb",
+            "source",
+            "source_kind",
+            "target",
+            "corresponding",
+            "source_refmod",
+            "target_refmod",
+            "line_number",
+            "source_refmod_text",
+            "target_refmod_text",
+        ),
+        to_row=lambda m: (
+            m.get("verb"),
+            m.get("source"),
+            m.get("source_kind"),
+            m.get("target"),
+            int(bool(m.get("corresponding"))),
+            int(bool(m.get("source_refmod"))),
+            int(bool(m.get("target_refmod"))),
+            int(m.get("line", 0) or 0),
+            m.get("source_refmod_text"),
+            m.get("target_refmod_text"),
+        ),
+        restore_select=_data_move_select,
+        to_payload=lambda r: {
+            "verb": r["verb"],
+            "source": r["source"],
+            "source_kind": r["source_kind"],
+            "target": r["target"],
+            "corresponding": bool(r["corresponding"]),
+            "source_refmod": bool(r["source_refmod"]),
+            "target_refmod": bool(r["target_refmod"]),
+            "line": int(r["line"] or 0),
+            "source_refmod_text": r["source_refmod_text"],
+            "target_refmod_text": r["target_refmod_text"],
         },
     ),
     # #3356: CSD resource definitions -- per-file, like sql_table_data.

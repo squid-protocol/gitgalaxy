@@ -94207,7 +94207,9 @@
           "uncurry",
           "optRequestHeaders",
           "optMetadata",
+          "setTranslations",
           "parseLang",
+          "report",
           "InvalidLang",
           "Right"
         ],
@@ -94223,6 +94225,8 @@
           "optFrom",
           "parseFlavoredFormat",
           "formatFromFilePaths",
+          "return",
+          "report",
           "map",
           "TextReader",
           "sandbox'",
@@ -94231,14 +94235,13 @@
           "unpack",
           "engineLoadCustom",
           "customReader",
-          "return",
+          "throwError",
           "fromMaybe",
           "customExtensions",
           "applyExtensionsDiff",
           "optSandbox",
           "runPure",
           "getReader",
-          "throwError",
           "Right",
           "makeSandboxed",
           "optToOutputSettings",
@@ -94250,6 +94253,7 @@
           "isJust",
           "writerTemplate",
           "when",
+          "UnusualConversion",
           "isTextFormat",
           "isNothing",
           "readAbbreviations",
@@ -94309,8 +94313,8 @@
           "optOutputFile",
           "optDataDir",
           "doesDirectoryExist",
-          "Just",
           "return",
+          "Just",
           "when",
           "optDumpArgs",
           "hPutStrLn",
@@ -94324,6 +94328,7 @@
           "takeWhile",
           "svgToPng",
           "insertMedia",
+          "report",
           "CouldNotConvertImage",
           "pack",
           "tshow",
@@ -94388,9 +94393,11 @@
           "engineApplyFilter",
           "processCitations",
           "when",
+          "report",
           "RunningFilter",
           "liftIO",
           "FilterCompleted",
+          "toMilliseconds",
           "return"
         ],
         "applyJSONFilter@112": [],
@@ -94405,26 +94412,30 @@
           "maybe"
         ],
         "parseJSON@47": [
+          "withObject",
+          "fail",
           "show",
           "maybe",
           "return",
           "filterWithPath",
+          "withText",
           "unpack",
           "takeExtension",
           "LuaFilter",
           "JSONFilter"
         ],
         "toJSON@69": [
-          "object",
           "String",
           "pack"
         ],
         "toMilliseconds@101": [],
         "withMessages@93": [
           "when",
+          "report",
           "RunningFilter",
           "liftIO",
           "FilterCompleted",
+          "toMilliseconds",
           "return"
         ]
       },
@@ -94438,8 +94449,10 @@
         ],
         "isEnabled@441": [],
         "parseJSON@118": [
+          "withObject",
           "return",
           "fromMaybe",
+          "fail",
           "show",
           "WebTeX",
           "MathJax",
@@ -94449,41 +94462,47 @@
         ],
         "parseJSON@163": [
           "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
         "parseJSON@183": [
           "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
         "parseJSON@249": [
           "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
         "parseJSON@271": [
           "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
         "parseJSON@295": [
           "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
         "parseJSON@320": [
           "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
         "parseJSON@341": [
           "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
         "toJSON@144": [
-          "object",
           "String"
         ],
         "toJSON@172": [],
@@ -94499,6 +94518,7 @@
       },
       "haskell/pandoc/Shared.hs": {
         "addMetaField@686": [
+          "Meta",
           "insertWith",
           "toMetaValue",
           "MetaList",
@@ -94515,15 +94535,10 @@
           "codeWith",
           "rawInline",
           "blocksToInlines'",
-          "map",
-          "f",
           "mconcat",
-          "bodies",
+          "map",
           "intersperse",
           "unTableBodies",
-          "plainRowBody",
-          "cellBody",
-          "unTableBody",
           "concatMap"
         ],
         "blocksToInlines'@827": [
@@ -94542,7 +94557,7 @@
         "camelCaseToHyphenated@218": [],
         "capitalize@396": [
           "walk",
-          "go",
+          "Str",
           "toUpper"
         ],
         "cellBody@817": [],
@@ -94597,7 +94612,8 @@
           "viewl",
           "space",
           "viewr",
-          "f"
+          "f",
+          "Many"
         ],
         "f@808": [
           "fromList",
@@ -94632,11 +94648,12 @@
         ],
         "formatCode@709": [
           "walk",
-          "isPlaintext",
           "concatMap",
           "groupBy",
+          "isPlaintext",
           "go",
           "all",
+          "toList",
           "codeWith",
           "stringify"
         ],
@@ -94658,6 +94675,7 @@
           "RawInline"
         ],
         "go@399": [
+          "Str",
           "toUpper"
         ],
         "go@531": [
@@ -94671,7 +94689,7 @@
           "headerLtEq",
           "already",
           "map",
-          "isHeadingAttr",
+          "kvs",
           "filter",
           "Div",
           "Header",
@@ -94681,6 +94699,7 @@
         ],
         "go@719": [
           "all",
+          "toList",
           "codeWith",
           "stringify"
         ],
@@ -94703,19 +94722,18 @@
         "hasLineBreaks@614": [
           "query",
           "walk",
-          "removeNote",
           "Any"
         ],
         "headerLtEq@592": [],
         "inDelim@319": [],
         "inDirectory@741": [
-          "setCurrentDirectory"
+          "setCurrentDirectory",
+          "const"
         ],
         "inlineListToIdentifier@468": [
           "textToIdentifier",
           "extensionEnabled",
           "walk",
-          "unEmoji",
           "Str",
           "replaceEmojis"
         ],
@@ -94747,14 +94765,12 @@
           "Just"
         ],
         "isTightList@643": [
-          "all",
-          "isPlainItem"
+          "all"
         ],
         "isWS@179": [],
         "linesToPara@443": [],
         "makeCanonical@748": [
-          "foldl'",
-          "go"
+          "foldl'"
         ],
         "makeSections@516": [
           "makeSectionsWithOffsets"
@@ -94762,9 +94778,9 @@
         "makeSectionsWithOffsets@522": [
           "evalState",
           "go",
-          "getLevel",
           "Min",
           "all",
+          "getMin",
           "query",
           "maybe",
           "zipWith",
@@ -94776,7 +94792,7 @@
           "headerLtEq",
           "already",
           "map",
-          "isHeadingAttr",
+          "kvs",
           "filter",
           "Div",
           "Header",
@@ -94789,6 +94805,7 @@
         "normalizeDate'@280": [
           "fmap",
           "formatTime",
+          "msum",
           "map",
           "parsetimeWith",
           "toGregorian",
@@ -94825,7 +94842,6 @@
         "removeFormatting@344": [
           "query",
           "walk",
-          "go",
           "Str"
         ],
         "removeNote@617": [],
@@ -94868,9 +94884,9 @@
           "walk",
           "go",
           "RawInline",
-          "fixInlines",
           "Cite",
           "Note",
+          "fixInlines",
           "deQuote"
         ],
         "stripBeginSpace@202": [
@@ -94897,12 +94913,10 @@
           "drop"
         ],
         "taskListItemFromAscii@654": [
-          "handleTaskListItem",
-          "fromMd"
+          "handleTaskListItem"
         ],
         "taskListItemToAscii@664": [
           "handleTaskListItem",
-          "toMd",
           "RawInline"
         ],
         "textToIdentifier@484": [

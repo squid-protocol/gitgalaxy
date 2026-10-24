@@ -303,8 +303,8 @@ DEFINITION: dict[str, Any] = {
             + r"$]*|\[[^\]\n]{0,80}\])*"
             r"[ \t]*(?:[-+*/%&|^]|\*\*|<<|>>>?|&&|\|\||\?\?)?=(?![=>{\"'`])(?![^\n(]{0,300},[ \t]*$)"
             r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_$(]"
-            r"|\bsetState\s*\("
-            r"|\.(?:push|pop|shift|unshift|splice|sort|reverse|fill|copyWithin|set|delete|add|clear)\s*\(",
+            r"|\bsetState[ \t]*\("
+            r"|\.(?:push|pop|shift|unshift|splice|sort|reverse|fill|copyWithin|set|delete|add|clear)[ \t]*\(",
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
@@ -521,5 +521,10 @@ DEFINITION: dict[str, Any] = {
             r"\b(fetch|axios\.post|https\.request)\s*\([^)]*(?:checkmarx|telemetry|metrics|audit|log)\b",
             re.I,
         ),
+        # #3171 (see c.py): every arm of state_mutation needs `=`, `++`/`--` or a
+        # mutator call on the match's own line (call arms bind `[ \t]*\(`, not
+        # `\s*\(`, so the rule is provably line-local); eligibility is re-proven at
+        # cache build, a later edit that breaks it demotes the rule, never miscounts.
+        "_line_gates": ("state_mutation",),
     },
 }

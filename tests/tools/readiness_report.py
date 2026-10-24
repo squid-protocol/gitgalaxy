@@ -16,8 +16,10 @@ Sources (nothing is re-measured here):
                          proof_blockers run (that needs a survey and the corpora). The L5 mutant entry is left out
   era                    tests/fixtures/feature_inventory/<estate>.json `eras` (era_tags.py, #5117)
   missing inputs         estate_intake.py (#4709): assumed options and missing copybooks
-  oracle caveats         the register entries the report says each program's commands name (an upper bound: the
-                         report does not measure which entries a program reaches, definition_of_done.md section 3)
+  oracle caveats         the register entries each program relies on: those it reaches when its evidence report
+                         measured that (`assumptions.reach.registers`), else those its commands name (an upper bound,
+                         counted per row in `named_only`; the report does not yet measure reach,
+                         definition_of_done.md section 3)
   charter                the levels and bars of definition_of_done.md section 2, as the report carries them
 
 "Translated whole" is level L1 and says nothing about proof: the ladder below it is counted with it. A program is not
@@ -168,12 +170,23 @@ def proofs_to_land(programs: list[dict[str, Any]], top: int = TOP) -> dict[str, 
 
 
 def caveats(programs: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Register entries the programs' commands name, with the programs naming each (an upper bound)."""
+    """Register entries each program relies on, with the programs relying on them.
+
+    A program whose evidence report measured reach (`assumptions.reach` a dict with `registers`, #5229) counts only the
+    entries it reaches; any other program counts every entry its commands name, an upper bound. A row carries
+    `named_only` (programs counted by the upper bound) only when it is non-zero."""
     seen: dict[str, dict[str, Any]] = {}
     for p in programs:
-        for e in (p.get("assumptions") or {}).get("named_by_commands") or []:
-            row = seen.setdefault(e["id"], {"id": e["id"], "status": e["status"], "area": e["area"], "programs": 0})
+        a = p.get("assumptions") or {}
+        named = {e["id"]: e for e in a.get("named_by_commands") or []}
+        reach = a.get("reach")
+        measured = isinstance(reach, dict) and isinstance(reach.get("registers"), list)
+        for rid in sorted(set(reach["registers"]) & set(named)) if measured else sorted(named):
+            e = named[rid]
+            row = seen.setdefault(rid, {"id": rid, "status": e["status"], "area": e["area"], "programs": 0})
             row["programs"] += 1
+            if not measured:
+                row["named_only"] = row.get("named_only", 0) + 1
     return sorted(seen.values(), key=lambda r: (-r["programs"], r["id"]))
 
 
@@ -330,10 +343,21 @@ def render_estate(m: dict[str, Any], d: dict[str, Any] | None = None) -> list[st
         )
     cb = mi["missing_copybooks"]
     out.append("- missing copybooks: " + (", ".join(f"{k} ({len(v)})" for k, v in cb.items()) if cb else "none"))
-    out += ["", "### Oracle caveats the estate's commands name (upper bound)", ""]
+    upper = any(c.get("named_only") for c in m["oracle_caveats"])
+    title = "Oracle caveats the estate relies on" + (
+        " (upper bound where a program's reach is unmeasured)" if upper else ""
+    )
+    out += ["", f"### {title}", ""]
     if m["oracle_caveats"]:
-        out += ["| id | status | area | programs |", "|---|---|---|---|"]
-        out += [f"| {c['id']} | {c['status']} | {c['area']} | {c['programs']} |" for c in m["oracle_caveats"]]
+        out += [
+            "| id | status | area | programs |" + (" named only |" if upper else ""),
+            "|---|---|---|---|" + ("---|" if upper else ""),
+        ]
+        out += [
+            f"| {c['id']} | {c['status']} | {c['area']} | {c['programs']} |"
+            + (f" {c.get('named_only', 0)} |" if upper else "")
+            for c in m["oracle_caveats"]
+        ]
     else:
         out.append("None named.")
     if d is not None:

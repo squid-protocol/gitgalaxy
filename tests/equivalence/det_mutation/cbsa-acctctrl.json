@@ -5,18 +5,18 @@
  "case": "cbsa-acctctrl",
  "entry": {
   "program": "ACCTCTRL",
-  "commit": "94dfb63b0de7fdedf8d82b80f3cde3785c388240",
+  "commit": "74b7efe600117c988aab2f628b67c0c3e0b112fa",
   "date": "2026-10-22",
   "mode": "fast",
   "seed": 0,
   "mutants": 517,
   "out_of_scope": 24,
   "chosen": 517,
-  "coverage": "proven on 11 scenarios, covering 7/7 paragraphs and 2/2 branches",
+  "coverage": "proven on 21 scenarios, covering 7/7 paragraphs and 2/2 branches",
   "counts": {
-   "killed": 183,
+   "killed": 202,
    "timeout": 1,
-   "survived": 308,
+   "survived": 289,
    "stillborn": 25,
    "error": 0,
    "pending": 0
@@ -34,13 +34,16 @@
    "088b445b32",
    "0be70edb6d",
    "0d7d7f5c16",
+   "0daccda4f1",
    "0ffb344148",
    "10325496bb",
    "12a4b4b9b9",
+   "13f134a6fc",
    "148d4116ab",
    "14927cec3e",
    "150e5a8419",
    "171fbf402c",
+   "177acf7752",
    "1b9edc863d",
    "1c0947893d",
    "1c10c793e0",
@@ -52,10 +55,12 @@
    "263c39f2d7",
    "268982dbbd",
    "27a05b1b88",
+   "2993a1c3d6",
    "2a05328db4",
    "2a30f5b1ca",
    "2a84b90b0f",
    "2b740e37dd",
+   "2c08775302",
    "2c2b678079",
    "2d3c9e7f91",
    "315303b27a",
@@ -72,10 +77,12 @@
    "407f0a443a",
    "411c8d11c9",
    "4171eab98f",
+   "43682074a4",
    "44eb62dfcb",
    "45781acf5b",
    "45bd0df2d3",
    "46725784c9",
+   "46b3bb0089",
    "476884d536",
    "495b60086b",
    "498e1247f0",
@@ -94,7 +101,9 @@
    "5bfafb5e51",
    "5c4a6d6b8c",
    "5e76a411d3",
+   "6080dd996a",
    "61045d0b03",
+   "61c87bcc6a",
    "61e24e5c0d",
    "61f339f1ba",
    "621374f28b",
@@ -110,6 +119,7 @@
    "703a74b819",
    "70bad5f262",
    "726d853f33",
+   "7899f1d0ca",
    "78c824b0ef",
    "7b1691f96f",
    "7d78f02421",
@@ -132,6 +142,7 @@
    "93e347a958",
    "95f18be6a0",
    "96bae38d82",
+   "97beec4e2e",
    "97fc355ec5",
    "994ea3d0f8",
    "9a2be0bd0c",
@@ -141,6 +152,7 @@
    "9f3cda61ac",
    "9f65d2887d",
    "9ff73cb162",
+   "a0d68d5e6e",
    "a3b4f37461",
    "a40bef1352",
    "a549629199",
@@ -151,12 +163,17 @@
    "aad80e98ee",
    "adfedd8abd",
    "afac7b6da3",
+   "b0ccd5d4fb",
    "b0ffc3cbeb",
    "b1f8163b55",
+   "b2a660ac42",
    "b3ebf8e8d2",
    "b407ea1ed7",
+   "b45f6e978a",
    "b5191c7c32",
+   "b73eb40403",
    "b75c291df2",
+   "b94509aa9e",
    "ba9e14cd23",
    "baa0e50185",
    "bb83c3be20",
@@ -201,6 +218,8 @@
    "eaec8a48ba",
    "ed85807674",
    "f228e50267",
+   "f8d0d16fb3",
+   "f9072c7177",
    "f9a80fd723",
    "fa4ec1bb13",
    "fb6ead75ad",
@@ -1444,44 +1463,12 @@
     "after": "Cobol.move(d.getAccountControlFailCode() == null ? \"\" : d.getAccountControlFailCode(), Field.alphanumeric(s, base + 45, 2, false), CS);"
    },
    {
-    "id": "97beec4e2e",
-    "op": "DEL",
-    "file": "service/AcctctrlService.java",
-    "line": 249,
-    "before": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
-    "after": "/* d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS)); */"
-   },
-   {
     "id": "5b48eb01e3",
     "op": "AOR",
     "file": "service/AcctctrlService.java",
     "line": 249,
     "before": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
     "after": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));"
-   },
-   {
-    "id": "13f134a6fc",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 249,
-    "before": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
-    "after": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 1, 4, false), CS));"
-   },
-   {
-    "id": "0daccda4f1",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 249,
-    "before": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
-    "after": "d.setAccountControlEyeCatcher(Cobol.text(Field.alphanumeric(s, base + 0, 5, false), CS));"
-   },
-   {
-    "id": "2993a1c3d6",
-    "op": "DEL",
-    "file": "service/AcctctrlService.java",
-    "line": 250,
-    "before": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 0, false, false, false), CS).intValue());",
-    "after": "/* d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 0, false, false, false), CS).intValue()); */"
    },
    {
     "id": "068a904301",
@@ -1508,14 +1495,6 @@
     "after": "d.setAccountControlSortCode(Cobol.num(Field.zoned(s, base + 14, 6, 1, false, false, false), CS).intValue());"
    },
    {
-    "id": "f9072c7177",
-    "op": "DEL",
-    "file": "service/AcctctrlService.java",
-    "line": 251,
-    "before": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue());",
-    "after": "/* d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 0, false, false, false), CS).intValue()); */"
-   },
-   {
     "id": "e665241919",
     "op": "CON",
     "file": "service/AcctctrlService.java",
@@ -1540,62 +1519,6 @@
     "after": "d.setAccountControlNumber(Cobol.num(Field.zoned(s, base + 20, 8, 1, false, false, false), CS).intValue());"
    },
    {
-    "id": "b94509aa9e",
-    "op": "DEL",
-    "file": "service/AcctctrlService.java",
-    "line": 252,
-    "before": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue());",
-    "after": "/* d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue()); */"
-   },
-   {
-    "id": "b0ccd5d4fb",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 252,
-    "before": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue());",
-    "after": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 29, 8, 0, false, false, false), CS).intValue());"
-   },
-   {
-    "id": "6080dd996a",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 252,
-    "before": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue());",
-    "after": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 9, 0, false, false, false), CS).intValue());"
-   },
-   {
-    "id": "2c08775302",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 252,
-    "before": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 0, false, false, false), CS).intValue());",
-    "after": "d.setNumberOfAccounts(Cobol.num(Field.zoned(s, base + 28, 8, 1, false, false, false), CS).intValue());"
-   },
-   {
-    "id": "46b3bb0089",
-    "op": "DEL",
-    "file": "service/AcctctrlService.java",
-    "line": 253,
-    "before": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue());",
-    "after": "/* d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue()); */"
-   },
-   {
-    "id": "43682074a4",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 253,
-    "before": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue());",
-    "after": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 37, 8, 0, false, false, false), CS).intValue());"
-   },
-   {
-    "id": "61c87bcc6a",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 253,
-    "before": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 0, false, false, false), CS).intValue());",
-    "after": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 9, 0, false, false, false), CS).intValue());"
-   },
-   {
     "id": "3e34e93d08",
     "op": "CON",
     "file": "service/AcctctrlService.java",
@@ -1604,52 +1527,12 @@
     "after": "d.setLastAccountNumber(Cobol.num(Field.zoned(s, base + 36, 8, 1, false, false, false), CS).intValue());"
    },
    {
-    "id": "b2a660ac42",
-    "op": "DEL",
-    "file": "service/AcctctrlService.java",
-    "line": 254,
-    "before": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 1, false), CS));",
-    "after": "/* d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 1, false), CS)); */"
-   },
-   {
-    "id": "f8d0d16fb3",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 254,
-    "before": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 1, false), CS));",
-    "after": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS));"
-   },
-   {
     "id": "13b138bd8d",
     "op": "CON",
     "file": "service/AcctctrlService.java",
     "line": 254,
     "before": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 1, false), CS));",
     "after": "d.setAccountControlSuccessFlag(Cobol.text(Field.alphanumeric(s, base + 44, 2, false), CS));"
-   },
-   {
-    "id": "177acf7752",
-    "op": "DEL",
-    "file": "service/AcctctrlService.java",
-    "line": 255,
-    "before": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS));",
-    "after": "/* d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS)); */"
-   },
-   {
-    "id": "b73eb40403",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 255,
-    "before": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS));",
-    "after": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 46, 1, false), CS));"
-   },
-   {
-    "id": "a0d68d5e6e",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 255,
-    "before": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 1, false), CS));",
-    "after": "d.setAccountControlFailCode(Cobol.text(Field.alphanumeric(s, base + 45, 2, false), CS));"
    },
    {
     "id": "a2dd54b9af",
@@ -2042,22 +1925,6 @@
     "line": 357,
     "before": "in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
     "after": "in_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 1);"
-   },
-   {
-    "id": "b45f6e978a",
-    "op": "DEL",
-    "file": "service/AcctctrlService.java",
-    "line": 358,
-    "before": "caBack = () -> fill_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
-    "after": "/* caBack = () -> fill_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0); */"
-   },
-   {
-    "id": "7899f1d0ca",
-    "op": "CON",
-    "file": "service/AcctctrlService.java",
-    "line": 358,
-    "before": "caBack = () -> fill_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 0);",
-    "after": "caBack = () -> fill_AcctctrlDfhcommarea(x, s_DFHCOMMAREA, 1);"
    },
    {
     "id": "2996a39364",
@@ -2702,11 +2569,11 @@
   ],
   "inputs": {
    "port": "c0f71865a610801049a5662fcb1a3bf5060b9cd75693a7015979c5ae756388be",
-   "generator": "efdeb8065b1ecce331c38a4fb9d500e0289fc8608f10c528268cd58dca338720",
-   "case": "fbe3fa659dad2f6852efad7ebaa8eceee6b8529fe8a0e75f4b1104f1944496a0",
+   "generator": "99a366706ad341e0ee9ef5add6430c6645e3095df9317c4bf139319bd25e0cfe",
+   "case": "fde2c9df8553efcc72013c202c8f17af7b3b33b2ef0fd6f88756364d60a20157",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-   "harness": "f6fc656cfb906c118205c985d0d60e49de564621c2ff04af298b4752a3ede275",
-   "oracle": "c16b52604cd8fd17fb175d78decab45df98fa472134a0d92759e6bdfe631c71a"
+   "harness": "49c125fbe072e3d67aa0c601c9e2779350da3afb0dc5dc2889957000e1c3dd81",
+   "oracle": "a72339d492e955b0b5211d2f06f3af3a5d3abcb9bd7a9de93596fe16c46d34a7"
   },
   "components": {
    "generator": {
@@ -2730,14 +2597,14 @@
     "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
    },
    "harness": {
-    "harness:cics": "21520a4c6440f2956fc2f8062360be697aa8cc1205ec66f51b1917d1fd7aa1a6",
+    "harness:cics": "a06f5412ff8f1ed2b268c32b393ff896f2f1abaf9275d0db58b275516d87e519",
     "harness:core": "6ca15fe077558291d5457261b5b460f3fa6f7b92a7a11455c436cfee97ebaf39",
-    "harness:db2": "c134f02c18b533b4b3ef9e3938f8cb2cd937f11a91c8d864226b114117c2176d"
+    "harness:db2": "f33f22bdc78ccbab35734e10c531a0ad98152ea0a73fafc4e034974e3a4fe657"
    },
    "oracle": {
     "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
     "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
-    "oracle:db2": "10a2566bcd61b540984c55220468787a8493cfd4df89980c84693433146502dc",
+    "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
     "oracle:le": "3e9e45ed737eaee3a156a2e00bfade4c956d69c8bf1c0bbe207a9cf107063c78"
    }

@@ -157,7 +157,7 @@ fixed it: the census below predates that fix.
 | glsl | C-style | 0 | 0 | no functions sliced on the crucible (no evidence) |
 | go | C-style | 897 | 4,732 | K: `func` literal (436); conversions `uint32(x)` are calls (C3) |
 | groovy | C-style | 745 | 1,760 | A: `@Issue(` etc. (71) |
-| haskell | own | 147 | 281 | own juxtaposition rule; captures lambda/pattern variables (`x`, `m`, `f`) -- R (recall/precision gap, ledgered #3264) |
+| haskell | own | 147 | 281 | own juxtaposition rule (#6454: `f x`, `f (g x)`, `Just x`, signatures masked, `return`/`try`/`catch`/`finally` are calls); `f $ x` / `f $! x` / `withObject "k" $ ...` heads are calls and a definition's left side (`f (Foo a) = ...`, `let g x = ...`) is masked; still misses calls past a `#ifdef` span cut and attributes where-bound bodies to the parent -- R (ledgered #3264) |
 | hlasm | own | 1 | 0 | agrees (`=V()` only; system macros a ledgered recall gap) |
 | hlo | own | 0 | 0 | agrees (`calls=`/`to_apply=`); no functions sliced |
 | html | blind | -- | -- | agrees (C7: declared blind) |
@@ -167,7 +167,7 @@ fixed it: the census below predates that fix.
 | json | blind | -- | -- | agrees (C7: declared blind) |
 | kotlin | C-style | 28 | 35 | A: `@Throws(`, `@JvmName(` |
 | livecode | command position | 1,063 | 2,527 | K: `private` 250, `public` 99, `command` 95, `variable`, `case`, `break`, `module`, `handler`, `default`, `constant` (~800 of 2,527) |
-| lua | C-style | 1,370 | 3,301 | K: `not (`/`or (`/`and (`; D (`local function f`, 55). A call after `..` or `not` is captured (pinned, #5640) |
+| lua | C-style | 1,370 | 3,301 | K: `not (`/`or (`/`and (`; D (`local function f`, 55). A call after `..` or `not` is captured (pinned per shape, #5640). Not captured: `f"s"`, `f{...}`, `f[[s]]` (no parenthesis). A top-level `name = function` has no named unit, so its calls are not stored (C8, #5685); the #5630 oracle blames them on the previous unit |
 | m4 | C-style | 39 | 142 | agrees (macro invocations are calls) |
 | makefile | own | 1 | 0 | agrees (`$(call f)`) |
 | markdown | blind | -- | -- | agrees (C7: declared blind) |
@@ -176,7 +176,7 @@ fixed it: the census below predates that fix.
 | nix | blind | -- | -- | agrees (C7: declared blind) |
 | objective-c | own | 156 | 269 | own rule: unary selectors are a ledgered recall gap; agrees otherwise |
 | pbtxt | blind | -- | -- | agrees (C7: declared blind) |
-| perl | C-style | 886 | 2,580 | K: `qw(` 30, `and`/`or`/`do`/`until` |
+| perl | C-style | 886 | 2,580 | K: `qw(` 30, `and`/`or`/`do`/`until`; `die` is a call (#6433), `or`/`and` are anchors, not callees |
 | php | C-style | 1,703 | 7,104 | K: `foreach` 237, `isset` 209, `empty` 152, `elseif` 114, `array` 111, `unset` 78, `use` 44, `fn` 44, `match`, `die` |
 | plaintext | blind | -- | -- | agrees (C7: declared blind) |
 | pli | CALL verb | 7 | 6 | agrees (CALL) |
@@ -192,13 +192,13 @@ fixed it: the census below predates that fix.
 | solidity | C-style | 105 | 321 | K: `returns (` 74, `assembly`, `override(` |
 | sqlite | blind | -- | -- | agrees (C7: declared blind) |
 | swift | C-style | 133 | 319 | A: `@available(`, `@escaping`, `@Sendable` (25) |
-| tcl | command position | 394 | 1,110 | S: SQL keywords inside brace-quoted strings in command position (`SELECT`, `WHERE`). A command after `}` in `foreach`/`namespace eval` bodies is captured (pinned, #5640); a one-line `switch` arm body (`x { doX }`) is not (the label reads as the command) |
+| tcl | command position | 394 | 1,110 | S: SQL keywords inside brace-quoted strings in command position (`SELECT`, `WHERE`). A command after `}` in `foreach`/`namespace eval` bodies is captured (pinned, #5640); a one-line `switch` arm body (`x { doX }`) is not (the label reads as the command). Top-level script after the last `proc` (`startClient`, `start` in odamex `tests/bugs/*.tcl`) has no named unit, so its calls are not stored; the #5630 oracle blames them on `main` (pinned, #5640) |
 | td | blind | -- | -- | agrees (C7: declared blind) |
 | typescript | C-style | 5,770 | 13,765 | K: `async (` 34; D (nested `function`, 172); B |
 | xml | blind | -- | -- | agrees (C7: declared blind) |
 | yacc | C-style | 27 | 89 | agrees (C actions) |
 | yaml | blind | -- | -- | agrees (C7: declared blind) |
-| zig | C-style | 3,525 | 19,370 | D (nested `fn`, 296); K: `and (`/`or (`, `union(enum)`; `@builtin(` are calls (C2) |
+| zig | C-style | 3,525 | 19,370 | D (nested `fn`, 296); K: `and (`/`or (`, `union(enum)`; `@builtin(` are calls (C2); a `\\` multiline-string line is shielded whole (#6435) |
 
 Summary: 37 of 65 languages agree outside the global **B**. The rest are **K** (19), **A** (6),
 **D** (8), **S** (1: tcl), **G** (1: cobol), **I** (1: matlab) and **R** (1: haskell). Every

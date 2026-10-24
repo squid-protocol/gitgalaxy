@@ -58,11 +58,8 @@ def main():
     filter_engine = ApertureFilter(target_path, LANGUAGE_DEFINITIONS, aperture_config)
     security = SecurityLens()
 
-    # SENSOR OPTIMIZATION: Only evaluate keys and dead-code logic for maximum performance
-    security.THREAT_SIGNATURES = {
-        "hardcoded_secrets": security.THREAT_SIGNATURES["hardcoded_secrets"],
-        "dead_code": security.THREAT_SIGNATURES["dead_code"],
-    }
+    # SENSOR OPTIMIZATION: only the secrets signature is read below (#5500)
+    security.restrict_signatures(("hardcoded_secrets",))
 
     leaks_found = 0
     leaks_allowed = 0

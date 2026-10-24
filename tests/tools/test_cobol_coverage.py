@@ -130,6 +130,37 @@ def test_a_dead_unit_entered_and_a_unit_the_engine_cannot_read_are_reported(tmp_
     assert p["covered"] == 4  # neither is counted
 
 
+def test_a_paragraph_holding_an_entry_statement_is_entered_by_it(tmp_path: Path) -> None:
+    """IMS enters a DL/I program at ENTRY 'DLITCBL': GnuCOBOL traces `Entry: DLITCBL` and then the statements, with no
+    Paragraph event for the unit that holds the ENTRY. That unit was entered; a program's own entry (named like its PROGRAM-ID) names no unit."""
+    text = _cbl("PROGRAM-ID. T.", "PROCEDURE DIVISION.", "MAIN-PARA.", "    ENTRY 'DLITCBL'.", "    PERFORM P2.",
+                "    GOBACK.", "P2.", "    DISPLAY 'X'.")  # fmt: skip
+    head = b"Source: 'T.cbl'\nProgram-Id:  T\n"
+    entry = head + b"Program-Id:  T                    Entry: DLITCBL                         Line:      5\n"
+    body = (b"Program-Id:  T                           PERFORM                         Line:      5\n"
+            b"Program-Id:  T                Paragraph: P2                              Line:      7\n"
+            b"Program-Id:  T                           DISPLAY                         Line:      8\n"
+            b"Program-Id:  T                           GOBACK                          Line:      6\n")  # fmt: skip
+    plain = head + b"Program-Id:  T                    Entry: T                               Line:      3\n"
+    got = _measure(tmp_path, text, entry + body)["paragraphs"]
+    assert (got["covered"], got["live"]) == (2, 2)
+    got = _measure(tmp_path, text, plain + body)["paragraphs"]
+    assert (got["covered"], got["live"]) == (1, 2)  # the program's own entry is not a unit: MAIN-PARA stays unrun
+
+
+def test_a_program_with_no_paragraph_is_one_unit_run_by_any_of_its_statements(tmp_path: Path) -> None:
+    """COBSWAIT shape (CardDemo): statements straight after PROCEDURE DIVISION, no header. The trace has no Paragraph
+    event for them, yet the unit is live (1, not 0/0 which reads as 'not measured') and entered when a statement ran."""
+    text = _cbl("PROGRAM-ID. T.", "PROCEDURE DIVISION.", "    DISPLAY 'X'.", "    STOP RUN.")
+    head = b"Source: 'T.cbl'\nProgram-Id:  T\n"
+    entry = head + b"Program-Id:  T                    Entry: T                               Line:      3\n"
+    ran = entry + b"Program-Id:  T                           DISPLAY                         Line:      3\n"
+    got = _measure(tmp_path, text, ran)["paragraphs"]
+    assert (got["covered"], got["live"], got["dead"], got["unread"]) == (1, 1, [], [])
+    got = _measure(tmp_path, text, entry)["paragraphs"]  # entered, no statement ran
+    assert (got["covered"], got["live"]) == (0, 1)
+
+
 def test_gnucobol_when_events_are_not_the_arm(tmp_path: Path) -> None:
     """GnuCOBOL traces some WHENs as statements; the arm is the first real statement after them."""
     trace = TRACE.replace(

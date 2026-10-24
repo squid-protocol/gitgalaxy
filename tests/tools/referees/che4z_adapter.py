@@ -1,7 +1,15 @@
-r"""Eclipse Che4z COBOL Language Support referee (#4377): the language server's headless
-`analysis` command (EPL-2.0; run as an external, unmodified tool, never vendored), as a
-referee-facts/1 document: PROGRAM-IDs, paragraphs / sections with extents, PERFORM / GO TO edges,
-COPY members and the DATA DIVISION items with their clauses.
+r"""Eclipse Che4z COBOL Language Support referee (#4377, #4438): the language server (EPL-2.0; run as an
+external, unmodified tool, never vendored), as a referee-facts/1 document. Two modes:
+
+* `--mode lsp` (default): one server per corpus, driven over LSP (`java -jar server.jar pipeEnabled`):
+  `didOpen`, the server's `publishDiagnostics`, then `textDocument/documentSymbol`. It yields PROGRAM-IDs,
+  paragraphs / sections with extents, COPY members and the DATA DIVISION items' level and name. The symbols
+  carry no PERFORM / GO TO edges and no PIC / USAGE / OCCURS / REDEFINES / VALUE clauses, so those channels
+  are not produced in this mode (they are not scored as misses). The server asks the client to resolve
+  copybooks (`copybook/resolve`, `file/content`); the adapter answers from the corpus's copybook dirs.
+  Unlike the CLI it does not stop on a program with a CALL or overflow on a large tree.
+* `--mode cli`: the headless `analysis` command with `--ast` (the #4377 first pass; every channel, but it
+  fails on any program with a CALL and overflows on large ASTs).
 
     python tests/tools/referees/che4z_adapter.py --corpus <name> --root <corpus clone> \
         --key tests/cobol_mainframe/answer_key/<name>.json --out facts/<name>/che4z.json
@@ -20,24 +28,34 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import queue
+import re
 import subprocess
 import sys
 import tempfile
+import threading
 import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import IO, Any
 
 HERE = Path(__file__).resolve().parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
 import facts as F
+from gitgalaxy.core.source_text import read_source
 
 JAR_ENV = "CHE4Z_SERVER_JAR"
 COPY_EXTS = (".cpy", ".CPY", ".cbl", ".CBL", ".dcl", ".DCL", ".copy", ".cob")
 CHANNELS = ["program_ids", "units", "unit_extents", "edges", "copybooks",
             "data_items", "pic", "usage", "occurs", "redefines", "value"]  # fmt: skip
 UNIT_TYPES = ("PARAGRAPH", "PROCEDURE_SECTION")
+LSP_CHANNELS = ["program_ids", "units", "unit_extents", "copybooks", "data_items"]
+SYMBOL_VARIABLE, SYMBOL_STRUCT = 13, 23  # LSP SymbolKind.Variable / Struct: a DATA DIVISION item
+SYMBOL_FILE_KINDS = (1,)  # SymbolKind.File: a `COPY name` node
+LSP_TIMEOUT_S = 120.0
+_LEVEL = re.compile(r"^\s*(\d{1,2})\s")
 
 
 def che4z_version(jar: Path) -> str:
@@ -178,10 +196,236 @@ def run_member(jar: Path, path: Path, dirs: list[str], work: Path, ast: bool) ->
         out.unlink(missing_ok=True)
 
 
-def che4z_doc(corpus: str, root: Path, key: dict[str, Any]) -> dict[str, Any]:
+# ------------------------------------------------------------------------------
+# LSP mode (#4438)
+# ------------------------------------------------------------------------------
+def write_message(stream: IO[bytes], msg: dict[str, Any]) -> None:
+    body = json.dumps(msg).encode("utf-8")
+    stream.write(b"Content-Length: %d\r\n\r\n" % len(body) + body)
+    stream.flush()
+
+
+def read_message(stream: IO[bytes]) -> dict[str, Any] | None:
+    """One Content-Length framed JSON-RPC message, or None at end of stream."""
+    length = 0
+    while True:
+        line = stream.readline()
+        if not line:
+            return None
+        line = line.strip()
+        if not line:
+            break
+        if line.lower().startswith(b"content-length:"):
+            length = int(line.split(b":", 1)[1])
+    body = stream.read(length)
+    return json.loads(body) if len(body) == length and length else None
+
+
+class LspSession:
+    """A minimal LSP client: a reader thread, the server's own requests answered, one request at a time."""
+
+    def __init__(self, rx: IO[bytes], tx: IO[bytes], resolve: Callable[[str], str | None]) -> None:
+        self.tx, self.resolve, self.next_id = tx, resolve, 0
+        self.inbox: queue.Queue[dict[str, Any] | None] = queue.Queue()
+        threading.Thread(target=self._read, args=(rx,), daemon=True).start()
+
+    def _read(self, rx: IO[bytes]) -> None:
+        try:
+            while (msg := read_message(rx)) is not None:
+                self.inbox.put(msg)
+        except (ValueError, OSError):
+            pass
+        self.inbox.put(None)
+
+    def notify(self, method: str, params: dict[str, Any]) -> None:
+        write_message(self.tx, {"jsonrpc": "2.0", "method": method, "params": params})
+
+    def _answer(self, msg: dict[str, Any]) -> None:
+        method, params = msg["method"], msg.get("params") or {}
+        result: Any = None
+        if method == "workspace/configuration":
+            result = [None] * len(params.get("items", []))
+        elif method == "copybook/resolve":  # params: [cobol file uri, copybook name, dialect]
+            result = self.resolve(str(params[1]))
+        elif method == "file/content":
+            uri = params if isinstance(params, str) else (params[0] if isinstance(params, list) else "")
+            result = _read_uri(str(uri))
+        write_message(self.tx, {"jsonrpc": "2.0", "id": msg["id"], "result": result})
+
+    def wait(self, accept: Callable[[dict[str, Any]], bool], timeout: float = LSP_TIMEOUT_S) -> dict[str, Any]:
+        """Answer the server's requests until a message `accept` takes arrives; TimeoutError / EOFError otherwise."""
+        end = time.monotonic() + timeout
+        while True:
+            try:
+                msg = self.inbox.get(timeout=max(end - time.monotonic(), 0.01))
+            except queue.Empty:
+                raise TimeoutError("no matching LSP message") from None
+            if msg is None:
+                raise EOFError("language server closed the pipe")
+            if "method" in msg and "id" in msg:
+                self._answer(msg)
+            elif accept(msg):
+                return msg
+
+    def request(self, method: str, params: dict[str, Any], timeout: float = LSP_TIMEOUT_S) -> Any:
+        self.next_id += 1
+        rid = self.next_id
+        write_message(self.tx, {"jsonrpc": "2.0", "id": rid, "method": method, "params": params})
+        msg = self.wait(lambda m: m.get("id") == rid and "method" not in m, timeout)
+        if "error" in msg:
+            raise RuntimeError(str(msg["error"].get("message", msg["error"]))[:160])
+        return msg.get("result")
+
+    def open_and_analyse(self, path: Path, text: str, timeout: float = LSP_TIMEOUT_S) -> tuple[list[Any], list[Any]]:
+        """didOpen, wait for the server's diagnostics for the file (analysis done), then its document symbols."""
+        uri = path.resolve().as_uri()
+        self.notify("textDocument/didOpen", {"textDocument": {"uri": uri, "languageId": "cobol", "version": 1, "text": text}})  # fmt: skip
+        diag = self.wait(lambda m: m.get("method") == "textDocument/publishDiagnostics" and m["params"].get("uri") == uri, timeout)  # fmt: skip
+        symbols = self.request("textDocument/documentSymbol", {"textDocument": {"uri": uri}}, timeout)
+        self.notify("textDocument/didClose", {"textDocument": {"uri": uri}})
+        return symbols or [], diag["params"].get("diagnostics", [])
+
+    def start(self) -> None:
+        caps = {"textDocument": {"documentSymbol": {"hierarchicalDocumentSymbolSupport": True}}}
+        self.request("initialize", {"processId": None, "rootUri": None, "capabilities": caps})
+        self.notify("initialized", {})
+
+    def stop(self) -> None:
+        try:
+            self.request("shutdown", {}, 10.0)
+            self.notify("exit", {})
+        except (TimeoutError, EOFError, RuntimeError, OSError):
+            pass
+
+
+def _read_uri(uri: str) -> str | None:
+    if not uri.startswith("file:"):
+        return None
+    from urllib.parse import urlparse
+    from urllib.request import url2pathname
+
+    try:
+        return read_source(Path(url2pathname(urlparse(uri).path))).text
+    except OSError:
+        return None
+
+
+def copybook_resolver(root: Path) -> Callable[[str], str | None]:
+    """name -> file uri over every copybook-extension file under the corpus (first in sorted path order wins)."""
+    index: dict[str, str] = {}
+    for p in sorted(root.rglob("*")):
+        if p.is_file() and ".git" not in p.parts and p.suffix in COPY_EXTS:
+            index.setdefault(p.stem.upper(), p.resolve().as_uri())
+    return lambda name: index.get(name.upper())
+
+
+def _is_comment(line: str) -> bool:
+    return not line.strip() or line[6:7] in ("*", "/") or line.lstrip().startswith("*>")
+
+
+def _symbol_level(lines: list[str], ln: int) -> int | None:
+    """The level number of the data description entry starting at 0-based line `ln` (symbols carry none)."""
+    if not 0 <= ln < len(lines):
+        return None
+    for text in (lines[ln][6:72], lines[ln]):
+        m = _LEVEL.match(text)
+        if m:
+            return int(m.group(1))
+    return None
+
+
+def symbol_facts(symbols: list[dict[str, Any]], lines: list[str]) -> dict[str, set[str]]:
+    """Facts of one file from its hierarchical documentSymbol tree. Lines are 1-based like the other adapters."""
+    f: dict[str, set[str]] = {ch: set() for ch in LSP_CHANNELS}
+    programs: list[str] = []
+
+    def span(sym: dict[str, Any], own_end: int | None = None) -> tuple[int, int]:
+        s = int(sym["range"]["start"]["line"]) + 1
+        e = own_end if own_end is not None else int(sym["range"]["end"]["line"]) + 1
+        while e > s and 0 < e <= len(lines) and _is_comment(lines[e - 1]):  # trailing blanks / comments are no unit's
+            e -= 1
+        return s, e
+
+    def unit(sym: dict[str, Any], name: str) -> str:
+        children = sym.get("children") or []
+        # a section's own extent stops where its first paragraph starts
+        own_end = int(children[0]["range"]["start"]["line"]) if children else None
+        label = name if name == F.MAIN_LINE else F.unit_name(max(len(programs) - 1, 0), programs[-1] if programs else None, name)  # fmt: skip
+        s, e = span(sym, own_end)
+        if name == F.MAIN_LINE:
+            if e > s:
+                f["unit_extents"].add(f"{label} L{s}-{e}")
+        else:
+            f["units"].add(label)
+            f["unit_extents"].add(f"{label} L{s}-{max(e, s)}")
+        return label
+
+    def visit(sym: dict[str, Any], in_proc: bool) -> None:
+        name, kind = str(sym.get("name", "")), sym.get("kind")
+        if name.startswith("PROGRAM: "):
+            programs.append(name[9:].strip().upper())
+        elif name.startswith("PROGRAM-ID ") and len(name.split()) > 1:
+            f["program_ids"].add(name.split()[1].strip(".").upper())
+        elif name == "PROCEDURE DIVISION" or name.startswith("PROCEDURE DIVISION "):
+            unit(sym, F.MAIN_LINE)
+            in_proc = True
+        elif kind in SYMBOL_FILE_KINDS and name.startswith("COPY "):
+            f["copybooks"].add(name[5:].strip().upper())
+        elif in_proc and kind == 6 and " DIVISION" not in name:
+            unit(sym, name.upper())
+        elif kind in (SYMBOL_VARIABLE, SYMBOL_STRUCT) and not in_proc:
+            ln = int(sym["range"]["start"]["line"])
+            level = _symbol_level(lines, ln)
+            if level is not None:
+                F.merge_item(f, {"data_items": F.item_values(ln + 1, level, name)["data_items"]})
+        for c in sym.get("children") or []:
+            visit(c, in_proc)
+
+    for top in symbols:
+        visit(top, False)
+    return f
+
+
+def lsp_doc(corpus: str, root: Path, key: dict[str, Any], jar: Path) -> dict[str, Any]:
+    doc = F.new_doc("che4z", che4z_version(jar), corpus, LSP_CHANNELS)
+    proc = subprocess.Popen(["java", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-Xss64m", "-jar", str(jar), "pipeEnabled"], stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)  # fmt: skip
+    assert proc.stdin is not None and proc.stdout is not None
+    session = LspSession(proc.stdout, proc.stdin, copybook_resolver(root))
+    wall = 0.0
+    try:
+        session.start()
+        for rel in sorted(key.get("programs", {})):
+            path = root / rel
+            t0 = time.perf_counter()
+            try:
+                text = read_source(path).text
+                symbols, diags = session.open_and_analyse(path, text)
+                facts = symbol_facts(symbols, text.splitlines())
+            except (TimeoutError, EOFError, RuntimeError, KeyError, TypeError, ValueError, OSError) as e:
+                F.add_file(doc, rel, {}, status="fail", error=f"LSP: {type(e).__name__}: {e}"[:200])
+                if isinstance(e, (EOFError, OSError)) or proc.poll() is not None:
+                    break  # the server is gone: later members would only repeat this
+                continue
+            finally:
+                wall += time.perf_counter() - t0
+            syntax = [d for d in diags if d.get("severity") == 1 and "Copybook not found" not in str(d.get("message"))]
+            F.add_file(doc, rel, facts, status="partial" if syntax else "ok", seconds=time.perf_counter() - t0,
+                       error=str(syntax[0].get("message", ""))[:160] if syntax else None)  # fmt: skip
+    finally:
+        session.stop()
+        proc.kill()
+        proc.wait()
+    doc["wall_seconds"] = wall
+    return doc
+
+
+def che4z_doc(corpus: str, root: Path, key: dict[str, Any], mode: str = "lsp") -> dict[str, Any]:
     jar = Path(os.environ.get(JAR_ENV) or "")
     if not jar.is_file():
         raise SystemExit(f"{JAR_ENV} does not name the Che4z server.jar (see tests/tools/referees/README.md)")
+    if mode == "lsp":
+        return lsp_doc(corpus, root, key, jar)
     doc = F.new_doc("che4z", che4z_version(jar), corpus, CHANNELS)
     dirs = copy_dirs(root)
     scratch = os.environ.get("REFEREES_CACHE")
@@ -225,9 +469,10 @@ def main() -> int:
     ap.add_argument("--root", type=Path, required=True)
     ap.add_argument("--key", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--mode", choices=("lsp", "cli"), default="lsp")
     args = ap.parse_args()
     key = json.loads(args.key.read_text(encoding="utf-8"))
-    F.dump(che4z_doc(args.corpus, args.root, key), args.out)
+    F.dump(che4z_doc(args.corpus, args.root, key, args.mode), args.out)
     return 0
 
 

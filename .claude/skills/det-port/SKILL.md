@@ -47,6 +47,7 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUN
 | **a PR that changes a case with a `det_mutation` ledger** | `pr_gates.py` prints a `HINT det-mutation` line; run `pr_gates.py --only-ratchets det-mutation`, then `det_mutation.py refresh CASE --work DIR` and commit `tests/equivalence/det_mutation/CASE.json`, so strengthening a case never drops its program from L5 (#5862) |
 | **run a det case** | `det_port.py run`: only it applies the deterministic port. `equivalence.py run` uses the generated skeleton, not the deterministic port (#5147) |
 | prove one port by hand | `$PY tests/tools/equivalence.py run CASE --port DIR/CASE/port --keep DIR/proof --faults all` |
+| **an evidence-ladder slice** (#6072) | the `ladder-slice` skill: `tests/tools/ladder_gaps.py CASE` lists the uncovered paragraphs and branch outcomes, `tests/tools/ladder_refresh.py CASE` reruns the sweep, ledger, evidence and pin tests after an edit |
 | all CI gates | `$PY tests/tools/pr_gates.py` (`--fast` skips the golden masters and the suite) |
 | **re-prove everything** (a runtime / harness / oracle change) | `$PY tests/tools/proof_sweep.py --work DIR` -- every det and model port, checked against the cases not proven on purpose; det ~9 min at `--jobs 4`, model ~12 min (2026-10-02) |
 
@@ -224,3 +225,30 @@ A translator fix is never a hand edit of a port.
   when the translator template changes: verdicts carry by (op, before, after) text; after `--record` on regenerated ports carry
   old triage the same way (#5472, #5528). `mutation.py run --record` and `mutation_scores.py retriage` rewrite
   `tests/equivalence/carddemo-tranlist/evidence.json`: `git checkout` it before staging (#5861).
+- **Re-proof after a refusal becomes a model** un-hides what lay behind it: re-prove every port whose service file changed,
+  not just the target (#5898). `equivalence.py run CASE` takes the bare case name and runs the facade, not the det port;
+  `det_port.py run CASE --work DIR` is the proof (`--work` is required, #5972).
+- **Det-mutation ledgers drift.** Re-run listed survivor ids with `mutation.py run --only DIR` against the current case before
+  writing scenarios (#5921); `mutation_scores.json` equivalent counts drift from the issue text, count from the file (#6022).
+  A full run with every mutant killed (687/0) can be wrong: cross-check with a small `--sample` run in a fresh `--work` dir
+  (#6024). Use a private `TMPDIR`: a shared /tmp corrupts `mutation.py` baselines (#6165). `mutation_scores.py --rejudged`
+  needs identical mutant ids, and any port edit shifts them: refresh with the port edit or not at all (#6053). A survivor in
+  code no proof runs is `unreachable`, not `harness_gap`; `test_proof_reach` pins the flagged count (#6217).
+- **After a case change refresh together**: `det_mutation.py refresh` (`det_mutation/<case>.json`), `proof_sweep.py --det-only
+  --db2-only --cases CASE --no-ratchet --skip-ledger-check` then `det_coverage_ledger.py update` (`det_sweep_coverage/<case>.json`),
+  and `equivalence.py run CASE --record` (`evidence.json`) (#6217). A PR adding a proven det case adds its ledger entry; the
+  det-sweep summary lists expected NOT PROVEN cases, the real failure is the `coverage ledger: unexpected` line (#6161). After
+  merging main run `pr_gates --ratchets --only-ratchets det-mutation`; stale ledgers need `det_mutation.py run --sample 0`
+  (refresh refuses) and dropping killed ids from the survivors file (#6024, #6165).
+- **Case-draw traps (2).** A new LINKed-program scenario with no COMMAREA or a stated `commarea_length` fails the java-facade
+  side: run `evidence.py prove <case>` before the long mutation run (#6024). A case with run-time-built file names needs
+  `install_symbols` incl. `ID`; a KeyError on a dataset name is a file-lineage fix in galaxy_ir, not the case (#5972). A port's
+  abendOn-style switch defaulting to INVREQ hides omitted conditions: a fault scenario (ILLOGIC, NOTAUTH) finds it (#6053).
+  `equivalence.py run <case> --keep DIR` leaves COBOL oracle traces in `DIR/cobol/scenarios/<name>/`: use them to back an
+  `unreachable` claim, and check the RETURN before claiming a branch unreachable (#6032).
+- **IMS cases.** `ims_gen_macros` needs a DBDGEN line; a new runtime method needs a `cobolrt_rules.json` entry (#6087). A
+  repeated identical approve collides on the PAUTDTL1 key at the fixed clock (I004): only a path writing nothing to IMS can
+  repeat. A `STRING ... WITH POINTER` whose pointer is never reset overruns a bounded buffer within a few loop iterations (#6153).
+- **`det_port.py check` needs every pinned corpus at its ref:** use a private corpora dir, don't move the shared cache (#6087).
+- **A new Java method in a catalogued runtime family** fails `test_cobolrt_rules` until `docs/language_status/cobolrt_rules.json` names it; count that file in the 5-file limit (#6222). **Adding a line to a det port reseeds the 150-mutant sample:** drop stale survivor claims as `det_mutation.py check` says, and resolve `mutation_testing.md` conflicts by regenerating with `mutation_scores.py table` (#6233).
+  `progress_report.gather()` in a test reads the translator (~12 s): use `build()` with stubs (#5948).

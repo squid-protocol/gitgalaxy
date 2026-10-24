@@ -38,6 +38,8 @@
 #   - Bounded: linear scans, no nested quantifiers; a statement is capped.
 # ==============================================================================
 import bisect
+import copy
+import hashlib
 import re
 from typing import Any
 
@@ -79,21 +81,25 @@ _COND_TOKENS = _STATEMENT_TOKENS
 # ---- data items ---------------------------------------------------------------------------
 
 
+_ENTRY_MARK = re.compile("['\"]" + r"|\.(?=[ \t\r\n]|\Z)")
+
+
 def _entries(text: str) -> list[tuple[str, int]]:
     """The period-terminated entries of `text` (quote-aware, linear): (entry text, start offset)."""
     out: list[tuple[str, int]] = []
-    start, quote, n = 0, "", len(text)
-    for i, ch in enumerate(text):
+    start, quote = 0, ""
+    for m in _ENTRY_MARK.finditer(text):
+        ch = m.group(0)
         if quote:
             if ch == quote:
                 quote = ""
-        elif ch in "'\"":
+        elif ch != ".":
             quote = ch
-        elif ch == "." and (i + 1 == n or text[i + 1] in " \t\r\n"):
-            out.append((text[start:i], start))
-            start = i + 1
-        if len(out) > _ITEM_LIMIT:
-            break
+        else:
+            out.append((text[start : m.start()], start))
+            start = m.end()
+            if len(out) > _ITEM_LIMIT:
+                break
     return out
 
 
@@ -112,8 +118,30 @@ def _pic_class(pic: str, usage_numeric: bool) -> str:
     return "edited"
 
 
+_ITEM_CACHE: dict[bytes, list[dict[str, Any]]] = {}
+_ITEM_CACHE_MAX = 2048
+
+
 def _data_items(texts: list[str]) -> list[dict[str, Any]]:
-    """Level-numbered data items of the data divisions in `texts`: name, level, parent, class, 88 values."""
+    """Level-numbered data items of the data divisions in `texts`: name, level, parent, class, 88 values.
+    Memoised on the texts' digest (#5142): the porting tickets read each program's items twice per run and the
+    Java matrix generates the same programs once per config, so the parse is the bulk of a ticket pass. A caller
+    gets its own copy, so mutating the result never reaches the cache."""
+    h = hashlib.blake2b(digest_size=16)
+    for t in texts:
+        h.update(len(t).to_bytes(8, "little"))
+        h.update(t.encode("utf-8", "surrogatepass"))
+    key = h.digest()
+    items = _ITEM_CACHE.get(key)
+    if items is None:
+        if len(_ITEM_CACHE) >= _ITEM_CACHE_MAX:
+            _ITEM_CACHE.clear()
+        items = _ITEM_CACHE[key] = _parse_data_items(texts)
+    return copy.deepcopy(items)
+
+
+def _parse_data_items(texts: list[str]) -> list[dict[str, Any]]:
+    """The uncached parse behind `_data_items`."""
     items: list[dict[str, Any]] = []
     for raw in texts:
         text = _blank_sequence_fields(raw, "cobol")

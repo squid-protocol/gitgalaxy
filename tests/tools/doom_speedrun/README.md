@@ -35,6 +35,14 @@ To add a port: read its license from the files, pin a SHA, add a row with `class
 `reimplementation` (an independent engine that plays DOOM data), `raycaster` (a DOOM-like raycaster, not the DOOM
 engine), `separate-engine` (a later id engine) or `assets` (a content project).
 
+`fidelity`, `fidelity_file`, `fidelity_phrase` (#5620): what the port's own README says about its fidelity to the
+original, read from the pinned clone. `fidelity` is `original` (linuxdoom), `faithful` (aims to reproduce the original,
+bugs included), `compatible` (states demo / data / behaviour compatibility while changing or adding), `enhanced`
+(states added features, no fidelity claim), `divergent` (disclaims being a port of, or exact to, the original) or
+`unstated` (no README, or silent). Anything but `original` / `unstated` names the README and a short quoted phrase.
+It records a claim, not a measurement. `fidelity.py check --work DIR` re-reads every phrase from the clones (a missing
+clone is reported as unchecked; `--strict` makes it an error) and `fidelity.py report` prints the class x fidelity counts.
+
 ```bash
 python tests/tools/doom_speedrun/doom_speedrun.py run --oracle                # all ports: clone, scan, score, report
 python tests/tools/doom_speedrun/doom_speedrun.py run --only linuxdoom,gore   # a subset
@@ -66,7 +74,7 @@ Steps (`fetch`, `scan`, `score`, `report`) can be run singly and are resumable. 
 | 4 | typosquat | no `TYPOSQUATTING DETECTED` log lines |
 | 5 | credentials | no `has_credentials` files (SARIF error-level results are listed in `details.json` for review, never scored) |
 | 6 | health | scan rc is 0 and no `[ERROR]` / `CLASSIFICATION REFUTATION` / `Traceback` log lines (engine-wide warnings ignored) |
-| 7 | callgraph | call edges match the tree-sitter body oracle (C/C++: `callgraph_oracle.py`, below; go, java, csharp, rust, javascript, python: `ts_callgraph_oracle.py`): zero misses and zero engine-only edges of kind `absent` or `comment/string`. Columns `callgraph_recall`, `callgraph_precision`, `callgraph_misses`, `callgraph_engine_only` (scored) and `callgraph_unscored` (engine-only `type`, `function-pointer`, `macro`). A port with no oracle (a licensed C/C++ port with no C/C++ function, or none of those six languages: kotlin, dart, scheme, crystal, fsharp, cobol, fortran, assembly, sql) reports every column as `n/a`: a pass, but shown as unscored |
+| 7 | callgraph | call edges match the tree-sitter body oracle (C/C++: `callgraph_oracle.py`, below; go, java, csharp, rust, javascript, python, kotlin: `ts_callgraph_oracle.py`): zero misses and zero engine-only edges of kind `absent` or `comment/string`. Columns `callgraph_recall`, `callgraph_precision`, `callgraph_misses`, `callgraph_engine_only` (scored) and `callgraph_unscored` (engine-only `type`, `function-pointer`, `macro`). A port with no oracle (a licensed C/C++ port with no C/C++ function, or none of those seven languages: dart, scheme, crystal, fsharp, cobol, fortran, assembly, sql) reports every column as `n/a`: a pass, but shown as unscored |
 
 The report prints two PERFECT counts while check 7 lands: seven checks (`verdict`) and the first six (`verdict6`).
 
@@ -119,10 +127,10 @@ Blind spots of this oracle:
   a callee named only inside a preprocessor line in the body (`macro`). They are in `callgraph_unscored`, so a port can
   pass with a wrong-by-convention precision (doom3-bfg's gap is mostly `type`). The oracle is one tree-sitter body
   walk: it shares tree-sitter's blind spots (a macro-generated call, a misparsed region falls back to text).
-  `ts_callgraph_oracle.py` is the same walk for the six other covered languages, matched by bare name: no text
+  `ts_callgraph_oracle.py` is the same walk for the seven other covered languages, matched by bare name: no text
   fallback (a function with no node at its start line is counted `unmatched`), a Rust macro's tokens are read as
   `name (...)` (so `vec![T::default()]` counts) except under `quote!`/`quote_spanned!`/`stringify!`, a C# `: base(...)`
-  initializer counts, and a Kotlin/Dart/Scheme/... port is `n/a`. It has no baseline file and no `LICENSED` gate (it
+  initializer counts, a Kotlin trailing-lambda-only call of a stdlib scope function (`run`, `map`, ...) is no call, and a Dart/Scheme/... port is `n/a`. Crystal is not covered: its grammar swallows ~46% of doo-cr's functions in ERROR nodes. It has no baseline file and no `LICENSED` gate (it
   reads only the scan DB and clone the scorer already has); a mixed port in `LICENSED` (a C port with a Python tool)
   is scored by the C/C++ oracle only.
 - **Pinned SHAs are the ports' HEAD at study time** (2026-10-18); a force-pushed upstream makes `fetch` fail loudly.
@@ -184,7 +192,7 @@ Blind spots:
 
 How much of id Software's linuxdoom-1.10 survives in each port: the round-1 study's survival and landmark-function
 scripts, ported onto the harness. It reads the scans and clones `scan` leaves; licensed ports only (`LICENSED`: the
-call-graph oracle's C/C++ set plus the licensed rewrites; any other port is refused).
+call-graph oracle's C/C++ set plus the other licensed ports of the manifest; any other port is refused).
 
 ```bash
 python tests/tools/doom_speedrun/doom_speedrun.py scan                      # once per engine SHA
@@ -241,3 +249,17 @@ Blind spots:
 - **Vendored code is not excluded** (the study script did not either): a port that bundles a library carries its
   functions in its own distribution. `lineage.py` is the tool that applies the engine's vendor test.
 - **The majority language names the port** (`lang`); a polyglot port's functions of other code languages stay in.
+
+## Study write-up tables (`study_report.py`, #5620)
+
+One command regenerates every table of `docs/research/doom-port-study.md` (clean-scan before/after, fidelity, lineage,
+distributions, cross-language landmarks, and the `sfs` subway figures) from the scans `run --oracle` leaves under
+`--work`; licensed ports only.
+
+```bash
+python tests/tools/doom_speedrun/study_report.py --work DIR --sha SHA --subway subway.csv --write   # --check: rc 1 when stale
+```
+
+- The before column defaults to `--before round2` (the round-2 `clean_check.csv`).
+- A port whose scorer saw 0 first-party files is marked `(vacuous)`; one with no ctags reading shows `not compared`.
+- `--subway` is the `subway.csv` of `sfs compare ... --subway-reference linuxdoom`; without it the block says so.

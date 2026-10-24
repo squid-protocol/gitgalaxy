@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from decimal import Decimal
 from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -55,6 +56,9 @@ class Procedure:
     execs: dict  # placeholder number -> EXEC text
     using: list  # PROCEDURE DIVISION USING items
     returning: str | None = None  # #5106: PROCEDURE DIVISION ... RETURNING item
+    division_using: list = field(
+        default_factory=list
+    )  # #5233: the header's own USING when ENTRY 'DLITCBL' replaced `using`
 
 
 PHRASES = {"at_end": "AT-END", "not_at_end": "NOT-AT-END", "invalid_key": "INVALID-KEY",
@@ -376,7 +380,9 @@ def parse(lines: list[Line]) -> Procedure:
         # with those parameters, as PROCEDURE DIVISION USING would; reached in sequence, ENTRY does nothing.
         # #4893: IMS enters a DL/I program at DLITCBL even when PROCEDURE DIVISION has a USING of its own
         first.data["first"] = True
+        header_using = using
         using = [r.name for r in first.data["using"]]
+        return Procedure(paragraphs, execs, using, returning, header_using)
     return Procedure(paragraphs, execs, using, returning)
 
 
@@ -1000,9 +1006,21 @@ def _read(p: E.Parser, text: str, line: int) -> Stmt:
 def _write(p: E.Parser, text: str, line: int) -> Stmt:
     rec = p.ref()
     frm = p.operand() if p.accept("FROM") else None
+    if p.up() in ("BEFORE", "AFTER"):
+        # IBM, WRITE: {BEFORE | AFTER} ADVANCING {PAGE | {identifier | integer | mnemonic-name} [LINE | LINES]}: the hole
+        # names the phrase and its form (#6065); the carriage control itself is not modelled yet
+        when = p.take().upper()
+        if not p.accept("ADVANCING"):
+            return Stmt("HOLE", line, text, {"why": f"WRITE {when} without ADVANCING"})
+        form = "PAGE" if p.accept("PAGE") else "n LINES" if _is_count(p.operand()) else "identifier / mnemonic-name"
+        return Stmt("HOLE", line, text, {"why": f"WRITE {when} ADVANCING {form}: carriage control is not modelled"})
     if not p.done():
-        return Stmt("HOLE", line, text, {"why": "WRITE ADVANCING / other phrases"})
+        return Stmt("HOLE", line, text, {"why": f"WRITE: the phrase {p.up()} is not modelled"})
     return Stmt("WRITE", line, text, {"record": rec, "from": frm})
+
+
+def _is_count(operand: object) -> bool:
+    return isinstance(operand, E.Lit) and isinstance(operand.value, Decimal)
 
 
 def _rewrite(p: E.Parser, text: str, line: int) -> Stmt:

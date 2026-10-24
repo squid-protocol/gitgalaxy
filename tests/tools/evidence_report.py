@@ -29,7 +29,9 @@ caveats of docs/language_status/oracle_assumptions.md. Each program gets the hig
                                reviewed infeasible outcomes (tests/equivalence/infeasible_outcomes.json, #4602), listed
                                per program as stated assumptions; raw and net numbers both printed
   L5 + mutants accounted for   every surviving mutant of the det port's seeded mutation sample accounted for: the
-                               case's fresh tests/equivalence/det_mutation/<case>.json entry (det_mutation.py, #4628),
+                               case's fresh tests/equivalence/det_mutation/<case>.json entry (det_mutation.py, #4628;
+                               fresh = the case, corpus and survivors list unchanged and the det port's bytes not
+                               found moved; generator / harness / oracle drift is recorded, not staling, #5862),
                                each survivor stated equivalent / unreachable in det_mutation_survivors/<case>.json
                                (owner-reviewed), none refuted; the raw score is a column whatever the level
 
@@ -488,7 +490,7 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
     import infeasible_outcomes as io
 
     out["infeasible_stated"] = [
-        {k: e[k] for k in ("key", "unit", "line", "kind", "outcome", "family", "reason")}
+        {k: e[k] for k in ("key", "unit", "line", "kind", "outcome", "family", "reason") if k in e}
         for e in io.stated(case["case"])
     ]
     for e in out["infeasible_stated"]:
@@ -601,6 +603,7 @@ def mutation_of(case: dict[str, Any] | None, program: str, cache: dict[str, Any]
             "current": bool(s and s["current"]),
             "l5": bool(s and s["l5"]),
             **({k: s[k] for k in ("killed", "survived", "accounted", "unaccounted", "stale_inputs")} if s else {}),
+            **({"drifted": s["drifted"]} if s and s.get("drifted") else {}),
         }
     return cache[key]
 
@@ -1016,7 +1019,9 @@ def level_table(bars: dict[str, float]) -> list[dict[str, str]]:
             "level": "L5",
             "name": "mutants accounted for",
             "condition": "L4, and every surviving mutant of the det port's seeded mutation sample accounted for "
-            "(stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628)",
+            "(stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628: the case, corpus and "
+            "survivors list unchanged and the det port's bytes not found moved; generator, harness and oracle drift is "
+            "recorded, not staling, #5862)",
         },
     ]
 

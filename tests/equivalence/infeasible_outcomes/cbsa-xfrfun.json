@@ -1,0 +1,22 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-xfrfun",
+  "entries": [
+    {
+      "unit": "UAD010",
+      "line": 406,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF COMM-FAIL-CODE = '2'` (l.406, under `IF COMM-SUCCESS = 'N'` after PERFORM UPDATE-ACCOUNT-DB2-TO at l.398) is false only if UPDATE-ACCOUNT-DB2-TO returns COMM-SUCCESS 'N' with a fail code other than '2'. The paragraph sets 'N' at l.1044 and leaves it only by GO TO UADT999 (l.1181) after MOVE '2' (l.1103, the +100 arm) or by the 'Y' at l.1557; the other fail code it sets, '3' (l.1188), is followed by the -911 handling and then COMPUTE/UPDATE from unset host variables, and every failure after that (UPDATE -180, the deadlock/timeout exhaustion arms, a failing SYNCPOINT ROLLBACK) ends in EXEC CICS ABEND, which does not return. No input returns 'N' with a code other than '2' (the to-select/to-update -911 and 923 scenarios all abend)."
+    },
+    {
+      "unit": "UAD010",
+      "line": 766,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF COMM-FAIL-CODE NOT = '2'` (l.766, the ELSE of `IF COMM-SUCCESS = 'Y'` at l.606 after PERFORM UPDATE-ACCOUNT-DB2-TO at l.600) is true only if UPDATE-ACCOUNT-DB2-TO returns COMM-SUCCESS 'N' with a fail code other than '2': the same fact as the false arm of l.406 -- UPDATE-ACCOUNT-DB2-TO returns 'N' only by GO TO UADT999 after MOVE '2' (l.1103/1181); its other failure code '3' (l.1188) goes on to an UPDATE that fails -180 and ends in EXEC CICS ABEND, which does not return."
+    }
+  ]
+}

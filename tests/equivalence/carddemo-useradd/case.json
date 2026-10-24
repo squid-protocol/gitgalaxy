@@ -527,6 +527,21 @@
     }
    },
    "why": "#4628 (det-port mutants e78629b245, 6b28148382, a37820f9f7, 70affa52cc, bdc62c957c, f1430eeb95, fd0057c0af): every COMMAREA field set, and the FSET header fields (TITLE01, PGMNAME: ATTRB=(ASKIP,FSET,NORM) in COUSR01.bms) sent back as a terminal does; an invalid key re-sends the screen and the RETURN carries the COMMAREA back"
+  },
+  {
+   "name": "no-commarea-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#6166: EIBCALEN 0 sets the target COSGN00C and RETURN-TO-PREV-SCREEN's XCTL answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
   }
  ],
  "notes": "CardDemo's add-user screen (transaction CU01, program COUSR01C): entered from the admin menu it sends the empty screen; re-entered with the five fields it validates them in order and WRITEs the user security record (DUPREC: 'User ID already exist...'); PF3 returns to the admin menu, PF4 clears. Its first proof of a CICS file update: each scenario's USRSEC file is compared after the task. usrsec.txt is the ten users of CardDemo's own app/jcl/DUSRSECJ.jcl in-stream data (SYSUT1 DD *). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",

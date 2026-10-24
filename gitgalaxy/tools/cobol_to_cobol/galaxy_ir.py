@@ -168,6 +168,7 @@ from typing import Any
 
 from gitgalaxy.core.cobol_preprocessor import replace_text as _replace_text  # #5648: shared with det/
 from gitgalaxy.core.compiler_options import effective as effective_options
+from gitgalaxy.core.invocation_resolver import SQL_ROUTINE_LANGUAGES
 from gitgalaxy.core.jcl_runners import systsin_programs
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.core.unicode_paths import nfc
@@ -1626,7 +1627,14 @@ class GalaxyIR:
             examples.setdefault(inp, []).append(example)
 
         # Program calls (JCL EXEC PGM included).
-        calls = [(f, c) for f in self.files.values() for c in f.calls if c.verb not in TRANSACTION_ROUTING_VERBS]
+        # #5736: a SQL `CALL` names a database routine, never a program: it is no program-call gap.
+        calls = [
+            (f, c)
+            for f in self.files.values()
+            if f.language not in SQL_ROUTINE_LANGUAGES
+            for c in f.calls
+            if c.verb not in TRANSACTION_ROUTING_VERBS
+        ]
         # A callee in a language calls are not resolved to (not a copybook or JCL
         # of the same name -- CBSA ships NEWACCNO.cpy and NEWACCNO.jcl, not the program).
         any_stem = {Path(p).stem.upper() for p, f in self.files.items() if f.language in _CALLEE_LANGUAGES}

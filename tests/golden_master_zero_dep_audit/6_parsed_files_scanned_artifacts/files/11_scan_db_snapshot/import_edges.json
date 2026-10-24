@@ -1202,7 +1202,6 @@
       ],
       "csharp/roslyn/LanguageParser.cs": [
         "fcall:csharp/roslyn/CSharpCompilation.cs",
-        "fcall:csharp/roslyn/CSharpSyntaxTree.cs",
         "fcall:csharp/roslyn/DiagnosticAnalyzer.cs"
       ],
       "csharp/roslyn/MethodCompiler.cs": [
@@ -2821,7 +2820,6 @@
         "fcall:php/wordpress/plugin.php"
       ],
       "php/wordpress/functions.php": [
-        "fcall:php/wordpress/class-wp-query.php",
         "fcall:php/wordpress/formatting.php",
         "fcall:php/wordpress/plugin.php"
       ],
@@ -3385,7 +3383,6 @@
       ],
       "python/fastapi/tests/test_http_connection_injection.py": [
         "fcall:python/fastapi/fastapi/applications.py",
-        "fcall:python/fastapi/fastapi/datastructures.py",
         "fcall:python/fastapi/fastapi/param_functions.py",
         "import:python/fastapi/fastapi/__init__.py",
         "import:python/fastapi/fastapi/requests.py",
@@ -4127,7 +4124,6 @@
       ],
       "python/fastapi/tests/test_validation_error_context.py": [
         "fcall:python/fastapi/fastapi/applications.py",
-        "fcall:python/fastapi/fastapi/datastructures.py",
         "import:python/fastapi/fastapi/__init__.py",
         "import:python/fastapi/fastapi/exceptions.py",
         "import:python/fastapi/fastapi/testclient.py"
@@ -4151,7 +4147,6 @@
       ],
       "python/fastapi/tests/test_ws_dependencies.py": [
         "fcall:python/fastapi/fastapi/applications.py",
-        "fcall:python/fastapi/fastapi/datastructures.py",
         "fcall:python/fastapi/fastapi/param_functions.py",
         "fcall:python/fastapi/fastapi/routing.py",
         "import:python/fastapi/fastapi/__init__.py",
@@ -4159,7 +4154,6 @@
       ],
       "python/fastapi/tests/test_ws_router.py": [
         "fcall:python/fastapi/fastapi/applications.py",
-        "fcall:python/fastapi/fastapi/datastructures.py",
         "fcall:python/fastapi/fastapi/param_functions.py",
         "fcall:python/fastapi/fastapi/routing.py",
         "import:python/fastapi/fastapi/__init__.py",
@@ -4318,6 +4312,7 @@
       ],
       "scala/kafka/Partition.scala": [
         "fcall:scala/kafka/LogManager.scala",
+        "fcall:scala/kafka/ReplicaManager.scala",
         "fcall:scala/kafka/SocketServer.scala"
       ],
       "scala/kafka/ReplicaManager.scala": [
@@ -4391,6 +4386,11 @@
       ],
       "shell/kubernetes/util.sh": [
         "import:shell/kubernetes/config-default.sh"
+      ]
+    },
+    "shell/reactos": {
+      "shell/reactos/codespell_check.sh": [
+        "fcall:shell/reactos/codespell_changed_files.sh"
       ]
     },
     "solidity/openzeppelin": {

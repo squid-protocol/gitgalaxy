@@ -1,6 +1,6 @@
 /*
  * le_time.c -- models of the Language Environment date/time callable services CEEGMT / CEEUTC, CEEDATM, CEESECS,
- * CEEDATE, CEEISEC and CEEQCEN for the equivalence harness (#4949). GnuCOBOL has no LE services; a program that
+ * CEEDATE, CEEISEC, CEESECI, CEEDYWK, CEEQCEN and CEESCEN for the equivalence harness (#4949). GnuCOBOL has no LE services; a program that
  * CALLs one (CBSA's BANKDATA: CEEGMT, CEEDATM) runs against this instead, and a port is proven against what this
  * returns. The twin of det/cobolrt/le/LeTime.java: the same conditions, the same bytes, the same refusals. Register
  * L6 (docs/language_status/register/L6.md) says what IBM documents, what is assumed and what is refused.
@@ -10,7 +10,10 @@
  *   CALL "CEESECS" USING input_timestamp, picture_string, output_seconds, fc
  *   CALL "CEEDATE" USING input_Lilian_date, picture_string, output_char_date, fc
  *   CALL "CEEISEC" USING year, month, day, hours, minutes, seconds, milliseconds, output_seconds, fc
+ *   CALL "CEESECI" USING input_seconds, year, month, day, hours, minutes, seconds, milliseconds, fc
+ *   CALL "CEEDYWK" USING input_Lilian_date, day_number, fc          (1 Sunday .. 7 Saturday)
  *   CALL "CEEQCEN" USING century_start, fc
+ *   CALL "CEESCEN" USING century_start, fc          (0 to 100, CEE2533 otherwise)
  *   CALL "CEEGMTO" USING offset_hours, offset_minutes, offset_seconds, fc      (CEEUTCO: the same)
  * (IBM z/OS Language Environment Programming Reference; the message list per service is the one IBM publishes for the
  * ILE CEE APIs, the same service definitions: register L6.) Lilian day 1 is 15 October 1582; Lilian second 86400 is
@@ -18,7 +21,8 @@
  * holds the same value in the item's own usage, register C6), strings halfword-prefixed (VSTRING), the feedback code
  * 12 bytes: all zero on success, else severity 3, message number, 0x59, 'CEE' in EBCDIC.
  * CEEGMT reads the case's pinned clock, $COB_CURRENT_DATE ("YYYY/MM/DD HH:MM:SS.CC"), as GMT (the det runtime's
- * CURRENT-DATE carries offset +0000); without one the model refuses (exit 98).
+ * CURRENT-DATE carries offset +0000); without one the model refuses (exit 98). So does a CEESECS with a YY, whose
+ * century window is anchored on that clock's year.
  * Pictures modelled: YYYY YY MM DD DDD HH MI SS 99 999 and literal punctuation. Anything else IBM documents (month and
  * day names, AP, Z-suppression, eras, a null picture) is refused: "NAME: ... is not modelled" on stderr, exit 98.
  */
@@ -207,13 +211,25 @@ static void clear_vstring(unsigned char *out) {
 
 /* ---------------------------------------------------------------------------------------------- services */
 
-static int gmt(unsigned char *lilian, unsigned char *seconds, unsigned char *fc) {
+static void read_clock(const char *svc, int *y, int *mo, int *d, int *hh, int *mi, int *ss, int *hs) {
     const char *s = getenv("COB_CURRENT_DATE");
-    int y, mo, d, hh, mi, ss, hs = 0;
-    if (!s || sscanf(s, "%d/%d/%d %d:%d:%d.%d", &y, &mo, &d, &hh, &mi, &ss, &hs) < 6) {
-        fprintf(stderr, "CEEGMT: no pinned clock ($COB_CURRENT_DATE) is not modelled\n");
+    *hs = 0;
+    if (!s || sscanf(s, "%d/%d/%d %d:%d:%d.%d", y, mo, d, hh, mi, ss, hs) < 6) {
+        fprintf(stderr, "%s: no pinned clock ($COB_CURRENT_DATE) is not modelled\n", svc);
         exit(98);
     }
+}
+
+/* The system year, for the century window (CEESECS YY): the pinned clock's. */
+static long system_year(const char *svc) {
+    int y, mo, d, hh, mi, ss, hs;
+    read_clock(svc, &y, &mo, &d, &hh, &mi, &ss, &hs);
+    return y;
+}
+
+static int gmt(unsigned char *lilian, unsigned char *seconds, unsigned char *fc) {
+    int y, mo, d, hh, mi, ss, hs;
+    read_clock("CEEGMT", &y, &mo, &d, &hh, &mi, &ss, &hs);
     long days = civil(y, mo, d) - EPOCH;
     put_int(lilian, days);
     put_double(seconds, (double)((long long)days * 86400LL + hh * 3600LL + mi * 60LL + ss) + hs / 100.0);
@@ -247,8 +263,24 @@ int CEEUTCO(unsigned char *hours, unsigned char *minutes, unsigned char *seconds
     return gmto(hours, minutes, seconds, fc);
 }
 
+/* The century window's start, years before the system date: 80 (the ILE default) until CEESCEN sets it. CEESECS reads
+ * it for a YY (the window is [system year - start, + 99]; the system year is the pinned clock's). */
+static long century_start = 80;
+
 int CEEQCEN(unsigned char *century, unsigned char *fc) {
-    put_int(century, 80);
+    put_int(century, century_start);
+    put_fc(fc, 0);
+    return 0;
+}
+
+/* CEESCEN: 0 to 100; anything else is CEE2533 and the setting is unchanged. */
+int CEESCEN(unsigned char *century, unsigned char *fc) {
+    long v = get_int(century);
+    if (v < 0 || v > 100) {
+        put_fc(fc, 2533);
+        return 0;
+    }
+    century_start = v;
     put_fc(fc, 0);
     return 0;
 }
@@ -342,6 +374,52 @@ int CEEISEC(unsigned char *y, unsigned char *mo, unsigned char *d, unsigned char
     return 0;
 }
 
+/* CEESECI: Lilian seconds to integer fields, the inverse of CEEISEC; the range is CEEDATM's (CEE2505), the fraction is
+ * floored to a thousandth. A failing call writes zeros. */
+int CEESECI(unsigned char *seconds, unsigned char *y, unsigned char *mo, unsigned char *d, unsigned char *h,
+            unsigned char *mi, unsigned char *s, unsigned char *ms, unsigned char *fc) {
+    double v = get_double(seconds), whole = floor(v);
+    if (!(whole >= 86400.0 && whole < MAX_SECONDS)) {
+        put_int(y, 0);
+        put_int(mo, 0);
+        put_int(d, 0);
+        put_int(h, 0);
+        put_int(mi, 0);
+        put_int(s, 0);
+        put_int(ms, 0);
+        put_fc(fc, 2505);
+        return 0;
+    }
+    long long w = (long long)whole;
+    long long sod = w % 86400LL;
+    long yy;
+    int mm, dd;
+    ymd((long)(w / 86400LL), &yy, &mm, &dd);
+    put_int(y, yy);
+    put_int(mo, mm);
+    put_int(d, dd);
+    put_int(h, (long)(sod / 3600));
+    put_int(mi, (long)(sod / 60 % 60));
+    put_int(s, (long)(sod % 60));
+    put_int(ms, (long)floor((v - whole) * 1000.0));
+    put_fc(fc, 0);
+    return 0;
+}
+
+/* CEEDYWK: the day of the week of a Lilian day, 1 (Sunday) to 7 (Saturday); day 1 (15 October 1582) was a Friday.
+ * Outside 1 .. MAX_DAY the number is 0 and the code CEE2512. */
+int CEEDYWK(unsigned char *lilian, unsigned char *out, unsigned char *fc) {
+    long n = get_int(lilian);
+    if (n < 1 || n > MAX_DAY) {
+        put_int(out, 0);
+        put_fc(fc, 2512);
+        return 0;
+    }
+    put_int(out, (n + 4) % 7 + 1);
+    put_fc(fc, 0);
+    return 0;
+}
+
 int CEESECS(unsigned char *ts, unsigned char *pic, unsigned char *seconds, unsigned char *fc) {
     tok p[64];
     int np = picture("CEESECS", pic, p);
@@ -356,8 +434,8 @@ int CEESECS(unsigned char *ts, unsigned char *pic, unsigned char *seconds, unsig
         const char *t = p[k].tag;
         char next = k + 1 < np && !p[k + 1].tag[0] ? p[k + 1].lit : 0;
         int w = t[0] ? (int)strlen(t) : 1;
-        if (!strcmp(t, "YY") || !strcmp(t, "DDD")) {
-            refuse("CEESECS", "picture token YY / DDD (the century window / a Julian day)");
+        if (!strcmp(t, "DDD")) {
+            refuse("CEESECS", "picture token DDD (a Julian day)");
         }
         if (pos + w > dl) {
             refuse("CEESECS", "a timestamp shorter than its picture");
@@ -387,6 +465,9 @@ int CEESECS(unsigned char *ts, unsigned char *pic, unsigned char *seconds, unsig
         pos += w;
         if (!strcmp(t, "YYYY")) {
             v[0] = val;
+        } else if (!strcmp(t, "YY")) {
+            long base = system_year("CEESECS") - century_start; /* the window's first year */
+            v[0] = base + ((val - base) % 100 + 100) % 100;
         } else if (!strcmp(t, "MM")) {
             v[1] = val;
         } else if (!strcmp(t, "DD")) {

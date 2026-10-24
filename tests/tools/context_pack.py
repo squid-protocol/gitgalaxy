@@ -12,6 +12,13 @@ USAGE
     python tests/tools/context_pack.py 5521                       # fetches the issue with gh
     python tests/tools/context_pack.py 5521 --body-file issue.md  # offline (title = first line)
     python tests/tools/context_pack.py 5521 --db other.db --max-tokens 1500
+    python tests/tools/context_pack.py --eval 24                  # hit rate against merged PRs
+
+--eval N measures the tool: for the newest N issues closed by a squash-merged PR on origin/main
+("Part of #I" / "Closes #I" plus "(#PR)" in the subject) it builds the pack as it would have been
+built before that PR (earlier-PR files come from commits strictly before it), then reports whether
+the pack names the files the PR changed. "Source" files are hand-written code (tests included); docs, data and workflows are excluded. The DB is
+the one you pass, so regenerate it at the commit under test (self_scan.py) for a fair number.
 
 Nothing resolved -> prints nothing (exit 0). Line ranges are hints from the last scan: the
 worker still reads the code. Files over BIG_FILE_TOKENS get "read only the named ranges".
@@ -36,6 +43,8 @@ MAX_AMBIGUOUS = 4  # a bare name defined in more places than this is noise unles
 MAX_FUNCS = 12
 MAX_EDGES = 3  # callers and callees shown per function
 MAX_FILES = 8
+MAX_PRIOR = 6  # files earlier PRs for the same issue changed (an epic's bodies name no code)
+PRIOR_COMMITS = 30
 MIN_NAME_LEN = 4  # shorter names (`fp`, `py`, `run`) match too much unrelated code
 TEST_DEMOTION = 0.5  # a test file ranks below the source it exercises
 # Directories whose file stems are language names: an issue saying "GLSL" points at glsl.py.
@@ -113,9 +122,7 @@ def _symbol_hits(db: sqlite3.Connection, names: Counter, named_files: dict[int, 
             "FROM function_data f WHERE f.func_name = ?",
             (name,),
         ).fetchall()
-        crows = db.execute(
-            "SELECT id, file_id, class_name FROM class_data WHERE class_name = ?", (name,)
-        ).fetchall()
+        crows = db.execute("SELECT id, file_id, class_name FROM class_data WHERE class_name = ?", (name,)).fetchall()
         for rows, store, weight in ((frows, funcs, 2.0), (crows, classes, 2.0)):
             in_named = [r for r in rows if r[1] in named_files]
             # A name defined all over the repo is only useful when the issue names the file.
@@ -156,13 +163,46 @@ def _edge_text(rows: list) -> str:
     return ", ".join(f"`{n}` {_span(p, s, loc)}" for p, n, s, loc in rows)
 
 
-def build_pack(db: sqlite3.Connection, title: str, body: str, max_tokens: int = 3000) -> str:
+def prior_files(issue: str, repo: Path = REPO_ROOT, before: str | None = None) -> list[str]:
+    """Files changed by the newest commits whose message mentions `#<issue>`, most-touched first.
+
+    `before` (a commit) limits the search to that commit's ancestors, excluding itself.
+    """
+    if not issue.isdigit():
+        return []
+    tip = f"{before}^" if before else "origin/main"
+    try:
+        out = subprocess.run(
+            [
+                "git",
+                "log",
+                tip,
+                f"--grep=#{issue}([^0-9]|$)",  # POSIX ERE has no \\b (macOS)
+                "-E",
+                f"-n{PRIOR_COMMITS}",
+                "--name-only",
+                "--format=",
+            ],
+            capture_output=True,
+            text=True,
+            cwd=repo,
+            check=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return []
+    return [p for p, _ in Counter(ln for ln in out.splitlines() if ln).most_common()]
+
+
+def build_pack(
+    db: sqlite3.Connection, title: str, body: str, max_tokens: int = 3000, prior: list[str] | None = None
+) -> str:
     """Markdown pack for the issue text, or "" when nothing resolves."""
     paths, names = extract_mentions(title, body)
     named_files = _file_hits(db, paths)
     stem_files = _stem_hits(db, f"{title}\n{body}")
     funcs, classes = _symbol_hits(db, names, named_files)
-    if not (named_files or stem_files or funcs or classes):
+    prior_hits = {fid: 0.0 for fid in _file_hits(db, Counter(prior or []))}
+    if not (named_files or stem_files or funcs or classes or prior_hits):
         return ""
 
     file_scores: dict[int, float] = dict(named_files)
@@ -194,6 +234,12 @@ def build_pack(db: sqlite3.Connection, title: str, body: str, max_tokens: int = 
             lines.append(f"  - callers: {_edge_text(callers)}")
         if callees:
             lines.append(f"  - callees: {_edge_text(callees)}")
+    seen = set(ranked_files)
+    prior_ids = [f for f in prior_hits if f not in seen][:MAX_PRIOR]
+    if prior_ids:
+        lines.append("Earlier PRs for this issue changed:")
+        for fid in prior_ids:
+            lines.append(f"- `{_file_info(db, fid)[0]}`")
     ranked_classes = sorted(classes.values(), key=lambda t: -t[0])[:MAX_FUNCS]
     if ranked_classes:
         lines.append("Classes:")
@@ -208,16 +254,77 @@ def build_pack(db: sqlite3.Connection, title: str, body: str, max_tokens: int = 
 
 
 def fetch_issue(number: str) -> tuple[str, str]:
-    out = subprocess.run(
-        ["gh", "api", ISSUE_API.format(n=number)], capture_output=True, text=True, check=True
-    ).stdout
+    out = subprocess.run(["gh", "api", ISSUE_API.format(n=number)], capture_output=True, text=True, check=True).stdout
     data = json.loads(out)
     return data.get("title") or "", data.get("body") or ""
 
 
+_PR_RE = re.compile(r"\(#(\d+)\)\s*$")
+_ISSUE_RE = re.compile(r"(?:Part of|Closes|Fixes|Resolves) #(\d+)", re.I)
+# top-level directory names, not "docs/" prefixes: a literal doc path here would make every doc a test-read doc
+_NON_SOURCE_DIRS = ("docs", ".github", ".claude")
+_NON_SOURCE_SUFFIXES = (".md", ".json", ".yml", ".yaml", ".txt", ".csv", ".toml")
+
+
+def is_source(path: str) -> bool:
+    """A hand-written code file (tests included): not a doc, data file, workflow or agent note."""
+    return path.split("/", 1)[0] not in _NON_SOURCE_DIRS and not path.endswith(_NON_SOURCE_SUFFIXES)
+
+
+def recent_issue_prs(n: int, repo: Path = REPO_ROOT, scan: int = 600) -> list[tuple[str, str, str, list[str]]]:
+    """Newest `n` (issue, pr, sha, changed files), one per issue, from squash commits on origin/main."""
+    out = subprocess.run(
+        ["git", "log", "origin/main", f"-n{scan}", "--name-only", "--format=\x1e%H\x1f%s"],
+        capture_output=True,
+        text=True,
+        cwd=repo,
+        check=True,
+    ).stdout
+    rows: list[tuple[str, str, str, list[str]]] = []
+    seen: set[str] = set()
+    for chunk in out.split("\x1e")[1:]:
+        head, _, names = chunk.partition("\n")
+        sha, _, subject = head.partition("\x1f")
+        pr, issue = _PR_RE.search(subject), _ISSUE_RE.search(subject)
+        if not (pr and issue) or issue.group(1) in seen:
+            continue
+        seen.add(issue.group(1))
+        rows.append((issue.group(1), pr.group(1), sha, [x for x in names.splitlines() if x]))
+        if len(rows) == n:
+            break
+    return rows
+
+
+def evaluate(db: sqlite3.Connection, prs, fetch=fetch_issue, repo: Path = REPO_ROOT, max_tokens: int = 3000) -> str:
+    """Markdown table: does the pack for each issue name the files its PR changed."""
+    lines = ["| issue | PR | tokens | source files named | any file named |", "|---|---|---|---|---|"]
+    any_hit = src_hit = full = 0
+    for issue, pr, sha, files in prs:
+        title, body = fetch(issue)
+        pack = build_pack(db, title, body, max_tokens, prior_files(issue, repo, before=sha))
+        src = [f for f in files if is_source(f)]
+        named_src = [f for f in src if f"`{f}`" in pack or f"{f}:" in pack]
+        named_any = [f for f in files if f"`{f}`" in pack or f"{f}:" in pack]
+        any_hit += bool(named_any)
+        src_hit += bool(named_src)
+        full += bool(src) and len(named_src) == len(src)
+        lines.append(
+            f"| #{issue} | #{pr} | {len(pack) // CHARS_PER_TOKEN} | {len(named_src)}/{len(src)} | "
+            f"{len(named_any)}/{len(files)} |"
+        )
+    n = len(prs)
+    lines += [
+        "",
+        f"Issues: {n}. Pack names >=1 changed file: {any_hit}/{n}; >=1 changed source file: {src_hit}/{n}; "
+        f"every changed source file: {full}/{n}.",
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("issue", help="issue number (used for gh unless --body-file is given)")
+    ap.add_argument("issue", nargs="?", help="issue number (used for gh unless --body-file is given)")
+    ap.add_argument("--eval", type=int, metavar="N", help="hit rate against the newest N issue-closing PRs")
     ap.add_argument("--db", default=None, help="master DB (default docs/self_scan/gitgalaxy_master.db)")
     ap.add_argument("--body-file", help="read the issue text from this file instead of gh")
     ap.add_argument("--max-tokens", type=int, default=3000)
@@ -227,6 +334,15 @@ def main(argv: list[str] | None = None) -> int:
     if not db_path.exists():
         print(f"context_pack: no DB at {db_path}; run tests/tools/self_scan.py", file=sys.stderr)
         return 2
+    if args.eval:
+        db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+        try:
+            sys.stdout.write(evaluate(db, recent_issue_prs(args.eval), max_tokens=args.max_tokens))
+        finally:
+            db.close()
+        return 0
+    if not args.issue:
+        ap.error("an issue number (or --eval N) is required")
     if args.body_file:
         text = Path(args.body_file).read_text(encoding="utf-8")
         title, _, body = text.partition("\n")
@@ -234,7 +350,7 @@ def main(argv: list[str] | None = None) -> int:
         title, body = fetch_issue(args.issue)
     db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     try:
-        sys.stdout.write(build_pack(db, title, body, args.max_tokens))
+        sys.stdout.write(build_pack(db, title, body, args.max_tokens, prior_files(args.issue)))
     finally:
         db.close()
     return 0

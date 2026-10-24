@@ -52,14 +52,35 @@ other category. Fixed boilerplate (`PROGRAM-ID. REPRO1`, `WS-OUT`), CICS vocabul
 
 ## Checks
 
-`tests/tools/test_blocker_report.py`: parity of categories and counts with the full report; the leak test over every
+`tests/tools/test_blocker_report.py` and `test_blocker_ingest.py`: parity of categories and counts with the full report; the leak test over every
 identifier of a synthetic estate and the real names in the burned estates (CardDemo, GenApp, CBSA, zECS, cics-crucible; `CICS_CRUCIBLE_PATH`, else `../cics-crucible`) when checked
 out, over the repro text too; the repro holds only vocabulary, boilerplate and hashes; hash stability per salt; the manifest equals the emitted fields.
 
+## Construct key (schema 1.2, #5865)
+
+Each blocker carries `construct`: its key in `docs/language_status/gap_prevalence.md` (`gap_prevalence.scrub_key`, a closed
+vocabulary: CICS command and spec options, SQL keywords, IBM routines, refusal classes, copybook family such as `missing
+copybook: estate-owned`). A customer scan and our ranking therefore speak one vocabulary and join on it; no name survives
+in it (a CICS option outside the command spec ends the key; `--redact-more subclass` drops it). Ingest (1.1 and 1.2 both accepted) refuses a construct that
+holds a hash and copies it to the ledger row.
+
+## Ingestion on our side
+
+`python tests/tools/blocker_ingest.py blocker_report.anon.json --ledger FILE` turns each blocker into a row of a
+customer-side ledger (`estate: customer:EST_xxxxxx`, `side`, `class` in the #5051 vocabulary, the signature, the counts,
+`seen_in` engine versions). The rows never go into the committed `port_blockers.json`, which is burned estates only.
+
+- The report is checked first: kind `anonymized`, a supported schema version, no field outside the manifest, every
+  signature word in the allow-list or a `KIND_xxxxxx` hash. Anything else is refused with the reasons.
+- A signature is matched to an issue by `tests/cobol_mainframe/blocker_signatures.json` (category plus a word prefix,
+  hashes replaced by `KIND_*`, so the customer's salt does not matter); `known unproven: #N` links to #N. A blocker
+  with no match gets `issue: null` and a drafted issue body on stdout, for the tick to file.
+- Re-ingesting a report changes nothing; a later engine version appends to `seen_in` ("still open after 3 releases").
+
 ## Not yet (Part of #5054)
 
-Ingestion into the #5051 ledger (`estate: customer:<hash>`; the ledger does not exist yet) and matching a signature to
-an issue, feeding `cics_census` blockers into the report, and a run with the readiness scanner (#4725).
+Feeding `cics_census` blockers into the report, a run with the readiness scanner (#4725), and a CI run of ingest over
+each burned estate's report.
 
 ## The harness report (#4493)
 

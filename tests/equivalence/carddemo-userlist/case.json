@@ -1501,6 +1501,694 @@
     }
    ],
    "why": "#4049: 101 on the ENDBR after PF7: the program's ENDBR has no RESP, so the condition abends the task before the screen is sent"
+  },
+  {
+   "name": "endbr-ioerr-after-a-page-forward",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "IOERR on the ENDBR after PF8: ENDBR has no RESP, so CICS takes its default action and abends the task (AEIQ)"
+    }
+   ],
+   "why": "#6166: IOERR on the ENDBR after PF8: the program's ENDBR has no RESP, so the condition abends the task (AEIQ) before the screen is sent"
+  },
+  {
+   "name": "endbr-ioerr-after-a-page-back",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "USER0006",
+    "CDEMO-CU00-USRID-LAST": "USER0015",
+    "CDEMO-CU00-PAGE-NUM": 2,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "IOERR on the ENDBR after PF7: ENDBR has no RESP, so CICS takes its default action and abends the task (AEIQ)"
+    }
+   ],
+   "why": "#6166: IOERR on the ENDBR after PF7: the program's ENDBR has no RESP, so the condition abends the task (AEIQ) before the screen is sent"
+  },
+  {
+   "name": "short-commarea-187",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CA00",
+    "CDEMO-TO-PROGRAM": "COADM01C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COUSR0A",
+    "CDEMO-LAST-MAPSET": "COUSR00",
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CU00-USR-SEL-FLG": "U",
+    "CDEMO-CU00-USR-SELECTED": "ADMIN002"
+   },
+   "receive": {
+    "COUSR0A": {
+     "TITLE01I": "AWS Mainframe Modernization",
+     "TITLE02I": "CardDemo",
+     "PGMNAMEI": "COUSR00C",
+     "TRNNAMEI": "CU00",
+     "CURDATEI": "22/07/18",
+     "CURTIMEI": "10:30:15",
+     "PAGENUMI": "1",
+     "USRIDINI": "USER0003"
+    }
+   },
+   "why": "#4049: the caller passed the first 187 of the COMMAREA's 194 bytes (EIBCALEN 187, X23): the first byte of CDEMO-CU00-USR-SELECTED is kept, the other seven are spaces, and the RETURN carries that back",
+   "commarea_length": 187
+  },
+  {
+   "name": "enter-lists-with-eleven-left",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR0A": {
+     "USRIDINI": "USER0010"
+    }
+   },
+   "why": "#4049: eleven users from USER0010: the page takes ten and the probe READNEXT finds the eleventh, so a next page exists (a loop that read one record too many would see ENDFILE)"
+  },
+  {
+   "name": "enter-lists-only-the-last-user",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR0A": {
+     "USRIDINI": "USER0020"
+    }
+   },
+   "why": "#4049: one user from USER0020: the page holds one row, the READNEXT after it hits ENDFILE, and the page number still counts that page"
+  },
+  {
+   "name": "select-two-rows-first-wins",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0003I": "U",
+     "USRID03I": "ADMIN003",
+     "SEL0002I": "U",
+     "USRID02I": "ADMIN002",
+     "SEL0005I": "D",
+     "USRID05I": "ADMIN005"
+    }
+   },
+   "why": "#4049: 'U' on row 2 and 'D' on row 5: the loop stops at the first selected row, so the update screen is chosen"
+  },
+  {
+   "name": "rows-sent-back-pf8-readnext-io-error",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CA00",
+    "CDEMO-TO-PROGRAM": "COADM01C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COUSR0A",
+    "CDEMO-LAST-MAPSET": "COUSR00",
+    "CDEMO-CU00-USRID-FIRST": "USER0016",
+    "CDEMO-CU00-USRID-LAST": "USER0020",
+    "CDEMO-CU00-PAGE-NUM": 3,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CU00-USR-SEL-FLG": "U",
+    "CDEMO-CU00-USR-SELECTED": "ADMIN002"
+   },
+   "receive": {
+    "COUSR0A": {
+     "TITLE01I": "AWS Mainframe Modernization",
+     "TITLE02I": "CardDemo",
+     "PGMNAMEI": "COUSR00C",
+     "TRNNAMEI": "CU00",
+     "CURDATEI": "22/07/18",
+     "CURTIMEI": "10:30:15",
+     "PAGENUMI": "1",
+     "SEL0001I": " ",
+     "USRID01I": "USER0011",
+     "FNAME01I": "FIRST1",
+     "LNAME01I": "LAST1",
+     "UTYPE01I": "U",
+     "SEL0002I": " ",
+     "USRID02I": "USER0012",
+     "FNAME02I": "FIRST2",
+     "LNAME02I": "LAST2",
+     "UTYPE02I": "U",
+     "SEL0003I": " ",
+     "USRID03I": "USER0013",
+     "FNAME03I": "FIRST3",
+     "LNAME03I": "LAST3",
+     "UTYPE03I": "U",
+     "SEL0004I": " ",
+     "USRID04I": "USER0014",
+     "FNAME04I": "FIRST4",
+     "LNAME04I": "LAST4",
+     "UTYPE04I": "U",
+     "SEL0005I": " ",
+     "USRID05I": "USER0015",
+     "FNAME05I": "FIRST5",
+     "LNAME05I": "LAST5",
+     "UTYPE05I": "U",
+     "SEL0006I": " ",
+     "USRID06I": "USER0016",
+     "FNAME06I": "FIRST6",
+     "LNAME06I": "LAST6",
+     "UTYPE06I": "U",
+     "SEL0007I": " ",
+     "USRID07I": "USER0017",
+     "FNAME07I": "FIRST7",
+     "LNAME07I": "LAST7",
+     "UTYPE07I": "U",
+     "SEL0008I": " ",
+     "USRID08I": "USER0018",
+     "FNAME08I": "FIRST8",
+     "LNAME08I": "LAST8",
+     "UTYPE08I": "U",
+     "SEL0009I": " ",
+     "USRID09I": "USER0019",
+     "FNAME09I": "FIRST9",
+     "LNAME09I": "LAST9",
+     "UTYPE09I": "U",
+     "SEL0010I": " ",
+     "USRID10I": "USER0020",
+     "FNAME10I": "FIRST10",
+     "LNAME10I": "LAST10",
+     "UTYPE10I": "U"
+    }
+   },
+   "why": "#4049: IOERR on the first READNEXT of a PF8 (the skip over the record the browse starts on) with the ten rows sent back: the error flag is on, the rows are not cleared, and the map shows them as they came",
+   "faults": [
+    {
+     "cmd": "READNEXT",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "17 on the first READNEXT",
+     "nth": 1
+    }
+   ]
+  },
+  {
+   "name": "rows-sent-back-pf7-readprev-io-error",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-TO-TRANID": "CA00",
+    "CDEMO-TO-PROGRAM": "COADM01C",
+    "CDEMO-CUST-ID": 123456789,
+    "CDEMO-CUST-FNAME": "ALICE",
+    "CDEMO-CUST-MNAME": "B",
+    "CDEMO-CUST-LNAME": "SMITH",
+    "CDEMO-ACCT-ID": 12345678901,
+    "CDEMO-ACCT-STATUS": "Y",
+    "CDEMO-CARD-NUM": 4111111111111111,
+    "CDEMO-LAST-MAP": "COUSR0A",
+    "CDEMO-LAST-MAPSET": "COUSR00",
+    "CDEMO-CU00-USRID-FIRST": "USER0011",
+    "CDEMO-CU00-USRID-LAST": "USER0020",
+    "CDEMO-CU00-PAGE-NUM": 3,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y",
+    "CDEMO-CU00-USR-SEL-FLG": "U",
+    "CDEMO-CU00-USR-SELECTED": "ADMIN002"
+   },
+   "receive": {
+    "COUSR0A": {
+     "TITLE01I": "AWS Mainframe Modernization",
+     "TITLE02I": "CardDemo",
+     "PGMNAMEI": "COUSR00C",
+     "TRNNAMEI": "CU00",
+     "CURDATEI": "22/07/18",
+     "CURTIMEI": "10:30:15",
+     "PAGENUMI": "1",
+     "SEL0001I": " ",
+     "USRID01I": "USER0011",
+     "FNAME01I": "FIRST1",
+     "LNAME01I": "LAST1",
+     "UTYPE01I": "U",
+     "SEL0002I": " ",
+     "USRID02I": "USER0012",
+     "FNAME02I": "FIRST2",
+     "LNAME02I": "LAST2",
+     "UTYPE02I": "U",
+     "SEL0003I": " ",
+     "USRID03I": "USER0013",
+     "FNAME03I": "FIRST3",
+     "LNAME03I": "LAST3",
+     "UTYPE03I": "U",
+     "SEL0004I": " ",
+     "USRID04I": "USER0014",
+     "FNAME04I": "FIRST4",
+     "LNAME04I": "LAST4",
+     "UTYPE04I": "U",
+     "SEL0005I": " ",
+     "USRID05I": "USER0015",
+     "FNAME05I": "FIRST5",
+     "LNAME05I": "LAST5",
+     "UTYPE05I": "U",
+     "SEL0006I": " ",
+     "USRID06I": "USER0016",
+     "FNAME06I": "FIRST6",
+     "LNAME06I": "LAST6",
+     "UTYPE06I": "U",
+     "SEL0007I": " ",
+     "USRID07I": "USER0017",
+     "FNAME07I": "FIRST7",
+     "LNAME07I": "LAST7",
+     "UTYPE07I": "U",
+     "SEL0008I": " ",
+     "USRID08I": "USER0018",
+     "FNAME08I": "FIRST8",
+     "LNAME08I": "LAST8",
+     "UTYPE08I": "U",
+     "SEL0009I": " ",
+     "USRID09I": "USER0019",
+     "FNAME09I": "FIRST9",
+     "LNAME09I": "LAST9",
+     "UTYPE09I": "U",
+     "SEL0010I": " ",
+     "USRID10I": "USER0020",
+     "FNAME10I": "FIRST10",
+     "LNAME10I": "LAST10",
+     "UTYPE10I": "U"
+    }
+   },
+   "why": "#4049: IOERR on the first READPREV of a PF7 (the skip over the record the browse starts on) with the ten rows sent back: the error flag is on and the rows are not cleared",
+   "faults": [
+    {
+     "cmd": "READPREV",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "17 on the first READPREV"
+    }
+   ]
+  },
+  {
+   "name": "pf8-with-low-values-last-id",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "#4049: the last id of the page is eight LOW-VALUES, not spaces: SEC-USR-ID is still tested NOT = SPACES AND LOW-VALUES, so HIGH-VALUES and the browse starts at the end"
+  },
+  {
+   "name": "select-row-with-no-id-received",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0001I": "U"
+    }
+   },
+   "why": "#4049: a selection flag on a row whose USRID was never received (NUL, not blank): tests the width of the USR-SELECTED blank-or-low test."
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4049: PF3 sets the target COADM01C and RETURN-TO-PREV-SCREEN's XCTL answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
+  },
+  {
+   "name": "select-update-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0003I": "U",
+     "USRID03I": "ADMIN003"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COUSR02C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4049: a 'U' selection XCTLs to COUSR02C (the line 197 site) and it answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
+  },
+  {
+   "name": "select-delete-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0007I": "d",
+     "USRID07I": "USER0002"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COUSR03C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4049: a 'd' selection XCTLs to COUSR03C (the line 207 site) and it answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
+  },
+  {
+   "name": "no-commarea-xctl-to-signon-fails",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4049: EIBCALEN 0 sets the target COSGN00C and RETURN-TO-PREV-SCREEN's XCTL answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
+  },
+  {
+   "name": "enter-search-id-spaces",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "USRIDINI": ""
+    }
+   },
+   "why": "#6166: the search id is typed blank (spaces, not the NUL of an unreceived field): USRIDINI = SPACES OR LOW-VALUES takes the first arm, SEC-USR-ID = LOW-VALUES and the list starts at the first user."
+  },
+  {
+   "name": "pf7-first-id-nul-page-1",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "#6166: the first id carried is eight LOW-VALUES (the spaces form is pf7-with-no-first-id): the NOT-SPACES-AND-LOW-VALUES test still reads it as blank; page 1, so 'You are already at the top of the page...'."
+  },
+  {
+   "name": "pf7-first-id-blank-page-3",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "",
+    "CDEMO-CU00-USRID-LAST": "USER0020",
+    "CDEMO-CU00-PAGE-NUM": 3,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "#6166: a blank first id on page 3: SEC-USR-ID = LOW-VALUES and PROCESS-PAGE-BACKWARD browses back from the start of the file."
+  },
+  {
+   "name": "pf7-first-id-nul-page-3",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "CDEMO-CU00-USRID-LAST": "USER0020",
+    "CDEMO-CU00-PAGE-NUM": 3,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "#6166: eight LOW-VALUES as the first id on page 3: same arm as the blank form, through PROCESS-PAGE-BACKWARD."
+  },
+  {
+   "name": "select-row-1-blank-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0001I": "U",
+     "USRID01I": ""
+    }
+   },
+   "why": "#6166: row 1 selected with 'U' and a blank (spaces) USRID01I: SEL-FLG is U, USR-SELECTED stays blank, nothing is transferred; row 2's id is not looked at."
+  },
+  {
+   "name": "select-delete-row-10-blank-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "USER0016",
+    "CDEMO-CU00-USRID-LAST": "USER0020",
+    "CDEMO-CU00-PAGE-NUM": 3,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0010I": "D",
+     "USRID10I": ""
+    }
+   },
+   "why": "#6166: row 10 selected with 'D' and a blank USRID10I: the last WHEN of the selection loop, the XCTL to COUSR03C is not taken."
+  },
+  {
+   "name": "select-delete-row-3-nul-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0003I": "D"
+    }
+   },
+   "why": "#6166: row 3 selected with 'D' and no USRID03I received (NUL): the delete is not transferred."
+  },
+  {
+   "name": "blank-flag-row-1-then-select-row-2",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0001I": " ",
+     "USRID01I": "ADMIN001",
+     "SEL0002I": "U",
+     "USRID02I": "ADMIN002"
+    }
+   },
+   "why": "#6166: row 1's flag is a blank (spaces) beside a real id: the WHEN is skipped and row 2's 'U' wins, XCTL to COUSR02C with ADMIN002."
+  },
+  {
+   "name": "nul-flag-row-1-then-select-row-2",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "USRID01I": "ADMIN001",
+     "SEL0002I": "D",
+     "USRID02I": "ADMIN002"
+    }
+   },
+   "why": "#6166: row 1 has an id but no flag received (NUL): the WHEN is skipped and row 2's 'D' wins, XCTL to COUSR03C with ADMIN002."
   }
  ],
  "notes": "CardDemo's user list (transaction CU00, program COUSR00C): a page of ten users browsed from USRSEC (STARTBR / READNEXT, ENDBR), PF8 / PF7 page forward and back from the page's last / first id (a READNEXT / READPREV first steps over the record the browse starts on), a 'U' or 'D' beside a user XCTLs to the update / delete screen. usrsec.txt is CardDemo's ten DUSRSECJ users plus fifteen synthetic ones (USER0006-USER0020, named for computing pioneers, written for this case) so that three pages exist. A defect of the original the case shows: a search past the last id makes STARTBR NOTFND, and the ENDBR that follows (no RESP) abends with INVREQ. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

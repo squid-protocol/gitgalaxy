@@ -184,9 +184,18 @@ def test_strictness_gaps_follow_the_registry_and_skip_unrowed_languages():
 
 
 def test_the_pilot_list_is_the_ten_repos_plus_the_burned_mainframe_estates():
-    assert len(op.PILOT_REPOS) == 15
+    assert len(op.PILOT_REPOS) == 17
     burned = [n for n, e in op.PILOT_REPOS.items() if e["burned"]]
-    assert burned == ["carddemo", "cbsa", "genapp", "zecs", "dbb-mortgage", "async-credit-card"]
+    assert burned == [
+        "carddemo",
+        "cbsa",
+        "cbsa-late",
+        "genapp",
+        "zecs",
+        "dbb-mortgage",
+        "dbb-mortgage-2019",
+        "async-credit-card",
+    ]
 
 
 def test_every_burned_entry_names_a_burned_upstream():
@@ -205,7 +214,7 @@ def test_every_burned_entry_names_a_burned_upstream():
             tail = entry["url"].rstrip("/").split("/")[-1].lower()
             assert tail in burned_urls, name
             # mid-history pin (None) or an explicit commit; there is no PROVENANCE copy for these
-            assert entry["pin"] is None or name in ("dbb-mortgage", "zecs")
+            assert entry["pin"] is None or name in ("dbb-mortgage", "dbb-mortgage-2019", "zecs", "cbsa-late")
 
 
 def test_the_dbb_entry_is_limited_to_the_mortgage_application_subtree():
@@ -238,3 +247,86 @@ def test_mainframe_file_kinds_have_a_strictness_row_or_are_skipped():
         gaps = op.strictness_gaps(lang)
         assert gaps is None or isinstance(gaps, int)
     assert op.strictness_gaps("no_such_language") is None
+
+
+def test_the_2019_dbb_entry_shares_the_clone_and_pins_the_old_layout(tmp_path):
+    old, new = op.PILOT_REPOS["dbb-mortgage-2019"], op.PILOT_REPOS["dbb-mortgage"]
+    assert old["url"] == new["url"] and old["burned"]
+    assert op._subdir_args(old) == ["Build/MortgageApplication"]
+    assert old["pin"] and old["pin"] != new["pin"]
+    assert op._repo_dir(tmp_path, "dbb-mortgage-2019") == op._repo_dir(tmp_path, "dbb-mortgage")
+    assert op._repo_dir(tmp_path, "cbsa") == tmp_path / "clones" / "cbsa"
+
+
+def test_a_stripped_subdir_entry_scans_at_the_root_and_joins_history_under_the_prefix():
+    entry = op.PILOT_REPOS["dbb-mortgage-2019"]
+    assert op._strip_args(entry) == ["--strip-components=2"]
+    assert op._history_path(entry, "cobol/epscmort.cbl") == "Build/MortgageApplication/cobol/epscmort.cbl"
+    plain = op.PILOT_REPOS["dbb-mortgage"]
+    assert op._strip_args(plain) == []
+    assert op._history_path(plain, "zBuilder/MortgageApplication/x.cbl") == "zBuilder/MortgageApplication/x.cbl"
+
+
+def test_the_late_cbsa_entry_shares_the_clone_and_pins_after_the_midpoint(tmp_path):
+    late, mid = op.PILOT_REPOS["cbsa-late"], op.PILOT_REPOS["cbsa"]
+    assert late["url"] == mid["url"] and late["burned"] and mid["pin"] is None
+    assert late["pin"] and op._subdir_args(late) == [] and op._strip_args(late) == []
+    assert op._repo_dir(tmp_path, "cbsa-late") == op._repo_dir(tmp_path, "cbsa")
+
+
+def test_bulk_guard_credits_no_file_for_a_wide_commit_but_still_follows_its_renames():
+    commits = [
+        ("c3", "fix crash in a", [("M", "b.c", None)]),
+        (
+            "c2",
+            "COBOL updates and fixes",
+            [("M", "a.c", None), ("M", "b.c", None), ("R", "c2.c", "c.c"), ("M", "d.c", None)],
+        ),
+        ("c1", "add a", [("M", "a.c", None)]),
+    ]
+    paths = ["a.c", "b.c", "c.c", "d.c"]
+    fixes, touches, final = op.later_fix_counts(commits, paths)
+    assert fixes == {"a.c": 1, "b.c": 2, "c.c": 1, "d.c": 1} and touches["a.c"] == 2
+    fixes, touches, final = op.later_fix_counts(commits, paths, max_files=4)  # boundary: 4 files is not bulk
+    assert fixes["a.c"] == 1
+    fixes, touches, final = op.later_fix_counts(commits, paths, max_files=3)
+    assert fixes == {"b.c": 1} and touches == {"a.c": 1, "b.c": 1}
+    assert final["c.c"] == "c2.c"  # the alias moved even though the commit was not credited
+
+
+@pytest.mark.parametrize(
+    "body",
+    ["Fixes #123", "details\n\nFixed octo/repo#4", "Fixes: abc123def", "see CVE-2024-12345 for impact"],
+)
+def test_body_labels_catch_linked_fixes(body):
+    assert op.is_fix_body(body)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "",
+        "Closes #12",
+        "Resolves #3",
+        "adds a fixture for the prefix",
+        "relates to #12",
+        "the fixes were reverted later",
+    ],
+)
+def test_body_labels_ignore_loose_mentions(body):
+    assert not op.is_fix_body(body)
+
+
+def test_recall_counts_split_subject_from_body_only():
+    commits = [
+        ("a", "fix crash", "Fixes #1"),
+        ("b", "dnscache: check hostname on lookup", "Fixes #2"),
+        ("c", "add feature", ""),
+    ]
+    assert op.recall_counts(commits) == {"commits": 3, "subject_fix": 1, "body_only_fix": 1, "either": 2}
+
+
+def test_commit_bodies_reads_the_window(history):
+    repo, pin = history
+    got = op.commit_bodies(repo, pin, 730)
+    assert [s for _h, s, _b in got][:1] == ["fix: drop gone"] and len(got) == 5

@@ -1,0 +1,740 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "carddemo-copaus1c",
+ "program": "COPAUS1C",
+ "kind": "cics",
+ "port": {
+  "paths": [
+   "tests/equivalence/carddemo-copaus1c/port/service/Copaus1cService.java",
+   "tests/equivalence/carddemo-copaus1c/port/service/Copaus2cService.java"
+  ],
+  "sha256": "f234d53aafd4fa200843c9687b24b16a2a663e7e67dbfaafb867ef256ca19b8c",
+  "entry_points": [
+   "handleTransaction",
+   "runBatch",
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/equivalence/carddemo-copaus1c/port/**"
+   ],
+   "files": 2,
+   "sha256": "f234d53aafd4fa200843c9687b24b16a2a663e7e67dbfaafb867ef256ca19b8c"
+  },
+  "case": {
+   "paths": [
+    "tests/equivalence/carddemo-copaus1c/**"
+   ],
+   "files": 2,
+   "sha256": "689b6d6fb25b02928b3066fa723facd37259e5744f8df2287acb157d1960383c"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_cics_containers.py",
+    "tests/tools/equivalence_cics_filecontrol.py",
+    "tests/tools/equivalence_cics_tempstorage.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py",
+    "tests/tools/equivalence_ims.py"
+   ],
+   "files": 15,
+   "sha256": "6a39e3fdd7582d321fd4b43d444dbd4f0f17880558c46f44423122bf7bb43c5f",
+   "components": {
+    "harness:cics": "18640967ef2da9f5bc6d923c35029f363582311f687e664219dbda418777256c",
+    "harness:core": "d62c9af2a5f83bb39a1deffe40cd7d7d63bb0d2945c4e8cec6b12503931f45ef",
+    "harness:db2": "df4cefe238f828f2233ef1ae1b7c77c21265c7f5ab3af61e753544d50120cd66",
+    "harness:ims": "2fef9a49dc961b7fefeaf5059f3d8305d9e25293e58c05875789fd093bd4acf1"
+   }
+  },
+  "oracle": {
+   "paths": [
+    "tests/equivalence/gnucobol.Dockerfile",
+    "tests/equivalence/gnucobol-db2.Dockerfile",
+    "tests/equivalence/odbc_cli.pin",
+    "tests/equivalence/cics/**",
+    "tests/equivalence/le/**",
+    "tests/equivalence/faults/**",
+    "tests/equivalence/db2/**",
+    "tests/tools/equivalence_sql.py",
+    "tests/equivalence/ims/ggdli.c"
+   ],
+   "files": 44,
+   "sha256": "647fb141f913b967d4aa46195f5c6e934043c59677c41d95a8c926fed8684ecb",
+   "components": {
+    "oracle:cics-stub": "12f06c4f6cd3ee0005243e374a882759096e94fbf7fb01fbbdaa8e70588664df",
+    "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
+    "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
+    "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
+    "oracle:ims": "f73eefb73f9f1980cc4d386fb96c853be1e6fbad424dc80e5b23a2fcd45ce20e",
+    "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
+   }
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 105,
+   "sha256": "9d83e7dadb22d757dad328370513f1294d42e3ab0ab5cc5701176a454057c4d9",
+   "components": {
+    "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
+    "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
+    "generator:cobolrt/Codec.java": "8f64df479294b444eba647528c55b25615d5a4fa962e7447757d0d48d5c342ab",
+    "generator:cobolrt/DetMvs.java": "3c70adb42450f7cb1f82b8a06f90d688d57b90eabfbd289458436f7a64d266f0",
+    "generator:cobolrt/Editing.java": "2ea7c7da4d7aa9a4c07b3358d929740fdc65dd0e44a982cdf5ef6c5f80c15b25",
+    "generator:cobolrt/Field.java": "a4b12b313ae25789fa34988528c85c91a2d0c80f85555e154070ee9f2725809b",
+    "generator:cobolrt/Figurative.java": "be9444226c7a0e96840cee639b855212ab715c4cc37222519b2f3a14cbbad867",
+    "generator:cobolrt/Funcs.java": "b2d30b4ef89f86c951e98d0f17b2fb2ddd45b1c261911b332220d11cf5158f2a",
+    "generator:cobolrt/Hfp.java": "196c5981aad77f0ce4172f27931e116be97f1d8c2967990153efc2394bba8696",
+    "generator:cobolrt/Hole.java": "ef69982f0dadcfd31c7396b6dc5ad16712b01cdbde71b007fe90ce14bd116c0f",
+    "generator:cobolrt/Lossless.java": "84832e9ef01ce29da55addd55ea0ee76dda239cb4d23bfdb67cad83600308097",
+    "generator:cobolrt/Sort.java": "c0c00763b985f8d4f2fd6b764052cd940411552f7c37349cb11814d0343e1262",
+    "generator:cobolrt/Storage.java": "597fe5b2cd4190c4b87dfafd7facc73de3079efebe6188bac5862b78d3b3edf3",
+    "generator:cobolrt/Zoned.java": "089f829155664fdd82f2f99a0699cfb58e40910621b1136eabd2b16c51415349",
+    "generator:cobolrt/batch/DetFiles.java": "fe03a6459ba1dcc2a8ad367c4b7cd1debaf1ab9c661697c4841c726f99354ba1",
+    "generator:cobolrt/cics/DetCics.java": "3dbd4b5fc6597cef7a50abbfbf544488eb051bb2c215ba597a2a190f917b8bc2",
+    "generator:cobolrt/cics/DetJustify.java": "ecf7fab2a14ac125e87f05d7be9bbb13610d1423fc7410c644d00b5767fb812a",
+    "generator:cobolrt/cics/DetMq.java": "40204edf5e82cd78739db956e424860a0121cb3ec44e0a9c1e508ed41fcf3187",
+    "generator:cobolrt/dli/DetDli.java": "b026dd3347474fb338c6f7646d0df5635e1fd022facee5acf3e2a5496e8a906f",
+    "generator:cobolrt/le/Ceedate.java": "70613bf5c75dbdf02cc883a0ba74b4a83fd60292085c9ceae3fbc5b5c272d503",
+    "generator:cobolrt/le/Ceedatm.java": "1585bc803db4c422637cad851a8bf3285d3a761d2b118badef6b006852f6e248",
+    "generator:cobolrt/le/Ceedays.java": "bbaf2a374a74f5a87ee2c0383fbd6a1881219ff075d37565ab885c7c4dc8c0f2",
+    "generator:cobolrt/le/Ceedywk.java": "75b94bf56764b828ae269090178184eb834e05b76a928f7517e96928c4002bd3",
+    "generator:cobolrt/le/Ceegmt.java": "0b6f7fb4d7671d19074ef50ee418a0fef8b752f0cabc68a6db21ecb8c6e40c1f",
+    "generator:cobolrt/le/Ceegmto.java": "937c33385934fdf9b241edc341c1900dfd9109d0756d279114da80ea9921aad1",
+    "generator:cobolrt/le/Ceeisec.java": "394d7c9ff85144cc898a78448f6b17b5a930f8902f42068b6af5f2be8ea7a2eb",
+    "generator:cobolrt/le/Ceeloct.java": "5db69f3f3fef44d4303e9e66857f489d30ae6f862c2dee03574c7eb9349f3faf",
+    "generator:cobolrt/le/Ceeqcen.java": "1b9496c7c203143ae6a6da57cfe621035b13935c03c6d9b084fedb9a26d31237",
+    "generator:cobolrt/le/Ceeseci.java": "e5ad976fdd2da3ed94bd0559632d6ff0642bcd1d980f5ebd3f694a79f598b7fb",
+    "generator:cobolrt/le/Ceesecs.java": "3efb7a9fa32409ac3bd9f09359c1bad10848dd9f01305870ac7489952d8dfb3e",
+    "generator:cobolrt/le/Ceeutc.java": "c12810fda2a51dac477c0ba79f913f08a5d54d20c49bc778d345fc8f2c32519d",
+    "generator:cobolrt/le/Cobdatft.java": "557be70b157d3a4fd55fbb9fbb20820dea0a23000f3be0170236593826a72e3f",
+    "generator:cobolrt/le/Dsntiac.java": "cf45a631af15438753cf354fe7a251ae4e498a679a76122eddb496428e80ed16",
+    "generator:cobolrt/le/LeTime.java": "d7e0a555247b009f4be5907902ab9f872c7b40475d00064fc28eaf9a6254ae0a",
+    "generator:cobolrt/le/Mvswait.java": "41482047bde3829fba1da896ce716536e5535ee7d637142d426efd650ec64672",
+    "generator:cobolrt/le/Zuidstck.java": "e16376df0eeed8b8815210b35854eb6369e5f690a9cb056f8b4841140e0b24a1",
+    "generator:cobolrt/mq/QueueManager.java": "229bbdaf9082354aa501eb66f45eb7b8d9f3557e653421dc8bed3932cb7cf77b",
+    "generator:cobolrt/sql/DetSql.java": "6b04507a609ed3fc607fd152de0bff932798865b6657ba34ab1cbc35c4a6cfb0",
+    "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
+    "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
+    "generator:core": "90acb30341e94fb92c2155ac4797623b998b817423705b5604a6ede324dce382",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/bll": "51a3de21e2afa9301080d7613bf7ba13c0a053a90c9b4c1b92acfd676b923163",
+    "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
+    "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
+    "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
+    "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/dli": "8a81045734ca0b53157f70ed0a4708159a20472e80fa51c334c50fde312133e6",
+    "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
+    "generator:det/engine_layout": "a0019c6bd31e188fbba788e04b5271ce8a342e3b986a2ed1b6c5e8333c40f928",
+    "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/gen": "bca5020bf4c777be262e3b09840d2aee977e9b69a01b3e2940bcffe3c54028f5",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
+    "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
+    "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
+    "generator:det/program": "affe8a2d537178eacf06a293eda37a21445982e5e3e968546540f92586d45aa9",
+    "generator:det/refine": "4daa99d7534a589b4b46b8517f4109b95f64c956cd101a890e57b6a59eac4e44",
+    "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
+    "generator:det/sql": "7f3f25a6ccd832621543d12e47a18642c0daf8eb7dbea4b2e3d3f724bfb806b5",
+    "generator:det/stmt": "72ade7437769eb7b8d8e94511613964e6f5cb98f30b4a4c5d6295709534b5176"
+   }
+  },
+  "corpus": {
+   "name": "aws-mainframe-modernization-carddemo",
+   "ref": "59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e",
+   "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "options": {
+   "sha256": "253a366c52b35ad1a81006df8950b538aed7c11e3eb4b27ff94639ee6337ecda",
+   "semantic_sha256": "be1b93eb5a2f1d6cb3ab87223de8050850df4068c3674fe5e9d6377d01de0426",
+   "legacy_semantic_sha256": "be1b93eb5a2f1d6cb3ab87223de8050850df4068c3674fe5e9d6377d01de0426",
+   "estate": "aws-mainframe-modernization-carddemo",
+   "effective": {
+    "estate": "aws-mainframe-modernization-carddemo",
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "parm": [
+     "ARITH(COMPAT)",
+     "INTDATE(ANSI)",
+     "NUMPROC(NOPFD)",
+     "TRUNC(STD)",
+     "OPTIMIZE(0)",
+     "NSYMBOL(NATIONAL)",
+     "DISPSIGN(COMPAT)",
+     "CODEPAGE(1140)",
+     "NOSSRANGE",
+     "ZONEDATA(PFD)",
+     "CICS",
+     "NODYNAM",
+     "RENT",
+     "NOSEQ"
+    ],
+    "declared_parm": [
+     "ARITH(COMPAT)",
+     "INTDATE(ANSI)",
+     "NUMPROC(NOPFD)",
+     "TRUNC(STD)",
+     "OPTIMIZE(0)",
+     "NSYMBOL(NATIONAL)",
+     "DISPSIGN(COMPAT)",
+     "CODEPAGE(1140)",
+     "NOSSRANGE",
+     "ZONEDATA(PFD)",
+     "CICS",
+     "NODYNAM",
+     "RENT",
+     "NOSEQ"
+    ],
+    "semantic": {
+     "ARITH": "COMPAT",
+     "INTDATE": "ANSI",
+     "NUMPROC": "NOPFD",
+     "TRUNC": "STD"
+    },
+    "runtime": {
+     "le": {
+      "runtime_options.ABTERMENC": "ABEND",
+      "runtime_options.STORAGE": "NONE,NONE,NONE,0K",
+      "runtime_options.TRAP": "ON,SPIE"
+     },
+     "db2": {
+      "bind.CURRENTDATA": "YES",
+      "bind.ISOLATION": "CS",
+      "ccsid.SQLCCSID": "NO",
+      "format.DATE": "ISO",
+      "format.DEC": "15",
+      "format.DECPT": ".",
+      "format.TIME": "ISO",
+      "precompile.PARM": "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST"
+     },
+     "cics": {
+      "region.LOCALCCSID": "037",
+      "translator.options": "CICS"
+     }
+    }
+   },
+   "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
+  },
+  "digest": "38c1f2bf59965fb5d1f66b14f96689226ccda5fc99488ba4ad0e08b4d25910c3"
+ },
+ "proof": {
+  "at": "2026-10-23T10:47:08Z",
+  "verdict": "proven",
+  "runs": 35,
+  "fault_runs": 14,
+  "environments": null,
+  "outputs": {
+   "first-entry-no-commarea": {
+    "equal": 2,
+    "records": 2
+   },
+   "entry-approved": {
+    "equal": 4,
+    "records": 4
+   },
+   "entry-insufficient-fund": {
+    "equal": 4,
+    "records": 4
+   },
+   "entry-fraud-confirmed": {
+    "equal": 4,
+    "records": 4
+   },
+   "entry-fraud-removed": {
+    "equal": 4,
+    "records": 4
+   },
+   "entry-reason-not-in-table": {
+    "equal": 4,
+    "records": 4
+   },
+   "entry-reason-last-entry": {
+    "equal": 4,
+    "records": 4
+   },
+   "entry-single-detail": {
+    "equal": 4,
+    "records": 4
+   },
+   "entry-account-not-numeric": {
+    "equal": 4,
+    "records": 4
+   },
+   "entry-no-selected-key": {
+    "equal": 3,
+    "records": 3
+   },
+   "entry-account-without-summary": {
+    "equal": 4,
+    "records": 4
+   },
+   "reenter-enter": {
+    "equal": 5,
+    "records": 5
+   },
+   "pf3-to-summary": {
+    "equal": 3,
+    "records": 3
+   },
+   "pf9-invalid-key": {
+    "equal": 5,
+    "records": 5
+   },
+   "pf8-next-detail": {
+    "equal": 5,
+    "records": 5
+   },
+   "pf8-at-last-detail": {
+    "equal": 5,
+    "records": 5
+   },
+   "pf8-single-detail": {
+    "equal": 5,
+    "records": 5
+   },
+   "pf5-report-new-fraud": {
+    "equal": 7,
+    "records": 7
+   },
+   "pf5-report-existing-row": {
+    "equal": 7,
+    "records": 7
+   },
+   "pf5-remove-fraud": {
+    "equal": 7,
+    "records": 7
+   },
+   "pf5-confirm-removed-fraud": {
+    "equal": 7,
+    "records": 7
+   },
+   "pf5-service-insert-fails": {
+    "equal": 7,
+    "records": 7
+   },
+   "pf5-link-fails": {
+    "equal": 6,
+    "records": 6
+   },
+   "entry-gu-system-error": {
+    "equal": 6,
+    "records": 6
+   },
+   "entry-gu-end-of-db": {
+    "equal": 4,
+    "records": 4
+   },
+   "entry-gnp-system-error": {
+    "equal": 5,
+    "records": 5
+   },
+   "entry-gnp-end-of-db": {
+    "equal": 4,
+    "records": 4
+   },
+   "pf8-gnp-system-error": {
+    "equal": 6,
+    "records": 6
+   },
+   "pf8-gnp-end-of-db": {
+    "equal": 5,
+    "records": 5
+   },
+   "pf5-repl-fails": {
+    "equal": 8,
+    "records": 8
+   },
+   "entry-schd-tc-once": {
+    "equal": 4,
+    "records": 4
+   },
+   "entry-schd-fails": {
+    "equal": 4,
+    "records": 4
+   },
+   "pf8-schd-fails": {
+    "equal": 5,
+    "records": 5
+   },
+   "pf5-report-new-fraud--sql-copaus2c-141": {
+    "equal": 7,
+    "records": 7
+   },
+   "pf5-report-existing-row--sql-copaus2c-222": {
+    "equal": 7,
+    "records": 7
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "facade": {
+   "verdict": "proven",
+   "runs": 35,
+   "passed": 35,
+   "entry_points": [
+    "handleTransaction"
+   ],
+   "failed": [],
+   "error": null
+  },
+  "harness_commit": "04a605c41ec1b5f2d599d94ac501398c2138564c+uncommitted",
+  "inputs_digest": "38c1f2bf59965fb5d1f66b14f96689226ccda5fc99488ba4ad0e08b4d25910c3"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 15,
+   "live": 15
+  },
+  "branches": {
+   "covered": 48,
+   "total": 48
+  },
+  "uncovered_branches": [],
+  "handler_labels": {
+   "covered": 0,
+   "total": 0
+  },
+  "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
+  "inputs_digest": "38c1f2bf59965fb5d1f66b14f96689226ccda5fc99488ba4ad0e08b4d25910c3"
+ },
+ "reach": {
+  "entry_points": [
+   "handleTransaction",
+   "runBatch",
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "Copaus1cService",
+    "method": "runProgram",
+    "line": 814,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus1cService",
+    "method": "handleLink",
+    "line": 954,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus1cService",
+    "method": "handleLink",
+    "line": 961,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus1cService",
+    "method": "lastAnswerBytes",
+    "line": 975,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "Copaus1cService",
+    "method": "lastLinkBytes",
+    "line": 984,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "Copaus1cService",
+    "method": "dd",
+    "line": 998,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "abended",
+    "line": 169,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "paragraph",
+    "line": 186,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "condition",
+    "line": 199,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "out_Copaus2cDfhcommarea",
+    "line": 295,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "runProgram",
+    "line": 340,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "handleLink",
+    "line": 430,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "handleLink",
+    "line": 437,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "lastLinkBytes",
+    "line": 451,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "dd",
+    "line": 465,
+    "kind": "det_helper"
+   }
+  ],
+  "counts": {
+   "stub": 0,
+   "left_as_generated": 3,
+   "det_helper": 12,
+   "ported_unproven": 0
+  },
+  "generated_compared": true,
+  "port_sha256": "f234d53aafd4fa200843c9687b24b16a2a663e7e67dbfaafb867ef256ca19b8c"
+ },
+ "mutation": null,
+ "differences": [],
+ "oracle": {
+  "kind": "gnucobol-models",
+  "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+  "package": "3.1.2-5+b1",
+  "flags": "-std=ibm -fsign=EBCDIC",
+  "compiler_options": null,
+  "image": {
+   "name": "gitgalaxy-gnucobol-db2:3",
+   "id": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+   "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
+   "matches_pin": true,
+   "mismatches": []
+  },
+  "models": [
+   {
+    "path": "tests/equivalence/cics/DFHAID.cpy",
+    "sha256": "630c4f2cb617984403b2750dde4022c2e5b56bee0d9367049092af1f80def3c3"
+   },
+   {
+    "path": "tests/equivalence/cics/DFHBMSCA.cpy",
+    "sha256": "716274032abeec7783c189067cef6010ca9832c44072d2010493e3c430523a6a"
+   },
+   {
+    "path": "tests/equivalence/cics/DFHEIBLK.cpy",
+    "sha256": "bfca9678fa65ec53eca2e9692b16e3cefc9639e842341345e1a05424b0e2034b"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics.c",
+    "sha256": "355ce45432e76258e228411d895962a66cdb9871cd409c66580e4bd5e8c8efa0"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_conditions.c",
+    "sha256": "7cc9889d754be119a57d85cf03be3487d112439e376b3e6165bc7372cfd3bdb9"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_containers.c",
+    "sha256": "ef11cda70e87cf14758ca327a1e5f28bf4e7813aba11a33ab5260dd55c1a76af"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_enq.c",
+    "sha256": "75523dd5c5e2abf68908cef40594903efea7e03c784fcfe6d7accf4d068bab59"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_filecontrol.c",
+    "sha256": "73a09eb183c091d3989ec16786467e091f4d6ff0e7c1ad6b6376cf02031cb5d7"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_spec.h",
+    "sha256": "b6a172241cbbef3fb8f82e1b8131225e74b868f6532019327879c8aefbb06d81"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_taskcontrol.c",
+    "sha256": "e92dee972be23182429995c63703e216563968c41728b9eee9c50061fa178c2b"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_tempstorage.c",
+    "sha256": "c6da1bf09578792d2e899b3ae3a5d28a92fdfd7716d72099a7c7cb5405081dc2"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_transientdata.c",
+    "sha256": "f85e46ac4a537e793c236b9bb2002c998169f54b67868775a2792a9494ff7a67"
+   },
+   {
+    "path": "tests/equivalence/db2/SQLCA.cpy",
+    "sha256": "2feec0cb41ec13473904f76885f8550b8e518016678ba6ab8deec378568a3674"
+   },
+   {
+    "path": "tests/equivalence/db2/SQLDA.cpy",
+    "sha256": "2f0c5b623926aa9767764344fc9d10fbbad8f9a404e2198c920a37baad8a6b6c"
+   },
+   {
+    "path": "tests/equivalence/db2/dynsql/cbl/DYNDEMO.cbl",
+    "sha256": "5c84ea37bd96c5a503fcd07d94a7b53eadea6be5b78744a3b9307d3a1d769d16"
+   },
+   {
+    "path": "tests/equivalence/db2/dynsql/ddl/DTAB.ddl",
+    "sha256": "271155a181e5405c561a59ccd068da8ec26f2bfbf994a530640a3155bf1a6a2f"
+   },
+   {
+    "path": "tests/equivalence/db2/dynsql/jcl/DYNDEMO.jcl",
+    "sha256": "107f687e0cde38258f3cc65a501a1900f115b254ad09324d5ea60e6fb5b46c64"
+   },
+   {
+    "path": "tests/equivalence/db2/dynsql/seed.sql",
+    "sha256": "7a29b60f0801d1c8b0287ded57ccf206d109ad21627a8ceab29b9abe5ea3aa4b"
+   },
+   {
+    "path": "tests/equivalence/db2/ggsql.c",
+    "sha256": "f3d0954ea93ea8ce11102810e24d39247260e4f8bcac9b4188870519094182b8"
+   },
+   {
+    "path": "tests/equivalence/db2/ggsqlrun.c",
+    "sha256": "6029d1bf8da9b69c143e7d5fda194d50956bb261cd9ce37d7aa814f5511f47ea"
+   },
+   {
+    "path": "tests/equivalence/db2/uow/cbl/UOWDEMO.cbl",
+    "sha256": "e2760b97b7a7d20153c2da0a13b838d586342078eb57724fef53dbb626af5f82"
+   },
+   {
+    "path": "tests/equivalence/db2/uow/ddl/ACCT.ddl",
+    "sha256": "7e555c6935585c64bbe4e0c9bbb341f86fd5629f1af4b1288f46a6c89e5b2ff2"
+   },
+   {
+    "path": "tests/equivalence/db2/uow/jcl/UOWDEMO.jcl",
+    "sha256": "12b0639e1f29cc6f9b6aa9631ae639b498ed6eda8789dadbf6d2b08dd94edc44"
+   },
+   {
+    "path": "tests/equivalence/db2/uow/seed.sql",
+    "sha256": "60a4043a04f8ef42b05718e215aca89897404385a6fe3c660b5932ce0514e78a"
+   },
+   {
+    "path": "tests/equivalence/db2/whenever/cbl/WHENDEMO.cbl",
+    "sha256": "72422a3abc812fd33104d19fe52ebfdd5bbf5e1cf0506c009113e2db33dcfecf"
+   },
+   {
+    "path": "tests/equivalence/db2/whenever/ddl/WTAB.ddl",
+    "sha256": "4c6acedae0523d807381f3e1448b7320f2bbc137e94515733418023319c20cef"
+   },
+   {
+    "path": "tests/equivalence/db2/whenever/jcl/WHENDEMO.jcl",
+    "sha256": "9b3029a39fe1b1c5ceaf06a3ba81dde70523910c1c0d69465786563cf5924424"
+   },
+   {
+    "path": "tests/equivalence/db2/whenever/seed.sql",
+    "sha256": "0c58404dce0d48d2da82ddaf96625cbd6c9ada1bea57c89ea9a709e20df2453f"
+   },
+   {
+    "path": "tests/equivalence/faults/ggabend.c",
+    "sha256": "ad701b6e6ad8cd6af830ae24eabe64cfb93fae7ab8b3af3e50c1c80853aebd44"
+   },
+   {
+    "path": "tests/equivalence/faults/ggdisplay.c",
+    "sha256": "1637e53820229d9d29da3efbefada5782c98891589cb423af58151cf2919bdcb"
+   },
+   {
+    "path": "tests/equivalence/faults/ggfault.c",
+    "sha256": "82f3e785fe10be99567675d29eb5b5d164c48df9a839394e9d85cfa5ef3a5049"
+   },
+   {
+    "path": "tests/equivalence/gnucobol-db2.Dockerfile",
+    "sha256": "c2af37e562a8e00a46bc3f01deba68dbd812c4947ec71327f196739dd47bfb93"
+   },
+   {
+    "path": "tests/equivalence/gnucobol.Dockerfile",
+    "sha256": "5a94ae2757458809461b4e0deaf3139655b719598afc6113e03e4b187af4b693"
+   },
+   {
+    "path": "tests/equivalence/ims/ggdli.c",
+    "sha256": "f27768329bcb9e6fe176bf06ff2afba5b1641a11729c1982d2008fdcc04ce704"
+   },
+   {
+    "path": "tests/equivalence/le/ceedays.c",
+    "sha256": "7b924457953ecad2c75ba6d4062b71bd5424b3b0314dc922d911abb419e77828"
+   },
+   {
+    "path": "tests/equivalence/le/ceeloct.c",
+    "sha256": "edcfc622a9688ec78ca03b7f2cd65d17d203237b0cbca2e7cb74bc0b25150f84"
+   },
+   {
+    "path": "tests/equivalence/le/cobdatft.c",
+    "sha256": "df75c2ffbfbfad769135bb5044edf2b9b22440f3ff47e163b515605d2281edf4"
+   },
+   {
+    "path": "tests/equivalence/le/dsntiac.c",
+    "sha256": "4117aa9c2b0d9877ee00fa54b3996a1a50681008a4fe3d033bcc1441718c222b"
+   },
+   {
+    "path": "tests/equivalence/le/ggtiot.c",
+    "sha256": "fc71f03890452f6604190325447ec332af754ef99a392dc90a2691148589cdb3"
+   },
+   {
+    "path": "tests/equivalence/le/le_time.c",
+    "sha256": "5f3857f13e0e9e43cb689ab2b2999f148c6d2dfd7bfb3618a2f0fc806b4519c1"
+   },
+   {
+    "path": "tests/equivalence/le/mvswait.c",
+    "sha256": "ed25d9c9cf3b8f2c7a9e319fdc117bff0ff775b15c1c32b3e0d9c20c33d66321"
+   },
+   {
+    "path": "tests/equivalence/le/zuidstck.c",
+    "sha256": "21cb74ad9c1df6613c1d1be67b16a041ebe9657ff989d6bc4ed7682975b3ec01"
+   },
+   {
+    "path": "tests/equivalence/odbc_cli.pin",
+    "sha256": "1b2288b610ccf5fe0128e1d91d18139978abb261451aa545cc8772e3f2101ff5"
+   },
+   {
+    "path": "tests/tools/equivalence_sql.py",
+    "sha256": "70d91a1e48f88083efc26fd17347ec7e1de53748f812612555ba1e8e799e0fce"
+   }
+  ],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "det",
+  "model": null,
+  "backend": null,
+  "attempt": null,
+  "attempts": null,
+  "ticket_sha256": null,
+  "porting_rules_sha256": null,
+  "proposed_at": null,
+  "generator_version": null,
+  "edited_after": null,
+  "provenance_file": {
+   "path": "tests/equivalence/carddemo-copaus1c/port/provenance.json",
+   "format": "det-port-provenance/1",
+   "sha256": "fb0c8b00aee4abb85444c526f29af3fcae8bc653b29026f5890546b40fb59352"
+  }
+ },
+ "approvals": []
+}

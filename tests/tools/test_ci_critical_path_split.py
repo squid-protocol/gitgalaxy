@@ -187,7 +187,7 @@ def test_the_ground_truth_seconds_are_recorded_and_the_parts_balanced():
     cut them by a default weight. Refresh from the test-times-ground-truth-part-N artifacts of a main run; the replay
     of the parts must then be within 20% (#5133 acceptance)."""
     seconds, totals = _ground_truth_totals()
-    assert len(seconds) > 5500, f"only {len(seconds)} tests/cobol_mainframe/ durations recorded: refresh them"
+    assert len(seconds) > 7000, f"only {len(seconds)} tests/cobol_mainframe/ durations recorded: refresh them"
     assert max(totals) <= min(totals) * 1.2, totals
     assert seconds[0] < sum(totals) / 4, "one test is a quarter of the ground-truth job: no split can balance it"
 
@@ -311,8 +311,48 @@ def test_the_three_pre_gates_are_one_job():
     jobs = _jobs("gitgalaxy.yml")
     assert {"vault-sentinel", "xray-inspector", "supply-chain-firewall"}.isdisjoint(jobs)
     steps = jobs["pre-gate"]["steps"]
-    tools = [s["with"]["tool"] for s in steps if s.get("uses") == "./"]
-    assert tools == ["vault-sentinel", "xray-inspector", "supply-chain-firewall"]
+    gates = [s for s in steps if s.get("uses") == "./"]
+    assert [s["with"]["tool"] for s in gates] == ["vault-sentinel", "xray-inspector", "supply-chain-firewall"]
     # each gate runs even when an earlier one failed, and none may swallow its own failure
-    assert all("!cancelled()" in str(s.get("if", "")) for s in steps[2:])
+    assert all("!cancelled()" in str(s.get("if", "")) for s in gates[1:])
     assert not any(s.get("continue-on-error") for s in steps)
+
+
+def test_print_waiting_prints_the_count_or_nothing(monkeypatch, capsys):
+    """#5919: a workflow step hands the count to another planner; an unreadable queue prints nothing and exits 0."""
+    monkeypatch.setattr(sys, "argv", ["ci_layout.py", "--print-waiting"])
+    monkeypatch.setattr(cl, "waiting_now", lambda: 12)
+    assert cl.main() == 0
+    assert capsys.readouterr().out == "12\n"
+    monkeypatch.setattr(cl, "waiting_now", lambda: None)
+    assert cl.main() == 0
+    assert capsys.readouterr().out == "\n"
+
+
+def test_print_waiting_is_calm_without_a_repo(tmp_path):
+    import os
+    import subprocess
+
+    env = {k: v for k, v in os.environ.items() if k != "GITHUB_REPOSITORY"}
+    done = subprocess.run(  # noqa: S603
+        [sys.executable, str(ROOT / "tests/tools/ci_layout.py"), "--print-waiting"],
+        check=True, capture_output=True, text=True, env=env, cwd=tmp_path,
+    )  # fmt: skip
+    assert done.stdout.strip() == ""
+
+
+def test_det_sweep_plans_read_the_queue_in_the_workflow_not_the_planner():
+    """#5919: both plan steps get the waiting count from ci_layout (pull requests only) and pass it on as --waiting."""
+    job = _jobs("det-sweep.yml")["plan"]
+    assert job["permissions"]["actions"] == "read"
+    steps = _steps(job)
+    for name in ("Plan the sweep", "Plan from the port diff"):
+        step = steps[name]
+        assert "GH_TOKEN" in step["env"], name
+        run = step["run"]
+        assert 'if [ "$GITHUB_EVENT_NAME" = "pull_request" ]' in run, name
+        assert "ci_layout.py --print-waiting" in run, name
+        assert '${waiting:+--waiting "$waiting"}' in run, name
+        assert run.index("--print-waiting") < run.index("det_sweep_plan.py"), name
+    planner = (ROOT / "tests/tools/det_sweep_plan.py").read_text(encoding="utf-8")
+    assert "ci_layout" not in planner and "post_merge_dispatch" not in planner  # test_ground_truth_plan reaches it

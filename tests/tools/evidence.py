@@ -101,6 +101,9 @@ MUTATION_INPUTS = ("port", "case", "corpus", "harness", "oracle")  # Q3: the gen
 HARNESS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
            "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py",
            "tests/tools/equivalence_cics_containers.py", "tests/tools/equivalence_cics_filecontrol.py",
+           "tests/tools/equivalence_cics_conditions.py",
+           "tests/tools/equivalence_cics_faults.py",
+           "tests/tools/equivalence_cics_tempstorage.py",
            "tests/tools/equivalence_call.py",
            "tests/tools/equivalence_cache.py", "tests/tools/equivalence_db2.py", "tests/tools/equivalence_oracle.py",
            "tests/tools/cobol_coverage.py", "tests/tools/java_target_matrix.py",
@@ -240,6 +243,9 @@ COMPONENTS: tuple[Component, ...] = (
             "tests/tools/equivalence_cics.py",
             "tests/tools/equivalence_cics_containers.py",
             "tests/tools/equivalence_cics_filecontrol.py",
+            "tests/tools/equivalence_cics_conditions.py",
+            "tests/tools/equivalence_cics_faults.py",
+            "tests/tools/equivalence_cics_tempstorage.py",
         ),  # #5274: its families
         lambda u: u.cics_harness,
         "run_case for kind cics; batch Db2 SQL faults and call arg encoding import it; a plain batch run never does",
@@ -483,11 +489,20 @@ def equivalence_target(case: str) -> Target:
     data = _case_json(case)
     port_case = data.get("port_from", case)
     ports = [port_case, *data.get("uses_ports", [])]
-    for extra in data.get("programs", []):  # #4188: a LINKed program's committed model port runs in the proof
+    linked = data.get("programs", [])
+    ported = (  # #5162: the cases with a port and their program, read once per target, not once per LINKed program
+        {
+            other: _case_json(other).get("program", "").upper()
+            for other in sorted(p.parent.name for p in CASES.glob("*/case.json"))
+            if (CASES / other / "port").is_dir()
+        }
+        if linked
+        else {}
+    )
+    for extra in linked:  # #4188: a LINKed program's committed model port runs in the proof
         prog = extra["program"].upper()
-        for other in sorted(p.parent.name for p in CASES.glob("*/case.json")):
-            if other not in ports and (CASES / other / "port").is_dir() and \
-                    _case_json(other).get("program", "").upper() == prog:  # fmt: skip
+        for other, other_program in ported.items():
+            if other not in ports and other_program == prog:
                 ports.append(other)
     corpus = data["corpus"]
     specs = {
@@ -555,7 +570,32 @@ def options_input(t: Target) -> dict[str, Any]:
     fp = eff.fingerprint()
     legacy = effective_options(case, estate={}, program=t.program)
     return {"sha256": json_sha256(fp), "semantic_sha256": json_sha256(fp["semantic"]),
-            "legacy_semantic_sha256": json_sha256(legacy.semantic()), "estate": fp["estate"], "effective": fp}  # fmt: skip
+            "legacy_semantic_sha256": json_sha256(legacy.semantic()), "estate": fp["estate"], "effective": fp,
+            "runtime_sha256": json_sha256(fp["runtime"])}  # fmt: skip
+
+
+def runtime_line(options: dict[str, Any] | None) -> str | None:
+    """#4707: the LE / Db2 / CICS options a record's proof ran under, as one line: the hash of the runtime section
+    (computed from `effective.runtime`, so a record that stores no `runtime_sha256` shows the same), the option count
+    per section and every `section.NAME=value`. None when the record holds none (proven before #4704 / #4707)."""
+    runtime = ((options or {}).get("effective") or {}).get("runtime") or {}
+    runtime = {sec: items for sec, items in runtime.items() if items}
+    if not runtime:
+        return None
+    counts = ", ".join(f"{sec} {len(items)}" for sec, items in sorted(runtime.items()))
+    values = ", ".join(f"{sec}.{k}={v}" for sec, items in sorted(runtime.items()) for k, v in sorted(items.items()))
+    return f"`{json_sha256(runtime)[:16]}` ({counts}): {values}"
+
+
+def compiler_line(options: dict[str, Any] | None) -> str | None:
+    """#4707: the compiler options a record's proof ran under, as one line: the hash of the semantic section (the
+    options cobc and the det port act on; computed from `effective.semantic`, so a record that stores no
+    `semantic_sha256` shows the same), the count and every `NAME=value`. None when the record holds none."""
+    semantic = ((options or {}).get("effective") or {}).get("semantic") or {}
+    if not semantic:
+        return None
+    values = ", ".join(f"{k}={v}" for k, v in sorted(semantic.items()))
+    return f"`{json_sha256(semantic)[:16]}` ({len(semantic)}): {values}"
 
 
 def spec_inputs(t: Target, files: Any, read: Any = None, names: Any = None) -> dict[str, Any]:
@@ -861,7 +901,8 @@ def mutation_section(t: Target, existing_mutation: dict[str, Any] | None = None)
         "killed": tot["killed"],
         "survived": tot["survived"],
         "stillborn": tot["stillborn"],
-        "survivors": {k: tot.get(k, 0) for k in ("case_gap", "harness_gap", "equivalent", "unreachable", "untriaged")},
+        "survivors": {k: tot.get(k, 0) for k in ("case_gap", "harness_gap", "equivalent", "unreachable", "untriaged")}
+        | ({"declared_difference": tot["declared_difference"]} if tot.get("declared_difference") else {}),  # #5401
         "score_raw": _score(tot["killed"], judged),
         "score_adjusted": _score(tot["killed"], judged - tot.get("equivalent", 0) - tot.get("unreachable", 0)),
         "source": f"docs/language_status/mutation_scores.json#{case_key}/{t.program}",
@@ -1052,7 +1093,8 @@ def claim(rec: dict[str, Any], st: dict[str, Any]) -> str:
         note = st["sections"].get("mutation", "")
         parts.append(f"Mutation score **{m['score_raw']} raw, {m['score_adjusted']} adjusted** ({m['survived']} "
                      f"survivors: {s['case_gap']} case gaps, {s['harness_gap']} harness gaps, {s['equivalent']} "
-                     f"equivalent, {s['unreachable']} unreachable, {s['untriaged']} untriaged)"
+                     f"equivalent, {s['unreachable']} unreachable, {s['untriaged']} untriaged"
+                     + (f", {s['declared_difference']} declared difference" if s.get("declared_difference") else "") + ")"
                      + (f" -- **{note}**" if note.startswith("stale") else "") + ".")  # fmt: skip
     fc = p.get("facade")
     if fc:
@@ -1143,6 +1185,10 @@ def render_page(t: Target, rec: dict[str, Any]) -> str:
             continue  # #4704: proven before the options input existed
         what = f"{v['name']} @ `{v['ref']}`" if k == "corpus" else (f"{v.get('files')} files" if "files" in v else "")
         lines.append(f"| {k} | {what} `{(v.get('sha256') or '-')[:16]}` |")
+        if k == "options" and (rl := runtime_line(v)):  # #4707: only when the record holds runtime options
+            lines.append(f"| runtime options | {rl} |")
+        if k == "options" and (cl := compiler_line(v)):  # #4707: only when the record holds compiler options
+            lines.append(f"| compiler options | {cl} |")
     o = rec.get("oracle") or {}
     img = o.get("image") or {}
     lines.append(f"| oracle run | {o.get('kind', '-')}: {o.get('compiler') or o.get('source', '-')}"
@@ -1431,6 +1477,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "status":
         rows = [(t, status(load(t), t)) for t in _pick(args.keys, False)]
         if args.json:
+            for t, st in rows:  # #4707: only when the record holds runtime / compiler options
+                opts = (((load(t) or {}).get("inputs")) or {}).get("options")
+                if rl := runtime_line(opts):
+                    st["runtime_options"] = rl
+                if cl := compiler_line(opts):
+                    st["compiler_options"] = cl
             print(json.dumps({t.key: st for t, st in rows}, indent=1))
         else:
             for t, st in rows:

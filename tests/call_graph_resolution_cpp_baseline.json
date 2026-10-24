@@ -1,0 +1,15 @@
+{
+  "ambiguous_precision_pct": 34.1,
+  "confident_external": 276,
+  "confident_judged": 2325,
+  "confident_overload_blind_precision_pct": 92.9,
+  "confident_precision_pct": 84.1,
+  "confident_strict_precision_pct": 75.2,
+  "confident_unmapped": 814,
+  "confident_wrong_overload": 203,
+  "pyan_edges": 9711,
+  "recall_overload_blind_pct": 22.5,
+  "recall_pct": 20.1,
+  "reference_version": "18.1.1",
+  "resolution_recall_pct": 58.8
+}

@@ -225,3 +225,167 @@ def test_haskell_shell_and_solidity_rules(tmp_path):
         {"contracts/access/Ownable.sol"},
         set(),
     ]
+
+
+@needs_ts
+def test_csharp_resolves_by_namespace_and_type_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            # file name and directory mean nothing: the type is found by what the file declares
+            "src/Misc/Odd.cs": "namespace Acme.Util\n{\n    public class Helper { public enum Kind { A } }\n}\n",
+            "src/Scoped.cs": "namespace Acme.Scoped;\n\npublic struct Pair { }\n",
+            # declarations wrapped in #if / #region are still declarations
+            "src/Wrapped.cs": "#if NET\n#region r\nnamespace Acme.Wrapped\n{\n    public interface IThing { }\n}\n#endregion\n#endif\n",
+            "src/Partial1.cs": "namespace Acme.Util { public partial class Split { } }\n",
+            "src/Partial2.cs": "namespace Acme.Util { public partial class Split { } }\n",
+        },
+    )
+    src = (
+        b"using System;\n"
+        b"using Acme.Util;\n"  # a namespace: contract C7, no edge
+        b"using static Acme.Util.Helper;\n"
+        b"using static Acme.Util.Helper.Kind;\n"  # a nested type falls back to its owner
+        b"using Pair = Acme.Scoped.Pair;\n"
+        b"using Ns = Acme.Wrapped;\n"  # an alias of a namespace is a namespace
+        b"global using static Acme.Util.Split;\n"
+        b"using static Missing.Thing;\n"
+        b"namespace Acme.Util { using Scoped; using static Helper; class C { void M() { using (var x = new D()) { } } } }\n"
+    )
+    assert iga.csharp_imports(src, "src/Use.cs", g) == [
+        set(),  # System
+        set(),
+        {"src/Misc/Odd.cs"},
+        {"src/Misc/Odd.cs"},
+        {"src/Scoped.cs"},
+        set(),
+        {"src/Partial1.cs", "src/Partial2.cs"},  # a partial type is several files
+        set(),
+        set(),  # relative `using Scoped;` under Acme.Util is no namespace of the repo
+        {"src/Misc/Odd.cs"},  # `using static Helper;` under the enclosing Acme.Util
+    ]
+
+
+def _star(hub, leaves):
+    return {(leaf, hub) for leaf in leaves}
+
+
+def test_hub_agreement_identical_graphs_agree_fully():
+    nodes = [f"f{i}.py" for i in range(14)]
+    edges = _star("f0.py", nodes[1:]) | _star("f1.py", nodes[3:])
+    h = iga.hub_agreement(edges, set(edges), nodes)
+    assert (h["overlap_at_k"], h["spearman"], h["k"], h["n"]) == (1.0, 1.0, 10, 14)
+
+
+def test_hub_agreement_drops_when_the_engine_misses_the_hub():
+    nodes = [f"f{i:02}.py" for i in range(30)]
+    truth = {(f"f{i:02}.py", f"f{i - 20:02}.py") for i in range(20, 30)}  # f00-f09 are the hubs
+    engine = {(f"f{i:02}.py", f"f{i - 10:02}.py") for i in range(20, 30)}  # f10-f19 instead
+    h = iga.hub_agreement(engine, truth, nodes)
+    assert h["overlap_at_k"] < 1.0
+    assert h["spearman"] is not None and h["spearman"] < 1.0
+
+
+def test_hub_agreement_is_none_for_thin_input():
+    nodes = [f"f{i}.py" for i in range(9)]
+    edges = _star("f0.py", nodes[1:])
+    assert iga.hub_agreement(edges, edges, nodes) is None  # fewer than k files
+    more = [f"f{i}.py" for i in range(12)]
+    assert iga.hub_agreement(edges, set(), more) is None  # no truth edges
+
+
+def test_hub_agreement_ignores_edges_outside_the_node_set_and_edge_order():
+    nodes = [f"f{i}.py" for i in range(12)]
+    truth = _star("f0.py", nodes[1:])
+    a = iga.hub_agreement(truth | {("f1.py", "other.c")}, truth, nodes)
+    b = iga.hub_agreement(set(reversed(sorted(truth))), truth, nodes)
+    assert a == b == iga.hub_agreement(truth, truth, nodes)
+
+
+def test_score_group_records_hubs_with_one_edge_per_file_of_a_statement(tmp_path):
+    files = {f"pkg/m{i}.py": "" for i in range(12)}
+    files["pkg/__init__.py"] = ""
+    files["pkg/user.py"] = "from pkg import m1, m2\n"
+    (tmp_path / "pkg").mkdir(exist_ok=True)
+    for rel, text in files.items():
+        (tmp_path / rel).write_text(text)
+    langs = {rel: "python" for rel in files}
+    r = iga.score_group(tmp_path, langs, {("pkg/user.py", "pkg/m1.py")}, ("python",))["python"]
+    assert r["hubs"]["n"] == 14 and r["hubs"]["k"] == 10
+    assert 0.0 <= r["hubs"]["overlap_at_k"] <= 1.0
+
+
+def test_regressions_ignore_hub_fields_and_old_baselines_still_load():
+    base = {"python": {"imports": 100, "engine_edges": 90, "precision_pct": 90.0, "recall_pct": 60.0}}
+    cur = {"python": {"precision_pct": 90.0, "recall_pct": 60.0, "hub_overlap_at_10": 0.0, "hub_spearman": -1.0}}
+    assert iga.regressions(cur, base) == []
+    assert "n/a" in iga.render({"python": {**base["python"], "repos": "r", "files": 1, "fp": 0, "fn": 0}})
+
+
+@needs_ts
+def test_swift_resolves_by_target_and_declared_type_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "Package.swift": (
+                "import PackageDescription\n"
+                "let package = Package(name: \"P\", targets: [\n"
+                "  .target(name: \"Core\", dependencies: [\"Odd\"]),\n"
+                "  .target(name: \"Odd\", path: \"Vendor/odd\"),\n"
+                "  .testTarget(name: \"CoreTests\", dependencies: [\"Core\"]),\n"
+                "])\n"
+            ),
+            # file name and directory mean nothing: the name is found by what the file declares
+            "Sources/Core/Misc.swift": (
+                "public struct Pair { public enum Kind { case a } }\n"
+                "public protocol Proto {}\n"
+                "public typealias Alias = Int\n"
+                "public func helper() {}\n"
+                "public let limit = 1\n"
+                "public var counter = 0\n"
+                "#if os(Linux)\npublic final class Wrapped {}\n#endif\n"
+            ),
+            "Sources/Core/Split1.swift": "public struct Split {}\n",
+            "Sources/Core/Split2.swift": "extension Split {}\n",
+            "Vendor/odd/Thing.swift": "public class Thing {}\n",
+            "Tests/CoreTests/Pair.swift": "struct Pair {}\n",
+        },
+    )
+    src = (
+        b"import Foundation\n"
+        b"import Core\n"  # a module: contract C7, no edge
+        b"@testable import Core\n"
+        b"@_exported import Odd\n"
+        b"public import Core\n"
+        b"import struct Core.Pair\n"
+        b"import struct Core.Pair.Kind\n"  # a nested type falls back to its owner
+        b"import protocol Core.Proto\n"
+        b"import typealias Core.Alias\n"
+        b"import func Core.helper\n"
+        b"import let Core.limit\n"
+        b"import var Core.counter\n"
+        b"import class Core.Wrapped\n"
+        b"import struct Core.Split\n"  # a type and its extension are two files
+        b"import class Odd.Thing\n"  # a custom `path:` is honoured
+        b"import struct WinSDK.CONSOLE_SCREEN_BUFFER_INFO\n"  # no target of the repo
+        b"import struct Core.Missing\n"
+    )
+    assert iga.swift_imports(src, "Sources/App/Use.swift", g) == [
+        set(),
+        set(),
+        set(),
+        set(),
+        set(),
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Split1.swift", "Sources/Core/Split2.swift"},
+        {"Vendor/odd/Thing.swift"},
+        set(),
+        set(),
+    ]

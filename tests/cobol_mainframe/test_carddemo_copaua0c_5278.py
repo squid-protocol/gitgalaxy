@@ -1,5 +1,5 @@
 """#5278: the CardDemo COPAUA0C equivalence case (IMS DBPAUTP0 through EXEC DLI, three VSAM files, the MQ request / reply
-queues) and the harness steps it needed. The unit tests need nothing but the case; the proof itself (17 scenarios,
+queues) and the harness steps it needed. The unit tests need nothing but the case; the proof itself (20 scenarios,
 GnuCOBOL against the det port) is the det sweep's, `det_port.py run carddemo-copaua0c`."""
 
 from __future__ import annotations
@@ -17,6 +17,8 @@ ROOT = Path(__file__).resolve().parents[2]
 TOOLS = ROOT / "tests" / "tools"
 sys.path.insert(0, str(TOOLS))
 
+from gitgalaxy.core.source_text import read_source  # noqa: E402
+
 import equivalence_cics as ec  # noqa: E402
 import equivalence_ims as ims  # noqa: E402
 
@@ -29,6 +31,7 @@ SCENARIOS = [
     "decline-no-summary-over-account-limit", "card-not-in-xref", "account-not-in-master", "customer-not-in-master",
     "same-account-twice", "amount-without-decimals", "amount-with-sign", "three-requests-mixed",
     "read-xref-io-error", "read-acct-io-error", "read-cust-io-error", "no-trigger-data", "no-reply-queue",
+    "gu-summary-bad-status", "repl-summary-fails", "request-longer-than-buffer", "schd-held-after-term",
 ]  # fmt: skip
 
 
@@ -131,3 +134,17 @@ def test_the_committed_det_port_has_a_recorded_proof():
     assert rec["proof"]["verdict"] == "proven" and not rec["proof"]["java_failed"]
     assert rec["proof"]["runs"] == len(SCENARIOS) and rec["provenance"]["written_by"] == "det"
     assert rec["coverage"]["branches"]["total"] == 69
+
+
+def test_the_request_limit_exit_is_stated_as_unprovable_not_left_silent():
+    """Line 339 (true): the reply pointer is never reset, so a fourth reply in one task reads past the 200-byte buffer
+    (undefined in IBM): the case says so by name instead of carrying a scenario no proof can pass."""
+    notes = _case()["notes"]
+    assert "Not provable, by name" in notes and "WS-RESP-LENGTH" in notes and "line 339" in notes
+    corpus = _corpus()
+    if corpus is None:
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    src = read_source(corpus / APP / "cbl/COPAUA0C.cbl").text.splitlines()
+    assert "WS-RESP-LENGTH" in src[45] and "VALUE 1" in src[45] and "W02-PUT-BUFFER" in src[107] and "X(200)" in src[107]
+    assert sum("WS-RESP-LENGTH" in ln for ln in src) == 3  # declared, the STRING POINTER, the MQPUT1 length: never reset
+    assert "WS-REQSTS-PROCESS-LIMIT" in src[338] and "VALUE 500" in src[39]

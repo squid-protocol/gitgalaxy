@@ -20,6 +20,7 @@ pytest.importorskip("tree_sitter_language_pack")
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_screen_forge as F  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
 import sys
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -208,3 +209,78 @@ def test_forge_oracle_and_crucible_runner_place_alike_5116(attrb, attributes, _w
                               color=None, hilight=None, justify=coded, ic=False)  # fmt: skip
     oracle = ec.justified(text, width, jf) if jf else text.rstrip(" ").ljust(width)[:width]
     assert cics_bms.received_value(field, text.rstrip(" ")) == oracle
+
+
+# #5116 (c:5781930a): JUSTIFY is an input-only DFHMDF operand, so the SEND MAP path must not apply it.
+_IBM_JUSTIFY_SENTENCE = "specifies the field justifications for input operations."
+_X54 = Path(__file__).resolve().parents[2] / "docs/language_status/register/X54.md"
+
+
+def test_det_send_map_never_justifies_5116():
+    import inspect
+
+    src = inspect.getsource(C.Cics.send_map).lower()
+    assert "justify" not in src
+    assert "detjustify" not in src
+
+
+def test_the_oracle_output_side_never_justifies_5116():
+    import inspect
+
+    import equivalence_cics as E
+
+    assert "justify" in inspect.signature(E.map_input).parameters
+    assert "justif" not in inspect.getsource(E.compare_events).lower()
+
+
+def test_x54_records_send_map_justify_not_applicable_5116():
+    text = " ".join(_X54.read_text(encoding="utf-8").split())
+    assert _IBM_JUSTIFY_SENTENCE in text
+    assert "JUSTIFY on SEND MAP: not applicable" in text
+    assert "test_det_send_map_never_justifies_5116" in text
+
+
+# #5116: PICIN / PICOUT are compile-time pictures on the symbolic map; IBM gives BMS no run-time conversion.
+_IBM_PICIN_SENTENCE = (
+    "the validity of the input data is not checked by BMS or the high-level language when the map is used"
+)
+_IBM_PICOUT_SENTENCE = (
+    "is like PICIN, except that a picture to be applied to an output field in the OUT or INOUT map is generated."
+)
+
+
+def test_det_receive_and_send_map_never_read_a_picture_5116():
+    import inspect
+
+    for fn in (C.Cics.receive_map, C.Cics.send_map):
+        src = inspect.getsource(fn).lower()
+        assert "picin" not in src
+        assert "picout" not in src
+
+
+def test_x54_records_picin_picout_no_runtime_conversion_5116():
+    text = " ".join(_X54.read_text(encoding="utf-8").split())
+    assert _IBM_PICIN_SENTENCE in text
+    assert _IBM_PICOUT_SENTENCE in text
+    assert "PICIN / PICOUT: out of scope, by name" in text
+    assert "test_det_receive_and_send_map_never_read_a_picture_5116" in text
+
+
+# #5116 (c:9d9ee016): the register's citations were re-read against the live DFHMDF page and the result recorded.
+def test_x54_records_the_live_page_reread_5116():
+    text = " ".join(_X54.read_text(encoding="utf-8").split())
+    assert "Re-read 2026-10-23 (#5116, c:9d9ee016" in text
+    assert "If JUSTIFY is omitted, but the NUM attribute is specified, RIGHT and ZERO are assumed." in text
+    assert "If JUSTIFY is omitted, but attributes other than NUM are specified, LEFT and BLANK are assumed." in text
+    assert (
+        "The ATTRB operand specified on the first field of the group applies to all of the fields within the group."
+        in text
+    )
+    assert "per-occurrence JUSTIFY stays frontier" in text
+
+
+def test_x54_does_not_attribute_per_occurrence_justify_to_ibm_5116():
+    text = " ".join(_X54.read_text(encoding="utf-8").split())
+    assert "IBM gives every occurrence" not in text
+    assert "no sentence joins JUSTIFY with OCCURS, GRPNAME" in text
+    assert "test_bms_occurs_grpname_census_5116.py" in text

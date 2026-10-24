@@ -60,7 +60,16 @@ EVENT_KEYS: dict[str, tuple[str, ...]] = {
     "RECEIVE": ("resp", "length", "data"),
     "LINK": ("target", "length", "commarea", "resp", "resp2"),
     "XCTL": ("target", "length", "commarea", "resp", "resp2"),
-    "RETURN": ("level", "transid", "commarea", "caller_commarea", "immediate", "resp", "resp2"),  # #4270 (X27)
+    "RETURN": (
+        "level",
+        "transid",
+        "commarea",
+        "caller_commarea",
+        "immediate",
+        "channel",
+        "resp",
+        "resp2",
+    ),  # #4270 (X27), #5005
     # #4270: the data options (rtransid, rtermid, queue) only where the program named them
     "START": tuple("transid termid interval time from reqid protect resp resp2 expires rtransid rtermid queue".split()),
     "RETRIEVE": ("resp", "length", "data", "rtransid", "rtermid", "queue"),
@@ -69,13 +78,26 @@ EVENT_KEYS: dict[str, tuple[str, ...]] = {
     "READQ-TS": ("queue", "item", "resp", "length", "data"),
     "WRITEQ-TS": ("queue", "data", "resp", "item"),
     "WRITE-OPERATOR": ("data", "resp"),  # #4270 zECS (X32): the console message
-    "READ": ("file", "ridfld", "resp"),
+    # #4443: the keyed file commands (SPEC 6.2): `update` / `set` only on those forms, `length` and `data` after the read
+    "READ": ("file", "ridfld", "update", "resp", "resp2", "set", "length", "data"),
+    "REWRITE": ("file", "data", "resp", "resp2"),
+    "UNLOCK": ("file", "resp", "resp2"),
+    # #6262: the browse (SPEC 6.2): `ridfld` is the key on entry; `set` only on the SET form, `length` / `data` with INTO
+    "STARTBR": ("file", "ridfld", "mode", "resp", "resp2"),
+    "READNEXT": ("file", "ridfld", "set", "resp", "resp2", "length", "data"),
+    "READPREV": ("file", "ridfld", "set", "resp", "resp2", "length", "data"),
+    "ENDBR": ("file", "resp", "resp2"),
     # #4767 zECS (X37, X38): an `http` task's request body and its response (SPEC 6.2; resp2 only where IBM documents it)
     "WEB-RECEIVE": ("resp", "resp2", "length", "data"),
     "WEB-SEND": ("status", "statustext", "mediatype", "from", "resp", "resp2"),
+    "WEB-WRITE-HTTPHEADER": ("name", "value", "resp", "resp2"),  # #4767 (X38): a response header the task wrote
+    # #4767 (X35): a task's client-side session against a stated origin peer
+    "WEB-OPEN": ("host", "scheme", "resp", "resp2"),
+    "WEB-CONVERSE": ("method", "path", "status", "tolength", "into", "resp", "resp2"),
+    "WEB-CLOSE": ("resp", "resp2"),
     "ABEND": ("abcode", "cause", "condition", "outcome", "exit"),
 }
-AREA_KEYS = frozenset({"commarea", "caller_commarea", "data", "from"})
+AREA_KEYS = frozenset({"commarea", "caller_commarea", "data", "from", "into"})
 FIELD_KEYS = ("attr", "attr_from", "data", "data_from", "color", "color_from", "hilight", "hilight_from")
 
 
@@ -100,6 +122,7 @@ def parse_csd(text: str) -> dict[str, Any]:
     uctrans: dict[str, str] = {}  # #4415: a TYPETERM's UCTRAN (YES / NO / TRANID), when the CSD says
     urimaps: list[tuple[str, str, str]] = []  # #4270 zECS (X32): (name, TRANSACTION or "", PATH), in the CSD's order
     disabled: set[str] = set()  # #4768 (X34): programs defined STATUS(DISABLED)
+    files: set[str] = set()  # #4443: the DEFINE FILE names (the cobol-stub's files.cfg is built from them)
     server_urimaps: list[
         dict[str, str]
     ] = []  # #4767 (X37): the URIMAPs that map an inbound HTTP request to a transaction
@@ -113,6 +136,8 @@ def parse_csd(text: str) -> dict[str, Any]:
                 disabled.add(name)
         elif kind == "MAPSET":
             mapsets.add(name)
+        elif kind == "FILE":
+            files.add(name)
         elif kind == "URIMAP":
             tr = re.search(r"\bTRANSACTION\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
             pa = re.search(r"\bPATH\s*\(\s*([^)\s]+)\s*\)", rest, re.I)
@@ -142,6 +167,8 @@ def parse_csd(text: str) -> dict[str, Any]:
     uctran = {t: uctrans[tt] for t, tt in terminal_types.items() if tt in uctrans}
     out = {"programs": programs, "transactions": transactions, "mapsets": mapsets, "terminals": terminals,
            "uctran": uctran, "urimaps": urimaps, "disabled": disabled}  # fmt: skip
+    if files:  # added only when non-empty, like server_urimaps
+        out["files"] = files
     if server_urimaps:  # added only when non-empty: an always-present empty key breaks exact-equality tests
         out["server_urimaps"] = server_urimaps
     return out

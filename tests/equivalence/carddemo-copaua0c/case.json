@@ -83,7 +83,7 @@
    "DBPAUTP0"
   ]
  },
- "notes": "CardDemo's pending-authorization task (transaction CP00, program COPAUA0C, app-authorization-ims-db2-mq): the CKTI trigger monitor starts it with an MQTM naming the request queue; each comma-delimited request is decided against the account's summary segment (IMS DBPAUTP0, PSB PSBPAUTB) or, with none, ACCTDAT's limits, answered on the request's reply queue and recorded in IMS (the summary REPLaced, or INITIALIZEd REPLACING NUMERIC and ISRTed: register C17, then a PAUTDTL1 detail). The database is the corpus's own HD unload (22 roots, the last with a blank key left out: 21 seeded); the VSAM files are CardDemo's data plus two extra xref records. Both sides get the same queue manager, trigger data (register W3, W8) and database; every MQI call, EXEC DLI call and CICS command is an event compared with its completion codes, and the queues and final database bytes are compared. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "notes": "CardDemo's pending-authorization task (transaction CP00, program COPAUA0C, app-authorization-ims-db2-mq): the CKTI trigger monitor starts it with an MQTM naming the request queue; each comma-delimited request is decided against the account's summary segment (IMS DBPAUTP0, PSB PSBPAUTB) or, with none, ACCTDAT's limits, answered on the request's reply queue and recorded in IMS (the summary REPLaced, or INITIALIZEd REPLACING NUMERIC and ISRTed: register C17, then a PAUTDTL1 detail). The database is the corpus's own HD unload (22 roots, the last with a blank key left out: 21 seeded); the VSAM files are CardDemo's data plus two extra xref records. Both sides get the same queue manager, trigger data (register W3, W8) and database; every MQI call, EXEC DLI call and CICS command is an event compared with its completion codes, and the queues and final database bytes are compared. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own. Not provable, by name: the request-limit exit (line 339, WS-MSG-PROCESSED > WS-REQSTS-PROCESS-LIMIT of 500, true outcome). WS-RESP-LENGTH (line 46, VALUE 1) is the STRING POINTER of every reply (line 730) and is never reset, so one task's replies accumulate in the 200-byte W02-PUT-BUFFER and the MQPUT1 length (line 756) is that pointer: three replies of 62 bytes fit, the fourth leaves the pointer at 201, a length one byte past the buffer, which IBM leaves undefined (storage beyond W02-PUT-BUFFER). Measured (#5278): three identical requests prove equal on both sides, four make the det port refuse the 201-byte read (IndexOutOfBounds) where GnuCOBOL reads the next byte of storage. No case can reach 501 requests without that read, so line 339 true stays an uncovered branch and no scenario states it.",
  "scenarios": [
   {
    "name": "no-request",
@@ -380,6 +380,87 @@
     }
    },
    "why": "the reply queue is not defined: MQPUT1 fails (2085), critical M004 and the end routine; the request is already gone (MQGET NO_SYNCPOINT)"
+  },
+  {
+   "name": "gu-summary-bad-status",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "why": "DL/I fault: GU of the summary answers AC (not GE): WHEN OTHER of 5500, critical I002 and the end routine; nothing is replied or inserted",
+   "dli_faults": [
+    {
+     "op": "GU",
+     "nth": 1,
+     "status": "AC"
+    }
+   ]
+  },
+  {
+   "name": "repl-summary-fails",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "why": "DL/I fault: REPL of the found summary answers AC: 8400 sees a status that is not blank, critical I003 and the end routine",
+   "dli_faults": [
+    {
+     "op": "REPL",
+     "nth": 1,
+     "status": "AC"
+    }
+   ]
+  },
+  {
+   "name": "request-longer-than-buffer",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000001,XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "why": "MQGET of a 520-byte request into the 500-byte buffer, without ACCEPT-TRUNCATED-MSG: the call fails (CompCode 2, Reason 2080, MQRC_TRUNCATED_MSG_FAILED, not 2033), so 3100 logs critical M003 'FAILED TO READ REQUEST MQ' and the message stays on the queue"
+  },
+  {
+   "name": "schd-held-after-term",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "260101,120000,9680294154603697,POS,1226,PURCH,POS,000000,0000000100.00,5411,USA,05,MERCHANT000001,ACME GROCERY,SPRINGFIELD,IL,627010000,TXN000000000001",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.AUTH",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "why": "DL/I fault: every SCHD answers TC (the task holds the PSB even after the TERM): 1200 TERMs, schedules again, STATUS-OK is false, so critical I001 'IMS SCHD FAILED'",
+   "dli_faults": [
+    {
+     "op": "SCHD",
+     "nth": "*",
+     "status": "TC"
+    }
+   ]
   }
  ]
 }

@@ -1,6 +1,7 @@
 """gap_prevalence (#5865): per-gap estate / program counts by era over synthetic survey rows and inventories."""
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -99,3 +100,152 @@ def test_missing_inventory_and_deterministic_render(rows_and_inv):
 def test_every_le_condition_service_gap_is_owned_by_5106(service):
     assert gp.owner_of(f"{service}: an LE condition service is not modelled") == "#5106 (le-condition-handling)"
     assert gp.owner_of("CEEIGZCT: x") == "unowned"  # the stand-in copybook is not a condition service
+
+
+# ---- census half: aggregates under opaque labels, no names -------------------------------------------------------
+CENSUS = ("some-census-repo", "other-census-repo")
+
+
+@pytest.mark.parametrize(
+    ("gap", "kept"),
+    [
+        ("EXEC CICS GETMAIN", "EXEC CICS GETMAIN"),
+        ("EXEC CICS ASSIGN APPLID", "EXEC CICS ASSIGN APPLID"),
+        ("EXEC SQL: DECLARE CURSOR WITH HOLD", "EXEC SQL: DECLARE CURSOR WITH HOLD"),
+        ("EXEC SQL: SELECT FROM PAYROLL", "EXEC SQL: other"),  # a table name could name the repo
+        ("EXEC SQL: <name> host variable", "EXEC SQL: other"),
+        ("EXEC DLI: GU SEGMENT PAYSEG", "EXEC DLI"),
+        ("missing copybook PAYREC (ambiguous)", "missing copybook: estate-owned"),
+        ("missing copybook PAYREC", "missing copybook: estate-owned"),
+        ("missing copybook DFHAID", "missing copybook: CICS system"),
+        ("missing copybook SQLCA", "missing copybook: Db2 system"),
+        ("missing copybook CMQV", "missing copybook: MQ system"),
+        ("missing copybook AIBLK", "missing copybook: IMS system"),
+        ("missing copybook CEEIGZCT", "missing copybook: LE system"),
+        ("missing copybook MYDFHREC", "missing copybook: estate-owned"),  # a prefix inside the name is not a prefix
+        ("refused: CICS Assembler", "refused: CICS Assembler"),
+        ("refused: ExprError: PAYROLL thing", "refused: ExprError"),
+        ("grammar: does not parse", "grammar: does not parse"),
+        ("<name>: no such item", "<name>: no such item"),
+        ("CALL CEEHDLR", "CALL CEEHDLR"),
+        ("CALL MQPUT1", "CALL MQPUT1"),
+        ("CALL PAYCALC", "CALL other"),
+        ("SET TO ENTRY: procedure pointers are not modelled", "SET TO ENTRY: procedure pointers are not modelled"),
+        (
+            "COMPUTE exponentiation in a floating-point expression",
+            "COMPUTE exponentiation in a floating-point expression",
+        ),
+        ("ZUIDSTCK: an assembler wrapper", "other"),
+        ("SET PAYFLAG-X TO ENTRY", "SET: other"),
+    ],
+)
+def test_scrub_key_keeps_the_vocabulary_and_collapses_names(gap, kept):
+    assert gp.scrub_key(gap) == kept
+
+
+def test_census_counts_carry_no_corpus_or_program_name():
+    a, b = CENSUS
+    rows = {
+        (a, "payroll01.cbl"): row(
+            "line 3: EXEC CICS: GETMAIN not modelled", "line 4: EXEC EXEC SQL: SELECT FROM PAYROLL"
+        ),
+        (a, "payroll02.cbl"): row("line 3: EXEC CICS: GETMAIN not modelled"),
+        (b, "inv01.cbl"): row("line 3: EXEC CICS: GETMAIN not modelled"),
+        (b, "inv02.cbl"): row(),
+    }
+    eras = {a: {"payroll01.cbl": "1", "payroll02.cbl": "2"}, b: {"inv01.cbl": "2"}}
+    res = gp.measure_census(rows, eras, top=(1,))
+    blob = json.dumps(res)
+    for leak in (*CENSUS, "payroll", "inv01", "PAYROLL"):
+        assert leak not in blob
+    assert res["estates"] == sorted(gp.census_label(c) for c in CENSUS)
+    g = res["gaps"][0]
+    assert (g["gap"], g["estates"], g["programs"]) == ("EXEC CICS GETMAIN", 2, 3)
+    assert g["by_era"] == {"0": 0, "1": 1, "2": 2, "3": 0, "4": 0, "none": 0}
+    assert res["programs"] == 4 and res["whole_now"] == 1
+    assert res["coverage_if_closed"][0]["whole"] == 3  # inv02 and payroll02 and inv01; payroll01 keeps its SQL gap
+    assert res["gaps"][1]["gap"] == "EXEC SQL: other"
+
+
+def test_census_and_burned_entry_points_refuse_each_other(tmp_path):
+    with pytest.raises(ValueError, match="burned"):
+        gp.measure_census({(A, "x.cbl"): row()}, {})
+    with pytest.raises(ValueError, match="not burned"):
+        gp.measure({(CENSUS[0], "x.cbl"): row()}, tmp_path)
+
+
+def test_census_program_without_an_era_counts_under_none():
+    res = gp.measure_census({(CENSUS[0], "p.cbl"): row("line 1: EXEC CICS: SYNCPOINT not modelled")}, {})
+    assert res["gaps"][0]["by_era"]["none"] == 1
+
+
+def test_render_adds_the_census_section(rows_and_inv):
+    rows, d = rows_and_inv
+    census = gp.measure_census({(CENSUS[0], "p.cbl"): row("line 1: EXEC CICS: SYNCPOINT not modelled")}, {})
+    page = gp.render(gp.measure(rows, d), census)
+    assert "## Census estates (1 estates, 1 programs, 0 translate whole today)" in page
+    assert CENSUS[0] not in page
+    assert "## Census estates" not in gp.render(gp.measure(rows, d))
+
+
+@pytest.mark.parametrize(
+    ("gap", "key"),
+    [
+        ("WRITE AFTER without ADVANCING", "WRITE: AFTER without ADVANCING"),
+        (
+            "WRITE AFTER ADVANCING identifier / mnemonic-name: carriage control is not modelled",
+            "WRITE: carriage control (mnemonic-name) not modelled",
+        ),
+        (
+            "PAYFILE: variable-length records without RECORD VARYING ... DEPENDING ON",
+            "FD: variable-length records without RECORD VARYING",
+        ),
+        (
+            "PAYSUB: no program of that name with a CALL entry in the estate",
+            "CALL: target without a CALL entry in the estate",
+        ),
+        ("CALL <name>", "CALL: other non-IBM target"),
+        ("JSON PARSE (…): not modelled", "JSON PARSE: not modelled"),
+        ("JSON GENERATE (…): not modelled", "JSON GENERATE: not modelled"),
+        (
+            "MOVE an alphanumeric literal holds a character beyond the single-byte code page (…)",
+            "MOVE: literal beyond the single-byte code page",
+        ),
+        (
+            "STRING an alphanumeric literal holds a character beyond the single-byte code page (…)",
+            "STRING: literal beyond the single-byte code page",
+        ),
+        (
+            "STRING sender <name>, PIC <name>(…)<name>: a numeric item with a P or a decimal place is a compile error",
+            "STRING: numeric sender with P or a decimal place",
+        ),
+        ("<name>: its bytes hold <name> <name>", "<name>: bytes overlap another item"),
+        ("ACCEPT from SYSIN / console", "ACCEPT: from SYSIN / console"),
+        ("PERFORM <name>: undeclared paragraph", "PERFORM: undeclared paragraph"),
+        ("SQLCA: undeclared item", "<name>: undeclared item"),
+        ("PAYMAPI: undeclared item", "<name>: undeclared item"),
+        ("PAYIN: no FD record", "FD: no record description"),
+        ("EXEC CICS map <name>: no PAYFLDA", "EXEC CICS map: no <name> field"),
+        ("STOP literal", "STOP: literal"),
+        ("EXHIBIT NAMED of <name> IN <name>: only plain names", "EXHIBIT NAMED: only plain names and literals"),
+        ("MOVE CORRESPONDING", "MOVE CORRESPONDING"),
+    ],
+)
+def test_scrub_key_itemises_the_other_buckets_without_names(gap, key):
+    assert gp.scrub_key(gap) == key
+    assert not re.search(r"PAY[A-Z]*", key)  # the key is the table's string, never a slice of the source
+
+
+def test_copybook_family_owner_and_status():
+    assert gp.owner_of("missing copybook: MQ system") == "#4892"
+    assert gp.owner_of("missing copybook: IMS system") == "#4893"
+    assert gp.owner_of("missing copybook: CICS system") == "#4270 (cics-command-slice)"
+    assert gp.owner_of("missing copybook: estate-owned") .startswith("none (the estate's own")
+    assert gp.owner_of("missing copybook: LE system") == "unowned (copybook family)"
+    assert gp.status_of("missing copybook: LE system") == "unknown"
+
+
+def test_copybook_family_keys_never_carry_the_member_name():
+    for member in ("PAYREC", "DFHPAYX", "SQLCAPAY", "CMQPAY", "AIBPAY", "CEEPAY"):
+        key = gp.scrub_key(f"missing copybook {member} (ambiguous)")
+        assert "PAY" not in key and key.startswith("missing copybook: ")

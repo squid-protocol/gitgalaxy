@@ -1180,7 +1180,7 @@
         "verification": 55.29
       },
       "file_count": 16,
-      "total_mass": 21791.12
+      "total_mass": 21795.62
     },
     "cpp/mlir": {
       "avg_exposures": {
@@ -2934,7 +2934,7 @@
       "avg_exposures": {
         "api_exposure": 4.36,
         "churn": 0.0,
-        "cognitive_load": 54.08,
+        "cognitive_load": 54.09,
         "concurrency": 21.68,
         "dead_code": 4.07,
         "documentation": 42.52,
@@ -2947,7 +2947,7 @@
         "verification": 68.9
       },
       "file_count": 7,
-      "total_mass": 8293.5
+      "total_mass": 8550.4
     },
     "jcl": {
       "avg_exposures": {
@@ -3764,7 +3764,7 @@
         "verification": 40.77
       },
       "file_count": 6,
-      "total_mass": 16440.58
+      "total_mass": 16524.28
     },
     "perl/mojo": {
       "avg_exposures": {
@@ -3954,7 +3954,7 @@
         "verification": 40.86
       },
       "file_count": 8,
-      "total_mass": 14164.36
+      "total_mass": 14166.16
     },
     "plaintext": {
       "avg_exposures": {
@@ -4167,22 +4167,22 @@
     },
     "powershell/core": {
       "avg_exposures": {
-        "api_exposure": 3.1,
+        "api_exposure": 3.11,
         "churn": 0.0,
         "cognitive_load": 34.79,
         "concurrency": 3.71,
         "dead_code": 3.85,
-        "documentation": 43.03,
+        "documentation": 43.04,
         "safety_score": 61.79,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.61,
         "state_flux": 63.71,
-        "tech_debt": 7.29,
+        "tech_debt": 7.31,
         "verification": 23.83
       },
       "file_count": 36,
-      "total_mass": 14095.66
+      "total_mass": 14141.46
     },
     "powershell/nvda": {
       "avg_exposures": {
@@ -4568,7 +4568,7 @@
       "avg_exposures": {
         "api_exposure": 14.06,
         "churn": 0.0,
-        "cognitive_load": 34.71,
+        "cognitive_load": 34.7,
         "concurrency": 0.0,
         "dead_code": 5.43,
         "documentation": 31.55,
@@ -4581,7 +4581,7 @@
         "verification": 42.98
       },
       "file_count": 19,
-      "total_mass": 17186.78
+      "total_mass": 17217.38
     },
     "python/opencv_dnn_conversion": {
       "avg_exposures": {
@@ -5100,7 +5100,7 @@
       "avg_exposures": {
         "api_exposure": 1.52,
         "churn": 0.0,
-        "cognitive_load": 38.42,
+        "cognitive_load": 38.47,
         "concurrency": 1.95,
         "dead_code": 2.84,
         "documentation": 85.71,
@@ -5113,7 +5113,7 @@
         "verification": 68.57
       },
       "file_count": 7,
-      "total_mass": 23887.92
+      "total_mass": 24244.32
     },
     "shell": {
       "avg_exposures": {
@@ -5797,7 +5797,7 @@
         "verification": 35.64
       },
       "file_count": 7,
-      "total_mass": 1756.0
+      "total_mass": 1774.0
     },
     "tabular": {
       "avg_exposures": {
@@ -6373,10 +6373,10 @@
       "avg_exposures": {
         "api_exposure": 18.11,
         "churn": 0.0,
-        "cognitive_load": 25.88,
+        "cognitive_load": 29.38,
         "concurrency": 5.24,
         "dead_code": 4.26,
-        "documentation": 60.24,
+        "documentation": 60.23,
         "safety_score": 48.98,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -6386,16 +6386,16 @@
         "verification": 57.14
       },
       "file_count": 7,
-      "total_mass": 71323.18
+      "total_mass": 77261.48
     },
     "typescript/vscode": {
       "avg_exposures": {
         "api_exposure": 7.64,
         "churn": 0.0,
-        "cognitive_load": 31.38,
+        "cognitive_load": 31.46,
         "concurrency": 39.26,
         "dead_code": 1.61,
-        "documentation": 54.29,
+        "documentation": 54.24,
         "safety_score": 57.96,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -6405,7 +6405,7 @@
         "verification": 58.39
       },
       "file_count": 11,
-      "total_mass": 7929.12
+      "total_mass": 8257.52
     },
     "typescript/zod": {
       "avg_exposures": {
@@ -6905,7 +6905,7 @@
       "avg_exposures": {
         "api_exposure": 9.06,
         "churn": 0.0,
-        "cognitive_load": 19.3,
+        "cognitive_load": 19.29,
         "concurrency": 0.0,
         "dead_code": 2.9,
         "documentation": 33.59,
@@ -6918,7 +6918,7 @@
         "verification": 48.49
       },
       "file_count": 5,
-      "total_mass": 3559.96
+      "total_mass": 3561.86
     },
     "zig/mach": {
       "avg_exposures": {
@@ -6943,39 +6943,39 @@
       "avg_exposures": {
         "api_exposure": 24.44,
         "churn": 0.0,
-        "cognitive_load": 22.29,
+        "cognitive_load": 22.32,
         "concurrency": 0.0,
         "dead_code": 1.36,
-        "documentation": 73.37,
+        "documentation": 73.39,
         "safety_score": 48.89,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 53.51,
         "tech_debt": 17.04,
-        "verification": 15.36
+        "verification": 21.81
       },
       "file_count": 12,
-      "total_mass": 3795.92
+      "total_mass": 4455.42
     },
     "zig/zig": {
       "avg_exposures": {
         "api_exposure": 73.39,
         "churn": 0.0,
-        "cognitive_load": 22.42,
+        "cognitive_load": 22.26,
         "concurrency": 8.31,
         "dead_code": 5.09,
-        "documentation": 73.04,
+        "documentation": 73.08,
         "safety_score": 37.9,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 55.5,
         "tech_debt": 11.85,
-        "verification": 2.57
+        "verification": 15.46
       },
       "file_count": 6,
-      "total_mass": 35104.36
+      "total_mass": 37360.96
     },
     "zig/zig_std_linux_mips": {
       "avg_exposures": {
@@ -7000,20 +7000,20 @@
       "avg_exposures": {
         "api_exposure": 35.55,
         "churn": 0.0,
-        "cognitive_load": 15.73,
+        "cognitive_load": 13.68,
         "concurrency": 10.69,
         "dead_code": 2.69,
-        "documentation": 82.7,
+        "documentation": 82.47,
         "safety_score": 27.38,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 53.44,
-        "tech_debt": 12.19,
-        "verification": 21.8
+        "tech_debt": 11.16,
+        "verification": 12.13
       },
       "file_count": 8,
-      "total_mass": 6446.98
+      "total_mass": 8461.78
     }
   }
 }

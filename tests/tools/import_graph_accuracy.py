@@ -109,6 +109,23 @@ RESOLUTION RULES (the language's, never the engine's)
               package.json in the repo named @scope/pkg (npm remapping); else
               from the project root; otherwise a dependency.
 
+  csharp      by NAMESPACE and NAME, never by path (a .cs file's directory means nothing):
+              `using A.B;` names a namespace (block or file-scoped declaration), which has
+              no file of its own: import contract C7, so no edge, never one per declaring
+              file; `using static A.B.C;` the files declaring type C in A.B (a nested type
+              falls back to its owner); `using X = A.B.C;` the same when C is a type;
+              `global using` alike. `#if` / `#region` bodies are read, every branch. A using inside `namespace N { }` is also tried under each
+              enclosing namespace of N. A namespace nothing in the repo declares (System.*) is external.
+
+  swift       by MODULE and NAME, never by path: `import Mod` (also `@testable`, `@_exported`,
+              `public import`) names a SwiftPM target, which has no file of its own: import
+              contract C7, so no edge. `import struct|class|enum|protocol|typealias|func|var|let
+              Mod.Name` the files in target Mod's directory declaring Name (a nested name falls
+              back to its owner; an extension counts as a declaration). Targets and their
+              directories come from Package.swift, read by pattern (it is code): `path:` else
+              Sources/<Name>, Tests/<Name> (testTarget), Plugins/<Name> (plugin). `#if` bodies
+              are read, every branch. A module no target names (Foundation, WinSDK) is external.
+
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
   ERROR node spans lines 85-127, taking three COPYs with it) -- it found 64 of
@@ -159,6 +176,7 @@ BASELINE = REPO_ROOT / "tests" / "import_graph_accuracy_baseline.json"
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import graph_ledger as gl  # noqa: E402
 
+from gitgalaxy.core.graph_engine import GraphIndex, pagerank
 from gitgalaxy.core.source_text import read_source
 
 LANGS = (
@@ -182,6 +200,8 @@ LANGS = (
     "haskell",
     "shell",
     "solidity",
+    "csharp",
+    "swift",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -1267,6 +1287,218 @@ def solidity_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_CS_TYPES = frozenset(
+    {
+        "class_declaration",
+        "struct_declaration",
+        "interface_declaration",
+        "enum_declaration",
+        "record_declaration",
+        "record_struct_declaration",
+        "delegate_declaration",
+    }
+)
+
+
+def _cs_name(node: Any, src: bytes) -> list[str]:
+    return [p for p in _text(node, src).replace(" ", "").split(".") if p] if node is not None else []
+
+
+def _cs_scan(node: Any, src: bytes, ns: list[str], on_type: Any, on_ns: Any, on_using: Any) -> list[str]:
+    """Walk one compilation unit's declarations. `ns` is the enclosing namespace; a file-scoped
+    `namespace N;` extends it for what follows. Returns the (possibly extended) namespace."""
+    for c in node.children:
+        t = c.type
+        if t == "namespace_declaration":
+            inner = [*ns, *_cs_name(c.child_by_field_name("name"), src)]
+            on_ns(inner)
+            body = c.child_by_field_name("body")
+            if body is not None:
+                _cs_scan(body, src, inner, on_type, on_ns, on_using)
+        elif t == "file_scoped_namespace_declaration":
+            ns = [*ns, *_cs_name(c.child_by_field_name("name"), src)]
+            on_ns(ns)
+        elif t in _CS_TYPES:
+            name = c.child_by_field_name("name")
+            if name is not None:
+                on_type(ns, _text(name, src))
+        elif t == "using_directive":
+            on_using(c, ns)
+        elif t.startswith("preproc_"):
+            # `#if` / `#region` wrap whole files' declarations (Newtonsoft's LinqBridge.cs): every
+            # branch is read, as the parser cannot tell which symbols the build defines.
+            ns = _cs_scan(c, src, ns, on_type, on_ns, on_using)
+    return ns
+
+
+def _cs_index(group: Group) -> dict[str, Any]:
+    """Every .cs file's declared namespaces and top-level types, parsed once."""
+    if "cs" in group._cache:
+        return group._cache["cs"]
+    by_ns: dict[str, set[str]] = collections.defaultdict(set)
+    by_type: dict[tuple[str, str], set[str]] = collections.defaultdict(set)
+    for f in sorted(group.files):
+        if not f.endswith(".cs") or group.root is None:
+            continue
+        try:
+            src = (group.root / f).read_bytes()
+        except OSError:
+            continue
+
+        def on_ns(parts: list[str], f: str = f) -> None:
+            by_ns[".".join(parts)].add(f)
+
+        def on_type(ns: list[str], name: str, f: str = f) -> None:
+            by_type[(".".join(ns), name)].add(f)
+
+        _cs_scan(_ts_tree("csharp", src), src, [], on_type, on_ns, lambda *_: None)
+    group._cache["cs"] = {"ns": by_ns, "type": by_type}
+    return group._cache["cs"]
+
+
+def _cs_resolve(index: dict[str, Any], parts: list[str], enclosing: list[str], static: bool) -> set[str]:
+    """`parts` as a namespace (unless `static`; import contract C7, so no file), else as `ns.Type`
+    (a nested type falls back to its owner), tried absolutely then under each enclosing namespace,
+    innermost first."""
+    for cut in range(len(enclosing), -1, -1):
+        full = [*enclosing[:cut], *parts]
+        if not static and index["ns"].get(".".join(full)):
+            return set()  # import contract C7: a whole-namespace import is no edge (C# has no namespace file)
+        for drop in (0, 1):
+            head = full[: len(full) - drop]
+            if len(head) >= 2 or (len(head) == 1 and head[0]):
+                hit = index["type"].get((".".join(head[:-1]), head[-1]))
+                if hit:
+                    return set(hit)
+    return set()
+
+
+def csharp_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _cs_index(group)
+    found: list[tuple[Any, list[str]]] = []
+    _cs_scan(_ts_tree("csharp", src), src, [], lambda *_: None, lambda *_: None, lambda c, ns: found.append((c, ns)))
+    out = []
+    for c, ns in found:
+        static = any(x.type == "static" for x in c.children)
+        # `using X = A.B;` names its target after the `=`; the alias is the `name` field.
+        alias = c.child_by_field_name("name")
+        target = next((x for x in c.children if x.type in ("qualified_name", "identifier") and x != alias), None)
+        if target is None:
+            continue
+        out.append(_cs_resolve(index, _cs_name(target, src), ns, static))
+    return out
+
+
+_SW_TARGET = re.compile(r"\.(target|executableTarget|testTarget|macro|plugin|systemLibrary)\(")
+_SW_NAME = re.compile(r'\bname:\s*"([^"\n]{1,100})"')
+_SW_PATH = re.compile(r'\bpath:\s*"([^"\n]{1,200})"')
+_SW_SCOPED = frozenset({"struct", "class", "enum", "protocol", "typealias", "func", "var", "let"})
+_SW_DEFAULT_DIR = {"testTarget": "Tests", "plugin": "Plugins"}
+
+
+def _sw_call_text(text: str, start: int) -> str:
+    """The text of the call whose `(` sits just before `start`, by paren depth (bounded)."""
+    depth = 1
+    end = min(len(text), start + 4000)
+    for i in range(start, end):
+        ch = text[i]
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                return text[start:i]
+    return text[start:end]
+
+
+def _sw_targets(group: Group) -> dict[str, str]:
+    """SwiftPM target name -> its directory (relative to the group root), from every Package.swift."""
+    out: dict[str, str] = {}
+    for pkg in sorted(f for f in group.files if f.endswith("Package.swift")):
+        if group.root is None or posixpath.basename(pkg) != "Package.swift":
+            continue
+        try:
+            text = read_source(group.root / pkg).text
+        except OSError:
+            continue
+        base = posixpath.dirname(pkg)
+        for m in _SW_TARGET.finditer(text):
+            call = _sw_call_text(text, m.end())
+            name = _SW_NAME.search(call)
+            if name is None:
+                continue
+            path = _SW_PATH.search(call)
+            rel = path.group(1) if path else posixpath.join(_SW_DEFAULT_DIR.get(m.group(1), "Sources"), name.group(1))
+            out.setdefault(name.group(1), posixpath.normpath(posixpath.join(base, rel)))
+    return out
+
+
+def _sw_decls(node: Any, src: bytes, out: set[str]) -> None:
+    """Names declared at one file's top level. `#if` is a flat directive, so its body is read as is."""
+    for c in node.children:
+        t = c.type
+        if t in ("class_declaration", "protocol_declaration", "typealias_declaration", "function_declaration"):
+            name = c.child_by_field_name("name")
+            if name is not None:
+                out.add(_text(name, src).strip().split(".")[0].split("<")[0])
+        elif t == "property_declaration":
+            for n in _walk(c):
+                if n.type == "simple_identifier" and n.parent is not None and n.parent.type == "pattern":
+                    out.add(_text(n, src))
+        elif "if_config" in t or "compiler" in t:
+            _sw_decls(c, src, out)
+
+
+def _sw_index(group: Group) -> dict[str, dict[str, set[str]]]:
+    """target name -> declared name -> the files of that target declaring it, parsed once."""
+    if "sw" in group._cache:
+        return group._cache["sw"]
+    index: dict[str, dict[str, set[str]]] = {}
+    targets = _sw_targets(group)
+    for f in sorted(group.files):
+        if not f.endswith(".swift") or group.root is None:
+            continue
+        owner = max(
+            (n for n, d in targets.items() if f.startswith(d + "/")),
+            key=lambda n: len(targets[n]),
+            default=None,
+        )
+        if owner is None:
+            continue
+        try:
+            src = (group.root / f).read_bytes()
+        except OSError:
+            continue
+        names: set[str] = set()
+        _sw_decls(_ts_tree("swift", src), src, names)
+        for nm in names:
+            index.setdefault(owner, {}).setdefault(nm, set()).add(f)
+    for t in targets:
+        index.setdefault(t, {})
+    group._cache["sw"] = index
+    return index
+
+
+def swift_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _sw_index(group)
+    out = []
+    for n in _ts_tree("swift", src).children:
+        if n.type != "import_declaration":
+            continue
+        ident = next((c for c in n.children if c.type == "identifier"), None)
+        if ident is None:
+            continue
+        parts = [p for p in _text(ident, src).replace(" ", "").split(".") if p]
+        scoped = any(c.type in _SW_SCOPED for c in n.children)
+        # import contract C7: `import Mod` names a module (a target), which has no file
+        if not scoped or len(parts) < 2:
+            out.append(set())
+            continue
+        decls = index.get(parts[0], {})
+        out.append(set(decls.get(parts[1], ())))
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -1288,6 +1520,8 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "haskell": haskell_imports,
     "shell": shell_imports,
     "solidity": solidity_imports,
+    "csharp": csharp_imports,
+    "swift": swift_imports,
 }
 
 
@@ -1423,6 +1657,71 @@ def import_cause(kind: str, truth: set[str], union: set[str], tokens: list[str],
 # ----------------------------------------------------------------------------- scoring
 
 
+HUB_K = 10
+
+
+def _ranks(edges: set[tuple[str, str]], nodes: list[str]) -> dict[str, float] | None:
+    """File -> rank (1 = top PageRank, ties averaged) from the engine's own pagerank, or None."""
+    try:
+        scores = pagerank(GraphIndex(nodes, ((s, d, 1.0) for s, d in sorted(edges))))
+    except RuntimeError:  # did not converge
+        return None
+    order = sorted(range(len(nodes)), key=lambda i: (-scores[i], nodes[i]))
+    ranks: dict[str, float] = {}
+    i = 0
+    while i < len(order):
+        j = i
+        while j + 1 < len(order) and scores[order[j + 1]] == scores[order[i]]:
+            j += 1
+        for x in order[i : j + 1]:
+            ranks[nodes[x]] = (i + j) / 2 + 1
+        i = j + 1
+    return ranks
+
+
+def _top(ranks: dict[str, float], k: int) -> list[str]:
+    return sorted(ranks, key=lambda n: (ranks[n], n))[:k]
+
+
+def _spearman(a: list[float], b: list[float]) -> float | None:
+    n = len(a)
+    ma, mb = sum(a) / n, sum(b) / n
+    va = sum((x - ma) ** 2 for x in a)
+    vb = sum((y - mb) ** 2 for y in b)
+    if not va or not vb:
+        return None
+    return sum((x - ma) * (y - mb) for x, y in zip(a, b, strict=True)) / (va * vb) ** 0.5
+
+
+def hub_agreement(
+    engine_edges: set[tuple[str, str]], truth_edges: set[tuple[str, str]], nodes: Iterable[str], k: int = HUB_K
+) -> dict[str, Any] | None:
+    """Do the engine's top-k PageRank files match the top-k on the parser-truth graph (#3797)?
+
+    Both graphs share one node set (the group's files of the language); edges are distinct pairs of
+    weight 1.0 with both ends in it. `overlap_at_k` = |top-k & top-k| / k; `spearman` is the rank
+    correlation (full-graph average ranks) over the union of the two top-k sets. None when the group
+    has fewer than k files, no truth edges, or a graph's PageRank does not converge."""
+    names = sorted(set(nodes))
+    have = set(names)
+    eng = {e for e in engine_edges if e[0] in have and e[1] in have}
+    tru = {e for e in truth_edges if e[0] in have and e[1] in have}
+    if len(names) < k or not tru:
+        return None
+    re, rt = _ranks(eng, names), _ranks(tru, names)
+    if re is None or rt is None:
+        return None
+    te, tt = _top(re, k), _top(rt, k)
+    union = sorted(set(te) | set(tt))
+    rho = _spearman([re[n] for n in union], [rt[n] for n in union])
+    return {
+        "overlap_at_k": len(set(te) & set(tt)) / k,
+        "spearman": None if rho is None else round(rho, 4),
+        "k": k,
+        "n": len(names),
+    }
+
+
 def score_group(
     group_dir: Path,
     langs: dict[str, str],
@@ -1437,6 +1736,7 @@ def score_group(
     out_edges: dict[str, set[str]] = collections.defaultdict(set)
     for s, d in edges:
         out_edges[s].add(d)
+    truth_edges: dict[str, set[tuple[str, str]]] = collections.defaultdict(set)
     for rel, lang in langs.items():
         if lang not in wanted or lang not in EXTRACTORS:
             continue
@@ -1451,6 +1751,7 @@ def score_group(
         mine = out_edges.get(rel, set())
         tokens = (raw or {}).get(rel, [])
         union = set().union(*resolvable) if resolvable else set()
+        truth_edges[lang] |= {(rel, d) for d in union}  # a multi-file statement adds an edge to each file
         for t in resolvable:
             r["imports"] += 1
             if mine & t:
@@ -1466,6 +1767,10 @@ def score_group(
             else:
                 r["fp"].append(f"{rel} -> {d}")
                 r["causes"].append((import_cause("fp", {d}, union, tokens, True), rel, f"{rel} -> {d}"))
+    for lang, r in per.items():
+        hubs = hub_agreement(edges, truth_edges[lang], [p for p, lg in langs.items() if lg == lang])
+        if hubs:
+            r["hubs"] = hubs
     return per
 
 
@@ -1527,9 +1832,12 @@ def measure(
                         "fp": [],
                         "fn": [],
                         "causes": [],
+                        "hubs": [],
                     },
                 )
                 t["repos"].append(e["repo"])
+                if r.get("hubs"):
+                    t["hubs"].append(r["hubs"])
                 for k in ("files", "imports", "found", "edges", "correct"):
                     t[k] += r[k]
                 name = e["repo"].split("/")[1]
@@ -1554,6 +1862,7 @@ def measure(
             "sample_fn": sorted(t["fn"])[:samples],
             "correct": t["correct"],
             "found": t["found"],
+            **_hub_means(t["hubs"]),
         }
         if buckets:
             counts = collections.Counter(c for c, _, _ in t["causes"])
@@ -1567,18 +1876,37 @@ def measure(
     return results
 
 
+def _hub_means(hubs: list[dict[str, Any]]) -> dict[str, Any]:
+    """Language-level hub agreement: the mean over repos that have one (PageRank does not pool
+    across repos). Absent when no repo qualified, so older baselines and exact-equality stay valid."""
+    if not hubs:
+        return {}
+    rhos = [h["spearman"] for h in hubs if h["spearman"] is not None]
+    out: dict[str, Any] = {
+        "hub_overlap_at_10": round(sum(h["overlap_at_k"] for h in hubs) / len(hubs), 3),
+        "hub_repos": len(hubs),
+    }
+    if rhos:
+        out["hub_spearman"] = round(sum(rhos) / len(rhos), 3)
+    return out
+
+
 def render(results: dict[str, dict[str, Any]]) -> str:
     def pct(v: float | None) -> str:
         return "n/a" if v is None else f"{v}%"
 
+    def num(v: float | None) -> str:
+        return "n/a" if v is None else f"{v:.2f}"
+
     lines = [
-        "| language | repos | files | resolvable imports | engine edges | precision | recall | FP | FN |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| language | repos | files | resolvable imports | engine edges | precision | recall | FP | FN | hub overlap@10 | hub Spearman |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for lang, r in results.items():
         lines.append(
             f"| {lang} | {r['repos']} | {r['files']} | {r['imports']} | {r['engine_edges']} | "
-            f"{pct(r['precision_pct'])} | {pct(r['recall_pct'])} | {r['fp']} | {r['fn']} |"
+            f"{pct(r['precision_pct'])} | {pct(r['recall_pct'])} | {r['fp']} | {r['fn']} | "
+            f"{num(r.get('hub_overlap_at_10'))} | {num(r.get('hub_spearman'))} |"
         )
     return "\n".join(lines)
 

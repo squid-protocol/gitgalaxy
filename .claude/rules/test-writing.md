@@ -24,3 +24,6 @@
 * **A module-scoped fixture's cost lands on whichever test runs first in a CI split part,** so any consumer of an
   expensive fixture can trip the per-test time ratchet (#5269).
 * **A baselined test fails at 2.5x its baseline even when slow-marked:** split it instead of marking it (#5613).
+* **A test gated on `GITGALAXY_NIGHTLY` is invisible to push/PR CI,** so the time ratchet first sees it on the scheduled run:
+  mark it slow up front (#5994). On a time_ratchet failure read the `--durations` per-phase lines before assuming the test
+  is slow (#6204).

@@ -7,7 +7,8 @@ A pull request that changes no det input (DET_INPUTS: docs, other engine code ..
 so the workflow can run -- and report its required `det` check -- on every PR). One that changes only files under
 tests/equivalence/<case>/ re-proves those cases (and the cases that
 take that case's port: `port_from`, `uses_ports`, transitively); so does one changing a case's coverage-ledger file,
-tests/equivalence/det_sweep_coverage/<case>.json (#4789: the sweep of that case is what checks the entry). A change to the translator + runtime (det/) or the generator (GENERATOR: the forges that write the
+tests/equivalence/det_sweep_coverage/<case>.json (#4789: the sweep of that case is what checks the entry), or its
+tests/equivalence/infeasible_outcomes/<case>.json (#6072). A change to the translator + runtime (det/) or the generator (GENERATOR: the forges that write the
 project) is judged by the port diff (mode "ports", then --ports; #4814, #4847). #5885: a shared file is narrowed
 to the cases it can move -- the baseline and infeasible_outcomes.json to the cases whose entries changed (KEYED), the
 corpora pin to the cases on a corpus whose pin changed, a harness / oracle file to the cases that use its component
@@ -16,6 +17,9 @@ det tools, the workflow, a file straight under tests/equivalence/, a case direct
 or removed), an unreadable diff or side -- is a full sweep, as is every event that is not a pull request (nightly,
 manual: the backstop for a narrowing that missed). When in doubt, full. Stdlib only: the job runs before anything is
 installed.
+
+#6278: on a pull request the Db2 half of a plan that went full for a reason outside the Db2 area (a harness-core file, an
+oracle Dockerfile: change_classifier.db2_area) is dropped; the non-Db2 sweep and every other event are unchanged.
 
 Prints JSON {mode, cases, shards, matrix, db2_cases, db2_shards, db2_matrix, reason}: `cases` is "all" or the names;
 `matrix` the shard labels "I/N". The Db2 cases (a "db2" section in case.json) are split off into `db2_cases` (#4901):
@@ -28,6 +32,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import math
 import os
 import subprocess
 import sys
@@ -38,7 +43,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CASES = REPO_ROOT / "tests" / "equivalence"
-MAX_SHARDS = 6  # full sweep: runners (#5135: 6 fat shards, ~10 min each, not 20 that queue behind the 20-job pool; a narrow plan starts one per PER_SHARD cases)
+MAX_SHARDS = 6  # runners at most (#5135: not 20 that queue behind the 20-job pool); #5919: durations size the count below it, and without them a full sweep takes 6, a narrow plan one per PER_SHARD cases
 PER_SHARD = 3  # narrow: about this many cases per runner
 # #4901: the Db2 cases run on their own runners (each starts IBM's Db2 container, minutes), in parallel with the shards
 # #5882: a full sweep's Db2 runners scale with the Db2 cases (a fixed 4 timed shards out at 70 cases): one per
@@ -54,9 +59,16 @@ DB2_PER_SHARD = 6  # narrow: about this many Db2 cases per runner (a Db2 start i
 DB2_SETUP_S = 420  # job start, checkout, Db2 container + databases (~6 min, #5882) before the first proof
 DB2_TARGET_S = 15 * 60  # a Db2 job, start to sweep end (det_sweep_timing.BUDGET_SECONDS)
 SHARD_SETUP_S = 300  # a non-Db2 shard: checkout, install, the GnuCOBOL image
+SHARD_TARGET_S = 10 * 60  # #5919: a non-Db2 shard, start to sweep end (the fewest runners that fit)
+MAX_RATIO = 1.3  # planned slowest / fastest shard (det_sweep_timing.MAX_RATIO)
 PROOF_JOBS = 4  # proof_sweep.py --jobs: cases proven at once in a shard
 TIMEOUT_FLOOR, TIMEOUT_CEILING = 25, 45  # minutes
 DEFAULT_TIMEOUT = 30  # minutes, when there are no durations to size from
+# #5604: a Db2 job may sit in det-sweep.yml's "Wait for the first Db2 database" (540 x 5 s) before its first proof, so its
+# timeout is that wait + checkout + the proving, not the 25..45 min band of a job without the wait.
+DB2_WAIT_S = 2700
+DB2_TIMEOUT_FLOOR = -(-(SHARD_SETUP_S + DB2_WAIT_S + DB2_TARGET_S) // 60)  # minutes: the wait plus a target-sized sweep
+DB2_TIMEOUT_CEILING = 90
 # #5919: Evidence Refresh's own jobs (--evidence-plan). Its 20-job share: sweep + records + Db2 parts (6) + lane, refresh,
 # det-mutation. Records are re-proved one at a time (evidence.py has no --jobs); the stale list is unknowable in the lane
 # job's sparse checkout, so every evidence.json counts, at RECORD_S each (2002-2579 s for ~40 records, sequential).
@@ -91,7 +103,10 @@ GENERATOR = tuple(
 )  # fmt: skip
 # #5274: the transaction forge's CicsTask family, split out of it
 GENERATOR += ("gitgalaxy/tools/cobol_to_java/cics_task_containers.py",
-              "gitgalaxy/tools/cobol_to_java/cics_task_filecontrol.py")  # fmt: skip  # #5448 split it out too (#5885)
+              "gitgalaxy/tools/cobol_to_java/cics_task_filecontrol.py",  # #5448 split it out too (#5885)
+              "gitgalaxy/tools/cobol_to_java/cics_task_taskcontrol.py",
+              "gitgalaxy/tools/cobol_to_java/cics_task_conditions.py",
+              "gitgalaxy/tools/cobol_to_java/cics_task_faults.py")  # fmt: skip
 
 
 def port_diff_input(path: str) -> bool:
@@ -122,6 +137,7 @@ def det_input(path: str) -> bool:
 
 # #4789: <case>.json, the det-sweep coverage ledger's entry of a case
 LEDGER_DIR = "tests/equivalence/det_sweep_coverage/"
+INFEASIBLE_DIR = "tests/equivalence/infeasible_outcomes/"  # #6072: one file per case, <case>.json
 
 
 def case_dirs(cases_dir: Path = CASES) -> dict[str, dict]:
@@ -235,7 +251,7 @@ def labels_from_event(path: Path) -> list[str]:
     return [x.get("name", "") for x in (payload.get("pull_request") or {}).get("labels") or []]
 
 
-def plan(
+def _plan(
     files: list[str],
     event: str,
     cases: dict[str, dict],
@@ -266,6 +282,9 @@ def plan(
             continue
         if f.startswith(LEDGER_DIR) and f.endswith(".json") and f[len(LEDGER_DIR) : -5] in cases:
             touched.add(f[len(LEDGER_DIR) : -5])  # #4789: a case's ledger entry is checked by sweeping that case
+            continue
+        if f.startswith(INFEASIBLE_DIR) and f.endswith(".json") and f[len(INFEASIBLE_DIR) : -5] in cases:
+            touched.add(f[len(INFEASIBLE_DIR) : -5])  # #6072: a case's stated outcomes are checked by sweeping it
             continue
         if f in KEYED or f == CORPORA:
             got = None
@@ -302,6 +321,28 @@ def plan(
                       + (f" (+ dependents {', '.join(sorted(set(affected) - touched))})" if set(affected) - touched else "")}  # fmt: skip
 
 
+def plan(
+    files: list[str],
+    event: str,
+    cases: dict[str, dict],
+    labels: list[str] | None = None,
+    texts: Callable[[str], tuple[str | None, str | None]] | None = None,
+) -> dict:
+    """_plan(), then #6278: on a pull request the Db2 runners (each starts IBM's Db2 container, ~17% of PR runner minutes)
+    run only when a changed file is in the Db2 area (change_classifier.db2_area) or a Db2 case moved. A plan that went
+    full for another reason (a harness core file, an unplaceable file) keeps its non-Db2 sweep and drops the Db2 half;
+    the nightly, a manual run and the `shepherd:full` label still prove every Db2 case."""
+    p = _plan(files, event, cases, labels, texts)
+    if event != "pull_request" or FULL_LABEL in (labels or []) or p["db2_cases"] != "all" or not files:
+        return p  # an empty diff is "cannot tell": keep it full
+    import change_classifier  # noqa: PLC0415 -- Evidence Refresh's sparse checkout holds this planner alone
+
+    names = [n for n, c in cases.items() if is_db2(c)]
+    if any(change_classifier.db2_area(f, names) for f in files):
+        return p
+    return {**p, "db2_cases": [], "reason": p["reason"] + "; no changed file is in the Db2 area: no Db2 shard"}
+
+
 def narrow_by_ports(check: Path, touched: list[str], cases: dict[str, dict]) -> dict:
     """#4814: the plan after `det_port.py check`: the ports that differ from the base, the touched cases, and their
     dependents. A missing or unreadable check is a full sweep (when in doubt, full)."""
@@ -324,15 +365,49 @@ def narrow_by_ports(check: Path, touched: list[str], cases: dict[str, dict]) -> 
                       f"{len(cases) - len(affected)} case(s) carried forward unchanged"}  # fmt: skip
 
 
-def shards_for(p: dict) -> list[str]:
-    """The runner labels for a plan: MAX_SHARDS for a full sweep, one per PER_SHARD cases when narrow, none for no cases."""
+def shards_for(p: dict, durations: dict[str, float] | None = None, waiting: int | None = None) -> list[str]:
+    """The runner labels for a plan, none for no cases. With `durations` (#5919): the fewest runners whose slowest fits
+    SHARD_TARGET_S, at most MAX_SHARDS (halved while PR jobs queue), then fewer while the planned slowest/fastest ratio
+    is over MAX_RATIO; the plan fails (PlanError) when too many cases are unmeasured. Without: MAX_SHARDS for a full
+    sweep, one per PER_SHARD cases when narrow."""
     if p["mode"] == "ports":
         return []  # not final: --ports turns it into a narrow (or full) plan
-    if p["mode"] == "full":
+    if durations is not None:
+        names = sorted(n for n, c in case_dirs().items() if not is_db2(c)) if p["cases"] == "all" else list(p["cases"])
+        n = _sized_shards(names, durations, waiting)
+    elif p["mode"] == "full":
         n = MAX_SHARDS
     else:
         n = min(MAX_SHARDS, -(-len(p["cases"]) // PER_SHARD))
     return [f"{i}/{n}" for i in range(1, n + 1)]
+
+
+def _loads(weight: dict[str, float], n: int) -> list[float]:
+    """Planned seconds in each of `n` shards, longest case first into the lightest (what proof_sweep does)."""
+    loads = [0.0] * max(1, n)
+    for w in sorted(weight.values(), reverse=True):
+        loads[loads.index(min(loads))] += w
+    return loads
+
+
+def planned_ratio(weight: dict[str, float], n: int) -> float | None:
+    """Slowest / fastest shard's planned work for `n` shards; None for fewer than two, or an idle shard."""
+    if n < 2 or not weight:
+        return None
+    loads = _loads(weight, n)
+    return max(loads) / min(loads) if min(loads) > 0 else None
+
+
+def _sized_shards(names: list[str], durations: dict[str, float], waiting: int | None) -> int:
+    """The non-Db2 shard count for `names`: the target-fitting count (ci_shard_plan), reduced until the planned ratio is
+    within MAX_RATIO (a smaller count balances better; one shard always does)."""
+    shard_plan = _shard_plan()
+    w, missing = shard_plan.weights(names, durations)
+    shard_plan.check_measured(missing, len(w))
+    n = shard_plan.shards_for(w, SHARD_SETUP_S, PROOF_JOBS, SHARD_TARGET_S, shard_plan.pool_cap(MAX_SHARDS, waiting))
+    while n > 1 and (planned_ratio(w, n) or 0.0) > MAX_RATIO:
+        n -= 1
+    return n
 
 
 def _shard_plan():
@@ -388,7 +463,7 @@ def db2_shards_for(p: dict, n_db2: int | None = None, durations: dict[str, float
 def timeouts_for(p: dict, durations: dict[str, float] | None, db2_setup_s: float | None = None) -> dict[str, int]:
     """#5919: the `timeout` (non-Db2 shard) and `db2_timeout` job minutes, from the slowest planned shard of the plan's
     matrices; DEFAULT_TIMEOUT for a kind with no durations or no shards."""
-    out = {"timeout": DEFAULT_TIMEOUT, "db2_timeout": DEFAULT_TIMEOUT}
+    out = {"timeout": DEFAULT_TIMEOUT, "db2_timeout": DB2_TIMEOUT_FLOOR}
     if durations is None:
         return out
     cases = case_dirs()
@@ -400,7 +475,12 @@ def timeouts_for(p: dict, durations: dict[str, float] | None, db2_setup_s: float
         if n and names:
             shard_plan = _shard_plan()
             w, _ = shard_plan.weights(names, durations)
-            out[key] = shard_plan.timeout_minutes(w, n, setup, PROOF_JOBS, TIMEOUT_FLOOR, TIMEOUT_CEILING)
+            if key == "db2_timeout":
+                proving = shard_plan.slowest_shard(w, n) / PROOF_JOBS
+                planned = SHARD_SETUP_S + DB2_WAIT_S + proving * shard_plan.MARGIN
+                out[key] = max(DB2_TIMEOUT_FLOOR, min(DB2_TIMEOUT_CEILING, math.ceil(planned / 60)))
+            else:
+                out[key] = shard_plan.timeout_minutes(w, n, setup, PROOF_JOBS, TIMEOUT_FLOOR, TIMEOUT_CEILING)
     return out
 
 
@@ -553,7 +633,11 @@ def db2_setup_from(timing_paths: list[Path]) -> float | None:
 
 def emit(p: dict, github_output: Path | None, durations: dict[str, float] | None = None,
          waiting: int | None = None, db2_setup_s: float | None = None) -> int:  # fmt: skip
-    p["matrix"] = shards_for(p)
+    p["matrix"] = shards_for(p, durations, waiting)
+    if durations is not None and len(p["matrix"]) > 1:
+        names = [n for n, c in case_dirs().items() if not is_db2(c)] if p["cases"] == "all" else list(p["cases"])
+        ratio = planned_ratio(_shard_plan().weights(names, durations)[0], len(p["matrix"]))
+        p["ratio"] = None if ratio is None else round(ratio, 3)
     p["shards"] = len(p["matrix"])
     p["db2_matrix"] = db2_shards_for(
         p, durations=durations, waiting=waiting, setup_s=db2_setup_s

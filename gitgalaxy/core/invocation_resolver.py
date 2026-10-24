@@ -79,6 +79,10 @@ UNIT_DECLARED_PROGRAM_LANGUAGES = ("hlasm",)
 # never indexed: calling one stays a function-level edge.
 MEMBER_NAMED_PROGRAM_LANGUAGES = ("pli",)
 
+# #5736: a SQL `CALL name` names a routine another SQL file creates, never a COBOL
+# program: sites from these languages resolve against a SQL-only index.
+SQL_ROUTINE_LANGUAGES = ("db2_sql", "postgresql")
+
 # `CALL`/`LINK`/`XCTL` are COBOL-side invocations; `EXEC PGM` is JCL's.
 _EXEC_VERBS = ("EXEC PGM",)
 
@@ -113,6 +117,20 @@ def _program_index(parsed_files: list[dict[str, Any]]) -> dict[str, list[str]]:
             name = str(cls.get("name", "")).strip().upper()
             if name:
                 index.setdefault(nfc(name), []).append(f.get("path", ""))
+    return index
+
+
+def _sql_routine_index(parsed_files: list[dict[str, Any]]) -> dict[str, dict[str, list[str]]]:
+    """#5736: dialect -> routine name (upper-cased, NFC, unquoted) -> the SQL files of that dialect creating it."""
+    index: dict[str, dict[str, list[str]]] = {}
+    for f in parsed_files:
+        lang = str(f.get("lang_id", "")).lower()
+        if lang not in SQL_ROUTINE_LANGUAGES:
+            continue
+        for fn in f.get("functions", []) or []:
+            name = str(fn.get("name", "")).strip().strip('"').upper()
+            if name:
+                index.setdefault(lang, {}).setdefault(nfc(name), []).append(f.get("path", ""))
     return index
 
 
@@ -194,6 +212,7 @@ def resolve_invocations(
     and none is named for (#4419): src_path, target, the chosen path and all candidates.
     """
     index = _program_index(parsed_files)
+    sql_index = _sql_routine_index(parsed_files)
     included = _pli_included_procedures(parsed_files)
     sites: list[dict[str, Any]] = []
     edges: dict[tuple[str, str, str], dict[str, Any]] = {}
@@ -201,6 +220,8 @@ def resolve_invocations(
     for f in parsed_files:
         src_path = f.get("path", "")
         is_pli = str(f.get("lang_id", "")).lower() in MEMBER_NAMED_PROGRAM_LANGUAGES
+        lang = str(f.get("lang_id", "")).lower()
+        site_index = sql_index.get(lang, {}) if lang in SQL_ROUTINE_LANGUAGES else index
         for site in f.get("call_sites", []) or []:
             target = site.get("target")
             if is_pli and site.get("verb") == "CALL" and str(target or "").upper() in included:
@@ -211,7 +232,9 @@ def resolve_invocations(
             # never matched against the PROGRAM-ID index here. It still rides in
             # call_site_data as a row, just with no program destination.
             if target and site.get("verb") not in TRANSACTION_ROUTING_VERBS:
-                resolved = _pick_program(index.get(nfc(str(target).upper()), []), str(target), src_path, ambiguities)
+                resolved = _pick_program(
+                    site_index.get(nfc(str(target).upper()), []), str(target), src_path, ambiguities
+                )
                 # A program calling itself is recursion, not an edge: the
                 # import graph drops self-edges for the same reason. #4447: but a member
                 # that holds SEVERAL programs (nested / batched, `END PROGRAM`-closed) can

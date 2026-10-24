@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `28734a013e294b3a60b9d42c48375c826e01abde` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `93f1ded2032b4e213c58691790f601fd5ccda746` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `e41589af5e06`).
+The translation survey matches the translator in the tree (translator fingerprint `6d3f1f3c1188`).
 
 ## How to read this report
 
@@ -25,7 +25,7 @@ The translation survey matches the translator in the tree (translator fingerprin
 | L2 | executed equivalent | a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case by a local sweep or the scheduled Db2 sweep's coverage ledger entry); the case's evidence record is reported, not required |
 | L3 | paragraph coverage | L2, and the scenarios execute >= 100.0 percent of its live paragraphs |
 | L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes, net of the case's reviewed infeasible outcomes (listed under its assumptions) |
-| L5 | mutants accounted for | L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628) |
+| L5 | mutants accounted for | L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628: the case, corpus and survivors list unchanged and the det port's bytes not found moved; generator, harness and oracle drift is recorded, not staling, #5862) |
 
 **What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a program actually reaches is not measured. These migration dimensions are not measured at all:
 
@@ -42,13 +42,13 @@ The translation survey matches the translator in the tree (translator fingerprin
 |---|---|---|
 | L0 | 0 | 0 |
 | L1 | 0 | 0 |
-| L2 | 13 | 0 |
-| L3 | 8 | 0 |
-| L4 | 10 | 0 |
+| L2 | 7 | 0 |
+| L3 | 9 | 0 |
+| L4 | 15 | 0 |
 | L5 | 0 | 0 |
 
 - stale (`*`, last measured): 0 of 31 programs; the rest are current
-- L2+: 31 (0 awaiting re-check); L3+: 18 (0 awaiting re-check); L4+: 10 (0 awaiting re-check)
+- L2+: 31 (0 awaiting re-check); L3+: 24 (0 awaiting re-check); L4+: 15 (0 awaiting re-check)
 
 - programs: 31 (with an EXEC CICS command: 30; source not read: 0)
 - translated whole: 31; refused whole: 0; holes left: 0
@@ -93,44 +93,44 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| src/base/cobol_src/ABNDPROC.cbl | L4 | 13/13 | 0 | cbsa-abndproc | equal | 8 | none | 4/4 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 32% (stale) | stale (generator, harness, oracle moved), last measured: raw 32% (45/141 caught; 150 of 453 mutants, seed 0); 34 of 96 survivors unaccounted | 1/2 |
-| src/base/cobol_src/ACCTCTRL.cbl | L4 | 18/18 | 0 | cbsa-acctctrl | equal | 20 | none | 7/7 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 41% (stale) | stale (generator, harness, oracle moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); 21 of 289 survivors unaccounted | 1/3 |
+| src/base/cobol_src/ABNDPROC.cbl | L4 | 13/13 | 0 | cbsa-abndproc | equal | 8 | none | 4/4 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 32% (stale) | stale (port moved), last measured: raw 32% (45/141 caught; 150 of 453 mutants, seed 0); 34 of 96 survivors unaccounted | 1/2 |
+| src/base/cobol_src/ACCTCTRL.cbl | L4 | 18/18 | 0 | cbsa-acctctrl | equal | 20 | none | 7/7 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 41% (stale) | stale (port moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); 21 of 289 survivors unaccounted | 1/3 |
 | src/base/cobol_src/BANKDATA.cbl | L4 | 464/464 | 0 | cbsa-bankdata | equal | None | none | 24/24 (100.0%) | 47/48 (97.9%) | 47/47 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| src/base/cobol_src/CRDTAGY1.cbl | L4 | 44/44 | 0 | cbsa-crdtagy1 | equal | 8 | none | 7/7 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
+| src/base/cobol_src/CRDTAGY2.cbl | L4 | 44/44 | 0 | cbsa-crdtagy2 | equal | 8 | none | 7/7 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
+| src/base/cobol_src/CRDTAGY3.cbl | L4 | 44/44 | 0 | cbsa-crdtagy3 | equal | 8 | none | 7/7 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
+| src/base/cobol_src/CRDTAGY4.cbl | L4 | 44/44 | 0 | cbsa-crdtagy4 | equal | 8 | none | 7/7 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
+| src/base/cobol_src/CRDTAGY5.cbl | L4 | 44/44 | 0 | cbsa-crdtagy5 | equal | 8 | none | 7/7 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
 | src/base/cobol_src/CUSTCTRL.cbl | L4 | 21/21 | 0 | cbsa-custctrl | equal | 7 | none | 7/7 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 1/5 |
 | src/base/cobol_src/DELACC.cbl | L4 | 134/134 | 0 | cbsa-delacc | equal | 11 | none | 19/19 (100.0%) | 13/14 (92.9%) | 13/13 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | src/base/cobol_src/DELCUS.cbl | L4 | 140/140 | 0 | cbsa-delcus | equal | 13 | none | 22/22 (100.0%) | 16/16 (100.0%) | 16/16 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
-| src/base/cobol_src/GETCOMPY.cbl | L4 | 3/3 | 0 | cbsa-getcompy | equal | 10 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 29% (stale) | stale (generator, harness, oracle moved), last measured: raw 29% (60/206 caught; 220 of 220 mutants, seed 0); 19 of 146 survivors unaccounted | 1/1 |
-| src/base/cobol_src/GETSCODE.cbl | L4 | 3/3 | 0 | cbsa-getscode | equal | 11 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 31% (stale) | stale (generator, harness, oracle moved), last measured: raw 31% (67/213 caught; 227 of 227 mutants, seed 0); 19 of 146 survivors unaccounted | 1/1 |
-| src/base/cobol_src/UPDACC.cbl | L4 | 58/58 | 0 | cbsa-updacc | equal | 13 | shown equal, unapproved | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 44% (stale) | stale (generator, harness, oracle moved), last measured: raw 44% (304/688 caught; 713 of 713 mutants, seed 0); 128 of 384 survivors unaccounted | 1/3 |
-| src/base/cobol_src/UPDCUST.cbl | L4 | 64/64 | 0 | cbsa-updcust | equal | 23 | none | 7/7 (100.0%) | 28/28 (100.0%) | 28/28 (100.0%) | 48% (stale) | stale (generator, harness, oracle moved), last measured: raw 48% (68/141 caught; 150 of 716 mutants, seed 0); 32 of 73 survivors unaccounted | 1/5 |
+| src/base/cobol_src/GETCOMPY.cbl | L4 | 3/3 | 0 | cbsa-getcompy | equal | 10 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 29% (stale) | stale (port moved), last measured: raw 29% (60/206 caught; 220 of 220 mutants, seed 0); 19 of 146 survivors unaccounted | 1/1 |
+| src/base/cobol_src/GETSCODE.cbl | L4 | 3/3 | 0 | cbsa-getscode | equal | 11 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 31% (stale) | stale (port moved), last measured: raw 31% (67/213 caught; 227 of 227 mutants, seed 0); 19 of 146 survivors unaccounted | 1/1 |
+| src/base/cobol_src/UPDACC.cbl | L4 | 58/58 | 0 | cbsa-updacc | equal | 27 | shown equal, unapproved | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 57% (stale) | stale (port moved), last measured: raw 57% (394/688 caught; 713 of 713 mutants, seed 0); 29 of 294 survivors unaccounted | 1/3 |
+| src/base/cobol_src/UPDCUST.cbl | L4 | 64/64 | 0 | cbsa-updcust | equal | 23 | none | 7/7 (100.0%) | 28/28 (100.0%) | 28/28 (100.0%) | 48% (stale) | stale (port moved), last measured: raw 48% (68/141 caught; 150 of 716 mutants, seed 0); 32 of 73 survivors unaccounted | 1/5 |
 | src/base/cobol_src/BNK1CAC.cbl | L3 | 389/389 | 0 | cbsa-bnk1cac | equal | 23 | none | 25/25 (100.0%) | 56/97 (57.7%) | 56/97 (57.7%) | — | not measured (no det_mutation/ entry) | 7/11 |
 | src/base/cobol_src/BNK1CCA.cbl | L3 | 234/234 | 0 | cbsa-bnk1cca | equal | 18 | none | 25/25 (100.0%) | 29/41 (70.7%) | 29/41 (70.7%) | — | not measured (no det_mutation/ entry) | 7/10 |
-| src/base/cobol_src/BNK1CCS.cbl | L3 | 573/573 | 0 | cbsa-bnk1ccs | equal | 83 | none | 33/33 (100.0%) | 109/143 (76.2%) | 109/143 (76.2%) | — | not measured (no det_mutation/ entry) | 8/12 |
+| src/base/cobol_src/BNK1CCS.cbl | L3 | 573/573 | 0 | cbsa-bnk1ccs | equal | 85 | none | 33/33 (100.0%) | 113/143 (79.0%) | 113/143 (79.0%) | — | not measured (no det_mutation/ entry) | 8/12 |
 | src/base/cobol_src/BNK1CRA.cbl | L3 | 317/317 | 0 | cbsa-bnk1cra | equal | 26 | none | 28/28 (100.0%) | 55/67 (82.1%) | 55/58 (94.8%) | — | not measured (no det_mutation/ entry) | 7/12 |
 | src/base/cobol_src/BNK1DAC.cbl | L3 | 345/345 | 0 | cbsa-bnk1dac | equal | 17 | none | 31/31 (100.0%) | 44/60 (73.3%) | 44/60 (73.3%) | — | not measured (no det_mutation/ entry) | 7/11 |
 | src/base/cobol_src/BNK1TFN.cbl | L3 | 349/349 | 0 | cbsa-bnk1tfn | equal | 40 | none | 28/28 (100.0%) | 53/72 (73.6%) | 53/72 (73.6%) | — | not measured (no det_mutation/ entry) | 7/11 |
 | src/base/cobol_src/BNK1UAC.cbl | L3 | 441/441 | 0 | cbsa-bnk1uac | equal | 73 | none | 31/31 (100.0%) | 78/88 (88.6%) | 78/79 (98.7%) | — | not measured (no det_mutation/ entry) | 7/10 |
 | src/base/cobol_src/CREACC.cbl | L3 | 292/292 | 0 | cbsa-creacc | equal | 18 | none | 34/34 (100.0%) | 26/38 (68.4%) | 26/38 (68.4%) | — | not measured (no det_mutation/ entry) | 4/8 |
+| src/base/cobol_src/CRECUST.cbl | L3 | 321/321 | 0 | cbsa-crecust | equal | 3 | none | 37/37 (100.0%) | 40/74 (54.1%) | 40/74 (54.1%) | — | not measured (no det_mutation/ entry) | 4/16 |
 | src/base/cobol_src/BNK1DCS.cbl | L2 | 648/648 | 0 | cbsa-bnk1dcs | equal | 22 | none | 46/51 (90.2%) | 62/102 (60.8%) | 62/102 (60.8%) | — | not measured (no det_mutation/ entry) | 8/14 |
-| src/base/cobol_src/BNKMENU.cbl | L2 | 366/366 | 0 | cbsa-bnkmenu | equal | 18 | none | 19/25 (76.0%) | 35/62 (56.5%) | 35/62 (56.5%) | — | not measured (no det_mutation/ entry) | 7/10 |
-| src/base/cobol_src/CRDTAGY1.cbl | L2 | 44/44 | 0 | cbsa-crdtagy1 | equal | 7 | none | 4/7 (57.1%) | 4/6 (66.7%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
-| src/base/cobol_src/CRDTAGY2.cbl | L2 | 44/44 | 0 | cbsa-crdtagy2 | equal | 7 | none | 4/7 (57.1%) | 4/6 (66.7%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
-| src/base/cobol_src/CRDTAGY3.cbl | L2 | 44/44 | 0 | cbsa-crdtagy3 | equal | 7 | none | 4/7 (57.1%) | 4/6 (66.7%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
-| src/base/cobol_src/CRDTAGY4.cbl | L2 | 44/44 | 0 | cbsa-crdtagy4 | equal | 7 | none | 4/7 (57.1%) | 4/6 (66.7%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
-| src/base/cobol_src/CRDTAGY5.cbl | L2 | 44/44 | 0 | cbsa-crdtagy5 | equal | 7 | none | 4/7 (57.1%) | 4/6 (66.7%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
-| src/base/cobol_src/CRECUST.cbl | L2 | 321/321 | 0 | cbsa-crecust-generated | equal | 0 | none | 13/37 (35.1%) | 23/74 (31.1%) | 23/74 (31.1%) | — | not measured (no det_mutation/ entry) | 4/16 |
-| src/base/cobol_src/DBCRFUN.cbl | L2 | 148/148 | 0 | cbsa-dbcrfun | equal | 22 | none | 16/22 (72.7%) | 25/35 (71.4%) | 25/35 (71.4%) | — | not measured (no det_mutation/ entry) | 5/8 |
+| src/base/cobol_src/BNKMENU.cbl | L2 | 366/366 | 0 | cbsa-bnkmenu | equal | 29 | none | 24/25 (96.0%) | 46/62 (74.2%) | 46/46 (100.0%) | — | not measured (no det_mutation/ entry) | 7/10 |
+| src/base/cobol_src/DBCRFUN.cbl | L2 | 148/148 | 0 | cbsa-dbcrfun | equal | 27 | none | 21/22 (95.5%) | 30/35 (85.7%) | 30/35 (85.7%) | — | not measured (no det_mutation/ entry) | 5/8 |
 | src/base/cobol_src/INQACC.cbl | L2 | 227/227 | 0 | cbsa-inqacc | equal | 14 | shown equal, unapproved | 22/25 (88.0%) | 15/25 (60.0%) | 15/25 (60.0%) | — | not measured (no det_mutation/ entry) | 5/8 |
-| src/base/cobol_src/INQACCCU.cbl | L2 | 186/186 | 0 | cbsa-inqacccu | equal | 9 | none | 16/22 (72.7%) | 21/33 (63.6%) | 21/33 (63.6%) | — | not measured (no det_mutation/ entry) | 5/8 |
+| src/base/cobol_src/INQACCCU.cbl | L2 | 186/186 | 0 | cbsa-inqacccu | equal | 14 | none | 18/22 (81.8%) | 25/33 (75.8%) | 25/33 (75.8%) | — | not measured (no det_mutation/ entry) | 5/8 |
 | src/base/cobol_src/INQCUST.cbl | L2 | 162/162 | 0 | cbsa-inqcust | equal | 25 | none | 22/25 (88.0%) | 39/46 (84.8%) | 39/46 (84.8%) | — | not measured (no det_mutation/ entry) | 5/13 |
-| src/base/cobol_src/XFRFUN.cbl | L2 | 426/426 | 0 | cbsa-xfrfun | equal | 22 | none | 27/28 (96.4%) | 46/81 (56.8%) | 46/81 (56.8%) | — | not measured (no det_mutation/ entry) | 5/9 |
+| src/base/cobol_src/XFRFUN.cbl | L2 | 426/426 | 0 | cbsa-xfrfun | equal | 23 | none | 27/28 (96.4%) | 47/81 (58.0%) | 47/81 (58.0%) | — | not measured (no det_mutation/ entry) | 5/9 |
 
 ## Per program
 
 ### src/base/cobol_src/ABNDPROC.cbl -- L4
 
 - **Executed equivalent** on the 8 scenarios of cbsa-abndproc against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness, oracle moved), last measured: raw 32% (45/141 caught; 150 of 453 mutants, seed 0); 34 of 96 survivors unaccounted)
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 32% (45/141 caught; 150 of 453 mutants, seed 0); 34 of 96 survivors unaccounted)
 - **Translation:** 13/13 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/base/cobol_src/ABNDPROC.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/base/cobol_src/ABNDPROC.cbl:1]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
@@ -145,11 +145,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-bnk1cca-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (10 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (83 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-create, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#5089): BNK1CCS create-customer and born-in-the-future ENTERs LINK CRECUST, whose CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date (oracle_assumptions.md L1): the 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored, so the oracle refuses by name ('CEEDAYS: picture not modelled') and the case stays unproven, as CRECUST (cbsa-crecust, #4952). Also open: X18 (the child schedule is ASSUMED). Awaiting the owner's ruling on the slack; then the scenarios move into cbsa-bnk1ccs and cbsa-bnk1ccs-generated.)
-  - evidence record: none (2 scenarios in case.json)
+  - evidence record: none (85 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1ccs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (19 scenarios in case.json)
+  - evidence record: none (21 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1cra, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (26 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1cra-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -168,14 +166,28 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - evidence record: none (73 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1uac-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (7 scenarios in case.json)
+- **Executed equivalence** (cbsa-bnkmenu, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (29 scenarios in case.json)
+- **Executed equivalence** (cbsa-crdtagy1, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (8 scenarios in case.json)
+- **Executed equivalence** (cbsa-crdtagy2, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (8 scenarios in case.json)
+- **Executed equivalence** (cbsa-crdtagy3, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (8 scenarios in case.json)
+- **Executed equivalence** (cbsa-crdtagy4, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (8 scenarios in case.json)
+- **Executed equivalence** (cbsa-crdtagy5, linked): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (8 scenarios in case.json)
 - **Executed equivalence** (cbsa-creacc, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (18 scenarios in case.json)
 - **Executed equivalence** (cbsa-creacc-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (12 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
+- **Executed equivalence** (cbsa-crecust, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (3 scenarios in case.json)
 - **Executed equivalence** (cbsa-crecust-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (0 scenarios in case.json)
+- **Executed equivalence** (cbsa-dbcrfun, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (27 scenarios in case.json)
 - **Executed equivalence** (cbsa-delcus, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (13 scenarios in case.json)
 - **Executed equivalence** (cbsa-delcus-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -185,13 +197,13 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-inqacc-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (1 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqacccu, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (9 scenarios in case.json)
+  - evidence record: none (14 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqacccu-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (4 scenarios in case.json)
+  - evidence record: none (9 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqcust, linked): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (25 scenarios in case.json)
 - **Executed equivalence** (cbsa-xfrfun, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (22 scenarios in case.json)
+  - evidence record: none (23 scenarios in case.json)
 - **Executed equivalence** (cbsa-xfrfun-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 2/2 (100.0%) raw, 2/2 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -204,13 +216,13 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 1 named assumptions (none measured on z/OS)
-- **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 32% (45/141 caught; 150 of 453 mutants, seed 0); 34 of 96 survivors unaccounted
+- **Det-port mutation:** stale (port moved), last measured: raw 32% (45/141 caught; 150 of 453 mutants, seed 0); 34 of 96 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27; commands without oracle backing: WRITE; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/ACCTCTRL.cbl -- L4
 
 - **Executed equivalent** on the 20 scenarios of cbsa-acctctrl against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness, oracle moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); 21 of 289 survivors unaccounted)
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); 21 of 289 survivors unaccounted)
 - **Translation:** 18/18 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
@@ -229,7 +241,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-- **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); 21 of 289 survivors unaccounted
+- **Det-port mutation:** stale (port moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); 21 of 289 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/BANKDATA.cbl -- L4
@@ -248,6 +260,206 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - stated infeasible branch outcome (reviewed claim, family C): GOD010:917:true (IF) -- `IF OPENED-DATE-ATTEMPTS > 100` (GENERATE-OPENED-DATE, performed UNTIL OPENED-DATE-VALID = 'Y', line 730) needs 100 draws in a row where the opened year is not above the birth year (line 912). The year is ((2014 - CUSTOMER-BIRTH-YEAR) * FUNCTION RANDOM) + CUSTOMER-BIRTH-YEAR (lines 892-895) and the birth year is drawn from 1900-1999 (line 527), so a draw fails only when FUNCTION RANDOM is under 1 / (2014 - birth year), at most 1/15: 100 in a row has probability under 15^-100 and the PARM seed cannot be searched to it. Not a logical impossibility: reviewed as unreachable in practice, to be kept under owner review.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
+
+### src/base/cobol_src/CRDTAGY1.cbl -- L4
+
+- **Executed equivalent** on the 8 scenarios of cbsa-crdtagy1 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 44/44 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
+- **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (85 scenarios in case.json)
+- **Executed equivalence** (cbsa-bnk1ccs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (21 scenarios in case.json)
+- **Executed equivalence** (cbsa-crdtagy1, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (8 scenarios in case.json)
+- **Executed equivalence** (cbsa-crecust, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (3 scenarios in case.json)
+- **Executed equivalence** (cbsa-crecust-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (0 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 7/7 (100.0%), branch outcomes 5/6 (83.3%) raw, 5/5 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | ASKTIME | full | none | no |
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | DELAY | full | none | no |
+  | FORMATTIME | full | none | no |
+  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+  - stated infeasible branch outcome (reviewed claim, family R): A010:233:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 233, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3.
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
+
+### src/base/cobol_src/CRDTAGY2.cbl -- L4
+
+- **Executed equivalent** on the 8 scenarios of cbsa-crdtagy2 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 44/44 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
+- **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (85 scenarios in case.json)
+- **Executed equivalence** (cbsa-bnk1ccs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (21 scenarios in case.json)
+- **Executed equivalence** (cbsa-crdtagy2, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (8 scenarios in case.json)
+- **Executed equivalence** (cbsa-crecust, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (3 scenarios in case.json)
+- **Executed equivalence** (cbsa-crecust-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (0 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 7/7 (100.0%), branch outcomes 5/6 (83.3%) raw, 5/5 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | ASKTIME | full | none | no |
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | DELAY | full | none | no |
+  | FORMATTIME | full | none | no |
+  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+  - stated infeasible branch outcome (reviewed claim, family R): A010:233:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 233, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3.
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
+
+### src/base/cobol_src/CRDTAGY3.cbl -- L4
+
+- **Executed equivalent** on the 8 scenarios of cbsa-crdtagy3 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 44/44 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
+- **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (85 scenarios in case.json)
+- **Executed equivalence** (cbsa-bnk1ccs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (21 scenarios in case.json)
+- **Executed equivalence** (cbsa-crdtagy3, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (8 scenarios in case.json)
+- **Executed equivalence** (cbsa-crecust, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (3 scenarios in case.json)
+- **Executed equivalence** (cbsa-crecust-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (0 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 7/7 (100.0%), branch outcomes 5/6 (83.3%) raw, 5/5 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | ASKTIME | full | none | no |
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | DELAY | full | none | no |
+  | FORMATTIME | full | none | no |
+  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+  - stated infeasible branch outcome (reviewed claim, family R): A010:232:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 232, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3.
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
+
+### src/base/cobol_src/CRDTAGY4.cbl -- L4
+
+- **Executed equivalent** on the 8 scenarios of cbsa-crdtagy4 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 44/44 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
+- **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (85 scenarios in case.json)
+- **Executed equivalence** (cbsa-bnk1ccs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (21 scenarios in case.json)
+- **Executed equivalence** (cbsa-crdtagy4, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (8 scenarios in case.json)
+- **Executed equivalence** (cbsa-crecust, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (3 scenarios in case.json)
+- **Executed equivalence** (cbsa-crecust-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (0 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 7/7 (100.0%), branch outcomes 5/6 (83.3%) raw, 5/5 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | ASKTIME | full | none | no |
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | DELAY | full | none | no |
+  | FORMATTIME | full | none | no |
+  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+  - stated infeasible branch outcome (reviewed claim, family R): A010:235:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 235, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3.
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
+
+### src/base/cobol_src/CRDTAGY5.cbl -- L4
+
+- **Executed equivalent** on the 8 scenarios of cbsa-crdtagy5 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 44/44 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
+- **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (85 scenarios in case.json)
+- **Executed equivalence** (cbsa-bnk1ccs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (21 scenarios in case.json)
+- **Executed equivalence** (cbsa-crdtagy5, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (8 scenarios in case.json)
+- **Executed equivalence** (cbsa-crecust, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (3 scenarios in case.json)
+- **Executed equivalence** (cbsa-crecust-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (0 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 7/7 (100.0%), branch outcomes 5/6 (83.3%) raw, 5/5 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | ASKTIME | full | none | no |
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | DELAY | full | none | no |
+  | FORMATTIME | full | none | no |
+  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+  - stated infeasible branch outcome (reviewed claim, family R): A010:235:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 235, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3.
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/CUSTCTRL.cbl -- L4
 
@@ -348,7 +560,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 ### src/base/cobol_src/GETCOMPY.cbl -- L4
 
 - **Executed equivalent** on the 10 scenarios of cbsa-getcompy against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness, oracle moved), last measured: raw 29% (60/206 caught; 220 of 220 mutants, seed 0); 19 of 146 survivors unaccounted)
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 29% (60/206 caught; 220 of 220 mutants, seed 0); 19 of 146 survivors unaccounted)
 - **Translation:** 3/3 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
@@ -363,13 +575,13 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 1 named assumptions (none measured on z/OS)
-- **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 29% (60/206 caught; 220 of 220 mutants, seed 0); 19 of 146 survivors unaccounted
+- **Det-port mutation:** stale (port moved), last measured: raw 29% (60/206 caught; 220 of 220 mutants, seed 0); 19 of 146 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/GETSCODE.cbl -- L4
 
 - **Executed equivalent** on the 11 scenarios of cbsa-getscode against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness, oracle moved), last measured: raw 31% (67/213 caught; 227 of 227 mutants, seed 0); 19 of 146 survivors unaccounted)
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 31% (67/213 caught; 227 of 227 mutants, seed 0); 19 of 146 survivors unaccounted)
 - **Translation:** 3/3 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
@@ -384,13 +596,13 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 1 named assumptions (none measured on z/OS)
-- **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 31% (67/213 caught; 227 of 227 mutants, seed 0); 19 of 146 survivors unaccounted
+- **Det-port mutation:** stale (port moved), last measured: raw 31% (67/213 caught; 227 of 227 mutants, seed 0); 19 of 146 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/UPDACC.cbl -- L4
 
-- **Executed equivalent** on the 13 scenarios of cbsa-updacc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness, oracle moved), last measured: raw 44% (304/688 caught; 713 of 713 mutants, seed 0); 128 of 384 survivors unaccounted)
+- **Executed equivalent** on the 27 scenarios of cbsa-updacc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 57% (394/688 caught; 713 of 713 mutants, seed 0); 29 of 294 survivors unaccounted)
 - **Translation:** 58/58 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/base/cobol_src/UPDACC.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/base/cobol_src/UPDACC.cbl:1]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
@@ -399,7 +611,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-bnk1uac-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (7 scenarios in case.json)
 - **Executed equivalence** (cbsa-updacc, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 13/13 scenarios equal, 26/26 records equal, 13 runs (0 fault runs); through its deployed entry points 13/13
+  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 27/27 scenarios equal, 54/54 records equal, 27 runs (0 fault runs); through its deployed entry points 27/27
 - **Executed equivalence** (cbsa-updacc-faults, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (8 scenarios in case.json)
 - **Executed equivalence** (cbsa-updacc-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -415,13 +627,13 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 - **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-- **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 44% (304/688 caught; 713 of 713 mutants, seed 0); 128 of 384 survivors unaccounted
+- **Det-port mutation:** stale (port moved), last measured: raw 57% (394/688 caught; 713 of 713 mutants, seed 0); 29 of 294 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/UPDCUST.cbl -- L4
 
 - **Executed equivalent** on the 23 scenarios of cbsa-updcust against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (generator, harness, oracle moved), last measured: raw 48% (68/141 caught; 150 of 716 mutants, seed 0); 32 of 73 survivors unaccounted)
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 48% (68/141 caught; 150 of 716 mutants, seed 0); 32 of 73 survivors unaccounted)
 - **Translation:** 64/64 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/base/cobol_src/UPDCUST.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/base/cobol_src/UPDCUST.cbl:1]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
@@ -442,7 +654,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 - **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X52 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
   - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
-- **Det-port mutation:** stale (generator, harness, oracle moved), last measured: raw 48% (68/141 caught; 150 of 716 mutants, seed 0); 32 of 73 survivors unaccounted
+- **Det-port mutation:** stale (port moved), last measured: raw 48% (68/141 caught; 150 of 716 mutants, seed 0); 32 of 73 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X14, X22, X27, X46, X52; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/BNK1CAC.cbl -- L3
@@ -516,18 +728,16 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 ### src/base/cobol_src/BNK1CCS.cbl -- L3
 
-- **Executed equivalent** on the 83 scenarios of cbsa-bnk1ccs against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 76.2 raw, 76.2 net of the reviewed infeasible outcomes)
+- **Executed equivalent** on the 85 scenarios of cbsa-bnk1ccs against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** branch coverage >= 100.0 net (now 79.0 raw, 79.0 net of the reviewed infeasible outcomes)
 - **Translation:** 573/573 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/base/cobol_src/BNK1CCS.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/base/cobol_src/BNK1CCS.cbl:1]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
 - **Executed equivalence** (cbsa-bnk1ccs, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (83 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-create, program, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#5089): BNK1CCS create-customer and born-in-the-future ENTERs LINK CRECUST, whose CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date (oracle_assumptions.md L1): the 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored, so the oracle refuses by name ('CEEDAYS: picture not modelled') and the case stays unproven, as CRECUST (cbsa-crecust, #4952). Also open: X18 (the child schedule is ASSUMED). Awaiting the owner's ruling on the slack; then the scenarios move into cbsa-bnk1ccs and cbsa-bnk1ccs-generated.)
-  - evidence record: none (2 scenarios in case.json)
+  - evidence record: none (85 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnk1ccs-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (19 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 33/33 (100.0%), branch outcomes 109/143 (76.2%) raw, 109/143 (76.2%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+  - evidence record: none (21 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 33/33 (100.0%), branch outcomes 113/143 (79.0%) raw, 113/143 (79.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -550,7 +760,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - runtime facts the harness states for its commands: facility, screen, startcode, uctranst, userid
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 34 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X26, X27, X31, X46; commands without oracle backing: ASKTIME, FORMATTIME, INQUIRE TERMINAL, SET TERMINAL; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 30 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X26, X27, X31, X46; commands without oracle backing: ASKTIME, FORMATTIME, INQUIRE TERMINAL, SET TERMINAL; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/BNK1CRA.cbl -- L3
 
@@ -585,12 +795,12 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - z/OS-calibrated: 0 of 8 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: facility, origin, screen, startcode, userid
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - stated infeasible branch outcome (reviewed claim, family R): A010:271:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OCRA') COMMAREA(WS-COMM-AREA) LENGTH(21)` (263-269): RETURN never comes back on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for it with a 21-byte COMMAREA and an installed TRANSID.
   - stated infeasible branch outcome (reviewed claim, family R): A010:271:false (IF) -- Same test (271): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
+  - stated infeasible branch outcome (reviewed claim, family R): A010:271:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OCRA') COMMAREA(WS-COMM-AREA) LENGTH(21)` (263-269): RETURN never comes back on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for it with a 21-byte COMMAREA and an installed TRANSID.
   - stated infeasible branch outcome (reviewed claim, family R): SM010:657:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND MAP ERASE (648 on): IBM raises no condition for a map the program has just built from its own BNK1CDO, and no fault can be injected on it.
   - stated infeasible branch outcome (reviewed claim, family C): SM010:722:true (IF) -- `IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 51), set by no statement: only `SET SEND-ERASE` (188) and `SET SEND-DATAONLY-ALARM` (244, 354) write the flag.
-  - stated infeasible branch outcome (reviewed claim, family C): SM010:731:true (IF) -- The RESP test inside the `IF SEND-DATAONLY` block (722), which is never entered.
   - stated infeasible branch outcome (reviewed claim, family C): SM010:731:false (IF) -- The RESP test inside the `IF SEND-DATAONLY` block (722), which is never entered.
+  - stated infeasible branch outcome (reviewed claim, family C): SM010:731:true (IF) -- The RESP test inside the `IF SEND-DATAONLY` block (722), which is never entered.
   - stated infeasible branch outcome (reviewed claim, family G): SM010:796:false (IF) -- `IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SM010 after the first SEND MAP and '2' is never set (see 722), so the test is always true.
   - stated infeasible branch outcome (reviewed claim, family R): SM010:806:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND MAP DATAONLY ALARM (796 on): IBM raises no condition for a map the program has just built from its own BNK1CDO, and no fault can be injected on it.
   - stated infeasible branch outcome (reviewed claim, family R): STM010:884:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND TEXT ERASE FREEKB that writes the termination message (876-882): IBM raises no condition for it on a terminal that just sent a map, and no fault can be injected on it.
@@ -698,12 +908,12 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - stated infeasible branch outcome (reviewed claim, family R): A010:303:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OUAC') COMMAREA(WS-COMM-AREA) LENGTH(99)` (296-301): RETURN never comes back to the program on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for a RETURN whose COMMAREA is 99 bytes and TRANSID names an installed transaction.
   - stated infeasible branch outcome (reviewed claim, family R): A010:303:false (IF) -- Same test (303): a RETURN that succeeds ends the task, so the fall-through arm where RESP is NORMAL is never executed.
+  - stated infeasible branch outcome (reviewed claim, family R): A010:303:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OUAC') COMMAREA(WS-COMM-AREA) LENGTH(99)` (296-301): RETURN never comes back to the program on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for a RETURN whose COMMAREA is 99 bytes and TRANSID names an installed transaction.
   - stated infeasible branch outcome (reviewed claim, family R): SM010:1083:true (IF) -- `RESP(WS-CICS-RESP)` is set by the SEND MAP ERASE at 1074-1081; IBM raises no condition here for a map the program has just built from its own BNK1UAO (a MAPFAIL belongs to RECEIVE MAP), and no fault can be injected on it.
   - stated infeasible branch outcome (reviewed claim, family C): SM010:1149:true (IF) -- `IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 51), which is set only by `SET SEND-ERASE` (208) and `SET SEND-DATAONLY-ALARM` (270, 404); no statement sets SEND-DATAONLY, so the flag is never '2'.
-  - stated infeasible branch outcome (reviewed claim, family C): SM010:1159:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` lies inside the `IF SEND-DATAONLY` block (1149), which is never entered (see 1149 true).
   - stated infeasible branch outcome (reviewed claim, family C): SM010:1159:false (IF) -- Same nested test inside the `IF SEND-DATAONLY` block (1149), never entered.
+  - stated infeasible branch outcome (reviewed claim, family C): SM010:1159:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` lies inside the `IF SEND-DATAONLY` block (1149), which is never entered (see 1149 true).
   - stated infeasible branch outcome (reviewed claim, family G): SM010:1224:false (IF) -- `IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) takes the SEND-MAP-ERASE branch ahead of it and ends at SM999, and '2' is never set (see 1149), so the test is always true.
   - stated infeasible branch outcome (reviewed claim, family R): SM010:1235:true (IF) -- `RESP(WS-CICS-RESP)` is set by the SEND MAP DATAONLY ALARM at 1225-1233; IBM raises no condition here for a map the program has just built from its own BNK1UAO (a MAPFAIL belongs to RECEIVE MAP), and no fault can be injected on it.
   - stated infeasible branch outcome (reviewed claim, family R): STM010:1314:true (IF) -- `RESP(WS-CICS-RESP)` of the SEND TEXT ERASE FREEKB (1305-1311) that writes the termination message: IBM raises no condition for it on a terminal that just sent a map, and no fault can be injected on it.
@@ -746,6 +956,50 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 12 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X27, X46, X60; commands without oracle backing: ASKTIME, DEQ, ENQ, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
+### src/base/cobol_src/CRECUST.cbl -- L3
+
+- **Executed equivalent** on the 3 scenarios of cbsa-crecust against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** branch coverage >= 100.0 net (now 54.1 raw, 54.1 net of the reviewed infeasible outcomes)
+- **Translation:** 321/321 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
+- **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (85 scenarios in case.json)
+- **Executed equivalence** (cbsa-bnk1ccs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (21 scenarios in case.json)
+- **Executed equivalence** (cbsa-crecust, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (3 scenarios in case.json)
+- **Executed equivalence** (cbsa-crecust-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (0 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 37/37 (100.0%), branch outcomes 40/74 (54.1%) raw, 40/74 (54.1%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | (unparsed) | no spec entry | none | no |
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | ASKTIME | full | none | no |
+  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
+  | DELAY | full | none | no |
+  | DEQ | full | none | no |
+  | ENQ | full | none | no |
+  | FETCH ANY | full | none | no |
+  | FORMATTIME | full | none | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
+  | READ | full | none | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | REWRITE | full | none | no |
+  | RUN | full | gt-start-options (yes / no) | no |
+  | WRITE | full | none | no |
+
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X52 (ASSUMED (REFUSED where IBM is silent)), X60 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 9 named assumptions (none measured on z/OS)
+  - runtime facts the harness states for its commands: facility, screen, startcode, userid
+  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 34 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X17, X18, X19, X22, X27, X46, X52, X60; commands without oracle backing: (unparsed), ASKTIME, DELAY, DEQ, ENQ, FETCH ANY, FORMATTIME, PUT CONTAINER, READ, REWRITE, RUN, WRITE; assumption reach and the migration dimensions above: not measured
+
 ### src/base/cobol_src/BNK1DCS.cbl -- L2
 
 - **Executed equivalent** on the 22 scenarios of cbsa-bnk1dcs against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
@@ -784,14 +1038,14 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 ### src/base/cobol_src/BNKMENU.cbl -- L2
 
-- **Executed equivalent** on the 18 scenarios of cbsa-bnkmenu against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (now 76.0)
+- **Executed equivalent** on the 29 scenarios of cbsa-bnkmenu against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (now 96.0)
 - **Translation:** 366/366 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/base/cobol_src/BNKMENU.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/base/cobol_src/BNKMENU.cbl:1]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
 - **Executed equivalence** (cbsa-bnkmenu, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (18 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 19/25 (76.0%), branch outcomes 35/62 (56.5%) raw, 35/62 (56.5%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+  - evidence record: none (29 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 24/25 (96.0%), branch outcomes 46/62 (74.2%) raw, 46/46 (100.0%) net of 16 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -811,274 +1065,29 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - z/OS-calibrated: 0 of 6 named assumptions (none measured on z/OS)
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+  - stated infeasible branch outcome (reviewed claim, family R): A010:178:false (IF) -- Same test (178): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
+  - stated infeasible branch outcome (reviewed claim, family R): A010:178:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OMEN') COMMAREA(COMMUNICATION-AREA) LENGTH(1)` (170-176): RETURN never comes back on success, so the test runs only when RETURN itself fails. The COMMAREA is the 1-byte working-storage COMMUNICATION-AREA (inside 0-32763, a non-zero address). IBM's RETURN conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return) are INVREQ 1 (TRANSID in a program with no terminal), 2 (CHANNEL, COMMAREA or IMMEDIATE below the highest logical level), 4 (APPC logical unit), 8, 30, 200 and 203 (INPUTMSG, first-stage PLT, DPL, CHANNEL: none named here), LENGERR 11 and 26 (COMMAREA length outside 0-32763, a zero COMMAREA address with a non-zero length) and CHANNELERR 1. BNKMENU is the program of terminal transaction OMEN (T001; no program in the corpus LINKs or XCTLs to it, so it is the highest logical level), and the names are MOVEd constants. Assumption to review: the terminal is not an APPC logical unit (INVREQ 4).
+  - stated infeasible branch outcome (reviewed claim, family R): IOT010:394:false (IF) -- Same test (394): a RETURN TRANSID('ODCS') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
+  - stated infeasible branch outcome (reviewed claim, family R): IOT010:466:false (IF) -- Same test (466): a RETURN TRANSID('ODAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
+  - stated infeasible branch outcome (reviewed claim, family R): IOT010:539:false (IF) -- Same test (539): a RETURN TRANSID('OCCS') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
+  - stated infeasible branch outcome (reviewed claim, family R): IOT010:612:false (IF) -- Same test (612): a RETURN TRANSID('OCAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
+  - stated infeasible branch outcome (reviewed claim, family R): IOT010:685:false (IF) -- Same test (685): a RETURN TRANSID('OUAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
+  - stated infeasible branch outcome (reviewed claim, family R): IOT010:758:false (IF) -- Same test (758): a RETURN TRANSID('OCRA') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
+  - stated infeasible branch outcome (reviewed claim, family R): IOT010:831:false (IF) -- Same test (831): a RETURN TRANSID('OTFN') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
+  - stated infeasible branch outcome (reviewed claim, family G): IOT010:897:false (IF) -- `IF ACTIONI = 'A'` (897) is the last of the eight menu tests: EDIT-MENU-DATA (357-370) lets only '1'-'7' and 'A' through to INVOKE-OTHER-TXNS, and each of the tests for '1' to '7' ends in RETURN TRANSID(...) IMMEDIATE, which does not come back on success (see the RETURN entries above), so 897 is reached only with ACTIONI = 'A' and its false arm has no input.
+  - stated infeasible branch outcome (reviewed claim, family R): IOT010:905:false (IF) -- Same test (905): a RETURN TRANSID('OCCA') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
+  - stated infeasible branch outcome (reviewed claim, family C): SMM010:1052:true (IF) -- `IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 53), set by no statement: only `SET SEND-ERASE` (119, 287) and `SET SEND-DATAONLY-ALARM` (162, 258) write the flag.
+  - stated infeasible branch outcome (reviewed claim, family C): SMM010:1061:false (IF) -- The RESP test inside the `IF SEND-DATAONLY` block (1052), which is never entered.
+  - stated infeasible branch outcome (reviewed claim, family C): SMM010:1061:true (IF) -- The RESP test inside the `IF SEND-DATAONLY` block (1052), which is never entered.
+  - stated infeasible branch outcome (reviewed claim, family G): SMM010:1128:false (IF) -- `IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SMM010 after the first SEND MAP (GO TO SMM999) and '2' is never set (see 1052), so the test is always true.
+  - stated infeasible branch outcome (reviewed claim, family R): STM010:1218:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND TEXT ERASE FREEKB that writes the termination message (1210-1216): IBM raises no condition for it on a terminal that just sent a map, and no fault can be injected on it.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 6 live paragraphs unrun; 27 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X27, X31, X46; commands without oracle backing: ASKTIME, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
-
-### src/base/cobol_src/CRDTAGY1.cbl -- L2
-
-- **Executed equivalent** on the 7 scenarios of cbsa-crdtagy1 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (now 57.1)
-- **Translation:** 44/44 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
-- **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (83 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-create, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#5089): BNK1CCS create-customer and born-in-the-future ENTERs LINK CRECUST, whose CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date (oracle_assumptions.md L1): the 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored, so the oracle refuses by name ('CEEDAYS: picture not modelled') and the case stays unproven, as CRECUST (cbsa-crecust, #4952). Also open: X18 (the child schedule is ASSUMED). Awaiting the owner's ruling on the slack; then the scenarios move into cbsa-bnk1ccs and cbsa-bnk1ccs-generated.)
-  - evidence record: none (2 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (19 scenarios in case.json)
-- **Executed equivalence** (cbsa-crdtagy1, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (7 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
-  - evidence record: none (3 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (0 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/7 (57.1%), branch outcomes 4/6 (66.7%) raw, 4/4 (100.0%) net of 2 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | ASKTIME | full | none | no |
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | DELAY | full | none | no |
-  | FORMATTIME | full | none | no |
-  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - stated infeasible branch outcome (reviewed claim, family R): A010:133:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 133, after `EXEC CICS DELAY FOR SECONDS(WS-DELAY-AMT)`: WS-DELAY-AMT is `COMPUTE ((3 - 1) * FUNCTION RANDOM(WS-SEED)) + 1` into a PIC S9(8) COMP, and RANDOM is below 1, so the interval is always 1 or 2 seconds. IBM's DELAY conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delay) are EXPIRED (a time already past; intervals under 250 ms), and INVREQ for hours, minutes, seconds or milliseconds out of range (RESP2 4, 5, 6, 22) or a command CICS cannot process; a FOR SECONDS of 1 or 2 meets none (no HOURS/MINUTES/MILLISECONDS operand, no TIME/UNTIL), and the harness plans no fault on DELAY. The paragraphs this arm PERFORMs (POPULATE-TIME-DATE, PTD010, PTD999) are reachable only through it: they stay uncovered, as this ledger states branches, not paragraphs.
-  - stated infeasible branch outcome (reviewed claim, family R): A010:233:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 233, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3.
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 3 live paragraphs unrun; 2 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
-
-### src/base/cobol_src/CRDTAGY2.cbl -- L2
-
-- **Executed equivalent** on the 7 scenarios of cbsa-crdtagy2 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (now 57.1)
-- **Translation:** 44/44 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
-- **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (83 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-create, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#5089): BNK1CCS create-customer and born-in-the-future ENTERs LINK CRECUST, whose CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date (oracle_assumptions.md L1): the 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored, so the oracle refuses by name ('CEEDAYS: picture not modelled') and the case stays unproven, as CRECUST (cbsa-crecust, #4952). Also open: X18 (the child schedule is ASSUMED). Awaiting the owner's ruling on the slack; then the scenarios move into cbsa-bnk1ccs and cbsa-bnk1ccs-generated.)
-  - evidence record: none (2 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (19 scenarios in case.json)
-- **Executed equivalence** (cbsa-crdtagy2, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (7 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
-  - evidence record: none (3 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (0 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/7 (57.1%), branch outcomes 4/6 (66.7%) raw, 4/4 (100.0%) net of 2 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | ASKTIME | full | none | no |
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | DELAY | full | none | no |
-  | FORMATTIME | full | none | no |
-  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - stated infeasible branch outcome (reviewed claim, family R): A010:132:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 132, after `EXEC CICS DELAY FOR SECONDS(WS-DELAY-AMT)`: WS-DELAY-AMT is `COMPUTE ((3 - 1) * FUNCTION RANDOM(WS-SEED)) + 1` into a PIC S9(8) COMP, and RANDOM is below 1, so the interval is always 1 or 2 seconds. IBM's DELAY conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delay) are EXPIRED (a time already past; intervals under 250 ms), and INVREQ for hours, minutes, seconds or milliseconds out of range (RESP2 4, 5, 6, 22) or a command CICS cannot process; a FOR SECONDS of 1 or 2 meets none (no HOURS/MINUTES/MILLISECONDS operand, no TIME/UNTIL), and the harness plans no fault on DELAY. The paragraphs this arm PERFORMs (POPULATE-TIME-DATE, PTD010, PTD999) are reachable only through it: they stay uncovered, as this ledger states branches, not paragraphs.
-  - stated infeasible branch outcome (reviewed claim, family R): A010:233:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 233, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3.
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 3 live paragraphs unrun; 2 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
-
-### src/base/cobol_src/CRDTAGY3.cbl -- L2
-
-- **Executed equivalent** on the 7 scenarios of cbsa-crdtagy3 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (now 57.1)
-- **Translation:** 44/44 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
-- **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (83 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-create, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#5089): BNK1CCS create-customer and born-in-the-future ENTERs LINK CRECUST, whose CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date (oracle_assumptions.md L1): the 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored, so the oracle refuses by name ('CEEDAYS: picture not modelled') and the case stays unproven, as CRECUST (cbsa-crecust, #4952). Also open: X18 (the child schedule is ASSUMED). Awaiting the owner's ruling on the slack; then the scenarios move into cbsa-bnk1ccs and cbsa-bnk1ccs-generated.)
-  - evidence record: none (2 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (19 scenarios in case.json)
-- **Executed equivalence** (cbsa-crdtagy3, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (7 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
-  - evidence record: none (3 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (0 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/7 (57.1%), branch outcomes 4/6 (66.7%) raw, 4/4 (100.0%) net of 2 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | ASKTIME | full | none | no |
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | DELAY | full | none | no |
-  | FORMATTIME | full | none | no |
-  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - stated infeasible branch outcome (reviewed claim, family R): A010:132:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 132, after `EXEC CICS DELAY FOR SECONDS(WS-DELAY-AMT)`: WS-DELAY-AMT is `COMPUTE ((3 - 1) * FUNCTION RANDOM(WS-SEED)) + 1` into a PIC S9(8) COMP, and RANDOM is below 1, so the interval is always 1 or 2 seconds. IBM's DELAY conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delay) are EXPIRED (a time already past; intervals under 250 ms), and INVREQ for hours, minutes, seconds or milliseconds out of range (RESP2 4, 5, 6, 22) or a command CICS cannot process; a FOR SECONDS of 1 or 2 meets none (no HOURS/MINUTES/MILLISECONDS operand, no TIME/UNTIL), and the harness plans no fault on DELAY. The paragraphs this arm PERFORMs (POPULATE-TIME-DATE, PTD010, PTD999) are reachable only through it: they stay uncovered, as this ledger states branches, not paragraphs.
-  - stated infeasible branch outcome (reviewed claim, family R): A010:232:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 232, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3.
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 3 live paragraphs unrun; 2 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
-
-### src/base/cobol_src/CRDTAGY4.cbl -- L2
-
-- **Executed equivalent** on the 7 scenarios of cbsa-crdtagy4 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (now 57.1)
-- **Translation:** 44/44 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
-- **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (83 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-create, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#5089): BNK1CCS create-customer and born-in-the-future ENTERs LINK CRECUST, whose CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date (oracle_assumptions.md L1): the 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored, so the oracle refuses by name ('CEEDAYS: picture not modelled') and the case stays unproven, as CRECUST (cbsa-crecust, #4952). Also open: X18 (the child schedule is ASSUMED). Awaiting the owner's ruling on the slack; then the scenarios move into cbsa-bnk1ccs and cbsa-bnk1ccs-generated.)
-  - evidence record: none (2 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (19 scenarios in case.json)
-- **Executed equivalence** (cbsa-crdtagy4, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (7 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
-  - evidence record: none (3 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (0 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/7 (57.1%), branch outcomes 4/6 (66.7%) raw, 4/4 (100.0%) net of 2 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | ASKTIME | full | none | no |
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | DELAY | full | none | no |
-  | FORMATTIME | full | none | no |
-  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - stated infeasible branch outcome (reviewed claim, family R): A010:133:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 133, after `EXEC CICS DELAY FOR SECONDS(WS-DELAY-AMT)`: WS-DELAY-AMT is `COMPUTE ((3 - 1) * FUNCTION RANDOM(WS-SEED)) + 1` into a PIC S9(8) COMP, and RANDOM is below 1, so the interval is always 1 or 2 seconds. IBM's DELAY conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delay) are EXPIRED (a time already past; intervals under 250 ms), and INVREQ for hours, minutes, seconds or milliseconds out of range (RESP2 4, 5, 6, 22) or a command CICS cannot process; a FOR SECONDS of 1 or 2 meets none (no HOURS/MINUTES/MILLISECONDS operand, no TIME/UNTIL), and the harness plans no fault on DELAY. The paragraphs this arm PERFORMs (POPULATE-TIME-DATE, PTD010, PTD999) are reachable only through it: they stay uncovered, as this ledger states branches, not paragraphs.
-  - stated infeasible branch outcome (reviewed claim, family R): A010:235:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 235, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3.
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 3 live paragraphs unrun; 2 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
-
-### src/base/cobol_src/CRDTAGY5.cbl -- L2
-
-- **Executed equivalent** on the 7 scenarios of cbsa-crdtagy5 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (now 57.1)
-- **Translation:** 44/44 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
-- **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (83 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-create, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#5089): BNK1CCS create-customer and born-in-the-future ENTERs LINK CRECUST, whose CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date (oracle_assumptions.md L1): the 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored, so the oracle refuses by name ('CEEDAYS: picture not modelled') and the case stays unproven, as CRECUST (cbsa-crecust, #4952). Also open: X18 (the child schedule is ASSUMED). Awaiting the owner's ruling on the slack; then the scenarios move into cbsa-bnk1ccs and cbsa-bnk1ccs-generated.)
-  - evidence record: none (2 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (19 scenarios in case.json)
-- **Executed equivalence** (cbsa-crdtagy5, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (7 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
-  - evidence record: none (3 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (0 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/7 (57.1%), branch outcomes 4/6 (66.7%) raw, 4/4 (100.0%) net of 2 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | ASKTIME | full | none | no |
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | DELAY | full | none | no |
-  | FORMATTIME | full | none | no |
-  | GET CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 5 named assumptions (none measured on z/OS)
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - stated infeasible branch outcome (reviewed claim, family R): A010:132:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 132, after `EXEC CICS DELAY FOR SECONDS(WS-DELAY-AMT)`: WS-DELAY-AMT is `COMPUTE ((3 - 1) * FUNCTION RANDOM(WS-SEED)) + 1` into a PIC S9(8) COMP, and RANDOM is below 1, so the interval is always 1 or 2 seconds. IBM's DELAY conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-delay) are EXPIRED (a time already past; intervals under 250 ms), and INVREQ for hours, minutes, seconds or milliseconds out of range (RESP2 4, 5, 6, 22) or a command CICS cannot process; a FOR SECONDS of 1 or 2 meets none (no HOURS/MINUTES/MILLISECONDS operand, no TIME/UNTIL), and the harness plans no fault on DELAY. The paragraphs this arm PERFORMs (POPULATE-TIME-DATE, PTD010, PTD999) are reachable only through it: they stay uncovered, as this ledger states branches, not paragraphs.
-  - stated infeasible branch outcome (reviewed claim, family R): A010:235:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 235, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3.
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 3 live paragraphs unrun; 2 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
-
-### src/base/cobol_src/CRECUST.cbl -- L2
-
-- **Executed equivalent** on the 0 scenarios of cbsa-crecust-generated against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (now 35.1)
-- **Translation:** 321/321 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
-- **Executed equivalence** (cbsa-bnk1ccs, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (83 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-create, linked, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#5089): BNK1CCS create-customer and born-in-the-future ENTERs LINK CRECUST, whose CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date (oracle_assumptions.md L1): the 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored, so the oracle refuses by name ('CEEDAYS: picture not modelled') and the case stays unproven, as CRECUST (cbsa-crecust, #4952). Also open: X18 (the child schedule is ASSUMED). Awaiting the owner's ruling on the slack; then the scenarios move into cbsa-bnk1ccs and cbsa-bnk1ccs-generated.)
-  - evidence record: none (2 scenarios in case.json)
-- **Executed equivalence** (cbsa-bnk1ccs-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (19 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust, program, Db2): det port not equal (ledgered as differing in det_sweep_baseline.json (#4952): CRECUST's CEEDAYS passes a 10-byte picture over an 8-byte 'YYYYMMDD' date: the picture's 2 extra bytes are the storage after the item, which z/OS would read as picture text. Only an all-BLANK picture tail is assumed ignored (oracle_assumptions.md L1, owner decision 2026-10-14), so the oracle refuses by name ('CEEDAYS: picture not modelled'); the committed create-customer and born-in-the-future scenarios reach it, so the case is refused and the port stays unproven. Also open: X18 (the child schedule is ASSUMED). L4 is settled (FC is the 12-byte token). The scenario born-before-1601 ends before CEEDAYS and runs equal but reaches 13 of 37 paragraphs, so it is not a proof.)
-  - evidence record: none (3 scenarios in case.json)
-- **Executed equivalence** (cbsa-crecust-generated, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (0 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 13/37 (35.1%), branch outcomes 23/74 (31.1%) raw, 23/74 (31.1%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | (unparsed) | no spec entry | none | no |
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | ASKTIME | full | none | no |
-  | ASSIGN | full | ca-channel-containers (yes / no), gt-assign-startcode (yes / no), hc-abend-link (yes / yes) | yes |
-  | DELAY | full | none | no |
-  | DEQ | full | none | no |
-  | ENQ | full | none | no |
-  | FETCH ANY | full | none | no |
-  | FORMATTIME | full | none | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | PUT CONTAINER | full | ca-channel-containers (yes / no) | no |
-  | READ | full | none | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | REWRITE | full | none | no |
-  | RUN | full | gt-start-options (yes / no) | no |
-  | WRITE | full | none | no |
-
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X17 (ASSUMED (REFUSED where IBM is silent)), X18 (ASSUMED (REFUSED where IBM is silent)), X19 (ASSUMED (REFUSED where the harness cannot decide)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)), X52 (ASSUMED (REFUSED where IBM is silent)), X60 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 9 named assumptions (none measured on z/OS)
-  - runtime facts the harness states for its commands: facility, screen, startcode, userid
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 24 live paragraphs unrun; 51 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X17, X18, X19, X22, X27, X46, X52, X60; commands without oracle backing: (unparsed), ASKTIME, DELAY, DEQ, ENQ, FETCH ANY, FORMATTIME, PUT CONTAINER, READ, REWRITE, RUN, WRITE; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 16 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X27, X31, X46; commands without oracle backing: ASKTIME, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/DBCRFUN.cbl -- L2
 
-- **Executed equivalent** on the 22 scenarios of cbsa-dbcrfun against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (now 72.7)
+- **Executed equivalent** on the 27 scenarios of cbsa-dbcrfun against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (now 95.5)
 - **Translation:** 148/148 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/base/cobol_src/DBCRFUN.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/base/cobol_src/DBCRFUN.cbl:1]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
@@ -1087,10 +1096,10 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-bnk1cra-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (7 scenarios in case.json)
 - **Executed equivalence** (cbsa-dbcrfun, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (22 scenarios in case.json)
+  - evidence record: none (27 scenarios in case.json)
 - **Executed equivalence** (cbsa-dbcrfun-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (0 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 16/22 (72.7%), branch outcomes 25/35 (71.4%) raw, 25/35 (71.4%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 21/22 (95.5%), branch outcomes 30/35 (85.7%) raw, 30/35 (85.7%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1109,7 +1118,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 6 live paragraphs unrun; 10 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 5 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/INQACC.cbl -- L2
 
@@ -1154,8 +1163,8 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 ### src/base/cobol_src/INQACCCU.cbl -- L2
 
-- **Executed equivalent** on the 9 scenarios of cbsa-inqacccu against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** paragraph coverage >= 100.0 (now 72.7)
+- **Executed equivalent** on the 14 scenarios of cbsa-inqacccu against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** paragraph coverage >= 100.0 (now 81.8)
 - **Translation:** 186/186 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(OPT) [found at etc/install/base/buildjcl/CICS.jcl:7]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
@@ -1176,10 +1185,10 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-delcus-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqacccu, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (9 scenarios in case.json)
+  - evidence record: none (14 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqacccu-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (4 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 16/22 (72.7%), branch outcomes 21/33 (63.6%) raw, 21/33 (63.6%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+  - evidence record: none (9 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 18/22 (81.8%), branch outcomes 25/33 (75.8%) raw, 25/33 (75.8%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1198,7 +1207,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 6 live paragraphs unrun; 12 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 4 live paragraphs unrun; 8 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/INQCUST.cbl -- L2
 
@@ -1226,9 +1235,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-delcus-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqacccu, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (9 scenarios in case.json)
+  - evidence record: none (14 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqacccu-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (4 scenarios in case.json)
+  - evidence record: none (9 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqcust, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (25 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 22/25 (88.0%), branch outcomes 39/46 (84.8%) raw, 39/46 (84.8%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -1259,7 +1268,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 ### src/base/cobol_src/XFRFUN.cbl -- L2
 
-- **Executed equivalent** on the 22 scenarios of cbsa-xfrfun against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Executed equivalent** on the 23 scenarios of cbsa-xfrfun against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 96.4)
 - **Translation:** 426/426 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/base/cobol_src/XFRFUN.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/base/cobol_src/XFRFUN.cbl:1]
@@ -1269,10 +1278,10 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-bnk1tfn-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (19 scenarios in case.json)
 - **Executed equivalence** (cbsa-xfrfun, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (22 scenarios in case.json)
+  - evidence record: none (23 scenarios in case.json)
 - **Executed equivalence** (cbsa-xfrfun-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 27/28 (96.4%), branch outcomes 46/81 (56.8%) raw, 46/81 (56.8%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 27/28 (96.4%), branch outcomes 47/81 (58.0%) raw, 47/81 (58.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1292,7 +1301,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 live paragraphs unrun; 35 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 34 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
 ## Assumptions the estate's CICS commands name
 
@@ -1303,7 +1312,7 @@ From the spec entries of the commands the programs use, with the register's stat
 | X3 | CICS | MATCHED | Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept |
 | X14 | CICS | ASSUMED (REFUSED where IBM is silent) | READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused |
 | X15 | CICS | ASSUMED (REFUSED where IBM is silent) | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL |
-| X17 | CICS | ASSUMED (REFUSED where IBM is silent) | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port only, the stub refuses it), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42) |
+| X17 | CICS | ASSUMED (REFUSED where IBM is silent) | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44) |
 | X18 | CICS | ASSUMED (REFUSED where IBM is silent) | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused |
 | X19 | CICS | ASSUMED (REFUSED where the harness cannot decide) | ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused |
 | X20 | CICS | MATCHED (REFUSED where the region cannot decide) | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused |
@@ -1321,20 +1330,20 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `28734a013e294b3a60b9d42c48375c826e01abde`
+- translator commit (the survey's): `93f1ded2032b4e213c58691790f601fd5ccda746`
 - corpus pin: `cics-banking-sample-application-cbsa` at `417334533178ab6e753cc64b0e0e5cf0b4952704`
-- crucible pins: cics `v0.9.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.9.0 (3ca75ae0)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:49d81b68e5cc8858614297dd3c69083e957ad3a34b9566e968a229a89b37f7e6`
+- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:d273b47b348b81337bf282142f2a1f145a4c9e3fc532c173393e13e35974ea7b`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde
-python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde
+python tests/tools/cics_census.py survey --baseline --sha 93f1ded2032b4e213c58691790f601fd5ccda746
+python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 93f1ded2032b4e213c58691790f601fd5ccda746
 python tests/tools/evidence_report.py --refresh
-python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-create,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (38) need the Db2 container
+python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (37) need the Db2 container
 python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `28734a013e294b3a60b9d42c48375c826e01abde` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `93f1ded2032b4e213c58691790f601fd5ccda746` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `e41589af5e06`).
+The translation survey matches the translator in the tree (translator fingerprint `6d3f1f3c1188`).
 
 ## How to read this report
 
@@ -25,7 +25,7 @@ The translation survey matches the translator in the tree (translator fingerprin
 | L2 | executed equivalent | a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case by a local sweep or the scheduled Db2 sweep's coverage ledger entry); the case's evidence record is reported, not required |
 | L3 | paragraph coverage | L2, and the scenarios execute >= 100.0 percent of its live paragraphs |
 | L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes, net of the case's reviewed infeasible outcomes (listed under its assumptions) |
-| L5 | mutants accounted for | L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628) |
+| L5 | mutants accounted for | L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628: the case, corpus and survivors list unchanged and the det port's bytes not found moved; generator, harness and oracle drift is recorded, not staling, #5862) |
 
 **What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a program actually reaches is not measured. These migration dimensions are not measured at all:
 
@@ -340,9 +340,9 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `28734a013e294b3a60b9d42c48375c826e01abde`
+- translator commit (the survey's): `93f1ded2032b4e213c58691790f601fd5ccda746`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
-- crucible pins: cics `v0.9.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.9.0 (3ca75ae0)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
 - oracle images the evidence records ran on: none
@@ -350,8 +350,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde
-python tests/tools/evidence_report.py zecs --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde
+python tests/tools/cics_census.py survey --baseline --sha 93f1ded2032b4e213c58691790f601fd5ccda746
+python tests/tools/evidence_report.py zecs --baseline --sha 93f1ded2032b4e213c58691790f601fd5ccda746
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsplt
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

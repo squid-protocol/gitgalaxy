@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `28734a013e294b3a60b9d42c48375c826e01abde` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `93f1ded2032b4e213c58691790f601fd5ccda746` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `e41589af5e06`).
+The translation survey matches the translator in the tree (translator fingerprint `6d3f1f3c1188`).
 
 ## How to read this report
 
@@ -25,7 +25,7 @@ The translation survey matches the translator in the tree (translator fingerprin
 | L2 | executed equivalent | a case runs it and the case's det port is equal on every scenario (CI's det-sweep ratchet on main; a Db2 case by a local sweep or the scheduled Db2 sweep's coverage ledger entry); the case's evidence record is reported, not required |
 | L3 | paragraph coverage | L2, and the scenarios execute >= 100.0 percent of its live paragraphs |
 | L4 | branch coverage | L3, and >= 100.0 percent of its branch outcomes, net of the case's reviewed infeasible outcomes (listed under its assumptions) |
-| L5 | mutants accounted for | L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628) |
+| L5 | mutants accounted for | L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628: the case, corpus and survivors list unchanged and the det port's bytes not found moved; generator, harness and oracle drift is recorded, not staling, #5862) |
 
 **What is not measured.** Holes, unrun paragraphs and branch outcomes, unstated runtime facts and the ASSUMED / DIFFERS entries a program's commands name are listed per program. Which register entries a program actually reaches is not measured. These migration dimensions are not measured at all:
 
@@ -544,8 +544,8 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:186:true (IF) -- `IF EIBCALEN > 0` is true never: WRITE-ERROR-MESSAGE has one PERFORM (line 101), inside `IF EIBCALEN IS EQUAL TO ZERO` (line 99), so EIBCALEN is 0 on every entry and the COMMAREA copy (lines 186-200) is skipped..
-  - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:187:true (IF) -- Nested in `IF EIBCALEN > 0` (line 186), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
   - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:187:false (IF) -- Nested in `IF EIBCALEN > 0` (line 186), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
+  - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:187:true (IF) -- Nested in `IF EIBCALEN > 0` (line 186), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
@@ -1275,7 +1275,7 @@ From the spec entries of the commands the programs use, with the register's stat
 | X14 | CICS | ASSUMED (REFUSED where IBM is silent) | READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused |
 | X15 | CICS | ASSUMED (REFUSED where IBM is silent) | Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL |
 | X16 | CICS | MATCHED (REFUSED where IBM is silent) | HANDLE AID, IGNORE CONDITION, PUSH / POP HANDLE and HANDLE CONDITION ERROR on the det port |
-| X17 | CICS | ASSUMED (REFUSED where IBM is silent) | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port only, the stub refuses it), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42) |
+| X17 | CICS | ASSUMED (REFUSED where IBM is silent) | Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44) |
 | X18 | CICS | ASSUMED (REFUSED where IBM is silent) | Interval control on the det port: START (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM, RTRANSID / RTERMID / QUEUE, CHANNEL), RETRIEVE (INTO / LENGTH, the data options, ENVDEFERR), CANCEL REQID, RUN TRANSID CHILD [CHANNEL], FETCH ANY / CHILD (NOSUSPEND, TIMEOUT or waiting), FREE CHILD, and DELAY as the wait that dispatches RUN children (#4950); the child schedule, TIME RESP2 and the order of out-of-range checks assumed; ties, a child's region-resource commands, RETRIEVE SET / WAIT refused |
 | X19 | CICS | ASSUMED (REFUSED where the harness cannot decide) | ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused |
 | X20 | CICS | MATCHED (REFUSED where the region cannot decide) | SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused |
@@ -1295,18 +1295,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `28734a013e294b3a60b9d42c48375c826e01abde`
+- translator commit (the survey's): `93f1ded2032b4e213c58691790f601fd5ccda746`
 - corpus pin: `cics-genapp` at `f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa`
-- crucible pins: cics `v0.9.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.9.0 (3ca75ae0)`; crucible cases per command measured at `v0.5.0`
+- crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:49d81b68e5cc8858614297dd3c69083e957ad3a34b9566e968a229a89b37f7e6`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
+- oracle images the evidence records ran on: `sha256:d273b47b348b81337bf282142f2a1f145a4c9e3fc532c173393e13e35974ea7b`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde
-python tests/tools/evidence_report.py cics-genapp --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde
+python tests/tools/cics_census.py survey --baseline --sha 93f1ded2032b4e213c58691790f601fd5ccda746
+python tests/tools/evidence_report.py cics-genapp --baseline --sha 93f1ded2032b4e213c58691790f601fd5ccda746
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container
 python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01

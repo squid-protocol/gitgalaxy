@@ -173,7 +173,7 @@
    "name": "branch coverage"
   },
   {
-   "condition": "L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628)",
+   "condition": "L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628: the case, corpus and survivors list unchanged and the det port's bytes not found moved; generator, harness and oracle drift is recorded, not staling, #5862)",
    "level": "L5",
    "name": "mutants accounted for"
   }
@@ -241,15 +241,15 @@
     0
    ],
    "carddemo-acctupdate": [
-    89,
+    90,
     95,
-    310,
+    311,
     397
    ],
    "carddemo-acctview": [
     32,
     32,
-    59,
+    61,
     69
    ],
    "carddemo-acctview-generated": [
@@ -309,7 +309,7 @@
    "carddemo-cbpaup0c": [
     15,
     16,
-    37,
+    38,
     40
    ],
    "carddemo-cbstm03a": [
@@ -363,13 +363,13 @@
    "carddemo-copaus0c": [
     20,
     20,
-    84,
+    88,
     93
    ],
    "carddemo-copaus1c": [
     15,
     15,
-    44,
+    48,
     48
    ],
    "carddemo-copaus2c": [
@@ -385,9 +385,9 @@
     6
    ],
    "carddemo-cotrtlic": [
-    53,
     59,
-    160,
+    59,
+    196,
     230
    ],
    "carddemo-cotrtlic-generated": [
@@ -397,9 +397,9 @@
     230
    ],
    "carddemo-cotrtupc": [
-    62,
     63,
-    126,
+    63,
+    136,
     166
    ],
    "carddemo-dailyval": [
@@ -447,13 +447,13 @@
    "carddemo-paudblod": [
     16,
     16,
-    24,
+    33,
     34
    ],
    "carddemo-paudbunl": [
     10,
     10,
-    20,
+    22,
     22
    ],
    "carddemo-posttran": [
@@ -657,14 +657,13 @@
    "cbsa-bnk1ccs": [
     33,
     33,
-    109,
+    113,
     143
    ],
-   "cbsa-bnk1ccs-create": null,
    "cbsa-bnk1ccs-generated": [
     33,
     33,
-    84,
+    88,
     143
    ],
    "cbsa-bnk1cra": [
@@ -722,39 +721,39 @@
     88
    ],
    "cbsa-bnkmenu": [
-    19,
+    24,
     25,
-    35,
+    46,
     62
    ],
    "cbsa-crdtagy1": [
-    4,
     7,
-    4,
+    7,
+    5,
     6
    ],
    "cbsa-crdtagy2": [
-    4,
     7,
-    4,
+    7,
+    5,
     6
    ],
    "cbsa-crdtagy3": [
-    4,
     7,
-    4,
+    7,
+    5,
     6
    ],
    "cbsa-crdtagy4": [
-    4,
     7,
-    4,
+    7,
+    5,
     6
    ],
    "cbsa-crdtagy5": [
-    4,
     7,
-    4,
+    7,
+    5,
     6
    ],
    "cbsa-creacc": [
@@ -769,7 +768,12 @@
     25,
     38
    ],
-   "cbsa-crecust": null,
+   "cbsa-crecust": [
+    37,
+    37,
+    40,
+    74
+   ],
    "cbsa-crecust-generated": [
     13,
     37,
@@ -783,9 +787,9 @@
     4
    ],
    "cbsa-dbcrfun": [
-    16,
+    21,
     22,
-    25,
+    30,
     35
    ],
    "cbsa-dbcrfun-generated": [
@@ -843,15 +847,15 @@
     25
    ],
    "cbsa-inqacccu": [
-    16,
+    18,
     22,
-    21,
+    25,
     33
    ],
    "cbsa-inqacccu-generated": [
-    16,
+    18,
     22,
-    19,
+    23,
     33
    ],
    "cbsa-inqcust": [
@@ -887,7 +891,7 @@
    "cbsa-xfrfun": [
     27,
     28,
-    46,
+    47,
     81
    ],
    "cbsa-xfrfun-generated": [
@@ -1622,10 +1626,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "28734a013e294b3a60b9d42c48375c826e01abde",
+   "sha": "93f1ded2032b4e213c58691790f601fd5ccda746",
    "translator": {
-    "files": 141,
-    "sha256": "e41589af5e06a3e819205743d4075a0578f8c9ca950f27b44845f0c18265308c"
+    "files": 145,
+    "sha256": "6d3f1f3c11887434672c3daa1274974b5aad43555e0cf84f51ce8c039fc2b9a0"
    }
   },
   "sweeps": {}
@@ -5093,18 +5097,18 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde",
+   "python tests/tools/cics_census.py survey --baseline --sha 93f1ded2032b4e213c58691790f601fd5ccda746",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 93f1ded2032b4e213c58691790f601fd5ccda746",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
   "corpus_ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
   "coverage_from": "det-sweep coverage ledger, freshness at build time",
-  "crucible_baseline_ref": "v0.9.0 (3ca75ae0)",
+  "crucible_baseline_ref": "v0.10.0 (01e11fe6)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.9.0",
+   "cics": "v0.10.0",
    "estate": "v0.4.0",
    "language": "v1.7.0"
   },
@@ -5115,13 +5119,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "28734a013e294b3a60b9d42c48375c826e01abde",
+   "sha": "93f1ded2032b4e213c58691790f601fd5ccda746",
    "translator": {
-    "files": 141,
-    "sha256": "e41589af5e06a3e819205743d4075a0578f8c9ca950f27b44845f0c18265308c"
+    "files": 145,
+    "sha256": "6d3f1f3c11887434672c3daa1274974b5aad43555e0cf84f51ce8c039fc2b9a0"
    }
   },
-  "translator_commit": "28734a013e294b3a60b9d42c48375c826e01abde",
+  "translator_commit": "93f1ded2032b4e213c58691790f601fd5ccda746",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -5164,6 +5168,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "e41589af5e06a3e819205743d4075a0578f8c9ca950f27b44845f0c18265308c"
+  "fingerprint": "6d3f1f3c11887434672c3daa1274974b5aad43555e0cf84f51ce8c039fc2b9a0"
  }
 }

@@ -26,7 +26,7 @@
   },
   {
    "area": "CICS",
-   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port only, the stub refuses it), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
+   "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
    "id": "X17",
    "status": "ASSUMED (REFUSED where IBM is silent)"
   },
@@ -149,7 +149,7 @@
    "name": "branch coverage"
   },
   {
-   "condition": "L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628)",
+   "condition": "L4, and every surviving mutant of the det port's seeded mutation sample accounted for (stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628: the case, corpus and survivors list unchanged and the det port's bytes not found moved; generator, harness and oracle drift is recorded, not staling, #5862)",
    "level": "L5",
    "name": "mutants accounted for"
   }
@@ -217,15 +217,15 @@
     0
    ],
    "carddemo-acctupdate": [
-    89,
+    90,
     95,
-    310,
+    311,
     397
    ],
    "carddemo-acctview": [
     32,
     32,
-    59,
+    61,
     69
    ],
    "carddemo-acctview-generated": [
@@ -285,7 +285,7 @@
    "carddemo-cbpaup0c": [
     15,
     16,
-    37,
+    38,
     40
    ],
    "carddemo-cbstm03a": [
@@ -339,13 +339,13 @@
    "carddemo-copaus0c": [
     20,
     20,
-    84,
+    88,
     93
    ],
    "carddemo-copaus1c": [
     15,
     15,
-    44,
+    48,
     48
    ],
    "carddemo-copaus2c": [
@@ -361,9 +361,9 @@
     6
    ],
    "carddemo-cotrtlic": [
-    53,
     59,
-    160,
+    59,
+    196,
     230
    ],
    "carddemo-cotrtlic-generated": [
@@ -373,9 +373,9 @@
     230
    ],
    "carddemo-cotrtupc": [
-    62,
     63,
-    126,
+    63,
+    136,
     166
    ],
    "carddemo-dailyval": [
@@ -423,13 +423,13 @@
    "carddemo-paudblod": [
     16,
     16,
-    24,
+    33,
     34
    ],
    "carddemo-paudbunl": [
     10,
     10,
-    20,
+    22,
     22
    ],
    "carddemo-posttran": [
@@ -633,14 +633,13 @@
    "cbsa-bnk1ccs": [
     33,
     33,
-    109,
+    113,
     143
    ],
-   "cbsa-bnk1ccs-create": null,
    "cbsa-bnk1ccs-generated": [
     33,
     33,
-    84,
+    88,
     143
    ],
    "cbsa-bnk1cra": [
@@ -698,39 +697,39 @@
     88
    ],
    "cbsa-bnkmenu": [
-    19,
+    24,
     25,
-    35,
+    46,
     62
    ],
    "cbsa-crdtagy1": [
-    4,
     7,
-    4,
+    7,
+    5,
     6
    ],
    "cbsa-crdtagy2": [
-    4,
     7,
-    4,
+    7,
+    5,
     6
    ],
    "cbsa-crdtagy3": [
-    4,
     7,
-    4,
+    7,
+    5,
     6
    ],
    "cbsa-crdtagy4": [
-    4,
     7,
-    4,
+    7,
+    5,
     6
    ],
    "cbsa-crdtagy5": [
-    4,
     7,
-    4,
+    7,
+    5,
     6
    ],
    "cbsa-creacc": [
@@ -745,7 +744,12 @@
     25,
     38
    ],
-   "cbsa-crecust": null,
+   "cbsa-crecust": [
+    37,
+    37,
+    40,
+    74
+   ],
    "cbsa-crecust-generated": [
     13,
     37,
@@ -759,9 +763,9 @@
     4
    ],
    "cbsa-dbcrfun": [
-    16,
+    21,
     22,
-    25,
+    30,
     35
    ],
    "cbsa-dbcrfun-generated": [
@@ -819,15 +823,15 @@
     25
    ],
    "cbsa-inqacccu": [
-    16,
+    18,
     22,
-    21,
+    25,
     33
    ],
    "cbsa-inqacccu-generated": [
-    16,
+    18,
     22,
-    19,
+    23,
     33
    ],
    "cbsa-inqcust": [
@@ -863,7 +867,7 @@
    "cbsa-xfrfun": [
     27,
     28,
-    46,
+    47,
     81
    ],
    "cbsa-xfrfun-generated": [
@@ -2219,10 +2223,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "28734a013e294b3a60b9d42c48375c826e01abde",
+   "sha": "93f1ded2032b4e213c58691790f601fd5ccda746",
    "translator": {
-    "files": 141,
-    "sha256": "e41589af5e06a3e819205743d4075a0578f8c9ca950f27b44845f0c18265308c"
+    "files": 145,
+    "sha256": "6d3f1f3c11887434672c3daa1274974b5aad43555e0cf84f51ce8c039fc2b9a0"
    }
   },
   "sweeps": {}
@@ -4015,7 +4019,7 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port only, the stub refuses it), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused (MOVE and the browse: X42)",
+      "entry": "Channels and containers: PUT / GET / DELETE CONTAINER, LINK / XCTL / RETURN CHANNEL (RETURN: the det port and the stub, carried to the next terminal task), ASSIGN CHANNEL; CHAR containers convert between CCSIDs 37, 500, 1140 and 1208 (ASCII bytes only) (FROMCCSID / INTOCCSID / CONVERTST / CCSID); GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND on BIT containers; BYTEOFFSET / PREPEND on CHAR containers, other CCSIDs and multibyte 1208 refused GET64 / PUT64 CONTAINER as GET / PUT with INTO / FROM an ordinary item (GET64 SET refused); MOVE and the browse: X42; DELETE CHANNEL and QUERY CHANNEL: X44)",
       "id": "X17",
       "status": "ASSUMED (REFUSED where IBM is silent)"
      },
@@ -5180,7 +5184,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:49d81b68e5cc8858614297dd3c69083e957ad3a34b9566e968a229a89b37f7e6",
+       "oracle_image": "sha256:d273b47b348b81337bf282142f2a1f145a4c9e3fc532c173393e13e35974ea7b",
        "oracle_matches_pin": true,
        "records_compared": 24,
        "records_equal": 24,
@@ -8618,8 +8622,8 @@
     "current": true,
     "infeasible_netted": [
      "WRITE-ERROR-MESSAGE:186:true",
-     "WRITE-ERROR-MESSAGE:187:true",
-     "WRITE-ERROR-MESSAGE:187:false"
+     "WRITE-ERROR-MESSAGE:187:false",
+     "WRITE-ERROR-MESSAGE:187:true"
     ],
     "infeasible_refuted": [],
     "infeasible_stated": [
@@ -8634,19 +8638,19 @@
      },
      {
       "family": "G",
-      "key": "WRITE-ERROR-MESSAGE:187:true",
+      "key": "WRITE-ERROR-MESSAGE:187:false",
       "kind": "IF",
       "line": 187,
-      "outcome": "true",
+      "outcome": "false",
       "reason": "Nested in `IF EIBCALEN > 0` (line 186), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.",
       "unit": "WRITE-ERROR-MESSAGE"
      },
      {
       "family": "G",
-      "key": "WRITE-ERROR-MESSAGE:187:false",
+      "key": "WRITE-ERROR-MESSAGE:187:true",
       "kind": "IF",
       "line": 187,
-      "outcome": "false",
+      "outcome": "true",
       "reason": "Nested in `IF EIBCALEN > 0` (line 186), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run.",
       "unit": "WRITE-ERROR-MESSAGE"
      }
@@ -10309,7 +10313,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:49d81b68e5cc8858614297dd3c69083e957ad3a34b9566e968a229a89b37f7e6",
+       "oracle_image": "sha256:d273b47b348b81337bf282142f2a1f145a4c9e3fc532c173393e13e35974ea7b",
        "oracle_matches_pin": true,
        "records_compared": 20,
        "records_equal": 20,
@@ -10457,7 +10461,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:49d81b68e5cc8858614297dd3c69083e957ad3a34b9566e968a229a89b37f7e6",
+      "oracle_image": "sha256:d273b47b348b81337bf282142f2a1f145a4c9e3fc532c173393e13e35974ea7b",
       "oracle_matches_pin": true,
       "records_compared": 20,
       "records_equal": 20,
@@ -11476,7 +11480,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:49d81b68e5cc8858614297dd3c69083e957ad3a34b9566e968a229a89b37f7e6",
+       "oracle_image": "sha256:d273b47b348b81337bf282142f2a1f145a4c9e3fc532c173393e13e35974ea7b",
        "oracle_matches_pin": true,
        "records_compared": 20,
        "records_equal": 20,
@@ -16615,7 +16619,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:49d81b68e5cc8858614297dd3c69083e957ad3a34b9566e968a229a89b37f7e6",
+       "oracle_image": "sha256:d273b47b348b81337bf282142f2a1f145a4c9e3fc532c173393e13e35974ea7b",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -16727,7 +16731,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:49d81b68e5cc8858614297dd3c69083e957ad3a34b9566e968a229a89b37f7e6",
+      "oracle_image": "sha256:d273b47b348b81337bf282142f2a1f145a4c9e3fc532c173393e13e35974ea7b",
       "oracle_matches_pin": true,
       "records_compared": 18,
       "records_equal": 18,
@@ -17319,7 +17323,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:49d81b68e5cc8858614297dd3c69083e957ad3a34b9566e968a229a89b37f7e6",
+       "oracle_image": "sha256:d273b47b348b81337bf282142f2a1f145a4c9e3fc532c173393e13e35974ea7b",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -21279,8 +21283,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde",
-   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 28734a013e294b3a60b9d42c48375c826e01abde",
+   "python tests/tools/cics_census.py survey --baseline --sha 93f1ded2032b4e213c58691790f601fd5ccda746",
+   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 93f1ded2032b4e213c58691790f601fd5ccda746",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01",
@@ -21288,16 +21292,16 @@
   ],
   "corpus_ref": "f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa",
   "coverage_from": "det-sweep coverage ledger, freshness at build time",
-  "crucible_baseline_ref": "v0.9.0 (3ca75ae0)",
+  "crucible_baseline_ref": "v0.10.0 (01e11fe6)",
   "crucible_cases_measured_at": "v0.5.0",
   "crucible_pins": {
-   "cics": "v0.9.0",
+   "cics": "v0.10.0",
    "estate": "v0.4.0",
    "language": "v1.7.0"
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:49d81b68e5cc8858614297dd3c69083e957ad3a34b9566e968a229a89b37f7e6",
+   "sha256:d273b47b348b81337bf282142f2a1f145a4c9e3fc532c173393e13e35974ea7b",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
@@ -21305,13 +21309,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "28734a013e294b3a60b9d42c48375c826e01abde",
+   "sha": "93f1ded2032b4e213c58691790f601fd5ccda746",
    "translator": {
-    "files": 141,
-    "sha256": "e41589af5e06a3e819205743d4075a0578f8c9ca950f27b44845f0c18265308c"
+    "files": 145,
+    "sha256": "6d3f1f3c11887434672c3daa1274974b5aad43555e0cf84f51ce8c039fc2b9a0"
    }
   },
-  "translator_commit": "28734a013e294b3a60b9d42c48375c826e01abde",
+  "translator_commit": "93f1ded2032b4e213c58691790f601fd5ccda746",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -21354,6 +21358,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "e41589af5e06a3e819205743d4075a0578f8c9ca950f27b44845f0c18265308c"
+  "fingerprint": "6d3f1f3c11887434672c3daa1274974b5aad43555e0cf84f51ce8c039fc2b9a0"
  }
 }

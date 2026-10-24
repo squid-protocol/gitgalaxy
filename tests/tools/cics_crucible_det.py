@@ -38,6 +38,7 @@ PROGRAMS = {
         ("PCRCA", "PCRCB", "PCRCL"),
     ),  # #5005: RETURN TRANSID CHANNEL carried to the next task
     "gt-web-client": ("GTWCLI", ("GTWCLI",)),  # #4767: WEB OPEN / CONVERSE / CLOSE against a stated peer
+    "gt-web-parse-url": ("GTWPARS", ("GTWPARS",)),  # #4767: WEB PARSE URL, IPv6 host and LENGERR
 }
 
 

@@ -1,5 +1,5 @@
 {
- "commit": "d925f14dc",
+ "commit": "353072d17",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-24T13:27:18Z",
+  "as_of": "2026-10-24T13:33:10Z",
   "core": {
    "closed": 171,
    "open": 16,
@@ -186,9 +186,9 @@
   },
   "eta": "12 days",
   "frontier": {
-   "closed": 108,
+   "closed": 109,
    "found_last_window": 27,
-   "open": 102,
+   "open": 101,
    "total": 210
   },
   "frontier_milestone": {
@@ -282,9 +282,9 @@
     "total": 57
    },
    {
-    "closed": 78,
+    "closed": 79,
     "number": 14,
-    "open": 14,
+    "open": 13,
     "title": "Compiler call-graph comparison",
     "total": 92
    },

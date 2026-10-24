@@ -15,6 +15,7 @@ TOOLS = Path(__file__).resolve().parent
 ROOT = TOOLS.parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(TOOLS))
+import change_classifier as cc  # noqa: E402
 import ground_truth_plan as gp  # noqa: E402
 from gitgalaxy.core.source_text import read_source  # noqa: E402
 
@@ -139,6 +140,8 @@ def _closure():
     mod_names = mods.keys()
 
     def named(path):
+        if cc.PATTERN_HOLDERS.search(path.as_posix()):
+            return set()  # a planner / the classifier lists paths to skip (#6278): it is imported, not run by the job
         return mod_names & set(word_re.findall(read_source(path).text))
 
     seen: set[str] = set()

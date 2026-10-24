@@ -18,6 +18,9 @@ or removed), an unreadable diff or side -- is a full sweep, as is every event th
 manual: the backstop for a narrowing that missed). When in doubt, full. Stdlib only: the job runs before anything is
 installed.
 
+#6278: on a pull request the Db2 half of a plan that went full for a reason outside the Db2 area (a harness-core file, an
+oracle Dockerfile: change_classifier.db2_area) is dropped; the non-Db2 sweep and every other event are unchanged.
+
 Prints JSON {mode, cases, shards, matrix, db2_cases, db2_shards, db2_matrix, reason}: `cases` is "all" or the names;
 `matrix` the shard labels "I/N". The Db2 cases (a "db2" section in case.json) are split off into `db2_cases` (#4901):
 the PR's `db2` job proves the ones the change moves, on runners of their own that start IBM's Db2 container, in
@@ -240,7 +243,7 @@ def labels_from_event(path: Path) -> list[str]:
     return [x.get("name", "") for x in (payload.get("pull_request") or {}).get("labels") or []]
 
 
-def plan(
+def _plan(
     files: list[str],
     event: str,
     cases: dict[str, dict],
@@ -308,6 +311,28 @@ def plan(
             "reason": (f"shared files narrowed: {'; '.join(why)}; " if why else "")
                       + f"only case files changed: {', '.join(sorted(touched)) or 'none'}"
                       + (f" (+ dependents {', '.join(sorted(set(affected) - touched))})" if set(affected) - touched else "")}  # fmt: skip
+
+
+def plan(
+    files: list[str],
+    event: str,
+    cases: dict[str, dict],
+    labels: list[str] | None = None,
+    texts: Callable[[str], tuple[str | None, str | None]] | None = None,
+) -> dict:
+    """_plan(), then #6278: on a pull request the Db2 runners (each starts IBM's Db2 container, ~17% of PR runner minutes)
+    run only when a changed file is in the Db2 area (change_classifier.db2_area) or a Db2 case moved. A plan that went
+    full for another reason (a harness core file, an unplaceable file) keeps its non-Db2 sweep and drops the Db2 half;
+    the nightly, a manual run and the `shepherd:full` label still prove every Db2 case."""
+    p = _plan(files, event, cases, labels, texts)
+    if event != "pull_request" or FULL_LABEL in (labels or []) or p["db2_cases"] != "all" or not files:
+        return p  # an empty diff is "cannot tell": keep it full
+    import change_classifier  # noqa: PLC0415 -- Evidence Refresh's sparse checkout holds this planner alone
+
+    names = [n for n, c in cases.items() if is_db2(c)]
+    if any(change_classifier.db2_area(f, names) for f in files):
+        return p
+    return {**p, "db2_cases": [], "reason": p["reason"] + "; no changed file is in the Db2 area: no Db2 shard"}
 
 
 def narrow_by_ports(check: Path, touched: list[str], cases: dict[str, dict]) -> dict:

@@ -182,7 +182,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X69 | LE / CICS | ZUIDSTCK's 16 bytes are opaque; the program depends only on them being stated; their STCK/STCKE layout is not modelled. The port (cobolrt/le/Zuidstck.java) and the oracle (tests/equivalence/le/zuidstck.c) fill THE-TOD from the run's stated $GGC_ZUIDSTCK_TOD (32 hexadecimal digits, the harness's tod case key); an unstated, malformed or wrongly sized TOD is refused by name; the host clock is never read; every call of a run returns the same bytes | ASSUMED | yes (executed-equivalent: zecs-zecs001, 2 stated TODs, 0 diffs on every event and on the key record; the opaque-bytes assumption itself is not provable against z/OS) |
 | X70 | CICS | A scenario can plan an abend on a file control command (READ, READNEXT, READPREV, STARTBR, ENDBR, WRITE, REWRITE, DELETE) with `{"cmd", "file", "nth", "resp": "ABEND", "abcode": "AFCR|AFCS|AFCT"}`: the command raises no condition (RESP and RESP2 stay NORMAL, RESP and HANDLE CONDITION do not see it) and the task abends with that code, cause system; the nearest active HANDLE ABEND exit gets control (the levels below it are unwound), and without one the task ends with the unit of work backed out. Refused: any other abend code, any other command, a RESP2 named on the plan | ASSUMED (REFUSED where IBM is silent) | yes (CardDemo COCRDUPC) |
 | X71 | CICS | A scenario can plan a condition on SEND MAP (INVMPSZ, TSIOERR, INVREQ RESP2 200), RECEIVE MAP (INVMPSZ, INVREQ), RETURN (INVREQ RESP2 1/2/4/200, LENGERR RESP2 11/26/27), SYNCPOINT and SYNCPOINT ROLLBACK (INVREQ RESP2 200) with `{"cmd": "SEND-MAP|RECEIVE-MAP|RETURN|SYNCPOINT|ROLLBACK", "map": "..", "nth": n, "resp": "..", "resp2": n}`. The command is not performed, RESP / RESP2 / EIBRESP carry the plan, and HANDLE CONDITION fires when the command codes no RESP. Refused: every other condition IBM lists for these commands (device, partition, paging, remote-system and PLT conditions, ROLLEDBACK), a RESP2 where IBM states none, a RESP2 outside IBM's list | ASSUMED (REFUSED where IBM is silent) | yes (CBSA BNKMENU, DBCRFUN) |
-| L1 | LE | CEEDAYS: numeric date pictures (YYYY MM DD in any order, YYYY DDD) read as their span; date characters past the span ignored (documented), an all-blank picture tail ignored (assumed), a non-blank tail refused; open conditions refused by name | MATCHED / ASSUMED / REFUSED | yes (CardDemo carddemo-dateutil; CBSA cbsa-crecust is refused by name, #4952) |
+| L1 | LE | CEEDAYS: numeric date pictures (YYYY MM DD in any order, YYYY DDD) read as their span; date characters past the span ignored (documented), an all-blank picture tail ignored (assumed), the slack past a picture item blank (assumed, CRECUST), a non-blank tail refused; open conditions refused by name | MATCHED / ASSUMED / REFUSED | yes (CardDemo carddemo-dateutil; CBSA cbsa-crecust, cbsa-bnk1ccs, #4952, #5089) |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes; CBSA CRDTAGY1-5 container-short, WS-CONT-IN past a short container) |
 | L4 | LE | CEEIGZCT: a stand-in declaring the symbolic feedback code CEE000 only (CBSA CRECUST, #4884) | ASSUMED | yes (cbsa-crecust, #4952) |
@@ -4370,7 +4370,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
 
 ## Language Environment
 
-### L1. CEEDAYS — MATCHED where documented, a blank picture tail ASSUMED, REFUSED otherwise
+### L1. CEEDAYS — MATCHED where documented, a blank picture tail and the slack past an item ASSUMED, REFUSED otherwise
 - **What IBM documents** (Language Environment Programming Reference, "CEEDAYS -- Convert date to Lilian format"; the
   ILE copy of the same service, https://www.ibm.com/docs/en/ssw_ibm_i_73/apis/CEEDAYS.htm, says the same): a date that
   is not valid returns Lilian 0 and a nonzero feedback code; "After a valid date is parsed, remaining characters are
@@ -4385,12 +4385,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   blanks**. IBM does not say how they are read; CardDemo pads picture and date to 10 (`'YYYYMMDD  '`), and a blank tail is
   taken as ignored. The date past its span is IBM-documented ignored; the picture's tail is not, hence the narrow
   assumption. The tail is read: every byte from the last token to the declared length must be a blank, and a byte that
-  lies past the picture item (a declared length that overruns it) is foreign storage, never trusted as a blank.
+  lies past the picture item (a declared length that overruns it) is the slack ruled below.
 - **Refused (exit 98).** A picture tail with any non-blank byte (`'YYYYMMDDX'`, `'YYYYMMDD00'`, a complete set of
-  tokens followed by more tokens) and a tail that overruns its item: CRECUST's `DATE-OF-BIRTH-FORMAT` is a halfword
-  length of 10 over the 8 bytes `'YYYYMMDD'`, so its 2 extra bytes are the storage that follows the item, which z/OS
-  would read as picture text. CRECUST's create-customer and born-in-the-future scenarios are refused by name, so
-  cbsa-crecust stays unproven (and BNK1CCS, which LINKs it); born-before-1601 ends before CEEDAYS. A numeric month outside 1–12 (2508 vs 2517: IBM documents CEE2517 for a month not recognized
+  tokens followed by more tokens), also when the declared length then overruns the item (the byte inside the item is
+  what is refused). A numeric month outside 1–12 (2508 vs 2517: IBM documents CEE2517 for a month not recognized
   but not what a numeric 13 is); a trailing blank on the part of the date the picture covers (whether it is 2507 or 2520, #4049;
   a blank inside it is a non-numeric position, 2520, and date bytes past the span are ignored); `YY` (a century window), month names, eras, a null or blank picture, a repeated or
   incomplete picture, a blank or mixed separator, `DDD` together with `MM` or `DD`.
@@ -4401,10 +4399,14 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   (CEEDAYS) and CBSA BANKDATA (CEEGMT, CEEDATM). CRECUST is the only vstring whose declared length passes its text (10
   over `PIC X(8)`); CSUTLDTC sets the length from `LENGTH OF` the format item and BANKDATA's CEEDATM picture is 14 over 14.
   `test_only_cbsa_crecust_declares_a_vstring_length_past_its_text` pins that. IBM reads the declared length, so the 2
-  bytes are the slack after the `01` item, whose content IBM does not specify: the overrun stays REFUSED by name, for
-  that reason, until the owner rules the slack blank (the same assumption as the blank tail above, but for storage the
-  program never wrote). The feedback token `FC` is 12 bytes (L4), so nothing overruns there.
-- **BNK1CCS (#5089).** Its create-customer and born-in-the-future ENTERs (`tests/equivalence/cbsa-bnk1ccs-create`) reach CRECUST's CEEDAYS call and are refused by name for the same overrun; they are kept out of cbsa-bnk1ccs and cbsa-bnk1ccs-generated so those cases keep running. Ruling the slack moves them there.
+  bytes are the slack after the `01` item, whose content IBM does not specify. **Assumed (owner decision 2026-10-23).**
+  Nothing statically known occupies them: the next `01`, `DATE-OF-BIRTH-FOR-CEEDAYS`, is a separate level-01 (doubleword
+  aligned, so the slack is alignment padding), and neither item has a `VALUE` for it. The slack is ruled BLANK, the same
+  assumption as the blank tail above, for storage the program never wrote. The det runtime skips every byte past the
+  picture item by its bound; the C model cannot see the item's end, so it reads the NUL padding cobc leaves after a `01`
+  item as that slack (a NUL byte inside a picture is not COBOL text). A non-blank byte INSIDE the item is still refused.
+  The feedback token `FC` is 12 bytes (L4), so nothing overruns there.
+- **BNK1CCS (#5089).** Its create-customer and born-in-the-future ENTERs reach CRECUST's CEEDAYS call and run on the slack ruling: they live in cbsa-bnk1ccs and cbsa-bnk1ccs-generated (the separate `cbsa-bnk1ccs-create` case is gone), proven with cbsa-crecust (det port equal to the oracle; X18 stays ASSUMED). The generated ENTERs still draw dates before 1601 only.
 - COACTUPC's cursor placement after its date fields is unreached until z/OS settles the month-range case.
 
 ### L2. CEE3ABD — MATCHED

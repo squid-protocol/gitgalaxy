@@ -19,7 +19,7 @@ that baseline in the same PR.
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py java` | scip-java 0.12.3 (javac-resolved SCIP, through `tests/tools/scip_callgraph.py`) | pinned java repos, `tests/import_graph_corpus.json` (gson) | `tests/call_graph_resolution_java_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py rust` | rust-analyzer (pinned toolchain 1.90.0; SCIP, through `tests/tools/scip_callgraph.py`) | pinned rust repos, `tests/import_graph_corpus.json` (serde-rs/json) | `tests/call_graph_resolution_rust_baseline.json` | not yet in CI (the toolchain install and a gate step are a follow-up) |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py go` | golang.org/x/tools 0.37.0 VTA call graph (`tests/tools/go_callgraph`, Go 1.24+) | pinned go repos, `tests/import_graph_corpus.json` (cobra) | `tests/call_graph_resolution_go_baseline.json` | none yet: CI has no Go step (#3782) |
-| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py c` | libclang 18.1.1 resolved calls (`tests/tools/clang_callgraph.py`, pip `libclang`) | pinned c repos, `tests/import_graph_corpus.json` (hiredis, libuv) | `tests/call_graph_resolution_c_baseline.json` | not wired yet (workflow slice, #3784) |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py c` | libclang 18.1.1 resolved calls (`tests/tools/clang_callgraph.py`, pip `libclang`) | pinned c repos, `tests/import_graph_corpus.json` (hiredis, libuv) | `tests/call_graph_resolution_c_baseline.json` | `graph-accuracy-audit.yml` |
 | Import edges | `tests/tools/import_graph_accuracy.py` | each language's import statements (Python `ast`, tree-sitter), resolved by the language's own rule | pinned real repos, `tests/import_graph_corpus.json` | `tests/import_graph_accuracy_baseline.json` | `graph-accuracy-audit.yml` |
 | Span anchoring | `tests/tools/span_anchor_audit.py` | the declaration line in the raw source | language-crucible | `tests/span_anchor_baseline.json` | `graph-accuracy-audit.yml` |
 
@@ -63,6 +63,13 @@ asks whether an edge joins the two files the source actually joins.
 - **Each repo is scanned on its own**, in a subprocess pinned to the checkout under test.
   Scanning several repos as one lets an import resolve into a different repo, which no real scan
   can do.
+- **Hub agreement (#3797).** Edge precision and recall do not say whether the engine's most
+  depended-on files are the right ones. Per repo and language, both graphs (engine edges; the
+  parser's resolved sets, one edge to each file a statement names) go through the engine's own
+  `graph_engine.pagerank` over the same file set. `hub_overlap_at_10` is the share of the top 10
+  the two agree on; `hub_spearman` is the rank correlation over the union of both top 10s. The
+  language figure is the mean over repos with at least 10 files and a truth edge (PageRank does
+  not pool across repos). It is recorded in the baseline, not yet gated.
 
 A disagreement is a lead, not a verdict. Check it against the source before quoting a number
 (CLAUDE.md, "Comparative-correctness claims"). The known ones: a dynamic import the parser cannot

@@ -2625,6 +2625,10 @@ def _blank_line(line: str) -> str:
     return " " * len(body) + line[len(body) :]
 
 
+# Languages whose indentation scan treats an open bracket as a continuation (#6266).
+_BRACKET_CONTINUATION_LANGS = frozenset({"python", "micropython", "embedded_python"})
+
+
 class StructuralExtractor:
     """
     GitGalaxy Structural Extractor (Primary Heuristic Logic & Function Mapper).
@@ -7863,6 +7867,13 @@ class StructuralExtractor:
 
             equation_start_idx = None
 
+            # #6266: inside an open bracket Python ignores indentation, and PRISM
+            # blanks a multi-line string argument down to bare newlines, so the
+            # string's closing line tail (`, (id,))`) lands at column 0. Track the
+            # bracket depth so such a line is a continuation, not a dedent.
+            bracket_depth = 0
+            track_brackets = lang_id in _BRACKET_CONTINUATION_LANGS
+
             # --- FAST O(N) INDENT TRACKER ---
             # Replaced O(N^2) array allocations with zero-copy index jumping
             while scan_pos < len(safe_code):
@@ -7874,6 +7885,14 @@ class StructuralExtractor:
 
                 if stripped:
                     current_indent = len(f_line) - len(stripped)
+                    if track_brackets:
+                        was_open = bracket_depth > 0
+                        opened = f_line.count("(") + f_line.count("[") + f_line.count("{")
+                        closed = f_line.count(")") + f_line.count("]") + f_line.count("}")
+                        bracket_depth = max(0, bracket_depth + opened - closed)
+                        if was_open:
+                            scan_pos = line_end
+                            continue
                     if current_indent <= base_indent:
                         # #1266: Haskell's convention puts a function's type
                         # signature and its defining equation(s) on SEPARATE
@@ -10587,6 +10606,7 @@ class StructuralExtractor:
         own_leaf: str | None = None
         own_qualifiers: set[str] = set()
         bare_self_hits = 0
+        kept_super = False
         # #5699: an Objective-C method header (`- (int)f:(int)a`) is no call match, so its first bare `f(` is a body call
         own_header_seen = self.primary_lang_id == "objective-c" and block.lstrip()[:1] in ("-", "+")
         if invocation_pattern:
@@ -10657,6 +10677,9 @@ class StructuralExtractor:
                     if track_arities and callee == "this" and not qualifier and name[:1].isupper():
                         # #3772: `this(...)` chains to a sibling constructor, which is named like the unit
                         callee = name
+                    if track_arities and callee == "super" and not qualifier:
+                        # #3772: `super(...)` chains to the superclass constructor; the resolver names the parent
+                        kept_super = True
                     is_decl = callee_pos == m.start(1) and _is_declaration_header(decl_headers, m)
                     own_header_call = callee == name and not qualifier and not own_header_seen
                     if callee == name and not qualifier:
@@ -10729,7 +10752,7 @@ class StructuralExtractor:
                 # #4305: a pattern alternative that only consumes text (COBOL `EXIT PERFORM`) captures ""
                 if c
                 and (c not in _CALLS_OUT_GLOBAL_IGNORE or c in global_exempt)
-                and (c.casefold() if _fold_ignore else c) not in lang_ignore
+                and ((c.casefold() if _fold_ignore else c) not in lang_ignore or (kept_super and c == "super"))
                 and c != self_name
             )
         )

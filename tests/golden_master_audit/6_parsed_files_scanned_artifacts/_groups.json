@@ -8850,7 +8850,7 @@
     "python/numpy": {
       "Average Risk Exposures": {
         "API Exposure": "14.06%",
-        "Cognitive Load Exposure": "34.71%",
+        "Cognitive Load Exposure": "34.7%",
         "Commented Logic Exposure": "5.43%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "31.55%",
@@ -8863,7 +8863,7 @@
         "Testing Exposure": "42.98%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 17186.78,
+      "Directory Group Magnitude": 17217.38,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "10.5%",
         "Unclassified": "5.3%",

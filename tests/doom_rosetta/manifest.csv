@@ -30,7 +30,7 @@ nugget-doom,https://github.com/MrAlaux/Nugget-Doom,42efefeb3c2a2e79ff4aa3563e0d1
 inter-doom,https://github.com/JNechaevsky/inter-doom,e3018d269c1b703ec0f597688b49d291a360fdc5,,,engine-port,GPL-2.0,Crispy Doom,,compatible,README.md,Compatibility with vanilla-engine demos
 sdl-doom,https://github.com/AlexOberhofer/sdl2-doom,da7732ee6318371db2ee04ec4702c6064245846b,,,engine-port,GPL-2.0,linuxdoom (SDL2 port),,unstated,,
 doom3do,https://github.com/Olde-Skuul/doom3do,8a5cdae476e09f2bedd2cc4dcd105dae4b35d4af,,,engine-port,MIT,3DO Doom source (Olde-Skuul),,unstated,,
-sqldoom,https://github.com/cedardb/sqldoom,95753a20e403d0658e624f623f972eb1f708deed,,sql python,engine-port,GPL-2.0,DOOM engine ported to SQL (PostgreSQL/CedarDB) (functions: ctags counting convention ruled in docs/language_status/javascript.md section 5 item 4 / #5876),functions callgraph,unstated,,
+sqldoom,https://github.com/cedardb/sqldoom,95753a20e403d0658e624f623f972eb1f708deed,,sql python,engine-port,GPL-2.0,DOOM engine ported to SQL (PostgreSQL/CedarDB) (functions: ctags counting convention ruled in docs/language_status/javascript.md section 5 item 4 / #5876),functions,unstated,,
 doomf77,https://github.com/Amnibro/doomf77,1f82e3f40ca24c30aa808b5748e25aa5974b4fb9,,fortran,engine-port,GPL-2.0,DOOM engine ported to Fortran 77 (no C),,compatible,README.md,binary-compatible Doom engine
 doom-scheme,https://github.com/brubsby/doom-scheme,a055cf96e74018dd46542e820b33187e0a584c98,,scheme,engine-port,GPL-2.0,Chez Scheme port of linuxdoom-1.10,,faithful,README.md,faithful to linuxdoom-1.10
 dartdoom,https://github.com/bdero/dartdoom,94b8e82ac1204e8d3d9654cf8f276bf3a6eb1931,,dart,engine-port,GPL-2.0,Dart translation of the playsim and renderer,,enhanced,README.md,A second hardware renderer draws the world as GPU geometry
@@ -42,4 +42,4 @@ doom-fx,https://github.com/RandalLinden/DOOM-FX,90af514994d6434b7ba6e74ca9109dad
 fps-cob,https://github.com/icitry/FPS.cob,7c557fe5d53be9f75027674a662001aba38f1359,,cobol,raycaster,Apache-2.0,COBOL raycaster (sector mode),,unstated,,
 agentic-cobol-doom-cc,https://github.com/acherm/agentic-cobol-doom-cc,117db757cb69ed78dd0fe6195f66b219dca1042a,,cobol,raycaster,MIT,COBOL raycaster written by Claude (agentic-cobol study),,unstated,,
 agentic-cobol-doom-codex,https://github.com/acherm/agentic-cobol-doom-codex,0c4fe3e2c25480518290f5824920a3536bb25866,,cobol c,raycaster,MIT,COBOL raycaster written by Codex (same study),,unstated,,
-mood,https://github.com/notactuallytreyanastasio/mood,9f2345d71361124cf3ac1383715cacad2e745f8d,,c cobol jcl,engine-port,GPL-2.0,modified linuxdoom driving a COBOL AI on z/OS,callgraph,unstated,,
+mood,https://github.com/notactuallytreyanastasio/mood,9f2345d71361124cf3ac1383715cacad2e745f8d,,c cobol jcl,engine-port,GPL-2.0,modified linuxdoom driving a COBOL AI on z/OS,,unstated,,

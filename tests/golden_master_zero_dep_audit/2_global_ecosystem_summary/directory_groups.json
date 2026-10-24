@@ -4568,7 +4568,7 @@
       "avg_exposures": {
         "api_exposure": 14.06,
         "churn": 0.0,
-        "cognitive_load": 34.71,
+        "cognitive_load": 34.7,
         "concurrency": 0.0,
         "dead_code": 5.43,
         "documentation": 31.55,
@@ -4581,7 +4581,7 @@
         "verification": 42.98
       },
       "file_count": 19,
-      "total_mass": 17186.78
+      "total_mass": 17217.38
     },
     "python/opencv_dnn_conversion": {
       "avg_exposures": {

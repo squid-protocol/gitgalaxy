@@ -3103,7 +3103,7 @@
       "python/numpy/genapi.py": 0.596,
       "python/numpy/generate_numpy_api.py": 1.511,
       "python/numpy/generate_ufunc_api.py": 1.152,
-      "python/numpy/generate_umath.py": -0.09,
+      "python/numpy/generate_umath.py": -0.297,
       "python/numpy/generate_umath_doc.py": 1.151,
       "python/numpy/lapack_litemodule.c": 0.936,
       "python/numpy/numpy_api.py": -0.441,

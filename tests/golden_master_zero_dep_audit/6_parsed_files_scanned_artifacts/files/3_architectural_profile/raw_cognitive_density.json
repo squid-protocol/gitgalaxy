@@ -3100,7 +3100,7 @@
       "python/numpy/crackfortran.py": 1.58,
       "python/numpy/cversions.txt": 0.0,
       "python/numpy/func2subr.py": 1.125,
-      "python/numpy/genapi.py": 1.298,
+      "python/numpy/genapi.py": 1.294,
       "python/numpy/generate_numpy_api.py": 0.865,
       "python/numpy/generate_ufunc_api.py": 0.831,
       "python/numpy/generate_umath.py": 0.597,

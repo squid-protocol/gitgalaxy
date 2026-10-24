@@ -264,3 +264,59 @@ def test_csharp_resolves_by_namespace_and_type_never_by_path(tmp_path):
         set(),  # relative `using Scoped;` under Acme.Util is no namespace of the repo
         {"src/Misc/Odd.cs"},  # `using static Helper;` under the enclosing Acme.Util
     ]
+
+
+def _star(hub, leaves):
+    return {(leaf, hub) for leaf in leaves}
+
+
+def test_hub_agreement_identical_graphs_agree_fully():
+    nodes = [f"f{i}.py" for i in range(14)]
+    edges = _star("f0.py", nodes[1:]) | _star("f1.py", nodes[3:])
+    h = iga.hub_agreement(edges, set(edges), nodes)
+    assert (h["overlap_at_k"], h["spearman"], h["k"], h["n"]) == (1.0, 1.0, 10, 14)
+
+
+def test_hub_agreement_drops_when_the_engine_misses_the_hub():
+    nodes = [f"f{i:02}.py" for i in range(30)]
+    truth = {(f"f{i:02}.py", f"f{i - 20:02}.py") for i in range(20, 30)}  # f00-f09 are the hubs
+    engine = {(f"f{i:02}.py", f"f{i - 10:02}.py") for i in range(20, 30)}  # f10-f19 instead
+    h = iga.hub_agreement(engine, truth, nodes)
+    assert h["overlap_at_k"] < 1.0
+    assert h["spearman"] is not None and h["spearman"] < 1.0
+
+
+def test_hub_agreement_is_none_for_thin_input():
+    nodes = [f"f{i}.py" for i in range(9)]
+    edges = _star("f0.py", nodes[1:])
+    assert iga.hub_agreement(edges, edges, nodes) is None  # fewer than k files
+    more = [f"f{i}.py" for i in range(12)]
+    assert iga.hub_agreement(edges, set(), more) is None  # no truth edges
+
+
+def test_hub_agreement_ignores_edges_outside_the_node_set_and_edge_order():
+    nodes = [f"f{i}.py" for i in range(12)]
+    truth = _star("f0.py", nodes[1:])
+    a = iga.hub_agreement(truth | {("f1.py", "other.c")}, truth, nodes)
+    b = iga.hub_agreement(set(reversed(sorted(truth))), truth, nodes)
+    assert a == b == iga.hub_agreement(truth, truth, nodes)
+
+
+def test_score_group_records_hubs_with_one_edge_per_file_of_a_statement(tmp_path):
+    files = {f"pkg/m{i}.py": "" for i in range(12)}
+    files["pkg/__init__.py"] = ""
+    files["pkg/user.py"] = "from pkg import m1, m2\n"
+    (tmp_path / "pkg").mkdir(exist_ok=True)
+    for rel, text in files.items():
+        (tmp_path / rel).write_text(text)
+    langs = {rel: "python" for rel in files}
+    r = iga.score_group(tmp_path, langs, {("pkg/user.py", "pkg/m1.py")}, ("python",))["python"]
+    assert r["hubs"]["n"] == 14 and r["hubs"]["k"] == 10
+    assert 0.0 <= r["hubs"]["overlap_at_k"] <= 1.0
+
+
+def test_regressions_ignore_hub_fields_and_old_baselines_still_load():
+    base = {"python": {"imports": 100, "engine_edges": 90, "precision_pct": 90.0, "recall_pct": 60.0}}
+    cur = {"python": {"precision_pct": 90.0, "recall_pct": 60.0, "hub_overlap_at_10": 0.0, "hub_spearman": -1.0}}
+    assert iga.regressions(cur, base) == []
+    assert "n/a" in iga.render({"python": {**base["python"], "repos": "r", "files": 1, "fp": 0, "fn": 0}})

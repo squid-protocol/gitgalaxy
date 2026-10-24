@@ -18,16 +18,33 @@ from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 # #6454: head of a juxtaposed application (`f x y`, `Just x`). The prefix is consumed, so a head
 # that follows another name (`x` in `f x`) is never one; `(?m:^)` is a statement or definition
 # start, an operator run (no `:` `\\` `@` `!` `~`, which open patterns and annotations), a bracket,
-# a comma or a layout keyword.
+# a comma or a layout keyword. An argument starts with a name, digit, bracket, quote or backslash, or is
+# an infix `$` / `$!` (`f $ x`; a `$` glued to `(` or a name is a splice, not an application), or is a
+# string that precedes one (`withObject "x" $ ...`). The literal shield turns a backtick operator into the
+# same `""` as a string, so a bare string is not an argument start (`s `op` ys`).
 _HS_ID = "[" + ID_CONTINUE + "']*"
 _HS_ARG_START = (
-    "(?=[ \t]+(?:[" + ID_START + "0-9(\\['\\\\]))(?![ \t]+(?:then|else|of|in|where|deriving|as|hiding|qualified)\\b)"
+    "(?=[ \t]+(?:["
+    + ID_START
+    + '0-9(\\[\'\\\\]|\\$!?[ \t]|"[^"\\n]*"[ \t]+\\$[ \t]))(?![ \t]+(?:then|else|of|in|where|deriving|as|hiding|qualified)\\b)'
 )
 _HS_PATTERN_TAIL = "(?![^\\n]{0,120}?(?:<-|(?<![=<>/!])=(?![=>]))|[^\\n()]{0,80}?->)"
 _JUXTAPOSITION = (
     r"|(?:(?m:^)[ \t]*(?![^\n=]{0,200}(?<![=<>/!])=(?![=>]))|"
     r"(?:[$%&*+./<=>?^|-]{1,4}|[(\[,;{]|\b(?:then|else|in|do|if|case|when|unless)(?![" + ID_CONTINUE + "]))[ \t]*)"
     r"(?=((?!_)[" + SMALL + "]" + _HS_ID + "|[" + CAPITAL + "]" + _HS_ID + _HS_PATTERN_TAIL + ")" + _HS_ARG_START + ")"
+)
+
+# #6454: the left side of a definition (`f (Foo a) = ...`, `let g (x, y) = ...`, `where h x = ...`) binds
+# names. It starts a line, optionally after `let` / `where`, and runs to the first single `=` (a `==`
+# or `<=` before it, or a record brace, `$`, lambda or `<-`, means the line is an expression, not a
+# definition, and nothing is masked).
+_HS_BINDER_LHS = (
+    "(?m:^)[ \t]*(?:(?:let|where)[ \t]+)?(?!(?:if|then|else|case|of|do|in)[ \t])["
+    + SMALL
+    + "]"
+    + _HS_ID
+    + "[^\n={}$\\\\<]{0,200}?(?<![=<>/!])=(?![=>])"
 )
 
 DEFINITION: dict[str, Any] = {
@@ -131,9 +148,11 @@ DEFINITION: dict[str, Any] = {
                 "foreign",
             }
         ),
-        # #6454: a type signature (own line or inline `:: T`) names types, not constructor calls
+        # #6454: a type signature (own line or inline `:: T`) names types, not constructor calls; the left
+        # side of a definition binds names, it does not call them
         "_calls_out_masked_blocks": re.compile(
-            r"(?m:^)[ \t]*[^\n=()]{0,120}::[^\n]*(?:\n[ \t]+(?:->|=>|::)[^\n]*){0,40}|::[^\n()=,]{0,200}"
+            r"(?m:^)[ \t]*[^\n=()]{0,120}::[^\n]*(?:\n[ \t]+(?:->|=>|::)[^\n]*){0,40}|::[^\n()=,]{0,200}|"
+            + _HS_BINDER_LHS
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: decisions that split flow. Includes guards (|) and modern \cases.

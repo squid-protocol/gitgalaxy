@@ -115,6 +115,7 @@ import functools
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -2487,7 +2488,10 @@ class Container:
 
     def sh(self, script: str) -> subprocess.CompletedProcess[str]:
         try:
-            return subprocess.run(["docker", "exec", self.id, "bash", "-c", script],  # noqa: S603, S607
+            import equivalence_common as common
+
+            bounded = common.guarded(f"bash -c {shlex.quote(script)}", CONTAINER_EXEC_TIMEOUT - 10)  # see guarded()
+            return subprocess.run(["docker", "exec", self.id, "bash", "-c", bounded],  # noqa: S603, S607
                                   capture_output=True, text=True, check=False,
                                   timeout=CONTAINER_EXEC_TIMEOUT)  # fmt: skip
         except subprocess.TimeoutExpired as exc:

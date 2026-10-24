@@ -201,13 +201,13 @@ COBOL_CAPS = cc.Capabilities(
         "XCTL": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
         # #4443 A0b: what ggcics_filecontrol.c's read_event / unlock_event and ggcics.c's rewrite_event record
-        "READ": frozenset({"file", "ridfld", "update", "resp", "resp2", "length", "data"}),
+        "READ": frozenset({"file", "ridfld", "update", "set", "resp", "resp2", "length", "data"}),
         "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
         "UNLOCK": frozenset({"file", "resp", "resp2"}),
         # #6262: what ggcics_filecontrol.c's browse_event and endbr line record (an RBA browse's `rba=` lines: unmodelled)
         "STARTBR": frozenset({"file", "ridfld", "mode", "resp", "resp2"}),
-        "READNEXT": frozenset({"file", "ridfld", "resp", "resp2", "length", "data"}),
-        "READPREV": frozenset({"file", "ridfld", "resp", "resp2", "length", "data"}),
+        "READNEXT": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
+        "READPREV": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
         "ENDBR": frozenset({"file", "resp", "resp2"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
@@ -242,14 +242,14 @@ JAVA_CAPS = cc.Capabilities(
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
-        # #4443: what CicsTask.readInto / rewriteFrom / unlock record (READ SET is not modelled there)
-        "READ": frozenset({"file", "ridfld", "update", "resp", "resp2", "length", "data"}),
+        # #4443, #6262: what CicsTask.readInto / readSetEvent / rewriteFrom / unlock record
+        "READ": frozenset({"file", "ridfld", "update", "set", "resp", "resp2", "length", "data"}),
         "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
         "UNLOCK": frozenset({"file", "resp", "resp2"}),
         # #6262: what CicsTask.startbrEvent / readnextInto / readprevInto / endbrEvent record
         "STARTBR": frozenset({"file", "ridfld", "mode", "resp", "resp2"}),
-        "READNEXT": frozenset({"file", "ridfld", "resp", "resp2", "length", "data"}),
-        "READPREV": frozenset({"file", "ridfld", "resp", "resp2", "length", "data"}),
+        "READNEXT": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
+        "READPREV": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
         "ENDBR": frozenset({"file", "resp", "resp2"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
         "START": _START_KEYS,
@@ -1854,6 +1854,8 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
     """#4443: a READ / REWRITE / UNLOCK CicsTask recorded, as the log's keys: `update`, `resp2` and `length` only when
     the command carries them. A LENGERR READ asserts its RESP only (SPEC section 2, Files), so its RESP2 is left out."""
     ev: dict[str, Any] = {"file": e.get("file"), "resp": e.get("resp")}
+    if e.get("set"):  # #6262: the SET form
+        ev["set"] = True
     if kind in ("STARTBR", "READNEXT", "READPREV"):  # #6262: the key on entry; STARTBR's mode, a browse read's record
         ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
         if kind == "STARTBR":
@@ -1914,7 +1916,15 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 ev.update(queue=e.get("queue"), item=e.get("item"), resp=e.get("resp"), data=data)
                 if kind == "READQ-TS":
                     ev["length"] = e.get("length")
-            elif kind in ("READ", "REWRITE", "UNLOCK", "STARTBR", "READNEXT", "READPREV", "ENDBR"):  # #4443, #6262: byte[] ridfld / data arrive as base64, EBCDIC bytes
+            elif kind in (
+                "READ",
+                "REWRITE",
+                "UNLOCK",
+                "STARTBR",
+                "READNEXT",
+                "READPREV",
+                "ENDBR",
+            ):  # #4443, #6262: byte[] ridfld / data arrive as base64, EBCDIC bytes
                 ev.update(_java_file_event(kind, e))
             elif kind == "WRITE-OPERATOR":  # #4270 zECS (X32): the console message, as the text CicsTask recorded
                 ev.update(data=cc.RawArea(str(e.get("text") or "").encode("latin-1"), "latin-1"), resp=e.get("resp"))
@@ -2331,6 +2341,8 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
                 ev["ridfld"] = arg("key").encode(cc.EBCDIC)
                 if arg("upd"):
                     ev["update"] = True
+                if arg("set"):  # #6262
+                    ev["set"] = True
                 if arg("len"):
                     ev["length"] = int(arg("len"))
                 ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] == "NORMAL" else None
@@ -2339,7 +2351,12 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             # SPEC section 2 asserts LENGERR's RESP only
             if arg("resp2") and not (verb == "READ" and ev["resp"] == "LENGERR"):
                 ev["resp2"] = int(arg("resp2"))
-        elif verb in ("STARTBR", "READNEXT", "READPREV", "ENDBR"):  # #6262: SPEC 6.2 keys only where the command carries them
+        elif verb in (
+            "STARTBR",
+            "READNEXT",
+            "READPREV",
+            "ENDBR",
+        ):  # #6262: SPEC 6.2 keys only where the command carries them
             ev.update(file=arg("file"), resp=names.get(int(arg("resp") or 0), arg("resp")))
             if arg("rba"):  # the RBA browse (#4213) has no Java-leg event: its RIDFLD is a fullword, not a key
                 ev["ridfld"] = cc.Unmodelled("an RBA browse's event")
@@ -2348,6 +2365,8 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             if verb == "STARTBR" and not arg("rba"):
                 ev["mode"] = arg("mode")
             if verb in ("READNEXT", "READPREV") and not arg("rba"):
+                if arg("set"):  # #6262
+                    ev["set"] = True
                 if arg("len"):
                     ev["length"] = int(arg("len"))
                 ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] in ("NORMAL", "DUPKEY") else None

@@ -28,6 +28,9 @@ static long long read_search(gg_cics *c, const char *path, int reclen, int keyof
     return best;
 }
 
+/* #6262: set while a READ / READNEXT / READPREV SET(ptr) wrapper runs; its event carries `set=1` and no `len=` (SPEC 6.2). */
+static int set_form;
+
 /* SPEC 6.2 READ event: `upd=1` for READ UPDATE, `len=` the LENGTH after the command, `resp2=` where the command is not
  * NORMAL, and the bytes that went INTO (NORMAL only: a LENGERR read asserts its RESP and length, not its data). */
 static void read_event(const gg_cics *c, const char *want, const char *ridfld, int keylen, const char *into, int intolen) {
@@ -37,7 +40,8 @@ static void read_event(const gg_cics *c, const char *want, const char *ridfld, i
     key[shown] = '\0';
     int n = snprintf(ev, sizeof ev, "READ file=%s key=%s resp=%d", want, key, c->resp);
     if (strstr(c->flags, "UPDATE") && n < (int)sizeof ev) n += snprintf(ev + n, sizeof ev - (size_t)n, " upd=1");
-    if (c->resp == NORMAL || c->resp == LENGERR) n += snprintf(ev + n, sizeof ev - (size_t)n, " len=%d", c->len);
+    if (set_form && n < (int)sizeof ev) n += snprintf(ev + n, sizeof ev - (size_t)n, " set=1");
+    else if (c->resp == NORMAL || c->resp == LENGERR) n += snprintf(ev + n, sizeof ev - (size_t)n, " len=%d", c->len);
     if (c->resp != NORMAL && c->resp2 && n < (int)sizeof ev) snprintf(ev + n, sizeof ev - (size_t)n, " resp2=%d", c->resp2);
     int moved = c->resp == NORMAL ? (c->len < intolen ? c->len : intolen) : 0;
     event(ev, into, moved);
@@ -313,7 +317,8 @@ static void browse_event(const char *verb, const char *file, const char *rid, in
     int n = snprintf(ev, sizeof ev, "%s file=%s rid=%s resp=%d", verb, file, hex, c->resp);
     if (strcmp(verb, "STARTBR") == 0)
         n += snprintf(ev + n, sizeof ev - (size_t)n, " mode=%s", strstr(c->flags, "EQUAL") ? "EQUAL" : "GTEQ");
-    if (reclen >= 0 && (c->resp == NORMAL || c->resp == DUPKEY || c->resp == LENGERR))
+    if (set_form) n += snprintf(ev + n, sizeof ev - (size_t)n, " set=1");
+    else if (reclen >= 0 && (c->resp == NORMAL || c->resp == DUPKEY || c->resp == LENGERR))
         n += snprintf(ev + n, sizeof ev - (size_t)n, " len=%d", reclen);
     if (c->resp != NORMAL && c->resp2) snprintf(ev + n, sizeof ev - (size_t)n, " resp2=%d", c->resp2);
     int ok = reclen >= 0 && (c->resp == NORMAL || c->resp == DUPKEY);

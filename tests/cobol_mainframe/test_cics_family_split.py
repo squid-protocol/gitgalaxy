@@ -11,6 +11,8 @@ import re
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import equivalence_cics as ec  # noqa: E402
 import equivalence_cics_containers as ecc  # noqa: E402
@@ -25,6 +27,7 @@ from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as for
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_conditions as CN  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_containers as CC  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.det import cics_faults as CFL  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as CF  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_taskcontrol as CT  # noqa: E402
 
@@ -388,3 +391,76 @@ def test_every_fault_member_the_forge_emitted_before_the_split_is_still_emitted(
     assert "faults.cfg: `CMD FILE NTH RESP [RESP2]`" in tfl.FAULTS_JAVA
     assert "`CMD FILE NTH -1 0 ABCODE` abends the task" in tfl.FAULTS_JAVA  # #6271 (X70)
     assert "private List<String[]> faultPlan" in forge.CICS_TASK_JAVA  # the state stays in the class header
+
+
+# ---- faults (#5274, det half): HANDLE ABEND, ABEND, the ABM0 abend, the abend-exit check ------------------------------
+FAULT_METHODS = ("abend_exit", "handle_abend_", "abend", "map_not_found")
+
+
+class _FaultCics(CFL.FaultCommands):
+    """Just the members the faults mixin reads: a Gen with a paragraph index, a temp-name counter and a jump."""
+
+    def __init__(self, mapsets=None):
+        class G:
+            para_index = {"EXIT-PARA": 3}
+            n = 0
+
+            def tmpname(self, base):
+                self.n += 1
+                return f"{base}{self.n}"
+
+            def jump(self, target):
+                return f"jump {target};"
+
+        class GP:
+            pass
+
+        self.g = G()
+        self.gp = GP()
+        self.gp.mapsets = mapsets or {}
+
+    def name(self, text):
+        return text
+
+
+def test_the_det_translator_holds_the_fault_methods_in_its_mixin():
+    assert issubclass(C.Cics, CFL.FaultCommands)
+    for method in FAULT_METHODS:
+        assert method in vars(CFL.FaultCommands) and method not in vars(C.Cics), method
+    assert "outcome" in vars(C.Cics) and "handle_abend" not in vars(CFL.FaultCommands)  # shared: stays the host's
+    assert issubclass(C.Cics, CN.ConditionCommands)  # PUSH / POP HANDLE stay with the conditions family
+
+
+def test_handle_abend_and_abend_emit_what_they_did_in_the_host():
+    f = _FaultCics()
+    assert f.handle_abend_({"LABEL": "exit-para"}, "  ") == ['  task.handleAbend("EXIT-PARA");']
+    assert f.handle_abend_({"CANCEL": None}, "") == ["task.handleAbendCancel();"]
+    assert f.handle_abend_({"RESET": None}, "") == ["task.handleAbendReset();"]
+    for opts, why in (({}, "without LABEL"), ({"LABEL": "NOPE"}, "no such paragraph")):
+        with pytest.raises(C.CicsError, match=why):
+            f.handle_abend_(opts, "")
+    assert _FaultCics().abend({"ABCODE": "'ABC1'"}, "") == [
+        "String exit1 = task.abend('ABC1');",
+        "if (exit1 == null) throw abended();",
+        "if (true) jump paragraph(exit1);",
+    ]
+    assert _FaultCics().abend({"CANCEL": None}, "")[0] == 'String exit1 = task.abendCancel("");'
+
+
+def test_map_not_found_is_the_abm0_abend_only_for_a_map_its_mapset_lacks():
+    mapsets = {"MS1": ["MAP1"]}
+    assert _FaultCics(mapsets).map_not_found("MAP1", "MS1", "") is None  # the mapset holds it
+    assert _FaultCics(mapsets).map_not_found("X", "NOT-A-MAPSET", "") is None  # not a mapset of the estate
+    lines = _FaultCics(mapsets).map_not_found("MAP2", "MS1", "")
+    assert lines[0] == 'String exit1 = task.abendMapNotFound("MAP2", "MS1");' and len(lines) == 3
+
+
+def test_the_abend_exit_check_is_one_shape_after_a_link_and_after_an_injected_file_abend():
+    lines = _FaultCics().abend_exit("    ")
+    assert lines == [
+        "    String exit1 = task.abendExit();",
+        "    if (exit1 != null) jump paragraph(exit1);",
+        "    if (task.ended()) throw abended();",
+    ]
+    src = Path(C.__file__).read_text(encoding="utf-8")
+    assert src.count("self.abend_exit(ind)") == 2 and "task.abendExit()" not in src  # LINK and the file command

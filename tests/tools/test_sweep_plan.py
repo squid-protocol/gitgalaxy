@@ -415,3 +415,17 @@ NEAR_MISS_INPUT_PATHS = [
 @pytest.mark.parametrize("path", NEAR_MISS_INPUT_PATHS)
 def test_a_near_miss_of_a_non_input_pattern_runs_the_sweeps(path):
     assert sp.plan([path], "pull_request")["mode"] == "full"
+
+
+@pytest.mark.parametrize("event", ["push", "schedule", "workflow_dispatch"])
+def test_main_ignores_the_prs_file_list_on_every_other_event(monkeypatch, tmp_path, capsys, event):
+    rows = [{"filename": "docs/ci.md"}]
+    monkeypatch.setattr(sys, "argv", ["sweep_plan", "--event", event, "--pr-files", str(_pr_list(tmp_path, rows)),
+                                      "--pr-file-count", "1"])  # fmt: skip
+    assert sp.main() == 0
+    assert json.loads(capsys.readouterr().out)["mode"] == "full"
+
+
+def test_replay_counts_a_pr_with_no_files_key_or_a_nameless_entry_as_full():
+    prs = [{"number": 1}, {"number": 2, "files": None}, {"number": 3, "files": [{"additions": 1}]}, _pr(4, "docs/a.md")]
+    assert sp.replay(prs, {})["skipped_prs"] == [4]

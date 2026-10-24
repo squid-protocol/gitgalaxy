@@ -366,3 +366,21 @@ def test_clang_callgraph_names_a_template_conversion_operator_as_the_engine_does
     g = clang_callgraph.build(tmp_path, "cpp")
     # the engine spells it `operator Box`, without the template arguments libclang appends
     assert ("operator Box", 1) in {(d[1], d[2]) for d in g["defs"]}
+
+
+def test_clang_callgraph_names_a_gtest_body_by_its_test_name(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None or not clang_callgraph._system_includes():
+        pytest.skip("libclang (pip install libclang==18.1.1) or a host g++ is not available")
+    (tmp_path / "t.cc").write_text(
+        "#define TEST(s, n) struct s##_##n##_Test { void TestBody(); }; void s##_##n##_Test::TestBody()\n"
+        "int helper() { return 1; }\n"
+        "TEST(suite, first_case) { helper(); }\n"  # 3
+        "TEST(suite_b, other) { helper(); }\n"  # 4
+    )
+    g = clang_callgraph.build(tmp_path, "cpp")
+    # the engine names the unit `first_case`, not `suite_first_case_Test::TestBody`
+    names = {(d[1], d[2]) for d in g["defs"]}
+    assert {("first_case", 3), ("other", 4)} <= names
+    assert not any("TestBody" in n for n, _ in names)

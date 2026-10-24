@@ -94183,10 +94183,11 @@
     "haskell/pandoc": {
       "haskell/pandoc/App.hs": {
         "adjustMetadata@417": [
+          "Pandoc",
           "f"
         ],
         "configureCommonState@351": [
-          "m",
+          "setUserDataDir",
           "setTrace",
           "optTrace",
           "setVerbosity",
@@ -94205,173 +94206,310 @@
           "mapM_",
           "uncurry",
           "optRequestHeaders",
-          "optMetadata"
+          "optMetadata",
+          "setTranslations",
+          "parseLang",
+          "report",
+          "InvalidLang",
+          "Right"
         ],
         "convertWithOpts'@138": [
-          "m",
+          "configureCommonState",
           "optOutputFile",
+          "optFilters",
+          "optInputFiles",
+          "Just",
           "not",
           "optIgnoreArgs",
+          "FlavoredFormat",
+          "optFrom",
+          "parseFlavoredFormat",
+          "formatFromFilePaths",
+          "return",
+          "report",
           "map",
-          "opts",
+          "TextReader",
+          "sandbox'",
           "r",
-          "reader",
-          "mempty",
+          "ByteStringReader",
+          "unpack",
+          "engineLoadCustom",
+          "customReader",
+          "throwError",
+          "fromMaybe",
           "customExtensions",
+          "applyExtensionsDiff",
+          "optSandbox",
           "runPure",
           "getReader",
+          "Right",
           "makeSandboxed",
-          "toLower",
+          "optToOutputSettings",
+          "outputFormat",
+          "outputWriter",
+          "outputWriterOptions",
           "takeExtension",
+          "optTo",
           "isJust",
           "writerTemplate",
           "when",
-          "pdfOutput",
-          "inputFile",
+          "UnusualConversion",
           "isTextFormat",
           "isNothing",
-          "readerNameBase",
           "readAbbreviations",
           "optAbbreviations",
-          "readerOpts",
+          "optColumns",
+          "optTabStop",
+          "optIndentedCodeClasses",
+          "optDefaultImageExtension",
+          "optTrackChanges",
+          "optStripComments",
+          "getMetadataFromFiles",
           "optMetadataFiles",
+          "optShiftHeadingLevelBy",
           "headerShift",
           "extensionEnabled",
           "writerExtensions",
-          "eastAsianLineBreakFilter",
+          "writerWrapText",
+          "optIpynbOutput",
           "filterIpynbOutput",
-          "isPandocCiteproc",
+          "htmlFormat",
+          "Format",
+          "takeBaseName",
           "any",
-          "id",
-          "setMeta",
+          "maybe",
           "optCSL",
+          "optBibliography",
           "optCitationAbbreviations",
-          "optTabStop",
+          "Environment",
+          "optFileScope",
+          "optPreserveTabs",
+          "readInput",
           "adjustMetadata",
-          "metadataFromFile",
-          "optSandbox",
+          "optMetadata",
+          "applyFilters",
+          "applyTransforms",
           "optExtractMedia",
-          "extractMedia",
-          "format",
           "createPngFallbacks",
           "writerDpi",
-          "pdfProg",
+          "ByteStringWriter",
+          "f",
+          "outputPdfProgram",
+          "makePDF",
           "optPdfEngineOpts",
+          "writerOptions",
+          "BinaryOutput",
           "toStrict",
+          "decodeUtf8With",
+          "lenientDecode",
+          "null",
+          "last",
           "optSelfContained",
-          "output"
+          "optEmbedResources",
+          "makeSelfContained",
+          "TextOutput"
         ],
         "convertWithOpts@83": [
           "optOutputFile",
+          "optDataDir",
+          "doesDirectoryExist",
+          "return",
+          "Just",
           "when",
           "optDumpArgs",
-          "stdout",
+          "hPutStrLn",
+          "pack",
           "mapM_",
-          "fromMaybe"
+          "fromMaybe",
+          "optInputFiles"
         ],
         "createPngFallbacks@380": [
-          "m",
-          "fp",
+          "forM_",
           "takeWhile",
-          "tshow"
+          "svgToPng",
+          "insertMedia",
+          "report",
+          "CouldNotConvertImage",
+          "pack",
+          "tshow",
+          "return"
         ],
-        "defFlavor@152": [],
-        "ensureNl@329": [],
+        "defFlavor@152": [
+          "FlavoredFormat"
+        ],
+        "ensureNl@329": [
+          "null",
+          "last"
+        ],
         "getMetadataFromFiles@395": [
-          "readerOptsMeta"
+          "return",
+          "forM",
+          "readMetadataFile",
+          "yamlToMeta",
+          "Just"
         ],
         "htmlFormat@410": [],
-        "isPandocCiteproc@270": [],
+        "isPandocCiteproc@270": [
+          "takeBaseName"
+        ],
         "isTextFormat@414": [],
-        "isWarning@114": [],
+        "isWarning@114": [
+          "messageVerbosity"
+        ],
         "makeSandboxed@165": [
-          "opts",
-          "r"
+          "TextReader",
+          "sandbox'",
+          "r",
+          "ByteStringReader"
         ],
         "readAbbreviations@372": [
-          "m",
+          "readFileStrict",
           "fmap",
           "filter",
-          "not",
           "toTextM",
           "fromMaybe"
         ],
         "writeFnBinary@420": [
-          "writeFile"
+          "writeFile",
+          "encodePath"
         ],
-        "writerFn@424": []
+        "writerFn@424": [
+          "putStrWith",
+          "writeFileWith"
+        ]
       },
       "haskell/pandoc/Filter.hs": {
         "applyFilter@87": [
-          "doc"
+          "withMessages",
+          "apply",
+          "engineApplyFilter",
+          "processCitations"
         ],
         "applyFilters@76": [
-          "doc",
+          "mapM",
+          "foldM",
+          "withMessages",
+          "apply",
+          "engineApplyFilter",
+          "processCitations",
           "when",
-          "verbosity"
+          "report",
+          "RunningFilter",
+          "liftIO",
+          "FilterCompleted",
+          "toMilliseconds",
+          "return"
         ],
         "applyJSONFilter@112": [],
-        "expandFilterPath@104": [],
-        "filterPath@109": [],
+        "expandFilterPath@104": [
+          "filterPath",
+          "return"
+        ],
+        "filterPath@109": [
+          "fromMaybe"
+        ],
         "filterWithPath@52": [
-          "missingPath"
+          "maybe"
         ],
         "parseJSON@47": [
           "withObject",
-          "missingPath",
+          "fail",
           "show",
-          "ty",
-          "withText"
+          "maybe",
+          "return",
+          "filterWithPath",
+          "withText",
+          "unpack",
+          "takeExtension",
+          "LuaFilter",
+          "JSONFilter"
         ],
-        "toJSON@69": [],
+        "toJSON@69": [
+          "String",
+          "pack"
+        ],
         "toMilliseconds@101": [],
         "withMessages@93": [
           "when",
-          "verbosity"
+          "report",
+          "RunningFilter",
+          "liftIO",
+          "FilterCompleted",
+          "toMilliseconds",
+          "return"
         ]
       },
       "haskell/pandoc/Options.hs": {
-        "getExtensions@438": [],
+        "getExtensions@438": [
+          "writerExtensions"
+        ],
         "getExtensions@63": [],
-        "getExtensions@80": [],
+        "getExtensions@80": [
+          "readerExtensions"
+        ],
         "isEnabled@441": [],
         "parseJSON@118": [
           "withObject",
+          "return",
+          "fromMaybe",
+          "fail",
+          "show",
+          "WebTeX",
+          "MathJax",
+          "KaTeX",
           "toStringLazy",
           "encode"
         ],
         "parseJSON@163": [
+          "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
         "parseJSON@183": [
+          "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
         "parseJSON@249": [
+          "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
         "parseJSON@271": [
+          "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
         "parseJSON@295": [
+          "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
         "parseJSON@320": [
+          "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
         "parseJSON@341": [
+          "return",
+          "fail",
           "toStringLazy",
           "encode"
         ],
-        "toJSON@144": [],
+        "toJSON@144": [
+          "String"
+        ],
         "toJSON@172": [],
         "toJSON@191": [],
-        "toJSON@216": [],
+        "toJSON@216": [
+          "String"
+        ],
         "toJSON@260": [],
         "toJSON@282": [],
         "toJSON@308": [],
@@ -94380,328 +94518,453 @@
       },
       "haskell/pandoc/Shared.hs": {
         "addMetaField@686": [
-          "val",
-          "key",
+          "Meta",
+          "insertWith",
           "toMetaValue",
-          "newval",
-          "xs",
+          "MetaList",
           "tolist"
         ],
-        "addPandocAttributes@299": [],
+        "addPandocAttributes@299": [
+          "addAttributes",
+          "Cm"
+        ],
         "adjustNum@535": [],
         "blockToInlines@794": [
-          "f",
-          "ils",
+          "fromList",
+          "combineLines",
+          "codeWith",
+          "rawInline",
+          "blocksToInlines'",
           "mconcat",
           "map",
-          "bodies",
-          "plainRowBody",
-          "cellBody",
-          "unTableBody"
+          "intersperse",
+          "unTableBodies",
+          "concatMap"
         ],
-        "blocksToInlines'@827": [],
+        "blocksToInlines'@827": [
+          "blocksToInlinesWithSep"
+        ],
         "blocksToInlines@830": [],
-        "blocksToInlinesWithSep@823": [],
+        "blocksToInlinesWithSep@823": [
+          "intersperse",
+          "map"
+        ],
         "camelCaseStrToHyphenated@224": [
-          "a",
-          "c"
+          "isLower",
+          "isUpper",
+          "toLower"
         ],
         "camelCaseToHyphenated@218": [],
         "capitalize@396": [
-          "go"
+          "walk",
+          "Str",
+          "toUpper"
         ],
         "cellBody@817": [],
         "collapseFilePath@765": [
-          "p",
+          "foldl'",
           "r",
-          "checkPathSeperator"
+          "Just",
+          "fmap"
         ],
         "combine@693": [
-          "newval",
-          "xs",
+          "MetaList",
           "tolist"
         ],
         "combineAttr@584": [
-          "id1",
-          "id2",
+          "null",
           "nubOrd",
-          "classes1",
           "foldr",
-          "k"
+          "lookup"
         ],
-        "combineLines@438": [],
+        "combineLines@438": [
+          "intercalate"
+        ],
         "compactify@405": [
-          "others",
           "init",
+          "last",
           "reverse",
+          "toList",
+          "Para",
+          "null",
+          "concatMap",
           "fromList",
+          "Plain",
           "map",
           "fmap"
         ],
         "compactifyDL@424": [
-          "t",
           "reverse",
           "map",
+          "Para",
           "not",
           "any",
-          "fromList"
+          "fromList",
+          "Plain"
         ],
         "deNote@356": [],
-        "deQuote@384": [],
-        "emojisToAliases@480": [
-          "a"
+        "deQuote@384": [
+          "Span"
         ],
+        "emojisToAliases@480": [],
         "extractSpaces@330": [
+          "unMany",
+          "viewl",
           "space",
-          "left",
-          "f"
+          "viewr",
+          "f",
+          "Many"
         ],
         "f@808": [
-          "ils",
+          "fromList",
           "mconcat",
           "map"
         ],
         "figureDiv@452": [
-          "ident",
-          "mempty",
+          "maybe",
+          "stringify",
+          "Div",
           "not",
-          "null",
-          "divattr",
-          "body"
+          "null"
         ],
         "fileAndBinary@787": [
-          "fp"
+          "findEntryByPath",
+          "Just",
+          "fromEntry"
         ],
         "filteredFilesFromArchive@783": [
           "mapMaybe",
           "fileAndBinary",
           "filter",
-          "f",
           "filesInArchive",
-          "fp"
+          "findEntryByPath",
+          "Just",
+          "fromEntry"
         ],
         "fixInlines@376": [
-          "q"
+          "Cite",
+          "Note",
+          "deQuote"
         ],
         "formatCode@709": [
+          "walk",
+          "concatMap",
+          "groupBy",
           "isPlaintext",
-          "groupBy"
+          "go",
+          "all",
+          "toList",
+          "codeWith",
+          "stringify"
         ],
         "fromMd@657": [],
-        "getLevel@526": [],
-        "go@261": [
-          "s1",
-          "break",
-          "replicate",
-          "tabStop"
+        "getLevel@526": [
+          "Min"
         ],
-        "go@347": [],
-        "go@366": [],
-        "go@399": [],
+        "go@261": [
+          "break",
+          "null",
+          "replicate",
+          "length",
+          "drop"
+        ],
+        "go@347": [
+          "Str"
+        ],
+        "go@366": [
+          "RawInline"
+        ],
+        "go@399": [
+          "Str",
+          "toUpper"
+        ],
         "go@531": [
-          "level",
-          "ident",
-          "lastnum",
+          "maybe",
+          "zipWith",
+          "repeat",
           "unless",
           "null",
-          "sectionContents",
+          "put",
           "break",
           "headerLtEq",
+          "already",
           "map",
-          "isHeadingAttr",
-          "divattr",
-          "dident",
+          "kvs",
+          "filter",
+          "Div",
+          "Header",
           "all",
           "combineAttr",
-          "x"
+          "return"
         ],
-        "go@719": [],
+        "go@719": [
+          "all",
+          "toList",
+          "codeWith",
+          "stringify"
+        ],
         "go@751": [],
         "go@768": [
-          "p",
           "r",
-          "checkPathSeperator"
+          "Just"
         ],
         "handleItem@680": [
-          "handleInlines"
+          "Plain",
+          "handleInlines",
+          "Para"
         ],
         "handleTaskListItem@674": [
           "handleItem",
-          "handleInlines"
+          "Plain",
+          "handleInlines",
+          "Para"
         ],
         "hasLineBreaks@614": [
-          "removeNote"
+          "query",
+          "walk",
+          "Any"
         ],
-        "headerLtEq@592": [
-          "level",
-          "b"
-        ],
+        "headerLtEq@592": [],
         "inDelim@319": [],
         "inDirectory@741": [
           "setCurrentDirectory",
           "const"
         ],
         "inlineListToIdentifier@468": [
-          "unEmoji",
-          "a"
+          "textToIdentifier",
+          "extensionEnabled",
+          "walk",
+          "Str",
+          "replaceEmojis"
         ],
-        "inquotes@166": [],
-        "isAllowedPunct@500": [],
+        "inquotes@166": [
+          "snoc"
+        ],
+        "isAllowedPunct@500": [
+          "extensionEnabled",
+          "generalCategory"
+        ],
         "isHeaderBlock@625": [],
         "isHeadingAttr@552": [],
-        "isLineBreak@620": [],
-        "isLineBreak@639": [],
+        "isLineBreak@620": [
+          "Any"
+        ],
+        "isLineBreak@639": [
+          "Any"
+        ],
         "isPara@463": [],
-        "isPlainItem@646": [],
+        "isPlainItem@646": [
+          "isTightList"
+        ],
         "isPlaintext@712": [],
         "isSimpleCell@634": [
           "not",
           "hasLineBreak"
         ],
-        "isSingleton@775": [],
+        "isSingleton@775": [
+          "Just"
+        ],
         "isTightList@643": [
-          "isPlainItem"
+          "all"
         ],
         "isWS@179": [],
         "linesToPara@443": [],
         "makeCanonical@748": [
-          "go"
+          "foldl'"
         ],
-        "makeSections@516": [],
+        "makeSections@516": [
+          "makeSectionsWithOffsets"
+        ],
         "makeSectionsWithOffsets@522": [
           "evalState",
           "go",
-          "getLevel",
+          "Min",
           "all",
-          "level",
-          "ident",
-          "lastnum",
+          "getMin",
+          "query",
+          "maybe",
+          "zipWith",
+          "repeat",
           "unless",
           "null",
-          "sectionContents",
+          "put",
           "break",
           "headerLtEq",
+          "already",
           "map",
-          "isHeadingAttr",
-          "divattr",
-          "dident",
+          "kvs",
+          "filter",
+          "Div",
+          "Header",
           "combineAttr",
-          "x"
+          "return"
         ],
-        "matchTags@734": [],
+        "matchTags@734": [
+          "flip"
+        ],
         "normalizeDate'@280": [
           "fmap",
           "formatTime",
           "msum",
           "map",
-          "y"
+          "parsetimeWith",
+          "toGregorian",
+          "Just",
+          "parseTimeM"
         ],
-        "normalizeDate@276": [],
-        "numIdent@610": [],
+        "normalizeDate@276": [
+          "fmap"
+        ],
+        "numIdent@610": [
+          "tshow"
+        ],
         "onlySimpleTableCells@631": [
+          "all",
           "not",
-          "hasLineBreak"
+          "hasLineBreak",
+          "query",
+          "Any"
         ],
         "orderedListMarkers@307": [
-          "start",
+          "map",
           "drop",
-          "map"
+          "singleton"
         ],
         "plainRowBody@816": [],
-        "plainToPara@418": [],
+        "plainToPara@418": [
+          "Para"
+        ],
         "rejectBadYear@283": [
-          "y"
+          "toGregorian",
+          "Just",
+          "parseTimeM"
         ],
         "removeFormatting@344": [
+          "query",
           "walk",
-          "deNote",
-          "go"
+          "Str"
         ],
         "removeNote@617": [],
-        "renderTags'@728": [],
+        "renderTags'@728": [
+          "matchTags",
+          "flip"
+        ],
         "safeRead@845": [],
         "safeStrRead@848": [
-          "d"
+          "reads",
+          "all",
+          "return"
         ],
         "splitAt'@155": [
-          "n",
-          "x",
-          "ys",
-          "splitAt"
+          "splitAt",
+          "charWidth"
         ],
         "splitBy@126": [
-          "a",
-          "first",
-          "isSep",
+          "break",
           "dropWhile"
         ],
         "splitTextBy@133": [
-          "first",
-          "isSep"
+          "null",
+          "break",
+          "dropWhile"
         ],
         "splitTextByIndices@142": [
           "splitTextByRelIndices",
           "zipWith",
           "ns",
-          "x",
-          "first"
+          "pack",
+          "splitAt'"
         ],
         "splitTextByRelIndices@145": [
-          "x",
-          "first"
+          "pack",
+          "splitAt'"
         ],
         "stringify@363": [
+          "query",
+          "walk",
           "go",
+          "RawInline",
+          "Cite",
+          "Note",
           "fixInlines",
-          "q"
+          "deQuote"
         ],
         "stripBeginSpace@202": [
+          "null",
+          "uncons",
           "cons",
-          "pref"
+          "last",
+          "span"
         ],
         "stripFirstAndLast@210": [
-          "t"
+          "uncons",
+          "Just"
         ],
         "stripTrailingNewlines@174": [
           "dropWhileEnd"
         ],
         "tabFilter@256": [
-          "s1",
+          "map",
           "break",
+          "null",
           "replicate",
-          "tabStop",
-          "go"
+          "length",
+          "go",
+          "drop"
         ],
         "taskListItemFromAscii@654": [
-          "fromMd"
+          "handleTaskListItem"
         ],
         "taskListItemToAscii@664": [
-          "toMd"
+          "handleTaskListItem",
+          "RawInline"
         ],
         "textToIdentifier@484": [
+          "extensionEnabled",
           "dropWhile",
-          "not",
           "filter",
+          "isSpace",
+          "isAlphaNum",
+          "isAllowedPunct",
+          "generalCategory",
           "map"
         ],
         "toMd@667": [],
-        "toRomanNumeral@237": [
-          "x"
-        ],
+        "toRomanNumeral@237": [],
         "tolist@695": [],
-        "trim@187": [],
-        "trimMath@199": [
-          "cons",
-          "pref"
+        "trim@187": [
+          "dropAround"
         ],
-        "triml@191": [],
-        "trimr@195": [],
+        "trimMath@199": [
+          "stripBeginSpace",
+          "null",
+          "uncons",
+          "cons",
+          "last",
+          "span"
+        ],
+        "triml@191": [
+          "dropWhile"
+        ],
+        "trimr@195": [
+          "dropWhileEnd"
+        ],
         "tshow@170": [],
-        "unEmoji@477": [],
-        "unEmojify@472": [],
+        "unEmoji@477": [
+          "Str",
+          "replaceEmojis"
+        ],
+        "unEmojify@472": [
+          "extensionEnabled",
+          "walk"
+        ],
         "unTableBody@818": [],
         "uniqueIdent@599": [
-          "find"
+          "maybe",
+          "find",
+          "numIdent",
+          "inlineListToIdentifier",
+          "tshow"
         ]
       }
     },

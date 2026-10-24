@@ -21,6 +21,9 @@ name: Graph Accuracy Audit
 #   - span anchoring: functions whose start_line opens on other code before the
 #     declaration, lower is better (#3543, tests/tools/span_anchor_audit.py).
 # Level 1 (callee names vs tree-sitter) stays in call-graph-accuracy-audit.yml.
+# #6501: a `plan` job (tests/tools/graph_accuracy_plan.py, stdlib) maps the changed files to the gates they can move; the
+# toolchain installs, the corpus fetches and the lanes run only for those (a Haskell rule change runs import-graph and span
+# anchoring, no JDK / Rust / Go / Node). A failed plan runs every gate. The check name stays `graph-accuracy-audit`.
 # #5501: ONE job (the old check name, `graph-accuracy-audit`) installs everything once and runs
 # the gates in four parallel lanes (span anchoring as two shards, #6355) on that runner. The split into five
 # jobs (#5562) cut the serial
@@ -46,6 +49,9 @@ on:
       - "tests/tools/ts_callgraph.js"
       - "tests/tools/scip_callgraph.py"
       - "tests/tools/clang_callgraph.py"
+      - "tests/tools/graph_accuracy_plan.py"  # #6501: the plan job's own code
+      - "tests/tools/change_classifier.py"  # #6501: imported by the planner
+      - "tests/tools/ci_retry.sh"  # wraps the installs
       - "tests/tools/go_callgraph/**"
       - "tests/tools/span_anchor_audit.py"
       - "tests/import_graph_corpus.json"
@@ -71,8 +77,38 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  graph-accuracy-audit:
+  # #6501: which gates can the changed files move? (graph_accuracy_plan.py; a PR for a language with no gate runs
+  # span anchoring and import-graph at most, a docs-only change nothing). The gates come out as `,a,b,`.
+  plan:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      gates: ${{ steps.plan.outputs.gates }}
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # git diff origin/main...HEAD needs the merge base
+          filter: blob:none  # #5882: history without file contents
+          persist-credentials: false
+
+      - name: Plan the gates
+        id: plan
+        run: |
+          git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
+          python3 tests/tools/graph_accuracy_plan.py --event "$GITHUB_EVENT_NAME" --base origin/main \
+            --github-output "$GITHUB_OUTPUT" | tee plan.json
+          {
+            echo "## Graph-accuracy plan"
+            echo '```json'
+            cat plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  graph-accuracy-audit:
+    needs: [plan]
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI; always(): a failed plan runs every gate
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
@@ -85,7 +121,15 @@ jobs:
           path: gitgalaxy
           persist-credentials: false
 
+      # An empty plan output (the plan job failed) resolves to every gate; `,` (planned none) to no gate.
+      - name: Resolve the gates and toolchains
+        id: sel
+        env:
+          PLANNED: ${{ needs.plan.outputs.gates }}
+        run: python3 gitgalaxy/tests/tools/graph_accuracy_plan.py --resolve "$PLANNED" --github-output "$GITHUB_OUTPUT"
+
       - name: Setup Python
+        if: steps.sel.outputs.any == 'true'
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
@@ -95,6 +139,7 @@ jobs:
             gitgalaxy/ci/requirements/*.txt
 
       - name: Install GitGalaxy + tree-sitter-language-pack + pyan3 + libclang
+        if: steps.sel.outputs.any == 'true'
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
@@ -106,18 +151,21 @@ jobs:
       # typescript baseline stays comparable (call_graph_resolution.TYPESCRIPT_VERSION).
       # #5048: bounded retry, INFRASTRUCTURE marker (the comment sits above the command: a trailing one is read as packages)
       - name: Install the TypeScript checker (call-resolution reference)
+        if: steps.sel.outputs.node == 'true'
         run: gitgalaxy/tests/tools/ci_retry.sh 4 10 -- npm install --global "typescript@6.0.2"
 
       # scip-java (the java reference) runs javac with its semanticdb plugin; gson's build
       # wants JDK 17-25. The scip-java jars and the corpus's Maven dependencies are
       # cached: Maven Central rate-limits bursts (scip_callgraph.MAVEN_FLAGS retries 429s).
       - name: Setup JDK 21 (scip-java reference)
+        if: steps.sel.outputs.java == 'true'
         uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "21"
 
       - name: Cache scip-java and Maven dependencies
+        if: steps.sel.outputs.java == 'true'
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
@@ -129,11 +177,13 @@ jobs:
       # rust-analyzer (the rust reference) comes with the pinned toolchain; its version is the
       # baseline's (scip_callgraph.RUST_ANALYZER_VERSION). Dependencies are fetched by cargo metadata.
       - name: Install the Rust toolchain 1.90.0 with rust-analyzer (call-resolution reference)
+        if: steps.sel.outputs.rust == 'true'
         run: |
           gitgalaxy/tests/tools/ci_retry.sh 4 10 -- rustup toolchain install 1.90.0 --profile minimal --component rust-analyzer
           rustup default 1.90.0
 
       - name: Cache cargo registry
+        if: steps.sel.outputs.rust == 'true'
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
@@ -145,6 +195,7 @@ jobs:
       # golang.org/x/tools (the go reference) is built by `go run -C tests/tools/go_callgraph`, which
       # wants Go 1.24+ (its go.mod); the module cache is keyed by the helper's go.sum.
       - name: Setup Go 1.24 (call-resolution reference)
+        if: steps.sel.outputs.go == 'true'
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: "1.24"
@@ -152,22 +203,32 @@ jobs:
 
       # The two corpora are fetched in parallel, once for every gate that reads them.
       - name: Fetch the pinned import-graph repos and the Language Crucible corpus
+        if: steps.sel.outputs.import_corpus == 'true' || steps.sel.outputs.crucible == 'true'
         run: |
           # The crucible pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
-          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
-          (cd gitgalaxy && python tests/tools/import_graph_accuracy.py --fetch-only) &
-          import_pid=$!
-          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
-          wait "$import_pid"
+          # #6501: each corpus only for the gates that read it
+          import_pid=
+          if [ "${{ steps.sel.outputs.import_corpus }}" = true ]; then
+            (cd gitgalaxy && python tests/tools/import_graph_accuracy.py --fetch-only) &
+            import_pid=$!
+          fi
+          if [ "${{ steps.sel.outputs.crucible }}" = true ]; then
+            ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
+            gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
+          fi
+          if [ -n "$import_pid" ]; then wait "$import_pid"; fi
 
       # Four lanes balance the measured gate times (#5501): span anchoring is the longest gate, so it runs as
       # two --shard scans whose merge is the one baseline gate (a shard is a partial measurement and refuses
       # --ci). Each gate keeps its own baseline, --samples and exit code; its table goes to a per-gate file
       # and is appended to the job summary afterwards so concurrent writers cannot interleave.
       - name: Gate every graph-accuracy baseline (four parallel lanes)
+        if: steps.sel.outputs.any == 'true'
         run: |
           cd gitgalaxy
           mkdir -p "$RUNNER_TEMP/gaa"
+          GATES='${{ steps.sel.outputs.gates }}'  # #6501: ",a,b," from the plan; a gate not in it does not run
+          want() { case "$GATES" in *",$1,"*) return 0 ;; *) return 1 ;; esac; }
           run_gate() {  # run_gate <name> <command...>: log per gate, one "FAIL name" line on failure
             name=$1; shift
             start=$SECONDS
@@ -178,10 +239,11 @@ jobs:
           }
           gate() {  # gate <name> <command...>: run_gate with the baseline gate and summary file
             name=$1; shift
+            want "$name" || return 0
             run_gate "$name" "$@" --ci --summary "$RUNNER_TEMP/gaa/$name.md"
           }
-          ( run_gate span-shard-0 python tests/tools/span_anchor_audit.py --shard 0/2 --json "$RUNNER_TEMP/gaa/span0.json" --samples 3 ) &
-          ( run_gate span-shard-1 python tests/tools/span_anchor_audit.py --shard 1/2 --json "$RUNNER_TEMP/gaa/span1.json" --samples 3 ) &
+          ( ! want span-anchoring || run_gate span-shard-0 python tests/tools/span_anchor_audit.py --shard 0/2 --json "$RUNNER_TEMP/gaa/span0.json" --samples 3 ) &
+          ( ! want span-anchoring || run_gate span-shard-1 python tests/tools/span_anchor_audit.py --shard 1/2 --json "$RUNNER_TEMP/gaa/span1.json" --samples 3 ) &
           ( gate import-graph python tests/tools/import_graph_accuracy.py --samples 5
             gate call-typescript python tests/tools/call_graph_resolution.py typescript --samples 5
             gate call-javascript python tests/tools/call_graph_resolution.py javascript --samples 5
@@ -193,7 +255,7 @@ jobs:
             gate call-go python tests/tools/call_graph_resolution.py go --samples 5 ) &
           wait
           # the one span-anchoring baseline gate, over the summed shards (skipped if a shard failed)
-          if [ -s "$RUNNER_TEMP/gaa/span0.json" ] && [ -s "$RUNNER_TEMP/gaa/span1.json" ]; then
+          if want span-anchoring && [ -s "$RUNNER_TEMP/gaa/span0.json" ] && [ -s "$RUNNER_TEMP/gaa/span1.json" ]; then
             gate span-anchoring python tests/tools/span_anchor_audit.py --merge "$RUNNER_TEMP/gaa/span0.json" "$RUNNER_TEMP/gaa/span1.json" --samples 3
           fi
           cat "$RUNNER_TEMP/gaa/times"

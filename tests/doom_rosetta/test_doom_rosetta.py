@@ -8,8 +8,11 @@ it, because ``smoke-test.yml`` replaces ``addopts`` with its own ``-m`` and woul
 The unmarked tests at the bottom are fast and always run.
 """
 
+import ast
+import fnmatch
 import json
 import os
+import re
 import shutil
 import sqlite3
 import sys
@@ -50,6 +53,37 @@ def test_port_matches_golden(row, request):
 def test_every_manifest_port_has_a_golden_and_no_other_does():
     on_disk = {p.name.removesuffix(".json.gz") for p in check.GOLDEN_DIR.glob("*.json.gz")}
     assert on_disk == set(NAMES)
+
+
+TOOLS = Path(__file__).resolve().parents[1] / "tools"
+WORKFLOW = Path(__file__).resolve().parents[2] / ".github" / "workflows" / "doom-rosetta.yml"
+
+
+def _reached_tool_modules():
+    """Every tests/tools module this file reaches through imports, lazy (in-function) ones included, as repo paths."""
+    seen, todo = set(), [Path(__file__).resolve()]
+    while todo:
+        tree = ast.parse(todo.pop().read_text())
+        names = {a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names}
+        names |= {n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module and not n.level}
+        for name in names:
+            for d in (TOOLS, TOOLS / "doom_speedrun"):
+                path = d / f"{name}.py"
+                if path.is_file() and path not in seen:
+                    seen.add(path)
+                    todo.append(path)
+    return {p.relative_to(WORKFLOW.parents[2]).as_posix() for p in seen}
+
+
+def test_workflow_paths_cover_the_check_imports():
+    # doom-rosetta.yml lists the check's own tool modules, not all of tests/tools/doom_speedrun/: a module the check
+    # imports that the list misses would let a PR change it without running the check
+    block = WORKFLOW.read_text().split("    paths:\n", 1)[1].split("  schedule:", 1)[0]
+    globs = [g for g in re.findall(r'^\s+- "([^"]+)"', block, re.M) if not g.startswith("!")]
+    reached = _reached_tool_modules()
+    assert {"tests/tools/doom_rosetta_check.py", "tests/tools/doom_speedrun/doom_scorer.py"} <= reached
+    missing = sorted(p for p in reached if not any(fnmatch.fnmatch(p, g) for g in globs))
+    assert not missing, f"add to doom-rosetta.yml's pull_request paths: {missing}"
 
 
 def test_manifest_expected_fails_are_known_checks():
@@ -127,6 +161,45 @@ def test_ts_oracle_scores_each_covered_language(lang, tmp_path):
     _scan_db(tmp_path / "u.db", rows + [k, (rel, lang, "f", FIXTURE_START[lang], ["g", "h", "k"])])
     cols, ok = doom_scorer.callgraph_check("a-port", tmp_path, tmp_path / "u.db")
     assert (cols["callgraph_misses"], cols["callgraph_engine_only"], ok) == (0, 1, False), cols
+
+
+def test_ts_oracle_scores_a_bound_function_expression_as_its_own_unit(tmp_path):
+    """#6266: ``window.f = () => {..}`` and ``const f = () => ..`` are functions the engine names; their calls are not the
+    enclosing function's. An anonymous callback argument stays in the enclosing function."""
+    pytest.importorskip("tree_sitter_language_pack")
+    import ts_callgraph_oracle as ts
+
+    if not ts.available("javascript"):
+        pytest.skip("tree-sitter language pack has no javascript grammar")
+    src = (
+        "function g() {}\nfunction h() {}\nfunction k() {}\n"
+        "function f() {\n  window.a = () => {\n    g();\n  };\n  const b = function () { h(); };\n"
+        "  [1].forEach(() => { k(); });\n}\n"
+    )
+    (tmp_path / "a.js").write_text(src)
+    rows = [("a.js", "javascript", n, i + 1, []) for i, n in enumerate("ghk")]
+    rows += [
+        ("a.js", "javascript", "f", 4, ["k"]),
+        ("a.js", "javascript", "a", 5, ["g"]),
+        ("a.js", "javascript", "b", 8, ["h"]),
+    ]
+    res = ts.body_oracle(tmp_path, rows)
+    assert (res["misses_by_shape"], res["engine_only_by_kind"], res["unmatched_functions"]) == ({}, {}, 0), res
+
+
+def test_ts_oracle_reads_a_csharp_builtin_type_name_as_a_reference_not_an_absent_edge(tmp_path):
+    """#6266: ``new string(..)`` beside a user ``operator string`` names the type in the body: reported, never ``absent``."""
+    pytest.importorskip("tree_sitter_language_pack")
+    import ts_callgraph_oracle as ts
+
+    if not ts.available("csharp"):
+        pytest.skip("tree-sitter language pack has no csharp grammar")
+    src = "class A {\n void string() {}\n void f() {\n  var s = new string(c);\n }\n}\n"
+    (tmp_path / "A.cs").write_text(src)
+    rows = [("A.cs", "csharp", "string", 2, []), ("A.cs", "csharp", "f", 3, ["string"])]
+    res = ts.body_oracle(tmp_path, rows)
+    assert res["engine_only_by_kind"] == {"function-pointer": 1} and res["misses_by_shape"] == {}, res
+    assert doom_scorer.callgraph_columns(res)["callgraph_engine_only"] == 0
 
 
 def test_ts_oracle_reads_rust_macro_arguments_and_skips_quote(tmp_path):

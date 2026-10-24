@@ -1,0 +1,54 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-adminmenu",
+  "entries": [
+    {
+      "unit": "PROCESS-ENTER-KEY",
+      "line": 141,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "`IF CDEMO-ADMIN-OPT-PGMNAME(WS-OPTION)(1:5) NOT = 'DUMMY'` runs only under `IF NOT ERR-FLG-ON` (140), i.e. after the test at 131-133 let WS-OPTION through as numeric, not zero and not > CDEMO-ADMIN-OPT-COUNT (6, COADM02Y line 22); the program names of options 1-6 are the copybook VALUEs 'COUSR00C', 'COUSR01C', 'COUSR02C', 'COUSR03C', 'COTRTLIC', 'COTRTUPC' (COADM02Y lines 29-53) and COADM01C never writes the table, so none starts with 'DUMMY'."
+    },
+    {
+      "unit": "BUILD-MENU-OPTIONS",
+      "line": 241,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "C",
+      "reason": "`EVALUATE WS-IDX` `WHEN OTHER` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-ADMIN-OPT-COUNT` (231-232): the count is the constant 6 (COADM02Y line 22 `05 CDEMO-ADMIN-OPT-COUNT PIC 9(02) VALUE 6`), never written by COADM01C, and the loop body does not change WS-IDX, so WS-IDX is always 1-6, each matched by WHEN 1-6."
+    },
+    {
+      "unit": "BUILD-MENU-OPTIONS",
+      "line": 241,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@254",
+      "family": "C",
+      "reason": "`EVALUATE WS-IDX` `WHEN 7` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-ADMIN-OPT-COUNT` (231-232): the count is the constant 6 (COADM02Y line 22 `05 CDEMO-ADMIN-OPT-COUNT PIC 9(02) VALUE 6`), never written by COADM01C, and the loop body does not change WS-IDX, so WS-IDX takes only 1-6."
+    },
+    {
+      "unit": "BUILD-MENU-OPTIONS",
+      "line": 241,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@256",
+      "family": "C",
+      "reason": "`EVALUATE WS-IDX` `WHEN 8` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-ADMIN-OPT-COUNT` (231-232): the count is the constant 6 (COADM02Y line 22 `05 CDEMO-ADMIN-OPT-COUNT PIC 9(02) VALUE 6`), never written by COADM01C, and the loop body does not change WS-IDX, so WS-IDX takes only 1-6."
+    },
+    {
+      "unit": "BUILD-MENU-OPTIONS",
+      "line": 241,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@258",
+      "family": "C",
+      "reason": "`EVALUATE WS-IDX` `WHEN 9` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-ADMIN-OPT-COUNT` (231-232): the count is the constant 6 (COADM02Y line 22 `05 CDEMO-ADMIN-OPT-COUNT PIC 9(02) VALUE 6`), never written by COADM01C, and the loop body does not change WS-IDX, so WS-IDX takes only 1-6."
+    },
+    {
+      "unit": "BUILD-MENU-OPTIONS",
+      "line": 241,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@260",
+      "family": "C",
+      "reason": "`EVALUATE WS-IDX` `WHEN 10` inside `PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > CDEMO-ADMIN-OPT-COUNT` (231-232): the count is the constant 6 (COADM02Y line 22 `05 CDEMO-ADMIN-OPT-COUNT PIC 9(02) VALUE 6`), never written by COADM01C, and the loop body does not change WS-IDX, so WS-IDX takes only 1-6."
+    }
+  ]
+}

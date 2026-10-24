@@ -242,6 +242,44 @@ FILECONTROL_JAVA = """\
         return done(0, 0);
     }
 
+    /** #4443 READ FILE(file) INTO LENGTH(intoLength) RIDFLD(ridfld) [UPDATE], recorded as the SPEC 6.2 READ event: as
+     *  read / readForUpdate on the record's bytes, and a record longer than `intoLength` is LENGERR (22) RESP2 11
+     *  (IBM, EXEC CICS READ), the whole record returned for the port to move its leading bytes INTO. Refused, as
+     *  DetCics.readInto refuses them: a negative LENGTH and LENGERR on READ UPDATE (IBM does not say whether the
+     *  record is then held). The event carries `length` (the record's) whenever a record was read, `data` on NORMAL. */
+    public FileRead<byte[]> readInto(String file, byte[] ridfld, boolean update, int intoLength,
+                                     java.util.function.Supplier<Optional<byte[]>> lookup) {
+        if (intoLength < 0) {
+            throw new UnsupportedOperationException("READ LENGTH " + intoLength + " (negative): not modelled");
+        }
+        FileRead<byte[]> r = update ? readForUpdate(file, lookup) : read(file, lookup);
+        byte[] record = r.record();
+        if (record != null && record.length > intoLength) {
+            if (update) {
+                throw new UnsupportedOperationException("READ UPDATE LENGERR (whether the record is held): not modelled");
+            }
+            r = new FileRead<>(22, 11, record);
+        }
+        event("READ", "file", file, "ridfld", ridfld, "update", update ? Boolean.TRUE : null, "resp", respName(r.resp()),
+                "resp2", r.resp() == 0 ? null : r.resp2(), "length", record == null ? null : record.length,
+                "data", r.resp() == 0 ? record : null);
+        return r;
+    }
+
+    /** #4443 REWRITE FILE(file) FROM(from), recorded as the SPEC 6.2 REWRITE event: as rewrite; `store` saves `from`. */
+    public int rewriteFrom(String file, byte[] from, Runnable store) {
+        int resp = rewrite(file, store);
+        event("REWRITE", "file", file, "data", from, "resp", respName(resp), "resp2", resp == 0 ? null : resp2());
+        return resp;
+    }
+
+    /** #4443 UNLOCK FILE(file) without TOKEN, recorded as the SPEC 6.2 UNLOCK event: as unlockHeld. */
+    public int unlock(String file) {
+        int resp = unlockHeld(file);
+        event("UNLOCK", "file", file, "resp", respName(resp), "resp2", resp == 0 ? null : resp2());
+        return resp;
+    }
+
     /** One file's browse: its keys (asked again on every command, so a record written meanwhile is seen), how it
      *  started, and the last key read and in which direction (0: none yet). An RBA browse (#4213) keeps RBAs. */
     private static final class Browse {

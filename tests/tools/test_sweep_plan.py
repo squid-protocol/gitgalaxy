@@ -240,7 +240,7 @@ def test_the_workflow_plans_then_deselects_with_golden_crucible_kept():
     checkout = next(s for s in job["steps"] if str(s.get("uses", "")).startswith("actions/checkout"))
     assert checkout["with"]["fetch-depth"] == 1
     # the required aggregate and its needs are unchanged; the matrix gate never deselects
-    assert wf["full-suite"]["needs"] == ["tested-tree", "full-suite-part"]
+    assert wf["full-suite"]["needs"] == ["tested-tree", "suite-plan", "full-suite-part"]  # #6278
     gate = (ROOT / ".github" / "workflows" / "full-suite-gate.yml").read_text(encoding="utf-8")
     assert "redos_sweep" not in gate and "sweep_plan" not in gate
 

@@ -7,7 +7,8 @@ A pull request that changes no det input (DET_INPUTS: docs, other engine code ..
 so the workflow can run -- and report its required `det` check -- on every PR). One that changes only files under
 tests/equivalence/<case>/ re-proves those cases (and the cases that
 take that case's port: `port_from`, `uses_ports`, transitively); so does one changing a case's coverage-ledger file,
-tests/equivalence/det_sweep_coverage/<case>.json (#4789: the sweep of that case is what checks the entry). A change to the translator + runtime (det/) or the generator (GENERATOR: the forges that write the
+tests/equivalence/det_sweep_coverage/<case>.json (#4789: the sweep of that case is what checks the entry), or its
+tests/equivalence/infeasible_outcomes/<case>.json (#6072). A change to the translator + runtime (det/) or the generator (GENERATOR: the forges that write the
 project) is judged by the port diff (mode "ports", then --ports; #4814, #4847). #5885: a shared file is narrowed
 to the cases it can move -- the baseline and infeasible_outcomes.json to the cases whose entries changed (KEYED), the
 corpora pin to the cases on a corpus whose pin changed, a harness / oracle file to the cases that use its component
@@ -16,6 +17,9 @@ det tools, the workflow, a file straight under tests/equivalence/, a case direct
 or removed), an unreadable diff or side -- is a full sweep, as is every event that is not a pull request (nightly,
 manual: the backstop for a narrowing that missed). When in doubt, full. Stdlib only: the job runs before anything is
 installed.
+
+#6278: on a pull request the Db2 half of a plan that went full for a reason outside the Db2 area (a harness-core file, an
+oracle Dockerfile: change_classifier.db2_area) is dropped; the non-Db2 sweep and every other event are unchanged.
 
 Prints JSON {mode, cases, shards, matrix, db2_cases, db2_shards, db2_matrix, reason}: `cases` is "all" or the names;
 `matrix` the shard labels "I/N". The Db2 cases (a "db2" section in case.json) are split off into `db2_cases` (#4901):
@@ -125,6 +129,7 @@ def det_input(path: str) -> bool:
 
 # #4789: <case>.json, the det-sweep coverage ledger's entry of a case
 LEDGER_DIR = "tests/equivalence/det_sweep_coverage/"
+INFEASIBLE_DIR = "tests/equivalence/infeasible_outcomes/"  # #6072: one file per case, <case>.json
 
 
 def case_dirs(cases_dir: Path = CASES) -> dict[str, dict]:
@@ -238,7 +243,7 @@ def labels_from_event(path: Path) -> list[str]:
     return [x.get("name", "") for x in (payload.get("pull_request") or {}).get("labels") or []]
 
 
-def plan(
+def _plan(
     files: list[str],
     event: str,
     cases: dict[str, dict],
@@ -269,6 +274,9 @@ def plan(
             continue
         if f.startswith(LEDGER_DIR) and f.endswith(".json") and f[len(LEDGER_DIR) : -5] in cases:
             touched.add(f[len(LEDGER_DIR) : -5])  # #4789: a case's ledger entry is checked by sweeping that case
+            continue
+        if f.startswith(INFEASIBLE_DIR) and f.endswith(".json") and f[len(INFEASIBLE_DIR) : -5] in cases:
+            touched.add(f[len(INFEASIBLE_DIR) : -5])  # #6072: a case's stated outcomes are checked by sweeping it
             continue
         if f in KEYED or f == CORPORA:
             got = None
@@ -303,6 +311,28 @@ def plan(
             "reason": (f"shared files narrowed: {'; '.join(why)}; " if why else "")
                       + f"only case files changed: {', '.join(sorted(touched)) or 'none'}"
                       + (f" (+ dependents {', '.join(sorted(set(affected) - touched))})" if set(affected) - touched else "")}  # fmt: skip
+
+
+def plan(
+    files: list[str],
+    event: str,
+    cases: dict[str, dict],
+    labels: list[str] | None = None,
+    texts: Callable[[str], tuple[str | None, str | None]] | None = None,
+) -> dict:
+    """_plan(), then #6278: on a pull request the Db2 runners (each starts IBM's Db2 container, ~17% of PR runner minutes)
+    run only when a changed file is in the Db2 area (change_classifier.db2_area) or a Db2 case moved. A plan that went
+    full for another reason (a harness core file, an unplaceable file) keeps its non-Db2 sweep and drops the Db2 half;
+    the nightly, a manual run and the `shepherd:full` label still prove every Db2 case."""
+    p = _plan(files, event, cases, labels, texts)
+    if event != "pull_request" or FULL_LABEL in (labels or []) or p["db2_cases"] != "all" or not files:
+        return p  # an empty diff is "cannot tell": keep it full
+    import change_classifier  # noqa: PLC0415 -- Evidence Refresh's sparse checkout holds this planner alone
+
+    names = [n for n, c in cases.items() if is_db2(c)]
+    if any(change_classifier.db2_area(f, names) for f in files):
+        return p
+    return {**p, "db2_cases": [], "reason": p["reason"] + "; no changed file is in the Db2 area: no Db2 shard"}
 
 
 def narrow_by_ports(check: Path, touched: list[str], cases: dict[str, dict]) -> dict:

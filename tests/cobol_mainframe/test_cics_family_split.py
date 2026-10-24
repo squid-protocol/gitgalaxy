@@ -21,6 +21,7 @@ from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E
 from gitgalaxy.tools.cobol_to_java import cics_task_taskcontrol as tt  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.det import cics_conditions as CN  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_containers as CC  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as CF  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_taskcontrol as CT  # noqa: E402
@@ -56,6 +57,7 @@ def test_ggcics_includes_its_families_once():
         "ggcics_conditions.c",
         "ggcics_transientdata.c",
         "ggcics_containers.c",
+        "ggcics_tempstorage.c",  # the second part: DELETEQ TS, where it sat
         "ggcics_taskcontrol.c",
         "ggcics_enq.c",
     ]
@@ -175,7 +177,7 @@ def test_ggcics_holds_the_task_control_stubs_in_its_family_file():
             assert re.search(rf"^int {cmd.impl.c}\(", family, re.M), key
     # the include sits where the block did: after DELETEQ TS, before the ENQ include
     assert (
-        host.index("int GGCDELQ(")
+        host.index("#define GGCICS_TS_DELETEQ")
         < host.index('#include "ggcics_taskcontrol.c"')
         < host.index('#include "ggcics_enq.c"')
     )
@@ -234,7 +236,7 @@ def test_ggcics_holds_the_temporary_storage_stubs_in_its_family_file():
     host = (STUB / "ggcics.c").read_text(encoding="utf-8")
     family = (STUB / "ggcics_tempstorage.c").read_text(encoding="utf-8")
     assert "#include" not in family
-    for entry in ("GGCREADQ", "GGCWRTQ"):
+    for entry in ("GGCREADQ", "GGCWRTQ", "GGCDELQ"):
         assert re.search(rf"^int {entry}\(", family, re.M), entry
         assert not re.search(rf"^int {entry}\(", host, re.M), entry
     for helper in ("ts_dir", "ts_count", "ts_next", "ts_set_next"):
@@ -246,7 +248,8 @@ def test_ggcics_holds_the_condition_and_abend_handlers_in_its_family_file():
     host = (STUB / "ggcics.c").read_text(encoding="utf-8")
     family = (STUB / "ggcics_conditions.c").read_text(encoding="utf-8")
     assert "#include" not in family
-    for entry in ("GGCPENT", "GGCHCND", "GGCHABN", "GGCPUSH", "GGCPOP"):
+    for entry in ("GGCPENT", "GGCHCND", "GGCHABN", "GGCPUSH", "GGCPOP", "GGCHAID", "GGCAID", "GGCABND", "GGCCOND",
+                  "GGCASGN"):  # fmt: skip
         assert re.search(rf"^int {entry}\(", family, re.M), entry
         assert not re.search(rf"^int {entry}\(", host, re.M), entry
     # the include sits where the blocks did: file control, temporary storage, conditions, then transient data
@@ -258,9 +261,67 @@ def test_ggcics_holds_the_condition_and_abend_handlers_in_its_family_file():
     )
 
 
+def test_deleteq_ts_is_the_second_include_of_the_temporary_storage_family():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    family = (STUB / "ggcics_tempstorage.c").read_text(encoding="utf-8")
+    assert host.count('#include "ggcics_tempstorage.c"') == 2
+    assert (
+        host.index("int GGCINQA(")
+        < host.index("#define GGCICS_TS_DELETEQ")
+        < host.index('#include "ggcics_taskcontrol.c"')
+    )
+    assert family.index("#ifndef GGCICS_TS_DELETEQ") < family.index("int GGCREADQ(") < family.index("int GGCDELQ(")
+
+
 def test_the_ts_verbs_still_translate_to_their_stubs():
     for verb, stub in (
+        ("DELETEQ TS QUEUE('Q')", "GGCDELQ"),
         ("READQ TS QUEUE('Q') INTO(WS-REC)", "GGCREADQ"),
         ("WRITEQ TS QUEUE('Q') FROM(WS-REC)", "GGCWRTQ"),
     ):
         assert any(stub in ln for ln in ec.translate_command(verb)), verb
+
+
+# ---- temporary storage (#5274, harness half): READQ / WRITEQ / DELETEQ TS and how a TS event is read back --------------
+def test_the_harness_dispatches_temporary_storage_to_its_module():
+    import equivalence_cics_tempstorage as ect  # noqa: E402
+
+    for name in ("ts_command", "delete_queue", "ts_seed", "cobol_ts", "java_ts_as_compared"):
+        assert callable(getattr(ect, name)), name
+    for old in ("_ts_command", "_cobol_ts"):
+        assert not hasattr(ec, old), old
+    assert ec.ts_seed is ect.ts_seed and ec.java_ts_as_compared is ect.java_ts_as_compared
+    for body, stub in (("WRITEQ TS QUEUE('Q') FROM(WS-REC)", "GGCWRTQ"), ("READQ TS QUEUE('Q') INTO(WS-REC)", "GGCREADQ"),
+                       ("DELETEQ TS QUEUE('Q')", "GGCDELQ")):  # fmt: skip
+        assert any(stub in ln for ln in ec.translate_command(body)), body
+
+
+# ---- conditions (#5274, harness half): HANDLE CONDITION / AID / ABEND, PUSH / POP HANDLE, ASSIGN, AID after input -----
+def test_the_harness_dispatches_conditions_to_its_module():
+    import equivalence_cics_conditions as ecc  # noqa: E402
+
+    for name in ("aid", "input_resp", "handle", "handler_labels"):
+        assert callable(getattr(ecc, name)), name
+    for old in ("_aid", "_input_resp", "_handle", "AID_KEYS", "_HANDLE_KINDS"):
+        assert not hasattr(ec, old), old
+    assert ec.handler_labels is ecc.handler_labels
+    assert ecc.handler_labels(["HANDLE CONDITION ERROR(E1)", "HANDLE AID PF3(P3)"]) == ["E1", "P3"]
+    for body, stub in (("HANDLE CONDITION ERROR(ANY-ERROR)", "GGCHCND"), ("HANDLE AID PF3(DONE)", "GGCHAID"),
+                       ("HANDLE ABEND CANCEL", "GGCHABN"), ("PUSH HANDLE", "GGCPUSH"), ("POP HANDLE", "GGCPOP"),
+                       ("ASSIGN ABCODE(WS-AB)", "GGCASGN")):  # fmt: skip
+        assert any(stub in ln for ln in ec.translate_command(body, ["ANY-ERROR", "DONE"])), body
+
+
+# ---- conditions (#5274, det half): ASSIGN, the conditions a HANDLE / IGNORE names, HANDLE AID, PUSH / POP HANDLE ---------
+CONDITION_METHODS = ("assign", "conditions", "handle_aid_", "push_pop", "input_outcome")
+
+
+def test_the_det_translator_holds_the_condition_methods_in_its_mixin():
+    assert issubclass(C.Cics, CN.ConditionCommands)
+    for method in CONDITION_METHODS:
+        assert method in vars(CN.ConditionCommands) and method not in vars(C.Cics), method
+        assert callable(getattr(C.Cics, method)), method
+    for key, cmd in COMMANDS.items():  # every spec command that dispatches to a moved method still reaches it
+        if cmd.impl and cmd.impl.translator.split(".")[1] in CONDITION_METHODS:
+            assert callable(getattr(C.Cics, cmd.impl.translator.split(".")[1])), key
+    assert "outcome" in vars(C.Cics)  # shared with every family: it stays the translator's own

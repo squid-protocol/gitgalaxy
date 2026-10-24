@@ -328,7 +328,14 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # assignment and the four browse helpers' repository-method literals. 95 -> 109.
     # #6072 re-ran COACTVWC on its hand port with the abend path (seed 0, 150 mutants): one fewer flagged survivor than
     # #4443's 6 (the facade's lastLinkBytes(); the program-name literal in region.run / region.linked), all unreachable. 109 -> 108.
-    assert len(flagged) == 108 and verdicts.count("unreachable") == 105 and verdicts.count("equivalent") == 3
+    # #4049 re-ran UPDACC on its hand port (all 139 mutants, seed 0; its record judged an older port, so its survivors
+    # were skipped): 6 more flagged survivors, all unreachable: the facade's two-argument handleLink / lastLinkBytes()
+    # and the program-name literals in region.run / region.linked. 108 -> 114.
+    # #4049 (CSUTLDTC Julian) changed the dateutil port that CORPT00C and COTRN02C CALL, and re-proved both: their
+    # recorded mutation runs judged the older callee, so their 2 flagged survivors (both unreachable) are skipped until
+    # the next run. 114 -> 112.
+    # #4049 re-ran both (CORPT00C 59/87 caught, COTRN02C 70/91, 100 mutants each, seed 0): the 2 return. 112 -> 114.
+    assert len(flagged) == 114 and verdicts.count("unreachable") == 111 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"CSUTLDTC"}
     assert {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C"} == {"COACTVWC", "COMEN01C"}
 

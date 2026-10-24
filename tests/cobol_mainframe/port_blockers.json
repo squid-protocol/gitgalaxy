@@ -17,7 +17,8 @@
     "vsam",
     "eib-fact",
     "oracle-model",
-    "ci-gate"
+    "ci-gate",
+    "ims-mq"
   ],
   "found_by": [
     "review",
@@ -484,6 +485,617 @@
       "refused_by_name": false,
       "new_class": false,
       "summary": "The equivalence harness had no BMS map support."
+    },
+    {
+      "id": "P033",
+      "estate": "cics-async-api-credit-card-application-example",
+      "after_round": 8,
+      "side": "harness",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": null,
+      "fixed_by": "#4642",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The equivalence harness could not run a CICS task with no COMMAREA (KeyError / IndexError on an empty LINKAGE SECTION) or state a COMMAREA length per scenario; the estate's Java side did not compile without BMS maps."
+    },
+    {
+      "id": "P034",
+      "estate": "cics-async-api-credit-card-application-example",
+      "after_round": 8,
+      "side": "harness",
+      "class": "cics-command",
+      "programs": [],
+      "issue": null,
+      "fixed_by": "#4647",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The equivalence harness had no input channel or output containers (RUN TRANSID CHANNEL / LINK CHANNEL callers, GET / PUT CONTAINER), which every async service takes."
+    },
+    {
+      "id": "P035",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "runtime",
+      "class": "cics-command",
+      "programs": [
+        "cobil00c"
+      ],
+      "issue": 4657,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The det runtime's STARTBR NOTFND / IOERR left RESP2 (EIBRESP2) 0 where the stub and z/OS give 3, exposed once the proof compared DISPLAY output (RESP / REAS shown by COBIL00C)."
+    },
+    {
+      "id": "P036",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "data-layout",
+      "programs": [
+        "cocrdupc"
+      ],
+      "issue": 4875,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A MOVE between same-shape zoned items is a byte copy in cobc, so spaces reached a PIC 9(3) CVV; the det runtime stored zeros, and the entity-backed card file cannot hold non-digit bytes at all."
+    },
+    {
+      "id": "P037",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "harness",
+      "class": "vsam",
+      "programs": [
+        "cbact04c"
+      ],
+      "issue": 4876,
+      "fixed_by": "#4878",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Generated indexed inputs were loaded in ASCII key order where IBM uses EBCDIC prime-key order, so the duplicate alternate-key pick (first XREFFILE record per account) differed."
+    },
+    {
+      "id": "P038",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "vsam",
+      "programs": [
+        "cbexport",
+        "cbimport"
+      ],
+      "issue": 4804,
+      "fixed_by": null,
+      "refused_by_name": true,
+      "new_class": false,
+      "summary": "RECORD KEY EXPORT-SEQUENCE-NUM is defined in WORKING-STORAGE, not the file's record (source IBM and the oracle reject); the translator counted both whole until the OPEN / READ / WRITE / CLOSE was refused by name. Owner decision 2026-10-21: frontier (#5866)."
+    },
+    {
+      "id": "P039",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "cbstm03a"
+      ],
+      "issue": 5856,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "SET ADDRESS OF over z/OS control blocks (PSA, TCB, TIOT) left 5 holes: the program walks the TIOT to read its own DD names."
+    },
+    {
+      "id": "P040",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "ims-mq",
+      "programs": [
+        "cbpaup0c"
+      ],
+      "issue": 5857,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": true,
+      "summary": "Batch EXEC DLI (GN, GNP, DLET, CHKP) and the DIB outside CICS were not modelled: 10 holes."
+    },
+    {
+      "id": "P041",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "db2",
+      "programs": [
+        "cotrtlic"
+      ],
+      "issue": 5858,
+      "fixed_by": "#5873",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "CALL DSNTIAC left 1 hole: Db2's message text is not modelled (oracle assumption Q5), so COTRTLIC could not translate whole."
+    },
+    {
+      "id": "P042",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "control-flow",
+      "programs": [
+        "cbstm03a"
+      ],
+      "issue": 5560,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "ALTER and the altered GO TO were an agreed refusal (9 holes); owner decision 2026-10-18 modelled them."
+    },
+    {
+      "id": "P043",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "harness",
+      "class": "control-flow",
+      "programs": [
+        "comen01c"
+      ],
+      "issue": 4620,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "cobol_coverage.LineMap paired a rewritten EXEC CICS INQUIRE block line by line as exact, so the WHEN COPAUS0C arm never showed as taken although the scenarios ran it."
+    },
+    {
+      "id": "P044",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "harness",
+      "class": "control-flow",
+      "programs": [
+        "corpt00c"
+      ],
+      "issue": 4621,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A GO TO into a paragraph that only RETURNs was not a transfer of control, so CORPT00C's SEND-then-GO-TO outcomes needed hand-written infeasible-outcome entries."
+    },
+    {
+      "id": "P045",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 4679,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "LINK left RESP2 0 on failure, and RETURN TRANSID COMMAREA LENGTH past the DTO still passed only the DTO (CardDemo: 2000 over 172 bytes)."
+    },
+    {
+      "id": "P046",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "transaction-forge",
+      "class": "commarea-bytes",
+      "programs": [
+        "comen01c",
+        "coactupc"
+      ],
+      "issue": 3655,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A CICS program has several inbound COMMAREAs (menu 160 bytes, own re-entry 2000 bytes) but the interface was taken from resolved callers only, leaving a TODO at every menu dispatch case."
+    },
+    {
+      "id": "P047",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "facade",
+      "class": "data-layout",
+      "programs": [],
+      "issue": 4037,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The generated JPA entity for PENDING-AUTH-DETAILS mapped CURRENT-DATE to a reserved SQL column name, so the table was not created on H2."
+    },
+    {
+      "id": "P048",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "facade",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 5291,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Forge-generated facades answered a byte[] for a wide RETURN COMMAREA, and an XCTL without COMMAREA to a target whose RETURN is wide kept the byte[] (siblings of #4695; no burned program needed it to climb a rung)."
+    },
+    {
+      "id": "P049",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "ims-mq",
+      "programs": [
+        "copaua0c"
+      ],
+      "issue": 5278,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The remaining CardDemo MQ program and the MQINQ / MQSET calls it uses were not modelled; CMQGMOV / CMQODV copybooks refused the program whole."
+    },
+    {
+      "id": "P050",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "commarea-bytes",
+      "programs": [
+        "copaus0c",
+        "copaus1c"
+      ],
+      "issue": 5565,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A COMMAREA DTO property the CICS port could not convert (an OCCURS table as List<String>) refused both programs."
+    },
+    {
+      "id": "P051",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "harness",
+      "class": "cics-command",
+      "programs": [
+        "cocrdslc",
+        "cocrdlic"
+      ],
+      "issue": 5401,
+      "fixed_by": "#5412",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Mutation-survivor gaps across seven CardDemo ports: the harness compared SEND TEXT by text only, so an options-changing mutant read as proven (#5412); the oracle refuses 16 of COCRDLIC's 46 scenarios (register X8, open)."
+    },
+    {
+      "id": "P052",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "harness",
+      "class": "oracle-model",
+      "programs": [
+        "cousr00c"
+      ],
+      "issue": 6166,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "IOERR has no oracle abend code (abendOn defaults to INVREQ) and two COUSR00C harness gaps return after an XCTL; found while faulting its XCTL sites."
+    },
+    {
+      "id": "P053",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "harness",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 4449,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The equivalence harness had no java-facade side: the 14 regenerated CardDemo ports were proven through runTask only, and cross-program facade sides carried an untyped Object."
+    },
+    {
+      "id": "P054",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "zecs001"
+      ],
+      "issue": 4770,
+      "fixed_by": "#5730",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "EXEC CICS GET DCOUNTER with INCREMENT and WRAP (the zECS key allocator) was refused by name; counters were signed fullword only, so ZECS001 could not translate whole."
+    },
+    {
+      "id": "P055",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "zecs000",
+        "zecs001",
+        "zecs003"
+      ],
+      "issue": 4769,
+      "fixed_by": "#4858",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "EXEC CICS DOCUMENT CREATE / RETRIEVE (the document handler) was refused, holding up the HTTP-facing zECS programs."
+    },
+    {
+      "id": "P056",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "ecs001",
+        "zecs000",
+        "zecs001",
+        "zecs003"
+      ],
+      "issue": 4768,
+      "fixed_by": "#4873",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "INQUIRE URIMAP(name) in its direct form and INQUIRE PROGRAM STATUS were refused (only the URIMAP browse and program existence were modelled)."
+    },
+    {
+      "id": "P057",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "zecs001"
+      ],
+      "issue": 5945,
+      "fixed_by": "#6006",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "CALL ZUIDSTCK (an assembler STCK wrapper the estate does not ship) was ZECS001's only hole; it needed a harness-stated TOD stand-in on both runtimes."
+    },
+    {
+      "id": "P058",
+      "estate": "dbb-mortgage-application",
+      "after_round": 7,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "epscsmrt"
+      ],
+      "issue": 4803,
+      "fixed_by": "#4868",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A CICS case's CALLed subprograms were compiled on the COBOL side but never det-translated, so EPSCSMRT (whole, 13/13) could not be cased."
+    },
+    {
+      "id": "P059",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "commarea-bytes",
+      "programs": [
+        "bnk1uac",
+        "inqacc"
+      ],
+      "issue": 4806,
+      "fixed_by": "#4818",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A LINK wrote the callee's DTO back over the caller's COMMAREA, so a numeric field holding spaces the callee never wrote came back as digits."
+    },
+    {
+      "id": "P060",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "db2",
+      "programs": [
+        "updacc"
+      ],
+      "issue": 4579,
+      "fixed_by": "#4580",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "SELECT INTO a binary (COMP) host variable gave SQLCODE -304 for an INTEGER beyond the PICTURE's digits; Db2 stores the full fullword."
+    },
+    {
+      "id": "P061",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "crecust"
+      ],
+      "issue": 4884,
+      "fixed_by": "#4885",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "CRECUST was refused whole only because COPY CEEIGZCT (an IBM LE system copybook) is not in the estate; a stand-in written from public LE documentation was needed."
+    },
+    {
+      "id": "P062",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "bankdata"
+      ],
+      "issue": 4949,
+      "fixed_by": "#5002",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "LE date/time services (CEEGMT, CEEDATM, CEESECS, CEEDATE, CEEISEC, CEEQCEN) were not modelled, so BANKDATA was refused."
+    },
+    {
+      "id": "P063",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "delcus"
+      ],
+      "issue": 5078,
+      "fixed_by": "#5090",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "READ / REWRITE / DELETE / UNLOCK TOKEN (file update tokens) were refused by name; DELCUS was one gap from whole."
+    },
+    {
+      "id": "P064",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "bnk1cac",
+        "bnk1tfn",
+        "bnk1uac"
+      ],
+      "issue": 4741,
+      "fixed_by": "#4759",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "FUNCTION NUMVAL in a fixed-point COMPUTE was exact decimal; IBM evaluates it in long HFP, which blocked the three BNK1 programs translating whole."
+    },
+    {
+      "id": "P065",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "copaus2c",
+        "lgtestc1",
+        "lgastat1"
+      ],
+      "issue": 4737,
+      "fixed_by": "#4748",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Four CICS options were each the only gap in a program (FORMATTIME RESP, ASKTIME NOHANDLE, RECEIVE MAP ASIS, READQ TS LENGTH(LENGTH OF)); three burned programs (CardDemo, GenApp) were one option from whole, the fourth is in a non-burned repo."
+    },
+    {
+      "id": "P066",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "harness",
+      "class": "ci-gate",
+      "programs": [],
+      "issue": 4530,
+      "fixed_by": "#4536",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "14 committed equivalence ports (11 CardDemo Javadoc, 3 GenApp handleTransaction) had drifted from what the generator writes today, and no CI gate caught it; ports resurfaced, re-proven, and port_surface --check gated."
+    },
+    {
+      "id": "P067",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "harness",
+      "class": "ci-gate",
+      "programs": [
+        "cbact01c",
+        "cbact02c",
+        "cbact03c",
+        "cbact04c",
+        "cbcus01c",
+        "cbtrn01c",
+        "cbtrn02c",
+        "cbtrn03c",
+        "csutldtc",
+        "epsnbrvl",
+        "lgstsq"
+      ],
+      "issue": 5008,
+      "fixed_by": "#5011",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Batch and CALL det cases never got a det-sweep coverage ledger entry, so 11 programs stayed at L2 'coverage not measured' (CardDemo, DBB, GenApp)."
+    },
+    {
+      "id": "P068",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "facade",
+      "class": "commarea-bytes",
+      "programs": [
+        "lgtestp1",
+        "lgtestp2",
+        "lgtestp3",
+        "lgtestp4",
+        "cocrdupc",
+        "epscmort"
+      ],
+      "issue": 4870,
+      "fixed_by": "#4960",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The generated facade answered RETURN TRANSID COMMAREA as a DTO only, losing bytes the DTO cannot decode (non-digits in a numeric DISPLAY field); needed a bytes overload and an overload-aware port_surface (#4888), re-proving ~25 ports."
+    },
+    {
+      "id": "P069",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "epscsmrt",
+        "cotrtlic"
+      ],
+      "issue": 4736,
+      "fixed_by": "#4750",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Dynamic CALL was the only gap in two burned programs: a REDEFINES-over-VALUE-table target (DBB EPSCSMRT) found no candidates, and CALL DSNTIAC (CardDemo COTRTLIC) is refused by name because Db2's message text is not modelled."
+    },
+    {
+      "id": "P070",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "data-layout",
+      "programs": [
+        "epscsmrd",
+        "cocrdupc",
+        "cousr01c",
+        "cotrn02c",
+        "updacc"
+      ],
+      "issue": 5694,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Record layouts the engine cannot hand the translator: PROCEDURE/FUNCTION-POINTER width (#5841) and SYNC slack (#6117) are done; DFHAID, DFHBMSCA, DFHEIBLK, SQLCA and SQLDA keep the translator's own layout (open)."
+    },
+    {
+      "id": "P071",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "harness",
+      "class": "db2",
+      "programs": [
+        "bankdata",
+        "cbstm03b"
+      ],
+      "issue": 5561,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Two whole-translated batch programs (CBSA BANKDATA, CardDemo CBSTM03B) had no equivalence case that runs them, so they stayed at L1; the harness needed the Db2 generated-rows path with VSAM output, and datasets for a CALLed program."
     }
   ]
 }

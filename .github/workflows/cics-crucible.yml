@@ -153,7 +153,7 @@ jobs:
           pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt && pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Setup JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "17"
@@ -217,6 +217,19 @@ jobs:
           path: gitgalaxy
           persist-credentials: false
 
+      - name: Clone cics-crucible at the pin
+        run: |
+          # #5954: the tests that read CICS_CRUCIBLE_PATH need the checkout (the pin is tests/crucible_pins.toml).
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get cics)
+          git init -q cics-crucible
+          git -C cics-crucible remote add origin https://github.com/squid-protocol/cics-crucible.git
+          if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then
+            git -C cics-crucible fetch -q --depth 1 origin "$ref"
+          else
+            git -C cics-crucible fetch -q --depth 1 origin "+refs/tags/$ref:refs/tags/$ref"
+          fi
+          git -C cics-crucible checkout -q --detach FETCH_HEAD
+
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
@@ -232,7 +245,7 @@ jobs:
           pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt && pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Setup JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "17"
@@ -270,9 +283,18 @@ jobs:
         env:
           EQUIVALENCE_E2E: "1"
           GITGALAXY_ORACLE_STRICT: "1"
+          CICS_CRUCIBLE_PATH: ${{ github.workspace }}/cics-crucible  # #5954: un-skips test_det_port_bytes_4965
         run: |
           cd gitgalaxy
           python -m pytest -q -p no:cacheprovider tests/cics_crucible -m e2e
+
+      # #5954: the files that read the checkout but are not marked e2e (the -m e2e selection above leaves them out)
+      - name: The tests that read the crucible checkout
+        env:
+          CICS_CRUCIBLE_PATH: ${{ github.workspace }}/cics-crucible
+        run: |
+          cd gitgalaxy
+          python -m pytest -q -p no:cacheprovider -m "not e2e" tests/cics_crucible/test_cics_crucible_runner.py tests/tools/test_blocker_report.py tests/tools/test_crucible_case.py
 
   # The required check (its name is the job id). Always runs: a shard that failed or never started is a failure here,
   # never a pass by absence.

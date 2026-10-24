@@ -12,44 +12,60 @@ an unfinished log, not a clean estate.
 
 | round | estate | blockers | cumulative | new classes | repeats | programs named | blockers per program named | refused by name |
 |---|---|---|---|---|---|---|---|---|
-| 2 | cics-banking-sample-application-cbsa | 8 | 8 | 7 | 1 | 3 | 2.67 | 0 |
-| 3 | aws-mainframe-modernization-carddemo | 11 | 19 | 2 | 9 | 9 | 1.22 | 0 |
-| 4 | cics-genapp | 7 | 26 | 0 | 7 | 4 | 1.75 | 0 |
-| 5 | zecs | 2 | 28 | 0 | 2 | 4 | 0.50 | 0 |
-| 7 | dbb-mortgage-application | 3 | 31 | 0 | 3 | 2 | 1.50 | 0 |
-| 8 | cics-async-api-credit-card-application-example | 0 | 31 | 0 | 0 | 0 | n/a | 0 |
+| 2 | cics-banking-sample-application-cbsa | 14 | 14 | 7 | 7 | 10 | 1.40 | 0 |
+| 3 | aws-mainframe-modernization-carddemo | 30 | 44 | 3 | 27 | 23 | 1.30 | 1 |
+| 4 | cics-genapp | 7 | 51 | 0 | 7 | 4 | 1.75 | 0 |
+| 5 | zecs | 6 | 57 | 0 | 6 | 4 | 1.50 | 0 |
+| 7 | dbb-mortgage-application | 4 | 61 | 0 | 4 | 3 | 1.33 | 0 |
+| 8 | cics-async-api-credit-card-application-example | 2 | 63 | 0 | 2 | 0 | n/a | 0 |
 
-No single estate: 1 (P005 by sibling sweep after round 8).
+No single estate: 8 (P005 by sibling sweep after round 8, P065 by sibling sweep after round 8, P066 by review after round 8, P067 by review after round 8, P068 by review after round 8, P069 by sibling sweep after round 8, P070 by sibling sweep after round 8, P071 by sibling sweep after round 8).
 
 ## By side and class
 
 | side | blockers | | class | blockers | first seen |
 |---|---|---|---|---|---|
-| det | 10 | | cics-command | 5 | P024 |
-| transaction-forge | 3 | | cobol-dialect | 3 | P006 |
-| facade | 5 | | commarea-bytes | 6 | P028 |
-| harness | 14 | | data-layout | 2 | P027 |
-| runtime | 0 | | control-flow | 3 | P015 |
-|  |  | | db2 | 4 | P026 |
-|  |  | | vsam | 3 | P019 |
+| det | 33 | | cics-command | 13 | P024 |
+| transaction-forge | 4 | | cobol-dialect | 10 | P006 |
+| facade | 8 | | commarea-bytes | 14 | P028 |
+| harness | 25 | | data-layout | 5 | P027 |
+| runtime | 1 | | control-flow | 6 | P015 |
+|  |  | | db2 | 7 | P026 |
+|  |  | | vsam | 5 | P019 |
 |  |  | | eib-fact | 1 | P005 |
-|  |  | | oracle-model | 3 | P025 |
-|  |  | | ci-gate | 2 | P001 |
+|  |  | | oracle-model | 4 | P025 |
+|  |  | | ci-gate | 4 | P001 |
+|  |  | | ims-mq | 2 | P040 |
 
 ## Discovery curve by round
 
-| after round | blockers | new classes |
-|---|---|---|
-| 2 | 8 | 7 |
-| 3 | 11 | 2 |
-| 4 | 7 | 0 |
-| 5 | 2 | 0 |
-| 7 | 3 | 0 |
-| 8 | 1 | 1 |
+A round is one burned estate. `programs` is the estate's program count from its answer key; the rate is
+logged blockers per program. A blocker with no estate is counted on its own row, not in any rate.
+
+| round | estate | programs | blockers | per program | cumulative blockers | new classes | classes seen | rounds since a new class |
+|---|---|---|---|---|---|---|---|---|
+| 2 | cics-banking-sample-application-cbsa | 31 | 14 | 0.45 | 14 | 7 | 7 | 0 |
+| 3 | aws-mainframe-modernization-carddemo | 44 | 30 | 0.68 | 44 | 3 | 10 | 0 |
+| 4 | cics-genapp | 31 | 7 | 0.23 | 51 | 0 | 10 | 1 |
+| 5 | zecs | 5 | 6 | 1.20 | 57 | 0 | 10 | 2 |
+| 7 | dbb-mortgage-application | 6 | 4 | 0.67 | 61 | 0 | 10 | 3 |
+| 8 | cics-async-api-credit-card-application-example | 10 | 2 | 0.20 | 63 | 0 | 10 | 4 |
+| 8 | none (sibling sweep, P005) | | 1 | | 64 | 1 | 11 | |
+| 8 | none (sibling sweep, P065) | | 1 | | 65 | 0 | 11 | |
+| 8 | none (review, P066) | | 1 | | 66 | 0 | 11 | |
+| 8 | none (review, P067) | | 1 | | 67 | 0 | 11 | |
+| 8 | none (review, P068) | | 1 | | 68 | 0 | 11 | |
+| 8 | none (sibling sweep, P069) | | 1 | | 69 | 0 | 11 | |
+| 8 | none (sibling sweep, P070) | | 1 | | 70 | 0 | 11 | |
+| 8 | none (sibling sweep, P071) | | 1 | | 71 | 0 | 11 | |
 
 ## Expected for the next estate
 
-Mean logged blockers per burned estate: 5.2 over 6 burned estates (31 blockers). This is a count of logged entries over a partial backfill, an indication of the order of magnitude; the issue's keyword count (~1.3 blockers per program on the first port falling to ~0.25 on the fifth, zECS excepted for new API areas) is the better prior until the backfill is complete.
+Logged blockers per program over the last 3 estates: 0.57 pooled (range 0.20 to 1.20); over all 6 estates 0.50. For a next estate of N programs that is about 0.6*N logged blockers (between 0.2*N and 1.2*N): 5.7 per 10 programs, 23 for 40.
+
+New classes: 11 of the 71 logged blockers opened a class, and the last 4 estate(s) opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a floor on novelty, not a guarantee.
+
+Read this as an order of magnitude. The ledger is a partial backfill (the issue's keyword count is ~1.3 blockers per program on the first port falling to ~0.25 on the fifth, zECS excepted for new API areas, which is higher than the logged rate here), so the logged rate is a lower bound. There are 6 data points and no variance model: the range is the spread of the last 3, not a confidence interval.
 
 ## Blocker log
 
@@ -63,6 +79,12 @@ Mean logged blockers per burned estate: 5.2 over 6 burned estates (31 blockers).
 | P027 | 2 | cics-banking-sample-application-cbsa | harness | data-layout | yes | bnk1cca | #4807 | no | BMS map OCCURS fields (ACCOUNTD OCCURS 10) could not be compared by occurrence. |
 | P028 | 2 | cics-banking-sample-application-cbsa | facade | commarea-bytes | yes |  | #4817 | no | A RETURN TRANSID COMMAREA crossed to the next task as its DTO only, losing a numeric field holding spaces. |
 | P029 | 2 | cics-banking-sample-application-cbsa | harness | db2 | no |  | #4921 | no | equivalence_db2._clp reported success when 'db2 connect' failed, giving misleading 'no table' errors. |
+| P059 | 2 | cics-banking-sample-application-cbsa | det | commarea-bytes | no | bnk1uac, inqacc | #4806 / #4818 | no | A LINK wrote the callee's DTO back over the caller's COMMAREA, so a numeric field holding spaces the callee never wrote came back as digits. |
+| P060 | 2 | cics-banking-sample-application-cbsa | det | db2 | no | updacc | #4579 / #4580 | no | SELECT INTO a binary (COMP) host variable gave SQLCODE -304 for an INTEGER beyond the PICTURE's digits; Db2 stores the full fullword. |
+| P061 | 2 | cics-banking-sample-application-cbsa | det | cobol-dialect | no | crecust | #4884 / #4885 | no | CRECUST was refused whole only because COPY CEEIGZCT (an IBM LE system copybook) is not in the estate; a stand-in written from public LE documentation was needed. |
+| P062 | 2 | cics-banking-sample-application-cbsa | det | cobol-dialect | no | bankdata | #4949 / #5002 | no | LE date/time services (CEEGMT, CEEDATM, CEESECS, CEEDATE, CEEISEC, CEEQCEN) were not modelled, so BANKDATA was refused. |
+| P063 | 2 | cics-banking-sample-application-cbsa | det | cics-command | no | delcus | #5078 / #5090 | no | READ / REWRITE / DELETE / UNLOCK TOKEN (file update tokens) were refused by name; DELCUS was one gap from whole. |
+| P064 | 2 | cics-banking-sample-application-cbsa | det | cobol-dialect | no | bnk1cac, bnk1tfn, bnk1uac | #4741 / #4759 | no | FUNCTION NUMVAL in a fixed-point COMPUTE was exact decimal; IBM evaluates it in long HFP, which blocked the three BNK1 programs translating whole. |
 | P008 | 3 | aws-mainframe-modernization-carddemo | det | cobol-dialect | no |  | #3823 | no | Generated code used String.format / toUpperCase / toLowerCase without Locale.ROOT, so output depended on the JVM locale. |
 | P012 | 3 | aws-mainframe-modernization-carddemo | facade | commarea-bytes | no |  | #4441 | no | The 14 CardDemo equivalence ports' facades still used the old typed COMMAREA after #4427 and needed regenerating. |
 | P013 | 3 | aws-mainframe-modernization-carddemo | facade | commarea-bytes | no | cosgn00c | #4464 | no | COSGN00C's facade took no COMMAREA although its pseudo-conversation RETURNs one to itself (opaque ODO). |
@@ -74,6 +96,25 @@ Mean logged blockers per burned estate: 5.2 over 6 burned estates (31 blockers).
 | P021 | 3 | aws-mainframe-modernization-carddemo | det | commarea-bytes | no | cosgn00c | #4659 | no | The model port left spaces where COSGN00C leaves LOW-VALUES in the RETURN COMMAREA. |
 | P022 | 3 | aws-mainframe-modernization-carddemo | facade | commarea-bytes | no |  | #4695 | no | The det facade's handleTransaction answered raw EBCDIC bytes when a RETURN's COMMAREA LENGTH was past the DTO. |
 | P023 | 3 | aws-mainframe-modernization-carddemo | harness | ci-gate | no |  | #4910 | no | Equivalence fault runs re-started Maven and Spring each time (~3.8 s each, over 80% of a batch case). |
+| P035 | 3 | aws-mainframe-modernization-carddemo | runtime | cics-command | no | cobil00c | #4657 | no | The det runtime's STARTBR NOTFND / IOERR left RESP2 (EIBRESP2) 0 where the stub and z/OS give 3, exposed once the proof compared DISPLAY output (RESP / REAS shown by COBIL00C). |
+| P036 | 3 | aws-mainframe-modernization-carddemo | det | data-layout | no | cocrdupc | #4875 | no | A MOVE between same-shape zoned items is a byte copy in cobc, so spaces reached a PIC 9(3) CVV; the det runtime stored zeros, and the entity-backed card file cannot hold non-digit bytes at all. |
+| P037 | 3 | aws-mainframe-modernization-carddemo | harness | vsam | no | cbact04c | #4876 / #4878 | no | Generated indexed inputs were loaded in ASCII key order where IBM uses EBCDIC prime-key order, so the duplicate alternate-key pick (first XREFFILE record per account) differed. |
+| P038 | 3 | aws-mainframe-modernization-carddemo | det | vsam | no | cbexport, cbimport | #4804 | yes | RECORD KEY EXPORT-SEQUENCE-NUM is defined in WORKING-STORAGE, not the file's record (source IBM and the oracle reject); the translator counted both whole until the OPEN / READ / WRITE / CLOSE was refused by name. Owner decision 2026-10-21: frontier (#5866). |
+| P039 | 3 | aws-mainframe-modernization-carddemo | det | cobol-dialect | no | cbstm03a | #5856 | no | SET ADDRESS OF over z/OS control blocks (PSA, TCB, TIOT) left 5 holes: the program walks the TIOT to read its own DD names. |
+| P040 | 3 | aws-mainframe-modernization-carddemo | det | ims-mq | yes | cbpaup0c | #5857 | no | Batch EXEC DLI (GN, GNP, DLET, CHKP) and the DIB outside CICS were not modelled: 10 holes. |
+| P041 | 3 | aws-mainframe-modernization-carddemo | det | db2 | no | cotrtlic | #5858 / #5873 | no | CALL DSNTIAC left 1 hole: Db2's message text is not modelled (oracle assumption Q5), so COTRTLIC could not translate whole. |
+| P042 | 3 | aws-mainframe-modernization-carddemo | det | control-flow | no | cbstm03a | #5560 | no | ALTER and the altered GO TO were an agreed refusal (9 holes); owner decision 2026-10-18 modelled them. |
+| P043 | 3 | aws-mainframe-modernization-carddemo | harness | control-flow | no | comen01c | #4620 | no | cobol_coverage.LineMap paired a rewritten EXEC CICS INQUIRE block line by line as exact, so the WHEN COPAUS0C arm never showed as taken although the scenarios ran it. |
+| P044 | 3 | aws-mainframe-modernization-carddemo | harness | control-flow | no | corpt00c | #4621 | no | A GO TO into a paragraph that only RETURNs was not a transfer of control, so CORPT00C's SEND-then-GO-TO outcomes needed hand-written infeasible-outcome entries. |
+| P045 | 3 | aws-mainframe-modernization-carddemo | det | commarea-bytes | no |  | #4679 | no | LINK left RESP2 0 on failure, and RETURN TRANSID COMMAREA LENGTH past the DTO still passed only the DTO (CardDemo: 2000 over 172 bytes). |
+| P046 | 3 | aws-mainframe-modernization-carddemo | transaction-forge | commarea-bytes | no | comen01c, coactupc | #3655 | no | A CICS program has several inbound COMMAREAs (menu 160 bytes, own re-entry 2000 bytes) but the interface was taken from resolved callers only, leaving a TODO at every menu dispatch case. |
+| P047 | 3 | aws-mainframe-modernization-carddemo | facade | data-layout | no |  | #4037 | no | The generated JPA entity for PENDING-AUTH-DETAILS mapped CURRENT-DATE to a reserved SQL column name, so the table was not created on H2. |
+| P048 | 3 | aws-mainframe-modernization-carddemo | facade | commarea-bytes | no |  | #5291 | no | Forge-generated facades answered a byte[] for a wide RETURN COMMAREA, and an XCTL without COMMAREA to a target whose RETURN is wide kept the byte[] (siblings of #4695; no burned program needed it to climb a rung). |
+| P049 | 3 | aws-mainframe-modernization-carddemo | det | ims-mq | no | copaua0c | #5278 | no | The remaining CardDemo MQ program and the MQINQ / MQSET calls it uses were not modelled; CMQGMOV / CMQODV copybooks refused the program whole. |
+| P050 | 3 | aws-mainframe-modernization-carddemo | det | commarea-bytes | no | copaus0c, copaus1c | #5565 | no | A COMMAREA DTO property the CICS port could not convert (an OCCURS table as List<String>) refused both programs. |
+| P051 | 3 | aws-mainframe-modernization-carddemo | harness | cics-command | no | cocrdslc, cocrdlic | #5401 / #5412 | no | Mutation-survivor gaps across seven CardDemo ports: the harness compared SEND TEXT by text only, so an options-changing mutant read as proven (#5412); the oracle refuses 16 of COCRDLIC's 46 scenarios (register X8, open). |
+| P052 | 3 | aws-mainframe-modernization-carddemo | harness | oracle-model | no | cousr00c | #6166 | no | IOERR has no oracle abend code (abendOn defaults to INVREQ) and two COUSR00C harness gaps return after an XCTL; found while faulting its XCTL sites. |
+| P053 | 3 | aws-mainframe-modernization-carddemo | harness | commarea-bytes | no |  | #4449 | no | The equivalence harness had no java-facade side: the 14 regenerated CardDemo ports were proven through runTask only, and cross-program facade sides carried an untyped Object. |
 | P002 | 4 | cics-genapp | harness | oracle-model | no | lgtestp4 | #4652 / #4693 | no | A space-filled zoned item moved to a binary host variable: GnuCOBOL gave 931773840, the det port 0; IBM documents no result for non-digit data (oracle assumption C11). |
 | P007 | 4 | cics-genapp | transaction-forge | control-flow | no |  | #3510 | no | Forge reachability treated an exhaustive EVALUATE whose every branch transfers control as falling through. |
 | P009 | 4 | cics-genapp | harness | db2 | no |  | #4173 | no | The equivalence harness could not inject SQL faults, so SQLCODE error branches were never proven (register M2). |
@@ -83,7 +124,21 @@ Mean logged blockers per burned estate: 5.2 over 6 burned estates (31 blockers).
 | P017 | 4 | cics-genapp | harness | db2 | no |  | #4610 | no | A -- comment with an apostrophe in a case seed.sql was loaded differently by ggsqlrun and the Java side. |
 | P003 | 5 | zecs | det | cics-command | no | ecs001, zecs000, zecs001, zecs003 | #4767 | no | EXEC CICS WEB family (OPEN, CONVERSE, CLOSE, PARSE, SEND, RECEIVE, EXTRACT, HTTPHEADER): zECS is served over HTTP, so the harness has to state the HTTP peer. |
 | P004 | 5 | zecs | det | vsam | no | zecs000, zecs003 | #4771 / #4886 | no | READ GTEQ / DELETE GENERIC on a file named at run time by a template (ZC##DC): no single file to bind a key length to. |
+| P054 | 5 | zecs | det | cics-command | no | zecs001 | #4770 / #5730 | no | EXEC CICS GET DCOUNTER with INCREMENT and WRAP (the zECS key allocator) was refused by name; counters were signed fullword only, so ZECS001 could not translate whole. |
+| P055 | 5 | zecs | det | cics-command | no | zecs000, zecs001, zecs003 | #4769 / #4858 | no | EXEC CICS DOCUMENT CREATE / RETRIEVE (the document handler) was refused, holding up the HTTP-facing zECS programs. |
+| P056 | 5 | zecs | det | cics-command | no | ecs001, zecs000, zecs001, zecs003 | #4768 / #4873 | no | INQUIRE URIMAP(name) in its direct form and INQUIRE PROGRAM STATUS were refused (only the URIMAP browse and program existence were modelled). |
+| P057 | 5 | zecs | det | cobol-dialect | no | zecs001 | #5945 / #6006 | no | CALL ZUIDSTCK (an assembler STCK wrapper the estate does not ship) was ZECS001's only hole; it needed a harness-stated TOD stand-in on both runtimes. |
 | P030 | 7 | dbb-mortgage-application | det | vsam | no | epsmlist | #4213 | no | ESDS browse by RBA (STARTBR/READNEXT ... RBA) was refused, blocking EPSMLIST. |
 | P031 | 7 | dbb-mortgage-application | transaction-forge | cobol-dialect | no | epscsmrd | #4243 | no | The forge and differential read a multi-program source as one program, blocking EPSCSMRD onboarding. |
 | P032 | 7 | dbb-mortgage-application | harness | cics-command | no |  | #4506 | no | The equivalence harness had no BMS map support. |
+| P058 | 7 | dbb-mortgage-application | det | cobol-dialect | no | epscsmrt | #4803 / #4868 | no | A CICS case's CALLed subprograms were compiled on the COBOL side but never det-translated, so EPSCSMRT (whole, 13/13) could not be cased. |
 | P005 | 8 | none | harness | eib-fact | yes |  | #5077 / #5125 | no | The harness could not state ASSIGN STARTCODE, EIBFN or EIBRCODE (3 estates, 7 programs one gap from proven); found by a measurement across estates, not on one. |
+| P033 | 8 | cics-async-api-credit-card-application-example | harness | commarea-bytes | no |  | #4642 | no | The equivalence harness could not run a CICS task with no COMMAREA (KeyError / IndexError on an empty LINKAGE SECTION) or state a COMMAREA length per scenario; the estate's Java side did not compile without BMS maps. |
+| P034 | 8 | cics-async-api-credit-card-application-example | harness | cics-command | no |  | #4647 | no | The equivalence harness had no input channel or output containers (RUN TRANSID CHANNEL / LINK CHANNEL callers, GET / PUT CONTAINER), which every async service takes. |
+| P065 | 8 | none | det | cics-command | no | copaus2c, lgtestc1, lgastat1 | #4737 / #4748 | no | Four CICS options were each the only gap in a program (FORMATTIME RESP, ASKTIME NOHANDLE, RECEIVE MAP ASIS, READQ TS LENGTH(LENGTH OF)); three burned programs (CardDemo, GenApp) were one option from whole, the fourth is in a non-burned repo. |
+| P066 | 8 | none | harness | ci-gate | no |  | #4530 / #4536 | no | 14 committed equivalence ports (11 CardDemo Javadoc, 3 GenApp handleTransaction) had drifted from what the generator writes today, and no CI gate caught it; ports resurfaced, re-proven, and port_surface --check gated. |
+| P067 | 8 | none | harness | ci-gate | no | cbact01c, cbact02c, cbact03c, cbact04c, cbcus01c, cbtrn01c, cbtrn02c, cbtrn03c, csutldtc, epsnbrvl, lgstsq | #5008 / #5011 | no | Batch and CALL det cases never got a det-sweep coverage ledger entry, so 11 programs stayed at L2 'coverage not measured' (CardDemo, DBB, GenApp). |
+| P068 | 8 | none | facade | commarea-bytes | no | lgtestp1, lgtestp2, lgtestp3, lgtestp4, cocrdupc, epscmort | #4870 / #4960 | no | The generated facade answered RETURN TRANSID COMMAREA as a DTO only, losing bytes the DTO cannot decode (non-digits in a numeric DISPLAY field); needed a bytes overload and an overload-aware port_surface (#4888), re-proving ~25 ports. |
+| P069 | 8 | none | det | cobol-dialect | no | epscsmrt, cotrtlic | #4736 / #4750 | no | Dynamic CALL was the only gap in two burned programs: a REDEFINES-over-VALUE-table target (DBB EPSCSMRT) found no candidates, and CALL DSNTIAC (CardDemo COTRTLIC) is refused by name because Db2's message text is not modelled. |
+| P070 | 8 | none | det | data-layout | no | epscsmrd, cocrdupc, cousr01c, cotrn02c, updacc | #5694 | no | Record layouts the engine cannot hand the translator: PROCEDURE/FUNCTION-POINTER width (#5841) and SYNC slack (#6117) are done; DFHAID, DFHBMSCA, DFHEIBLK, SQLCA and SQLDA keep the translator's own layout (open). |
+| P071 | 8 | none | harness | db2 | no | bankdata, cbstm03b | #5561 | no | Two whole-translated batch programs (CBSA BANKDATA, CardDemo CBSTM03B) had no equivalence case that runs them, so they stayed at L1; the harness needed the Db2 generated-rows path with VSAM output, and datasets for a CALLed program. |

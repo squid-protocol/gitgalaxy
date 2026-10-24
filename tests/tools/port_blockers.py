@@ -27,6 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 LEDGER = REPO_ROOT / "tests" / "cobol_mainframe" / "port_blockers.json"
 ESTATES = REPO_ROOT / "tests" / "cobol_mainframe" / "field_testing.json"
 REPORT = REPO_ROOT / "docs" / "language_status" / "port_blockers.md"
+ANSWER_KEYS = REPO_ROOT / "tests" / "cobol_mainframe" / "answer_key"
 
 
 def load() -> tuple[dict[str, Any], dict[str, Any]]:
@@ -34,6 +35,16 @@ def load() -> tuple[dict[str, Any], dict[str, Any]]:
         json.loads(LEDGER.read_text(encoding="utf-8")),
         json.loads(ESTATES.read_text(encoding="utf-8")),
     )
+
+
+def estate_sizes(estates: list[str]) -> dict[str, int]:
+    """Programs per estate, from its answer key (an estate with no key is left out)."""
+    sizes: dict[str, int] = {}
+    for eid in estates:
+        key = ANSWER_KEYS / f"{eid}.json"
+        if key.is_file():
+            sizes[eid] = len(json.loads(key.read_text(encoding="utf-8"))["programs"])
+    return sizes
 
 
 def burned_names() -> set[str]:
@@ -98,8 +109,76 @@ def _key(b: dict[str, Any]) -> tuple[int, str]:
     return (b["after_round"], b["id"])
 
 
-def render(ledger: dict[str, Any], registry: dict[str, Any], burned: set[str]) -> str:
+def _curve(bl: list[dict[str, Any]], estates: list[dict[str, Any]], sizes: dict[str, int]) -> list[str]:
+    """The discovery curve by round (one row per burned estate, in port order) and the next-estate estimate."""
+    out = [
+        "",
+        "## Discovery curve by round",
+        "",
+        "A round is one burned estate. `programs` is the estate's program count from its answer key; the rate is",
+        "logged blockers per program. A blocker with no estate is counted on its own row, not in any rate.",
+        "",
+        "| round | estate | programs | blockers | per program | cumulative blockers | new classes | classes seen | "
+        "rounds since a new class |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
+    cumulative = seen = since = 0
+    rates: list[tuple[int, int]] = []
+    for e in estates:
+        mine = [b for b in bl if b["estate"] == e["id"]]
+        new = sum(1 for b in mine if b["new_class"])
+        cumulative += len(mine)
+        seen += new
+        since = 0 if new else since + 1
+        n = sizes.get(e["id"])
+        if n:
+            rates.append((len(mine), n))
+        per = f"{len(mine) / n:.2f}" if n else "n/a"
+        out.append(
+            f"| {e['round']} | {e['id']} | {n if n else 'n/a'} | {len(mine)} | {per} | {cumulative} | {new} | "
+            f"{seen} | {since} |"
+        )
+    for b in (x for x in bl if x["estate"] is None):
+        cumulative += 1
+        seen += 1 if b["new_class"] else 0
+        out.append(
+            f"| {b['after_round']} | none ({b['found_by']}, {b['id']}) | | 1 | | {cumulative} | "
+            f"{1 if b['new_class'] else 0} | {seen} | |"
+        )
+    out += ["", "## Expected for the next estate", ""]
+    if len(rates) < 2:
+        return out + ["Fewer than two estates have a program count: no estimate."]
+    last = rates[-3:]
+    pooled = sum(k for k, _ in last) / sum(n for _, n in last)
+    lo = min(k / n for k, n in last)
+    hi = max(k / n for k, n in last)
+    all_rate = sum(k for k, _ in rates) / sum(n for _, n in rates)
+    out += [
+        f"Logged blockers per program over the last {len(last)} estates: {pooled:.2f} pooled "
+        f"(range {lo:.2f} to {hi:.2f}); over all {len(rates)} estates {all_rate:.2f}. For a next estate of N "
+        f"programs that is about {pooled:.1f}*N logged blockers (between {lo:.1f}*N and {hi:.1f}*N): "
+        f"{pooled * 10:.1f} per 10 programs, {pooled * 40:.0f} for 40.",
+        "",
+        f"New classes: {seen} of the {len(bl)} logged blockers opened a class, and the last {since} estate(s) "
+        "opened none, so a next estate is expected to bring repeats of known classes, not a new one. The class "
+        "vocabulary is coarse (zECS used unseen API areas and still logged only repeats), so read that as a "
+        "floor on novelty, not a guarantee.",
+        "",
+        "Read this as an order of magnitude. The ledger is a partial backfill (the issue's keyword count is "
+        "~1.3 blockers per program on the first port falling to ~0.25 on the fifth, zECS excepted for new API "
+        "areas, which is higher than the logged rate here), so the logged rate is a lower bound. There are "
+        f"{len(rates)} data points and no variance model: the range is the spread of the last {len(last)}, not a "
+        "confidence interval.",
+    ]
+    return out
+
+
+def render(
+    ledger: dict[str, Any], registry: dict[str, Any], burned: set[str], sizes: dict[str, int] | None = None
+) -> str:
     estates = [e for e in registry["estates"] if e["id"] in burned]
+    if sizes is None:
+        sizes = estate_sizes([e["id"] for e in estates])
     rounds = {e["id"]: e["round"] for e in estates}
     bl = sorted(ledger["blockers"], key=_key)
     out = [
@@ -152,29 +231,7 @@ def render(ledger: dict[str, Any], registry: dict[str, Any], burned: set[str]) -
         cn = str(len(cb)) if c else ""
         first = next((b["id"] for b in cb if b["new_class"]), "") if c else ""
         out.append(f"| {s} | {sn} | | {c} | {cn} | {first} |")
-    out += [
-        "",
-        "## Discovery curve by round",
-        "",
-        "| after round | blockers | new classes |",
-        "|---|---|---|",
-    ]
-    for r in sorted({b["after_round"] for b in bl}):
-        at = [b for b in bl if b["after_round"] == r]
-        out.append(f"| {r} | {len(at)} | {sum(1 for b in at if b['new_class'])} |")
-    fresh = [b for b in bl if b["estate"] is not None]
-    if fresh:
-        mean = len(fresh) / len(estates)
-        out += [
-            "",
-            "## Expected for the next estate",
-            "",
-            f"Mean logged blockers per burned estate: {mean:.1f} over {len(estates)} burned estates "
-            f"({len(fresh)} blockers). This is a count of logged entries over a partial backfill, an "
-            "indication of the order of magnitude; the issue's keyword count (~1.3 blockers per program on the first "
-            "port falling to ~0.25 on the fifth, zECS excepted for new API areas) is the better prior until the "
-            "backfill is complete.",
-        ]
+    out += _curve(bl, estates, sizes)
     out += ["", "## Blocker log", "",
             "| id | after round | estate | side | class | new class | programs | issue / fix | refused by name | summary |",
             "|---|---|---|---|---|---|---|---|---|---|"]  # fmt: skip

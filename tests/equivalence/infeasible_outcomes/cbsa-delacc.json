@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-delacc",
+  "entries": [
+    {
+      "unit": "RAD010",
+      "line": 363,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF SQLCODE = 0` (the check after the SELECT INTO from ACCOUNT) is reached only with SQLCODE 0: the `IF SQLCODE NOT = 0 AND SQLCODE NOT = +100` above it (line 282) ends in EXEC CICS ABEND HRAC, which does not return, and the `IF SQLCODE = +100` above it (line 350) leaves by GO TO RAD999 (line 356), so no other SQLCODE falls through to line 363 and its false arm has no input."
+    }
+  ]
+}

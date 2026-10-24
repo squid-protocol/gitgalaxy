@@ -15,7 +15,7 @@ import test_proof_blockers as tpb
 
 def burned(res):
     """The fixture corpus is not a burned name: mark its programs burned, as proof_blockers does for a real one."""
-    for p in res["programs"]:
+    for p in res["programs"] + res.get("untranslated", []):
         p["burned"] = True
     return res
 
@@ -215,7 +215,7 @@ def test_input_keys_only_when_something_limits_an_input(tmp_path):
 
 # ---- #4493 issue classes 1 and 3: unclassified because no burned program needs them ------------------------------
 EQUIVALENCE = Path(__file__).resolve().parents[1] / "equivalence"
-STATED_RULES = {"values", "every", "from", "miss", "digits", "date"}
+STATED_RULES = {"values", "every", "from", "miss", "digits", "date", "hex"}  # hex: one field's raw bytes (#6072)
 
 
 def generated_datasets():
@@ -277,3 +277,43 @@ def test_burned_generated_records_have_no_redefines_chosen_by_a_field():
         checked += 1
     if not checked:
         pytest.skip("no burned corpus checkout")
+
+
+def test_untranslated_programs_land_under_one_cause_each(tmp_path):
+    """Classes 4 and 5: a program the translator refused or left holes in has no case, so it is listed by cause."""
+    cases, corpora, cru, det_baseline, rows = fixture(tmp_path)
+    for name in ("LINK1", "LINK2", "STUB", "REFUSED", "NOTCICS"):
+        tpb.write(corpora / "estate" / "a" / f"{name}.cbl", tpb.BATCH if name == "NOTCICS" else tpb.CICS)
+    err = "CopyNotFound: a/{n}.cbl:3: COPY {c}: not found"
+    rows[("estate", "a/LINK1.cbl")] = {"program": "a/LINK1.cbl", "error": err.format(n="LINK1", c="CUSTREC")}
+    rows[("estate", "a/LINK2.cbl")] = {"program": "a/LINK2.cbl", "error": err.format(n="LINK2", c="ACCTREC")}
+    rows[("estate", "a/STUB.cbl")] = {"program": "a/STUB.cbl", "statements": 5, "translated": 4,
+                                      "holes": ["line 12: EXEC EXEC CICS: EXEC CICS GETMAIN not modelled"]}  # fmt: skip
+    rows[("estate", "a/REFUSED.cbl")] = {"program": "a/REFUSED.cbl", "error": "ExprError: a/REFUSED.cbl:9: bad"}
+    rows[("estate", "a/NOTCICS.cbl")] = {"program": "a/NOTCICS.cbl", "error": "ExprError: x"}
+    res = burned(pb.proof_blockers(rows, [corpora], cases_dir=cases, crucible_dir=cru, det_baseline=det_baseline))
+    rep = hr.build(res, "x", cases)
+    by = {b["cause"]: b for b in rep["untranslated"]}
+    link = by["unresolved link"]
+    assert [Path(p).stem for p in link["programs"]] == ["LINK1", "LINK2"]
+    assert "COPY member" in link["fix"] and any("missing copybook CUSTREC" in i for i in link["items"])
+    assert [Path(p).stem for p in by["no stub"]["programs"]] == ["STUB"]
+    assert [Path(p).stem for p in by["refused"]["programs"]] == ["REFUSED"]
+    listed = [p for b in rep["untranslated"] for p in b["programs"]]
+    assert len(listed) == len(set(listed)) and not any("NOTCICS" in p for p in listed)  # not a CICS program
+    assert "## Programs with no translation yet" in hr.markdown(rep)
+    # the proven / blocker counts are untouched: these programs have no proof subject
+    assert rep["coverage"]["programs"] == 9
+
+
+def test_untranslated_key_only_when_something_is_refused(tmp_path):
+    cases, *rest = fixture(tmp_path)
+    res = proof(cases, *rest)
+    assert [p["program"] for p in res["untranslated"]] == ["a/HOLEY.cbl"]  # the fixture's holey program
+    del res["untranslated"]
+    rep = hr.build(res, "x", cases)
+    assert "untranslated" not in rep and "## Programs with no translation yet" not in hr.markdown(rep)
+    res["untranslated"] = [
+        {"corpus": "estate", "program": "a/N.cbl", "burned": False, "classes": ["missing copybook X"]}
+    ]
+    assert "untranslated" not in hr.build(res, "x", cases)  # a non-burned program is never named

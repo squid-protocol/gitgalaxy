@@ -1898,6 +1898,8 @@ _CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS: dict[str, frozenset[str]] = {
         {"def", "function", "class", "using", "catch", "sizeof", "alignof", "decltype", "include", "require"}
         | {"require_once", "include_once", "except", "finally", "typeof"}
     ),
+    # #6266: java has no `sizeof`; `filelump_t.sizeof()` is a static method call (mochadoom)
+    "java": frozenset({"def", "function", "using", "sizeof", "alignof", "decltype", "include", "require", "typeof"}),
 }
 
 # #5634: a rust macro invocation `name!(..)` is not a call of a function `name`. Its qualifier carries
@@ -2754,6 +2756,9 @@ class StructuralExtractor:
 
         self.MAX_DEPTH = 50
         self.HANDSHAKE_LOOKAHEAD_LIMIT = 50000
+        # #6266: a unit's brace scan is not an embedded-block scan. A 1,600-line C function is ~50 KB, so the
+        # handshake limit cut it mid-body and every call past the cut was lost (doomretro M_Responder).
+        self.BODY_LOOKAHEAD_LIMIT = 500000
 
         if self.primary_lang_id not in self.languages or "rules" not in self.languages.get(self.primary_lang_id, {}):
             try:
@@ -3990,7 +3995,9 @@ class StructuralExtractor:
 
             if t["pair"]:
                 open_char, close_char = t["pair"]
-                end_idx = self._find_balanced_end(content, t["start"], open_char, close_char)
+                end_idx = self._find_balanced_end(
+                    content, t["start"], open_char, close_char, self.HANDSHAKE_LOOKAHEAD_LIMIT
+                )
             else:
                 search_limit = min(t["trigger_end"] + self.HANDSHAKE_LOOKAHEAD_LIMIT, len(content))
                 end_match = t["end_pattern"].search(scan_view, pos=t["trigger_end"], endpos=search_limit)
@@ -4017,13 +4024,28 @@ class StructuralExtractor:
 
         return segments if segments else [(primary_id, content, 0)]
 
-    def _find_balanced_end(self, safe_text: str, start_pos: int, opener: str, closer: str) -> int:
+    def _find_balanced_end(
+        self, safe_text: str, start_pos: int, opener: str, closer: str, max_span: int | None = None
+    ) -> int:
         """
         C-Optimized jump-tracking algorithm.
         Expects 'safe_text' where string literals and comments have already been shielded.
+        `max_span` pins the scan to that lookahead (an embedded-block handshake passes its own). Otherwise
+        a scope still open at HANDSHAKE_LOOKAHEAD_LIMIT is rescanned out to BODY_LOOKAHEAD_LIMIT, and the
+        longer answer is kept only when it closes: a malformed scope stays cut where it always was.
         """
+        end, closed = self._scan_balanced(
+            safe_text, start_pos, opener, closer, max_span or self.HANDSHAKE_LOOKAHEAD_LIMIT
+        )
+        if closed or max_span is not None or start_pos + self.HANDSHAKE_LOOKAHEAD_LIMIT >= len(safe_text):
+            return end
+        longer, longer_closed = self._scan_balanced(safe_text, start_pos, opener, closer, self.BODY_LOOKAHEAD_LIMIT)
+        return longer if longer_closed else end
+
+    def _scan_balanced(self, safe_text: str, start_pos: int, opener: str, closer: str, span: int) -> tuple[int, bool]:
+        """One bounded scan: (end, closed). `closed` is False when the limit or the text ended first."""
         depth = 0
-        limit = min(start_pos + self.HANDSHAKE_LOOKAHEAD_LIMIT, len(safe_text))
+        limit = min(start_pos + span, len(safe_text))
         pos = start_pos
 
         while pos < limit:
@@ -4050,9 +4072,9 @@ class StructuralExtractor:
 
                 # We have cleanly exited the original scope
                 if depth <= 0:
-                    return pos
+                    return pos, True
 
-        return limit
+        return limit, False
 
     def _resolve_class_scope_end(
         self,
@@ -10537,6 +10559,8 @@ class StructuralExtractor:
                 # unit's own class or `this`; `child->method(` stays a call.
                 unit_parts = _UNIT_NAME_SEPARATORS.split(name)
                 own_leaf = unit_parts[-1] if len(unit_parts) > 1 else None
+                # #6266: a destructor `~X` names its header `X(`, which is no call
+                own_dtor = unit_parts[-1][1:] if unit_parts[-1].startswith("~") else None
                 own_qualifiers = {"", "this", "self", ".".join(unit_parts[:-1]), unit_parts[-2]} if own_leaf else set()
                 header_end = (
                     _header_macro_span(safe_block)
@@ -10570,6 +10594,8 @@ class StructuralExtractor:
                     # or another: kept, and the call resolver drops it when it only resolves to
                     # the unit itself. Anything written with a receiver or scope is the unit itself.
                     if callee == own_leaf and qualifier in own_qualifiers and qualifier:
+                        continue
+                    if callee == own_dtor and callee_pos > 0 and safe_block[callee_pos - 1] == "~":
                         continue
                     is_decl = callee_pos == m.start(1) and _is_declaration_header(decl_headers, m)
                     if callee == name and not qualifier:

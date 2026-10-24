@@ -86,6 +86,7 @@ IMPORTERS: set[str] = {
     "gitgalaxy/tools/cobol_to_java/det/cics.py",
     "gitgalaxy/tools/cobol_to_java/det/expr.py",
     "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_cics_conditions.py",  # #5274: the conditions family split out of equivalence_cics.py
     "tests/tools/cics_spec_status.py",
     "tests/tools/proof_blockers.py",
     "tests/tools/blocker_report.py",  # #5054: the blocker signatures' vocabulary is the spec's command and option words
@@ -166,6 +167,7 @@ def test_resp_tables():
     )
     assert RESP_NAME[12] == "FILENOTFOUND"  # (DSIDERR, its older name, is an alias)
     assert set(CONDITION_ABEND) <= set(DFHRESP)
+    assert CONDITION_ABEND["IOERR"] == "AEIQ"  # #6166: IBM abend AEIQ, "IOERR condition not handled"
 
 
 # ---- the CLI -------------------------------------------------------------------------------------------------------

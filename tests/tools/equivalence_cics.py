@@ -35,8 +35,10 @@ from collections.abc import Iterator
 
 import cobol_coverage as cov  # #4023
 import equivalence_common as common
+import equivalence_cics_conditions as cics_conditions  # #5274: the conditions / handlers family
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
 import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
+import equivalence_cics_tempstorage as cics_tempstorage  # #5274: the temporary storage family
 import equivalence_db2
 import equivalence_ims  # #5278
 import equivalence_inputs  # #3804
@@ -47,13 +49,15 @@ import equivalence_sql
 from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
 from gitgalaxy.standards.cics.eib import EIB_FACTS, TASKN_MAX
 from gitgalaxy.standards.cics.commands import whole_refusal
-from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
 from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
 from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS
 from gitgalaxy.standards.cics.model import GroupKind
 from gitgalaxy.standards.cics.resp import DFHRESP as SPEC_DFHRESP
 from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA  # #4415: DFHVALUE(name), IBM's CVDA numbers
 
+handler_labels = cics_conditions.handler_labels
+ts_seed = cics_tempstorage.ts_seed  # public names the tests and the compare step reach through this module
+java_ts_as_compared = cics_tempstorage.java_ts_as_compared
 STUB = common.CASES / "cics"
 LE_MODELS = common.CASES / "le"  # Language Environment service models (CEEDAYS) a CALLed subprogram may use
 
@@ -198,121 +202,6 @@ def _resp(opts: dict[str, str | None], can_fail: bool, labels: list[str] | None 
         lines += (["IF GG-RESP NOT = 0", "    CALL 'GGCCOND' USING GG-CICS"]
                   + [f"    {ln}" for ln in _transfer(labels)]
                   + ["    IF GG-GOTO < 0", "        GOBACK", "    END-IF", "END-IF"])  # fmt: skip
-    return lines
-
-
-# #4007: the keys HANDLE AID names (IBM, EXEC CICS HANDLE AID).
-AID_KEYS = frozenset(["ANYKEY", "ENTER", "CLEAR", "CLRPARTN", "LIGHTPEN", "OPERID", "TRIGGER", "PA1", "PA2", "PA3"]
-                     + [f"PF{n}" for n in range(1, 25)])  # fmt: skip
-
-
-def _aid(opts: dict[str, str | None], labels: list[str]) -> list[str]:
-    """#4007: after an input command (RECEIVE MAP, terminal RECEIVE) that completed normally, HANDLE AID's
-    label for the key pressed -- unless RESP or NOHANDLE suspends the handlers (IBM, RESP: "RESP implies
-    NOHANDLE"; NOHANDLE: "no action is to be taken for any condition or attention identifier (AID)")."""
-    if opts.get("RESP") or "NOHANDLE" in opts:
-        return []
-    return (["IF GG-RESP = 0", "    MOVE EIBAID TO GG-NAME1", "    CALL 'GGCAID' USING GG-CICS"]
-            + [f"    {ln}" for ln in _transfer(labels)] + ["END-IF"])  # fmt: skip
-
-
-def _input_resp(opts: dict[str, str | None], labels: list[str], handle_aid: bool) -> list[str]:
-    """#4414: an input command's outcome (_resp) and, in a program that issues HANDLE AID, its AID (_aid). Which
-    CICS acts on first when the command also raised a condition and a HANDLE AID label applies to the key is not
-    documented: GGCAID, called first with the condition, records AID-REFUSED for the driver to refuse."""
-    if not handle_aid:
-        return _resp(opts, True, labels)
-    first = ([] if opts.get("RESP") or "NOHANDLE" in opts
-             else ["IF GG-RESP NOT = 0", "    MOVE EIBAID TO GG-NAME1", "    CALL 'GGCAID' USING GG-CICS", "END-IF"])  # fmt: skip
-    return first + _resp(opts, True, labels) + _aid(opts, labels)
-
-
-# #4003: the commands whose options name the labels a program's handlers transfer to.
-_HANDLE_KINDS = ("CONDITION", "ABEND", "AID")
-
-
-def handler_labels(bodies: list[str]) -> list[str]:
-    """Every label a program's HANDLE CONDITION / HANDLE ABEND LABEL / HANDLE AID names, in first-use
-    order: GG-GOTO numbers them from 1."""
-    out: list[str] = []
-    for body in bodies:
-        try:
-            pairs = _options(body)
-        except Unsupported:
-            continue
-        if len(pairs) < 2 or pairs[0][0] != "HANDLE" or pairs[1][0] not in _HANDLE_KINDS:
-            continue
-        for opt, value in pairs[2:]:
-            if value and not (pairs[1][0] == "ABEND" and opt != "LABEL"):
-                label = value.upper()
-                if label not in out:
-                    out.append(label)
-    return out
-
-
-def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]:
-    """#4003: HANDLE CONDITION / IGNORE CONDITION / HANDLE ABEND / PUSH / POP HANDLE / ASSIGN ABCODE."""
-    verb, kind = pairs[0][0], pairs[1][0] if len(pairs) > 1 else None
-    opts = dict(pairs)
-    if verb in ("PUSH", "POP") and kind == "HANDLE":
-        _check_spec(f"{verb} HANDLE", opts, (verb, "HANDLE"))
-        return _call("GGCPUSH" if verb == "PUSH" else "GGCPOP", []) + _resp(opts, True, labels)
-    if verb == "ASSIGN":  # ABCODE (#4003); APPLID / SYSID: the region's identity, from the case's "region";
-        # PROGRAM: the name of the program running (IBM CICS TS, ASSIGN: "the name of the current program")
-        asked = [(n, v) for n, v in pairs[1:] if n not in ("RESP", "RESP2", "NOHANDLE")]
-        # #4270 slice 3: STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD, from what the runner states (GGCASGN)
-        _check_spec("ASSIGN", opts, ("ASSIGN",), lambda bad: [f"ASSIGN {n}" for n in bad])
-        if not asked or not all(v for _n, v in asked):
-            raise Unsupported("ASSIGN without a target", ["ASSIGN ?"])
-        lines: list[str] = []
-        for n, target in asked:
-            if n == "CHANNEL":  # #4270: the current channel's name, blanks without one (GGCASCH)
-                lines += _call("GGCASCH", []) + [f"MOVE GG-CHAN TO {target}"]
-                continue
-            if n in ("SCRNHT", "SCRNWD"):  # a halfword, in GG-NUM
-                lines += [f"MOVE '{n}' TO GG-NAME2"] + _call("GGCASGN", []) + [f"MOVE GG-NUM TO {target}"]
-                continue
-            width = SPEC["ASSIGN"].options[n].width
-            lines += ["MOVE SPACES TO GG-NAME2" if n == "ABCODE" else f"MOVE '{n[:8]}' TO GG-NAME2"] + _call(
-                "GGCASGN", []
-            )
-            # IBM writes exactly `width` bytes and leaves the rest of a wider data area as it was (det: DetCics.put); a
-            # plain MOVE would space-pad that tail (#4049), so the target is reference-modified to the width
-            if re.search(r"\(\s*\d*\s*:", target):
-                raise Unsupported(f"ASSIGN {n}: a reference-modified target", [f"ASSIGN {n}"])
-            lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}(1:{width})")
-        if not any(n in TERMINAL_OPTIONS for n, _v in asked):
-            return lines + _resp(opts, False)
-        # INVREQ RESP2 5 for a task with no terminal, and then no data area written (register X19)
-        check = ["MOVE 'TERMCHK' TO GG-NAME2"] + _call("GGCASGN", [])
-        return (check + ["IF GG-RESP = 0"] + [f"    {ln}" for ln in lines] + ["    MOVE 0 TO GG-RESP GG-RESP2", "END-IF"]
-                + _resp(opts, True, labels))  # fmt: skip
-    if verb == "HANDLE" and kind == "AID":  # #4007
-        lines = []
-        for key, label in pairs[2:]:
-            if key not in AID_KEYS:
-                raise Unsupported(f"HANDLE AID {key}: not an attention key", ["HANDLE AID"])
-            index = labels.index(label.upper()) + 1 if label else -1  # #4414: -1 deactivated (GGCAID)
-            lines += [f"MOVE '{key}' TO GG-NAME1", f"MOVE {index} TO GG-ITEM"] + _call("GGCHAID", [])
-        return lines
-    if kind == "ABEND":
-        if verb == "HANDLE":
-            _check_spec("HANDLE ABEND", opts, ("HANDLE", "ABEND"))
-        if "PROGRAM" in opts:
-            raise _stub_only("HANDLE ABEND PROGRAM")
-        label = opts.get("LABEL")
-        if label:
-            return ["MOVE 'LABEL' TO GG-NAME2", f"MOVE {labels.index(label.upper()) + 1} TO GG-ITEM",
-                    f"MOVE '{label.upper()[:30]}' TO GG-FLAGS"] + _call("GGCHABN", [])  # fmt: skip
-        return [f"MOVE '{'CANCEL' if 'CANCEL' in opts else 'RESET'}' TO GG-NAME2"] + _call("GGCHABN", [])
-    lines: list[str] = []
-    for cond, label in pairs[2:]:
-        if cond not in DFHRESP or cond == "NORMAL":
-            raise Unsupported(f"{verb} CONDITION {cond}: not a documented condition", [f"{verb} CONDITION"])
-        if verb == "IGNORE" and cond == "ERROR":  # #4414: IBM does not say whether ERROR's action can be to ignore
-            raise Unsupported("IGNORE CONDITION ERROR: not documented", ["IGNORE CONDITION ERROR"])
-        index = -1 if verb == "IGNORE" else (labels.index(label.upper()) + 1 if label else 0)
-        lines += [f"MOVE {DFHRESP[cond]} TO GG-NUM", f"MOVE {index} TO GG-ITEM"] + _call("GGCHCND", [])
     return lines
 
 
@@ -550,19 +439,6 @@ def _region_page() -> str:
     return region_page(None)
 
 
-def ts_seed(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, list[str]]:
-    """#4270 (GenApp LGICVS01 reads its control queue GENACNTL): the TS queues the region holds when the task starts
-    ({"QUEUE": [item text, ...]}), the scenario's "ts", else the case's -- as the cics-crucible runner seeds a
-    scenario's initial ts_queues. The stub gets each item's bytes in the data's encoding ($GGCICS_DIR/ts, the layout
-    GGCREADQ reads); CicsTask the same text in the region's code page (DetCics.region: a TS item is "the bytes the
-    program wrote, in the region's code page", #4528)."""
-    seed = sc.get("ts", case.get("ts")) or {}
-    for q, items in seed.items():
-        if not (0 < len(q) <= 16 and isinstance(items, list) and all(isinstance(i, str) for i in items)):
-            raise Unsupported(f'scenario {sc.get("name")}: "ts" maps a queue name (1-16) to a list of item texts')
-    return seed
-
-
 def _past_from(length: str | None, area: str | None, what: str) -> list[str]:
     """A write whose LENGTH runs past its FROM item (GenApp's LGSTSQ): CICS takes the bytes that follow the item in
     storage, which GnuCOBOL lays out unlike IBM's compiler -- the run stops (98, "not modelled", oracle_assumptions.md
@@ -572,57 +448,6 @@ def _past_from(length: str | None, area: str | None, what: str) -> list[str]:
     return [f"IF GG-LEN > LENGTH OF {area}",
             f"    DISPLAY '{what} LENGTH > FROM: not modelled'",
             "    MOVE 98 TO RETURN-CODE", "    STOP RUN", "END-IF"]  # fmt: skip
-
-
-def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None = None) -> list[str]:
-    """#4002: READQ TS / WRITEQ TS -> GGCREADQ / GGCWRTQ. LENGTH is in-out on READQ (the most INTO
-    takes; then the item's length, set on NORMAL and LENGERR only: IBM documents it for neither
-    ITEMERR nor QIDERR). ITEM is a value on READQ (NEXT: 0) and on WRITEQ REWRITE, a data area WRITEQ
-    sets otherwise; NUMITEMS is set on NORMAL."""
-    feature = f"{verb} TS"
-    _check_spec(feature, opts, (verb,), lambda bad: [f"{feature} {bad[0]}"])
-    queue = opts.get("QUEUE") or opts.get("QNAME")
-    area = opts.get("INTO") if verb == "READQ" else opts.get("FROM")
-    setp = opts.get("SET") if verb == "READQ" else None
-    if not queue:
-        raise Unsupported(_rule(feature, "one_of", "QUEUE"), [feature])
-    if setp:  # #5042 (X58): READQ TS SET(pointer) LENGTH(data-area) -> GGCRDQS, the item as a new block
-        if area:
-            raise Unsupported(_rule(feature, "at_most_one", "INTO"), [feature])
-        length = opts.get("LENGTH") or opts.get("FLENGTH")
-        if not length or re.fullmatch(r"(?is)\d+|LENGTH\s+OF\s+.+", length.strip()):
-            raise Unsupported(_rule(feature, "requires", "SET"), [feature])
-        item, num = opts.get("ITEM"), opts.get("NUMITEMS")
-        lines = [f"MOVE {queue} TO GG-QNAME", "MOVE 0 TO GG-LEN",
-                 f"MOVE {item} TO GG-ITEM" if item and "NEXT" not in opts else "MOVE 0 TO GG-ITEM"]  # fmt: skip
-        lines += _call("GGCRDQS", [f"BY REFERENCE {_pointer(feature, setp)}"])
-        lines += ["IF GG-RESP = 0", f"    MOVE GG-LEN TO {length}", "END-IF"]
-        if num:
-            lines += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {num}", "END-IF"]
-        return lines + _resp(opts, True, labels)
-    if not area:
-        raise Unsupported(f"{feature} without QUEUE / {'INTO' if verb == 'READQ' else 'FROM'}", [feature])
-    length, item, num = opts.get("LENGTH") or opts.get("FLENGTH"), opts.get("ITEM"), opts.get("NUMITEMS")
-    lines = [f"MOVE {queue} TO GG-QNAME", f"MOVE {length or f'LENGTH OF {area}'} TO GG-LEN"]
-    after = []
-    if verb == "READQ":
-        lines.append(f"MOVE {item} TO GG-ITEM" if item and "NEXT" not in opts else "MOVE 0 TO GG-ITEM")
-        lines += _call("GGCREADQ", [f"BY REFERENCE {area}"])
-        if length and not _literal(length) and not re.fullmatch(r"(?is)LENGTH\s+OF\s+.+", length.strip()):
-            # (#4737: a literal / LENGTH OF is the most INTO takes; CICS's length goes to a temporary nobody reads)
-            after += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"]
-    else:
-        rewrite = "REWRITE" in opts
-        if rewrite and not item:
-            raise Unsupported(f"{feature} REWRITE without ITEM", [feature])
-        lines += [f"MOVE {item if rewrite else 0} TO GG-ITEM",
-                  "MOVE 'REWRITE' TO GG-FLAGS" if rewrite else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
-        lines += _past_from(length, area, "WRITEQ TS") + _call("GGCWRTQ", [f"BY REFERENCE {area}"])
-        if item and not rewrite:
-            after += ["IF GG-RESP = 0", f"    MOVE GG-ITEM TO {item}", "END-IF"]
-    if num:
-        after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {num}", "END-IF"]
-    return lines + after + _resp(opts, True, labels)
 
 
 def _td_command(verb: str, opts: dict[str, str | None], labels: list[str] | None = None) -> list[str]:
@@ -637,6 +462,10 @@ def _td_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     if verb == "DELETEQ":
         return lines + _call("GGCDLTD", []) + _resp(opts, True, labels)
     into, length = opts.get("INTO"), opts.get("LENGTH")
+    if (
+        "NOSUSPEND" in opts
+    ):  # #5168 (X61): the stub reads (and clears) it: a planned QBUSY needs NOSUSPEND, else IBM suspends
+        lines.append("MOVE 'TDNOSUSPEND' TO GG-FLAGS")
     if opts.get(
         "SET"
     ):  # #5168 (X61): SET(pointer) LENGTH(data-area) -> GGCRDTS, the record as a new block (X58's lane)
@@ -1463,7 +1292,7 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
     pairs = _options(body)
     if not pairs:
         raise Unsupported("empty EXEC CICS")
-    labels = handler_labels([body]) if labels is None else labels
+    labels = cics_conditions.handler_labels([body]) if labels is None else labels
     opts = dict(pairs)
     verb = pairs[0][0]
     flags = [n for n, v in pairs[1:] if v is None and n not in ("NOHANDLE",)]
@@ -1474,6 +1303,10 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
     if verb in cics_filecontrol.FILE_VERBS:  # #5274: the file control family
         lines = cics_filecontrol.file_command(verb, opts, labels)
         if lines is not None:
+            if (
+                labels and verb != "UNLOCK"
+            ):  # #6271 (X70): a planned abend went to the HANDLE ABEND exit, or ends the task
+                return ["MOVE 0 TO GG-GOTO", *lines, *_map_abend(labels)]
             return lines
     if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
         return _delay(opts, labels)
@@ -1790,7 +1623,7 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         return ([name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
                 + _call("GGCRECV", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
                 + _map_abend(labels)
-                + _input_resp(opts, labels, handle_aid))  # fmt: skip
+                + cics_conditions.input_resp(opts, labels, handle_aid))  # fmt: skip
     if verb == "RECEIVE":  # #4005: terminal input, unformatted (SPEC 5: the step's `text`)
         _check_spec("RECEIVE", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         into, setp = opts.get("INTO"), opts.get("SET")
@@ -1805,17 +1638,17 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
                 raise Unsupported("RECEIVE SET without MAXLENGTH and LENGTH", ["RECEIVE SET"])
             if not m:  # #5042 (X58): SET(pointer) -> GGCRECP, the data in a new block the pointer addresses
                 return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECP", [f"BY REFERENCE {_pointer('RECEIVE', setp)}"])
-                        + [f"MOVE GG-LEN TO {length}"] + _input_resp(opts, labels, handle_aid))  # fmt: skip
+                        + [f"MOVE GG-LEN TO {length}"] + cics_conditions.input_resp(opts, labels, handle_aid))  # fmt: skip
             return ([flags, f"MOVE {most} TO GG-LEN"] + _call("GGCRECS", ["BY REFERENCE GG-PTR"])
                     + [f"SET ADDRESS OF {m.group(1)} TO GG-PTR", f"MOVE GG-LEN TO {length}"]
-                    + _input_resp(opts, labels, handle_aid))  # fmt: skip
+                    + cics_conditions.input_resp(opts, labels, handle_aid))  # fmt: skip
         if not into:
             raise Unsupported(_rule("RECEIVE", "one_of", "INTO"), ["RECEIVE"])
         limit = most or length or f"LENGTH OF {into}"
         lines = [flags, f"MOVE {limit} TO GG-LEN"] + _call("GGCRECT", [f"BY REFERENCE {into}"])
         if length:
             lines.append(f"MOVE GG-LEN TO {length}")
-        return lines + _input_resp(opts, labels, handle_aid)
+        return lines + cics_conditions.input_resp(opts, labels, handle_aid)
     if verb == "WRITEQ" and "TD" in opts:  # transient data: a record on an extrapartition / intrapartition queue
         _check_spec("WRITEQ TD", opts, (verb, "TD"), lambda bad: [f"WRITEQ TD {bad[0]}"])
         queue, frm = opts.get("QUEUE"), opts.get("FROM")
@@ -1827,13 +1660,9 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
     if verb in ("READQ", "DELETEQ") and "TD" in opts:  # #5079 (X57): transient data, intrapartition
         return _td_command(verb, opts, labels)
     if verb == "DELETEQ" and "TD" not in opts:  # #4415 slice 2 (X29): the whole TS queue
-        _check_spec("DELETEQ TS", opts, (verb,), lambda bad: [f"DELETEQ TS {bad[0]}"])
-        queue = opts.get("QUEUE") or opts.get("QNAME")
-        if not queue:
-            raise Unsupported(_rule("DELETEQ TS", "one_of", "QUEUE"), ["DELETEQ TS"])
-        return [f"MOVE {queue} TO GG-QNAME"] + _call("GGCDELQ", []) + _resp(opts, True, labels)
+        return cics_tempstorage.delete_queue(opts, labels)
     if verb in ("READQ", "WRITEQ") and "TD" not in opts:  # #4002: temporary storage (TS is the default)
-        return _ts_command(verb, opts, labels)
+        return cics_tempstorage.ts_command(verb, opts, labels)
     if verb == "SEND" and "MAP" in opts:
         _check_spec("SEND MAP", opts, (verb,))
         lines = [name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
@@ -1939,7 +1768,7 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         or (verb in ("PUSH", "POP") and len(pairs) > 1 and pairs[1][0] == "HANDLE")
         or verb == "ASSIGN"
     ):
-        return _handle(pairs, labels)  # fmt: skip
+        return cics_conditions.handle(pairs, labels)  # fmt: skip
     if verb in ("PUT", "GET", "DELETE") and "CONTAINER" in opts:  # #4270
         return cics_containers._container_command(verb, opts, labels)
     if verb in ("MOVE", "STARTBROWSE", "GETNEXT", "ENDBROWSE") and "CONTAINER" in opts:  # #4951
@@ -2060,6 +1889,18 @@ _DIB = "       01  DIB.\n           05 FILLER   PIC XX.\n           05 DIBSTAT  
 
 
 DLI_CALL = re.compile(r"\bEXEC\s+DLI\b", re.I)
+# #5233 (register I5): the CALL interfaces to DL/I. Under CICS only EXEC DLI is modelled; no burned program CALLs these.
+DLI_CALL_INTERFACE = re.compile(r"\bCALL\s+['\"](CBLTDLI|AIBTDLI|CEETDLI)['\"]", re.I)
+
+
+def refuse_dli_call_interface(source: str) -> None:
+    """Refuse by name a CICS program that CALLs CBLTDLI / AIBTDLI / CEETDLI (the UIB-addressed PCB list is not modelled)."""
+    code = "\n".join(ln[6:72] for ln in source.splitlines() if len(ln) > 6 and ln[6] not in "*/")
+    m = DLI_CALL_INTERFACE.search(code)
+    if m:
+        raise Unsupported(
+            f"CALL '{m.group(1).upper()}' under CICS: only EXEC DLI is modelled (register I5)", ["CALL DLI"]
+        )
 
 
 def dli_stage(case: dict[str, Any], corpus: Path, dest: Path) -> list[str]:
@@ -2173,7 +2014,7 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
         raise Unsupported("WITH DEBUGGING MODE: debugging lines compiled as code (not modelled)", ["DEBUGGING MODE"])
     blocks = list(_exec_blocks(lines))
     cics_bodies = [b[3] for b in blocks if not b[3].startswith(_DLI_TAG)]
-    labels = handler_labels(cics_bodies)  # #4003: what GG-GOTO indexes, program-wide
+    labels = cics_conditions.handler_labels(cics_bodies)  # #4003: what GG-GOTO indexes, program-wide
     handle_aid = any(re.match(r"\s*HANDLE\s+AID\b", b_, re.I) for b_ in cics_bodies)  # #4007
     eibds = reads_eibds(lines)  # #5126 (X64)
     out: list[str] = []
@@ -3054,7 +2895,7 @@ def screen_key(f: dict[str, Any]) -> tuple[str, str]:
 CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC", "DUPKEY", "INVREQ", "IOERR", "NOSPACE",
                                      "NOTOPEN", "ILLOGIC", "LENGERR", "PGMIDERR", "NOTAUTH", "DISABLED", "LOADING",
                                      "ENDFILE", "TERMIDERR", "ITEMERR", "TRANSIDERR", "QIDERR", "SYSIDERR",
-                                     "ISCINVREQ", "LOCKED", "ENQBUSY")}  # fmt: skip
+                                     "ISCINVREQ", "LOCKED", "ENQBUSY", "QBUSY", "INVMPSZ", "TSIOERR")}  # fmt: skip
 
 
 def enq_fault_key(resource: str | None) -> str:
@@ -3091,12 +2932,25 @@ FAULT_COMMANDS = (
     "RETRIEVE",
     "CANCEL",
     "ENQ",  # #5089: its `resource` (the RESOURCE operand as written); ENQBUSY only, see ENQ_FAULTS
+    "SEND-MAP",  # #6271 (register X71): its `map`; RECEIVE-MAP too. RETURN, SYNCPOINT and ROLLBACK name none (`-`)
+    "RECEIVE-MAP",
+    "RETURN",
+    "SYNCPOINT",
+    "ROLLBACK",
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
 # #4986 (register X43): IBM's LINK conditions the region does not raise and that have no sourced abend code
 LINK_REFUSED_CONDITIONS = ("ROLLEDBACK", "SYSIDERR", "TERMERR")
 
-_FAULT_NAME = ("file", "program", "queue", "transid", "reqid", "resource")  # #4049: the resource a fault names, by key
+_FAULT_NAME = (
+    "file",
+    "program",
+    "queue",
+    "transid",
+    "reqid",
+    "resource",
+    "map",
+)  # #4049: the resource a fault names, by key
 
 # #5044 (register X49, extends #4623's X48): the conditions a file command may be planned with, per command, and the RESP2
 # IBM gives each (CICS TS 6.x, each command's "Conditions"; the syntax line's list and the RESP2 values checked against
@@ -3156,9 +3010,10 @@ FILE_FAULT_UNMODELLED = {
 }  # X49: ends the browse
 FILE_FAULT_COMMANDS = _FILE_CMDS
 # #5168 (X61): READQ TD's IOERR ("an input/output error ... the data record in error is skipped"; IBM states no RESP2), planned on
-# an open extrapartition input queue. IBM's other READQ TD conditions follow from the queue and the call (NOTOPEN, INVREQ, QZERO,
-# LENGERR, QIDERR, DISABLED) or need a second task (QBUSY), so no plan names them (refused by name).
-TD_READ_FAULTS = ("IOERR",)
+# an open extrapartition input queue; and QBUSY (no RESP2 either), "a logically recoverable intrapartition queue that another task is
+# writing to or deleting from, and no committed records remain", which needs a second task, so the plan states it. IBM's other
+# READQ TD conditions follow from the queue and the call (NOTOPEN, INVREQ, QZERO, LENGERR, QIDERR, DISABLED): no plan names them.
+TD_READ_FAULTS = ("IOERR", "QBUSY")
 TD_READ_COMMAND = (
     "READQ-TD"  # not in FAULT_COMMANDS: the strengthening loop plans from that list, with a NOTAUTH it cannot give here
 )
@@ -3228,12 +3083,68 @@ def _file_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: in
     return resp2
 
 
+# #6271 (register X70): the abend codes IBM documents for a VSAM RLS file control request -- AFCR (the RLS server is
+# unavailable), AFCS (an RLS access to a file with no SMSVSAM), AFCT (an RLS timeout) -- a scenario may plant on a file
+# command: the task abends with the code (cause "system") and a HANDLE ABEND exit gets control. No other code is sourced.
+FILE_ABEND_CODES = ("AFCR", "AFCS", "AFCT")
+
+
+def _abend_fault_line(sc: dict[str, Any], f: dict[str, Any], cmd: str) -> str:
+    """One `{"cmd", "file", "resp": "ABEND", "abcode", "nth"}` fault as the `CMD NAME NTH -1 0 ABCODE` line both sides read."""
+    where = f"scenario {sc['name']}: fault {f}"
+    if cmd not in FILE_FAULT_COMMANDS or f.get("abcode") not in FILE_ABEND_CODES or f.get("resp2"):
+        raise Unsupported(
+            f"{where}: an ABEND is planned on a file control command ({'/'.join(FILE_FAULT_COMMANDS)}) with "
+            f"abcode {'/'.join(FILE_ABEND_CODES)} and no resp2 (register X70: no other command or code is sourced)"
+        )
+    nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
+    name = next((f[k] for k in _FAULT_NAME if f.get(k)), None)
+    if not name:
+        raise Unsupported(f"{where} names no {'/'.join(_FAULT_NAME)}")
+    return f"{cmd} {name} {nth} -1 0 {f['abcode']}"
+
+
+# #6271 (register X71): the conditions a terminal or unit-of-work command may be planned with, per command, and the RESP2
+# values IBM gives each (CICS TS 6.x, the "Conditions" of SEND MAP, RECEIVE MAP, RETURN, SYNCPOINT). () = IBM states no
+# RESP2 (one is not planned); several values: the scenario names one. Every other condition IBM lists for these commands
+# needs a device, partition, BMS paging, a remote system or a PLT stage no case models: refused by name (X71).
+UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
+    "SEND-MAP": {"INVMPSZ": (), "TSIOERR": (), "INVREQ": (200,)},
+    "RECEIVE-MAP": {"INVMPSZ": (), "INVREQ": ()},
+    "RETURN": {"INVREQ": (1, 2, 4, 200), "LENGERR": (11, 26, 27)},
+    "SYNCPOINT": {"INVREQ": (200,)},
+    "ROLLBACK": {"INVREQ": (200,)},
+}
+UI_NAMELESS = ("RETURN", "SYNCPOINT", "ROLLBACK")
+
+
+def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int) -> int:
+    """The RESP2 of a SEND MAP / RECEIVE MAP / RETURN / SYNCPOINT fault, or Unsupported naming register X71."""
+    where = f"scenario {sc['name']}: fault {f}"
+    ibm = UI_FAULT_CONDITIONS[cmd].get(f["resp"])
+    if ibm is None:
+        listed = "/".join(UI_FAULT_CONDITIONS[cmd])
+        raise Unsupported(f"{where}: {f['resp']} is not planned on {cmd}; planned: {listed} (register X71, refused)")
+    if not ibm:
+        if resp2:
+            raise Unsupported(f"{where}: IBM states no RESP2 for {f['resp']} on {cmd} (register X71): name none")
+        return 0
+    if resp2 == 0 and len(ibm) == 1:
+        return ibm[0]
+    if resp2 not in ibm:
+        raise Unsupported(f"{where}: IBM's {f['resp']} on {cmd} has RESP2 {'/'.join(map(str, ibm))}: name one (X71)")
+    return resp2
+
+
 def fault_lines(sc: dict[str, Any]) -> list[str]:
     """A scenario's `faults` as both sides read them: `CMD NAME NTH RESP RESP2` (faults.cfg, CicsTask.withFaults) --
     NAME the file a READ names, or the program an INQUIRE PROGRAM names."""
     out = []
     for f in sc.get("faults") or []:
         cmd = f.get("cmd", "READ")
+        if f.get("resp") == "ABEND":  # #6271 (register X70): the task abends instead of a condition
+            out.append(_abend_fault_line(sc, f, cmd))
+            continue
         if cmd == "LINK" and f.get("resp") in LINK_REFUSED_CONDITIONS:  # #4986 (register X43)
             raise Unsupported(
                 f"scenario {sc['name']}: fault {f}: LINK {f['resp']} is IBM-documented but the region never raises it "
@@ -3254,7 +3165,9 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
                 f"scenario {sc['name']}: fault {f}: READQ TD is planned with {'/'.join(TD_READ_FAULTS)} and no RESP2 only "
                 "(IBM states none; the other conditions follow from the queue, register X61, refused)"
             )
-        if cmd in FILE_FAULT_COMMANDS:
+        if cmd in UI_FAULT_CONDITIONS:
+            resp2 = _ui_fault_resp2(sc, f, cmd, resp2)
+        elif cmd in FILE_FAULT_COMMANDS:
             resp2 = _file_fault_resp2(sc, f, cmd, resp2)
         elif f["resp"] in ("DUPKEY", "DUPREC"):  # #4623: the duplicate-key pair is a file condition only
             listed = "/".join(FILE_FAULT_CONDITIONS[f["resp"]])
@@ -3273,7 +3186,7 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
                 )
             f = {**f, "resource": enq_fault_key(f.get("resource"))}
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
-        name = "-" if cmd == "RETRIEVE" else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
+        name = "-" if cmd == "RETRIEVE" or cmd in UI_NAMELESS else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
         if not name:
             raise Unsupported(f"scenario {sc['name']}: fault {f} names no {'/'.join(_FAULT_NAME)}")
         out.append(f"{cmd} {name} {nth} {CICS_RESP[f['resp']]} {resp2}")
@@ -3397,6 +3310,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     for model in sorted(LE_MODELS.glob("*.c")) if subs or calls_le else []:
         shutil.copy(model, src / model.name)
         subs.append(f"src/{model.name}")
+    refuse_dli_call_interface(source)
     if DLI_CALL.search(source):  # #5278 (register I5): the DL/I model, its databases stated in the case's "ims"
         if not case.get("ims"):
             raise Unsupported('EXEC DLI in a case with no "ims" section', ["EXEC DLI"])
@@ -3540,7 +3454,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "mq.cfg").write_text(equivalence_mq.cfg(equivalence_mq.state(case, sc), enc), encoding="ascii")
         if task_facts(case, sc)[1] is not None:  # #4270: what the operator typed (an unformatted RECEIVE)
             (d / "terminal.in").write_bytes(task_facts(case, sc)[1].encode(enc))
-        for q, items in ts_seed(case, sc).items():  # #4270: the TS queues the task starts with
+        for q, items in cics_tempstorage.ts_seed(case, sc).items():  # #4270: the TS queues the task starts with
             qdir = d / "ts" / q.encode("ascii").hex().upper()
             qdir.mkdir(parents=True, exist_ok=True)
             for i, item in enumerate(items, 1):
@@ -3781,19 +3695,6 @@ def _day_of_year(y: int, m: int, d: int) -> int:
 RESP_NAMES = {n: name for name, n in DFHRESP.items()}  # #4607: the stub logs a RESP by number, CicsTask by name
 
 
-def _cobol_ts(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
-    """#4607: a WRITEQ TS the stub logged (`queue` the name's bytes in hex, `item` 0 when none was written, `resp` by
-    number; the bytes written in the event's blob) as CicsTask records it: {queue, data, resp, item}. The data of a
-    write that failed is not compared (the stub logs none for a LENGTH outside 1-32763)."""
-    name = bytes.fromhex(kv.get("queue", ""))
-    resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
-    text = common._decode_text(data, enc) if resp == "NORMAL" else None
-    if resp == "NORMAL" and text is None:
-        text = f"<undecodable {data!r} in {enc}>"
-    return {"queue": (common._decode_text(name, enc) or name.hex()).rstrip(" \x00"), "data": text, "resp": resp,
-            "item": int(kv.get("item", "0")) or None}  # fmt: skip
-
-
 def _cobol_start(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
     """#4270 (GenApp LGWEBST5): a START the stub logged (GGCSTRT: `interval=` or `time=` hhmmss, `protect` 0 / 1,
     `resp` by number, `expires` from $GGCICS_NOW -- the case's clock --, `area` 1 with FROM, its bytes in the event's
@@ -3870,26 +3771,6 @@ def java_start_as_compared(e: dict[str, Any]) -> dict[str, Any]:
         return {**e, "from": raw.decode(REGION_PAGE)}
     except UnicodeDecodeError:
         return {**e, "from": f"<undecodable {raw!r} in {REGION_PAGE}>"}
-
-
-def java_ts_as_compared(e: dict[str, Any]) -> dict[str, Any]:
-    """#4607: CicsTask's WRITEQ-TS event as the comparison reads it: its data (bytes, base64 in the JSON) in the
-    region's page -- the det port writes an item there (#4528: DetCics.toRegion; CICS's default CCSID 037, the page
-    det/cics.region_page gives an estate that declares no EBCDIC one) -- as text; none for a write that failed. A
-    port whose region page is another shows as a difference, never as a pass."""
-    import base64
-
-    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
-
-    data = e.get("data")
-    text = None
-    if e.get("resp") == "NORMAL" and isinstance(data, str):
-        raw = base64.b64decode(data)
-        try:
-            text = raw.decode(REGION_PAGE)
-        except UnicodeDecodeError:
-            text = f"<undecodable {raw!r} in {REGION_PAGE}>"
-    return {**e, "data": text, "item": e.get("item") or None}
 
 
 X6_WRITEQ = re.compile(r"WRITEQ T[SD] LENGTH > FROM: not modelled")
@@ -4025,6 +3906,10 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res.setdefault("operator", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
         elif verb == "WEB-CONVERSE":  # #4767 (X35): the request the program sent, as CicsTask records it
             res.setdefault("web", []).append(_cobol_web(kv, data, enc))
+        elif verb == "WEB-OPEN":  # #4767 (X35): the connection opened, as CicsTask records it
+            res.setdefault("webopen", []).append(_cobol_web_open(kv, enc))
+        elif verb == "WEB-CLOSE":  # #4767 (X35): the session closed, as CicsTask.webClose records it
+            res.setdefault("webclose", []).append({"resp": int(kv["resp"]), "resp2": int(kv["resp2"])})
         elif verb == "WEB-SEND":  # #4767 (X37): the response the program sent, as CicsTask records it
             res.setdefault("websend", []).append(_cobol_web_send(kv, data, enc))
         elif verb == "WEB-HEADER":  # #4767 (X38): a response header the program wrote
@@ -4032,7 +3917,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "WEB-RECEIVE":  # #4767 (X38): the request body the program read, as CicsTask records it
             res.setdefault("webreceive", []).append(_cobol_web_receive(kv, data, enc))
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
-            res.setdefault("ts", []).append(_cobol_ts(kv, data, enc))
+            res.setdefault("ts", []).append(cics_tempstorage.cobol_ts(kv, data, enc))
         elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
             res.setdefault("reads", []).append(_cobol_read(verb, kv, data, enc))
         elif verb == "START":  # #4270 (GenApp LGWEBST5): as CicsTask records it
@@ -5359,7 +5244,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                           **terminal_facts(case, sc),
                           **({"clock": ej._clock({**case, "clock": scenario_clock(case, sc)})} if "clock" in sc else {}),
                           **({"tod": scenario_tod(case, sc)} if scenario_tod(case, sc) else {}),
-                          "ts": ts_seed(case, sc), "urimaps": urimaps(case, sc),
+                          "ts": cics_tempstorage.ts_seed(case, sc), "urimaps": urimaps(case, sc),
                           **({"td": td_seed(case, sc)} if td_seed(case, sc) else {}),
                           "doctemplates": doctemplates(case, sc), "http_peers": http_peers(case, sc),
                           "http_request": http_request(case, sc), "tcpip": tcpip(case, sc),
@@ -5498,7 +5383,7 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
             if e.get("event") == "LINK":  # #4173: the target's DTO as issued, before it is mapped to this program's
                 e["link_area"] = e.get("commarea")
             if e.get("event") == "WRITEQ-TS":  # #4607: the item's bytes as text
-                e.update(java_ts_as_compared(e))
+                e.update(cics_tempstorage.java_ts_as_compared(e))
             if e.get("event") == "READQ-TS":  # #4270: the item's bytes as text
                 e.update(java_read_as_compared(e))
             if e.get("event") == "START":  # #4270: the FROM data's bytes as text
@@ -5689,6 +5574,14 @@ def _cobol_web(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
             "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
 
 
+def _cobol_web_open(kv: dict[str, str], enc: str) -> dict[str, Any]:
+    """#4767 (X35): a WEB-OPEN line of the stub's events (the host in hex, '-' none; the scheme as named, '-' none) as
+    CicsTask records it."""
+    return {"host": "" if kv["host"] == "-" else bytes.fromhex(kv["host"]).decode(enc),
+            "scheme": None if kv["scheme"] == "-" else kv["scheme"],
+            "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
+
+
 def _cobol_web_send(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
     """#4767 (X37): a WEB-SEND line of the stub's events (hex fields in the data's page) as CicsTask records it."""
 
@@ -5725,6 +5618,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     retrieves = iter(res.get("retrieves", []))  # #5089: RETRIEVE
     mq_calls = iter(res.get("mq", []))  # #4892: MQI calls
     webs = iter(res.get("web", []))  # #4767 (X35): WEB CONVERSE
+    webopens = iter(res.get("webopen", []))  # #4767 (X35): WEB OPEN
+    webcloses = iter(res.get("webclose", []))  # #4767 (X35): WEB CLOSE
     websends = iter(res.get("websend", []))  # #4767 (X37): WEB SEND
     webheaders = iter(res.get("webheader", []))  # #4767 (X38): WEB WRITE HTTPHEADER
     webreceives = iter(res.get("webreceive", []))  # #4767 (X38): WEB RECEIVE
@@ -5751,6 +5646,10 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "WRITE-OPERATOR", "text": next(operator)})
         elif verb == "WEB-CONVERSE":  # #4767 (X35): CicsTask.webConverse records the request sent
             out.append({"event": "WEB-CONVERSE", **next(webs)})
+        elif verb == "WEB-OPEN":  # #4767 (X35): CicsTask.webOpenHost / webOpenUrimap record the connection
+            out.append({"event": "WEB-OPEN", **next(webopens)})
+        elif verb == "WEB-CLOSE":  # #4767 (X35): CicsTask.webClose records the session closed
+            out.append({"event": "WEB-CLOSE", **next(webcloses)})
         elif verb == "WEB-SEND":  # #4767 (X37): CicsTask.webSend records the response sent
             out.append({"event": "WEB-SEND", **next(websends)})
         elif verb == "WEB-HEADER":  # #4767 (X38): CicsTask.webWriteHeader records the header written
@@ -5913,6 +5812,12 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             for key in ("host", "method", "path", "query", "mediatype", "body", "resp2"):  # (exactly: blanks are sent)
                 if (key in c or key in j) and c.get(key) != j.get(key):
                     bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] == "WEB-OPEN":  # #4767 (X35): the connection each side opened, both ways
+            for key in ("host", "scheme", "resp2"):
+                if (key in c or key in j) and c.get(key) != j.get(key):
+                    bad.append({"field": key, "cobol": c.get(key), "java": j.get(key)})
+        if c["event"] == "WEB-CLOSE" and c.get("resp2") != j.get("resp2"):  # #4767 (X35): NOTOPEN 27 or normal
+            bad.append({"field": "resp2", "cobol": c.get("resp2"), "java": j.get("resp2")})
         if c["event"] == "WEB-HEADER":  # #4767 (X38): the response header each side wrote, both ways
             for key in ("name", "value", "resp2"):
                 if (key in c or key in j) and c.get(key) != j.get(key):

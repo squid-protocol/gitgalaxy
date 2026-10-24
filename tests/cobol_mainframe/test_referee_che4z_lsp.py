@@ -220,3 +220,18 @@ def test_copybook_resolver_indexes_every_copy_extension(tmp_path):
     r = C.copybook_resolver(tmp_path)
     assert r("A") and r("b") and r("C")
     assert r("D") is None
+
+
+def test_read_uri_reads_a_file_uri_with_spaces_and_escapes(tmp_path):
+    cpy = tmp_path / "my dir" / "a%b.cpy"
+    cpy.parent.mkdir()
+    cpy.write_text("       01 X PIC X.\n", encoding="utf-8")
+    assert C._read_uri(cpy.resolve().as_uri()) == "       01 X PIC X.\n"
+    assert C._read_uri("http://example/x.cpy") is None
+
+
+def test_read_uri_converts_a_windows_drive_uri_through_url2pathname(monkeypatch):
+    seen = []
+    monkeypatch.setattr("urllib.request.url2pathname", lambda p: seen.append(p) or str(Path("/nonexistent/x")))
+    assert C._read_uri("file:///C:/a%20b/x.cpy") is None
+    assert seen == ["/C:/a%20b/x.cpy"]

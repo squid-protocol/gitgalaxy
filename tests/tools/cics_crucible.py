@@ -159,7 +159,7 @@ CONTAINER_STOP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
 
 # SPEC 6.2: the abend code CICS gives an unhandled condition (the AEIA topic of IBM's abend codes).
 CONDITION_ABCODE = {"NOTFND": "AEIM", "LENGERR": "AEIV", "ITEMERR": "AEIZ", "QIDERR": "AEYH", "MAPFAIL": "AEI9",
-                    "ENDDATA": "AEI2", "PGMIDERR": "AEI0", "INVREQ": "AEIP",
+                    "ENDDATA": "AEI2", "PGMIDERR": "AEI0", "INVREQ": "AEIP", "IOERR": "AEIQ",
                     # #4270: IBM abend codes AEZJ / AEZV ("CONTAINERERR / CHANNELERR condition not handled")
                     "CONTAINERERR": "AEZJ", "CHANNELERR": "AEZV",
                     # #4648: IBM abend code AEY7 ("NOTAUTH condition not handled")
@@ -180,6 +180,13 @@ _RETRIEVE_KEYS = frozenset("resp length data rtransid rtermid queue".split())
 # #4767 zECS (X37, X38): an `http` task's request body and response, on both sides
 _WEB_RECEIVE_KEYS = frozenset("resp resp2 length data".split())
 _WEB_SEND_KEYS = frozenset("status statustext mediatype from resp resp2".split())
+_WEB_HEADER_KEYS = frozenset("name value resp resp2".split())  # #4767 (X38): a response header the task wrote
+# #4767 (X35): a task's client-side WEB OPEN / CONVERSE / CLOSE against a stated origin peer, on both sides
+_WEB_CLIENT_KEYS = {
+    "WEB-OPEN": frozenset("host scheme resp resp2".split()),
+    "WEB-CONVERSE": frozenset("method path status tolength into resp resp2".split()),
+    "WEB-CLOSE": frozenset("resp resp2".split()),
+}
 COBOL_CAPS = cc.Capabilities(
     layer="stub",
     task_keys=frozenset(cc.TASK_KEYS) | {"end"},
@@ -193,7 +200,10 @@ COBOL_CAPS = cc.Capabilities(
         "LINK": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "XCTL": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
-        "READ": frozenset({"file", "ridfld", "resp"}),
+        # #4443 A0b: what ggcics_filecontrol.c's read_event / unlock_event and ggcics.c's rewrite_event record
+        "READ": frozenset({"file", "ridfld", "update", "resp", "resp2", "length", "data"}),
+        "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
+        "UNLOCK": frozenset({"file", "resp", "resp2"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
@@ -203,6 +213,8 @@ COBOL_CAPS = cc.Capabilities(
         "RUN": frozenset({"transid", "resp", "resp2"}),  # #4270
         "WEB-RECEIVE": _WEB_RECEIVE_KEYS,  # #4767 (X37, X38)
         "WEB-SEND": _WEB_SEND_KEYS,
+        "WEB-WRITE-HTTPHEADER": _WEB_HEADER_KEYS,
+        **_WEB_CLIENT_KEYS,
     },
     ts_queues=True,
     start_tasks=True,
@@ -223,6 +235,10 @@ JAVA_CAPS = cc.Capabilities(
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
+        # #4443: what CicsTask.readInto / rewriteFrom / unlock record (READ SET is not modelled there)
+        "READ": frozenset({"file", "ridfld", "update", "resp", "resp2", "length", "data"}),
+        "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
+        "UNLOCK": frozenset({"file", "resp", "resp2"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
         "START": _START_KEYS,
         "RETRIEVE": _RETRIEVE_KEYS,
@@ -230,6 +246,8 @@ JAVA_CAPS = cc.Capabilities(
         "RUN": frozenset({"transid", "resp", "resp2"}),  # #4270
         "WEB-RECEIVE": _WEB_RECEIVE_KEYS,  # #4767 (X37, X38)
         "WEB-SEND": _WEB_SEND_KEYS,
+        "WEB-WRITE-HTTPHEADER": _WEB_HEADER_KEYS,
+        **_WEB_CLIENT_KEYS,
     },
     ts_queues=True,
     start_tasks=True,
@@ -1047,6 +1065,20 @@ class EquivalenceRunTest {
                             q.hasNonNull("mediatype") ? q.get("mediatype").asText() : null,
                             q.hasNonNull("body") ? q.get("body").asText() : null));
                 }
+                if (sc.hasNonNull("http_peers")) {  // #4767 (X35): the origin servers the task can reach
+                    List<CicsTask.HttpPeer> peers = new ArrayList<>();
+                    for (JsonNode p : sc.get("http_peers")) {
+                        List<CicsTask.HttpExchange> xs = new ArrayList<>();
+                        for (JsonNode x : p.get("exchanges")) {
+                            xs.add(new CicsTask.HttpExchange(x.get("method").asText(), x.get("path").asText(),
+                                    x.get("query").asText(), x.get("status").asInt(), x.get("statustext").asText(),
+                                    x.get("mediatype").asText(), x.get("body").asText()));
+                        }
+                        peers.add(new CicsTask.HttpPeer(p.get("scheme").asText(), p.get("host").asText(),
+                                p.get("port").asInt(), null, null, xs));
+                    }
+                    t.withHttpPeers(peers);
+                }
                 if (plan.has("urimaps")) {
                     // #4270 zECS (X32): INQUIRE URIMAP -- the URIMAP definitions the case CSD installs, as {name,
                     // transaction, path}, in the CSD's order
@@ -1617,6 +1649,7 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
             screens[m] = f"{ej.PKG}.dto.screen.{cls}"
     # #4002: seeds as EBCDIC hex (SPEC 2: the region's page); #4006: `until` for the scheduler
     scenarios = [{"id": sc["id"], "steps": [seeded_step(case, src, st) for st in sc["steps"]], "until": sc.get("until"), "fault_plans": fault_plans(sc), "http": http_plan(case, sc)[0],
+                  "http_peers": origin_peers(case, sc),  # #4767 (X35)
                   "ts_queues": {q: [cc.expected_bytes(i).hex() for i in items]
                                 for q, items in ((sc.get("initial") or {}).get("ts_queues") or {}).items()}}
                  for sc in case.scenarios]  # fmt: skip
@@ -1793,6 +1826,24 @@ def java_send_map(screen: Screen, e: dict[str, Any]) -> tuple[dict[str, Any], An
     return cics_bms.send_map(screen.bms, program, e.get("options") or [], e.get("cursor"))
 
 
+def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
+    """#4443: a READ / REWRITE / UNLOCK CicsTask recorded, as the log's keys: `update`, `resp2` and `length` only when
+    the command carries them. A LENGERR READ asserts its RESP only (SPEC section 2, Files), so its RESP2 is left out."""
+    ev: dict[str, Any] = {"file": e.get("file"), "resp": e.get("resp")}
+    if kind == "READ":
+        ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
+        if e.get("update"):
+            ev["update"] = True
+        if e.get("length") is not None:
+            ev["length"] = e["length"]
+    if kind in ("READ", "REWRITE"):
+        b64 = e.get("data")
+        ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
+    if e.get("resp2") is not None and not (kind == "READ" and e.get("resp") == "LENGERR"):
+        ev["resp2"] = e["resp2"]
+    return ev
+
+
 def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 screens: dict[str, Screen] | None = None) -> dict[str, Any]:  # fmt: skip
     """The generated test's output for one scenario -> an actual log for the comparison."""
@@ -1830,6 +1881,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 ev.update(queue=e.get("queue"), item=e.get("item"), resp=e.get("resp"), data=data)
                 if kind == "READQ-TS":
                     ev["length"] = e.get("length")
+            elif kind in ("READ", "REWRITE", "UNLOCK"):  # #4443: byte[] ridfld / data arrive as base64, EBCDIC bytes
+                ev.update(_java_file_event(kind, e))
             elif kind == "WRITE-OPERATOR":  # #4270 zECS (X32): the console message, as the text CicsTask recorded
                 ev.update(data=cc.RawArea(str(e.get("text") or "").encode("latin-1"), "latin-1"), resp=e.get("resp"))
             elif kind == "RECEIVE-MAP":
@@ -1886,6 +1939,12 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
             elif kind == "WEB-SEND":  # #4767 (X37): the response the task sent
                 ev.update(_web_send_event(e.get("status"), e.get("statustext"), e.get("mediatype"),
                                           str(e.get("body") or "").encode("latin-1"), e.get("resp"), e.get("resp2")))  # fmt: skip
+            elif kind == "WEB-HEADER":  # #4767 (X38): CicsTask's name for SPEC's WEB-WRITE-HTTPHEADER
+                ev.update(_web_header_event(e.get("name"), e.get("value"), e.get("resp"), e.get("resp2")))
+            elif kind in _WEB_CLIENT_KEYS:  # #4767 (X35): the client-side session, as CicsTask recorded it
+                ev.update(_web_client_event(kind, e.get("host"), e.get("scheme"), e.get("method"), e.get("path"),
+                                            e.get("status"), e.get("tolength"), e.get("into"), e.get("resp"),
+                                            e.get("resp2")))  # fmt: skip
             elif kind == "ABEND":  # #4003: cause, condition, outcome and the exit, as CicsTask records them
                 ev.update({k: e[k] for k in ("abcode", "cause", "condition", "outcome", "exit") if k in e})
             else:
@@ -2201,6 +2260,19 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
 
             ev.update(_web_send_event(int(arg("status")), hx("stext"), hx("media"), data, int(arg("resp") or 0),
                                       int(arg("resp2") or 0)))  # fmt: skip
+        elif verb == "WEB-HEADER":  # #4767 (X38): the stub's name for SPEC's WEB-WRITE-HTTPHEADER (hex fields)
+            ev.update(_web_header_event(bytes.fromhex(arg("name")).decode("latin-1"),
+                                        bytes.fromhex(arg("value")).decode("latin-1"), int(arg("resp") or 0),
+                                        int(arg("resp2") or 0)))  # fmt: skip
+        elif verb in _WEB_CLIENT_KEYS:  # #4767 (X35): hex fields ('-': none), the response the peer gave
+
+            def hx2(k: str) -> str | None:
+                return None if arg(k) in ("", "-") else bytes.fromhex(arg(k)).decode("latin-1")
+
+            ev.update(_web_client_event(verb, hx2("host"), arg("scheme") or None, arg("method") or None, hx2("path"),
+                                        int(arg("status")) if arg("status") else None,
+                                        int(arg("tolen")) if arg("tolen") else None, hx2("into"),
+                                        int(arg("resp") or 0), int(arg("resp2") or 0)))  # fmt: skip
         elif verb == "RUN":  # #4270: RUN TRANSID; RESP2 where IBM documents it (not NORMAL)
             resp = names.get(int(arg("resp") or 0), arg("resp"))
             ev.update(
@@ -2214,9 +2286,20 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             ev.update(target=arg("target"), length=int(arg("len") or 0),
                       commarea=cc.RawArea(data, "latin-1") if arg("area") == "1" else None, resp=resp,
                       resp2=int(arg("resp2") or 0) if resp != "NORMAL" else None)  # fmt: skip
-        elif verb == "READ":
-            ev.update(file=arg("file"), ridfld=arg("key").encode(cc.EBCDIC),
-                      resp=names.get(int(arg("resp") or 0), arg("resp")))  # fmt: skip
+        elif verb in ("READ", "REWRITE", "UNLOCK"):  # #4443 A0b: SPEC 6.2 keys only where the command carries them
+            ev.update(file=arg("file"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+            if verb == "READ":
+                ev["ridfld"] = arg("key").encode(cc.EBCDIC)
+                if arg("upd"):
+                    ev["update"] = True
+                if arg("len"):
+                    ev["length"] = int(arg("len"))
+                ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] == "NORMAL" else None
+            elif verb == "REWRITE":
+                ev["data"] = cc.RawArea(data, "latin-1")
+            # SPEC section 2 asserts LENGERR's RESP only
+            if arg("resp2") and not (verb == "READ" and ev["resp"] == "LENGERR"):
+                ev["resp2"] = int(arg("resp2"))
         elif verb in ("RETURN", "END"):
             level = int(arg("level") or 1)
             ev = {"event": "RETURN", "program": issuer, "level": level}
@@ -2258,6 +2341,33 @@ def seed_ts(root: Path, queues: dict[str, list[Any]]) -> None:
         d.mkdir(exist_ok=True)
         for n, item in enumerate(items, 1):
             (d / f"{n:06d}.bin").write_bytes(cc.expected_bytes(item).decode(cc.EBCDIC).encode("latin-1"))
+
+
+def seed_files(case: cc.Case, work: Path, sid: str) -> str:
+    """#4443: the case's seeded files for the stub -- `data/<FILE>.dat` (one record per line, SPEC 2) as fixed-length
+    records in `runs/<scenario>/files/<FILE>`, and the files.cfg text naming them (`FILE path reclen keyoff keylen`). The key is the
+    leading bytes the case's RIDFLD names, so its length is the RIDFLD length of the expected READ events; a file no
+    expected READ names is left out (the stub answers FILENOTFOUND, as before)."""
+    keylen: dict[str, int] = {}
+    for log in case.expected.values():
+        for task in log.get("tasks") or []:
+            for ev in task.get("events") or []:
+                if ev.get("event") == "READ" and isinstance(ev.get("ridfld"), str):
+                    keylen.setdefault(ev["file"], len(ev["ridfld"]))
+    rel = f"runs/{sid}/files"
+    root = work / rel
+    cfg = ""
+    for name in sorted(case.csd.get("files") or ()):
+        seed = case.dir / "data" / f"{name}.dat"
+        if name not in keylen or not seed.is_file():
+            continue
+        lines = seed.read_bytes().splitlines()
+        if not lines or len({len(x) for x in lines}) != 1:
+            continue
+        root.mkdir(parents=True, exist_ok=True)
+        (root / name).write_bytes(b"".join(lines))
+        cfg += f"{name} /work/{rel}/{name} {len(lines[0])} 0 {keylen[name]}\n"
+    return cfg
 
 
 def read_ts(root: Path) -> dict[str, list[bytes]]:
@@ -2409,6 +2519,62 @@ def _web_send_event(status: Any, statustext: str | None, mediatype: str | None, 
     return ev
 
 
+def _web_header_event(name: Any, value: Any, resp: Any, resp2: Any) -> dict[str, Any]:
+    """#4767 (X38): the WEB-WRITE-HTTPHEADER event of SPEC 6.2 from what either side recorded (a header is recorded only
+    when the command is NORMAL). Both runtimes name the event WEB-HEADER; SPEC's name replaces it here."""
+    ev: dict[str, Any] = {"event": "WEB-WRITE-HTTPHEADER", "name": name, "value": value, "resp": _resp_name(resp)}
+    if resp2:
+        ev["resp2"] = resp2
+    return ev
+
+
+def _web_client_event(kind: str, host: str | None, scheme: str | None, method: str | None, path: str | None,
+                      status: int | None, tolength: int | None, into: str | None, resp: Any,
+                      resp2: Any) -> dict[str, Any]:  # fmt: skip
+    """#4767 (X35): the WEB-OPEN / WEB-CONVERSE / WEB-CLOSE event of SPEC 6.2 from what either side recorded: only the
+    keys SPEC names (the host and request details the runtimes also record stay out), RESP2 only where IBM documents it,
+    `into` the bytes INTO got (None when none)."""
+    ev: dict[str, Any] = {"resp": _resp_name(resp)}
+    if kind == "WEB-OPEN":
+        ev.update(host=host, scheme=scheme)
+    elif kind == "WEB-CONVERSE":
+        ev.update(method=method, path=path, status=status, tolength=tolength,
+                  into=cc.RawArea(into.encode("latin-1"), "latin-1") if into else None)  # fmt: skip
+    if resp2:
+        ev["resp2"] = resp2
+    return ev
+
+
+def origin_peers(case: cc.Case, sc: dict[str, Any]) -> list[dict[str, Any]] | None:
+    """#4767 (X35): the origin servers a scenario's task reaches, as `equivalence_cics.http_peers` states them: SPEC names
+    a peer by `host` and scripts only its responses, so each exchange's method, path and query are the ones the
+    scenario's expected log gives the WEB-CONVERSE (on the host the preceding WEB-OPEN opened), and its response the
+    peer's next scripted one. Both runtimes still refuse a request the peer states no response to, so a task whose
+    request differs from the expected one fails. None when the case states no origin peer."""
+    by_host = {p["host"]: p for p in (case.data.get("peers") or {}).values() if p.get("host")}
+    if not by_host:
+        return None
+    peers: dict[tuple[str, str], dict[str, Any]] = {}
+    given: dict[str, int] = {}
+    cur: dict[str, Any] | None = None
+    for t in case.expected[sc["id"]]["tasks"]:
+        for e in t["events"]:
+            if e["event"] == "WEB-OPEN" and e.get("host") in by_host:
+                scheme = e.get("scheme") or "HTTP"
+                cur = peers.setdefault((scheme, e["host"]), {"scheme": scheme, "host": e["host"],
+                                                             "port": 443 if scheme == "HTTPS" else 80, "urimap": None,
+                                                             "path": None, "exchanges": []})  # fmt: skip
+            elif e["event"] == "WEB-CONVERSE" and cur is not None:
+                script = by_host[cur["host"]]["responses"]
+                k = given[cur["host"]] = given.get(cur["host"], -1) + 1
+                if k < len(script):
+                    r = script[k]
+                    cur["exchanges"].append({"method": e["method"], "path": e["path"], "query": e.get("query") or "",
+                                             "status": r["status"], "statustext": r.get("statustext") or "",
+                                             "mediatype": r.get("mediatype") or "", "body": r.get("body") or ""})  # fmt: skip
+    return list(peers.values()) or None
+
+
 def server_urimap_matches(case: cc.Case, req: dict[str, Any]) -> list[str]:
     """The installed `USAGE(SERVER)` URIMAPs an inbound request matches (SPEC section 2, HTTP peer; IBM, URIMAP resource
     definitions): SCHEME the request's, HOST equal or the single `*`, PATH equal or ending in `*` as a prefix, STATUS
@@ -2445,7 +2611,8 @@ def http_plan(case: cc.Case, sc: dict[str, Any]) -> tuple[list[dict[str, Any]], 
         if transid not in case.csd["transactions"]:
             return [], f"http-peer: request {i}: URIMAP {hits[0]} names no installed transaction"
         req = {"scheme": r["scheme"].upper(), "host": r["host"], "port": 80, "method": r["method"],
-               "version": "HTTP/1.1", "path": r["path"], "query": "", "headers": [],
+               "version": "HTTP/1.1", "path": r["path"], "query": r.get("query") or "",
+               "headers": [[k, v] for k, v in (r.get("headers") or {}).items()],  # SPEC 2: a name -> value object
                "mediatype": r.get("mediatype"), "body": r.get("body")}  # fmt: skip
         plan.append({"index": i, "at": r["at"], "transid": transid, "peer": r["peer"], "request": req})
     return plan, None
@@ -2486,8 +2653,11 @@ def http_peer_log(case: cc.Case, sc: dict[str, Any], tasks: list[dict[str, Any]]
         if k >= len(stated):
             return {"http_peer": f"{where}: the task answered, the peer states no response #{k + 1}"}
         got = {"status": sent[0]["status"], "mediatype": sent[0]["mediatype"],
-               "body": sent[0]["from"].data.decode("latin-1")}  # fmt: skip
-        for key, want in stated[k].items():
+               "body": sent[0]["from"].data.decode("latin-1"),
+               "headers": sorted((e["name"], e["value"]) for e in t["events"] if e["event"] == "WEB-WRITE-HTTPHEADER")}  # fmt: skip
+        want_all = {"headers": {}, **stated[k]}  # a peer that states no headers expects none (SPEC section 2)
+        want_all["headers"] = sorted(want_all["headers"].items())  # a header written twice is two headers
+        for key, want in want_all.items():
             if got.get(key) != want:
                 return {"http_peer": f"{where}: response {key} {got.get(key)!r}, the peer states {want!r}"}
     return {}
@@ -2632,12 +2802,28 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
     ts = f"runs/{sc['id']}/ts"  # #4002: the region's TS queues, shared by every task of the scenario
     seed_ts(work / ts, (sc.get("initial") or {}).get("ts_queues") or {})
     count = iter(range(1000))
+    origin = origin_peers(case, sc)
+    files_cfg = seed_files(case, work, sc["id"])  # #4443
 
     def run_one(frame: dict[str, Any], transid: str, commarea: bytes | None, step: dict[str, Any] | None,
                 data: list[Any], requests: list[tuple[str, int]]) -> dict[str, Any]:  # fmt: skip
         rel = f"runs/{sc['id']}/{next(count):02d}"
+        if origin is not None:  # #4767 (X35): each task process is told the origin servers (not a log key)
+            frame = {**frame, "http_peers": origin}
         return run_task(
-            case, box, work, rel, ts, transid, frame, commarea, step, data, requests, task_faults(sc, transid)
+            case,
+            box,
+            work,
+            rel,
+            ts,
+            transid,
+            frame,
+            commarea,
+            step,
+            data,
+            requests,
+            task_faults(sc, transid),
+            files_cfg,
         )
 
     tasks, stopped = drive_scenario(case, sc, run_one)
@@ -2648,14 +2834,15 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
 def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, transid: str, frame: dict[str, Any],
              commarea: bytes | None, step: dict[str, Any] | None, data: list[Any] | None = None,
              requests: list[tuple[str, int]] | None = None,
-             faults: list[str] | None = None) -> dict[str, Any]:  # fmt: skip
+             faults: list[str] | None = None, files_cfg: str = "") -> dict[str, Any]:  # fmt: skip
     """One task in one process: its inputs in `rel` (the COMMAREA, the terminal's input -- a step's text or
     map fields -- the EIB, the CSD's programs and transactions, #4006: the START data it RETRIEVEs and the
     unexpired requests a CANCEL searches, the virtual clock), then the stub's events as the task's."""
     program = case.csd["transactions"].get(transid)
     startcode = frame.get("startcode")  # #4270 slice 3: ASSIGN STARTCODE (the scheduler's; not a log key)
     http_req = frame.get("http_request")  # #4767 (X37): the request an `http` task serves (not a log key)
-    frame = {k: v for k, v in frame.items() if k not in ("startcode", "http_request")}
+    http_peers = frame.get("http_peers")  # #4767 (X35): the origin servers the task can reach (not a log key)
+    frame = {k: v for k, v in frame.items() if k not in ("startcode", "http_request", "http_peers")}
     task: dict[str, Any] = {"transid": transid, "program": program, **frame, "eibcalen": len(commarea or b""),
                             "commarea": cc.RawArea(commarea, "latin-1") if commarea else None,
                             "events": [], "end": "normal"}  # fmt: skip
@@ -2666,7 +2853,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
         return task
     d = work / rel
     (d / "out").mkdir(parents=True, exist_ok=True)
-    (d / "files.cfg").write_text("", encoding="ascii")
+    (d / "files.cfg").write_text(files_cfg, encoding="ascii")
     (d / "programs.cfg").write_text("".join(f"{p}\n" for p in sorted(case.csd["programs"])), encoding="ascii")
     (d / "transactions.cfg").write_text("".join(f"{t}\n" for t in sorted(case.csd["transactions"])), encoding="ascii")
     (d / "terminals.cfg").write_text(f"{case.data['terminal']}\n", encoding="ascii")
@@ -2697,6 +2884,10 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
         import equivalence_cics as ec
 
         (d / "webreq.cfg").write_text(ec.http_request_cfg(http_req, RUNTIME_PAGE), encoding="ascii")
+    if http_peers:
+        import equivalence_cics as ec
+
+        (d / "http.cfg").write_text(ec.http_peers_cfg(http_peers, RUNTIME_PAGE), encoding="ascii")
     step = step or {}
     if faults:  # #4049: the conditions the scenario plans for this task's TRANSID
         (d / "faults.cfg").write_text("".join(x + "\n" for x in faults), encoding="ascii")
@@ -2716,6 +2907,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
            f"{'GGCICS_LU2=1 ' if terminal_device(case) == 'LUTYPE2' else ''}"  # #4413: EOC on RECEIVE
            f"GGCICS_URIMAPS=/work/{rel}/urimaps.cfg "  # #4270 zECS (X32)
            f"{f'GGCICS_WEBREQ=/work/{rel}/webreq.cfg ' if http_req is not None else ''}"  # #4767 (X37)
+           f"{f'GGCICS_HTTP=/work/{rel}/http.cfg ' if http_peers else ''}"  # #4767 (X35)
            f"{f'GGCICS_DOCTEMPLATES=/work/{rel}/doctemplates.cfg ' if case.data.get('doctemplates') is not None else ''}"  # #4769 (X33)
            f"{f'GGCICS_UCTRANST={terminal_uctranst(case)} ' if terminal_uctranst(case) else ''}"  # #4415
            f"{f'GGCICS_ORIGIN={origin_env(case)} ' if origin_env(case) and (frame.get('trigger') or {}).get('kind') == 'terminal' else ''}"  # #4415 slice 2

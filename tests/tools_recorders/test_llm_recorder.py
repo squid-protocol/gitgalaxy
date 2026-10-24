@@ -491,3 +491,37 @@ def test_mainframe_facts_section_absent_for_a_non_mainframe_repo(recorder):
     point of an optional, presence-keyed section)."""
     parsed = [{"path": "src/app.py", "lang_id": "python", "total_loc": 10}]
     assert recorder._mainframe_facts_lines(parsed) == []
+
+
+def test_fact_lines_table_drives_the_section(recorder):
+    """FACT_LINES / FACT_SUMMARIES (#3383) drive section 13: unique keys, volume orders the carriers,
+    a `volume=False` key renders without making a file a carrier, and bullets follow table order."""
+    from gitgalaxy.recorders.llm_recorder import FACT_LINES, FACT_SUMMARIES
+
+    assert len({c.key for c in FACT_LINES}) == len(FACT_LINES)
+    assert len({c.key for c in FACT_SUMMARIES}) == len(FACT_SUMMARIES)
+    assert {c.key for c in FACT_LINES if not c.volume} == {"special_names", "compiler_options"}
+
+    only_special = {"path": "a.cbl", "lang_id": "cobol", "special_names": [{"clause": "X", "value": "Y"}]}
+    assert recorder._mainframe_facts_lines([only_special]) == []
+
+    small = {"path": "small.cbl", "lang_id": "cobol", "call_sites": [{"verb": "CALL", "target": "P"}]}
+    big = {
+        "path": "big.cbl",
+        "lang_id": "cobol",
+        "call_sites": [{"verb": "CALL", "target": "P"}, {"verb": "CALL", "target": "Q"}],
+        "special_names": [{"clause": "X", "value": "Y"}],
+        "mq_calls": [{"direction": "put", "queue": "Q1"}, {"direction": "none", "queue": "Q2"}],
+        "sql_tables": [{"table": "T"}],
+    }
+    md = recorder._mainframe_facts_lines([small, big])
+    assert md.index("### `big.cbl` (COBOL)") < md.index("### `small.cbl` (COBOL)")
+    text = "\n".join(md)
+    assert "- **DB2 schemas:** `1` columns" in text
+    bullets = [
+        x.split(":**")[0]
+        for x in md[md.index("### `big.cbl` (COBOL)") : md.index("### `small.cbl` (COBOL)")]
+        if x.startswith("- **")
+    ]
+    assert bullets == ["- **Calls", "- **DB2 tables declared", "- **MQ queues", "- **Special names"]
+    assert "`Q1 (put)`" in text and "Q2" not in text

@@ -1037,6 +1037,13 @@ public class CicsTask {
      *  scheme other than HTTP / HTTPS), INVREQ 138 (a port above 65535). Refused: two conditions at once, a port below 1,
      *  a HOSTLENGTH past HOST, a server the run does not state. */
     public WebOpened webOpenHost(String host, int hostLength, int port, boolean portGiven, int scheme) {
+        WebOpened o = webOpenHostChecked(host, hostLength, port, portGiven, scheme);
+        event("WEB-OPEN", "host", hostLength > 0 && hostLength <= host.length() ? host.substring(0, hostLength) : "",
+                "scheme", scheme == 1096 ? "HTTP" : scheme == 1029 ? "HTTPS" : null, "resp", o.resp(), "resp2", o.resp2());
+        return o;
+    }
+
+    private WebOpened webOpenHostChecked(String host, int hostLength, int port, boolean portGiven, int scheme) {
         java.util.List<HttpPeer> peers = statedPeers();
         java.util.List<int[]> c = new java.util.ArrayList<>();
         if (hostLength <= 0) {
@@ -1074,6 +1081,7 @@ public class CicsTask {
         String n = name == null ? "" : name.strip();
         for (HttpPeer peer : statedPeers()) {
             if (n.equals(peer.urimap())) {
+                event("WEB-OPEN", "host", peer.host(), "scheme", peer.scheme(), "resp", 0, "resp2", 0);
                 return webSession(peer, true);
             }
         }
@@ -1167,9 +1175,10 @@ public class CicsTask {
         byte[] data = x.body().getBytes(cs);
         int resp = data.length > maxLength ? 22 : 0;
         int resp2 = resp == 0 ? 0 : 57;
-        event("WEB-CONVERSE", "host", s.peer().host(), "method", m, "path", p, "query", q, "mediatype", mt,
-                "body", body, "resp", resp, "resp2", resp2);
         byte[] into = resp == 0 ? data : java.util.Arrays.copyOf(data, maxLength);
+        event("WEB-CONVERSE", "host", s.peer().host(), "method", m, "path", p, "query", q, "mediatype", mt,
+                "body", body, "resp", resp, "resp2", resp2, "status", x.status(),  // #4767: the response given
+                "tolength", into.length, "into", new String(into, cs));
         return new WebResponse(resp, resp2, into, into.length, x.status(), x.statusText(),
                 String.format(java.util.Locale.ROOT, "%-56.56s", x.mediaType()));
     }
@@ -1178,7 +1187,9 @@ public class CicsTask {
     public int[] webClose(String token) {
         CicsTask r = root();
         r.statedPeers();
-        return r.webSessions.remove(token) != null ? new int[] {0, 0} : new int[] {19, 27};
+        int[] out = r.webSessions.remove(token) != null ? new int[] {0, 0} : new int[] {19, 27};
+        event("WEB-CLOSE", "resp", out[0], "resp2", out[1]);
+        return out;
     }
 
     /** WEB SEND FROM(area) FROMLENGTH(n) [MEDIATYPE(area)] ACTION(cvda) [STATUSCODE(n)] [STATUSTEXT(area) [STATUSLEN(n)]]
@@ -2574,8 +2585,14 @@ public class CicsTask {
      *  maxLength (nothing is read) or a record longer than maxLength (the record is read, so lost, and the result holds
      *  its first maxLength characters); the result's length is the record's own. #5168 (X61): an extrapartition queue is
      *  NOTOPEN when closed and INVREQ when open for output; an input one reads like an intrapartition queue, or answers
-     *  the IOERR the harness planned (READQ-TD, the record skipped). */
+     *  the IOERR the harness planned (READQ-TD, the record skipped). #5168 (X61): a LOGICAL intrapartition queue holding no
+     *  record answers the QBUSY the harness planned (another task is writing it: IBM states no RESP2); that needs NOSUSPEND
+     *  (else IBM suspends the task: refused). */
     public TdResult readqTd(String queue, int maxLength) {
+        return readqTd(queue, maxLength, false);
+    }
+
+    public TdResult readqTd(String queue, int maxLength, boolean noSuspend) {
         String q = queue.strip();
         String t = tdResolve(q);
         int kind = tdKind(t);
@@ -2592,8 +2609,17 @@ public class CicsTask {
         if (readable) {
             tdTouch(t);
         }
-        int[] planned = readable && kind == 2 ? root().injected("READQ-TD", q) : null;
-        if (planned != null) {  // #5168 (X61): a planned IOERR -- IBM: "the data record in error is skipped", nothing reaches INTO
+        boolean busyable = readable && kind == 1 && "LOGICAL".equals(tdAttr(t, "RECOVSTATUS")) && (records == null || records.isEmpty());
+        int[] planned = readable && (kind == 2 || busyable) ? root().injected("READQ-TD", q) : null;
+        if (planned != null && busyable != (planned[0] == 25)) {
+            throw new UnsupportedOperationException("a planned READQ TD " + CicsSpec.name(planned[0]) + " on " + q + ": QBUSY is for a LOGICAL intrapartition queue with no record, IOERR for an extrapartition one");
+        }
+        if (planned != null && busyable) {  // #5168 (X61): a planned QBUSY, no committed record left
+            if (!noSuspend) {
+                throw new UnsupportedOperationException("READQ TD on a planned-busy queue without NOSUSPEND: " + q + " (the task would be suspended)");
+            }
+            resp = CicsSpec.name(planned[0]);
+        } else if (planned != null) {  // #5168 (X61): a planned IOERR -- IBM: "the data record in error is skipped", nothing reaches INTO
             if (records != null && !records.isEmpty()) {
                 records.removeFirst();
                 tempStorage.tdRead.add(t);
@@ -3494,6 +3520,18 @@ CICS_TASK_JAVA += """\
         }
     }
 
+    private void logAbend(String what, int n, String code) {
+        if (faultLog != null) {
+            try {
+                java.nio.file.Files.writeString(faultLog, what + " " + n + " ABEND " + code
+                        + System.lineSeparator(), java.nio.file.StandardOpenOption.CREATE,
+                        java.nio.file.StandardOpenOption.APPEND);
+            } catch (java.io.IOException e) {
+                throw new java.io.UncheckedIOException(e);
+            }
+        }
+    }
+
     private int[] injected(String cmd, String file) {
         if (faultPlan.isEmpty()) {
             return null;
@@ -3504,6 +3542,14 @@ CICS_TASK_JAVA += """\
             if (f[0].equals(cmd) && f[1].equals(file) && ("*".equals(f[2]) || Integer.parseInt(f[2]) == n)) {
                 int resp = Integer.parseInt(f[3]);
                 int resp2 = f.length > 4 ? Integer.parseInt(f[4]) : 0;
+                if (resp == -1 && f.length > 5) {  // #6271 (X70): `CMD FILE NTH -1 0 ABCODE` abends the task, as the stub
+                    String exit = abend(f[5], "system", null, false);
+                    if (exit != null) {
+                        unwoundTo = exit;  // the exit at this level: the port reads it with abendExit()
+                    }
+                    logAbend(cmd + " " + file, n, f[5]);
+                    return new int[] {0, 0};
+                }
                 if (resp == 15) {  // DUPKEY: the read goes on, see dupkeyOr
                     deferredDupkey = new int[] {n, resp, resp2};
                     deferredWhat = cmd + " " + file;
@@ -3514,6 +3560,13 @@ CICS_TASK_JAVA += """\
             }
         }
         return null;
+    }
+
+    /** #6271 (register X71): the {RESP, RESP2} a scenario's fault plan gives this SEND-MAP / RECEIVE-MAP (`name` the map),
+     *  SYNCPOINT or ROLLBACK (`name` "-") -- {0, 0} when none: the command then runs, and a planned one is not performed. */
+    public int[] planned(String cmd, String name) {
+        int[] p = root().injected(cmd, name);
+        return p == null ? new int[] {0, 0} : p;
     }
 
     /** The region's temporary storage this task works on (#4002): one store is shared by every task of a
@@ -3792,8 +3845,13 @@ CICS_TASK_JAVA += """\
             resp = 22;
             resp2 = 11;
         }
+        int[] planned = resp == 0 ? root().injected("RETURN", "-") : null;  // #6271 (X71): a planned INVREQ / LENGERR
+        if (planned != null) {
+            resp = planned[0];
+            resp2 = planned[1];
+        }
         if (resp != 0) {
-            event("RETURN", "level", level, "immediate", true, "transid", transid, "resp", resp == 16 ? "INVREQ" : "LENGERR",
+            event("RETURN", "level", level, "immediate", true, "transid", transid, "resp", respName(resp),
                     "resp2", resp2);
             return new int[] {resp, resp2};
         }

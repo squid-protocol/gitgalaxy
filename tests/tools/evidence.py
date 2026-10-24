@@ -101,6 +101,8 @@ MUTATION_INPUTS = ("port", "case", "corpus", "harness", "oracle")  # Q3: the gen
 HARNESS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
            "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py",
            "tests/tools/equivalence_cics_containers.py", "tests/tools/equivalence_cics_filecontrol.py",
+           "tests/tools/equivalence_cics_conditions.py",
+           "tests/tools/equivalence_cics_tempstorage.py",
            "tests/tools/equivalence_call.py",
            "tests/tools/equivalence_cache.py", "tests/tools/equivalence_db2.py", "tests/tools/equivalence_oracle.py",
            "tests/tools/cobol_coverage.py", "tests/tools/java_target_matrix.py",
@@ -240,6 +242,8 @@ COMPONENTS: tuple[Component, ...] = (
             "tests/tools/equivalence_cics.py",
             "tests/tools/equivalence_cics_containers.py",
             "tests/tools/equivalence_cics_filecontrol.py",
+            "tests/tools/equivalence_cics_conditions.py",
+            "tests/tools/equivalence_cics_tempstorage.py",
         ),  # #5274: its families
         lambda u: u.cics_harness,
         "run_case for kind cics; batch Db2 SQL faults and call arg encoding import it; a plain batch run never does",
@@ -886,7 +890,8 @@ def mutation_section(t: Target, existing_mutation: dict[str, Any] | None = None)
         "killed": tot["killed"],
         "survived": tot["survived"],
         "stillborn": tot["stillborn"],
-        "survivors": {k: tot.get(k, 0) for k in ("case_gap", "harness_gap", "equivalent", "unreachable", "untriaged")},
+        "survivors": {k: tot.get(k, 0) for k in ("case_gap", "harness_gap", "equivalent", "unreachable", "untriaged")}
+        | ({"declared_difference": tot["declared_difference"]} if tot.get("declared_difference") else {}),  # #5401
         "score_raw": _score(tot["killed"], judged),
         "score_adjusted": _score(tot["killed"], judged - tot.get("equivalent", 0) - tot.get("unreachable", 0)),
         "source": f"docs/language_status/mutation_scores.json#{case_key}/{t.program}",
@@ -1077,7 +1082,8 @@ def claim(rec: dict[str, Any], st: dict[str, Any]) -> str:
         note = st["sections"].get("mutation", "")
         parts.append(f"Mutation score **{m['score_raw']} raw, {m['score_adjusted']} adjusted** ({m['survived']} "
                      f"survivors: {s['case_gap']} case gaps, {s['harness_gap']} harness gaps, {s['equivalent']} "
-                     f"equivalent, {s['unreachable']} unreachable, {s['untriaged']} untriaged)"
+                     f"equivalent, {s['unreachable']} unreachable, {s['untriaged']} untriaged"
+                     + (f", {s['declared_difference']} declared difference" if s.get("declared_difference") else "") + ")"
                      + (f" -- **{note}**" if note.startswith("stale") else "") + ".")  # fmt: skip
     fc = p.get("facade")
     if fc:

@@ -174,6 +174,159 @@
         ""
       ],
       "why": "#4049 (proposed for 871d241296): a blank in the second-to-last position"
+    },
+    {
+      "name": "julian-valid",
+      "args": [
+        "2022199   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): day 199 of 2022: valid"
+    },
+    {
+      "name": "julian-day-one",
+      "args": [
+        "2022001   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): the first day of the year: valid"
+    },
+    {
+      "name": "julian-day-zero",
+      "args": [
+        "2022000   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): day 000 does not exist: CEE2EC (2508) (IBM z/OS Language Environment, CEEDAYS)"
+    },
+    {
+      "name": "julian-365",
+      "args": [
+        "2023365   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): day 365 of a non-leap year: the last day, valid"
+    },
+    {
+      "name": "julian-366-non-leap",
+      "args": [
+        "2023366   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): day 366 in a non-leap year: CEE2EC (2508)"
+    },
+    {
+      "name": "julian-366-leap",
+      "args": [
+        "2024366   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): day 366 in a leap year: valid"
+    },
+    {
+      "name": "julian-366-1900",
+      "args": [
+        "1900366   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): 1900 is not a leap year: CEE2EC (2508)"
+    },
+    {
+      "name": "julian-366-2000",
+      "args": [
+        "2000366   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): 2000 is a leap year: valid"
+    },
+    {
+      "name": "julian-367",
+      "args": [
+        "2024367   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): day 367 never exists: CEE2EC (2508)"
+    },
+    {
+      "name": "julian-non-numeric",
+      "args": [
+        "2022A99   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): a letter inside the DDD digits: CEE2EO (2520)"
+    },
+    {
+      "name": "julian-non-numeric-year",
+      "args": [
+        "20X2199   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): a letter inside the year digits of a Julian date: CEE2EO (2520)"
+    },
+    {
+      "name": "julian-before-lilian",
+      "args": [
+        "1582287   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): day 287 of 1582 is 14 October, before the first Lilian day: CEE2EH (2513)"
+    },
+    {
+      "name": "julian-first-lilian",
+      "args": [
+        "1582288   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): day 288 of 1582 is 15 October, Lilian day 1: valid"
+    },
+    {
+      "name": "julian-last-day",
+      "args": [
+        "9999365   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): 31 December 9999, the last supported day: valid"
+    },
+    {
+      "name": "julian-year-zero",
+      "args": [
+        "0000001   ",
+        "YYYYDDD   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): year 0000: outside the supported range, CEE2EH (2513)"
+    },
+    {
+      "name": "julian-reversed",
+      "args": [
+        "1992022   ",
+        "DDDYYYY   ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): DDD before YYYY: the same date as 2022 day 199; valid"
+    },
+    {
+      "name": "julian-dash",
+      "args": [
+        "2022-199 ",
+        "YYYY-DDD  ",
+        ""
+      ],
+      "why": "#4049 (Julian YYYYDDD, the DDD token): a '-' joins the two tokens: valid"
     }
   ],
   "notes": "CardDemo's shared date check CSUTLDTC, CALLed by COTRN02C, CORPT00C and the CSUTLDPY copybook: it passes the date and picture to the Language Environment service CEEDAYS and returns a message (severity, message number, result, date, picture) in LS-RESULT, and the severity as RETURN-CODE. GnuCOBOL has no CEEDAYS: the COBOL side runs against tests/equivalence/le/ceedays.c, a model of IBM's documented behaviour for the pictures it models (YYYY-MM-DD and its '/' and '.' forms) -- every call here is one of those; each `why` cites the rule. CardDemo's callers also pass 'YYYYMMDD' in the 10-byte field, which that model does not cover (how CEEDAYS treats the trailing blanks is not modelled), so no call here uses it; nor a month outside 1-12, whose condition (2508 or 2517) IBM's documentation does not settle. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

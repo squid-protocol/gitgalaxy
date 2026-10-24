@@ -327,6 +327,13 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
   (line 278) and `-904` / `-913` on the SELECT (line 191), and `det_port.py run` proves it on 10 scenarios covering
   7/7 paragraphs and 6/6 branches. The seven stay recorded as harness gaps of the model port (its mutants are not
   re-run against the det case); the det-port fault case is where that arm is judged.
+- UPDACC on the hand case (cbsa-updacc, #4049, all 139 mutants run, seed 0): 95 killed -> 103, 15 case gaps -> 0. Eight
+  seed rows with a single NULL each (EYECATCHER, CUSTOMER_NUMBER, NEXT_STATEMENT, AVAILABLE / ACTUAL balance, ACCOUNT_TYPE,
+  INTEREST_RATE, OVERDRAFT_LIMIT) and a `null-*` scenario per row kill the seven `&&` / `||` mutants of the -305 test (the
+  old seed's only NULL, ACCOUNT_LAST_STATEMENT, hid them); the eyecatcher one was already killed by the earlier
+  eyecatcher scenarios. The `-904` arms of the SELECT and UPDATE are `harness-gap` (7), as in cbsa-updacc-generated, and the
+  six `handleLink(request, area)` mutants are `unreachable` (no proof calls it: the harness enters through the one-parameter
+  `handleLink(request)` and no caller LINKs with LENGTH). Stop reason: no case gap left.
 
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
@@ -337,10 +344,10 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COADM01C (carddemo-adminmenu-generated) | equivalence | 150/340 | 97/145 (67%) | 97/97 (100%) | 0 / 0 / 43 / 5 / 0 |
 | COBIL00C (carddemo-billpay) | equivalence | 100/529 | 66/86 (77%) | 66/70 (94%) | 4 / 0 / 12 / 4 / 0 |
 | COBIL00C (carddemo-billpay-generated) | equivalence | 150/530 | 104/136 (76%) | 104/104 (100%) | 0 / 0 / 17 / 15 / 0 |
-| COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/82 (91%) | 7 / 0 / 12 / 0 / 0 |
+| COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 82/94 (87%) | 82/82 (100%) | 0 / 0 / 12 / 0 / 0 |
 | COCRDSLC (carddemo-cardview) | equivalence | 100/503 | 60/91 (66%) | 60/65 (92%) | 4 / 1 / 22 / 4 / 0 |
 | CBTRN01C (carddemo-dailyval) | equivalence | 100/241 | 63/96 (66%) | 63/71 (89%) | 8 / 0 / 10 / 15 / 0 |
-| CSUTLDTC (carddemo-dateutil) | equivalence | 211/211 | 145/195 (74%) | 145/145 (100%) | 0 / 0 / 10 / 40 / 0 |
+| CSUTLDTC (carddemo-dateutil) | equivalence | 276/276 | 197/260 (76%) | 197/197 (100%) | 0 / 0 / 13 / 50 / 0 |
 | CBACT04C (carddemo-intcalc) | equivalence | 100/170 | 70/86 (81%) | 70/77 (91%) | 6 / 1 / 9 / 0 / 0 |
 | COMEN01C (carddemo-menu) | equivalence | 150/340 | 87/139 (63%) | 87/87 (100%) | 0 / 0 / 35 / 17 / 0 |
 | COMEN01C (carddemo-menu-generated) | equivalence | 150/340 | 87/139 (63%) | 87/88 (99%) | 0 / 1 / 35 / 16 / 0 |
@@ -348,20 +355,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/73 (95%) | 4 / 0 / 10 / 0 / 0 |
 | CBCUS01C (carddemo-readcust) | equivalence | 83/83 | 63/74 (85%) | 63/70 (90%) | 7 / 0 / 4 / 0 / 0 |
 | CBACT03C (carddemo-readxref) | equivalence | 90/90 | 69/83 (83%) | 69/77 (90%) | 8 / 0 / 6 / 0 / 0 |
-| CORPT00C (carddemo-report) | equivalence | 100/642 | 58/87 (67%) | 58/60 (97%) | 2 / 0 / 16 / 11 / 0 |
+| CORPT00C (carddemo-report) | equivalence | 100/642 | 59/87 (68%) | 59/60 (98%) | 0 / 0 / 16 / 11 / 0 + 1 declared |
 | COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
 | COSGN00C (carddemo-signon-generated) | equivalence | 150/202 | 99/149 (66%) | 99/99 (100%) | 0 / 0 / 42 / 8 / 0 |
-| COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 61/91 (67%) | 61/73 (84%) | 12 / 0 / 10 / 8 / 0 |
+| COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 70/91 (77%) | 70/73 (96%) | 3 / 0 / 10 / 8 / 0 |
 | COTRN00C (carddemo-tranlist) | equivalence | 100/697 | 66/91 (73%) | 66/79 (84%) | 13 / 0 / 5 / 7 / 0 |
 | COTRN01C (carddemo-tranview) | equivalence | 100/314 | 67/100 (67%) | 67/67 (100%) | 0 / 0 / 25 / 8 / 0 |
 | COTRN01C (carddemo-tranview-generated) | equivalence | 150/314 | 92/150 (61%) | 92/92 (100%) | 0 / 0 / 48 / 10 / 0 |
 | CBTRN03C (carddemo-trnrpt) | equivalence | 100/408 | 68/86 (79%) | 68/79 (86%) | 8 / 3 / 7 / 0 / 0 |
 | COUSR01C (carddemo-useradd) | equivalence | 100/272 | 63/98 (64%) | 63/64 (98%) | 0 / 1 / 27 / 7 / 0 |
 | COUSR03C (carddemo-userdel) | equivalence | 100/340 | 67/87 (77%) | 67/67 (100%) | 0 / 0 / 17 / 3 / 0 |
-| COUSR00C (carddemo-userlist) | equivalence | 510/510 | 377/505 (75%) | 377/379 (99%) | 0 / 2 / 55 / 71 / 0 |
+| COUSR00C (carddemo-userlist) | equivalence | 512/512 | 379/507 (75%) | 379/381 (99%) | 0 / 2 / 55 / 71 / 0 |
 | COUSR02C (carddemo-userupd) | equivalence | 100/481 | 57/82 (70%) | 57/59 (97%) | 2 / 0 / 14 / 9 / 0 |
 | INQACC (cbsa-inqacc) | equivalence | 150/470 | 63/131 (48%) | 63/106 (59%) | 43 / 0 / 11 / 14 / 0 |
-| UPDACC (cbsa-updacc) | equivalence | 133/133 | 95/133 (71%) | 95/110 (86%) | 15 / 0 / 17 / 6 / 0 |
+| UPDACC (cbsa-updacc) | equivalence | 139/139 | 103/139 (74%) | 103/110 (94%) | 0 / 7 / 17 / 12 / 0 |
 | UPDACC (cbsa-updacc-generated) | equivalence | 139/139 | 103/139 (74%) | 103/110 (94%) | 0 / 7 / 17 / 12 / 0 |
 | LGAPDB01 (genapp-lgapdb01) | equivalence | 150/444 | 58/137 (42%) | 58/129 (45%) | 71 / 0 / 1 / 7 / 0 |
 | LGAPVS01 (genapp-lgapvs01) | equivalence | 150/184 | 72/125 (58%) | 72/113 (64%) | 0 / 41 / 1 / 11 / 0 |
@@ -391,20 +398,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 5046 run | **3165/4658 (68%)** | **3165/3631 (87%)** | 272 / 194 / 643 / 384 / 0 |
-| **all estate** | | 5550 run | **3484/5134 (68%)** | **3484/3985 (87%)** | 307 / 194 / 731 / 418 / 0 |
+| **all equivalence** | | 5119 run | **3244/4731 (69%)** | **3244/3685 (88%)** | 239 / 201 / 646 / 400 / 0 + 1 declared |
+| **all estate** | | 5623 run | **3563/5207 (68%)** | **3563/4039 (88%)** | 274 / 201 / 734 / 434 / 0 + 1 declared |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 227/283 (80%) | 227/251 (90%) |
-| BDM | 25/52 (48%) | 25/28 (89%) |
-| CON | 449/1040 (43%) | 449/562 (80%) |
-| COR | 212/345 (61%) | 212/258 (82%) |
-| DEL | 610/876 (70%) | 610/686 (89%) |
-| LIT | 727/984 (74%) | 727/811 (90%) |
-| NEG | 615/696 (88%) | 615/661 (93%) |
-| RET | 56/105 (53%) | 56/93 (60%) |
-| ROR | 563/753 (75%) | 563/635 (89%) |
+| AOR | 231/286 (81%) | 231/255 (91%) |
+| BDM | 27/52 (52%) | 27/28 (96%) |
+| CON | 468/1062 (44%) | 468/577 (81%) |
+| COR | 229/353 (65%) | 229/263 (87%) |
+| DEL | 617/878 (70%) | 617/688 (90%) |
+| LIT | 731/990 (74%) | 731/815 (90%) |
+| NEG | 622/703 (88%) | 622/668 (93%) |
+| RET | 58/105 (55%) | 58/93 (62%) |
+| ROR | 580/778 (75%) | 580/652 (89%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
 |---|---|---|---|---|---|---|---|---|---|
@@ -414,10 +421,10 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COADM01C (carddemo-adminmenu-generated) | 8/8 | - | 4/24 | 6/8 | 14/26 | 14/25 | 25/25 | 4/4 | 22/25 |
 | COBIL00C (carddemo-billpay) | 4/5 | 1/3 | 5/13 | 9/12 | 10/12 | 12/13 | 12/13 | 2/2 | 11/13 |
 | COBIL00C (carddemo-billpay-generated) | 5/6 | 1/3 | 9/23 | 9/12 | 17/22 | 21/23 | 22/23 | 2/2 | 18/22 |
-| COCRDLIC (carddemo-cardlist) | 8/8 | - | 8/13 | 10/13 | 7/13 | 12/13 | 13/13 | 6/9 | 11/12 |
+| COCRDLIC (carddemo-cardlist) | 8/8 | - | 9/13 | 11/13 | 10/13 | 12/13 | 13/13 | 8/9 | 11/12 |
 | COCRDSLC (carddemo-cardview) | 4/5 | - | 3/14 | 10/14 | 6/14 | 9/14 | 13/14 | 2/2 | 13/14 |
 | CBTRN01C (carddemo-dailyval) | 3/6 | - | 11/16 | 3/12 | 9/15 | 12/16 | 12/16 | - | 13/15 |
-| CSUTLDTC (carddemo-dateutil) | 13/15 | - | 28/51 | 4/8 | 9/10 | 27/35 | 31/32 | - | 33/44 |
+| CSUTLDTC (carddemo-dateutil) | 17/18 | - | 42/72 | 9/15 | 11/11 | 30/38 | 38/39 | - | 50/67 |
 | CBACT04C (carddemo-intcalc) | 3/4 | 4/6 | 13/21 | 1/2 | 13/17 | 20/20 | 10/10 | - | 6/6 |
 | COMEN01C (carddemo-menu) | 13/14 | - | 6/21 | 6/10 | 20/24 | 12/24 | 16/23 | - | 14/23 |
 | COMEN01C (carddemo-menu-generated) | 13/14 | - | 6/21 | 6/10 | 20/24 | 12/24 | 16/23 | - | 14/23 |
@@ -425,20 +432,20 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBACT02C (carddemo-readcard) | - | - | 17/23 | 1/3 | 9/11 | 22/25 | 12/12 | - | 8/9 |
 | CBCUS01C (carddemo-readcust) | - | - | 12/13 | 1/4 | 8/8 | 23/27 | 10/10 | - | 9/12 |
 | CBACT03C (carddemo-readxref) | - | - | 16/19 | 1/4 | 9/9 | 22/27 | 10/10 | - | 11/14 |
-| CORPT00C (carddemo-report) | 3/3 | 0/1 | 1/11 | 10/13 | 6/13 | 12/13 | 13/13 | 4/7 | 9/13 |
+| CORPT00C (carddemo-report) | 3/3 | 0/1 | 1/11 | 10/13 | 7/13 | 12/13 | 13/13 | 4/7 | 9/13 |
 | COSGN00C (carddemo-signon) | 2/2 | - | 3/20 | 3/4 | 12/20 | 18/20 | 15/16 | - | 14/17 |
 | COSGN00C (carddemo-signon-generated) | 2/2 | - | 6/36 | 4/5 | 23/36 | 31/35 | 16/16 | - | 17/19 |
-| COTRN02C (carddemo-tranadd) | 7/7 | 3/7 | 1/12 | 5/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
+| COTRN02C (carddemo-tranadd) | 7/7 | 5/7 | 4/12 | 9/12 | 8/12 | 11/12 | 11/11 | 4/7 | 11/11 |
 | COTRN00C (carddemo-tranlist) | 6/9 | - | 10/14 | 8/14 | 11/13 | 10/14 | 11/11 | 2/3 | 8/13 |
 | COTRN01C (carddemo-tranview) | 1/1 | - | 2/24 | 2/3 | 21/24 | 19/24 | 17/17 | - | 5/7 |
 | COTRN01C (carddemo-tranview-generated) | 1/1 | - | 3/43 | 2/3 | 34/43 | 30/36 | 17/17 | - | 5/7 |
 | CBTRN03C (carddemo-trnrpt) | 2/2 | 5/7 | 9/14 | 1/7 | 14/14 | 13/14 | 12/14 | - | 12/14 |
 | COUSR01C (carddemo-useradd) | 1/1 | - | 1/21 | 3/6 | 16/20 | 16/20 | 10/10 | - | 16/20 |
 | COUSR03C (carddemo-userdel) | 0/1 | - | 6/17 | 2/4 | 14/17 | 14/16 | 16/16 | - | 15/16 |
-| COUSR00C (carddemo-userlist) | 12/12 | - | 50/123 | 28/38 | 111/126 | 75/94 | 49/51 | - | 52/61 |
+| COUSR00C (carddemo-userlist) | 12/12 | - | 51/124 | 28/38 | 111/126 | 76/95 | 49/51 | - | 52/61 |
 | COUSR02C (carddemo-userupd) | 1/1 | - | 3/16 | 3/5 | 11/16 | 14/16 | 13/13 | - | 12/15 |
 | INQACC (cbsa-inqacc) | 3/3 | 1/2 | 4/21 | 2/5 | 10/21 | 6/21 | 14/21 | 8/16 | 15/21 |
-| UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 3/10 | 16/27 | 28/32 | 8/8 | - | 19/19 |
+| UPDACC (cbsa-updacc) | 4/4 | 0/3 | 17/30 | 10/11 | 17/28 | 28/34 | 8/8 | - | 19/21 |
 | UPDACC (cbsa-updacc-generated) | 4/4 | 0/3 | 17/30 | 10/11 | 17/28 | 28/34 | 8/8 | - | 19/21 |
 | LGAPDB01 (genapp-lgapdb01) | 5/13 | - | 8/23 | 0/2 | 7/21 | 12/23 | 13/23 | 2/10 | 11/22 |
 | LGAPVS01 (genapp-lgapvs01) | 14/16 | - | 25/41 | 0/1 | 6/11 | 12/28 | 6/9 | - | 9/19 |
@@ -513,8 +520,8 @@ left, and the one open survivor needs a harness change, not a proposal.
 mutants each, seed 0). Their case gaps repeat the six ports': no EIBCALEN, a short or blank COMMAREA, non-blank
 COMMAREA fields, a failed XCTL, bad-format amount and date inputs, and rounding with fractional amounts; tranlist's
 cases also need `"maps"` in case.json. 31 survivors are unreachable (the facade's byte-carrying handleLink,
-lastLinkBytes() and the program name in `region.run` / `region.linked`). cardlist's 16 of 46 scenarios are refused by
-the oracle (register X8), so its score rests on the other 30. One harness gap, closed in #5401: cardview (0173a35c74) changes SEND TEXT
+lastLinkBytes() and the program name in `region.run` / `region.linked`). cardlist's 16 scenarios are refused by
+the oracle (register X8), so its score rests on the others (the 30 of the first 46, 46 since #5401: see the cardlist paragraph below). One harness gap, closed in #5401: cardview (0173a35c74) changes SEND TEXT
 options, and the harness compared SEND TEXT by text only; it now compares the forwarded options (ERASE, FREEKB, ALARM,
 WAIT, LAST). The score is not re-run. #5401 added `commarea_length` scenarios (EIBCALEN stated, X23): userupd 185 and 186, report 146 and 153, tranlist
 `enter-short-commarea` (160 of 218), billpay and tranadd 200 and 201 (of 218, both past the numeric page number). Lengths that cut a numeric field, or leave one blank, are not used: a blank
@@ -535,13 +542,15 @@ three; the scores are not re-run. `test_carddemo_commarea_fields_5401.py` pins t
 stale first card account id must come back 0 when the first READNEXT faults, `6fef123a15`) need no refused scenario, so the X8 refusals never blocked them: both mutants differ
 (`commarea.WS-RETURN-FLAG` 1 vs None, `commarea.WS-CA-FIRST-CARD-ACCT-ID` 0 vs 41), and the case is proven on 33 scenarios, 36/36 paragraphs, 136/149 branches. No survivor of the item is open.
 
+**Cardlist survivors behind the X8 refusals** (#5401, 2026-10-23). The 16 refused scenarios are all ENTERs with nothing selected: COCRDLIC line 518 subscripts `VIEW-REQUESTED-ON(I-SELECTED)` with `I-SELECTED` = 0, and the oracle's `EC-BOUND-SUBSCRIPT` refuses it by name (register X8, an owner decision: no scenario is allowed past the bounds). A PF key skips line 518, so each survivor the refusals left open is stated under one. Of the five cardlist case gaps still open, two were already killed by scenarios added since the score was recorded (`103529adf5` by `pf8-back-from-card-view-keeps-the-selected-ids`, `0e7e448057` by `pf3-from-menu-stale-first-card-faulting-carddat`). Four new scenarios kill the other three: `pf8-with-all-zeros-account-filter` (`1761ccd4aa`, `d9ff5e4dbc`), `pf8-with-all-zeros-card-filter` (`d9ff5e4dbc`), and `pf8-endbr-invreq` / `pf7-endbr-invreq` (`fc564b048f`; the source has no RESP on its ENDBR, so INVREQ abends the task). GnuCOBOL and the port agree on all four. The case is proven on 46 scenarios (36/36 paragraphs, 147/149 branches), and the 100-mutant sample (seed 0) is re-run: 82 caught, 12 survived (all equivalent), 6 stillborn, 0 case gaps; raw 82/94 (87%), adjusted 82/82. The 16 refusals stay: no PF-key form reaches what they would have shown (the ENTER paths themselves, e.g. the empty-selection test of line 518, are unobserved by any proof). `test_carddemo_cardlist_mutation_survivors_5401.py` pins the scenarios.
+
 **Failed XCTL survivors** (#5401, 2026-10-21). A case with an XCTL site had no scenario where the XCTL answers a non-NORMAL condition. The source has no RESP, so
 CICS abends the task (PGMIDERR, RESP2 3), the shape billpay, tranadd and cardview already state (`pf3-xctl-fails`). Added: tranlist `select-xctl-fails` (XCTL COTRN01C) and
 `pf3-xctl-fails` (XCTL COMEN01C), report `pf3-xctl-fails` (CORPT00C's one XCTL, COMEN01C) and userupd `pf3-saves-then-xctl-fails` (the update saved first, then XCTL COADM01C).
 GnuCOBOL and the port agree on all four. tranlist `9e54fb034b` (the `abendOnCondition` after the XCTL, `Cotrn00cService.java:522`) is killed by both tranlist scenarios; the case
 is re-judged with `mutation.py run --only` (no re-sample), which also records `bdeaa77fbe` as killed (the score had not been re-run for it): COTRN00C 66/91 killed.
 `test_carddemo_failed_xctl_5401.py` pins the four scenarios. cardlist (COCRDLIC) states one per XCTL site (lines 402, 538, 566; #5819), so the item is closed: the test also
-counts the XCTL sites in each of the seven sources and requires a faulted-XCTL scenario for each. The cardlist score is not re-run (16 of its 46 scenarios are refused by the oracle, X8).
+counts the XCTL sites in each of the seven sources and requires a faulted-XCTL scenario for each. The cardlist score was re-run in the next paragraph.
 
 **Bad-format amount and date survivors** (#5401, 2026-10-21). COTRN02C validates the amount with four clauses (sign byte, digits 2-9, the point, cents) and each date with
 five (year, `-`, month, `-`, day), and the case had one all-bad value per field, which fails the first clause and leaves a mutant of any later one alive. tranadd now
@@ -604,6 +613,15 @@ What the triage found:
   - CSUTLDTC: a January date; day `00`; year `0000`; year `0001` with a bad day; a non-digit in the last two places.
     So not all of its remaining survivors sit behind undocumented CEEDAYS behaviour. These are valid inputs that the
     CEEDAYS model accepts, though the COBOL still decides their expected results.
+    #4049 (Julian slice): the port had no `DDD` token (it answered `YYYYDDD` as a bad picture string where the model
+    answers a date), so a `YYYYDDD` call would have failed the proof. The port now has one and the case gained 18 Julian
+    calls (day 000, 365, 366 in leap 2024 / 2000 and non-leap 2023 / 1900, 367, a non-digit in the day and in the year,
+    the Lilian boundary 1582 day 287 / 288, 9999 day 365, year 0000, `DDDYYYY`, `YYYY-DDD`), every one on a picture the
+    model documents; pictures it does not (a month with DDD, month names, `YY`) stay refused (exit 98). Re-run
+    (`mutation.py run carddemo-dateutil --record`, seed 0, all 276 mutants, 659 s): raw / adjusted 74% / 100% -> 76% /
+    100%, 145/195 -> 197/260 caught. The 38 new survivors were triaged by reading the port: 0 case gaps (the mutated
+    Julian guards all need a repeated token or DDD beside MM / DD, which the oracle refuses; year `<= 1` is the same 2513
+    as the Lilian check; the sentinels are equivalent). Stop rule met: no proposal kills a remaining survivor.
   - Fault plans: 15 survivors across the estate are reached only when a CICS command raises a condition, for
     example a WRITEQ TS or an XCTL that fails, or a callee that abends. The crucible has no fault injection, so
     these are case gaps that need a fault plan. The other crucible gaps are scenarios it does not have, such as an
@@ -647,6 +665,14 @@ Re-checked 2026-10-22 (#5491, negative balance): the same run (20/23 caught, `--
 `direct-negative-balance`: its V2-BALANCE of -12345.67 is the one value that takes the negate branch. No CAXA mode was needed.
 
 Spot-check 2026-10-22 (#4443): 22 of the 45 equivalent verdicts on the 13 re-run ports were re-read against the port source; all hold, no new case. The sample and its caveats: [mutation_equivalent_spot_check.md](mutation_equivalent_spot_check.md).
+
+Checked 2026-10-23 (#4443, READ ... INTO LENGTH -> LENGERR, #4436 / #4453): no cics-crucible release carries the scenario yet, so there is no
+branch to mutate. v0.9.0 is the latest release and tag. Its only keyed READ ... INTO LENGTH case, `hc-file-unlock` (HCUNLK), reads with
+LENGTH(16), the record's own length, and its NOTES say LENGERR (RESP2 10 / 13) "is not provoked". The one burned crucible port near it,
+`hc-perform-range` (HCQREAD), reads TS queues. GenApp LGUCVS01 / LGUPVS01 model the LENGTH (X14) but refuse LENGERR on READ UPDATE by name.
+What closes the item: a cics-crucible case with a non-UPDATE keyed READ INTO whose LENGTH is below the record's length (RESP LENGERR, RESP2
+11, INTO truncated, LENGTH set back to the record's length), a release, the pin bump with its re-baseline, a port, and a mutation run
+on that branch that kills a mutant of the truncation or the set-back.
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.
@@ -699,9 +725,14 @@ python tests/tools/det_mutation.py refresh --work DIR        # an input moved: s
   above; `mutation.py run --port DIR --files GLOB` is the hook.
 - **The ledger**, `tests/equivalence/det_mutation/<CASE>.json`, is written only by the tool: per case the counts, every
   judged mutant's verdict, the survivors in full, and the fingerprints of the det port's files, the case, the
-  corpus pin, the harness, the oracle and the Java generator (the stand-in for the port a reader can check without
-  translating). Any fingerprint that moved makes the entry unknown; `refresh` re-translates and, when the port
-  bytes did not change, renews it: a generator-only move needs no re-run; a case / corpus / harness / oracle move re-runs
+  corpus pin, the reviewed survivor list, and the Java generator, harness and oracle. **Fresh (#5862, owner
+  2026-10-23)** means the case, the corpus pin and the survivor list match the tree and `refresh` has not found the
+  det port's bytes (the generated `.java` files) moved. The generator, harness and
+  oracle fingerprints are whole-tree hashes: their drift alone does not stale an entry, it is recorded (`drifted`,
+  shown by `describe` and `stale-check`). Because `status` cannot translate, a port that a translator change moved is
+  only found when `refresh` runs (the nightly Evidence Refresh lane): it then marks the entry stale (`port_moved`)
+  until `run` records the new port. `refresh` re-translates any entry that is stale or drifted and, when the port
+  bytes did not change, renews it: info drift only needs no re-run; a case / corpus / survivor-list move re-runs
   only the recorded survivors (same seed, mode and scope) and carries the rest. A survivor that now dies drops out
   (a stated `equivalent` / `unreachable` one is a wrong claim: exit 1); one still surviving with the same Java line
   keeps its stated verdict. Mutants killed before are not re-proven, so a case weakened since would not show. The
@@ -846,7 +877,11 @@ caller-value-longer-than-the-field scenario (kills: see the table); a link area 
 stated (register X10), so the `beyond` mutants are `harness-gap`. ACCTCTRL and UPDACC (Db2) are triaged the same way (#5863 slice 3):
 ACCTCTRL gained 7 scenarios (165 -> 184 killed) and 228 of its 308 survivors are stated (160 equivalent, 68 unreachable), 45 open
 `case-gap` and 35 open `harness-gap`; UPDACC gained 3 scenarios (293 -> 304 killed) and 256 of its 384 survivors are stated (181
-equivalent, 75 unreachable), 77 open `case-gap` and 51 open `harness-gap`. Its no-COMMAREA and short-EIBCALEN scenarios are left out: they
+equivalent, 75 unreachable), 77 open `case-gap` and 51 open `harness-gap`. #4049 then gave it six `dto-entry-*` scenarios (the typed
+DTO alone, so the link-area bytes cannot overwrite what `in_` maps; one is a failing run whose caller fields are all non-zero): 304 -> 394
+killed, every `case-gap` closed (63 of the 77 killed or restated, 9 stated equivalent: a width or null test on a field the program
+overwrites, `COMM-SCODE` and `COMM-SUCCESS`), and 29 open `harness-gap`. A scenario with EIBCALEN 98 was tried and the java-facade side
+refuses it, so the `caWhole` mutants are `harness-gap` too. Its no-COMMAREA and short-EIBCALEN scenarios are left out: they
 fail the java-facade side of the proof, so the cut-COMMAREA path stays a `case-gap`. The open ones are the typed-DTO `in_` / `fill_` paths (the
 harness replaces the DTO with the link-area bytes), the `byte[]` COMMAREA entry, `handleLink(request, area)` (no caller LINKs with
 LENGTH) and `beyond` (X10).
@@ -856,7 +891,7 @@ LENGTH) and `beyond` (X10).
 | GETCOMPY (cbsa-getcompy) | 220/220 | 60 | 146 | 14 | 127 | 19 | 60/206 (29%) | no |
 | GETSCODE (cbsa-getscode) | 227/227 | 67 | 146 | 14 | 127 | 19 | 67/213 (31%) | no |
 | ACCTCTRL (cbsa-acctctrl) | 517/517 | 203 | 289 | 25 | 268 | 21 | 203/492 (41%) | no |
-| UPDACC (cbsa-updacc) | 713/713 | 304 | 384 | 25 | 256 | 128 | 304/688 (44%) | no |
+| UPDACC (cbsa-updacc) | 713/713 | 394 | 294 | 25 | 265 | 29 | 394/688 (57%) | no |
 
 **#5863 slice 4 (GETCOMPY, typed-DTO entry):** a scenario may state `"dto_entry": true`: the port is given the typed DTO alone, without the link-area bytes that otherwise overwrite every field `in_` maps, and a LINKed port that took the bytes now has the DTO it gave back compared beside them (`commarea.dto.<field>` in `compare_events`). GETCOMPY gained two such scenarios (55 -> 60 killed: the five `fill_` mutants of the DTO write-back). The `in_` mutants still survive and are now stated `equivalent`: the program's one MOVE overwrites the whole field `in_` fills. 19 stay open, all on the `byte[]` COMMAREA entry, `handleLink(request, area)` and `beyond` (X10). ACCTCTRL took the same 10 scenarios in #5863 slice 6 (184 -> 203 killed; 268 of 289 survivors stated, 15 open `case-gap`, 6 open `harness-gap`). UPDACC takes them in the next slice.
 

@@ -56,3 +56,15 @@ def test_a_foreign_dto_commarea_is_read_through_its_layout():
     rt = (Path(P.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
     assert "public static byte[] layoutBytes(Object dto)" in rt and '"toCommarea"' in rt
     assert "DetCics.layoutBytes(ca)" in Path(P.__file__).read_text(encoding="utf-8")
+
+
+def test_the_committed_pcconf_det_port_translates_whole():
+    """PCCONF's `RETURN TRANSID COMMAREA(WS-STATE)` were two holes before the untyped COMMAREA; the committed port
+    says every statement is translated, and no statement throws Hole."""
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2] / "tests/cics_crucible/ports/pc-wizard"
+    java = (root / "PCCONF/overlay/service/PcconfService.java").read_text(encoding="utf-8")
+    assert "Statements: 47, translated 47, holes 0." in java
+    # the one Hole left is the runtime's file-store guard, not a translated statement
+    assert java.count("throw new Hole(") == java.count('throw new Hole("CICS file ')

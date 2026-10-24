@@ -239,6 +239,11 @@ JAVA_CAPS = cc.Capabilities(
         "READ": frozenset({"file", "ridfld", "update", "resp", "resp2", "length", "data"}),
         "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
         "UNLOCK": frozenset({"file", "resp", "resp2"}),
+        # #6262: what CicsTask.startbrEvent / readnextInto / readprevInto / endbrEvent record
+        "STARTBR": frozenset({"file", "ridfld", "mode", "resp", "resp2"}),
+        "READNEXT": frozenset({"file", "ridfld", "resp", "resp2", "length", "data"}),
+        "READPREV": frozenset({"file", "ridfld", "resp", "resp2", "length", "data"}),
+        "ENDBR": frozenset({"file", "resp", "resp2"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
         "START": _START_KEYS,
         "RETRIEVE": _RETRIEVE_KEYS,
@@ -1830,6 +1835,15 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
     """#4443: a READ / REWRITE / UNLOCK CicsTask recorded, as the log's keys: `update`, `resp2` and `length` only when
     the command carries them. A LENGERR READ asserts its RESP only (SPEC section 2, Files), so its RESP2 is left out."""
     ev: dict[str, Any] = {"file": e.get("file"), "resp": e.get("resp")}
+    if kind in ("STARTBR", "READNEXT", "READPREV"):  # #6262: the key on entry; STARTBR's mode, a browse read's record
+        ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
+        if kind == "STARTBR":
+            ev["mode"] = e.get("mode")
+        else:
+            if e.get("length") is not None:
+                ev["length"] = e["length"]
+            b64 = e.get("data")
+            ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
     if kind == "READ":
         ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
         if e.get("update"):
@@ -1839,7 +1853,7 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
     if kind in ("READ", "REWRITE"):
         b64 = e.get("data")
         ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
-    if e.get("resp2") is not None and not (kind == "READ" and e.get("resp") == "LENGERR"):
+    if e.get("resp2") is not None and not (kind in ("READ", "READNEXT", "READPREV") and e.get("resp") == "LENGERR"):
         ev["resp2"] = e["resp2"]
     return ev
 
@@ -1881,7 +1895,7 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 ev.update(queue=e.get("queue"), item=e.get("item"), resp=e.get("resp"), data=data)
                 if kind == "READQ-TS":
                     ev["length"] = e.get("length")
-            elif kind in ("READ", "REWRITE", "UNLOCK"):  # #4443: byte[] ridfld / data arrive as base64, EBCDIC bytes
+            elif kind in ("READ", "REWRITE", "UNLOCK", "STARTBR", "READNEXT", "READPREV", "ENDBR"):  # #4443, #6262: byte[] ridfld / data arrive as base64, EBCDIC bytes
                 ev.update(_java_file_event(kind, e))
             elif kind == "WRITE-OPERATOR":  # #4270 zECS (X32): the console message, as the text CicsTask recorded
                 ev.update(data=cc.RawArea(str(e.get("text") or "").encode("latin-1"), "latin-1"), resp=e.get("resp"))

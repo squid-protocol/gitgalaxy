@@ -3944,7 +3944,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3958,7 +3958,7 @@
       ],
       "metric": "argument_part/-+generic+bang",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -3976,7 +3976,7 @@
       "investigated_at": "2026-10-24T13:10:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 88,
       "last_seen_examples": [
         {
@@ -4022,7 +4022,7 @@
       ],
       "metric": "argument_part/-+generic",
       "status": "validated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": "GitGalaxy missed it: a generic call `f<T>(x)` / `Foo<T>(x)` is a call (C3) and tree-sitter finds it through argument_part after a type_arguments node; the engine's call capture needs the name directly before `(` and skips the `<...>` between. Read the recorded examples. Engine defect: dart generic invocations are dropped."
     },
@@ -4038,23 +4038,23 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 12,
       "last_seen_examples": [
-        {
-          "file_path": "dart/flutter/framework.dart",
-          "name": "toString -> shortHash",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 216
-          }
-        },
         {
           "file_path": "dart/flutter/framework.dart",
           "name": "toString -> describeIdentity",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 218
+          }
+        },
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "toString -> shortHash",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 216
           }
         },
         {
@@ -4102,8 +4102,8 @@
       "investigated_at": "2026-10-24T14:33:04Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
-      "last_seen_count": 27,
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
+      "last_seen_count": 13,
       "last_seen_examples": [
         {
           "file_path": "dart/flutter/framework.dart",
@@ -4111,14 +4111,6 @@
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 3417
-          }
-        },
-        {
-          "file_path": "dart/flutter/framework.dart",
-          "name": "finalizeTree -> map",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 3361
           }
         },
         {
@@ -4135,6 +4127,14 @@
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 6717
+          }
+        },
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "attachRenderObject -> toStringShort",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 6926
           }
         },
         {
@@ -4164,7 +4164,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -4194,7 +4194,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<argument",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4210,7 +4210,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4224,7 +4224,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<assignment_expression",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4240,7 +4240,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4254,7 +4254,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<cascade_section",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4270,7 +4270,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4284,7 +4284,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<conditional_expression",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4300,7 +4300,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4314,7 +4314,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<equality_expression",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4330,7 +4330,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -4352,7 +4352,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<if_null_expression",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4368,7 +4368,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4382,7 +4382,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<named_argument",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4398,7 +4398,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4412,7 +4412,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<optional_formal_parameters",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4428,7 +4428,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4458,7 +4458,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4488,7 +4488,7 @@
       "investigated_at": "2026-10-24T13:10:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 51,
       "last_seen_examples": [
         {
@@ -4534,7 +4534,7 @@
       ],
       "metric": "not-a-call-in-ts:formal_parameter<optional_formal_parameters",
       "status": "validated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": "GitGalaxy wrong: the name is a parameter TYPE in an optional/named parameter list (`{Foo? x, int y = 0}`), a declaration, not a call (C3). The engine matches `Type name(` shapes inside the braces/brackets. Read the recorded examples. Engine defect: type names in optional_formal_parameters are counted as callees."
     },
@@ -4550,7 +4550,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4563,6 +4563,74 @@
         }
       ],
       "metric": "not-a-call-in-ts:initialized_variable_definition<local_variable_declaration",
+      "status": "unvalidated",
+      "still_reproduces": false,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "dart/call/not-a-call-in-ts:initializer_list_entry<initializers/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T22:16:49Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "LabeledGlobalKey -> constructor",
+          "readings": {
+            "gitgalaxy": 208,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/flutter/theme_data.dart",
+          "name": "MaterialBasedCupertinoThemeData._ -> raw",
+          "readings": {
+            "gitgalaxy": 2980,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:initializer_list_entry<initializers",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "dart/call/not-a-call-in-ts:object_pattern<for_loop_parts/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T22:16:49Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "finalizeTree -> MapEntry",
+          "readings": {
+            "gitgalaxy": 3369,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:object_pattern<for_loop_parts",
       "status": "unvalidated",
       "still_reproduces": true,
       "symbol_type": "call",
@@ -4580,7 +4648,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -4618,7 +4686,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4648,8 +4716,8 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
-      "last_seen_count": 4,
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
+      "last_seen_count": 2,
       "last_seen_examples": [
         {
           "file_path": "dart/flutter/editable_text.dart",
@@ -4664,22 +4732,6 @@
           "name": "_handleContextMenuOnParentScroll -> ScrollEndNotification",
           "readings": {
             "gitgalaxy": 4161,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "dart/flutter/theme_data.dart",
-          "name": "ThemeData -> InputDecorationThemeData",
-          "readings": {
-            "gitgalaxy": 392,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "dart/flutter/theme_data.dart",
-          "name": "ThemeData -> AppBarThemeData",
-          "readings": {
-            "gitgalaxy": 538,
             "tree_sitter": null
           }
         }
@@ -4702,7 +4754,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4716,7 +4768,7 @@
       ],
       "metric": "not-a-call-in-ts:unconditional_assignable_selector<selector",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4734,44 +4786,44 @@
       "investigated_at": "2026-10-24T13:50:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
-      "last_seen_count": 36,
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
+      "last_seen_count": 13,
       "last_seen_examples": [
         {
           "file_path": "dart/flutter/editable_text.dart",
-          "name": "EditableText -> empty",
+          "name": "_DiscreteKeyFrameSimulation.iOSBlinkingCaret -> _",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "dart/flutter/editable_text.dart",
-          "name": "EditableText -> _inferKeyboardType",
+          "file_path": "dart/flutter/events.dart",
+          "name": "PointerEnterEvent -> identical",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "dart/flutter/editable_text.dart",
-          "name": "EditableText -> _inferAutocorrect",
+          "file_path": "dart/flutter/events.dart",
+          "name": "PointerExitEvent -> identical",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "dart/flutter/editable_text.dart",
-          "name": "_Editable -> extractFromInlineSpan",
+          "file_path": "dart/flutter/events.dart",
+          "name": "PointerMoveEvent -> identical",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "dart/flutter/editable_text.dart",
-          "name": "TextEditingController -> TextEditingValue",
+          "file_path": "dart/flutter/events.dart",
+          "name": "PointerUpEvent -> identical",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -13231,6 +13283,68 @@
         }
       ],
       "metric": "inner-named-function_statement",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "powershell/call/invokation_expression/-+generic/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T22:16:49Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "powershell",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
+      "last_seen_count": 20,
+      "last_seen_examples": [
+        {
+          "file_path": "powershell/core/PowerShell__build.psm1",
+          "name": "ToString -> AppendFormat",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3176
+          }
+        },
+        {
+          "file_path": "powershell/core/PowerShell__build.psm1",
+          "name": "ToString -> AppendLine",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3222
+          }
+        },
+        {
+          "file_path": "powershell/core/PowerShell__build.psm1",
+          "name": "ToString -> Append",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3229
+          }
+        },
+        {
+          "file_path": "powershell/core/PowerShell__build.psm1",
+          "name": "ToString -> AppendFormat",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3224
+          }
+        },
+        {
+          "file_path": "powershell/core/PowerShell__build.psm1",
+          "name": "ToString -> appendformat",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3307
+          }
+        }
+      ],
+      "metric": "invokation_expression/-+generic",
       "status": "unvalidated",
       "still_reproduces": true,
       "symbol_type": "call",

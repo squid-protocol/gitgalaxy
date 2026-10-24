@@ -232,7 +232,10 @@ def _dart_callee(node: Any) -> str | None:
     selector (`.save`, `?.save`) or cascade selector (`..save`) holding one.
     """
     if node.type != "argument_part":
-        return _leaf_name(node.named_children[0]) if node.named_children else None
+        # `const Foo(1)` opens with a `const_builtin` token; `const Foo.named(1)` names `named` (the
+        # rightmost identifier, as for `a.b.save()`): the callee is the last name before `arguments` (#6454)
+        named = [c for c in node.named_children if c.type in ("identifier", "type_identifier")]
+        return _leaf_name(named[-1]) if named else None
     parent = node.parent
     prev = parent.prev_named_sibling if parent is not None and parent.type == "selector" else node.prev_named_sibling
     if prev is None:
@@ -346,6 +349,24 @@ def _body_of(node: Any) -> Any:
     return None
 
 
+def _bodies_of(node: Any) -> list[Any]:
+    """Every subtree that belongs to `node`'s unit: its body, plus a dart constructor's initializer list (#6454).
+
+    The dart grammar puts `initializers` beside `constructor_signature`, not inside it, so
+    `: x = x ?? const Foo(), y = bar()` is outside the signature and the body: the call there
+    would otherwise read as a not-a-call (the callee's first textual occurrence is its parameter type).
+    """
+    bodies = []
+    if node.type == "constructor_signature":
+        nxt = node.next_named_sibling
+        if nxt is not None and nxt.type == "initializers":
+            bodies.append(nxt)
+    body = _body_of(node)
+    if body is not None:
+        bodies.append(body)
+    return bodies
+
+
 def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, set[str], Any]]:
     """(name, start_line, callee names, node) for every function tree-sitter finds."""
     import tree_sitter_language_pack
@@ -370,8 +391,7 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
                 calls: set[str] = set()
                 out.append((name, node.start_point[0] + 1, calls, node))
                 owners = [*owners, (name, calls)]
-                body = _body_of(node)
-                if body is not None:
+                for body in _bodies_of(node):
                     body_owners[body.id] = owners
         elif node.type in CALL_NODE_TYPES and owners:
             name = _callee(node)
@@ -494,10 +514,10 @@ def _cause(kind: str, callee: str, fn: Any, lang: str, audit: Any, engine_elsewh
     may be the one that is wrong.
     """
     func_types = frozenset(audit.NODE_MAPS[lang]["func_node_types"])
-    body = _body_of(fn)
+    bodies = _bodies_of(fn)
     calls = [
         n
-        for n in [*_walk(fn), *(_walk(body) if body is not None else ())]
+        for n in [*_walk(fn), *(n for b in bodies for n in _walk(b))]
         if n.type in CALL_NODE_TYPES and _callee(n) == callee
     ]
     if kind == "fp":
@@ -507,14 +527,14 @@ def _cause(kind: str, callee: str, fn: Any, lang: str, audit: Any, engine_elsewh
             inner = _owner(n, func_types, fn, audit)
             if inner.id != fn.id:
                 return f"fp:inner-named-{inner.type}", n
-        scope = [*_walk(fn), *(_walk(body) if body is not None else ())]
+        scope = [*_walk(fn), *(n for b in bodies for n in _walk(b))]
         ids = [n for n in scope if n.text == callee.encode() and not n.children]
         if ids:
             parent = ids[0].parent
             grand = parent.parent if parent is not None else None
             shape = f"{parent.type if parent else '?'}<{grand.type if grand else '?'}"
             return f"fp:not-a-call-in-ts:{shape}", ids[0]
-        if _overlaps_parse_error(fn, body):
+        if _overlaps_parse_error(fn, bodies[-1] if bodies else None):
             return "fp:ts-parse-error", None
         return "fp:outside-ts-function", None
     if engine_elsewhere:

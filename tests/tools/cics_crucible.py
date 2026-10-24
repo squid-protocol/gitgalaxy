@@ -204,6 +204,11 @@ COBOL_CAPS = cc.Capabilities(
         "READ": frozenset({"file", "ridfld", "update", "resp", "resp2", "length", "data"}),
         "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
         "UNLOCK": frozenset({"file", "resp", "resp2"}),
+        # #6262: what ggcics_filecontrol.c's browse_event and endbr line record (an RBA browse's `rba=` lines: unmodelled)
+        "STARTBR": frozenset({"file", "ridfld", "mode", "resp", "resp2"}),
+        "READNEXT": frozenset({"file", "ridfld", "resp", "resp2", "length", "data"}),
+        "READPREV": frozenset({"file", "ridfld", "resp", "resp2", "length", "data"}),
+        "ENDBR": frozenset({"file", "resp", "resp2"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
@@ -2334,6 +2339,20 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             # SPEC section 2 asserts LENGERR's RESP only
             if arg("resp2") and not (verb == "READ" and ev["resp"] == "LENGERR"):
                 ev["resp2"] = int(arg("resp2"))
+        elif verb in ("STARTBR", "READNEXT", "READPREV", "ENDBR"):  # #6262: SPEC 6.2 keys only where the command carries them
+            ev.update(file=arg("file"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+            if arg("rba"):  # the RBA browse (#4213) has no Java-leg event: its RIDFLD is a fullword, not a key
+                ev["ridfld"] = cc.Unmodelled("an RBA browse's event")
+            elif verb != "ENDBR":
+                ev["ridfld"] = bytes.fromhex(arg("rid")).decode("latin-1").encode(cc.EBCDIC)
+            if verb == "STARTBR" and not arg("rba"):
+                ev["mode"] = arg("mode")
+            if verb in ("READNEXT", "READPREV") and not arg("rba"):
+                if arg("len"):
+                    ev["length"] = int(arg("len"))
+                ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] in ("NORMAL", "DUPKEY") else None
+            if arg("resp2") and not (verb != "STARTBR" and verb != "ENDBR" and ev["resp"] == "LENGERR"):
+                ev["resp2"] = int(arg("resp2"))
         elif verb in ("RETURN", "END"):
             level = int(arg("level") or 1)
             ev = {"event": "RETURN", "program": issuer, "level": level}
@@ -2386,7 +2405,7 @@ def seed_files(case: cc.Case, work: Path, sid: str) -> str:
     for log in case.expected.values():
         for task in log.get("tasks") or []:
             for ev in task.get("events") or []:
-                if ev.get("event") == "READ" and isinstance(ev.get("ridfld"), str):
+                if ev.get("event") in ("READ", "STARTBR", "READNEXT", "READPREV") and isinstance(ev.get("ridfld"), str):
                     keylen.setdefault(ev["file"], len(ev["ridfld"]))
     rel = f"runs/{sid}/files"
     root = work / rel

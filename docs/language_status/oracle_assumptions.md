@@ -3661,14 +3661,17 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   maps that declare pictures (CardDemo COACTVW, CBSA BNK1DAM / BNK1UAM) have them in the generated symbolic-map field PICTURE, the one place both the
   oracle and the det layouts read them: `test_burned_map_pictures_become_the_symbolic_field_picture_5116`.
 - **Not modelled, by name.** (1) A GRPNAME group's later fields take the first field's ATTRB (so NUM, hence the NUM default); the
-  forge reads each field's own ATTRB, so a group member without one is treated as non-NUM. (2) OCCURS: IBM gives every occurrence
-  the field's one JUSTIFY, but a screen's OCCURS field is not received at all by `Cics.receive_map` (its values are keyed `NAME.n`,
+  forge reads each field's own ATTRB, so a group member without one is treated as non-NUM. (2) OCCURS: the DFHMDF page says nothing of
+  JUSTIFY per occurrence (an OCCURS field is one operand set, so each entry would take the field's one JUSTIFY: ASSUMED, not
+  IBM text; re-read 2026-10-24, #5116, c:63fe8de1: no sentence joins JUSTIFY with OCCURS, GRPNAME, "each occurrence" or "group"),
+  and a screen's OCCURS field is not received at all by `Cics.receive_map` (its values are keyed `NAME.n`,
   which `screen_fields` does not list) and the oracle refuses a symbolic map with OCCURS by name ("BMS OCCURS"); OCCURS and GRPNAME
   are mutually exclusive in IBM, so the two never combine.
   Census (#5116, `test_bms_occurs_grpname_census_5116.py`): of the burned estates' BMS maps no field uses GRPNAME, and the
   only OCCURS is CBSA `BNK1ACC` `ACCOUNT` (`OCCURS=10`, `ATTRB=(NORM,PROT,FSET,ASKIP)`, output only), so no burned program
   RECEIVEs into one: per-occurrence JUSTIFY and GRPNAME ATTRB inheritance stay unmodelled, frontier only. The test fails
-  when a burned map gains either.
+  when a burned map gains either. Per-occurrence JUSTIFY is therefore closed for the burned estates: no program can reach it,
+  and a burned map that gains a typable OCCURS or any GRPNAME field fails the census before a wrong proof can pass.
   The harness side is the same: `Unsupported("BMS OCCURS input")` (`equivalence_cics.py`, RECEIVE MAP typing into `NAME(n)`) stays by
   design, since no burned map has a typable OCCURS field and `bms_input_fields` never offers one (pinned by
   `test_no_burned_occurs_field_is_generated_as_map_input`, #4506).

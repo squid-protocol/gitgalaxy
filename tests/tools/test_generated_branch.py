@@ -279,3 +279,65 @@ def test_the_harness_report_is_built_in_refresh_and_published_by_its_own_main_on
 def test_the_harness_report_path_is_git_ignored():
     ignored = (WORKFLOWS.parents[1] / ".gitignore").read_text(encoding="utf-8").splitlines()
     assert "docs/language_status/harness/" in ignored
+
+
+# --- push_head (#6563) -------------------------------------------------------------------------------------------
+
+
+def _generated_checkout(tmp_path, remote, name):
+    c = tmp_path / name
+    git(tmp_path, "clone", "-q", "-b", "generated", str(remote), str(c))
+    git(c, "config", "user.email", "t@t")
+    git(c, "config", "user.name", "t")
+    return c
+
+
+def _commit(c, rel, text):
+    (c / rel).parent.mkdir(parents=True, exist_ok=True)
+    (c / rel).write_text(text, newline="\n")
+    git(c, "add", "-A")
+    git(c, "commit", "-q", "-m", f"w {rel}")
+
+
+def test_push_head_pushes_cleanly(remote_and_clone, tmp_path):
+    remote, clone = remote_and_clone
+    gb.publish(["docs/h.csv"], "m", root=clone)
+    mine = _generated_checkout(tmp_path, remote, "mine")
+    _commit(mine, "evidence/a.md", "a\n")
+    assert gb.push_head(mine) == git(remote, "rev-parse", "generated")
+
+
+def test_push_head_rebases_over_a_concurrent_writer(remote_and_clone, tmp_path):
+    remote, clone = remote_and_clone
+    gb.publish(["docs/h.csv"], "m", root=clone)
+    mine = _generated_checkout(tmp_path, remote, "mine")
+    theirs = _generated_checkout(tmp_path, remote, "theirs")
+    _commit(theirs, "other/b.md", "b\n")
+    git(theirs, "push", "-q", "origin", "HEAD:generated")
+    _commit(mine, "evidence/a.md", "a\n")  # built on the old tip: a plain push is rejected
+    gb.push_head(mine)
+    assert git(remote, "show", "generated:evidence/a.md") == "a"
+    assert git(remote, "show", "generated:other/b.md") == "b"
+
+
+def test_push_head_raises_and_leaves_no_rebase_on_a_conflict(remote_and_clone, tmp_path):
+    remote, clone = remote_and_clone
+    gb.publish(["docs/h.csv"], "m", root=clone)
+    mine = _generated_checkout(tmp_path, remote, "mine")
+    theirs = _generated_checkout(tmp_path, remote, "theirs")
+    _commit(theirs, "GENERATED_FROM", "theirs\n")
+    git(theirs, "push", "-q", "origin", "HEAD:generated")
+    _commit(mine, "GENERATED_FROM", "mine\n")
+    with pytest.raises(RuntimeError, match="conflicts"):
+        gb.push_head(mine)
+    assert not (mine / ".git" / "rebase-merge").exists()
+
+
+def test_no_workflow_pushes_generated_with_a_bare_git_push():
+    """A bare `git push origin HEAD:generated` is rejected whenever another writer pushed since the fetch (#6563)."""
+    offenders = [
+        p.name
+        for p in sorted(WORKFLOWS.glob("*.yml"))
+        if re.search(r"git push[^\n]*:(refs/heads/)?generated\b", _code(p.name))
+    ]
+    assert not offenders, f"use generated_branch.py publish / push-head: {offenders}"

@@ -315,6 +315,27 @@
     "SUBPGM-SUCCESS": "N"
    },
    "why": "FACCNO > TACCNO: TO SELECT -305 first, the same fall-through to the failing UPDATE (-180) and ABEND RUF3 through ABEND-HANDLING; nothing changed in Db2"
+  },
+  {
+   "name": "from-update-deadlock-abends-ad2z",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000002",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "100.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "sql_faults": [
+    {
+     "program": "XFRFUN",
+     "line": 992,
+     "sqlcode": -911,
+     "sqlerrmc": "00C90088",
+     "abend": "AD2Z"
+    }
+   ],
+   "why": "#6271 (X73): the first ACCOUNT UPDATE deadlocks (-911) and the CICS-Db2 attach's syncpoint rollback fails: the task abends AD2Z, so ABEND-HANDLING takes its AD2Z arm (diagnostics DISPLAYed, SQLERRMC the deadlock reason code 00C90088)"
   }
  ],
  "notes": "CBSA's transfer service (XFRFUN, LINKed by BNK1TFN with SUBPGM-PARMS, the XFRFUN copybook's layout under the caller's names: the generated DTO is the caller's). Both sort codes are overwritten with the program's own (987654). COMM-AMT <= 0 fails '4'; FACCNO = TACCNO LINKs ABNDPROC and ABENDs SAME CANCEL. Otherwise the lower-numbered account is read and updated first (SELECT INTO, COMPUTE without ON SIZE ERROR, UPDATE): FROM loses COMM-AMT, TO gains it, with no funds, overdraft-limit or account-type check. A FROM SELECT +100 gives '1', a TO SELECT +100 '2'; either, after the other account was updated, is followed by EXEC CICS SYNCPOINT ROLLBACK, which backs out that UPDATE (Db2 change in the task's unit of work). Any other SQLCODE on the FROM SELECT (-305: a NULL date with no indicator) LINKs ABNDPROC and ABENDs FROM CANCEL; on the TO SELECT the program means to LINK ABNDPROC and ABEND RUF2, but that code sits inside IF SQLCODE = -911 (l.1197-1348, a misplaced END-IF), so it goes on to COMPUTE and UPDATE the TO row from host variables the failed SELECT left unset; Db2 rejects the UPDATE (-180) and the program LINKs ABNDPROC and ABENDs RUF3, which its HANDLE ABEND LABEL(ABEND-HANDLING) catches and re-issues. An abend backs out the task's Db2 changes; ABNDFILE is RECOVERY(NONE) in CBSA's CSD and keeps its record. On success a PROCTRAN row 'TFR' is INSERTed (FROM sort code/account, desc 'TRANSFER' + TO sort code + account, clock date DD.MM.YYYY and time, ref EIBTASKN) and COMM-SUCCESS is 'Y'. ACCOUNT, PROCTRAN and ABNDFILE are compared after every scenario. Not reached (M2: no SQL fault injection; no SYNCPOINT fault): an UPDATE or INSERT failing after its SELECT, -911 deadlock/timeout retries, SYNCPOINT ROLLBACK returning other than NORMAL, the RUF2 abend and timeout texts (only under -911), the 'TO  ' abends after a TO failure other than '2' (l.481-492, l.766-823: '3' always ends in the RUF3 abend inside UPDATE-ACCOUNT-DB2-TO), a FROM UPDATE failing (l.1014), and ABEND-HANDLING's AD2Z / AFCR-AFCT arms."

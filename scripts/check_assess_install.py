@@ -7,12 +7,16 @@ the expected counts, a copybook gap, no planted source text, and the estate left
 variables pointing at a dead port on top of `--no-index` (assess also blocks sockets itself).
 
     python scripts/check_assess_install.py [--wheel-dir DIR] [--wheelhouse DIR] [--estates CORPORA] [--keep]
+    python scripts/check_assess_install.py --from-pypi VERSION
 
 --wheelhouse DIR installs the `translator` extra from local wheels (`pip wheel "gitgalaxy[translator]" -w DIR`), which
 turns the translate-only dry run on; without it the dry run is skipped with its notice, and that is asserted instead.
 --estates CORPORA also runs the installed command, plain and redacted, on each of the six burned estates under CORPORA
 (`.mainframe_corpora`): exit 0, schema-valid report, programs found, labels under --redact, and no program name in the
 redacted report. A missing estate directory is a failure, not a skip.
+--from-pypi VERSION is the post-publish check (publish-assess-check.yml): nothing is built; `gitgalaxy[translator]==VERSION`
+is installed from PyPI (the only networked step, retried while the index catches up), the report's `tool_version` must be
+VERSION, and the planted-estate assertions run with the translator extra on. Not combinable with --wheel-dir/--wheelhouse.
 Exit 0 = pass, 1 = a failed assertion, 2 = the build or install itself failed.
 """
 
@@ -22,6 +26,7 @@ import argparse
 import hashlib
 import json
 import os
+import time
 import shutil
 import subprocess
 import sys
@@ -127,8 +132,11 @@ def main() -> int:
     ap.add_argument(
         "--estates", type=Path, help="corpora root: also assess each burned estate with the installed command"
     )
+    ap.add_argument("--from-pypi", metavar="VERSION", help="install gitgalaxy[translator]==VERSION from PyPI, no build")
     ap.add_argument("--keep", action="store_true", help="keep the work directory and print its path")
     args = ap.parse_args()
+    if args.from_pypi and (args.wheel_dir or args.wheelhouse):
+        ap.error("--from-pypi installs the published package: drop --wheel-dir and --wheelhouse")
 
     base = Path(tempfile.mkdtemp(prefix="gitgalaxy-assess-install-"))
     try:
@@ -140,7 +148,7 @@ def main() -> int:
         work.mkdir()
 
         wheel_dir = args.wheel_dir or base / "wheels"
-        if args.wheel_dir is None:
+        if args.wheel_dir is None and not args.from_pypi:
             try:
                 import setuptools  # noqa: F401
 
@@ -155,8 +163,8 @@ def main() -> int:
             if built.returncode:
                 print("build failed:\n" + built.stderr[-3000:])
                 return 2
-        wheels = sorted(wheel_dir.glob("gitgalaxy-*.whl"))
-        if not wheels:
+        wheels = [] if args.from_pypi else sorted(wheel_dir.glob("gitgalaxy-*.whl"))
+        if not wheels and not args.from_pypi:
             print(f"no gitgalaxy wheel in {wheel_dir}")
             return 2
 
@@ -166,9 +174,19 @@ def main() -> int:
             return 2
         bindir = venv / ("Scripts" if os.name == "nt" else "bin")
         py = str(bindir / ("python.exe" if os.name == "nt" else "python"))
-        spec = f"{wheels[-1]}[translator]" if args.wheelhouse else str(wheels[-1])
-        find = ["--find-links", str(args.wheelhouse)] if args.wheelhouse else ["--no-deps"]
-        done = run([py, "-m", "pip", "install", "--no-index", *find, spec], work, env)
+        if args.from_pypi:
+            install_env = {k: v for k, v in env.items() if "proxy" not in k.lower()}  # PyPI is reachable only here
+            cmd = [py, "-m", "pip", "install", "--no-cache-dir", f"gitgalaxy[translator]=={args.from_pypi}"]
+            for attempt in range(10):  # the index can lag the publish by a few minutes
+                done = run(cmd, work, install_env)
+                if not done.returncode:
+                    break
+                print(f"install attempt {attempt + 1} failed; retrying in 30 s")
+                time.sleep(30)
+        else:
+            spec = f"{wheels[-1]}[translator]" if args.wheelhouse else str(wheels[-1])
+            find = ["--find-links", str(args.wheelhouse)] if args.wheelhouse else ["--no-deps"]
+            done = run([py, "-m", "pip", "install", "--no-index", *find, spec], work, env)
         if done.returncode:
             print("install failed:\n" + done.stderr[-3000:])
             return 2
@@ -180,6 +198,9 @@ def main() -> int:
         before = fingerprint(estate)
         out = work / "report.json"
         exe = str(bindir / ("gitgalaxy.exe" if os.name == "nt" else "gitgalaxy"))
+        if not Path(exe).exists():
+            print(f"the installed package has no `gitgalaxy` command ({exe}); a release without `assess`?")
+            return 1
         res = run([exe, "assess", str(estate), "--redact", "--out", str(out)], work, env)
 
         failures: list[str] = []
@@ -219,13 +240,20 @@ def main() -> int:
                 all(p["name"].startswith("P-") for p in report["programs"]), "--redact: programs are labels", failures
             )
             translated = "translation" in report["totals"]
+            with_extra = bool(args.wheelhouse or args.from_pypi)
+            if args.from_pypi:
+                check(
+                    report.get("tool_version") == args.from_pypi,
+                    f"tool_version is {report.get('tool_version')!r}, published {args.from_pypi!r}",
+                    failures,
+                )
             check(
-                translated == bool(args.wheelhouse),
+                translated == with_extra,
                 f"translate-only dry run {'ran' if translated else 'skipped'} as expected",
                 failures,
             )
             check(
-                (NOTICE in res.stderr) == (not args.wheelhouse),
+                (NOTICE in res.stderr) == (not with_extra),
                 "the skip notice appears exactly when the extra is absent",
                 failures,
             )

@@ -18,6 +18,7 @@ import equivalence_cics_containers as ecc  # noqa: E402
 from gitgalaxy.standards.cics.commands import COMMANDS  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_conditions as tcn  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_containers as tc  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_faults as tfl  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_taskcontrol as tt  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
@@ -92,7 +93,9 @@ def test_cicstask_holds_the_file_control_java_once_where_it_sat():
     java = forge.CICS_TASK_JAVA
     assert java.count(tf.FILECONTROL_JAVA) == 1
     at = java.index(tf.FILECONTROL_JAVA)
-    assert java[:at].rstrip().endswith("this.faultLog = log;\n        return this;\n    }")  # withFaults, before it
+    assert (
+        java[:at].rstrip().endswith("public record Received(String resp, int length, String data) {\n    }")
+    )  # before it
     assert java[at + len(tf.FILECONTROL_JAVA) :].startswith("    /** #4437: the task runs a program LINKed")
     for method in ("read", "readForUpdate", "readSearch", "write", "rewrite", "delete", "unlockHeld", "readnext",
                    "readprev", "startbrRba", "readnextRba", "readprevRba", "endbr"):  # fmt: skip
@@ -361,3 +364,27 @@ def test_every_condition_method_the_forge_emitted_before_the_split_is_still_emit
         len(_java_methods(tcn.CONDITIONS_JAVA)) == 25
     )  # abend is overloaded: public abend(abcode) and private abend(...)
     assert "ASSIGN ABCODE" in tcn.CONDITIONS_JAVA and "HANDLE ABEND LABEL" in tcn.CONDITIONS_JAVA
+
+
+# ---- faults (#5274, forge half): withFaults, injected, logFault, logAbend, planned, the deferred DUPKEY ---------------
+FAULT_JAVA_METHODS = ("withFaults", "dupkeyOr", "logFault", "logAbend", "injected", "planned")
+
+
+def test_cicstask_holds_the_faults_java_once_as_one_span():
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tfl.FAULTS_JAVA) == 1
+    in_family = _java_methods(tfl.FAULTS_JAVA)
+    assert sorted(in_family) == sorted(FAULT_JAVA_METHODS)
+    host = java.replace(tfl.FAULTS_JAVA, "")
+    for method in FAULT_JAVA_METHODS:
+        assert method not in _java_methods(host), method  # none left behind, scattered, in the host
+    for field in ("deferredDupkey", "deferredWhat"):
+        assert f" {field}" in tfl.FAULTS_JAVA and f" {field};" not in host, field
+    for shared in ("root", "abend", "respName"):  # the other families' and the class's own
+        assert shared in _java_methods(host), shared
+
+
+def test_every_fault_member_the_forge_emitted_before_the_split_is_still_emitted():
+    assert "faults.cfg: `CMD FILE NTH RESP [RESP2]`" in tfl.FAULTS_JAVA
+    assert "`CMD FILE NTH -1 0 ABCODE` abends the task" in tfl.FAULTS_JAVA  # #6271 (X70)
+    assert "private List<String[]> faultPlan" in forge.CICS_TASK_JAVA  # the state stays in the class header

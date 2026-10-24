@@ -393,3 +393,20 @@ def test_replay_failure_exits_nonzero_without_planning(monkeypatch, capsys):
     monkeypatch.setattr(sys, "argv", ["sweep_plan.py", "--replay", "5"])
     assert sp.main() == 1
     assert "replay failed: no gh" in capsys.readouterr().err
+
+
+# near misses: a path that only LOOKS like a non-input (sibling prefix, nested copy, other extension) stays an input
+NEAR_MISS_INPUT_PATHS = [
+    "gitgalaxy/standards/cics_extra.py",  # the CICS exemption is the directory, not the prefix
+    "gitgalaxy/tools/cobol_to_java_helper.py",  # the translator exemption is its directory
+    "gitgalaxy/cobol_to_java_controller_v2.py",
+    "gitgalaxy/tools/terabyte_log_scanning_x/a.py",
+    "tests/extraction_extra/test_a.py",
+    "requirements-dev.txt",
+    "ci/requirements/extra/lock.txt",
+]
+
+
+@pytest.mark.parametrize("path", NEAR_MISS_INPUT_PATHS)
+def test_a_near_miss_of_a_non_input_pattern_runs_the_sweeps(path):
+    assert sp.plan([path], "pull_request")["mode"] == "full"

@@ -415,6 +415,26 @@ def _owner(node: Any, func_types: frozenset[str], top: Any, audit: Any) -> Any:
     return top
 
 
+_ERROR_SPANS: dict[tuple[int, int], list[tuple[int, int]]] = {}
+
+
+def _overlaps_parse_error(fn: Any, body: Any) -> bool:
+    """True when tree-sitter's tree has an ERROR or MISSING node over the function (a grammar that
+    cannot parse the construct, e.g. zig tuple destructuring `_, const x = f();`): the callee is
+    absent from the tree because the tree is broken there, not because the call is not one."""
+    root = fn
+    while root.parent is not None:
+        root = root.parent
+    key = (root.id, root.end_byte)
+    if key not in _ERROR_SPANS:
+        _ERROR_SPANS[key] = [
+            (n.start_point[0], n.end_point[0]) for n in _walk(root) if n.type == "ERROR" or n.is_missing
+        ]
+    # rows, not bytes: a broken body starts after the `FnProto` ends, on the same line
+    lo, hi = fn.start_point[0], (body if body is not None else fn).end_point[0]
+    return any(start <= hi and end >= lo for start, end in _ERROR_SPANS[key])
+
+
 def _cause(kind: str, callee: str, fn: Any, lang: str, audit: Any, engine_elsewhere: bool) -> tuple[str, Any]:
     """Why one side has `callee` in `fn` and the other does not, as a shape label.
 
@@ -438,12 +458,15 @@ def _cause(kind: str, callee: str, fn: Any, lang: str, audit: Any, engine_elsewh
             inner = _owner(n, func_types, fn, audit)
             if inner.id != fn.id:
                 return f"fp:inner-named-{inner.type}", n
-        ids = [n for n in _walk(fn) if n.text == callee.encode() and not n.children]
+        scope = [*_walk(fn), *(_walk(body) if body is not None else ())]
+        ids = [n for n in scope if n.text == callee.encode() and not n.children]
         if ids:
             parent = ids[0].parent
             grand = parent.parent if parent is not None else None
             shape = f"{parent.type if parent else '?'}<{grand.type if grand else '?'}"
             return f"fp:not-a-call-in-ts:{shape}", ids[0]
+        if _overlaps_parse_error(fn, body):
+            return "fp:ts-parse-error", None
         return "fp:outside-ts-function", None
     if engine_elsewhere:
         return "fn:engine-attributes-to-another-function", calls[0] if calls else None

@@ -330,6 +330,44 @@ CALLS_OUT_RUBY = re.compile(
     re.M,
 )
 
+# #6433: Perl calls without parentheses. `name(` alone missed `$obj->method`, `shift`,
+# `blessed $x`, `delete $h->{k}` and `plan tests => 4`. Group 1 is the callee, so
+# detector.py runs it exactly like CALLS_OUT_C_STYLE (qualifier capture, C5 header
+# check). A name is a call when it:
+#   - follows `->` (`$o->save`, `$class->SUPER::new`): a method call, parens or not;
+#   - is followed by `(` and no sigil precedes it (`$x(` is a variable);
+#   - is a unary/list built-in written bare (`shift`, `delete $h->{k}`, `keys %h`),
+#     unless it is a hash key (`{shift}`, `shift =>`);
+#   - opens a statement, or follows `=`, `(`, `!`, `,`, `&&`, `||` or `return`, with an
+#     argument start after blanks (`$ @ \ " '`, a heredoc `<<`, or `word =>`):
+#     `blessed $x`, `plan tests => 4`, `my $v = fetch $k;`. Keywords and word
+#     operators are excluded.
+# A bare word with no `->`, paren or argument (`foo`) is never matched: without a
+# symbol table Perl cannot tell a bareword from a call. Quantifiers are bounded or run
+# over characters their neighbours cannot start with.
+_PERL_NAME = rf"[{ID_START}][{ID_CONTINUE}]*"
+_PERL_KEYWORD = (
+    r"(?:my|our|local|state|sub|use|no|package|require|return|if|elsif|else|unless|while|until|for|foreach"
+    r"|do|eval|and|or|not|xor|x|lt|gt|le|ge|eq|ne|cmp|last|next|redo|goto|when|given|default|continue)"
+    rf"(?![{ID_CONTINUE}])"
+)
+_PERL_BUILTIN = (
+    r"(?:shift|pop|delete|defined|exists|ref|scalar|lc|uc|lcfirst|ucfirst|length|chomp|chop|chr|ord|int|abs|hex"
+    r"|oct|sqrt|log|exp|sin|cos|keys|values|each|caller|undef|rmdir|readlink|chdir|quotemeta|sleep|rand|srand"
+    r"|exit|localtime|gmtime|close|readdir|closedir|stat|lstat|umask|fc|lock)"
+    rf"(?![{ID_CONTINUE}])(?![ \t]*(?:=>|\}}))"
+)
+_PERL_ARG = rf"(?:[$@\\\"']|<<[\"'A-Z_~]|{_PERL_NAME}[ \t]*=>)"
+CALLS_OUT_PERL = re.compile(
+    r"(?:(?<=->)(?:SUPER::)?"
+    rf"|(?<![$@%{ID_CONTINUE}>-])(?={_PERL_NAME}[ \t]*\()"
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?={_PERL_BUILTIN})"
+    rf"|(?:^[ \t]*|(?<==[ \t])|(?<=\()|(?<=!)|(?<=,[ \t])|(?<=&&[ \t])|(?<=\|\|[ \t])|(?<=return[ \t]))"
+    rf"(?!{_PERL_KEYWORD})(?={_PERL_NAME}[ \t]+{_PERL_ARG}))"
+    rf"({_PERL_NAME})",
+    re.M,
+)
+
 # #3643 (contracts C3, and C3's 2026-09-25 pattern amendment): rust's own calls_out.
 # Group 1 is the callee, so detector.py treats it like CALLS_OUT_C_STYLE (qualifier,
 # C5 header check). Three shapes the C-style pattern gets wrong:
@@ -425,6 +463,7 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_C_STYLE_GENERIC,
     CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
     CALLS_OUT_RUBY,
+    CALLS_OUT_PERL,
     CALLS_OUT_RUST,
     CALLS_OUT_GO,
 )

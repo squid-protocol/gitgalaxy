@@ -127,6 +127,20 @@ def callee_name(node):
     return None
 
 
+def _super_ctor_target(node):
+    """The superclass a Java ``super(...)`` chains to (#3772): the enclosing class's ``extends`` type, or None."""
+    if not node.text.startswith(b"super"):
+        return None
+    cls = node.parent
+    while cls is not None and cls.type != "class_declaration":
+        cls = cls.parent
+    parent = cls.child_by_field_name("superclass") if cls is not None else None
+    target = (parent.named_children or [None])[0] if parent is not None else None
+    if target is not None and target.type == "generic_type":  # `extends Base<T>` names `Base`
+        target = (target.named_children or [None])[0]
+    return callee_name(target) if target is not None else None
+
+
 def _has_arguments(call):
     """True when a Kotlin call carries a parenthesised argument list (not just a trailing lambda)."""
     return any(c.type == "value_arguments" for k in call.children if k.type == "call_suffix" for c in k.children)
@@ -167,6 +181,10 @@ class Body:
                     self.calls.add(name)
                     if fn.type in NAME_NODES:
                         callees.add(fn.id)
+            elif n.type == "explicit_constructor_invocation":
+                name = _super_ctor_target(n)
+                if name is not None:
+                    self.calls.add(name)
             elif n.type in spec.ctors:
                 t = n.child_by_field_name("type") or n.child_by_field_name("constructor")
                 name = callee_name(t) if t is not None else None

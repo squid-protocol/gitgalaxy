@@ -4167,22 +4167,22 @@
     },
     "powershell/core": {
       "avg_exposures": {
-        "api_exposure": 3.1,
+        "api_exposure": 3.11,
         "churn": 0.0,
         "cognitive_load": 34.79,
         "concurrency": 3.71,
         "dead_code": 3.85,
-        "documentation": 43.03,
+        "documentation": 43.04,
         "safety_score": 61.79,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.61,
         "state_flux": 63.71,
-        "tech_debt": 7.29,
+        "tech_debt": 7.31,
         "verification": 23.83
       },
       "file_count": 36,
-      "total_mass": 14095.66
+      "total_mass": 14141.46
     },
     "powershell/nvda": {
       "avg_exposures": {

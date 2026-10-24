@@ -48,3 +48,45 @@ def test_measured_timings_are_labelled_single_runs(page):
     assert timed, f"{page}: no timing paragraph found; update this guard"
     unlabelled = [p.strip()[:80] for p in timed if not LABEL.search(p)]
     assert not unlabelled, f"{page}: timing without a 'Single run, measured <date>' label: {unlabelled}"
+
+
+# ---- the non-CICS hero tiles (#5282) ----------------------------------------------------------------------------------
+
+README = REPO / "README.md"
+
+
+def _tile(text_start):
+    tiles = re.findall(r"<td[^>]*>.*?</td>", README.read_text(encoding="utf-8"), flags=re.S)
+    return next(t for t in tiles if text_start in t)
+
+
+def _registry_counts():
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    split = {n for n, d in LANGUAGE_DEFINITIONS.items() if d.get("rules", {}).get("func_start")}
+    return set(LANGUAGE_DEFINITIONS), split
+
+
+def test_language_tile_and_table_follow_the_registry():
+    registry, split = _registry_counts()
+    text = README.read_text(encoding="utf-8")
+    assert f"<h2>{len(split)}</h2>" in text
+    assert f"{len(registry)} recognized" in _tile("languages, down to the function")
+    assert f"Languages: {len(registry)} recognized, {len(split)} read down to the function" in text
+    rows = re.findall(r"^\| \*\*(.*?)\*\*.*?\| (\d+) \| (.*) \|$", text, re.M)
+    listed = {label: set(re.findall(r"`([^`]+)`", names)) for label, _, names in rows}
+    assert listed["Split into functions"] == split
+    assert set().union(*listed.values()) == registry
+
+
+@pytest.mark.parametrize("start", ["to scan Kubernetes", "validated function precision"])
+def test_measured_tiles_carry_a_date_and_a_source_link(start):
+    tile = _tile(start)
+    assert re.search(r"\b\d{4}-\d{2}-\d{2}\b", tile), f"{start}: a measured tile needs its date"
+    assert "href=" in tile.split("<br />", 1)[1], f"{start}: a measured tile needs a source link"
+
+
+def test_speed_section_is_a_labelled_single_run():
+    section = re.search(r"## Every size, in seconds.*?\n---", README.read_text(encoding="utf-8"), re.S).group(0)
+    assert LABEL.search(section), "the Kubernetes timing needs a 'Single run, measured <date>' label"
+    assert "gitgalaxy-raw-output" in section

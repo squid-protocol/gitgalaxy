@@ -54,7 +54,7 @@
 /PROG.CBL	tests/cobol_mainframe
 /PROG.cbl	tests/cobol_mainframe
 /PTRTOY.cbl	tests/cobol_mainframe
-/README.md	tests/core_engine
+/README.md	tests/core_engine,tests/tools/test_readme_hand_counts.py
 /SEQCOPY.cpy	tests/cobol_mainframe
 /SEQPGM.cbl	tests/cobol_mainframe
 /SEQPGM2.cbl	tests/cobol_mainframe

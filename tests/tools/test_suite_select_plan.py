@@ -102,7 +102,10 @@ def test_the_cli_writes_the_github_output(tmp_path):
     out = tmp_path / "o"
     sys.argv = ["x", "--files", "README.md", "--github-output", str(out)]
     assert sp.main() == 0
-    assert out.read_text().splitlines() == ["mode=select", "paths=tests/core_engine"]
+    mode, paths = out.read_text().splitlines()
+    assert mode == "mode=select"
+    # README.md's readers change as tests are added: pin the format and one stable reader, not the whole list
+    assert paths.startswith("paths=") and "tests/core_engine" in paths.split("=", 1)[1].split()
 
 
 def _smoke():

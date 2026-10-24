@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `34204499210c3bd35b46c8c8f1511b1434a1b17a` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `7407b34dfc35d3d9d0940d2ca0019e308e84dac5` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `0c70a8c95e1d`).
 
@@ -389,7 +389,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `34204499210c3bd35b46c8c8f1511b1434a1b17a`
+- translator commit (the survey's): `7407b34dfc35d3d9d0940d2ca0019e308e84dac5`
 - corpus pin: `cics-async-api-credit-card-application-example` at `c32c52fcfd8d587b352f67959a5dfb0d11dbd8bb`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -399,8 +399,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 34204499210c3bd35b46c8c8f1511b1434a1b17a
-python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 34204499210c3bd35b46c8c8f1511b1434a1b17a
+python tests/tools/cics_census.py survey --baseline --sha 7407b34dfc35d3d9d0940d2ca0019e308e84dac5
+python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 7407b34dfc35d3d9d0940d2ca0019e308e84dac5
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `34204499210c3bd35b46c8c8f1511b1434a1b17a` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `7407b34dfc35d3d9d0940d2ca0019e308e84dac5` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `0c70a8c95e1d`).
 
@@ -42,17 +42,17 @@ The translation survey matches the translator in the tree (translator fingerprin
 |---|---|---|
 | L0 | 0 | 0 |
 | L1 | 0 | 0 |
-| L2 | 7 | 0 |
-| L3 | 9 | 0 |
-| L4 | 15 | 0 |
+| L2 | 7 | 4 |
+| L3 | 9 | 9 |
+| L4 | 15 | 6 |
 | L5 | 0 | 0 |
 
-- stale (`*`, last measured): 0 of 31 programs; the rest are current
-- L2+: 31 (0 awaiting re-check); L3+: 24 (0 awaiting re-check); L4+: 15 (0 awaiting re-check)
+- stale (`*`, last measured): 19 of 31 programs; the rest are current
+- L2+: 31 (19 awaiting re-check); L3+: 24 (15 awaiting re-check); L4+: 15 (6 awaiting re-check)
 
 - programs: 31 (with an EXEC CICS command: 30; source not read: 0)
 - translated whole: 31; refused whole: 0; holes left: 0
-- with an equivalence case: 31; det port equal on its case: 31; with an evidence record: 2; record current at build: 2
+- with an equivalence case: 31; det port equal on its case: 31; with an evidence record: 2; record current at build: 0
 
 ## Options the estate compiles and runs under
 
@@ -94,36 +94,36 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | src/base/cobol_src/ABNDPROC.cbl | L4 | 13/13 | 0 | cbsa-abndproc | equal | 8 | none | 4/4 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 32% (stale) | stale (port moved), last measured: raw 32% (45/141 caught; 150 of 453 mutants, seed 0); 34 of 96 survivors unaccounted | 1/2 |
-| src/base/cobol_src/ACCTCTRL.cbl | L4 | 18/18 | 0 | cbsa-acctctrl | equal | 20 | none | 7/7 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 41% (stale) | stale (port moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); 21 of 289 survivors unaccounted | 1/3 |
-| src/base/cobol_src/BANKDATA.cbl | L4 | 464/464 | 0 | cbsa-bankdata | equal | None | none | 24/24 (100.0%) | 47/48 (97.9%) | 47/47 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| src/base/cobol_src/ACCTCTRL.cbl | L4* | 18/18 | 0 | cbsa-acctctrl | equal | 20 | none | 7/7 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | 41% (stale) | stale (port moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); 21 of 289 survivors unaccounted | 1/3 |
+| src/base/cobol_src/BANKDATA.cbl | L4* | 464/464 | 0 | cbsa-bankdata | equal | None | none | 24/24 (100.0%) | 47/48 (97.9%) | 47/47 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | src/base/cobol_src/CRDTAGY1.cbl | L4 | 44/44 | 0 | cbsa-crdtagy1 | equal | 8 | none | 7/7 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
 | src/base/cobol_src/CRDTAGY2.cbl | L4 | 44/44 | 0 | cbsa-crdtagy2 | equal | 8 | none | 7/7 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
 | src/base/cobol_src/CRDTAGY3.cbl | L4 | 44/44 | 0 | cbsa-crdtagy3 | equal | 8 | none | 7/7 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
 | src/base/cobol_src/CRDTAGY4.cbl | L4 | 44/44 | 0 | cbsa-crdtagy4 | equal | 8 | none | 7/7 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
 | src/base/cobol_src/CRDTAGY5.cbl | L4 | 44/44 | 0 | cbsa-crdtagy5 | equal | 8 | none | 7/7 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
-| src/base/cobol_src/CUSTCTRL.cbl | L4 | 21/21 | 0 | cbsa-custctrl | equal | 7 | none | 7/7 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 1/5 |
-| src/base/cobol_src/DELACC.cbl | L4 | 134/134 | 0 | cbsa-delacc | equal | 11 | none | 19/19 (100.0%) | 13/14 (92.9%) | 13/13 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| src/base/cobol_src/DELCUS.cbl | L4 | 140/140 | 0 | cbsa-delcus | equal | 13 | none | 22/22 (100.0%) | 16/16 (100.0%) | 16/16 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
+| src/base/cobol_src/CUSTCTRL.cbl | L4* | 21/21 | 0 | cbsa-custctrl | equal | 7 | none | 7/7 (100.0%) | 4/4 (100.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 1/5 |
+| src/base/cobol_src/DELACC.cbl | L4* | 134/134 | 0 | cbsa-delacc | equal | 11 | none | 19/19 (100.0%) | 13/14 (92.9%) | 13/13 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| src/base/cobol_src/DELCUS.cbl | L4* | 140/140 | 0 | cbsa-delcus | equal | 13 | none | 22/22 (100.0%) | 16/16 (100.0%) | 16/16 (100.0%) | — | not measured (no det_mutation/ entry) | 4/9 |
 | src/base/cobol_src/GETCOMPY.cbl | L4 | 3/3 | 0 | cbsa-getcompy | equal | 10 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 29% (stale) | stale (port moved), last measured: raw 29% (60/206 caught; 220 of 220 mutants, seed 0); 19 of 146 survivors unaccounted | 1/1 |
 | src/base/cobol_src/GETSCODE.cbl | L4 | 3/3 | 0 | cbsa-getscode | equal | 11 | none | 2/2 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | 31% (stale) | stale (port moved), last measured: raw 31% (67/213 caught; 227 of 227 mutants, seed 0); 19 of 146 survivors unaccounted | 1/1 |
-| src/base/cobol_src/UPDACC.cbl | L4 | 58/58 | 0 | cbsa-updacc | equal | 27 | shown equal, unapproved | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 57% (stale) | stale (port moved), last measured: raw 57% (394/688 caught; 713 of 713 mutants, seed 0); 29 of 294 survivors unaccounted | 1/3 |
+| src/base/cobol_src/UPDACC.cbl | L4* | 58/58 | 0 | cbsa-updacc | equal | 27 | stale | 7/7 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | 57% (stale) | stale (port moved), last measured: raw 57% (394/688 caught; 713 of 713 mutants, seed 0); 29 of 294 survivors unaccounted | 1/3 |
 | src/base/cobol_src/UPDCUST.cbl | L4 | 64/64 | 0 | cbsa-updcust | equal | 23 | none | 7/7 (100.0%) | 28/28 (100.0%) | 28/28 (100.0%) | 48% (stale) | stale (port moved), last measured: raw 48% (68/141 caught; 150 of 716 mutants, seed 0); 32 of 73 survivors unaccounted | 1/5 |
-| src/base/cobol_src/BNK1CAC.cbl | L3 | 389/389 | 0 | cbsa-bnk1cac | equal | 23 | none | 25/25 (100.0%) | 56/97 (57.7%) | 56/97 (57.7%) | — | not measured (no det_mutation/ entry) | 7/11 |
-| src/base/cobol_src/BNK1CCA.cbl | L3 | 234/234 | 0 | cbsa-bnk1cca | equal | 18 | none | 25/25 (100.0%) | 29/41 (70.7%) | 29/41 (70.7%) | — | not measured (no det_mutation/ entry) | 7/10 |
-| src/base/cobol_src/BNK1CCS.cbl | L3 | 573/573 | 0 | cbsa-bnk1ccs | equal | 85 | none | 33/33 (100.0%) | 113/143 (79.0%) | 113/143 (79.0%) | — | not measured (no det_mutation/ entry) | 8/12 |
-| src/base/cobol_src/BNK1CRA.cbl | L3 | 317/317 | 0 | cbsa-bnk1cra | equal | 28 | none | 28/28 (100.0%) | 57/67 (85.1%) | 57/60 (95.0%) | — | not measured (no det_mutation/ entry) | 7/12 |
-| src/base/cobol_src/BNK1DAC.cbl | L3 | 345/345 | 0 | cbsa-bnk1dac | equal | 17 | none | 31/31 (100.0%) | 44/60 (73.3%) | 44/60 (73.3%) | — | not measured (no det_mutation/ entry) | 7/11 |
-| src/base/cobol_src/BNK1TFN.cbl | L3 | 349/349 | 0 | cbsa-bnk1tfn | equal | 40 | none | 28/28 (100.0%) | 53/72 (73.6%) | 53/72 (73.6%) | — | not measured (no det_mutation/ entry) | 7/11 |
-| src/base/cobol_src/BNK1UAC.cbl | L3 | 441/441 | 0 | cbsa-bnk1uac | equal | 75 | none | 31/31 (100.0%) | 80/88 (90.9%) | 80/81 (98.8%) | — | not measured (no det_mutation/ entry) | 7/10 |
-| src/base/cobol_src/CREACC.cbl | L3 | 292/292 | 0 | cbsa-creacc | equal | 18 | none | 34/34 (100.0%) | 26/38 (68.4%) | 26/38 (68.4%) | — | not measured (no det_mutation/ entry) | 4/8 |
-| src/base/cobol_src/CRECUST.cbl | L3 | 321/321 | 0 | cbsa-crecust | equal | 3 | none | 37/37 (100.0%) | 40/74 (54.1%) | 40/74 (54.1%) | — | not measured (no det_mutation/ entry) | 4/16 |
+| src/base/cobol_src/BNK1CAC.cbl | L3* | 389/389 | 0 | cbsa-bnk1cac | equal | 23 | none | 25/25 (100.0%) | 56/97 (57.7%) | 56/97 (57.7%) | — | not measured (no det_mutation/ entry) | 7/11 |
+| src/base/cobol_src/BNK1CCA.cbl | L3* | 234/234 | 0 | cbsa-bnk1cca | equal | 18 | none | 25/25 (100.0%) | 29/41 (70.7%) | 29/41 (70.7%) | — | not measured (no det_mutation/ entry) | 7/10 |
+| src/base/cobol_src/BNK1CCS.cbl | L3* | 573/573 | 0 | cbsa-bnk1ccs | equal | 85 | none | 33/33 (100.0%) | 113/143 (79.0%) | 113/143 (79.0%) | — | not measured (no det_mutation/ entry) | 8/12 |
+| src/base/cobol_src/BNK1CRA.cbl | L3* | 317/317 | 0 | cbsa-bnk1cra | equal | 28 | none | 28/28 (100.0%) | 57/67 (85.1%) | 57/60 (95.0%) | — | not measured (no det_mutation/ entry) | 7/12 |
+| src/base/cobol_src/BNK1DAC.cbl | L3* | 345/345 | 0 | cbsa-bnk1dac | equal | 17 | none | 31/31 (100.0%) | 44/60 (73.3%) | 44/60 (73.3%) | — | not measured (no det_mutation/ entry) | 7/11 |
+| src/base/cobol_src/BNK1TFN.cbl | L3* | 349/349 | 0 | cbsa-bnk1tfn | equal | 40 | none | 28/28 (100.0%) | 53/72 (73.6%) | 53/72 (73.6%) | — | not measured (no det_mutation/ entry) | 7/11 |
+| src/base/cobol_src/BNK1UAC.cbl | L3* | 441/441 | 0 | cbsa-bnk1uac | equal | 75 | none | 31/31 (100.0%) | 80/88 (90.9%) | 80/81 (98.8%) | — | not measured (no det_mutation/ entry) | 7/10 |
+| src/base/cobol_src/CREACC.cbl | L3* | 292/292 | 0 | cbsa-creacc | equal | 18 | none | 34/34 (100.0%) | 26/38 (68.4%) | 26/38 (68.4%) | — | not measured (no det_mutation/ entry) | 4/8 |
+| src/base/cobol_src/CRECUST.cbl | L3* | 321/321 | 0 | cbsa-crecust | equal | 3 | none | 37/37 (100.0%) | 40/74 (54.1%) | 40/74 (54.1%) | — | not measured (no det_mutation/ entry) | 4/16 |
 | src/base/cobol_src/BNK1DCS.cbl | L2 | 648/648 | 0 | cbsa-bnk1dcs | equal | 22 | none | 46/51 (90.2%) | 62/102 (60.8%) | 62/102 (60.8%) | — | not measured (no det_mutation/ entry) | 8/14 |
 | src/base/cobol_src/BNKMENU.cbl | L2 | 366/366 | 0 | cbsa-bnkmenu | equal | 29 | none | 24/25 (96.0%) | 46/62 (74.2%) | 46/46 (100.0%) | — | not measured (no det_mutation/ entry) | 7/10 |
-| src/base/cobol_src/DBCRFUN.cbl | L2 | 148/148 | 0 | cbsa-dbcrfun | equal | 29 | none | 21/22 (95.5%) | 33/35 (94.3%) | 33/35 (94.3%) | — | not measured (no det_mutation/ entry) | 5/8 |
-| src/base/cobol_src/INQACC.cbl | L2 | 227/227 | 0 | cbsa-inqacc | equal | 14 | shown equal, unapproved | 22/25 (88.0%) | 15/25 (60.0%) | 15/25 (60.0%) | — | not measured (no det_mutation/ entry) | 5/8 |
-| src/base/cobol_src/INQACCCU.cbl | L2 | 186/186 | 0 | cbsa-inqacccu | equal | 21 | none | 21/22 (95.5%) | 31/33 (93.9%) | 31/33 (93.9%) | — | not measured (no det_mutation/ entry) | 5/8 |
+| src/base/cobol_src/DBCRFUN.cbl | L2* | 148/148 | 0 | cbsa-dbcrfun | equal | 29 | none | 21/22 (95.5%) | 33/35 (94.3%) | 33/35 (94.3%) | — | not measured (no det_mutation/ entry) | 5/8 |
+| src/base/cobol_src/INQACC.cbl | L2* | 227/227 | 0 | cbsa-inqacc | equal | 14 | stale | 22/25 (88.0%) | 15/25 (60.0%) | 15/25 (60.0%) | — | not measured (no det_mutation/ entry) | 5/8 |
+| src/base/cobol_src/INQACCCU.cbl | L2* | 186/186 | 0 | cbsa-inqacccu | equal | 21 | none | 21/22 (95.5%) | 31/33 (93.9%) | 31/33 (93.9%) | — | not measured (no det_mutation/ entry) | 5/8 |
 | src/base/cobol_src/INQCUST.cbl | L2 | 162/162 | 0 | cbsa-inqcust | equal | 29 | none | 24/25 (96.0%) | 42/46 (91.3%) | 42/46 (91.3%) | — | not measured (no det_mutation/ entry) | 5/13 |
-| src/base/cobol_src/XFRFUN.cbl | L2 | 426/426 | 0 | cbsa-xfrfun | equal | 43 | none | 27/28 (96.4%) | 78/81 (96.3%) | 78/79 (98.7%) | — | not measured (no det_mutation/ entry) | 5/9 |
+| src/base/cobol_src/XFRFUN.cbl | L2* | 426/426 | 0 | cbsa-xfrfun | equal | 43 | none | 27/28 (96.4%) | 78/81 (96.3%) | 78/79 (98.7%) | — | not measured (no det_mutation/ entry) | 5/9 |
 
 ## Per program
 
@@ -193,7 +193,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-delcus-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqacc, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 14/14 scenarios equal, 29/29 records equal, 14 runs (0 fault runs); through its deployed entry points 14/14
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 14/14 scenarios equal, 29/29 records equal, 14 runs (0 fault runs); through its deployed entry points 14/14
 - **Executed equivalence** (cbsa-inqacc-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (1 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqacccu, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -219,7 +219,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** stale (port moved), last measured: raw 32% (45/141 caught; 150 of 453 mutants, seed 0); 34 of 96 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27; commands without oracle backing: WRITE; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/ACCTCTRL.cbl -- L4
+### src/base/cobol_src/ACCTCTRL.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 20 scenarios of cbsa-acctctrl against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); 21 of 289 survivors unaccounted)
@@ -244,7 +246,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** stale (port moved), last measured: raw 41% (203/492 caught; 517 of 517 mutants, seed 0); 21 of 289 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/BANKDATA.cbl -- L4
+### src/base/cobol_src/BANKDATA.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the batch runs of cbsa-bankdata against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -461,7 +465,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X18, X19, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, GET CONTAINER, PUT CONTAINER; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/CUSTCTRL.cbl -- L4
+### src/base/cobol_src/CUSTCTRL.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 7 scenarios of cbsa-custctrl against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -486,7 +492,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X14, X18, X22, X27, X46; commands without oracle backing: ASKTIME, DELAY, FORMATTIME, READ; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/DELACC.cbl -- L4
+### src/base/cobol_src/DELACC.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 11 scenarios of cbsa-delacc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -524,7 +532,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/DELCUS.cbl -- L4
+### src/base/cobol_src/DELCUS.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 13 scenarios of cbsa-delcus against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -599,7 +609,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** stale (port moved), last measured: raw 31% (67/213 caught; 227 of 227 mutants, seed 0); 19 of 146 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X27; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/UPDACC.cbl -- L4
+### src/base/cobol_src/UPDACC.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `33243d0de4f0` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 27 scenarios of cbsa-updacc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 57% (394/688 caught; 713 of 713 mutants, seed 0); 29 of 294 survivors unaccounted)
@@ -611,7 +623,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-bnk1uac-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (7 scenarios in case.json)
 - **Executed equivalence** (cbsa-updacc, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 27/27 scenarios equal, 54/54 records equal, 27 runs (0 fault runs); through its deployed entry points 27/27
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 27/27 scenarios equal, 54/54 records equal, 27 runs (0 fault runs); through its deployed entry points 27/27
 - **Executed equivalence** (cbsa-updacc-faults, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (8 scenarios in case.json)
 - **Executed equivalence** (cbsa-updacc-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -657,7 +669,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** stale (port moved), last measured: raw 48% (68/141 caught; 150 of 716 mutants, seed 0); 32 of 73 survivors unaccounted
 - **Residual risk:** ASSUMED / DIFFERS entries named: X14, X22, X27, X46, X52; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/BNK1CAC.cbl -- L3
+### src/base/cobol_src/BNK1CAC.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 23 scenarios of cbsa-bnk1cac against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 57.7 raw, 57.7 net of the reviewed infeasible outcomes)
@@ -692,7 +706,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 41 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X26, X27, X31, X46; commands without oracle backing: ASKTIME, BIF DEEDIT, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/BNK1CCA.cbl -- L3
+### src/base/cobol_src/BNK1CCA.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 18 scenarios of cbsa-bnk1cca against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 70.7 raw, 70.7 net of the reviewed infeasible outcomes)
@@ -726,7 +742,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 12 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X27, X31, X46; commands without oracle backing: ASKTIME, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/BNK1CCS.cbl -- L3
+### src/base/cobol_src/BNK1CCS.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `fdceed6dafb5` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 85 scenarios of cbsa-bnk1ccs against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 79.0 raw, 79.0 net of the reviewed infeasible outcomes)
@@ -762,7 +780,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 30 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X26, X27, X31, X46; commands without oracle backing: ASKTIME, FORMATTIME, INQUIRE TERMINAL, SET TERMINAL; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/BNK1CRA.cbl -- L3
+### src/base/cobol_src/BNK1CRA.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `edd87d301b4f` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 28 scenarios of cbsa-bnk1cra against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 85.1 raw, 95.0 net of the reviewed infeasible outcomes)
@@ -805,7 +825,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 10 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X26, X27, X29, X31, X46; commands without oracle backing: ASKTIME, BIF DEEDIT, FORMATTIME, INQUIRE ASSOCIATION, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/BNK1DAC.cbl -- L3
+### src/base/cobol_src/BNK1DAC.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 17 scenarios of cbsa-bnk1dac against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 73.3 raw, 73.3 net of the reviewed infeasible outcomes)
@@ -840,7 +862,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 16 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X26, X27, X31, X46; commands without oracle backing: ASKTIME, BIF DEEDIT, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/BNK1TFN.cbl -- L3
+### src/base/cobol_src/BNK1TFN.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 40 scenarios of cbsa-bnk1tfn against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 73.6 raw, 73.6 net of the reviewed infeasible outcomes)
@@ -875,7 +899,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 19 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X26, X27, X31, X46; commands without oracle backing: ASKTIME, BIF DEEDIT, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/BNK1UAC.cbl -- L3
+### src/base/cobol_src/BNK1UAC.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `edd87d301b4f` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 75 scenarios of cbsa-bnk1uac against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 90.9 raw, 98.8 net of the reviewed infeasible outcomes)
@@ -916,7 +942,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 8 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X27, X31, X46; commands without oracle backing: ASKTIME, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/CREACC.cbl -- L3
+### src/base/cobol_src/CREACC.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 18 scenarios of cbsa-creacc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 68.4 raw, 68.4 net of the reviewed infeasible outcomes)
@@ -952,7 +980,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 12 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X27, X46, X60; commands without oracle backing: ASKTIME, DEQ, ENQ, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/CRECUST.cbl -- L3
+### src/base/cobol_src/CRECUST.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `fdceed6dafb5` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 3 scenarios of cbsa-crecust against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 54.1 raw, 54.1 net of the reviewed infeasible outcomes)
@@ -1080,7 +1110,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 live paragraphs unrun; 16 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X27, X31, X46; commands without oracle backing: ASKTIME, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/DBCRFUN.cbl -- L2
+### src/base/cobol_src/DBCRFUN.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `edd87d301b4f` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 29 scenarios of cbsa-dbcrfun against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 95.5)
@@ -1116,7 +1148,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 live paragraphs unrun; 2 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/INQACC.cbl -- L2
+### src/base/cobol_src/INQACC.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 14 scenarios of cbsa-inqacc against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 88.0)
@@ -1133,7 +1167,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-bnk1uac-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (7 scenarios in case.json)
 - **Executed equivalence** (cbsa-inqacc, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 14/14 scenarios equal, 29/29 records equal, 14 runs (0 fault runs); through its deployed entry points 14/14
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 14/14 scenarios equal, 29/29 records equal, 14 runs (0 fault runs); through its deployed entry points 14/14
 - **Executed equivalence** (cbsa-inqacc-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (1 scenarios in case.json)
 - **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 22/25 (88.0%), branch outcomes 15/25 (60.0%) raw, 15/25 (60.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
@@ -1157,7 +1191,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 live paragraphs unrun; 10 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X19, X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/INQACCCU.cbl -- L2
+### src/base/cobol_src/INQACCCU.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `59962b6e04cf` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 21 scenarios of cbsa-inqacccu against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 95.5)
@@ -1262,7 +1298,9 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 live paragraphs unrun; 4 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X18, X19, X22, X27, X46, X52; commands without oracle backing: ASKTIME, DELAY, ENDBR, FORMATTIME, READ, READPREV, STARTBR, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### src/base/cobol_src/XFRFUN.cbl -- L2
+### src/base/cobol_src/XFRFUN.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `59962b6e04cf` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 43 scenarios of cbsa-xfrfun against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 96.4)
@@ -1328,18 +1366,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `34204499210c3bd35b46c8c8f1511b1434a1b17a`
+- translator commit (the survey's): `7407b34dfc35d3d9d0940d2ca0019e308e84dac5`
 - corpus pin: `cics-banking-sample-application-cbsa` at `417334533178ab6e753cc64b0e0e5cf0b4952704`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:1be455faa982ace916ad4747cdafc699bf4a3d610143bbc94cd0263b7c6977fb`, `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`
+- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:49d81b68e5cc8858614297dd3c69083e957ad3a34b9566e968a229a89b37f7e6`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 34204499210c3bd35b46c8c8f1511b1434a1b17a
-python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 34204499210c3bd35b46c8c8f1511b1434a1b17a
+python tests/tools/cics_census.py survey --baseline --sha 7407b34dfc35d3d9d0940d2ca0019e308e84dac5
+python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 7407b34dfc35d3d9d0940d2ca0019e308e84dac5
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (37) need the Db2 container
 python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated

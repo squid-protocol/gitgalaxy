@@ -12,13 +12,13 @@ These files are derived output, published on the `generated` branch and not comm
 
 | estate | programs | L0 | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|---|---|
-| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 2 | 0 | 2 | 8 | 32 | 0 |
+| [aws-mainframe-modernization-carddemo](aws-mainframe-modernization-carddemo/report.md) | 44 | 2 | 0 | 2 | 8 (2 stale) | 32 (3 stale) | 0 |
 | [cics-async-api-credit-card-application-example](cics-async-api-credit-card-application-example/report.md) | 10 | 0 | 0 | 0 | 0 | 10 | 0 |
-| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 0 | 0 | 7 | 9 | 15 | 0 |
-| [cics-genapp](cics-genapp/report.md) | 31 | 0 | 0 | 5 | 13 | 13 | 0 |
+| [cics-banking-sample-application-cbsa](cics-banking-sample-application-cbsa/report.md) | 31 | 0 | 0 | 7 (4 stale) | 9 (9 stale) | 15 (6 stale) | 0 |
+| [cics-genapp](cics-genapp/report.md) | 31 | 0 | 0 | 5 (5 stale) | 13 (8 stale) | 13 (7 stale) | 0 |
 | [dbb-mortgage-application](dbb-mortgage-application/report.md) | 6 | 2 | 2 | 1 | 0 | 1 | 0 |
 | [zecs](zecs/report.md) | 7 | 2 | 0 | 2 | 0 | 3 | 0 |
-| total | 129 | 6 | 2 | 17 | 30 | 74 | 0 |
+| total | 129 | 6 | 2 | 17 (9 stale) | 30 (19 stale) | 74 (16 stale) | 0 |
 
 ## Non-burned estates
 

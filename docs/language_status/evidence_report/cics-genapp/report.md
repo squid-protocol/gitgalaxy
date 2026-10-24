@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `34204499210c3bd35b46c8c8f1511b1434a1b17a` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `7407b34dfc35d3d9d0940d2ca0019e308e84dac5` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `0c70a8c95e1d`).
 
@@ -42,17 +42,17 @@ The translation survey matches the translator in the tree (translator fingerprin
 |---|---|---|
 | L0 | 0 | 0 |
 | L1 | 0 | 0 |
-| L2 | 5 | 0 |
-| L3 | 13 | 0 |
-| L4 | 13 | 0 |
+| L2 | 5 | 5 |
+| L3 | 13 | 8 |
+| L4 | 13 | 7 |
 | L5 | 0 | 0 |
 
-- stale (`*`, last measured): 0 of 31 programs; the rest are current
-- L2+: 31 (0 awaiting re-check); L3+: 26 (0 awaiting re-check); L4+: 13 (0 awaiting re-check)
+- stale (`*`, last measured): 20 of 31 programs; the rest are current
+- L2+: 31 (20 awaiting re-check); L3+: 26 (15 awaiting re-check); L4+: 13 (7 awaiting re-check)
 
 - programs: 31 (with an EXEC CICS command: 31; source not read: 0)
 - translated whole: 31; refused whole: 0; holes left: 0
-- with an equivalence case: 31; det port equal on its case: 31; with an evidence record: 5; record current at build: 5
+- with an equivalence case: 31; det port equal on its case: 31; with an evidence record: 5; record current at build: 3
 
 ## Options the estate compiles and runs under
 
@@ -88,41 +88,43 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| base/src/lgacdb01.cbl | L4 | 61/61 | 0 | genapp-lgacdb01 | equal | 6 | none | 4/4 (100.0%) | 13/14 (92.9%) | 13/13 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
-| base/src/lgacdb02.cbl | L4 | 39/39 | 0 | genapp-lgacdb02 | equal | 10 | none | 3/3 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgacdb01.cbl | L4* | 61/61 | 0 | genapp-lgacdb01 | equal | 6 | none | 4/4 (100.0%) | 13/14 (92.9%) | 13/13 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
+| base/src/lgacdb02.cbl | L4* | 39/39 | 0 | genapp-lgacdb02 | equal | 10 | none | 3/3 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgacvs01.cbl | L4 | 25/25 | 0 | genapp-lgacvs01 | equal | 8 | none | 3/3 (100.0%) | 3/4 (75.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
 | base/src/lgastat1.cbl | L4 | 30/30 | 0 | genapp-lgastat1 | equal | 8 | none | 1/1 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
-| base/src/lgdpdb01.cbl | L4 | 45/45 | 0 | genapp-lgdpdb01 | equal | 11 | none | 3/3 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgicdb01.cbl | L4 | 44/44 | 0 | genapp-lgicdb01-generated | equal | 6 | none | 4/4 (100.0%) | 11/12 (91.7%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgdpdb01.cbl | L4* | 45/45 | 0 | genapp-lgdpdb01 | equal | 11 | none | 3/3 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgicdb01.cbl | L4* | 44/44 | 0 | genapp-lgicdb01-generated | equal | 6 | none | 4/4 (100.0%) | 11/12 (91.7%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgicvs01.cbl | L4 | 51/51 | 0 | genapp-lgicvs01 | equal | 9 | none | 1/1 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 6/9 |
-| base/src/lgipdb01.cbl | L4 | 238/238 | 0 | genapp-lgipdb01 | equal | 47 | none | 12/12 (100.0%) | 74/74 (100.0%) | 74/74 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgipdb01.cbl | L4* | 238/238 | 0 | genapp-lgipdb01 | equal | 47 | none | 12/12 (100.0%) | 74/74 (100.0%) | 74/74 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgsetup.cbl | L4 | 91/91 | 0 | genapp-lgsetup | equal | 2 | none | 1/1 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | 4/7 |
-| base/src/lgucdb01.cbl | L4 | 39/39 | 0 | genapp-lgucdb01 | equal | 6 | none | 4/4 (100.0%) | 9/10 (90.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgucdb01.cbl | L4* | 39/39 | 0 | genapp-lgucdb01 | equal | 6 | none | 4/4 (100.0%) | 9/10 (90.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgucvs01.cbl | L4 | 32/32 | 0 | genapp-lgucvs01 | equal | 10 | none | 3/3 (100.0%) | 3/4 (75.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
-| base/src/lgupol01.cbl | L4 | 45/45 | 0 | genapp-lgupol01 | equal | 10 | none | 4/4 (100.0%) | 13/16 (81.2%) | 13/13 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgupol01.cbl | L4* | 45/45 | 0 | genapp-lgupol01 | equal | 10 | none | 4/4 (100.0%) | 13/16 (81.2%) | 13/13 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgwebst5.cbl | L4 | 278/278 | 0 | genapp-lgwebst5 | equal | 4 | none | 3/3 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | 5/9 |
-| base/src/lgacus01.cbl | L3 | 34/34 | 0 | genapp-lgacus01 | equal | 5 | none | 3/3 (100.0%) | 4/8 (50.0%) | 4/8 (50.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgapdb01.cbl | L3 | 124/124 | 0 | genapp-lgapdb01 | equal | 6 | shown equal, unapproved | 7/7 (100.0%) | 23/31 (74.2%) | 23/31 (74.2%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgapol01.cbl | L3 | 30/30 | 0 | genapp-lgapol01 | equal | 6 | none | 2/2 (100.0%) | 5/8 (62.5%) | 5/8 (62.5%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgacus01.cbl | L3* | 34/34 | 0 | genapp-lgacus01 | equal | 5 | none | 3/3 (100.0%) | 4/8 (50.0%) | 4/8 (50.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgapdb01.cbl | L3* | 124/124 | 0 | genapp-lgapdb01 | equal | 6 | stale | 7/7 (100.0%) | 23/31 (74.2%) | 23/31 (74.2%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgapol01.cbl | L3* | 30/30 | 0 | genapp-lgapol01 | equal | 6 | none | 2/2 (100.0%) | 5/8 (62.5%) | 5/8 (62.5%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgapvs01.cbl | L3 | 47/47 | 0 | genapp-lgapvs01 | equal | 11 | shown equal, unapproved | 3/3 (100.0%) | 5/9 (55.6%) | 5/9 (55.6%) | — | not measured (no det_mutation/ entry) | 2/5 |
-| base/src/lgdpol01.cbl | L3 | 36/36 | 0 | genapp-lgdpol01 | equal | 11 | none | 3/3 (100.0%) | 8/12 (66.7%) | 8/12 (66.7%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgdpol01.cbl | L3* | 36/36 | 0 | genapp-lgdpol01 | equal | 11 | none | 3/3 (100.0%) | 8/12 (66.7%) | 8/12 (66.7%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgdpvs01.cbl | L3 | 28/28 | 0 | genapp-lgdpvs01 | equal | 8 | none | 3/3 (100.0%) | 0/4 (0.0%) | 0/3 (0.0%) | — | not measured (no det_mutation/ entry) | 2/5 |
-| base/src/lgicus01.cbl | L3 | 34/34 | 0 | genapp-lgicus01 | equal | 5 | none | 4/4 (100.0%) | 4/8 (50.0%) | 4/8 (50.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgipol01.cbl | L3 | 26/26 | 0 | genapp-lgipol01 | equal | 10 | none | 2/2 (100.0%) | 3/6 (50.0%) | 3/6 (50.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgicus01.cbl | L3* | 34/34 | 0 | genapp-lgicus01 | equal | 5 | none | 4/4 (100.0%) | 4/8 (50.0%) | 4/8 (50.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgipol01.cbl | L3* | 26/26 | 0 | genapp-lgipol01 | equal | 10 | none | 2/2 (100.0%) | 3/6 (50.0%) | 3/6 (50.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgipvs01.cbl | L3 | 31/31 | 0 | genapp-lgipvs01 | equal | 5 | none | 1/1 (100.0%) | 4/6 (66.7%) | 4/6 (66.7%) | — | not measured (no det_mutation/ entry) | 4/5 |
 | base/src/lgstsq.cbl | L3 | 26/26 | 0 | genapp-lgstsq | equal | 7 | shown equal, unapproved | 1/1 (100.0%) | 3/6 (50.0%) | 3/6 (50.0%) | — | not measured (no det_mutation/ entry) | 5/6 |
-| base/src/lgucus01.cbl | L3 | 32/32 | 0 | genapp-lgucus01 | equal | 5 | none | 4/4 (100.0%) | 5/8 (62.5%) | 5/8 (62.5%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgupdb01.cbl | L3 | 116/116 | 0 | genapp-lgupdb01 | equal | 5 | shown equal, unapproved | 9/9 (100.0%) | 26/38 (68.4%) | 26/38 (68.4%) | — | not measured (no det_mutation/ entry) | 3/6 |
+| base/src/lgucus01.cbl | L3* | 32/32 | 0 | genapp-lgucus01 | equal | 5 | none | 4/4 (100.0%) | 5/8 (62.5%) | 5/8 (62.5%) | — | not measured (no det_mutation/ entry) | 3/5 |
+| base/src/lgupdb01.cbl | L3* | 116/116 | 0 | genapp-lgupdb01 | equal | 5 | stale | 9/9 (100.0%) | 26/38 (68.4%) | 26/38 (68.4%) | — | not measured (no det_mutation/ entry) | 3/6 |
 | base/src/lgupvs01.cbl | L3 | 55/55 | 0 | genapp-lgupvs01 | equal | 10 | shown equal, unapproved | 3/3 (100.0%) | 5/9 (55.6%) | 5/9 (55.6%) | — | not measured (no det_mutation/ entry) | 3/7 |
-| base/src/lgtestc1.cbl | L2 | 130/130 | 0 | genapp-lgtestc1 | equal | 14 | none | 9/10 (90.0%) | 16/18 (88.9%) | 16/18 (88.9%) | — | not measured (no det_mutation/ entry) | 9/12 |
-| base/src/lgtestp1.cbl | L2 | 152/152 | 0 | genapp-lgtestp1 | equal | 15 | none | 7/10 (70.0%) | 14/19 (73.7%) | 14/19 (73.7%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| base/src/lgtestp2.cbl | L2 | 140/140 | 0 | genapp-lgtestp2 | equal | 15 | none | 7/10 (70.0%) | 14/19 (73.7%) | 14/19 (73.7%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| base/src/lgtestp3.cbl | L2 | 137/137 | 0 | genapp-lgtestp3 | equal | 15 | none | 7/10 (70.0%) | 14/19 (73.7%) | 14/19 (73.7%) | — | not measured (no det_mutation/ entry) | 7/8 |
-| base/src/lgtestp4.cbl | L2 | 144/144 | 0 | genapp-lgtestp4 | equal | 16 | none | 7/9 (77.8%) | 18/22 (81.8%) | 18/22 (81.8%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| base/src/lgtestc1.cbl | L2* | 130/130 | 0 | genapp-lgtestc1 | equal | 14 | none | 9/10 (90.0%) | 16/18 (88.9%) | 16/18 (88.9%) | — | not measured (no det_mutation/ entry) | 9/12 |
+| base/src/lgtestp1.cbl | L2* | 152/152 | 0 | genapp-lgtestp1 | equal | 15 | none | 7/10 (70.0%) | 14/19 (73.7%) | 14/19 (73.7%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| base/src/lgtestp2.cbl | L2* | 140/140 | 0 | genapp-lgtestp2 | equal | 15 | none | 7/10 (70.0%) | 14/19 (73.7%) | 14/19 (73.7%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| base/src/lgtestp3.cbl | L2* | 137/137 | 0 | genapp-lgtestp3 | equal | 15 | none | 7/10 (70.0%) | 14/19 (73.7%) | 14/19 (73.7%) | — | not measured (no det_mutation/ entry) | 7/8 |
+| base/src/lgtestp4.cbl | L2* | 144/144 | 0 | genapp-lgtestp4 | equal | 16 | none | 7/9 (77.8%) | 18/22 (81.8%) | 18/22 (81.8%) | — | not measured (no det_mutation/ entry) | 7/8 |
 
 ## Per program
 
-### base/src/lgacdb01.cbl -- L4
+### base/src/lgacdb01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgacdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -158,7 +160,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X30, X45, X46, X53; commands without oracle backing: ASKTIME, FORMATTIME, GET COUNTER; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgacdb02.cbl -- L4
+### base/src/lgacdb02.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of genapp-lgacdb02 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -261,7 +265,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X17, X27, X30, X45, X46, X53; commands without oracle backing: ASKTIME, FORMATTIME, GET CONTAINER, GET COUNTER; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgdpdb01.cbl -- L4
+### base/src/lgdpdb01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 11 scenarios of genapp-lgdpdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -301,7 +307,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgicdb01.cbl -- L4
+### base/src/lgicdb01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgicdb01-generated against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -309,7 +317,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=NO [no effect; found at base/cntl/db2bind.jcl:16]; db2.bind.DYNAMICRULES=BIND [no effect; found at base/cntl/db2bind.jcl:19]; db2.bind.ISOLATION=CS [no effect; found at base/cntl/db2bind.jcl:15]; db2.bind.VALIDATE=BIND [no effect; found at base/cntl/db2bind.jcl:26]; db2.ccsid.EBCDIC_CCSID=285 [declared; found at base/Installation.md:92]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (SQL via the program's PROCESS SQL card) [no effect; found at base/src/lgacdb01.cbl:1]; cics.region.DB2CONN=YES [no effect; found at base/Building.md:58]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS via the compile OPTFILE [no effect; found at base/cntl/cobol.jcl:48]
 - **Executed equivalence** (genapp-lgicdb01, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 12/12 scenarios equal, 24/24 records equal, 12 runs (0 fault runs); through its deployed entry points 12/12
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 12/12 scenarios equal, 24/24 records equal, 12 runs (0 fault runs); through its deployed entry points 12/12
 - **Executed equivalence** (genapp-lgicdb01-generated, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgicus01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -370,7 +378,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X15, X19, X22, X27, X60; commands without oracle backing: DEQ, ENQ, READ; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgipdb01.cbl -- L4
+### base/src/lgipdb01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 47 scenarios of genapp-lgipdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -437,7 +447,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** ASSUMED / DIFFERS entries named: X15, X27, X29, X30; commands without oracle backing: DEFINE COUNTER, DELETE COUNTER, DELETEQ TS; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgucdb01.cbl -- L4
+### base/src/lgucdb01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgucdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -510,7 +522,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X46, X52; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgupol01.cbl -- L4
+### base/src/lgupol01.cbl -- L4*
+
+- **Stale level:** L4 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of genapp-lgupol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
@@ -580,7 +594,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X18, X19, X27, X29, X30, X45, X46, X50; commands without oracle backing: ASKTIME, DELETEQ TS, FORMATTIME, QUERY COUNTER; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgacus01.cbl -- L3
+### base/src/lgacus01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgacus01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)
@@ -610,7 +626,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 4 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgapdb01.cbl -- L3
+### base/src/lgapdb01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgapdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 74.2 raw, 74.2 net of the reviewed infeasible outcomes)
@@ -620,7 +638,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - **Declared option difference (evidence record):** CODEPAGE 285 applied as data in the case's data_encoding (no CCSID page): CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding
   - **Declared option difference (evidence record):** db2.ccsid.EBCDIC_CCSID 285 applied as data in the case's data_encoding: db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding
 - **Executed equivalence** (genapp-lgapdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 6/6 scenarios equal, 20/20 records equal, 6 runs (0 fault runs); through its deployed entry points 6/6
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 6/6 scenarios equal, 20/20 records equal, 6 runs (0 fault runs); through its deployed entry points 6/6
 - **Executed equivalence** (genapp-lgapdb01-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgapol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -652,7 +670,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 8 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgapol01.cbl -- L3
+### base/src/lgapol01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgapol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 62.5 raw, 62.5 net of the reviewed infeasible outcomes)
@@ -698,7 +718,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - **Declared option difference (evidence record):** CODEPAGE 285 applied as data in the case's data_encoding (no CCSID page): CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding
   - **Declared option difference (evidence record):** db2.ccsid.EBCDIC_CCSID 285 applied as data in the case's data_encoding: db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding
 - **Executed equivalence** (genapp-lgapdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 6/6 scenarios equal, 20/20 records equal, 6 runs (0 fault runs); through its deployed entry points 6/6
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 6/6 scenarios equal, 20/20 records equal, 6 runs (0 fault runs); through its deployed entry points 6/6
 - **Executed equivalence** (genapp-lgapdb01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgapol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -731,7 +751,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgdpol01.cbl -- L3
+### base/src/lgdpol01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 11 scenarios of genapp-lgdpol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 66.7 raw, 66.7 net of the reviewed infeasible outcomes)
@@ -809,7 +831,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X22, X27, X46; commands without oracle backing: ASKTIME, DELETE, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgicus01.cbl -- L3
+### base/src/lgicus01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgicus01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)
@@ -839,7 +863,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 4 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgipol01.cbl -- L3
+### base/src/lgipol01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 10 scenarios of genapp-lgipol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 50.0 raw, 50.0 net of the reviewed infeasible outcomes)
@@ -1003,7 +1029,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 branch outcomes unrun; ASSUMED / DIFFERS entries named: X15, X19, X27; commands without oracle backing: WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgucus01.cbl -- L3
+### base/src/lgucus01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgucus01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 62.5 raw, 62.5 net of the reviewed infeasible outcomes)
@@ -1033,7 +1061,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgupdb01.cbl -- L3
+### base/src/lgupdb01.cbl -- L3*
+
+- **Stale level:** L3 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 5 scenarios of genapp-lgupdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** branch coverage >= 100.0 net (now 68.4 raw, 68.4 net of the reviewed infeasible outcomes)
@@ -1051,7 +1081,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (16 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 5/5 scenarios equal, 18/18 records equal, 5 runs (0 fault runs); through its deployed entry points 5/5
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 5/5 scenarios equal, 18/18 records equal, 5 runs (0 fault runs); through its deployed entry points 5/5
 - **Executed equivalence** (genapp-lgupdb01-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (19 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -1094,7 +1124,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (16 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 5/5 scenarios equal, 18/18 records equal, 5 runs (0 fault runs); through its deployed entry points 5/5
+  - evidence record (the case's committed port): stale (stale on harness, oracle, generator); its proof: all equal, 5/5 scenarios equal, 18/18 records equal, 5 runs (0 fault runs); through its deployed entry points 5/5
 - **Executed equivalence** (genapp-lgupdb01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (19 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -1121,7 +1151,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 4 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X46, X52; commands without oracle backing: ASKTIME, FORMATTIME, READ, REWRITE; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgtestc1.cbl -- L2
+### base/src/lgtestc1.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 14 scenarios of genapp-lgtestc1 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 90.0)
@@ -1153,7 +1185,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 live paragraphs unrun; 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31, X60; commands without oracle backing: DEQ, ENQ, SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgtestp1.cbl -- L2
+### base/src/lgtestp1.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 15 scenarios of genapp-lgtestp1 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 70.0)
@@ -1181,7 +1215,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 live paragraphs unrun; 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgtestp2.cbl -- L2
+### base/src/lgtestp2.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 15 scenarios of genapp-lgtestp2 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 70.0)
@@ -1209,7 +1245,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 live paragraphs unrun; 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgtestp3.cbl -- L2
+### base/src/lgtestp3.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 15 scenarios of genapp-lgtestp3 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 70.0)
@@ -1237,7 +1275,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 3 live paragraphs unrun; 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: SYNCPOINT ROLLBACK; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgtestp4.cbl -- L2
+### base/src/lgtestp4.cbl -- L2*
+
+- **Stale level:** L2 is the last measurement, stale since `28734a013e29` (harness, oracle); not yet re-checked
 
 - **Executed equivalent** on the 16 scenarios of genapp-lgtestp4 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 77.8)
@@ -1295,18 +1335,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `34204499210c3bd35b46c8c8f1511b1434a1b17a`
+- translator commit (the survey's): `7407b34dfc35d3d9d0940d2ca0019e308e84dac5`
 - corpus pin: `cics-genapp` at `f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:1be455faa982ace916ad4747cdafc699bf4a3d610143bbc94cd0263b7c6977fb`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
+- oracle images the evidence records ran on: `sha256:49d81b68e5cc8858614297dd3c69083e957ad3a34b9566e968a229a89b37f7e6`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 34204499210c3bd35b46c8c8f1511b1434a1b17a
-python tests/tools/evidence_report.py cics-genapp --baseline --sha 34204499210c3bd35b46c8c8f1511b1434a1b17a
+python tests/tools/cics_census.py survey --baseline --sha 7407b34dfc35d3d9d0940d2ca0019e308e84dac5
+python tests/tools/evidence_report.py cics-genapp --baseline --sha 7407b34dfc35d3d9d0940d2ca0019e308e84dac5
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container
 python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01

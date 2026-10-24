@@ -10606,6 +10606,7 @@ class StructuralExtractor:
         own_leaf: str | None = None
         own_qualifiers: set[str] = set()
         bare_self_hits = 0
+        kept_super = False
         # #5699: an Objective-C method header (`- (int)f:(int)a`) is no call match, so its first bare `f(` is a body call
         own_header_seen = self.primary_lang_id == "objective-c" and block.lstrip()[:1] in ("-", "+")
         if invocation_pattern:
@@ -10676,6 +10677,9 @@ class StructuralExtractor:
                     if track_arities and callee == "this" and not qualifier and name[:1].isupper():
                         # #3772: `this(...)` chains to a sibling constructor, which is named like the unit
                         callee = name
+                    if track_arities and callee == "super" and not qualifier:
+                        # #3772: `super(...)` chains to the superclass constructor; the resolver names the parent
+                        kept_super = True
                     is_decl = callee_pos == m.start(1) and _is_declaration_header(decl_headers, m)
                     own_header_call = callee == name and not qualifier and not own_header_seen
                     if callee == name and not qualifier:
@@ -10748,7 +10752,7 @@ class StructuralExtractor:
                 # #4305: a pattern alternative that only consumes text (COBOL `EXIT PERFORM`) captures ""
                 if c
                 and (c not in _CALLS_OUT_GLOBAL_IGNORE or c in global_exempt)
-                and (c.casefold() if _fold_ignore else c) not in lang_ignore
+                and ((c.casefold() if _fold_ignore else c) not in lang_ignore or (kept_super and c == "super"))
                 and c != self_name
             )
         )

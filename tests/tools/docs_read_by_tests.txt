@@ -93,6 +93,7 @@
 /cobol_src	tests/cobol_mainframe
 /compressed.zip	tests/security_auditing
 /corporate_header.txt	tests/cobol_mainframe
+/coverage.json	tests/cobol_mainframe
 /cpy	tests/cobol_mainframe
 /csd	tests/cobol_mainframe
 /custom17	tests/tools/test_equivalence_env.py

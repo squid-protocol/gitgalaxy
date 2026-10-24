@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, TypedDict, cast
 
 from gitgalaxy.core.call_resolver import encode_qualifiers, resolution_rates
-from gitgalaxy.core.fact_channels import CALL_SITE_CHANNEL, CHANNELS, create_channel_table
+from gitgalaxy.core.fact_channels import CALL_SITE_CHANNEL, CHANNELS, TRANSACTION_CHANNEL, create_channel_table
 from gitgalaxy.core.function_population import population_functions
 from gitgalaxy.metrics import archetype_classifier
 from gitgalaxy.metrics.archetype_parity import WITHHELD_LABEL
@@ -154,8 +154,7 @@ def _insert_resolved_channel(
 ) -> None:
     """Insert a resolved channel's rows (#3383): the engine's repo-wide list, not a per-file payload.
 
-    `channel.to_row(site, path_to_file_id)` builds the columns after (repo_name, commit_hash,
-    src_file_id). A site whose source file has no file_data row (the statistical auditor can
+    `channel.to_row(site, path_to_file_id)` builds the X. A site whose source file has no file_data row (the statistical auditor can
     relegate one after extraction) is skipped; one with no destination is kept.
     """
     rows = []
@@ -166,7 +165,7 @@ def _insert_resolved_channel(
         rows.append((repo_name, commit_hash, src_id, *channel.to_row(site, path_to_file_id)))
     if not rows:
         return
-    all_columns = ("repo_name", "commit_hash", "src_file_id", *channel.columns)
+    all_columns = ("repo_name", "commit_hash", channel.src_column, *channel.columns)
     placeholders = ", ".join(["?"] * len(all_columns))
     cursor.executemany(
         f"INSERT INTO {channel.table} ({', '.join(all_columns)}) VALUES ({placeholders})",  # noqa: S608 -- identifiers are registry constants
@@ -1554,27 +1553,7 @@ class RecordKeeper:
         # transaction id is not a file, so it cannot be a file_data FK. The COBOL
         # in-source routing (EXEC CICS RETURN/START/RUN TRANSID) rides in
         # call_site_data; galaxy_ir.transaction_map joins the two.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS transaction_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                transid TEXT,
-                program TEXT,
-                group_name TEXT,
-                profile TEXT,
-                dst_file_id INTEGER,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE,
-                FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_transaction_file_id ON transaction_data(file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_transaction_transid ON transaction_data(transid);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_transaction_snapshot ON transaction_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, "transaction", _ensure_columns)
 
         # #3356: the CICS resource inventory -- one row per CSD `DEFINE
         # <type>(<name>)` record of ANY resource type (FILE, MAPSET, TDQUEUE,
@@ -3266,35 +3245,9 @@ class RecordKeeper:
         # rather than read per-file. A definition whose deck has no file_data row
         # is skipped (the same extraction gap edge_data/call_site_data tolerate);
         # a program the repository does not contain keeps dst_file_id NULL.
-        if transactions:
-            txn_rows = []
-            for txn in transactions:
-                deck_file_id = path_to_file_id.get(txn.get("src_path", ""))
-                if deck_file_id is None:
-                    continue
-                txn_rows.append(
-                    (
-                        repo_name,
-                        commit_hash,
-                        deck_file_id,
-                        txn.get("transid"),
-                        txn.get("program"),
-                        txn.get("group"),
-                        txn.get("profile"),
-                        path_to_file_id.get(txn.get("resolved_path") or ""),
-                        int(txn.get("line", 0) or 0),
-                    )
-                )
-            if txn_rows:
-                cursor.executemany(
-                    """
-                    INSERT INTO transaction_data (
-                        repo_name, commit_hash, file_id, transid, program,
-                        group_name, profile, dst_file_id, line_number
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    txn_rows,
-                )
+        _insert_resolved_channel(
+            cursor, TRANSACTION_CHANNEL, transactions or [], path_to_file_id, repo_name, commit_hash
+        )
 
         # #3446: embedded SQL statements -- per-file, like sql_table_data.
         _insert_per_file_child(

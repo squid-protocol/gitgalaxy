@@ -793,6 +793,19 @@
    "live": 5,
    "outcomes": 10,
    "scenarios": {
+    "parse": {
+     "units": [
+      "DO-PARSE",
+      "MAIN-PARA",
+      "PARSE-PARA"
+     ],
+     "outcomes": [
+      "61:WHEN@62",
+      "134:true",
+      "139:true",
+      "144:false"
+     ]
+    },
     "errors": {
      "units": [
       "DO-PARSE",
@@ -801,6 +814,17 @@
      ],
      "outcomes": [
       "61:WHEN@64",
+      "134:false"
+     ]
+    },
+    "lengerr": {
+     "units": [
+      "DO-PARSE",
+      "LENGTH-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "61:WHEN@66",
       "134:false"
      ]
     }

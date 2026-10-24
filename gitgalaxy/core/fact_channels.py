@@ -14,8 +14,10 @@
 #     galaxy_ir `ir_field` that test_fact_channels.py checks against galaxy_ir's SCOPE
 #     comment and loader (checked, not generated). The recipe channel table and
 #     custom-insert channels are not registry-driven yet (#3383 remaining slices).
-#   - Channels with a custom insert or restore (call_site_data, transaction_data,
-#     sql_statement_data and the later per-file channels) are not migrated yet.
+#   - A resolved channel (call_site_data, `resolved=True`) is inserted from the engine's repo-wide
+#     list by record_keeper's _insert_resolved_channel; its schema and restore live here too.
+#   - Channels with a custom insert or restore (transaction_data, sql_statement_data and the
+#     later per-file channels) are not migrated yet.
 #   - Order of CHANNELS is the insert order; each table is independent, so it
 #     does not change any row.
 #   - Data only: no import of the recorder or the rehydrator (they import this).
@@ -54,6 +56,11 @@ class FactChannel:
     # galaxy_ir reader (#3383): the `EngineFile` field its loader fills from this table. Checked
     # against the real dataclass and the loader's `_has_table` guard by test_fact_channels.py.
     ir_field: str = ""
+    # A resolved channel (#3383) is inserted from the engine's repo-wide list, not a per-file
+    # payload: `to_row(site, path_to_file_id)` also fills the resolved destination, and the
+    # source column is `src_file_id`. Restore reads it per file like the others (destinations
+    # are re-resolved every scan).
+    resolved: bool = False
 
     def select_sql(self, cursor: sqlite3.Cursor, has_table: Callable, has_column: Callable) -> str:
         if callable(self.restore_select):
@@ -262,6 +269,61 @@ _SQL_TABLE_DDL = """
         """
 
 
+# #3200: one row per mainframe INVOCATION SITE -- COBOL `CALL`, CICS
+# `LINK`/`XCTL PROGRAM(...)`, JCL `EXEC PGM=`. edge_data carries the
+# resolved program-to-program edges aggregated from these, but it
+# structurally cannot carry the rest: its src/dst are file_data FKs, and
+# the majority of real call sites do not resolve to a file in the
+# repository at all. `CALL 'CEEGMT'` is a Language Environment service,
+# `EXEC PGM=IEFBR14` is a system utility, and a `CALL WS-PGM` whose
+# VALUE clause lives in a copybook has no readable target name. Those
+# were #3200's "unresolved targets are recorded nowhere"; they are rows
+# here, with the level of failure distinguishable:
+#   target IS NULL             -- the name itself could not be read
+#   target NOT NULL, dst NULL  -- named, but not a program in this repo
+#   dst_file_id NOT NULL       -- resolved; also an edge_data row
+# `form` ('literal' | 'identifier' | 'unknown') keeps the architectural
+# distinction the old pipeline's `unresolved_calls` was really about: a
+# literal CALL is a static, link-edited dependency, an identifier CALL
+# is dynamic dispatch that a compile-time DAG cannot see.
+# No FK to repo_data, for the same cascade-delete reason as edge_data.
+# #3355: the COMMAREA contract of a CICS LINK/XCTL/RETURN TRANSID site --
+# the record it passes (`COMMAREA(x)`) and its `LENGTH(...)` /
+# `DATALENGTH(...)` operands, each as written (whitespace-collapsed,
+# upper-cased). NULL when the site carries no such operand (every CALL and
+# EXEC PGM row). Per-file, so restored on delta scans like `operand`.
+# Joining x to the callee's LINKAGE DFHCOMMAREA is galaxy_ir's job
+# (GalaxyIR.commarea_contracts). Healed onto a table created before #3355.
+# #3454: a batch CALL's USING list (call_using.py), comma-joined by position,
+# NULL for a CALL without USING and every non-CALL row. Paired with the
+# callee's entry_point_data params by GalaxyIR.call_contracts.
+# #3494: a CICS LINK / START's SYSID(...) as written (the remote region it
+# ships to), NULL otherwise. Joined with the CSD's REMOTESYSTEM definitions
+# by GalaxyIR.remote_calls.
+
+_CALL_SITE_DDL = """
+            CREATE TABLE IF NOT EXISTS call_site_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                src_file_id INTEGER,
+                verb TEXT,
+                form TEXT,
+                operand TEXT,
+                target TEXT,
+                dst_file_id INTEGER,
+                line_number INTEGER,
+                commarea TEXT,
+                commarea_length TEXT,
+                commarea_datalength TEXT,
+                using_args TEXT,
+                sysid TEXT,
+                FOREIGN KEY(src_file_id) REFERENCES file_data(id) ON DELETE CASCADE,
+                FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+"""
+
+
 def _dataset_select(cursor, has_table, has_column):
     # #3345: the resolved-DSN pair is per-file (one JCL file determines
     # it), so it is restored like the raw DSN. A baseline written
@@ -354,6 +416,29 @@ def _csd_resource_select(cursor, _has_table, has_column):
         )
         + "FROM csd_resource_data cr JOIN file_data fd ON cr.file_id = fd.id "
         "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cr.id"
+    )
+
+
+def _call_site_select(cursor, has_table, has_column):
+    # #3355: the COMMAREA contract operands are per-file (the site's own EXEC block), so they are
+    # restored like `operand`. A baseline written before #3355 lacks the columns; its rows come
+    # back without the keys, the shape the extractor gives a site with no COMMAREA -- so a
+    # restored row is identical to a re-extracted one. `resolved_path` / `dst_file_id` are NOT
+    # restored: resolution is repo-wide and redone every scan.
+    def col(column, nulls):
+        if has_table(cursor, "call_site_data") and has_column(cursor, "call_site_data", column):
+            return ", ".join(f"cs.{c}" for c in nulls)
+        return ", ".join(f"NULL AS {c}" for c in nulls)
+
+    commarea_cols = col("commarea", ("commarea", "commarea_length", "commarea_datalength"))
+    # #3454 / #3494: the USING list and SYSID, restored the same way.
+    using_col = col("using_args", ("using_args",))
+    sysid_col = col("sysid", ("sysid",))
+    return (
+        "SELECT fd.file_path AS _fp, cs.verb, cs.form, cs.operand, cs.target, cs.line_number AS line, "  # noqa: S608 -- the column lists are literals; values are bound
+        f"{commarea_cols}, {using_col}, {sysid_col} "
+        "FROM call_site_data cs JOIN file_data fd ON cs.src_file_id = fd.id "
+        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id"
     )
 
 
@@ -780,6 +865,61 @@ CHANNELS = (
             "record": r["record"],
             "attributes": r["attributes"],
             "line": int(r["line"] or 0),
+        },
+    ),
+    # #3200: every mainframe call site, resolved or not -- inserted from the engine's resolved list.
+    FactChannel(
+        name="call_site",
+        ir_field="calls",
+        table="call_site_data",
+        resolved=True,
+        ddl=_CALL_SITE_DDL,
+        extra_columns=(
+            ("commarea TEXT", "commarea_length TEXT", "commarea_datalength TEXT"),
+            ("using_args TEXT",),
+            ("sysid TEXT",),
+        ),
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_call_src_file_id ON call_site_data(src_file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_call_dst_file_id ON call_site_data(dst_file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_call_target ON call_site_data(target);",
+            "CREATE INDEX IF NOT EXISTS idx_call_snapshot ON call_site_data(repo_name, commit_hash);",
+        ),
+        payload_key="call_sites",
+        columns=(
+            "verb",
+            "form",
+            "operand",
+            "target",
+            "dst_file_id",
+            "line_number",
+            "commarea",
+            "commarea_length",
+            "commarea_datalength",
+            "using_args",
+            "sysid",
+        ),
+        to_row=lambda site, path_to_file_id: (
+            site.get("verb"),
+            site.get("form"),
+            site.get("operand"),
+            site.get("target"),
+            path_to_file_id.get(site.get("resolved_path") or ""),
+            int(site.get("line", 0) or 0),
+            site.get("commarea"),  # #3355
+            site.get("commarea_length"),
+            site.get("commarea_datalength"),
+            site.get("using_args"),  # #3454
+            site.get("sysid"),  # #3494
+        ),
+        restore_select=_call_site_select,
+        to_payload=lambda r: {
+            "verb": r["verb"],
+            "form": r["form"],
+            "operand": r["operand"],
+            "target": r["target"],
+            "line": int(r["line"] or 0),
+            **{k: r[k] for k in ("commarea", "commarea_length", "commarea_datalength", "using_args", "sysid") if r[k]},
         },
     ),
 )

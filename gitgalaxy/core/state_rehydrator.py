@@ -461,50 +461,6 @@ class StateRehydrator:
                 # deliberately NOT restored for calls or transactions: resolution
                 # is repo-wide and redone every scan, because a file added or
                 # deleted this commit can change what an unchanged file resolves to.
-                # #3355: the COMMAREA contract operands are per-file (the site's own
-                # EXEC block), so they are restored like `operand`. A baseline
-                # written before #3355 lacks the columns; its rows come back
-                # without the keys, the shape the extractor gives a site with no
-                # COMMAREA -- so a restored row is identical to a re-extracted one.
-                commarea_cols = (
-                    "cs.commarea, cs.commarea_length, cs.commarea_datalength"
-                    if _has_table(cursor, "call_site_data") and _has_column(cursor, "call_site_data", "commarea")
-                    else "NULL AS commarea, NULL AS commarea_length, NULL AS commarea_datalength"
-                )
-                # #3454: the USING list, restored the same way (absent before #3454).
-                using_col = (
-                    "cs.using_args"
-                    if _has_table(cursor, "call_site_data") and _has_column(cursor, "call_site_data", "using_args")
-                    else "NULL AS using_args"
-                )
-                # #3494: SYSID, restored the same way (absent before #3494).
-                sysid_col = (
-                    "cs.sysid"
-                    if _has_table(cursor, "call_site_data") and _has_column(cursor, "call_site_data", "sysid")
-                    else "NULL AS sysid"
-                )
-                calls_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "call_site_data",
-                    "SELECT fd.file_path AS _fp, cs.verb, cs.form, cs.operand, cs.target, cs.line_number AS line, "  # noqa: S608 -- commarea_cols is one of two literals; values are bound
-                    f"{commarea_cols}, {using_col}, {sysid_col} "
-                    "FROM call_site_data cs JOIN file_data fd ON cs.src_file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id",
-                    lambda r: {
-                        "verb": r["verb"],
-                        "form": r["form"],
-                        "operand": r["operand"],
-                        "target": r["target"],
-                        "line": int(r["line"] or 0),
-                        **{
-                            k: r[k]
-                            for k in ("commarea", "commarea_length", "commarea_datalength", "using_args", "sysid")
-                            if r[k]
-                        },
-                    },
-                )
                 # #3383: the registered per-file fact channels (dataset, record, sql_table, csd_resource,
                 # screen_field, cics_resource) -- declared in gitgalaxy/core/fact_channels.py.
                 channel_rows = {
@@ -963,7 +919,6 @@ class StateRehydrator:
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, []) + synthetic_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
-                    node["call_sites"] = calls_by_file.get(rel_path, [])
                     for channel in CHANNELS:
                         node[channel.payload_key] = channel_rows[channel.name].get(rel_path, [])
                     node["transaction_defs"] = transactions_by_file.get(rel_path, [])

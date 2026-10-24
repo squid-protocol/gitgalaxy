@@ -610,6 +610,7 @@
     "harness",
     "oracle"
    ]
-  }
+  },
+  "port_moved": true
  }
 }

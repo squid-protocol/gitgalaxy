@@ -724,6 +724,7 @@
     "oracle:core": "eea2a006cc58ebd1141804b10def30c657d4d2d2a3d2a19cf5d137d9dea04359",
     "oracle:le": "a7cfa660f76e6181cb060f9f945c4e298533793957991f29d93312db11e33b3f"
    }
-  }
+  },
+  "port_moved": true
  }
 }

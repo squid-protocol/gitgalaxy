@@ -180,6 +180,19 @@
     "recall_pct": 100.0,
     "repos": "guzzle/guzzle"
   },
+  "powershell": {
+    "engine_edges": 81,
+    "files": 262,
+    "fn": 1,
+    "fp": 0,
+    "hub_overlap_at_10": 1.0,
+    "hub_repos": 1,
+    "hub_spearman": 1.0,
+    "imports": 83,
+    "precision_pct": 100.0,
+    "recall_pct": 98.8,
+    "repos": "pester/Pester"
+  },
   "python": {
     "engine_edges": 1916,
     "files": 1277,
@@ -267,6 +280,19 @@
     "precision_pct": 0.0,
     "recall_pct": null,
     "repos": "apple/swift-argument-parser"
+  },
+  "tcl": {
+    "engine_edges": 33,
+    "files": 784,
+    "fn": 769,
+    "fp": 0,
+    "hub_overlap_at_10": 0.2,
+    "hub_repos": 1,
+    "hub_spearman": -0.688,
+    "imports": 804,
+    "precision_pct": 100.0,
+    "recall_pct": 4.4,
+    "repos": "tcltk/tcllib"
   },
   "typescript": {
     "engine_edges": 828,

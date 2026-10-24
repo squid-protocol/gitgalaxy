@@ -7,6 +7,7 @@ import sqlite3
 from pathlib import Path
 
 from gitgalaxy.core.db2_sql_statements import extract_sql_statements
+from gitgalaxy.core.source_text import decode_bytes
 from gitgalaxy.core.state_rehydrator import StateRehydrator
 from gitgalaxy.recorders.record_keeper import RecordKeeper
 
@@ -163,4 +164,4 @@ def test_no_burned_estate_program_uses_exec_sql_call():
     pat = re.compile(r"EXEC\s+SQL\s+CALL\b", re.I)
     for f in Path(root).rglob("*"):
         if f.suffix.lower() in (".cbl", ".cob", ".cpy", ".pli") and f.is_file():
-            assert not pat.search(f.read_text(errors="replace")), f
+            assert not pat.search(decode_bytes(f.read_bytes())), f

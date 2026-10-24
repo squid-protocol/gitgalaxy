@@ -13,6 +13,7 @@ before writing anything:
 | channel | issue | extractor | table | IR accessor |
 |---|---|---|---|---|
 | invocation (call graph) | #3200 | `core/mainframe_boundary.py` + `core/invocation_resolver.py` | `call_site_data` | `EngineFile.calls` |
+| CICS transaction map (transid -> program -> file, resolved cross-file) | #3211-followup | `core/mainframe_boundary.py` + `core/invocation_resolver.py` (`resolve_transactions`) | `transaction_data` | `EngineFile.transactions` (`GalaxyIR.transaction_map`) |
 | dataset boundary/lineage | #3201 | `core/mainframe_boundary.py` | `dataset_data` | `EngineFile.datasets` |
 | JCL PROC/SET symbol resolution (resolved columns beside a raw one) | #3345 | `core/mainframe_boundary.py` (`_jcl_resolve_datasets`) | `dataset_data` (+ `dsn_resolved`, `dsn_resolution`) | `EngineFile.datasets` (`dataset_name`; `GalaxyIR.shared_datasets`/`dataset_flows`) |
 | CICS COMMAREA contract (operand columns on an existing global table + a reader-side join) | #3355 | `core/mainframe_boundary.py` (`_cics_contract_operands`, `copy_members` on records) | `call_site_data` (+ `commarea`, `commarea_length`, `commarea_datalength`), `record_data` (+ `copy_members`) | `EngineCall.commarea*`; `GalaxyIR.commarea_contracts`/`record_layout` |
@@ -133,8 +134,10 @@ dialect that predates the channel is not a missing-key error. It then propagates
   It names the `table`, the `payload_key`, the `columns` *after* the standard
   `(repo_name, commit_hash, file_id)`, and a `to_row(item)` mapping each payload dict to those
   columns; `record_keeper` loops over the registry and calls `_insert_per_file_child`. (This is for **per-file** facts. The call graph is
-  different — see "Per-file vs global" below. A channel needing a custom insert is still hand-wired
-  in `record_keeper` until the registry grows a hook for it.)
+  different — see "Per-file vs global" below. A channel inserted from a resolved repo-wide list
+  sets `resolved=True` and a `to_row(site, path_to_file_id)` that also fills its destination
+  (`call_site` and `transaction`; `src_column` names the owning-file column; `record_keeper._insert_resolved_channel`). Any other custom
+  insert is still hand-wired in `record_keeper` until the registry grows a hook for it.)
 
 ### 4b. Report it in the two output surfaces (both optional/presence-keyed)
 
@@ -166,6 +169,10 @@ every scan). Prove it: a full scan and an incremental scan must produce byte-ide
 (excluding the autoincrement `id`, which legitimately drifts on delete+reinsert).
 `tests/core_engine/test_fact_channels.py` checks every registry entry's columns and restore query
 against the real schema.
+
+The same test file also checks the docs against the registry: the channel table above, the `galaxy_ir`
+SCOPE comment and loader, and `gitgalaxy/recorders/README.md` (the DB schema doc, which must mention every
+registered table) -- a new `FactChannel` without its row and its README paragraph fails there.
 
 ### 6. Expose it in the IR reader (`tools/cobol_to_cobol/galaxy_ir.py`)
 

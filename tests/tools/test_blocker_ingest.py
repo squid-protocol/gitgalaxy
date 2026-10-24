@@ -132,3 +132,20 @@ def test_catalogue_cites_issues_and_burned_estates_only():
     for e in bi.load_catalogue():
         assert e["category"] in br.CATEGORIES and isinstance(e["issue"], int)
         assert e["estate"] in burned
+
+
+def test_construct_reaches_the_ledger_and_a_1_1_report_still_ingests():
+    ledger, _ = ingest(anon(KNOWN))
+    assert all(r["construct"] for r in ledger["rows"])
+    old = anon(KNOWN)
+    old["schema_version"] = "1.1"
+    for b in old["blockers"]:
+        del b["construct"]
+    ledger, _ = ingest(old)
+    assert ledger["rows"] and not any("construct" in r for r in ledger["rows"])
+
+
+def test_a_construct_that_is_not_a_ranking_key_is_refused():
+    rep = anon(KNOWN)
+    rep["blockers"][0]["construct"] = "missing copybook CPY_7f3a1c"
+    assert any("construct" in e for e in bi.check_report(rep))

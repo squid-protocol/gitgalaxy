@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, TypedDict, cast
 
 from gitgalaxy.core.call_resolver import encode_qualifiers, resolution_rates
-from gitgalaxy.core.fact_channels import CHANNELS, create_channel_table
+from gitgalaxy.core.fact_channels import CALL_SITE_CHANNEL, CHANNELS, TRANSACTION_CHANNEL, create_channel_table
 from gitgalaxy.core.function_population import population_functions
 from gitgalaxy.metrics import archetype_classifier
 from gitgalaxy.metrics.archetype_parity import WITHHELD_LABEL
@@ -140,6 +140,35 @@ def _insert_per_file_child(
     placeholders = ", ".join(["?"] * len(all_columns))
     cursor.executemany(
         f"INSERT INTO {table} ({', '.join(all_columns)}) VALUES ({placeholders})",  # noqa: S608 -- identifiers are module constants
+        rows,
+    )
+
+
+def _insert_resolved_channel(
+    cursor: sqlite3.Cursor,
+    channel: Any,
+    sites: list,
+    path_to_file_id: dict,
+    repo_name: str,
+    commit_hash: str,
+) -> None:
+    """Insert a resolved channel's rows (#3383): the engine's repo-wide list, not a per-file payload.
+
+    `channel.to_row(site, path_to_file_id)` builds the X. A site whose source file has no file_data row (the statistical auditor can
+    relegate one after extraction) is skipped; one with no destination is kept.
+    """
+    rows = []
+    for site in sites:
+        src_id = path_to_file_id.get(site.get("src_path", ""))
+        if src_id is None:
+            continue
+        rows.append((repo_name, commit_hash, src_id, *channel.to_row(site, path_to_file_id)))
+    if not rows:
+        return
+    all_columns = ("repo_name", "commit_hash", channel.src_column, *channel.columns)
+    placeholders = ", ".join(["?"] * len(all_columns))
+    cursor.executemany(
+        f"INSERT INTO {channel.table} ({', '.join(all_columns)}) VALUES ({placeholders})",  # noqa: S608 -- identifiers are registry constants
         rows,
     )
 
@@ -952,65 +981,8 @@ class RecordKeeper:
         # `COPY X IN LIB` of one member can reach different files). NULL otherwise.
         _ensure_columns(cursor, "edge_data", ["copy_libraries TEXT"])
 
-        # #3200: one row per mainframe INVOCATION SITE -- COBOL `CALL`, CICS
-        # `LINK`/`XCTL PROGRAM(...)`, JCL `EXEC PGM=`. edge_data carries the
-        # resolved program-to-program edges aggregated from these, but it
-        # structurally cannot carry the rest: its src/dst are file_data FKs, and
-        # the majority of real call sites do not resolve to a file in the
-        # repository at all. `CALL 'CEEGMT'` is a Language Environment service,
-        # `EXEC PGM=IEFBR14` is a system utility, and a `CALL WS-PGM` whose
-        # VALUE clause lives in a copybook has no readable target name. Those
-        # were #3200's "unresolved targets are recorded nowhere"; they are rows
-        # here, with the level of failure distinguishable:
-        #   target IS NULL             -- the name itself could not be read
-        #   target NOT NULL, dst NULL  -- named, but not a program in this repo
-        #   dst_file_id NOT NULL       -- resolved; also an edge_data row
-        # `form` ('literal' | 'identifier' | 'unknown') keeps the architectural
-        # distinction the old pipeline's `unresolved_calls` was really about: a
-        # literal CALL is a static, link-edited dependency, an identifier CALL
-        # is dynamic dispatch that a compile-time DAG cannot see.
-        # No FK to repo_data, for the same cascade-delete reason as edge_data.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS call_site_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                src_file_id INTEGER,
-                verb TEXT,
-                form TEXT,
-                operand TEXT,
-                target TEXT,
-                dst_file_id INTEGER,
-                line_number INTEGER,
-                commarea TEXT,
-                commarea_length TEXT,
-                commarea_datalength TEXT,
-                using_args TEXT,
-                sysid TEXT,
-                FOREIGN KEY(src_file_id) REFERENCES file_data(id) ON DELETE CASCADE,
-                FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        # #3355: the COMMAREA contract of a CICS LINK/XCTL/RETURN TRANSID site --
-        # the record it passes (`COMMAREA(x)`) and its `LENGTH(...)` /
-        # `DATALENGTH(...)` operands, each as written (whitespace-collapsed,
-        # upper-cased). NULL when the site carries no such operand (every CALL and
-        # EXEC PGM row). Per-file, so restored on delta scans like `operand`.
-        # Joining x to the callee's LINKAGE DFHCOMMAREA is galaxy_ir's job
-        # (GalaxyIR.commarea_contracts). Healed onto a table created before #3355.
-        _ensure_columns(cursor, "call_site_data", ["commarea TEXT", "commarea_length TEXT", "commarea_datalength TEXT"])
-        # #3454: a batch CALL's USING list (call_using.py), comma-joined by position,
-        # NULL for a CALL without USING and every non-CALL row. Paired with the
-        # callee's entry_point_data params by GalaxyIR.call_contracts.
-        _ensure_columns(cursor, "call_site_data", ["using_args TEXT"])
-        # #3494: a CICS LINK / START's SYSID(...) as written (the remote region it
-        # ships to), NULL otherwise. Joined with the CSD's REMOTESYSTEM definitions
-        # by GalaxyIR.remote_calls.
-        _ensure_columns(cursor, "call_site_data", ["sysid TEXT"])
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_src_file_id ON call_site_data(src_file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_dst_file_id ON call_site_data(dst_file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_target ON call_site_data(target);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_snapshot ON call_site_data(repo_name, commit_hash);")
+        # #3200: one row per mainframe invocation site; schema and its comments: fact_channels.py.
+        create_channel_table(cursor, "call_site", _ensure_columns)
 
         # #3201: the dataset boundary, from both ends of the same ddname.
         #   COBOL row: internal_name + assign_name + dd_name + access_modes
@@ -1581,27 +1553,7 @@ class RecordKeeper:
         # transaction id is not a file, so it cannot be a file_data FK. The COBOL
         # in-source routing (EXEC CICS RETURN/START/RUN TRANSID) rides in
         # call_site_data; galaxy_ir.transaction_map joins the two.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS transaction_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                transid TEXT,
-                program TEXT,
-                group_name TEXT,
-                profile TEXT,
-                dst_file_id INTEGER,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE,
-                FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_transaction_file_id ON transaction_data(file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_transaction_transid ON transaction_data(transid);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_transaction_snapshot ON transaction_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, "transaction", _ensure_columns)
 
         # #3356: the CICS resource inventory -- one row per CSD `DEFINE
         # <type>(<name>)` record of ANY resource type (FILE, MAPSET, TDQUEUE,
@@ -1655,32 +1607,7 @@ class RecordKeeper:
         #   access         -- read / insert / update / delete / merge / lock
         #   cursor_name    -- declared, used, or `WHERE CURRENT OF`
         #   host_variables -- distinct `:NAME`s in order, comma-joined
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS sql_statement_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                stmt_ordinal INTEGER,
-                verb TEXT,
-                table_name TEXT,
-                access TEXT,
-                cursor_name TEXT,
-                host_variables TEXT,
-                line_number INTEGER,
-                statement_text TEXT,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_statement_file_id ON sql_statement_data(file_id);")
-        # #3618: the statement text, added to a pre-#3618 DB in place.
-        _ensure_columns(cursor, "sql_statement_data", ["statement_text TEXT"])
-        # #5736: the routine a `CALL` statement names (schema.proc), NULL for every other verb.
-        _ensure_columns(cursor, "sql_statement_data", ["routine_name TEXT"])
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_statement_table ON sql_statement_data(table_name);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_sql_statement_snapshot ON sql_statement_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, "sql_statement", _ensure_columns)
 
         # #3313 step 3: project-local idiom wrappers -- a short function or a
         # function-like `#define` alias that hides a literal-vocabulary rule
@@ -2771,44 +2698,13 @@ class RecordKeeper:
         # file that has no file_data row at all (the statistical auditor can
         # relegate one after extraction, the same gap edge_data has).
         if call_sites:
-            call_rows = []
-            for site in call_sites:
-                src_id = path_to_file_id.get(site.get("src_path", ""))
-                if src_id is None:
-                    continue
-                call_rows.append(
-                    (
-                        repo_name,
-                        commit_hash,
-                        src_id,
-                        site.get("verb"),
-                        site.get("form"),
-                        site.get("operand"),
-                        site.get("target"),
-                        path_to_file_id.get(site.get("resolved_path") or ""),
-                        int(site.get("line", 0) or 0),
-                        site.get("commarea"),  # #3355
-                        site.get("commarea_length"),
-                        site.get("commarea_datalength"),
-                        site.get("using_args"),  # #3454
-                        site.get("sysid"),  # #3494
-                    )
-                )
-            if call_rows:
-                cursor.executemany(
-                    """
-                    INSERT INTO call_site_data (
-                        repo_name, commit_hash, src_file_id, verb, form,
-                        operand, target, dst_file_id, line_number,
-                        commarea, commarea_length, commarea_datalength, using_args, sysid
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    call_rows,
-                )
+            _insert_resolved_channel(cursor, CALL_SITE_CHANNEL, call_sites, path_to_file_id, repo_name, commit_hash)
 
         # #3383: the registered per-file fact channels (dataset, record, sql_table, csd_resource,
         # screen_field, cics_resource) -- declared in gitgalaxy/core/fact_channels.py.
         for channel in CHANNELS:
+            if channel.resolved:
+                continue
             _insert_per_file_child(
                 cursor,
                 parsed_files,
@@ -3324,67 +3220,8 @@ class RecordKeeper:
         # rather than read per-file. A definition whose deck has no file_data row
         # is skipped (the same extraction gap edge_data/call_site_data tolerate);
         # a program the repository does not contain keeps dst_file_id NULL.
-        if transactions:
-            txn_rows = []
-            for txn in transactions:
-                deck_file_id = path_to_file_id.get(txn.get("src_path", ""))
-                if deck_file_id is None:
-                    continue
-                txn_rows.append(
-                    (
-                        repo_name,
-                        commit_hash,
-                        deck_file_id,
-                        txn.get("transid"),
-                        txn.get("program"),
-                        txn.get("group"),
-                        txn.get("profile"),
-                        path_to_file_id.get(txn.get("resolved_path") or ""),
-                        int(txn.get("line", 0) or 0),
-                    )
-                )
-            if txn_rows:
-                cursor.executemany(
-                    """
-                    INSERT INTO transaction_data (
-                        repo_name, commit_hash, file_id, transid, program,
-                        group_name, profile, dst_file_id, line_number
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    txn_rows,
-                )
-
-        # #3446: embedded SQL statements -- per-file, like sql_table_data.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "sql_statement_data",
-            (
-                "stmt_ordinal",
-                "verb",
-                "table_name",
-                "access",
-                "cursor_name",
-                "host_variables",
-                "line_number",
-                "statement_text",
-                "routine_name",
-            ),
-            "sql_statements",
-            lambda s: (
-                int(s.get("ordinal", 0) or 0),
-                s.get("verb"),
-                s.get("table"),
-                s.get("access"),
-                s.get("cursor"),
-                s.get("host_variables"),
-                int(s.get("line", 0) or 0),
-                s.get("statement"),
-                s.get("routine"),
-            ),
+        _insert_resolved_channel(
+            cursor, TRANSACTION_CHANNEL, transactions or [], path_to_file_id, repo_name, commit_hash
         )
 
         # #3313 step 3: the resolved idiom wrappers, like transactions passed in

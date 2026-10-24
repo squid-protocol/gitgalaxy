@@ -90,6 +90,28 @@ def test_the_cli_writes_the_mode(monkeypatch, tmp_path, capsys):
     assert json.loads(capsys.readouterr().out)["mode"] == "none"
 
 
+def test_gate_profile_skips_unread_prose_only():
+    assert mode(PR_6245, "gate") == "none"
+    assert mode(["README.md"], "gate") == "none"
+    assert mode(["docs/language_status/register/x.md"], "gate") == "none"
+    assert mode(["docs/x.md", "gitgalaxy/core/detector.py"], "gate") == "full"
+    assert mode(["action.yml"], "gate") == "full"  # the gates are the action: its config is never skipped
+
+
+def test_the_pre_gate_asks_the_plan_instead_of_ignoring_docs():
+    yaml = pytest.importorskip("yaml")
+    wf = yaml.safe_load((WORKFLOWS / "gitgalaxy.yml").read_text(encoding="utf-8"))
+    assert "paths-ignore" not in wf[True]["pull_request"] and "paths" not in wf[True]["pull_request"]
+    job = wf["jobs"]["pre-gate"]
+    assert job["permissions"] == {"contents": "read", "pull-requests": "read", "issues": "read"}
+    steps = job["steps"]
+    plan = next(i for i, s in enumerate(steps) if s.get("id") == "plan")
+    assert "--profile gate" in steps[plan]["run"] and "audit_skip_plan.py" in steps[plan]["run"]
+    assert "|| echo \"mode=full\"" in steps[plan]["run"]  # a planner failure runs the gates
+    for s in steps[plan + 1 :]:
+        assert "steps.plan.outputs.mode != 'none'" in s["if"], s["name"]
+
+
 @pytest.mark.parametrize(
     ("name", "profile"), [("ruff-audit", "lint"), ("mypy-audit", "lint"), ("small-audits", "small")]
 )

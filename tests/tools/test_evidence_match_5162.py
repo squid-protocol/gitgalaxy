@@ -34,3 +34,29 @@ def test_match_result_is_a_fresh_list():
     a = ev._match(FILES, ["a/*"], [])
     a.clear()
     assert ev._match(FILES, ["a/*"], [])
+
+
+def _old_linked_ports(case):
+    """The per-LINKed-program glob + case.json read equivalence_target did before the index was built once."""
+    data = ev._case_json(case)
+    ports = [data.get("port_from", case), *data.get("uses_ports", [])]
+    for extra in data.get("programs", []):
+        prog = extra["program"].upper()
+        for other in sorted(p.parent.name for p in ev.CASES.glob("*/case.json")):
+            if (
+                other not in ports
+                and (ev.CASES / other / "port").is_dir()
+                and ev._case_json(other).get("program", "").upper() == prog
+            ):
+                ports.append(other)
+    return ports
+
+
+def test_linked_program_ports_are_the_same_as_the_per_program_scan():
+    linked = [
+        p.parent.name for p in sorted(ev.CASES.glob("*/case.json")) if ev._case_json(p.parent.name).get("programs")
+    ]
+    assert linked
+    for case in linked:
+        want = [f"tests/equivalence/{c}/port/**" for c in _old_linked_ports(case)]
+        assert ev.equivalence_target(case).specs["port"]["paths"] == want

@@ -225,7 +225,7 @@ jobs:
     needs: plan
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.plan.outputs.db2_shards != '0' && needs.plan.outputs.db2_shards != '') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ fromJSON(needs.plan.outputs.db2_timeout || '30') }}  # #5919: the slowest planned shard x 1.5 (tests/tools/ci_shard_plan.py), not hand-set
+    timeout-minutes: ${{ fromJSON(needs.plan.outputs.db2_timeout || '75') }}  # #5604: fallback = DB2_TIMEOUT_FLOOR (tests/tools/test_db2_wait_bound.py); #5919: the slowest planned shard x 1.5 (tests/tools/ci_shard_plan.py), not hand-set
     strategy:
       fail-fast: false
       matrix:
@@ -357,7 +357,7 @@ jobs:
 
           if (snapshot / "snapshot.json").is_file():  # #5882: the cached first start, once the pinned image is here
               pulled = Path(os.environ["RUNNER_TEMP"]) / "pull-done"
-              for _ in range(900):
+              for _ in range(1800):  # #5604: one pull attempt's own bound (1800 s), not half of it
                   if pulled.exists():
                       break
                   time.sleep(1)
@@ -436,13 +436,20 @@ jobs:
       - name: Wait for the first Db2 database
         shell: bash
         run: |
-          for _ in $(seq 1 120); do
+          # #5601: 660 x 5 s = 3300 s = the harness's worst case (equivalence_db2: LOAD_WAIT 900 s, then READY_POLLS x 10 s,
+          # twice, a stuck start being retried once). A shorter wait failed the step while the retry was still running.
+          for _ in $(seq 1 660); do
             if [ -f "$RUNNER_TEMP/db2-ready.d/GGDB.ready" ] || [ -f "$RUNNER_TEMP/db2-prewarm.done" ]; then break; fi
             sleep 5
           done
           cat "$RUNNER_TEMP/db2-prewarm.log" | grep -v 'WARNING\|INFO' || true
           ls "$RUNNER_TEMP/db2-ready.d"
-          [ -f "$RUNNER_TEMP/db2-ready.d/GGDB.ready" ] || { echo "::error title=Db2::the background Db2 start did not bring up GGDB"; exit 1; }
+          if [ ! -f "$RUNNER_TEMP/db2-ready.d/GGDB.ready" ]; then
+            docker ps -a --format '{{.Names}} {{.Status}}' || true
+            docker logs --tail 40 "$(cd gitgalaxy/tests/tools && python -c 'import equivalence_db2; print(equivalence_db2.CONTAINER)')" 2>&1 || true
+            echo "::error title=Db2::the background Db2 start did not bring up GGDB"
+            exit 1
+          fi
           date +%s > "$RUNNER_TEMP/db2-ready"
 
       # #5262: the cache writer is main's runs (schedule / dispatch on main), one shard, and only on a miss. Docker save

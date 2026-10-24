@@ -239,3 +239,148 @@ def test_go_callgraph_resolves_calls_with_the_type_checker(tmp_path):
     # a call outside the module is external, a closure's calls belong to its enclosing function
     assert [run, "TrimSpace"] in g["external"]
     assert g["files"] == 2
+
+
+def test_clang_callgraph_resolves_c_calls_across_translation_units(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "util.h").write_text("int helper(int x);\nint twice(int x) {\n  return helper(x) * 2;\n}\n")  # 1-4
+    (tmp_path / "util.c").write_text(
+        '#include "util.h"\n'
+        "static int hidden(int x) { return x; }\n"  # 2
+        "int helper(int x) {\n"  # 3
+        "  return hidden(x);\n"
+        "}\n"
+    )
+    (tmp_path / "other.c").write_text("static int hidden(int x) { return -x; }\nint neg(int x) { return hidden(x); }\n")
+    (tmp_path / "main.c").write_text(
+        '#include "util.h"\n'
+        "#include <string.h>\n"
+        "#define SQ(x) ((x) * (x))\n"  # looks like a call, is not one
+        "#define VIA(x) helper(x)\n"  # expands to one
+        "int run(char *s, int (*fp)(int)) {\n"  # 5
+        "  int n = (int)strlen(s);\n"
+        "  fp(n);\n"
+        "  return SQ(n) + VIA(n) + twice(n);\n"
+        "}\n"
+    )
+    (tmp_path / "win").mkdir()
+    (tmp_path / "win" / "w.c").write_text("#include <windows.h>\nint w(void) { return 1; }\n")
+    g = clang_callgraph.build(tmp_path)
+    run, twice, helper = ["main.c", "run", 5], ["util.h", "twice", 2], ["util.c", "helper", 3]
+    hidden, neg = ["util.c", "hidden", 2], ["other.c", "neg", 2]
+    # the prototype `int helper(int x);` is no def; `win/` is not parsed; each static `hidden` is its own def
+    assert sorted(g["defs"]) == sorted([run, twice, helper, hidden, ["other.c", "hidden", 1], neg])
+    # cross-file: run -> twice (a header function) and -> helper (via the macro, and twice -> helper through the
+    # prototype); a static callee is its own translation unit's definition, not the other file's `hidden`
+    assert sorted(g["edges"]) == sorted(
+        [
+            [run, twice, 8],
+            [run, helper, 8],
+            [twice, helper, 3],
+            [helper, hidden, 4],
+            [neg, ["other.c", "hidden", 1], 2],
+        ]
+    )
+    # strlen resolves only in a system header; the call through `fp` names no function
+    assert g["external"] == [[run, "strlen"]]
+    assert g["files"] == 3
+
+
+def test_clang_callgraph_resolves_cpp_calls_by_usr_with_engine_names(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None or not clang_callgraph._system_includes():
+        pytest.skip("libclang (pip install libclang==18.1.1) or a host g++ is not available")
+    (tmp_path / "inc").mkdir()
+    (tmp_path / "inc" / "lib.h").write_text(
+        "#pragma once\n"
+        "#include <cstring>\n"
+        "int proto(int x);\n"  # 3: a prototype is no def
+        "struct Foo {\n"  # 4
+        "  Foo() {}\n"  # 5
+        "  int inl() { return proto(1); }\n"  # 6
+        "  int out(int x);\n"
+        "  int out(double x);\n"
+        "};\n"
+        "template <typename T> T twice(T v) { return v + v; }\n"  # 10
+        "#define VIA(x) proto(x)\n"
+    )
+    (tmp_path / "a.cc").write_text(
+        '#include "lib.h"\n'
+        "namespace {\n"
+        "int hidden() { return 1; }\n"  # 3: internal linkage
+        "}\n"
+        "int proto(int x) { return hidden() + x; }\n"  # 5
+        "int Foo::out(int x) { return proto(x); }\n"  # 6
+        "int Foo::out(double x) { return (int)x; }\n"  # 7
+        "namespace ns { int deep() { return Foo().out(1); } }\n"  # 8
+    )
+    (tmp_path / "b.cc").write_text(
+        '#include "lib.h"\n'
+        "namespace {\n"
+        "int hidden() { return 2; }\n"  # 3
+        "}\n"
+        "int run(const char *s) {\n"  # 5
+        "  Foo f;\n"
+        "  int n = (int)strlen(s);\n"
+        "  return twice(n) + twice(1.5) + hidden() + VIA(n) + f.out(2.0) + f.inl();\n"
+        "}\n"
+    )
+    g = clang_callgraph.build(tmp_path, "cpp")
+    foo_inl, twice = ["inc/lib.h", "inl", 6], ["inc/lib.h", "twice", 10]
+    proto, out_int, out_dbl = ["a.cc", "proto", 5], ["a.cc", "Foo::out", 6], ["a.cc", "Foo::out", 7]
+    deep, run = ["a.cc", "deep", 8], ["b.cc", "run", 5]
+    hidden_a, hidden_b = ["a.cc", "hidden", 3], ["b.cc", "hidden", 3]
+    # in-class definitions keep their bare name, out-of-line ones are Class::name; the prototype is no def
+    assert ["inc/lib.h", "Foo", 5] in g["defs"]
+    assert sorted(d for d in g["defs"] if d[1] != "Foo") == sorted(
+        [foo_inl, twice, proto, out_int, out_dbl, deep, run, hidden_a, hidden_b]
+    )
+    edges = {(tuple(a), tuple(b)) for a, b, _ in g["edges"]}
+    assert (tuple(foo_inl), tuple(proto)) in edges  # the header prototype is linked to its .cc body
+    assert (tuple(proto), tuple(hidden_a)) in edges and (tuple(run), tuple(hidden_b)) in edges  # each TU's own hidden
+    assert (tuple(proto), tuple(hidden_b)) not in edges
+
+    assert (tuple(run), tuple(proto)) in edges  # through the macro
+    # overloads: the int and the double `out` are told apart, not linked by name
+    assert (tuple(deep), tuple(out_int)) in edges and (tuple(deep), tuple(out_dbl)) not in edges
+    assert (tuple(run), tuple(out_dbl)) in edges and (tuple(run), tuple(out_int)) not in edges
+    # both instantiations of the template are its one pattern
+    assert (tuple(run), tuple(twice)) in edges
+    # strlen is outside the repo
+    assert [run, "strlen"] in g["external"]
+
+
+def test_clang_callgraph_names_a_template_conversion_operator_as_the_engine_does(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None or not clang_callgraph._system_includes():
+        pytest.skip("libclang (pip install libclang==18.1.1) or a host g++ is not available")
+    (tmp_path / "t.cc").write_text(
+        "template <typename T> struct Box { T v; operator Box<int>() const { return Box<int>{1}; } };\n"  # 1
+        "int use() { Box<long> b{2}; Box<int> c = b; (void)c; return 0; }\n"
+    )
+    g = clang_callgraph.build(tmp_path, "cpp")
+    # the engine spells it `operator Box`, without the template arguments libclang appends
+    assert ("operator Box", 1) in {(d[1], d[2]) for d in g["defs"]}
+
+
+def test_clang_callgraph_names_a_gtest_body_by_its_test_name(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None or not clang_callgraph._system_includes():
+        pytest.skip("libclang (pip install libclang==18.1.1) or a host g++ is not available")
+    (tmp_path / "t.cc").write_text(
+        "#define TEST(s, n) struct s##_##n##_Test { void TestBody(); }; void s##_##n##_Test::TestBody()\n"
+        "int helper() { return 1; }\n"
+        "TEST(suite, first_case) { helper(); }\n"  # 3
+        "TEST(suite_b, other) { helper(); }\n"  # 4
+    )
+    g = clang_callgraph.build(tmp_path, "cpp")
+    # the engine names the unit `first_case`, not `suite_first_case_Test::TestBody`
+    names = {(d[1], d[2]) for d in g["defs"]}
+    assert {("first_case", 3), ("other", 4)} <= names
+    assert not any("TestBody" in n for n, _ in names)

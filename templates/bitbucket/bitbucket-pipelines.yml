@@ -21,7 +21,7 @@ pipelines:
             script:
               - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
               - |
-                GG_REF=ce8e5ec40e2120a9e3d851ce3949180526efbd35 GG_SHA256=f3a1ca03e1602dcd7fc05b5d2004712a99d3423c5f7454fa5ecb7e2201bd8a0f # gg-pin:core
+                GG_REF=04c85c32f8c9eb9bc5c830de3e8d08b4efde0e5a GG_SHA256=f3a1ca03e1602dcd7fc05b5d2004712a99d3423c5f7454fa5ecb7e2201bd8a0f # gg-pin:core
                 python -c "import sys,urllib.request as u; u.urlretrieve(sys.argv[1], sys.argv[2])" "https://raw.githubusercontent.com/squid-protocol/gitgalaxy/${GG_REF}/templates/requirements/core.txt" /tmp/gg-requirements.txt
                 echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
                 pip install --require-hashes -r /tmp/gg-requirements.txt
@@ -34,7 +34,7 @@ pipelines:
             script:
               - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
               - |
-                GG_REF=ce8e5ec40e2120a9e3d851ce3949180526efbd35 GG_SHA256=f3a1ca03e1602dcd7fc05b5d2004712a99d3423c5f7454fa5ecb7e2201bd8a0f # gg-pin:core
+                GG_REF=04c85c32f8c9eb9bc5c830de3e8d08b4efde0e5a GG_SHA256=f3a1ca03e1602dcd7fc05b5d2004712a99d3423c5f7454fa5ecb7e2201bd8a0f # gg-pin:core
                 python -c "import sys,urllib.request as u; u.urlretrieve(sys.argv[1], sys.argv[2])" "https://raw.githubusercontent.com/squid-protocol/gitgalaxy/${GG_REF}/templates/requirements/core.txt" /tmp/gg-requirements.txt
                 echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
                 pip install --require-hashes -r /tmp/gg-requirements.txt
@@ -47,7 +47,7 @@ pipelines:
             script:
               - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
               - |
-                GG_REF=ce8e5ec40e2120a9e3d851ce3949180526efbd35 GG_SHA256=f3a1ca03e1602dcd7fc05b5d2004712a99d3423c5f7454fa5ecb7e2201bd8a0f # gg-pin:core
+                GG_REF=04c85c32f8c9eb9bc5c830de3e8d08b4efde0e5a GG_SHA256=f3a1ca03e1602dcd7fc05b5d2004712a99d3423c5f7454fa5ecb7e2201bd8a0f # gg-pin:core
                 python -c "import sys,urllib.request as u; u.urlretrieve(sys.argv[1], sys.argv[2])" "https://raw.githubusercontent.com/squid-protocol/gitgalaxy/${GG_REF}/templates/requirements/core.txt" /tmp/gg-requirements.txt
                 echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
                 pip install --require-hashes -r /tmp/gg-requirements.txt
@@ -60,7 +60,7 @@ pipelines:
             script:
               - export GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER"
               - |
-                GG_REF=ce8e5ec40e2120a9e3d851ce3949180526efbd35 GG_SHA256=27d89102e33059110ee5175e3510e85ee17ff5503cc0da711c3bce27cec91e84 # gg-pin:full
+                GG_REF=04c85c32f8c9eb9bc5c830de3e8d08b4efde0e5a GG_SHA256=afe6988fe90e47659a963be73e1c30a28128f0beb4d46977ec7185b4a8e80c7d # gg-pin:full
                 python -c "import sys,urllib.request as u; u.urlretrieve(sys.argv[1], sys.argv[2])" "https://raw.githubusercontent.com/squid-protocol/gitgalaxy/${GG_REF}/templates/requirements/full.txt" /tmp/gg-requirements.txt
                 echo "${GG_SHA256}  /tmp/gg-requirements.txt" | sha256sum -c -
                 pip install --require-hashes -r /tmp/gg-requirements.txt

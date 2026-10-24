@@ -43,6 +43,7 @@ from typing import Any
 from collections.abc import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import clang_callgraph  # noqa: E402
 import scip_callgraph  # noqa: E402
 from launcher_exe import npm_executable  # noqa: E402
 
@@ -215,6 +216,16 @@ def _pyan_version() -> str | None:
         return None
 
 
+def clang_contract(repo: Path) -> dict[str, Any]:
+    """libclang's call graph of `repo`'s C sources (tests/tools/clang_callgraph.py, #3784)."""
+    return clang_callgraph.build(repo)
+
+
+def clang_cpp_contract(repo: Path) -> dict[str, Any]:
+    """The same for C++ sources: USR-linked overloads, `Class::method` names (#3784)."""
+    return clang_callgraph.build(repo, "cpp")
+
+
 def _tsc_version() -> str | None:
     probe = "const t=require('typescript');process.stdout.write(typeof t.createProgram==='function'?t.version:'')"
     try:
@@ -293,6 +304,30 @@ REFERENCES: dict[str, Reference] = {
         True,
         "a Go 1.24+ toolchain (go) on PATH; golang.org/x/tools is fetched from tests/tools/go_callgraph/go.sum",
     ),
+    # C through libclang's resolved calls (#3784)
+    "c": Reference(
+        "c",
+        "libclang",
+        "18.1.1",
+        "import_graph",
+        clang_contract,
+        clang_callgraph.libclang_version,
+        (Path(__file__), TOOLS / "clang_callgraph.py"),
+        True,
+        'pip install "libclang==18.1.1"',
+    ),
+    # C++ through the same libclang, linked by USR; a distinct tool name keeps BY_TOOL unambiguous
+    "cpp": Reference(
+        "cpp",
+        "libclang (c++)",
+        "18.1.1",
+        "import_graph",
+        clang_cpp_contract,
+        clang_callgraph.libclang_version,
+        (Path(__file__), TOOLS / "clang_callgraph.py"),
+        True,
+        'pip install "libclang==18.1.1"  (and a host g++ for the C++ system headers)',
+    ),
     # SCIP (#3783): scip-java's compiler-resolved index, through the shared SCIP adapter
     "java": Reference(
         "java",
@@ -304,6 +339,18 @@ REFERENCES: dict[str, Reference] = {
         (Path(__file__), TOOLS / "scip_callgraph.py"),
         True,
         "a JDK 17+ (java, javac) and Maven (mvn) on PATH; the pinned scip-java jars are fetched on first use",
+    ),
+    # SCIP (#3785): rust-analyzer's index of serde-rs/json, through the shared SCIP adapter
+    "rust": Reference(
+        "rust",
+        "rust-analyzer",
+        scip_callgraph.RUST_ANALYZER_VERSION,
+        "import_graph",
+        scip_callgraph.rust_analyzer_contract,
+        scip_callgraph.rust_analyzer_version,
+        (Path(__file__), TOOLS / "scip_callgraph.py"),
+        True,
+        "a Rust toolchain (cargo, rustc 1.90.0) with its rust-analyzer component on PATH: rustup component add rust-analyzer",
     ),
 }
 BY_TOOL = {r.tool: r for r in REFERENCES.values()}

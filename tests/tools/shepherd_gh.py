@@ -782,6 +782,25 @@ def ensure_labels(run: Run = _run) -> list[str]:
     return out
 
 
+PASS_CACHED = re.compile(r"^(user|repos/[^/]+/[^/]+/collaborators/[^/]+/permission)$")
+
+
+def pass_cached(api: Api) -> Api:
+    """One reconcile pass reads the bot's own login and each labeller's permission for EVERY PR, though neither can
+    change within the pass: memoise those two reads for the pass (#64, 2026-10-24: the shepherd shares the account's
+    5,000/h API quota with the fleet and failed 25 times in a day when it ran out)."""
+    memo: dict[str, Any] = {}
+
+    def cached(path: str, *a: Any, **kw: Any) -> Any:
+        if not PASS_CACHED.match(path):
+            return api(path, *a, **kw)
+        if path not in memo:
+            memo[path] = api(path, *a, **kw)
+        return memo[path]
+
+    return cached
+
+
 def main(argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _run) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -802,6 +821,7 @@ def main(argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _
         lines = process(number, api, run, facts, args.dry_run, flaky=learned_flakes(args.flake_cache))
     else:
         lines = []
+        api = pass_cached(api)
         flaky = learned_flakes(args.flake_cache)  # once per pass
         prs = prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api)
         on_main = ci_digest.main_failures(api) if len(prs) > 1 else None

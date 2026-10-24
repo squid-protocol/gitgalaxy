@@ -356,6 +356,56 @@
     }
    },
    "why": "#4049 signon survivors: an upper-case Z in the id and the password is left alone by UPPER-CASE (only a-z fold), and signs the user on"
+  },
+  {
+   "name": "admin-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "ADMIN001",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#6166: PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions) on the admin sign-on's XCTL to COADM01C; the XCTL has no RESP, so CICS abends the task"
+  },
+  {
+   "name": "user-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0003",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COMEN01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#6166: PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions) on the regular user's sign-on XCTL to COMEN01C; the XCTL has no RESP, so CICS abends the task"
   }
  ],
  "notes": "CardDemo's sign-on (transaction CC00, program COSGN00C): the screen shows the region's APPLID and SYSID (EXEC CICS ASSIGN); ENTER upper-cases the user id and password, reads the user security record and XCTLs an administrator to COADM01C and a user to COMEN01C; a wrong password, an unknown id or an empty field shows the screen again; PF3 says goodbye in plain text. The region's identity is a deployment fact CardDemo does not fix: CARDDEMO / CICA here are illustrative values the case states, given alike to both sides. usrsec.txt is CardDemo's own DUSRSECJ in-stream data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

@@ -43,9 +43,9 @@ def test_the_generated_test_carries_the_channel_only_to_the_named_transaction():
     assert CARRY in src
 
 
-def test_only_the_java_leg_declares_and_compares_the_channel():
+def test_both_legs_declare_and_compare_the_channel():
     assert "channel" in runner.JAVA_CAPS.events["RETURN"]
-    assert "channel" not in runner.COBOL_CAPS.events["RETURN"]
+    assert "channel" in runner.COBOL_CAPS.events["RETURN"]
     assert "channel" in compare.EVENT_KEYS["RETURN"]
 
 
@@ -83,3 +83,15 @@ def test_the_crucible_proves_the_carry_and_kills_its_removal(tmp_path, monkeypat
     mutant = ported("mutant")
     assert mutant["carry"] != "pass" and mutant["modify"] != "pass"
     shutil.rmtree(tmp_path, ignore_errors=True)
+
+
+def test_the_stub_logs_a_returned_channel(tmp_path):
+    (tmp_path / "events.txt").write_text(
+        "001 RETURN pgm=PCRCA level=1 transid=PC62 len=0 channel=PCCHAN\n"
+        "002 RETURN pgm=PCRCL level=2 transid=PC62 channel=PCCHAN resp=16 resp2=2\n"
+        "003 RETURN pgm=PCRCB level=1 transid= len=0\n"
+    )
+    ok, failed, plain = runner._cobol_events(tmp_path, "PCRCA")
+    assert ok["channel"] == "PCCHAN" and ok["transid"] == "PC62"
+    assert failed["channel"] == "PCCHAN" and failed["resp"] == "INVREQ" and failed["resp2"] == 2
+    assert "immediate" not in failed and "channel" not in plain

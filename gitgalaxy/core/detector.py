@@ -1754,6 +1754,9 @@ _DECLARATOR_BUILTIN_TYPES = frozenset(
     {"int", "char", "bool", "float", "double", "long", "short", "unsigned", "signed", "void", "auto",
      "wchar_t", "char8_t", "char16_t", "char32_t", "size_t"}
 )  # fmt: skip
+# #6454: a functional cast to a built-in type (`bool(x)`, `unsigned(n)`) constructs nothing and calls
+# nothing; only the type KEYWORDS (`size_t` and the stdint names are ordinary identifiers).
+_FUNCTIONAL_CAST_KEYWORDS = _DECLARATOR_BUILTIN_TYPES - {"auto", "void", "size_t"}
 _DECLARATOR_MAX_SCAN = 200
 
 
@@ -10661,6 +10664,10 @@ class StructuralExtractor:
                             if not declared[0]:
                                 continue
                             callee, callee_pos = declared
+                        elif callee in _FUNCTIONAL_CAST_KEYWORDS and not safe_block[:callee_pos].rstrip().endswith(
+                            "operator"
+                        ):
+                            continue
                     if is_send:
                         qualifier = _message_receiver(m.group(2))
                     else:

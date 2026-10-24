@@ -196,7 +196,9 @@ COBOL_CAPS = cc.Capabilities(
         "SEND-CONTROL": frozenset({"options", "cursor"}),  # #4413
         "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),
         "RECEIVE": frozenset({"resp", "length", "data"}),
-        "RETURN": frozenset({"level", "transid", "commarea", "caller_commarea", "immediate", "resp", "resp2"}),
+        "RETURN": frozenset(
+            {"level", "transid", "commarea", "caller_commarea", "immediate", "channel", "resp", "resp2"}
+        ),
         "LINK": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "XCTL": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
@@ -2376,12 +2378,18 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             level = int(arg("level") or 1)
             ev = {"event": "RETURN", "program": issuer, "level": level}
             if arg("resp"):  # #4270 (X27): a RETURN IMMEDIATE that failed (GGCRETI) -- it went on in the program
-                ev.update(immediate=True, transid=arg("transid"), resp=names.get(int(arg("resp")), arg("resp")),
+                ev.update(transid=arg("transid"), resp=names.get(int(arg("resp")), arg("resp")),
                           resp2=int(arg("resp2") or 0))  # fmt: skip
+                if arg("channel"):  # #5005 (X17): or a RETURN CHANNEL below the highest level (GGCRETC)
+                    ev["channel"] = arg("channel")
+                else:
+                    ev["immediate"] = True
             elif level == 1:
                 ev.update(transid=arg("transid") or None, commarea=cc.RawArea(data, "latin-1") if data else None)
                 if arg("immediate"):  # #4270 (X27)
                     ev["immediate"] = True
+                if arg("channel"):  # #5005 (X17)
+                    ev["channel"] = arg("channel")
             else:  # #4004: the LINK COMMAREA as the linking program now sees it (len -1: the LINK had none)
                 ev["caller_commarea"] = cc.RawArea(data, "latin-1") if int(arg("len") or -1) >= 0 else None
         elif verb == "XCTL":  # #4008: RESP2 only where the command is not NORMAL (SPEC 6.2)
@@ -2876,27 +2884,21 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
     count = iter(range(1000))
     origin = origin_peers(case, sc)
     files_cfg = seed_files(case, work, sc["id"])  # #4443
+    carried: list[Path | None] = [None]  # #5005 (X17): the channel the terminal's last RETURN CHANNEL left for its next task
 
     def run_one(frame: dict[str, Any], transid: str, commarea: bytes | None, step: dict[str, Any] | None,
                 data: list[Any], requests: list[tuple[str, int]]) -> dict[str, Any]:  # fmt: skip
         rel = f"runs/{sc['id']}/{next(count):02d}"
         if origin is not None:  # #4767 (X35): each task process is told the origin servers (not a log key)
             frame = {**frame, "http_peers": origin}
-        return run_task(
-            case,
-            box,
-            work,
-            rel,
-            ts,
-            transid,
-            frame,
-            commarea,
-            step,
-            data,
-            requests,
-            task_faults(sc, transid),
-            files_cfg,
-        )
+        terminal = frame.get("termid") == case.data["terminal"]
+        channel = carried[0] if (frame.get("trigger") or {}).get("kind") == "terminal" else None
+        task = run_task(case, box, work, rel, ts, transid, frame, commarea, step, data, requests,
+                        task_faults(sc, transid), files_cfg, channel)  # fmt: skip
+        if terminal:  # as drive_scenario's pending RETURN: only a normal end passes it on
+            saved = work / rel / "out" / "return_channel.cfg"
+            carried[0] = saved if task["end"] == "normal" and saved.is_file() else None
+        return task
 
     tasks, stopped = drive_scenario(case, sc, run_one)
     return {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts)},
@@ -2906,7 +2908,8 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
 def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, transid: str, frame: dict[str, Any],
              commarea: bytes | None, step: dict[str, Any] | None, data: list[Any] | None = None,
              requests: list[tuple[str, int]] | None = None,
-             faults: list[str] | None = None, files_cfg: str = "") -> dict[str, Any]:  # fmt: skip
+             faults: list[str] | None = None, files_cfg: str = "",
+             channel: Path | None = None) -> dict[str, Any]:  # fmt: skip
     """One task in one process: its inputs in `rel` (the COMMAREA, the terminal's input -- a step's text or
     map fields -- the EIB, the CSD's programs and transactions, #4006: the START data it RETRIEVEs and the
     unexpired requests a CANCEL searches, the virtual clock), then the stub's events as the task's."""
@@ -2952,6 +2955,8 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
             )
     if commarea:
         (d / "commarea.in").write_bytes(commarea)
+    if channel is not None:  # #5005 (X17): the channel the previous task RETURNed, its current channel (GGCCHIN)
+        shutil.copy(channel, d / "channel.cfg")
     if http_req is not None:
         import equivalence_cics as ec
 

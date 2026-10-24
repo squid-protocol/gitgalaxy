@@ -65,6 +65,8 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
 * **A parametrize value whose repr lands in the test id** (raw bytes) must be deterministic across processes, or xdist
   aborts collection: give lazily-built payloads explicit `ids=` (#6257).
 * **A freshness test for a generated list scans tracked files** (`git ls-files`), not whatever is on disk (#6306).
+* **A bare `cat > file` (no heredoc) truncates the file to empty:** check `wc -c` before `-F body=@file`, or the PR body
+  lands empty (#6323).
 * **Worker shell `python` / `mypy` not found:** see `golden-master-guidelines.md` section 4 (re-export the venv bin each Bash call).
 
 ## CI and workflow traps

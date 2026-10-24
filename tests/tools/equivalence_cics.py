@@ -1702,8 +1702,12 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         if verb == "XCTL" and not opts.get("PROGRAM"):
             raise Unsupported("XCTL without PROGRAM")
         _check_spec(verb, opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
-        if verb == "RETURN" and "CHANNEL" in opts:  # #5005: the det port carries it; no stub process outlives its task
-            raise _stub_only("RETURN CHANNEL")
+        if verb == "RETURN" and "CHANNEL" in opts:  # #5005 (X17): the next task's current channel (GGCRETC)
+            if not opts.get("TRANSID") or {"COMMAREA", "LENGTH", "IMMEDIATE"} & opts.keys():
+                raise Unsupported(_rule("RETURN", "at_most_one", "CHANNEL"), ["RETURN CHANNEL"])
+            return ([name(opts["TRANSID"], "GG-NAME1"), f"MOVE {opts['CHANNEL']} TO GG-CHAN"]
+                    + _call("GGCRETC", ["BY REFERENCE GG-FLAGS", "BY VALUE 0"])
+                    + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
         if verb == "XCTL" and opts.get("CHANNEL"):  # #4270: the target's current channel (GGCXCTL)
             if "COMMAREA" in opts or "LENGTH" in opts:
                 raise Unsupported(_rule("XCTL", "at_most_one", "CHANNEL"), ["XCTL CHANNEL"])
@@ -2164,8 +2168,8 @@ def task_driver() -> str:
     lines += ["    END-EVALUATE", "    MOVE LOW-VALUES TO WS-CA",
               "    CALL 'GGCLOAD' USING WS-CA BY VALUE LENGTH OF WS-CA", "        RETURNING WS-LEN",
               "    MOVE WS-LEN TO EIBCALEN", "    MOVE IN-PROG TO GG-NAME1", "    MOVE WS-LEN TO GG-LEN",
-              "    CALL 'GGCTASK' USING GG-CICS", "    CALL 'GGCRUN' USING WS-CA",
-              "    CALL 'GGCAOUT' USING WS-CA BY VALUE WS-LEN",
+              "    CALL 'GGCTASK' USING GG-CICS", "    CALL 'GGCCHIN' USING GG-CICS",
+              "    CALL 'GGCRUN' USING WS-CA", "    CALL 'GGCAOUT' USING WS-CA BY VALUE WS-LEN",
               "    CALL 'GGCEND' USING GG-CICS", "    STOP RUN."]  # fmt: skip
     assert all(len(ln) <= 65 for ln in lines), [ln for ln in lines if len(ln) > 65]
     return "".join("       " + ln + "\n" for ln in lines)

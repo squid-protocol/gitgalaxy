@@ -284,11 +284,15 @@ def digest(
     logs: Logs = job_log,
     on_main: set[str] | None = None,
     flaky: set[str] | None = None,
+    pr: dict[str, Any] | None = None,
+    runs: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    """`pr`, `runs`: the pull request and its head's check runs when the caller already read them (#6534)."""
     on_main = main_failures(api) if on_main is None else on_main
-    pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
+    pr = api(f"repos/{REPO_SLUG}/pulls/{n}") if pr is None else pr
     sha = pr["head"]["sha"]
-    runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
+    if runs is None:
+        runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
     failed = pr_check.failed_names(runs)
     newest: dict[str, dict[str, Any]] = {}
     for r in sorted(runs, key=lambda r: r.get("id", 0)):

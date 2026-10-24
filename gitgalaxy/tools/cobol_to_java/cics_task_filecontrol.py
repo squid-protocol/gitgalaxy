@@ -266,6 +266,18 @@ FILECONTROL_JAVA = """\
         return r;
     }
 
+    /** #6262 READ FILE(file) SET(ptr) RIDFLD(ridfld) [UPDATE], recorded as the SPEC 6.2 READ event with `set`: as read /
+     *  readForUpdate. The event carries no `length` (INTO's LENGTH is not on the SET form) and, on NORMAL, `data` the
+     *  record the pointer addresses; the caller acquires the block (acquireSet) from the returned record. */
+    public FileRead<byte[]> readSetEvent(String file, byte[] ridfld, boolean update,
+                                         java.util.function.Supplier<Optional<byte[]>> lookup) {
+        FileRead<byte[]> r = update ? readForUpdate(file, lookup) : read(file, lookup);
+        event("READ", "file", file, "ridfld", ridfld, "update", update ? Boolean.TRUE : null, "set", Boolean.TRUE,
+                "resp", respName(r.resp()), "resp2", r.resp() == 0 ? null : r.resp2(),
+                "data", r.resp() == 0 ? r.record() : null);
+        return r;
+    }
+
     /** #4443 REWRITE FILE(file) FROM(from), recorded as the SPEC 6.2 REWRITE event: as rewrite; `store` saves `from`. */
     public int rewriteFrom(String file, byte[] from, Runnable store) {
         int resp = rewrite(file, store);
@@ -296,16 +308,28 @@ FILECONTROL_JAVA = """\
      *  is not NORMAL. A record longer than `intoLength` is LENGERR (22) RESP2 11, as readInto; a negative LENGTH is refused. */
     public Browsed readnextInto(String file, byte[] ridfld, String key, int intoLength,
                                 java.util.function.Function<String, Optional<byte[]>> lookup) {
-        return browseEvent("READNEXT", readnext(file, key), file, ridfld, intoLength, lookup);
+        return browseEvent("READNEXT", readnext(file, key), file, ridfld, intoLength, lookup, false);
+    }
+
+    /** #6262 READNEXT / READPREV FILE(file) SET(ptr) RIDFLD(ridfld): as readnextInto / readprevInto, recorded with `set`
+     *  and no `length`; `data` is the record the pointer addresses. The caller acquires the block from `lookup`'s record. */
+    public Browsed readnextSetEvent(String file, byte[] ridfld, String key,
+                                    java.util.function.Function<String, Optional<byte[]>> lookup) {
+        return browseEvent("READNEXT", readnext(file, key), file, ridfld, Integer.MAX_VALUE, lookup, true);
+    }
+
+    public Browsed readprevSetEvent(String file, byte[] ridfld, String key,
+                                    java.util.function.Function<String, Optional<byte[]>> lookup) {
+        return browseEvent("READPREV", readprev(file, key), file, ridfld, Integer.MAX_VALUE, lookup, true);
     }
 
     public Browsed readprevInto(String file, byte[] ridfld, String key, int intoLength,
                                 java.util.function.Function<String, Optional<byte[]>> lookup) {
-        return browseEvent("READPREV", readprev(file, key), file, ridfld, intoLength, lookup);
+        return browseEvent("READPREV", readprev(file, key), file, ridfld, intoLength, lookup, false);
     }
 
     private Browsed browseEvent(String kind, Browsed b, String file, byte[] ridfld, int intoLength,
-                                java.util.function.Function<String, Optional<byte[]>> lookup) {
+                                java.util.function.Function<String, Optional<byte[]>> lookup, boolean set) {
         if (intoLength < 0) {
             throw new UnsupportedOperationException(kind + " LENGTH " + intoLength + " (negative): not modelled");
         }
@@ -318,7 +342,8 @@ FILECONTROL_JAVA = """\
         }
         boolean normal = resp == 0 || resp == 15;
         event(kind, "file", file, "ridfld", ridfld, "resp", respName(resp), "resp2", resp == 0 ? null : resp2,
-                "length", record == null ? null : record.length, "data", normal ? record : null);
+                "set", set ? Boolean.TRUE : null, "length", set || record == null ? null : record.length,
+                "data", normal ? record : null);
         return new Browsed(resp, resp2, b.key());
     }
 

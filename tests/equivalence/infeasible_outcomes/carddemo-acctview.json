@@ -57,6 +57,14 @@
       "outcome": "false",
       "family": "G",
       "reason": "`IF WS-RETURN-MSG-OFF` in the NOTFND arm of the account READ is false only if WS-RETURN-MSG is already non-blank. 9300 is performed from 9000 (701) only after 9200 left FLG-ACCTFILTER-NOT-OK unset (697-699), i.e. after a NORMAL xref READ, which writes no message (WHEN OTHER and NOTFND both set FLG-ACCTFILTER-NOT-OK and leave 9000 first), so WS-RETURN-MSG is still the SPACES set at 278 and the test is always true."
+    },
+    {
+      "unit": "ABEND-ROUTINE",
+      "line": 918,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 19-20) inside ABEND-DATA, which no INITIALIZE of the program names (the INITIALIZEs at 268 and 285 are CC-WORK-AREA and CARDDEMO-COMMAREA), and the program writes ABEND-MSG only at 919, inside this very test. It is never LOW-VALUES when ABEND-ROUTINE runs."
     }
   ]
 }

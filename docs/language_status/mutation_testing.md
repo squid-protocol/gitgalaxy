@@ -344,7 +344,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COADM01C (carddemo-adminmenu-generated) | equivalence | 150/340 | 97/145 (67%) | 97/97 (100%) | 0 / 0 / 43 / 5 / 0 |
 | COBIL00C (carddemo-billpay) | equivalence | 100/529 | 66/86 (77%) | 66/70 (94%) | 4 / 0 / 12 / 4 / 0 |
 | COBIL00C (carddemo-billpay-generated) | equivalence | 150/530 | 104/136 (76%) | 104/104 (100%) | 0 / 0 / 17 / 15 / 0 |
-| COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 75/94 (80%) | 75/82 (91%) | 7 / 0 / 12 / 0 / 0 |
+| COCRDLIC (carddemo-cardlist) | equivalence | 100/1034 | 82/94 (87%) | 82/82 (100%) | 0 / 0 / 12 / 0 / 0 |
 | COCRDSLC (carddemo-cardview) | equivalence | 100/503 | 60/91 (66%) | 60/65 (92%) | 4 / 1 / 22 / 4 / 0 |
 | CBTRN01C (carddemo-dailyval) | equivalence | 100/241 | 63/96 (66%) | 63/71 (89%) | 8 / 0 / 10 / 15 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 276/276 | 197/260 (76%) | 197/197 (100%) | 0 / 0 / 13 / 50 / 0 |
@@ -398,19 +398,19 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 5119 run | **3237/4731 (68%)** | **3237/3685 (88%)** | 246 / 201 / 646 / 400 / 0 + 1 declared |
-| **all estate** | | 5623 run | **3556/5207 (68%)** | **3556/4039 (88%)** | 281 / 201 / 734 / 434 / 0 + 1 declared |
+| **all equivalence** | | 5119 run | **3244/4731 (69%)** | **3244/3685 (88%)** | 239 / 201 / 646 / 400 / 0 + 1 declared |
+| **all estate** | | 5623 run | **3563/5207 (68%)** | **3563/4039 (88%)** | 274 / 201 / 734 / 434 / 0 + 1 declared |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
 | AOR | 231/286 (81%) | 231/255 (91%) |
 | BDM | 27/52 (52%) | 27/28 (96%) |
-| CON | 467/1062 (44%) | 467/577 (81%) |
-| COR | 228/353 (65%) | 228/263 (87%) |
-| DEL | 614/878 (70%) | 614/688 (89%) |
+| CON | 468/1062 (44%) | 468/577 (81%) |
+| COR | 229/353 (65%) | 229/263 (87%) |
+| DEL | 617/878 (70%) | 617/688 (90%) |
 | LIT | 731/990 (74%) | 731/815 (90%) |
 | NEG | 622/703 (88%) | 622/668 (93%) |
-| RET | 56/105 (53%) | 56/93 (60%) |
+| RET | 58/105 (55%) | 58/93 (62%) |
 | ROR | 580/778 (75%) | 580/652 (89%) |
 
 | port | AOR | BDM | CON | COR | DEL | LIT | NEG | RET | ROR |
@@ -421,7 +421,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | COADM01C (carddemo-adminmenu-generated) | 8/8 | - | 4/24 | 6/8 | 14/26 | 14/25 | 25/25 | 4/4 | 22/25 |
 | COBIL00C (carddemo-billpay) | 4/5 | 1/3 | 5/13 | 9/12 | 10/12 | 12/13 | 12/13 | 2/2 | 11/13 |
 | COBIL00C (carddemo-billpay-generated) | 5/6 | 1/3 | 9/23 | 9/12 | 17/22 | 21/23 | 22/23 | 2/2 | 18/22 |
-| COCRDLIC (carddemo-cardlist) | 8/8 | - | 8/13 | 10/13 | 7/13 | 12/13 | 13/13 | 6/9 | 11/12 |
+| COCRDLIC (carddemo-cardlist) | 8/8 | - | 9/13 | 11/13 | 10/13 | 12/13 | 13/13 | 8/9 | 11/12 |
 | COCRDSLC (carddemo-cardview) | 4/5 | - | 3/14 | 10/14 | 6/14 | 9/14 | 13/14 | 2/2 | 13/14 |
 | CBTRN01C (carddemo-dailyval) | 3/6 | - | 11/16 | 3/12 | 9/15 | 12/16 | 12/16 | - | 13/15 |
 | CSUTLDTC (carddemo-dateutil) | 17/18 | - | 42/72 | 9/15 | 11/11 | 30/38 | 38/39 | - | 50/67 |
@@ -520,8 +520,8 @@ left, and the one open survivor needs a harness change, not a proposal.
 mutants each, seed 0). Their case gaps repeat the six ports': no EIBCALEN, a short or blank COMMAREA, non-blank
 COMMAREA fields, a failed XCTL, bad-format amount and date inputs, and rounding with fractional amounts; tranlist's
 cases also need `"maps"` in case.json. 31 survivors are unreachable (the facade's byte-carrying handleLink,
-lastLinkBytes() and the program name in `region.run` / `region.linked`). cardlist's 16 of 46 scenarios are refused by
-the oracle (register X8), so its score rests on the other 30. One harness gap, closed in #5401: cardview (0173a35c74) changes SEND TEXT
+lastLinkBytes() and the program name in `region.run` / `region.linked`). cardlist's 16 scenarios are refused by
+the oracle (register X8), so its score rests on the others (the 30 of the first 46, 46 since #5401: see the cardlist paragraph below). One harness gap, closed in #5401: cardview (0173a35c74) changes SEND TEXT
 options, and the harness compared SEND TEXT by text only; it now compares the forwarded options (ERASE, FREEKB, ALARM,
 WAIT, LAST). The score is not re-run. #5401 added `commarea_length` scenarios (EIBCALEN stated, X23): userupd 185 and 186, report 146 and 153, tranlist
 `enter-short-commarea` (160 of 218), billpay and tranadd 200 and 201 (of 218, both past the numeric page number). Lengths that cut a numeric field, or leave one blank, are not used: a blank
@@ -542,13 +542,15 @@ three; the scores are not re-run. `test_carddemo_commarea_fields_5401.py` pins t
 stale first card account id must come back 0 when the first READNEXT faults, `6fef123a15`) need no refused scenario, so the X8 refusals never blocked them: both mutants differ
 (`commarea.WS-RETURN-FLAG` 1 vs None, `commarea.WS-CA-FIRST-CARD-ACCT-ID` 0 vs 41), and the case is proven on 33 scenarios, 36/36 paragraphs, 136/149 branches. No survivor of the item is open.
 
+**Cardlist survivors behind the X8 refusals** (#5401, 2026-10-23). The 16 refused scenarios are all ENTERs with nothing selected: COCRDLIC line 518 subscripts `VIEW-REQUESTED-ON(I-SELECTED)` with `I-SELECTED` = 0, and the oracle's `EC-BOUND-SUBSCRIPT` refuses it by name (register X8, an owner decision: no scenario is allowed past the bounds). A PF key skips line 518, so each survivor the refusals left open is stated under one. Of the five cardlist case gaps still open, two were already killed by scenarios added since the score was recorded (`103529adf5` by `pf8-back-from-card-view-keeps-the-selected-ids`, `0e7e448057` by `pf3-from-menu-stale-first-card-faulting-carddat`). Four new scenarios kill the other three: `pf8-with-all-zeros-account-filter` (`1761ccd4aa`, `d9ff5e4dbc`), `pf8-with-all-zeros-card-filter` (`d9ff5e4dbc`), and `pf8-endbr-invreq` / `pf7-endbr-invreq` (`fc564b048f`; the source has no RESP on its ENDBR, so INVREQ abends the task). GnuCOBOL and the port agree on all four. The case is proven on 46 scenarios (36/36 paragraphs, 147/149 branches), and the 100-mutant sample (seed 0) is re-run: 82 caught, 12 survived (all equivalent), 6 stillborn, 0 case gaps; raw 82/94 (87%), adjusted 82/82. The 16 refusals stay: no PF-key form reaches what they would have shown (the ENTER paths themselves, e.g. the empty-selection test of line 518, are unobserved by any proof). `test_carddemo_cardlist_mutation_survivors_5401.py` pins the scenarios.
+
 **Failed XCTL survivors** (#5401, 2026-10-21). A case with an XCTL site had no scenario where the XCTL answers a non-NORMAL condition. The source has no RESP, so
 CICS abends the task (PGMIDERR, RESP2 3), the shape billpay, tranadd and cardview already state (`pf3-xctl-fails`). Added: tranlist `select-xctl-fails` (XCTL COTRN01C) and
 `pf3-xctl-fails` (XCTL COMEN01C), report `pf3-xctl-fails` (CORPT00C's one XCTL, COMEN01C) and userupd `pf3-saves-then-xctl-fails` (the update saved first, then XCTL COADM01C).
 GnuCOBOL and the port agree on all four. tranlist `9e54fb034b` (the `abendOnCondition` after the XCTL, `Cotrn00cService.java:522`) is killed by both tranlist scenarios; the case
 is re-judged with `mutation.py run --only` (no re-sample), which also records `bdeaa77fbe` as killed (the score had not been re-run for it): COTRN00C 66/91 killed.
 `test_carddemo_failed_xctl_5401.py` pins the four scenarios. cardlist (COCRDLIC) states one per XCTL site (lines 402, 538, 566; #5819), so the item is closed: the test also
-counts the XCTL sites in each of the seven sources and requires a faulted-XCTL scenario for each. The cardlist score is not re-run (16 of its 46 scenarios are refused by the oracle, X8).
+counts the XCTL sites in each of the seven sources and requires a faulted-XCTL scenario for each. The cardlist score was re-run in the next paragraph.
 
 **Bad-format amount and date survivors** (#5401, 2026-10-21). COTRN02C validates the amount with four clauses (sign byte, digits 2-9, the point, cents) and each date with
 five (year, `-`, month, `-`, day), and the case had one all-bad value per field, which fails the first clause and leaves a mutant of any later one alive. tranadd now

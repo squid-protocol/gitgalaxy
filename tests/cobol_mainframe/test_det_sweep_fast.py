@@ -610,3 +610,44 @@ def test_a_db2_start_that_fails_twice_raises(monkeypatch):  # #5602
     with pytest.raises(RuntimeError, match="did not come up"):
         d._ensure_container()
     assert not d._CONTAINER_READY
+
+
+# ---- #5862: the PR-time det_mutation stale-check ------------------------------------------------------------
+
+
+def _det_sweep_jobs() -> dict:
+    yaml = pytest.importorskip("yaml")
+    return yaml.safe_load((ROOT / ".github" / "workflows" / "det-sweep.yml").read_text(encoding="utf-8"))["jobs"]
+
+
+def _runs(job: dict) -> str:
+    return "\n".join(s.get("run", "") for s in job["steps"])
+
+
+def test_detmut_job_runs_the_stale_check_against_main_on_ready_prs_only():
+    job = _det_sweep_jobs()["detmut"]
+    assert "det_mutation.py stale-check --vs origin/main" in _runs(job)
+    for part in ("github.event_name == 'pull_request'", "draft == false"):
+        assert part in job["if"]
+    checkout = next(s for s in job["steps"] if str(s.get("uses", "")).startswith("actions/checkout"))
+    assert checkout["with"]["fetch-depth"] == 0  # the merge base the --vs scope diffs against
+
+
+def test_detmut_job_fetches_its_own_corpora_before_the_check():
+    job = _det_sweep_jobs()["detmut"]
+    runs = [s.get("run", "") for s in job["steps"]]
+    fetch = next(i for i, r in enumerate(runs) if "mainframe_corpus.py fetch" in r)
+    check = next(i for i, r in enumerate(runs) if "stale-check" in r)
+    assert fetch < check
+    assert "GITGALAXY_MAINFRAME_CORPORA" in job["env"]
+    assert "plan" not in job.get("needs", [])  # no diff-plan dependency: it only fingerprints
+
+
+def test_the_required_det_check_waits_for_detmut_and_fails_on_its_failure_only():
+    jobs = _det_sweep_jobs()
+    det = jobs["det"]
+    assert "detmut" in det["needs"]
+    assert "always()" in det["if"]  # a skipped detmut (draft, nightly, dispatch) must not skip `det`
+    gate = next(s for s in det["steps"] if "detmut.result" in str(s.get("if", "")))
+    assert gate["if"].strip() == "needs.detmut.result == 'failure'"
+    assert "exit 1" in gate["run"]

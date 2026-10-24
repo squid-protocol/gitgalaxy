@@ -88,3 +88,19 @@ def test_the_committed_list_is_fresh():
     assert cc.LIST_PATH.read_text(encoding="utf-8") == cc.render(cc.scan()), (
         "docs_read_by_tests.txt is stale: python tests/tools/change_classifier.py --write"
     )
+
+
+def test_known_names_are_the_tracked_files_not_an_ignored_one_on_disk(tmp_path):
+    """#6302: the evidence report's ignored report.json, materialised by an earlier test, changed the render."""
+    import subprocess
+
+    def git(*a):
+        subprocess.run(["git", "-C", str(tmp_path), *a], check=True, capture_output=True)
+
+    git("init", "-q")
+    (tmp_path / "docs/sub").mkdir(parents=True)
+    (tmp_path / "docs/sub/tracked.md").write_text("x")
+    (tmp_path / "docs/sub/ignored.json").write_text("{}")
+    (tmp_path / ".gitignore").write_text("docs/sub/ignored.json\n")
+    git("add", ".gitignore", "docs/sub/tracked.md")
+    assert cc._known_names(tmp_path) == {"tracked.md"}

@@ -582,3 +582,173 @@ def test_replay_counts_tree_sitter_runs(monkeypatch):
     assert (r["prs"], r["ran_before"], r["runs_now"]) == (2, 2, 1)
     assert r["prs_that_still_run"] == [2]
     assert r["language_corpora_before"] == 2 * len(LANGS) and r["language_corpora_now"] == 1  # PR 2: one baseline file
+
+
+# ---- tri-comparison (+ history) and the graph-comparison history ------------------------------------------------------
+
+TRI_LANGS = aap.tree_sitter_languages(baseline=aap.TRI_BASELINE)
+GRAPH_LANGS = aap.scored_languages(aap.GRAPH_HISTORY)
+NEW = [aap.TRI, aap.TRI_HISTORY, aap.GRAPH_HISTORY]
+
+
+def new_plan(files, audit, found, event=None):
+    event = event or aap.EVENTS[audit]
+
+    def places(_path):
+        if isinstance(found, Exception):
+            raise found
+        return found
+
+    langs = TRI_LANGS if audit == aap.TRI else None
+    return aap.plan(files, event, audit, places, GRAPH_LANGS if audit == aap.GRAPH_HISTORY else BASELINE, langs)
+
+
+def test_the_tri_baseline_set_is_read_from_its_own_files():
+    assert {"javascript", "typescript", "zig"} <= set(TRI_LANGS)
+    for norm, name in TRI_LANGS.items():
+        assert aap._norm(name) == norm and (ROOT / f"{aap.TRI_BASELINE}{name}.json").exists()
+    assert GRAPH_LANGS >= BASELINE and "python" in GRAPH_LANGS  # call baseline + import corpus
+
+
+@pytest.mark.parametrize("audit", NEW)
+def test_every_shared_input_of_the_new_audits_runs_them(audit):
+    for path in aap.EVERYTHING[audit]:
+        path = path.replace("*", "x")  # a glob entry: any file it names
+        p = new_plan([path], audit, [])
+        assert p["run"], path
+        if audit == aap.TRI:
+            assert p["langs"] == aap.ALL_LANGS
+
+
+@pytest.mark.parametrize("audit", NEW)
+@pytest.mark.parametrize("event", ["push", "pull_request", "schedule", "workflow_dispatch"])
+def test_new_audits_run_on_other_events_an_empty_diff_and_shared_standards(audit, event):
+    if event != aap.EVENTS[audit]:
+        assert new_plan(["README.md"], audit, [], event=event)["run"]
+    assert new_plan([], audit, [])["run"]
+    assert new_plan(["gitgalaxy/standards/language_standards/identifiers.py"], audit, [])["run"]
+    assert new_plan([f"{LANG}__init__.py"], audit, [])["run"]
+
+
+@pytest.mark.parametrize("audit", NEW)
+@pytest.mark.parametrize(
+    "path", ["docs/graph_accuracy.md", "README.md", "tests/tools/test_foo.py", "gitgalaxy/recorders/x.py"]
+)
+def test_a_file_the_new_audits_do_not_read_skips_them(audit, path):
+    p = new_plan([path], audit, [])
+    assert p["run"] is False and p["inputs"] == []
+
+
+@pytest.mark.parametrize("audit", NEW)
+def test_an_unplaceable_new_or_unreadable_language_file_runs_the_new_audits(audit):
+    for stem in ("zig", "cobol"):
+        for found in ([None], RuntimeError("no such path in base")):
+            assert new_plan([f"{LANG}{stem}.py"], audit, found)["run"]
+
+
+def test_a_haskell_only_change_runs_no_tri_gate_and_a_zig_change_runs_only_zig():
+    assert aap._norm("haskell") not in TRI_LANGS
+    f = [f"{LANG}haskell.py"]
+    p = new_plan(f, aap.TRI, [("rules", "func_start")])
+    assert p["run"] is False and p["langs"] == ""
+    p = new_plan([f"{LANG}zig.py"], aap.TRI, [("rules", "_dependency_capture")])
+    assert p["run"] and p["langs"] == TRI_LANGS["zig"]
+    assert new_plan([f"{LANG}zig.py"], aap.TRI, [("_meta", None)])["run"] is False
+    assert new_plan([f"{LANG}zig.py"], aap.TRI, [])["run"] is False  # comments only
+
+
+def test_tri_selection_unions_baseline_files_and_a_lens_key_selects_all():
+    files = [f"{LANG}zig.py", f"{aap.TRI_BASELINE}typescript.json", f"{LANG}haskell.py"]
+    assert new_plan(files, aap.TRI, [("rules", "func_start")])["langs"] == "typescript,zig"
+    for key in sorted(aap.DETECTION_KEYS):
+        p = new_plan([f"{LANG}haskell.py"], aap.TRI, [(key, None)])
+        assert p["run"] and p["langs"] == aap.ALL_LANGS, key
+    assert new_plan([f"{aap.TRI_BASELINE}zig.json"], aap.TRI, [])["langs"] == "zig"
+
+
+def test_a_tri_baseline_file_runs_the_tri_history_but_not_the_graph_history():
+    path = f"{aap.TRI_BASELINE}zig.json"
+    assert new_plan([path], aap.TRI_HISTORY, [])["run"]
+    assert new_plan([path], aap.GRAPH_HISTORY, [])["run"] is False
+
+
+@pytest.mark.parametrize("stem", ["zig", "haskell", "cobol"])
+def test_the_tri_history_runs_on_any_rule_edit_but_not_on_comments_or_meta(stem):
+    f = [f"{LANG}{stem}.py"]
+    for found in ([("rules", "func_start")], [("rules", "_args_arrow")], [("case_insensitive_imports", None)]):
+        assert new_plan(f, aap.TRI_HISTORY, found)["run"], found
+    for found in ([], [("_meta", None)]):
+        assert new_plan(f, aap.TRI_HISTORY, found)["run"] is False, found
+
+
+def test_the_graph_history_judges_call_baseline_and_import_corpus_languages_strictly():
+    corpus_only = sorted(aap.corpus_languages() - BASELINE)
+    assert corpus_only, "the import corpus pins a language the call baseline lacks"
+    neither = "cobol"
+    assert aap._norm(neither) not in GRAPH_LANGS
+    for stem in (sorted(BASELINE)[0], corpus_only[0]):
+        f = [f"{LANG}{stem}.py"]
+        assert new_plan(f, aap.GRAPH_HISTORY, [("rules", "_args_arrow")])["run"], stem
+        assert new_plan(f, aap.GRAPH_HISTORY, [("case_insensitive_imports", None)])["run"], stem
+        assert new_plan(f, aap.GRAPH_HISTORY, [("_meta", None)])["run"] is False, stem
+    f = [f"{LANG}{neither}.py"]  # any other language: only what the lens reads can move it
+    assert new_plan(f, aap.GRAPH_HISTORY, [("rules", "_args_arrow")])["run"] is False
+    assert new_plan(f, aap.GRAPH_HISTORY, [("rules", "func_start")])["run"]
+    assert new_plan(f, aap.GRAPH_HISTORY, [("extensions", None)])["run"]
+
+
+def test_a_graph_resolution_baseline_matches_the_glob_entry():
+    assert new_plan(["tests/call_graph_resolution_rust_baseline.json"], aap.GRAPH_HISTORY, [])["run"]
+    assert new_plan(["tests/call_graph_resolution_baseline.json"], aap.GRAPH_HISTORY, [])["run"]
+
+
+@pytest.mark.parametrize("audit", NEW)
+def test_the_new_workflow_gates_every_step_on_the_plan_and_keeps_its_check_name(audit):
+    name = aap.WORKFLOWS[audit]
+    text = (WORKFLOWS / name).read_text(encoding="utf-8")
+    job = name.removesuffix(".yml")
+    assert re.search(rf"^  {job}:\n    needs: \[plan\]\n    if: \$\{{\{{ always\(\)", text, re.M)
+    assert "\n  plan:\n" in text
+    body = text.split(f"\n  {job}:\n", 1)[1]
+    steps = re.split(r"^      - name: ", body, flags=re.M)[1:]
+    assert steps
+    for step in steps:
+        assert "needs.plan.outputs.run != 'false'" in step, step.splitlines()[0]
+    assert f"--audit {audit}" in text
+    plan_job = text.split("\n  plan:\n", 1)[1].split(f"\n  {job}:\n", 1)[0]
+    assert "persist-credentials: false" in plan_job and "contents: write" not in plan_job
+    if aap.EVENTS[audit] == "push":
+        assert "--status success" in text and "${{ github.event.before }}" not in text
+        assert "needs.plan.outputs.run != 'false' && github.ref == 'refs/heads/main'" in text  # the publish step
+    else:
+        assert "github.event.pull_request.draft == false" in text.split("\n  plan:\n", 1)[1]
+
+
+def test_the_tri_audit_reads_the_selected_languages_from_the_environment_and_lists_its_planner_inputs():
+    text = (WORKFLOWS / aap.WORKFLOWS[aap.TRI]).read_text(encoding="utf-8")
+    assert "LANGS: ${{ needs.plan.outputs.langs }}" in text and 'langs="${{' not in text
+    assert '--languages "$LANGS" --ci' in text and "--all --ci" in text
+    for p in ("accuracy_audit_plan.py", "graph_accuracy_plan.py", "change_classifier.py"):
+        assert f'"tests/tools/{p}"' in text
+
+
+@pytest.mark.parametrize("audit", NEW)
+def test_every_path_a_new_workflow_filters_on_is_planned(audit):
+    for path in aap.workflow_paths(audit):
+        if path.startswith((aap.LANG_STANDARDS, aap.TRI_BASELINE)):  # judged per file / per language
+            assert "*" in path
+        else:
+            assert aap._glob(path, list(aap.EVERYTHING[audit])) or path in aap.EVERYTHING[audit], path
+
+
+def test_replay_counts_the_new_audits(monkeypatch):
+    monkeypatch.setattr(aap, "git_places", lambda path, base, head: [("_meta", None)])
+    prs = [
+        {"number": 1, "files": [{"path": f"{LANG}cobol.py"}], "mergeCommit": {"oid": "a"}},
+        {"number": 2, "files": [{"path": f"{aap.TRI_BASELINE}zig.json"}], "mergeCommit": {"oid": "b"}},
+    ]
+    r = aap.replay(prs, aap.TRI, BASELINE)
+    assert (r["prs"], r["ran_before"], r["runs_now"]) == (2, 2, 1) and r["prs_that_still_run"] == [2]
+    assert r["language_corpora_before"] == 2 * len(TRI_LANGS) and r["language_corpora_now"] == 1
+    r = aap.replay(prs, aap.TRI_HISTORY, BASELINE)
+    assert (r["ran_before"], r["runs_now"]) == (2, 1)

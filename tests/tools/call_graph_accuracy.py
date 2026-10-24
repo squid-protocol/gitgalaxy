@@ -71,12 +71,28 @@ LEDGER = gl.LEDGER
 
 # The languages #3329 scoped for qualifier capture, plus C and Rust: the
 # C-style invocation family where tree-sitter's call node is unambiguous.
-LANGS = ("python", "javascript", "typescript", "java", "go", "c", "cpp", "csharp", "php", "ruby", "rust")
+LANGS = (
+    "python",
+    "javascript",
+    "typescript",
+    "java",
+    "go",
+    "c",
+    "cpp",
+    "csharp",
+    "php",
+    "ruby",
+    "rust",
+    "kotlin",
+    "scala",
+    "swift",
+    "lua",
+)
 
 CALL_NODE_TYPES = frozenset(
     {
         "call",  # python, ruby
-        "call_expression",  # js/ts, c/cpp, go, rust
+        "call_expression",  # js/ts, c/cpp, go, rust, kotlin, scala, swift
         "new_expression",  # js/ts constructor
         "method_invocation",  # java
         "object_creation_expression",  # java, c#, php
@@ -86,11 +102,13 @@ CALL_NODE_TYPES = frozenset(
         "nullsafe_member_call_expression",  # php
         "scoped_call_expression",  # php
         "macro_invocation",  # rust
+        "function_call",  # lua
+        "instance_expression",  # scala `new Foo(1)`
         "type_conversion_expression",  # go `[]byte(s)` -- a conversion is a call (C3)
     }
 )
 _CALLEE_FIELDS = ("function", "method", "name", "macro", "constructor", "type")
-_MEMBER_FIELDS = ("property", "field", "name", "attribute", "method")
+_MEMBER_FIELDS = ("property", "field", "name", "attribute", "method", "suffix")
 _LEAF_SUFFIXES = ("identifier", "constant")
 _QUALIFIED_TYPES = frozenset({"scoped_identifier", "qualified_identifier", "scoped_type_identifier"})
 _LINE_SLACK = 3  # decorators/annotations/doc comments can move a start line
@@ -120,6 +138,8 @@ def _leaf_name(node: Any, depth: int = 0) -> str | None:
         return _leaf_name(node.child_by_field_name("function"), depth + 1)
     if node.type in ("generic_name", "generic_type"):  # c# `OfType<T>()`, java `new HashMap<K, V>()`
         return _leaf_name(node.named_children[0], depth + 1) if node.named_children else None
+    if node.type == "stable_type_identifier" and node.named_children:  # scala `new util.HashSet[T]()`
+        return _leaf_name(node.named_children[-1], depth + 1)
     if node.type in _QUALIFIED_TYPES:  # `ControlFlow::Continue`, `OS::get_singleton`
         child = node.child_by_field_name("name")
         return _leaf_name(child, depth + 1) if child is not None else None
@@ -136,11 +156,23 @@ def _leaf_name(node: Any, depth: int = 0) -> str | None:
     return None
 
 
+def _is_subscript(node: Any) -> bool:
+    """swift parses `headers["k"]` as a call whose argument list opens with `[`: an index is no call (C3)."""
+    suffix = next((c for c in node.named_children if c.type == "call_suffix"), None)
+    args = suffix.named_children[0] if suffix is not None and suffix.named_children else None
+    return args is not None and args.type == "value_arguments" and args.children[0].type == "["
+
+
 def _callee(node: Any) -> str | None:
+    if _is_subscript(node):
+        return None
     for field in _CALLEE_FIELDS:
         child = node.child_by_field_name(field)
         if child is not None:
             return _leaf_name(child)
+    if node.type in ("call_expression", "instance_expression") and node.named_children:
+        # kotlin, swift `f(x)` and scala `new Foo(x)` carry no callee field: the callee comes first
+        return _leaf_name(node.named_children[0])
     if node.type == "object_creation_expression":  # php: `new Foo(...)` has no field
         for child in node.named_children:
             if child.type in ("name", "qualified_name"):

@@ -45,10 +45,10 @@ E2E = os.environ.get("EQUIVALENCE_E2E") == "1" and bool(os.environ.get(runner.PA
 @pytest.mark.slow(reason="a Maven build of the generated project with the det port, two sides")
 @pytest.mark.e2e
 @pytest.mark.skipif(not E2E, reason="needs EQUIVALENCE_E2E=1, a JDK + Maven and a cics-crucible checkout")
-def test_the_crucible_passes_both_scenarios_on_the_java_ported_and_facade_sides(tmp_path):
+def test_the_crucible_passes_both_scenarios_on_the_cobol_stub_and_both_java_sides(tmp_path):
     crucible = Path(os.environ[runner.PATH_ENV])
     offline = os.environ.get("MAVEN_OFFLINE") == "1"
-    res = runner.measure(crucible, {CASE}, {"java-ported", "java-facade"}, tmp_path / "w", offline,
+    res = runner.measure(crucible, {CASE}, {"cobol-stub", "java-ported", "java-facade"}, tmp_path / "w", offline,
                          runner.PortOptions(ports=det.ports_dir(CASE, tmp_path / "ports")))  # fmt: skip
     cells = {(c["scenario"], c["side"]): c["status"] for c in res["cells"].values()}
-    assert cells == {(s, side): "pass" for s in ("ok", "notfound") for side in ("java-ported", "java-facade")}
+    assert cells == {(s, side): "pass" for s in ("ok", "notfound") for side in ("cobol-stub", "java-ported", "java-facade")}

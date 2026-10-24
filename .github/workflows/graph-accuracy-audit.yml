@@ -13,7 +13,8 @@ name: Graph Accuracy Audit
 #     through the same checker with allowJs (#3781), and vs scip-java
 #     (javac-resolved, through the shared SCIP adapter tests/tools/scip_callgraph.py,
 #     #3783) on the pinned java repo, vs libclang (tests/tools/clang_callgraph.py, #3784)
-#     on the pinned c repos (the pip `libclang` wheel comes with callgraph.txt), and vs
+#     on the pinned c repos (the pip `libclang` wheel comes with callgraph.txt) and the pinned
+#     c++ repo (same adapter, `cpp` mode; the host g++ supplies the C++ system headers), and vs
 #     rust-analyzer 1.90.0 (SCIP, same adapter, #3785) on the pinned serde-rs/json;
 #   - span anchoring: functions whose start_line opens on other code before the
 #     declaration, lower is better (#3543, tests/tools/span_anchor_audit.py).
@@ -52,6 +53,7 @@ on:
       - "tests/call_graph_resolution_java_baseline.json"
       - "tests/call_graph_resolution_rust_baseline.json"
       - "tests/call_graph_resolution_c_baseline.json"
+      - "tests/call_graph_resolution_cpp_baseline.json"
       - "tests/span_anchor_baseline.json"
       - ".github/workflows/graph-accuracy-audit.yml"
       - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
@@ -174,6 +176,7 @@ jobs:
             gate call-c python tests/tools/call_graph_resolution.py c --samples 5 ) &
           ( gate call-java python tests/tools/call_graph_resolution.py java --samples 5
             gate call-python python tests/tools/call_graph_resolution.py python --samples 5
+            gate call-cpp python tests/tools/call_graph_resolution.py cpp --samples 5
             gate call-rust python tests/tools/call_graph_resolution.py rust --samples 5 ) &
           wait
           # the one span-anchoring baseline gate, over the summed shards (skipped if a shard failed)
@@ -181,10 +184,10 @@ jobs:
             gate span-anchoring python tests/tools/span_anchor_audit.py --merge "$RUNNER_TEMP/gaa/span0.json" "$RUNNER_TEMP/gaa/span1.json" --samples 3
           fi
           cat "$RUNNER_TEMP/gaa/times"
-          for n in span-shard-0 span-shard-1 import-graph call-typescript call-javascript call-c call-java call-python call-rust span-anchoring; do
+          for n in span-shard-0 span-shard-1 import-graph call-typescript call-javascript call-c call-java call-python call-cpp call-rust span-anchoring; do
             cat "$RUNNER_TEMP/gaa/$n.log" 2>/dev/null || true
           done
-          for n in import-graph call-typescript call-javascript call-c call-java call-python call-rust span-anchoring; do
+          for n in import-graph call-typescript call-javascript call-c call-java call-python call-cpp call-rust span-anchoring; do
             cat "$RUNNER_TEMP/gaa/$n.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
           done
           if [ -s "$RUNNER_TEMP/gaa/failed" ]; then

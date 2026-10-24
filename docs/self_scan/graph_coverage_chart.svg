@@ -110,11 +110,11 @@
 <text class="n" x="324" y="189">n=171 imports</text>
 <text class="n" x="324" y="201">repos 1 · files 73</text>
 </g>
-<g><title>cpp callee names: precision 97.4% of 8,004, recall 99.7% of 7,757 (raw 96.6% / 99.7%; 32 shapes without a verdict)</title>
+<g><title>cpp callee names: precision 97.3% of 8,004, recall 99.7% of 7,757 (raw 96.6% / 99.7%; 28 shapes without a verdict)</title>
 <text class="pr" x="426" y="188.5">Precision</text>
 <rect class="track" x="472" y="181" width="110" height="8" rx="2"/>
-<rect x="472" y="181" width="107.1" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="189">97.4%*</text>
+<rect x="472" y="181" width="107.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="189">97.3%*</text>
 <text class="pr" x="426" y="200.5">Recall</text>
 <rect class="track" x="472" y="193" width="110" height="8" rx="2"/>
 <rect x="472" y="193" width="109.7" height="8" rx="2" fill="#eda100"/>
@@ -281,7 +281,7 @@
 <text class="n" x="324" y="325">n=139 imports</text>
 <text class="n" x="324" y="337">repos 1 · files 31</text>
 </g>
-<g><title>haskell callee names: precision 69.4% of 409, recall 85.0% of 334 (raw 69.4% / 85.0%; 12 shapes without a verdict)</title>
+<g><title>haskell callee names: precision 69.4% of 409, recall 85.0% of 334 (raw 69.4% / 85.0%; 11 shapes without a verdict)</title>
 <text class="pr" x="426" y="324.5">Precision</text>
 <rect class="track" x="472" y="317" width="110" height="8" rx="2"/>
 <rect x="472" y="317" width="76.3" height="8" rx="2" fill="#4a3aa7"/>
@@ -517,11 +517,11 @@
 <text class="n" x="324" y="529">n=49 imports</text>
 <text class="n" x="324" y="541">repos 1 · files 33</text>
 </g>
-<g><title>perl callee names: precision 94.4% of 4,629, recall 96.2% of 4,544 (raw 94.4% / 96.2%; 43 shapes without a verdict)</title>
+<g><title>perl callee names: precision 96.9% of 4,629, recall 96.2% of 4,544 (raw 94.4% / 96.2%; 40 shapes without a verdict)</title>
 <text class="pr" x="426" y="528.5">Precision</text>
 <rect class="track" x="472" y="521" width="110" height="8" rx="2"/>
-<rect x="472" y="521" width="103.8" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="529">94.4%*</text>
+<rect x="472" y="521" width="106.6" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="529">96.9%*</text>
 <text class="pr" x="426" y="540.5">Recall</text>
 <rect class="track" x="472" y="533" width="110" height="8" rx="2"/>
 <rect x="472" y="533" width="105.8" height="8" rx="2" fill="#eda100"/>
@@ -581,7 +581,7 @@
 <rect class="stripe" x="16" y="582" width="1212" height="34"/>
 <text class="lang" x="22" y="603.0">powershell</text>
 <text class="none" x="120" y="602.0">not measured</text>
-<g><title>powershell callee names: precision 77.7% of 1,316, recall 38.4% of 2,662 (raw 77.7% / 38.4%; 15 shapes without a verdict)</title>
+<g><title>powershell callee names: precision 77.7% of 1,316, recall 38.4% of 2,662 (raw 77.7% / 38.4%; 11 shapes without a verdict)</title>
 <text class="pr" x="426" y="596.5">Precision</text>
 <rect class="track" x="472" y="589" width="110" height="8" rx="2"/>
 <rect x="472" y="589" width="85.5" height="8" rx="2" fill="#4a3aa7"/>
@@ -860,15 +860,15 @@
 <rect class="stripe" x="16" y="854" width="1212" height="34"/>
 <text class="lang" x="22" y="875.0">tcl</text>
 <text class="none" x="120" y="874.0">not measured</text>
-<g><title>tcl callee names: precision 69.8% of 2,277, recall 71.2% of 2,231 (raw 69.8% / 71.2%; 21 shapes without a verdict)</title>
+<g><title>tcl callee names: precision 93.8% of 2,277, recall 71.2% of 2,231 (raw 69.8% / 71.2%; 13 shapes without a verdict)</title>
 <text class="pr" x="426" y="868.5">Precision</text>
 <rect class="track" x="472" y="861" width="110" height="8" rx="2"/>
-<rect x="472" y="861" width="76.8" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="869">69.8%*</text>
+<rect x="472" y="861" width="103.2" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="869">93.8%*</text>
 <text class="pr" x="426" y="880.5">Recall</text>
 <rect class="track" x="472" y="873" width="110" height="8" rx="2"/>
 <rect x="472" y="873" width="78.3" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="881">71.2%*</text>
+<text class="val" x="587" y="881">71.2%</text>
 <text class="n" x="630" y="869">n=2,231 calls</text>
 <text class="n" x="630" y="881">functions 369</text>
 </g>

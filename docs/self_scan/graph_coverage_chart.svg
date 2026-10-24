@@ -17,7 +17,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="1054" height="1010"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 21, callee names 21, call resolution 5 of 65 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 21, callee names 21, call resolution 6 of 65 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -501,7 +501,18 @@
 <text class="n" x="630" y="665">n=7,570 calls</text>
 <text class="n" x="630" y="677">functions 1,956</text>
 </g>
-<text class="none" x="732" y="670.0">not measured</text>
+<g><title>rust call resolution: precision 92.1% of 469, recall 39.9% of 1,084; vs rust-analyzer 1.90.0; corpus import_graph</title>
+<text class="pr" x="732" y="664.5">Precision</text>
+<rect class="track" x="778" y="657" width="110" height="8" rx="2"/>
+<rect x="778" y="657" width="101.3" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="665">92.1%</text>
+<text class="pr" x="732" y="676.5">Recall</text>
+<rect class="track" x="778" y="669" width="110" height="8" rx="2"/>
+<rect x="778" y="669" width="43.9" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="677">39.9%</text>
+<text class="n" x="936" y="665">n=1,084 edges</text>
+<text class="n" x="936" y="677">vs rust-analyzer 1.90.0</text>
+</g>
 <text class="lang" x="22" y="705.0">scala</text>
 <g><title>scala imports: precision 100.0% of 502, recall 98.3% of 529; corpus circe/circe</title>
 <text class="pr" x="120" y="698.5">Precision</text>

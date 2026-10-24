@@ -258,6 +258,18 @@ REFERENCES: dict[str, Reference] = {
         True,
         "a JDK 17+ (java, javac) and Maven (mvn) on PATH; the pinned scip-java jars are fetched on first use",
     ),
+    # SCIP (#3785): rust-analyzer's index of serde-rs/json, through the shared SCIP adapter
+    "rust": Reference(
+        "rust",
+        "rust-analyzer",
+        scip_callgraph.RUST_ANALYZER_VERSION,
+        "import_graph",
+        scip_callgraph.rust_analyzer_contract,
+        scip_callgraph.rust_analyzer_version,
+        (Path(__file__), TOOLS / "scip_callgraph.py"),
+        True,
+        "a Rust toolchain (cargo, rustc 1.90.0) with its rust-analyzer component on PATH: rustup component add rust-analyzer",
+    ),
 }
 BY_TOOL = {r.tool: r for r in REFERENCES.values()}
 

@@ -184,6 +184,9 @@ def _descriptors(symbol: str) -> list[tuple[str, str]]:
         elif text[i] in "[(":
             close = "]" if text[i] == "[" else ")"
             j = text.index(close, i)
+            if text[i] == "[" and "`" in text[i:j]:  # rust: `[`[u8]`]`, a quoted type holding `]`
+                q = text.index("`", i)
+                j = text.index(close, text.index("`", q + 1))
             out.append((text[i + 1 : j], "[]" if close == "]" else "()"))
             i = j + 1
             continue
@@ -258,6 +261,8 @@ def _is_call(lines: list[str], span: tuple[int, int, int, int]) -> bool:
     tail = lines[line][end:] if line < len(lines) else ""
     rest = tail + "".join("\n" + x for x in lines[line + 1 : line + 3])
     s = rest.lstrip()
+    if s.startswith("::<"):  # rust turbofish `f::<T>(`
+        s = s[2:]
     if s.startswith("<"):  # explicit type arguments: skip a balanced <...>
         depth = 0
         for k, ch in enumerate(s):
@@ -622,6 +627,39 @@ def scip_java_contract(repo: Path) -> dict[str, Any]:
         contract = contract_from_index(index.read_bytes(), work, "java")
         contract["modules"], contract["skipped"] = indexed, skipped
         return contract
+
+
+# ----------------------------------------------------------------------------- rust-analyzer
+
+# The pinned toolchain whose rust-analyzer the rust baseline is measured with (`rust-analyzer
+# --version` reports the toolchain's version). #3785.
+RUST_ANALYZER_VERSION = "1.90.0"
+
+
+def rust_analyzer_version() -> str | None:
+    """The installed rust-analyzer's version when it and cargo are on PATH; None otherwise, so
+    a machine without a Rust toolchain skips the rust reference."""
+    exe = shutil.which("rust-analyzer")
+    if not exe or not shutil.which("cargo"):
+        return None
+    out = subprocess.run([exe, "--version"], capture_output=True, text=True, check=False).stdout.split()
+    return out[1] if len(out) > 1 else None
+
+
+def rust_analyzer_contract(repo: Path) -> dict[str, Any]:
+    """rust-analyzer's call graph of a Cargo workspace: `rust-analyzer scip <repo>` (it runs
+    `cargo metadata`, so dependencies are fetched on first use), read through the shared
+    adapter. An `impl` method is named by its method (`impl#[`Type`]method().`), a trait method
+    without a default body is not a def (#3757), and a macro-generated call (a derive) is
+    invisible to the index: a deliberate limit, not a defect."""
+    with tempfile.TemporaryDirectory(prefix="rust-analyzer-") as tmp:
+        index = Path(tmp) / "index.scip"
+        _run(
+            [shutil.which("rust-analyzer") or "rust-analyzer", "scip", str(repo), "--output", str(index)],
+            repo,
+            "rust-analyzer scip",
+        )
+        return contract_from_index(index.read_bytes(), repo, "rust")
 
 
 # ----------------------------------------------------------------------------- compare

@@ -17,6 +17,7 @@ that baseline in the same PR.
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py typescript` | the TypeScript 6.0.2 type checker (`tests/tools/ts_callgraph.js`) | pinned typescript repos, `tests/import_graph_corpus.json` (zod) | `tests/call_graph_resolution_typescript_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py javascript` | the TypeScript 6.0.2 type checker with `allowJs` (`tests/tools/ts_callgraph.js --js`) | pinned javascript repos, `tests/import_graph_corpus.json` (express) | `tests/call_graph_resolution_javascript_baseline.json` | not yet in CI (#3781 follow-up: `graph-accuracy-audit.yml` gate step) |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py java` | scip-java 0.12.3 (javac-resolved SCIP, through `tests/tools/scip_callgraph.py`) | pinned java repos, `tests/import_graph_corpus.json` (gson) | `tests/call_graph_resolution_java_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py rust` | rust-analyzer (pinned toolchain 1.90.0; SCIP, through `tests/tools/scip_callgraph.py`) | pinned rust repos, `tests/import_graph_corpus.json` (serde-rs/json) | none yet (no Rust toolchain on the box that wrote the adapter; `--regenerate` writes `tests/call_graph_resolution_rust_baseline.json`) | not yet in CI |
 | Import edges | `tests/tools/import_graph_accuracy.py` | each language's import statements (Python `ast`, tree-sitter), resolved by the language's own rule | pinned real repos, `tests/import_graph_corpus.json` | `tests/import_graph_accuracy_baseline.json` | `graph-accuracy-audit.yml` |
 | Span anchoring | `tests/tools/span_anchor_audit.py` | the declaration line in the raw source | language-crucible | `tests/span_anchor_baseline.json` | `graph-accuracy-audit.yml` |
 
@@ -225,6 +226,18 @@ function assigned to `app.x` and calls on untyped parameters get no edge, so tho
 links come back `unconfirmed` or the reference edge is simply absent (express: 29 reference
 edges in 341 definitions). Read those as the reference's blind spot, not engine error. All
 numbers are "vs tsc (allowJs)".
+
+### What the Rust reference cannot see (#3785)
+
+`rust` reads rust-analyzer's SCIP index of serde-rs/json through the shared adapter
+(`scip_callgraph.rust_analyzer_contract`). An `impl` method is named by its method name, a
+trait method without a default body is not a definition (#3757), and a macro reference is not
+a call. Macro-generated calls (the `serde` derives, `format_args!` expansions) are invisible
+to a text extractor and to the index's call positions: a deliberate limit, not an engine
+defect. Calls through a trait object or a generic bound resolve to the bodyless trait
+declaration, so they count as neither an edge nor `external`. All numbers are "vs
+rust-analyzer". The adapter is tested against a hand-built index; the baseline, the CI gate
+and the session-hook install wait for a machine with the toolchain.
 
 ## Running locally
 

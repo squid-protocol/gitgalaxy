@@ -261,13 +261,14 @@ def fetch_issue(number: str) -> tuple[str, str]:
 
 _PR_RE = re.compile(r"\(#(\d+)\)\s*$")
 _ISSUE_RE = re.compile(r"(?:Part of|Closes|Fixes|Resolves) #(\d+)", re.I)
-_NON_SOURCE_PREFIXES = ("docs/", ".github/", ".claude/")
+# top-level directory names, not "docs/" prefixes: a literal doc path here would make every doc a test-read doc
+_NON_SOURCE_DIRS = ("docs", ".github", ".claude")
 _NON_SOURCE_SUFFIXES = (".md", ".json", ".yml", ".yaml", ".txt", ".csv", ".toml")
 
 
 def is_source(path: str) -> bool:
     """A hand-written code file (tests included): not a doc, data file, workflow or agent note."""
-    return not path.startswith(_NON_SOURCE_PREFIXES) and not path.endswith(_NON_SOURCE_SUFFIXES)
+    return path.split("/", 1)[0] not in _NON_SOURCE_DIRS and not path.endswith(_NON_SOURCE_SUFFIXES)
 
 
 def recent_issue_prs(n: int, repo: Path = REPO_ROOT, scan: int = 600) -> list[tuple[str, str, str, list[str]]]:

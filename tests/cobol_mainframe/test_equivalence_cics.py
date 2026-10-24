@@ -313,6 +313,51 @@ def test_container_byteoffset_and_prepend_become_stub_arguments():
             ec.translate_command(bad)
 
 
+@pytest.mark.parametrize(
+    "base",
+    [
+        "PUT CONTAINER('REQ') CHANNEL(WS-CH) FROM(WS-A) FLENGTH(WS-N) CHAR APPEND RESP(R)",
+        "PUT CONTAINER(C) FROM(WS-A) DATATYPE(DFHVALUE(BIT)) PREPEND",
+        "PUT CONTAINER(C) FROM(WS-A) FROMCCSID(1140)",
+        "GET CONTAINER(C) INTO(WS-A) FLENGTH(WS-N) RESP(R) RESP2(R2)",
+        "GET CONTAINER(C) CHANNEL('CH') INTO(WS-A) BYTEOFFSET(WS-OFF)",
+        "GET CONTAINER(C) NODATA FLENGTH(WS-N)",
+        "GET CONTAINER(C) INTO(WS-A) INTOCCSID(500) FLENGTH(WS-N)",
+    ],
+)
+def test_get64_and_put64_container_become_the_base_commands_stub_calls(base):
+    """#5005 (X17): GET64 / PUT64 CONTAINER take the same options and answer with the same conditions as GET / PUT
+    CONTAINER (INTO / FROM an ordinary item, ASSUMED), so the stub gets the very same calls; SET (a 64-bit pointer)
+    is refused by name."""
+    sixty_four = base.replace("GET ", "GET64 ", 1).replace("PUT ", "PUT64 ", 1)
+    assert ec.translate_command(sixty_four) == ec.translate_command(base)
+
+
+def test_get64_container_set_is_refused_by_name():
+    for bad in ("GET64 CONTAINER(C) SET(PTR) FLENGTH(WS-N)", "GET64 CONTAINER(C) SET(PTR) FLENGTH(WS-N) INTOCCSID(1140)"):
+        with pytest.raises(ec.Unsupported, match="64-bit pointer"):
+            ec.translate_command(bad)
+
+
+@pytest.mark.parametrize(
+    "base",
+    [
+        "GET CONTAINER(C) FLENGTH(WS-N)",
+        "GET CONTAINER(C) INTO(A) INTOCODEPAGE('UTF-8')",
+        "PUT CONTAINER(C) FROM(A) FROMCODEPAGE('IBM037')",
+        "PUT CONTAINER(C) FROM(A) APPEND PREPEND",
+        "PUT CONTAINER(C) FROM(A) BIT CHAR",
+    ],
+)
+def test_get64_and_put64_container_refuse_what_the_base_command_refuses(base):
+    sixty_four = base.replace("GET ", "GET64 ", 1).replace("PUT ", "PUT64 ", 1)
+    with pytest.raises(ec.Unsupported) as want:
+        ec.translate_command(base)
+    with pytest.raises(ec.Unsupported) as got:
+        ec.translate_command(sixty_four)
+    assert str(got.value) == str(want.value)
+
+
 def test_move_container_and_the_container_browse_call_the_stub():
     """#4951: MOVE CONTAINER -> GGCMOVC (CONTAINER / AS / CHANNEL / TOCHANNEL in GG-QNAME / GG-AS / GG-CHAN / GG-TOCHAN,
     GG-FLAGS naming the channels given), STARTBROWSE -> GGCSBRC (the token out of GG-NUM on NORMAL), GETNEXT -> GGCGNXC

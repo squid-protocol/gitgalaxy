@@ -355,6 +355,23 @@ def clean_main_merge(api: Api, approved: str, head: str, base_ref: str) -> bool:
     return merged == theirs and not (set(mine) & set(theirs))
 
 
+TRUSTED_BOTS_ENV = "SHEPHERD_TRUSTED_BOTS"
+
+
+def trusted_bots(api: Api) -> set[str]:
+    """The accounts whose approval markers count. promoter-bot#64 (2026-10-24): the shepherd moves from AUTOMATION_PAT
+    to a GitHub App (its own API quota), and an App's installation token cannot read `user`; its comments come from
+    `<app>[bot]`. The workflow names the trusted accounts in SHEPHERD_TRUSTED_BOTS (the App, plus the PAT's account
+    while markers it wrote are still on open PRs); without it, the token's own account, as before."""
+    if names := {x.strip() for x in os.environ.get(TRUSTED_BOTS_ENV, "").split(",") if x.strip()}:
+        return names
+    try:
+        login = (api("user") or {}).get("login")
+    except SystemExit:
+        return set()
+    return {login} if login else set()
+
+
 def _perm(api: Api, login: str) -> str | None:
     try:
         return api(f"repos/{REPO_SLUG}/collaborators/{login}/permission").get("permission")
@@ -389,7 +406,7 @@ def gather(
     Approval (#4853 review): a maintainer's `shepherd:merge` is approved by a marker the bot writes itself, when the
     labeled event arrives from a writer: `<!-- shepherd:approved sha=<head> by=<login> -->`, with the head from the
     event payload (the head the maintainer labelled). Trust: only comments written by the bot's own account (the
-    AUTOMATION_PAT user) count; anyone can post a comment. The newest trusted marker decides:
+    accounts in SHEPHERD_TRUSTED_BOTS, else the token's own) count; anyone can post a comment. The newest trusted marker decides:
       * its sha is the current head -> approved;
       * the head is the bot's own update-branch result (its marker pair from=<approved> to=<head>, and the head's
         first parent is the approved commit) -> approved, carried over;
@@ -447,8 +464,8 @@ def gather(
         if state == "open":
             depends_open.append(d)
     # approval of shepherd:merge (see the docstring): only the bot's own comments are trusted
-    bot = (api("user") or {}).get("login") or ""
-    trusted = "\n".join(c.get("body") or "" for c in comments if bot and (c.get("user") or {}).get("login") == bot)
+    bots = trusted_bots(api)
+    trusted = "\n".join(c.get("body") or "" for c in comments if (c.get("user") or {}).get("login") in bots)
     if (event or {}).get("approved"):  # this pass just wrote it: a comment read right after its POST can lag behind it
         trusted += f"\n<!-- shepherd:approved sha={event['approved']} by={event.get('sender')} -->"
     approvals = APPROVE_MARK.findall(trusted)
@@ -782,6 +799,25 @@ def ensure_labels(run: Run = _run) -> list[str]:
     return out
 
 
+PASS_CACHED = re.compile(r"^(user|repos/[^/]+/[^/]+/collaborators/[^/]+/permission)$")
+
+
+def pass_cached(api: Api) -> Api:
+    """One reconcile pass reads the bot's own login and each labeller's permission for EVERY PR, though neither can
+    change within the pass: memoise those two reads for the pass (#64, 2026-10-24: the shepherd shares the account's
+    5,000/h API quota with the fleet and failed 25 times in a day when it ran out)."""
+    memo: dict[str, Any] = {}
+
+    def cached(path: str, *a: Any, **kw: Any) -> Any:
+        if not PASS_CACHED.match(path):
+            return api(path, *a, **kw)
+        if path not in memo:
+            memo[path] = api(path, *a, **kw)
+        return memo[path]
+
+    return cached
+
+
 def main(argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _run) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -802,6 +838,7 @@ def main(argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _
         lines = process(number, api, run, facts, args.dry_run, flaky=learned_flakes(args.flake_cache))
     else:
         lines = []
+        api = pass_cached(api)
         flaky = learned_flakes(args.flake_cache)  # once per pass
         prs = prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api)
         on_main = ci_digest.main_failures(api) if len(prs) > 1 else None

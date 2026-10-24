@@ -185,3 +185,24 @@ def test_cancelled_parts_at_their_timeout_are_still_a_timeout():
 def test_a_real_failed_part_beside_a_cancelled_one_is_not_superseded():
     parts = [_sib("part 1/2", "cancelled"), _sib("part 2/2", "failure", [("Run pytest", "failure")])]
     assert s.classify(s.scope_jobs(_gate(), parts)) == "test_failure"
+
+
+_WAIT = f"##[error]Db2::{s.WAIT_FAILED_MARKER}"
+
+
+@pytest.mark.parametrize(
+    ("log", "want"),
+    [
+        (f"gitgalaxy-db2 Exited (1) 3 minutes ago\n{_WAIT}", "db2_start_exited"),
+        (f"Error response from daemon: No such container: gitgalaxy-db2\n{_WAIT}", "db2_start_not_created"),
+        (f"tee: write error: No space left on device\ngitgalaxy-db2 Exited (1) ago\n{_WAIT}", "db2_start_disk"),
+        (f"gitgalaxy-db2 Up 14 minutes\n(*) Setting up instance\n{_WAIT}", "db2_start_setup_incomplete"),
+        (f"gitgalaxy-db2 Up 14 minutes\nSetup has completed.\n{_WAIT}", "db2_start"),
+        ("gitgalaxy-db2 Exited (1) ago", "db2_start"),  # no wait-step marker: another step's log, never sub-classified
+        ("", "db2_start"),
+        (f"{s.PULL_MARKER}\n{_WAIT}\nExited (", "registry_pull"),
+    ],
+)
+def test_db2_start_cause_reads_the_docker_tail(log, want):
+    assert s.db2_start_cause(log) == want
+    assert s.classify([_DB2], logs={"db2 4/4": log}) == want

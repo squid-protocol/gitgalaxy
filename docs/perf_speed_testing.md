@@ -126,3 +126,13 @@ costliest rules) is 17.17s, 45% of gate plus sweep, but a candidate finder canno
 those rules do match, and each match still needs its real Match object. The hot rules dominate
 single languages (CSS: 7.5s of 7.6s in its top five). Verdict: #3073 stays deferred; the cost lives in the
 rules, not in the gating, and the lever remains per-rule work (#3072, #3182). Rerun the command to reproduce.
+
+### The #3073 re-measurement on main 35480422a (2026-10-24): same verdict
+
+Two churn runs re-ran `combined_alternation_parity.py --time` (the #6125 harness) on main 35480422a:
+the combined candidate finder took 16.33s against 1.73s for the per-rule literal gate (about 9.4x
+slower), and the residual `finditer` sweeps were unchanged. The finder is slower than the stage it
+would replace on every measurement so far (8x, 9.4x), and the sweeps it cannot remove dominate. No
+engine change follows. #3073 stays deferred; whether to close it as not planned is the owner's call,
+and the lever remains per-rule work (#3072, #3182). Reopen only with a fleet-scale `phase_ab.py` run
+that shows the many-small-rules residual matters.

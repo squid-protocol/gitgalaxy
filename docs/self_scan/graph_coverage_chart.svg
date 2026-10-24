@@ -17,7 +17,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="1244" height="1078"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 21, callee names 23, call resolution 8, hubs 21 of 65 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 22, callee names 23, call resolution 8, hubs 21 of 65 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -122,15 +122,15 @@
 <text class="n" x="630" y="189">n=7,757 calls</text>
 <text class="n" x="630" y="201">functions 1,291</text>
 </g>
-<g><title>cpp call resolution: precision 91.1% of 1,739, recall 16.3% of 9,711; vs libclang (c++) 18.1.1; corpus import_graph</title>
+<g><title>cpp call resolution: precision 84.1% of 2,325, recall 20.1% of 9,711; vs libclang (c++) 18.1.1; corpus import_graph</title>
 <text class="pr" x="732" y="188.5">Precision</text>
 <rect class="track" x="778" y="181" width="110" height="8" rx="2"/>
-<rect x="778" y="181" width="100.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="189">91.1%</text>
+<rect x="778" y="181" width="92.5" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="189">84.1%</text>
 <text class="pr" x="732" y="200.5">Recall</text>
 <rect class="track" x="778" y="193" width="110" height="8" rx="2"/>
-<rect x="778" y="193" width="17.9" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="201">16.3%</text>
+<rect x="778" y="193" width="22.1" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="201">20.1%</text>
 <text class="n" x="936" y="189">n=9,711 edges</text>
 <text class="n" x="936" y="201">vs libclang (c++) 18.1.1</text>
 </g>
@@ -158,11 +158,11 @@
 <text class="n" x="324" y="223">n=18 imports</text>
 <text class="n" x="324" y="235">repos 1 · files 950</text>
 </g>
-<g><title>csharp callee names: precision 99.2% of 2,654, recall 99.8% of 2,637 (raw 99.2% / 99.8%; 3 shapes without a verdict)</title>
+<g><title>csharp callee names: precision 99.2% of 2,654, recall 99.8% of 2,637 (raw 99.2% / 99.8%; 2 shapes without a verdict)</title>
 <text class="pr" x="426" y="222.5">Precision</text>
 <rect class="track" x="472" y="215" width="110" height="8" rx="2"/>
 <rect x="472" y="215" width="109.1" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="223">99.2%*</text>
+<text class="val" x="587" y="223">99.2%</text>
 <text class="pr" x="426" y="234.5">Recall</text>
 <rect class="track" x="472" y="227" width="110" height="8" rx="2"/>
 <rect x="472" y="227" width="109.8" height="8" rx="2" fill="#eda100"/>
@@ -196,15 +196,15 @@
 <text class="n" x="324" y="257">n=748 imports</text>
 <text class="n" x="324" y="269">repos 1 · files 333</text>
 </g>
-<g><title>dart callee names: precision 97.1% of 2,537, recall 95.0% of 2,556 (raw 95.7% / 95.0%; 17 shapes without a verdict)</title>
+<g><title>dart callee names: precision 97.2% of 2,642, recall 99.0% of 2,556 (raw 95.8% / 99.0%; 17 shapes without a verdict)</title>
 <text class="pr" x="426" y="256.5">Precision</text>
 <rect class="track" x="472" y="249" width="110" height="8" rx="2"/>
-<rect x="472" y="249" width="106.8" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="257">97.1%*</text>
+<rect x="472" y="249" width="106.9" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="257">97.2%*</text>
 <text class="pr" x="426" y="268.5">Recall</text>
 <rect class="track" x="472" y="261" width="110" height="8" rx="2"/>
-<rect x="472" y="261" width="104.5" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="269">95.0%*</text>
+<rect x="472" y="261" width="108.9" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="269">99.0%*</text>
 <text class="n" x="630" y="257">n=2,556 calls</text>
 <text class="n" x="630" y="269">functions 1,734</text>
 </g>
@@ -281,15 +281,15 @@
 <text class="n" x="324" y="325">n=139 imports</text>
 <text class="n" x="324" y="337">repos 1 · files 31</text>
 </g>
-<g><title>haskell callee names: precision 44.2% of 233, recall 30.8% of 334 (raw 44.2% / 30.8%; 24 shapes without a verdict)</title>
+<g><title>haskell callee names: precision 69.4% of 409, recall 85.0% of 334 (raw 69.4% / 85.0%; 11 shapes without a verdict)</title>
 <text class="pr" x="426" y="324.5">Precision</text>
 <rect class="track" x="472" y="317" width="110" height="8" rx="2"/>
-<rect x="472" y="317" width="48.6" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="325">44.2%*</text>
+<rect x="472" y="317" width="76.3" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="325">69.4%*</text>
 <text class="pr" x="426" y="336.5">Recall</text>
 <rect class="track" x="472" y="329" width="110" height="8" rx="2"/>
-<rect x="472" y="329" width="33.9" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="337">30.8%*</text>
+<rect x="472" y="329" width="93.5" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="337">85.0%*</text>
 <text class="n" x="630" y="325">n=334 calls</text>
 <text class="n" x="630" y="337">functions 142</text>
 </g>
@@ -453,7 +453,7 @@
 <text class="n" x="324" y="461">n=354 imports</text>
 <text class="n" x="324" y="473">repos 1 · files 171</text>
 </g>
-<g><title>lua callee names: precision 97.5% of 1,365, recall 98.2% of 1,356 (raw 97.5% / 98.2%; 7 shapes without a verdict)</title>
+<g><title>lua callee names: precision 97.5% of 1,365, recall 98.2% of 1,356 (raw 97.5% / 98.2%; 6 shapes without a verdict)</title>
 <text class="pr" x="426" y="460.5">Precision</text>
 <rect class="track" x="472" y="453" width="110" height="8" rx="2"/>
 <rect x="472" y="453" width="107.2" height="8" rx="2" fill="#4a3aa7"/>
@@ -517,15 +517,15 @@
 <text class="n" x="324" y="529">n=49 imports</text>
 <text class="n" x="324" y="541">repos 1 · files 33</text>
 </g>
-<g><title>perl callee names: precision 94.4% of 4,629, recall 96.2% of 4,544 (raw 94.4% / 96.2%; 43 shapes without a verdict)</title>
+<g><title>perl callee names: precision 96.9% of 4,629, recall 96.6% of 4,544 (raw 94.4% / 96.2%; 33 shapes without a verdict)</title>
 <text class="pr" x="426" y="528.5">Precision</text>
 <rect class="track" x="472" y="521" width="110" height="8" rx="2"/>
-<rect x="472" y="521" width="103.8" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="529">94.4%*</text>
+<rect x="472" y="521" width="106.6" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="529">96.9%*</text>
 <text class="pr" x="426" y="540.5">Recall</text>
 <rect class="track" x="472" y="533" width="110" height="8" rx="2"/>
-<rect x="472" y="533" width="105.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="541">96.2%*</text>
+<rect x="472" y="533" width="106.3" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="541">96.6%*</text>
 <text class="n" x="630" y="529">n=4,544 calls</text>
 <text class="n" x="630" y="541">functions 943</text>
 </g>
@@ -554,15 +554,15 @@
 <text class="n" x="324" y="563">n=390 imports</text>
 <text class="n" x="324" y="575">repos 1 · files 136</text>
 </g>
-<g><title>php callee names: precision 99.7% of 6,258, recall 98.8% of 6,314 (raw 99.7% / 98.8%; 18 shapes without a verdict)</title>
+<g><title>php callee names: precision 99.7% of 6,258, recall 99.0% of 6,314 (raw 99.7% / 98.8%; 14 shapes without a verdict)</title>
 <text class="pr" x="426" y="562.5">Precision</text>
 <rect class="track" x="472" y="555" width="110" height="8" rx="2"/>
 <rect x="472" y="555" width="109.7" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="587" y="563">99.7%*</text>
 <text class="pr" x="426" y="574.5">Recall</text>
 <rect class="track" x="472" y="567" width="110" height="8" rx="2"/>
-<rect x="472" y="567" width="108.7" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="575">98.8%*</text>
+<rect x="472" y="567" width="108.9" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="575">99.0%*</text>
 <text class="n" x="630" y="563">n=6,314 calls</text>
 <text class="n" x="630" y="575">functions 1,721</text>
 </g>
@@ -581,7 +581,7 @@
 <rect class="stripe" x="16" y="582" width="1212" height="34"/>
 <text class="lang" x="22" y="603.0">powershell</text>
 <text class="none" x="120" y="602.0">not measured</text>
-<g><title>powershell callee names: precision 77.7% of 1,316, recall 38.4% of 2,662 (raw 77.7% / 38.4%; 14 shapes without a verdict)</title>
+<g><title>powershell callee names: precision 77.7% of 1,316, recall 38.4% of 2,662 (raw 77.7% / 38.4%; 10 shapes without a verdict)</title>
 <text class="pr" x="426" y="596.5">Precision</text>
 <rect class="track" x="472" y="589" width="110" height="8" rx="2"/>
 <rect x="472" y="589" width="85.5" height="8" rx="2" fill="#4a3aa7"/>
@@ -807,11 +807,11 @@
 <text class="n" x="324" y="801">n=812 imports</text>
 <text class="n" x="324" y="813">repos 1 · files 395</text>
 </g>
-<g><title>solidity callee names: precision 64.6% of 226, recall 98.0% of 149 (raw 64.6% / 98.0%; 9 shapes without a verdict)</title>
+<g><title>solidity callee names: precision 74.8% of 226, recall 98.0% of 149 (raw 64.6% / 98.0%; 8 shapes without a verdict)</title>
 <text class="pr" x="426" y="800.5">Precision</text>
 <rect class="track" x="472" y="793" width="110" height="8" rx="2"/>
-<rect x="472" y="793" width="71.1" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="801">64.6%*</text>
+<rect x="472" y="793" width="82.3" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="801">74.8%*</text>
 <text class="pr" x="426" y="812.5">Recall</text>
 <rect class="track" x="472" y="805" width="110" height="8" rx="2"/>
 <rect x="472" y="805" width="107.8" height="8" rx="2" fill="#eda100"/>
@@ -832,7 +832,17 @@
 <text class="n" x="1240" y="801">repos=1</text>
 </g>
 <text class="lang" x="22" y="841.0">swift</text>
-<text class="none" x="120" y="840.0">not measured</text>
+<g><title>swift imports: precision 0.0% of 22, recall - of 0 (raw 0.0% / -; 1 shapes without a verdict); corpus apple/swift-argument-parser; small n</title>
+<text class="pr" x="120" y="834.5">Precision</text>
+<rect class="track" x="166" y="827" width="110" height="8" rx="2"/>
+<rect x="166" y="827" width="2.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="281" y="835">0.0%*</text>
+<text class="pr" x="120" y="846.5">Recall</text>
+<rect class="track" x="166" y="839" width="110" height="8" rx="2"/>
+<text class="val" x="281" y="847">-</text>
+<text class="n" x="324" y="835">n=0 imports</text>
+<text class="n" x="324" y="847">repos 1 · files 170</text>
+</g>
 <g><title>swift callee names: precision 99.0% of 305, recall 79.7% of 379 (raw 99.0% / 79.7%; 4 shapes without a verdict)</title>
 <text class="pr" x="426" y="834.5">Precision</text>
 <rect class="track" x="472" y="827" width="110" height="8" rx="2"/>
@@ -850,15 +860,15 @@
 <rect class="stripe" x="16" y="854" width="1212" height="34"/>
 <text class="lang" x="22" y="875.0">tcl</text>
 <text class="none" x="120" y="874.0">not measured</text>
-<g><title>tcl callee names: precision 69.8% of 2,277, recall 71.2% of 2,231 (raw 69.8% / 71.2%; 21 shapes without a verdict)</title>
+<g><title>tcl callee names: precision 93.8% of 2,277, recall 71.2% of 2,231 (raw 69.8% / 71.2%; 13 shapes without a verdict)</title>
 <text class="pr" x="426" y="868.5">Precision</text>
 <rect class="track" x="472" y="861" width="110" height="8" rx="2"/>
-<rect x="472" y="861" width="76.8" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="869">69.8%*</text>
+<rect x="472" y="861" width="103.2" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="869">93.8%*</text>
 <text class="pr" x="426" y="880.5">Recall</text>
 <rect class="track" x="472" y="873" width="110" height="8" rx="2"/>
 <rect x="472" y="873" width="78.3" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="881">71.2%*</text>
+<text class="val" x="587" y="881">71.2%</text>
 <text class="n" x="630" y="869">n=2,231 calls</text>
 <text class="n" x="630" y="881">functions 369</text>
 </g>
@@ -877,7 +887,7 @@
 <text class="n" x="324" y="903">n=870 imports</text>
 <text class="n" x="324" y="915">repos 1 · files 470</text>
 </g>
-<g><title>typescript callee names: precision 99.8% of 27,364, recall 99.1% of 27,556 (raw 99.8% / 99.1%; 15 shapes without a verdict)</title>
+<g><title>typescript callee names: precision 99.8% of 27,364, recall 99.1% of 27,556 (raw 99.8% / 99.1%; 10 shapes without a verdict)</title>
 <text class="pr" x="426" y="902.5">Precision</text>
 <rect class="track" x="472" y="895" width="110" height="8" rx="2"/>
 <rect x="472" y="895" width="109.8" height="8" rx="2" fill="#4a3aa7"/>

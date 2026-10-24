@@ -1189,3 +1189,34 @@ def test_another_apply_failure_is_still_reported_failed():
 def test_the_owner_status_goes_when_the_merge_request_goes():
     acts = sg.decide(snap(labels=[sg.OWNER]))
     assert by_op(acts, "labels") == [{"op": "labels", "add": [], "remove": [sg.OWNER]}]
+
+
+def test_reconcile_pass_reads_the_bot_login_and_each_permission_once():
+    """#64: the shepherd shares the account's 5,000/h API quota; a pass re-read both for every PR."""
+    calls = []
+
+    def api(path, *a, **kw):
+        calls.append(path)
+        return {"login": "bot", "permission": "write", "number": len(calls)}
+
+    cached = sg.pass_cached(api)
+    perm = f"repos/{sg.REPO_SLUG}/collaborators/alice/permission"
+    for _ in range(3):
+        assert cached("user")["login"] == "bot"
+        assert cached(perm)["permission"] == "write"
+        cached(f"repos/{sg.REPO_SLUG}/pulls/7")
+    assert calls.count("user") == 1 and calls.count(perm) == 1
+    assert calls.count(f"repos/{sg.REPO_SLUG}/pulls/7") == 3  # everything else is read fresh
+
+
+def test_trusted_bots_come_from_the_workflow_then_the_tokens_own_account(monkeypatch):
+    """promoter-bot#64: under the squid-shepherd App the token cannot read `user`; its markers come from
+    squid-shepherd[bot], and the PAT account's markers on open PRs must keep counting during the switch."""
+    def no_user(path, *a, **kw):
+        raise SystemExit("user: Resource not accessible by integration")
+
+    monkeypatch.setenv(sg.TRUSTED_BOTS_ENV, "squid-shepherd[bot], squid-protocol")
+    assert sg.trusted_bots(no_user) == {"squid-shepherd[bot]", "squid-protocol"}
+    monkeypatch.delenv(sg.TRUSTED_BOTS_ENV)
+    assert sg.trusted_bots(lambda path, *a, **kw: {"login": "squid-protocol"}) == {"squid-protocol"}  # the PAT, as before
+    assert sg.trusted_bots(no_user) == set()  # nothing trusted: no marker counts (never everyone)

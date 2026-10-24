@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1244 1078" width="1244" height="1078" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1244 1112" width="1244" height="1112" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
 <style>
   .surface { fill: #fcfcfb; }
   .title { font-size: 15px; font-weight: 600; fill: #0b0b0b; }
@@ -15,9 +15,9 @@
   .stripe { fill: #f0efec; }
   .track { fill: #eeede9; }
 </style>
-<rect class="surface" x="0" y="0" width="1244" height="1078"/>
+<rect class="surface" x="0" y="0" width="1244" height="1112"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 22, callee names 23, call resolution 8, hubs 21 of 65 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 23, callee names 23, call resolution 8, hubs 22 of 65 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -268,45 +268,34 @@
 <text class="n" x="1240" y="291">repos=1</text>
 </g>
 <rect class="stripe" x="16" y="310" width="1212" height="34"/>
-<text class="lang" x="22" y="331.0">haskell</text>
-<g><title>haskell imports: precision 100.0% of 138, recall 100.0% of 139; corpus koalaman/shellcheck</title>
+<text class="lang" x="22" y="331.0">groovy</text>
+<g><title>groovy imports: precision 99.3% of 1,071, recall 96.3% of 1,105 (raw 99.3% / 96.3%; 3 shapes without a verdict); corpus spockframework/spock</title>
 <text class="pr" x="120" y="324.5">Precision</text>
 <rect class="track" x="166" y="317" width="110" height="8" rx="2"/>
-<rect x="166" y="317" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="325">100.0%</text>
+<rect x="166" y="317" width="109.2" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="325">99.3%*</text>
 <text class="pr" x="120" y="336.5">Recall</text>
 <rect class="track" x="166" y="329" width="110" height="8" rx="2"/>
-<rect x="166" y="329" width="110.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="337">100.0%</text>
-<text class="n" x="324" y="325">n=139 imports</text>
-<text class="n" x="324" y="337">repos 1 · files 31</text>
+<rect x="166" y="329" width="105.9" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="337">96.3%*</text>
+<text class="n" x="324" y="325">n=1,105 imports</text>
+<text class="n" x="324" y="337">repos 1 · files 586</text>
 </g>
-<g><title>haskell callee names: precision 69.4% of 409, recall 85.0% of 334 (raw 69.4% / 85.0%; 11 shapes without a verdict)</title>
-<text class="pr" x="426" y="324.5">Precision</text>
-<rect class="track" x="472" y="317" width="110" height="8" rx="2"/>
-<rect x="472" y="317" width="76.3" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="325">69.4%*</text>
-<text class="pr" x="426" y="336.5">Recall</text>
-<rect class="track" x="472" y="329" width="110" height="8" rx="2"/>
-<rect x="472" y="329" width="93.5" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="337">85.0%*</text>
-<text class="n" x="630" y="325">n=334 calls</text>
-<text class="n" x="630" y="337">functions 142</text>
-</g>
+<text class="none" x="426" y="330.0">not measured</text>
 <text class="none" x="732" y="330.0">not measured</text>
-<g><title>haskell hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>groovy hubs: 60% / -0.10 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="324.5">overlap@10</text>
 <rect class="track" x="1090" y="317" width="110" height="8" rx="2"/>
-<rect x="1090" y="317" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="1205" y="325">100%</text>
+<rect x="1090" y="317" width="66.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="325">60%</text>
 <text class="pr" x="1038" y="336.5">Spearman</text>
 <rect class="track" x="1090" y="329" width="110" height="8" rx="2"/>
-<rect x="1090" y="329" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="1205" y="337">1.00</text>
+<rect x="1090" y="329" width="2.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="337">-0.10</text>
 <text class="n" x="1240" y="325">repos=1</text>
 </g>
-<text class="lang" x="22" y="365.0">java</text>
-<g><title>java imports: precision 100.0% of 1,022, recall 100.0% of 1,085; corpus google/gson</title>
+<text class="lang" x="22" y="365.0">haskell</text>
+<g><title>haskell imports: precision 100.0% of 138, recall 100.0% of 139; corpus koalaman/shellcheck</title>
 <text class="pr" x="120" y="358.5">Precision</text>
 <rect class="track" x="166" y="351" width="110" height="8" rx="2"/>
 <rect x="166" y="351" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
@@ -315,34 +304,23 @@
 <rect class="track" x="166" y="363" width="110" height="8" rx="2"/>
 <rect x="166" y="363" width="110.0" height="8" rx="2" fill="#eda100"/>
 <text class="val" x="281" y="371">100.0%</text>
-<text class="n" x="324" y="359">n=1,085 imports</text>
-<text class="n" x="324" y="371">repos 1 · files 264</text>
+<text class="n" x="324" y="359">n=139 imports</text>
+<text class="n" x="324" y="371">repos 1 · files 31</text>
 </g>
-<g><title>java callee names: precision 100.0% of 2,524, recall 100.0% of 2,524</title>
+<g><title>haskell callee names: precision 69.4% of 409, recall 85.0% of 334 (raw 69.4% / 85.0%; 11 shapes without a verdict)</title>
 <text class="pr" x="426" y="358.5">Precision</text>
 <rect class="track" x="472" y="351" width="110" height="8" rx="2"/>
-<rect x="472" y="351" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="359">100.0%</text>
+<rect x="472" y="351" width="76.3" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="359">69.4%*</text>
 <text class="pr" x="426" y="370.5">Recall</text>
 <rect class="track" x="472" y="363" width="110" height="8" rx="2"/>
-<rect x="472" y="363" width="110.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="371">100.0%</text>
-<text class="n" x="630" y="359">n=2,524 calls</text>
-<text class="n" x="630" y="371">functions 802</text>
+<rect x="472" y="363" width="93.5" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="371">85.0%*</text>
+<text class="n" x="630" y="359">n=334 calls</text>
+<text class="n" x="630" y="371">functions 142</text>
 </g>
-<g><title>java call resolution: precision 99.8% of 5,708, recall 72.5% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
-<text class="pr" x="732" y="358.5">Precision</text>
-<rect class="track" x="778" y="351" width="110" height="8" rx="2"/>
-<rect x="778" y="351" width="109.8" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="359">99.8%</text>
-<text class="pr" x="732" y="370.5">Recall</text>
-<rect class="track" x="778" y="363" width="110" height="8" rx="2"/>
-<rect x="778" y="363" width="79.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="371">72.5%</text>
-<text class="n" x="936" y="359">n=7,858 edges</text>
-<text class="n" x="936" y="371">vs scip-java 0.12.3</text>
-</g>
-<g><title>java hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="none" x="732" y="364.0">not measured</text>
+<g><title>haskell hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="358.5">overlap@10</text>
 <rect class="track" x="1090" y="351" width="110" height="8" rx="2"/>
 <rect x="1090" y="351" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
@@ -354,94 +332,105 @@
 <text class="n" x="1240" y="359">repos=1</text>
 </g>
 <rect class="stripe" x="16" y="378" width="1212" height="34"/>
-<text class="lang" x="22" y="399.0">javascript</text>
-<g><title>javascript imports: precision 100.0% of 425, recall 99.8% of 433 (raw 100.0% / 99.8%; 1 shapes without a verdict); corpus axios/axios, expressjs/express</title>
+<text class="lang" x="22" y="399.0">java</text>
+<g><title>java imports: precision 100.0% of 1,022, recall 100.0% of 1,085; corpus google/gson</title>
 <text class="pr" x="120" y="392.5">Precision</text>
 <rect class="track" x="166" y="385" width="110" height="8" rx="2"/>
 <rect x="166" y="385" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="281" y="393">100.0%</text>
 <text class="pr" x="120" y="404.5">Recall</text>
 <rect class="track" x="166" y="397" width="110" height="8" rx="2"/>
-<rect x="166" y="397" width="109.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="405">99.8%*</text>
-<text class="n" x="324" y="393">n=433 imports</text>
-<text class="n" x="324" y="405">repos 2 · files 377</text>
+<rect x="166" y="397" width="110.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="405">100.0%</text>
+<text class="n" x="324" y="393">n=1,085 imports</text>
+<text class="n" x="324" y="405">repos 1 · files 264</text>
 </g>
-<g><title>javascript callee names: precision 99.7% of 2,391, recall 98.9% of 2,399 (raw 98.0% / 97.7%; 10 shapes without a verdict)</title>
+<g><title>java callee names: precision 100.0% of 2,524, recall 100.0% of 2,524</title>
 <text class="pr" x="426" y="392.5">Precision</text>
 <rect class="track" x="472" y="385" width="110" height="8" rx="2"/>
-<rect x="472" y="385" width="109.7" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="393">99.7%*</text>
+<rect x="472" y="385" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="393">100.0%</text>
 <text class="pr" x="426" y="404.5">Recall</text>
 <rect class="track" x="472" y="397" width="110" height="8" rx="2"/>
-<rect x="472" y="397" width="108.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="405">98.9%*</text>
-<text class="n" x="630" y="393">n=2,399 calls</text>
-<text class="n" x="630" y="405">functions 626</text>
+<rect x="472" y="397" width="110.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="405">100.0%</text>
+<text class="n" x="630" y="393">n=2,524 calls</text>
+<text class="n" x="630" y="405">functions 802</text>
 </g>
-<g><title>javascript call resolution: precision 99.3% of 414, recall 77.8% of 528; vs tsc (allowJs) 6.0.2; corpus import_graph</title>
+<g><title>java call resolution: precision 99.8% of 5,708, recall 72.5% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
 <text class="pr" x="732" y="392.5">Precision</text>
 <rect class="track" x="778" y="385" width="110" height="8" rx="2"/>
-<rect x="778" y="385" width="109.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="393">99.3%</text>
+<rect x="778" y="385" width="109.8" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="393">99.8%</text>
 <text class="pr" x="732" y="404.5">Recall</text>
 <rect class="track" x="778" y="397" width="110" height="8" rx="2"/>
-<rect x="778" y="397" width="85.6" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="405">77.8%</text>
-<text class="n" x="936" y="393">n=528 edges</text>
-<text class="n" x="936" y="405">vs tsc (allowJs) 6.0.2</text>
+<rect x="778" y="397" width="79.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="405">72.5%</text>
+<text class="n" x="936" y="393">n=7,858 edges</text>
+<text class="n" x="936" y="405">vs scip-java 0.12.3</text>
 </g>
-<g><title>javascript hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>
+<g><title>java hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="392.5">overlap@10</text>
 <rect class="track" x="1090" y="385" width="110" height="8" rx="2"/>
-<rect x="1090" y="385" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<rect x="1090" y="385" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
 <text class="val" x="1205" y="393">100%</text>
 <text class="pr" x="1038" y="404.5">Spearman</text>
 <rect class="track" x="1090" y="397" width="110" height="8" rx="2"/>
-<rect x="1090" y="397" width="110.0" height="8" rx="2" fill="#eda100"/>
+<rect x="1090" y="397" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
 <text class="val" x="1205" y="405">1.00</text>
-<text class="n" x="1240" y="393">repos=2</text>
+<text class="n" x="1240" y="393">repos=1</text>
 </g>
-<text class="lang" x="22" y="433.0">kotlin</text>
-<g><title>kotlin imports: precision 100.0% of 218, recall 99.2% of 377; corpus square/kotlinpoet</title>
+<text class="lang" x="22" y="433.0">javascript</text>
+<g><title>javascript imports: precision 100.0% of 425, recall 99.8% of 433 (raw 100.0% / 99.8%; 1 shapes without a verdict); corpus axios/axios, expressjs/express</title>
 <text class="pr" x="120" y="426.5">Precision</text>
 <rect class="track" x="166" y="419" width="110" height="8" rx="2"/>
 <rect x="166" y="419" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="281" y="427">100.0%</text>
 <text class="pr" x="120" y="438.5">Recall</text>
 <rect class="track" x="166" y="431" width="110" height="8" rx="2"/>
-<rect x="166" y="431" width="109.1" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="439">99.2%</text>
-<text class="n" x="324" y="427">n=377 imports</text>
-<text class="n" x="324" y="439">repos 1 · files 131</text>
+<rect x="166" y="431" width="109.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="439">99.8%*</text>
+<text class="n" x="324" y="427">n=433 imports</text>
+<text class="n" x="324" y="439">repos 2 · files 377</text>
 </g>
-<g><title>kotlin callee names: precision 96.8% of 31, recall 90.9% of 33 (raw 96.8% / 90.9%; 1 shapes without a verdict); small n</title>
+<g><title>javascript callee names: precision 99.7% of 2,391, recall 98.9% of 2,399 (raw 98.0% / 97.7%; 10 shapes without a verdict)</title>
 <text class="pr" x="426" y="426.5">Precision</text>
 <rect class="track" x="472" y="419" width="110" height="8" rx="2"/>
-<rect x="472" y="419" width="106.5" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="587" y="427">96.8%*</text>
+<rect x="472" y="419" width="109.7" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="427">99.7%*</text>
 <text class="pr" x="426" y="438.5">Recall</text>
 <rect class="track" x="472" y="431" width="110" height="8" rx="2"/>
-<rect x="472" y="431" width="100.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="587" y="439">90.9%</text>
-<text class="n" x="630" y="427">n=33 calls</text>
-<text class="n" x="630" y="439">functions 27</text>
+<rect x="472" y="431" width="108.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="439">98.9%*</text>
+<text class="n" x="630" y="427">n=2,399 calls</text>
+<text class="n" x="630" y="439">functions 626</text>
 </g>
-<text class="none" x="732" y="432.0">not measured</text>
-<g><title>kotlin hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>javascript call resolution: precision 99.3% of 414, recall 77.8% of 528; vs tsc (allowJs) 6.0.2; corpus import_graph</title>
+<text class="pr" x="732" y="426.5">Precision</text>
+<rect class="track" x="778" y="419" width="110" height="8" rx="2"/>
+<rect x="778" y="419" width="109.2" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="427">99.3%</text>
+<text class="pr" x="732" y="438.5">Recall</text>
+<rect class="track" x="778" y="431" width="110" height="8" rx="2"/>
+<rect x="778" y="431" width="85.6" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="439">77.8%</text>
+<text class="n" x="936" y="427">n=528 edges</text>
+<text class="n" x="936" y="439">vs tsc (allowJs) 6.0.2</text>
+</g>
+<g><title>javascript hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="426.5">overlap@10</text>
 <rect class="track" x="1090" y="419" width="110" height="8" rx="2"/>
-<rect x="1090" y="419" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<rect x="1090" y="419" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="1205" y="427">100%</text>
 <text class="pr" x="1038" y="438.5">Spearman</text>
 <rect class="track" x="1090" y="431" width="110" height="8" rx="2"/>
-<rect x="1090" y="431" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<rect x="1090" y="431" width="110.0" height="8" rx="2" fill="#eda100"/>
 <text class="val" x="1205" y="439">1.00</text>
-<text class="n" x="1240" y="427">repos=1</text>
+<text class="n" x="1240" y="427">repos=2</text>
 </g>
 <rect class="stripe" x="16" y="446" width="1212" height="34"/>
-<text class="lang" x="22" y="467.0">lua</text>
-<g><title>lua imports: precision 100.0% of 351, recall 99.2% of 354 (raw 100.0% / 99.2%; 1 shapes without a verdict); corpus luarocks/luarocks</title>
+<text class="lang" x="22" y="467.0">kotlin</text>
+<g><title>kotlin imports: precision 100.0% of 218, recall 99.2% of 377; corpus square/kotlinpoet</title>
 <text class="pr" x="120" y="460.5">Precision</text>
 <rect class="track" x="166" y="453" width="110" height="8" rx="2"/>
 <rect x="166" y="453" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
@@ -449,24 +438,24 @@
 <text class="pr" x="120" y="472.5">Recall</text>
 <rect class="track" x="166" y="465" width="110" height="8" rx="2"/>
 <rect x="166" y="465" width="109.1" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="473">99.2%*</text>
-<text class="n" x="324" y="461">n=354 imports</text>
-<text class="n" x="324" y="473">repos 1 · files 171</text>
+<text class="val" x="281" y="473">99.2%</text>
+<text class="n" x="324" y="461">n=377 imports</text>
+<text class="n" x="324" y="473">repos 1 · files 131</text>
 </g>
-<g><title>lua callee names: precision 97.5% of 1,365, recall 98.2% of 1,356 (raw 97.5% / 98.2%; 7 shapes without a verdict)</title>
+<g><title>kotlin callee names: precision 96.8% of 31, recall 90.9% of 33 (raw 96.8% / 90.9%; 1 shapes without a verdict); small n</title>
 <text class="pr" x="426" y="460.5">Precision</text>
 <rect class="track" x="472" y="453" width="110" height="8" rx="2"/>
-<rect x="472" y="453" width="107.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="461">97.5%*</text>
+<rect x="472" y="453" width="106.5" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="587" y="461">96.8%*</text>
 <text class="pr" x="426" y="472.5">Recall</text>
 <rect class="track" x="472" y="465" width="110" height="8" rx="2"/>
-<rect x="472" y="465" width="108.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="473">98.2%*</text>
-<text class="n" x="630" y="461">n=1,356 calls</text>
-<text class="n" x="630" y="473">functions 623</text>
+<rect x="472" y="465" width="100.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="587" y="473">90.9%</text>
+<text class="n" x="630" y="461">n=33 calls</text>
+<text class="n" x="630" y="473">functions 27</text>
 </g>
 <text class="none" x="732" y="466.0">not measured</text>
-<g><title>lua hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>kotlin hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="460.5">overlap@10</text>
 <rect class="track" x="1090" y="453" width="110" height="8" rx="2"/>
 <rect x="1090" y="453" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
@@ -477,454 +466,443 @@
 <text class="val" x="1205" y="473">1.00</text>
 <text class="n" x="1240" y="461">repos=1</text>
 </g>
-<text class="lang" x="22" y="501.0">objective-c</text>
-<g><title>objective-c imports: precision 100.0% of 682, recall 100.0% of 683; corpus SDWebImage/SDWebImage</title>
+<text class="lang" x="22" y="501.0">lua</text>
+<g><title>lua imports: precision 100.0% of 351, recall 99.2% of 354 (raw 100.0% / 99.2%; 1 shapes without a verdict); corpus luarocks/luarocks</title>
 <text class="pr" x="120" y="494.5">Precision</text>
 <rect class="track" x="166" y="487" width="110" height="8" rx="2"/>
 <rect x="166" y="487" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="281" y="495">100.0%</text>
 <text class="pr" x="120" y="506.5">Recall</text>
 <rect class="track" x="166" y="499" width="110" height="8" rx="2"/>
-<rect x="166" y="499" width="110.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="507">100.0%</text>
-<text class="n" x="324" y="495">n=683 imports</text>
-<text class="n" x="324" y="507">repos 1 · files 263</text>
+<rect x="166" y="499" width="109.1" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="507">99.2%*</text>
+<text class="n" x="324" y="495">n=354 imports</text>
+<text class="n" x="324" y="507">repos 1 · files 171</text>
 </g>
-<text class="none" x="426" y="500.0">not measured</text>
+<g><title>lua callee names: precision 97.5% of 1,365, recall 98.2% of 1,356 (raw 97.5% / 98.2%; 7 shapes without a verdict)</title>
+<text class="pr" x="426" y="494.5">Precision</text>
+<rect class="track" x="472" y="487" width="110" height="8" rx="2"/>
+<rect x="472" y="487" width="107.2" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="495">97.5%*</text>
+<text class="pr" x="426" y="506.5">Recall</text>
+<rect class="track" x="472" y="499" width="110" height="8" rx="2"/>
+<rect x="472" y="499" width="108.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="507">98.2%*</text>
+<text class="n" x="630" y="495">n=1,356 calls</text>
+<text class="n" x="630" y="507">functions 623</text>
+</g>
 <text class="none" x="732" y="500.0">not measured</text>
-<g><title>objective-c hubs: 100% / 0.99 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>lua hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="494.5">overlap@10</text>
 <rect class="track" x="1090" y="487" width="110" height="8" rx="2"/>
 <rect x="1090" y="487" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
 <text class="val" x="1205" y="495">100%</text>
 <text class="pr" x="1038" y="506.5">Spearman</text>
 <rect class="track" x="1090" y="499" width="110" height="8" rx="2"/>
-<rect x="1090" y="499" width="108.7" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="1205" y="507">0.99</text>
+<rect x="1090" y="499" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="507">1.00</text>
 <text class="n" x="1240" y="495">repos=1</text>
 </g>
 <rect class="stripe" x="16" y="514" width="1212" height="34"/>
-<text class="lang" x="22" y="535.0">perl</text>
-<g><title>perl imports: precision 97.9% of 47, recall 100.0% of 49 (raw 97.9% / 100.0%; 1 shapes without a verdict); corpus libwww-perl/HTTP-Message; small n</title>
+<text class="lang" x="22" y="535.0">objective-c</text>
+<g><title>objective-c imports: precision 100.0% of 682, recall 100.0% of 683; corpus SDWebImage/SDWebImage</title>
 <text class="pr" x="120" y="528.5">Precision</text>
 <rect class="track" x="166" y="521" width="110" height="8" rx="2"/>
-<rect x="166" y="521" width="107.7" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="281" y="529">97.9%*</text>
+<rect x="166" y="521" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="529">100.0%</text>
 <text class="pr" x="120" y="540.5">Recall</text>
 <rect class="track" x="166" y="533" width="110" height="8" rx="2"/>
-<rect x="166" y="533" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<rect x="166" y="533" width="110.0" height="8" rx="2" fill="#eda100"/>
 <text class="val" x="281" y="541">100.0%</text>
-<text class="n" x="324" y="529">n=49 imports</text>
-<text class="n" x="324" y="541">repos 1 · files 33</text>
+<text class="n" x="324" y="529">n=683 imports</text>
+<text class="n" x="324" y="541">repos 1 · files 263</text>
 </g>
-<g><title>perl callee names: precision 96.9% of 4,629, recall 96.2% of 4,544 (raw 94.4% / 96.2%; 40 shapes without a verdict)</title>
-<text class="pr" x="426" y="528.5">Precision</text>
-<rect class="track" x="472" y="521" width="110" height="8" rx="2"/>
-<rect x="472" y="521" width="106.6" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="529">96.9%*</text>
-<text class="pr" x="426" y="540.5">Recall</text>
-<rect class="track" x="472" y="533" width="110" height="8" rx="2"/>
-<rect x="472" y="533" width="105.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="541">96.2%*</text>
-<text class="n" x="630" y="529">n=4,544 calls</text>
-<text class="n" x="630" y="541">functions 943</text>
-</g>
+<text class="none" x="426" y="534.0">not measured</text>
 <text class="none" x="732" y="534.0">not measured</text>
-<g><title>perl hubs: 100% / 0.97 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>objective-c hubs: 100% / 0.99 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="528.5">overlap@10</text>
 <rect class="track" x="1090" y="521" width="110" height="8" rx="2"/>
 <rect x="1090" y="521" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
 <text class="val" x="1205" y="529">100%</text>
 <text class="pr" x="1038" y="540.5">Spearman</text>
 <rect class="track" x="1090" y="533" width="110" height="8" rx="2"/>
-<rect x="1090" y="533" width="106.3" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="1205" y="541">0.97</text>
+<rect x="1090" y="533" width="108.7" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="541">0.99</text>
 <text class="n" x="1240" y="529">repos=1</text>
 </g>
-<text class="lang" x="22" y="569.0">php</text>
-<g><title>php imports: precision 99.2% of 380, recall 100.0% of 390 (raw 99.2% / 100.0%; 1 shapes without a verdict); corpus guzzle/guzzle</title>
+<text class="lang" x="22" y="569.0">perl</text>
+<g><title>perl imports: precision 97.9% of 47, recall 100.0% of 49 (raw 97.9% / 100.0%; 1 shapes without a verdict); corpus libwww-perl/HTTP-Message; small n</title>
 <text class="pr" x="120" y="562.5">Precision</text>
 <rect class="track" x="166" y="555" width="110" height="8" rx="2"/>
-<rect x="166" y="555" width="109.1" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="563">99.2%*</text>
+<rect x="166" y="555" width="107.7" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="281" y="563">97.9%*</text>
 <text class="pr" x="120" y="574.5">Recall</text>
 <rect class="track" x="166" y="567" width="110" height="8" rx="2"/>
-<rect x="166" y="567" width="110.0" height="8" rx="2" fill="#eda100"/>
+<rect x="166" y="567" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
 <text class="val" x="281" y="575">100.0%</text>
-<text class="n" x="324" y="563">n=390 imports</text>
-<text class="n" x="324" y="575">repos 1 · files 136</text>
+<text class="n" x="324" y="563">n=49 imports</text>
+<text class="n" x="324" y="575">repos 1 · files 33</text>
 </g>
-<g><title>php callee names: precision 99.7% of 6,258, recall 98.8% of 6,314 (raw 99.7% / 98.8%; 18 shapes without a verdict)</title>
+<g><title>perl callee names: precision 96.9% of 4,629, recall 96.2% of 4,544 (raw 94.4% / 96.2%; 40 shapes without a verdict)</title>
 <text class="pr" x="426" y="562.5">Precision</text>
 <rect class="track" x="472" y="555" width="110" height="8" rx="2"/>
-<rect x="472" y="555" width="109.7" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="563">99.7%*</text>
+<rect x="472" y="555" width="106.6" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="563">96.9%*</text>
 <text class="pr" x="426" y="574.5">Recall</text>
 <rect class="track" x="472" y="567" width="110" height="8" rx="2"/>
-<rect x="472" y="567" width="108.7" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="575">98.8%*</text>
-<text class="n" x="630" y="563">n=6,314 calls</text>
-<text class="n" x="630" y="575">functions 1,721</text>
+<rect x="472" y="567" width="105.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="575">96.2%*</text>
+<text class="n" x="630" y="563">n=4,544 calls</text>
+<text class="n" x="630" y="575">functions 943</text>
 </g>
 <text class="none" x="732" y="568.0">not measured</text>
-<g><title>php hubs: 90% / 0.86 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>perl hubs: 100% / 0.97 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="562.5">overlap@10</text>
 <rect class="track" x="1090" y="555" width="110" height="8" rx="2"/>
-<rect x="1090" y="555" width="99.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="1205" y="563">90%</text>
+<rect x="1090" y="555" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="563">100%</text>
 <text class="pr" x="1038" y="574.5">Spearman</text>
 <rect class="track" x="1090" y="567" width="110" height="8" rx="2"/>
-<rect x="1090" y="567" width="94.4" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="1205" y="575">0.86</text>
+<rect x="1090" y="567" width="106.3" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="575">0.97</text>
 <text class="n" x="1240" y="563">repos=1</text>
 </g>
 <rect class="stripe" x="16" y="582" width="1212" height="34"/>
-<text class="lang" x="22" y="603.0">powershell</text>
-<text class="none" x="120" y="602.0">not measured</text>
-<g><title>powershell callee names: precision 77.7% of 1,316, recall 38.4% of 2,662 (raw 77.7% / 38.4%; 11 shapes without a verdict)</title>
+<text class="lang" x="22" y="603.0">php</text>
+<g><title>php imports: precision 99.2% of 380, recall 100.0% of 390 (raw 99.2% / 100.0%; 1 shapes without a verdict); corpus guzzle/guzzle</title>
+<text class="pr" x="120" y="596.5">Precision</text>
+<rect class="track" x="166" y="589" width="110" height="8" rx="2"/>
+<rect x="166" y="589" width="109.1" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="597">99.2%*</text>
+<text class="pr" x="120" y="608.5">Recall</text>
+<rect class="track" x="166" y="601" width="110" height="8" rx="2"/>
+<rect x="166" y="601" width="110.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="609">100.0%</text>
+<text class="n" x="324" y="597">n=390 imports</text>
+<text class="n" x="324" y="609">repos 1 · files 136</text>
+</g>
+<g><title>php callee names: precision 99.7% of 6,258, recall 98.8% of 6,314 (raw 99.7% / 98.8%; 18 shapes without a verdict)</title>
 <text class="pr" x="426" y="596.5">Precision</text>
 <rect class="track" x="472" y="589" width="110" height="8" rx="2"/>
-<rect x="472" y="589" width="85.5" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="597">77.7%*</text>
+<rect x="472" y="589" width="109.7" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="597">99.7%*</text>
 <text class="pr" x="426" y="608.5">Recall</text>
 <rect class="track" x="472" y="601" width="110" height="8" rx="2"/>
-<rect x="472" y="601" width="42.2" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="609">38.4%*</text>
-<text class="n" x="630" y="597">n=2,662 calls</text>
-<text class="n" x="630" y="609">functions 460</text>
+<rect x="472" y="601" width="108.7" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="609">98.8%*</text>
+<text class="n" x="630" y="597">n=6,314 calls</text>
+<text class="n" x="630" y="609">functions 1,721</text>
 </g>
 <text class="none" x="732" y="602.0">not measured</text>
-<text class="none" x="1038" y="602.0">not measured</text>
-<text class="lang" x="22" y="637.0">python</text>
-<g><title>python imports: precision 99.9% of 1,916, recall 100.0% of 2,101 (raw 99.9% / 100.0%; 2 shapes without a verdict); corpus encode/httpx, fastapi/fastapi, pallets/flask</title>
-<text class="pr" x="120" y="630.5">Precision</text>
-<rect class="track" x="166" y="623" width="110" height="8" rx="2"/>
-<rect x="166" y="623" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="631">99.9%*</text>
-<text class="pr" x="120" y="642.5">Recall</text>
-<rect class="track" x="166" y="635" width="110" height="8" rx="2"/>
-<rect x="166" y="635" width="110.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="643">100.0%*</text>
-<text class="n" x="324" y="631">n=2,101 imports</text>
-<text class="n" x="324" y="643">repos 3 · files 1,277</text>
+<g><title>php hubs: 90% / 0.86 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="596.5">overlap@10</text>
+<rect class="track" x="1090" y="589" width="110" height="8" rx="2"/>
+<rect x="1090" y="589" width="99.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="597">90%</text>
+<text class="pr" x="1038" y="608.5">Spearman</text>
+<rect class="track" x="1090" y="601" width="110" height="8" rx="2"/>
+<rect x="1090" y="601" width="94.4" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="609">0.86</text>
+<text class="n" x="1240" y="597">repos=1</text>
 </g>
-<g><title>python callee names: precision 99.6% of 11,549, recall 99.2% of 11,599 (raw 99.6% / 99.2%; 7 shapes without a verdict)</title>
+<text class="lang" x="22" y="637.0">powershell</text>
+<text class="none" x="120" y="636.0">not measured</text>
+<g><title>powershell callee names: precision 77.7% of 1,316, recall 38.4% of 2,662 (raw 77.7% / 38.4%; 11 shapes without a verdict)</title>
 <text class="pr" x="426" y="630.5">Precision</text>
 <rect class="track" x="472" y="623" width="110" height="8" rx="2"/>
-<rect x="472" y="623" width="109.6" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="631">99.6%*</text>
+<rect x="472" y="623" width="85.5" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="631">77.7%*</text>
 <text class="pr" x="426" y="642.5">Recall</text>
 <rect class="track" x="472" y="635" width="110" height="8" rx="2"/>
-<rect x="472" y="635" width="109.1" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="643">99.2%*</text>
-<text class="n" x="630" y="631">n=11,599 calls</text>
-<text class="n" x="630" y="643">functions 4,210</text>
+<rect x="472" y="635" width="42.2" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="643">38.4%*</text>
+<text class="n" x="630" y="631">n=2,662 calls</text>
+<text class="n" x="630" y="643">functions 460</text>
 </g>
-<g><title>python call resolution: precision 99.9% of 1,829, recall 51.2% of 3,565; vs pyan3 2.9.0; corpus crucible</title>
-<text class="pr" x="732" y="630.5">Precision</text>
-<rect class="track" x="778" y="623" width="110" height="8" rx="2"/>
-<rect x="778" y="623" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="631">99.9%</text>
-<text class="pr" x="732" y="642.5">Recall</text>
-<rect class="track" x="778" y="635" width="110" height="8" rx="2"/>
-<rect x="778" y="635" width="56.3" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="643">51.2%</text>
-<text class="n" x="936" y="631">n=3,565 edges</text>
-<text class="n" x="936" y="643">vs pyan3 2.9.0</text>
-</g>
-<g><title>python hubs: 100% / 0.98 (repos=3) (overlap@10 / Spearman)</title>
-<text class="pr" x="1038" y="630.5">overlap@10</text>
-<rect class="track" x="1090" y="623" width="110" height="8" rx="2"/>
-<rect x="1090" y="623" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="1205" y="631">100%</text>
-<text class="pr" x="1038" y="642.5">Spearman</text>
-<rect class="track" x="1090" y="635" width="110" height="8" rx="2"/>
-<rect x="1090" y="635" width="107.4" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="1205" y="643">0.98</text>
-<text class="n" x="1240" y="631">repos=3</text>
-</g>
+<text class="none" x="732" y="636.0">not measured</text>
+<text class="none" x="1038" y="636.0">not measured</text>
 <rect class="stripe" x="16" y="650" width="1212" height="34"/>
-<text class="lang" x="22" y="671.0">ruby</text>
-<g><title>ruby imports: precision 99.6% of 239, recall 99.6% of 239 (raw 99.6% / 99.6%; 2 shapes without a verdict); corpus rack/rack</title>
+<text class="lang" x="22" y="671.0">python</text>
+<g><title>python imports: precision 99.9% of 1,916, recall 100.0% of 2,101 (raw 99.9% / 100.0%; 2 shapes without a verdict); corpus encode/httpx, fastapi/fastapi, pallets/flask</title>
 <text class="pr" x="120" y="664.5">Precision</text>
 <rect class="track" x="166" y="657" width="110" height="8" rx="2"/>
-<rect x="166" y="657" width="109.6" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="665">99.6%*</text>
+<rect x="166" y="657" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="665">99.9%*</text>
 <text class="pr" x="120" y="676.5">Recall</text>
 <rect class="track" x="166" y="669" width="110" height="8" rx="2"/>
-<rect x="166" y="669" width="109.6" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="677">99.6%*</text>
-<text class="n" x="324" y="665">n=239 imports</text>
-<text class="n" x="324" y="677">repos 1 · files 106</text>
+<rect x="166" y="669" width="110.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="677">100.0%*</text>
+<text class="n" x="324" y="665">n=2,101 imports</text>
+<text class="n" x="324" y="677">repos 3 · files 1,277</text>
 </g>
-<g><title>ruby callee names: precision 99.9% of 979, recall 93.6% of 1,045 (raw 99.9% / 93.6%; 1 shapes without a verdict)</title>
+<g><title>python callee names: precision 99.6% of 11,549, recall 99.2% of 11,599 (raw 99.6% / 99.2%; 7 shapes without a verdict)</title>
 <text class="pr" x="426" y="664.5">Precision</text>
 <rect class="track" x="472" y="657" width="110" height="8" rx="2"/>
-<rect x="472" y="657" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="665">99.9%</text>
+<rect x="472" y="657" width="109.6" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="665">99.6%*</text>
 <text class="pr" x="426" y="676.5">Recall</text>
 <rect class="track" x="472" y="669" width="110" height="8" rx="2"/>
-<rect x="472" y="669" width="103.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="677">93.6%*</text>
-<text class="n" x="630" y="665">n=1,045 calls</text>
-<text class="n" x="630" y="677">functions 349</text>
+<rect x="472" y="669" width="109.1" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="677">99.2%*</text>
+<text class="n" x="630" y="665">n=11,599 calls</text>
+<text class="n" x="630" y="677">functions 4,210</text>
 </g>
-<text class="none" x="732" y="670.0">not measured</text>
-<g><title>ruby hubs: 100% / 0.99 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>python call resolution: precision 99.9% of 1,829, recall 51.2% of 3,565; vs pyan3 2.9.0; corpus crucible</title>
+<text class="pr" x="732" y="664.5">Precision</text>
+<rect class="track" x="778" y="657" width="110" height="8" rx="2"/>
+<rect x="778" y="657" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="665">99.9%</text>
+<text class="pr" x="732" y="676.5">Recall</text>
+<rect class="track" x="778" y="669" width="110" height="8" rx="2"/>
+<rect x="778" y="669" width="56.3" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="677">51.2%</text>
+<text class="n" x="936" y="665">n=3,565 edges</text>
+<text class="n" x="936" y="677">vs pyan3 2.9.0</text>
+</g>
+<g><title>python hubs: 100% / 0.98 (repos=3) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="664.5">overlap@10</text>
 <rect class="track" x="1090" y="657" width="110" height="8" rx="2"/>
-<rect x="1090" y="657" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<rect x="1090" y="657" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="1205" y="665">100%</text>
 <text class="pr" x="1038" y="676.5">Spearman</text>
 <rect class="track" x="1090" y="669" width="110" height="8" rx="2"/>
-<rect x="1090" y="669" width="108.7" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="1205" y="677">0.99</text>
-<text class="n" x="1240" y="665">repos=1</text>
+<rect x="1090" y="669" width="107.4" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="1205" y="677">0.98</text>
+<text class="n" x="1240" y="665">repos=3</text>
 </g>
-<text class="lang" x="22" y="705.0">rust</text>
-<g><title>rust imports: precision 100.0% of 153, recall 100.0% of 211; corpus serde-rs/json</title>
+<text class="lang" x="22" y="705.0">ruby</text>
+<g><title>ruby imports: precision 99.6% of 239, recall 99.6% of 239 (raw 99.6% / 99.6%; 2 shapes without a verdict); corpus rack/rack</title>
 <text class="pr" x="120" y="698.5">Precision</text>
 <rect class="track" x="166" y="691" width="110" height="8" rx="2"/>
-<rect x="166" y="691" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="699">100.0%</text>
+<rect x="166" y="691" width="109.6" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="699">99.6%*</text>
 <text class="pr" x="120" y="710.5">Recall</text>
 <rect class="track" x="166" y="703" width="110" height="8" rx="2"/>
-<rect x="166" y="703" width="110.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="711">100.0%</text>
-<text class="n" x="324" y="699">n=211 imports</text>
-<text class="n" x="324" y="711">repos 1 · files 71</text>
+<rect x="166" y="703" width="109.6" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="711">99.6%*</text>
+<text class="n" x="324" y="699">n=239 imports</text>
+<text class="n" x="324" y="711">repos 1 · files 106</text>
 </g>
-<g><title>rust callee names: precision 99.6% of 7,865, recall 99.9% of 7,570 (raw 96.2% / 99.9%; 7 shapes without a verdict)</title>
+<g><title>ruby callee names: precision 99.9% of 979, recall 93.6% of 1,045 (raw 99.9% / 93.6%; 1 shapes without a verdict)</title>
 <text class="pr" x="426" y="698.5">Precision</text>
 <rect class="track" x="472" y="691" width="110" height="8" rx="2"/>
-<rect x="472" y="691" width="109.6" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="699">99.6%*</text>
+<rect x="472" y="691" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="699">99.9%</text>
 <text class="pr" x="426" y="710.5">Recall</text>
 <rect class="track" x="472" y="703" width="110" height="8" rx="2"/>
-<rect x="472" y="703" width="109.9" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="711">99.9%*</text>
-<text class="n" x="630" y="699">n=7,570 calls</text>
-<text class="n" x="630" y="711">functions 1,956</text>
+<rect x="472" y="703" width="103.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="711">93.6%*</text>
+<text class="n" x="630" y="699">n=1,045 calls</text>
+<text class="n" x="630" y="711">functions 349</text>
 </g>
-<g><title>rust call resolution: precision 93.8% of 694, recall 60.1% of 1,084; vs rust-analyzer 1.90.0; corpus import_graph</title>
-<text class="pr" x="732" y="698.5">Precision</text>
-<rect class="track" x="778" y="691" width="110" height="8" rx="2"/>
-<rect x="778" y="691" width="103.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="699">93.8%</text>
-<text class="pr" x="732" y="710.5">Recall</text>
-<rect class="track" x="778" y="703" width="110" height="8" rx="2"/>
-<rect x="778" y="703" width="66.1" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="711">60.1%</text>
-<text class="n" x="936" y="699">n=1,084 edges</text>
-<text class="n" x="936" y="711">vs rust-analyzer 1.90.0</text>
-</g>
-<g><title>rust hubs: 90% / 0.88 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="none" x="732" y="704.0">not measured</text>
+<g><title>ruby hubs: 100% / 0.99 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="698.5">overlap@10</text>
 <rect class="track" x="1090" y="691" width="110" height="8" rx="2"/>
-<rect x="1090" y="691" width="99.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="1205" y="699">90%</text>
+<rect x="1090" y="691" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="699">100%</text>
 <text class="pr" x="1038" y="710.5">Spearman</text>
 <rect class="track" x="1090" y="703" width="110" height="8" rx="2"/>
-<rect x="1090" y="703" width="96.6" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="1205" y="711">0.88</text>
+<rect x="1090" y="703" width="108.7" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="711">0.99</text>
 <text class="n" x="1240" y="699">repos=1</text>
 </g>
 <rect class="stripe" x="16" y="718" width="1212" height="34"/>
-<text class="lang" x="22" y="739.0">scala</text>
-<g><title>scala imports: precision 100.0% of 502, recall 98.3% of 529; corpus circe/circe</title>
+<text class="lang" x="22" y="739.0">rust</text>
+<g><title>rust imports: precision 100.0% of 153, recall 100.0% of 211; corpus serde-rs/json</title>
 <text class="pr" x="120" y="732.5">Precision</text>
 <rect class="track" x="166" y="725" width="110" height="8" rx="2"/>
 <rect x="166" y="725" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="281" y="733">100.0%</text>
 <text class="pr" x="120" y="744.5">Recall</text>
 <rect class="track" x="166" y="737" width="110" height="8" rx="2"/>
-<rect x="166" y="737" width="108.1" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="745">98.3%</text>
-<text class="n" x="324" y="733">n=529 imports</text>
-<text class="n" x="324" y="745">repos 1 · files 234</text>
+<rect x="166" y="737" width="110.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="745">100.0%</text>
+<text class="n" x="324" y="733">n=211 imports</text>
+<text class="n" x="324" y="745">repos 1 · files 71</text>
 </g>
-<g><title>scala callee names: precision 97.9% of 3,086, recall 89.3% of 3,384 (raw 97.9% / 89.3%; 8 shapes without a verdict)</title>
+<g><title>rust callee names: precision 99.6% of 7,865, recall 99.9% of 7,570 (raw 96.2% / 99.9%; 7 shapes without a verdict)</title>
 <text class="pr" x="426" y="732.5">Precision</text>
 <rect class="track" x="472" y="725" width="110" height="8" rx="2"/>
-<rect x="472" y="725" width="107.7" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="733">97.9%*</text>
+<rect x="472" y="725" width="109.6" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="733">99.6%*</text>
 <text class="pr" x="426" y="744.5">Recall</text>
 <rect class="track" x="472" y="737" width="110" height="8" rx="2"/>
-<rect x="472" y="737" width="98.2" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="745">89.3%*</text>
-<text class="n" x="630" y="733">n=3,384 calls</text>
-<text class="n" x="630" y="745">functions 541</text>
+<rect x="472" y="737" width="109.9" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="745">99.9%*</text>
+<text class="n" x="630" y="733">n=7,570 calls</text>
+<text class="n" x="630" y="745">functions 1,956</text>
 </g>
-<text class="none" x="732" y="738.0">not measured</text>
-<g><title>scala hubs: 100% / 0.98 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>rust call resolution: precision 93.8% of 694, recall 60.1% of 1,084; vs rust-analyzer 1.90.0; corpus import_graph</title>
+<text class="pr" x="732" y="732.5">Precision</text>
+<rect class="track" x="778" y="725" width="110" height="8" rx="2"/>
+<rect x="778" y="725" width="103.2" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="733">93.8%</text>
+<text class="pr" x="732" y="744.5">Recall</text>
+<rect class="track" x="778" y="737" width="110" height="8" rx="2"/>
+<rect x="778" y="737" width="66.1" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="745">60.1%</text>
+<text class="n" x="936" y="733">n=1,084 edges</text>
+<text class="n" x="936" y="745">vs rust-analyzer 1.90.0</text>
+</g>
+<g><title>rust hubs: 90% / 0.88 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="732.5">overlap@10</text>
 <rect class="track" x="1090" y="725" width="110" height="8" rx="2"/>
-<rect x="1090" y="725" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="1205" y="733">100%</text>
+<rect x="1090" y="725" width="99.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="733">90%</text>
 <text class="pr" x="1038" y="744.5">Spearman</text>
 <rect class="track" x="1090" y="737" width="110" height="8" rx="2"/>
-<rect x="1090" y="737" width="107.4" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="1205" y="745">0.98</text>
+<rect x="1090" y="737" width="96.6" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="745">0.88</text>
 <text class="n" x="1240" y="733">repos=1</text>
 </g>
-<text class="lang" x="22" y="773.0">shell</text>
-<g><title>shell imports: precision 100.0% of 56, recall 100.0% of 56; corpus Bash-it/bash-it, bats-core/bats-core; small n</title>
+<text class="lang" x="22" y="773.0">scala</text>
+<g><title>scala imports: precision 100.0% of 502, recall 98.3% of 529; corpus circe/circe</title>
 <text class="pr" x="120" y="766.5">Precision</text>
 <rect class="track" x="166" y="759" width="110" height="8" rx="2"/>
-<rect x="166" y="759" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<rect x="166" y="759" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="281" y="767">100.0%</text>
 <text class="pr" x="120" y="778.5">Recall</text>
 <rect class="track" x="166" y="771" width="110" height="8" rx="2"/>
-<rect x="166" y="771" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="281" y="779">100.0%</text>
-<text class="n" x="324" y="767">n=56 imports</text>
-<text class="n" x="324" y="779">repos 2 · files 669</text>
+<rect x="166" y="771" width="108.1" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="779">98.3%</text>
+<text class="n" x="324" y="767">n=529 imports</text>
+<text class="n" x="324" y="779">repos 1 · files 234</text>
 </g>
-<text class="none" x="426" y="772.0">not measured</text>
+<g><title>scala callee names: precision 97.9% of 3,086, recall 89.3% of 3,384 (raw 97.9% / 89.3%; 8 shapes without a verdict)</title>
+<text class="pr" x="426" y="766.5">Precision</text>
+<rect class="track" x="472" y="759" width="110" height="8" rx="2"/>
+<rect x="472" y="759" width="107.7" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="767">97.9%*</text>
+<text class="pr" x="426" y="778.5">Recall</text>
+<rect class="track" x="472" y="771" width="110" height="8" rx="2"/>
+<rect x="472" y="771" width="98.2" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="779">89.3%*</text>
+<text class="n" x="630" y="767">n=3,384 calls</text>
+<text class="n" x="630" y="779">functions 541</text>
+</g>
 <text class="none" x="732" y="772.0">not measured</text>
-<g><title>shell hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>
+<g><title>scala hubs: 100% / 0.98 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="766.5">overlap@10</text>
 <rect class="track" x="1090" y="759" width="110" height="8" rx="2"/>
-<rect x="1090" y="759" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<rect x="1090" y="759" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
 <text class="val" x="1205" y="767">100%</text>
 <text class="pr" x="1038" y="778.5">Spearman</text>
 <rect class="track" x="1090" y="771" width="110" height="8" rx="2"/>
-<rect x="1090" y="771" width="110.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="1205" y="779">1.00</text>
-<text class="n" x="1240" y="767">repos=2</text>
+<rect x="1090" y="771" width="107.4" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="779">0.98</text>
+<text class="n" x="1240" y="767">repos=1</text>
 </g>
 <rect class="stripe" x="16" y="786" width="1212" height="34"/>
-<text class="lang" x="22" y="807.0">solidity</text>
-<g><title>solidity imports: precision 100.0% of 810, recall 99.8% of 812 (raw 100.0% / 99.8%; 1 shapes without a verdict); corpus OpenZeppelin/openzeppelin-contracts</title>
+<text class="lang" x="22" y="807.0">shell</text>
+<g><title>shell imports: precision 100.0% of 56, recall 100.0% of 56; corpus Bash-it/bash-it, bats-core/bats-core; small n</title>
 <text class="pr" x="120" y="800.5">Precision</text>
 <rect class="track" x="166" y="793" width="110" height="8" rx="2"/>
-<rect x="166" y="793" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<rect x="166" y="793" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
 <text class="val" x="281" y="801">100.0%</text>
 <text class="pr" x="120" y="812.5">Recall</text>
 <rect class="track" x="166" y="805" width="110" height="8" rx="2"/>
-<rect x="166" y="805" width="109.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="813">99.8%*</text>
-<text class="n" x="324" y="801">n=812 imports</text>
-<text class="n" x="324" y="813">repos 1 · files 395</text>
+<rect x="166" y="805" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="281" y="813">100.0%</text>
+<text class="n" x="324" y="801">n=56 imports</text>
+<text class="n" x="324" y="813">repos 2 · files 669</text>
 </g>
-<g><title>solidity callee names: precision 64.6% of 226, recall 98.0% of 149 (raw 64.6% / 98.0%; 9 shapes without a verdict)</title>
-<text class="pr" x="426" y="800.5">Precision</text>
-<rect class="track" x="472" y="793" width="110" height="8" rx="2"/>
-<rect x="472" y="793" width="71.1" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="801">64.6%*</text>
-<text class="pr" x="426" y="812.5">Recall</text>
-<rect class="track" x="472" y="805" width="110" height="8" rx="2"/>
-<rect x="472" y="805" width="107.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="813">98.0%*</text>
-<text class="n" x="630" y="801">n=149 calls</text>
-<text class="n" x="630" y="813">functions 99</text>
-</g>
+<text class="none" x="426" y="806.0">not measured</text>
 <text class="none" x="732" y="806.0">not measured</text>
-<g><title>solidity hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>shell hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="800.5">overlap@10</text>
 <rect class="track" x="1090" y="793" width="110" height="8" rx="2"/>
-<rect x="1090" y="793" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<rect x="1090" y="793" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="1205" y="801">100%</text>
 <text class="pr" x="1038" y="812.5">Spearman</text>
 <rect class="track" x="1090" y="805" width="110" height="8" rx="2"/>
-<rect x="1090" y="805" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<rect x="1090" y="805" width="110.0" height="8" rx="2" fill="#eda100"/>
 <text class="val" x="1205" y="813">1.00</text>
-<text class="n" x="1240" y="801">repos=1</text>
+<text class="n" x="1240" y="801">repos=2</text>
 </g>
-<text class="lang" x="22" y="841.0">swift</text>
-<g><title>swift imports: precision 0.0% of 22, recall - of 0 (raw 0.0% / -; 1 shapes without a verdict); corpus apple/swift-argument-parser; small n</title>
+<text class="lang" x="22" y="841.0">solidity</text>
+<g><title>solidity imports: precision 100.0% of 810, recall 99.8% of 812 (raw 100.0% / 99.8%; 1 shapes without a verdict); corpus OpenZeppelin/openzeppelin-contracts</title>
 <text class="pr" x="120" y="834.5">Precision</text>
 <rect class="track" x="166" y="827" width="110" height="8" rx="2"/>
-<rect x="166" y="827" width="2.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="281" y="835">0.0%*</text>
+<rect x="166" y="827" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="835">100.0%</text>
 <text class="pr" x="120" y="846.5">Recall</text>
 <rect class="track" x="166" y="839" width="110" height="8" rx="2"/>
-<text class="val" x="281" y="847">-</text>
-<text class="n" x="324" y="835">n=0 imports</text>
-<text class="n" x="324" y="847">repos 1 · files 170</text>
+<rect x="166" y="839" width="109.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="847">99.8%*</text>
+<text class="n" x="324" y="835">n=812 imports</text>
+<text class="n" x="324" y="847">repos 1 · files 395</text>
 </g>
-<g><title>swift callee names: precision 99.0% of 305, recall 79.7% of 379 (raw 99.0% / 79.7%; 4 shapes without a verdict)</title>
+<g><title>solidity callee names: precision 64.6% of 226, recall 98.0% of 149 (raw 64.6% / 98.0%; 9 shapes without a verdict)</title>
 <text class="pr" x="426" y="834.5">Precision</text>
 <rect class="track" x="472" y="827" width="110" height="8" rx="2"/>
-<rect x="472" y="827" width="108.9" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="835">99.0%*</text>
+<rect x="472" y="827" width="71.1" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="835">64.6%*</text>
 <text class="pr" x="426" y="846.5">Recall</text>
 <rect class="track" x="472" y="839" width="110" height="8" rx="2"/>
-<rect x="472" y="839" width="87.7" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="847">79.7%*</text>
-<text class="n" x="630" y="835">n=379 calls</text>
-<text class="n" x="630" y="847">functions 132</text>
+<rect x="472" y="839" width="107.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="847">98.0%*</text>
+<text class="n" x="630" y="835">n=149 calls</text>
+<text class="n" x="630" y="847">functions 99</text>
 </g>
 <text class="none" x="732" y="840.0">not measured</text>
-<text class="none" x="1038" y="840.0">not measured</text>
+<g><title>solidity hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="834.5">overlap@10</text>
+<rect class="track" x="1090" y="827" width="110" height="8" rx="2"/>
+<rect x="1090" y="827" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="835">100%</text>
+<text class="pr" x="1038" y="846.5">Spearman</text>
+<rect class="track" x="1090" y="839" width="110" height="8" rx="2"/>
+<rect x="1090" y="839" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="847">1.00</text>
+<text class="n" x="1240" y="835">repos=1</text>
+</g>
 <rect class="stripe" x="16" y="854" width="1212" height="34"/>
-<text class="lang" x="22" y="875.0">tcl</text>
-<text class="none" x="120" y="874.0">not measured</text>
-<g><title>tcl callee names: precision 93.8% of 2,277, recall 71.2% of 2,231 (raw 69.8% / 71.2%; 13 shapes without a verdict)</title>
+<text class="lang" x="22" y="875.0">swift</text>
+<g><title>swift imports: precision 0.0% of 22, recall - of 0 (raw 0.0% / -; 1 shapes without a verdict); corpus apple/swift-argument-parser; small n</title>
+<text class="pr" x="120" y="868.5">Precision</text>
+<rect class="track" x="166" y="861" width="110" height="8" rx="2"/>
+<rect x="166" y="861" width="2.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="281" y="869">0.0%*</text>
+<text class="pr" x="120" y="880.5">Recall</text>
+<rect class="track" x="166" y="873" width="110" height="8" rx="2"/>
+<text class="val" x="281" y="881">-</text>
+<text class="n" x="324" y="869">n=0 imports</text>
+<text class="n" x="324" y="881">repos 1 · files 170</text>
+</g>
+<g><title>swift callee names: precision 99.0% of 305, recall 79.7% of 379 (raw 99.0% / 79.7%; 4 shapes without a verdict)</title>
 <text class="pr" x="426" y="868.5">Precision</text>
 <rect class="track" x="472" y="861" width="110" height="8" rx="2"/>
-<rect x="472" y="861" width="103.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="869">93.8%*</text>
+<rect x="472" y="861" width="108.9" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="869">99.0%*</text>
 <text class="pr" x="426" y="880.5">Recall</text>
 <rect class="track" x="472" y="873" width="110" height="8" rx="2"/>
-<rect x="472" y="873" width="78.3" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="881">71.2%</text>
-<text class="n" x="630" y="869">n=2,231 calls</text>
-<text class="n" x="630" y="881">functions 369</text>
+<rect x="472" y="873" width="87.7" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="881">79.7%*</text>
+<text class="n" x="630" y="869">n=379 calls</text>
+<text class="n" x="630" y="881">functions 132</text>
 </g>
 <text class="none" x="732" y="874.0">not measured</text>
 <text class="none" x="1038" y="874.0">not measured</text>
-<text class="lang" x="22" y="909.0">typescript</text>
-<g><title>typescript imports: precision 100.0% of 828, recall 100.0% of 870; corpus colinhacks/zod</title>
-<text class="pr" x="120" y="902.5">Precision</text>
-<rect class="track" x="166" y="895" width="110" height="8" rx="2"/>
-<rect x="166" y="895" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="903">100.0%</text>
-<text class="pr" x="120" y="914.5">Recall</text>
-<rect class="track" x="166" y="907" width="110" height="8" rx="2"/>
-<rect x="166" y="907" width="110.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="915">100.0%</text>
-<text class="n" x="324" y="903">n=870 imports</text>
-<text class="n" x="324" y="915">repos 1 · files 470</text>
-</g>
-<g><title>typescript callee names: precision 99.8% of 27,364, recall 99.1% of 27,556 (raw 99.8% / 99.1%; 15 shapes without a verdict)</title>
+<text class="lang" x="22" y="909.0">tcl</text>
+<text class="none" x="120" y="908.0">not measured</text>
+<g><title>tcl callee names: precision 93.8% of 2,277, recall 71.2% of 2,231 (raw 69.8% / 71.2%; 13 shapes without a verdict)</title>
 <text class="pr" x="426" y="902.5">Precision</text>
 <rect class="track" x="472" y="895" width="110" height="8" rx="2"/>
-<rect x="472" y="895" width="109.8" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="903">99.8%*</text>
+<rect x="472" y="895" width="103.2" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="903">93.8%*</text>
 <text class="pr" x="426" y="914.5">Recall</text>
 <rect class="track" x="472" y="907" width="110" height="8" rx="2"/>
-<rect x="472" y="907" width="109.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="915">99.1%*</text>
-<text class="n" x="630" y="903">n=27,556 calls</text>
-<text class="n" x="630" y="915">functions 8,473</text>
+<rect x="472" y="907" width="78.3" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="915">71.2%</text>
+<text class="n" x="630" y="903">n=2,231 calls</text>
+<text class="n" x="630" y="915">functions 369</text>
 </g>
-<g><title>typescript call resolution: precision 99.9% of 1,613, recall 60.6% of 2,661; vs tsc 6.0.2; corpus import_graph</title>
-<text class="pr" x="732" y="902.5">Precision</text>
-<rect class="track" x="778" y="895" width="110" height="8" rx="2"/>
-<rect x="778" y="895" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="903">99.9%</text>
-<text class="pr" x="732" y="914.5">Recall</text>
-<rect class="track" x="778" y="907" width="110" height="8" rx="2"/>
-<rect x="778" y="907" width="66.7" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="915">60.6%</text>
-<text class="n" x="936" y="903">n=2,661 edges</text>
-<text class="n" x="936" y="915">vs tsc 6.0.2</text>
-</g>
-<g><title>typescript hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
-<text class="pr" x="1038" y="902.5">overlap@10</text>
-<rect class="track" x="1090" y="895" width="110" height="8" rx="2"/>
-<rect x="1090" y="895" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="1205" y="903">100%</text>
-<text class="pr" x="1038" y="914.5">Spearman</text>
-<rect class="track" x="1090" y="907" width="110" height="8" rx="2"/>
-<rect x="1090" y="907" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="1205" y="915">1.00</text>
-<text class="n" x="1240" y="903">repos=1</text>
-</g>
+<text class="none" x="732" y="908.0">not measured</text>
+<text class="none" x="1038" y="908.0">not measured</text>
 <rect class="stripe" x="16" y="922" width="1212" height="34"/>
-<text class="lang" x="22" y="943.0">zig</text>
-<g><title>zig imports: precision 100.0% of 263, recall 100.0% of 272; corpus zigtools/zls</title>
+<text class="lang" x="22" y="943.0">typescript</text>
+<g><title>typescript imports: precision 100.0% of 828, recall 100.0% of 870; corpus colinhacks/zod</title>
 <text class="pr" x="120" y="936.5">Precision</text>
 <rect class="track" x="166" y="929" width="110" height="8" rx="2"/>
 <rect x="166" y="929" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
@@ -933,23 +911,34 @@
 <rect class="track" x="166" y="941" width="110" height="8" rx="2"/>
 <rect x="166" y="941" width="110.0" height="8" rx="2" fill="#eda100"/>
 <text class="val" x="281" y="949">100.0%</text>
-<text class="n" x="324" y="937">n=272 imports</text>
-<text class="n" x="324" y="949">repos 1 · files 91</text>
+<text class="n" x="324" y="937">n=870 imports</text>
+<text class="n" x="324" y="949">repos 1 · files 470</text>
 </g>
-<g><title>zig callee names: precision 99.9% of 20,931, recall 99.6% of 20,686 (raw 98.4% / 99.6%; 9 shapes without a verdict)</title>
+<g><title>typescript callee names: precision 99.8% of 27,364, recall 99.1% of 27,556 (raw 99.8% / 99.1%; 15 shapes without a verdict)</title>
 <text class="pr" x="426" y="936.5">Precision</text>
 <rect class="track" x="472" y="929" width="110" height="8" rx="2"/>
-<rect x="472" y="929" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="937">99.9%*</text>
+<rect x="472" y="929" width="109.8" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="937">99.8%*</text>
 <text class="pr" x="426" y="948.5">Recall</text>
 <rect class="track" x="472" y="941" width="110" height="8" rx="2"/>
-<rect x="472" y="941" width="109.6" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="949">99.6%</text>
-<text class="n" x="630" y="937">n=20,686 calls</text>
-<text class="n" x="630" y="949">functions 3,539</text>
+<rect x="472" y="941" width="109.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="949">99.1%*</text>
+<text class="n" x="630" y="937">n=27,556 calls</text>
+<text class="n" x="630" y="949">functions 8,473</text>
 </g>
-<text class="none" x="732" y="942.0">not measured</text>
-<g><title>zig hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>typescript call resolution: precision 99.9% of 1,613, recall 60.6% of 2,661; vs tsc 6.0.2; corpus import_graph</title>
+<text class="pr" x="732" y="936.5">Precision</text>
+<rect class="track" x="778" y="929" width="110" height="8" rx="2"/>
+<rect x="778" y="929" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="937">99.9%</text>
+<text class="pr" x="732" y="948.5">Recall</text>
+<rect class="track" x="778" y="941" width="110" height="8" rx="2"/>
+<rect x="778" y="941" width="66.7" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="949">60.6%</text>
+<text class="n" x="936" y="937">n=2,661 edges</text>
+<text class="n" x="936" y="949">vs tsc 6.0.2</text>
+</g>
+<g><title>typescript hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="936.5">overlap@10</text>
 <rect class="track" x="1090" y="929" width="110" height="8" rx="2"/>
 <rect x="1090" y="929" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
@@ -960,9 +949,46 @@
 <text class="val" x="1205" y="949">1.00</text>
 <text class="n" x="1240" y="937">repos=1</text>
 </g>
-<text class="panel-title" x="16" y="980">Not measured in any panel (40 of 65)</text>
-<text class="none" x="16" y="996">abap, acs, ada, agc_assembly, assembly, batch, blp, bms, cobol, crystal, csd, css, db2_sql, dockerfile, easytrieve, embedded_python, fortran, fsharp, glsl, groovy, hlasm, hlo, html, jcl, livecode, m4, makefile,</text>
-<text class="none" x="16" y="1012">matlab, mlir, nix, pli, postgresql, proto, rexx, scheme, sqlite, td, yacc, yaml, zscript</text>
-<text class="note" x="16" y="1040">* a disagreement shape behind the number has no verdict yet (docs/self_scan/graph_comparison_ledger.json): not a claim. n counts what recall is out of (import statements, calls, reference edges). Hubs: overlap of the top-10 PageRank files, and Spearman over their union (bar clamped at 0).</text>
-<text class="note" x="16" y="1055">Call resolution is scored against the reference tool, not ground truth. Generated by tests/tools/graph_coverage_chart.py.</text>
+<text class="lang" x="22" y="977.0">zig</text>
+<g><title>zig imports: precision 100.0% of 263, recall 100.0% of 272; corpus zigtools/zls</title>
+<text class="pr" x="120" y="970.5">Precision</text>
+<rect class="track" x="166" y="963" width="110" height="8" rx="2"/>
+<rect x="166" y="963" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="971">100.0%</text>
+<text class="pr" x="120" y="982.5">Recall</text>
+<rect class="track" x="166" y="975" width="110" height="8" rx="2"/>
+<rect x="166" y="975" width="110.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="983">100.0%</text>
+<text class="n" x="324" y="971">n=272 imports</text>
+<text class="n" x="324" y="983">repos 1 · files 91</text>
+</g>
+<g><title>zig callee names: precision 99.9% of 20,931, recall 99.6% of 20,686 (raw 98.4% / 99.6%; 9 shapes without a verdict)</title>
+<text class="pr" x="426" y="970.5">Precision</text>
+<rect class="track" x="472" y="963" width="110" height="8" rx="2"/>
+<rect x="472" y="963" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="971">99.9%*</text>
+<text class="pr" x="426" y="982.5">Recall</text>
+<rect class="track" x="472" y="975" width="110" height="8" rx="2"/>
+<rect x="472" y="975" width="109.6" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="983">99.6%</text>
+<text class="n" x="630" y="971">n=20,686 calls</text>
+<text class="n" x="630" y="983">functions 3,539</text>
+</g>
+<text class="none" x="732" y="976.0">not measured</text>
+<g><title>zig hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="970.5">overlap@10</text>
+<rect class="track" x="1090" y="963" width="110" height="8" rx="2"/>
+<rect x="1090" y="963" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="971">100%</text>
+<text class="pr" x="1038" y="982.5">Spearman</text>
+<rect class="track" x="1090" y="975" width="110" height="8" rx="2"/>
+<rect x="1090" y="975" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="983">1.00</text>
+<text class="n" x="1240" y="971">repos=1</text>
+</g>
+<text class="panel-title" x="16" y="1014">Not measured in any panel (39 of 65)</text>
+<text class="none" x="16" y="1030">abap, acs, ada, agc_assembly, assembly, batch, blp, bms, cobol, crystal, csd, css, db2_sql, dockerfile, easytrieve, embedded_python, fortran, fsharp, glsl, hlasm, hlo, html, jcl, livecode, m4, makefile, matlab, mlir,</text>
+<text class="none" x="16" y="1046">nix, pli, postgresql, proto, rexx, scheme, sqlite, td, yacc, yaml, zscript</text>
+<text class="note" x="16" y="1074">* a disagreement shape behind the number has no verdict yet (docs/self_scan/graph_comparison_ledger.json): not a claim. n counts what recall is out of (import statements, calls, reference edges). Hubs: overlap of the top-10 PageRank files, and Spearman over their union (bar clamped at 0).</text>
+<text class="note" x="16" y="1089">Call resolution is scored against the reference tool, not ground truth. Generated by tests/tools/graph_coverage_chart.py.</text>
 </svg>

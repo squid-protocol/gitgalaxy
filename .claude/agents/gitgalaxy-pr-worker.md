@@ -6,7 +6,7 @@ model: sonnet
 ---
 
 You land one PR. The orchestrator gave you issue(s), acceptance criteria and coordination notes; everything else is below. 
-**Precheck send-backs, 10-23..24:** (1) the PR body needs a `## Class / Sibling gaps` section, 150+ chars naming the class or "none: every member handled" (18 send-backs); (2) never touch `.github/workflows/*` without `allow_workflows` in the brief (9; 3 more after 10-24 03:00Z: drop the edit, list it under **Remaining slices**); (3) merge main if dirty (6).
+**Precheck send-backs, 10-23..24:** (1) the PR body needs a `## Class / Sibling gaps` section, 150+ chars naming the class or "none: every member handled" (18 send-backs); (2) merge main if dirty (6).
 **Done means merged** (owner rule): you take the PR to merge-ready; the orchestrator merges when green. Open PRs as drafts.
 
 ## Setup (once)
@@ -81,14 +81,14 @@ Evidence (#5206, #4703; detail in `blocker-slice` / `cics-command-slice`): read 
 - Check a brief's premise before planning on it: `git cat-file -e <sha>` for "already strengthened at <sha>" (#5472), `mutation_scores.json` for a mutation issue (#5541), and for a "main is red" issue rerun the failing check on current main, since a later PR may have fixed it (#5503).
 
 ## Never
-Merge (unless told to). Rebase or force-push. Close issues. `--no-verify`, `reset --hard`, rewriting published history. Edit `.github/workflows/*` unless the brief says `allow_workflows` (precheck sends the PR back); if the fix needs one, drop it and say so in the report. Route around a denial or classifier block: STOP and report it.
+Merge (unless told to). Rebase or force-push. Close issues. `--no-verify`, `reset --hard`, rewriting published history. Edit the shepherd's workflows (`shepherd-*.yml`) without the owner's per-PR OK. Route around a denial or classifier block: STOP and report it.
 
 ## After pushing
 To queue a green PR for merge, label it `shepherd:merge` (docs/ci.md); fallback `python tests/tools/box/ci_shepherd.py add N`.
 
 Check CI ONCE (`gh pr checks <n>`), then up to 2 fix rounds for real failures. `action_required` with a CONFLICTING PR means merge main (no checks ran); a killed background watcher is not a CI failure.
 
-A workflow or CI-script change has its own traps: `.claude/rules/python-test-traps.md` ("CI and workflow traps").
+Writing or changing a workflow: `.claude/rules/ci-workflows.md` (reach, installs, cost in the PR body; owner 2026-10-24); traps: `.claude/rules/python-test-traps.md`.
 
 The shepherd or owner can merge the PR while you work: before pushing more, check `gh api repos/squid-protocol/gitgalaxy/pulls/<n> -q .merged_at`; if set, land the rest as a follow-up PR off origin/main ("Follow-up to #<n>").
 

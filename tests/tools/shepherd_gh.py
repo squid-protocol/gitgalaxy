@@ -391,21 +391,7 @@ def head_pushed_at(api: Api, sha: str) -> str | None:
 
 # #6534: the per-PR reads of gather() in one GraphQL query (its own points quota, not REST's 5,000/h). Every list is
 # fetched whole or not used: a connection longer than what came back sends the PR down the REST path.
-PR_FIELDS = """
-      number state merged isDraft body mergeStateStatus headRefOid headRefName baseRefName
-      headRepository { nameWithOwner }
-      autoMergeRequest { enabledAt }
-      labels(first: 100) { totalCount nodes { name } }
-      comments(last: 100) { totalCount nodes { author { __typename login } body } }
-      timelineItems(itemTypes: [LABELED_EVENT], last: 100) {
-        filteredCount nodes { ... on LabeledEvent { actor { __typename login } createdAt label { name } } }
-      }
-      commits(last: 1) { nodes { commit { oid
-        status { contexts { context state } }
-        @@SUITES@@
-      } } }
-"""
-PR_FIELDS = PR_FIELDS.replace("@@SUITES@@", pr_check.SUITES_SELECTION)
+PR_FIELDS = pr_check.PR_FIELDS
 PR_QUERY = (
     "query($owner: String!, $name: String!, $n: Int!) {\n  rateLimit { cost }\n  repository(owner: $owner, name: $name) {\n"
     "    pullRequest(number: $n) {" + PR_FIELDS + "    }\n  }\n}"

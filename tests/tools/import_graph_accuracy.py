@@ -134,6 +134,13 @@ RESOLUTION RULES (the language's, never the engine's)
               `a.b.*` followed by another import). A script file with no class declares its file stem.
               A Java class is found by Java's rule (a/b/C.java); java.* / groovy.* are external.
 
+  fortran     by MODULE NAME, never by path: `use m`, `use m, only: x` and `use :: m` are the files
+              declaring `module m` (case-insensitive; a name two files declare is both). `use,
+              intrinsic :: m` is the standard's module, no edge. `module procedure/subroutine/
+              function` are not module declarations; `submodule (p) s` declares no usable name.
+              `include 'f'` / `#include "f"` are the file by path suffix. Comments and strings
+              blanked first (`!` to end of line; fixed-form `c`/`*` in column 1).
+
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
   ERROR node spans lines 85-127, taking three COPYs with it) -- it found 64 of
@@ -211,6 +218,7 @@ LANGS = (
     "csharp",
     "swift",
     "groovy",
+    "fortran",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -1576,6 +1584,55 @@ def groovy_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_FT_EXTS = (".f90", ".f95", ".f03", ".f08", ".f18", ".f", ".for", ".f77", ".ftn", ".fpp")
+_FT_FIXED = (".f", ".for", ".f77")
+_FT_MODULE = re.compile(r"^[ \t]*module[ \t]+(\w+)[ \t]*$", re.MULTILINE | re.IGNORECASE)
+_FT_USE = re.compile(
+    r"^[ \t]*use(?:[ \t]*,[ \t]*(non_)?(intrinsic)[ \t]*::|[ \t]*::|[ \t]+)[ \t]*(\w+)",
+    re.MULTILINE | re.IGNORECASE,
+)
+_FT_INCLUDE = re.compile(r"^[ \t]*#?[ \t]*include[ \t]*(?:\"([^\"\n]+)\"|'([^'\n]+)')", re.MULTILINE | re.IGNORECASE)
+
+
+def _ft_mask(text: str, fixed: bool) -> str:
+    """Comments blanked (newlines kept): `!` to end of line, and fixed-form `c` / `*` in column 1."""
+    if fixed:
+        text = re.sub(r"^[cC*][^\n]*", lambda m: " " * len(m.group(0)), text, flags=re.MULTILINE)
+    return re.sub(r"![^\n]*", lambda m: " " * len(m.group(0)), text)
+
+
+def _ft_index(group: Group) -> dict[str, set[str]]:
+    """lower-case module name -> files declaring it, over every Fortran source file, parsed once."""
+    if "ft" in group._cache:
+        return group._cache["ft"]
+    by_name: dict[str, set[str]] = collections.defaultdict(set)
+    for f in sorted(group.files):
+        if not f.lower().endswith(_FT_EXTS) or group.root is None:
+            continue
+        try:
+            text = _ft_mask(read_source(group.root / f).text, f.lower().endswith(_FT_FIXED))
+        except OSError:
+            continue
+        for m in _FT_MODULE.finditer(text):
+            by_name[m.group(1).lower()].add(f)
+    group._cache["ft"] = by_name
+    return by_name
+
+
+def fortran_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _ft_index(group)
+    text = _ft_mask(decode_bytes(src), rel.lower().endswith(_FT_FIXED))
+    out: list[tuple[int, set[str]]] = []
+    for m in _FT_USE.finditer(text):
+        # `use, intrinsic :: m` is the standard's module, not a repo file (`non_intrinsic` is)
+        out.append((m.start(), set() if m.group(2) and not m.group(1) else set(index.get(m.group(3).lower(), ()))))
+    here = posixpath.dirname(rel)
+    for m in _FT_INCLUDE.finditer(text):
+        spec = m.group(1) or m.group(2)
+        out.append((m.start(), group.exact(posixpath.join(here, spec)) or group.suffix(spec)))
+    return [t for _, t in sorted(out, key=lambda x: x[0])]
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -1600,6 +1657,7 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "csharp": csharp_imports,
     "swift": swift_imports,
     "groovy": groovy_imports,
+    "fortran": fortran_imports,
 }
 
 

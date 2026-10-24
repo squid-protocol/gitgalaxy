@@ -28,6 +28,7 @@
     {"repo": "OpenZeppelin/openzeppelin-contracts", "commit": "4858ab13a5ad897f59753028f6315f9d487c4322", "language": "solidity"},
     {"repo": "JamesNK/Newtonsoft.Json", "commit": "52fa3aef1f2cadcd3a3f874251eddc98d3efbbaa", "language": "csharp"},
     {"repo": "apple/swift-argument-parser", "commit": "bd10e57565e21be23b144f3770af7f2bfb068ecf", "language": "swift"},
-    {"repo": "spockframework/spock", "commit": "ce7e8afa895210d0b06103223f10d963a83f7a08", "language": "groovy"}
+    {"repo": "spockframework/spock", "commit": "ce7e8afa895210d0b06103223f10d963a83f7a08", "language": "groovy"},
+    {"repo": "fortran-lang/fpm", "commit": "68971cf22f2fba2bf59f87389d47aedfda28b5eb", "language": "fortran"}
   ]
 }

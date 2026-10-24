@@ -253,7 +253,9 @@ def test_burned_generated_inputs_need_no_class_1_or_3_cause():
         cpy = gen.get("copybook") or spec.get("copybook", "")
         if base is None or not (base / cpy).is_file():
             continue
-        fields = common.layout_fields(base, cpy, gen.get("record") or spec.get("record") or None)
+        fields = common.layout_fields(
+            base, cpy, gen.get("record") or spec.get("record") or None, copy_dirs=hr.copy_dirs(base, case, cpy)
+        )
         names = [f["name"] for f in fields if not f["name"].startswith("FILLER")]
         dup = sorted({n for n in names if names.count(n) > 1})
         assert not dup, f"{name}/{dd}: qualified names needed for {dup}: add a cause to record_cause / FIX_LAYOUT"
@@ -306,6 +308,46 @@ def test_untranslated_programs_land_under_one_cause_each(tmp_path):
     assert rep["coverage"]["programs"] == 9
 
 
+def test_every_copy_refusal_kind_is_an_unresolved_link_naming_the_member(tmp_path):
+    """#4493 class 4: CopyNotFound, CopyAmbiguous and CopyUnresolved (#4468) all state as one fix naming the member;
+    a refusal that is no COPY problem stays `refused`."""
+    cases, corpora, cru, det_baseline, rows = fixture(tmp_path)
+    errs = {
+        "NF": "CopyNotFound: a/NF.cbl:3: COPY NFREC: not found",
+        "AMB": "CopyAmbiguous: a/AMB.cbl:3: COPY AMBREC: found in lib1, lib2",
+        "UNR": "CopyUnresolved: a/UNR.cbl: COPY UNRREC: the engine resolved several files: lib1/UNRREC.cpy, lib2/UNRREC.cpy",
+        "UNR2": "CopyUnresolved: a/UNR2.cbl: COPY NONEREC: the engine resolved nothing; the estate holds x/NONEREC.cpy",
+        "EXPR": "ExprError: a/EXPR.cbl:9: bad",
+    }
+    for n, err in errs.items():
+        tpb.write(corpora / "estate" / "a" / f"{n}.cbl", tpb.CICS)
+        rows[("estate", f"a/{n}.cbl")] = {"program": f"a/{n}.cbl", "error": err}
+    res = burned(pb.proof_blockers(rows, [corpora], cases_dir=cases, crucible_dir=cru, det_baseline=det_baseline))
+    rep = hr.build(res, "x", cases)
+    by = {b["cause"]: b for b in rep["untranslated"]}
+    assert [Path(p).stem for p in by["unresolved link"]["programs"]] == ["AMB", "NF", "UNR", "UNR2"]
+    assert [Path(p).stem for p in by["refused"]["programs"]] == ["EXPR"]
+    items = " | ".join(by["unresolved link"]["items"])
+    assert (
+        "COPY UNRREC: the engine resolved several files" in items
+        and "[COPY NONEREC: the engine resolved nothing" in items
+    )
+    assert "COPY EXPR" not in " | ".join(by["refused"]["items"]) and "[COPY" not in " | ".join(by["refused"]["items"])
+    listed = [p for b in rep["untranslated"] for p in b["programs"]]
+    assert len(listed) == len(set(listed))
+
+
+def test_untranslated_row_carries_the_error_only_for_a_copy_refusal(tmp_path):
+    cases, corpora, cru, det_baseline, rows = fixture(tmp_path)
+    for n in ("U", "E"):
+        tpb.write(corpora / "estate" / "a" / f"{n}.cbl", tpb.CICS)
+    rows[("estate", "a/U.cbl")] = {"program": "a/U.cbl", "error": "CopyUnresolved: a/U.cbl: COPY X: gap"}
+    rows[("estate", "a/E.cbl")] = {"program": "a/E.cbl", "error": "ExprError: a/E.cbl:9: bad"}
+    res = pb.proof_blockers(rows, [corpora], cases_dir=cases, crucible_dir=cru, det_baseline=det_baseline)
+    by = {Path(p["program"]).stem: p for p in res["untranslated"]}
+    assert "COPY X" in by["U"]["error"] and "error" not in by["E"]
+
+
 def test_untranslated_key_only_when_something_is_refused(tmp_path):
     cases, *rest = fixture(tmp_path)
     res = proof(cases, *rest)
@@ -317,3 +359,12 @@ def test_untranslated_key_only_when_something_is_refused(tmp_path):
         {"corpus": "estate", "program": "a/N.cbl", "burned": False, "classes": ["missing copybook X"]}
     ]
     assert "untranslated" not in hr.build(res, "x", cases)  # a non-burned program is never named
+
+
+def test_copy_inside_a_record_resolves_in_the_cases_copy_dirs(tmp_path):
+    """#5233: the generator finds a nested COPY in the case's `copy_dirs`; the report must not call it unresolved."""
+    corpora, case = layout_case(tmp_path, {"top": cpy("01 REC.", "   COPY INNER.", "   05 A PIC X.")})
+    assert hr.record_cause([corpora], case, "TOP") == "unresolved copy"
+    tpb.write(corpora / "estate" / "cpy" / "INNER.cpy", cpy("   05 B PIC X(2)."))
+    case["copy_dirs"] = ["cpy"]
+    assert hr.record_cause([corpora], case, "TOP") == ""

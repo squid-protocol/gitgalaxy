@@ -3383,7 +3383,6 @@
       ],
       "python/fastapi/tests/test_http_connection_injection.py": [
         "fcall:python/fastapi/fastapi/applications.py",
-        "fcall:python/fastapi/fastapi/datastructures.py",
         "fcall:python/fastapi/fastapi/param_functions.py",
         "import:python/fastapi/fastapi/__init__.py",
         "import:python/fastapi/fastapi/requests.py",
@@ -4125,7 +4124,6 @@
       ],
       "python/fastapi/tests/test_validation_error_context.py": [
         "fcall:python/fastapi/fastapi/applications.py",
-        "fcall:python/fastapi/fastapi/datastructures.py",
         "import:python/fastapi/fastapi/__init__.py",
         "import:python/fastapi/fastapi/exceptions.py",
         "import:python/fastapi/fastapi/testclient.py"
@@ -4149,7 +4147,6 @@
       ],
       "python/fastapi/tests/test_ws_dependencies.py": [
         "fcall:python/fastapi/fastapi/applications.py",
-        "fcall:python/fastapi/fastapi/datastructures.py",
         "fcall:python/fastapi/fastapi/param_functions.py",
         "fcall:python/fastapi/fastapi/routing.py",
         "import:python/fastapi/fastapi/__init__.py",
@@ -4157,7 +4154,6 @@
       ],
       "python/fastapi/tests/test_ws_router.py": [
         "fcall:python/fastapi/fastapi/applications.py",
-        "fcall:python/fastapi/fastapi/datastructures.py",
         "fcall:python/fastapi/fastapi/param_functions.py",
         "fcall:python/fastapi/fastapi/routing.py",
         "import:python/fastapi/fastapi/__init__.py",

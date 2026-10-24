@@ -202,6 +202,12 @@ def redefines_choices(items: list[dict[str, Any]], record: str = "") -> list[str
     return out
 
 
+def copy_dirs(base: Path, case: dict[str, Any], cpy: str) -> list[Path]:
+    """Where a COPY inside the record resolves, as the generator reads it (#5233): the file's own directory, the case's
+    `copy_dirs`, then the corpus."""
+    return [(base / cpy).parent, *(base / d for d in case.get("copy_dirs", [])), base]
+
+
 def record_limit(roots: list[Path], case: dict[str, Any], dataset: str) -> tuple[str, str]:
     """(cause, symbols) of one generated record's layout limit: a key of FIX_LAYOUT or "", and the names involved."""
     gen = case["datasets"][dataset].get("generate") or {}
@@ -214,7 +220,7 @@ def record_limit(roots: list[Path], case: dict[str, Any], dataset: str) -> tuple
 
     record = gen.get("record") or case["datasets"][dataset].get("record") or None
     try:
-        common.layout_fields(base, cpy, record)
+        common.layout_fields(base, cpy, record, copy_dirs=copy_dirs(base, case, cpy))
     except common.LayoutError as e:
         return ("no layout" if "no record" in str(e) else "unresolved copy"), ""
     from gitgalaxy.core.source_text import read_source
@@ -228,8 +234,8 @@ def record_limit(roots: list[Path], case: dict[str, Any], dataset: str) -> tuple
         import cobol_answer_key as ak
 
         path = base / cpy
-        lines = common._expanded_lines(path, [path.parent, base], [])
-        items = [it for it in ak._data_items(ak.Source(path, list(enumerate(lines, 1))))]
+        lines = common._expanded_lines(path, copy_dirs(base, case, cpy), [])
+        items = list(ak._data_items(ak.Source(path, list(enumerate(lines, 1)))))
         if chosen := redefines_choices(items, record or ""):
             return "redefines", "; ".join(chosen)
     return "", ""
@@ -281,7 +287,7 @@ def input_blockers(
     return sorted(out, key=lambda b: (-b["tests_held"], b["cause"]))
 
 
-LINK_FIX = "Connect the unresolved COPY member(s) so the programs translate whole: {names}"
+LINK_FIX = "Connect the unresolved or ambiguous COPY member(s) so the programs translate whole: {names}"
 STUB_FIX = "Model or stub the runtime service the translator leaves a hole for: {names}"
 
 
@@ -289,13 +295,27 @@ def untranslated_cause(klass: str) -> str:
     """The #4493 blocker class of one translation gap class (`cics_census.gap_classes`): `unresolved link` (class 4:
     a COPY member the engine did not connect), `no stub` (class 5: a CICS / Db2 / IMS service nothing models),
     `refused` (the translator refuses the construct by name) or `hole` (an unmodelled statement)."""
-    if klass.startswith("missing copybook"):
+    if klass.startswith(("missing copybook", "refused: CopyUnresolved")):  # CopyUnresolved: #4468
         return "unresolved link"
     if klass.startswith("refused:"):
         return "refused"
     if klass.startswith(("EXEC CICS", "EXEC SQL", "EXEC DLI", "CALL CBLTDLI")):
         return "no stub"
     return "hole"
+
+
+_COPY_NAME = re.compile(r"\bCOPY\s+([A-Z0-9@#$_-]+)", re.I)
+
+
+def unresolved_detail(p: dict[str, Any]) -> str:
+    """` [COPY NAME: why]` for a program refused over a COPY member (the gap class of a CopyUnresolved refusal drops
+    the name), from the survey row's error; empty when the row carries none."""
+    err = p.get("error") or ""
+    m = _COPY_NAME.search(err)
+    if not err.startswith("Copy") or not m:
+        return ""
+    why = err.split(f"COPY {m.group(1)}", 1)[-1].lstrip(": ").strip()
+    return f" [COPY {m.group(1).upper()}{': ' + clip(why, 120) if why else ''}]"
 
 
 def untranslated_blockers(res: dict[str, Any]) -> list[dict[str, Any]]:
@@ -311,7 +331,7 @@ def untranslated_blockers(res: dict[str, Any]) -> list[dict[str, Any]]:
         cause = untranslated_cause(p["classes"][0])
         b = by.setdefault(cause, {"programs": set(), "items": set()})
         b["programs"].add(p["program"])
-        b["items"].add(f"{p['program']}: {'; '.join(p['classes'])}")
+        b["items"].add(f"{p['program']}: {'; '.join(p['classes'])}{unresolved_detail(p)}")
     out = []
     for cause, b in by.items():
         names = sorted(b["programs"])

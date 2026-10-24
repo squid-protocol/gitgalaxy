@@ -435,6 +435,7 @@ public class CicsTask {
 
     private String link(String program, Object commarea, int length, byte[] area, Channel linkChannel) {
         linkAreaBack = false;
+        boolean abendedHere = false;
         String resp = "NORMAL";
         Integer resp2 = null;
         int len = commarea == null ? 0 : length;
@@ -449,6 +450,7 @@ public class CicsTask {
             if (planned != null) {
                 resp = respName(planned[0]);
                 resp2 = planned[1];
+                abendedHere = root().ended || root().unwoundTo != null;  // #6271 (X70): `LINK PROGRAM 1 -1 0 ABCODE`
             }
         }
         transferResp2 = resp2 == null ? 0 : resp2;  // #4986: EIBRESP2 is the event's, a planned fault's too
@@ -458,7 +460,7 @@ public class CicsTask {
             events.get(events.size() - 1).put("area", java.util.Base64.getEncoder().encodeToString(
                     java.util.Arrays.copyOf(area, Math.max(0, Math.min(len, area.length)))));
         }
-        if (!"NORMAL".equals(resp)) {
+        if (!"NORMAL".equals(resp) || abendedHere) {  // a planned abend: the task is at the exit or gone; the callee never runs
             return resp;
         }
         CicsTask callee = new CicsTask(this, level + 1, program, commarea, len, commarea);
@@ -2051,9 +2053,12 @@ public class CicsTask {
      *  HOSTLENGTH / PATHLENGTH / QUERYSTRLEN values (null: the option is not given) and the caps the areas' sizes (the
      *  length options are read here, written by the caller to the piece's length). INVREQ 28 (no "scheme://", an empty
      *  scheme or host, a port that is not 1-5 digits or above 65535: ASSUMED), INVREQ 65 (a "%" not followed by two of
-     *  0-9 A-F). Refused: a scheme other than HTTP / HTTPS, a user-info part, a fragment, an IPv6 host, an empty port or
-     *  port 0, a lowercase hex digit in an escape, a URLLENGTH not above zero, a LENGERR (host / path / query longer than
-     *  its length), a length past its area, a PATH or QUERYSTRING asked for when the URL has none, two conditions. */
+     *  0-9 A-F), LENGERR 22 (RESP2 29 host, 30 path, 8 query string longer than its length; the areas and lengths are
+     *  left alone: ASSUMED, IBM says the data is truncated but not what the length then holds). An IPv6 host is written
+     *  in brackets and returned without them. Refused: a scheme other than HTTP / HTTPS, a user-info part, a fragment, an
+     *  IPv6 host that is not [hex:colons] or [hex:colons]:port, an empty port or port 0, a lowercase hex digit in an
+     *  escape, a URLLENGTH not above zero, a length past its area, a PATH or QUERYSTRING asked for when the URL has none,
+     *  two conditions (INVREQ and LENGERR, or two pieces too long). */
     public WebParsed webParse(String url, int urlLength, int schemeCap, Integer hostLength, int hostCap,
                               Integer pathLength, int pathCap, Integer queryLength, int queryCap) {
         if (urlLength <= 0 || urlLength > url.length()) {
@@ -2100,13 +2105,29 @@ public class CicsTask {
                 }
             }
             String auth = rest.substring(0, e);
-            if (auth.indexOf('@') >= 0 || auth.indexOf('[') >= 0 || auth.indexOf(']') >= 0) {
-                throw refused("WEB PARSE URL user-info or IPv6 host");
+            if (auth.indexOf('@') >= 0) {
+                throw refused("WEB PARSE URL user-info");
             }
-            int colon = auth.lastIndexOf(':');
-            host = colon < 0 ? auth : auth.substring(0, colon);
-            if (colon >= 0) {
-                String ps = auth.substring(colon + 1);
+            String ps = null;
+            if (auth.startsWith("[")) {
+                int close = auth.indexOf(']');
+                boolean shaped = close >= 2 && (close + 1 == auth.length() || auth.charAt(close + 1) == ':')
+                        && auth.indexOf('[', 1) < 0 && auth.indexOf(']', close + 1) < 0
+                        && auth.substring(1, close).chars().allMatch(c -> webHexAny((char) c) || c == ':' || c == '.');
+                if (!shaped) {
+                    throw refused("WEB PARSE URL IPv6 host that is not [hex:colons] or [hex:colons]:port");
+                }
+                host = auth.substring(1, close);
+                ps = close + 1 == auth.length() ? null : auth.substring(close + 2);
+            } else {
+                if (auth.indexOf('[') >= 0 || auth.indexOf(']') >= 0) {
+                    throw refused("WEB PARSE URL IPv6 host that is not [hex:colons] or [hex:colons]:port");
+                }
+                int colon = auth.lastIndexOf(':');
+                host = colon < 0 ? auth : auth.substring(0, colon);
+                ps = colon < 0 ? null : auth.substring(colon + 1);
+            }
+            if (ps != null) {
                 if (ps.isEmpty()) {
                     throw refused("WEB PARSE URL empty port");
                 }
@@ -2126,21 +2147,23 @@ public class CicsTask {
             path = q < 0 ? tail : tail.substring(0, q);
             query = q < 0 ? "" : tail.substring(q + 1);
         }
-        if (bad28 && bad65) {
+        boolean hostLong = hostLength != null && host.length() > hostLength;
+        boolean pathLong = pathLength != null && path.length() > pathLength;
+        boolean queryLong = queryLength != null && query.length() > queryLength;
+        if ((bad28 ? 1 : 0) + (bad65 ? 1 : 0) + (hostLong ? 1 : 0) + (pathLong ? 1 : 0) + (queryLong ? 1 : 0) > 1) {
             throw refused("WEB PARSE URL with more than one condition at once");
         }
         if (bad28 || bad65) {
             return new WebParsed(16, bad28 ? 28 : 65, null, null, -1, null, null);
-        }
-        if ((hostLength != null && host.length() > hostLength) || (pathLength != null && path.length() > pathLength)
-                || (queryLength != null && query.length() > queryLength)) {
-            throw refused("WEB PARSE URL piece longer than its length");
         }
         if (schemeCap > 0 && scheme.length() > schemeCap) {
             throw refused("WEB PARSE URL length beyond its area");
         }
         if ((pathLength != null && path.isEmpty()) || (queryLength != null && query.isEmpty())) {
             throw refused("WEB PARSE URL PATH or QUERYSTRING the URL has none of");
+        }
+        if (hostLong || pathLong || queryLong) {
+            return new WebParsed(22, hostLong ? 29 : pathLong ? 30 : 8, null, null, -1, null, null);
         }
         String padded = schemeCap > 0 ? String.format(java.util.Locale.ROOT, "%-" + schemeCap + "s", scheme) : scheme;
         return new WebParsed(0, 0, padded, host, port, path, query);

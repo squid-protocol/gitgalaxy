@@ -3100,7 +3100,7 @@
       "python/numpy/crackfortran.py": 1.58,
       "python/numpy/cversions.txt": 0.0,
       "python/numpy/func2subr.py": 1.125,
-      "python/numpy/genapi.py": 1.298,
+      "python/numpy/genapi.py": 1.294,
       "python/numpy/generate_numpy_api.py": 0.865,
       "python/numpy/generate_ufunc_api.py": 0.831,
       "python/numpy/generate_umath.py": 0.597,
@@ -4082,23 +4082,23 @@
       "zig/tigerbeetle/state_machine.zig": 0.295
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 0.424,
+      "zig/zig/Compilation.zig": 0.425,
       "zig/zig/InternPool.zig": 0.461,
       "zig/zig/Sema.zig": 0.416,
-      "zig/zig/Type.zig": 0.295,
-      "zig/zig/Zcu.zig": 0.364,
-      "zig/zig/main.zig": 1.16
+      "zig/zig/Type.zig": 0.218,
+      "zig/zig/Zcu.zig": 0.363,
+      "zig/zig/main.zig": 1.156
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 0.006
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": 0.214,
-      "zig/zls/DocumentStore.zig": 0.448,
+      "zig/zls/DocumentScope.zig": 0.15,
+      "zig/zls/DocumentStore.zig": 0.327,
       "zig/zls/Server.zig": 0.415,
-      "zig/zls/analysis.zig": 0.537,
-      "zig/zls/ast.zig": 0.67,
-      "zig/zls/config_gen.zig": 0.711,
+      "zig/zls/analysis.zig": 0.518,
+      "zig/zls/ast.zig": 0.654,
+      "zig/zls/config_gen.zig": 0.522,
       "zig/zls/langref.html.in": 0.009,
       "zig/zls/print_ast.zig": 0.139
     }

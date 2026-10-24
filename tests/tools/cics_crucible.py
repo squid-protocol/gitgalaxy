@@ -19,7 +19,8 @@ pipeline and compares, cell by cell:
                          generated (their runTask bodies are skeletons until ported)
   java-ported    (scenario)  the same, with the case's committed ports laid over the services
                          (tests/cics_crucible/ports/<case>/<PROGRAM>/overlay, each proven by this
-                         runner through the porting loop and kept with its provenance.json)
+                         runner through the porting loop and kept with its provenance.json); a case
+                         with no model port runs its deterministic port, tests/cics_crucible/det-ports
   java-facade    (scenario)  #4343: the ported project again, each task entered through the program's
                          deployed entry point -- its Spring facade: handleTransaction, and handleLink for
                          a program a LINK / XCTL reaches -- with the scenario's region joined
@@ -114,6 +115,7 @@ import functools
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -527,6 +529,7 @@ def forge(case: cc.Case, work: Path, offline: bool, overlays: list[Path] | None 
 # a tree relative to the generated package root. The committed ones -- proven by this runner, kept as
 # regression evidence with their provenance.json -- live under PORTS_DIR/<case>/<KEY>/.
 PORTS_DIR = LEDGER_DIR / "ports"
+DET_PORTS_DIR = LEDGER_DIR / "det-ports"  # #4767: a case with no model port runs its deterministic port instead
 STRENGTHENED_DIR = LEDGER_DIR / "strengthened"  # #4049: scenarios added to a case, their logs from the COBOL
 STRENGTHENED_FORMAT = "gitgalaxy/crucible-strengthened/1"
 
@@ -2485,7 +2488,10 @@ class Container:
 
     def sh(self, script: str) -> subprocess.CompletedProcess[str]:
         try:
-            return subprocess.run(["docker", "exec", self.id, "bash", "-c", script],  # noqa: S603, S607
+            import equivalence_common as common
+
+            bounded = common.guarded(f"bash -c {shlex.quote(script)}", CONTAINER_EXEC_TIMEOUT - 10)  # see guarded()
+            return subprocess.run(["docker", "exec", self.id, "bash", "-c", bounded],  # noqa: S603, S607
                                   capture_output=True, text=True, check=False,
                                   timeout=CONTAINER_EXEC_TIMEOUT)  # fmt: skip
         except subprocess.TimeoutExpired as exc:
@@ -3074,10 +3080,19 @@ class PortOptions:
     ports: Path | None = None
     forge_cache: Path | None = None  # #4047: forge()'s `cache`
     root: Path = PORTS_DIR  # <case>/<KEY>/overlay: where each case's committed ports are, unless `ports` is given
+    det_root: Path | None = DET_PORTS_DIR  # the det-port-only fallback (None: off); never read when `ports` is given
     overlays: list[Path] = dataclasses.field(default_factory=list)
     program: str | None = None
     actual: dict[str, dict[str, Any]] = dataclasses.field(default_factory=dict)
     entries: dict[str, list[dict[str, Any]]] = dataclasses.field(default_factory=dict)  # #4343: java-facade's
+
+
+def det_port_overlays(case_id: str, dest: Path, root: Path = DET_PORTS_DIR) -> dict[str, Path]:
+    """#4767: the overlays of a case's committed deterministic port (tests/cics_crucible/det-ports/<case>), each with
+    the runtime it compiles with. The models' ports win: a case with one never reaches this."""
+    import cics_crucible_det as det
+
+    return case_overlays(det.ports_dir(case_id, dest, root))
 
 
 def measure_ported(case: cc.Case, work: Path, offline: bool, opts: PortOptions,
@@ -3085,6 +3100,8 @@ def measure_ported(case: cc.Case, work: Path, offline: bool, opts: PortOptions,
     """The java-ported side: the generated project with the case's ports laid over it, scenario by scenario; and
     the java-facade side (#4343): the same project, each task entered through its program's facade."""
     ported = case_overlays(opts.ports if opts.ports is not None else opts.root / case.id)
+    if not ported and opts.ports is None and opts.det_root is not None and (opts.det_root / case.id).is_dir():
+        ported = det_port_overlays(case.id, work / "det-ports", opts.det_root)
     trees = [*ported.values(), *opts.overlays]
     scenarios = [sc for sc in case.scenarios
                  if opts.program is None or opts.program in scenario_programs(case.expected[sc["id"]])]  # fmt: skip

@@ -93,6 +93,7 @@
 /cobol_src	tests/cobol_mainframe
 /compressed.zip	tests/security_auditing
 /corporate_header.txt	tests/cobol_mainframe
+/coverage.json	tests/cobol_mainframe
 /cpy	tests/cobol_mainframe
 /csd	tests/cobol_mainframe
 /custom17	tests/tools/test_equivalence_env.py
@@ -415,6 +416,7 @@ graph_coverage_chart.svg	tests/tools/graph_coverage_chart.py
 graph_coverage_history.csv	tests/tools/graph_coverage_chart.py
 ground_truth_history.jsonl	tests/tools/ground_truth_ledger.py
 harness_report.md	tests/tools/harness_report.py
+how_to_add_a_fact_channel.md	tests/core_engine
 how_to_add_a_language.md	tests/signal_contract_audit.py,tests/tools/language_addition_audit.py
 issue.md	tests/tools/test_context_pack.py
 ledger.md	tests/tools/bugfix_kit.py
@@ -438,6 +440,7 @@ port_order.md	gitgalaxy
 porting_loop.md	tests/tools/test_status_page_snapshots.py
 prompt.md	gitgalaxy,tests/tools/strengthen.py,tests/tools/test_maven_exe_4939.py
 r.md	tests/cobol_mainframe
+recorders/README.md	tests/core_engine
 refusal_map.json	tests/tools/support_matrix.py
 repo/b.md	tests/security_auditing
 report.md	tests/cultural_gauntlet,tests/tools/cics_crucible.py,tests/tools/cultural_gauntlet.py,tests/tools/equivalence.py,tests/tools/equivalence_cics.py,tests/tools/estate_evidence.py,tests/tools/evidence_report.py,tests/tools/publish_examples.py,tests/tools/test_estate_evidence.py,tests/tools/test_evidence_report.py,tests/tools/test_generated_branch.py,tests/tools/test_unicode_gauntlet_vs_treesitter.py,tests/tools/unicode_gauntlet.py,tests/tools/unicode_gauntlet_vs_treesitter.py

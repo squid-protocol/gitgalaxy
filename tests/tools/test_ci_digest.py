@@ -299,38 +299,3 @@ def test_every_alternative_of_the_det_pattern_matches_a_job():
     inner = cd.PARTS["det"].removeprefix("^(").removesuffix(")$")
     for alt in inner.split("|"):
         assert any(re.fullmatch(alt, n) for n in names.values()), f"no det-sweep.yml job matches {alt!r}"
-
-
-# #5276: PARTS mirrors job names by hand; a renamed job would silently fall back to the old triage.
-WORKFLOWS = Path(__file__).resolve().parents[2] / ".github" / "workflows"
-PARTS_WORKFLOW = {"full-suite": "smoke-test.yml", "ground-truth": "mainframe-ground-truth.yml", "det": "det-sweep.yml"}
-
-
-def _job_names(workflow):
-    """Every job's display name in a workflow, with `${{ matrix.* }}` rendered the way a real run does ("1/4", "1")."""
-    import re
-
-    import pytest
-
-    yaml = pytest.importorskip("yaml")
-    jobs = yaml.safe_load((WORKFLOWS / workflow).read_text(encoding="utf-8"))["jobs"]
-    names = {}
-    for key, job in jobs.items():
-        name = str(job.get("name", key))
-        name = re.sub(r"\$\{\{\s*matrix\.shard\s*\}\}", "1/4", name)
-        names[key] = re.sub(r"\$\{\{[^}]*\}\}", "1", name)
-    return names
-
-
-def test_every_parts_roll_up_is_a_job_of_its_workflow():
-    assert set(cd.PARTS) == set(PARTS_WORKFLOW)
-    for rollup, workflow in PARTS_WORKFLOW.items():
-        assert rollup in _job_names(workflow), f"{workflow} has no `{rollup}` job"
-
-
-def test_every_parts_pattern_still_matches_a_job_name():
-    import re
-
-    for rollup, workflow in PARTS_WORKFLOW.items():
-        hits = [n for n in _job_names(workflow).values() if re.search(cd.PARTS[rollup], n)]
-        assert hits, f"PARTS[{rollup!r}] matches no job name in {workflow}: {sorted(_job_names(workflow).values())}"

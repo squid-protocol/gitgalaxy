@@ -311,10 +311,10 @@ def test_the_three_pre_gates_are_one_job():
     jobs = _jobs("gitgalaxy.yml")
     assert {"vault-sentinel", "xray-inspector", "supply-chain-firewall"}.isdisjoint(jobs)
     steps = jobs["pre-gate"]["steps"]
-    tools = [s["with"]["tool"] for s in steps if s.get("uses") == "./"]
-    assert tools == ["vault-sentinel", "xray-inspector", "supply-chain-firewall"]
+    gates = [s for s in steps if s.get("uses") == "./"]
+    assert [s["with"]["tool"] for s in gates] == ["vault-sentinel", "xray-inspector", "supply-chain-firewall"]
     # each gate runs even when an earlier one failed, and none may swallow its own failure
-    assert all("!cancelled()" in str(s.get("if", "")) for s in steps[2:])
+    assert all("!cancelled()" in str(s.get("if", "")) for s in gates[1:])
     assert not any(s.get("continue-on-error") for s in steps)
 
 

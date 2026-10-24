@@ -47,7 +47,6 @@ def test_an_abend_plan_sits_beside_a_condition_plan():
         {"abcode": None},
         {"abcode": "afcr"},
         {"cmd": "SEND"},  # not a file control command
-        {"cmd": "LINK", "file": None, "program": "P"},
         {"resp2": 100},  # IBM states none
         {"file": None},  # names nothing
     ],
@@ -103,3 +102,62 @@ def test_a_det_port_checks_for_the_exit_after_a_file_command_in_a_handle_abend_p
 def test_a_det_port_checks_only_file_commands():
     lines = _AbendCics(True).command("ASKTIME", "")
     assert not any("abendExit" in ln for ln in lines)
+
+
+@pytest.mark.parametrize("code", ["AFCR", "AFCS", "AFCT"])
+def test_a_link_abend_is_planned_on_the_program_it_names(code):
+    plan = {"cmd": "LINK", "program": "INQCUST", "resp": "ABEND", "abcode": code}
+    assert ec.fault_lines({"name": "s", "faults": [plan]}) == [f"LINK INQCUST 1 -1 0 {code}"]
+
+
+@pytest.mark.parametrize(
+    "plan",
+    [
+        {"cmd": "LINK", "program": "INQCUST", "abcode": "ASRA"},
+        {"cmd": "LINK", "program": "INQCUST", "abcode": "AFCR", "resp2": 4},
+        {"cmd": "LINK", "abcode": "AFCR"},
+        {"cmd": "ASKTIME", "file": "X", "abcode": "AFCR"},
+    ],
+)
+def test_a_link_abend_refuses_other_codes_a_resp2_no_name_and_other_commands(plan):
+    with pytest.raises(ec.Unsupported):
+        ec.fault_lines({"name": "s", "faults": [{"resp": "ABEND", **plan}]})
+
+
+def test_a_link_with_an_abend_exit_goes_to_it_before_the_callee_runs():
+    lines = ec.translate_command("LINK PROGRAM('INQCUST') COMMAREA(DFHCOMMAREA) LENGTH(10)", labels=["ABEND-ROUTINE"])
+    text = "\n".join(lines)
+    assert text.index("GGCLINK") < text.index("DEPENDING ON GG-GOTO") < text.index("GGCRUN")
+
+
+def test_a_browse_that_abended_delivers_no_record_to_the_port():
+    """The injected abend answers a READNEXT / READPREV with RESP 0 and no key: `normal()` must be false, or the port reads
+    `key()` (null) before it checks the abend exit (an NPE on INQCUST's READPREV, #6271)."""
+    from gitgalaxy.tools.cobol_to_java.cics_task_filecontrol import FILECONTROL_JAVA  # noqa: PLC0415
+
+    assert "return key != null && (resp == 0 || resp == 15);" in FILECONTROL_JAVA
+    assert "return record != null && (resp == 0 || resp == 15);" in FILECONTROL_JAVA
+
+
+def test_inqcust_plans_an_rls_abend_on_the_read_the_startbr_and_the_readprev():
+    import json  # noqa: PLC0415
+
+    case = json.loads((TESTS / "equivalence" / "cbsa-inqcust" / "case.json").read_text(encoding="utf-8"))
+    planned = {
+        (f["cmd"], f["abcode"]) for sc in case["scenarios"] for f in sc.get("faults", []) if f.get("resp") == "ABEND"
+    }
+    assert planned == {("READ", "AFCR"), ("STARTBR", "AFCS"), ("READPREV", "AFCT")}
+
+
+def test_zecs000_plans_an_rls_abend_on_the_control_read():
+    """#6271: 9100-ABEND (the HANDLE ABEND label of 1000-RETRIEVE) is reached by a file abend, so no non-file command abend is needed."""
+    import json
+
+    case = json.loads((TESTS / "equivalence" / "zecs-zecs000" / "case.json").read_text(encoding="utf-8"))
+    planned = {
+        f["abcode"]
+        for sc in case["scenarios"]
+        for f in sc.get("faults", [])
+        if f.get("resp") == "ABEND" and f["cmd"] == "READ" and f["file"] == "ZCEXPIRE"
+    }
+    assert planned == {"AFCR", "AFCS", "AFCT"}

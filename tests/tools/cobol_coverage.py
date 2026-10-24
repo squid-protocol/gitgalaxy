@@ -973,7 +973,10 @@ def run_autotest_case(case: Path, work: Path, image: str = IMAGE) -> dict[str, A
     for f in ("gg-compile", "java"):
         (work / "bin" / f).chmod(0o755)
     user = ["--user", f"{_uid()}"] if _uid() else []
-    proc = subprocess.run(["docker", "run", "--rm", *user, "-v", f"{work}:/work", image, "bash", "/work/run.sh"],  # noqa: S603, S607
+    import equivalence_common as common  # guarded(): a looping traced run must not fill the disk
+
+    proc = subprocess.run(["docker", "run", "--rm", *user, "-v", f"{work}:/work", image,  # noqa: S603, S607
+                           "bash", "-c", common.guarded("bash /work/run.sh", 590)],
                           capture_output=True, check=False, timeout=600)  # fmt: skip
     traces = sorted((work / "trace").glob("*.txt"))
     failed = [n for n, st in enumerate(exp["steps"]) if st["kind"] == "check" and _COMPILES.search(st["command"])

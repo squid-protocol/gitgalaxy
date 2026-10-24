@@ -20,14 +20,6 @@
     },
     {
       "unit": "SM010",
-      "line": 1083,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`RESP(WS-CICS-RESP)` is set by the SEND MAP ERASE at 1074-1081; IBM raises no condition here for a map the program has just built from its own BNK1UAO (a MAPFAIL belongs to RECEIVE MAP), and no fault can be injected on it."
-    },
-    {
-      "unit": "SM010",
       "line": 1149,
       "kind": "IF",
       "outcome": "true",
@@ -57,14 +49,6 @@
       "outcome": "false",
       "family": "G",
       "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) takes the SEND-MAP-ERASE branch ahead of it and ends at SM999, and '2' is never set (see 1149), so the test is always true."
-    },
-    {
-      "unit": "SM010",
-      "line": 1235,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`RESP(WS-CICS-RESP)` is set by the SEND MAP DATAONLY ALARM at 1225-1233; IBM raises no condition here for a map the program has just built from its own BNK1UAO (a MAPFAIL belongs to RECEIVE MAP), and no fault can be injected on it."
     },
     {
       "unit": "STM010",

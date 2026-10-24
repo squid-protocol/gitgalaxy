@@ -73,9 +73,15 @@ def dbd(text: str, where: str) -> dict[str, Any]:
     if access not in ACCESS:
         raise Unsupported(f"{where}: ACCESS={access or '?'} (only {', '.join(ACCESS)}: the root sequence of an HDAM "
                           "database is its randomizer's, a GSAM / INDEX / LOGICAL database is no hierarchy here)")  # fmt: skip
+    if re.search(r"(?im)^(?!\*)[^\s]*\s+XDFLD\s", text):  # ims_gen_macros drops XDFLD: read it off the source
+        raise Unsupported(f"{where}: XDFLD (a secondary index) is not modelled")
     segs: list[dict[str, Any]] = []
     for r in rows:
         attrs = r["attributes"] or ""
+        if r["kind"] == "LCHILD" and not re.search(r"POINTER\s*=\s*\(?\s*INDX?\b", attrs, re.I):
+            raise Unsupported(
+                f"{where}: LCHILD {r['name']} is not a primary index (a logical relationship: not modelled)"
+            )
         if r["kind"] == "SEGM":
             parent = (r["parent"] or "0").strip("()").split(",")[0].strip().upper() or "0"
             if _keyed(attrs, "SOURCE") or re.search(r"PARENT\s*=\s*\(\([^)]*\)\s*,\s*\(", attrs, re.I):

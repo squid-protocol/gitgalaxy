@@ -122,6 +122,9 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_CALL_VERB,
+        # #4304: `EXEC SQL CALL MYSCHEMA.GETCUST (:A);` is a Db2 stored-procedure call, not a PL/I CALL. Every
+        # `EXEC <word> ... ;` command (SQL, CICS, DLI) is blanked before calls_out scans the unit. Bounded body.
+        "_calls_out_masked_blocks": re.compile(r"(?i)(?<![\w@#$])EXEC[ \t\r\n]+[A-Z]+(?![\w@#$])[^;]{0,2000};"),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: IF / ELSE, the SELECT group and its WHEN / OTHERWISE arms, and the loop
         # openers (DO WHILE / UNTIL / LOOP / FOREVER and the iterative `DO I = ...`). A

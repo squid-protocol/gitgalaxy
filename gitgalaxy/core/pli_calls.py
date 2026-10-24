@@ -29,6 +29,7 @@ from typing import Any
 from collections.abc import Callable
 
 _ID = r"[\w@#$]"
+_EXEC_ANY = re.compile(r"(?<![\w@#$])EXEC[ \t\r\n]+[A-Z]+(?![\w@#$])", re.I)
 _EXEC_CICS = re.compile(r"(?<![\w@#$])EXEC[ \t\r\n]+CICS(?![\w@#$])", re.I)
 # `label:` then PROC / PROCEDURE / ENTRY, with further labels, blanks, line breaks
 # and 8-digit sequence fields (columns 73-80) allowed between.
@@ -112,9 +113,22 @@ def pli_external_calls(code_stream: str, shielded: Callable[[int], bool] | None 
     code_stream = blank_sequence_fields(code_stream)  # DSF: `SKRIV_FEILLISTE:  R0015160` / `PROC;`
     local = internal_names(code_stream)
     newlines = [i for i, ch in enumerate(code_stream) if ch == "\n"]
+    # #4304 (PL/I side): a CALL inside `EXEC SQL|CICS|DLI ... ;` belongs to that command -- `EXEC SQL CALL
+    # MYSCHEMA.GETCUST (:A);` is a Db2 stored procedure, not an entry named after its schema.
+    exec_spans: list[tuple[int, int]] = []
+    for e in _EXEC_ANY.finditer(code_stream):
+        if exec_spans and e.start() < exec_spans[-1][1]:
+            continue
+        end = _statement_end(code_stream, e.end())
+        if end != -1 and not (shielded is not None and shielded(e.start())):
+            exec_spans.append((e.start(), end))
+    span_starts = [s for s, _ in exec_spans]
     rows = []
     for m in _CALL.finditer(code_stream):
         name = m.group(1).upper()
+        i = bisect.bisect_right(span_starts, m.start()) - 1
+        if i >= 0 and m.start() < exec_spans[i][1]:
+            continue
         if name in local or (shielded is not None and shielded(m.start())):
             continue
         rows.append(

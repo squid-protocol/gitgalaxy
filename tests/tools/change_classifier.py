@@ -223,26 +223,45 @@ def refs_of_source(src: str, known: set[str] | None = None) -> set[str]:
     return refs
 
 
-def _known_names(root: Path) -> set[str]:
-    """Basenames of the TRACKED files under docs/ and .claude/: an ignored file an earlier test materialised (the
-    evidence report's report.json) must not change the committed list (#6302). Without git, the files on disk."""
+def _repo_files(root: Path, *paths: str) -> list[str] | None:
+    """Repo-relative files under `paths` that git tracks, or that are new and not ignored; None without git. An ignored
+    file an earlier test materialised (the evidence report's report.json) or a scratch file must not change a committed
+    render (#6302)."""
     try:
         out = subprocess.run(
-            ["git", "-C", str(root), "ls-files", "-z", "--", *_ROOTS],
+            ["git", "-C", str(root), "ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", *paths],
             capture_output=True,
             check=True,
             timeout=60,
         ).stdout.decode("utf-8", "replace")
     except (OSError, subprocess.SubprocessError):
+        return None
+    return sorted({name for name in out.split("\0") if name})
+
+
+def _py_files(root: Path, top: str | None = None, deep: bool = True) -> list[Path]:
+    """The .py files under `top` (the repo root when None; only its direct children when not `deep`): git's view, else disk."""
+    listed = _repo_files(root, "*.py" if top is None else top)
+    if listed is not None:
+        prefix = "" if top is None else top.rstrip("/") + "/"
+        return [root / n for n in listed if n.endswith(".py") and (deep or "/" not in n[len(prefix) :])]
+    base = root if top is None else root / top
+    return [*(base.rglob("*.py") if deep else base.glob("*.py"))]
+
+
+def _known_names(root: Path) -> set[str]:
+    """Basenames of the files under docs/ and .claude/ that git knows. Without git, the files on disk."""
+    listed = _repo_files(root, *_ROOTS)
+    if listed is None:
         return {p.name for d in _ROOTS if (root / d).is_dir() for p in (root / d).rglob("*") if p.is_file()}
-    return {name.rsplit("/", 1)[-1] for name in out.split("\0") if name}
+    return {name.rsplit("/", 1)[-1] for name in listed}
 
 
 def scan(root: Path = REPO_ROOT) -> dict[str, list[str]]:
     """ref -> sorted reader scopes, over every .py under SCAN_ROOTS and the repo root."""
-    files = [*root.glob("*.py")]
+    files = _py_files(root, deep=False)
     for top in SCAN_ROOTS:
-        files += (root / top).rglob("*.py")
+        files += _py_files(root, top)
     found: dict[str, set[str]] = {}
     known = _known_names(root)
     for f in sorted(files):
@@ -313,8 +332,7 @@ _GT_DIRS = ("gitgalaxy", "tests/cobol_mainframe", "tests/equivalence")
 
 @functools.lru_cache(maxsize=4)
 def ground_truth_scopes(root: Path = REPO_ROOT, workflow: bool = False) -> frozenset[str]:
-    tools = root / "tests" / "tools"
-    mods = {p.stem: p for p in tools.glob("*.py")}
+    mods = {p.stem: p for p in _py_files(root, "tests/tools", deep=False)}
     word = re.compile(r"\w+")
 
     def named(p: Path) -> set[str]:
@@ -326,7 +344,7 @@ def ground_truth_scopes(root: Path = REPO_ROOT, workflow: bool = False) -> froze
             return set()
 
     seen: set[str] = set()
-    for p in [*(root / "tests" / "cobol_mainframe").glob("*.py"), *(root / s for s in GROUND_TRUTH_SEEDS)]:
+    for p in [*_py_files(root, "tests/cobol_mainframe", deep=False), *(root / s for s in GROUND_TRUTH_SEEDS)]:
         seen |= named(p)
     todo = list(seen)
     while todo:

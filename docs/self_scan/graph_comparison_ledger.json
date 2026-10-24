@@ -9559,6 +9559,1274 @@
       "still_reproduces": true,
       "symbol_type": "call",
       "verdict": null
+    },
+    "kotlin/call/call_expression/-/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "kotlin",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 3,
+      "last_seen_examples": [
+        {
+          "file_path": "kotlin/okhttp/Dispatcher.kt",
+          "name": "promoteAndExecute -> also",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 208
+          }
+        },
+        {
+          "file_path": "kotlin/okhttp/Dispatcher.kt",
+          "name": "queuedCalls -> map",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 279
+          }
+        },
+        {
+          "file_path": "kotlin/okhttp/Dispatcher.kt",
+          "name": "runningCalls -> map",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 283
+          }
+        }
+      ],
+      "metric": "call_expression/-",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "kotlin/call/outside-ts-function/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "kotlin",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "kotlin/okhttp/Dispatcher.kt",
+          "name": "runningCallsCount -> ReplaceWith",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "outside-ts-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "lua/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "lua",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 12,
+      "last_seen_examples": [
+        {
+          "file_path": "lua/cosmopolitan/closure.lua",
+          "name": "f -> assert",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 17
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/coroutine.lua",
+          "name": "f -> error",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 310
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/db.lua",
+          "name": "f -> print",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 614
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/db.lua",
+          "name": "g -> getlocal",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 381
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/db.lua",
+          "name": "g -> f",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 377
+          }
+        }
+      ],
+      "metric": "engine-attributes-to-another-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "lua/call/function_call/dot_index_expression/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "lua",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 4,
+      "last_seen_examples": [
+        {
+          "file_path": "lua/pandoc/block-count.lua",
+          "name": "Pandoc -> Para",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 9
+          }
+        },
+        {
+          "file_path": "lua/pandoc/blocks-filter.lua",
+          "name": "Blocks -> Plain",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 7
+          }
+        },
+        {
+          "file_path": "lua/pandoc/bytestring-reader.lua",
+          "name": "ByteStringReader -> List",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2
+          }
+        },
+        {
+          "file_path": "lua/pandoc/implicit-doc-filter.lua",
+          "name": "Pandoc -> Str",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3
+          }
+        }
+      ],
+      "metric": "function_call/dot_index_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "lua/call/function_call/identifier/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "lua",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 8,
+      "last_seen_examples": [
+        {
+          "file_path": "lua/cosmopolitan/closure.lua",
+          "name": "f -> collectgarbage",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 16
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/closure.lua",
+          "name": "f -> dummy",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 17
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/heavy.lua",
+          "name": "loadrepfunc -> collectgarbage",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 104
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/heavy.lua",
+          "name": "loadrep -> collectgarbage",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 43
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/heavy.lua",
+          "name": "toomanystr -> collectgarbage",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 140
+          }
+        }
+      ],
+      "metric": "function_call/identifier",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "lua/call/function_call/method_index_expression/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "lua",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "lua/cosmopolitan/tracegc.lua",
+          "name": "mt.__gc -> write",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 18
+          }
+        }
+      ],
+      "metric": "function_call/method_index_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "lua/call/inner-named-function_declaration/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "lua",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 23,
+      "last_seen_examples": [
+        {
+          "file_path": "lua/cosmopolitan/all.lua",
+          "name": "F -> format",
+          "readings": {
+            "gitgalaxy": 91,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/closure.lua",
+          "name": "t -> c",
+          "readings": {
+            "gitgalaxy": 224,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/closure.lua",
+          "name": "t -> f",
+          "readings": {
+            "gitgalaxy": 224,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/closure.lua",
+          "name": "t -> assert",
+          "readings": {
+            "gitgalaxy": 223,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/db.lua",
+          "name": "test -> print",
+          "readings": {
+            "gitgalaxy": 24,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "inner-named-function_declaration",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "lua/call/not-a-call-in-ts:dot_index_expression<function_declaration/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "lua",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "lua/freebsd-src/cli.lua",
+          "name": "cli.boot -> boot",
+          "readings": {
+            "gitgalaxy": 108,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "lua/freebsd-src/cli.lua",
+          "name": "cli.autoboot -> autoboot",
+          "readings": {
+            "gitgalaxy": 118,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:dot_index_expression<function_declaration",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "lua/call/not-a-call-in-ts:method_index_expression<function_declaration/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "lua",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 9,
+      "last_seen_examples": [
+        {
+          "file_path": "lua/cosmopolitan/calls.lua",
+          "name": "a.b.c:f2 -> f2",
+          "readings": {
+            "gitgalaxy": 60,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/calls.lua",
+          "name": "a:x -> x",
+          "readings": {
+            "gitgalaxy": 41,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/calls.lua",
+          "name": "a:add -> add",
+          "readings": {
+            "gitgalaxy": 53,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/calls.lua",
+          "name": "t:_012345678901234567890123456789012345678901234567890123456789 -> _012345678901234567890123456789012345678901234567890123456789",
+          "readings": {
+            "gitgalaxy": 454,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "lua/cosmopolitan/db.lua",
+          "name": "a:f -> f",
+          "readings": {
+            "gitgalaxy": 458,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:method_index_expression<function_declaration",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "scala/call/call_expression/call_expression/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 21,
+      "last_seen_examples": [
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleShareFetchRequest -> topicIdPartitionSeq",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3277
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleFetchRequest -> partitionDatas",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 612
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleProduceRequest -> topicIdToPartitionData",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 432
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleTopicMetadataRequest -> isAllTopics",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 914
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleTopicMetadataRequest -> nonExistingTopics",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 923
+          }
+        }
+      ],
+      "metric": "call_expression/call_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "scala/call/call_expression/field_expression/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 32,
+      "last_seen_examples": [
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handle -> requestDesc",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 155
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleFetchRequest -> foreachPartition",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 590
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleAcknowledgements -> thenApply",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3527
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "sendResponseCallback -> foreachEntry",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 463
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleFetchFromShareFetchRequest -> thenApply",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3469
+          }
+        }
+      ],
+      "metric": "call_expression/field_expression",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "scala/call/call_expression/generic_function/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 7,
+      "last_seen_examples": [
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleFetchRequest -> ArrayBuffer",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 585
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleOffsetCommitRequest -> addPartitions",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 306
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleTxnOffsetCommitRequest -> addPartitions",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2066
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleOffsetDeleteRequest -> addPartitions",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2387
+          }
+        },
+        {
+          "file_path": "scala/kafka/LogManager.scala",
+          "name": "loadDirectoryIds -> HashMap",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 305
+          }
+        }
+      ],
+      "metric": "call_expression/generic_function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "scala/call/call_expression/identifier/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "scala/kafka/LogManager.scala",
+          "name": "decNumRemainingLogs -> require",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 417
+          }
+        }
+      ],
+      "metric": "call_expression/identifier",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "scala/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 252,
+      "last_seen_examples": [
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleShareFetchRequest -> Map",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3291
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleFetchRequest -> emptyMap",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 572
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleFetchRequest -> foreach",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 613
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleProduceRequest -> forEach",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 415
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleProduceRequest -> Map",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 409
+          }
+        }
+      ],
+      "metric": "engine-attributes-to-another-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "scala/call/inner-named-function_definition/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleDescribeTokensRequest -> filterToken",
+          "readings": {
+            "gitgalaxy": 2345,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "scala/kafka/Partition.scala",
+          "name": "apply -> mark",
+          "readings": {
+            "gitgalaxy": 103,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "inner-named-function_definition",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "scala/call/instance_expression/-/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 49,
+      "last_seen_examples": [
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleProduceRequest -> ArrayBuffer",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 413
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleAddPartitionsToTxnRequest -> HashSet",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1911
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleWriteTxnMarkersRequest -> ArrayBuffer",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1758
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleWriteTxnMarkersRequest -> ConcurrentHashMap",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1719
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleOffsetCommitRequest -> ArrayBuffer",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 301
+          }
+        }
+      ],
+      "metric": "instance_expression/-",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "scala/call/not-a-call-in-ts:case_class_pattern<case_clause/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 44,
+      "last_seen_examples": [
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleWriteTxnMarkersRequest -> Some",
+          "readings": {
+            "gitgalaxy": 1763,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "combineShareFetchAndShareAcknowledgeResponses -> Some",
+          "readings": {
+            "gitgalaxy": 3332,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "getCurrentLeader -> Left",
+          "readings": {
+            "gitgalaxy": 384,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "getCurrentLeader -> Right",
+          "readings": {
+            "gitgalaxy": 382,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "getCurrentLeader -> Some",
+          "readings": {
+            "gitgalaxy": 387,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:case_class_pattern<case_clause",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "scala/call/not-a-call-in-ts:field_expression<indented_block/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "handleDescribeLogDirsRequest -> toSet",
+          "readings": {
+            "gitgalaxy": 2244,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:field_expression<indented_block",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "scala/call/not-a-call-in-ts:field_expression<val_definition/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "scala/kafka/ReplicaManager.scala",
+          "name": "onAcks -> lowWatermarkIfLeader",
+          "readings": {
+            "gitgalaxy": 1321,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:field_expression<val_definition",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "scala/call/not-a-call-in-ts:val_definition<case_clause/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "scala/kafka/ReplicaManager.scala",
+          "name": "appendToLocalLog -> recordErrors",
+          "readings": {
+            "gitgalaxy": 1445,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:val_definition<case_clause",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "scala/call/outside-ts-function/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 15,
+      "last_seen_examples": [
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "eligible -> getTokens",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "scala/kafka/KafkaApis.scala",
+          "name": "eligible -> sendResponseCallback",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "scala/kafka/LogManager.scala",
+          "name": "cleaner -> Map",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "scala/kafka/LogManager.scala",
+          "name": "cleaner -> newGauge",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "scala/kafka/LogManager.scala",
+          "name": "cleaner -> contains",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "outside-ts-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "swift/call/call_expression/-+generic/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "swift",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "swift/alamofire/ParameterEncoder.swift",
+          "name": "encode -> mapError",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 176
+          }
+        },
+        {
+          "file_path": "swift/alamofire/Request.swift",
+          "name": "processNextResponseSerializer -> write",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 586
+          }
+        }
+      ],
+      "metric": "call_expression/-+generic",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "swift/call/call_expression/-/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "swift",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 82,
+      "last_seen_examples": [
+        {
+          "file_path": "swift/alamofire/Request.swift",
+          "name": "cURLDescription -> map",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1182
+          }
+        },
+        {
+          "file_path": "swift/alamofire/Request.swift",
+          "name": "appendResponseSerializer -> async",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 571
+          }
+        },
+        {
+          "file_path": "swift/alamofire/Request.swift",
+          "name": "appendResponseSerializer -> write",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 562
+          }
+        },
+        {
+          "file_path": "swift/alamofire/Request.swift",
+          "name": "processNextResponseSerializer -> forEach",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 613
+          }
+        },
+        {
+          "file_path": "swift/alamofire/Request.swift",
+          "name": "processNextResponseSerializer -> $0",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 613
+          }
+        }
+      ],
+      "metric": "call_expression/-",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "swift/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "swift",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 10,
+      "last_seen_examples": [
+        {
+          "file_path": "swift/alamofire/Request.swift",
+          "name": "didCreateURLRequest -> read",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 363
+          }
+        },
+        {
+          "file_path": "swift/alamofire/Response.swift",
+          "name": "description -> indentingNewlines",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 441
+          }
+        },
+        {
+          "file_path": "swift/alamofire/Response.swift",
+          "name": "description -> String",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 441
+          }
+        },
+        {
+          "file_path": "swift/alamofire/Response.swift",
+          "name": "description -> indentingNewlines",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 405
+          }
+        },
+        {
+          "file_path": "swift/alamofire/Response.swift",
+          "name": "description -> indentingNewlines",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 414
+          }
+        }
+      ],
+      "metric": "engine-attributes-to-another-function",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "swift/call/not-a-call-in-ts:parameter<function_declaration/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "swift",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "swift/alamofire/Session.swift",
+          "name": "performDownloadRequest -> request",
+          "readings": {
+            "gitgalaxy": 1222,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:parameter<function_declaration",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "swift/call/not-a-call-in-ts:pattern<switch_pattern/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T06:57:11Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "swift",
+      "last_reconciled_at": "2026-10-24T06:57:11Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "swift/alamofire/Request.swift",
+          "name": "retryOrFinish -> doNotRetryWithError",
+          "readings": {
+            "gitgalaxy": 524,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "swift/alamofire/Session.swift",
+          "name": "performDownloadRequest -> resumeData",
+          "readings": {
+            "gitgalaxy": 1228,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:pattern<switch_pattern",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
     }
   }
 }

@@ -96,3 +96,55 @@ def test_cpp_qualified_unit_drops_its_own_leaf_recursion_only():
     got = _calls("cpp", src)
     assert got["Node::walk"] == {"other"}
     assert got["Node::step"] == {"step"}
+
+
+@pytest.mark.parametrize(
+    "lang, src, expected",
+    [
+        (
+            "kotlin",
+            "class A {\n  fun run(x: Int) {\n    a.b.save(x)\n    Foo(1)\n    xs.map { load(it) }\n  }\n}\n",
+            {"save", "Foo", "map", "load"},
+        ),
+        (
+            "scala",
+            "object A {\n  def run(x: Int) = {\n    a.b.save(x)\n    new Foo(1)\n    Bar(2)\n    xs.map(y => load(y))\n  }\n}\n",
+            {"save", "Foo", "Bar", "map", "load"},
+        ),
+        (
+            "swift",
+            "func run(x: Int) {\n  a.b.save(x)\n  Foo(1)\n  xs.map { load($0) }\n}\n",
+            {"save", "Foo", "map", "load"},
+        ),
+        (
+            "lua",
+            "function run(x)\n  a.b.save(x)\n  obj:meth(1)\n  foo(2)\n  local f = function() load() end\nend\n",
+            {"save", "meth", "foo", "load"},
+        ),
+    ],
+)
+def test_qualified_bare_constructor_and_callback_callees(lang, src, expected):
+    """Step 2 of #3641: kotlin / scala / swift / lua name the rightmost identifier, count a
+    constructor, and keep a callback's calls with the enclosing unit (C8)."""
+    assert _calls(lang, src)["run"] == expected
+
+
+@pytest.mark.parametrize("lang", cga.LANGS)
+def test_every_measured_language_has_a_function_map_and_a_firing_call_node(lang):
+    spec = audit.NODE_MAPS[lang]
+    assert spec["func_node_types"] and cga.CALL_NODE_TYPES
+
+
+def test_kotlin_decoys_in_string_and_comment_are_not_calls():
+    got = _calls("kotlin", 'fun run() {\n  val s = "save(1)"\n  // load(2)\n  keep()\n}\n')
+    assert got == {"run": {"keep"}}
+
+
+def test_swift_subscript_is_not_a_call_but_a_call_on_one_is():
+    got = _calls("swift", 'func run(r: R) {\n  let h = r.headers["k"]\n  r.items[0].save()\n}\n')
+    assert got == {"run": {"save"}}
+
+
+def test_scala_qualified_generic_constructor_names_the_type():
+    got = _calls("scala", "object A {\n  def run() = new util.HashSet[T]()\n}\n")
+    assert got == {"run": {"HashSet"}}

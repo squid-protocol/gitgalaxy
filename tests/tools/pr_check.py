@@ -27,6 +27,7 @@ skipped check reads as green, so its CI starts on `ready_for_review` and a secon
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import subprocess
@@ -66,6 +67,88 @@ def paged(api: Api, path: str, key: str | None = None, limit: int = 10) -> list[
         if len(items) < 100:
             break
     return out
+
+
+GraphQL = Callable[[str, dict[str, Any]], Any]
+
+
+def gh_graphql(query: str, variables: dict[str, Any]) -> Any:
+    """`gh api graphql` as the response's `data` (#6534: GraphQL has its own 5,000-points/h quota, apart from REST's).
+    Ints go as -F (typed), everything else as -f (a string). A failed call or any `errors` raises SystemExit."""
+    argv = ["gh", "api", "graphql", "-f", f"query={query}"]
+    for k, v in variables.items():
+        argv += ["-F" if isinstance(v, int) else "-f", f"{k}={v}"]
+    res = subprocess.run(argv, capture_output=True, text=True, check=False)  # noqa: S603
+    doc = json.loads(res.stdout or "null") if res.stdout.strip().startswith("{") else None
+    if res.returncode or not doc or doc.get("errors") or not doc.get("data"):
+        raise SystemExit(f"gh api graphql failed: {(res.stderr or res.stdout).strip()[:300]}")
+    return doc["data"]
+
+
+SHA_PATH = re.compile(r"^repos/[^/]+/[^/]+/commits/[0-9a-f]{40}$")  # a commit by sha: its parents never change
+RUNS_PATH = re.compile(r"^repos/[^/]+/[^/]+/commits/[0-9a-f]{40}/check-runs\?")
+RUN_PATH = re.compile(r"^repos/[^/]+/[^/]+/actions/runs/\d+$")
+
+
+def pass_cache(api: Api) -> Api:
+    """`api` with the reads one pass may share (#6534): a commit by sha, a sha's check runs once every one is completed,
+    a workflow run once completed. For ONE pass only: a completed run can still be re-run, so only a commit's parents
+    would be safe to keep longer."""
+    memo: dict[str, Any] = {}
+
+    def done(path: str, doc: Any) -> bool:
+        if SHA_PATH.match(path):
+            return True
+        if RUNS_PATH.match(path):
+            return all(r.get("status") == "completed" for r in (doc or {}).get("check_runs", []))
+        return bool(RUN_PATH.match(path)) and (doc or {}).get("status") == "completed"
+
+    def cached(path: str) -> Any:
+        if path in memo:
+            return memo[path]
+        doc = api(path)
+        if done(path, doc):
+            memo[path] = doc
+        return doc
+
+    return cached
+
+
+HEAD = re.compile(r"\A(HTTP/\S+ (\d{3})[^\n]*\n.*?)\r?\n\r?\n", re.S)
+
+
+def conditional_api(store: Path, run: Callable[[list[str]], subprocess.CompletedProcess[str]] | None = None) -> Api:
+    """gh_api with conditional requests (#6534): each GET sends the ETag it got last time as If-None-Match, and a 304
+    (which does not count against the REST quota) returns the body kept under `store`. A read with no ETag yet, or
+    a store that cannot be written, is a plain read."""
+    run = run or (lambda argv: subprocess.run(argv, capture_output=True, text=True, check=False))  # noqa: S603
+
+    def api(path: str) -> Any:
+        file = store / (hashlib.sha256(path.encode()).hexdigest()[:32] + ".json")
+        try:
+            kept = json.loads(file.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            kept = None
+        argv = ["gh", "api", "-i", path]
+        if kept and kept.get("etag"):
+            argv[3:3] = ["-H", f"If-None-Match: {kept['etag']}"]
+        res = run(argv)
+        m = HEAD.match(res.stdout or "")
+        if kept and m and m[2] == "304":
+            return kept["body"]
+        if res.returncode or not m:
+            raise SystemExit(f"gh api {path} failed: {res.stderr.strip()[:300]}")
+        body = json.loads(res.stdout[m.end() :] or "null")
+        etag = re.search(r"^etag:\s*(.+?)\s*$", m[1], re.I | re.M)
+        if etag:
+            try:
+                store.mkdir(parents=True, exist_ok=True)
+                file.write_text(json.dumps({"etag": etag[1], "body": body}), encoding="utf-8")
+            except OSError:
+                pass  # no store: the next read is plain
+        return body
+
+    return api
 
 
 def classify(runs: list[dict[str, Any]], statuses: list[dict[str, Any]]) -> dict[str, Any]:

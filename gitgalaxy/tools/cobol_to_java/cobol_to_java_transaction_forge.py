@@ -435,6 +435,7 @@ public class CicsTask {
 
     private String link(String program, Object commarea, int length, byte[] area, Channel linkChannel) {
         linkAreaBack = false;
+        boolean abendedHere = false;
         String resp = "NORMAL";
         Integer resp2 = null;
         int len = commarea == null ? 0 : length;
@@ -449,6 +450,7 @@ public class CicsTask {
             if (planned != null) {
                 resp = respName(planned[0]);
                 resp2 = planned[1];
+                abendedHere = root().ended || root().unwoundTo != null;  // #6271 (X70): `LINK PROGRAM 1 -1 0 ABCODE`
             }
         }
         transferResp2 = resp2 == null ? 0 : resp2;  // #4986: EIBRESP2 is the event's, a planned fault's too
@@ -458,7 +460,7 @@ public class CicsTask {
             events.get(events.size() - 1).put("area", java.util.Base64.getEncoder().encodeToString(
                     java.util.Arrays.copyOf(area, Math.max(0, Math.min(len, area.length)))));
         }
-        if (!"NORMAL".equals(resp)) {
+        if (!"NORMAL".equals(resp) || abendedHere) {  // a planned abend: the task is at the exit or gone; the callee never runs
             return resp;
         }
         CicsTask callee = new CicsTask(this, level + 1, program, commarea, len, commarea);

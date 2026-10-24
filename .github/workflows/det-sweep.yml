@@ -357,7 +357,7 @@ jobs:
 
           if (snapshot / "snapshot.json").is_file():  # #5882: the cached first start, once the pinned image is here
               pulled = Path(os.environ["RUNNER_TEMP"]) / "pull-done"
-              for _ in range(900):
+              for _ in range(1800):  # #5604: one pull attempt's own bound (1800 s), not half of it
                   if pulled.exists():
                       break
                   time.sleep(1)
@@ -436,7 +436,8 @@ jobs:
       - name: Wait for the first Db2 database
         shell: bash
         run: |
-          for _ in $(seq 1 120); do
+          # #5604: 540 x 5 s = 2700 s outlasts two start attempts (2 x READY_POLLS x 10 s = 2400 s) plus database creation
+          for _ in $(seq 1 540); do
             if [ -f "$RUNNER_TEMP/db2-ready.d/GGDB.ready" ] || [ -f "$RUNNER_TEMP/db2-prewarm.done" ]; then break; fi
             sleep 5
           done

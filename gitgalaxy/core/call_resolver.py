@@ -1043,9 +1043,10 @@ def _expand_super_ctor(
     known = [p for p in named if _is_class(index, group, p, lang)]
     arities = func.setdefault("calls_out_arities", {})
     quals = func.setdefault("calls_out_qualifiers", {})
-    counts = arities.pop("super", None)
-    quals.pop("super", None)
-    calls = [c for c in func["calls_out_to"] if c != "super"]
+    keyword = "super"
+    counts = arities.pop(keyword, None)
+    quals.pop(keyword, None)
+    calls = [c for c in func["calls_out_to"] if c != keyword]
     for p in known:
         if p not in calls:
             calls.append(p)

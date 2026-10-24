@@ -60,7 +60,11 @@ def test_detector_keeps_super_only_in_a_constructor():
 
 def test_super_chains_to_the_overload_the_counts_pick():
     parsed, sites = _resolve(("p/Base.java", BASE), ("p/Sub.java", SUB))
-    edges = {(s["src_line"], s["dst_line"]) for s in sites if s["dst_path"] == "p/Base.java" and s["src_path"] == "p/Sub.java"}
+    edges = {
+        (s["src_line"], s["dst_line"])
+        for s in sites
+        if s["dst_path"] == "p/Base.java" and s["src_path"] == "p/Sub.java"
+    }
     assert (3, 3) in edges  # super() -> Base()
     assert (4, 4) in edges  # super(a) -> Base(String)
     assert (5, 5) in edges  # super(a, b) -> Base(String, int)

@@ -3549,8 +3549,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "csharp",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 22,
@@ -3597,10 +3597,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:attribute<attribute_list",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Every recorded example is a C# attribute on a member: `[Experimental(RoslynExperiments.NullableDisabledSemanticModel, UrlFormat = ...)]`, `[Obsolete(\"Compilation.IsSymbolAccessibleWithin is not designed for use within the compilers\", true)]` in CSharpCompilation.cs and CSharpSyntaxTree.cs. C1 says metadata annotations, C# `[Obsolete(...)]` by name, are declarations, never calls, even with parentheses. The engine lists `Experimental` and `Obsolete` as callees of the method they annotate; tree-sitter files them as `attribute` under an `attribute_list`. Engine gap: attribute lists are not masked. No credit."
     },
     "csharp/call/object_creation_expression/generic_name+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -8565,8 +8565,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T06:57:11Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "lua",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 23,
@@ -8613,10 +8613,10 @@
         }
       ],
       "metric": "inner-named-function_declaration",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong: the call sits inside a nested NAMED function (tree-sitter node function_declaration); by C8 it belongs to that unit only, but the engine also lists it on the outer one. Read: all.lua `F` holds `local function round (m)` whose body calls `format(\"%.1f\", m)`; closure.lua `t` holds `local function c(a,b) assert(...)` and `local function v(f, ...) c(\"test\", f() ~= 1 ...)`, so `assert`, `c` and `f` belong to `c` and `v`; db.lua `test` is the same. Same cause as the javascript, typescript and python inner-named verdicts (#3642). No credit."
     },
     "lua/call/not-a-call-in-ts:dot_index_expression<function_declaration/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -9011,8 +9011,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 20,
@@ -9059,22 +9059,24 @@
         }
       ],
       "metric": "func1op_call_expression/-x",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter wrong, no credit. The recorded examples (20) are file-test operators: `-x $webdotbase`, `-e \"$webdotdir/.htaccess\"`, `-p $$raf{FILE_PT}`. A file test is an operator spelled with a dash, not a function with a name: `-x` is no identifier a call could be to or resolve against, and C1/C3 count a call to the name written. Tree-sitter files it as `func1op_call_expression` and the harness takes the operator spelling as a callee name. Leaves the FN count."
     },
     "perl/call/func1op_call_expression/caller/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 2,
@@ -9097,22 +9099,24 @@
         }
       ],
       "metric": "func1op_call_expression/caller",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `caller` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/chomp/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 10,
@@ -9159,22 +9163,24 @@
         }
       ],
       "metric": "func1op_call_expression/chomp",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `chomp` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/close/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 5,
@@ -9221,22 +9227,24 @@
         }
       ],
       "metric": "func1op_call_expression/close",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `close` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/closedir/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 2,
@@ -9259,22 +9267,24 @@
         }
       ],
       "metric": "func1op_call_expression/closedir",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `closedir` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/defined/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 21,
@@ -9321,22 +9331,24 @@
         }
       ],
       "metric": "func1op_call_expression/defined",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `defined` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/delete/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 54,
@@ -9383,22 +9395,24 @@
         }
       ],
       "metric": "func1op_call_expression/delete",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `delete` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/each/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 13,
@@ -9445,22 +9459,24 @@
         }
       ],
       "metric": "func1op_call_expression/each",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `each` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/exists/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 54,
@@ -9507,22 +9523,24 @@
         }
       ],
       "metric": "func1op_call_expression/exists",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `exists` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/exit/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 9,
@@ -9569,22 +9587,24 @@
         }
       ],
       "metric": "func1op_call_expression/exit",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `exit` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/fileno/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -9599,22 +9619,24 @@
         }
       ],
       "metric": "func1op_call_expression/fileno",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it. `fileno` is a Perl builtin invoked as a named unary operator (the recorded example is `defined fileno $message`); a builtin invocation is an invocation (C3), the same ruling as `shift`. It is still absent from the function's callee list in the 2026-10-24 run, after the paren-less call work (#6437, #6449). Engine gap: the builtin is not in the set the engine takes."
     },
     "perl/call/func1op_call_expression/int/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -9629,22 +9651,24 @@
         }
       ],
       "metric": "func1op_call_expression/int",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it. `int` is a Perl builtin invoked as a named unary operator (the recorded example is `int rand $max / 2`); a builtin invocation is an invocation (C3), the same ruling as `shift`. It is still absent from the function's callee list in the 2026-10-24 run, after the paren-less call work (#6437, #6449). Engine gap: the builtin is not in the set the engine takes."
     },
     "perl/call/func1op_call_expression/keys/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -9659,22 +9683,24 @@
         }
       ],
       "metric": "func1op_call_expression/keys",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it. `keys` is a Perl builtin invoked as a named unary operator (the recorded example is `keys %{$self->{conf}->{rewrite_header}}`); a builtin invocation is an invocation (C3), the same ruling as `shift`. It is still absent from the function's callee list in the 2026-10-24 run, after the paren-less call work (#6437, #6449). Engine gap: the builtin is not in the set the engine takes."
     },
     "perl/call/func1op_call_expression/lc/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 12,
@@ -9721,22 +9747,24 @@
         }
       ],
       "metric": "func1op_call_expression/lc",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `lc` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/length/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -9751,22 +9779,24 @@
         }
       ],
       "metric": "func1op_call_expression/length",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `length` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/pop/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -9781,22 +9811,24 @@
         }
       ],
       "metric": "func1op_call_expression/pop",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it. `pop` is a Perl builtin invoked as a named unary operator (the recorded example is `pop @pristine_headers`); a builtin invocation is an invocation (C3), the same ruling as `shift`. It is still absent from the function's callee list in the 2026-10-24 run, after the paren-less call work (#6437, #6449). Engine gap: the builtin is not in the set the engine takes."
     },
     "perl/call/func1op_call_expression/quotemeta/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -9811,22 +9843,24 @@
         }
       ],
       "metric": "func1op_call_expression/quotemeta",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it. `quotemeta` is a Perl builtin invoked as a named unary operator (the recorded example is `quotemeta($tag)`); a builtin invocation is an invocation (C3), the same ruling as `shift`. It is still absent from the function's callee list in the 2026-10-24 run, after the paren-less call work (#6437, #6449). Engine gap: the builtin is not in the set the engine takes."
     },
     "perl/call/func1op_call_expression/rand/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 2,
@@ -9849,22 +9883,24 @@
         }
       ],
       "metric": "func1op_call_expression/rand",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `rand` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/ref/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 19,
@@ -9911,22 +9947,24 @@
         }
       ],
       "metric": "func1op_call_expression/ref",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `ref` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/scalar/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 9,
@@ -9973,10 +10011,10 @@
         }
       ],
       "metric": "func1op_call_expression/scalar",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `scalar` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/shift/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -10046,13 +10084,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -10067,22 +10107,24 @@
         }
       ],
       "metric": "func1op_call_expression/srand",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `srand` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/stat/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 2,
@@ -10105,22 +10147,24 @@
         }
       ],
       "metric": "func1op_call_expression/stat",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `stat` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/func1op_call_expression/ucfirst/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -10135,22 +10179,24 @@
         }
       ],
       "metric": "func1op_call_expression/ucfirst",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it. `ucfirst` is a Perl builtin invoked as a named unary operator (the recorded example is `ucfirst(lc($1))`); a builtin invocation is an invocation (C3), the same ruling as `shift`. It is still absent from the function's callee list in the 2026-10-24 run, after the paren-less call work (#6437, #6449). Engine gap: the builtin is not in the set the engine takes."
     },
     "perl/call/func1op_call_expression/values/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 5,
@@ -10197,10 +10243,10 @@
         }
       ],
       "metric": "func1op_call_expression/values",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter was right when this was ledgered, and it no longer reproduces. `values` is a Perl builtin (a named unary operator) written without parentheses, e.g. `chomp $line;` or `defined $x`; a builtin invocation is an invocation (C3), as in the `shift` verdict. The engine took a builtin only as `name(`. The fresh 2026-10-24 run (call_graph_accuracy.py --buckets, perl) lists no func1op shape for it: the paren-less call work (#6437, #6449) captures it. Credit stays with tree-sitter for the historical miss; nothing is open."
     },
     "perl/call/function_call_expression/function/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -10555,8 +10601,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 3,
@@ -10587,10 +10633,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:hash_element_expression<func1op_call_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong, and fixed. All recorded examples are hash keys: `delete $params->{alias}`, `$_->{package}` inside `map(length($_->{package}), @missing)`, `defined $test_logs->{$rule}->{msg}`. The key word was read as a callee. A hash key is not a call (C1). It no longer reproduces in the 2026-10-24 run. No credit."
     },
     "perl/call/not-a-call-in-ts:map_grep_expression<anonymous_array_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -11111,8 +11157,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -11127,10 +11173,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:scalar<func1op_call_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong, and fixed. The recorded example is `length($exifAPP1hdr)` in ExifTool.pm: `exifAPP1hdr` is a scalar variable argument, reported as a callee. A variable is not a call (C1). It no longer reproduces in the 2026-10-24 run. No credit."
     },
     "perl/call/not-a-call-in-ts:scalar<localization_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -11141,8 +11187,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -11157,10 +11203,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:scalar<localization_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong, and fixed. The recorded example is `local $_;` in ExifTool.pm ExtractInfo, reported as a call to `_`. A `local` declaration of a variable is not a call. It no longer reproduces in the 2026-10-24 run. No credit."
     },
     "perl/call/not-a-call-in-ts:scalar<replacement/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -11201,8 +11247,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 79,
@@ -11249,10 +11295,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:scalar<variable_declaration",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong, and fixed. Every recorded example is a variable, not a call: `my $add_method = \"add_$name\";` reported `add_method`, `my $guid;` reported `guid`. A `my $x` declaration read as a call to `x`, the same cause as the validated `scalar<for_statement` shape. It no longer reproduces in the 2026-10-24 run (paren-less call work, #6437, #6449). No credit."
     },
     "perl/call/not-a-call-in-ts:sort_expression<for_statement/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -11353,8 +11399,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -11369,10 +11415,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:string_literal<equality_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": false,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong, and fixed. The recorded example is `elsif ($1 eq 'addr') {` in PerMsgStatus.pm, where the string `'addr'` was read as a callee. A string literal is not a call. It no longer reproduces in the 2026-10-24 run. No credit."
     },
     "perl/call/not-a-call-in-ts:string_literal<hash_element_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -12130,13 +12176,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "php",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 23,
@@ -12183,10 +12231,10 @@
         }
       ],
       "metric": "function_call_expression/name",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. The 5 recorded calls are real named calls: `rawurlencode( __FUNCTION__ )`, `wp_print_inline_script_tag( wp_remove_surrounding_empty_script_tags( ob_get_clean() ) )` in functions.php wp_post_preview_js, `esc_attr_e( 'Change' )` and `esc_attr(..)` in wp-login.php login_footer. Each sits in the function's inline template: HTML between `?>` and `<?php`, or an `<?php echo ...; ?>` island inside an attribute or a script block. The engine lists none of them for the enclosing function. Engine gap: calls in inline-PHP islands of a function body."
     },
     "php/call/function_call_expression/parenthesized_expression/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -12197,8 +12245,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "php",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 3,
@@ -12229,10 +12277,10 @@
         }
       ],
       "metric": "function_call_expression/parenthesized_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter's name is not a callee, no credit. The 3 recorded calls are `($easy->options['on_stats'])($stats)`, `($options['on_stats'])($stats)` and `(self::$requestFactory)($query, ...)`. The callee is a parenthesised expression; C1 says a dynamic target is not recorded. The harness names it by the rightmost identifier inside the parentheses (`options`, `requestFactory`), which is a property or a subscript base, not a name the call writes. Leaves the FN count; the call itself is real and the engine files none."
     },
     "php/call/function_call_expression/subscript_expression/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -12243,8 +12291,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "php",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 4,
@@ -12283,22 +12331,24 @@
         }
       ],
       "metric": "function_call_expression/subscript_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter's name is not a callee, no credit. The 4 recorded calls invoke an array element: `$options['on_headers']($response)`, `$callbacks[$index]($this)`, `$v[0]()`. The target is computed (C1: a dynamic target is not recorded). The harness names it `options`, `index` or `v`, the subscript's base or key, which is no callee written at the call. Leaves the FN count."
     },
     "php/call/function_call_expression/variable_name/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "php",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 2,
@@ -12321,10 +12371,10 @@
         }
       ],
       "metric": "function_call_expression/variable_name",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Both recorded calls invoke a variable holding a callable by name: `$handler($fn($request), $options)` (Middleware.php mapRequest) and `$fn(...$args)` (StreamHandler.php callArray). The call is to `$fn`, the name written (C1; dynamic dispatch is a call to the written name). The engine takes only `name(`, not `$name(`. Engine gap."
     },
     "php/call/member_call_expression/encapsed_string/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -16926,13 +16976,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T09:00:33Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "solidity",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 23,
@@ -16979,10 +17031,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:expression<revert_statement",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right, a judgment call. Every recorded example is `revert CustomError(args);` (`revert AccessControlBadConfirmation();`, `revert AccessControlUnauthorizedAccount(account, role);`, `revert ERC2771ForwarderInvalidSigner(signer, request.from);`). A custom error is declared with `error Name(type arg)` and constructed at the revert with an argument list, which makes it a constructor-like invocation of the name written (C3: `new Foo(a)`, rust `Some(x)`). Tree-sitter's solidity grammar parses the operand of `revert` as a plain `expression` with its arguments, not a call node, so the harness does not count it. Tree-sitter's omission. The sibling `emit` shape is not ruled here."
     },
     "solidity/call/not-a-call-in-ts:member_expression<expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -19034,13 +19086,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "typescript",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -19055,10 +19109,10 @@
         }
       ],
       "metric": "call_expression/member_expression+generic",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed it. The recorded call is the `.finally(...)` chained on a `this.raceNavigationAction(progress, async () => { ... })` call in playwright frames.ts setContent: a method named by a reserved word after `.` is a property name, not a keyword, so C2 does not apply. Same cause as the validated `member_expression` shape (`module.if(..)`): the engine drops it via its keyword set. Engine gap."
     },
     "typescript/call/call_expression/member_expression/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -19128,13 +19182,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-03T22:36:34Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "typescript",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 3,
@@ -19165,10 +19221,10 @@
         }
       ],
       "metric": "call_expression/non_null_expression+bang",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. The recorded calls are `asyncTest!(arg)`, `host.readFile!(fileName)` and `originalHandler!(onlyUnreliable)`: a call whose callee carries a non-null assertion `!`. The call is real and the name is written. The engine takes `name(` and does not see `name!(`. Engine gap."
     },
     "typescript/call/call_expression/parenthesized_expression+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -19179,8 +19235,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T09:38:37Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "typescript",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 1,
@@ -19195,10 +19251,10 @@
         }
       ],
       "metric": "call_expression/parenthesized_expression+generic",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter's name is not a callee, no credit. The recorded call is `(i < types.length - 1 ? factory.createTemplateMiddle : factory.createTemplateTail)(texts[i + 1])` in checker.ts: the callee is a conditional chosen at run time. C1: a dynamic target is not recorded. The harness takes the last branch, `createTemplateTail`, as the name, though `createTemplateMiddle` is as likely invoked. Leaves the FN count."
     },
     "typescript/call/call_expression/parenthesized_expression/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -19209,8 +19265,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "typescript",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 4,
@@ -19249,10 +19305,10 @@
         }
       ],
       "metric": "call_expression/parenthesized_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter's name is not a callee, no credit. The 4 recorded calls are immediately-invoked function expressions: `((originalRunTest, originalRun) => { ... })(...)` (mocha.ts), `(function* () { yield elem; ... })()` (checker.ts), `(async () => { ... })()` (async.ts), `(function () { ... })()` (extHost.api.impl.ts). An anonymous function has no name to call (C8); the harness names the call by the last identifier inside the parentheses (`fn`, `elem`, `_atEnd`, `perform`), which is a parameter or a local of the function body, not a callee. Leaves the FN count."
     },
     "typescript/call/call_expression/subscript_expression/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -19263,8 +19319,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T20:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "typescript",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 7,
@@ -19311,10 +19367,10 @@
         }
       ],
       "metric": "call_expression/subscript_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Tree-sitter's name is not a callee, no credit. The 7 recorded calls invoke a computed element: `(this as any)[method](validParams, progress)`, `targets[i]()`, `promiseFactories[index++]()`, `iterableOrIterator[Symbol.asyncIterator]()`, `idle.value[key](callback, ...)`. The target is computed (C1: a dynamic target is not recorded). The harness names each by the index (`method`, `i`, `index`, `key`, `asyncIterator`), which is no callee written at the call. Leaves the FN count."
     },
     "typescript/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

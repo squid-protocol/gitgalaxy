@@ -158,10 +158,21 @@ jobs:
             echo "defer=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # promoter-bot#64 (2026-10-24): the squid-shepherd App has its own API quota; AUTOMATION_PAT shares the
+      # account's 5,000/h with the agent fleet, and the shepherd stopped merging when it ran out. The PAT stays
+      # the fallback (a failed mint leaves the output empty).
+      - name: Mint the squid-shepherd App token
+        id: app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.SHEPHERD_APP_ID }}
+          private-key: ${{ secrets.SHEPHERD_APP_KEY }}
+
       - name: Full lane - close the push lane's open bot PR (superseded)
         if: github.event_name != 'push'
         env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
         run: |
           prs=$(gh api "repos/$REPO/pulls?state=open&head=${REPO%%/*}:auto/evidence-refresh&per_page=10" --jq '.[].number')
           for pr in $prs; do
@@ -1275,12 +1286,23 @@ jobs:
             echo "publish=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # promoter-bot#64 (2026-10-24): the squid-shepherd App has its own API quota; AUTOMATION_PAT shares the
+      # account's 5,000/h with the agent fleet, and the shepherd stopped merging when it ran out. The PAT stays
+      # the fallback (a failed mint leaves the output empty).
+      - name: Mint the squid-shepherd App token
+        id: app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.SHEPHERD_APP_ID }}
+          private-key: ${{ secrets.SHEPHERD_APP_KEY }}
+
       - name: Open or update the bot PR with the refreshed records
         id: cpr
         if: steps.late_gate.outputs.publish != 'false'
         uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
         with:
-          token: ${{ secrets.AUTOMATION_PAT }}
+          token: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
           path: gitgalaxy
           base: main  # never the checked-out ref of another run (#4640)
           commit-message: "evidence: refresh as of commit ${{ steps.asof.outputs.sha }}"
@@ -1308,7 +1330,7 @@ jobs:
         # Only after a clean run: a proof that failed is recorded as not proven and needs a person (#4048).
         if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && needs.records.result == 'success' && needs.det-mutation.result == 'success' && needs.sweep.result == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
         env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
           PR: ${{ steps.cpr.outputs.pull-request-number }}
           REPO: ${{ github.repository }}
         # Right after the PR is opened its checks may not have registered yet, and GitHub then refuses auto-merge on a

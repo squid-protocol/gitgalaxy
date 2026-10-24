@@ -355,6 +355,23 @@ def clean_main_merge(api: Api, approved: str, head: str, base_ref: str) -> bool:
     return merged == theirs and not (set(mine) & set(theirs))
 
 
+TRUSTED_BOTS_ENV = "SHEPHERD_TRUSTED_BOTS"
+
+
+def trusted_bots(api: Api) -> set[str]:
+    """The accounts whose approval markers count. promoter-bot#64 (2026-10-24): the shepherd moves from AUTOMATION_PAT
+    to a GitHub App (its own API quota), and an App's installation token cannot read `user`; its comments come from
+    `<app>[bot]`. The workflow names the trusted accounts in SHEPHERD_TRUSTED_BOTS (the App, plus the PAT's account
+    while markers it wrote are still on open PRs); without it, the token's own account, as before."""
+    if names := {x.strip() for x in os.environ.get(TRUSTED_BOTS_ENV, "").split(",") if x.strip()}:
+        return names
+    try:
+        login = (api("user") or {}).get("login")
+    except SystemExit:
+        return set()
+    return {login} if login else set()
+
+
 def _perm(api: Api, login: str) -> str | None:
     try:
         return api(f"repos/{REPO_SLUG}/collaborators/{login}/permission").get("permission")
@@ -389,7 +406,7 @@ def gather(
     Approval (#4853 review): a maintainer's `shepherd:merge` is approved by a marker the bot writes itself, when the
     labeled event arrives from a writer: `<!-- shepherd:approved sha=<head> by=<login> -->`, with the head from the
     event payload (the head the maintainer labelled). Trust: only comments written by the bot's own account (the
-    AUTOMATION_PAT user) count; anyone can post a comment. The newest trusted marker decides:
+    accounts in SHEPHERD_TRUSTED_BOTS, else the token's own) count; anyone can post a comment. The newest trusted marker decides:
       * its sha is the current head -> approved;
       * the head is the bot's own update-branch result (its marker pair from=<approved> to=<head>, and the head's
         first parent is the approved commit) -> approved, carried over;
@@ -447,8 +464,8 @@ def gather(
         if state == "open":
             depends_open.append(d)
     # approval of shepherd:merge (see the docstring): only the bot's own comments are trusted
-    bot = (api("user") or {}).get("login") or ""
-    trusted = "\n".join(c.get("body") or "" for c in comments if bot and (c.get("user") or {}).get("login") == bot)
+    bots = trusted_bots(api)
+    trusted = "\n".join(c.get("body") or "" for c in comments if (c.get("user") or {}).get("login") in bots)
     if (event or {}).get("approved"):  # this pass just wrote it: a comment read right after its POST can lag behind it
         trusted += f"\n<!-- shepherd:approved sha={event['approved']} by={event.get('sender')} -->"
     approvals = APPROVE_MARK.findall(trusted)

@@ -1,5 +1,5 @@
 {
- "commit": "67226f5d4",
+ "commit": "e4bae0edd",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-24T09:38:28Z",
+  "as_of": "2026-10-24T09:56:51Z",
   "core": {
    "closed": 171,
    "open": 16,
@@ -284,9 +284,9 @@
    {
     "closed": 76,
     "number": 14,
-    "open": 12,
+    "open": 16,
     "title": "Compiler call-graph comparison",
-    "total": 88
+    "total": 92
    },
    {
     "closed": 98,

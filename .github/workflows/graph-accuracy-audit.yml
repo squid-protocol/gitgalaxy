@@ -14,7 +14,9 @@ name: Graph Accuracy Audit
 #     (javac-resolved, through the shared SCIP adapter tests/tools/scip_callgraph.py,
 #     #3783) on the pinned java repo, vs libclang (tests/tools/clang_callgraph.py, #3784)
 #     on the pinned c repos (the pip `libclang` wheel comes with callgraph.txt), and vs
-#     rust-analyzer 1.90.0 (SCIP, same adapter, #3785) on the pinned serde-rs/json;
+#     rust-analyzer 1.90.0 (SCIP, same adapter, #3785) on the pinned serde-rs/json, and vs
+#     golang.org/x/tools 0.37.0's VTA call graph (tests/tools/go_callgraph, Go 1.24+, #3782) on the
+#     pinned spf13/cobra;
 #   - span anchoring: functions whose start_line opens on other code before the
 #     declaration, lower is better (#3543, tests/tools/span_anchor_audit.py).
 # Level 1 (callee names vs tree-sitter) stays in call-graph-accuracy-audit.yml.
@@ -42,6 +44,7 @@ on:
       - "tests/tools/ts_callgraph.js"
       - "tests/tools/scip_callgraph.py"
       - "tests/tools/clang_callgraph.py"
+      - "tests/tools/go_callgraph/**"
       - "tests/tools/span_anchor_audit.py"
       - "tests/import_graph_corpus.json"
       - "tests/import_graph_accuracy_baseline.json"
@@ -50,6 +53,7 @@ on:
       - "tests/call_graph_resolution_javascript_baseline.json"
       - "tests/call_graph_resolution_java_baseline.json"
       - "tests/call_graph_resolution_rust_baseline.json"
+      - "tests/call_graph_resolution_go_baseline.json"
       - "tests/call_graph_resolution_c_baseline.json"
       - "tests/span_anchor_baseline.json"
       - ".github/workflows/graph-accuracy-audit.yml"
@@ -135,6 +139,14 @@ jobs:
           key: cargo-registry-${{ hashFiles('gitgalaxy/tests/import_graph_corpus.json') }}
           restore-keys: cargo-registry-
 
+      # golang.org/x/tools (the go reference) is built by `go run -C tests/tools/go_callgraph`, which
+      # wants Go 1.24+ (its go.mod); the module cache is keyed by the helper's go.sum.
+      - name: Setup Go 1.24 (call-resolution reference)
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.24"
+          cache-dependency-path: gitgalaxy/tests/tools/go_callgraph/go.sum
+
       # The two corpora are fetched in parallel, once for every gate that reads them.
       - name: Fetch the pinned import-graph repos and the Language Crucible corpus
         run: |
@@ -167,10 +179,11 @@ jobs:
             gate call-c python tests/tools/call_graph_resolution.py c --samples 5 ) &
           ( gate call-java python tests/tools/call_graph_resolution.py java --samples 5
             gate call-python python tests/tools/call_graph_resolution.py python --samples 5
-            gate call-rust python tests/tools/call_graph_resolution.py rust --samples 5 ) &
+            gate call-rust python tests/tools/call_graph_resolution.py rust --samples 5
+            gate call-go python tests/tools/call_graph_resolution.py go --samples 5 ) &
           wait
           cat "$RUNNER_TEMP/gaa/times"
-          for n in import-graph call-typescript call-javascript call-c call-java call-python call-rust span-anchoring; do
+          for n in import-graph call-typescript call-javascript call-c call-java call-python call-rust call-go span-anchoring; do
             cat "$RUNNER_TEMP/gaa/$n.log"
             cat "$RUNNER_TEMP/gaa/$n.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
           done

@@ -261,6 +261,14 @@ falls 91.1% -> 79.1% and resolution recall 63.8% -> 56.5%: their `fmt::format(..
 to an unrelated `format` member such as `formatter<X>::format` in `test/format-test.cc`, wrong links that were hidden
 while the callers were unmapped. Fix the resolver's qualified step first, then map the bodies.
 
+**Lock-annotation tail (#3772):** `void Mock::AllowLeak(const void* p)` followed on its own indented line by
+`GTEST_LOCK_EXCLUDED_(mu) {` was named after the macro, so its callers were unmapped. The `func_start` tail now
+accepts an indented annotation macro with arguments from the LOCK / EXCLUDE / REQUIRE / ACQUIRE / RELEASE / GUARDED
+vocabulary. Before -> after: confident precision 91.1% -> 91.4%, recall 16.3% -> 17.0%, ambiguous precision
+41.5% -> 47.1%, 162 fewer `caller_unmapped`, 67 more links. Resolution recall reads 63.8% -> 62.6% because the 162
+newly mapped callers enter its denominator and only 67 of their edges link; the other 95 fall in buckets already open
+(`ambiguous/receiver` +33, `not_extracted/other` +28, `resolved_outside` +22). Linked edges rose by a net 67; confident-wrong links did not rise (wrong-overload 90 -> 89).
+
 ## Span anchoring
 
 A unit is mis-anchored when its `start_line` opens before the declaration, on lines that belong

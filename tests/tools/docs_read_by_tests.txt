@@ -454,6 +454,7 @@ tests/README.md	tests/tools/test_post_merge_dispatch.py,tests/tools/test_progres
 tests/extraction/how_to_extend_class_start_named_extraction.md	tests/tools/tree_sitter_accuracy_audit.py
 tests/golden_master_audit_notes.md	tests/tools/test_rebase_rebless.py
 tests/tools/referees/README.md	tests/tools/referees
+transferability.md	tests/tools/test_status_page_snapshots.py
 tree_sitter_accuracy_chart.svg	tests/tools/tree_sitter_accuracy_audit.py
 tree_sitter_accuracy_history.csv	tests/tools/tree_sitter_accuracy_audit.py
 tri_comparison_chart.svg	tests/tools/tri_comparison_chart.py

@@ -216,3 +216,19 @@ def test_every_channel_is_in_the_recipe_table():
 def test_every_other_recipe_table_is_listed_unmigrated():
     unregistered = _recipe_tables() - {c.table for c in CHANNELS}
     assert unregistered == _UNMIGRATED_RECIPE_TABLES, "register the channel, or list the legacy table"
+
+
+# The READMEs (#3383): the recorders README is the DB schema doc and the core README names the registry.
+_RECORDERS_README = Path(__file__).resolve().parents[2] / "gitgalaxy" / "recorders" / "README.md"
+_CORE_README = Path(__file__).resolve().parents[2] / "gitgalaxy" / "core" / "README.md"
+
+
+def test_every_channel_table_is_in_the_recorders_readme():
+    text = _RECORDERS_README.read_text(encoding="utf-8")
+    for channel in CHANNELS:
+        assert f"`{channel.table}`" in text, f"{channel.table} is not documented in recorders/README.md"
+
+
+def test_the_core_readme_points_at_the_registry():
+    text = _CORE_README.read_text(encoding="utf-8")
+    assert "core/fact_channels.py" in text and "how_to_add_a_fact_channel.md" in text

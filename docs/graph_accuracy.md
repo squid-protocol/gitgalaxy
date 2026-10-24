@@ -19,6 +19,7 @@ that baseline in the same PR.
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py java` | scip-java 0.12.3 (javac-resolved SCIP, through `tests/tools/scip_callgraph.py`) | pinned java repos, `tests/import_graph_corpus.json` (gson) | `tests/call_graph_resolution_java_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py rust` | rust-analyzer (pinned toolchain 1.90.0; SCIP, through `tests/tools/scip_callgraph.py`) | pinned rust repos, `tests/import_graph_corpus.json` (serde-rs/json) | `tests/call_graph_resolution_rust_baseline.json` | not yet in CI (the toolchain install and a gate step are a follow-up) |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py go` | golang.org/x/tools 0.37.0 VTA call graph (`tests/tools/go_callgraph`, Go 1.24+) | pinned go repos, `tests/import_graph_corpus.json` (cobra) | `tests/call_graph_resolution_go_baseline.json` | none yet: CI has no Go step (#3782) |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py c` | libclang 18.1.1 resolved calls (`tests/tools/clang_callgraph.py`, pip `libclang`) | pinned c repos, `tests/import_graph_corpus.json` (hiredis, libuv) | `tests/call_graph_resolution_c_baseline.json` | not wired yet (workflow slice, #3784) |
 | Import edges | `tests/tools/import_graph_accuracy.py` | each language's import statements (Python `ast`, tree-sitter), resolved by the language's own rule | pinned real repos, `tests/import_graph_corpus.json` | `tests/import_graph_accuracy_baseline.json` | `graph-accuracy-audit.yml` |
 | Span anchoring | `tests/tools/span_anchor_audit.py` | the declaration line in the raw source | language-crucible | `tests/span_anchor_baseline.json` | `graph-accuracy-audit.yml` |
 
@@ -200,6 +201,31 @@ outside the repo has no incoming edge. Calls through `reflect` or a value that c
 outside get none. Read those as the reference's blind spot, not engine error. The `external`
 verdicts are the engine's: 123 confident links land on a name (`Len`, `Error`) that the checker
 resolves to the standard library, the bare-name collision the strict precision counts.
+
+## Call resolution in C (#3784)
+
+C is scored against **libclang** (`tests/tools/clang_callgraph.py`, the pip `libclang==18.1.1`
+bindings with a bundled library; `pip install libclang==18.1.1`). Each `.c` file is one translation
+unit, with every directory holding a header as an `-I` path; no compilation database is needed for a
+call graph. Directories named `win` are not parsed (they need `<windows.h>`).
+
+- A def is a function with a body, in a `.c` file or a header. A prototype is not (#3757).
+- A static callee is that translation unit's own definition; any other callee is linked by symbol name to
+  every external-linkage def, which is the link group across translation units. Where per-platform files
+  define one external name (`uv__io_poll`), the reference links the call to each.
+- A callee with no def in the repo (libc, a system header) is `external`. A call through a function
+  pointer names no function and is skipped. A macro that expands to a call is a call.
+
+**First numbers vs libclang** (hiredis + libuv, 2,163 confident links judged): precision 100.0%, recall
+25.3%, resolution recall 58.8%, 2,790 confident links unmapped.
+
+**What the reference cannot see:** it parses one preprocessor configuration (Linux), so code under
+`#ifdef _WIN32` or another platform's branch has no reference def (its engine links are `unmapped`). And
+the recall gap has engine-side causes the reference is right about: libuv's `TEST_IMPL(name)` functions
+(612 reference defs the engine does not extract) and `docs/code/` (113 defs, files the engine does not ingest).
+Headers libclang cannot find (the bundled build has no compiler headers) leave some types unknown, but a
+call to a declared function still resolves.
+
 
 ## Span anchoring
 

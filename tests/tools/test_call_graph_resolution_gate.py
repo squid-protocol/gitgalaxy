@@ -239,3 +239,51 @@ def test_go_callgraph_resolves_calls_with_the_type_checker(tmp_path):
     # a call outside the module is external, a closure's calls belong to its enclosing function
     assert [run, "TrimSpace"] in g["external"]
     assert g["files"] == 2
+
+
+def test_clang_callgraph_resolves_c_calls_across_translation_units(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "util.h").write_text("int helper(int x);\nint twice(int x) {\n  return helper(x) * 2;\n}\n")  # 1-4
+    (tmp_path / "util.c").write_text(
+        '#include "util.h"\n'
+        "static int hidden(int x) { return x; }\n"  # 2
+        "int helper(int x) {\n"  # 3
+        "  return hidden(x);\n"
+        "}\n"
+    )
+    (tmp_path / "other.c").write_text("static int hidden(int x) { return -x; }\nint neg(int x) { return hidden(x); }\n")
+    (tmp_path / "main.c").write_text(
+        '#include "util.h"\n'
+        "#include <string.h>\n"
+        "#define SQ(x) ((x) * (x))\n"  # looks like a call, is not one
+        "#define VIA(x) helper(x)\n"  # expands to one
+        "int run(char *s, int (*fp)(int)) {\n"  # 5
+        "  int n = (int)strlen(s);\n"
+        "  fp(n);\n"
+        "  return SQ(n) + VIA(n) + twice(n);\n"
+        "}\n"
+    )
+    (tmp_path / "win").mkdir()
+    (tmp_path / "win" / "w.c").write_text("#include <windows.h>\nint w(void) { return 1; }\n")
+    g = clang_callgraph.build(tmp_path)
+    run, twice, helper = ["main.c", "run", 5], ["util.h", "twice", 2], ["util.c", "helper", 3]
+    hidden, neg = ["util.c", "hidden", 2], ["other.c", "neg", 2]
+    # the prototype `int helper(int x);` is no def; `win/` is not parsed; each static `hidden` is its own def
+    assert sorted(g["defs"]) == sorted([run, twice, helper, hidden, ["other.c", "hidden", 1], neg])
+    # cross-file: run -> twice (a header function) and -> helper (via the macro, and twice -> helper through the
+    # prototype); a static callee is its own translation unit's definition, not the other file's `hidden`
+    assert sorted(g["edges"]) == sorted(
+        [
+            [run, twice, 8],
+            [run, helper, 8],
+            [twice, helper, 3],
+            [helper, hidden, 4],
+            [neg, ["other.c", "hidden", 1], 2],
+        ]
+    )
+    # strlen resolves only in a system header; the call through `fp` names no function
+    assert g["external"] == [[run, "strlen"]]
+    assert g["files"] == 3

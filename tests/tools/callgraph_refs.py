@@ -43,6 +43,7 @@ from typing import Any
 from collections.abc import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import clang_callgraph  # noqa: E402
 import scip_callgraph  # noqa: E402
 from launcher_exe import npm_executable  # noqa: E402
 
@@ -215,6 +216,11 @@ def _pyan_version() -> str | None:
         return None
 
 
+def clang_contract(repo: Path) -> dict[str, Any]:
+    """libclang's call graph of `repo`'s C sources (tests/tools/clang_callgraph.py, #3784)."""
+    return clang_callgraph.build(repo)
+
+
 def _tsc_version() -> str | None:
     probe = "const t=require('typescript');process.stdout.write(typeof t.createProgram==='function'?t.version:'')"
     try:
@@ -292,6 +298,18 @@ REFERENCES: dict[str, Reference] = {
         (Path(__file__), GO_HELPER / "main.go", GO_HELPER / "go.mod"),
         True,
         "a Go 1.24+ toolchain (go) on PATH; golang.org/x/tools is fetched from tests/tools/go_callgraph/go.sum",
+    ),
+    # C through libclang's resolved calls (#3784)
+    "c": Reference(
+        "c",
+        "libclang",
+        "18.1.1",
+        "import_graph",
+        clang_contract,
+        clang_callgraph.libclang_version,
+        (Path(__file__), TOOLS / "clang_callgraph.py"),
+        True,
+        'pip install "libclang==18.1.1"',
     ),
     # SCIP (#3783): scip-java's compiler-resolved index, through the shared SCIP adapter
     "java": Reference(

@@ -147,3 +147,17 @@ def test_inqcust_plans_an_rls_abend_on_the_read_the_startbr_and_the_readprev():
         (f["cmd"], f["abcode"]) for sc in case["scenarios"] for f in sc.get("faults", []) if f.get("resp") == "ABEND"
     }
     assert planned == {("READ", "AFCR"), ("STARTBR", "AFCS"), ("READPREV", "AFCT")}
+
+
+def test_zecs000_plans_an_rls_abend_on_the_control_read():
+    """#6271: 9100-ABEND (the HANDLE ABEND label of 1000-RETRIEVE) is reached by a file abend, so no non-file command abend is needed."""
+    import json
+
+    case = json.loads((TESTS / "equivalence" / "zecs-zecs000" / "case.json").read_text(encoding="utf-8"))
+    planned = {
+        f["abcode"]
+        for sc in case["scenarios"]
+        for f in sc.get("faults", [])
+        if f.get("resp") == "ABEND" and f["cmd"] == "READ" and f["file"] == "ZCEXPIRE"
+    }
+    assert planned == {"AFCR", "AFCS", "AFCT"}

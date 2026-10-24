@@ -485,3 +485,37 @@ def test_the_abend_exit_check_is_one_shape_after_a_link_and_after_an_injected_fi
     ]
     src = Path(C.__file__).read_text(encoding="utf-8")
     assert src.count("self.abend_exit(ind)") == 2 and "task.abendExit()" not in src  # LINK and the file command
+
+
+# ---- faults (#5274, harness half): the scenario fault-injection planner, IBM's conditions and RESP2 per command -------
+def test_the_harness_dispatches_faults_to_its_module():
+    import equivalence_cics_faults as ecf  # noqa: E402
+
+    for name in ("fault_lines", "dli_fault_lines", "enq_fault_key", "FAULT_COMMANDS", "UI_FAULT_CONDITIONS",
+                 "FILE_FAULT_CONDITIONS", "LINK_REFUSED_CONDITIONS", "_file_fault_resp2", "_ui_fault_resp2",
+                 "_abend_fault_line"):  # fmt: skip
+        assert hasattr(ecf, name), name
+    for old in ("_file_fault_resp2", "_ui_fault_resp2", "_abend_fault_line", "_FAULT_NAME", "FILE_FAULT_REFUSED"):
+        assert not hasattr(ec, old), old
+    for name in ("fault_lines", "dli_fault_lines", "enq_fault_key", "FAULT_COMMANDS", "UI_FAULT_CONDITIONS",
+                 "FILE_FAULT_CONDITIONS", "LINK_REFUSED_CONDITIONS"):  # fmt: skip
+        assert getattr(ec, name) is getattr(ecf, name), name
+    assert "CICS_RESP" in vars(ec) and "CICS_RESP" not in vars(ecf)  # built from the host's DFHRESP: stays there
+
+
+def test_fault_lines_cover_each_planning_family():
+    plans = (
+        ({"cmd": "READ", "file": "F", "resp": "NOTFND"}, "READ F 1 13 80"),  # file control, IBM's RESP2
+        ({"cmd": "ROLLBACK", "resp": "INVREQ"}, "ROLLBACK - 1 16 200"),  # terminal / unit of work
+        ({"cmd": "ENQ", "resource": "ws-res ", "resp": "ENQBUSY"}, "ENQ WS-RES 1 55 0"),
+        ({"cmd": "READQ-TD", "queue": "Q", "resp": "IOERR"}, f"READQ-TD Q 1 {ec.CICS_RESP['IOERR']} 0"),
+        ({"cmd": "XCTL", "program": "P", "resp": "PGMIDERR", "resp2": 3}, "XCTL P 1 27 3"),
+        ({"cmd": "READ", "file": "F", "resp": "ABEND", "abcode": "AFCR"}, "READ F 1 -1 0 AFCR"),
+    )
+    for plan, line in plans:
+        assert ec.fault_lines({"name": "s", "faults": [plan]}) == [line], plan
+    assert ec.fault_lines({"name": "s", "sql_abend_plan": ["SQL P:1 1 -1 0 AD2Z"]}) == ["SQL P:1 1 -1 0 AD2Z"]
+    with pytest.raises(ec.Unsupported):
+        ec.fault_lines({"name": "s", "faults": [{"cmd": "DELETE", "file": "F", "resp": "DUPKEY"}]})  # register X48
+    assert ec.dli_fault_lines({"ims": {}}, {"name": "s"}) == []
+    assert any("GGCENQ" in ln for ln in ec.translate_command("ENQ RESOURCE(WS-RES)"))

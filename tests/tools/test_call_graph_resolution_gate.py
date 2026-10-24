@@ -186,3 +186,56 @@ def test_ts_callgraph_resolves_calls_with_the_type_checker(tmp_path):
     # each edge carries its first call site: `t.trim()` on line 9, `clone(1)` on line 11
     assert sorted(g["edges"]) == [[run, ["main.ts", "trim", 3], 9], [run, ["util.ts", "clone", 1], 11]]
     assert g["external"] == [[run, "trim"]]  # s.trim() is String.prototype.trim
+
+
+def test_go_callgraph_resolves_calls_with_the_type_checker(tmp_path):
+    import json
+    import shutil
+
+    if shutil.which("go") is None or callgraph_refs._go_version() is None:
+        pytest.skip("no Go 1.24+ toolchain on PATH")
+    (tmp_path / "go.mod").write_text("module example.com/m\n\ngo 1.22\n")
+    (tmp_path / "util").mkdir()
+    (tmp_path / "util" / "util.go").write_text("package util\n\nfunc Clone(x int) int {\n\treturn x\n}\n")
+    (tmp_path / "main.go").write_text(
+        "package main\n"  # 1
+        "\n"
+        'import (\n\t"strings"\n\n\t"example.com/m/util"\n)\n'  # 3-7
+        "\n"
+        "type Speaker interface{ Speak() int }\n"  # 9
+        "\n"
+        "type Dog struct{}\n"  # 11
+        "\n"
+        "func (d *Dog) Speak() int { return util.Clone(1) }\n"  # 13
+        "\n"
+        "func Map[T any](x T) T { return x }\n"  # 15
+        "\n"
+        "func run(s Speaker, d Dog) int {\n"  # 17
+        '\tstrings.TrimSpace("x")\n'  # 18
+        "\tf := func() int { return d2().Speak() }\n"  # 19
+        "\t_ = Map(1)\n"  # 20
+        "\ts.Speak()\n"  # 21
+        "\treturn f()\n"  # 22
+        "}\n"
+        "\n"
+        "func d2() *Dog { return &Dog{} }\n"  # 25
+        "\n"
+        "func main() { run(&Dog{}, Dog{}) }\n"  # 27
+    )
+    g = callgraph_refs.go_contract(tmp_path)
+    run, speak, clone, mapf, d2, main = (
+        ["main.go", "run", 17],
+        ["main.go", "Speak", 13],
+        ["util/util.go", "Clone", 3],
+        ["main.go", "Map", 15],
+        ["main.go", "d2", 25],
+        ["main.go", "main", 27],
+    )
+    assert sorted(g["defs"]) == sorted([run, speak, clone, mapf, d2, main])
+    edges = {(json.dumps(a), json.dumps(b)) for a, b, _ in g["edges"]}
+    # run -> Speak is the interface call; run -> d2 is made inside a closure
+    want = [(run, speak), (run, mapf), (run, d2), (speak, clone), (main, run)]
+    assert {(json.dumps(a), json.dumps(b)) for a, b in want} <= edges
+    # a call outside the module is external, a closure's calls belong to its enclosing function
+    assert [run, "TrimSpace"] in g["external"]
+    assert g["files"] == 2

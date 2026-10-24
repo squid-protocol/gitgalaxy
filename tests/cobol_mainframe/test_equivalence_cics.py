@@ -218,7 +218,8 @@ def test_channels_and_containers_become_stub_calls():
     """#4270: PUT / GET / DELETE CONTAINER -> GGCPUTC / GGCGETC / GGCDELC with the container in GG-QNAME, the channel
     in GG-CHAN (GG-FLAGS CHANNEL; none: the current channel), the data type / APPEND / NODATA in GG-FLAGS and FLENGTH
     in GG-LEN -- set back on NORMAL / LENGERR only (IBM, GET CONTAINER (CHANNEL)); LINK / XCTL CHANNEL pass the
-    channel; ASSIGN CHANNEL reads it back. The CCSID options, SET and RETURN CHANNEL are refused by name."""
+    channel; ASSIGN CHANNEL reads it back. The CCSID options and SET are refused by name; RETURN CHANNEL: see
+    test_return_channel_becomes_a_stub_call."""
     put = ec.translate_command("PUT CONTAINER('REQ') CHANNEL(WS-CH) FROM(WS-A) FLENGTH(WS-N) CHAR APPEND RESP(R)")
     assert put[:5] == ["MOVE 'REQ' TO GG-QNAME", "MOVE WS-CH TO GG-CHAN", "MOVE 'CHANNEL CHAR APPEND' TO GG-FLAGS",
                        "MOVE WS-N TO GG-LEN", "IF GG-LEN > LENGTH OF WS-A"]  # fmt: skip
@@ -249,7 +250,9 @@ def test_channels_and_containers_become_stub_calls():
         "GET CONTAINER(C) INTO(A) INTOCCSID(1140) CONVERTST(DFHVALUE(NOCONVERT))",
         "GET CONTAINER(C) INTO(A) CCSID(N)",
         "GET CONTAINER(C) FLENGTH(L)",
-        "RETURN TRANSID('T') CHANNEL(C)",
+        "RETURN CHANNEL(C)",
+        "RETURN TRANSID('T') CHANNEL(C) COMMAREA(A)",
+        "RETURN TRANSID('T') CHANNEL(C) IMMEDIATE",
         "LINK PROGRAM('P') CHANNEL(C) COMMAREA(A)",
         "MOVE CONTAINER(A)",
         "MOVE CONTAINER(A) AS(B) CONTAINERTYPE(X)",
@@ -259,6 +262,18 @@ def test_channels_and_containers_become_stub_calls():
         "PUT CONTAINER(C) FROM(A) BIT CHAR",
     ):
         with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+
+
+def test_return_channel_becomes_a_stub_call():
+    """#5005 (X17): RETURN TRANSID CHANNEL -> GGCRETC with the transid in GG-NAME1 and the channel in GG-CHAN. It
+    returns to the program (GOBACK only on success) when the RETURN fails below level 1 (INVREQ RESP2 2); CHANNEL
+    without TRANSID, or beside COMMAREA / LENGTH / IMMEDIATE, is refused by name."""
+    ret = ec.translate_command("RETURN TRANSID('PC62') CHANNEL(WS-CUR) RESP(R)")
+    assert ret[:3] == ["MOVE 'PC62' TO GG-NAME1", "MOVE WS-CUR TO GG-CHAN", "CALL 'GGCRETC' USING GG-CICS"]
+    assert ret[5:8] == ["IF GG-RESP = 0", "    GOBACK", "END-IF"] and "MOVE GG-RESP TO R" in ret
+    for bad in ("RETURN CHANNEL(C)", "RETURN TRANSID('T') CHANNEL(C) LENGTH(4)"):
+        with pytest.raises(ec.Unsupported, match="RETURN CHANNEL"):
             ec.translate_command(bad)
 
 

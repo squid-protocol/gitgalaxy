@@ -49,6 +49,17 @@ DOCKER_STEP_TIMEOUT = (
     1200  # seconds: hang guard, well above the slowest honest run (normal GnuCOBOL compile + run step time (~15-30s))
 )
 DOCKER_CLEANUP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
+# 2026-10-23: a fault probe looped forever under -ftraceall and its trace.txt grew ~75 MB/s in /tmp until the disk was
+# full (~100 GB); the harness's own timeout never fired because the worker's shell, and so the docker client, was killed
+# first, and the step ran on as root in its container. A step now bounds itself inside the container.
+STEP_FILE_LIMIT_KB = 4 * 1024 * 1024  # 4 GiB per file written (bash `ulimit -f` counts KiB); honest traces are a few MB
+
+
+def guarded(cmd: str, seconds: int) -> str:
+    """Shell `cmd` bounded inside its container: no file over STEP_FILE_LIMIT_KB (the writer gets SIGXFSZ, exit 153),
+    and killed after `seconds` even when the docker client that started it is gone (timeout's exit 124)."""
+    return f"ulimit -f {STEP_FILE_LIMIT_KB}; timeout -k 10 {seconds} {cmd}"
+
 
 # #5048: `docker build` fetches the digest-pinned base and runs apt, so a registry or mirror hiccup fails it
 BUILD_ATTEMPTS = 4
@@ -1042,7 +1053,10 @@ def _docker_run(work: Path, image: str, docker_args: tuple[str, ...]) -> subproc
     # the step runs as root: what it wrote is handed back to the caller (chown), so a reused step can be
     # copied over it and the work directory removed (#4476: the copy over a root-owned pass-1 file was refused)
     owner = f"{os.getuid()}:{os.getgid()}" if hasattr(os, "getuid") else "0:0"
-    keep_status = 'bash /work/run.sh; rc=$?; chown -R "$0" /work 2>/dev/null; exit $rc'
+    # the in-container limit fires before the client's, so a step whose caller died still stops
+    keep_status = (
+        guarded("bash /work/run.sh", DOCKER_STEP_TIMEOUT - 30) + '; rc=$?; chown -R "$0" /work 2>/dev/null; exit $rc'
+    )
     cid = f"gg-eq-{os.getpid()}-{int(time.time() * 1000) % 10000000}"
     cmd = [
         "docker",

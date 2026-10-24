@@ -1102,8 +1102,10 @@ jobs:
         run: |
           cd gitgalaxy
           PYTHONPATH="$PWD" python tests/tools/blocker_estate_feed.py "$GG_SCRATCH/census-cache/$SHA" \
-            --out "$RUNNER_TEMP/blocker-feed" --extra-root "$GITHUB_WORKSPACE/cics-crucible"
+            --out "$RUNNER_TEMP/blocker-feed" --extra-root "$GITHUB_WORKSPACE/cics-crucible" --require-sources
           cat "$RUNNER_TEMP/blocker-feed/feed.md" >> "$GITHUB_STEP_SUMMARY"
+          # the unmatched rows ride the blockers-survey artifact to publish-blockers, which lays them on `generated` for the tick
+          cp "$RUNNER_TEMP/blocker-feed/feed.json" "$RUNNER_TEMP/blockers-cache/blocker_feed.json"
 
       - name: Keep the survey for the blockers publisher (#4863)
         if: steps.survey.outcome == 'success'
@@ -1473,6 +1475,8 @@ jobs:
           mkdir -p "$RUNNER_TEMP/generated-preview"
           (cd main && PYTHONPATH="$PWD" python tests/tools/cics_census.py publish --sha "$SHA" \
             --root "$RUNNER_TEMP/blockers-survey" --into "$RUNNER_TEMP/generated-preview")
+          mkdir -p "$RUNNER_TEMP/generated-preview/docs/language_status/blockers"
+          [ ! -f "$RUNNER_TEMP/blockers-survey/blocker_feed.json" ] || cp "$RUNNER_TEMP/blockers-survey/blocker_feed.json" "$RUNNER_TEMP/generated-preview/docs/language_status/blockers/"
           {
             echo "## Blockers publish PREVIEW (${SHA::12}, ref ${GITHUB_REF_NAME}; generated NOT written)"
             echo '```'
@@ -1511,6 +1515,8 @@ jobs:
           fi
           (cd main && PYTHONPATH="$PWD" python tests/tools/cics_census.py publish --sha "$SHA" \
             --root "$RUNNER_TEMP/blockers-survey" --into "$GITHUB_WORKSPACE/generated")
+          mkdir -p generated/docs/language_status/blockers
+          [ ! -f "$RUNNER_TEMP/blockers-survey/blocker_feed.json" ] || cp "$RUNNER_TEMP/blockers-survey/blocker_feed.json" generated/docs/language_status/blockers/
           cd generated
           [ -f GENERATED_FROM ] || echo "Generated output only -- never edit by hand." > GENERATED_FROM
           if ! grep -q "docs/language_status/blockers/" GENERATED_FROM; then

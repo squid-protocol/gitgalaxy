@@ -414,13 +414,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T14:33:04Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "c",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 27,
@@ -467,10 +469,10 @@
         }
       ],
       "metric": "engine-attributes-to-another-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. All 27 recorded examples are calls through a function pointer in CPython: 25 are `(*func)(self, ...)` in typeobject.c wrap_* slot wrappers (`ssizeargfunc func = (ssizeargfunc)wrapped; ... return (*func)(self, i);`), plus `(*f)(w, v, op)` in object.c and `_PyCFunctionFast_CAST(cfunc)(...)` in ceval.c. The same parenthesised-callee gap as the recorded `call_expression/parenthesized_expression` verdict; the engine needs a plain `name(`. Engine gap."
     },
     "c/call/inner-named-function_definition/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -2537,8 +2539,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T14:33:04Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "cpp",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 24,
@@ -2585,10 +2587,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:operator_cast<qualified_identifier",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. All 24 recorded examples are a conversion-operator definition header, `Variant::operator Array() const {` (23 in godot variant.cpp, 1 in object.cpp). The engine takes the target type (`Array`, `PackedByteArray`, `Variant`) as a callee of the operator it is defining. The body of `Variant::operator Array` is `return *reinterpret_cast<const Array *>(_data._mem);`, no call to `Array`. A declarator is not a call; tree-sitter reads it as an operator_cast, correctly."
     },
     "cpp/call/not-a-call-in-ts:parameter_declaration<parameter_list/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -4062,13 +4064,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T14:33:04Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "dart",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 27,
@@ -4115,10 +4119,10 @@
         }
       ],
       "metric": "engine-attributes-to-another-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Read all 27 recorded examples (flutter framework, navigator, semantics, object): real calls the engine's list for the function lacks. Two forms: a call inside a string interpolation (`'${debugGetCreatorChain(10)}'`, `${toStringShort()}`, `${objectRuntimeType(this, 'X')}`, `${node.getSemanticsData().role}`) and a call with explicit type arguments (`keys.map<String>(...)`, `pop<TO>(result)`, `TickerFuture.complete().then<void>(...)`, `complete<dynamic>(...)`). Both are evaluated calls. Engine gap."
     },
     "dart/call/not-a-call-in-ts:const_object_expression<argument/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5776,13 +5780,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T14:33:04Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "haskell",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 33,
@@ -5829,10 +5835,10 @@
         }
       ],
       "metric": "engine-attributes-to-another-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Read all 33 recorded examples in pandoc App.hs and Shared.hs: every one is a real function application the engine's callee list for that function lacks. They are qualified calls (`T.null`, `T.pack`, `T.dropWhile`, `B.fromList`, `BL.writeFile`), arguments applied inside guards (`| T.null pref`, `| null (takeExtension outputFile)`), and point-free definitions where the body is only a composition (`capitalize = walk go`, `triml = T.dropWhile isWS`, `isTightList = all isPlainItem`). The cause label only says the callee name occurs elsewhere in the file's engine output; the call in this function is still absent. Engine gap, not a tree-sitter error."
     },
     "haskell/call/infix/-+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -7415,8 +7421,8 @@
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T14:33:04Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "javascript",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 29,
@@ -7463,10 +7469,10 @@
         }
       ],
       "metric": "engine-attributes-to-another-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Mostly tree-sitter wrong, so no credit. 20 of the 29 recorded examples are the Flow-typed React file again: tree-sitter's `updateHostRoot` node runs from line 1800 to 2173 because the Flow annotations break the parse, so it swallows the functions after it (`updateHostHoistable`, `updateHostText`, `mountLazyComponent`...) and claims their calls (`getResource`, `markRef`, `resolveLazy`); the engine puts each call in its own function. The other 9 are real engine misses: a comma-expression callee `(0, request.environmentName)()` (3), a parenthesised callee `(special || deferred.resolveWith)(that, args)`, `.call()`, calls in template interpolation (`${bundleType.toLowerCase()}`) and a callback argument. The shape geometry holds one credit for all 29, so the majority decides; the 9 misses are listed as a split shape to separate once the harness labels a function node that spans a sibling as a parse error."
     },
     "javascript/call/inner-named-arrow_function/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -12815,8 +12821,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T14:33:04Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "python",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 30,
@@ -12863,10 +12869,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:class_definition<block",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. All 30 recorded examples are a class declared inside a function body (`class Model(BaseModel):`, `class Item(BaseModel):`, `class safe_datetime(datetime):` in fastapi tests). The engine reads `Model(BaseModel)` as a call to `Model` made by the enclosing function. In test_compat.py the name has no call anywhere in the function; line 50 is only the declaration (the real call on line 55, `EmbeddedModel()`, is a call both readers list). A class header is not a call. The tree-sitter reading is right."
     },
     "python/call/not-a-call-in-ts:parameters<function_definition/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -14622,13 +14628,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T06:57:11Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T14:33:04Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "scala",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 32,
@@ -14675,10 +14683,10 @@
         }
       ],
       "metric": "call_expression/field_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Read all 32 recorded examples (kafka KafkaApis, LogManager, Partition, ReplicaManager, SocketServer): real method calls the engine does not list. Dominant form is a method call with a brace lambda in place of parentheses (`dirs.flatMap { dir =>`, `listeners.forEach { listener =>`, `fetchContext.foreachPartition { (a, b) =>`, `lock.synchronized {`); the rest are a call inside `s\"...${x.m()}\"` interpolation (`request.requestDesc(true)`, `newOfflinePartitions.mkString(\",\")`) and a call that continues a multi-line receiver. Engine gap."
     },
     "scala/call/call_expression/generic_function/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -16390,13 +16398,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T14:33:04Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "typescript",
       "last_reconciled_at": "2026-10-24T09:38:37Z",
       "last_seen_count": 32,
@@ -16443,10 +16453,10 @@
         }
       ],
       "metric": "call_expression/identifier",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Read all 32 recorded examples (fp-ts, playwright, typescript compiler, vscode): all are real calls. Three forms: a call inside a template-literal interpolation (`${String(method)}`, `${escapeString(name)}`, `${getSymbolPath(p)}`); an optional call (`onBeforeEmitNode?.(node)`, `cleanupParams?.()`, `handler?.(response)`); and a call inside a returned arrow function whose enclosing named function the engine lists as empty (fp-ts `tryCatch`: `onRejected(reason)`). The engine's callee extractor does not see the call in any of the three. Engine gap."
     },
     "typescript/call/call_expression/member_expression+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

@@ -1,5 +1,5 @@
 {
- "commit": "35480422a",
+ "commit": "4eae9ccdd",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,15 +160,15 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-24T02:33:56Z",
+  "as_of": "2026-10-24T02:48:28Z",
   "core": {
-   "closed": 170,
-   "open": 17,
+   "closed": 171,
+   "open": 16,
    "total": 187
   },
   "core_last_window": {
-   "closed": 52,
-   "net_closed": 12,
+   "closed": 53,
+   "net_closed": 13,
    "opened": 40
   },
   "core_milestone": {
@@ -184,7 +184,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "10 days",
+  "eta": "9 days",
   "frontier": {
    "closed": 107,
    "found_last_window": 25,
@@ -387,9 +387,9 @@
     "total": 265
    },
    {
-    "closed": 0,
+    "closed": 1,
     "number": 29,
-    "open": 8,
+    "open": 7,
     "title": "Open World \ud83d\uddfa\ufe0f \u2014 leaving the starter zone",
     "total": 8
    },
@@ -415,7 +415,7 @@
   },
   "title_counts": {
    "cics": {
-    "closed": 90,
+    "closed": 91,
     "total": 107
    },
    "cobol": {

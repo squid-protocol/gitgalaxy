@@ -4211,8 +4211,11 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   `test_proof_blockers.py`: 101 passed) still finds ZECS001 as the only burned reader of the seven fields, so no whole
   burned program reads EIBFN or EIBRCODE and the trigger above has not fired. The decision stands: no function-code or
   condition table is copied without a program that runs it. Sibling gaps, none needed by a burned program: EIBCPOSN,
-  EIBREQID, EIBRSRCE, EIBERR / EIBERRCD (named, refused); ASSIGN FACILITY with no terminal (stub refuses, det port
-  returns INVREQ RESP2 5; align both with IBM).
+  EIBREQID, EIBRSRCE, EIBERR / EIBERRCD (named, refused). (ASSIGN FACILITY with no terminal, listed here before, was
+  aligned on the stub and the det port in #5346.)
+- **Re-checked 2026-10-24 (#5126).** Same result: ZECS001 is the only burned reader, it translates with holes and has no
+  case, and IBM's verbatim tables are still not at hand. Do not requeue the EIBFN / EIBRCODE box until the guard fails
+  or ZECS001 becomes whole.
 - **Evidence level.** Translated on both sides and pinned at the translator (the text each side emits); NOT
   executed-equivalent: no case's program reads EIBDS, so no scenario ran the stub's MOVE against the port's. The
   detail the pins cannot show is the MOVE's padding on the Java side (`Cobol.move` into the X(8) field).

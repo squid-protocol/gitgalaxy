@@ -205,3 +205,14 @@ def test_dart_index_and_list_are_not_calls_and_only_the_dollar_operator_applies_
     assert _calls("dart", "void run(m) {\n  var a = m['k'];\n  var b = [1];\n}\n")["run"] == set()
     assert _calls("haskell", "run x = f $ g x\n")["run"] == {"f", "g"}
     assert _calls("haskell", "run x = f x <> g . h\n")["run"] == {"f"}
+
+
+def test_solidity_value_call_names_the_call_and_apex_constructors_and_methods():
+    sol = _calls("solidity", "contract A{function f() public{ require(a); t.call{value: v}(d); g(1); }}")
+    assert sol == {"f": {"require", "call", "g"}}
+    apex = _calls("apex", "class A{void f(){ Map<Id,A> m = new Map<Id,A>(x); new Foo(); x.go(); }}")
+    assert apex == {"f": {"Map", "Foo", "go"}}
+
+
+def test_solidity_and_apex_are_measured():
+    assert {"solidity", "apex"} <= set(cga.LANGS)

@@ -29,6 +29,7 @@ from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det.cics_conditions import ConditionCommands  # #5274
 from gitgalaxy.tools.cobol_to_java.det.cics_containers import ContainerCommands  # #5274
+from gitgalaxy.tools.cobol_to_java.det.cics_faults import FaultCommands  # #5274
 from gitgalaxy.tools.cobol_to_java.det.cics_filecontrol import FileControlCommands  # #5274
 from gitgalaxy.tools.cobol_to_java.det.cics_taskcontrol import TaskControlCommands  # #5274
 
@@ -487,7 +488,7 @@ def item_for(leaf: Leaf) -> L.Item:
 
 
 # ---- the commands ------------------------------------------------------------------------------------------------
-class Cics(ConditionCommands, ContainerCommands, FileControlCommands, TaskControlCommands):
+class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlCommands, TaskControlCommands):
     """Translates EXEC CICS for one program; `gen` is the program's det.gen.Gen. A command family split out of this
     file (#5274: the containers / channels commands, det/cics_containers.py) is a base class: `command` dispatches."""
 
@@ -838,10 +839,7 @@ class Cics(ConditionCommands, ContainerCommands, FileControlCommands, TaskContro
             file = opts.get("FILE") or opts.get("DATASET")
             if words[:1] and " ".join(words) in EIBDS_VERBS and file:
                 if self.handle_abend and " ".join(words) != "UNLOCK":  # #6271 (X70): an injected file abend
-                    ex = self.g.tmpname("exit")  # went to this program's exit, or unwound past this level
-                    lines = [*lines, f"{ind}String {ex} = task.abendExit();",
-                             f"{ind}if ({ex} != null) {self.g.jump(f'paragraph({ex})')}",
-                             f"{ind}if (task.ended()) throw abended();"]  # fmt: skip
+                    lines = [*lines, *self.abend_exit(ind)]  # went to this program's exit, or unwound past this level
                 if self.eibds_read:
                     return [f"{ind}Cobol.move({self.text(file)}, {self.g.eib('EIBDS')}, CS);", *lines]
         return lines
@@ -1092,10 +1090,7 @@ class Cics(ConditionCommands, ContainerCommands, FileControlCommands, TaskContro
                         f"{ind}    if (!task.linkAreaBack()) {{ in_{cls}({ca}, {w}, 0); }}",
                         f"{ind}    Cobol.commareaBack({w}, {f});",
                         f"{ind}}}"]  # fmt: skip
-            ex = g.tmpname("exit")
-            out += [f"{ind}String {ex} = task.abendExit();",  # an abend below went to this program's exit
-                    f"{ind}if ({ex} != null) {g.jump(f'paragraph({ex})')}",
-                    f"{ind}if (task.ended()) throw abended();"]  # #4534: unwound past this level  # fmt: skip
+            out += self.abend_exit(ind)  # #4534: an abend below went to the exit, or unwound
             return out + self.outcome(opts, f"DetCics.resp({r})", "task.transferResp2()", ind)  # #4679
         if verb == "RETURN":
             if "CHANNEL" in opts:  # #5005 (X17): the next task's current channel (CicsTask.returnChannel)
@@ -1169,16 +1164,7 @@ class Cics(ConditionCommands, ContainerCommands, FileControlCommands, TaskContro
         if verb in ("WRITE", "REWRITE", "DELETE", "STARTBR", "ENDBR", "UNLOCK"):
             return self.file_update(verb, opts, ind)
         if verb == "HANDLE ABEND":
-            if "LABEL" in opts:
-                label = _arg(opts["LABEL"]).upper()
-                if label not in g.para_index:
-                    raise CicsError(f"HANDLE ABEND LABEL({label}): no such paragraph")
-                return [f"{ind}task.handleAbend({G_jstr(label)});"]
-            if "CANCEL" in opts:
-                return [f"{ind}task.handleAbendCancel();"]
-            if "RESET" in opts:
-                return [f"{ind}task.handleAbendReset();"]
-            raise CicsError("HANDLE ABEND without LABEL, CANCEL or RESET")
+            return self.handle_abend_(opts, ind)
         if verb == "HANDLE CONDITION":
             out = []
             self.conditions(verb, opts)
@@ -1197,11 +1183,7 @@ class Cics(ConditionCommands, ContainerCommands, FileControlCommands, TaskContro
         if verb in ("PUSH HANDLE", "POP HANDLE"):
             return self.push_pop(verb, opts, ind)
         if verb == "ABEND":
-            code = self.name(_arg(opts["ABCODE"])) if opts.get("ABCODE") else '""'
-            fn = "abendCancel" if "CANCEL" in opts else "abend"
-            lbl = g.tmpname("exit")
-            return [f"{ind}String {lbl} = task.{fn}({code});", f"{ind}if ({lbl} == null) throw abended();",
-                    f"{ind}if (true) {g.jump(f'paragraph({lbl})')}"]  # fmt: skip
+            return self.abend(opts, ind)
         if verb == "ASSIGN":
             return self.assign(opts, ind)
         if verb == "ASKTIME":
@@ -2146,20 +2128,6 @@ class Cics(ConditionCommands, ContainerCommands, FileControlCommands, TaskContro
         if m is None or ms is None:
             raise CicsError("MAP / MAPSET not a constant, nor fixed by the symbolic map")
         return m, ms, guard
-
-    def map_not_found(self, m: str, ms: str, ind: str) -> list[str] | None:
-        """IBM CICS TS (SEND MAP / RECEIVE MAP; abend code ABM0, register X31): a map is found only inside its own
-        mapset (BMS: DFHMSD names the mapset, each DFHMDI a map; MAPSET defaults to the MAP name when omitted). A name
-        that is a mapset of the estate but no map of it asks CICS for a map the mapset does not hold: ABM0, "The map
-        specified for a basic mapping support (BMS) request could not be located", the transaction abnormally
-        terminated. No condition is raised (neither command lists one), so RESP / HANDLE CONDITION do not see it; a
-        HANDLE ABEND exit does -- the lines are EXEC CICS ABEND's, with the abend CICS raises. None: not that case."""
-        if ms not in self.gp.mapsets or m in self.gp.mapsets[ms]:
-            return None
-        lbl = self.g.tmpname("exit")
-        return [f"{ind}String {lbl} = task.abendMapNotFound({G_jstr(m)}, {G_jstr(ms)});",
-                f"{ind}if ({lbl} == null) throw abended();",
-                f"{ind}if (true) {self.g.jump(f'paragraph({lbl})')}"]  # fmt: skip
 
     def screen_slots(self, cls: str) -> list[tuple[str, int | None]]:
         """#5076: a screen class's fields as (name, occurrence): a repeated field once per occurrence (ACCOUNT, 3), any

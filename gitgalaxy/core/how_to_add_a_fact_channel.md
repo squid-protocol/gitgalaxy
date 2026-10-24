@@ -167,6 +167,10 @@ every scan). Prove it: a full scan and an incremental scan must produce byte-ide
 `tests/core_engine/test_fact_channels.py` checks every registry entry's columns and restore query
 against the real schema.
 
+The same test file also checks the docs against the registry: the channel table above, the `galaxy_ir`
+SCOPE comment and loader, and `gitgalaxy/recorders/README.md` (the DB schema doc, which must mention every
+registered table) -- a new `FactChannel` without its row and its README paragraph fails there.
+
 ### 6. Expose it in the IR reader (`tools/cobol_to_cobol/galaxy_ir.py`)
 
 Add an `@dataclass Engine<Fact>`, a `<facts>: list` field on `EngineFile`, and a read block in

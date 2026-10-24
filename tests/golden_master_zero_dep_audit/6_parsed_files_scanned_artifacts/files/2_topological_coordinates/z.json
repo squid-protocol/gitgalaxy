@@ -1,7 +1,7 @@
 {
   "groups": {
     "abap": {
-      "abap/SOURCES.md": -10453.2
+      "abap/SOURCES.md": -10453.33
     },
     "abap/abapGit": {
       "abap/abapGit/package.devc.xml": 8342.57,
@@ -413,7 +413,7 @@
       "c/SOURCES.md": -4867.84
     },
     "c/cosmopolitan_intrin": {
-      "c/cosmopolitan_intrin/countbits.c": -10344.65
+      "c/cosmopolitan_intrin/countbits.c": -10350.91
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 9303.71,
@@ -1102,22 +1102,22 @@
       "cpp/NVDA/storage.cpp": 7544.39
     },
     "cpp/godot": {
-      "cpp/godot/AUTHORS.md": 6634.99,
-      "cpp/godot/DONORS.md": 7443.96,
+      "cpp/godot/AUTHORS.md": 6635.0,
+      "cpp/godot/DONORS.md": 7443.98,
       "cpp/godot/LICENSE.txt": 5805.41,
-      "cpp/godot/editor_node.cpp": 6579.69,
+      "cpp/godot/editor_node.cpp": 6579.7,
       "cpp/godot/editor_node.h": 5919.42,
-      "cpp/godot/gdscript_vm.cpp": 6641.04,
-      "cpp/godot/main.cpp": 6837.65,
+      "cpp/godot/gdscript_vm.cpp": 6641.05,
+      "cpp/godot/main.cpp": 6837.67,
       "cpp/godot/main.h": 6360.05,
-      "cpp/godot/node.cpp": 6241.81,
-      "cpp/godot/node.h": 6970.71,
-      "cpp/godot/object.cpp": 6401.76,
-      "cpp/godot/object.h": 6819.84,
+      "cpp/godot/node.cpp": 6241.8,
+      "cpp/godot/node.h": 6970.73,
+      "cpp/godot/object.cpp": 6401.77,
+      "cpp/godot/object.h": 6819.85,
       "cpp/godot/rendering_server_default.cpp": 6036.03,
-      "cpp/godot/rendering_server_default.h": 7296.77,
-      "cpp/godot/variant.cpp": 7238.4,
-      "cpp/godot/variant.h": 7114.74
+      "cpp/godot/rendering_server_default.h": 7296.8,
+      "cpp/godot/variant.cpp": 7238.43,
+      "cpp/godot/variant.h": 7114.76
     },
     "cpp/mlir": {
       "cpp/mlir/flatbuffer_export.cc": -1036.46,
@@ -1129,13 +1129,13 @@
       "cpp/mlir/tf_tfl_translate.cc": -1531.03
     },
     "cpp/powertoys": {
-      "cpp/powertoys/FancyZones.cpp": 7697.66,
-      "cpp/powertoys/FancyZones.h": 7396.51,
-      "cpp/powertoys/ImageResizerExt.cpp": 7411.36,
-      "cpp/powertoys/centralized_kb_hook.cpp": 6957.74,
-      "cpp/powertoys/logger.cpp": 7757.97,
-      "cpp/powertoys/main.cpp": 7657.23,
-      "cpp/powertoys/powertoy_module.h": 8193.58
+      "cpp/powertoys/FancyZones.cpp": 7697.68,
+      "cpp/powertoys/FancyZones.h": 7396.53,
+      "cpp/powertoys/ImageResizerExt.cpp": 7411.38,
+      "cpp/powertoys/centralized_kb_hook.cpp": 6957.77,
+      "cpp/powertoys/logger.cpp": 7757.99,
+      "cpp/powertoys/main.cpp": 7657.25,
+      "cpp/powertoys/powertoy_module.h": 8193.6
     },
     "cpp/serenity_ak_siphash_cpu": {
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 8565.07,
@@ -1190,19 +1190,19 @@
       "css/element/fonts-baseline.css": -9674.74
     },
     "css/gutenberg_css_modules": {
-      "css/gutenberg_css_modules/LICENSE.md": 8170.06,
-      "css/gutenberg_css_modules/block-theme-style.css": 8721.1,
-      "css/gutenberg_css_modules/button.module.css": 8626.93,
-      "css/gutenberg_css_modules/card.module.css": 8162.38,
-      "css/gutenberg_css_modules/tabs.module.css": 8067.79
+      "css/gutenberg_css_modules/LICENSE.md": 8170.09,
+      "css/gutenberg_css_modules/block-theme-style.css": 8721.13,
+      "css/gutenberg_css_modules/button.module.css": 8626.96,
+      "css/gutenberg_css_modules/card.module.css": 8162.4,
+      "css/gutenberg_css_modules/tabs.module.css": 8067.82
     },
     "css/mediawiki_resources": {
-      "css/mediawiki_resources/COPYING": -9559.89,
-      "css/mediawiki_resources/apihelp.css": -9852.71,
-      "css/mediawiki_resources/apisandbox.css": -9550.9,
-      "css/mediawiki_resources/diff.styles.print.css": -9284.47,
-      "css/mediawiki_resources/mediawiki.action.history.css": -9315.8,
-      "css/mediawiki_resources/toc.css": -9879.41
+      "css/mediawiki_resources/COPYING": -9559.99,
+      "css/mediawiki_resources/apihelp.css": -9852.82,
+      "css/mediawiki_resources/apisandbox.css": -9551.01,
+      "css/mediawiki_resources/diff.styles.print.css": -9284.58,
+      "css/mediawiki_resources/mediawiki.action.history.css": -9315.91,
+      "css/mediawiki_resources/toc.css": -9879.52
     },
     "css/odoo": {
       "css/odoo/control_panel_mobile.css": -2190.27,
@@ -1251,7 +1251,7 @@
       "db2_sql/db2unit/PROVENANCE.md": -5261.47
     },
     "dockerfile": {
-      "dockerfile/SOURCES.md": 8680.3
+      "dockerfile/SOURCES.md": 8680.32
     },
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": 3742.0,
@@ -1390,21 +1390,21 @@
       "go/kubernetes/scheduler.go": -5191.51
     },
     "go/kubernetes_kubectl_tls": {
-      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": -10332.2
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": -10332.31
     },
     "groovy": {
       "groovy/SOURCES.md": 7340.07
     },
     "groovy/fineract_gradle_plugin": {
-      "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 933.36,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": 228.58,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": 1167.49,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": 853.32,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": 126.13,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 613.73,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 577.17,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 163.4,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 480.56
+      "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 934.05,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": 229.27,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": 1168.18,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_EmailService.groovy": 854.02,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": 126.82,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 614.42,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 577.86,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 164.09,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 481.25
     },
     "groovy/flutter_android_gradle": {
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_app_build.gradle": 235.07,
@@ -1835,13 +1835,13 @@
       "html/html5_boilerplate/src_index.html": 7361.13
     },
     "html/jquery_test_fixtures": {
-      "html/jquery_test_fixtures/LICENSE.txt": -9809.22,
-      "html/jquery_test_fixtures/csp-nonce.html": -9989.63,
-      "html/jquery_test_fixtures/iframe.html": -9915.36,
-      "html/jquery_test_fixtures/name.html": -9322.71,
-      "html/jquery_test_fixtures/qunit-fixture.html": -9598.78,
-      "html/jquery_test_fixtures/table.html": -10187.06,
-      "html/jquery_test_fixtures/trusted-html.html": -9593.26
+      "html/jquery_test_fixtures/LICENSE.txt": -9815.54,
+      "html/jquery_test_fixtures/csp-nonce.html": -9995.95,
+      "html/jquery_test_fixtures/iframe.html": -9921.68,
+      "html/jquery_test_fixtures/name.html": -9329.03,
+      "html/jquery_test_fixtures/qunit-fixture.html": -9605.1,
+      "html/jquery_test_fixtures/table.html": -10193.39,
+      "html/jquery_test_fixtures/trusted-html.html": -9599.59
     },
     "html/odoo_mako": {
       "html/odoo_mako/LICENSE.txt": -3531.74,
@@ -1962,21 +1962,21 @@
       "javascript/react_error_codes/extract-errors.js": 11216.78
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": -9094.72,
-      "javascript/threejs/Editor.js": -9271.2,
-      "javascript/threejs/GLTFLoader.js": -8979.87,
-      "javascript/threejs/Matrix4.js": -9646.7,
-      "javascript/threejs/Nodes.js": -8681.66,
-      "javascript/threejs/WebGLProgram.js": -8627.0,
-      "javascript/threejs/WebGLRenderer.js": -8897.06
+      "javascript/threejs/BufferGeometry.js": -9097.24,
+      "javascript/threejs/Editor.js": -9274.23,
+      "javascript/threejs/GLTFLoader.js": -8697.0,
+      "javascript/threejs/Matrix4.js": -9650.37,
+      "javascript/threejs/Nodes.js": -8682.57,
+      "javascript/threejs/WebGLProgram.js": -8628.15,
+      "javascript/threejs/WebGLRenderer.js": -9183.52
     },
     "jcl": {
       "jcl/SOURCES.md": -4521.65
     },
     "jcl/cash-account-cobol": {
-      "jcl/cash-account-cobol/DB2BIND.jcl": 8591.98,
-      "jcl/cash-account-cobol/DB2DDL.jcl": 8358.72,
-      "jcl/cash-account-cobol/DEFKSDS.jcl": 7935.4
+      "jcl/cash-account-cobol/DB2BIND.jcl": 8592.0,
+      "jcl/cash-account-cobol/DB2DDL.jcl": 8358.74,
+      "jcl/cash-account-cobol/DEFKSDS.jcl": 7935.42
     },
     "jcl/cics-banking-sample-application-cbsa": {
       "jcl/cics-banking-sample-application-cbsa/ABNDPROC.jcl": -2610.97,
@@ -2465,13 +2465,13 @@
       "matlab/SOURCES.md": -1075.08
     },
     "matlab/eeglab": {
-      "matlab/eeglab/README.md": -8636.62,
-      "matlab/eeglab/eeg_eval.m": -9092.02,
-      "matlab/eeglab/eeglab.m": -9080.66,
-      "matlab/eeglab/eegobj.m": -9291.99,
-      "matlab/eeglab/pop_loadset.m": -8605.75,
-      "matlab/eeglab/runica.m": -8829.5,
-      "matlab/eeglab/supergui.m": -9455.88
+      "matlab/eeglab/README.md": -8636.76,
+      "matlab/eeglab/eeg_eval.m": -9092.16,
+      "matlab/eeglab/eeglab.m": -9080.8,
+      "matlab/eeglab/eegobj.m": -9292.13,
+      "matlab/eeglab/pop_loadset.m": -8605.89,
+      "matlab/eeglab/runica.m": -8829.64,
+      "matlab/eeglab/supergui.m": -9456.01
     },
     "mlir": {
       "mlir/SOURCES.md": 11413.31
@@ -2498,7 +2498,7 @@
       "nix/ghostty/shell.nix": 9220.76
     },
     "objective-c": {
-      "objective-c/SOURCES.md": -10746.68
+      "objective-c/SOURCES.md": -10752.56
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": 4645.99,
@@ -2570,8 +2570,8 @@
       "php/laravel_core/Router.php": -2371.94
     },
     "php/laravel_validation_rules": {
-      "php/laravel_validation_rules/Can.php": -10314.03,
-      "php/laravel_validation_rules/LICENSE.md": -10217.33
+      "php/laravel_validation_rules/Can.php": -10314.13,
+      "php/laravel_validation_rules/LICENSE.md": -10217.43
     },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": -7331.73,
@@ -2598,7 +2598,7 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": -8456.16,
       "php/wordpress/class-wp-query.php": -8447.85,
-      "php/wordpress/formatting.php": -9458.27,
+      "php/wordpress/formatting.php": -9458.28,
       "php/wordpress/functions.php": -9036.12,
       "php/wordpress/license.txt": -9600.2,
       "php/wordpress/plugin.php": -9042.93,
@@ -2609,8 +2609,8 @@
       "plaintext/SOURCES.md": -1544.07
     },
     "plaintext/ansible": {
-      "plaintext/ansible/COPYING": 8057.49,
-      "plaintext/ansible/requirements.txt": 8201.64
+      "plaintext/ansible/COPYING": 8057.51,
+      "plaintext/ansible/requirements.txt": 8201.66
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
       "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": 4901.25
@@ -2625,7 +2625,7 @@
       "plaintext/opencv/include/CMakeLists.txt": 10709.19
     },
     "pli": {
-      "pli/SOURCES.md": -10599.29
+      "pli/SOURCES.md": -10599.39
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": 8839.13,
@@ -3257,19 +3257,19 @@
       "rust/syn/derive.rs": -10193.09
     },
     "rust/tokio": {
-      "rust/tokio/addr_of.rs": 301.51,
-      "rust/tokio/block_on.rs": 495.72,
-      "rust/tokio/blocking.rs": 1155.44,
-      "rust/tokio/builder.rs": 608.44,
-      "rust/tokio/config.rs": 1256.74,
-      "rust/tokio/fuzz.rs": 1648.56,
-      "rust/tokio/interval.rs": 540.76,
-      "rust/tokio/lib.rs": 1460.4,
-      "rust/tokio/maybe_done.rs": 484.11,
-      "rust/tokio/tests.rs": 762.24,
-      "rust/tokio/tokio_mpsc_bounded.rs": 1498.32,
-      "rust/tokio/tokio_named_pipe.rs": 853.35,
-      "rust/tokio/tokio_udp.rs": 1230.36
+      "rust/tokio/addr_of.rs": -8674.57,
+      "rust/tokio/block_on.rs": -8480.35,
+      "rust/tokio/blocking.rs": -7820.64,
+      "rust/tokio/builder.rs": -8367.64,
+      "rust/tokio/config.rs": -7719.34,
+      "rust/tokio/fuzz.rs": -7327.52,
+      "rust/tokio/interval.rs": -8435.31,
+      "rust/tokio/lib.rs": -7515.68,
+      "rust/tokio/maybe_done.rs": -8491.97,
+      "rust/tokio/tests.rs": -8213.83,
+      "rust/tokio/tokio_mpsc_bounded.rs": -7477.76,
+      "rust/tokio/tokio_named_pipe.rs": -8122.73,
+      "rust/tokio/tokio_udp.rs": -7745.72
     },
     "rust/tokio_util_rand": {
       "rust/tokio_util_rand/rand.rs": 3499.26
@@ -3298,11 +3298,11 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 3981.97,
-      "scheme/racket/cpnanopass.ss": 3892.32,
+      "scheme/racket/cpnanopass.ss": 3893.16,
       "scheme/racket/eval.c": 3104.72,
       "scheme/racket/fun.c": 3358.16,
       "scheme/racket/io.ss": 3504.22,
-      "scheme/racket/schemify.rkt": 4038.18,
+      "scheme/racket/schemify.rkt": 4038.22,
       "scheme/racket/thread.rkt": 3326.72
     },
     "shell": {
@@ -3619,7 +3619,7 @@
       "solidity/openzeppelin/StorageSlot.sol": 6334.97
     },
     "sql": {
-      "sql/SOURCES.md": 9266.14
+      "sql/SOURCES.md": 9266.16
     },
     "sql/baseline": {
       "sql/baseline/schema.php": 1379.38
@@ -3692,10 +3692,10 @@
       "sqlite/mediawiki_sqlite_tables/tables-generated.sql": 10597.47
     },
     "sqlite/prisma_sqlite_migrations": {
-      "sqlite/prisma_sqlite_migrations/provider-switch-postgresql-to-sqlite__20210215145936_hello.sql": -9903.19,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-db-exists__20240527130802_init.sql": -9623.43,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-exists__20240527130802_init.sql": -10103.85,
-      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-failed__20240527130802_init.sql": -9687.79
+      "sqlite/prisma_sqlite_migrations/provider-switch-postgresql-to-sqlite__20210215145936_hello.sql": -9907.44,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-db-exists__20240527130802_init.sql": -9627.69,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-exists__20240527130802_init.sql": -10108.1,
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-failed__20240527130802_init.sql": -9692.05
     },
     "sqlite/prisma_typed_sql": {
       "sqlite/prisma_typed_sql/findBigInt.sql": -6163.79,
@@ -3749,13 +3749,13 @@
       "swift/SOURCES.md": -9484.96
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": 8013.67,
-      "swift/alamofire/Alamofire.podspec": 7551.0,
-      "swift/alamofire/Package.swift": 8383.35,
-      "swift/alamofire/ParameterEncoder.swift": 8424.75,
-      "swift/alamofire/Request.swift": 8288.87,
-      "swift/alamofire/Response.swift": 7534.94,
-      "swift/alamofire/Session.swift": 7800.02
+      "swift/alamofire/AFError.swift": 8013.7,
+      "swift/alamofire/Alamofire.podspec": 7551.03,
+      "swift/alamofire/Package.swift": 8383.37,
+      "swift/alamofire/ParameterEncoder.swift": 8424.78,
+      "swift/alamofire/Request.swift": 8288.9,
+      "swift/alamofire/Response.swift": 7534.97,
+      "swift/alamofire/Session.swift": 7800.05
     },
     "tabular": {
       "tabular/SOURCES.md": 8038.74
@@ -3776,7 +3776,7 @@
       "tabular/tsv_genomics/B.cell_eQTL.tsv": 6420.28
     },
     "tcl": {
-      "tcl/SOURCES.md": 8220.86
+      "tcl/SOURCES.md": 8220.88
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": -7581.43,
@@ -3800,15 +3800,15 @@
       "tcl/macports_port_api/portmain.tcl": -7448.34
     },
     "tcl/macports_registry": {
-      "tcl/macports_registry/common.tcl": 7911.05,
-      "tcl/macports_registry/depends.tcl": 6931.16,
-      "tcl/macports_registry/entry.tcl": 7437.89,
-      "tcl/macports_registry/portimage.tcl": 7212.99,
-      "tcl/macports_registry/portuninstall.tcl": 7036.32,
-      "tcl/macports_registry/receipt_flat.tcl": 7621.17,
-      "tcl/macports_registry/receipt_sqlite.tcl": 7190.51,
-      "tcl/macports_registry/registry.tcl": 7718.7,
-      "tcl/macports_registry/registry_util.tcl": 7056.89
+      "tcl/macports_registry/common.tcl": 7911.08,
+      "tcl/macports_registry/depends.tcl": 6931.18,
+      "tcl/macports_registry/entry.tcl": 7437.91,
+      "tcl/macports_registry/portimage.tcl": 7213.02,
+      "tcl/macports_registry/portuninstall.tcl": 7036.34,
+      "tcl/macports_registry/receipt_flat.tcl": 7621.2,
+      "tcl/macports_registry/receipt_sqlite.tcl": 7190.53,
+      "tcl/macports_registry/registry.tcl": 7718.73,
+      "tcl/macports_registry/registry_util.tcl": 7056.92
     },
     "tcl/sqlite": {
       "tcl/sqlite/LICENSE.md": 7702.37,
@@ -3831,10 +3831,10 @@
       "tcl/sqlite_json_triggers/LICENSE.md": 10080.86
     },
     "tcl/sqlite_query_planner": {
-      "tcl/sqlite_query_planner/LICENSE.md": 716.27
+      "tcl/sqlite_query_planner/LICENSE.md": 717.15
     },
     "tcl/sqlite_rtree": {
-      "tcl/sqlite_rtree/LICENSE.md": -10616.19
+      "tcl/sqlite_rtree/LICENSE.md": -10620.39
     },
     "td": {
       "td/SOURCES.md": -8249.17
@@ -3844,8 +3844,8 @@
       "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_tpu_ops.td": -1058.32
     },
     "td/tensorflow/core/ir": {
-      "td/tensorflow/core/ir/dialect.td": -10270.47,
-      "td/tensorflow/core/ir/ops.td": -10464.83
+      "td/tensorflow/core/ir/dialect.td": -10276.46,
+      "td/tensorflow/core/ir/ops.td": -10470.82
     },
     "text": {
       "text/SOURCES.md": -6876.64
@@ -3871,9 +3871,9 @@
       "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": -10707.09
     },
     "typescript/excalibur_math": {
-      "typescript/excalibur_math/LICENSE.md": -10509.44,
-      "typescript/excalibur_math/collision_colliders_separating-axis.ts": -9862.01,
-      "typescript/excalibur_math/math_ray.ts": -9915.56
+      "typescript/excalibur_math/LICENSE.md": -10509.57,
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": -9862.15,
+      "typescript/excalibur_math/math_ray.ts": -9915.69
     },
     "typescript/excalidraw_text_wrapping": {
       "typescript/excalidraw_text_wrapping/textWrapping.ts": -759.64
@@ -3909,27 +3909,27 @@
       "typescript/typescript_compiler/LICENSE.txt": -7076.39,
       "typescript/typescript_compiler/binder.ts": -7171.01,
       "typescript/typescript_compiler/checker.ts": -7683.09,
-      "typescript/typescript_compiler/emitter.ts": -8230.44,
+      "typescript/typescript_compiler/emitter.ts": -8234.14,
       "typescript/typescript_compiler/package.json": -7889.55,
       "typescript/typescript_compiler/parser.ts": -7169.81,
       "typescript/typescript_compiler/types.ts": -7651.0
     },
     "typescript/vscode": {
-      "typescript/vscode/LICENSE.txt": -8868.48,
-      "typescript/vscode/async.ts": -8082.89,
-      "typescript/vscode/codeEditorWidget.ts": -8654.72,
-      "typescript/vscode/eslint.config.js": -8060.86,
-      "typescript/vscode/extHost.api.impl.ts": -7885.91,
-      "typescript/vscode/gulpfile.vscode.ts": -8667.92,
-      "typescript/vscode/instantiationService.ts": -7472.82,
-      "typescript/vscode/ipc.ts": -7635.61,
-      "typescript/vscode/lifecycle.ts": -8235.68,
-      "typescript/vscode/package.json": -7991.49,
-      "typescript/vscode/vscode.d.ts": -8725.89
+      "typescript/vscode/LICENSE.txt": -8868.58,
+      "typescript/vscode/async.ts": -7803.58,
+      "typescript/vscode/codeEditorWidget.ts": -8654.82,
+      "typescript/vscode/eslint.config.js": -8060.89,
+      "typescript/vscode/extHost.api.impl.ts": -8163.51,
+      "typescript/vscode/gulpfile.vscode.ts": -8668.0,
+      "typescript/vscode/instantiationService.ts": -7472.83,
+      "typescript/vscode/ipc.ts": -7635.62,
+      "typescript/vscode/lifecycle.ts": -8235.74,
+      "typescript/vscode/package.json": -7991.53,
+      "typescript/vscode/vscode.d.ts": -8725.99
     },
     "typescript/zod": {
-      "typescript/zod/package.json": 9097.49,
-      "typescript/zod/tsconfig.json": 9034.38
+      "typescript/zod/package.json": 9097.52,
+      "typescript/zod/tsconfig.json": 9034.4
     },
     "xml": {
       "xml/SOURCES.md": 6806.39
@@ -3977,15 +3977,15 @@
       "yacc/SOURCES.md": -9602.66
     },
     "yacc/freebsd": {
-      "yacc/freebsd/COPYRIGHT": 516.52,
-      "yacc/freebsd/config.y": 891.82,
-      "yacc/freebsd/jailparse.y": 1224.12
+      "yacc/freebsd/COPYRIGHT": 517.63,
+      "yacc/freebsd/config.y": 892.93,
+      "yacc/freebsd/jailparse.y": 1225.23
     },
     "yaml": {
       "yaml/SOURCES.md": -5550.16
     },
     "yaml/ansible": {
-      "yaml/ansible/COPYING": 8762.83
+      "yaml/ansible/COPYING": 8762.85
     },
     "yaml/ansible/blocks": {
       "yaml/ansible/blocks/block_fail_tasks.yml": -5061.42,
@@ -4068,18 +4068,18 @@
       "zig/mach/win32.zig": -8372.05
     },
     "zig/tigerbeetle": {
-      "zig/tigerbeetle/aof.zig": -7676.08,
-      "zig/tigerbeetle/build.zig": -8408.55,
-      "zig/tigerbeetle/build_multiversion.zig": -8176.48,
-      "zig/tigerbeetle/cluster.zig": -7562.28,
-      "zig/tigerbeetle/config.zig": -8703.43,
-      "zig/tigerbeetle/constants.zig": -8230.88,
-      "zig/tigerbeetle/copyhound.zig": -7337.7,
-      "zig/tigerbeetle/counting_allocator.zig": -7851.17,
-      "zig/tigerbeetle/direction.zig": -7665.6,
-      "zig/tigerbeetle/download.sh": -8374.02,
-      "zig/tigerbeetle/download.win.ps1": -7320.14,
-      "zig/tigerbeetle/state_machine.zig": -8105.41
+      "zig/tigerbeetle/aof.zig": 1303.95,
+      "zig/tigerbeetle/build.zig": 563.03,
+      "zig/tigerbeetle/build_multiversion.zig": 797.26,
+      "zig/tigerbeetle/cluster.zig": 1417.22,
+      "zig/tigerbeetle/config.zig": 268.57,
+      "zig/tigerbeetle/constants.zig": 744.62,
+      "zig/tigerbeetle/copyhound.zig": 1643.17,
+      "zig/tigerbeetle/counting_allocator.zig": 1126.95,
+      "zig/tigerbeetle/direction.zig": 1312.29,
+      "zig/tigerbeetle/download.sh": 598.09,
+      "zig/tigerbeetle/download.win.ps1": 1660.66,
+      "zig/tigerbeetle/state_machine.zig": 870.89
     },
     "zig/zig": {
       "zig/zig/Compilation.zig": -9023.52,
@@ -4087,7 +4087,7 @@
       "zig/zig/Sema.zig": -9584.35,
       "zig/zig/Type.zig": -9548.05,
       "zig/zig/Zcu.zig": -9810.42,
-      "zig/zig/main.zig": -9444.85
+      "zig/zig/main.zig": -9441.87
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 1237.22

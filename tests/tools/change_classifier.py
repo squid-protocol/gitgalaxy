@@ -28,6 +28,7 @@ import fnmatch
 import functools
 import re
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -356,6 +357,31 @@ def read_by_ground_truth(path: str, root: Path = REPO_ROOT) -> bool:
         return bool(readers_of(path, load()) & ground_truth_scopes(root))
     except (OSError, ValueError, KeyError):
         return True
+
+
+# The Db2 area (#6278): what can move a Db2 equivalence proof. The det translator + runtime (det/, cobolrt), the forges
+# beside them, the Db2 harness / oracle / image files, the det tools that run the proofs, and a Db2 case's own directory.
+DB2_AREA = (
+    "gitgalaxy/tools/cobol_to_java/*",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/db2_*.py",
+    "tests/tools/det_port.py",
+    "tests/tools/det_parity.py",
+    "tests/tools/proof_sweep.py",
+    "tests/tools/det_sweep_plan.py",
+    "tests/equivalence/db2/*",
+    "tests/equivalence/*db2*",
+    "tests/equivalence/odbc_cli.pin",
+    ".github/workflows/det-sweep.yml",
+)
+
+
+def db2_area(path: str, db2_cases: Iterable[str] = ()) -> bool:
+    """Can a change to `path` move a Db2 proof? `db2_cases` names the Db2 equivalence cases (their directories count)."""
+    if any(fnmatch.fnmatchcase(path, p) for p in DB2_AREA):
+        return True
+    parts = path.split("/")
+    return len(parts) > 2 and parts[:2] == ["tests", "equivalence"] and parts[2] in set(db2_cases)
 
 
 def area(path: str, refs: dict[str, list[str]] | None = None) -> str:

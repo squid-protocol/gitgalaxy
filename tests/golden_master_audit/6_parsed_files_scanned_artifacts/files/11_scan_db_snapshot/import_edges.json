@@ -1202,7 +1202,6 @@
       ],
       "csharp/roslyn/LanguageParser.cs": [
         "fcall:csharp/roslyn/CSharpCompilation.cs",
-        "fcall:csharp/roslyn/CSharpSyntaxTree.cs",
         "fcall:csharp/roslyn/DiagnosticAnalyzer.cs"
       ],
       "csharp/roslyn/MethodCompiler.cs": [
@@ -2821,7 +2820,6 @@
         "fcall:php/wordpress/plugin.php"
       ],
       "php/wordpress/functions.php": [
-        "fcall:php/wordpress/class-wp-query.php",
         "fcall:php/wordpress/formatting.php",
         "fcall:php/wordpress/plugin.php"
       ],
@@ -4318,6 +4316,7 @@
       ],
       "scala/kafka/Partition.scala": [
         "fcall:scala/kafka/LogManager.scala",
+        "fcall:scala/kafka/ReplicaManager.scala",
         "fcall:scala/kafka/SocketServer.scala"
       ],
       "scala/kafka/ReplicaManager.scala": [

@@ -16,7 +16,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 - Coverage over the programs with a record: paragraphs 567/574 (98.8%), branch outcomes 1614/1807 (89.3%).
 - Mutation: 52 program(s) measured, killed 2874/4212 (68.2%) raw (adjusted for equivalent / unreachable survivors: 2874/3340 (86.0%)); survivors case_gap 274, harness_gap 191, equivalent 516, unreachable 356, untriaged 0; open survivors 465.
 - Holes (stub / ported_unproven methods): 4. Declared differences: 13.
-- Approved and current: 0. Stale records: 0 (stale mutation scores: 52).
+- Approved and current: 0. Stale records: 6 (stale mutation scores: 52).
 - Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 57 of 57 programs measured): 11945 (15542 code lines in all); in programs at E2+ 10057/11945 (84.2%), E3+ 862/11945 (7.2%), E4 0/11945 (0.0%); paragraph coverage weighted by lines 11775/11945 (98.6%).
 
 ## aws-mainframe-modernization-carddemo
@@ -25,7 +25,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 - Coverage over the programs with a record: paragraphs 460/461 (99.8%), branch outcomes 1451/1577 (92.0%).
 - Mutation: 23 program(s) measured, killed 2049/2737 (74.9%) raw (adjusted for equivalent / unreachable survivors: 2049/2132 (96.1%)); survivors case_gap 75, harness_gap 7, equivalent 380, unreachable 225, untriaged 0; open survivors 82.
 - Holes (stub / ported_unproven methods): 3. Declared differences: 0.
-- Approved and current: 0. Stale records: 0 (stale mutation scores: 23).
+- Approved and current: 0. Stale records: 1 (stale mutation scores: 23).
 - Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 28 of 28 programs measured): 9642 (12295 code lines in all); in programs at E2+ 8278/9642 (85.9%), E3+ 140/9642 (1.5%), E4 0/9642 (0.0%); paragraph coverage weighted by lines 9631/9642 (99.9%).
 
 | program | case | lines | level | proof | oracle | coverage (para / branch) | mutation | differences | approval | what stops the next level |
@@ -39,7 +39,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 | CBSTM03A | carddemo-cbstm03a | 566 | E2 | 5 runs / 4 fault | gnucobol-models | 25/25 / 0/46 | - | 0 | - | coverage short: 25/25 paragraphs, 0/46 branch outcomes |
 | COPAUA0C | carddemo-copaua0c | 607 | E2 | 22 runs / 7 fault | gnucobol-models | 41/41 / 62/69 | - | 0 | - | coverage short: 41/41 paragraphs, 62/69 branch outcomes |
 | COPAUS0C | carddemo-copaus0c | 665 | E2 | 37 runs / 12 fault | gnucobol-models | 20/20 / 88/93 | - | 0 | - | coverage short: 20/20 paragraphs, 88/93 branch outcomes |
-| COPAUS1C | carddemo-copaus1c | 343 | E1 | 35 runs / 14 fault | gnucobol-models | 15/15 / 48/48 | - | 0 | - | a program it LINKs or CALLs has holes or no executed-equivalent record: program:COPAUS2C |
+| COPAUS1C | carddemo-copaus1c | 343 | E1 (stale) | 35 runs / 14 fault | gnucobol-models | 15/15 / 48/48 | - | 0 | - | a program it LINKs or CALLs has holes or no executed-equivalent record: program:COPAUS2C |
 | CBTRN01C | carddemo-dailyval | 309 | E2 | 21 runs / 20 fault | gnucobol-models | 18/18 / 65/66 | 63/96, open 8 | 0 | - | coverage short: 18/18 paragraphs, 65/66 branch outcomes |
 | CSUTLDTC | carddemo-dateutil | 51 | E2 | 1 runs / 0 fault | gnucobol-models | 2/2 / 4/10 | 197/260, open 0 | 0 | - | coverage short: 2/2 paragraphs, 4/10 branch outcomes |
 | CBACT04C | carddemo-intcalc | 417 | E2 | 20 runs / 19 fault | gnucobol-models | 22/22 / 85/86 | 70/86, open 7 | 0 | - | coverage short: 22/22 paragraphs, 85/86 branch outcomes |
@@ -65,13 +65,13 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 - Coverage over the programs with a record: paragraphs 29/32 (90.6%), branch outcomes 18/31 (58.1%).
 - Mutation: 2 program(s) measured, killed 166/270 (61.5%) raw (adjusted for equivalent / unreachable survivors: 166/216 (76.9%)); survivors case_gap 43, harness_gap 7, equivalent 28, unreachable 26, untriaged 0; open survivors 50.
 - Holes (stub / ported_unproven methods): 1. Declared differences: 1.
-- Approved and current: 0. Stale records: 0 (stale mutation scores: 2).
+- Approved and current: 0. Stale records: 2 (stale mutation scores: 2).
 - Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 2 of 2 programs measured): 642 (872 code lines in all); in programs at E2+ 118/642 (18.4%), E3+ 0/642 (0.0%), E4 0/642 (0.0%); paragraph coverage weighted by lines 579/642 (90.2%).
 
 | program | case | lines | level | proof | oracle | coverage (para / branch) | mutation | differences | approval | what stops the next level |
 |---|---|---|---|---|---|---|---|---|---|---|
-| INQACC | cbsa-inqacc | 524 | E1 | 14 runs / 0 fault | gnucobol-models | 22/25 / 13/25 | 63/131, open 43 | 1 | - | 1 hole(s) in the port itself (stub or ported_unproven method) |
-| UPDACC | cbsa-updacc | 118 | E2 | 27 runs / 0 fault | gnucobol-models | 7/7 / 5/6 | 103/139, open 7 | 0 | - | coverage short: 7/7 paragraphs, 5/6 branch outcomes |
+| INQACC | cbsa-inqacc | 524 | E1 (stale) | 14 runs / 0 fault | gnucobol-models | 22/25 / 13/25 | 63/131, open 43 | 1 | - | 1 hole(s) in the port itself (stub or ported_unproven method) |
+| UPDACC | cbsa-updacc | 118 | E2 (stale) | 27 runs / 0 fault | gnucobol-models | 7/7 / 5/6 | 103/139, open 7 | 0 | - | coverage short: 7/7 paragraphs, 5/6 branch outcomes |
 
 ## cics-crucible
 
@@ -112,14 +112,14 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 - Coverage over the programs with a record: paragraphs 24/27 (88.9%), branch outcomes 52/105 (49.5%).
 - Mutation: 6 program(s) measured, killed 340/729 (46.6%) raw (adjusted for equivalent / unreachable survivors: 340/638 (53.3%)); survivors case_gap 121, harness_gap 177, equivalent 20, unreachable 71, untriaged 0; open survivors 298.
 - Holes (stub / ported_unproven methods): 0. Declared differences: 12.
-- Approved and current: 0. Stale records: 0 (stale mutation scores: 6).
+- Approved and current: 0. Stale records: 3 (stale mutation scores: 6).
 - Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 6 of 6 programs measured): 881 (1266 code lines in all); in programs at E2+ 881/881 (100.0%), E3+ 0/881 (0.0%), E4 0/881 (0.0%); paragraph coverage weighted by lines 785/881 (89.1%).
 
 | program | case | lines | level | proof | oracle | coverage (para / branch) | mutation | differences | approval | what stops the next level |
 |---|---|---|---|---|---|---|---|---|---|---|
-| LGAPDB01 | genapp-lgapdb01 | 326 | E2 | 6 runs / 0 fault | gnucobol-models | 6/7 / 18/31 | 58/137, open 71 | 2 | - | coverage short: 6/7 paragraphs, 18/31 branch outcomes |
+| LGAPDB01 | genapp-lgapdb01 | 326 | E2 (stale) | 6 runs / 0 fault | gnucobol-models | 6/7 / 18/31 | 58/137, open 71 | 2 | - | coverage short: 6/7 paragraphs, 18/31 branch outcomes |
 | LGAPVS01 | genapp-lgapvs01 | 79 | E2 | 11 runs / 2 fault | gnucobol-models | 3/3 / 5/9 | 72/125, open 41 | 2 | - | coverage short: 3/3 paragraphs, 5/9 branch outcomes |
-| LGICDB01 | genapp-lgicdb01 | 93 | E2 | 12 runs / 0 fault | gnucobol-models | 3/4 / 4/12 | 51/130, open 56 | 2 | - | coverage short: 3/4 paragraphs, 4/12 branch outcomes |
+| LGICDB01 | genapp-lgicdb01 | 93 | E2 (stale) | 12 runs / 0 fault | gnucobol-models | 3/4 / 4/12 | 51/130, open 56 | 2 | - | coverage short: 3/4 paragraphs, 4/12 branch outcomes |
 | LGSTSQ | genapp-lgstsq | 53 | E2 | 7 runs / 0 fault | gnucobol-models | 1/1 / 3/6 | 25/78, open 44 | 2 | - | coverage short: 1/1 paragraphs, 3/6 branch outcomes |
-| LGUPDB01 | genapp-lgupdb01 | 237 | E2 | 5 runs / 0 fault | gnucobol-models | 8/9 / 17/38 | 68/140, open 52 | 2 | - | coverage short: 8/9 paragraphs, 17/38 branch outcomes |
+| LGUPDB01 | genapp-lgupdb01 | 237 | E2 (stale) | 5 runs / 0 fault | gnucobol-models | 8/9 / 17/38 | 68/140, open 52 | 2 | - | coverage short: 8/9 paragraphs, 17/38 branch outcomes |
 | LGUPVS01 | genapp-lgupvs01 | 93 | E2 | 10 runs / 3 fault | gnucobol-models | 3/3 / 5/9 | 66/119, open 34 | 2 | - | coverage short: 3/3 paragraphs, 5/9 branch outcomes |

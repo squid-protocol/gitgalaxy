@@ -91,6 +91,16 @@ def test_a_leaked_source_name_is_reported(tmp_path):
     assert "ZECSPGM1" in bef.source_names(src)
 
 
+def test_a_source_named_like_the_manifest_prose_is_not_a_leak(tmp_path):
+    # CBSA has a CUSTOMER copybook; the fixed manifest text says "customer salt" (Evidence Refresh 40136742662)
+    src = tmp_path / "corpora" / "zecs"
+    src.mkdir(parents=True)
+    (src / "CUSTOMER.cpy").write_text("       01 CUSTOMER-REC PIC X.\n", encoding="utf-8")
+    assert "CUSTOMER" not in bef.source_names(src) and "CUSTOMER-REC" in bef.source_names(src)
+    problems, summaries = feed(tmp_path / "ok", ["zecs"], roots=[tmp_path / "corpora"])
+    assert problems == [] and summaries[0]["leak_checked"]
+
+
 def test_other_salt_gives_other_ids():
     a = br.anon_report(result(GAPS), bef.CI_SALT, "zecs")
     b = br.anon_report(result(GAPS), bef.OTHER_SALT, "zecs")

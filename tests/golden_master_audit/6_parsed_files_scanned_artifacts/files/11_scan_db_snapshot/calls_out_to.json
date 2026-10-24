@@ -226975,12 +226975,6 @@
           "addOptions",
           "file",
           "addSystemCommand",
-          "Set",
-          "values",
-          "add",
-          "write",
-          "from",
-          "join",
           "dependOn",
           "addFileArg",
           "captureStdOut",
@@ -246101,8 +246095,7 @@
           "err",
           "errorName",
           "writeSimpleTemplateFile",
-          "int",
-          "build"
+          "int"
         ],
         "cmdTranslateC@4545": [
           "ArrayList",
@@ -248899,8 +248892,6 @@
           "close",
           "writer",
           "writeAll",
-          "StaticStringMap",
-          "initComptime",
           "replaceOwned",
           "dupeSentinel",
           "extractParametersAndReturnTypeFromSignature",

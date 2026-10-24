@@ -1308,6 +1308,19 @@ int GGCINQA(gg_cics *c) {
 
 #include "ggcics_enq.c"  /* #5274: the ENQ stub (GGCENQ) */
 
+/* #6271 (X73): the marker the harness plants after a Db2 statement a scenario plans an AD2Z abend for (GG-FLAGS = PROGRAM:LINE,
+ * the SQL fault's own key). IBM: a deadlock (-911) makes the CICS-Db2 attach attempt a syncpoint rollback, which fails, and the
+ * task abends AD2Z. A planned `SQL PROGRAM:LINE NTH -1 0 AD2Z` line abends the task here (injected_at); no line, no effect. */
+int GGCSQLAB(gg_cics *c) {
+    char key[41];
+    int fresp, fresp2;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    trim(c->flags, 40, key);
+    injected("SQL", key, &fresp, &fresp2);
+    return 0;
+}
+
 /* A LINKed program's result: the COMMAREA it leaves in its caller's storage, written as commarea.out when the task
  * ends (the driver calls this after the program, whether it RETURNed or GOBACKed). */
 int GGCAOUT(const char *ca, int len) {

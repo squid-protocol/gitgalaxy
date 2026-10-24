@@ -1308,6 +1308,8 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
             ):  # #6271 (X70): a planned abend went to the HANDLE ABEND exit, or ends the task
                 return ["MOVE 0 TO GG-GOTO", *lines, *_map_abend(labels)]
             return lines
+    if verb == "GGSQLAB":  # #6271 (X73): the harness's own marker after a Db2 statement planned to abend AD2Z
+        return ["MOVE 0 TO GG-GOTO", f"MOVE {opts['NAME']} TO GG-FLAGS", *_call("GGCSQLAB", []), *_map_abend(labels)]
     if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
         return _delay(opts, labels)
     if verb == "POST":  # #5079 (X63): a timer-event control area
@@ -3195,7 +3197,7 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
         if not name:
             raise Unsupported(f"scenario {sc['name']}: fault {f} names no {'/'.join(_FAULT_NAME)}")
         out.append(f"{cmd} {name} {nth} {CICS_RESP[f['resp']]} {resp2}")
-    return out
+    return [*out, *sc.get("sql_abend_plan", [])]  # #6271 (X73): the Db2 statements planned to abend AD2Z
 
 
 # #5233 (register I5): the DL/I statuses a CICS scenario may plan on an EXEC DLI command -- the batch run's (#5857) on the
@@ -3264,6 +3266,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             )
         except equivalence_sql.Unsupported as e:
             raise Unsupported(f"EXEC SQL: {e}", ["EXEC SQL"]) from e
+        source = mark_sql_abends(case, source, table, case["program"])
         if not keep:  # #5882: a second pass keeps the first's tables (each task resets them first, identities too):
             equivalence_db2.create(case, corpus)  # what its tasks find is what they found after the first pass's
         (work / "stmts.txt").write_text(table, encoding="latin-1")
@@ -3345,6 +3348,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                                                                first_id=first, program=extra["program"])  # fmt: skip
             except equivalence_sql.Unsupported as e:
                 raise Unsupported(f"{extra['program']}: EXEC SQL: {e}", ["EXEC SQL"]) from e
+            x_source = mark_sql_abends(case, x_source, x_table, extra["program"])
             if any(int(ln.split()[1]) > 9999 for ln in x_table.splitlines() if ln.startswith("S ")):
                 raise Unsupported(f"{extra['program']}: EXEC SQL: the task's statements outnumber GG-SQL-ID's 4 digits")
             ours = {ln.split()[5] for ln in have.splitlines() if ln.startswith("S ") and ln.split()[5] != "-"}
@@ -3491,7 +3495,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if case.get("region"):  # ASSIGN APPLID / SYSID: the region's identity, a deployment fact the case states
             (d / "region.cfg").write_text(f"APPLID {case['region']['applid']}\nSYSID {case['region']['sysid']}\n",
                                           encoding="ascii")  # fmt: skip
-        if sc.get("faults"):  # #4023 follow-up: the stub's injected conditions
+        if sc.get("faults") or sc.get("sql_abend_plan"):  # #4023 follow-up: the stub's injected conditions
             (d / "faults.cfg").write_text("".join(x + "\n" for x in fault_lines(sc)), encoding="ascii")
         if sc.get("dli_faults"):  # #5233: the DL/I stub's planned statuses
             (d / "dlifaults.cfg").write_text("".join(x + "\n" for x in dli_fault_lines(case, sc)), encoding="ascii")
@@ -3626,8 +3630,11 @@ def sql_fault_plan(case: dict[str, Any], sc: dict[str, Any], table: str) -> list
     reads them (BANKDATA's `SQLERRMC(1:SQLERRML)`, its SQLERRD(3) reason-code arms); undeclared, both are empty."""
     stmts = sql_statements(table)
     out = []
+    abends: list[str] = []
     for f in sc.get("sql_faults") or []:
         code = int(f["sqlcode"])
+        if f.get("abend") is not None:
+            abends.append(_sql_abend_line(case, sc, f, code, table))
         state = str(f.get("sqlstate") or SQLSTATES.get(code, ""))
         if not re.fullmatch(r"[0-9A-Z]{5}", state):
             raise Unsupported(f"scenario {sc['name']}: SQL fault {f}: no SQLSTATE for SQLCODE {code} -- give one")
@@ -3648,7 +3655,60 @@ def sql_fault_plan(case: dict[str, Any], sc: dict[str, Any], table: str) -> list
                 raise Unsupported(f"scenario {sc['name']}: SQL fault {f}: sqlerrmc is one token of 1-70 characters")
             extra = f" {token} {int(f.get('sqlerrd3', 0))}"
         out += [f"{x['program']} {x['line']} {nth} {code} {state}{extra}" for x in hits]
+    sc["sql_abend_plan"] = abends
     return out
+
+
+# #6271 (register X73): IBM's AD2Z -- a Db2 deadlock or timeout the CICS-Db2 attach answers with a failed syncpoint rollback
+# (DFHDB2070), then the task abends AD2Z. A scenario's sql_fault may add `"abend": "AD2Z"` to a -911 fault on a statement it
+# names by `line`; the statement fails as planned and a `SQL PROGRAM:LINE NTH -1 0 AD2Z` line (faults.cfg) abends the task.
+SQL_ABEND_CODES = ("AD2Z",)
+
+
+def _sql_abend_line(case: dict[str, Any], sc: dict[str, Any], f: dict[str, Any], code: int, table: str) -> str:
+    where = f"scenario {sc['name']}: SQL fault {f}"
+    if f["abend"] not in SQL_ABEND_CODES or code != -911 or "line" not in f or f.get("table") or f.get("verb"):
+        raise Unsupported(
+            f"{where}: an abend is planned as 'AD2Z' on a -911 fault naming its statement by line (register X73: no other "
+            "SQLCODE, code or table/verb selection is sourced)"
+        )
+    program = str(f.get("program") or case["program"]).upper()
+    if not any(x["program"] == program and x["line"] == int(f["line"]) for x in sql_statements(table)):
+        raise Unsupported(f"{where} names no statement of {program}")
+    nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
+    return f"SQL {program}:{int(f['line'])} {nth} -1 0 {f['abend']}"
+
+
+def mark_sql_abends(case: dict[str, Any], source: str, table: str, program: str) -> str:
+    """#6271 (X73): `EXEC CICS GGSQLAB NAME('PROGRAM:LINE') END-EXEC` after the precompiled call of each statement a scenario
+    plans an AD2Z abend for, before the RETURN-CODE restore and the WHENEVER tests (the order det/sql.py checks in)."""
+    sites = {
+        (str(f.get("program") or case["program"]).upper(), int(f["line"]))
+        for sc in case["scenarios"]
+        for f in sc.get("sql_faults") or []
+        if f.get("abend") is not None and "line" in f
+    }
+    sids = {
+        x["sid"]: x["line"]
+        for x in sql_statements(table)
+        if x["program"] == program.upper() and (x["program"], x["line"]) in sites
+    }
+    if not sids:
+        return source
+    if not re.search(r"\bHANDLE\s+ABEND\b", source, re.I):
+        raise Unsupported(
+            f"{program}: an AD2Z abend is planned but the program has no HANDLE ABEND (register X73, refused)"
+        )
+    out, sid = [], None
+    for ln in source.split("\n"):
+        m = re.match(r"\s+MOVE (\d{4}) TO GG-SQL-ID\s*$", ln)
+        if m:
+            sid = sids.get(int(m.group(1)))
+        elif sid is not None and re.match(r"\s+MOVE GG-SQL-RC TO RETURN-CODE", ln):
+            out.append(f"           EXEC CICS GGSQLAB NAME('{program.upper()}:{sid}') END-EXEC")
+            sid = None
+        out.append(ln)
+    return "\n".join(out)
 
 
 # The fault each executed statement is given when the harness enumerates them: the failure the statement's own

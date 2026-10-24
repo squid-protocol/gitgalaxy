@@ -282,6 +282,14 @@ class Sql:
     def command(self, text: str, line: int, ind: str) -> list[str]:
         ca = self.g.field_expr(E.Ref("SQLCA"))
         out = self._command(text, line, ind)
+        if out and getattr(self.g.cics, "handle_abend", False):
+            # #6271 (X73): a scenario's planned Db2 abend (AD2Z) at this statement went to this program's HANDLE ABEND
+            # exit, or unwound past this level; checked before the WHENEVER tests, as the stub's GGCSQLAB is
+            ex = self.g.tmpname("exit")
+            out += [f'{ind}task.planned("SQL", {self.g_str(f"{self.program}:{line}")});',
+                    f"{ind}String {ex} = task.abendExit();",
+                    f"{ind}if ({ex} != null) {self.g.jump(f'paragraph({ex})')}",
+                    f"{ind}if (task.ended()) throw abended();"]  # fmt: skip
         if out:
             out += self._whenever_tests(text, line, ind)
         return [ln.replace("SQLCA_AREA", ca) for ln in out]

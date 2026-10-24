@@ -7,7 +7,9 @@ and classes (name, inheritance) -- plus the import edges, and pins one rung of t
 ladder or one qualifier rule.
 """
 
-from gitgalaxy.core.call_resolver import CONFIDENT_RESOLUTIONS, resolve_calls
+import pytest
+
+from gitgalaxy.core.call_resolver import CONFIDENT_RESOLUTIONS, _package_dir, resolve_calls
 
 
 def _fn(name, line=1, owner=None, calls=(), quals=None, synthetic=False):
@@ -1155,3 +1157,63 @@ def test_other_languages_keep_the_untyped_receiver_rule_3756():
     files = _builtin_universe("ruby", "get", "d", "rb")
     row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
     assert row["step"] == "file"
+
+
+# --- a package split over a module's source sets (Maven / Gradle layout) -------
+
+_SOURCE_SETS = [
+    ("java", "java", "src/main/java", "src/test/java", "B"),
+    ("kotlin", "kt", "src/main/kotlin", "src/test/kotlin", "B"),
+    ("scala", "scala", "src/main/scala", "src/test/scala", "B"),
+    ("groovy", "groovy", "src/main/groovy", "src/test/groovy", "B"),
+]
+
+
+def _split_package(lang, ext, main, test, call_path_main=None, call_path_test=None):
+    """A test-source-set caller of a bare helper and a constructor in the main source set."""
+    caller = call_path_test or f"m/{test}/p/q/CallerTest.{ext}"
+    target = call_path_main or f"m/{main}/p/q/Svc.{ext}"
+    files = [
+        _file(
+            caller,
+            lang,
+            [_fn("check", 1, calls=["Svc", "helper"], quals={"Svc": [""], "helper": [""]})],
+        ),
+        _file(target, lang, [_fn("helper", 3)], [{"name": "Svc", "inheritance": []}]),
+    ]
+    sites, _ = resolve_calls(files)
+    return _site(sites, "Svc"), _site(sites, "helper")
+
+
+@pytest.mark.parametrize(("lang", "ext", "main", "test", "_x"), _SOURCE_SETS)
+def test_package_split_over_source_sets_is_visible_without_an_import(lang, ext, main, test, _x):
+    ctor, helper = _split_package(lang, ext, main, test)
+    assert ctor["step"] != "unseen" and ctor["resolution"] in CONFIDENT_RESOLUTIONS
+    assert (ctor["dst_kind"], ctor["dst_path"]) == ("class", f"m/{main}/p/q/Svc.{ext}")
+    assert helper["step"] != "unseen" and helper["resolution"] in CONFIDENT_RESOLUTIONS
+
+
+@pytest.mark.parametrize(("lang", "ext", "main", "test", "_x"), _SOURCE_SETS)
+def test_package_split_stays_unseen_for_another_module_or_package(lang, ext, main, test, _x):
+    other_module = _split_package(lang, ext, main, test, call_path_main=f"n/{main}/p/q/Svc.{ext}")
+    other_package = _split_package(lang, ext, main, test, call_path_main=f"m/{main}/p/z/Svc.{ext}")
+    for ctor, helper in (other_module, other_package):
+        assert ctor["step"] == "unseen"
+        assert helper["step"] == "unseen"
+
+
+def test_package_dir_leaves_other_layouts_and_languages_alone():
+    assert _package_dir("m/src/test/java/p/q", "java") == _package_dir("m/src/main/java/p/q", "java")
+    assert _package_dir("src/test/java/p", "java") != _package_dir("src/main/java/p/q", "java")
+    assert _package_dir("lib/p/q", "java") == "lib/p/q"  # no source root: the directory
+    assert _package_dir("m/src/main/java/p", "go") == "m/src/main/java/p"
+    assert _package_dir("m/src/main/java/p", "csharp") == "m/src/main/java/p"
+    assert _package_dir("m/src/main/java", "java") == "m/|"  # the default package
+
+
+def test_go_source_set_directories_are_still_separate_packages():
+    files = [
+        _file("m/src/test/java/a.go", "go", [_fn("run", 1, calls=["helper"], quals={"helper": [""]})]),
+        _file("m/src/main/java/b.go", "go", [_fn("helper", 3)]),
+    ]
+    assert _site(resolve_calls(files)[0], "helper")["step"] == "unseen"

@@ -1121,6 +1121,35 @@ _ARITY_MAX_TYPE_ARGS = 200
 _ARITY_OPEN = {"(": ")", "[": "]", "{": "}"}
 
 
+_ZIG_TYPE_BRACE_KEYWORDS = frozenset({"struct", "union", "enum", "opaque", "error"})
+
+
+def _zig_opens_type_brace(text: str, pos: int, floor: int) -> bool:
+    """#6432: True when the `{` at `pos` opens a zig type (`error{..}`, `struct{..}`, `union(enum){..}`), not a body."""
+    end = pos
+    while end > floor and text[end - 1] in " \t\r\n":
+        end -= 1
+    if end > floor and text[end - 1] == ")":
+        depth = 0
+        end -= 1
+        while end > floor and pos - end < 256:
+            if text[end] == ")":
+                depth += 1
+            elif text[end] == "(":
+                depth -= 1
+                if depth == 0:
+                    break
+            end -= 1
+        else:
+            return False
+        while end > floor and text[end - 1] in " \t\r\n":
+            end -= 1
+    start = end
+    while start > floor and end - start < 16 and (text[start - 1].isalnum() or text[start - 1] == "_"):
+        start -= 1
+    return text[start:end] in _ZIG_TYPE_BRACE_KEYWORDS
+
+
 def _call_arity(text: str, pos: int) -> int | None:
     """#3835: the number of arguments of the call whose callee name ends at `pos`,
     or None when no argument list follows (a method reference, a declaration).
@@ -6578,8 +6607,12 @@ class StructuralExtractor:
                     elif ch == "]":
                         depth = max(0, depth - 1)
                     elif depth == 0 and (ch == opener or ch == ";"):
-                        term_idx, term_kind = pos, ("brace" if ch == opener else "semi")
-                        break
+                        # #6432: a zig type brace in the result type is no body start; step over it
+                        if ch == opener and lang_id == "zig" and _zig_opens_type_brace(safe_code, pos, params_end_idx):
+                            pos = max(pos, self._find_balanced_end(safe_code, pos, opener, closer) - 1)
+                        else:
+                            term_idx, term_kind = pos, ("brace" if ch == opener else "semi")
+                            break
                     pos += 1
                 if term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
@@ -7406,6 +7439,16 @@ class StructuralExtractor:
             # groovy 11 -- against apex/css/html/php/swift 0. tcl is the only
             # language in this fallback whose `func_start` consumes a
             # non-body brace group, so it is the only one the anchor may move for.
+            # #6432: a swift parameter default can be a closure (`cb: () -> Void = {}`): the body
+            # brace is the first one after the balanced parameter list. func_start stops before the `(`.
+            elif lang_id == "swift":
+                params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
+                brace_idx = safe_code.find(opener, params_end_idx, search_limit)
+                if brace_idx == -1:
+                    brace_idx = safe_code.find(opener, start_idx, search_limit)
+                    if brace_idx == -1:
+                        continue
+                end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
             elif lang_id == "tcl":
                 brace_idx = safe_code.find(opener, match.end(), search_limit)
                 if brace_idx == -1:

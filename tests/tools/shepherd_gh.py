@@ -391,11 +391,7 @@ def head_pushed_at(api: Api, sha: str) -> str | None:
 
 # #6534: the per-PR reads of gather() in one GraphQL query (its own points quota, not REST's 5,000/h). Every list is
 # fetched whole or not used: a connection longer than what came back sends the PR down the REST path.
-PR_QUERY = """
-query($owner: String!, $name: String!, $n: Int!) {
-  rateLimit { cost }
-  repository(owner: $owner, name: $name) {
-    pullRequest(number: $n) {
+PR_FIELDS = """
       number state merged isDraft body mergeStateStatus headRefOid headRefName baseRefName
       headRepository { nameWithOwner }
       autoMergeRequest { enabledAt }
@@ -406,23 +402,37 @@ query($owner: String!, $name: String!, $n: Int!) {
       }
       commits(last: 1) { nodes { commit { oid
         status { contexts { context state } }
-        checkSuites(first: 100) { totalCount nodes { createdAt app { slug }
-          checkRuns(first: 100) { totalCount nodes { databaseId name status conclusion detailsUrl url } } } }
+        @@SUITES@@
       } } }
+"""
+PR_FIELDS = PR_FIELDS.replace("@@SUITES@@", pr_check.SUITES_SELECTION)
+PR_QUERY = (
+    "query($owner: String!, $name: String!, $n: Int!) {\n  rateLimit { cost }\n  repository(owner: $owner, name: $name) {\n"
+    "    pullRequest(number: $n) {" + PR_FIELDS + "    }\n  }\n}"
+)
+BATCH = 5  # PRs per query: a PR_FIELDS read is ~3 points; five keep a query well inside GitHub's node limit
+
+
+def batch_query(numbers: list[int]) -> str:
+    """One query for several PRs: each is the alias `p<N>` of the same PR_FIELDS selection."""
+    pulls = "".join(f"    p{n}: pullRequest(number: {int(n)}) {{{PR_FIELDS}    }}\n" for n in numbers)
+    return f"query($owner: String!, $name: String!) {{\n  rateLimit {{ cost }}\n  repository(owner: $owner, name: $name) {{\n{pulls}  }}\n}}"
+
+
+LABELLED_QUERY = """
+query($owner: String!, $name: String!) {
+  rateLimit { cost }
+  repository(owner: $owner, name: $name) {
+    pullRequests(states: OPEN, first: 100, orderBy: {field: CREATED_AT, direction: DESC}) {
+      pageInfo { hasNextPage }
+      nodes { number labels(first: 100) { totalCount nodes { name } } }
     }
   }
 }"""
 
 
-class Truncated(ValueError):
-    """A GraphQL list came back shorter than its totalCount."""
-
-
-def _whole(conn: dict[str, Any], count: str = "totalCount") -> list[dict[str, Any]]:
-    nodes = conn["nodes"]
-    if conn[count] > len(nodes):
-        raise Truncated
-    return nodes
+Truncated = pr_check.Truncated
+_whole = pr_check.whole
 
 
 def _login(who: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -439,15 +449,7 @@ def graphql_reads(p: dict[str, Any]) -> dict[str, Any]:
     if commit["oid"] != p["headRefOid"]:
         raise Truncated  # the head moved between the two fields
     suites = _whole(commit["checkSuites"])
-    runs = []
-    for suite in suites:
-        slug = (suite.get("app") or {}).get("slug")
-        for r in _whole(suite["checkRuns"]):
-            runs.append({
-                "id": r["databaseId"], "name": r["name"], "status": r["status"].lower(),
-                "conclusion": r["conclusion"].lower() if r["conclusion"] else None, "app": {"slug": slug},
-                "details_url": r["detailsUrl"], "html_url": r["detailsUrl"] if slug == "github-actions" else r["url"],
-            })  # fmt: skip
+    runs = pr_check.runs_from_suites(suites)
     stamps = sorted(s["createdAt"] for s in suites if s.get("createdAt"))
     pr = {
         "number": p["number"],
@@ -495,6 +497,25 @@ def _graphql_pr(graphql: pr_check.GraphQL, n: int) -> dict[str, Any] | None:
         return None
 
 
+def _graphql_prs(graphql: pr_check.GraphQL, numbers: list[int]) -> dict[int, dict[str, Any] | None]:
+    """graphql_reads for each PR in `numbers`, BATCH of them per query. A PR whose part is missing, null or incomplete
+    (or whose batch failed) maps to None: gather() reads that one through REST."""
+    owner, name = REPO_SLUG.split("/")
+    out: dict[int, dict[str, Any] | None] = {}
+    for i in range(0, len(numbers), BATCH):
+        chunk = list(dict.fromkeys(numbers[i : i + BATCH]))
+        try:
+            repo = graphql(batch_query(chunk), {"owner": owner, "name": name})["repository"]
+        except (SystemExit, KeyError, TypeError, AttributeError, ValueError):
+            repo = {}
+        for n in chunk:
+            try:
+                out[n] = graphql_reads(repo[f"p{n}"])
+            except (KeyError, TypeError, IndexError, AttributeError, ValueError):
+                out[n] = None
+    return out
+
+
 def gather(
     n: int,
     api: Api = pr_check.gh_api,
@@ -504,6 +525,7 @@ def gather(
     flaky: set[str] | None = None,
     main: tuple[str, set[str]] | None = None,
     graphql: pr_check.GraphQL | None = None,
+    prefetched: dict[int, dict[str, Any] | None] | None = None,
 ) -> dict[str, Any]:
     """The snapshot decide() reads for PR n. `event`: the facts of the pull_request_target payload that caused the pass
     (action, label, sender), when there was one. Reconcile passes have none.
@@ -523,9 +545,13 @@ def gather(
       * no trusted marker at all -> awaiting (the labeled run never happened, or was dropped): no drop, quiet;
       * otherwise the head moved without approval -> the label is dropped.
     `graphql` (#6534): the PR, comments, head checks, labeled events and push time come from one PR_QUERY instead of
-    six REST reads; None, or a query that fails or comes back incomplete, reads them through REST."""
+    six REST reads; None, or a query that fails or comes back incomplete, reads them through REST.
+    `prefetched`: _graphql_prs' answer for a whole pass (several PRs per query); an entry that is None reads through REST."""
     event = event or {}
-    got = _graphql_pr(graphql, n) if graphql else None
+    if prefetched is not None and n in prefetched:
+        got = prefetched[n]
+    else:
+        got = _graphql_pr(graphql, n) if graphql else None
     perms: dict[str, str | None] = {}
 
     def perm(login: str) -> str | None:
@@ -831,6 +857,7 @@ def process(
     flaky: set[str] | None = None,
     main: tuple[str, set[str]] | None = None,
     graphql: pr_check.GraphQL | None = None,
+    prefetched: dict[int, dict[str, Any] | None] | None = None,
 ) -> list[str]:
     event = event or {}
     lines: list[str] = []
@@ -859,7 +886,7 @@ def process(
             return lines  # no approval, so no auto-merge
         event = {**event, "approved": head}  # gather must not depend on reading back the comment it just posted
     try:
-        s = gather(n, api, event, on_main=on_main, flaky=flaky, main=main, graphql=graphql)
+        s = gather(n, api, event, on_main=on_main, flaky=flaky, main=main, graphql=graphql, prefetched=prefetched)
     except SystemExit as e:  # one PR's failed read must not stop the others
         return lines + [f"#{n} skipped: {e}"]
     acts = decide(s)
@@ -906,7 +933,20 @@ def prs_for_head(api: Api, sha: str) -> list[int]:
     ]
 
 
-def open_labelled(api: Api) -> list[int]:
+def open_labelled(api: Api, graphql: pr_check.GraphQL | None = None) -> list[int]:
+    """The open PRs carrying a request or status label: one GraphQL read (#6534), the REST listing when it fails or is
+    cut short (more than 100 open PRs, or a PR with more than 100 labels)."""
+    if graphql:
+        owner, name = REPO_SLUG.split("/")
+        try:
+            conn = graphql(LABELLED_QUERY, {"owner": owner, "name": name})["repository"]["pullRequests"]
+            if conn["pageInfo"]["hasNextPage"]:
+                raise pr_check.Truncated
+            return [
+                p["number"] for p in conn["nodes"] if any(x["name"] in REQUESTS + STATUS for x in _whole(p["labels"]))
+            ]
+        except (SystemExit, KeyError, TypeError, AttributeError, ValueError):
+            pass
     prs = pr_check.paged(api, f"repos/{REPO_SLUG}/pulls?state=open")
     return [p["number"] for p in prs if any(x["name"] in REQUESTS + STATUS for x in p.get("labels") or [])]
 
@@ -970,13 +1010,16 @@ def main(
         lines = []
         api = pass_cached(pr_check.pass_cache(api))  # #6534: plus the finished SHAs' reads
         flaky = learned_flakes(args.flake_cache)  # once per pass
-        prs = prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api)
-        on_main = ci_digest.main_failures(api) if len(prs) > 1 else None
-        main_state = ci_digest.main_green(api)  # #5484: only a reconcile pass may merge main into a waiting PR
+        prs = prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api, graphql)
+        tip = ci_digest.main_tip(api, graphql)  # one read of main's tip for both below
+        on_main = ci_digest.main_failures(api, graphql=graphql, tip=tip) if len(prs) > 1 else None
+        main_state = ci_digest.main_green(api, graphql=graphql, tip=tip)  # #5484: only a reconcile merges main
+        prefetched = _graphql_prs(graphql, prs) if graphql else None  # #6534: several PRs per query
         for n in prs:
             lines += process(
-                n, api, run, None, args.dry_run, on_main=on_main, flaky=flaky, main=main_state, graphql=graphql
-            )
+                n, api, run, None, args.dry_run, on_main=on_main, flaky=flaky, main=main_state, graphql=graphql,
+                prefetched=prefetched,
+            )  # fmt: skip
     for line in lines:
         print(line)
     return 1 if any("FAILED" in x for x in lines) else 0

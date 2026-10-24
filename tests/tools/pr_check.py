@@ -85,6 +85,37 @@ def gh_graphql(query: str, variables: dict[str, Any]) -> Any:
     return doc["data"]
 
 
+class Truncated(ValueError):
+    """A GraphQL list came back shorter than its totalCount."""
+
+
+def whole(conn: dict[str, Any], count: str = "totalCount") -> list[dict[str, Any]]:
+    """A GraphQL connection's nodes, or Truncated when GitHub holds more than came back."""
+    nodes = conn["nodes"]
+    if conn[count] > len(nodes):
+        raise Truncated
+    return nodes
+
+
+# the check suites of a commit with their runs, as one GraphQL selection (shared by the PR and main reads, #6534)
+SUITES_SELECTION = """checkSuites(first: 100) { totalCount nodes { createdAt app { slug }
+          checkRuns(first: 100) { totalCount nodes { databaseId name status conclusion detailsUrl url } } } }"""
+
+
+def runs_from_suites(suites: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """REST's check-run dicts from a SUITES_SELECTION's suites (Truncated when a suite's runs are cut short)."""
+    runs = []
+    for suite in suites:
+        slug = (suite.get("app") or {}).get("slug")
+        for r in whole(suite["checkRuns"]):
+            runs.append({
+                "id": r["databaseId"], "name": r["name"], "status": r["status"].lower(),
+                "conclusion": r["conclusion"].lower() if r["conclusion"] else None, "app": {"slug": slug},
+                "details_url": r["detailsUrl"], "html_url": r["detailsUrl"] if slug == "github-actions" else r["url"],
+            })  # fmt: skip
+    return runs
+
+
 SHA_PATH = re.compile(r"^repos/[^/]+/[^/]+/commits/[0-9a-f]{40}$")  # a commit by sha: its parents never change
 RUNS_PATH = re.compile(r"^repos/[^/]+/[^/]+/commits/[0-9a-f]{40}/check-runs\?")
 RUN_PATH = re.compile(r"^repos/[^/]+/[^/]+/actions/runs/\d+$")

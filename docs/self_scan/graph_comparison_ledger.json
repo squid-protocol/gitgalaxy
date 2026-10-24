@@ -5963,8 +5963,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "haskell",
       "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 52,
@@ -6011,10 +6011,10 @@
         }
       ],
       "metric": "inner-named-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong on the owner. The calls are real, but each sits inside an inner named function: `filterWithPath constr = maybe missingPath ...` in Filter.hs parseJSON, and the `go` helper declared in the `where` clause of makeSectionsWithOffsets in Shared.hs, whose do-block holds `zipWith`, `map`, `unless` and `Div`. C8 says a call inside a nested named function belongs to that unit only, so the pair (outer, callee) is not a call of the outer function. Tree-sitter attributes them to the inner function. No credit: the outer-owner claim is wrong. Engine gap: Haskell `where`/`let` function bindings are not separate owners."
     },
     "haskell/call/not-a-call-in-ts:apply<alternative/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -11446,13 +11446,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 24,
@@ -11499,22 +11501,24 @@
         }
       ],
       "metric": "not-a-call-in-ts:undef_expression<expression_statement",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. Every recorded example is a statement `undef $var;` (`undef $@;`, `undef $raf;`, `undef $newVal;`, `undef $evalWarning;`, `undef $family;`). Here `undef` is plainly an operation with an operand: it discards the variable's value. It is a builtin invoked without parentheses, a call by C3 as for `shift`. Tree-sitter files it as an `undef_expression`, not a call, so the harness does not count it. Tree-sitter's omission."
     },
     "perl/call/not-a-call-in-ts:undef_expression<list_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 53,
@@ -11561,10 +11565,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:undef_expression<list_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right under the recorded perl ruling. Every recorded example is `undef` passed as an argument: the DBI attribute slot in `$dbh->do($sql, undef, $timestamp, ...)`, `selectall_arrayref($query, undef, @args)`, `selectcol_arrayref($sth{$target}, undef, $i)`. `undef` is a Perl builtin (a named unary operator); the perl `shift` verdict already counts a paren-less builtin as an invocation by C3/C2. Tree-sitter gives it a dedicated `undef_expression` node instead of a call node, so the harness does not count it. Judgment call: in this position `undef` is the idiom for a null argument, so it is the weakest of the three undef shapes; credit follows the builtin ruling for consistency."
     },
     "perl/call/not-a-call-in-ts:undef_expression<lowprec_logical_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -11676,13 +11680,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 37,
@@ -11729,10 +11735,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:undef_expression<return_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right under the recorded perl ruling. Every recorded example is `return undef;` or `return undef if ...;` (Auth.pm login_token, Bug.pm _check_datetime_field, qa_contact, _check_deadline, _check_bugid_field). `undef` is a builtin function; with no operand it returns the undefined value. A paren-less builtin is an invocation (C3, as for `shift` and `die`), and tree-sitter only differs by giving it an `undef_expression` node. Same judgment note as the list-argument shape: this is the idiomatic null return, credited for consistency with the builtin ruling."
     },
     "perl/call/not-a-call-in-ts:undef_expression<variable_declaration/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -12796,13 +12802,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T18:03:55Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "powershell",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 971,
@@ -12849,22 +12857,24 @@
         }
       ],
       "metric": "command/-",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Every recorded example is a real cmdlet or native-command invocation that does not start its line: `$choice = Read-Host '...'`, `$x = Join-Path ...`, `[bool](Get-Command winget ...)`, `Invoke-RestMethod ... | Invoke-Expression`, `$process.Start() | Out-Null`, `if (Test-Path $p) {`. The powershell `calls_out` rule is the shared command-position pattern (an identifier at line start), so it sees only a command that opens its line. Get-Date, Join-Path, Test-Path, New-Object, Get-Content and Where-Object lead the 40 sampled; user-defined functions (`Get-PackageCacheDirs`) miss the same way. Engine gap: assignment right-hand sides, pipeline stages and parenthesised sub-expressions are not command positions to it."
     },
     "powershell/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T18:03:55Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "powershell",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 211,
@@ -12911,10 +12921,10 @@
         }
       ],
       "metric": "engine-attributes-to-another-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them; the label only means the same name is found elsewhere in the file at a line start. Each sampled example is a real mid-line command: `$allNs | ForEach-Object { Write-Output $_ }`, `$matching = @(Get-ChildItem $projectsDir ...)`, `$allNs = $allNs | Sort-Object -Unique`, `$null = New-Item -ItemType Directory ...`, `$cache = dotnet nuget locals global-packages -l`, `Start-NativeExecution { dotnet restore ... }`. Same mechanism as the powershell command/- shape: only a command opening its line is seen. Engine gap."
     },
     "powershell/call/inner-named-function_statement/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -12982,13 +12992,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T18:03:55Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "powershell",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 455,
@@ -13035,10 +13047,10 @@
         }
       ],
       "metric": "invokation_expression/-",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Every recorded example is a real .NET method call: instance methods (`$process.BeginOutputReadLine()`, `$outputBuilder.ToString()`, `.Trim()`, `.Substring()`, `.ContainsKey()`, `.Replace()`), static calls (`[math]::Round(...)`, `[String]::IsNullOrEmpty(...)`), and calls inside `$(...)` in strings (`$($installAction.ToLower())`). They sit mid-line, so the line-start `calls_out` rule never sees them. Under the harness contract (rightmost identifier of a member call) they are calls. Engine gap, no member-call rule for powershell."
     },
     "powershell/call/not-a-call-in-ts:ERROR<assignment_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -13241,8 +13253,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T18:03:55Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "powershell",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 237,
@@ -13289,10 +13301,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:key_expression<hash_entry",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. Every recorded example is a hashtable key at the start of its line: `bottom = $bounds.Bottom`, `top = $bounds.Top`, `dpi = $dpi`, `monitors = $monitors` inside `[ordered]@{ ... }` in Capture-MonitorLayout.ps1, and `Success = \"Pass\"`, `Failure = \"Fail\"` in the `$resultMap = @{` block of build.psm1. A hashtable key is not an invocation. The command-position rule takes any identifier opening a line, and the hashtable layout one entry per line makes each key look like a command. Tree-sitter reads a key_expression, correctly."
     },
     "powershell/call/not-a-call-in-ts:member_name<member_access/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -17508,13 +17520,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T18:03:55Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 592,
@@ -17561,22 +17575,24 @@
         }
       ],
       "metric": "command/simple_word",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "Mostly GitGalaxy missing real commands, with a tree-sitter minority wrong. Of the 40 sampled: about 28 are Tcl commands the engine drops by design or by its line-start rule (`return` x12, `variable`, `switch`, `error`, `source`, `continue`, `for`, `package require`; Tcl has no keywords, these are commands, but the engine treats them as special forms); about 8 are command substitutions inside a quoted string, `ui_warn \"[format [msgcat::mc \"...\"] $x]\"` and `return \"${site}[percent_encode ${distfile}]\"`, which the engine does not see; and the qualified calls `portfetch::checkfiles` and `portmain::report_platform_info` that tree-sitter names by their last segment while the engine keeps the qualified name (same call, different spelling, so the pair also lands in the command<command_substitution and command<braced_word shapes). Tree-sitter is wrong on about 7: switch-arm patterns `{~} {`, `{_} -`, `{.} -`, `{-} -` and `on error {eMessage}` read as commands, and `set ::$opt ...` read as a command named `opt`. Majority real, so credited to tree-sitter."
     },
     "tcl/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 50,
@@ -17623,10 +17639,10 @@
         }
       ],
       "metric": "engine-attributes-to-another-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Every recorded example is a real command invocation: `[format [msgcat::mc \"...\"] $mirrors]` and `[format ... ] [option subport]` inside a double-quoted `ui_warn`/`ui_notice` argument, and `lset lines $line_idx $new_line` opening its line inside an `if` body. The label only means the same name is found elsewhere in the file; the call inside this proc is absent. Four of the five are substitutions embedded in a string, the same miss ruled on the earlier tcl command-substitution shapes; why the line-start `lset` is missed was not traced here. Engine gap."
     },
     "tcl/call/not-a-call-in-ts:ERROR<braced_word/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -17745,8 +17761,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 45,
@@ -17793,10 +17809,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:argument<arguments",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong on every recorded example. The reported callee is the parameter name in a proc header: `proc portchecksum::calc_md5 {file} {`, `calc_sha1 {file}`, `calc_rmd160 {file}`, `calc_sha256 {file}`, `proc portlint::seems_utf8 {str} {`. The reading line is the `proc` line, and `file` and `str` are formal parameters that happen to share a name with Tcl commands (`file`, `string`). Tree-sitter reads them as `argument` nodes in the arguments list, correctly. No credit: GitGalaxy's claim is the wrong one. Engine defect: a proc's formal parameter list is not a place to find a call."
     },
     "tcl/call/not-a-call-in-ts:braced_word_simple<foreach/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -17926,13 +17942,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 22,
@@ -17979,22 +17997,24 @@
         }
       ],
       "metric": "not-a-call-in-ts:command<braced_word",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right on the callee. Every recorded example is a user command invoked at the start of its line: `portfetch::checkfiles fetch_urls`, `portmain::report_platform_info`, `portstartupitem::foreach_startupitem { ... }`, `portstartupitem::startupitem_create`. Tree-sitter reads the enclosing body (a nested proc body, or the script argument of an unknown command) as an unparsed `braced_word`, so it never descends to the command inside. Real calls that tree-sitter does not reach. One attribution flaw: in library.tcl the call inside the nested `proc PortSystem` is also filed under the enclosing `macports_worker_init`, which C8 says it does not belong to; that is a separate owner question, not a wrong callee."
     },
     "tcl/call/not-a-call-in-ts:command<command_substitution/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T18:03:55Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 60,
@@ -18041,10 +18061,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:command<command_substitution",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right on the calls; the mismatch is mostly spelling. These are real command substitutions: `[format [msgcat::mc \"Failed to load %s\"] $subport]`, `[portbump::find_revision_line $lines $subport ...]`, `[portchecksum::parse_checksums $checksums_str]`, `[registry::entry ...]`. The engine keeps the namespace-qualified name (`msgcat::mc`, `portfetch::fetchfiles`); the harness reduces tree-sitter's callee to its last segment (`mc`, `fetchfiles`), so the same call appears here as engine-only and in the tree-sitter-only shapes as missed. One example is a fragment: `portchecksum::calc_$type` (a dynamic name, recorded as `portchecksum::calc_`). Credited to GitGalaxy for the real calls; the naming mismatch is a harness artefact, not an engine defect."
     },
     "tcl/call/not-a-call-in-ts:expr_cmd<ERROR/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -18126,13 +18146,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 32,
@@ -18179,10 +18201,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:expr_cmd<command_substitution",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. Every recorded example is `[expr {...}]` as a command substitution: `set aftersep [expr {[string first : $element] + 3}]`, `set jobs_limit_mem [expr {int($memsize / ...) + 1}]`, `set brace_depth [expr {$opens - $closes}]`, `&& [expr {$nb_checksum % 2}] == 0`, `set proxy_str [expr {... ? ... : ...}]`. `expr` is a Tcl command and a bracketed substitution runs it, so it is an invocation (C2: built-ins are calls). Tree-sitter gives the form its own `expr_cmd` node instead of `command`, so the harness does not count it. Tree-sitter's omission, not an error in the engine."
     },
     "tcl/call/not-a-call-in-ts:global<braced_word/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -18434,13 +18456,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T18:03:55Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 210,
@@ -18487,10 +18511,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:set<braced_word",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. 38 of 40 sampled are `set` itself (`set url_re {([a-zA-Z]+://.+)}`, `set ret [list]`, `set urlmap($url_var) $urlmap($default_listvar)`, `set lastcolon [string last : $element]`). `set` is an ordinary Tcl command; the tree-sitter grammar gives it its own `set` node instead of a `command`, which the harness does not count. Not a call in the grammar, a call in the language. The other 2 are wrong: `set cvs.args \"...\"` and `set svn.args \"...\"` (portfetch.tcl:292 and :381) are recorded under the dotted variable name `cvs` / `svn` instead of `set`. Minority, credited to GitGalaxy."
     },
     "tcl/call/not-a-call-in-ts:word_list<command/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -18620,13 +18644,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T18:03:55Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 223,
@@ -18673,10 +18699,10 @@
         }
       ],
       "metric": "ts-parse-error",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right on the large majority; tree-sitter had no usable tree. The files in this shape (fetch_common.tcl, portfetch.tcl, portdestroot.tcl, portinstall.tcl, portlint.tcl, portbump.tcl) parse with errors, so tree-sitter reports no calls in the affected procs. Of the 40 sampled, about 33 are real commands in the procs' bodies (`upvar #0 $listname $listname`, `lassign $extras sglobal senv`, `regexp $tagged_url_re $env_site`, `lappend untagged_env_sites $env_site`, `llength`, `dict`, `info exists`, `glob`, `umask`, `lshift`, `fileIsSparse`). About 7 are not: data words that open a line inside a braced literal (`intel i386` in portlint.tcl:453, `os.subplatform ...` in a list, `http`/`https` in a proxy table) and the `default {` arm of a switch. Majority credited to GitGalaxy; the minority is a line-start-in-braces false positive."
     },
     "typescript/call/call_expression/call_expression+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

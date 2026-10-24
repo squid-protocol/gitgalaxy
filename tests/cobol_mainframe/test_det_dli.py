@@ -248,6 +248,17 @@ def _translate(tmp_path: Path, src: str):
     return P.translate(tmp_path / "DLIT.cbl", [], "public class DlitService {\n}\n", PKG, None, project)
 
 
+def test_ceetdli_is_the_same_detdli_call_as_cbltdli_at_the_entry_and_a_hole_in_a_bmp(tmp_path):
+    """#5233: LE's CEETDLI takes CBLTDLI's USING list; in a BMP (entered USING its I/O PCB) it stays a hole by name."""
+    r = _translate(
+        tmp_path, _program(["    CALL 'CEETDLI' USING FN PCB1 IOA", "    CALL 'CEETDLI' USING FN PCB2 IOA SSA SSA1(2)"])
+    )
+    assert not r.stats["holes"], r.stats["holes"]
+    assert len(re.findall(r"DetDli\.call\(", r.java)) == 2 and re.search(r"DetDli\.enter\(\w+, \w+\);", r.java)
+    r = _translate(tmp_path, _program(["    CALL 'CEETDLI' USING FN PCB2 IOA"], entry=None, using=" USING PCB1 PCB2"))
+    assert any("CEETDLI" in h for h in r.stats["holes"]), r.stats["holes"]
+
+
 @pytest.mark.parametrize("using", ["", " USING PCB1 PCB2", " USING PCB2"])
 def test_cbltdli_is_a_detdli_call_and_the_entry_binds_the_pcbs(tmp_path, using):
     """IMS enters the program at DLITCBL (with its own USING list) whatever PROCEDURE DIVISION USING says; every
@@ -273,7 +284,9 @@ def test_cbltdli_is_a_detdli_call_and_the_entry_binds_the_pcbs(tmp_path, using):
         (["    CALL 'CBLTDLI' USING FN PCB1"], "    ENTRY 'DLITCBL' USING PCB1 PCB2.", "up to 15 SSAs expected"),
         (["    CALL 'CBLTDLI' USING FN PCB1 'X'"], "    ENTRY 'DLITCBL' USING PCB1 PCB2.", "BY REFERENCE expected"),
         (["    CALL 'AIBTDLI' USING FN PCB1 IOA"], "    ENTRY 'DLITCBL' USING PCB1 PCB2.", "through an AIB"),
-        (["    CALL 'CEETDLI' USING FN PCB1 IOA"], "    ENTRY 'DLITCBL' USING PCB1 PCB2.", "Language Environment DL/I"),
+        (["    CALL 'CEETDLI' USING FN IOA IOA"], "    ENTRY 'DLITCBL' USING PCB1 PCB2.", "not one IMS passed"),
+        (["    CALL 'CEETDLI' USING FN PCB1"], "    ENTRY 'DLITCBL' USING PCB1 PCB2.", "up to 15 SSAs expected"),
+        (["    CALL 'CEETDLI' USING FN PCB1 IOA"], None, "a program IMS does not enter at ENTRY"),
     ],
 )  # fmt: skip
 def test_what_the_translator_does_not_model_is_a_hole_by_name(tmp_path, proc, entry, why):
@@ -1263,3 +1276,19 @@ def test_load_mode_into_a_database_that_holds_segments_is_refused_by_both_runtim
         _cobol_side(tmp_path / "cobol", prog="DLILVL", edit=lambda _: _load_program(), psb=LOAD_PSB)
     with pytest.raises(subprocess.CalledProcessError):
         _java_side(tmp_path / "java", prog="DLILVL", edit=lambda _: _load_program(), psb=LOAD_PSB)
+
+
+def _ceetdli(text: str) -> str:
+    return text.replace("'CBLTDLI'", "'CEETDLI'")
+
+
+@E2E
+@pytest.mark.parametrize("prog", ["DLILVL", "DLICMD", "DLIBOOL"])
+def test_ceetdli_answers_what_cbltdli_answers_on_both_runtimes(tmp_path, prog):
+    """#5233: each fixture (every modelled call, status, command code and boolean SSA) with CBLTDLI renamed CEETDLI:
+    both runtimes print what the unrenamed fixture prints and leave the same database."""
+    cobol_out, cobol_db = _cobol_side(tmp_path / "cobol", prog=prog, edit=_ceetdli)
+    java_out, java_db = _java_side(tmp_path / "java", prog=prog, edit=_ceetdli)
+    base_out, base_db = _cobol_side(tmp_path / "base", prog=prog)
+    assert _lines(cobol_out) == _lines(java_out) == _lines(base_out)
+    assert cobol_db == java_db == base_db

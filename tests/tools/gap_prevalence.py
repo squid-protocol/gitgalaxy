@@ -49,6 +49,9 @@ FORMAT = "gap-prevalence/1"
 
 # gap-key pattern -> the issue or epic that owns the work (first match wins; a pointer, not a status)
 OWNERS: tuple[tuple[str, str], ...] = (
+    (r"^missing copybook: CICS system", "#4270 (cics-command-slice)"),
+    (r"^missing copybook: Db2 system", "#4098 (Db2 det-port)"),
+    (r"^missing copybook: IMS system", "#4893"),
     (r"^refused: (macro-level CICS|CICS Assembler)", "#5121"),
     (r"^EXEC DLI|CBLTDLI|\bDLI\b", "#4893"),
     (r"\bMQ[A-Z]*\b", "#4892"),
@@ -166,6 +169,24 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"^EXHIBIT NAMED", "EXHIBIT NAMED: only plain names and literals"),
     (r"^MOVE CORRESPONDING", "MOVE CORRESPONDING"),
 )
+# #5865 slice 4: the copybook family. IBM-supplied member prefixes -> the system whose copybook it is; a closed vocabulary,
+# so the key is the table's string and never the member name. Anything else is the estate's own.
+_COPYBOOK_FAMILIES: tuple[tuple[tuple[str, ...], str], ...] = (
+    (("DFH",), "CICS system"),
+    (("SQLCA", "SQLDA", "DSN"), "Db2 system"),
+    (("CMQ",), "MQ system"),
+    (("DLI", "AIB"), "IMS system"),
+    (("CEE", "IGZ"), "LE system"),
+)
+
+
+def copybook_family(member: str) -> str:
+    """`missing copybook PAYREC (ambiguous)` -> `missing copybook: estate-owned`; no member name survives."""
+    name = member.removeprefix("missing copybook").replace("(ambiguous)", "").strip().upper()
+    fam = next((f for prefixes, f in _COPYBOOK_FAMILIES if name.startswith(prefixes)), "estate-owned")
+    return f"missing copybook: {fam}"
+
+
 _ROUTINE = re.compile(r"(?:CEE|CBLTDLI|CEETDLI|AIBTDLI|MQ|DFH|ILBO|IGZ|CKM|DSN)[A-Z0-9]*")
 
 
@@ -182,7 +203,7 @@ def scrub_key(gap: str) -> str:
     if gap.startswith("EXEC DLI"):
         return "EXEC DLI"
     if gap.startswith("missing copybook"):
-        return "missing copybook"
+        return copybook_family(gap)
     if gap.startswith("grammar:"):
         return "grammar: does not parse" if "does not parse" in gap else "grammar: other"
     if m := re.match(r"refused: (macro-level CICS|CICS Assembler)$", gap):

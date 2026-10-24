@@ -214,15 +214,15 @@
 <text class="n" x="630" y="325">n=2,524 calls</text>
 <text class="n" x="630" y="337">functions 802</text>
 </g>
-<g><title>java call resolution: precision 99.8% of 5,108, recall 64.9% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
+<g><title>java call resolution: precision 99.8% of 5,630, recall 71.5% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
 <text class="pr" x="732" y="324.5">Precision</text>
 <rect class="track" x="778" y="317" width="110" height="8" rx="2"/>
 <rect x="778" y="317" width="109.8" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="893" y="325">99.8%</text>
 <text class="pr" x="732" y="336.5">Recall</text>
 <rect class="track" x="778" y="329" width="110" height="8" rx="2"/>
-<rect x="778" y="329" width="71.4" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="337">64.9%</text>
+<rect x="778" y="329" width="78.7" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="337">71.5%</text>
 <text class="n" x="936" y="325">n=7,858 edges</text>
 <text class="n" x="936" y="337">vs scip-java 0.12.3</text>
 </g>

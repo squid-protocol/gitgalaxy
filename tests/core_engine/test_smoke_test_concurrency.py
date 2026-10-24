@@ -49,7 +49,7 @@ MAIN = "refs/heads/main"
 CASES = [
     # event, PR number (None outside a PR), ref, group, cancel-in-progress
     ("schedule", None, MAIN, f"{NAME}-nightly", False),
-    ("push", None, MAIN, f"{NAME}-{MAIN}", True),
+    ("push", None, MAIN, f"{NAME}-{MAIN}", False),
     ("pull_request", 6186, "refs/pull/6186/merge", f"{NAME}-6186", True),
     ("workflow_dispatch", None, "refs/heads/some-branch", f"{NAME}-refs/heads/some-branch", True),
 ]
@@ -68,3 +68,9 @@ def test_the_nightly_group_is_not_the_main_push_group():
 def test_the_workflow_still_has_a_schedule():
     on = _doc().get(True) or _doc().get("on")
     assert "schedule" in on
+
+
+def test_a_main_push_is_never_cancelled_but_a_pr_is():
+    """#6514: eight main push runs in a row were cancelled by the next push, so main never had a verdict."""
+    assert _cancel("push", None, MAIN) is False
+    assert _cancel("pull_request", 1, "refs/pull/1/merge") is True

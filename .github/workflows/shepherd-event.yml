@@ -46,7 +46,19 @@ jobs:
           restore-keys: |
             flake-history-
 
+      # promoter-bot#64 (2026-10-24): the squid-shepherd App has its own API quota; AUTOMATION_PAT shares the
+      # account's 5,000/h with the agent fleet, and the shepherd stopped merging when it ran out. The PAT stays
+      # the fallback (a failed mint leaves the output empty).
+      - name: Mint the squid-shepherd App token
+        id: app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.SHEPHERD_APP_ID }}
+          private-key: ${{ secrets.SHEPHERD_APP_KEY }}
+
       - name: Apply the label rules to this pull request
         env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
+          SHEPHERD_TRUSTED_BOTS: "squid-shepherd[bot],squid-protocol"
         run: python3 tests/tools/shepherd_gh.py event --event-path "$GITHUB_EVENT_PATH" --flake-cache flake-cache/flake_history.json

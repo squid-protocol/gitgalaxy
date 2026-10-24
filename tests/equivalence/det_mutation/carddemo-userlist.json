@@ -5,14 +5,14 @@
  "case": "carddemo-userlist",
  "entry": {
   "program": "COUSR00C",
-  "commit": "aa4fb79ebe3fbe07b0b3d2ea744863a23299271e",
+  "commit": "9a76472bab0c8f94bd0f65cab700136f035906fd+uncommitted",
   "date": "2026-10-24",
   "mode": "fast",
   "seed": 0,
   "mutants": 2849,
   "out_of_scope": 12,
   "chosen": 150,
-  "coverage": "proven on 70 scenarios, covering 16/16 paragraphs and 95/100 branches",
+  "coverage": "proven on 72 scenarios, covering 16/16 paragraphs and 95/100 branches",
   "counts": {
    "killed": 100,
    "timeout": 7,
@@ -479,23 +479,24 @@
   ],
   "inputs": {
    "port": "8a58cfd22fe717411d5d48eb80cc11a721813f5687fa37364f158b2564ee8db4",
-   "generator": "9b5620491f5726cd9166fc559fb0b2b8a259f37b205ff8ed6955c1593d630bde",
-   "case": "b92027e2f1d6d7e6998eb8071b2ddd6003394b0cfe12ae9f9e26da52857ae3b3",
+   "generator": "8909637eccf85e46737f8a3cb8c7f28320765ced1d807c3d3ca4f9c084519e34",
+   "case": "5c745f92f15f88857bce31521a427c67a2843512e8ac599f79ec388fce2e3dec",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "76b4c9e44a0d0656204656154fbefbc561e3b74fcb3f1edebd2b9449e8591cd3",
-   "oracle": "69759f65c0dd6843b5d59fb2d32ae7f1af1582260379465dfa6d64aca2d2ada0",
+   "harness": "d2af894d90223b538c15d3b03fc51ccf3772afbccff34faebda26f29bf1c55df",
+   "oracle": "07517ec3431588d67d67ed60be3f71579d0c3ee85c19d09a3ac4b455a41a95a4",
    "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
   "components": {
    "generator": {
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "0d3a5e0207bb5ed0525dd00e2d197a9846c28713f9c1242a5a70f4381445510f",
+    "generator:core": "7b4cffd56fa259b0380a7854cf6446e042c7e33986e6855067d7b0f99ff71e80",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "6fc5c3a22791c883bbd6269d509cc9a36855e915e08542edc06963fc54cbd29b",
+    "generator:det/cics": "b7481ad1053c99e41e5cb394c0d22c42974e21c9b831df65198d7e459fe25923",
     "generator:det/cics_conditions": "c5bfb6ed32df1a582cf010bf59f1f16dd7440e4caa075a0458f62ca9b85f6219",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
+    "generator:det/cics_faults": "022b25e0d5807e27992c2e0598d06fff3258412b4333821efc748dd7be728b4c",
     "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
-    "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
+    "generator:det/cics_taskcontrol": "a28940b9fd127e798b6c4c69b178d93d010c8695eba388ac78d6dca2839e594a",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
     "generator:det/dli": "6c94b183b7f40bbce09c623fe2001c3c594534daada2a363417a61a0a3c9f41d",
     "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
@@ -510,14 +511,21 @@
     "generator:det/stmt": "72ade7437769eb7b8d8e94511613964e6f5cb98f30b4a4c5d6295709534b5176"
    },
    "harness": {
-    "harness:cics": "070066aacf964eda0d55fd5512b8c4cedbca32ffbdb05cae06f5e2b70ff0f73a",
-    "harness:core": "808b8ac9e553c3caffe3e5b89d7b7a1d8a04cd0b273490c8f2fb0e16aeb53e77"
+    "harness:cics": "3a04632fbe8cde65ed39c6dd31179cf0dae47770977ddb77454672ab26eedebb",
+    "harness:core": "abb309e753cbd32d00e4058d673b33ffac9b880df211acab1ca95eeab176cc04"
    },
    "oracle": {
-    "oracle:cics-stub": "e5b1f518fe40f9fa577c5f3e5c4b2746524349243a634f10fa50e984e438b6a1",
+    "oracle:cics-stub": "dd0e2983d87ff60e2e5ec4598543ecc58274c2c3ee85f6aa476e1601c5d16c36",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:le": "4fec0fd2411f43c866dc95cbc9e40f5caf30ad88dd1f430b47625c41da044764"
    }
+  },
+  "refreshed": {
+   "from": "2026-10-24",
+   "survivors_rerun": 43,
+   "stale": [
+    "case"
+   ]
   }
  }
 }

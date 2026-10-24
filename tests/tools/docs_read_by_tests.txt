@@ -4,6 +4,7 @@
 .claude/*	tests/tools/test_evidence_report_single_source.py
 .claude/agents/gitgalaxy-pr-worker.md	tests/tools/box
 .claude/skills/rule-contract-audit/SKILL.md	tests/signal_contract_audit.py
+/*.cbl	tests/cobol_mainframe
 /*.json	tests/test_golden_store.py,tests/tools/test_gap_prevalence.py
 /*.out	tests/tools/porting_loop.py
 /.bms-scratch	tests/tools/cics_crucible_det.py
@@ -74,7 +75,7 @@
 /asset.blob	tests/security_auditing
 /asset.png	tests/security_auditing
 /bad.forbidden	tests/security_auditing
-/baseline.json	tests/tools/test_content_keyed_baseline.py
+/baseline.json	tests/cobol_mainframe,tests/tools/test_content_keyed_baseline.py
 /bitbucket-pipelines.yml	tests/core_engine
 /bms_src	tests/cobol_mainframe
 /case.json	tests/tools/test_det_mutation.py

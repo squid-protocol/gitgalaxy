@@ -17,6 +17,7 @@
 /.mainframe_corpora	tests/cobol_mainframe,tests/tools/cics_census.py,tests/tools/era_distribution.py,tests/tools/feature_inventory.py,tests/tools/mainframe_corpus.py,tests/tools/pr_gates.py,tests/tools/preflight.py
 /.test_durations	tests/tools/test_ci_critical_path_split.py,tests/tools/time_ratchet.py
 /.tools	tests/tools/preflight.py
+/A.cbl	tests/tools/test_java_target_matrix_scan_cache.py
 /Api.cs	tests/security_auditing
 /B.cbl	tests/cobol_mainframe
 /CMakeLists.txt	tests/core_engine

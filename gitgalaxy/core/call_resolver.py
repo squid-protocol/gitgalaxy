@@ -852,7 +852,9 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
             name = str(cls.get("name") or "")
             if name:
                 index.setdefault((group, _key(name, lang)), _Bucket()).add(
-                    _Definition(path, dir_, parts, stem, name, int(cls.get("start_line", 0) or 0), None, "class", pkg=pkg)
+                    _Definition(
+                        path, dir_, parts, stem, name, int(cls.get("start_line", 0) or 0), None, "class", pkg=pkg
+                    )
                 )
     return index
 

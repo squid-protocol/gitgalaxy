@@ -584,3 +584,46 @@ def test_fortran_fixed_form_comment_column_one_is_not_a_statement(tmp_path):
     g = _group(tmp_path, {"a.f90": "module a\nend module\n"})
     src = b"c      use a\n*      use a\n      use a\n"
     assert iga.fortran_imports(src, "old/x.f", g) == [{"a.f90"}]
+
+
+def test_objc_framework_include_finds_the_header_in_a_framework_the_repo_builds(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "Kit.podspec": "Pod::Spec.new do |s|\n  s.header_dir = 'KitHeaders'\nend\n",
+            "Source/A.h": "",
+            "Source/Sub/B+Private.h": "",
+            "Source/C.mm": "",
+            "Other/Kit/D.h": "",
+            "Elsewhere.xcodeproj/project.pbxproj": "",
+            "Source/E.h": "",
+        },
+    )
+    src = (
+        b"#import <Kit/A.h>\n"  # the framework is `Kit.podspec`
+        b"#import <KitHeaders/B+Private.h>\n"  # header_dir, a flattened path tail
+        b"#include <Kit/C.h>\n"  # absent header
+        b"#import <Kit/D.h>\n"  # a real path wins: Other/Kit/D.h
+        b"#import <Elsewhere/E.h>\n"  # `Elsewhere.xcodeproj`
+        b"#import <Foundation/Foundation.h>\n"  # not this repo's framework
+        b"#import <vector>\n"
+        b'#import "A.h"\n'
+        b"@import UIKit;\n"
+    )
+    expect = [
+        {"Source/A.h"},
+        {"Source/Sub/B+Private.h"},
+        set(),
+        {"Other/Kit/D.h"},
+        {"Source/E.h"},
+        set(),
+        set(),
+        {"Source/A.h"},  # `"A.h"` quoted: not beside the file, so by suffix
+    ]
+    for rel in ("inc/main.m", "inc/main.mm", "inc/main.h"):
+        assert iga.EXTRACTORS["objective-c"](src, rel, g) == expect
+
+
+def test_c_does_not_use_the_objc_framework_rule(tmp_path):
+    g = _group(tmp_path, {"Kit.podspec": "", "Source/A.h": ""})
+    assert iga.EXTRACTORS["c"](b"#include <Kit/A.h>\n", "x.c", g) == [set()]

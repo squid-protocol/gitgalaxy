@@ -277,3 +277,10 @@ def test_x54_records_the_live_page_reread_5116():
         in text
     )
     assert "per-occurrence JUSTIFY stays frontier" in text
+
+
+def test_x54_does_not_attribute_per_occurrence_justify_to_ibm_5116():
+    text = " ".join(_X54.read_text(encoding="utf-8").split())
+    assert "IBM gives every occurrence" not in text
+    assert "no sentence joins JUSTIFY with OCCURS, GRPNAME" in text
+    assert "test_bms_occurs_grpname_census_5116.py" in text

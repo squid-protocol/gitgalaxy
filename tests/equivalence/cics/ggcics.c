@@ -3143,7 +3143,9 @@ int GGCRDST(gg_cics *c, char *ridfld, int keylen, void **slot) {
     char want[9], key[96];
     trim(c->name1, 8, want);
     c->len = (int)sizeof buf;
+    set_form = 1;  /* #6262: the READ event is the SET form's */
     GGCREAD(c, ridfld, keylen, buf, (int)sizeof buf);
+    set_form = 0;
     if (c->resp == NORMAL || c->resp == DUPKEY) {
         snprintf(key, sizeof key, "READ %s", want);
         *slot = blk_set_new(key, buf, (size_t)c->len, strstr(c->flags, "UPDATE") || strstr(c->flags, "TOKEN"));
@@ -3159,7 +3161,9 @@ static int browse_read_set(gg_cics *c, int dir, char *ridfld, int keylen, void *
     int reclen, keyoff, klen;
     trim(c->name1, 8, want);
     if (strstr(c->flags, "RBA")) refuse("READNEXT / READPREV SET in an RBA browse");
+    set_form = 1;  /* #6262: the READNEXT / READPREV event is the SET form's */
     browse_read(c, dir, ridfld, keylen, buf, (int)sizeof buf);
+    set_form = 0;
     if ((c->resp == NORMAL || c->resp == DUPKEY) && file_cfg(want, path, &reclen, &keyoff, &klen)) {
         snprintf(key, sizeof key, "BROWSE %s", want);
         *slot = blk_set_new(key, buf, (size_t)reclen, 1);

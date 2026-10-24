@@ -550,13 +550,19 @@ class StateRehydrator:
                     and _has_column(cursor, "sql_statement_data", "statement_text")
                     else "NULL AS statement"
                 )
+                routine_col = (
+                    "ss.routine_name AS routine"
+                    if _has_table(cursor, "sql_statement_data")
+                    and _has_column(cursor, "sql_statement_data", "routine_name")
+                    else "NULL AS routine"
+                )
                 sql_statements_by_file = _restore_child_table(
                     cursor,
                     repo_name,
                     baseline_hash,
                     "sql_statement_data",
                     'SELECT fd.file_path AS _fp, ss.stmt_ordinal AS ordinal, ss.verb, ss.table_name AS "table", '  # noqa: S608 -- stmt_col is one of two literals
-                    f'ss.access, ss.cursor_name AS "cursor", ss.host_variables, ss.line_number AS line, {stmt_col} '
+                    f'ss.access, ss.cursor_name AS "cursor", ss.host_variables, ss.line_number AS line, {stmt_col}, {routine_col} '
                     "FROM sql_statement_data ss JOIN file_data fd ON ss.file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ss.id",
                     lambda r: {
@@ -568,6 +574,7 @@ class StateRehydrator:
                         "host_variables": r["host_variables"],
                         "line": int(r["line"] or 0),
                         "statement": r["statement"],
+                        **({"routine": r["routine"]} if r["routine"] else {}),
                     },
                 )
 

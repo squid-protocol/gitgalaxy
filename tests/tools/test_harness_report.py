@@ -253,7 +253,9 @@ def test_burned_generated_inputs_need_no_class_1_or_3_cause():
         cpy = gen.get("copybook") or spec.get("copybook", "")
         if base is None or not (base / cpy).is_file():
             continue
-        fields = common.layout_fields(base, cpy, gen.get("record") or spec.get("record") or None)
+        fields = common.layout_fields(
+            base, cpy, gen.get("record") or spec.get("record") or None, copy_dirs=hr.copy_dirs(base, case, cpy)
+        )
         names = [f["name"] for f in fields if not f["name"].startswith("FILLER")]
         dup = sorted({n for n in names if names.count(n) > 1})
         assert not dup, f"{name}/{dd}: qualified names needed for {dup}: add a cause to record_cause / FIX_LAYOUT"
@@ -317,3 +319,12 @@ def test_untranslated_key_only_when_something_is_refused(tmp_path):
         {"corpus": "estate", "program": "a/N.cbl", "burned": False, "classes": ["missing copybook X"]}
     ]
     assert "untranslated" not in hr.build(res, "x", cases)  # a non-burned program is never named
+
+
+def test_copy_inside_a_record_resolves_in_the_cases_copy_dirs(tmp_path):
+    """#5233: the generator finds a nested COPY in the case's `copy_dirs`; the report must not call it unresolved."""
+    corpora, case = layout_case(tmp_path, {"top": cpy("01 REC.", "   COPY INNER.", "   05 A PIC X.")})
+    assert hr.record_cause([corpora], case, "TOP") == "unresolved copy"
+    tpb.write(corpora / "estate" / "cpy" / "INNER.cpy", cpy("   05 B PIC X(2)."))
+    case["copy_dirs"] = ["cpy"]
+    assert hr.record_cause([corpora], case, "TOP") == ""

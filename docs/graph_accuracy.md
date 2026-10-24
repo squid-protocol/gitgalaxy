@@ -255,11 +255,15 @@ The low recall is mostly engine-side and is not tuned away: gtest `TEST` macros 
 convention and template-overload line mismatches. They feed a later miss sweep. A template conversion operator is
 named without its template arguments (`operator Box`), as the engine does.
 
-**gtest bodies are not a free win (#3784):** 6,117 of the 6,409 `caller_unmapped` misses are `TEST(suite, name)`
-bodies the reference names `suite_name_Test::TestBody`. Naming them `name` maps them, but then confident precision
-falls 91.1% -> 79.1% and resolution recall 63.8% -> 56.5%: their `fmt::format(...)` calls resolve (`qualified` step)
-to an unrelated `format` member such as `formatter<X>::format` in `test/format-test.cc`, wrong links that were hidden
-while the callers were unmapped. Fix the resolver's qualified step first, then map the bodies.
+**gtest bodies (#3784):** a `TEST(suite, name)` body is the reference's `suite_name_Test::TestBody`; the adapter now
+reads the macro line and names it `name`, as the engine does, so 6,117 of the former 6,409 `caller_unmapped` misses map.
+That alone dropped confident precision 91.1% -> 79.1%: their `fmt::format(...)` calls reached an unrelated `format`
+member such as `formatter<X>::format` through the import-stem step. With a namespace-qualified call no longer landing
+on a class member there (`_NAMESPACE_QUALIFIED_LANGS`, C++ only), the first numbers on the larger judged set
+(2,325 confident links, was 1,741) are precision 84.1% (92.9% overload-blind, 75.2% strict), recall 20.1% (was 16.3%),
+resolution recall 58.8%, 203 wrong-overload links. The `import` links to chrono/ranges `formatter::format` are gone.
+Still open: a `file`-step link of `fmt::format` to a `format` member of the caller's own file (26 in fmt) and
+`x.f()` on a variable, which the qualifier cannot tell from `ns::f()` (the detector normalises `::`, `.` and `->`).
 
 ## Span anchoring
 

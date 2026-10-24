@@ -32,6 +32,27 @@ def test_java_constructor_and_method():
     assert got == {"run": {"Foo", "save"}}
 
 
+def test_powershell_cmdlets_methods_and_static_calls():
+    """cmdlets, `$o.Save(1)`, `[Foo]::Make(2)` and pipeline stages are calls; `& $g`, dot-sourcing and a
+    property read name no call."""
+    src = (
+        "function Run {\n  Get-Item $x\n  $o.Save(1)\n  [Foo]::Make(2)\n  & $g\n  . ./a.ps1\n"
+        "  $o.Name\n  Write-Host 'hi' | Out-Null\n}\n"
+    )
+    assert _calls("powershell", src) == {"Run": {"Get-Item", "Save", "Make", "Write-Host", "Out-Null"}}
+
+
+def test_tcl_commands_substitutions_and_namespaced_commands():
+    """a command, a `[subst]` inside `set`, and `ns::k` (rightmost segment) are calls; `set` is no call;
+    a command after an ERROR node (`puts "x $a"`) is still seen."""
+    src = "proc foo {a} {\n  set x [bar $a]\n  ns::k 1\n  puts \"x $a\"\n  baz\n}\n"
+    assert _calls("tcl", src) == {"foo": {"bar", "k", "puts", "baz"}}
+
+
+def test_powershell_and_tcl_are_measured():
+    assert {"powershell", "tcl"} <= set(cga.LANGS)
+
+
 def test_pairing_drops_recursion_and_needs_nearby_lines():
     gg = [("run", 1, ["run", "save"]), ("far", 50, ["x"])]
     ts = [("run", 2, {"run", "save", "load"}, "run-node"), ("far", 10, {"x"}, "far-node")]

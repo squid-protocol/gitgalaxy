@@ -132,6 +132,12 @@ _SUPER_RECEIVERS = frozenset({"super", "base", "parent"})
 # reach any definition, not only a method.
 _OWNERLESS_METHOD_LANGS = frozenset({"go"})
 
+# Languages whose methods sit in a block that is not a class_start span (rust's `impl Type { .. }`,
+# `struct`/`enum` bodies are separate), so no method has an owner and `self.m()` has no class to
+# walk. A `self` receiver is the caller's own type, so it may reach any definition in the repo; any
+# other receiver still cannot (an untyped `x.len()` would link to every repo `len`).
+_IMPL_SELF_LANGS = frozenset({"rust"})
+
 # #3401: names a BARE call always means as the language's built-in, whatever
 # the repository defines. Perl's named operators and built-in functions take
 # precedence over a user `sub` of the same name -- `sub map` in Mojo's
@@ -1258,7 +1264,7 @@ def _resolve_one(
         hit = walk(lineage)
         if hit is not None:
             return hit
-        return _ladder(bucket.methods, caller, True, cache)
+        return _ladder(bucket.all if caller.lang in _IMPL_SELF_LANGS else bucket.methods, caller, True, cache)
     if qualifier in _SUPER_RECEIVERS:
         for owner_key in lineage[1:]:
             d = owned(owner_key)

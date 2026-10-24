@@ -1237,3 +1237,40 @@ def test_go_source_set_directories_are_still_separate_packages():
         _file("m/src/main/java/b.go", "go", [_fn("helper", 3)]),
     ]
     assert _site(resolve_calls(files)[0], "helper")["step"] == "unseen"
+
+
+def _impl_universe(lang, ext, receiver):
+    """An `impl`-style universe: no method carries an owner, as the extractor leaves them."""
+    return [
+        _file(
+            f"src/de.{ext}",
+            lang,
+            [
+                _fn("eat_char", 3),
+                _fn("run", 9, calls=["eat_char", "len"], quals={"eat_char": [receiver], "len": [receiver]}),
+            ],
+        ),
+        _file(f"src/other.{ext}", lang, [_fn("len", 1)]),
+    ]
+
+
+def test_rust_self_receiver_reaches_an_impl_method_of_the_same_file():
+    sites, _ = resolve_calls(_impl_universe("rust", "rs", "self"))
+    row = _site(sites, "eat_char")
+    assert (row["step"], row["dst_path"], row["dst_line"]) == ("file", "src/de.rs", 3)
+    # an unseen file's method is only the ambiguous guess, never an edge
+    assert _site(sites, "len")["step"] == "receiver"
+
+
+def test_rust_other_receiver_stays_unresolved_without_an_owner():
+    # `x.eat_char()` on an untyped receiver cannot be told from a std method: only `self` is widened
+    sites, _ = resolve_calls(_impl_universe("rust", "rs", "x"))
+    assert _site(sites, "eat_char")["step"] == "none"
+    assert _site(sites, "len")["step"] == "none"
+
+
+@pytest.mark.parametrize(("lang", "ext"), [("python", "py"), ("java", "java"), ("javascript", "js")])
+def test_impl_self_widening_is_rust_only(lang, ext):
+    # an ownerless `self.m()` in a language with real class owners keeps resolving through methods only
+    sites, _ = resolve_calls(_impl_universe(lang, ext, "self"))
+    assert _site(sites, "eat_char")["step"] == "none"

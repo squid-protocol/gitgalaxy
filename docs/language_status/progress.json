@@ -1,5 +1,5 @@
 {
- "commit": "7b5313a81",
+ "commit": "ac7c5e32a",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,15 +160,15 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-24T04:55:13Z",
+  "as_of": "2026-10-24T05:05:50Z",
   "core": {
    "closed": 171,
    "open": 16,
    "total": 187
   },
   "core_last_window": {
-   "closed": 53,
-   "net_closed": 13,
+   "closed": 52,
+   "net_closed": 12,
    "opened": 40
   },
   "core_milestone": {
@@ -198,8 +198,8 @@
    "total": 48
   },
   "infra": {
-   "closed": 199,
-   "open": 54,
+   "closed": 200,
+   "open": 53,
    "total": 253
   },
   "measured": true,

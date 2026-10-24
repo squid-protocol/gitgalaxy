@@ -2,6 +2,8 @@
 description: "Rules for minimizing sandbox permission prompts"
 globs: "*"
 ---
+
+**Antigravity (agy) sessions only; Claude workers follow `.claude/agents/gitgalaxy-pr-worker.md` (chained commands are fine there).**
 # Sandbox Permission Minimization
 
 **CRITICAL INSTRUCTION: Avoid Permission Spam.**

@@ -72,7 +72,7 @@ jobs:
   shard:
     name: shard ${{ matrix.group }}/4
     needs: plan
-    if: ${{ needs.plan.outputs.mode == 'run' }}
+    if: ${{ needs.plan.outputs.mode == 'run' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
@@ -83,6 +83,7 @@ jobs:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
       OMP_NUM_THREADS: "1"
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
     steps:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -115,11 +116,30 @@ jobs:
           restore-keys: |
             tree-sitter-${{ runner.os }}-
 
+      # the carddemo / CBSA ... cases read their sources from the pinned mainframe corpora (as mainframe-ground-truth.yml)
+      - name: Cache the pinned mainframe corpora
+        id: corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned mainframe corpora
+        run: python tests/tools/mainframe_corpus.py fetch
+
       - name: Setup JDK 17
         uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "17"
+
+      # test_cobolrt, test_key_collation, batch_test_harness ... hard-code the Debian JDK path; the temurin JDK lives elsewhere
+      - name: Link the Debian JDK 17 path to the temurin JDK
+        run: |
+          sudo mkdir -p /usr/lib/jvm
+          sudo rm -rf /usr/lib/jvm/java-17-openjdk-amd64
+          sudo ln -s "$JAVA_HOME" /usr/lib/jvm/java-17-openjdk-amd64
+          /usr/lib/jvm/java-17-openjdk-amd64/bin/javac -version
 
       - name: Cache Maven dependencies
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

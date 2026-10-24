@@ -1090,6 +1090,21 @@ jobs:
           mkdir -p "$RUNNER_TEMP/blockers-cache/census-cache"
           rsync -a --exclude src --exclude '*.log' "$GG_SCRATCH/census-cache/$SHA" "$RUNNER_TEMP/blockers-cache/census-cache/"
 
+      # #5054 done-when 4: each burned estate's survey through blocker_report + blocker_ingest, as a customer's report
+      # would go (rows match the blockers, known signatures link, hashes stable per salt, no source name leaks). Reads
+      # the survey just cached; never holds back the records.
+      - name: Blocker report and ingest per burned estate (#5054)
+        if: steps.survey.outcome == 'success'
+        continue-on-error: true
+        env:
+          GG_SCRATCH: ${{ runner.temp }}/scratch
+          SHA: ${{ steps.asof.outputs.sha }}
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/blocker_estate_feed.py "$GG_SCRATCH/census-cache/$SHA" \
+            --out "$RUNNER_TEMP/blocker-feed" --extra-root "$GITHUB_WORKSPACE/cics-crucible"
+          cat "$RUNNER_TEMP/blocker-feed/feed.md" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Keep the survey for the blockers publisher (#4863)
         if: steps.survey.outcome == 'success'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

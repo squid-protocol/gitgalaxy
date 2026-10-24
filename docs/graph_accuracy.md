@@ -262,8 +262,14 @@ member such as `formatter<X>::format` through the import-stem step. With a names
 on a class member there (`_NAMESPACE_QUALIFIED_LANGS`, C++ only), the first numbers on the larger judged set
 (2,325 confident links, was 1,741) are precision 84.1% (92.9% overload-blind, 75.2% strict), recall 20.1% (was 16.3%),
 resolution recall 58.8%, 203 wrong-overload links. The `import` links to chrono/ranges `formatter::format` are gone.
-Still open: a `file`-step link of `fmt::format` to a `format` member of the caller's own file (26 in fmt) and
-`x.f()` on a variable, which the qualifier cannot tell from `ns::f()` (the detector normalises `::`, `.` and `->`).
+**Scope marker (#3784):** the detector also marks a C++ call written `ns::f()` by prefixing its qualifier with `::`
+(`::fmt`, `::a.b`, `::` for a global `::f()`); `x.f()` and `p->f()` stay unmarked. The resolver then tries a free
+function the caller can see (its own file, or one it imports) before the untyped-receiver method ladder, so `fmt::format`
+no longer lands on a `format` member of the caller's own file (the `file` step), and an unmarked `x.f()` can reach a
+member by import stem again. A marked call with no visible free definition falls back to the method ladder; a free
+function the caller cannot see is never linked (`std::move` must not reach a repo `move`). Measured on fmt (2,479
+confident links judged, was 2,325): precision 84.1% (unchanged), recall 21.5% (was 20.1%), resolution recall 63.3% (was
+58.8%), ambiguous precision 35.1% (was 34.1%), 220 wrong-overload links (was 203; more links are judged).
 
 ## Span anchoring
 

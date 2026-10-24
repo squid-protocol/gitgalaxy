@@ -897,6 +897,25 @@ def ensure_labels(run: Run = _run) -> list[str]:
 API_CACHE_ENV = "SHEPHERD_API_CACHE"  # #6534: a directory for conditional (ETag) REST reads; unset, reads are plain
 
 
+PASS_CACHED = re.compile(r"^(user|repos/[^/]+/[^/]+/collaborators/[^/]+/permission)$")
+
+
+def pass_cached(api: Api) -> Api:
+    """One reconcile pass reads the bot's own login and each labeller's permission for EVERY PR, though neither can
+    change within the pass: memoise those two reads for the pass (#64, 2026-10-24: the shepherd shares the account's
+    5,000/h API quota with the fleet and failed 25 times in a day when it ran out)."""
+    memo: dict[str, Any] = {}
+
+    def cached(path: str, *a: Any, **kw: Any) -> Any:
+        if not PASS_CACHED.match(path):
+            return api(path, *a, **kw)
+        if path not in memo:
+            memo[path] = api(path, *a, **kw)
+        return memo[path]
+
+    return cached
+
+
 def main(
     argv: list[str] | None = None, api: Api = pr_check.gh_api, run: Run = _run, graphql: pr_check.GraphQL | None = None
 ) -> int:
@@ -924,7 +943,7 @@ def main(
         lines = process(number, api, run, facts, args.dry_run, flaky=learned_flakes(args.flake_cache), graphql=graphql)
     else:
         lines = []
-        api = pr_check.pass_cache(api)
+        api = pass_cached(pr_check.pass_cache(api))  # #6534: plus the finished SHAs' reads
         flaky = learned_flakes(args.flake_cache)  # once per pass
         prs = prs_for_head(api, args.head_sha) if args.head_sha else open_labelled(api)
         on_main = ci_digest.main_failures(api) if len(prs) > 1 else None

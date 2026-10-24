@@ -329,10 +329,10 @@ def test_swift_resolves_by_target_and_declared_type_never_by_path(tmp_path):
         {
             "Package.swift": (
                 "import PackageDescription\n"
-                "let package = Package(name: \"P\", targets: [\n"
-                "  .target(name: \"Core\", dependencies: [\"Odd\"]),\n"
-                "  .target(name: \"Odd\", path: \"Vendor/odd\"),\n"
-                "  .testTarget(name: \"CoreTests\", dependencies: [\"Core\"]),\n"
+                'let package = Package(name: "P", targets: [\n'
+                '  .target(name: "Core", dependencies: ["Odd"]),\n'
+                '  .target(name: "Odd", path: "Vendor/odd"),\n'
+                '  .testTarget(name: "CoreTests", dependencies: ["Core"]),\n'
                 "])\n"
             ),
             # file name and directory mean nothing: the name is found by what the file declares
@@ -386,6 +386,72 @@ def test_swift_resolves_by_target_and_declared_type_never_by_path(tmp_path):
         {"Sources/Core/Misc.swift"},
         {"Sources/Core/Split1.swift", "Sources/Core/Split2.swift"},
         {"Vendor/odd/Thing.swift"},
+        set(),
+        set(),
+    ]
+
+
+def test_groovy_resolves_by_package_and_declared_type_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            # file name and directory mean nothing: the name is found by what the file declares
+            "src/main/groovy/Misc.groovy": (
+                "package a.b\n\n"
+                "class Pair { static class Inner {} static int helper() { 1 } }\n"
+                "interface Proto {}\n"
+                "trait Walks {}\n"
+                "enum Kind { A }\n"
+                "@interface Marker {}\n"
+            ),
+            "x/Split1.groovy": "package a.b\nclass Split {}\n",
+            "x/Split2.groovy": "package a.b\nclass Split {}\n",
+            "scripts/build.gradle": "def x = 1\n",
+            "scripts/Tool.groovy": "println 'hi'\n",
+            "lib/c/Other.groovy": "package c\nclass Other {}\n",
+            "lib/a/b/Native.java": "package a.b;\npublic class Native {}\n",
+        },
+    )
+    src = (
+        b"package app\n"
+        b"import a.b.Pair\n"
+        b"import a.b.Pair as P\n"
+        b"import a.b.Pair.Inner\n"  # a nested name falls back to its owner
+        b"import static a.b.Pair.helper\n"
+        b"import static a.b.Pair.*\n"  # an owner's members: its file
+        b"import a.b.*\n"  # a package: contract C7, no edge
+        b"import a.b.Proto\n"
+        b"import a.b.Walks\n"
+        b"import a.b.Kind\n"
+        b"import a.b.Marker\n"
+        b"import a.b.Split\n"  # declared in two files
+        b"import Tool\n"  # a script declares its file stem
+        b"import c.Other\n"
+        b"import a.b.Native\n"  # a Java class, by Java's path rule
+        b"import java.util.List\n"
+        b"import groovy.json.JsonSlurper\n"
+        b"import a.b.Missing\n"
+        b"// import c.Other\n"
+        b"/* import c.Other */\n"
+        b"def s = '''\nimport c.Other\n'''\n"
+    )
+    misc = {"src/main/groovy/Misc.groovy"}
+    assert iga.groovy_imports(src, "app/Use.groovy", g) == [
+        misc,
+        misc,
+        misc,
+        misc,
+        misc,
+        set(),
+        misc,
+        misc,
+        misc,
+        misc,
+        {"x/Split1.groovy", "x/Split2.groovy"},
+        {"scripts/Tool.groovy"},
+        {"lib/c/Other.groovy"},
+        {"lib/a/b/Native.java"},
+        set(),
         set(),
         set(),
     ]

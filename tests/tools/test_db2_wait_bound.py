@@ -96,3 +96,11 @@ def test_real_plan_db2_timeout_outlasts_the_wait():
     full = {"mode": "full", "cases": "all", "db2_cases": "all"}
     full["matrix"], full["db2_matrix"] = [f"{i}/6" for i in range(1, 7)], plan.db2_shards_for(full, durations=dur)
     assert plan.timeouts_for(full, dur)["db2_timeout"] * 60 >= plan.SHARD_SETUP_S + plan.DB2_WAIT_S
+
+
+def test_db2_job_timeout_fallback_outlasts_the_wait_and_a_target_sweep():
+    wf = yaml.safe_load((ROOT / ".github" / "workflows" / "det-sweep.yml").read_text(encoding="utf-8"))
+    fallback = re.search(r"db2_timeout\s*\|\|\s*'(\d+)'", wf["jobs"]["db2"]["timeout-minutes"])
+    assert fallback, "db2 timeout fallback not found"
+    wait_s = _first_db_wait_s(_run_of("Wait for the first Db2 database"))
+    assert int(fallback.group(1)) * 60 >= plan.SHARD_SETUP_S + wait_s + plan.DB2_TARGET_S

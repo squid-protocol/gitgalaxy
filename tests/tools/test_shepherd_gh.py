@@ -1433,3 +1433,21 @@ def test_another_apply_failure_is_still_reported_failed():
 def test_the_owner_status_goes_when_the_merge_request_goes():
     acts = sg.decide(snap(labels=[sg.OWNER]))
     assert by_op(acts, "labels") == [{"op": "labels", "add": [], "remove": [sg.OWNER]}]
+
+
+def test_reconcile_pass_reads_the_bot_login_and_each_permission_once():
+    """#64: the shepherd shares the account's 5,000/h API quota; a pass re-read both for every PR."""
+    calls = []
+
+    def api(path, *a, **kw):
+        calls.append(path)
+        return {"login": "bot", "permission": "write", "number": len(calls)}
+
+    cached = sg.pass_cached(api)
+    perm = f"repos/{sg.REPO_SLUG}/collaborators/alice/permission"
+    for _ in range(3):
+        assert cached("user")["login"] == "bot"
+        assert cached(perm)["permission"] == "write"
+        cached(f"repos/{sg.REPO_SLUG}/pulls/7")
+    assert calls.count("user") == 1 and calls.count(perm) == 1
+    assert calls.count(f"repos/{sg.REPO_SLUG}/pulls/7") == 3  # everything else is read fresh

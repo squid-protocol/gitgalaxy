@@ -225,7 +225,7 @@ jobs:
     needs: plan
     if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (needs.plan.outputs.db2_shards != '0' && needs.plan.outputs.db2_shards != '') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ fromJSON(needs.plan.outputs.db2_timeout || '30') }}  # #5919: the slowest planned shard x 1.5 (tests/tools/ci_shard_plan.py), not hand-set
+    timeout-minutes: ${{ fromJSON(needs.plan.outputs.db2_timeout || '75') }}  # #5604: fallback = DB2_TIMEOUT_FLOOR (tests/tools/test_db2_wait_bound.py); #5919: the slowest planned shard x 1.5 (tests/tools/ci_shard_plan.py), not hand-set
     strategy:
       fail-fast: false
       matrix:

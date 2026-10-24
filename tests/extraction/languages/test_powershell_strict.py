@@ -121,6 +121,13 @@ _POWERSHELL_SIMPLE_CASES = [
     ("func_start", "hidden [int] Foo() {", "foreach ($x in $y) {"),
     ("func_start", "hidden static [int] Foo() {", "switch ($x) {"),
     ("func_start", "static [int] Foo() {", "if ($x -eq $y) {"),
+    # #3303: a class method's return type may abut the name (`[string]ToString() {`)
+    ("func_start", "[string]ToString() {", "[regex]::Match($a, $b) {"),
+    ("func_start", "[array]GetTests() {", "[int]$count = Foo() {"),
+    ("func_start", "hidden [int]Foo() {", "[int]if ($x) {"),
+    ("func_start", "static [System.Collections.Generic.List[string]]GetItems() {", "[ValidateSet('a')]$x = 1"),
+    ("args", "[string]ToString($a) {", "[int]while ($x) {"),
+    ("args", "hidden static [Dictionary[string,int]]GetMap($d) {", "[string]$x = Foo($y) {"),
     ("class_start", "class Foo {", "$class = 'math'"),
     ("class_start", "enum MyEnum {", "Get-Class"),
     ("class_start", "   class Bar {", "# class Bar"),

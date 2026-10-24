@@ -4614,7 +4614,7 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   country-default (null) pictures. A null picture (a zero-length picture string) is refused on both runtimes for all three
   services, one vector each in `test_det_le_time.py` (CEEDATE, CEEDATM, CEESECS: exit 98, "a null picture (IBM takes the country
   default)"). Not modelled because the default is IBM's locale table (a country code, which this model does not carry) and the oracle
-  has no such table to prove it against, so a guessed picture could not be checked; no burned program omits a picture (next bullet).
+  has no such table to prove it against, so a guessed picture could not be checked; no burned program omits a picture (next bullet). Settled for the burned estates (#5003 [c:51f133ad]): the refusal is the final state until a burned program omits a picture; the census test fails first when one does, and the default is then modelled with IBM's table and an oracle to check it.
 - **IBM references.** The pages above; CEELOCT's example (L5) and the symbolic feedback codes (L4).
 - **Not modelled, no burned program needs them (#5003).** CEEFMDA / CEEFMDT / CEEFMDV, null (default) pictures and CEE2526 / CEE2527
   truncation (CEESECI and CEEDYWK are modelled, above). A sweep of the burned estates finds no call to any of them (CRECUST and CSUTLDTC call CEEDAYS, BANKDATA CEEGMT and

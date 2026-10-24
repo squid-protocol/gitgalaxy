@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, TypedDict, cast
 
 from gitgalaxy.core.call_resolver import encode_qualifiers, resolution_rates
-from gitgalaxy.core.fact_channels import CHANNELS, CHANNELS_BY_NAME, create_channel_table
+from gitgalaxy.core.fact_channels import CALL_SITE_CHANNEL, CHANNELS, create_channel_table
 from gitgalaxy.core.function_population import population_functions
 from gitgalaxy.metrics import archetype_classifier
 from gitgalaxy.metrics.archetype_parity import WITHHELD_LABEL
@@ -2744,9 +2744,7 @@ class RecordKeeper:
         # file that has no file_data row at all (the statistical auditor can
         # relegate one after extraction, the same gap edge_data has).
         if call_sites:
-            _insert_resolved_channel(
-                cursor, CHANNELS_BY_NAME["call_site"], call_sites, path_to_file_id, repo_name, commit_hash
-            )
+            _insert_resolved_channel(cursor, CALL_SITE_CHANNEL, call_sites, path_to_file_id, repo_name, commit_hash)
 
         # #3383: the registered per-file fact channels (dataset, record, sql_table, csd_resource,
         # screen_field, cics_resource) -- declared in gitgalaxy/core/fact_channels.py.

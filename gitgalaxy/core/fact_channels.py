@@ -925,3 +925,5 @@ CHANNELS = (
 )
 
 CHANNELS_BY_NAME = {channel.name: channel for channel in CHANNELS}
+
+CALL_SITE_CHANNEL = next(c for c in CHANNELS if c.name == "call_site")

@@ -115,3 +115,35 @@ def test_matches_every_generated_copybook_carddemo_checks_in():
         assert _norm(text) == _norm(copybook.read_text()), bms.name
         checked += 1
     assert checked == 21
+
+
+# #5116 (c:9491c0c6): PICIN / PICOUT are compile-time pictures; the burned maps' reach the copybook, nothing converts at run time.
+_CORPORA = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", "/nonexistent"))
+_BURNED_PICTURE_MAPS = (
+    "aws-mainframe-modernization-carddemo/app/bms/COACTVW.bms",
+    "cics-banking-sample-application-cbsa/src/base/bms_src/BNK1DAM.bms",
+    "cics-banking-sample-application-cbsa/src/base/bms_src/BNK1UAM.bms",
+)
+
+
+@pytest.mark.parametrize("rel", _BURNED_PICTURE_MAPS)
+def test_burned_map_pictures_become_the_symbolic_field_picture_5116(rel):
+    path = _CORPORA / rel
+    if not path.is_file():
+        pytest.skip("the pinned mainframe corpora are not cloned")
+    src = "\n".join("" if ln.startswith("*") else ln for ln in path.read_text().split("\n"))
+    rows = bms_screen_fields(src)
+    (text,) = symbolic_maps(rows).values()
+    lines = {" ".join(ln.split()) for ln in text.split("\n")}
+    seen = 0
+    for r in rows:
+        name = r["name"] if isinstance(r, dict) else r.name
+        if not name:  # an unnamed DFHMDF has no symbolic-map field
+            continue
+        name = name.upper()
+        for key, suffix in (("picin", "I"), ("picout", "O")):
+            pic = r[key] if isinstance(r, dict) else getattr(r, key)
+            if pic:
+                assert f"02 {name}{suffix} PIC {pic}." in lines, (rel, name, key)
+                seen += 1
+    assert seen, rel

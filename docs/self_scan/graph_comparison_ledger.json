@@ -1260,7 +1260,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3310,7 +3310,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3734,7 +3734,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -3796,7 +3796,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -3842,7 +3842,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -3882,7 +3882,7 @@
       "investigated_at": "2026-10-24T13:10:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "csharp",
-      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 102,
       "last_seen_examples": [
         {
@@ -4798,7 +4798,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "dart",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 35,
       "last_seen_examples": [
         {
@@ -4860,7 +4860,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -4914,7 +4914,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5502,7 +5502,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:16Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5532,7 +5532,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:16Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8208,7 +8208,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8318,7 +8318,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8358,7 +8358,7 @@
       "investigated_at": "2026-10-02T15:31:51Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799 JVM sweep)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8758,7 +8758,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "lua",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -8804,7 +8804,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "lua",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -8852,7 +8852,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "objective-c",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 18,
       "last_seen_examples": [
         {
@@ -12120,7 +12120,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12966,7 +12966,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -13770,6 +13770,36 @@
       "symbol_type": "call",
       "verdict": null
     },
+    "powershell/import/capture-none-in-file/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T19:18:17Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "powershell",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "Pester/publish/release.ps1",
+          "name": "Pester/publish/release.ps1 -> publish/filesToPublish.ps1",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-none-in-file",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "python/call/call/attribute/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
@@ -14316,7 +14346,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:16Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14346,7 +14376,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:16Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14532,7 +14562,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14562,7 +14592,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -16576,7 +16606,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -16640,7 +16670,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -16704,7 +16734,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -16742,7 +16772,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -16780,7 +16810,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -16812,7 +16842,7 @@
       "investigated_at": "2026-09-25T18:40:28Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -16876,7 +16906,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -17386,7 +17416,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -17424,7 +17454,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "solidity",
-      "last_reconciled_at": "2026-10-12T03:38:39Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 24,
       "last_seen_examples": [
         {
@@ -17718,7 +17748,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-10-24T15:45:09Z",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
       "last_seen_count": 22,
       "last_seen_examples": [
         {
@@ -18955,6 +18985,222 @@
       "still_reproduces": true,
       "symbol_type": "call",
       "verdict": "GitGalaxy right on the large majority; tree-sitter had no usable tree. The files in this shape (fetch_common.tcl, portfetch.tcl, portdestroot.tcl, portinstall.tcl, portlint.tcl, portbump.tcl) parse with errors, so tree-sitter reports no calls in the affected procs. Of the 40 sampled, about 33 are real commands in the procs' bodies (`upvar #0 $listname $listname`, `lassign $extras sglobal senv`, `regexp $tagged_url_re $env_site`, `lappend untagged_env_sites $env_site`, `llength`, `dict`, `info exists`, `glob`, `umask`, `lshift`, `fileIsSparse`). About 7 are not: data words that open a line inside a braced literal (`intel i386` in portlint.tcl:453, `os.subplatform ...` in a list, `http`/`https` in a proxy table) and the `default {` arm of a switch. Majority credited to GitGalaxy; the minority is a line-start-in-braces false positive."
+    },
+    "tcl/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T19:18:17Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "tcl",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_seen_count": 278,
+      "last_seen_examples": [
+        {
+          "file_path": "tcllib/apps/nns",
+          "name": "tcllib/apps/nns -> modules/nns/nns_auto.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/nnslog",
+          "name": "tcllib/apps/nnslog -> modules/nns/nns_auto.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/pt",
+          "name": "tcllib/apps/pt -> modules/pt/pt_pgen.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/pt",
+          "name": "tcllib/apps/pt -> modules/pt/pt_util.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/examples/ftpd/ftpd",
+          "name": "tcllib/examples/ftpd/ftpd -> modules/ftpd/ftpd.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "tcl/import/capture-none-in-file/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T19:18:17Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "tcl",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "tcllib/modules/udpcluster/pkgIndex.tcl",
+          "name": "tcllib/modules/udpcluster/pkgIndex.tcl -> modules/udpcluster/udpcluster.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-none-in-file",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "tcl/import/token-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T19:18:17Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "tcl",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_seen_count": 437,
+      "last_seen_examples": [
+        {
+          "file_path": "tcllib/apps/dtplite",
+          "name": "tcllib/apps/dtplite -> modules/dtplite/dtplite.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/nns",
+          "name": "tcllib/apps/nns -> modules/struct/matrix.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/nnsd",
+          "name": "tcllib/apps/nnsd -> modules/nns/server.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/page",
+          "name": "tcllib/apps/page -> modules/page/pluginmgr.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/apps/page",
+          "name": "tcllib/apps/page -> modules/struct/matrix.tcl",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "token-unresolved",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "tcl/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T19:18:17Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "tcl",
+      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_seen_count": 53,
+      "last_seen_examples": [
+        {
+          "file_path": "tcllib/examples/httpd/httpd.tcl",
+          "name": "tcllib/examples/httpd/httpd.tcl -> modules/try/fhome.tcl (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/examples/mime/mbot/impersonal.tcl",
+          "name": "tcllib/examples/mime/mbot/impersonal.tcl -> modules/try/fhome.tcl (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/examples/mime/mbot/personal.tcl",
+          "name": "tcllib/examples/mime/mbot/personal.tcl -> modules/try/fhome.tcl (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/examples/nntp/dirstore",
+          "name": "tcllib/examples/nntp/dirstore -> modules/sha1/sha1.tcl (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "tcllib/modules/doctools2idx/parse.tcl",
+          "name": "tcllib/modules/doctools2idx/parse.tcl -> modules/struct/tree.tcl (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-names-several-files",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
     },
     "typescript/call/call_expression/call_expression+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

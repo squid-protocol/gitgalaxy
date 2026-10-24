@@ -57,6 +57,7 @@ def test_ggcics_includes_its_families_once():
     host = (STUB / "ggcics.c").read_text(encoding="utf-8")
     family = (STUB / "ggcics_containers.c").read_text(encoding="utf-8")
     assert re.findall(r'^#include "(ggcics_\w+\.c)"', host, re.M) == [
+        "ggcics_faults.c",
         "ggcics_filecontrol.c",
         "ggcics_tempstorage.c",
         "ggcics_conditions.c",
@@ -265,6 +266,26 @@ def test_ggcics_holds_the_condition_and_abend_handlers_in_its_family_file():
         < host.index('#include "ggcics_tempstorage.c"')
         < host.index('#include "ggcics_conditions.c"')
         < host.index('#include "ggcics_transientdata.c"')
+    )
+
+
+def test_ggcics_holds_the_fault_injection_in_its_family_file():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    family = (STUB / "ggcics_faults.c").read_text(encoding="utf-8")
+    assert "#include" not in family
+    for entry in ("GGCSQLAB",):
+        assert re.search(rf"^int {entry}\(", family, re.M), entry
+        assert not re.search(rf"^int {entry}\(", host, re.M), entry
+    for helper in ("injected_at", "dupkey_apply", "map_not_found"):
+        assert re.search(rf"^static \w+ {helper}\(", family, re.M), helper
+        assert not re.search(rf"^static \w+ {helper}\(", host, re.M), helper
+    for state in ("fault_counts", "fault_keys", "dupkey"):
+        assert state in family and not re.search(rf"^static .*\b{state}\b", host, re.M), state
+    # the include sits where the state did: after the spec header, before the file-control family that calls injected()
+    assert (
+        host.index('#include "ggcics_spec.h"')
+        < host.index('#include "ggcics_faults.c"')
+        < host.index('#include "ggcics_filecontrol.c"')
     )
 
 

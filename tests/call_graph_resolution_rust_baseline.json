@@ -1,0 +1,12 @@
+{
+  "ambiguous_precision_pct": 52.3,
+  "confident_external": 40,
+  "confident_judged": 469,
+  "confident_precision_pct": 92.1,
+  "confident_strict_precision_pct": 84.9,
+  "confident_unmapped": 158,
+  "pyan_edges": 1084,
+  "recall_pct": 39.9,
+  "reference_version": "1.90.0",
+  "resolution_recall_pct": 43.1
+}

@@ -287,12 +287,20 @@ class Gh:
         self.runs = [{"id": 1, "name": "smoke", "status": "completed", "conclusion": "success", "html_url": url,
                       "details_url": url, "app": {"slug": "github-actions"}}]  # fmt: skip
         self.statuses = []
+        self.more_open = False  # the open-PR listing has a second page
+        self.main_runs = []  # the check runs on main's tip (MAIN)
 
     def api(self, path):
         self.calls.append(path)
         bare = path.split("?")[0]
         if path == "user":
             return {"login": self.me}
+        if bare.endswith("/pulls") and "state=open" in path:
+            return [self.pr] if "page=1" in path else []
+        if bare.endswith("/commits/main"):
+            return {"sha": MAIN, "parents": [{"sha": x} for x in self.parents.get(MAIN, [])]}
+        if bare.endswith(f"/commits/{MAIN}/check-runs"):
+            return {"check_runs": self.main_runs}
         if re.search(r"/commits/[0-9a-f]{40}/pulls$", bare):
             return [self.pr]
         if re.fullmatch(r"repos/[^/]+/[^/]+/commits/[0-9a-f]{40}", bare):
@@ -301,7 +309,7 @@ class Gh:
             if (m[1], m[2]) not in self.compare:
                 raise SystemExit("gh api compare failed")
             return self.compare[(m[1], m[2])]
-        if bare.endswith("/pulls/7"):
+        if bare.endswith(("/pulls/7", "/pulls/8")):
             return self.pr
         if bare.endswith("/pulls/6"):
             return {"state": self.dep_state}
@@ -322,9 +330,40 @@ class Gh:
         raise AssertionError(f"unexpected API path {path}")
 
     def graphql(self, query, variables):
-        """The same state as PR_QUERY's answer (#6534), so gather() can read it either way."""
-        assert query == sg.PR_QUERY and variables["n"] == 7
+        """The same state as the REST fake, answered as the query asks (#6534): one PR, a batch (`p<N>` aliases), the
+        open labelled PRs, or main's tip."""
         self.gql.append(variables)
+        if query == sg.PR_QUERY:
+            assert variables["n"] == 7
+            return self._wrap(self._pull())
+        if query == sg.LABELLED_QUERY:
+            nodes = [{"number": 7, "labels": {"totalCount": len(self.pr["labels"]), "nodes": self.pr["labels"]}}]
+            return {"repository": {"pullRequests": {"pageInfo": {"hasNextPage": self.more_open}, "nodes": nodes}}}
+        if query == sg.ci_digest.MAIN_QUERY:
+            return {"repository": {"ref": {"target": self._tip()}}}
+        nums = [int(x) for x in re.findall(r"p(\d+): pullRequest", query)]
+        assert query == sg.batch_query(nums)
+        return {"repository": {f"p{n}": {**self._pull(), "number": n} for n in nums}}
+
+    def _tip(self):
+        """main's tip as the main query answers it: the runs of `main_runs`, one suite per app."""
+        suites = {}
+        for r in self.main_runs:
+            suites.setdefault(r["app"]["slug"], []).append({
+                "databaseId": r["id"], "name": r["name"], "status": r["status"].upper(),
+                "conclusion": r["conclusion"].upper() if r["conclusion"] else None,
+                "detailsUrl": r["details_url"], "url": r["html_url"],
+            })  # fmt: skip
+        nodes = [{"createdAt": None, "app": {"slug": k}, "checkRuns": {"totalCount": len(v), "nodes": v}}
+                 for k, v in suites.items()]  # fmt: skip
+        return {"oid": MAIN, "parents": {"nodes": [{"oid": x} for x in self.parents.get(MAIN, [])]},
+                "checkSuites": {"totalCount": len(nodes), "nodes": nodes}}  # fmt: skip
+
+    @staticmethod
+    def _wrap(pull):
+        return {"rateLimit": {"cost": 1}, "repository": {"pullRequest": pull}}
+
+    def _pull(self):
         pr = self.pr
 
         def who(login):
@@ -346,8 +385,7 @@ class Gh:
             suites = [{"createdAt": self.pushed_at, "app": {"slug": "github-actions"}, "checkRuns": conn([])}]
         head_repo = pr["head"].get("repo")
         return {
-            "rateLimit": {"cost": 1},
-            "repository": {"pullRequest": {
+            **{
                 "number": pr["number"], "state": "OPEN" if pr["state"] == "open" else "CLOSED",
                 "merged": pr["merged"], "isDraft": pr["draft"], "body": pr["body"],
                 "mergeStateStatus": pr["mergeable_state"].upper(), "headRefOid": pr["head"]["sha"],
@@ -366,7 +404,7 @@ class Gh:
                                             for x in self.statuses]} if self.statuses else None,
                     "checkSuites": conn(suites),
                 }}]},
-            }},
+            }
         }  # fmt: skip
 
     def run(self, argv):
@@ -551,9 +589,11 @@ def test_a_learned_flaky_checks_first_failure_is_triaged_flake_in_the_reconcile_
 def test_main_computes_the_learned_set_once_per_pass(monkeypatch, tmp_path):
     gh = Gh()
     got = []
-    monkeypatch.setattr(sg, "open_labelled", lambda api: [7, 8])
-    monkeypatch.setattr(sg.ci_digest, "main_failures", lambda api: set())
-    monkeypatch.setattr(sg.ci_digest, "main_green", lambda api: ("", set()))
+    monkeypatch.setattr(sg, "open_labelled", lambda api, *a: [7, 8])
+    monkeypatch.setattr(sg.ci_digest, "main_tip", lambda api, graphql=None: None)
+    monkeypatch.setattr(sg, "_graphql_prs", lambda graphql, numbers: {})
+    monkeypatch.setattr(sg.ci_digest, "main_failures", lambda api, **k: set())
+    monkeypatch.setattr(sg.ci_digest, "main_green", lambda api, **k: ("", set()))
     monkeypatch.setattr(
         sg,
         "process",
@@ -714,7 +754,9 @@ def test_rerun_det_failure_other_error_is_logged_as_failed():
 
 
 def test_reconcile_exit_code_zero_when_rerun_skipped_already_running(monkeypatch):
-    monkeypatch.setattr(sg, "open_labelled", lambda api: [7])
+    monkeypatch.setattr(sg, "open_labelled", lambda api, *a: [7])
+    monkeypatch.setattr(sg.ci_digest, "main_tip", lambda api, graphql=None: None)
+    monkeypatch.setattr(sg, "_graphql_prs", lambda graphql, numbers: {})
     monkeypatch.setattr(
         sg, "process", lambda n, api, run, ev, dry_run, **kw: ["#7 rerun muninn (run 55): skipped (already running)"]
     )
@@ -722,7 +764,9 @@ def test_reconcile_exit_code_zero_when_rerun_skipped_already_running(monkeypatch
 
 
 def test_reconcile_exit_code_one_when_action_failed(monkeypatch):
-    monkeypatch.setattr(sg, "open_labelled", lambda api: [7])
+    monkeypatch.setattr(sg, "open_labelled", lambda api, *a: [7])
+    monkeypatch.setattr(sg.ci_digest, "main_tip", lambda api, graphql=None: None)
+    monkeypatch.setattr(sg, "_graphql_prs", lambda graphql, numbers: {})
     monkeypatch.setattr(
         sg, "process", lambda n, api, run, ev, dry_run, **kw: ["#7 rerun muninn (run 55): FAILED: server error"]
     )
@@ -896,15 +940,107 @@ def test_an_unknown_merge_state_is_read_through_rest_so_a_dirty_pr_is_not_missed
 def test_a_reconcile_pass_reads_each_pr_with_one_query(monkeypatch):
     def reads(graphql):
         gh = Gh()
-        monkeypatch.setattr(sg, "open_labelled", lambda api: [7, 7, 7])
-        monkeypatch.setattr(sg.ci_digest, "main_failures", lambda api: set())
-        monkeypatch.setattr(sg.ci_digest, "main_green", lambda api: ("f" * 40, set()))
+        monkeypatch.setattr(sg, "open_labelled", lambda api, *a: [7, 7, 7])
+        monkeypatch.setattr(sg.ci_digest, "main_tip", lambda api, graphql=None: None)
+        monkeypatch.setattr(sg.ci_digest, "main_failures", lambda api, **k: set())
+        monkeypatch.setattr(sg.ci_digest, "main_green", lambda api, **k: ("f" * 40, set()))
         sg.main(["reconcile", "--dry-run"], api=gh.api, run=gh.run, graphql=graphql and gh.graphql)
         return gh
 
     before, after = reads(None), reads(True)
-    assert len(after.gql) == 3 and len(after.calls) < len(before.calls) - 3 * 5
+    assert len(after.gql) == 1 and len(after.calls) < len(before.calls) - 3 * 5
     assert not [p for p in after.calls if any(r in p.split("?")[0] for r in PER_PR_READS)]
+
+
+def test_a_batch_reads_several_prs_per_query_and_gather_gives_the_rest_dict():
+    gh = Gh()
+    nums = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+    got = sg._graphql_prs(gh.graphql, nums)
+    assert set(got) == set(nums) and len(gh.gql) == 3  # 5 + 5 + 2 PRs per query
+    assert [g["pr"]["number"] for g in got.values()] == nums
+    rest = sg.gather(7, Gh().api, None, now=NOW, on_main=set(), flaky=set())
+    s = sg.gather(7, gh.api, None, now=NOW, on_main=set(), flaky=set(), prefetched=got)
+    assert s == rest and sg.decide(s) == sg.decide(rest)
+    assert not [p for p in gh.calls if any(r in p.split("?")[0] for r in PER_PR_READS)]
+
+
+@pytest.mark.parametrize(
+    "edit",
+    [
+        lambda doc, n: doc.pop(f"p{n}"),
+        lambda doc, n: doc.update({f"p{n}": None}),
+        lambda doc, n: doc[f"p{n}"]["comments"].update(totalCount=1000),
+        lambda doc, n: doc[f"p{n}"]["labels"].update(totalCount=1000),
+        lambda doc, n: doc[f"p{n}"].pop("commits"),
+    ],
+    ids=["missing", "null", "comments cut", "labels cut", "fields missing"],
+)
+def test_a_pr_cut_short_in_a_batch_alone_reads_through_rest(edit):
+    gh = Gh()
+
+    def broken(q, v):
+        doc = gh.graphql(q, v)
+        edit(doc["repository"], 8)
+        return doc
+
+    got = sg._graphql_prs(broken, [7, 8])
+    assert got[7] is not None and got[8] is None
+    s = sg.gather(8, gh.api, None, now=NOW, on_main=set(), flaky=set(), prefetched=got)
+    assert f"repos/{sg.REPO_SLUG}/pulls/8" in gh.calls and s["number"] == 8
+
+
+def test_a_failed_batch_maps_every_pr_to_rest():
+    def fail(q, v):
+        raise SystemExit("gh api graphql failed")
+
+    assert sg._graphql_prs(fail, [7, 8, 9]) == {7: None, 8: None, 9: None}
+
+
+def test_a_pr_the_batch_answered_none_is_not_asked_again_by_gather():
+    gh = Gh()
+    sg.gather(7, gh.api, None, now=NOW, on_main=set(), flaky=set(), graphql=gh.graphql, prefetched={7: None})
+    assert gh.gql == [] and f"repos/{sg.REPO_SLUG}/pulls/7" in gh.calls
+
+
+def test_open_labelled_reads_one_query_and_matches_rest():
+    gh = Gh()
+    assert sg.open_labelled(gh.api, gh.graphql) == sg.open_labelled(Gh().api) == [7]
+    assert len(gh.gql) == 1 and not [p for p in gh.calls if "pulls?state=open" in p]
+    gh.pr["labels"] = [{"name": "bug"}]  # no request or status label: not a shepherd PR
+    assert sg.open_labelled(gh.api, gh.graphql) == []
+
+
+def test_open_labelled_falls_back_to_rest_when_the_listing_is_cut_or_fails():
+    gh = Gh()
+    gh.more_open = True
+    assert sg.open_labelled(gh.api, gh.graphql) == [7] and any("pulls?state=open" in p for p in gh.calls)
+    gh = Gh()
+
+    def label_cut(q, v):
+        doc = gh.graphql(q, v)
+        doc["repository"]["pullRequests"]["nodes"][0]["labels"]["totalCount"] = 1000
+        return doc
+
+    assert sg.open_labelled(gh.api, label_cut) == [7] and any("pulls?state=open" in p for p in gh.calls)
+
+    def fail(q, v):
+        raise SystemExit("x")
+
+    assert sg.open_labelled(gh.api, fail) == [7]
+
+
+def test_a_whole_reconcile_pass_reads_its_listing_main_and_prs_through_graphql():
+    def pass_over(graphql):
+        gh = Gh()
+        gh.main_runs = [dict(gh.runs[0], id=5, name="det"), dict(gh.runs[0], id=6, name="ruff", conclusion="failure")]
+        sg.main(["reconcile", "--dry-run"], api=gh.api, run=gh.run, graphql=graphql and gh.graphql)
+        return gh
+
+    rest, gql = pass_over(None), pass_over(True)
+    assert len(gql.gql) == 3  # the listing, main's tip, one batch
+    for gone in ("pulls?state=open", "commits/main", f"commits/{MAIN}/check-runs"):
+        assert not [p for p in gql.calls if gone in p] and [p for p in rest.calls if gone in p]
+    assert len(gql.calls) < len(rest.calls) - 6
 
 
 def test_pass_cache_shares_only_what_this_pass_cannot_see_change():
@@ -1477,11 +1613,14 @@ def test_reconcile_pass_reads_the_bot_login_and_each_permission_once():
 def test_trusted_bots_come_from_the_workflow_then_the_tokens_own_account(monkeypatch):
     """promoter-bot#64: under the squid-shepherd App the token cannot read `user`; its markers come from
     squid-shepherd[bot], and the PAT account's markers on open PRs must keep counting during the switch."""
+
     def no_user(path, *a, **kw):
         raise SystemExit("user: Resource not accessible by integration")
 
     monkeypatch.setenv(sg.TRUSTED_BOTS_ENV, "squid-shepherd[bot], squid-protocol")
     assert sg.trusted_bots(no_user) == {"squid-shepherd[bot]", "squid-protocol"}
     monkeypatch.delenv(sg.TRUSTED_BOTS_ENV)
-    assert sg.trusted_bots(lambda path, *a, **kw: {"login": "squid-protocol"}) == {"squid-protocol"}  # the PAT, as before
+    assert sg.trusted_bots(lambda path, *a, **kw: {"login": "squid-protocol"}) == {
+        "squid-protocol"
+    }  # the PAT, as before
     assert sg.trusted_bots(no_user) == set()  # nothing trusted: no marker counts (never everyone)

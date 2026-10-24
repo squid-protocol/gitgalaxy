@@ -3657,6 +3657,28 @@ CICS_TASK_JAVA += """\
         return java.util.Arrays.copyOf(area, length == null ? area.length : Math.max(0, Math.min(length, area.length)));
     }
 
+    /** #6271 (X71): a plain RETURN TRANSID the program tests (it codes RESP), as {RESP, RESP2}: {0, 0} and the task
+     *  ends as returnTransid does; a planned INVREQ / LENGERR at the highest level leaves the task running, records
+     *  the failed RETURN and passes nothing on. */
+    public int[] returnTransidResp(String transid, Object commarea, Integer length) {
+        int[] planned = level == 1 ? root().injected("RETURN", "-") : null;
+        if (planned != null) {
+            event("RETURN", "level", level, "transid", transid, "resp", respName(planned[0]), "resp2", planned[1]);
+            return new int[] {planned[0], planned[1]};
+        }
+        returnTransid(transid, commarea, length);
+        return new int[] {0, 0};
+    }
+
+    /** #4817: same, taking the raw bytes of the COMMAREA to preserve non-decodable bytes. */
+    public int[] returnTransidResp(String transid, Object commarea, Integer length, byte[] area) {
+        int[] resps = returnTransidResp(transid, commarea, length);
+        if (resps[0] == 0 && level == 1) {
+            root().returnedBytes = areaOf(area, length);
+        }
+        return resps;
+    }
+
     /** RETURN TRANSID(transid) [COMMAREA(commarea) LENGTH(length)] IMMEDIATE (#4270, register X27; IBM, EXEC CICS
      *  RETURN): the next task, `transid`, is attached at once -- ahead of any terminal input and any transaction ATI
      *  enqueued for the terminal -- with the COMMAREA, and "appears to the operator as having been started by terminal

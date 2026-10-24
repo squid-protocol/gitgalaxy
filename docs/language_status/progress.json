@@ -1,5 +1,5 @@
 {
- "commit": "d529160b9",
+ "commit": "3934676e0",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-24T05:50:39Z",
+  "as_of": "2026-10-24T05:55:55Z",
   "core": {
    "closed": 171,
    "open": 16,
@@ -198,8 +198,8 @@
    "total": 48
   },
   "infra": {
-   "closed": 201,
-   "open": 52,
+   "closed": 203,
+   "open": 50,
    "total": 253
   },
   "measured": true,
@@ -268,9 +268,9 @@
     "total": 206
    },
    {
-    "closed": 39,
+    "closed": 40,
     "number": 12,
-    "open": 8,
+    "open": 7,
     "title": "Yes, but can it go faster...?",
     "total": 47
    },
@@ -338,9 +338,9 @@
     "total": 8
    },
    {
-    "closed": 63,
+    "closed": 64,
     "number": 22,
-    "open": 4,
+    "open": 3,
     "title": "Does It Actually Crit? \ud83c\udfb2 \u2014 Metrics That Earn Their Place",
     "total": 67
    },

@@ -117,6 +117,15 @@ RESOLUTION RULES (the language's, never the engine's)
               `global using` alike. `#if` / `#region` bodies are read, every branch. A using inside `namespace N { }` is also tried under each
               enclosing namespace of N. A namespace nothing in the repo declares (System.*) is external.
 
+  swift       by MODULE and NAME, never by path: `import Mod` (also `@testable`, `@_exported`,
+              `public import`) names a SwiftPM target, which has no file of its own: import
+              contract C7, so no edge. `import struct|class|enum|protocol|typealias|func|var|let
+              Mod.Name` the files in target Mod's directory declaring Name (a nested name falls
+              back to its owner; an extension counts as a declaration). Targets and their
+              directories come from Package.swift, read by pattern (it is code): `path:` else
+              Sources/<Name>, Tests/<Name> (testTarget), Plugins/<Name> (plugin). `#if` bodies
+              are read, every branch. A module no target names (Foundation, WinSDK) is external.
+
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
   ERROR node spans lines 85-127, taking three COPYs with it) -- it found 64 of
@@ -192,6 +201,7 @@ LANGS = (
     "shell",
     "solidity",
     "csharp",
+    "swift",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -1379,6 +1389,116 @@ def csharp_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_SW_TARGET = re.compile(r"\.(target|executableTarget|testTarget|macro|plugin|systemLibrary)\(")
+_SW_NAME = re.compile(r'\bname:\s*"([^"\n]{1,100})"')
+_SW_PATH = re.compile(r'\bpath:\s*"([^"\n]{1,200})"')
+_SW_SCOPED = frozenset({"struct", "class", "enum", "protocol", "typealias", "func", "var", "let"})
+_SW_DEFAULT_DIR = {"testTarget": "Tests", "plugin": "Plugins"}
+
+
+def _sw_call_text(text: str, start: int) -> str:
+    """The text of the call whose `(` sits just before `start`, by paren depth (bounded)."""
+    depth = 1
+    end = min(len(text), start + 4000)
+    for i in range(start, end):
+        ch = text[i]
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                return text[start:i]
+    return text[start:end]
+
+
+def _sw_targets(group: Group) -> dict[str, str]:
+    """SwiftPM target name -> its directory (relative to the group root), from every Package.swift."""
+    out: dict[str, str] = {}
+    for pkg in sorted(f for f in group.files if f.endswith("Package.swift")):
+        if group.root is None or posixpath.basename(pkg) != "Package.swift":
+            continue
+        try:
+            text = read_source(group.root / pkg).text
+        except OSError:
+            continue
+        base = posixpath.dirname(pkg)
+        for m in _SW_TARGET.finditer(text):
+            call = _sw_call_text(text, m.end())
+            name = _SW_NAME.search(call)
+            if name is None:
+                continue
+            path = _SW_PATH.search(call)
+            rel = path.group(1) if path else posixpath.join(_SW_DEFAULT_DIR.get(m.group(1), "Sources"), name.group(1))
+            out.setdefault(name.group(1), posixpath.normpath(posixpath.join(base, rel)))
+    return out
+
+
+def _sw_decls(node: Any, src: bytes, out: set[str]) -> None:
+    """Names declared at one file's top level. `#if` is a flat directive, so its body is read as is."""
+    for c in node.children:
+        t = c.type
+        if t in ("class_declaration", "protocol_declaration", "typealias_declaration", "function_declaration"):
+            name = c.child_by_field_name("name")
+            if name is not None:
+                out.add(_text(name, src).strip().split(".")[0].split("<")[0])
+        elif t == "property_declaration":
+            for n in _walk(c):
+                if n.type == "simple_identifier" and n.parent is not None and n.parent.type == "pattern":
+                    out.add(_text(n, src))
+        elif "if_config" in t or "compiler" in t:
+            _sw_decls(c, src, out)
+
+
+def _sw_index(group: Group) -> dict[str, dict[str, set[str]]]:
+    """target name -> declared name -> the files of that target declaring it, parsed once."""
+    if "sw" in group._cache:
+        return group._cache["sw"]
+    index: dict[str, dict[str, set[str]]] = {}
+    targets = _sw_targets(group)
+    for f in sorted(group.files):
+        if not f.endswith(".swift") or group.root is None:
+            continue
+        owner = max(
+            (n for n, d in targets.items() if f.startswith(d + "/")),
+            key=lambda n: len(targets[n]),
+            default=None,
+        )
+        if owner is None:
+            continue
+        try:
+            src = (group.root / f).read_bytes()
+        except OSError:
+            continue
+        names: set[str] = set()
+        _sw_decls(_ts_tree("swift", src), src, names)
+        for nm in names:
+            index.setdefault(owner, {}).setdefault(nm, set()).add(f)
+    for t in targets:
+        index.setdefault(t, {})
+    group._cache["sw"] = index
+    return index
+
+
+def swift_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _sw_index(group)
+    out = []
+    for n in _ts_tree("swift", src).children:
+        if n.type != "import_declaration":
+            continue
+        ident = next((c for c in n.children if c.type == "identifier"), None)
+        if ident is None:
+            continue
+        parts = [p for p in _text(ident, src).replace(" ", "").split(".") if p]
+        scoped = any(c.type in _SW_SCOPED for c in n.children)
+        # import contract C7: `import Mod` names a module (a target), which has no file
+        if not scoped or len(parts) < 2:
+            out.append(set())
+            continue
+        decls = index.get(parts[0], {})
+        out.append(set(decls.get(parts[1], ())))
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -1401,6 +1521,7 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "shell": shell_imports,
     "solidity": solidity_imports,
     "csharp": csharp_imports,
+    "swift": swift_imports,
 }
 
 

@@ -26,6 +26,7 @@
     {"repo": "Bash-it/bash-it", "commit": "4725d29db8c0ac8c21df47664b28539f3b8fce94", "language": "shell"},
     {"repo": "bats-core/bats-core", "commit": "5b61d8f22b46abf001e218cdd63f2938c356fa93", "language": "shell"},
     {"repo": "OpenZeppelin/openzeppelin-contracts", "commit": "4858ab13a5ad897f59753028f6315f9d487c4322", "language": "solidity"},
-    {"repo": "JamesNK/Newtonsoft.Json", "commit": "52fa3aef1f2cadcd3a3f874251eddc98d3efbbaa", "language": "csharp"}
+    {"repo": "JamesNK/Newtonsoft.Json", "commit": "52fa3aef1f2cadcd3a3f874251eddc98d3efbbaa", "language": "csharp"},
+    {"repo": "apple/swift-argument-parser", "commit": "bd10e57565e21be23b144f3770af7f2bfb068ecf", "language": "swift"}
   ]
 }

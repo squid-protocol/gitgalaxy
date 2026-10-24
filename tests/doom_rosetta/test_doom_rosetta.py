@@ -117,9 +117,9 @@ def _scan_db(path, rows):
 
 
 def test_callgraph_is_na_and_a_shown_pass_without_an_oracle(tmp_path):
-    # a port whose only functions are in a language no oracle covers (kotlin): n/a, not a silent pass
-    _scan_db(tmp_path / "s.db", [("a.kt", "kotlin", "f", 1, ["g"]), ("a.kt", "kotlin", "g", 5, [])])
-    cols, ok = doom_scorer.callgraph_check("kocoa-doom", tmp_path, tmp_path / "s.db")
+    # a port whose only functions are in a language no oracle covers (dart): n/a, not a silent pass
+    _scan_db(tmp_path / "s.db", [("a.dart", "dart", "f", 1, ["g"]), ("a.dart", "dart", "g", 5, [])])
+    cols, ok = doom_scorer.callgraph_check("dartdoom", tmp_path, tmp_path / "s.db")
     assert ok and set(cols.values()) == {"n/a"} and set(cols) == set(doom_scorer.CALLGRAPH_NA)
 
 
@@ -129,9 +129,10 @@ LANG_FIXTURES = {  # language -> (file, source with f calling g, h; g, h and the
     "csharp": ("A.cs", "class A {\n void g() {}\n void h() {}\n void f() {\n  g();\n  this.h();\n }\n}\n"),
     "rust": ("a.rs", "fn g() {}\nfn h() {}\nfn f() {\n    g();\n    vec![h(); 2];\n}\n"),
     "javascript": ("a.js", "function g() {}\nfunction h() {}\nfunction f() {\n  g();\n  o.h();\n}\n"),
+    "kotlin": ("a.kt", "fun g() {}\nfun h() {}\nfun f() {\n    g()\n    x.h()\n}\n"),
     "python": ("a.py", "def g():\n    pass\ndef h():\n    pass\ndef f():\n    g()\n    o.h()\n"),
 }
-FIXTURE_START = {"go": 4, "java": 4, "csharp": 4, "rust": 3, "javascript": 3, "python": 5}
+FIXTURE_START = {"go": 4, "java": 4, "csharp": 4, "rust": 3, "javascript": 3, "python": 5, "kotlin": 3}
 
 
 @pytest.mark.parametrize("lang", sorted(LANG_FIXTURES))
@@ -200,6 +201,38 @@ def test_ts_oracle_reads_a_csharp_builtin_type_name_as_a_reference_not_an_absent
     res = ts.body_oracle(tmp_path, rows)
     assert res["engine_only_by_kind"] == {"function-pointer": 1} and res["misses_by_shape"] == {}, res
     assert doom_scorer.callgraph_columns(res)["callgraph_engine_only"] == 0
+
+
+def test_ts_oracle_kotlin_units_and_trailing_lambda_calls(tmp_path):
+    """An ``init`` block and a secondary constructor are units the engine names; ``x.run { }`` is the stdlib scope
+    function (not a call to a port-defined ``run``) but a user function called with only a lambda is a call."""
+    pytest.importorskip("tree_sitter_language_pack")
+    import ts_callgraph_oracle as ts
+
+    if not ts.available("kotlin"):
+        pytest.skip("tree-sitter language pack has no kotlin grammar")
+    src = (
+        "fun run() {}\nfun ifKey(b: () -> Unit) {}\n"
+        "class A {\n  init {\n    ifKey { }\n  }\n  constructor(x: Int) {\n    x.run { }\n    ifKey(f)\n  }\n}\n"
+    )
+    (tmp_path / "A.kt").write_text(src)
+    rows = [("A.kt", "kotlin", "run", 1, []), ("A.kt", "kotlin", "ifKey", 2, [])]
+    rows += [("A.kt", "kotlin", "init", 4, []), ("A.kt", "kotlin", "constructor", 7, ["ifKey"])]
+    res = ts.body_oracle(tmp_path, rows)
+    assert res["unmatched_functions"] == 0 and res["oracle_calls"] == 2, res
+    assert res["misses_by_shape"] == {"call": 1} and res["engine_only_by_kind"] == {}, res  # init -> ifKey missed
+
+
+def test_ts_oracle_kotlin_stdlib_filter_does_not_leak_into_other_languages(tmp_path):
+    """The lambda-only stdlib rule is Kotlin's: a JavaScript ``map(x)`` of a port-defined ``map`` is still a call."""
+    pytest.importorskip("tree_sitter_language_pack")
+    import ts_callgraph_oracle as ts
+
+    if not ts.available("javascript"):
+        pytest.skip("tree-sitter language pack has no javascript grammar")
+    (tmp_path / "a.js").write_text("function map() {}\nfunction f() {\n  map();\n}\n")
+    res = ts.body_oracle(tmp_path, [("a.js", "javascript", "map", 1, []), ("a.js", "javascript", "f", 2, [])])
+    assert res["oracle_calls"] == 1 and res["misses_by_shape"] == {"call": 1}, res
 
 
 def test_ts_oracle_reads_rust_macro_arguments_and_skips_quote(tmp_path):

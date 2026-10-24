@@ -32,6 +32,27 @@ def test_java_constructor_and_method():
     assert got == {"run": {"Foo", "save"}}
 
 
+def test_powershell_cmdlets_methods_and_static_calls():
+    """cmdlets, `$o.Save(1)`, `[Foo]::Make(2)` and pipeline stages are calls; `& $g`, dot-sourcing and a
+    property read name no call."""
+    src = (
+        "function Run {\n  Get-Item $x\n  $o.Save(1)\n  [Foo]::Make(2)\n  & $g\n  . ./a.ps1\n"
+        "  $o.Name\n  Write-Host 'hi' | Out-Null\n}\n"
+    )
+    assert _calls("powershell", src) == {"Run": {"Get-Item", "Save", "Make", "Write-Host", "Out-Null"}}
+
+
+def test_tcl_commands_substitutions_and_namespaced_commands():
+    """a command, a `[subst]` inside `set`, and `ns::k` (rightmost segment) are calls; `set` is no call;
+    a command after an ERROR node (`puts "x $a"`) is still seen."""
+    src = "proc foo {a} {\n  set x [bar $a]\n  ns::k 1\n  puts \"x $a\"\n  baz\n}\n"
+    assert _calls("tcl", src) == {"foo": {"bar", "k", "puts", "baz"}}
+
+
+def test_powershell_and_tcl_are_measured():
+    assert {"powershell", "tcl"} <= set(cga.LANGS)
+
+
 def test_pairing_drops_recursion_and_needs_nearby_lines():
     gg = [("run", 1, ["run", "save"]), ("far", 50, ["x"])]
     ts = [("run", 2, {"run", "save", "load"}, "run-node"), ("far", 10, {"x"}, "far-node")]
@@ -45,6 +66,15 @@ def test_cause_labels_inner_function_calls_and_non_calls():
     assert cga._cause("fp", "save", fns["outer"], "python", audit, False)[0] == ("fp:inner-named-function_definition")
     assert cga._cause("fp", "x", fns["outer"], "python", audit, False)[0].startswith("fp:not-a-call-in-ts:")
     assert cga._cause("fp", "nowhere", fns["outer"], "python", audit, False)[0] == "fp:outside-ts-function"
+
+
+def test_cause_labels_a_call_lost_to_a_tree_sitter_parse_error():
+    """--buckets: tree-sitter-zig cannot parse tuple destructuring, so the callee after it is
+    missing from the tree; that is a grammar gap (`fp:ts-parse-error`), not a call GitGalaxy invented."""
+    src = b"fn run(zir: u32) void {\n    const a, _ = pair(zir);\n    use(a);\n}\nfn clean() void {\n    use(1);\n}\n"
+    fns = {n: node for n, _, _, node in cga.ts_functions(src, "zig", audit)}
+    assert cga._cause("fp", "use", fns["run"], "zig", audit, False)[0] == "fp:ts-parse-error"
+    assert cga._cause("fp", "nowhere", fns["clean"], "zig", audit, False)[0] == "fp:outside-ts-function"
 
 
 def test_regressions_respect_the_tolerance():
@@ -205,3 +235,35 @@ def test_dart_index_and_list_are_not_calls_and_only_the_dollar_operator_applies_
     assert _calls("dart", "void run(m) {\n  var a = m['k'];\n  var b = [1];\n}\n")["run"] == set()
     assert _calls("haskell", "run x = f $ g x\n")["run"] == {"f", "g"}
     assert _calls("haskell", "run x = f x <> g . h\n")["run"] == {"f"}
+
+
+def test_solidity_value_call_names_the_call_and_apex_constructors_and_methods():
+    sol = _calls("solidity", "contract A{function f() public{ require(a); t.call{value: v}(d); g(1); }}")
+    assert sol == {"f": {"require", "call", "g"}}
+    apex = _calls("apex", "class A{void f(){ Map<Id,A> m = new Map<Id,A>(x); new Foo(); x.go(); }}")
+    assert apex == {"f": {"Map", "Foo", "go"}}
+
+
+def test_solidity_and_apex_are_measured():
+    assert {"solidity", "apex"} <= set(cga.LANGS)
+
+
+def test_haskell_constructor_patterns_are_not_calls_but_constructor_applications_are():
+    """C3: `Para _` on a clause's left side, a case alternative, a lambda or a do-bind pattern matches; it does not call."""
+    src = (
+        "isPara (Para _) = True\n"
+        "isPara _ = False\n"
+        "run m = case m of\n"
+        "  Left e -> fail e\n"
+        "  Just (Wrap k) -> keep (Box k)\n"
+        "  _ -> Nothing\n"
+        "lam z = (\\(Pair a b) -> mk a b) z\n"
+        "dobind m = do\n"
+        "  Just x <- m\n"
+        "  return (Some x)\n"
+    )
+    got = _calls("haskell", src)
+    assert got["isPara"] == set()
+    assert got["run"] == {"fail", "keep", "Box"}
+    assert got["lam"] == {"mk"}
+    assert got["dobind"] == {"return", "Some"}

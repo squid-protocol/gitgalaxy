@@ -14,8 +14,10 @@
 #     galaxy_ir `ir_field` that test_fact_channels.py checks against galaxy_ir's SCOPE
 #     comment and loader (checked, not generated). The recipe channel table and
 #     custom-insert channels are not registry-driven yet (#3383 remaining slices).
-#   - Channels with a custom insert or restore (call_site_data, transaction_data,
-#     sql_statement_data and the later per-file channels) are not migrated yet.
+#   - A resolved channel (call_site_data, `resolved=True`) is inserted from the engine's repo-wide
+#     list by record_keeper's _insert_resolved_channel; its schema and restore live here too
+#     (transaction_data is the other one).
+#   - Channels with a custom insert or restore (the later per-file channels) are not migrated yet.
 #   - Order of CHANNELS is the insert order; each table is independent, so it
 #     does not change any row.
 #   - Data only: no import of the recorder or the rehydrator (they import this).
@@ -43,7 +45,7 @@ class FactChannel:
     table: str
     payload_key: str
     columns: tuple
-    to_row: Callable[[Any], tuple]
+    to_row: Callable[..., tuple]
     restore_select: "str | Callable[[sqlite3.Cursor, Callable, Callable], str]"
     to_payload: Callable[[Any], dict]
     # Schema: the CREATE TABLE text, the `_ensure_columns` groups that heal an older
@@ -54,6 +56,14 @@ class FactChannel:
     # galaxy_ir reader (#3383): the `EngineFile` field its loader fills from this table. Checked
     # against the real dataclass and the loader's `_has_table` guard by test_fact_channels.py.
     ir_field: str = ""
+    # A resolved channel (#3383) is inserted from the engine's repo-wide list, not a per-file
+    # payload: `to_row(site, path_to_file_id)` also fills the resolved destination, and the
+    # source column is `src_column`. Restore reads it per file like the others (destinations
+    # are re-resolved every scan).
+    resolved: bool = False
+    # The column holding the owning file's id: `file_id` for a per-file channel, but a resolved
+    # channel names its own (`src_file_id` on call_site_data, `file_id` on transaction_data).
+    src_column: str = "file_id"
 
     def select_sql(self, cursor: sqlite3.Cursor, has_table: Callable, has_column: Callable) -> str:
         if callable(self.restore_select):
@@ -262,6 +272,113 @@ _SQL_TABLE_DDL = """
         """
 
 
+_SQL_STATEMENT_DDL = """
+            CREATE TABLE IF NOT EXISTS sql_statement_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                stmt_ordinal INTEGER,
+                verb TEXT,
+                table_name TEXT,
+                access TEXT,
+                cursor_name TEXT,
+                host_variables TEXT,
+                line_number INTEGER,
+                statement_text TEXT,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
+# #3200: one row per mainframe INVOCATION SITE -- COBOL `CALL`, CICS
+# `LINK`/`XCTL PROGRAM(...)`, JCL `EXEC PGM=`. edge_data carries the
+# resolved program-to-program edges aggregated from these, but it
+# structurally cannot carry the rest: its src/dst are file_data FKs, and
+# the majority of real call sites do not resolve to a file in the
+# repository at all. `CALL 'CEEGMT'` is a Language Environment service,
+# `EXEC PGM=IEFBR14` is a system utility, and a `CALL WS-PGM` whose
+# VALUE clause lives in a copybook has no readable target name. Those
+# were #3200's "unresolved targets are recorded nowhere"; they are rows
+# here, with the level of failure distinguishable:
+#   target IS NULL             -- the name itself could not be read
+#   target NOT NULL, dst NULL  -- named, but not a program in this repo
+#   dst_file_id NOT NULL       -- resolved; also an edge_data row
+# `form` ('literal' | 'identifier' | 'unknown') keeps the architectural
+# distinction the old pipeline's `unresolved_calls` was really about: a
+# literal CALL is a static, link-edited dependency, an identifier CALL
+# is dynamic dispatch that a compile-time DAG cannot see.
+# No FK to repo_data, for the same cascade-delete reason as edge_data.
+# #3355: the COMMAREA contract of a CICS LINK/XCTL/RETURN TRANSID site --
+# the record it passes (`COMMAREA(x)`) and its `LENGTH(...)` /
+# `DATALENGTH(...)` operands, each as written (whitespace-collapsed,
+# upper-cased). NULL when the site carries no such operand (every CALL and
+# EXEC PGM row). Per-file, so restored on delta scans like `operand`.
+# Joining x to the callee's LINKAGE DFHCOMMAREA is galaxy_ir's job
+# (GalaxyIR.commarea_contracts). Healed onto a table created before #3355.
+# #3454: a batch CALL's USING list (call_using.py), comma-joined by position,
+# NULL for a CALL without USING and every non-CALL row. Paired with the
+# callee's entry_point_data params by GalaxyIR.call_contracts.
+# #3494: a CICS LINK / START's SYSID(...) as written (the remote region it
+# ships to), NULL otherwise. Joined with the CSD's REMOTESYSTEM definitions
+# by GalaxyIR.remote_calls.
+
+_CALL_SITE_DDL = """
+            CREATE TABLE IF NOT EXISTS call_site_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                src_file_id INTEGER,
+                verb TEXT,
+                form TEXT,
+                operand TEXT,
+                target TEXT,
+                dst_file_id INTEGER,
+                line_number INTEGER,
+                commarea TEXT,
+                commarea_length TEXT,
+                commarea_datalength TEXT,
+                using_args TEXT,
+                sysid TEXT,
+                FOREIGN KEY(src_file_id) REFERENCES file_data(id) ON DELETE CASCADE,
+                FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+"""
+
+# #3211-followup: the CICS transaction map -- which 4-char transaction id a
+# user submits and which program CICS routes it to. Extracted from the CSD
+# `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (a PROGRAM's
+# `TRANSID(...)` is the remote-DPL mirror, not a route, #4503), then resolved to the program's file
+# by invocation_resolver.resolve_transactions.
+#   file_id     -- the .csd/JCL deck the definition lives in
+#   transid     -- the transaction id (like dataset_data.dd_name, a name,
+#                  not a file)
+#   program     -- the PROGRAM-ID it routes to, as written
+#   dst_file_id -- the file declaring that PROGRAM-ID, or NULL for a
+#                  program not in this repository
+# Like dataset_data this is deliberately NOT an edge_data kind: a
+# transaction id is not a file, so it cannot be a file_data FK. The COBOL
+# in-source routing (EXEC CICS RETURN/START/RUN TRANSID) rides in
+# call_site_data; galaxy_ir.transaction_map joins the two.
+
+_TRANSACTION_DDL = """
+            CREATE TABLE IF NOT EXISTS transaction_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                transid TEXT,
+                program TEXT,
+                group_name TEXT,
+                profile TEXT,
+                dst_file_id INTEGER,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE,
+                FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
 def _dataset_select(cursor, has_table, has_column):
     # #3345: the resolved-DSN pair is per-file (one JCL file determines
     # it), so it is restored like the raw DSN. A baseline written
@@ -354,6 +471,58 @@ def _csd_resource_select(cursor, _has_table, has_column):
         )
         + "FROM csd_resource_data cr JOIN file_data fd ON cr.file_id = fd.id "
         "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cr.id"
+    )
+
+
+def _call_site_select(cursor, has_table, has_column):
+    # #3355: the COMMAREA contract operands are per-file (the site's own EXEC block), so they are
+    # restored like `operand`. A baseline written before #3355 lacks the columns; its rows come
+    # back without the keys, the shape the extractor gives a site with no COMMAREA -- so a
+    # restored row is identical to a re-extracted one. `resolved_path` / `dst_file_id` are NOT
+    # restored: resolution is repo-wide and redone every scan.
+    def col(column, nulls):
+        if has_table(cursor, "call_site_data") and has_column(cursor, "call_site_data", column):
+            return ", ".join(f"cs.{c}" for c in nulls)
+        return ", ".join(f"NULL AS {c}" for c in nulls)
+
+    commarea_cols = col("commarea", ("commarea", "commarea_length", "commarea_datalength"))
+    # #3454 / #3494: the USING list and SYSID, restored the same way.
+    using_col = col("using_args", ("using_args",))
+    sysid_col = col("sysid", ("sysid",))
+    return (
+        "SELECT fd.file_path AS _fp, cs.verb, cs.form, cs.operand, cs.target, cs.line_number AS line, "  # noqa: S608 -- the column lists are literals; values are bound
+        f"{commarea_cols}, {using_col}, {sysid_col} "
+        "FROM call_site_data cs JOIN file_data fd ON cs.src_file_id = fd.id "
+        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id"
+    )
+
+
+def _sql_statement_select(cursor, has_table, has_column):
+    # #3618 / #5736: a pre-#3618 baseline has no `statement_text`, a pre-#5736 one no `routine_name`;
+    # their rows come back with NULL, the shape a re-extracted row has without them.
+    def col(column, alias):
+        if has_table(cursor, "sql_statement_data") and has_column(cursor, "sql_statement_data", column):
+            return f"ss.{column} AS {alias}"
+        return f"NULL AS {alias}"
+
+    return (
+        'SELECT fd.file_path AS _fp, ss.stmt_ordinal AS ordinal, ss.verb, ss.table_name AS "table", '  # noqa: S608 -- the column aliases are literals; values are bound
+        f'ss.access, ss.cursor_name AS "cursor", ss.host_variables, ss.line_number AS line, '
+        f"{col('statement_text', 'statement')}, {col('routine_name', 'routine')} "
+        "FROM sql_statement_data ss JOIN file_data fd ON ss.file_id = fd.id "
+        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ss.id"
+    )
+
+
+def _transaction_select(_cursor, _has_table, _has_column):
+    # #3211-followup: restored per deck so an unchanged .csd/JCL keeps its transactions through a
+    # delta scan. `group_name` is aliased to the extractor's `group` payload key; `resolved_path` /
+    # `dst_file_id` are NOT restored (resolution is repo-wide and redone every scan).
+    return (
+        "SELECT fd.file_path AS _fp, td.transid, td.program, td.group_name AS _group, "
+        "td.profile, td.line_number AS line "
+        "FROM transaction_data td JOIN file_data fd ON td.file_id = fd.id "
+        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY td.id"
     )
 
 
@@ -569,6 +738,56 @@ CHANNELS = (
             "line": int(r["line"] or 0),
         },
     ),
+    # #3446: embedded SQL statements -- per-file, like sql_table. One row per (statement, table); a
+    # statement naming no table (OPEN/FETCH/CLOSE a cursor, COMMIT, CALL) has one row with NULL table_name.
+    FactChannel(
+        name="sql_statement",
+        ir_field="sql_statements",
+        table="sql_statement_data",
+        ddl=_SQL_STATEMENT_DDL,
+        # #3618: the statement text; #5736: the routine a `CALL` names (schema.proc), NULL otherwise.
+        extra_columns=(("statement_text TEXT",), ("routine_name TEXT",)),
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_sql_statement_file_id ON sql_statement_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_sql_statement_table ON sql_statement_data(table_name);",
+            "CREATE INDEX IF NOT EXISTS idx_sql_statement_snapshot ON sql_statement_data(repo_name, commit_hash);",
+        ),
+        payload_key="sql_statements",
+        columns=(
+            "stmt_ordinal",
+            "verb",
+            "table_name",
+            "access",
+            "cursor_name",
+            "host_variables",
+            "line_number",
+            "statement_text",
+            "routine_name",
+        ),
+        to_row=lambda s: (
+            int(s.get("ordinal", 0) or 0),
+            s.get("verb"),
+            s.get("table"),
+            s.get("access"),
+            s.get("cursor"),
+            s.get("host_variables"),
+            int(s.get("line", 0) or 0),
+            s.get("statement"),
+            s.get("routine"),
+        ),
+        restore_select=_sql_statement_select,
+        to_payload=lambda r: {
+            "ordinal": int(r["ordinal"] or 0),
+            "verb": r["verb"],
+            "table": r["table"],
+            "access": r["access"],
+            "cursor": r["cursor"],
+            "host_variables": r["host_variables"],
+            "line": int(r["line"] or 0),
+            "statement": r["statement"],
+            **({"routine": r["routine"]} if r["routine"] else {}),
+        },
+    ),
     # #3356: CSD resource definitions -- per-file, like sql_table_data.
     # #3356: CSD resource definitions, aliased back to the extractor's
     # payload keys (resource_name -> name, group_name -> group). A
@@ -782,6 +1001,98 @@ CHANNELS = (
             "line": int(r["line"] or 0),
         },
     ),
+    # #3200: every mainframe call site, resolved or not -- inserted from the engine's resolved list.
+    FactChannel(
+        name="call_site",
+        ir_field="calls",
+        table="call_site_data",
+        resolved=True,
+        src_column="src_file_id",
+        ddl=_CALL_SITE_DDL,
+        extra_columns=(
+            ("commarea TEXT", "commarea_length TEXT", "commarea_datalength TEXT"),
+            ("using_args TEXT",),
+            ("sysid TEXT",),
+        ),
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_call_src_file_id ON call_site_data(src_file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_call_dst_file_id ON call_site_data(dst_file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_call_target ON call_site_data(target);",
+            "CREATE INDEX IF NOT EXISTS idx_call_snapshot ON call_site_data(repo_name, commit_hash);",
+        ),
+        payload_key="call_sites",
+        columns=(
+            "verb",
+            "form",
+            "operand",
+            "target",
+            "dst_file_id",
+            "line_number",
+            "commarea",
+            "commarea_length",
+            "commarea_datalength",
+            "using_args",
+            "sysid",
+        ),
+        to_row=lambda site, path_to_file_id: (
+            site.get("verb"),
+            site.get("form"),
+            site.get("operand"),
+            site.get("target"),
+            path_to_file_id.get(site.get("resolved_path") or ""),
+            int(site.get("line", 0) or 0),
+            site.get("commarea"),  # #3355
+            site.get("commarea_length"),
+            site.get("commarea_datalength"),
+            site.get("using_args"),  # #3454
+            site.get("sysid"),  # #3494
+        ),
+        restore_select=_call_site_select,
+        to_payload=lambda r: {
+            "verb": r["verb"],
+            "form": r["form"],
+            "operand": r["operand"],
+            "target": r["target"],
+            "line": int(r["line"] or 0),
+            **{k: r[k] for k in ("commarea", "commarea_length", "commarea_datalength", "using_args", "sysid") if r[k]},
+        },
+    ),
+    # #3211-followup: the CICS transaction map, resolved cross-file (transid -> program -> the program's
+    # file) so it is inserted from the engine's resolved list. A definition whose deck has no file_data
+    # row is skipped; a program the repository does not contain keeps dst_file_id NULL.
+    FactChannel(
+        name="transaction",
+        ir_field="transactions",
+        table="transaction_data",
+        resolved=True,
+        ddl=_TRANSACTION_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_transaction_file_id ON transaction_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_transaction_transid ON transaction_data(transid);",
+            "CREATE INDEX IF NOT EXISTS idx_transaction_snapshot ON transaction_data(repo_name, commit_hash);",
+        ),
+        payload_key="transaction_defs",
+        columns=("transid", "program", "group_name", "profile", "dst_file_id", "line_number"),
+        to_row=lambda txn, path_to_file_id: (
+            txn.get("transid"),
+            txn.get("program"),
+            txn.get("group"),
+            txn.get("profile"),
+            path_to_file_id.get(txn.get("resolved_path") or ""),
+            int(txn.get("line", 0) or 0),
+        ),
+        restore_select=_transaction_select,
+        to_payload=lambda r: {
+            "transid": r["transid"],
+            "program": r["program"],
+            "group": r["_group"],
+            "profile": r["profile"],
+            "line": int(r["line"] or 0),
+        },
+    ),
 )
 
 CHANNELS_BY_NAME = {channel.name: channel for channel in CHANNELS}
+
+CALL_SITE_CHANNEL = next(c for c in CHANNELS if c.name == "call_site")
+TRANSACTION_CHANNEL = next(c for c in CHANNELS if c.name == "transaction")

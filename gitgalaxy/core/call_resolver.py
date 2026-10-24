@@ -132,6 +132,18 @@ _SUPER_RECEIVERS = frozenset({"super", "base", "parent"})
 # reach any definition, not only a method.
 _OWNERLESS_METHOD_LANGS = frozenset({"go"})
 
+# Languages whose methods sit in a block that is not a class_start span (rust's `impl Type { .. }`,
+# `struct`/`enum` bodies are separate), so no method has an owner and `self.m()` has no class to
+# walk. A `self` receiver is the caller's own type, so it may reach any definition in the repo; any
+# other receiver still cannot (an untyped `x.len()` would link to every repo `len`).
+_IMPL_SELF_LANGS = frozenset({"rust"})
+
+# #3784: languages whose detector marks a `ns::f()` qualifier with a leading `::` (`::fmt`, `::` for a global
+# `::f()`). A scope qualifier that is no known class is usually a NAMESPACE, which reaches free functions
+# first: neither the import-stem step nor the untyped-receiver method ladder lands on a same-name member
+# (`formatter<T>::format`) before a free `fmt::format` is tried.
+_NAMESPACE_QUALIFIED_LANGS = frozenset({"cpp"})
+
 # #3401: names a BARE call always means as the language's built-in, whatever
 # the repository defines. Perl's named operators and built-in functions take
 # precedence over a user `sub` of the same name -- `sub map` in Mojo's
@@ -482,12 +494,37 @@ _BUILTIN_INSTANCE_METHODS_PYTHON = frozenset(
         *("close", "flush", "read", "readline", "readlines", "seek", "tell", "write", "writelines"),
     }
 )
+# #4991: methods of the Kotlin stdlib built-ins (String/CharSequence, Collection / List / Set / Map,
+# Sequence / Iterator, the Any scope functions). `s.trim()` / `map.getOrPut(k)` / `list.add(x)` on a
+# receiver the scan cannot type is the stdlib method far more often than a repo class's method of the
+# same name. Names that are mostly free functions (`run`, `with`, `lazy`) are left out.
+_BUILTIN_INSTANCE_METHODS_KOTLIN = frozenset(
+    {
+        # String / CharSequence
+        *("trim", "trimStart", "trimEnd", "split", "substring", "startsWith", "endsWith", "contains"),
+        *("replace", "lowercase", "uppercase", "toInt", "toLong", "toDouble", "toIntOrNull", "isEmpty"),
+        *("isBlank", "isNotEmpty", "isNotBlank", "padStart", "padEnd", "removePrefix", "removeSuffix"),
+        *("lines", "toCharArray", "toBoolean", "toFloat", "toLongOrNull", "toDoubleOrNull"),
+        # Collection / List / Set / Map
+        *("add", "addAll", "remove", "removeAll", "clear", "get", "set", "put", "putAll", "getOrPut"),
+        *("getOrDefault", "getOrElse", "getOrNull", "containsKey", "containsValue", "keys", "values"),
+        *("entries", "forEach", "forEachIndexed", "map", "mapNotNull", "mapIndexed", "flatMap", "filter"),
+        *("filterNot", "filterIsInstance", "first", "firstOrNull", "last", "lastOrNull", "single"),
+        *("any", "all", "none", "count", "fold", "reduce", "sorted", "sortedBy", "sortedWith", "groupBy"),
+        *("associate", "associateBy", "zip", "take", "drop", "distinct", "joinToString", "toList"),
+        *("toMutableList", "toSet", "toMutableSet", "toMap", "toTypedArray", "asSequence", "indexOf"),
+        *("iterator", "plus", "minus", "withIndex", "hasNext", "next"),
+        # Any / scope functions
+        *("let", "also", "apply", "takeIf", "takeUnless", "equals", "hashCode", "toString", "compareTo"),
+    }
+)
 _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
     "typescript": _BUILTIN_INSTANCE_METHODS_JS,
     "javascript": _BUILTIN_INSTANCE_METHODS_JS,
     "java": _BUILTIN_INSTANCE_METHODS_JAVA,
     "python": _BUILTIN_INSTANCE_METHODS_PYTHON,
     "embedded_python": _BUILTIN_INSTANCE_METHODS_PYTHON,
+    "kotlin": _BUILTIN_INSTANCE_METHODS_KOTLIN,
 }
 
 # #3756: JS/TS global namespaces whose static members (`Number.isFinite`,
@@ -1017,6 +1054,43 @@ def _ancestry(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], set[s
     return parents
 
 
+def _expand_super_ctor(
+    func: dict[str, Any],
+    index: dict[tuple[str, str], "_Bucket"],
+    parents: dict[tuple[str, str], set[str]],
+    group: str,
+    lang: str,
+    local: dict[str, set[str]],
+) -> None:
+    """#3772: a constructor's `super(...)` becomes a call to its in-repo superclass's constructor.
+
+    The detector keeps `super` (with its argument counts) only in a constructor; here it is
+    replaced by the direct parent classes the scan knows. A parent outside the repo
+    (`Exception`) leaves no call. The counts move to the parent name for overload choice.
+    """
+    owner = func.get("parent_class_name") or _leaf(str(func.get("name") or ""))[1]
+    okey = _key(_leaf(str(owner))[0], lang) if owner else ""
+    # a nested class name repeats across files (`HiColor`): the declaration in the caller's own file wins
+    direct = sorted(local.get(okey) or parents.get((group, okey)) or set()) if owner else []
+    # an `extends Base<T>` is recorded with its type arguments: `Base` names the class
+    # (a header broken after `extends A` can leave `A implements` as one recorded name)
+    named = sorted({_leaf(p.split("<")[0].split()[0])[0] for p in direct if p.strip()})
+    known = [p for p in named if _is_class(index, group, p, lang)]
+    arities = func.setdefault("calls_out_arities", {})
+    quals = func.setdefault("calls_out_qualifiers", {})
+    keyword = "super"
+    counts = arities.pop(keyword, None)
+    quals.pop(keyword, None)
+    calls = [c for c in func["calls_out_to"] if c != keyword]
+    for p in known:
+        if p not in calls:
+            calls.append(p)
+        if counts:
+            arities.setdefault(p, []).extend(a for a in counts if a not in arities.get(p, []))
+        quals.setdefault(p, [""])
+    func["calls_out_to"] = calls
+
+
 def _is_class(index: dict[tuple[str, str], "_Bucket"], group: str, name: str, lang: str) -> bool:
     bucket = index.get((group, _key(name, lang)))
     return bucket is not None and any(d.kind == "class" for d in bucket.defs)
@@ -1226,6 +1300,13 @@ def _resolve_one(
 
     ownerless = caller.lang in _OWNERLESS_METHOD_LANGS
 
+    ns = False
+    if qualifier is not None and qualifier.startswith("::") and caller.lang in _NAMESPACE_QUALIFIED_LANGS:
+        ns, qualifier = True, qualifier[2:]
+        if not qualifier:
+            step, d = _ladder(bucket.free, caller, True, cache)  # a global `::f()`: a visible free function only
+            return (step, d) if step in ("file", "import") else ("none", None)
+
     if caller.lang == "objective-c":
         # #5639: a send's receiver is recorded as its qualifier, but objc methods carry no owner here, so
         # the receiver (`self`, an ivar) cannot narrow a lookup; resolved by selector name, as before.
@@ -1254,18 +1335,18 @@ def _resolve_one(
             return "unseen", d  # #3443: the only definition, but not one this caller can see
         return step, d
 
-    if qualifier in _SELF_RECEIVERS:
+    if qualifier in _SELF_RECEIVERS and not ns:
         hit = walk(lineage)
         if hit is not None:
             return hit
-        return _ladder(bucket.methods, caller, True, cache)
+        return _ladder(bucket.all if caller.lang in _IMPL_SELF_LANGS else bucket.methods, caller, True, cache)
     if qualifier in _SUPER_RECEIVERS:
         for owner_key in lineage[1:]:
             d = owned(owner_key)
             if d is not None:
                 return "class", d
         return "none", None
-    if typed and qualifier in typed:
+    if typed and qualifier in typed and not ns:
         # The receiver's class is known from this function (`app = FastAPI()`):
         # the method on that class, or on the nearest ancestor that has it.
         for owner_key in typed[qualifier]:
@@ -1299,7 +1380,9 @@ def _resolve_one(
         via = [
             d
             for p, d in bucket.all.by_path.items()
-            if p in caller.imported and (d.stem in (head, last) or posixpath.basename(d.dir) == last)
+            if p in caller.imported
+            and (d.stem in (head, last) or posixpath.basename(d.dir) == last)
+            and not (d.owner_key is not None and ns)
         ]
         if via:
             return "import", (_nearest_of(via, caller.parts) or min(via, key=lambda d: d.path))
@@ -1308,6 +1391,11 @@ def _resolve_one(
     # through a receiver), and only a visible one confidently.
     if qualifier in _BUILTIN_NAMESPACES.get(caller.lang, ()) and bucket.defs:
         return "none", None  # #3756: `Number.isFinite`, `JSON.parse`: the global, not a repo method
+    if ns:
+        # only a free function the caller can see: `std::move(x)` must not reach a repo `move` elsewhere
+        step, d = _ladder(bucket.free, caller, True, cache)
+        if step in ("file", "import"):
+            return step, d
     cset = bucket.all if ownerless else bucket.methods
     step, d = _ladder(cset, caller, True, cache)
     if (
@@ -1431,6 +1519,11 @@ def resolve_calls(
             {a: _alias_scope(t, imports, star_exports) for a, t in (namespace_aliases or {}).get(src_path, {}).items()},
         )
         lang_counts = by_lang.setdefault(lang, Counter())
+        file_parents: dict[str, set[str]] = {}
+        for cls in f.get("classes", []) or []:
+            if cls.get("name"):
+                bases = {_leaf(str(b).strip())[0] for b in cls.get("inheritance", []) or [] if str(b).strip()}
+                file_parents.setdefault(_key(str(cls["name"]), lang), set()).update(_key(b, lang) for b in bases)
         # A module's own receiver types (`app = FastAPI()` at top level) hold in
         # every function of the file that does not bind that name itself.
         module_types: dict[str, str] = {}
@@ -1441,6 +1534,8 @@ def resolve_calls(
             # #3362: calls, then unconditional transfers (COBOL GO TO). A transfer
             # resolves by the same ladder (it names a unit the same way) but is
             # its own `kind`: it never counts toward the call-resolution rates.
+            if lang in OVERLOAD_LANGS and "super" in (func.get("calls_out_to") or []):
+                _expand_super_ctor(func, index, parents, group, lang, file_parents)
             callees = [(c, "call") for c in func.get("calls_out_to") or []]
             callees += [(t, "transfer") for t in func.get("transfers_to") or []]
             # Decorators: the decorated function -> each decorator applied to it
@@ -1557,10 +1652,12 @@ def resolve_calls(
                     if dst is not None and dst.path == src_path and dst.line == caller_line and dst.name == caller_name:
                         # recursion through a qualified name (`Foo::bar` calling `bar`); a bare call
                         # that reaches only the unit itself is not a call (#3327, #5628); only where the
-                        # detector recorded the bare qualifier (a shell `md5` is a binary, not recursion)
+                        # detector recorded the bare qualifier (a shell `md5` is a binary, not recursion);
+                        # #3772: an overload language's detector keeps a bare self-name call, and a count
+                        # that picks only the unit itself is its recursion
                         if (
                             kind == "call"
-                            and (callee != caller_name or lang in BARE_CALL_SKIPS_METHODS)
+                            and (callee != caller_name or lang in BARE_CALL_SKIPS_METHODS or lang in OVERLOAD_LANGS)
                             and len(targets) == 1
                             and quals.get(callee) == [""]
                         ):

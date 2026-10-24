@@ -1469,7 +1469,11 @@ def test_send_text_terminal_is_the_default_disposition():
     plain = _RespCics().command("SEND TEXT FROM(REC) WAIT FREEKB ERASE RESP(R)", "")
     terminal = _RespCics().command("SEND TEXT FROM(REC) TERMINAL WAIT FREEKB ERASE RESP(R)", "")
     assert terminal == plain
-    assert 'task.sendText(text1.substring(0, Math.min(text1.length(), 56)), 56, "ERASE", "FREEKB", "WAIT");' in plain
+    assert 'int[] planned2 = task.planned("SEND-TEXT", "-");' in plain  # #6271 (X71): a planned fault sends nothing
+    assert (
+        'if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 56)), 56, "ERASE", "FREEKB",'
+        ' "WAIT");'
+    ) in plain
     for opt, why in (("ACCUM", "logical message"), ("PAGING", "terminal paging"), ("SET(PTR)", "RETPAGE"),
                      ("HEADER(REC)", "page headers"), ("JUSTIFY(KEY)", "page"), ("L80", "printer"),
                      ("NLEOM", "printer"), ("OUTPARTN(KEY)", "unpartitioned"), ("ALTERNATE", "screen size"),

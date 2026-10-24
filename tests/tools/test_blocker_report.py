@@ -230,3 +230,57 @@ def test_leak_free_on_burned_estate_names(estate):
     assert estate not in text
     for b in br.anon_report(res, SALT, estate)["blockers"]:
         assert not [n for n in names if n in b.get("repro", "")]
+
+
+# #5865: the report speaks the ranking's construct keys
+CONSTRUCTS = {
+    "missing copybook ZZCOPY1": "missing copybook: estate-owned",
+    "missing copybook DFHAID (ambiguous)": "missing copybook: CICS system",
+    "EXEC CICS FORMATTIME RESP": "EXEC CICS FORMATTIME RESP",
+    "EXEC CICS GETMAIN": "EXEC CICS GETMAIN",
+    "EXEC CICS (no reason given)": "EXEC: other",
+    "EXEC CICS READ FILE CUSTLEDG": "EXEC CICS READ FILE",
+    "refused: LayoutError: source text past column 72 cuts the literal 'SECRETFLD' open": "refused: LayoutError",
+    "refused: CICS Assembler": "refused: CICS Assembler",
+    "scenario differs: RETURN SECRETFLD": "other",
+    "coverage: LINKed program PGMALPHA has live paragraphs no scenario runs": "other",
+    "fact: EIBTASKN": "other",
+    "known unproven: #4101": "other",
+    "no case": "other",
+    "something the classifier has never seen: ACMEPAY CUSTLEDG": "other",
+}
+
+
+@pytest.mark.parametrize(("gap", "key"), sorted(CONSTRUCTS.items()))
+def test_construct_key_is_the_ranking_key_and_carries_no_name(gap, key):
+    assert br.construct_key(gap) == key
+    for secret in SECRETS:
+        assert secret not in key
+
+
+def test_redacting_the_subclass_drops_the_construct_too():
+    anon = br.anon_report(result(GAPS), SALT, "e", ("subclass",))
+    assert all("construct" not in b and "subclass" not in b for b in anon["blockers"])
+
+
+def test_every_blocker_carries_a_construct_in_both_reports():
+    res = result({**GAPS, "P10": ["EXEC CICS READ FILE CUSTLEDG"]})
+    anon = br.anon_report(res, SALT, "ACMEPAY")
+    assert all(b["construct"] for b in anon["blockers"])
+    assert {b["construct"] for b in anon["blockers"]} >= {"missing copybook: estate-owned", "EXEC CICS READ FILE"}
+    full = br.full_report(res, "ACMEPAY")
+    assert {b["gap"]: b["construct"] for b in full["blockers"]}["fact: EIBTASKN"] == "other"
+    assert "SECRETFLD" not in json.dumps([b["construct"] for b in anon["blockers"]])
+
+
+def test_construct_keys_join_the_gap_prevalence_page():
+    """The census page's own keys go through the one scrub_key (a CICS key stays a ranked row), never a second vocabulary."""
+    summary = json.loads(
+        (Path(__file__).resolve().parents[1] / "fixtures/gap_prevalence/census_summary.json").read_text()
+    )
+    keys = [r["gap"] for r in summary["gaps"]]
+    assert keys
+    for key in keys:
+        assert br.construct_key(key) == br.gp.scrub_key(key), key
+        if re.fullmatch(r"EXEC CICS [A-Z ]+", key):
+            assert br.construct_key(key) == key

@@ -36,6 +36,11 @@ _OPS = (
     ("X", "K001", 16, "16/35"),  # no browse
     ("N", "K001", 16, "16/34"),  # no browse
     ("Q", "K009", 16, "13/80"),
+    ("S", "K000", 16, "0/0"),  # GTEQ, no such key: positions on the first greater one, RIDFLD stays as given
+    ("X", "K000", 16, "0/0"),
+    ("S", "K999", 16, "13/80"),  # GTEQ past the last key
+    ("Q", "K002", 16, "0/0"),  # EQUAL on a present key
+    ("X", "K002", 16, "0/0"),
     ("s", "K001", 16, "0/0"),
     ("n", "K001", 16, "0/0"),
     ("p", "K001", 16, "0/0"),
@@ -141,6 +146,11 @@ _EXPECTED = [
     {"event": "ENDBR", "file": "HCBR", "resp": "INVREQ", "resp2": 35},
     {"event": "READNEXT", "file": "HCBR", "ridfld": "K001", "resp": "INVREQ", "resp2": 34, "data": None},
     {"event": "STARTBR", "file": "HCBR", "ridfld": "K009", "mode": "EQUAL", "resp": "NOTFND", "resp2": 80},
+    {"event": "STARTBR", "file": "HCBR", "ridfld": "K000", "mode": "GTEQ", "resp": "NORMAL"},
+    {"event": "ENDBR", "file": "HCBR", "resp": "NORMAL"},
+    {"event": "STARTBR", "file": "HCBR", "ridfld": "K999", "mode": "GTEQ", "resp": "NOTFND", "resp2": 80},
+    {"event": "STARTBR", "file": "HCBR", "ridfld": "K002", "mode": "EQUAL", "resp": "NORMAL"},
+    {"event": "ENDBR", "file": "HCBR", "resp": "NORMAL"},
 ]
 
 

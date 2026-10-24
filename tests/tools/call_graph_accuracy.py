@@ -91,6 +91,10 @@ LANGS = (
     "dart",
     "haskell",
     "perl",
+    "solidity",
+    "apex",
+    "powershell",
+    "tcl",
 )
 
 CALL_NODE_TYPES = frozenset(
@@ -117,6 +121,8 @@ CALL_NODE_TYPES = frozenset(
         "argument_part",  # dart: the argument list of `f(x)`, `a.f(x)`, `a?.f(x)`, `a..f(x)`
         "const_object_expression",  # dart `const Foo(1)`
         "type_conversion_expression",  # go `[]byte(s)` -- a conversion is a call (C3)
+        "command",  # powershell `Get-Item $x`, tcl `puts $x`
+        "invokation_expression",  # powershell `$o.Save(1)`, `[Foo]::Make(2)`
     }
 )
 _CALLEE_FIELDS = ("function", "method", "name", "macro", "constructor", "type")
@@ -155,6 +161,9 @@ def _leaf_name(node: Any, depth: int = 0) -> str | None:
     if node.type in _QUALIFIED_TYPES:  # `ControlFlow::Continue`, `OS::get_singleton`
         child = node.child_by_field_name("name")
         return _leaf_name(child, depth + 1) if child is not None else None
+    # solidity `t.call{value: v}(d)` names the call, not `value`
+    if node.type == "struct_expression" and node.named_children:
+        return _leaf_name(node.named_children[0], depth + 1)
     if node.type in ("function", "method") and not node.named_children:  # perl `Foo::bar` -> `bar`
         return node.text.decode("utf-8", "replace").rsplit("::", 1)[-1]
     if node.type.endswith(_LEAF_SUFFIXES) or node.type == "name":
@@ -196,6 +205,26 @@ def _hs_callee(node: Any) -> str | None:
     return fn.text.decode("utf-8", "replace") if fn is not None and fn.type in ("variable", "constructor") else None
 
 
+_HS_PATTERN_SPINE = frozenset({"apply", "parens", "infix", "tuple", "list", "as_pattern", "irrefutable"})
+
+
+def _hs_is_pattern(node: Any) -> bool:
+    """haskell `isPara (Para _) = True`, `Left e -> ..`, `\\(Just x) -> ..`: tree-sitter parses a constructor
+    pattern as an `apply`, but a pattern is no call (C3). True when `node` sits in a pattern position."""
+    cur = node
+    while cur.parent is not None:
+        par = cur.parent
+        if par.type == "patterns":
+            return True
+        pat = par.child_by_field_name("pattern")
+        if pat is not None and pat.id == cur.id:
+            return True
+        if par.type not in _HS_PATTERN_SPINE:
+            return False
+        cur = par
+    return False
+
+
 def _dart_callee(node: Any) -> str | None:
     """dart has no call node: `a.b.save(x)` is identifier, selector(.b), selector(.save), selector(argument_part).
 
@@ -215,7 +244,30 @@ def _dart_callee(node: Any) -> str | None:
     return ident.text.decode("utf-8", "replace") if ident is not None else None
 
 
+def _ps_tcl_callee(node: Any) -> str | None:
+    """powershell and tcl `command` nodes and powershell `invokation_expression`.
+
+    powershell: the callee is the `command_name` field when it is a plain `command_name` token; a
+    `command_name_expr` (`& $g`, `. ./a.ps1`) is dynamic or dot-sourcing, no named call. A method call
+    names the `member_name` (`$o.Save(1)`, `[Foo]::Make(2)`); a property read has no `argument_list`.
+    tcl: the callee is the first word (`name` field); `ns::k` names its rightmost segment, as the engine does.
+    """
+    if node.type == "invokation_expression":
+        member = next((c for c in node.named_children if c.type == "member_name"), None)
+        has_args = any(c.type == "argument_list" for c in node.named_children)
+        return member.text.decode("utf-8", "replace") if member is not None and has_args else None
+    name = node.child_by_field_name("name")
+    if name is not None:  # tcl
+        return name.text.decode("utf-8", "replace").rsplit("::", 1)[-1] if name.type == "simple_word" else None
+    cname = node.child_by_field_name("command_name")
+    if cname is not None and cname.type == "command_name":
+        return cname.text.decode("utf-8", "replace")
+    return None
+
+
 def _callee(node: Any) -> str | None:
+    if node.type in ("command", "invokation_expression"):
+        return _ps_tcl_callee(node)
     if node.type in ("apply", "infix"):
         return _hs_callee(node)
     if node.type == "func1op_call_expression":  # perl `shift`, `defined $x`: the built-in is the first token
@@ -324,6 +376,8 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
         elif node.type in CALL_NODE_TYPES and owners:
             name = _callee(node)
             owner, calls = owners[-1]
+            if lang == "haskell" and node.type == "apply" and _hs_is_pattern(node):
+                name = None
             if name and name not in non_calls and not _is_own_leaf_call(node, name, owner):
                 calls.add(name)
         stack.extend((child, owners) for child in reversed(node.children))
@@ -410,6 +464,26 @@ def _owner(node: Any, func_types: frozenset[str], top: Any, audit: Any) -> Any:
     return top
 
 
+_ERROR_SPANS: dict[tuple[int, int], list[tuple[int, int]]] = {}
+
+
+def _overlaps_parse_error(fn: Any, body: Any) -> bool:
+    """True when tree-sitter's tree has an ERROR or MISSING node over the function (a grammar that
+    cannot parse the construct, e.g. zig tuple destructuring `_, const x = f();`): the callee is
+    absent from the tree because the tree is broken there, not because the call is not one."""
+    root = fn
+    while root.parent is not None:
+        root = root.parent
+    key = (root.id, root.end_byte)
+    if key not in _ERROR_SPANS:
+        _ERROR_SPANS[key] = [
+            (n.start_point[0], n.end_point[0]) for n in _walk(root) if n.type == "ERROR" or n.is_missing
+        ]
+    # rows, not bytes: a broken body starts after the `FnProto` ends, on the same line
+    lo, hi = fn.start_point[0], (body if body is not None else fn).end_point[0]
+    return any(start <= hi and end >= lo for start, end in _ERROR_SPANS[key])
+
+
 def _cause(kind: str, callee: str, fn: Any, lang: str, audit: Any, engine_elsewhere: bool) -> tuple[str, Any]:
     """Why one side has `callee` in `fn` and the other does not, as a shape label.
 
@@ -433,12 +507,15 @@ def _cause(kind: str, callee: str, fn: Any, lang: str, audit: Any, engine_elsewh
             inner = _owner(n, func_types, fn, audit)
             if inner.id != fn.id:
                 return f"fp:inner-named-{inner.type}", n
-        ids = [n for n in _walk(fn) if n.text == callee.encode() and not n.children]
+        scope = [*_walk(fn), *(_walk(body) if body is not None else ())]
+        ids = [n for n in scope if n.text == callee.encode() and not n.children]
         if ids:
             parent = ids[0].parent
             grand = parent.parent if parent is not None else None
             shape = f"{parent.type if parent else '?'}<{grand.type if grand else '?'}"
             return f"fp:not-a-call-in-ts:{shape}", ids[0]
+        if _overlaps_parse_error(fn, body):
+            return "fp:ts-parse-error", None
         return "fp:outside-ts-function", None
     if engine_elsewhere:
         return "fn:engine-attributes-to-another-function", calls[0] if calls else None

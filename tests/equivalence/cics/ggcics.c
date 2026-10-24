@@ -215,82 +215,7 @@ int GGCAREA(char **area, int len) {
     return 0;
 }
 
-/* #4023 follow-up: the planned condition of this command on this file, if faults.cfg plans one. Every
- * command counts (per task: a task is one process), whether or not it faults. */
-static int fault_counts[32];
-static char fault_keys[32][40];
-/* #4623: a planned DUPKEY is not a failure of the read. IBM retrieves the record through the non-unique alternate
- * index and answers DUPKEY (RESP2 140) because another record with the same key follows. So injected() holds it
- * back (the read runs) and dupkey_apply() turns the NORMAL of a read that found its record into it. */
-static struct { int on, n, resp, resp2; char cmd[16], file[32]; } dupkey;
-/* #6271 (X70): a planned ABEND line (`CMD FILE NTH ABEND 0 ABCODE`, RESP field -1) is not a condition: the command
- * abends the task with ABCODE (cause "system", an abend CICS itself raises), so the HANDLE ABEND exit gets control (c->go_to)
- * or the task ends, and the command does nothing else (RESP / RESP2 NORMAL). Every call site has the task's `c`. */
-static void abend(gg_cics *c, const char *code, const char *cause, int cond, int cancel);
-static int injected_at(gg_cics *c, const char *cmd, const char *file, int *resp, int *resp2);
-#define injected(cmd, file, resp, resp2) injected_at(c, cmd, file, resp, resp2)
-static int injected_at(gg_cics *c, const char *cmd, const char *file, int *resp, int *resp2) {
-    char path[3000], line[256], pcmd[16], pfile[32], nth[16], pcode[16];
-    int presp, presp2, n = 0, slot = -1, hit = 0;
-    char key[40];
-    snprintf(key, sizeof key, "%.15s %.16s", cmd, file);
-    for (int i = 0; i < 32; i++) {
-        if (fault_keys[i][0] == 0 || strcmp(fault_keys[i], key) == 0) { slot = i; break; }
-    }
-    if (slot < 0) return 0;
-    if (fault_keys[slot][0] == 0) snprintf(fault_keys[slot], sizeof fault_keys[slot], "%s", key);
-    n = ++fault_counts[slot];
-    dupkey.on = 0;
-    snprintf(path, sizeof path, "%s/faults.cfg", dir_in());
-    FILE *f = fopen(path, "r");
-    while (f && !hit && fgets(line, sizeof line, f)) {
-        presp2 = 0;
-        pcode[0] = '\0';
-        if (sscanf(line, "%15s %31s %15s %d %d %15s", pcmd, pfile, nth, &presp, &presp2, pcode) < 4) continue;
-        if (strcmp(pcmd, cmd) != 0 || strcmp(pfile, file) != 0) continue;
-        if (nth[0] != '*' && atoi(nth) != n) continue;
-        *resp = presp;
-        *resp2 = presp2;
-        hit = 1;
-        if (presp == -1 && pcode[0]) {
-            char code[5] = "    ";
-            memcpy(code, pcode, strlen(pcode) < 4 ? strlen(pcode) : 4);
-            snprintf(path, sizeof path, "%s/faults.txt", dir_out());
-            FILE *log = fopen(path, "a");
-            if (log) { fprintf(log, "%s %s %d ABEND %s\n", cmd, file, n, pcode); fclose(log); }
-            *resp = NORMAL;
-            *resp2 = 0;
-            fclose(f);
-            abend(c, code, "system", 0, 0);
-            return 1;
-        }
-    }
-    if (f) fclose(f);
-    if (hit && *resp == DFHRESP_DUPKEY) {
-        dupkey.on = 1; dupkey.n = n; dupkey.resp = *resp; dupkey.resp2 = *resp2;
-        snprintf(dupkey.cmd, sizeof dupkey.cmd, "%s", cmd);
-        snprintf(dupkey.file, sizeof dupkey.file, "%s", file);
-        return 0;
-    }
-    if (hit) {
-        snprintf(path, sizeof path, "%s/faults.txt", dir_out());
-        FILE *log = fopen(path, "a");
-        if (log) { fprintf(log, "%s %s %d %d %d\n", cmd, file, n, *resp, *resp2); fclose(log); }
-    }
-    return hit;
-}
-
-static void dupkey_apply(gg_cics *c) {
-    if (!dupkey.on) return;
-    dupkey.on = 0;
-    if (c->resp != NORMAL) return;  /* no record was retrieved: nothing for DUPKEY to qualify */
-    c->resp = dupkey.resp;
-    c->resp2 = dupkey.resp2;
-    char path[3000];
-    snprintf(path, sizeof path, "%s/faults.txt", dir_out());
-    FILE *log = fopen(path, "a");
-    if (log) { fprintf(log, "%s %s %d %d %d\n", dupkey.cmd, dupkey.file, dupkey.n, c->resp, c->resp2); fclose(log); }
-}
+#include "ggcics_faults.c"  /* #5274: the faults family (faults.cfg planned conditions and ABENDs, DUPKEY, ABM0 map check, GGCSQLAB) */
 
 /* ---- file updates (CardDemo's update programs) --------------------------------------------------------------
  * READ ... UPDATE holds the record it read (per file, until a REWRITE, another READ UPDATE or a SYNCPOINT);
@@ -630,38 +555,6 @@ int GGCSYNC(gg_cics *c) {
 
 #include "ggcics_filecontrol.c"  /* #5274: the file-control family (READ, browse, DELETE, UNLOCK) */
 
-/* #4270 (X31): SEND MAP / RECEIVE MAP for a map the mapset does not hold. IBM CICS TS, abend ABM0: "The map specified for
- * a basic mapping support (BMS) request could not be located"; "The transaction is abnormally terminated with a CICS
- * transaction dump". Neither command lists a condition for it, so RESP / HANDLE CONDITION do not see it (a HANDLE ABEND
- * exit does). The mapsets and their maps are a fact the run states, $GGCICS_MAPSETS = `MAPSET=MAP,MAP;MAPSET=MAP`
- * (the cics-crucible runner takes them from the case's maps); a mapset not stated is not checked. 1: the task
- * abended -- c->go_to says where to go on (an exit label at this level, else -1: leave the program). */
-static void abend(gg_cics *c, const char *code, const char *cause, int cond, int cancel);
-
-static int map_not_found(gg_cics *c, const char *map, const char *mapset) {
-    const char *env = getenv("GGCICS_MAPSETS");
-    size_t ml = strlen(mapset), nl = strlen(map);
-    c->go_to = 0;
-    for (const char *p = env; p && *p;) {
-        const char *end = strchr(p, ';');
-        size_t len = end ? (size_t)(end - p) : strlen(p);
-        if (len > ml && strncmp(p, mapset, ml) == 0 && p[ml] == '=') {
-            int held = 0;
-            for (const char *q = p + ml + 1; q < p + len;) {
-                const char *comma = memchr(q, ',', (size_t)(p + len - q));
-                size_t n = comma ? (size_t)(comma - q) : (size_t)(p + len - q);
-                if (n == nl && strncmp(q, map, nl) == 0) held = 1;
-                q += n + 1;
-            }
-            if (held) return 0;
-            abend(c, "ABM0", "system", 0, 0);
-            return 1;
-        }
-        p = end ? end + 1 : NULL;
-    }
-    return 0;
-}
-
 /* RECEIVE MAP(name1) MAPSET(name2) INTO: the scenario's recorded map input. */
 int GGCRECV(gg_cics *c, char *into, int intolen) {
     char map[9], mapset[9], path[4096], ev[128];
@@ -802,12 +695,24 @@ int GGCSCTL(gg_cics *c) {
     return 0;
 }
 
-int GGCSTXT(gg_cics *c, char *from, int len) {
+/* the text itself: SEND TEXT's event, and CONVERSE's write (which plans no SEND TEXT fault: IBM's CONVERSE has its own conditions) */
+static void send_text_event(gg_cics *c, char *from, int len) {
     char flags[41], ev[128];
     trim(c->flags, 40, flags);
     snprintf(ev, sizeof ev, "SEND-TEXT len=%d opts=%s", len, flags);
     event(ev, from, len);
     c->resp = NORMAL;
+    c->resp2 = 0;
+}
+
+int GGCSTXT(gg_cics *c, char *from, int len) {
+    int fresp, fresp2; /* #6271 (X71): a planned TSIOERR / INVREQ / LENGERR: nothing is sent */
+    if (injected("SEND-TEXT", "-", &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        return 0;
+    }
+    send_text_event(c, from, len);
     return 0;
 }
 
@@ -828,7 +733,7 @@ int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
     memcpy(saved, c->flags, sizeof saved);
     memset(c->flags, ' ', sizeof saved);
     memcpy(c->flags, "DATA", 4);
-    GGCSTXT(c, from, fromlen);
+    send_text_event(c, from, fromlen);
     memcpy(c->flags, saved, sizeof saved);
     c->len = most;
     terminal_receive(c, into);
@@ -1309,19 +1214,6 @@ int GGCINQA(gg_cics *c) {
 #include "ggcics_taskcontrol.c"  /* #5274: the task / interval control family (START, RETRIEVE, RUN, DELAY, POST, CANCEL ...) */
 
 #include "ggcics_enq.c"  /* #5274: the ENQ stub (GGCENQ) */
-
-/* #6271 (X73): the marker the harness plants after a Db2 statement a scenario plans an AD2Z abend for (GG-FLAGS = PROGRAM:LINE,
- * the SQL fault's own key). IBM: a deadlock (-911) makes the CICS-Db2 attach attempt a syncpoint rollback, which fails, and the
- * task abends AD2Z. A planned `SQL PROGRAM:LINE NTH -1 0 AD2Z` line abends the task here (injected_at); no line, no effect. */
-int GGCSQLAB(gg_cics *c) {
-    char key[41];
-    int fresp, fresp2;
-    c->resp = NORMAL;
-    c->resp2 = 0;
-    trim(c->flags, 40, key);
-    injected("SQL", key, &fresp, &fresp2);
-    return 0;
-}
 
 /* A LINKed program's result: the COMMAREA it leaves in its caller's storage, written as commarea.out when the task
  * ends (the driver calls this after the program, whether it RETURNed or GOBACKed). */
@@ -2389,8 +2281,10 @@ int GGCWCLS(gg_cics *c, char *token) {
 /* ---- #4767 zECS: WEB PARSE URL (IBM CICS TS, EXEC CICS WEB PARSE URL; register X36) -- pure, no peer ----
  * GG-LEN URLLENGTH, GG-HOURS HOSTLENGTH, GG-MINS PATHLENGTH, GG-SECS QUERYSTRLEN (each in; out: the piece's length),
  * GG-NUM PORTNUMBER (out); GG-FLAGS names SCHEME HOST PATH QUERY given. INVREQ 28 (no "scheme://", an empty scheme or
- * host, a port that is not 1-5 digits or above 65535: ASSUMED), INVREQ 65 (a "%" not followed by two of 0-9 A-F). Refused as
- * CicsTask.webParse refuses. The areas are written on NORMAL only. */
+ * host, a port that is not 1-5 digits or above 65535: ASSUMED), INVREQ 65 (a "%" not followed by two of 0-9 A-F), LENGERR
+ * (RESP2 29 host, 30 path, 8 query string longer than its length; areas and lengths left alone: ASSUMED). An IPv6 host is
+ * written in brackets and returned without them. Refused as CicsTask.webParse refuses. The areas are written on NORMAL only. */
+#define WEB_IPV6 "WEB PARSE URL IPv6 host that is not [hex:colons] or [hex:colons]:port"
 static int web_hexd(int ch) { return (ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F'); }
 
 int GGCWPRS(gg_cics *c, char *url, int urlcap, char *scheme, int schemecap, char *host, int hostcap, char *path,
@@ -2434,14 +2328,26 @@ int GGCWPRS(gg_cics *c, char *url, int urlcap, char *scheme, int schemecap, char
         rest = sep + 3;
         auth_end = rest + strcspn(rest, "/?");
         auth_len = (int)(auth_end - rest);
-        for (i = 0; i < auth_len; i++)
-            if (rest[i] == '@' || rest[i] == '[' || rest[i] == ']') refuse("WEB PARSE URL user-info or IPv6 host");
+        for (i = 0; i < auth_len; i++) if (rest[i] == '@') refuse("WEB PARSE URL user-info");
         colon = NULL;
-        for (i = 0; i < auth_len; i++) if (rest[i] == ':') colon = rest + i;
+        if (auth_len > 0 && rest[0] == '[') {
+            char *close = memchr(rest, ']', (size_t)auth_len);
+            int cl = close ? (int)(close - rest) : 0;
+            int shaped = cl >= 2 && (cl + 1 == auth_len || rest[cl + 1] == ':') && !memchr(rest + 1, '[', (size_t)(auth_len - 1))
+                         && !(cl + 1 < auth_len && memchr(rest + cl + 1, ']', (size_t)(auth_len - cl - 1)));
+            for (i = 1; shaped && i < cl; i++) if (!isxdigit((unsigned char)rest[i]) && rest[i] != ':' && rest[i] != '.') shaped = 0;
+            if (!shaped) refuse(WEB_IPV6);
+            memcpy(h, rest + 1, (size_t)(cl - 1));
+            h[cl - 1] = '\0';
+            if (cl + 1 < auth_len) colon = rest + cl + 1;
+        } else {
+            for (i = 0; i < auth_len; i++) if (rest[i] == '[' || rest[i] == ']') refuse(WEB_IPV6);
+            for (i = 0; i < auth_len; i++) if (rest[i] == ':') colon = rest + i;
+            memcpy(h, rest, (size_t)(colon ? colon - rest : auth_len));
+            h[colon ? colon - rest : auth_len] = '\0';
+        }
         if (colon) {
             int plen = (int)(auth_end - colon) - 1, digits = 1;
-            memcpy(h, rest, (size_t)(colon - rest));
-            h[colon - rest] = '\0';
             if (plen == 0) refuse("WEB PARSE URL empty port");
             for (i = 0; i < plen; i++) if (colon[1 + i] < '0' || colon[1 + i] > '9') digits = 0;
             if (!digits || plen > 5) bad28 = 1;
@@ -2450,11 +2356,7 @@ int GGCWPRS(gg_cics *c, char *url, int urlcap, char *scheme, int schemecap, char
                 if (port > 65535) bad28 = 1;
                 else if (port == 0) refuse("WEB PARSE URL port 0");
             }
-        } else {
-            memcpy(h, rest, (size_t)auth_len);
-            h[auth_len] = '\0';
-            port = strcmp(sch, "HTTPS") == 0 ? 443 : 80;
-        }
+        } else port = strcmp(sch, "HTTPS") == 0 ? 443 : 80;
         if (h[0] == '\0') bad28 = 1;
         tail = auth_end;
         qm = strchr(tail, '?');
@@ -2464,13 +2366,15 @@ int GGCWPRS(gg_cics *c, char *url, int urlcap, char *scheme, int schemecap, char
     }
     c->resp = NORMAL;
     c->resp2 = 0;
-    if (bad28 && bad65) refuse("WEB PARSE URL with more than one condition at once");
-    if (bad28) { c->resp = INVREQ; c->resp2 = 28; return 0; }
-    if (bad65) { c->resp = INVREQ; c->resp2 = 65; return 0; }
-    if ((hs && (int)strlen(h) > hl) || (hp && (int)strlen(pa) > pl) || (hq && (int)strlen(q) > ql))
-        refuse("WEB PARSE URL piece longer than its length");
-    if (hc && (int)strlen(sch) > schemecap) refuse("WEB PARSE URL length beyond its area");
-    if ((hp && pa[0] == '\0') || (hq && q[0] == '\0')) refuse("WEB PARSE URL PATH or QUERYSTRING the URL has none of");
+    {
+        int host_long = hs && (int)strlen(h) > hl, path_long = hp && (int)strlen(pa) > pl, query_long = hq && (int)strlen(q) > ql;
+        if (bad28 + bad65 + host_long + path_long + query_long > 1) refuse("WEB PARSE URL with more than one condition at once");
+        if (bad28) { c->resp = INVREQ; c->resp2 = 28; return 0; }
+        if (bad65) { c->resp = INVREQ; c->resp2 = 65; return 0; }
+        if (hc && (int)strlen(sch) > schemecap) refuse("WEB PARSE URL length beyond its area");
+        if ((hp && pa[0] == '\0') || (hq && q[0] == '\0')) refuse("WEB PARSE URL PATH or QUERYSTRING the URL has none of");
+        if (host_long || path_long || query_long) { c->resp = LENGERR; c->resp2 = host_long ? 29 : path_long ? 30 : 8; return 0; }
+    }
     if (hc) { memset(scheme, ' ', (size_t)schemecap); memcpy(scheme, sch, strlen(sch)); }
     if (hs) { memcpy(host, h, strlen(h)); c->hours = (int)strlen(h); }
     if (hp) { memcpy(path, pa, strlen(pa)); c->mins = (int)strlen(pa); }

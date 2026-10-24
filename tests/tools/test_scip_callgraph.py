@@ -7,6 +7,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import scip_callgraph as sc
@@ -234,7 +236,9 @@ RUST = (
 RP = "rust-analyzer cargo demo 0.1.0 "
 
 
-def test_rust_contract_names_impl_methods_and_skips_bodyless_trait_methods(tmp_path):
+@pytest.mark.parametrize("enclose", [True, False], ids=["enclosing_range", "no_enclosing_range"])
+def test_rust_contract_names_impl_methods_and_skips_bodyless_trait_methods(tmp_path, enclose):
+    # rust-analyzer 1.90.0 emits no enclosing_range at all: the extent is read from the source
     (tmp_path / "src").mkdir()
     (tmp_path / "src" / "lib.rs").write_text(RUST)
     lines = RUST.splitlines()
@@ -245,7 +249,7 @@ def test_rust_contract_names_impl_methods_and_skips_bodyless_trait_methods(tmp_p
             start = lines[line].index(text, start + 1)
         return [line, start, start + len(text)]
 
-    whole = lambda n: [n, 4, n, len(lines[n])]  # noqa: E731
+    whole = lambda n: [n, 4, n, len(lines[n])] if enclose else None  # noqa: E731
     sig, dflt, new, go = RP + "T#sig().", RP + "T#dflt().", RP + "impl#[`S`]new().", RP + "impl#[`S`]go()."
     helper = RP + "helper()."
     occ = [
@@ -257,7 +261,7 @@ def test_rust_contract_names_impl_methods_and_skips_bodyless_trait_methods(tmp_p
         _occ(at(7, "new"), new),
         _occ(at(7, "println"), "rust-analyzer cargo std 1.90.0 macros/println!"),
         _occ(at(7, "len"), "rust-analyzer cargo alloc 1.90.0 vec/Vec#len()."),
-        _occ([9, 3, 9, 9], helper, True, [9, 0, 9, len(lines[9])]),
+        _occ([9, 3, 9, 9], helper, True, [9, 0, 9, len(lines[9])] if enclose else None),
         _occ(at(9, "go"), go),
     ]
     syms = [
@@ -281,3 +285,33 @@ def test_rust_descriptors_keep_a_quoted_slice_type_whole():
     sym = RP + "impl#[`[u8]`]first()."
     assert sc._descriptors(sym)[-1] == ("first", "().")
     assert sc._name(sym, "", "rust") == "first"
+
+
+def test_rust_symbols_of_real_rust_analyzer_output_keep_their_method_name():
+    # shapes read from `rust-analyzer scip` on serde-rs/json (1.90.0): a generic inherent impl,
+    # a trait impl, a free fn, a nested-module method
+    for sym, name in (
+        (RP + "de/impl#[`Deserializer<R>`]peek().", "peek"),
+        (RP + "error/impl#[Error][Error]custom().", "custom"),
+        (RP + "value/de/impl#[`Value`][`Deserializer<'de>`]deserialize_any().", "deserialize_any"),
+        (RP + "ser/invalid_number().", "invalid_number"),
+    ):
+        assert sc._name(sym, "", "rust") == name
+
+
+def test_rust_enclosing_reads_the_extent_of_a_fn_from_source():
+    src = [
+        "fn a(x: [u8; 4]) -> u32 {",  # 0: `;` inside [] is not a terminator
+        '    let s = "}{"; let c = \'{\'; let r = r#"}"#; // }',  # 1: braces in a string, char, raw string, comment
+        '    /* } /* } */ } */ let l: &\'static str = "";',  # 2: nested block comment, a lifetime
+        "    if x { 1 } else { 2 }",  # 3
+        "}",  # 4
+        "trait T { fn decl(&self) -> [u8; 2]; fn d(&self) {} }",  # 5
+    ]
+    end = lambda n, name: src[n].index(name) + len(name)  # noqa: E731
+    assert sc._rust_enclosing(src, (0, 4)) == [0, 4, 4, 1]
+    # a bodyless declaration ends at its `;`, so it has no body; the next fn on the line does
+    assert sc._has_body(src, sc._rust_enclosing(src, (5, end(5, "decl"))), (5, end(5, "decl"))) is False
+    d = src[5].rindex("fn d") + 4
+    assert sc._rust_enclosing(src, (5, d)) == [5, d, 5, len(src[5]) - 2]
+    assert sc._rust_enclosing(["fn open() {", "    x"], (0, 7)) == []  # unterminated

@@ -234,7 +234,8 @@ def test_copybook_family_owner_and_status():
     assert gp.owner_of("missing copybook: MQ system") == "#4892"
     assert gp.owner_of("missing copybook: IMS system") == "#4893"
     assert gp.owner_of("missing copybook: CICS system") == "#4270 (cics-command-slice)"
-    assert gp.owner_of("missing copybook: estate-owned") == "unowned (copybook family)"
+    assert gp.owner_of("missing copybook: estate-owned") .startswith("none (the estate's own")
+    assert gp.owner_of("missing copybook: LE system") == "unowned (copybook family)"
     assert gp.status_of("missing copybook: LE system") == "unknown"
 
 

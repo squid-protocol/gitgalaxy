@@ -16,6 +16,7 @@ import equivalence_cics as ec  # noqa: E402
 import equivalence_cics_containers as ecc  # noqa: E402
 
 from gitgalaxy.standards.cics.commands import COMMANDS  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_conditions as tcn  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_containers as tc  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_taskcontrol as tt  # noqa: E402
@@ -325,3 +326,38 @@ def test_the_det_translator_holds_the_condition_methods_in_its_mixin():
         if cmd.impl and cmd.impl.translator.split(".")[1] in CONDITION_METHODS:
             assert callable(getattr(C.Cics, cmd.impl.translator.split(".")[1])), key
     assert "outcome" in vars(C.Cics)  # shared with every family: it stays the translator's own
+
+
+# ---- conditions (#5274, forge half): ASSIGN, HANDLE ABEND, PUSH / POP HANDLE, ABEND, RESP / abend-code names --------
+CONDITION_JAVA_METHODS = ("assignApplid", "assignSysid", "assignStartcode", "assignUserid", "assignTerminalResp",
+                          "statedTerminal", "assignFacility", "assignScreen", "invokingProgram", "handleAbend",
+                          "handleAbendCancel", "handleAbendReset", "pushHandle", "popHandle", "abend", "abendCancel",
+                          "abendOnCondition", "abendMapNotFound", "abendToExit", "abendExit", "abcode", "respName",
+                          "abcodeFor", "record")  # fmt: skip
+
+
+def _java_methods(java: str) -> list[str]:
+    return re.findall(r"^    (?:public |private |static )+(?:<\w+> )?[\w<>\[\], ]+? (\w+)\(.*\{$", java, re.M)
+
+
+def test_cicstask_holds_the_conditions_java_once_as_one_span():
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tcn.CONDITIONS_JAVA) == 1
+    assert java[java.index(tcn.CONDITIONS_JAVA) + len(tcn.CONDITIONS_JAVA) :].startswith(
+        "    private CicsTask root() {"
+    )
+    in_family = _java_methods(tcn.CONDITIONS_JAVA)
+    for method in CONDITION_JAVA_METHODS:
+        assert method in in_family, method
+    host = java.replace(tcn.CONDITIONS_JAVA, "")
+    for method in CONDITION_JAVA_METHODS:
+        assert method not in _java_methods(host), method  # none left behind, scattered, in the host
+    assert "root" in _java_methods(host)  # shared with every family: it stays the class's own
+
+
+def test_every_condition_method_the_forge_emitted_before_the_split_is_still_emitted():
+    # the 24 moved methods, not their order: the generated class is the same bar the order
+    assert (
+        len(_java_methods(tcn.CONDITIONS_JAVA)) == 25
+    )  # abend is overloaded: public abend(abcode) and private abend(...)
+    assert "ASSIGN ABCODE" in tcn.CONDITIONS_JAVA and "HANDLE ABEND LABEL" in tcn.CONDITIONS_JAVA

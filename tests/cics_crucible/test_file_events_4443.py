@@ -18,6 +18,7 @@ sys.path.insert(0, str(TESTS / "tools"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cics_crucible as runner  # noqa: E402
 import cics_crucible_compare as cc  # noqa: E402
+import test_cics_runtimes as rt  # noqa: E402
 from test_cics_runtimes import _cics_task, needs_javac  # noqa: E402
 
 E = cc.EBCDIC
@@ -295,17 +296,171 @@ def test_rewrite_and_unlock_keys_are_compared():
 
 
 def test_what_each_side_does_not_record_stays_unsupported():
+    # #6262: READ SET is recorded by both legs now; what stays unsupported is the key neither side carries
     read_set = {**_READ, "set": True}
     del read_set["length"]
-    assert "CicsTask: READ set" in cc.blockers(_log([{**read_set, "program": "HCUNLK"}]), runner.JAVA_CAPS)
+    log = _log([{**read_set, "program": "HCUNLK"}])
+    assert cc.blockers(log, runner.JAVA_CAPS) == []
+    assert cc.blockers(log, runner.COBOL_CAPS) == []
     assert cc.blockers(_log([{**e, "program": "HCUNLK"} for e in _EXPECTED]), runner.JAVA_CAPS) == []
-    # the stub (ggcics.c) records READ's update/length/data/resp2, REWRITE and UNLOCK since #4443 slice A0b; READ SET it does not
     assert cc.blockers(_log([{**e, "program": "HCUNLK"} for e in _EXPECTED]), runner.COBOL_CAPS) == []
-    assert "stub: READ set" in cc.blockers(_log([{**read_set, "program": "HCUNLK"}]), runner.COBOL_CAPS)
+
+
+# ---- #6262: the SET form (READ / READNEXT / READPREV SET), one command list run by the Java leg and the stub ----
+_SET_REC = {"K001": "K001ALPHA   0010", "K002": "K002BRAVO   0020"}
+# op:key -- R READ SET, U READ UPDATE SET, L UNLOCK, S STARTBR, N / P READNEXT / READPREV SET, X ENDBR
+_SET_OPS = (
+    "R:K002",
+    "R:K009",
+    "U:K001",
+    "U:K002",
+    "L:K001",
+    "S:K001",
+    "N:K001",
+    "N:K001",
+    "N:K002",
+    "P:K002",
+    "X:K001",
+)
+
+
+def _set_expected() -> list[dict]:
+    def area(k):
+        return {"length": 16, "text": _SET_REC[k]}
+
+    def rd(kind, key, rec, **kv):
+        return {"event": kind, "file": "HCSF", "ridfld": key, "set": True, "resp": "NORMAL", "data": area(rec), **kv}
+
+    return [
+        rd("READ", "K002", "K002"),
+        {"event": "READ", "file": "HCSF", "ridfld": "K009", "set": True, "resp": "NOTFND", "resp2": 80, "data": None},
+        rd("READ", "K001", "K001", update=True),
+        {"event": "READ", "file": "HCSF", "ridfld": "K002", "update": True, "set": True, "resp": "INVREQ",
+         "resp2": 28, "data": None},
+        {"event": "UNLOCK", "file": "HCSF", "resp": "NORMAL"},
+        {"event": "STARTBR", "file": "HCSF", "ridfld": "K001", "mode": "GTEQ", "resp": "NORMAL"},
+        rd("READNEXT", "K001", "K001"),
+        rd("READNEXT", "K001", "K002"),
+        {"event": "READNEXT", "file": "HCSF", "ridfld": "K002", "set": True, "resp": "ENDFILE", "resp2": 90, "data": None},
+        rd("READPREV", "K002", "K002"),
+        {"event": "ENDBR", "file": "HCSF", "resp": "NORMAL"},
+    ]  # fmt: skip
+
+
+def _set_log(events: list[dict]) -> dict:
+    log = _log([{**e, "program": "HCSF"} for e in events])
+    log["tasks"][0]["program"] = "HCSF"
+    return log
+
+
+_SET_JAVA = """
+        java.util.function.Function<String, byte[]> hex = s -> java.util.HexFormat.of().parseHex(s);
+        java.util.Map<String, byte[]> f = new java.util.TreeMap<>();
+        %(seed)s
+        java.util.function.Supplier<java.util.NavigableSet<String>> keys = () -> new java.util.TreeSet<>(f.keySet());
+        java.util.function.Function<String, java.util.Optional<byte[]>> look = k -> java.util.Optional.ofNullable(f.get(k));
+        CicsTask t = new CicsTask("T", "ENTER", null, null);
+        for (String op : new String[] {%(ops)s}) {
+            String k = op.substring(2);
+            byte[] rid = hex.apply(%(hexed)s);
+            switch (op.charAt(0)) {
+                case 'R', 'U' -> t.readSetEvent("HCSF", rid, op.charAt(0) == 'U', () -> look.apply(k));
+                case 'L' -> t.unlock("HCSF");
+                case 'S' -> t.startbrEvent("HCSF", rid, k, false, keys);
+                case 'N' -> t.readnextSetEvent("HCSF", rid, k, look);
+                case 'P' -> t.readprevSetEvent("HCSF", rid, k, look);
+                default -> t.endbrEvent("HCSF");
+            }
+        }
+        for (java.util.Map<String, Object> e : t.events()) {
+            StringBuilder b = new StringBuilder("E {");
+            String sep = "";
+            for (java.util.Map.Entry<String, Object> kv : e.entrySet()) {
+                Object v = kv.getValue();
+                String s = v == null ? "null" : v instanceof byte[] d ? "\\"" + java.util.Base64.getEncoder().encodeToString(d) + "\\""
+                        : v instanceof String str ? "\\"" + str + "\\"" : String.valueOf(v);
+                b.append(sep).append("\\"").append(kv.getKey()).append("\\":").append(s);
+                sep = ",";
+            }
+            System.out.println(b.append("}"));
+        }"""
+
+
+@needs_javac
+def test_cics_task_records_the_set_form_of_the_file_reads(tmp_path):
+    seed = " ".join(f'f.put("{k}", hex.apply("{_hex(v)}"));' for k, v in _SET_REC.items())
+    ops = ", ".join(f'"{o}"' for o in _SET_OPS)
+    body = _SET_JAVA % {
+        "seed": seed,
+        "ops": ops,
+        "hexed": 'java.util.HexFormat.of().formatHex(k.getBytes(java.nio.charset.Charset.forName("IBM1047")))',
+    }
+    out = _cics_task(tmp_path, body).splitlines()
+    raw = [json.loads(ln[2:]) for ln in out if ln.startswith("E ")]
+    assert len(raw) == len(_SET_OPS)
+    assert all(e.get("set") for e in raw if e["event"] in ("READ", "READNEXT", "READPREV"))
+    assert all(e.get("length") is None for e in raw if e.get("set"))  # SET carries no LENGTH (SPEC 6.2)
+    actual = _log([{"event": e["event"], **runner._java_file_event(e["event"], e)} for e in raw])
+    actual = _set_log([{k: v for k, v in e.items() if k != "program"} for e in actual["tasks"][0]["events"]])
+    v = cc.compare(_set_log(_set_expected()), actual, runner.JAVA_CAPS, cc.Context(layouts={}, map_fields={}))
+    assert v.status == "pass", v.reason
+
+
+_SET_MAIN = r"""
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; } gg_cics;
+int GGCRDST(gg_cics *c, char *rid, int kl, void **slot); int GGCRDNS(gg_cics *c, char *rid, int kl, void **slot);
+int GGCRDPS(gg_cics *c, char *rid, int kl, void **slot); int GGCSTBR(gg_cics *c, char *rid, int kl);
+int GGCUNLK(gg_cics *c); int GGCENBR(gg_cics *c);
+int main(int argc, char **argv) {
+    gg_cics c;
+    void *slot = NULL;
+    memset(&c, 0, sizeof c);
+    memset(c.name1, ' ', 8);
+    memcpy(c.name1, "HCSF", 4);
+    for (int i = 1; i < argc; i++) {   /* OP:KEY */
+        char op = argv[i][0];
+        memset(c.flags, ' ', 40);
+        if (op == 'U') memcpy(c.flags, "UPDATE", 6);
+        if (op == 'R' || op == 'U') GGCRDST(&c, argv[i] + 2, 4, &slot);
+        if (op == 'L') GGCUNLK(&c);
+        if (op == 'S') GGCSTBR(&c, argv[i] + 2, 4);
+        if (op == 'N') GGCRDNS(&c, argv[i] + 2, 4, &slot);
+        if (op == 'P') GGCRDPS(&c, argv[i] + 2, 4, &slot);
+        if (op == 'X') GGCENBR(&c);
+    }
+    return 0;
+}
+"""
+
+
+@rt.needs_cc
+def test_the_stub_records_the_set_form_as_the_java_leg_does(tmp_path):
+    (tmp_path / "hcsf.dat").write_bytes(b"".join(r.encode("latin-1") for r in _SET_REC.values()))
+    (tmp_path / "files.cfg").write_text(f"HCSF {tmp_path / 'hcsf.dat'} 16 0 4\n", encoding="ascii")
+    rt._run_stub(rt._stub(tmp_path, _SET_MAIN), tmp_path, *_SET_OPS)
+    events = runner._cobol_events(tmp_path / "out", "HCSF")
+    assert len(events) == len(_SET_OPS)
+    assert all(e.get("set") for e in events if e["event"] in ("READ", "READNEXT", "READPREV"))
+    assert all("length" not in e for e in events if e.get("set"))
+    v = cc.compare(
+        _set_log(_set_expected()), _set_log(events), runner.COBOL_CAPS, cc.Context(layouts={}, map_fields={})
+    )
+    assert v.status == "pass", v.reason
+    wrong = [{**events[0], "set": False}, *events[1:]]
+    assert cc.compare(_set_log(_set_expected()), _set_log(wrong), runner.COBOL_CAPS,
+                      cc.Context(layouts={}, map_fields={})).status == "fail"  # fmt: skip
+
+
+def test_the_into_form_reads_carry_no_set_key():
+    assert "set" not in runner._java_file_event("READ", {"file": "F", "resp": "NORMAL", "ridfld": None, "length": 3})
 
 
 def test_the_forge_cics_task_holds_the_recording_methods():
     from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf
 
-    for method in ("readInto", "rewriteFrom", "unlock"):
+    for method in ("readInto", "readSetEvent", "readnextSetEvent", "readprevSetEvent", "rewriteFrom", "unlock"):
         assert re.search(rf"public \S+(?: \S+)? {method}\(", tf.FILECONTROL_JAVA), method

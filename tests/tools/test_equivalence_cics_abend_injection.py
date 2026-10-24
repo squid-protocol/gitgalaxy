@@ -128,3 +128,22 @@ def test_a_link_with_an_abend_exit_goes_to_it_before_the_callee_runs():
     lines = ec.translate_command("LINK PROGRAM('INQCUST') COMMAREA(DFHCOMMAREA) LENGTH(10)", labels=["ABEND-ROUTINE"])
     text = "\n".join(lines)
     assert text.index("GGCLINK") < text.index("DEPENDING ON GG-GOTO") < text.index("GGCRUN")
+
+
+def test_a_browse_that_abended_delivers_no_record_to_the_port():
+    """The injected abend answers a READNEXT / READPREV with RESP 0 and no key: `normal()` must be false, or the port reads
+    `key()` (null) before it checks the abend exit (an NPE on INQCUST's READPREV, #6271)."""
+    from gitgalaxy.tools.cobol_to_java.cics_task_filecontrol import FILECONTROL_JAVA  # noqa: PLC0415
+
+    assert "return key != null && (resp == 0 || resp == 15);" in FILECONTROL_JAVA
+    assert "return record != null && (resp == 0 || resp == 15);" in FILECONTROL_JAVA
+
+
+def test_inqcust_plans_an_rls_abend_on_the_read_the_startbr_and_the_readprev():
+    import json  # noqa: PLC0415
+
+    case = json.loads((TESTS / "equivalence" / "cbsa-inqcust" / "case.json").read_text(encoding="utf-8"))
+    planned = {
+        (f["cmd"], f["abcode"]) for sc in case["scenarios"] for f in sc.get("faults", []) if f.get("resp") == "ABEND"
+    }
+    assert planned == {("READ", "AFCR"), ("STARTBR", "AFCS"), ("READPREV", "AFCT")}

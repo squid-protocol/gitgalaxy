@@ -372,7 +372,8 @@ FILECONTROL_JAVA = """\
     /** What a READNEXT / READPREV found: its RESP and the key read (null when none; then look nothing up). */
     public record Browsed(int resp, int resp2, String key) {
         public boolean normal() {
-            return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
+            // #4623: DUPKEY (15) delivers the record too; #6271 (X70): an injected abend answers 0 with no key and delivers none
+            return key != null && (resp == 0 || resp == 15);
         }
     }
 
@@ -561,7 +562,8 @@ FILECONTROL_JAVA = """\
      *  longer than INTO is LENGERR (22) with the record still returned (CICS copies what INTO takes). */
     public record BrowsedRba(int resp, int resp2, long rba, byte[] record) {
         public boolean normal() {
-            return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
+            // #4623: DUPKEY (15) delivers the record too; #6271 (X70): an injected abend answers 0 with no record
+            return record != null && (resp == 0 || resp == 15);
         }
     }
 

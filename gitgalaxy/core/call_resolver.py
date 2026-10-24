@@ -1533,10 +1533,12 @@ def resolve_calls(
                     if dst is not None and dst.path == src_path and dst.line == caller_line and dst.name == caller_name:
                         # recursion through a qualified name (`Foo::bar` calling `bar`); a bare call
                         # that reaches only the unit itself is not a call (#3327, #5628); only where the
-                        # detector recorded the bare qualifier (a shell `md5` is a binary, not recursion)
+                        # detector recorded the bare qualifier (a shell `md5` is a binary, not recursion);
+                        # #3772: an overload language's detector keeps a bare self-name call, and a count
+                        # that picks only the unit itself is its recursion
                         if (
                             kind == "call"
-                            and (callee != caller_name or lang in BARE_CALL_SKIPS_METHODS)
+                            and (callee != caller_name or lang in BARE_CALL_SKIPS_METHODS or lang in OVERLOAD_LANGS)
                             and len(targets) == 1
                             and quals.get(callee) == [""]
                         ):

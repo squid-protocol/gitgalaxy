@@ -2693,6 +2693,10 @@ class StructuralExtractor:
         self._bare_self_units: set[tuple[str, int]] = set()
         # #5699: the subset of those whose header names a receiver (Go `func (s *S) f(`): a method with no enclosing class
         self._receiver_units: set[tuple[str, int]] = set()
+        # #3772: overload languages: unit (name, start line) -> the argument counts of its bare calls to its own
+        # name (a sibling overload, or `this(...)` in a constructor); the resolver keeps an edge only if a count
+        # picks another overload, and prunes the call as recursion when it picks the unit itself
+        self._overload_self_calls: dict[tuple[str, int], list[int]] = {}
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -3296,6 +3300,11 @@ class StructuralExtractor:
                     # kept for the resolver, which reaches a free `f` or prunes it as recursion
                     func["calls_out_to"].append(func["name"])
                     func["calls_out_qualifiers"][func["name"]] = [""]
+                self_arities = self._overload_self_calls.get(unit_key)
+                if self_arities is not None and func["name"] not in func["calls_out_to"]:
+                    func["calls_out_to"].append(func["name"])
+                    func["calls_out_qualifiers"][func["name"]] = [""]
+                    func.setdefault("calls_out_arities", {})[func["name"]] = self_arities
                 if innermost_cls is not None:
                     func["parent_class_name"] = innermost_cls["name"]
                     class_methods_by_id[id(innermost_cls)].append(func)
@@ -10597,7 +10606,12 @@ class StructuralExtractor:
                         continue
                     if callee == own_dtor and callee_pos > 0 and safe_block[callee_pos - 1] == "~":
                         continue
+                    call_len = len(callee)
+                    if track_arities and callee == "this" and not qualifier and name[:1].isupper():
+                        # #3772: `this(...)` chains to a sibling constructor, which is named like the unit
+                        callee = name
                     is_decl = callee_pos == m.start(1) and _is_declaration_header(decl_headers, m)
+                    own_header_call = callee == name and not qualifier and not own_header_seen
                     if callee == name and not qualifier:
                         # the first bare match of the unit's own name is its own header
                         if own_header_seen and not is_decl:
@@ -10611,8 +10625,8 @@ class StructuralExtractor:
                     seen = qualifiers_seen.setdefault(callee, [])
                     if qualifier not in seen:
                         seen.append(qualifier)
-                    if track_arities:
-                        arity = _call_arity(safe_block, callee_pos + len(callee))
+                    if track_arities and not own_header_call:
+                        arity = _call_arity(safe_block, callee_pos + call_len)
                         if arity is not None and arity not in arities_seen.setdefault(callee, []):
                             arities_seen[callee].append(arity)
             else:
@@ -10746,6 +10760,8 @@ class StructuralExtractor:
             self._bare_self_units.add((name, start_line))
             if self.primary_lang_id == "go" and _GO_RECEIVER_HEADER.match(block):
                 self._receiver_units.add((name, start_line))
+        if bare_self_hits and track_arities:
+            self._overload_self_calls[(name, start_line)] = list(arities_seen.get(name, []))
         return sat, magnitude
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:

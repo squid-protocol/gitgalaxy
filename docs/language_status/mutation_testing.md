@@ -355,7 +355,7 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CBACT02C (carddemo-readcard) | equivalence | 91/91 | 69/83 (83%) | 69/73 (95%) | 4 / 0 / 10 / 0 / 0 |
 | CBCUS01C (carddemo-readcust) | equivalence | 83/83 | 63/74 (85%) | 63/70 (90%) | 7 / 0 / 4 / 0 / 0 |
 | CBACT03C (carddemo-readxref) | equivalence | 90/90 | 69/83 (83%) | 69/77 (90%) | 8 / 0 / 6 / 0 / 0 |
-| CORPT00C (carddemo-report) | equivalence | 100/642 | 59/87 (68%) | 59/60 (98%) | 1 / 0 / 16 / 11 / 0 |
+| CORPT00C (carddemo-report) | equivalence | 100/642 | 59/87 (68%) | 59/60 (98%) | 0 / 0 / 16 / 11 / 0 + 1 declared |
 | COSGN00C (carddemo-signon) | equivalence | 100/196 | 67/99 (68%) | 67/72 (93%) | 5 / 0 / 25 / 2 / 0 |
 | COSGN00C (carddemo-signon-generated) | equivalence | 150/202 | 99/149 (66%) | 99/99 (100%) | 0 / 0 / 42 / 8 / 0 |
 | COTRN02C (carddemo-tranadd) | equivalence | 100/770 | 70/91 (77%) | 70/73 (96%) | 3 / 0 / 10 / 8 / 0 |
@@ -398,8 +398,8 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | PCCONF (pc-wizard) | crucible | 24/838 | 15/23 (65%) | 15/15 (100%) | 0 / 0 / 4 / 4 / 0 |
 | PCWIZ (pc-wizard) | crucible | 24/146 | 16/23 (70%) | 16/16 (100%) | 0 / 0 / 4 / 3 / 0 |
 | **all crucible** | | 504 run | **319/476 (67%)** | **319/354 (90%)** | 35 / 0 / 88 / 34 / 0 |
-| **all equivalence** | | 5119 run | **3237/4731 (68%)** | **3237/3685 (88%)** | 247 / 201 / 646 / 400 / 0 |
-| **all estate** | | 5623 run | **3556/5207 (68%)** | **3556/4039 (88%)** | 282 / 201 / 734 / 434 / 0 |
+| **all equivalence** | | 5119 run | **3237/4731 (68%)** | **3237/3685 (88%)** | 246 / 201 / 646 / 400 / 0 + 1 declared |
+| **all estate** | | 5623 run | **3556/5207 (68%)** | **3556/4039 (88%)** | 281 / 201 / 734 / 434 / 0 + 1 declared |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|

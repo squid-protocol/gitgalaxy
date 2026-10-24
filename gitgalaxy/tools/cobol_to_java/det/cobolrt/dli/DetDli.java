@@ -74,6 +74,8 @@ public final class DetDli {
         List<Node> holdPath; // #5233: the segments a D-coded get-hold returned, in I/O area order (null: only the held one)
         boolean[] holdSkip; // #5233: command code N, per holdPath entry: left out of the REPL
         boolean prevknown;
+        boolean load; // #5233: PROCOPT L / LS on a DB PCB (load mode): ISRT only, in hierarchic and key order
+        Node loadLast; // the segment the last successful load ISRT inserted
         boolean gsam; // #5233: a GSAM PCB (load mode): db is -1, out collects the records ISRT appended
         int reclen;
         String dbname;
@@ -298,6 +300,7 @@ public final class DetDli {
                 continue;
             }
             p.db = DBS.indexOf(w[1]);
+            p.load = p.procopt.equals("L") || p.procopt.equals("LS");
             p.keylen = Integer.parseInt(w[3]);
             for (Segm s : SEGS) {
                 if (s.db == p.db) {
@@ -1289,7 +1292,7 @@ public final class DetDli {
     // [rule RT-DLI-ISRT]
     private static void isrt(Pcb p, Field io, Ssa[] s) {
         int k = s.length;
-        if (!allows(p, 'I')) {
+        if (!p.load && !allows(p, 'I')) {
             status(p, "AM");
             return;
         }
@@ -1302,6 +1305,10 @@ public final class DetDli {
         String bad = chain(s, k);
         if (bad != null) {
             status(p, bad);
+            return;
+        }
+        if (p.load) {
+            loadIsrt(p, io, s);
             return;
         }
         for (int i = 0; i < k - 1; i++) {
@@ -1354,6 +1361,56 @@ public final class DetDli {
         n.seg = t;
         n.data = Arrays.copyOfRange(b, io.offset(), io.offset() + sg.bytes);
         linkChild(parent, n);
+        status(p, "  ");
+        feedback(p, n);
+        p.pos = POS_AT;
+        p.at = n;
+        p.prevknown = false;
+        p.par = PAR_UNKNOWN;
+    }
+
+    /** Load-mode ISRT (#5233, PROCOPT L / LS on a DB PCB; twin of ggdli.c's load_isrt). The database is built in hierarchic sequence: a
+     *  segment goes under the last loaded segment of its parent's type (none: LD), after the twins already loaded under that parent
+     *  and not before them (a segment type earlier in the DBD than one already there: LE; an equal sequence field: LB; a lower one:
+     *  LC). ASSUMPTION (no IBM text quoted): which of LB / LC / LD / LE a call that breaks two rules answers (the order above), and the
+     *  PCB's key feedback after a failed load ISRT (left as it was). */
+    private static void loadIsrt(Pcb p, Field io, Ssa[] s) {
+        int k = s.length;
+        if (k > 1) {
+            throw refuse("a load-mode ISRT with SSAs before the last");
+        }
+        int t = s[0].seg;
+        Segm sg = SEGS.get(t);
+        Node root = ROOTS.get(p.db);
+        if (p.loadLast == null && !root.kids.isEmpty()) {
+            throw refuse("load mode into a database that already holds segments");
+        }
+        Node parent = sg.parent < 0 ? root : ancestorOfType(p.loadLast, sg.parent);
+        if (parent == null) {
+            status(p, "LD");
+            return;
+        }
+        byte[] b = io.storage().bytes;
+        int key = io.offset() + FLDS.get(sg.key).start - 1;
+        if (!parent.kids.isEmpty()) {
+            Node last = parent.kids.get(parent.kids.size() - 1);
+            String bad = null;
+            if (last.seg > t) {
+                bad = "LE";
+            } else if (last.seg == t) {
+                int c = keyCmp(last, b, key);
+                bad = c == 0 ? "LB" : c > 0 ? "LC" : null;
+            }
+            if (bad != null) {
+                status(p, bad);
+                return;
+            }
+        }
+        Node n = new Node();
+        n.seg = t;
+        n.data = Arrays.copyOfRange(b, io.offset(), io.offset() + sg.bytes);
+        linkChild(parent, n);
+        p.loadLast = n;
         status(p, "  ");
         feedback(p, n);
         p.pos = POS_AT;

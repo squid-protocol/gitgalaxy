@@ -13,8 +13,8 @@
     "Generic / Templated Code": "5.8% (3079)",
     "I/O & Config Routines": "15.2% (8010)",
     "Interface Declarations": "15.9% (8400)",
-    "Many-Argument Workhorses": "6.5% (3414)",
-    "Parameter Forwarders": "13.2% (6948)",
+    "Many-Argument Workhorses": "6.5% (3415)",
+    "Parameter Forwarders": "13.2% (6947)",
     "State Mutators": "8.7% (4572)",
     "Stateful Encapsulated Methods": "4.8% (2518)",
     "Type Conversions": "2.5% (1291)"

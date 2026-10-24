@@ -56,9 +56,9 @@ SEED = b"".join([
 ])  # fmt: skip
 
 
-def _stage(dest: Path, seed: bytes = SEED) -> list[dict]:
+def _stage(dest: Path, seed: bytes = SEED, psb: str | None = None) -> list[dict]:
     db = ei.dbd((FIXTURE / "LVLDBD.dbd").read_text(encoding="latin-1"), "LVLDBD.dbd")
-    pcbs = ei.psb((FIXTURE / "LVLPSB.psb").read_text(encoding="latin-1"), "LVLPSB.psb", {db["name"]: db})
+    pcbs = ei.psb(psb or (FIXTURE / "LVLPSB.psb").read_text(encoding="latin-1"), "LVLPSB.psb", {db["name"]: db})
     dbd_cfg, psb_cfg = ei.config({db["name"]: db}, pcbs)
     dest.mkdir(parents=True, exist_ok=True)
     (dest / "dbd.cfg").write_text(dbd_cfg, encoding="ascii")
@@ -120,7 +120,8 @@ GEN = "         PSBGEN  LANG=COBOL,PSBNAME=P,CMPAT=NO\n"
         ("G        PCB     TYPE=GSAM,DBDNAME=X,PROCOPT=LS\n" + GEN, "GSAM DBD X is not one of"),
         ("G        PCB     TYPE=GSAM,DBDNAME=G,PROCOPT=GO\n" + GEN, "reading a GSAM file is not"),
         (PCB.replace("KEYLEN=2", "KEYLEN=2,PROCSEQ=XIDX") + GEN, "PROCSEQ"),
-        (PCB.replace("PROCOPT=A", "PROCOPT=L") + GEN, "load mode"),
+        (PCB.replace("PROCOPT=A", "PROCOPT=AL") + GEN, "load mode with another option"),
+        (PCB.replace("PROCOPT=A", "PROCOPT=L") + PCB.replace("P1", "P2") + GEN, "a load-mode PCB on X beside another PCB"),
         (PCB.replace("PARENT=0", "PARENT=0,PROCOPT=G") + GEN, "segment-level PROCOPT"),
         (PCB.replace("DBDNAME=X", "DBDNAME=Y") + GEN, "not one of the case's DBDs"),
     ],
@@ -281,8 +282,10 @@ def test_what_the_translator_does_not_model_is_a_hole_by_name(tmp_path, proc, en
 
 
 # ---- the level fixture on both runtimes (the first-time number: PR body) ----------------------------------------------
-def _cobol_side(work: Path, seed: bytes = SEED, prog: str = "DLILVL", edit=None) -> tuple[str, bytes]:
-    pcbs = _stage(work / "dli", seed)
+def _cobol_side(
+    work: Path, seed: bytes = SEED, prog: str = "DLILVL", edit=None, psb: str | None = None
+) -> tuple[str, bytes]:
+    pcbs = _stage(work / "dli", seed, psb)
     (work / "dliout").mkdir()
     src = work / "src"
     src.mkdir()
@@ -298,13 +301,15 @@ def _cobol_side(work: Path, seed: bytes = SEED, prog: str = "DLILVL", edit=None)
     return run.stdout, (work / "dliout" / "LVLDBD.out").read_bytes()
 
 
-def _java_side(work: Path, seed: bytes = SEED, prog: str = "DLILVL", edit=None) -> tuple[str, bytes]:
+def _java_side(
+    work: Path, seed: bytes = SEED, prog: str = "DLILVL", edit=None, psb: str | None = None
+) -> tuple[str, bytes]:
     pytest.importorskip("tree_sitter_language_pack")
     sys.path.insert(0, str(ROOT / "tests" / "cobol_mainframe"))
     import test_det_programs as tdp
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
-    _stage(work / "dli", seed)
+    _stage(work / "dli", seed, psb)
     (work / "dliout").mkdir()
     project = work / "project"
     tdp._batch_package(project / "src/main/java")
@@ -1185,3 +1190,76 @@ def test_a_path_isrt_with_an_area_shorter_than_its_segments_is_refused_by_the_ja
     with pytest.raises(subprocess.CalledProcessError) as e:
         _java_side(tmp_path / "java", prog="DLICMD", edit=short)
     assert "a path ISRT whose I/O area is shorter" in (e.value.stderr or b"").decode("utf-8")
+
+
+# ---- #5233: load mode on a DB PCB (PROCOPT L / LS) -----------------------------------------------------------------
+LOAD_PSB = ("LOADPCB  PCB     TYPE=DB,DBDNAME=LVLDBD,PROCOPT=L,KEYLEN=10\n"
+            + "".join(f"         SENSEG  NAME={n},PARENT={par}\n"
+                      for n, par in [("DEPT", 0), ("EMP", "DEPT"), ("SKILL", "EMP"), ("PROJ", "DEPT")])
+            + "         PSBGEN  LANG=COBOL,PSBNAME=LOADPSB,CMPAT=NO\n         END\n")  # fmt: skip
+
+# (call, segment, I/O area, IBM status): ISRT in hierarchic and key order loads; a duplicate key is LB, a lower key than
+# the last twin LC, a segment type earlier than one already under the parent LE, no parent of its type loaded LD;
+# every other function is AM (the call is not compatible with the load PROCOPT)
+LOAD_STEPS = [
+    ("ISRT", "DEPT", "D100SALES", "  "), ("ISRT", "EMP", "E001ALICE", "  "), ("ISRT", "SKILL", "S1COBOL", "  "),
+    ("ISRT", "SKILL", "S2JAVA", "  "), ("ISRT", "SKILL", "S2JAVA", "LB"), ("ISRT", "SKILL", "S1COBOL", "LC"),
+    ("ISRT", "EMP", "E002BOB", "  "), ("ISRT", "EMP", "E001ALICE", "LC"), ("ISRT", "PROJ", "P1ALPHA", "  "),
+    ("ISRT", "EMP", "E003CAROL", "LE"), ("ISRT", "SKILL", "S3DB2", "LD"), ("ISRT", "DEPT", "D050OPS", "LC"),
+    ("ISRT", "DEPT", "D100SALES", "LB"), ("ISRT", "DEPT", "D200OPS", "  "), ("ISRT", "SKILL", "S1COBOL", "LD"),
+    ("GU", "DEPT", "", "AM"), ("GN", None, "", "AM"), ("GHU", "DEPT", "", "AM"), ("REPL", None, "", "AM"),
+    ("DLET", None, "", "AM"),
+]  # fmt: skip
+
+
+def _load_program() -> str:
+    lines = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. DLILOAD.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+             "01  W-Q PIC 99 VALUE 0.", "01  IOA PIC X(60)."]  # fmt: skip
+    for fn in sorted({c for c, *_ in LOAD_STEPS}):
+        lines.append(f"01  F-{fn} PIC X(4) VALUE '{fn:<4}'.")
+    for seg in ("DEPT", "EMP", "SKILL", "PROJ"):
+        lines.append(f"01  S-{seg} PIC X(9) VALUE '{seg:<9}'.")
+    lines += ["LINKAGE SECTION.", "01  PCB1.", "    05 P1-DBD PIC X(8).", "    05 P1-LEVEL PIC X(2).",
+              "    05 P1-STATUS PIC X(2).", "    05 FILLER PIC X(34).", "PROCEDURE DIVISION.", "MAIN-PARA.",
+              "    ENTRY 'DLITCBL' USING PCB1."]  # fmt: skip
+    for i, (fn, seg, area, _) in enumerate(LOAD_STEPS, 1):
+        lines += [f"    MOVE {i} TO W-Q", f"    MOVE '{area}' TO IOA"]
+        ssa = f" S-{seg}" if seg and fn != "REPL" else ""
+        lines += [f"    CALL 'CBLTDLI' USING F-{fn} PCB1 IOA{ssa}", "    DISPLAY 'Q' W-Q ' [' P1-STATUS ']'"]
+    lines.append("    GOBACK.")
+    return "\n".join(" " * 7 + ln for ln in lines) + "\n"
+
+
+def test_a_load_mode_pcb_is_one_the_harness_models():
+    pcbs = ei.psb(LOAD_PSB, "LOADPSB.psb", {"LVLDBD": ei.dbd((FIXTURE / "LVLDBD.dbd").read_text(), "LVLDBD.dbd")})
+    assert [(p["dbd"], p["procopt"]) for p in pcbs] == [("LVLDBD", "L")]
+    assert "PCB LVLDBD L 10" in ei.config({}, pcbs)[1]
+    with pytest.raises(ei.Unsupported, match="load mode under CICS"):
+        ei.psb(LOAD_PSB.replace("PROCOPT=L", "PROCOPT=LS"), "LOADPSB.psb", {"LVLDBD": ei.dbd(
+            (FIXTURE / "LVLDBD.dbd").read_text(), "LVLDBD.dbd")}, cics=True)  # fmt: skip
+
+
+@E2E
+def test_load_mode_answers_lb_lc_ld_le_and_am_the_same_on_both_runtimes(tmp_path):
+    expected = [f"Q{i:02d} [{st}]" for i, (*_, st) in enumerate(LOAD_STEPS, 1)]
+    cobol_out, cobol_db = _cobol_side(
+        tmp_path / "cobol", seed=b"", prog="DLILVL", edit=lambda _: _load_program(), psb=LOAD_PSB
+    )
+    java_out, java_db = _java_side(
+        tmp_path / "java", seed=b"", prog="DLILVL", edit=lambda _: _load_program(), psb=LOAD_PSB
+    )
+    assert _lines(cobol_out) == expected
+    assert _lines(java_out) == expected
+    assert cobol_db == java_db
+    keys = [(n, d[:4].decode("latin-1").strip()[: 2 if n in ("SKILL", "PROJ") else 4])
+            for n, d in ei.split(cobol_db, {"DEPT": 20, "EMP": 20, "SKILL": 8, "PROJ": 12})]  # fmt: skip
+    assert keys == [("DEPT", "D100"), ("EMP", "E001"), ("SKILL", "S1"), ("SKILL", "S2"), ("EMP", "E002"),
+                    ("PROJ", "P1"), ("DEPT", "D200")]  # fmt: skip
+
+
+@E2E
+def test_load_mode_into_a_database_that_holds_segments_is_refused_by_both_runtimes(tmp_path):
+    with pytest.raises(AssertionError, match="load mode into a database that already holds segments"):
+        _cobol_side(tmp_path / "cobol", prog="DLILVL", edit=lambda _: _load_program(), psb=LOAD_PSB)
+    with pytest.raises(subprocess.CalledProcessError):
+        _java_side(tmp_path / "java", prog="DLILVL", edit=lambda _: _load_program(), psb=LOAD_PSB)

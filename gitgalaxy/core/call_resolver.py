@@ -488,12 +488,37 @@ _BUILTIN_INSTANCE_METHODS_PYTHON = frozenset(
         *("close", "flush", "read", "readline", "readlines", "seek", "tell", "write", "writelines"),
     }
 )
+# #4991: methods of the Kotlin stdlib built-ins (String/CharSequence, Collection / List / Set / Map,
+# Sequence / Iterator, the Any scope functions). `s.trim()` / `map.getOrPut(k)` / `list.add(x)` on a
+# receiver the scan cannot type is the stdlib method far more often than a repo class's method of the
+# same name. Names that are mostly free functions (`run`, `with`, `lazy`) are left out.
+_BUILTIN_INSTANCE_METHODS_KOTLIN = frozenset(
+    {
+        # String / CharSequence
+        *("trim", "trimStart", "trimEnd", "split", "substring", "startsWith", "endsWith", "contains"),
+        *("replace", "lowercase", "uppercase", "toInt", "toLong", "toDouble", "toIntOrNull", "isEmpty"),
+        *("isBlank", "isNotEmpty", "isNotBlank", "padStart", "padEnd", "removePrefix", "removeSuffix"),
+        *("lines", "toCharArray", "toBoolean", "toFloat", "toLongOrNull", "toDoubleOrNull"),
+        # Collection / List / Set / Map
+        *("add", "addAll", "remove", "removeAll", "clear", "get", "set", "put", "putAll", "getOrPut"),
+        *("getOrDefault", "getOrElse", "getOrNull", "containsKey", "containsValue", "keys", "values"),
+        *("entries", "forEach", "forEachIndexed", "map", "mapNotNull", "mapIndexed", "flatMap", "filter"),
+        *("filterNot", "filterIsInstance", "first", "firstOrNull", "last", "lastOrNull", "single"),
+        *("any", "all", "none", "count", "fold", "reduce", "sorted", "sortedBy", "sortedWith", "groupBy"),
+        *("associate", "associateBy", "zip", "take", "drop", "distinct", "joinToString", "toList"),
+        *("toMutableList", "toSet", "toMutableSet", "toMap", "toTypedArray", "asSequence", "indexOf"),
+        *("iterator", "plus", "minus", "withIndex", "hasNext", "next"),
+        # Any / scope functions
+        *("let", "also", "apply", "takeIf", "takeUnless", "equals", "hashCode", "toString", "compareTo"),
+    }
+)
 _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
     "typescript": _BUILTIN_INSTANCE_METHODS_JS,
     "javascript": _BUILTIN_INSTANCE_METHODS_JS,
     "java": _BUILTIN_INSTANCE_METHODS_JAVA,
     "python": _BUILTIN_INSTANCE_METHODS_PYTHON,
     "embedded_python": _BUILTIN_INSTANCE_METHODS_PYTHON,
+    "kotlin": _BUILTIN_INSTANCE_METHODS_KOTLIN,
 }
 
 # #3756: JS/TS global namespaces whose static members (`Number.isFinite`,

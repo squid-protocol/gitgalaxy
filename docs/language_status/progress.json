@@ -1,5 +1,5 @@
 {
- "commit": "6dfc4511d",
+ "commit": "caac25c20",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -105,7 +105,7 @@
    "cics_crucible": {
     "programs": 63,
     "ref": "v0.10.0 (01e11fe6)",
-    "scenarios": 177
+    "scenarios": 179
    },
    "estate_crucible": {
     "horrors": 60,
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-24T14:33:55Z",
+  "as_of": "2026-10-24T14:37:00Z",
   "core": {
    "closed": 171,
    "open": 16,
@@ -198,8 +198,8 @@
    "total": 48
   },
   "infra": {
-   "closed": 208,
-   "open": 45,
+   "closed": 209,
+   "open": 44,
    "total": 253
   },
   "measured": true,
@@ -282,9 +282,9 @@
     "total": 57
    },
    {
-    "closed": 80,
+    "closed": 81,
     "number": 14,
-    "open": 12,
+    "open": 11,
     "title": "Compiler call-graph comparison",
     "total": 92
    },

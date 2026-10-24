@@ -35,7 +35,8 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
 * **Never build JSON by string interpolation in tests when a value is a filesystem path:** use `json.dumps` (Windows
   backslashes) (#5549).
 * **`read_text(errors="replace")` on a corpus file in a test fails `tests/test_source_reads.py`:** use
-  `gitgalaxy.core.source_text.read_source` (#5658).
+  `gitgalaxy.core.source_text.read_source` (#5658). The same test flags `.decode(..., errors="replace")` in `tests/tools`:
+  use `gitgalaxy.core.source_text.decode_bytes` (#6521).
 * **`dead_key_audit` flags a constant dict subscript that is read only once** (#5627).
 * **`tree_sitter_accuracy_audit.py` takes `--lang <name>`, not `--language`** (#5503).
 * **C evaluation order:** `memcpy(b, f(&n), n)` reads `n` before `f` runs; take the pointer into a local first (ASan
@@ -80,3 +81,5 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   recent commits before calling it a flake (#5184).
 * A cics-crucible `case.json` can list a `sources.copy` directory that is not on disk (git carries no empty dir):
   guard `iterdir()` on case dirs (#5192).
+* When two PRs change the same wait/timeout bound, grep for mirrored planner constants (`det_sweep_plan.DB2_WAIT_S`)
+  and update both (#6508).

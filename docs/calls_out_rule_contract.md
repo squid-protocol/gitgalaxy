@@ -176,7 +176,7 @@ fixed it: the census below predates that fix.
 | nix | blind | -- | -- | agrees (C7: declared blind) |
 | objective-c | own | 156 | 269 | own rule: unary selectors are a ledgered recall gap; agrees otherwise |
 | pbtxt | blind | -- | -- | agrees (C7: declared blind) |
-| perl | C-style | 886 | 2,580 | K: `qw(` 30, `and`/`or`/`do`/`until` |
+| perl | C-style | 886 | 2,580 | K: `qw(` 30, `and`/`or`/`do`/`until`; `die` is a call (#6433), `or`/`and` are anchors, not callees |
 | php | C-style | 1,703 | 7,104 | K: `foreach` 237, `isset` 209, `empty` 152, `elseif` 114, `array` 111, `unset` 78, `use` 44, `fn` 44, `match`, `die` |
 | plaintext | blind | -- | -- | agrees (C7: declared blind) |
 | pli | CALL verb | 7 | 6 | agrees (CALL) |

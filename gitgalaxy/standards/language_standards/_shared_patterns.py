@@ -355,15 +355,23 @@ _PERL_BUILTIN = (
     r"(?:shift|pop|delete|defined|exists|ref|scalar|lc|uc|lcfirst|ucfirst|length|chomp|chop|chr|ord|int|abs|hex"
     r"|oct|sqrt|log|exp|sin|cos|keys|values|each|caller|undef|rmdir|readlink|chdir|quotemeta|sleep|rand|srand"
     r"|exit|localtime|gmtime|close|readdir|closedir|stat|lstat|umask|fc|lock)"
-    rf"(?![{ID_CONTINUE}])(?![ \t]*(?:=>|\}}))"
+    rf"(?![{ID_CONTINUE}])(?![ \t]*=>)(?!\}})"
 )
-_PERL_ARG = rf"(?:[$@\\\"']|<<[\"'A-Z_~]|{_PERL_NAME}[ \t]*=>)"
+# #6433: a block (`first { $_ > 0 } @l`, `bless {}, $c`), a `%hash`, a `qq{..}` string, or an
+# upper-case file handle (`print OUT $x`) also opens an argument list.
+_PERL_ARG = (
+    rf"(?:[$@\\\"']|%[{ID_START}$]|<<[\"'A-Z_~]|{_PERL_NAME}[ \t]*=>|q[qwx]?[{{(\[<]"
+    r"|\{[^{}\n]{0,200}\}[ \t]*[@$(,]|[A-Z][A-Z0-9_]*[ \t]+[$\"'@])"
+)
+_PERL_NOT_CALL = rf"(?:map|grep|sort)(?![{ID_CONTINUE}])"
 CALLS_OUT_PERL = re.compile(
     r"(?:(?<=->)(?:SUPER::)?"
     rf"|(?<![$@%{ID_CONTINUE}>-])(?={_PERL_NAME}[ \t]*\()"
     rf"|(?<![$@%&{ID_CONTINUE}>:-])(?={_PERL_BUILTIN})"
-    rf"|(?:^[ \t]*|(?<==[ \t])|(?<=\()|(?<=!)|(?<=,[ \t])|(?<=&&[ \t])|(?<=\|\|[ \t])|(?<=return[ \t]))"
-    rf"(?!{_PERL_KEYWORD})(?={_PERL_NAME}[ \t]+{_PERL_ARG}))"
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=split(?![{ID_CONTINUE}])[ \t]*/)"
+    rf"|(?:^[ \t]*|(?<==[ \t])|(?<=\()|(?<=!)|(?<=,[ \t])|(?<=&&[ \t])|(?<=\|\|[ \t])|(?<=return[ \t])"
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?:or|and|xor|not)[ \t]+)"
+    rf"(?!{_PERL_KEYWORD})(?!{_PERL_NOT_CALL})(?={_PERL_NAME}[ \t]+{_PERL_ARG}))"
     rf"({_PERL_NAME})",
     re.M,
 )

@@ -51,6 +51,19 @@
     "recall_pct": 100.0,
     "repos": "dart-lang/http"
   },
+  "fortran": {
+    "engine_edges": 294,
+    "files": 222,
+    "fn": 353,
+    "fp": 21,
+    "hub_overlap_at_10": 0.5,
+    "hub_repos": 1,
+    "hub_spearman": -0.367,
+    "imports": 635,
+    "precision_pct": 92.9,
+    "recall_pct": 44.4,
+    "repos": "fortran-lang/fpm"
+  },
   "go": {
     "engine_edges": 12,
     "files": 36,

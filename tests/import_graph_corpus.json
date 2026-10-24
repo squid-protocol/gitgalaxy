@@ -30,6 +30,7 @@
     {"repo": "apple/swift-argument-parser", "commit": "bd10e57565e21be23b144f3770af7f2bfb068ecf", "language": "swift"},
     {"repo": "pester/Pester", "commit": "98e56d65da1642a7158992b50ded240c42a3ac18", "language": "powershell"},
     {"repo": "tcltk/tcllib", "commit": "a0f8da869ea3f8dc0dee583d18316edc435dbc64", "language": "tcl"},
-    {"repo": "spockframework/spock", "commit": "ce7e8afa895210d0b06103223f10d963a83f7a08", "language": "groovy"}
+    {"repo": "spockframework/spock", "commit": "ce7e8afa895210d0b06103223f10d963a83f7a08", "language": "groovy"},
+    {"repo": "fortran-lang/fpm", "commit": "68971cf22f2fba2bf59f87389d47aedfda28b5eb", "language": "fortran"}
   ]
 }

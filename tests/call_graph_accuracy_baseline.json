@@ -37,12 +37,12 @@
   },
   "dart": {
     "fn": 25,
-    "fp": 111,
+    "fp": 23,
     "matched_functions": 1734,
     "parse_failures": 0,
-    "precision_pct": 95.8,
-    "recall_pct": 99.0,
-    "tp": 2531
+    "precision_pct": 99.1,
+    "recall_pct": 99.1,
+    "tp": 2619
   },
   "go": {
     "fn": 29,

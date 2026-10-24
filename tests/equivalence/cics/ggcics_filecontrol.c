@@ -301,6 +301,25 @@ static int rba_read(gg_cics *c, int dir, const char *want, const char *path, int
     return 0;
 }
 
+/* #6262, SPEC 6.2 STARTBR / READNEXT / READPREV event: `rid=` the RIDFLD on entry as hex (a key may hold spaces or X'FF'),
+ * STARTBR's `mode=` (GTEQ or EQUAL), `resp2=` where the command is not NORMAL, and for a browse read `len=` (the
+ * record's) with the bytes that went INTO when it delivered the record (NORMAL or DUPKEY). `reclen` < 0: no record read. */
+static void browse_event(const char *verb, const char *file, const char *rid, int klen, const gg_cics *c, int reclen,
+                         const char *into, int intolen) {
+    char ev[600], hex[2 * 100 + 1];
+    int shown = klen < 0 ? 0 : klen < 100 ? klen : 100;
+    for (int i = 0; i < shown; i++) snprintf(hex + 2 * i, 3, "%02X", (unsigned char)rid[i]);
+    hex[2 * shown] = '\0';
+    int n = snprintf(ev, sizeof ev, "%s file=%s rid=%s resp=%d", verb, file, hex, c->resp);
+    if (strcmp(verb, "STARTBR") == 0)
+        n += snprintf(ev + n, sizeof ev - (size_t)n, " mode=%s", strstr(c->flags, "EQUAL") ? "EQUAL" : "GTEQ");
+    if (reclen >= 0 && (c->resp == NORMAL || c->resp == DUPKEY || c->resp == LENGERR))
+        n += snprintf(ev + n, sizeof ev - (size_t)n, " len=%d", reclen);
+    if (c->resp != NORMAL && c->resp2) snprintf(ev + n, sizeof ev - (size_t)n, " resp2=%d", c->resp2);
+    int ok = reclen >= 0 && (c->resp == NORMAL || c->resp == DUPKEY);
+    event(ev, into, ok ? (reclen < intolen ? reclen : intolen) : 0);
+}
+
 /* STARTBR FILE(name1) RIDFLD [GTEQ | EQUAL: GG-FLAGS 'EQUAL'] [RBA: GG-FLAGS 'RBA', #4213]. */
 int GGCSTBR(gg_cics *c, char *ridfld, int keylen) {
     char want[9], path[3000], key[256];
@@ -310,12 +329,12 @@ int GGCSTBR(gg_cics *c, char *ridfld, int keylen) {
     if (injected("STARTBR", want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-        file_event("STARTBR", want, ridfld, keylen, c->resp);
+        browse_event("STARTBR", want, ridfld, keylen, c, -1, NULL, 0);
         return 0;
     }
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
-        file_event("STARTBR", want, ridfld, keylen, c->resp);
+        browse_event("STARTBR", want, ridfld, keylen, c, -1, NULL, 0);
         return 0;
     }
     if (strstr(c->flags, "RBA")) return rba_startbr(c, want, path, reclen, ridfld, keylen);
@@ -347,21 +366,22 @@ int GGCSTBR(gg_cics *c, char *ridfld, int keylen) {
             c->resp = NORMAL;
         }
     }
-    file_event("STARTBR", want, ridfld, keylen, c->resp);
+    browse_event("STARTBR", want, ridfld, keylen, c, -1, NULL, 0);
     return 0;
 }
 
 /* READNEXT (dir 1) / READPREV (dir -1) FILE(name1) INTO RIDFLD. */
 static int browse_read(gg_cics *c, int dir, char *ridfld, int keylen, char *into, int intolen) {
     const char *verb = dir > 0 ? "READNEXT" : "READPREV";
-    char want[9], path[3000], key[256];
-    int reclen, keyoff, klen, fresp, fresp2;
+    char want[9], path[3000], key[256], entry[256];
+    int reclen, keyoff, klen, fresp, fresp2, got = -1;
+    memcpy(entry, ridfld, keylen < (int)sizeof entry ? (size_t)(keylen > 0 ? keylen : 0) : sizeof entry);  /* #6262: RIDFLD on entry */
     trim(c->name1, 8, want);
     c->resp2 = 0;
     if (injected(verb, want, &fresp, &fresp2)) {
         c->resp = fresp;
         c->resp2 = fresp2;
-        file_event(verb, want, ridfld, keylen, c->resp);
+        browse_event(verb, want, ridfld, keylen, c, -1, NULL, 0);
         return 0;
     }
     int s = browse_slot(want, 0);
@@ -408,12 +428,13 @@ static int browse_read(gg_cics *c, int dir, char *ridfld, int keylen, char *into
             memcpy(br[s].lastkey, rec + keyoff, (size_t)klen);
             br[s].have_last = 1;
             br[s].dir = dir;
+            got = reclen;
             if (reclen > intolen) { c->resp = LENGERR; c->resp2 = 11; }
         }
         free(all);
     }
     dupkey_apply(c);
-    file_event(verb, want, ridfld, keylen, c->resp);
+    browse_event(verb, want, entry, keylen < (int)sizeof entry ? keylen : (int)sizeof entry, c, got, into, intolen);
     return 0;
 }
 
@@ -428,7 +449,7 @@ int GGCRDPV(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
 /* ENDBR FILE(name1). */
 int GGCENBR(gg_cics *c) {
     char want[9], ev[100];
-    int fresp, fresp2;
+    int fresp, fresp2, n;
     trim(c->name1, 8, want);
     c->resp2 = 0;
     int s = browse_slot(want, 0);
@@ -443,7 +464,8 @@ int GGCENBR(gg_cics *c) {
         c->resp = NORMAL;
         file_set_end("BROWSE", want);  /* IBM: "no longer valid after an ENDBR" */
     }
-    snprintf(ev, sizeof ev, "ENDBR file=%s resp=%d", want, c->resp);
+    n = snprintf(ev, sizeof ev, "ENDBR file=%s resp=%d", want, c->resp);
+    if (c->resp != NORMAL && c->resp2) snprintf(ev + n, sizeof ev - (size_t)n, " resp2=%d", c->resp2);
     event(ev, NULL, 0);
     return 0;
 }

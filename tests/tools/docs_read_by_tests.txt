@@ -4,6 +4,7 @@
 .claude/*	tests/tools/test_evidence_report_single_source.py
 .claude/agents/gitgalaxy-pr-worker.md	tests/tools/box
 .claude/skills/rule-contract-audit/SKILL.md	tests/signal_contract_audit.py
+/*.cbl	tests/cobol_mainframe
 /*.json	tests/test_golden_store.py,tests/tools/test_gap_prevalence.py
 /*.out	tests/tools/porting_loop.py
 /.bms-scratch	tests/tools/cics_crucible_det.py
@@ -74,7 +75,7 @@
 /asset.blob	tests/security_auditing
 /asset.png	tests/security_auditing
 /bad.forbidden	tests/security_auditing
-/baseline.json	tests/tools/test_content_keyed_baseline.py
+/baseline.json	tests/cobol_mainframe,tests/tools/test_content_keyed_baseline.py
 /bitbucket-pipelines.yml	tests/core_engine
 /bms_src	tests/cobol_mainframe
 /case.json	tests/tools/test_det_mutation.py
@@ -386,6 +387,8 @@ estate4_candidates_requests.json	tests/cobol_mainframe,tests/tools/estate4_draw.
 estate4_dbb_mortgage.md	tests/tools/test_status_page_snapshots.py
 estate4_devdata_repos.json	tests/tools/estate4_draw.py
 estate4_preregistration.md	tests/tools/estate4_draw.py
+estate_batch_candidates.json	tests/tools/estate4_draw.py
+estate_batch_candidates_requests.json	tests/tools/estate4_draw.py
 estate_intake.md	tests/cobol_mainframe
 evidence.md	tests/tools/bugfix_kit.py
 example.com/x.md	tests/extraction

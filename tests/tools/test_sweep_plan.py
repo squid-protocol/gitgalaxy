@@ -340,3 +340,56 @@ def test_a_pull_request_ignores_cobol_mainframe_once_and_nothing_else_does():
     steps = " ".join(s.get("run", "") for s in part["steps"])
     assert "tests/cobol_mainframe/ " in steps  # the job that now owns the directory still runs all of it
     assert "--splits ${{ matrix.parts }}" in steps  # every layout's groups together are the whole directory
+
+
+def _pr(number, *paths):
+    return {"number": number, "files": [{"path": p} for p in paths]}
+
+
+def test_replay_counts_the_prs_that_skip_and_the_serial_time_they_save():
+    durations = {
+        "tests/extraction/languages/test_x.py::test_x_redos_immune[a]": 30.0,
+        "tests/extraction/languages/test_x.py::test_x_linear_on_pathological": 30.0,
+        "tests/extraction/languages/test_x.py::test_x_branch": 99.0,  # not a sweep by name
+        "tests/core_engine/test_y.py::test_y_redos_sweep": 99.0,  # not under extraction: unmarked
+    }
+    prs = [
+        _pr(1, "docs/ci.md"),
+        _pr(2, "docs/ci.md", "gitgalaxy/core/detector.py"),
+        _pr(3, "tests/tools/det_sweep_plan.py"),
+    ]
+    out = sp.replay(prs, durations)
+    assert (out["prs"], out["skipped"], out["skipped_prs"]) == (3, 2, [1, 3])
+    assert out["share"] == 0.667
+    assert out["sweep_serial_seconds_per_run"] == 60.0
+    assert out["serial_minutes_saved"] == 2.0
+
+
+def test_replay_treats_a_possibly_truncated_or_empty_file_list_as_full():
+    full_page = _pr(1, *[f"docs/{i}.md" for i in range(100)])
+    assert sp.replay([full_page, _pr(2)], {})["skipped"] == 0
+    assert sp.replay([], {}) == {
+        "prs": 0,
+        "skipped": 0,
+        "share": 0.0,
+        "sweep_serial_seconds_per_run": 0.0,
+        "serial_minutes_saved": 0.0,
+        "skipped_prs": [],
+    }
+
+
+def test_the_seconds_helper_names_the_same_tests_the_marker_does():
+    # one rule in two places (tests/conftest.py _is_redos_sweep): the substrings and the directory must agree
+    src = (ROOT / "tests" / "conftest.py").read_text(encoding="utf-8")
+    assert '"redos" in name or "linear_on_pathological" in name' in src
+    assert (
+        sp.sweep_seconds({"tests/extraction/a.py::C::test_redos_one[p]": 1.5, "tests/extraction/a.py::test_b": 2})
+        == 1.5
+    )
+
+
+def test_replay_failure_exits_nonzero_without_planning(monkeypatch, capsys):
+    monkeypatch.setattr(sp, "run_replay", lambda n: (_ for _ in ()).throw(RuntimeError("no gh")))
+    monkeypatch.setattr(sys, "argv", ["sweep_plan.py", "--replay", "5"])
+    assert sp.main() == 1
+    assert "replay failed: no gh" in capsys.readouterr().err

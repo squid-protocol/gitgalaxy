@@ -475,28 +475,6 @@ class StateRehydrator:
                     for channel in CHANNELS
                 }
 
-                # #3211-followup: the CSD transaction definitions, restored per
-                # deck so an unchanged .csd/JCL keeps its transactions through a
-                # delta scan. `group_name` is aliased to the extractor's `group`
-                # payload key.
-                transactions_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "transaction_data",
-                    "SELECT fd.file_path AS _fp, td.transid, td.program, td.group_name AS _group, "
-                    "td.profile, td.line_number AS line "
-                    "FROM transaction_data td JOIN file_data fd ON td.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY td.id",
-                    lambda r: {
-                        "transid": r["transid"],
-                        "program": r["program"],
-                        "group": r["_group"],
-                        "profile": r["profile"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
                 # #3446: embedded SQL statements, aliased back to the payload keys.
                 # A pre-#3446 baseline has no table and restores nothing.
                 # #3618: the statement text; a pre-#3618 DB has no such column.
@@ -921,7 +899,6 @@ class StateRehydrator:
                     node["classes"] = classes_by_file.get(rel_path, [])
                     for channel in CHANNELS:
                         node[channel.payload_key] = channel_rows[channel.name].get(rel_path, [])
-                    node["transaction_defs"] = transactions_by_file.get(rel_path, [])
                     node["sql_statements"] = sql_statements_by_file.get(rel_path, [])
                     node["cics_tasks"] = cics_tasks_by_file.get(rel_path, [])
                     node["job_submits"] = job_submits_by_file.get(rel_path, [])

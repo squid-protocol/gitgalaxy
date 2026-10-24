@@ -79,6 +79,7 @@ SITES = [
     ("tri-comparison-audit.yml", "apt-get", "universal-ctags"),
     ("tri-comparison-history.yml", "apt-get", "universal-ctags"),
     ("graph-accuracy-audit.yml", "npm install", "typescript@6.0.2"),
+    ("graph-accuracy-audit.yml", "rustup toolchain install", "1.90.0"),
     ("evidence-refresh.yml", "docker pull", '"$image"'),
     ("det-sweep.yml", "docker pull", "$image"),
 ]

@@ -1,4 +1,4 @@
-"""CBSA L3 coverage (#6072): the scenarios added to inqacccu and dbcrfun, and the stated BNKMENU / DBCRFUN arms.
+"""CBSA L3 coverage (#6072): the scenarios added to inqacccu and dbcrfun, and the stated BNKMENU arms.
 
 JSON-only checks: each added scenario exists and injects the SQL failure its name says, at the
 statement the case's COBOL source has on that line; the infeasible-outcome entries exist per case.
@@ -42,13 +42,13 @@ def test_dbcrfun_covers_update_and_proctran_insert_failing():
     assert all(sc[n]["why"] for n in faults)
 
 
-def test_bnkmenu_and_dbcrfun_state_their_unreachable_arms():
-    data = {
-        case: json.loads((EQUIV / "infeasible_outcomes" / f"{case}.json").read_text(encoding="utf-8"))["entries"]
-        for case in ("cbsa-bnkmenu", "cbsa-dbcrfun")
-    }
-    menu = {(e["unit"], e["line"], e["outcome"]): e for e in data["cbsa-bnkmenu"]}
+def test_bnkmenu_states_its_unreachable_arms():
+    path = EQUIV / "infeasible_outcomes" / "cbsa-bnkmenu.json"
+    entries = json.loads(path.read_text(encoding="utf-8"))["entries"]
+    menu = {(e["unit"], e["line"], e["outcome"]): e for e in entries}
     assert ("IOT010", 897, "false") in menu
     assert menu[("A010", 178, "true")]["family"] == "R"
-    assert data["cbsa-dbcrfun"][0]["line"] == 569
-    assert all(e["reason"] for case in ("cbsa-bnkmenu", "cbsa-dbcrfun") for e in data[case])
+    # the RESP-fault scenarios (#6292) reach the failing-RETURN / SEND MAP arms, so those are no longer stated
+    assert ("IOT010", 394, "true") not in menu
+    assert all(e["reason"] for e in entries)
+    assert not (EQUIV / "infeasible_outcomes" / "cbsa-dbcrfun.json").exists()

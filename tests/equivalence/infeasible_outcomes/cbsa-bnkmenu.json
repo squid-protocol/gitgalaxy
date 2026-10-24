@@ -28,27 +28,11 @@
     },
     {
       "unit": "IOT010",
-      "line": 394,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('ODCS') IMMEDIATE` (387 on): RETURN never comes back on success, so the test runs only when RETURN itself fails. There is no COMMAREA operand. IBM's RETURN conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return) are INVREQ 1 (TRANSID in a program with no terminal), 2 (CHANNEL, COMMAREA or IMMEDIATE below the highest logical level), 4 (APPC logical unit), 8, 30, 200 and 203 (INPUTMSG, first-stage PLT, DPL, CHANNEL: none named here), LENGERR 11 and 26 (COMMAREA length outside 0-32763, a zero COMMAREA address with a non-zero length) and CHANNELERR 1. BNKMENU is the program of terminal transaction OMEN (T001; no program in the corpus LINKs or XCTLs to it, so it is the highest logical level), and the names are MOVEd constants. Assumption to review: the terminal is not an APPC logical unit (INVREQ 4)."
-    },
-    {
-      "unit": "IOT010",
       "line": 466,
       "kind": "IF",
       "outcome": "false",
       "family": "R",
       "reason": "Same test (466): a RETURN TRANSID('ODAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
-    },
-    {
-      "unit": "IOT010",
-      "line": 466,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('ODAC') IMMEDIATE` (459 on): RETURN never comes back on success, so the test runs only when RETURN itself fails. There is no COMMAREA operand. IBM's RETURN conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return) are INVREQ 1 (TRANSID in a program with no terminal), 2 (CHANNEL, COMMAREA or IMMEDIATE below the highest logical level), 4 (APPC logical unit), 8, 30, 200 and 203 (INPUTMSG, first-stage PLT, DPL, CHANNEL: none named here), LENGERR 11 and 26 (COMMAREA length outside 0-32763, a zero COMMAREA address with a non-zero length) and CHANNELERR 1. BNKMENU is the program of terminal transaction OMEN (T001; no program in the corpus LINKs or XCTLs to it, so it is the highest logical level), and the names are MOVEd constants. Assumption to review: the terminal is not an APPC logical unit (INVREQ 4)."
     },
     {
       "unit": "IOT010",
@@ -60,27 +44,11 @@
     },
     {
       "unit": "IOT010",
-      "line": 539,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OCCS') IMMEDIATE` (532 on): RETURN never comes back on success, so the test runs only when RETURN itself fails. There is no COMMAREA operand. IBM's RETURN conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return) are INVREQ 1 (TRANSID in a program with no terminal), 2 (CHANNEL, COMMAREA or IMMEDIATE below the highest logical level), 4 (APPC logical unit), 8, 30, 200 and 203 (INPUTMSG, first-stage PLT, DPL, CHANNEL: none named here), LENGERR 11 and 26 (COMMAREA length outside 0-32763, a zero COMMAREA address with a non-zero length) and CHANNELERR 1. BNKMENU is the program of terminal transaction OMEN (T001; no program in the corpus LINKs or XCTLs to it, so it is the highest logical level), and the names are MOVEd constants. Assumption to review: the terminal is not an APPC logical unit (INVREQ 4)."
-    },
-    {
-      "unit": "IOT010",
       "line": 612,
       "kind": "IF",
       "outcome": "false",
       "family": "R",
       "reason": "Same test (612): a RETURN TRANSID('OCAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
-    },
-    {
-      "unit": "IOT010",
-      "line": 612,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OCAC') IMMEDIATE` (605 on): RETURN never comes back on success, so the test runs only when RETURN itself fails. There is no COMMAREA operand. IBM's RETURN conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return) are INVREQ 1 (TRANSID in a program with no terminal), 2 (CHANNEL, COMMAREA or IMMEDIATE below the highest logical level), 4 (APPC logical unit), 8, 30, 200 and 203 (INPUTMSG, first-stage PLT, DPL, CHANNEL: none named here), LENGERR 11 and 26 (COMMAREA length outside 0-32763, a zero COMMAREA address with a non-zero length) and CHANNELERR 1. BNKMENU is the program of terminal transaction OMEN (T001; no program in the corpus LINKs or XCTLs to it, so it is the highest logical level), and the names are MOVEd constants. Assumption to review: the terminal is not an APPC logical unit (INVREQ 4)."
     },
     {
       "unit": "IOT010",
@@ -92,14 +60,6 @@
     },
     {
       "unit": "IOT010",
-      "line": 685,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OUAC') IMMEDIATE` (678 on): RETURN never comes back on success, so the test runs only when RETURN itself fails. There is no COMMAREA operand. IBM's RETURN conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return) are INVREQ 1 (TRANSID in a program with no terminal), 2 (CHANNEL, COMMAREA or IMMEDIATE below the highest logical level), 4 (APPC logical unit), 8, 30, 200 and 203 (INPUTMSG, first-stage PLT, DPL, CHANNEL: none named here), LENGERR 11 and 26 (COMMAREA length outside 0-32763, a zero COMMAREA address with a non-zero length) and CHANNELERR 1. BNKMENU is the program of terminal transaction OMEN (T001; no program in the corpus LINKs or XCTLs to it, so it is the highest logical level), and the names are MOVEd constants. Assumption to review: the terminal is not an APPC logical unit (INVREQ 4)."
-    },
-    {
-      "unit": "IOT010",
       "line": 758,
       "kind": "IF",
       "outcome": "false",
@@ -108,27 +68,11 @@
     },
     {
       "unit": "IOT010",
-      "line": 758,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OCRA') IMMEDIATE` (751 on): RETURN never comes back on success, so the test runs only when RETURN itself fails. There is no COMMAREA operand. IBM's RETURN conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return) are INVREQ 1 (TRANSID in a program with no terminal), 2 (CHANNEL, COMMAREA or IMMEDIATE below the highest logical level), 4 (APPC logical unit), 8, 30, 200 and 203 (INPUTMSG, first-stage PLT, DPL, CHANNEL: none named here), LENGERR 11 and 26 (COMMAREA length outside 0-32763, a zero COMMAREA address with a non-zero length) and CHANNELERR 1. BNKMENU is the program of terminal transaction OMEN (T001; no program in the corpus LINKs or XCTLs to it, so it is the highest logical level), and the names are MOVEd constants. Assumption to review: the terminal is not an APPC logical unit (INVREQ 4)."
-    },
-    {
-      "unit": "IOT010",
       "line": 831,
       "kind": "IF",
       "outcome": "false",
       "family": "R",
       "reason": "Same test (831): a RETURN TRANSID('OTFN') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
-    },
-    {
-      "unit": "IOT010",
-      "line": 831,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OTFN') IMMEDIATE` (824 on): RETURN never comes back on success, so the test runs only when RETURN itself fails. There is no COMMAREA operand. IBM's RETURN conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return) are INVREQ 1 (TRANSID in a program with no terminal), 2 (CHANNEL, COMMAREA or IMMEDIATE below the highest logical level), 4 (APPC logical unit), 8, 30, 200 and 203 (INPUTMSG, first-stage PLT, DPL, CHANNEL: none named here), LENGERR 11 and 26 (COMMAREA length outside 0-32763, a zero COMMAREA address with a non-zero length) and CHANNELERR 1. BNKMENU is the program of terminal transaction OMEN (T001; no program in the corpus LINKs or XCTLs to it, so it is the highest logical level), and the names are MOVEd constants. Assumption to review: the terminal is not an APPC logical unit (INVREQ 4)."
     },
     {
       "unit": "IOT010",
@@ -145,22 +89,6 @@
       "outcome": "false",
       "family": "R",
       "reason": "Same test (905): a RETURN TRANSID('OCCA') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
-    },
-    {
-      "unit": "IOT010",
-      "line": 905,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OCCA') IMMEDIATE` (898 on): RETURN never comes back on success, so the test runs only when RETURN itself fails. There is no COMMAREA operand. IBM's RETURN conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return) are INVREQ 1 (TRANSID in a program with no terminal), 2 (CHANNEL, COMMAREA or IMMEDIATE below the highest logical level), 4 (APPC logical unit), 8, 30, 200 and 203 (INPUTMSG, first-stage PLT, DPL, CHANNEL: none named here), LENGERR 11 and 26 (COMMAREA length outside 0-32763, a zero COMMAREA address with a non-zero length) and CHANNELERR 1. BNKMENU is the program of terminal transaction OMEN (T001; no program in the corpus LINKs or XCTLs to it, so it is the highest logical level), and the names are MOVEd constants. Assumption to review: the terminal is not an APPC logical unit (INVREQ 4)."
-    },
-    {
-      "unit": "SMM010",
-      "line": 987,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND MAP ERASE (979 on): IBM raises no condition for a map the program has just built from its own BNK1MEO (a MAPFAIL belongs to RECEIVE MAP), and no fault can be injected on it."
     },
     {
       "unit": "SMM010",
@@ -193,14 +121,6 @@
       "outcome": "false",
       "family": "G",
       "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SMM010 after the first SEND MAP (GO TO SMM999) and '2' is never set (see 1052), so the test is always true."
-    },
-    {
-      "unit": "SMM010",
-      "line": 1138,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND MAP DATAONLY ALARM (1129 on): IBM raises no condition for a map the program has just built from its own BNK1MEO, and no fault can be injected on it."
     },
     {
       "unit": "STM010",

@@ -32,7 +32,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CBTRN03C](carddemo-trnrpt.md) | carddemo-trnrpt | batch | proven, unapproved |  | 25 | 26/26 / 81/82 | 68/86 / 68/79 | 0 | - |
 | [COUSR01C](carddemo-useradd.md) | carddemo-useradd | cics | proven, unapproved |  | 25 | 9/9 / 20/21 | 63/98 / 63/64 | 0 | - |
 | [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 32 | 11/11 / 31/32 | 67/87 / 67/67 | 0 | - |
-| [COUSR00C](carddemo-userlist.md) | carddemo-userlist | cics | proven, unapproved |  | 70 | 16/16 / 95/100 | 379/507 / 379/381 | 0 | - |
+| [COUSR00C](carddemo-userlist.md) | carddemo-userlist | cics | proven, unapproved |  | 72 | 16/16 / 95/100 | 381/507 / 381/381 | 0 | - |
 | [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 32 | 11/11 / 44/46 | 57/82 / 57/59 | 0 | - |
 | [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | proven, unapproved |  | 14 | 22/25 / 13/25 | 63/131 / 63/106 | 0 | - |
 | [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 27 | 7/7 / 5/6 | 103/139 / 103/110 | 0 | - |

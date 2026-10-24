@@ -89431,7 +89431,8 @@
           "get"
         ],
         "addImperativePlugin@96": [
-          "inspect"
+          "inspect",
+          "addImperativePlugin"
         ],
         "addPlugin@182": [
           "isImperative",
@@ -89634,9 +89635,12 @@
           "uncheckedNonnullCast"
         ],
         "allprojects@714": [
-          "configureUsing"
+          "configureUsing",
+          "allprojects"
         ],
-        "allprojects@719": [],
+        "allprojects@719": [
+          "allprojects"
+        ],
         "allprojects@724": [
           "getProjectConfigurator",
           "getAllprojects"
@@ -89704,7 +89708,9 @@
           "configure"
         ],
         "configure@1252": [],
-        "configure@1257": [],
+        "configure@1257": [
+          "configure"
+        ],
         "configure@754": [
           "execute"
         ],
@@ -89735,10 +89741,12 @@
           "getFileOperations"
         ],
         "copySpec@1199": [
-          "configure"
+          "configure",
+          "copySpec"
         ],
         "copySpec@1204": [
-          "with"
+          "with",
+          "copySpec"
         ],
         "copySpec@1209": [
           "getFileOperations"
@@ -89840,7 +89848,8 @@
           "getFileOperations"
         ],
         "fileTree@996": [
-          "configure"
+          "configure",
+          "fileTree"
         ],
         "files@974": [
           "getObjects",
@@ -89848,12 +89857,16 @@
           "from"
         ],
         "files@979": [
-          "configure"
+          "configure",
+          "files"
         ],
         "files@984": [
-          "execute"
+          "execute",
+          "files"
         ],
-        "findProject@692": [],
+        "findProject@692": [
+          "findProject"
+        ],
         "findProject@697": [
           "getProjectIdentity",
           "getProjectPath",
@@ -89973,7 +89986,9 @@
         "getNormalization@1486": [],
         "getObjects@951": [],
         "getOwner@1527": [],
-        "getParent@404": [],
+        "getParent@404": [
+          "getParent"
+        ],
         "getParent@410": [
           "getCrossProjectModelAccess",
           "access"
@@ -90011,7 +90026,9 @@
         "getRootDir@399": [
           "getProjectDir"
         ],
-        "getRootProject@361": [],
+        "getRootProject@361": [
+          "getRootProject"
+        ],
         "getRootProject@366": [
           "getCrossProjectModelAccess",
           "access"
@@ -90112,13 +90129,19 @@
           "getSource"
         ],
         "project@1235": [
-          "configureUsing"
+          "configureUsing",
+          "project"
         ],
-        "project@1240": [],
+        "project@1240": [
+          "project"
+        ],
         "project@1245": [
-          "getProjectConfigurator"
+          "getProjectConfigurator",
+          "project"
         ],
-        "project@678": [],
+        "project@678": [
+          "project"
+        ],
         "project@683": [
           "findProject",
           "UnknownProjectException",
@@ -90207,9 +90230,12 @@
           "get"
         ],
         "subprojects@739": [
-          "configureUsing"
+          "configureUsing",
+          "subprojects"
         ],
-        "subprojects@744": [],
+        "subprojects@744": [
+          "subprojects"
+        ],
         "subprojects@749": [
           "getProjectConfigurator",
           "getSubprojects"
@@ -90235,7 +90261,8 @@
           "configure"
         ],
         "task@1318": [
-          "toString"
+          "toString",
+          "task"
         ],
         "task@1322": [
           "create",
@@ -90244,7 +90271,8 @@
           "singletonMap"
         ],
         "task@1328": [
-          "toString"
+          "toString",
+          "task"
         ],
         "task@1332": [
           "create",
@@ -90254,7 +90282,8 @@
           "configure"
         ],
         "task@1338": [
-          "toString"
+          "toString",
+          "task"
         ],
         "taskFactory@270": [
           "get"
@@ -91716,7 +91745,9 @@
     },
     "groovy/spock": {
       "groovy/spock/DeepBlockRewriter.java": {
-        "DeepBlockRewriter@50": [],
+        "DeepBlockRewriter@50": [
+          "DeepBlockRewriter"
+        ],
         "DeepBlockRewriter@54": [
           "getCurrentBlock",
           "getAstNodeCache"
@@ -94944,7 +94975,8 @@
           "setSelection"
         ],
         "sampleInputConnectionAdaptor@1298": [
-          "mock"
+          "mock",
+          "sampleInputConnectionAdaptor"
         ],
         "sampleInputConnectionAdaptor@1303": [
           "View",
@@ -95616,7 +95648,9 @@
           "ArrayList",
           "HashSet"
         ],
-        "AutoConfigurationImportSelector@109": [],
+        "AutoConfigurationImportSelector@109": [
+          "AutoConfigurationImportSelector"
+        ],
         "AutoConfigurationImportSelector@113": [],
         "ConfigurationClassFilter@394": [
           "loadMetadata"
@@ -95814,13 +95848,24 @@
         ]
       },
       "java/springboot/Binder.java": {
-        "Binder@100": [],
-        "Binder@109": [],
-        "Binder@120": [],
-        "Binder@135": [],
-        "Binder@154": [],
+        "Binder@100": [
+          "Binder"
+        ],
+        "Binder@109": [
+          "Binder"
+        ],
+        "Binder@120": [
+          "Binder"
+        ],
+        "Binder@135": [
+          "Binder"
+        ],
+        "Binder@154": [
+          "Binder"
+        ],
         "Binder@176": [
-          "singletonList"
+          "singletonList",
+          "Binder"
         ],
         "Binder@201": [
           "notNull",
@@ -95832,24 +95877,32 @@
           "unmodifiableMap"
         ],
         "Binder@86": [
-          "sourcesAsList"
+          "sourcesAsList",
+          "Binder"
         ],
         "bind@235": [
-          "of"
+          "of",
+          "bind"
         ],
         "bind@248": [
-          "of"
+          "of",
+          "bind"
         ],
-        "bind@261": [],
+        "bind@261": [
+          "bind"
+        ],
         "bind@274": [
-          "of"
+          "of",
+          "bind"
         ],
         "bind@287": [
-          "of"
+          "of",
+          "bind"
         ],
         "bind@354": [
           "notNull",
-          "Context"
+          "Context",
+          "bind"
         ],
         "bind@364": [
           "override",
@@ -95887,13 +95940,16 @@
           "bindDataObject"
         ],
         "bindOrCreate@303": [
-          "of"
+          "of",
+          "bindOrCreate"
         ],
         "bindOrCreate@318": [
-          "of"
+          "of",
+          "bindOrCreate"
         ],
         "bindOrCreate@334": [
-          "of"
+          "of",
+          "bindOrCreate"
         ],
         "bindOrCreate@349": [
           "bind"
@@ -95921,7 +95977,9 @@
           "state",
           "apply"
         ],
-        "get@559": [],
+        "get@559": [
+          "get"
+        ],
         "get@572": [
           "PropertySourcesPlaceholdersResolver",
           "Binder"
@@ -96052,7 +96110,8 @@
         ],
         "getOutcome@224": [
           "contains",
-          "commaDelimitedListToStringArray"
+          "commaDelimitedListToStringArray",
+          "getOutcome"
         ],
         "getOutcome@242": [
           "matches",
@@ -96173,7 +96232,9 @@
         "setServletConfig@262": []
       },
       "java/springboot/SpringApplication.java": {
-        "AbandonedRunException@1627": [],
+        "AbandonedRunException@1627": [
+          "AbandonedRunException"
+        ],
         "AbandonedRunException@1637": [],
         "Augmented@1498": [
           "copyOf"
@@ -96182,7 +96243,9 @@
         "NativeImageRequirementsException@1661": [],
         "PropertySourceOrderingBeanFactoryPostProcessor@1598": [],
         "SingleUseSpringApplicationHook@1684": [],
-        "SpringApplication@259": [],
+        "SpringApplication@259": [
+          "SpringApplication"
+        ],
         "SpringApplication@273": [
           "notNull",
           "LinkedHashSet",
@@ -96257,7 +96320,8 @@
         ],
         "callRunner@786": [
           "run",
-          "getSourceArgs"
+          "getSourceArgs",
+          "callRunner"
         ],
         "callRunner@796": [
           "throwing",
@@ -96434,7 +96498,8 @@
         ],
         "getOrderSource@1854": [
           "get",
-          "getClass"
+          "getClass",
+          "getOrderSource"
         ],
         "getOrderSource@1860": [
           "getMergedBeanDefinition",
@@ -96467,7 +96532,9 @@
           "currentThread",
           "forCurrentThread"
         ],
-        "getSpringFactoriesInstances@467": [],
+        "getSpringFactoriesInstances@467": [
+          "getSpringFactoriesInstances"
+        ],
         "getSpringFactoriesInstances@471": [
           "forDefaultResourceLocation",
           "getClassLoader",
@@ -96641,7 +96708,9 @@
           "getCRaCMXBean",
           "getRestoreTime"
         ],
-        "run@1353": [],
+        "run@1353": [
+          "run"
+        ],
         "run@1364": [
           "SpringApplication"
         ],
@@ -96768,7 +96837,8 @@
           "Augmented"
         ],
         "withHook@1445": [
-          "run"
+          "run",
+          "withHook"
         ],
         "withHook@1462": [
           "set",
@@ -96790,7 +96860,8 @@
           "addBeans"
         ],
         "addResourceHandler@370": [
-          "addResourceLocations"
+          "addResourceLocations",
+          "addResourceHandler"
         ],
         "addResourceHandler@374": [
           "hasMappingForPattern",
@@ -96946,7 +97017,8 @@
           "ServletContextResource"
         ],
         "getIndexHtmlResource@548": [
-          "getResource"
+          "getResource",
+          "getIndexHtmlResource"
         ],
         "getIndexHtmlResource@552": [
           "createRelative",

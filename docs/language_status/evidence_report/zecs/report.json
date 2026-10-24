@@ -399,7 +399,7 @@
    "carddemo-cotrtupc": [
     63,
     63,
-    136,
+    139,
     166
    ],
    "carddemo-dailyval": [
@@ -859,9 +859,9 @@
     33
    ],
    "cbsa-inqcust": [
-    22,
+    24,
     25,
-    39,
+    42,
     46
    ],
    "cbsa-updacc": [
@@ -1216,7 +1216,7 @@
     18
    ],
    "zecs-zecs000": [
-    33,
+    34,
     38,
     38,
     46
@@ -1626,10 +1626,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "93f1ded2032b4e213c58691790f601fd5ccda746",
+   "sha": "6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
    "translator": {
     "files": 145,
-    "sha256": "6d3f1f3c11887434672c3daa1274974b5aad43555e0cf84f51ce8c039fc2b9a0"
+    "sha256": "77ff59f7a5ce257d46f5eb0f091aeecfdfeeb48a913a8cd1b608459eea12c6f7"
    }
   },
   "sweeps": {}
@@ -3377,9 +3377,9 @@
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": 86.8,
+    "paragraph_pct": 89.5,
     "paragraphs": {
-     "covered": 33,
+     "covered": 34,
      "live": 38
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
@@ -3392,7 +3392,7 @@
     "cases": [
      {
       "case": "zecs-zecs000",
-      "case_scenarios": 10,
+      "case_scenarios": 13,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -3404,7 +3404,7 @@
     ],
     "chosen": {
      "case": "zecs-zecs000",
-     "case_scenarios": 10,
+     "case_scenarios": 13,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -3423,7 +3423,7 @@
     "score": null
    },
    "next": [
-    "paragraph coverage >= 100.0 (now 86.8)"
+    "paragraph coverage >= 100.0 (now 89.5)"
    ],
    "options": {
     "assumed": 6,
@@ -3953,7 +3953,7 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": 5,
+    "paragraphs_unrun": 4,
     "refused": null
    },
    "stale_inputs": [],
@@ -5097,8 +5097,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 93f1ded2032b4e213c58691790f601fd5ccda746",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 93f1ded2032b4e213c58691790f601fd5ccda746",
+   "python tests/tools/cics_census.py survey --baseline --sha 6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -5119,13 +5119,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "93f1ded2032b4e213c58691790f601fd5ccda746",
+   "sha": "6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
    "translator": {
     "files": 145,
-    "sha256": "6d3f1f3c11887434672c3daa1274974b5aad43555e0cf84f51ce8c039fc2b9a0"
+    "sha256": "77ff59f7a5ce257d46f5eb0f091aeecfdfeeb48a913a8cd1b608459eea12c6f7"
    }
   },
-  "translator_commit": "93f1ded2032b4e213c58691790f601fd5ccda746",
+  "translator_commit": "6fc7f169cf43cbc542774090a4ea7e51ccf344ba",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -5168,6 +5168,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "6d3f1f3c11887434672c3daa1274974b5aad43555e0cf84f51ce8c039fc2b9a0"
+  "fingerprint": "77ff59f7a5ce257d46f5eb0f091aeecfdfeeb48a913a8cd1b608459eea12c6f7"
  }
 }

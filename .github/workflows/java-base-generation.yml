@@ -129,6 +129,7 @@ jobs:
             "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
             --same-as "$GITHUB_WORKSPACE/gitgalaxy" \
             --base-cache "$RUNNER_TEMP/java_base_cache" \
+            --scan-cache "$RUNNER_TEMP/java_scan_cache" \
             --work "$RUNNER_TEMP/java_keep" \
             "${ONLY[@]}"
 
@@ -138,3 +139,12 @@ jobs:
         with:
           path: ${{ runner.temp }}/java_base_cache
           key: java-same-base-${{ matrix.corpus }}-${{ hashFiles('gitgalaxy/gitgalaxy/cobol_to_java_controller.py', 'gitgalaxy/gitgalaxy/cobol_refractor_controller.py', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_cobol/**', 'gitgalaxy/gitgalaxy/standards/yaml_reader.py', 'gitgalaxy/gitgalaxy/standards/fact_channel_confidence.json', 'gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py') }}
+
+      # #5142: the engine scan the generation just made, for java-compile.yml's pull-request run to start from
+      - name: Save the engine scan (main)
+        if: steps.kept.outputs.cache-hit != 'true' && steps.keep-gen.outcome == 'success'
+        continue-on-error: true  # best effort: a miss only costs a run its own scan
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/java_scan_cache
+          key: java-scan-${{ matrix.corpus }}-${{ hashFiles('gitgalaxy/gitgalaxy/**', '!gitgalaxy/gitgalaxy/tools/cobol_to_java/**', '!gitgalaxy/gitgalaxy/cobol_to_java_controller.py', '!gitgalaxy/gitgalaxy/cobol_refractor_controller.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json') }}

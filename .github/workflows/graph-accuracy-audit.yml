@@ -9,7 +9,8 @@ name: Graph Accuracy Audit
 #   - call resolution, Level 2: confident caller->callee links vs pyan3 on
 #     language-crucible's Python repos, and vs the TypeScript compiler's own
 #     type checker on the pinned typescript repo(s) of import_graph_corpus.json
-#     (tests/tools/call_graph_resolution.py + ts_callgraph.js), and vs scip-java
+#     (tests/tools/call_graph_resolution.py + ts_callgraph.js), on express's JavaScript
+#     through the same checker with allowJs (#3781), and vs scip-java
 #     (javac-resolved, through the shared SCIP adapter tests/tools/scip_callgraph.py,
 #     #3783) on the pinned java repo, and vs libclang (tests/tools/clang_callgraph.py, #3784)
 #     on the pinned c repos (the pip `libclang` wheel comes with callgraph.txt);
@@ -45,6 +46,7 @@ on:
       - "tests/import_graph_accuracy_baseline.json"
       - "tests/call_graph_resolution_baseline.json"
       - "tests/call_graph_resolution_typescript_baseline.json"
+      - "tests/call_graph_resolution_javascript_baseline.json"
       - "tests/call_graph_resolution_java_baseline.json"
       - "tests/call_graph_resolution_c_baseline.json"
       - "tests/span_anchor_baseline.json"
@@ -143,12 +145,13 @@ jobs:
           ( gate span-anchoring python tests/tools/span_anchor_audit.py --samples 3 ) &
           ( gate import-graph python tests/tools/import_graph_accuracy.py --samples 5
             gate call-typescript python tests/tools/call_graph_resolution.py typescript --samples 5
+            gate call-javascript python tests/tools/call_graph_resolution.py javascript --samples 5
             gate call-c python tests/tools/call_graph_resolution.py c --samples 5 ) &
           ( gate call-java python tests/tools/call_graph_resolution.py java --samples 5
             gate call-python python tests/tools/call_graph_resolution.py python --samples 5 ) &
           wait
           cat "$RUNNER_TEMP/gaa/times"
-          for n in import-graph call-typescript call-c call-java call-python span-anchoring; do
+          for n in import-graph call-typescript call-javascript call-c call-java call-python span-anchoring; do
             cat "$RUNNER_TEMP/gaa/$n.log"
             cat "$RUNNER_TEMP/gaa/$n.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
           done

@@ -22,7 +22,7 @@ Needs: `docker` = the GnuCOBOL oracle image; `jdk_maven` = JDK 17 and Maven; `db
 |---|---|---|
 | `crucible_checkout` | `CICS_CRUCIBLE_PATH` = the pinned checkout `runner-tests` clones, and a pytest line that names the files | `cics-crucible.yml` `runner-tests` |
 | `docker`, `jdk_maven` | `EQUIVALENCE_E2E=1`, the oracle image (cache + `equivalence_oracle.py --strict`), JDK 17, Maven cache | `equivalence-e2e.yml` `shard` (classifier-gated, owner decision: CI cost) |
-| `db2` | the above plus the pinned Db2 image (the `db2-image-<digest>` cache entry det-sweep.yml's main runs save), the ODBC driver cache, `GITGALAXY_DB2_POOL=1` | `equivalence-e2e.yml` `db2` (one runner, same gate) |
+| `db2` | the above plus the pinned Db2 image (the `db2-image-<digest>` cache entry det-sweep.yml's main runs save), the ODBC driver cache, `GITGALAXY_DB2_POOL=3` and `-n 3` | `equivalence-e2e.yml` `db2` (one runner, same gate) |
 
 ## Db2 files (run by the `db2` job, not the shards)
 
@@ -43,7 +43,7 @@ in the engine or the test, then drop its `--deselect`:
 | `test_equivalence_inputs.py::test_the_hand_written_ports_hold_on_generated_inputs[carddemo-acctview-generated-None]` | the report holds 63 outputs, the test expects 24 |
 | `test_equivalence_cics.py::test_a_facade_that_builds_its_own_task_fails_the_java_facade_side` | the mutated COMEN01C port exits 0 (proven) where the test expects 1 |
 
-The `db2` job `--deselect`s `test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace` (both
+The `db2` job `--deselect`s `test_equivalence_db2_rows.py::test_the_inqacccu_det_port_holds_on_generated_db2_rows` (the generated-row comparison reports a diff on a pristine checkout) and `test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace` (both
 `[N]` and `[A]`): the det port's `DetMq.java` fails to compile on a pristine checkout (`package com.gitgalaxy.modernized.cics
 does not exist`, `CicsTask` not found: the generated estate carries no `cics` package for a batch program that uses MQ
-stubs). The other 128 tests of the five files pass locally against Db2.
+stubs). The other tests of the five files pass locally against Db2 (178 of 181 ran: 128 in four files, 50 in the rows file, 34 min serial).

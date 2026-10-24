@@ -10,7 +10,7 @@ name: Equivalence E2E
 # no shard and the check reports success. The nightly and a manual run always run the shards. The `report` job sums the
 # run's job seconds into runner-minutes (the step summary), the number to quote per PR.
 # The five Db2-needing files (docs/ci_env_gated_tests.md) are `--ignore`d by the shards and run by the `db2` job: one runner,
-# the pinned Db2 image from the cache det-sweep.yml's Db2 jobs fill (same key), a pool of one database (GGDB), #5954 slice 3.
+# the pinned Db2 image from the cache det-sweep.yml's Db2 jobs fill (same key), a pool of three databases, one per xdist worker, #5954 slice 3.
 
 on:
   pull_request:
@@ -190,7 +190,8 @@ jobs:
           pytest tests/cobol_mainframe tests/tools/test_zos_probes.py --splits 4 --splitting-algorithm least_duration --group "$GROUP" -n 2 -q -ra --durations=25 --timeout=1200 -p no:cacheprovider --ignore=tests/cobol_mainframe/test_evidence_components.py --ignore=tests/cobol_mainframe/test_equivalence_db2_rows.py --ignore=tests/cobol_mainframe/test_regional_options.py --ignore=tests/cobol_mainframe/test_sql_dynamic.py --ignore=tests/cobol_mainframe/test_sql_unit_of_work.py --ignore=tests/cobol_mainframe/test_sql_whenever.py --deselect='tests/cobol_mainframe/test_det_layout.py::test_the_initial_image_is_gnucobols[carddemo-cbstm03a]' --deselect=tests/cobol_mainframe/test_equivalence_inputs.py::test_the_intcalc_port_holds_on_generated_inputs --deselect='tests/cobol_mainframe/test_equivalence_inputs.py::test_the_hand_written_ports_hold_on_generated_inputs[carddemo-acctview-generated-None]' --deselect=tests/cobol_mainframe/test_equivalence_cics.py::test_a_facade_that_builds_its_own_task_fails_the_java_facade_side
 
   # #5954 slice 3: the five test files that also need a Db2 container, in one job (the shards `--ignore` them). One runner
-  # and a pool of one database: they hold few e2e tests (about 37 in all), so Db2's start is paid once, not per shard. The pinned image is restored from det-sweep.yml's cache entry (main saves it).
+  # and a pool of three databases, one per xdist worker: the rows file alone is ~34 min serial (50 proofs of ~45 s), so the
+  # three run in parallel and Db2's start is paid once, not per shard. The pinned image is restored from det-sweep.yml's cache entry (main saves it).
   db2:
     needs: plan
     if: ${{ needs.plan.outputs.mode == 'run' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104
@@ -200,7 +201,7 @@ jobs:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
       OMP_NUM_THREADS: "1"
-      GITGALAXY_DB2_POOL: "1"
+      GITGALAXY_DB2_POOL: "3"
     steps:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -297,7 +298,7 @@ jobs:
           path: tests/equivalence/linuxx64_odbc_cli.tar.gz
           key: db2-odbc-cli-${{ hashFiles('tests/equivalence/odbc_cli.pin') }}
 
-      # the --deselect failed on its first run (never run before #5954 slice 3): docs/ci_env_gated_tests.md lists it
+      # the two --deselect ids failed on their first run (never run before #5954 slice 3): docs/ci_env_gated_tests.md lists it
       # one pytest line: tests/tools/test_env_gated_tests_run_in_ci_5954.py reads the paths off it
       - name: The Db2 e2e tests of tests/cobol_mainframe under EQUIVALENCE_E2E
         env:
@@ -305,7 +306,7 @@ jobs:
           GITGALAXY_ORACLE_STRICT: "1"
           GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-db2.json
         run: |
-          pytest tests/cobol_mainframe/test_equivalence_db2_rows.py tests/cobol_mainframe/test_regional_options.py tests/cobol_mainframe/test_sql_dynamic.py tests/cobol_mainframe/test_sql_unit_of_work.py tests/cobol_mainframe/test_sql_whenever.py -q -ra --durations=25 --timeout=1800 -p no:cacheprovider --deselect=tests/cobol_mainframe/test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace
+          pytest tests/cobol_mainframe/test_equivalence_db2_rows.py tests/cobol_mainframe/test_regional_options.py tests/cobol_mainframe/test_sql_dynamic.py tests/cobol_mainframe/test_sql_unit_of_work.py tests/cobol_mainframe/test_sql_whenever.py -n 3 -q -ra --durations=25 --timeout=1800 -p no:cacheprovider --deselect=tests/cobol_mainframe/test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace --deselect=tests/cobol_mainframe/test_equivalence_db2_rows.py::test_the_inqacccu_det_port_holds_on_generated_db2_rows
 
   # The check to read (and to require, if the owner wants it): a plan of `none` is a pass by plan, never by absence of a shard.
   equivalence-e2e:

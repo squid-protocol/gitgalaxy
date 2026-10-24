@@ -64,5 +64,6 @@ def test_proctran_rows_are_generated_the_same_each_time():
 
 def test_notes_name_every_hole_and_forbid_recording():
     notes = _case()["notes"]
-    for word in ("L1", "X18", "NOT PROVABLE", "Never --record", "nothing to prove"):
+    for word in ("L1", "X18", "ASSUMED", "a partial reach"):
         assert word in notes
+    assert "NOT PROVABLE" not in notes

@@ -28,10 +28,11 @@ from gitgalaxy.tools.cobol_to_java.det import stmt as S
 
 ENTRY = "DLITCBL"  # IMS's entry name for a DL/I program written in COBOL
 CALL = "CBLTDLI"
-# the other DL/I language interfaces: refused by name (CBLTDLI's call through an AIB, LE's CEETDLI)
+# CEETDLI (#5233, LE's interface) takes the same USING list as CBLTDLI: function, PCB, I/O area, SSAs
+CALLS = (CALL, "CEETDLI")
+# the other DL/I language interface: refused by name (CBLTDLI's call through an AIB)
 REFUSED_BY_NAME = {
     "AIBTDLI": "CALL AIBTDLI: the DL/I call through an AIB (application interface block) is not modelled",
-    "CEETDLI": "CALL CEETDLI: the Language Environment DL/I interface is not modelled",
 }
 BINARY = {"COMP", "COMP-4", "COMP-5", "BINARY", "COMPUTATIONAL", "COMPUTATIONAL-4", "COMPUTATIONAL-5"}
 
@@ -78,28 +79,33 @@ def _is_cbltdli(s: S.Stmt) -> bool:
 
 
 def call(gen: Any, s: S.Stmt, ind: str) -> list[str]:
-    """CALL 'CBLTDLI' USING function pcb io-area [ssa-1 ... ssa-15]: DetDli.call, then RETURN-CODE 0."""
+    """CALL 'CBLTDLI' | 'CEETDLI' USING function pcb io-area [ssa-1 ... ssa-15]: DetDli.call, then RETURN-CODE 0."""
     from gitgalaxy.tools.cobol_to_java.det.gen import Untranslatable
 
     pcbs = gen.dli_pcbs
+    name = str(s.data.get("program") or CALL).upper()
+    if name != CALL and isinstance(pcbs, BmpPcbs):
+        raise Untranslatable(
+            f"CALL {name}: in a BMP entered USING its I/O PCB is not modelled (only at ENTRY '{ENTRY}')"
+        )
     if pcbs is None:
-        raise Untranslatable(f"CALL {CALL}: a program IMS does not enter at ENTRY '{ENTRY}' (BMP, MPP or CICS) "
+        raise Untranslatable(f"CALL {name}: a program IMS does not enter at ENTRY '{ENTRY}' (BMP, MPP or CICS) "
                              "is not modelled")  # fmt: skip
     args = s.data["args"]
     if s.phrases:
-        raise Untranslatable(f"CALL {CALL}: ON EXCEPTION / OVERFLOW phrases are not modelled")
+        raise Untranslatable(f"CALL {name}: ON EXCEPTION / OVERFLOW phrases are not modelled")
     if not 3 <= len(args) <= 18:
-        raise Untranslatable(f"CALL {CALL}: a function, a PCB, an I/O area and up to 15 SSAs expected")
+        raise Untranslatable(f"CALL {name}: a function, a PCB, an I/O area and up to 15 SSAs expected")
     if any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
-        raise Untranslatable(f"CALL {CALL}: items BY REFERENCE expected")
+        raise Untranslatable(f"CALL {name}: items BY REFERENCE expected")
     refs = [a for _, a in args]
     first = gen.resolve(refs[0])
     if (getattr(first, "usage", None) or "").upper() in BINARY:
-        raise Untranslatable(f"CALL {CALL}: the parameter-count form (a binary count first) is not modelled")
+        raise Untranslatable(f"CALL {name}: the parameter-count form (a binary count first) is not modelled")
     if isinstance(pcbs, BmpPcbs) and refs[1].name.upper() == pcbs.io:
-        raise Untranslatable(f"CALL {CALL}: the I/O PCB {refs[1].name} (IMS TM message calls) is not modelled")
+        raise Untranslatable(f"CALL {name}: the I/O PCB {refs[1].name} (IMS TM message calls) is not modelled")
     if refs[1].name.upper() not in pcbs or refs[1].subscripts or refs[1].refmod is not None:
-        raise Untranslatable(f"CALL {CALL}: the PCB {refs[1].name} is not one IMS passed at ENTRY '{ENTRY}'")
+        raise Untranslatable(f"CALL {name}: the PCB {refs[1].name} is not one IMS passed at ENTRY '{ENTRY}'")
     fields = ", ".join(gen.field_expr(r) for r in refs)
     rc = gen.field_expr(E.Ref("RETURN-CODE"))
     return [f"{ind}DetDli.call({fields});", f"{ind}Cobol.store({rc}, BigDecimal.ZERO, false, CS);"]

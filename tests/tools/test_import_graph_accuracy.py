@@ -389,3 +389,73 @@ def test_swift_resolves_by_target_and_declared_type_never_by_path(tmp_path):
         set(),
         set(),
     ]
+
+
+@needs_ts
+def test_powershell_import_module_dot_source_and_using_module(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "a/m.psm1": "",
+            "a/x.ps1": "",
+            "bin/P.psd1": "",
+            "lib/h.ps1": "",
+        },
+    )
+    src = (
+        b"Import-Module $PSScriptRoot\\..\\bin\\P.psd1 -DisableNameChecking\n"
+        b"Import-Module -Name 'm.psm1'\n"
+        b"Import-Module P\n"
+        b'$r = . "$PSScriptRoot/x.ps1"\n'
+        b". $f\n"
+        b"using module m\n"
+        b"using namespace System.IO\n"
+        b"# . lib/h.ps1\n"
+        b'$s = "Import-Module lib/h.ps1"\n'
+        b"Import-Module -Force $root\\lib\\h.ps1\n"
+        b"Import-Module Other\n"
+    )
+    assert iga.powershell_imports(src, "a/z.ps1", g) == [
+        {"bin/P.psd1"},
+        {"a/m.psm1"},
+        {"bin/P.psd1"},
+        {"a/x.ps1"},
+        {"a/m.psm1"},
+        {"lib/h.ps1"},
+        set(),
+    ]
+
+
+@needs_ts
+def test_tcl_source_literal_tail_and_package_provide(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "m/main.tcl": "",
+            "m/foo.tcl": "package provide foo::bar 1.0\n",
+            "m/q.tcl": "",
+            "m/a.tcl": "",
+            "m/x/y.tcl": "",
+            "tm/baz-1.2.tm": "",
+        },
+    )
+    src = (
+        b"source [file join $d x y.tcl]\n"
+        b"source $d/a.tcl\n"
+        b'source "q.tcl"\n'
+        b"package require -exact foo::bar 1.0\n"
+        b"package require baz\n"
+        b"package require Tcl 8.6\n"
+        b"source [lindex $a 0]\n"
+        b"# source a.tcl\n"
+        b'puts "source a.tcl"\n'
+    )
+    assert iga.tcl_imports(src, "m/main.tcl", g) == [
+        {"m/x/y.tcl"},
+        {"m/a.tcl"},
+        {"m/q.tcl"},
+        {"m/foo.tcl"},
+        {"tm/baz-1.2.tm"},
+        set(),
+        set(),
+    ]

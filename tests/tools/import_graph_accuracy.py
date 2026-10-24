@@ -109,6 +109,14 @@ RESOLUTION RULES (the language's, never the engine's)
               package.json in the repo named @scope/pkg (npm remapping); else
               from the project root; otherwise a dependency.
 
+  powershell  `Import-Module p` / `using module p` / `. p.ps1`: `$PSScriptRoot` and a plain relative
+              path resolve against the file, a path behind another variable keeps its literal tail
+              (suffix match), a bare name is a module (Name.psm1 / Name.psd1 anywhere). `using
+              namespace|assembly` names no file; a `. $f` is dynamic.
+  tcl         `source p`: a literal path against the file, else its literal tail by suffix
+              (`[file join $d a b.tcl]` -> a/b.tcl); a fully dynamic path is not scored.
+              `package require X`: the files that `package provide X` (or a `X-1.0.tm` module).
+
   csharp      by NAMESPACE and NAME, never by path (a .cs file's directory means nothing):
               `using A.B;` names a namespace (block or file-scoped declaration), which has
               no file of its own: import contract C7, so no edge, never one per declaring
@@ -202,6 +210,8 @@ LANGS = (
     "solidity",
     "csharp",
     "swift",
+    "powershell",
+    "tcl",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -1499,6 +1509,137 @@ def swift_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_PS_MODULE_EXTS = (".psm1", ".psd1", ".ps1")
+_PS_PARAM = re.compile(r"-(?:Name|Path|FullyQualifiedName|LiteralPath)\b[ \t:]*", re.I)
+
+
+def _ps_path_arg(rest: str) -> str | None:
+    """The module or script an `Import-Module` / `using module` line names: the value of
+    -Name / -Path when given, else the first argument that is not a -Parameter."""
+    m = _PS_PARAM.search(rest)
+    if m:
+        rest = rest[m.end() :]
+    for tok in re.findall(r"'[^'\n]*'|\"[^\"\n]*\"|[^\s;|,)]+", rest):
+        if not tok.startswith("-"):
+            return tok.strip("'\"")
+    return None
+
+
+def _ps_resolve(spec: str, rel: str, group: Group) -> set[str]:
+    """`$PSScriptRoot\\..\\x.psm1` is relative to the file; a path behind another
+    variable keeps its literal tail and matches by suffix (the variable is
+    configuration); a bare name is a module: Name.psm1 / Name.psd1 anywhere."""
+    spec = spec.replace("\\", "/")
+    here = posixpath.dirname(rel)
+    if spec.lower().startswith("$psscriptroot"):
+        spec = spec[len("$psscriptroot") :].lstrip("/")
+        return group.exact(posixpath.join(here, spec)) or group.suffix(spec.lstrip("./"))
+    if "$" in spec:
+        tail = spec.rsplit("$", 1)[1]
+        tail = tail.split("/", 1)[1] if "/" in tail else ""
+        return group.suffix(tail.lstrip("./")) if tail.lower().endswith(_PS_MODULE_EXTS) else set()
+    if "/" not in spec and not spec.lower().endswith(_PS_MODULE_EXTS):
+        return set().union(*(group.suffix(spec + e) for e in _PS_MODULE_EXTS[:2]))
+    return group.exact(posixpath.join(here, spec)) or group.suffix(spec.lstrip("./"))
+
+
+def powershell_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    out = []
+    for n in _walk(_ts_tree("powershell", src)):
+        if n.type != "command":
+            continue
+        name = n.child_by_field_name("command_name")
+        text = _text(n, src)
+        if name is not None and name.type == "command_name":
+            verb = _text(name, src).lower()
+            rest = text[len(_text(name, src)) :]
+            if verb == "using":
+                kind, _, rest = rest.strip().partition(" ")
+                if kind.lower() != "module":
+                    continue  # namespace and assembly name no file
+            elif verb != "import-module":
+                continue
+            spec = _ps_path_arg(rest)
+            if spec:
+                out.append(_ps_resolve(spec, rel, group))
+        elif any(c.type == "command_invokation_operator" and _text(c, src) == "." for c in n.children):
+            expr = next((c for c in n.children if c.type == "command_name_expr"), None)
+            spec = _text(expr, src).strip("'\"") if expr is not None else ""
+            if spec.lower().endswith(".ps1"):  # `. $f` is dynamic
+                out.append(_ps_resolve(spec, rel, group))
+    return out
+
+
+def _tcl_provides(group: Group) -> dict[str, set[str]]:
+    """package name -> files that `package provide` it, or are its `name-1.0.tm` module file."""
+    if "tcl" not in group._cache:
+        index: dict[str, set[str]] = collections.defaultdict(set)
+        for f in group.files:
+            tm = re.fullmatch(r"(?:.*/)?([^/]+?)-\d[^/]*\.tm", f)
+            if tm:  # a module file: `foo/bar-1.0.tm` provides foo::bar, and bar
+                parent = posixpath.dirname(f).rsplit("/", 1)[-1]
+                index[tm.group(1)].add(f)
+                index[parent + "::" + tm.group(1)].add(f)
+            if not f.endswith((".tcl", ".tm", ".tk")) or group.root is None:
+                continue
+            try:
+                text = read_source(group.root / f).text
+            except OSError:
+                continue
+            for m in re.finditer(r"^[ \t]*package[ \t]+provide[ \t]+([^\s\"'{}\[\]]+)", text, re.M):
+                index[m.group(1)].add(f)
+        group._cache["tcl"] = index
+    return group._cache["tcl"]
+
+
+def _tcl_source_tail(arg: Any, src: bytes, keep: list[str]) -> str | None:
+    """The literal path a `source` argument spells: `x.tcl`, `$dir/x.tcl` -> `x.tcl`,
+    `[file join $dir a b.tcl]` -> `a/b.tcl`. Fully dynamic (`$f`, `[lindex ...]`) -> None."""
+    text = _text(arg, src).strip()
+    first = keep[0] if keep else ""
+    text = text[text.index(first) :] if first and first in text else text  # drop leading -options
+    if text.startswith("[") and text.endswith("]"):
+        words = [w for w in re.findall(r"\S+", text[1:-1])[1:] if w.lower() != "join"]
+        if not words:
+            return None
+        tail = []
+        for w in words:
+            if w.startswith(("$", "[")) or w in (".", ".."):
+                tail = []
+            else:
+                tail.append(w.strip('"{}'))
+        return "/".join(tail) or None
+    text = text.strip('"{}')
+    if "$" in text or "[" in text:
+        after = text.rsplit("$", 1)[1] if "$" in text else ""
+        text = after.split("/", 1)[1] if "/" in after else ""
+    return text or None
+
+
+def tcl_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    out = []
+    provides = _tcl_provides(group)
+    for n in _walk(_ts_tree("tcl", src)):
+        if n.type != "command":
+            continue
+        name = n.child_by_field_name("name")
+        args = n.child_by_field_name("arguments")
+        if name is None or args is None:
+            continue
+        verb = _text(name, src)
+        words = args.named_children
+        if verb == "source":
+            words = [w for w in words if not _text(w, src).startswith("-")]
+            tail = _tcl_source_tail(args, src, [_text(w, src) for w in words]) if words else None
+            if tail and not tail.startswith("/"):
+                out.append(group.exact(posixpath.join(posixpath.dirname(rel), tail)) or group.suffix(tail.lstrip("./")))
+        elif verb == "package" and words and _text(words[0], src) == "require":
+            names = [_text(w, src) for w in words[1:] if not _text(w, src).startswith("-")]
+            if names and re.fullmatch(r"[\w:.]+", names[0]):
+                out.append(set(provides.get(names[0], ())))
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -1522,6 +1663,8 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "solidity": solidity_imports,
     "csharp": csharp_imports,
     "swift": swift_imports,
+    "powershell": powershell_imports,
+    "tcl": tcl_imports,
 }
 
 

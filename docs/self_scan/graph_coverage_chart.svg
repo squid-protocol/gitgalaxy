@@ -17,7 +17,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="1244" height="1078"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 22, callee names 23, call resolution 8, hubs 21 of 65 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 24, callee names 23, call resolution 8, hubs 23 of 65 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -580,7 +580,18 @@
 </g>
 <rect class="stripe" x="16" y="582" width="1212" height="34"/>
 <text class="lang" x="22" y="603.0">powershell</text>
-<text class="none" x="120" y="602.0">not measured</text>
+<g><title>powershell imports: precision 100.0% of 81, recall 98.8% of 83 (raw 100.0% / 98.8%; 1 shapes without a verdict); corpus pester/Pester; small n</title>
+<text class="pr" x="120" y="596.5">Precision</text>
+<rect class="track" x="166" y="589" width="110" height="8" rx="2"/>
+<rect x="166" y="589" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="281" y="597">100.0%</text>
+<text class="pr" x="120" y="608.5">Recall</text>
+<rect class="track" x="166" y="601" width="110" height="8" rx="2"/>
+<rect x="166" y="601" width="108.7" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="281" y="609">98.8%*</text>
+<text class="n" x="324" y="597">n=83 imports</text>
+<text class="n" x="324" y="609">repos 1 · files 262</text>
+</g>
 <g><title>powershell callee names: precision 77.7% of 1,316, recall 38.4% of 2,662 (raw 77.7% / 38.4%; 10 shapes without a verdict)</title>
 <text class="pr" x="426" y="596.5">Precision</text>
 <rect class="track" x="472" y="589" width="110" height="8" rx="2"/>
@@ -594,7 +605,17 @@
 <text class="n" x="630" y="609">functions 460</text>
 </g>
 <text class="none" x="732" y="602.0">not measured</text>
-<text class="none" x="1038" y="602.0">not measured</text>
+<g><title>powershell hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="596.5">overlap@10</text>
+<rect class="track" x="1090" y="589" width="110" height="8" rx="2"/>
+<rect x="1090" y="589" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="597">100%</text>
+<text class="pr" x="1038" y="608.5">Spearman</text>
+<rect class="track" x="1090" y="601" width="110" height="8" rx="2"/>
+<rect x="1090" y="601" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="609">1.00</text>
+<text class="n" x="1240" y="597">repos=1</text>
+</g>
 <text class="lang" x="22" y="637.0">python</text>
 <g><title>python imports: precision 99.9% of 1,916, recall 100.0% of 2,101 (raw 99.9% / 100.0%; 2 shapes without a verdict); corpus encode/httpx, fastapi/fastapi, pallets/flask</title>
 <text class="pr" x="120" y="630.5">Precision</text>
@@ -859,7 +880,18 @@
 <text class="none" x="1038" y="840.0">not measured</text>
 <rect class="stripe" x="16" y="854" width="1212" height="34"/>
 <text class="lang" x="22" y="875.0">tcl</text>
-<text class="none" x="120" y="874.0">not measured</text>
+<g><title>tcl imports: precision 100.0% of 33, recall 4.4% of 804 (raw 100.0% / 4.4%; 4 shapes without a verdict); corpus tcltk/tcllib</title>
+<text class="pr" x="120" y="868.5">Precision</text>
+<rect class="track" x="166" y="861" width="110" height="8" rx="2"/>
+<rect x="166" y="861" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="869">100.0%</text>
+<text class="pr" x="120" y="880.5">Recall</text>
+<rect class="track" x="166" y="873" width="110" height="8" rx="2"/>
+<rect x="166" y="873" width="4.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="881">4.4%*</text>
+<text class="n" x="324" y="869">n=804 imports</text>
+<text class="n" x="324" y="881">repos 1 · files 784</text>
+</g>
 <g><title>tcl callee names: precision 93.8% of 2,277, recall 71.2% of 2,231 (raw 69.8% / 71.2%; 13 shapes without a verdict)</title>
 <text class="pr" x="426" y="868.5">Precision</text>
 <rect class="track" x="472" y="861" width="110" height="8" rx="2"/>
@@ -873,7 +905,17 @@
 <text class="n" x="630" y="881">functions 369</text>
 </g>
 <text class="none" x="732" y="874.0">not measured</text>
-<text class="none" x="1038" y="874.0">not measured</text>
+<g><title>tcl hubs: 20% / -0.69 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="868.5">overlap@10</text>
+<rect class="track" x="1090" y="861" width="110" height="8" rx="2"/>
+<rect x="1090" y="861" width="22.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="869">20%</text>
+<text class="pr" x="1038" y="880.5">Spearman</text>
+<rect class="track" x="1090" y="873" width="110" height="8" rx="2"/>
+<rect x="1090" y="873" width="2.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="881">-0.69</text>
+<text class="n" x="1240" y="869">repos=1</text>
+</g>
 <text class="lang" x="22" y="909.0">typescript</text>
 <g><title>typescript imports: precision 100.0% of 828, recall 100.0% of 870; corpus colinhacks/zod</title>
 <text class="pr" x="120" y="902.5">Precision</text>

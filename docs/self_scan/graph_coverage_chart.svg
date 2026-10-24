@@ -122,7 +122,7 @@
 <text class="n" x="630" y="189">n=7,757 calls</text>
 <text class="n" x="630" y="201">functions 1,291</text>
 </g>
-<g><title>cpp call resolution: precision 91.1% of 1,739, recall 16.3% of 9,711; vs libclang (c++) 18.1.1; corpus import_graph</title>
+<g><title>cpp call resolution: precision 91.1% of 1,741, recall 16.3% of 9,711; vs libclang (c++) 18.1.1; corpus import_graph</title>
 <text class="pr" x="732" y="188.5">Precision</text>
 <rect class="track" x="778" y="181" width="110" height="8" rx="2"/>
 <rect x="778" y="181" width="100.2" height="8" rx="2" fill="#4a3aa7"/>
@@ -581,7 +581,7 @@
 <rect class="stripe" x="16" y="582" width="1212" height="34"/>
 <text class="lang" x="22" y="603.0">powershell</text>
 <text class="none" x="120" y="602.0">not measured</text>
-<g><title>powershell callee names: precision 77.7% of 1,316, recall 38.4% of 2,662 (raw 77.7% / 38.4%; 14 shapes without a verdict)</title>
+<g><title>powershell callee names: precision 77.7% of 1,316, recall 38.4% of 2,662 (raw 77.7% / 38.4%; 15 shapes without a verdict)</title>
 <text class="pr" x="426" y="596.5">Precision</text>
 <rect class="track" x="472" y="589" width="110" height="8" rx="2"/>
 <rect x="472" y="589" width="85.5" height="8" rx="2" fill="#4a3aa7"/>

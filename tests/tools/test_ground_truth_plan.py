@@ -30,7 +30,6 @@ yaml = pytest.importorskip("yaml")
         "docs/ci.md",
         "docs/wiki/Home.md",
         "docs/research/third-party-material-policy.md",
-        "docs/self_scan/tri_comparison_ledger.json",
         ".claude/rules/agent-memory.md",
         ".claude/skills/det-port/SKILL.md",
         ".github/workflows/smoke-test.yml",
@@ -86,6 +85,9 @@ def test_a_file_the_job_does_not_read_is_not_an_input(path):
         "docs/language_status/register/C5.md",
         "docs/language_status/cobolrt_rules.json",
         "docs/self_scan/ground_truth_history.jsonl",
+        # #6278: docs/ outside language_status that a tool the job reaches names (the net is wide: over-approximate)
+        "docs/self_scan/tri_comparison_ledger.json",
+        "docs/zero_dependency_mode.md",
         ".github/workflows/mainframe-ground-truth.yml",
         ".github/workflows/det-sweep.yml",
         "pyproject.toml",
@@ -209,9 +211,16 @@ def test_the_zos_probe_pr_proves_nothing_but_a_register_edit_beside_it_does():
     assert gp.plan([*zos, "docs/language_status/register/A1.md"], "pull_request")["mode"] == "full"
 
 
+def test_docs_outside_language_status_ask_the_classifier_too():
+    assert gp.plan(["docs/ci.md", "docs/wiki/Home.md"], "pull_request")["mode"] == "none"
+    assert gp.plan(["README.md"], "pull_request")["mode"] == "none"
+    assert gp.plan(["docs/ci.md", "docs/zero_dependency_mode.md"], "pull_request")["mode"] == "full"
+
+
 def test_an_unreadable_classifier_list_runs_the_check(monkeypatch):
     def broken():
         raise OSError("no list")
 
     monkeypatch.setattr(gp.change_classifier, "load", broken)
     assert gp.is_input("docs/language_status/zos_probes.json")
+    assert gp.is_input("docs/ci.md")  # any docs/ path, not only language_status

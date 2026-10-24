@@ -223,6 +223,18 @@ def test_ts_oracle_kotlin_units_and_trailing_lambda_calls(tmp_path):
     assert res["misses_by_shape"] == {"call": 1} and res["engine_only_by_kind"] == {}, res  # init -> ifKey missed
 
 
+def test_ts_oracle_kotlin_stdlib_filter_does_not_leak_into_other_languages(tmp_path):
+    """The lambda-only stdlib rule is Kotlin's: a JavaScript ``map(x)`` of a port-defined ``map`` is still a call."""
+    pytest.importorskip("tree_sitter_language_pack")
+    import ts_callgraph_oracle as ts
+
+    if not ts.available("javascript"):
+        pytest.skip("tree-sitter language pack has no javascript grammar")
+    (tmp_path / "a.js").write_text("function map() {}\nfunction f() {\n  map();\n}\n")
+    res = ts.body_oracle(tmp_path, [("a.js", "javascript", "map", 1, []), ("a.js", "javascript", "f", 2, [])])
+    assert res["oracle_calls"] == 1 and res["misses_by_shape"] == {"call": 1}, res
+
+
 def test_ts_oracle_reads_rust_macro_arguments_and_skips_quote(tmp_path):
     pytest.importorskip("tree_sitter_language_pack")
     import ts_callgraph_oracle as ts

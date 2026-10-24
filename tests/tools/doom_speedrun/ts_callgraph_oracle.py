@@ -161,7 +161,7 @@ class Body:
                 field = spec.calls[n.type]
                 fn = n.child_by_field_name(field) if field else (n.named_children or [None])[0]
                 name = callee_name(fn) if fn is not None else None
-                if n.type == "call_expression" and name in KOTLIN_STDLIB and not _has_arguments(n):
+                if spec.parser == "kotlin" and name in KOTLIN_STDLIB and not _has_arguments(n):
                     name = None
                 if name is not None:
                     self.calls.add(name)

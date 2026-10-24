@@ -8,8 +8,9 @@ anything is installed.
                    step_timeout) for the Full Suite Gate
 
 The workflow's plan job calls this module, so adding tests moves the plan, not the YAML. The committed durations are
-Linux CI seconds: a Windows or macOS leg multiplies them by its SPEED. The model constants were calibrated so today's
-durations reproduce today's part counts (Smoke 3; Gate ubuntu 2, macOS 2, Windows 3.11 3 and 3.12 2).
+Linux CI seconds: a Windows or macOS leg multiplies them by its SPEED. The model constants were calibrated so the
+durations of #6054 reproduced the then hand-typed part counts (Smoke 3; Gate ubuntu 2, macOS 2, Windows 3.11 3 and
+3.12 2); a durations refresh moves the plan (#6146's halved ground-truth seconds plan Smoke 2).
 """
 
 from __future__ import annotations

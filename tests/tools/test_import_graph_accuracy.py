@@ -525,3 +525,62 @@ def test_groovy_resolves_by_package_and_declared_type_never_by_path(tmp_path):
         set(),
         set(),
     ]
+
+
+def test_fortran_resolves_by_module_name_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            # the file name means nothing: the module is found by what the file declares
+            "src/a_file.f90": "module Alpha_Mod\ncontains\n  module subroutine s()\n  end subroutine\nend module Alpha_Mod\n",
+            "src/beta.F90": "! module ghost\nmodule beta\nend module beta\n",
+            "src/dup1.f90": "module twin\nend module\n",
+            "lib/dup2.f90": "module twin\nend module\n",
+            "old/fixed.f": "c module cmt\n      module fixedmod\n      end module\n",
+            "src/sub.f90": "submodule (alpha_mod) child\nend submodule\n",
+            "src/iso_fortran_env.f90": "module iso_fortran_env\nend module\n",
+            "inc/consts.inc": "integer :: k\n",
+            "src/notes.txt": "module notmine\n",
+        },
+    )
+    src = (
+        b"program p\n"
+        b"  use alpha_mod\n"  # case-insensitive
+        b"  use :: beta\n"
+        b"  USE beta, only: x\n"
+        b"  use, non_intrinsic :: beta\n"
+        b"  use, intrinsic :: iso_fortran_env\n"  # the standard's module: no edge
+        b"  use twin\n"  # declared in two files
+        b"  use fixedmod\n"
+        b"  use ghost\n"  # only in a comment
+        b"  use child\n"  # a submodule is not usable
+        b"  use notmine\n"  # not a Fortran file
+        b"  use missing_mod\n"
+        b"  ! use beta\n"
+        b"  use_count = 3\n"  # not a use statement
+        b"  module_x = 1\n"
+        b"  include 'consts.inc'\n"
+        b"  include 'absent.inc'\n"
+        b"end program\n"
+    )
+    assert iga.fortran_imports(src, "inc/main.f90", g) == [
+        {"src/a_file.f90"},
+        {"src/beta.F90"},
+        {"src/beta.F90"},
+        {"src/beta.F90"},
+        set(),
+        {"src/dup1.f90", "lib/dup2.f90"},
+        {"old/fixed.f"},
+        set(),
+        set(),
+        set(),
+        set(),
+        {"inc/consts.inc"},
+        set(),
+    ]
+
+
+def test_fortran_fixed_form_comment_column_one_is_not_a_statement(tmp_path):
+    g = _group(tmp_path, {"a.f90": "module a\nend module\n"})
+    src = b"c      use a\n*      use a\n      use a\n"
+    assert iga.fortran_imports(src, "old/x.f", g) == [{"a.f90"}]

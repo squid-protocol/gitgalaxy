@@ -245,6 +245,16 @@
     "recall_pct": 99.8,
     "repos": "OpenZeppelin/openzeppelin-contracts"
   },
+  "swift": {
+    "engine_edges": 22,
+    "files": 170,
+    "fn": 0,
+    "fp": 22,
+    "imports": 0,
+    "precision_pct": 0.0,
+    "recall_pct": null,
+    "repos": "apple/swift-argument-parser"
+  },
   "typescript": {
     "engine_edges": 828,
     "files": 470,

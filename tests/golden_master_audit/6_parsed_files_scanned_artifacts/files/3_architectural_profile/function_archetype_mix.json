@@ -8112,7 +8112,7 @@
         "Many-Argument Workhorses": 1
       },
       "powershell/core/PowerShell__build.psm1": {
-        "Callbacks & Closures": 33,
+        "Callbacks & Closures": 41,
         "Compute Cores": 6,
         "Defensive Guards": 3,
         "Generic / Templated Code": 3,
@@ -8145,7 +8145,7 @@
         "Type Conversions": 2
       },
       "powershell/core/build.psm1": {
-        "Callbacks & Closures": 33,
+        "Callbacks & Closures": 41,
         "Compute Cores": 6,
         "Defensive Guards": 3,
         "Generic / Templated Code": 3,

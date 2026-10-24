@@ -246,13 +246,20 @@ list is passed as `-isystem`). Each `.cc`, `.cpp` or `.cxx` file is one translat
 - A definition is named as the engine names it: bare, except an out-of-line member (`int Foo::bar() {...}`) is
   `Foo::bar`. A callee with no def in the repo (std, libc) is `external`.
 
-**First numbers vs libclang** (fmt, 1,739 confident links judged): precision 91.1% (96.3% overload-blind, 81.5%
-strict), recall 16.3%, resolution recall 63.8%, 90 wrong-overload links, 204 external, 1,691 unmapped.
+**First numbers vs libclang** (fmt, 1,741 confident links judged): precision 91.1% (96.3% overload-blind, 81.5%
+strict), recall 16.3%, resolution recall 63.8%, 90 wrong-overload links, 204 external, 1,680 unmapped.
 
 **What the reference cannot see:** it parses one preprocessor configuration, and it deliberately does not mimic
 the engine's leading `::name` for out-of-line members of template classes, so those links count as unmapped.
 The low recall is mostly engine-side and is not tuned away: gtest `TEST` macros in `test/`, the `::name`
-convention, conversion-operator spelling, and template-overload line mismatches. They feed a later miss sweep.
+convention and template-overload line mismatches. They feed a later miss sweep. A template conversion operator is
+named without its template arguments (`operator Box`), as the engine does.
+
+**gtest bodies are not a free win (#3784):** 6,117 of the 6,409 `caller_unmapped` misses are `TEST(suite, name)`
+bodies the reference names `suite_name_Test::TestBody`. Naming them `name` maps them, but then confident precision
+falls 91.1% -> 79.1% and resolution recall 63.8% -> 56.5%: their `fmt::format(...)` calls resolve (`qualified` step)
+to an unrelated `format` member such as `formatter<X>::format` in `test/format-test.cc`, wrong links that were hidden
+while the callers were unmapped. Fix the resolver's qualified step first, then map the bodies.
 
 ## Span anchoring
 

@@ -128502,6 +128502,7 @@
         ],
         "Get-RedHatPackageManager@2303": [],
         "Get-UniquePackageFolderName@3681": [],
+        "GetTests@3144": [],
         "Install-AzCopy@3939": [
           "Write-Verbose",
           "Invoke-WebRequest",
@@ -128754,6 +128755,13 @@
         "Test-XUnitTestResults@1930": [
           "Write-Log"
         ],
+        "ToString@3134": [],
+        "ToString@3174": [],
+        "ToString@3219": [],
+        "ToString@3244": [],
+        "ToString@3256": [],
+        "ToString@3270": [],
+        "ToString@3305": [],
         "Update-DotNetSdkVersion@4034": [
           "Write-Verbose"
         ],
@@ -128956,6 +128964,7 @@
         ],
         "Get-RedHatPackageManager@2303": [],
         "Get-UniquePackageFolderName@3681": [],
+        "GetTests@3144": [],
         "Install-AzCopy@3939": [
           "Write-Verbose",
           "Invoke-WebRequest",
@@ -129208,6 +129217,13 @@
         "Test-XUnitTestResults@1930": [
           "Write-Log"
         ],
+        "ToString@3134": [],
+        "ToString@3174": [],
+        "ToString@3219": [],
+        "ToString@3244": [],
+        "ToString@3256": [],
+        "ToString@3270": [],
+        "ToString@3305": [],
         "Update-DotNetSdkVersion@4034": [
           "Write-Verbose"
         ],

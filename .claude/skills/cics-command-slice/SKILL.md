@@ -120,6 +120,7 @@ Traps `--check` exists for:
 - **The harness trims trailing spaces from a SEND TEXT event's text**: a hand-traced expected string with trailing spaces fails even when the case is proven (#5196).
 - **After a cics-crucible pin bump**, run `tests/tools/evidence.py prove` on the stale `crucible:` keys as well as `crucible_port_provenance.py reprove`; reprove leaves `evidence.json` stale (#5192).
 - **The stub receives `LENGTH OF RIDFLD` as keylen when the program codes no KEYLENGTH**: a stub check that needs to know KEYLENGTH was given must get it as a GG-FLAGS word set in `tests/tools/equivalence_cics.py` (#5201).
+- **GG-FLAGS is shared across stub calls** (FETCH also puts NOSUSPEND there): use a distinct token and clear it after reading (#6228). **A generated Java `main` inlining many scenarios hits "code too large" (64 KB):** wrap each in a method (`new Object() { void go() {...} }.go()`) (#6228).
 - **`equivalence_cics.outputs()` collects a WRITEQ-TD record only when its resp is 0**, else a failed write shifts later records (#5202).
 - **Abend vs SYNCPOINT in unit scenarios**: a test expecting an abend to restore a LOGICAL queue must touch it after the last SYNCPOINT (#5202).
 - **Failed CICS writes (INVREQ, NOTOPEN) belong in the e2e program**, not only the stub unit lists: harness bugs show only end to end (#5202).

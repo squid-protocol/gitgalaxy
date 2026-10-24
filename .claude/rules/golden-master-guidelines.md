@@ -28,3 +28,6 @@ The test scripts resolve the `LANGUAGE_CRUCIBLE_PATH` corpus relative to the rep
   aperture PR merges (#5481, #5504).
 * A fast lane that skips the detector on an ambiguous-extension `.h` file gets the file banished by
   `statistical_auditor`; skip only the Security Lens (#5441).
+* `crucible_check.py` on pristine HEAD can show ~11k differences when box load is above 6: compare against an
+  unchanged-engine control before reading drift as yours (#6298). `doom_speedrun.py scan` reuses `<work>/scans/<engine-sha>`
+  at the same HEAD: `rm -rf` it to rescan after an engine edit (#6298).

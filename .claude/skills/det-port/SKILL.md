@@ -250,4 +250,5 @@ A translator fix is never a hand edit of a port.
   repeated identical approve collides on the PAUTDTL1 key at the fixed clock (I004): only a path writing nothing to IMS can
   repeat. A `STRING ... WITH POINTER` whose pointer is never reset overruns a bounded buffer within a few loop iterations (#6153).
 - **`det_port.py check` needs every pinned corpus at its ref:** use a private corpora dir, don't move the shared cache (#6087).
+- **A new Java method in a catalogued runtime family** fails `test_cobolrt_rules` until `docs/language_status/cobolrt_rules.json` names it; count that file in the 5-file limit (#6222). **Adding a line to a det port reseeds the 150-mutant sample:** drop stale survivor claims as `det_mutation.py check` says, and resolve `mutation_testing.md` conflicts by regenerating with `mutation_scores.py table` (#6233).
   `progress_report.gather()` in a test reads the translator (~12 s): use `build()` with stubs (#5948).

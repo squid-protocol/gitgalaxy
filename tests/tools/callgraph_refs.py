@@ -221,6 +221,11 @@ def clang_contract(repo: Path) -> dict[str, Any]:
     return clang_callgraph.build(repo)
 
 
+def clang_cpp_contract(repo: Path) -> dict[str, Any]:
+    """The same for C++ sources: USR-linked overloads, `Class::method` names (#3784)."""
+    return clang_callgraph.build(repo, "cpp")
+
+
 def _tsc_version() -> str | None:
     probe = "const t=require('typescript');process.stdout.write(typeof t.createProgram==='function'?t.version:'')"
     try:
@@ -310,6 +315,18 @@ REFERENCES: dict[str, Reference] = {
         (Path(__file__), TOOLS / "clang_callgraph.py"),
         True,
         'pip install "libclang==18.1.1"',
+    ),
+    # C++ through the same libclang, linked by USR; a distinct tool name keeps BY_TOOL unambiguous
+    "cpp": Reference(
+        "cpp",
+        "libclang (c++)",
+        "18.1.1",
+        "import_graph",
+        clang_cpp_contract,
+        clang_callgraph.libclang_version,
+        (Path(__file__), TOOLS / "clang_callgraph.py"),
+        True,
+        'pip install "libclang==18.1.1"  (and a host g++ for the C++ system headers)',
     ),
     # SCIP (#3783): scip-java's compiler-resolved index, through the shared SCIP adapter
     "java": Reference(

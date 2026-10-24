@@ -156,6 +156,29 @@ def test_ledger_and_sweep_json_sources_use_compact_lists_and_fill_kind_and_unit(
     assert rep["origin"] == "sweep.json" and len(rep["branches"]) == 1
 
 
+def test_paragraph_strings_in_the_branch_list_are_paragraphs_not_outcomes():
+    """A ledger / sweep row lists "paragraph:NAME" beside the "line:outcome" strings (a copybook paragraph is also
+    "NAME:None" in the paragraph list): none of them may reach int() (#6072)."""
+    got = lg.from_strings("ledger", ["COPY-PARA:None", "RARE-PARA:20"],
+                          ["paragraph:COPY-PARA", "8:false", "paragraph:ONLY-IN-BRANCHES", "14:WHEN@15"])  # fmt: skip
+    assert [(p["name"], p["line"]) for p in got["paragraphs"]] == [("COPY-PARA", None), ("RARE-PARA", 20),
+                                                                 ("ONLY-IN-BRANCHES", None)]  # fmt: skip
+    assert [(b["line"], b["outcome"]) for b in got["branches"]] == [(8, "false"), (14, "WHEN@15")]
+    assert lg.from_strings("ledger", [], ["paragraph:X"])["branches"] == []
+
+
+def test_a_copybook_paragraph_without_a_line_is_reported(tree, monkeypatch):
+    _, corpus = tree
+    monkeypatch.setattr(lg, "scan_program", lambda src: SCAN)
+    led = {"tiny-case": {"paragraphs": {"covered": 2, "live": 3}, "branches": {"covered": 0, "total": 3},
+                         "uncovered": {"paragraphs": ["COPY-PARA:None"], "branches": ["paragraph:COPY-PARA", "8:false"]}}}  # fmt: skip
+    monkeypatch.setattr(dcl, "last_coverage", lambda case, ledger_: {"coverage": (2, 3, 0, 3), "stale_inputs": []})
+    rep = lg.build_case_report("tiny-case", None, led, corpus)
+    assert [(p["name"], p["line"]) for p in rep["paragraphs"]] == [("COPY-PARA", None)]
+    assert len(rep["branches"]) == 1
+    assert "src/TINY.cbl (COPY member)" in lg.render_md([rep]) and "None" not in lg.render_md([rep])
+
+
 def test_a_stale_or_missing_measurement_says_how_to_get_one(tree, monkeypatch):
     _, corpus = tree
     led = {"tiny-case": {"paragraphs": {"covered": 2, "live": 3}, "branches": {"covered": 0, "total": 3},

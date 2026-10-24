@@ -134,8 +134,14 @@ def _section(field: str, rows: Any, confidence: dict[str, dict[str, Any]]) -> di
     }
 
 
-def _names(row: dict[str, Any], path: str) -> bool:
-    return any(row.get(key) == path for key in _PROGRAM_KEYS)
+def _by_program(rows: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    """Each program path -> the rows naming it under any of `_PROGRAM_KEYS`, in join order, a row once per path.
+    Indexed once per join: slicing per program by scanning every row is programs x rows (118 s on DSF, #5142)."""
+    index: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        for path in {v for key in _PROGRAM_KEYS if isinstance(v := row.get(key), str)}:
+            index.setdefault(path, []).append(row)
+    return index
 
 
 class SkeletonExporter:
@@ -154,6 +160,7 @@ class SkeletonExporter:
                 if "language" in inspect.signature(fn).parameters:
                     self._joins[name] = list(self._joins[name]) + list(fn(language="pli"))
             self._interfaces = {**self._interfaces, **ir.program_interfaces(language="pli")}
+        self._by_program = {name: _by_program(rows) for name, rows in self._joins.items()}
 
     def program(self, ef: EngineFile) -> dict[str, Any]:
         path = ef.file_path
@@ -161,7 +168,7 @@ class SkeletonExporter:
             name: _section(field, getattr(ef, attr), self.confidence) for name, (attr, field) in FILE_CHANNELS.items()
         }
         for name, (_, field) in PROGRAM_JOINS.items():
-            rows = [row for row in self._joins[name] if _names(row, path)]
+            rows = self._by_program[name].get(path, [])
             sections[name] = _section(field, rows, self.confidence)
         # #3615: the COMMAREA layout the program receives and the containers it reads / writes.
         # One mapping, not rows: `facts` is the program_interfaces() entry.

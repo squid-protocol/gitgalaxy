@@ -2846,7 +2846,7 @@
       "python/fastapi/fastapi/background.py": 3,
       "python/fastapi/fastapi/cli.py": 2,
       "python/fastapi/fastapi/concurrency.py": 1,
-      "python/fastapi/fastapi/datastructures.py": 11,
+      "python/fastapi/fastapi/datastructures.py": 7,
       "python/fastapi/fastapi/encoders.py": 3,
       "python/fastapi/fastapi/exception_handlers.py": 1,
       "python/fastapi/fastapi/exceptions.py": 32,

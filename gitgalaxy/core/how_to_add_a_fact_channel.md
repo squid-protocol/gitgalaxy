@@ -133,8 +133,10 @@ dialect that predates the channel is not a missing-key error. It then propagates
   It names the `table`, the `payload_key`, the `columns` *after* the standard
   `(repo_name, commit_hash, file_id)`, and a `to_row(item)` mapping each payload dict to those
   columns; `record_keeper` loops over the registry and calls `_insert_per_file_child`. (This is for **per-file** facts. The call graph is
-  different — see "Per-file vs global" below. A channel needing a custom insert is still hand-wired
-  in `record_keeper` until the registry grows a hook for it.)
+  different — see "Per-file vs global" below. A channel inserted from a resolved repo-wide list
+  sets `resolved=True` and a `to_row(site, path_to_file_id)` that also fills its destination
+  (`call_site` is the one so far; `record_keeper._insert_resolved_channel`). Any other custom
+  insert is still hand-wired in `record_keeper` until the registry grows a hook for it.)
 
 ### 4b. Report it in the two output surfaces (both optional/presence-keyed)
 
@@ -166,6 +168,10 @@ every scan). Prove it: a full scan and an incremental scan must produce byte-ide
 (excluding the autoincrement `id`, which legitimately drifts on delete+reinsert).
 `tests/core_engine/test_fact_channels.py` checks every registry entry's columns and restore query
 against the real schema.
+
+The same test file also checks the docs against the registry: the channel table above, the `galaxy_ir`
+SCOPE comment and loader, and `gitgalaxy/recorders/README.md` (the DB schema doc, which must mention every
+registered table) -- a new `FactChannel` without its row and its README paragraph fails there.
 
 ### 6. Expose it in the IR reader (`tools/cobol_to_cobol/galaxy_ir.py`)
 

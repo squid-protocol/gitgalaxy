@@ -56,6 +56,7 @@ $PY tests/tools/equivalence.py run CASE --keep $SCRATCH/k   # then $SCRATCH/k/co
 ```
 Plain `equivalence.py run` leaves out the SQL-fault tasks (lgapdb01 read 6/7 there vs 7/7 in the sweep): never take
 before/after numbers from it. `det_port.py run` does not write the ledger.
+Known traps: `ladder_gaps.py` crashes on a paragraph entry from a copybook (`NAME:None`, no source line; `_split_outcome` does `int(line)`, #6364); `ladder_refresh.py`'s test `test_burned_generated_inputs_need_no_class_1_or_3_cause` can fail in a worktree with `LayoutError` (`COPY CIPAUSMY` unresolved, PAUDBLOD.CBL; uninvestigated, #6377); a bare `cics_crucible.py --ci` takes over 2 min, so run it through `heavy-run.sh` in the background (#6348).
 
 ## 4. Close each gap
 

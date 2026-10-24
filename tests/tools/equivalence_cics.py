@@ -37,6 +37,7 @@ import cobol_coverage as cov  # #4023
 import equivalence_common as common
 import equivalence_cics_conditions as cics_conditions  # #5274: the conditions / handlers family
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
+import equivalence_cics_faults as cics_faults  # #5274: the fault-injection planner
 import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
 import equivalence_cics_tempstorage as cics_tempstorage  # #5274: the temporary storage family
 import equivalence_db2
@@ -56,6 +57,13 @@ from gitgalaxy.standards.cics.resp import DFHRESP as SPEC_DFHRESP
 from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA  # #4415: DFHVALUE(name), IBM's CVDA numbers
 
 handler_labels = cics_conditions.handler_labels
+fault_lines = cics_faults.fault_lines  # public names the tests and the runners reach through this module
+dli_fault_lines = cics_faults.dli_fault_lines
+enq_fault_key = cics_faults.enq_fault_key
+FAULT_COMMANDS = cics_faults.FAULT_COMMANDS
+UI_FAULT_CONDITIONS = cics_faults.UI_FAULT_CONDITIONS
+FILE_FAULT_CONDITIONS = cics_faults.FILE_FAULT_CONDITIONS
+LINK_REFUSED_CONDITIONS = cics_faults.LINK_REFUSED_CONDITIONS
 ts_seed = cics_tempstorage.ts_seed  # public names the tests and the compare step reach through this module
 java_ts_as_compared = cics_tempstorage.java_ts_as_compared
 STUB = common.CASES / "cics"
@@ -1308,6 +1316,8 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
             ):  # #6271 (X70): a planned abend went to the HANDLE ABEND exit, or ends the task
                 return ["MOVE 0 TO GG-GOTO", *lines, *_map_abend(labels)]
             return lines
+    if verb == "GGSQLAB":  # #6271 (X73): the harness's own marker after a Db2 statement planned to abend AD2Z
+        return ["MOVE 0 TO GG-GOTO", f"MOVE {opts['NAME']} TO GG-FLAGS", *_call("GGCSQLAB", []), *_map_abend(labels)]
     if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
         return _delay(opts, labels)
     if verb == "POST":  # #5079 (X63): a timer-event control area
@@ -1759,6 +1769,7 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         ref = area or "GG-FLAGS"
         return ([name(opts["PROGRAM"], "GG-NAME1"), f"MOVE {length} TO GG-LEN", f"MOVE {1 if area else 0} TO GG-ITEM"]
                 + chan + _call("GGCLINK", [f"BY REFERENCE {ref}"])
+                + _map_abend(labels)  # #6271 (X70): a planned abend at the LINK went to the exit, or ended the task
                 + ["IF GG-RESP = 0", f"    CALL 'GGCRUN' USING {ref}", "    CALL 'GGCLRET' USING GG-CICS"]
                 + [f"    {ln}" for ln in _transfer(labels)]
                 + ["    IF GG-GOTO < 0", "        GOBACK", "    END-IF", "END-IF"]
@@ -1775,6 +1786,12 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         return cics_conditions.handle(pairs, labels)  # fmt: skip
     if verb in ("PUT", "GET", "DELETE") and "CONTAINER" in opts:  # #4270
         return cics_containers._container_command(verb, opts, labels)
+    if (
+        verb in ("PUT64", "GET64") and "CONTAINER" in opts
+    ):  # #5005 (X17): the base command; SET (64-bit pointer) refused
+        if "SET" in opts:
+            raise Unsupported(SPEC[f"{verb} CONTAINER"].refusal_message(["SET"]), [f"{verb} CONTAINER SET"])
+        return cics_containers._container_command(verb[:3], {o: v for o, v in opts.items() if o != verb}, labels)
     if verb in ("MOVE", "STARTBROWSE", "GETNEXT", "ENDBROWSE") and "CONTAINER" in opts:  # #4951
         return cics_containers._container_browse_command(verb, opts, labels)
     if verb in ("DELETE", "QUERY") and "CHANNEL" in opts and "CONTAINER" not in opts:  # #5005
@@ -2902,128 +2919,6 @@ CICS_RESP = {c: DFHRESP[c] for c in ("NORMAL", "FILENOTFOUND", "NOTFND", "DUPREC
                                      "ISCINVREQ", "LOCKED", "ENQBUSY", "QBUSY", "INVMPSZ", "TSIOERR", "EXPIRED")}  # fmt: skip
 
 
-def enq_fault_key(resource: str | None) -> str:
-    """#5089: the name an ENQ fault gives its resource -- the RESOURCE operand as written (upper case, no blanks), which
-    both translators read from the same source text. At most 16 characters: the stub's fault counters key on that."""
-    key = re.sub(r"\s+", "", (resource or "").upper())
-    if not key or len(key) > 16 or "'" in key:
-        raise Unsupported(f"ENQ RESOURCE({resource}): a data-name of 1 to 16 characters is the name a fault gives it")
-    return key
-
-
-FAULT_COMMANDS = (
-    "READ",
-    "INQUIRE",
-    "WRITE",
-    "REWRITE",
-    "STARTBR",
-    "READNEXT",
-    "READPREV",
-    "ENDBR",
-    "DELETE",
-    "WRITEQ-TD",
-    # #4049: the program-control, temporary-storage and interval-control commands. A plan names the resource the
-    # command names -- XCTL its `program`, WRITEQ-TS its `queue`, START its `transid`, CANCEL its `reqid` --
-    # and RETRIEVE, which names none, `-`. Plan only a condition IBM documents for the command (CICS TS, the
-    # command's "Conditions"): XCTL PGMIDERR (RESP2 3: the program could not be loaded), NOTAUTH (101), INVREQ;
-    # WRITEQ TS INVREQ, IOERR (RESP2 5), NOSPACE (only with NOSUSPEND), NOTAUTH (101), LOCKED; START INVREQ,
-    # IOERR, NOTAUTH (7), TRANSIDERR, TERMIDERR, SYSIDERR (1); RETRIEVE ENDDATA, ENVDEFERR, INVREQ, IOERR,
-    # LENGERR; CANCEL NOTFND, NOTAUTH, ISCINVREQ, SYSIDERR (CANCEL has no INVREQ).
-    "XCTL",
-    "LINK",  # #4648: its `program` too; LINK PGMIDERR, NOTAUTH, INVREQ, LENGERR (CICS TS, LINK "Conditions")
-    "WRITEQ-TS",
-    "START",
-    "RETRIEVE",
-    "CANCEL",
-    "ENQ",  # #5089: its `resource` (the RESOURCE operand as written); ENQBUSY only, see ENQ_FAULTS
-    "SEND-MAP",  # #6271 (register X71): its `map`; RECEIVE-MAP too. RETURN, SYNCPOINT and ROLLBACK name none (`-`)
-    "RECEIVE-MAP",
-    "RETURN",
-    "SYNCPOINT",
-    "ROLLBACK",
-    "DELAY",  # #6271 (register X72): nameless, like RETURN
-)  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
-
-# #4986 (register X43): IBM's LINK conditions the region does not raise and that have no sourced abend code
-LINK_REFUSED_CONDITIONS = ("ROLLEDBACK", "SYSIDERR", "TERMERR")
-
-_FAULT_NAME = (
-    "file",
-    "program",
-    "queue",
-    "transid",
-    "reqid",
-    "resource",
-    "map",
-)  # #4049: the resource a fault names, by key
-
-# #5044 (register X49, extends #4623's X48): the conditions a file command may be planned with, per command, and the RESP2
-# IBM gives each (CICS TS 6.x, each command's "Conditions"; the syntax line's list and the RESP2 values checked against
-# the raw pages of READ, READNEXT, READPREV, WRITE, REWRITE, DELETE, STARTBR, ENDBR). A condition is planned only on a
-# command IBM lists it for, with a RESP2 IBM gives it there and a local VSAM file can reach (the RLS, BDAM, data-table and
-# coupling-facility values are refused). One value: the default; several (INVREQ, LENGERR): the scenario names one.
-_BROWSE = ("READNEXT", "READPREV")
-_FILE_CMDS = ("READ", "READNEXT", "READPREV", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE")
-_READS = ("READ", *_BROWSE)
-FILE_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
-    "FILENOTFOUND": dict.fromkeys(_FILE_CMDS, (1,)),
-    "NOTAUTH": dict.fromkeys(_FILE_CMDS, (101,)),
-    # READNEXT / READPREV / REWRITE: IBM adds "the browse in progress is terminated", which neither runtime models (below)
-    "ILLOGIC": dict.fromkeys(("READ", "STARTBR", "ENDBR", "WRITE", "DELETE"), (110,)),
-    "IOERR": dict.fromkeys(_FILE_CMDS, (120,)),
-    # remote files: planned like IOERR, an injection (the case states what the program sees, the region needs no remote
-    # system). SYSIDERR 130 "SYSID is neither the local system nor a known remote system, or the link is closed" (131 / 132
-    # are coupling-facility data tables); ISCINVREQ 70 "the remote system reported a failure that is no known condition"
-    "SYSIDERR": dict.fromkeys(_FILE_CMDS, (130,)),
-    "ISCINVREQ": dict.fromkeys(_FILE_CMDS, (70,)),
-    # NOTFND 80 (READ/READNEXT/READPREV/STARTBR: no record matches the search argument); REWRITE's 80 is the data-table
-    # case only, WRITE / ENDBR do not list it
-    "NOTFND": dict.fromkeys((*_READS, "STARTBR", "DELETE"), (80,)),
-    "ENDFILE": dict.fromkeys(_BROWSE, (90,)),
-    "DISABLED": dict.fromkeys(("READ", "WRITE", "DELETE", "STARTBR"), (50,)),
-    "NOTOPEN": dict.fromkeys(
-        ("READ", "WRITE", "DELETE", "STARTBR"), (60,)
-    ),  # not REWRITE / READNEXT / READPREV / ENDBR
-    "NOSPACE": dict.fromkeys(("WRITE", "REWRITE"), (100,)),  # READ's 100 is an RLS-only case
-    "LOCKED": dict.fromkeys((*_READS, "WRITE", "REWRITE", "DELETE"), (106,)),
-    "DUPKEY": dict.fromkeys(_READS, (140,)),  # #4623
-    "DUPREC": dict.fromkeys(("WRITE", "REWRITE"), (150,)),  # #4623
-    "LENGERR": {
-        **dict.fromkeys(_READS, (10, 11, 13)),
-        **dict.fromkeys(("WRITE", "REWRITE"), (10, 12, 14)),
-    },
-    "INVREQ": {
-        "READ": (20, 25, 26, 28, 42),
-        "READNEXT": (20, 25, 26, 34, 37, 42),
-        "READPREV": (20, 24, 26, 37, 41),
-        "STARTBR": (20, 25, 26, 33, 42),
-        "ENDBR": (35,),
-        "WRITE": (20, 23, 26),
-        "REWRITE": (30, 47),
-        "DELETE": (20, 21, 22, 25, 26, 31, 42, 47),
-    },
-}
-# IBM lists these for file commands but they belong to data tables (LOADING, CHANGED, SUPPRESSED) and RLS (RECORDBUSY,
-# NOSUSPEND), which no case defines: refused by name (X49)
-FILE_FAULT_REFUSED = ("LOADING", "RECORDBUSY", "CHANGED", "SUPPRESSED")
-# IBM lists DUPKEY (RESP2 140) for DELETE too but does not say whether the record is deleted: refused by name (X48).
-DUP_KEY_REFUSED = {("DELETE", "DUPKEY"): "register X48"}
-FILE_FAULT_UNMODELLED = {
-    ("READNEXT", "ILLOGIC"),
-    ("READPREV", "ILLOGIC"),
-    ("REWRITE", "ILLOGIC"),
-}  # X49: ends the browse
-FILE_FAULT_COMMANDS = _FILE_CMDS
-# #5168 (X61): READQ TD's IOERR ("an input/output error ... the data record in error is skipped"; IBM states no RESP2), planned on
-# an open extrapartition input queue; and QBUSY (no RESP2 either), "a logically recoverable intrapartition queue that another task is
-# writing to or deleting from, and no committed records remain", which needs a second task, so the plan states it. IBM's other
-# READQ TD conditions follow from the queue and the call (NOTOPEN, INVREQ, QZERO, LENGERR, QIDERR, DISABLED): no plan names them.
-TD_READ_FAULTS = ("IOERR", "QBUSY")
-TD_READ_COMMAND = (
-    "READQ-TD"  # not in FAULT_COMMANDS: the strengthening loop plans from that list, with a NOTAUTH it cannot give here
-)
-
-
 def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], reclen: int, enc: str) -> bytes:
     """A CICS file's records: its dataset's `input`, then (#4049) the records of `append` -- a case's own file of
     records added after the corpus's (the test-strengthening loop's new accounts, customers ...)."""
@@ -3049,183 +2944,6 @@ def scenario_datasets(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, dic
                 f"scenario {sc.get('name')}: {dd} is generated (`@generate`), so no scenario file replaces it"
             )
         out[dd] = {**{k: v for k, v in base.items() if k != "append"}, **over}
-    return out
-
-
-def _file_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int) -> int:
-    """#4623 / #5044: a file command's planned condition against IBM's list for the command; the RESP2 it carries."""
-    resp = f["resp"]
-    where = f"scenario {sc.get('name')}: fault {f}"
-    if (cmd, resp) in DUP_KEY_REFUSED:
-        raise Unsupported(
-            f"{where}: IBM lists {resp} for {cmd} but not whether the record is deleted ({DUP_KEY_REFUSED[(cmd, resp)]}, refused)"
-        )
-    if resp in FILE_FAULT_REFUSED:
-        raise Unsupported(
-            f"{where}: {resp} is IBM-documented for {cmd} but it is a data-table or RLS condition and no case defines either "
-            "(register X49, refused)"
-        )
-    if (cmd, resp) in FILE_FAULT_UNMODELLED:
-        raise Unsupported(
-            f"{where}: IBM's {resp} on {cmd} also terminates the browse in progress, which the runtimes do not model "
-            "(register X49, refused)"
-        )
-    cmds = FILE_FAULT_CONDITIONS.get(resp, {})
-    if cmd not in cmds:
-        listed = "/".join(cmds)
-        raise Unsupported(
-            f"{where}: IBM documents {resp} for {listed}, not {cmd}"
-            if listed
-            else f"{where}: {resp} is not a condition IBM lists for {cmd} (register X49, refused)"
-        )
-    ibm = cmds[cmd]
-    if resp2 == 0:  # not given
-        if len(ibm) > 1:
-            raise Unsupported(f"{where}: IBM gives {resp} on {cmd} RESP2 {'/'.join(map(str, ibm))}: name one")
-        return ibm[0]
-    if resp2 not in ibm:
-        raise Unsupported(f"{where}: IBM's {resp} on {cmd} has RESP2 {'/'.join(map(str, ibm))}, not {resp2}")
-    return resp2
-
-
-# #6271 (register X70): the abend codes IBM documents for a VSAM RLS file control request -- AFCR (the RLS server is
-# unavailable), AFCS (an RLS access to a file with no SMSVSAM), AFCT (an RLS timeout) -- a scenario may plant on a file
-# command: the task abends with the code (cause "system") and a HANDLE ABEND exit gets control. No other code is sourced.
-FILE_ABEND_CODES = ("AFCR", "AFCS", "AFCT")
-
-
-def _abend_fault_line(sc: dict[str, Any], f: dict[str, Any], cmd: str) -> str:
-    """One `{"cmd", "file", "resp": "ABEND", "abcode", "nth"}` fault as the `CMD NAME NTH -1 0 ABCODE` line both sides read."""
-    where = f"scenario {sc['name']}: fault {f}"
-    if cmd not in FILE_FAULT_COMMANDS or f.get("abcode") not in FILE_ABEND_CODES or f.get("resp2"):
-        raise Unsupported(
-            f"{where}: an ABEND is planned on a file control command ({'/'.join(FILE_FAULT_COMMANDS)}) with "
-            f"abcode {'/'.join(FILE_ABEND_CODES)} and no resp2 (register X70: no other command or code is sourced)"
-        )
-    nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
-    name = next((f[k] for k in _FAULT_NAME if f.get(k)), None)
-    if not name:
-        raise Unsupported(f"{where} names no {'/'.join(_FAULT_NAME)}")
-    return f"{cmd} {name} {nth} -1 0 {f['abcode']}"
-
-
-# #6271 (register X71): the conditions a terminal or unit-of-work command may be planned with, per command, and the RESP2
-# values IBM gives each (CICS TS 6.x, the "Conditions" of SEND MAP, RECEIVE MAP, RETURN, SYNCPOINT). () = IBM states no
-# RESP2 (one is not planned); several values: the scenario names one. Every other condition IBM lists for these commands
-# needs a device, partition, BMS paging, a remote system or a PLT stage no case models: refused by name (X71).
-UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
-    "SEND-MAP": {"INVMPSZ": (), "TSIOERR": (), "INVREQ": (200,)},
-    "RECEIVE-MAP": {"INVMPSZ": (), "INVREQ": ()},
-    "RETURN": {"INVREQ": (1, 2, 4, 200), "LENGERR": (11, 26, 27)},
-    "SYNCPOINT": {"INVREQ": (200,)},
-    "ROLLBACK": {"INVREQ": (200,)},
-    # #6271 (X72): DELAY -- EXPIRED (a TIME already past; no RESP2) and INVREQ RESP2 4 / 5 / 6 / 22 (hours / minutes / seconds /
-    # milliseconds out of range). IBM's NORMAL RESP2 23 (cancelled by another task) needs a second task: refused (X72)
-    "DELAY": {"EXPIRED": (), "INVREQ": (4, 5, 6, 22)},
-}
-UI_NAMELESS = ("RETURN", "SYNCPOINT", "ROLLBACK", "DELAY")
-
-
-def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int) -> int:
-    """The RESP2 of a SEND MAP / RECEIVE MAP / RETURN / SYNCPOINT fault, or Unsupported naming register X71."""
-    where = f"scenario {sc['name']}: fault {f}"
-    reg = "X72" if cmd == "DELAY" else "X71"
-    ibm = UI_FAULT_CONDITIONS[cmd].get(f["resp"])
-    if ibm is None:
-        listed = "/".join(UI_FAULT_CONDITIONS[cmd])
-        raise Unsupported(f"{where}: {f['resp']} is not planned on {cmd}; planned: {listed} (register {reg}, refused)")
-    if not ibm:
-        if resp2:
-            raise Unsupported(f"{where}: IBM states no RESP2 for {f['resp']} on {cmd} (register {reg}): name none")
-        return 0
-    if resp2 == 0 and len(ibm) == 1:
-        return ibm[0]
-    if resp2 not in ibm:
-        raise Unsupported(f"{where}: IBM's {f['resp']} on {cmd} has RESP2 {'/'.join(map(str, ibm))}: name one ({reg})")
-    return resp2
-
-
-def fault_lines(sc: dict[str, Any]) -> list[str]:
-    """A scenario's `faults` as both sides read them: `CMD NAME NTH RESP RESP2` (faults.cfg, CicsTask.withFaults) --
-    NAME the file a READ names, or the program an INQUIRE PROGRAM names."""
-    out = []
-    for f in sc.get("faults") or []:
-        cmd = f.get("cmd", "READ")
-        if f.get("resp") == "ABEND":  # #6271 (register X70): the task abends instead of a condition
-            out.append(_abend_fault_line(sc, f, cmd))
-            continue
-        if cmd == "LINK" and f.get("resp") in LINK_REFUSED_CONDITIONS:  # #4986 (register X43)
-            raise Unsupported(
-                f"scenario {sc['name']}: fault {f}: LINK {f['resp']} is IBM-documented but the region never raises it "
-                "and no abend code is sourced for it (register X43, refused)"
-            )
-        refused_file = (
-            cmd in FILE_FAULT_COMMANDS and f.get("resp") in FILE_FAULT_REFUSED
-        )  # named in X49, not just unknown
-        if (cmd not in FAULT_COMMANDS and cmd != TD_READ_COMMAND) or (
-            f.get("resp") not in CICS_RESP and not refused_file
-        ):
-            raise Unsupported(
-                f"scenario {sc['name']}: fault {f} ({'/'.join((*FAULT_COMMANDS, TD_READ_COMMAND))} with a CICS_RESP condition)"
-            )
-        resp2 = int(f.get("resp2", 0))
-        if cmd == TD_READ_COMMAND and (f["resp"] not in TD_READ_FAULTS or resp2):
-            raise Unsupported(
-                f"scenario {sc['name']}: fault {f}: READQ TD is planned with {'/'.join(TD_READ_FAULTS)} and no RESP2 only "
-                "(IBM states none; the other conditions follow from the queue, register X61, refused)"
-            )
-        if cmd in UI_FAULT_CONDITIONS:
-            resp2 = _ui_fault_resp2(sc, f, cmd, resp2)
-        elif cmd in FILE_FAULT_COMMANDS:
-            resp2 = _file_fault_resp2(sc, f, cmd, resp2)
-        elif f["resp"] in ("DUPKEY", "DUPREC"):  # #4623: the duplicate-key pair is a file condition only
-            listed = "/".join(FILE_FAULT_CONDITIONS[f["resp"]])
-            raise Unsupported(f"scenario {sc['name']}: fault {f}: IBM documents {f['resp']} for {listed}, not {cmd}")
-        if (cmd == "ENQ") != (
-            f["resp"] == "ENQBUSY"
-        ):  # #5089 (register X60): IBM lists ENQBUSY for ENQ only, and ENQ's others
-            raise Unsupported(  # (INVREQ, LENGERR) the program's own operands raise, not a plan
-                f"scenario {sc['name']}: fault {f}: ENQ is planned with ENQBUSY only (IBM lists no other condition a region "
-                "raises for it), and ENQBUSY is no other command's (register X60, refused)"
-            )
-        if cmd == "ENQ":
-            if resp2:
-                raise Unsupported(
-                    f"scenario {sc['name']}: fault {f}: IBM states no RESP2 for ENQBUSY (register X60): name none"
-                )
-            f = {**f, "resource": enq_fault_key(f.get("resource"))}
-        nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
-        name = "-" if cmd == "RETRIEVE" or cmd in UI_NAMELESS else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
-        if not name:
-            raise Unsupported(f"scenario {sc['name']}: fault {f} names no {'/'.join(_FAULT_NAME)}")
-        out.append(f"{cmd} {name} {nth} {CICS_RESP[f['resp']]} {resp2}")
-    return out
-
-
-# #5233 (register I5): the DL/I statuses a CICS scenario may plan on an EXEC DLI command -- the batch run's (#5857) on the
-# database calls, and SCHD's TC (IBM: a PSB already scheduled, the one SCHD status the model derives). CHKP is a BMP call.
-DLI_SCHD_STATUSES = ("TC",)
-
-
-def dli_fault_lines(case: dict[str, Any], sc: dict[str, Any]) -> list[str]:
-    """A scenario's `dli_faults` [{"op", "nth", "status"}] as ggdli.c reads them (`FUNCTION NTH STATUS`) and DetDli
-    (`# DLI FUNCTION NTH STATUS`, minus the `# DLI `). A planned call is not performed: DIBSTAT answers the status."""
-    import equivalence  # noqa: PLC0415 -- it imports this module
-
-    plan = sc.get("dli_faults") or []
-    if plan and not case.get("ims"):
-        raise Unsupported(f'scenario {sc.get("name")}: dli_faults in a case with no "ims" section', ["EXEC DLI"])
-    ops = ("SCHD", *(o for o in equivalence.DLI_FAULT_FUNCTIONS if o != "CHKP"))
-    out = []
-    for f in plan:
-        op, status, nth = f.get("op"), str(f.get("status")), f.get("nth", 1)
-        ok = status in (DLI_SCHD_STATUSES if op == "SCHD" else equivalence.DLI_FAULT_STATUSES)
-        if op not in ops or not ok or not (nth == "*" or (isinstance(nth, int) and nth >= 1)):
-            raise Unsupported(
-                f"scenario {sc.get('name')}: dli_fault {f}: op {'/'.join(ops)} (SCHD: {'/'.join(DLI_SCHD_STATUSES)}; "
-                f"else {'/'.join(equivalence.DLI_FAULT_STATUSES)}), nth >= 1 or *"
-            )
-        out.append(f"{op} {nth} {status}")
     return out
 
 
@@ -3268,6 +2986,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             )
         except equivalence_sql.Unsupported as e:
             raise Unsupported(f"EXEC SQL: {e}", ["EXEC SQL"]) from e
+        source = mark_sql_abends(case, source, table, case["program"])
         if not keep:  # #5882: a second pass keeps the first's tables (each task resets them first, identities too):
             equivalence_db2.create(case, corpus)  # what its tasks find is what they found after the first pass's
         (work / "stmts.txt").write_text(table, encoding="latin-1")
@@ -3349,6 +3068,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                                                                first_id=first, program=extra["program"])  # fmt: skip
             except equivalence_sql.Unsupported as e:
                 raise Unsupported(f"{extra['program']}: EXEC SQL: {e}", ["EXEC SQL"]) from e
+            x_source = mark_sql_abends(case, x_source, x_table, extra["program"])
             if any(int(ln.split()[1]) > 9999 for ln in x_table.splitlines() if ln.startswith("S ")):
                 raise Unsupported(f"{extra['program']}: EXEC SQL: the task's statements outnumber GG-SQL-ID's 4 digits")
             ours = {ln.split()[5] for ln in have.splitlines() if ln.startswith("S ") and ln.split()[5] != "-"}
@@ -3495,7 +3215,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if case.get("region"):  # ASSIGN APPLID / SYSID: the region's identity, a deployment fact the case states
             (d / "region.cfg").write_text(f"APPLID {case['region']['applid']}\nSYSID {case['region']['sysid']}\n",
                                           encoding="ascii")  # fmt: skip
-        if sc.get("faults"):  # #4023 follow-up: the stub's injected conditions
+        if sc.get("faults") or sc.get("sql_abend_plan"):  # #4023 follow-up: the stub's injected conditions
             (d / "faults.cfg").write_text("".join(x + "\n" for x in fault_lines(sc)), encoding="ascii")
         if sc.get("dli_faults"):  # #5233: the DL/I stub's planned statuses
             (d / "dlifaults.cfg").write_text("".join(x + "\n" for x in dli_fault_lines(case, sc)), encoding="ascii")
@@ -3630,8 +3350,11 @@ def sql_fault_plan(case: dict[str, Any], sc: dict[str, Any], table: str) -> list
     reads them (BANKDATA's `SQLERRMC(1:SQLERRML)`, its SQLERRD(3) reason-code arms); undeclared, both are empty."""
     stmts = sql_statements(table)
     out = []
+    abends: list[str] = []
     for f in sc.get("sql_faults") or []:
         code = int(f["sqlcode"])
+        if f.get("abend") is not None:
+            abends.append(_sql_abend_line(case, sc, f, code, table))
         state = str(f.get("sqlstate") or SQLSTATES.get(code, ""))
         if not re.fullmatch(r"[0-9A-Z]{5}", state):
             raise Unsupported(f"scenario {sc['name']}: SQL fault {f}: no SQLSTATE for SQLCODE {code} -- give one")
@@ -3652,7 +3375,60 @@ def sql_fault_plan(case: dict[str, Any], sc: dict[str, Any], table: str) -> list
                 raise Unsupported(f"scenario {sc['name']}: SQL fault {f}: sqlerrmc is one token of 1-70 characters")
             extra = f" {token} {int(f.get('sqlerrd3', 0))}"
         out += [f"{x['program']} {x['line']} {nth} {code} {state}{extra}" for x in hits]
+    sc["sql_abend_plan"] = abends
     return out
+
+
+# #6271 (register X73): IBM's AD2Z -- a Db2 deadlock or timeout the CICS-Db2 attach answers with a failed syncpoint rollback
+# (DFHDB2070), then the task abends AD2Z. A scenario's sql_fault may add `"abend": "AD2Z"` to a -911 fault on a statement it
+# names by `line`; the statement fails as planned and a `SQL PROGRAM:LINE NTH -1 0 AD2Z` line (faults.cfg) abends the task.
+SQL_ABEND_CODES = ("AD2Z",)
+
+
+def _sql_abend_line(case: dict[str, Any], sc: dict[str, Any], f: dict[str, Any], code: int, table: str) -> str:
+    where = f"scenario {sc['name']}: SQL fault {f}"
+    if f["abend"] not in SQL_ABEND_CODES or code != -911 or "line" not in f or f.get("table") or f.get("verb"):
+        raise Unsupported(
+            f"{where}: an abend is planned as 'AD2Z' on a -911 fault naming its statement by line (register X73: no other "
+            "SQLCODE, code or table/verb selection is sourced)"
+        )
+    program = str(f.get("program") or case["program"]).upper()
+    if not any(x["program"] == program and x["line"] == int(f["line"]) for x in sql_statements(table)):
+        raise Unsupported(f"{where} names no statement of {program}")
+    nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
+    return f"SQL {program}:{int(f['line'])} {nth} -1 0 {f['abend']}"
+
+
+def mark_sql_abends(case: dict[str, Any], source: str, table: str, program: str) -> str:
+    """#6271 (X73): `EXEC CICS GGSQLAB NAME('PROGRAM:LINE') END-EXEC` after the precompiled call of each statement a scenario
+    plans an AD2Z abend for, before the RETURN-CODE restore and the WHENEVER tests (the order det/sql.py checks in)."""
+    sites = {
+        (str(f.get("program") or case["program"]).upper(), int(f["line"]))
+        for sc in case["scenarios"]
+        for f in sc.get("sql_faults") or []
+        if f.get("abend") is not None and "line" in f
+    }
+    sids = {
+        x["sid"]: x["line"]
+        for x in sql_statements(table)
+        if x["program"] == program.upper() and (x["program"], x["line"]) in sites
+    }
+    if not sids:
+        return source
+    if not re.search(r"\bHANDLE\s+ABEND\b", source, re.I):
+        raise Unsupported(
+            f"{program}: an AD2Z abend is planned but the program has no HANDLE ABEND (register X73, refused)"
+        )
+    out, sid = [], None
+    for ln in source.split("\n"):
+        m = re.match(r"\s+MOVE (\d{4}) TO GG-SQL-ID\s*$", ln)
+        if m:
+            sid = sids.get(int(m.group(1)))
+        elif sid is not None and re.match(r"\s+MOVE GG-SQL-RC TO RETURN-CODE", ln):
+            out.append(f"           EXEC CICS GGSQLAB NAME('{program.upper()}:{sid}') END-EXEC")
+            sid = None
+        out.append(ln)
+    return "\n".join(out)
 
 
 # The fault each executed statement is given when the harness enumerates them: the failure the statement's own

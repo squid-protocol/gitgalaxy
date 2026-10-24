@@ -74,7 +74,7 @@ Steps (`fetch`, `scan`, `score`, `report`) can be run singly and are resumable. 
 | 4 | typosquat | no `TYPOSQUATTING DETECTED` log lines |
 | 5 | credentials | no `has_credentials` files (SARIF error-level results are listed in `details.json` for review, never scored) |
 | 6 | health | scan rc is 0 and no `[ERROR]` / `CLASSIFICATION REFUTATION` / `Traceback` log lines (engine-wide warnings ignored) |
-| 7 | callgraph | call edges match the tree-sitter body oracle (C/C++: `callgraph_oracle.py`, below; go, java, csharp, rust, javascript, python: `ts_callgraph_oracle.py`): zero misses and zero engine-only edges of kind `absent` or `comment/string`. Columns `callgraph_recall`, `callgraph_precision`, `callgraph_misses`, `callgraph_engine_only` (scored) and `callgraph_unscored` (engine-only `type`, `function-pointer`, `macro`). A port with no oracle (a licensed C/C++ port with no C/C++ function, or none of those six languages: kotlin, dart, scheme, crystal, fsharp, cobol, fortran, assembly, sql) reports every column as `n/a`: a pass, but shown as unscored |
+| 7 | callgraph | call edges match the tree-sitter body oracle (C/C++: `callgraph_oracle.py`, below; go, java, csharp, rust, javascript, python, kotlin: `ts_callgraph_oracle.py`): zero misses and zero engine-only edges of kind `absent` or `comment/string`. Columns `callgraph_recall`, `callgraph_precision`, `callgraph_misses`, `callgraph_engine_only` (scored) and `callgraph_unscored` (engine-only `type`, `function-pointer`, `macro`). A port with no oracle (a licensed C/C++ port with no C/C++ function, or none of those seven languages: dart, scheme, crystal, fsharp, cobol, fortran, assembly, sql) reports every column as `n/a`: a pass, but shown as unscored |
 
 The report prints two PERFECT counts while check 7 lands: seven checks (`verdict`) and the first six (`verdict6`).
 
@@ -127,10 +127,10 @@ Blind spots of this oracle:
   a callee named only inside a preprocessor line in the body (`macro`). They are in `callgraph_unscored`, so a port can
   pass with a wrong-by-convention precision (doom3-bfg's gap is mostly `type`). The oracle is one tree-sitter body
   walk: it shares tree-sitter's blind spots (a macro-generated call, a misparsed region falls back to text).
-  `ts_callgraph_oracle.py` is the same walk for the six other covered languages, matched by bare name: no text
+  `ts_callgraph_oracle.py` is the same walk for the seven other covered languages, matched by bare name: no text
   fallback (a function with no node at its start line is counted `unmatched`), a Rust macro's tokens are read as
   `name (...)` (so `vec![T::default()]` counts) except under `quote!`/`quote_spanned!`/`stringify!`, a C# `: base(...)`
-  initializer counts, and a Kotlin/Dart/Scheme/... port is `n/a`. It has no baseline file and no `LICENSED` gate (it
+  initializer counts, a Kotlin trailing-lambda-only call of a stdlib scope function (`run`, `map`, ...) is no call, and a Dart/Scheme/... port is `n/a`. Crystal is not covered: its grammar swallows ~46% of doo-cr's functions in ERROR nodes. It has no baseline file and no `LICENSED` gate (it
   reads only the scan DB and clone the scorer already has); a mixed port in `LICENSED` (a C port with a Python tool)
   is scored by the C/C++ oracle only.
 - **Pinned SHAs are the ports' HEAD at study time** (2026-10-18); a force-pushed upstream makes `fetch` fail loudly.

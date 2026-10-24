@@ -37,7 +37,7 @@ python -m pip install -q --disable-pip-version-check -e ".[yaml]" \
   networkx ${TIKTOKEN} numpy pandas xgboost \
   pytest pytest-xdist \
   mypy types-PyYAML "ruff==0.16.0" \
-  "pyan3==2.9.0" tree-sitter-language-pack 2>&1 | grep -v -i "warning: running pip as" || true
+  "pyan3==2.9.0" "libclang==18.1.1" tree-sitter-language-pack 2>&1 | grep -v -i "warning: running pip as" || true
 
 # --- node: the TypeScript checker the typescript baseline is pinned to. 7.x (npm's
 # `latest`) is the native port and ships no JavaScript compiler API.

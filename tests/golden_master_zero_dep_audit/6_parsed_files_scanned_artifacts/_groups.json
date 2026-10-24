@@ -8850,7 +8850,7 @@
     "python/numpy": {
       "Average Risk Exposures": {
         "API Exposure": "14.06%",
-        "Cognitive Load Exposure": "34.71%",
+        "Cognitive Load Exposure": "34.7%",
         "Commented Logic Exposure": "5.43%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "31.55%",
@@ -8863,7 +8863,7 @@
         "Testing Exposure": "42.98%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 17186.78,
+      "Directory Group Magnitude": 17217.38,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "10.5%",
         "Unclassified": "5.3%",
@@ -11065,7 +11065,7 @@
         "Testing Exposure": "35.64%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 1756.0,
+      "Directory Group Magnitude": 1774.0,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "28.6%",
         "file_cluster_15": "42.9%",
@@ -12707,7 +12707,7 @@
     "zig/bun": {
       "Average Risk Exposures": {
         "API Exposure": "9.06%",
-        "Cognitive Load Exposure": "19.3%",
+        "Cognitive Load Exposure": "19.29%",
         "Commented Logic Exposure": "2.9%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "33.59%",
@@ -12720,7 +12720,7 @@
         "Testing Exposure": "48.49%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 3559.96,
+      "Directory Group Magnitude": 3561.86,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "20.0%",
         "file_cluster_12": "40.0%",
@@ -12786,10 +12786,10 @@
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "53.51%",
         "Tech Debt Exposure": "17.04%",
-        "Testing Exposure": "15.36%",
+        "Testing Exposure": "21.81%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 4415.42,
+      "Directory Group Magnitude": 4455.42,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "8.3%",
         "file_cluster_12": "8.3%",
@@ -12818,20 +12818,20 @@
     "zig/zig": {
       "Average Risk Exposures": {
         "API Exposure": "73.39%",
-        "Cognitive Load Exposure": "22.58%",
+        "Cognitive Load Exposure": "22.26%",
         "Commented Logic Exposure": "5.09%",
         "Concurrency Exposure": "8.31%",
-        "Documentation Exposure": "73.04%",
+        "Documentation Exposure": "73.08%",
         "Error & Exception Exposure": "37.9%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "55.5%",
         "Tech Debt Exposure": "11.85%",
-        "Testing Exposure": "15.45%",
+        "Testing Exposure": "15.46%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 36561.16,
+      "Directory Group Magnitude": 37360.96,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_12": "50.0%",
         "file_cluster_4": "33.3%",
@@ -12875,25 +12875,24 @@
     "zig/zls": {
       "Average Risk Exposures": {
         "API Exposure": "35.55%",
-        "Cognitive Load Exposure": "15.73%",
+        "Cognitive Load Exposure": "13.68%",
         "Commented Logic Exposure": "2.69%",
         "Concurrency Exposure": "10.69%",
-        "Documentation Exposure": "82.7%",
+        "Documentation Exposure": "82.47%",
         "Error & Exception Exposure": "27.38%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "53.44%",
-        "Tech Debt Exposure": "12.19%",
-        "Testing Exposure": "21.8%",
+        "Tech Debt Exposure": "11.16%",
+        "Testing Exposure": "12.13%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 6446.98,
+      "Directory Group Magnitude": 8461.78,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_12": "37.5%",
-        "file_cluster_15": "12.5%",
+        "file_cluster_12": "25.0%",
         "file_cluster_2": "12.5%",
-        "file_cluster_4": "25.0%",
+        "file_cluster_4": "50.0%",
         "file_cluster_6": "12.5%"
       },
       "File Count": 8,

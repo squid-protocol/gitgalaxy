@@ -60,7 +60,16 @@ EVENT_KEYS: dict[str, tuple[str, ...]] = {
     "RECEIVE": ("resp", "length", "data"),
     "LINK": ("target", "length", "commarea", "resp", "resp2"),
     "XCTL": ("target", "length", "commarea", "resp", "resp2"),
-    "RETURN": ("level", "transid", "commarea", "caller_commarea", "immediate", "resp", "resp2"),  # #4270 (X27)
+    "RETURN": (
+        "level",
+        "transid",
+        "commarea",
+        "caller_commarea",
+        "immediate",
+        "channel",
+        "resp",
+        "resp2",
+    ),  # #4270 (X27), #5005
     # #4270: the data options (rtransid, rtermid, queue) only where the program named them
     "START": tuple("transid termid interval time from reqid protect resp resp2 expires rtransid rtermid queue".split()),
     "RETRIEVE": ("resp", "length", "data", "rtransid", "rtermid", "queue"),
@@ -73,6 +82,11 @@ EVENT_KEYS: dict[str, tuple[str, ...]] = {
     "READ": ("file", "ridfld", "update", "resp", "resp2", "set", "length", "data"),
     "REWRITE": ("file", "data", "resp", "resp2"),
     "UNLOCK": ("file", "resp", "resp2"),
+    # #6262: the browse (SPEC 6.2): `ridfld` is the key on entry; `set` only on the SET form, `length` / `data` with INTO
+    "STARTBR": ("file", "ridfld", "mode", "resp", "resp2"),
+    "READNEXT": ("file", "ridfld", "set", "resp", "resp2", "length", "data"),
+    "READPREV": ("file", "ridfld", "set", "resp", "resp2", "length", "data"),
+    "ENDBR": ("file", "resp", "resp2"),
     # #4767 zECS (X37, X38): an `http` task's request body and its response (SPEC 6.2; resp2 only where IBM documents it)
     "WEB-RECEIVE": ("resp", "resp2", "length", "data"),
     "WEB-SEND": ("status", "statustext", "mediatype", "from", "resp", "resp2"),

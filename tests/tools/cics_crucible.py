@@ -229,7 +229,9 @@ JAVA_CAPS = cc.Capabilities(
         "SEND-CONTROL": frozenset({"options", "cursor"}),  # #4413
         "RECEIVE": frozenset({"resp", "length", "data"}),
         "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),  # #4009
-        "RETURN": frozenset({"level", "transid", "commarea", "caller_commarea", "immediate", "resp", "resp2"}),
+        "RETURN": frozenset(
+            {"level", "transid", "commarea", "caller_commarea", "immediate", "channel", "resp", "resp2"}
+        ),
         "LINK": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "XCTL": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
@@ -239,6 +241,11 @@ JAVA_CAPS = cc.Capabilities(
         "READ": frozenset({"file", "ridfld", "update", "resp", "resp2", "length", "data"}),
         "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
         "UNLOCK": frozenset({"file", "resp", "resp2"}),
+        # #6262: what CicsTask.startbrEvent / readnextInto / readprevInto / endbrEvent record
+        "STARTBR": frozenset({"file", "ridfld", "mode", "resp", "resp2"}),
+        "READNEXT": frozenset({"file", "ridfld", "resp", "resp2", "length", "data"}),
+        "READPREV": frozenset({"file", "ridfld", "resp", "resp2", "length", "data"}),
+        "ENDBR": frozenset({"file", "resp", "resp2"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
         "START": _START_KEYS,
         "RETRIEVE": _RETRIEVE_KEYS,
@@ -807,6 +814,9 @@ class EquivalenceRunTest {
         byte[] inBytes;  // ... handed to the task about to start
         byte[] answered;  // ... and what the task that just ran answered (null: none)
         boolean answeredByBytes;  // the task that just ran was entered by the byte overload (its answer is owed)
+        CicsTask.Channel pendingChannel;  // #5005 (X17): the channel the last RETURN TRANSID CHANNEL made available
+        CicsTask.Channel inChannel;  // ... handed to the task about to start
+        CicsTask.Channel outChannel;  // ... and what the task that just ran returned (null: none)
         Integer pendingLen;  // #4009: the next task's EIBCALEN (null: the whole record)
         Map<String, Object> immediate;  // #4270 (X27): RETURN IMMEDIATE -- the task attached at once, with its trigger
         LocalDateTime now;
@@ -931,6 +941,7 @@ class EquivalenceRunTest {
                     Map<String, Object> f = frame(terminal, trigger, step.get("aid").asText());
                     f.put("startcode", "TD");  // #4270 slice 3: "Terminal input or permanent transid"
                     inBytes = bytes;
+                    inChannel = transid.equals(pending) ? pendingChannel : null;  // not a typed transaction id's
                     runOne(f, transid, commarea, calen, step, List.of());
                     continue;
                 }
@@ -986,6 +997,9 @@ class EquivalenceRunTest {
             Map<String, Object> task = new LinkedHashMap<>(frame);
             answered = null;
             answeredByBytes = false;
+            CicsTask.Channel carried = inChannel;
+            inChannel = null;
+            outChannel = null;
             task.remove("startcode");
             task.remove("http_request");
             task.put("transid", transid);
@@ -1052,6 +1066,9 @@ class EquivalenceRunTest {
                         // #4270 slice 3: ASSIGN STARTCODE / USERID / SCRNHT / SCRNWD (SPEC section 2's region)
                         .withStartcode((String) frame.get("startcode")).withUserid("CICSUSER")
                         .withScreen(24, 80);
+                if (carried != null) {
+                    t.withChannel(carried);  // #5005: RETURN TRANSID CHANNEL -- the next task's current channel
+                }
                 if (step != null && step.has("text")) {
                     t.withTerminalInput(step.get("text").asText());
                 }
@@ -1127,6 +1144,7 @@ class EquivalenceRunTest {
                                 : "runTask threw " + e;
                     }
                 }
+                outChannel = t.returnedChannel();
                 for (Map<String, Object> e : t.events()) {
                     raw.add(e);
                     Map<String, Object> copy = new LinkedHashMap<>(e);
@@ -1469,6 +1487,7 @@ class EquivalenceRunTest {
                 pendingCa = abended || transid == null ? null : commarea;
                 pendingLen = abended || transid == null ? null : length;
                 pendingBytes = abended || transid == null ? null : answered;
+                pendingChannel = abended || transid == null ? null : outChannel;  // #5005 (X17)
             }
         }
     }
@@ -1830,6 +1849,15 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
     """#4443: a READ / REWRITE / UNLOCK CicsTask recorded, as the log's keys: `update`, `resp2` and `length` only when
     the command carries them. A LENGERR READ asserts its RESP only (SPEC section 2, Files), so its RESP2 is left out."""
     ev: dict[str, Any] = {"file": e.get("file"), "resp": e.get("resp")}
+    if kind in ("STARTBR", "READNEXT", "READPREV"):  # #6262: the key on entry; STARTBR's mode, a browse read's record
+        ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
+        if kind == "STARTBR":
+            ev["mode"] = e.get("mode")
+        else:
+            if e.get("length") is not None:
+                ev["length"] = e["length"]
+            b64 = e.get("data")
+            ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
     if kind == "READ":
         ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
         if e.get("update"):
@@ -1839,7 +1867,7 @@ def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
     if kind in ("READ", "REWRITE"):
         b64 = e.get("data")
         ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
-    if e.get("resp2") is not None and not (kind == "READ" and e.get("resp") == "LENGERR"):
+    if e.get("resp2") is not None and not (kind in ("READ", "READNEXT", "READPREV") and e.get("resp") == "LENGERR"):
         ev["resp2"] = e["resp2"]
     return ev
 
@@ -1881,16 +1909,20 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 ev.update(queue=e.get("queue"), item=e.get("item"), resp=e.get("resp"), data=data)
                 if kind == "READQ-TS":
                     ev["length"] = e.get("length")
-            elif kind in ("READ", "REWRITE", "UNLOCK"):  # #4443: byte[] ridfld / data arrive as base64, EBCDIC bytes
+            elif kind in ("READ", "REWRITE", "UNLOCK", "STARTBR", "READNEXT", "READPREV", "ENDBR"):  # #4443, #6262: byte[] ridfld / data arrive as base64, EBCDIC bytes
                 ev.update(_java_file_event(kind, e))
             elif kind == "WRITE-OPERATOR":  # #4270 zECS (X32): the console message, as the text CicsTask recorded
                 ev.update(data=cc.RawArea(str(e.get("text") or "").encode("latin-1"), "latin-1"), resp=e.get("resp"))
             elif kind == "RECEIVE-MAP":
                 ev.update(map=e.get("map"), mapset=e.get("mapset"), resp=e.get("resp"))
-            elif kind == "RETURN" and e.get("resp") is not None:  # #4270 (X27): a RETURN IMMEDIATE that failed
-                ev.update(
-                    level=e["level"], immediate=True, transid=e.get("transid"), resp=e["resp"], resp2=e.get("resp2")
-                )
+            elif (
+                kind == "RETURN" and e.get("resp") is not None
+            ):  # a RETURN that failed: IMMEDIATE (X27), or CHANNEL (#5005)
+                ev.update(level=e["level"], transid=e.get("transid"), resp=e["resp"], resp2=e.get("resp2"))
+                if e.get("channel") is not None:
+                    ev["channel"] = e["channel"]
+                else:
+                    ev["immediate"] = True
             elif kind == "RETURN" and (e.get("level") or 1) > 1:  # #4004: back to the linking program
                 # #3989: the caller sees the LINK's LENGTH bytes of it (CicsTask records that LENGTH here)
                 # #5053: and, when the program took the LINK's COMMAREA bytes, the bytes lastLinkBytes() answered
@@ -1904,6 +1936,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                                                         _answered_layout(e.get("commarea"), shapes)))  # fmt: skip
                 if e.get("immediate"):  # #4270 (X27)
                     ev["immediate"] = True
+                if e.get("channel") is not None:  # #5005 (X17): RETURN TRANSID CHANNEL
+                    ev["channel"] = e["channel"]
             elif kind == "LINK":
                 # #5053: the bytes the caller handed the LINK (the event's `area`, in the runtime page) are the sent
                 # COMMAREA's bytes -- a numeric DISPLAY field holding spaces too, which the DTO cannot carry

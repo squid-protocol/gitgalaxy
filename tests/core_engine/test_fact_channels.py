@@ -242,6 +242,82 @@ def test_a_baseline_without_statement_text_or_routine_restores_them_as_null():
         conn.close()
 
 
+def test_the_cics_task_and_data_move_channels_round_trip_every_payload_key(tmp_path):
+    tasks = [
+        {
+            "verb": "START",
+            "target_kind": "transaction",
+            "operand": "'TRN1'",
+            "name": "TRN1",
+            "resolution": "literal",
+            "candidates": None,
+            "channel_operand": None,
+            "channel": None,
+            "token": "REQ",
+            "record_clause": "FROM",
+            "record": "WS-REC",
+            "timing": "AFTER 5",
+            "attributes": "LENGTH(10)",
+            "line": 7,
+        }
+    ]
+    moves = [
+        {
+            "verb": "MOVE",
+            "source": "A",
+            "source_kind": "item",
+            "target": "B",
+            "corresponding": True,
+            "source_refmod": True,
+            "target_refmod": False,
+            "line": 4,
+            "source_refmod_text": "1:2",
+            "target_refmod_text": None,
+        },
+        {
+            "verb": "INITIALIZE",
+            "source": None,
+            "source_kind": None,
+            "target": "C",
+            "corresponding": False,
+            "source_refmod": False,
+            "target_refmod": False,
+            "line": 9,
+            "source_refmod_text": None,
+            "target_refmod_text": None,
+        },
+    ]
+    files = [{"path": "a.cbl", "lang_id": "cobol", "raw_imports": [], "cics_tasks": tasks, "data_moves": moves}]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["a.cbl"]
+    assert node["cics_tasks"] == tasks
+    assert node["data_moves"] == moves
+
+
+def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "CREATE TABLE file_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, file_path TEXT)"
+        )
+        cursor.execute(
+            "CREATE TABLE data_move_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, file_id INTEGER,"
+            " verb TEXT, source TEXT, source_kind TEXT, target TEXT, corresponding INTEGER, source_refmod INTEGER,"
+            " target_refmod INTEGER, line_number INTEGER)"
+        )
+        cursor.execute("INSERT INTO file_data VALUES (1, 'r', 'c', 'a.cbl')")
+        cursor.execute("INSERT INTO data_move_data VALUES (1, 'r', 'c', 1, 'MOVE', 'A', 'item', 'B', 0, 1, 0, 3)")
+        channel = CHANNELS_BY_NAME["data_move"]
+        sql = channel.select_sql(cursor, _has_table, _has_column)
+        restored = _restore_child_table(cursor, "r", "c", channel.table, sql, channel.to_payload)
+        row = restored["a.cbl"][0]
+        assert row["source_refmod"] is True and row["source_refmod_text"] is None
+    finally:
+        conn.close()
+
+
 _HEALED_ONLY = {"sql_statement": ("routine_name",)}
 
 
@@ -295,7 +371,6 @@ _UNMIGRATED_IR_TABLES = frozenset(
         "copy_statement_data",
         "special_names_data",
         "compiler_options_data",
-        "data_move_data",
         "ims_gen_data",
         "dli_call_data",
         "entry_point_data",
@@ -305,7 +380,6 @@ _UNMIGRATED_IR_TABLES = frozenset(
         "uow_handler_data",
         "mq_call_data",
         "job_submit_data",
-        "cics_task_data",
     }
 )
 

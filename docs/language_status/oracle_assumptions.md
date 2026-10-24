@@ -204,7 +204,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | I2 | IMS | twins and qualifications compare the field's stored bytes; a C / X key's order is the data page's (ASCII on both sides), not EBCDIC's; a P qualification only where packed and logical comparison agree | DIFFERS | no (CardDemo's keys are packed and binary bytes, the same in both pages) |
 | I3 | IMS | position and parentage kept per PCB as IBM describes them; after a call whose position IBM leaves to IMS's search, the next call that needs it is refused | ASSUMED | yes (PAUDBUNL: GN after GNP's GE) |
 | I4 | IMS | DBD name, level, status, PROCOPT, segment name, key feedback length, sensitive segments, key feedback as IBM lays them out; what IMS leaves there at entry and after GE / II assumed | ASSUMED | yes (PAUDBUNL tests PAUT-PCB-STATUS; its key feedback is only DISPLAYed on a path no scenario takes) |
-| I5 | IMS | EXEC DLI beyond SCHD / TERM / GU / GN / GNP / ISRT / REPL / DLET and a BMP's CHKP ID, MPP programs, a GSAM PCB that reads, other calls (XRST, ROLB, CHKP with an option but ID, ...), command codes but F / L / P / C / D / N / Q / U / V / -, the # (independent AND) operator, AIBTDLI / CEETDLI, HDAM order, secondary indexes, logical relationships, load mode beyond a lone L / LS PCB | REFUSED | — |
+| I5 | IMS | EXEC DLI beyond SCHD / TERM / GU / GN / GNP / ISRT / REPL / DLET and a BMP's CHKP ID, MPP programs, a GSAM PCB that reads, other calls (XRST, ROLB, CHKP with an option but ID, ...), command codes but F / L / P / C / D / N / Q / U / V / -, the # (independent AND) operator, AIBTDLI, CEETDLI in a BMP, HDAM order, secondary indexes, logical relationships, load mode beyond a lone L / LS PCB | REFUSED | — |
 | I6 | IMS | an HD reorganization unload (DFSURGU0) read by the record layout observed in CardDemo's; the segment counts its trailer records must match what was read | ASSUMED | yes (carddemo-paudbunl: 22 roots, 202 children) |
 | W1 | MQ | CMQV / CMQODV / CMQMDV / CMQGMOV / CMQPMOV / CMQTML: stand-ins from IBM's docs, version-1 layouts, only the constants the model gives meaning to | ASSUMED | yes (carddemo-codate01, #4892) |
 | W2 | MQ | MQGMO_WAIT on an empty queue: 2033 at once (no concurrent producer); MQWI_UNLIMITED refused | ASSUMED | yes (carddemo-codate01, #4892) |
@@ -5063,7 +5063,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
     with a root whose packed key is blank, which a qualified GU refuses by design).
   - CALL 'CBLTDLI' is refused in a program IMS does not enter at ENTRY 'DLITCBL' or as a BMP (an MPP or CICS program), and with the I/O PCB.
   - Also refused: the parameter-count form (a binary count first), a PCB the entry was not passed, any ON EXCEPTION
-    phrase, and CALL 'AIBTDLI' or 'CEETDLI'.
+    phrase, and CALL 'AIBTDLI'.
+  - CALL 'CEETDLI' (#5233, LE's interface, the same USING list as CBLTDLI) is translated at ENTRY 'DLITCBL' on both runtimes
+    (`ggdli.c` `CEETDLI` and `DetDli.call`); in a BMP entered USING its I/O PCB it stays a hole by name. No burned program calls it:
+    the proof is the fixtures `DLILVL`, `DLICMD` and `DLIBOOL` with CBLTDLI renamed, each equal to the unrenamed run.
   - IMS TM / MFS (#5233): message calls on the I/O PCB (GU / GN / ISRT of a message), CHNG / SETO / PURG / CMD / INQY, MPP
     entry and MFS screens are needed by no burned program (PAUDBLOD is the only one handed an I/O PCB, and it never calls
     on it); they stay refused by name and nothing is modelled. `test_paudblod_bmp_5233.py` pins that census over the

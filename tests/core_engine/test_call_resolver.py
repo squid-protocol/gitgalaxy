@@ -1150,8 +1150,63 @@ def test_global_namespace_static_is_no_repo_edge_3756():
     assert _site(resolve_calls(files)[0], "parse")["step"] == "qualified"
 
 
-def test_other_languages_keep_the_untyped_receiver_rule_3756():
-    # the built-in list is JS/TS/Java only (Python/Ruby/... unmeasured): `get` on a ruby file stays `file`
-    files = _builtin_universe("ruby", "get", "d", "rb")
-    row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
-    assert row["step"] == "file"
+def test_unlisted_languages_keep_the_untyped_receiver_rule_3756():
+    # Python/PHP/Go have no built-in list yet (sibling gaps of #4991): `get` stays `file`
+    for lang, ext in (("python", "py"), ("php", "php")):
+        files = _builtin_universe(lang, "get", "d", ext)
+        row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+        assert row["step"] == "file", lang
+
+
+_SIBLING_BUILTINS = {
+    # lang: (extension, one callee per stdlib family, a repo-only method name, a namespace + static)
+    "kotlin": (
+        "kt",
+        ("add", "get", "put", "equals", "toString", "let", "firstOrNull", "joinToString", "trim"),
+        "visitNode",
+        ("Math", "max"),
+    ),
+    "csharp": (
+        "cs",
+        ("Add", "TryGetValue", "Trim", "ToString", "Equals", "Where", "FirstOrDefault", "Append", "Dispose"),
+        "VisitNode",
+        ("Math", "Max"),
+    ),
+    "ruby": (
+        "rb",
+        ("each", "map", "include?", "empty?", "to_s", "keys", "fetch", "strip", "is_a?"),
+        "visit_node",
+        ("Math", "sqrt"),
+    ),
+}
+
+
+def test_sibling_language_builtin_method_on_untyped_receiver_is_ambiguous_4991():
+    for lang, (ext, callees, _repo_only, _ns) in _SIBLING_BUILTINS.items():
+        for callee in callees:
+            files = _builtin_universe(lang, callee, "items", ext)
+            row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+            assert row["step"] == "receiver", (lang, callee)
+            assert row["resolution"] not in CONFIDENT_RESOLUTIONS
+
+
+def test_sibling_language_non_builtin_and_known_receivers_stay_confident_4991():
+    for lang, (ext, callees, repo_only, _ns) in _SIBLING_BUILTINS.items():
+        files = _builtin_universe(lang, repo_only, "items", ext)
+        assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "file", lang
+        files = _builtin_universe(lang, callees[0], "this", ext, run_owner="Box")
+        assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "class", lang
+        files = _builtin_universe(lang, callees[0], "Box", ext)  # a repo class
+        assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "qualified", lang
+
+
+def test_sibling_language_global_namespace_static_is_no_repo_edge_4991():
+    for lang, (ext, _callees, _repo_only, (ns, callee)) in _SIBLING_BUILTINS.items():
+        files = [
+            _file(
+                f"A.{ext}",
+                lang,
+                [_fn(callee, 5, owner="Box"), _fn("run", 20, calls=[callee], quals={callee: [ns]})],
+            )
+        ]
+        assert _site(resolve_calls(files)[0], callee)["step"] == "none", lang

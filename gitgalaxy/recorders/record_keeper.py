@@ -1607,32 +1607,7 @@ class RecordKeeper:
         #   access         -- read / insert / update / delete / merge / lock
         #   cursor_name    -- declared, used, or `WHERE CURRENT OF`
         #   host_variables -- distinct `:NAME`s in order, comma-joined
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS sql_statement_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                stmt_ordinal INTEGER,
-                verb TEXT,
-                table_name TEXT,
-                access TEXT,
-                cursor_name TEXT,
-                host_variables TEXT,
-                line_number INTEGER,
-                statement_text TEXT,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_statement_file_id ON sql_statement_data(file_id);")
-        # #3618: the statement text, added to a pre-#3618 DB in place.
-        _ensure_columns(cursor, "sql_statement_data", ["statement_text TEXT"])
-        # #5736: the routine a `CALL` statement names (schema.proc), NULL for every other verb.
-        _ensure_columns(cursor, "sql_statement_data", ["routine_name TEXT"])
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_statement_table ON sql_statement_data(table_name);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_sql_statement_snapshot ON sql_statement_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, "sql_statement", _ensure_columns)
 
         # #3313 step 3: project-local idiom wrappers -- a short function or a
         # function-like `#define` alias that hides a literal-vocabulary rule
@@ -3247,39 +3222,6 @@ class RecordKeeper:
         # a program the repository does not contain keeps dst_file_id NULL.
         _insert_resolved_channel(
             cursor, TRANSACTION_CHANNEL, transactions or [], path_to_file_id, repo_name, commit_hash
-        )
-
-        # #3446: embedded SQL statements -- per-file, like sql_table_data.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "sql_statement_data",
-            (
-                "stmt_ordinal",
-                "verb",
-                "table_name",
-                "access",
-                "cursor_name",
-                "host_variables",
-                "line_number",
-                "statement_text",
-                "routine_name",
-            ),
-            "sql_statements",
-            lambda s: (
-                int(s.get("ordinal", 0) or 0),
-                s.get("verb"),
-                s.get("table"),
-                s.get("access"),
-                s.get("cursor"),
-                s.get("host_variables"),
-                int(s.get("line", 0) or 0),
-                s.get("statement"),
-                s.get("routine"),
-            ),
         )
 
         # #3313 step 3: the resolved idiom wrappers, like transactions passed in

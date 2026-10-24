@@ -115,6 +115,8 @@ def command_key(words: list[str], opts: dict) -> str:
         return first
     if first in ("GET", "PUT", "DELETE", "MOVE") and "CONTAINER" in opts:  # #4270 (DELETE CONTAINER is no file's)
         return f"{first} CONTAINER"
+    if first in ("GET64", "PUT64") and "CONTAINER" in opts:  # #5005 (X17): the 64-bit forms
+        return f"{first} CONTAINER"
     if (
         first in ("DELETE", "QUERY") and "CHANNEL" in opts and "CONTAINER" not in opts
     ):  # #5005 (DELETE CONTAINER is above)
@@ -859,6 +861,8 @@ class Cics(ConditionCommands, ContainerCommands, FileControlCommands, TaskContro
         key = command_key(words, opts)
         if key in ("PUT CONTAINER", "GET CONTAINER", "DELETE CONTAINER"):
             return self.container(key, opts, ind)
+        if key in ("PUT64 CONTAINER", "GET64 CONTAINER"):  # #5005 (X17): the same, INTO / FROM an ordinary item
+            return self.container(key.replace("64", ""), opts, ind)
         if key in ("MOVE CONTAINER", "STARTBROWSE CONTAINER", "GETNEXT CONTAINER", "ENDBROWSE CONTAINER"):
             return self.container_browse(key, opts, ind)  # #4951
         if key in ("DELETE CHANNEL", "QUERY CHANNEL"):

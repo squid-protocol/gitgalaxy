@@ -22,6 +22,12 @@ that baseline in the same PR.
 Every step appends its table to the workflow's job summary, so the current numbers are on the
 PR's checks page. The committed baselines hold the numbers on `main`.
 
+Span anchoring is the longest single gate (about 5 min on a CI runner), so it can run as parallel shards
+(#5501): `span_anchor_audit.py --shard I/N --json part.json` scans every Nth language directory, and
+`--merge part*.json --ci` sums the counts and applies the one baseline. A shard cannot gate on its own: a
+language's files sit in several directories (a `.h` file under `c/` can be C or a makefile), so only the summed
+counts give the real rate. The merged shards equal the unsharded run exactly (51 languages, same counts).
+
 **Coverage at a glance:**
 [`self_scan/graph_coverage_chart.svg`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/self_scan/graph_coverage_chart.svg) shows the checks
 above for every language on one chart, with n. Languages that no check measures yet are listed

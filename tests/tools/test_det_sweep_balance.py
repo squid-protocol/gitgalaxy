@@ -113,3 +113,19 @@ def test_a_rerun_shard_overwrites_its_sweep_json_and_merges_without_a_duplicate(
     (disagree / "sweep.json").write_text(json.dumps({"det": {"a": {"proved": False}}}), encoding="utf-8")
     with pytest.raises(ValueError, match="in two shards with conflicting results"):  # a real conflict still raises
         ps.merge_sweeps([shard, disagree])
+
+
+def test_the_committed_durations_balance_the_db2_split():
+    """#5882: Evidence Refresh's Db2 parts split by the committed file (pinned, #5114), so a stale file unbalances them:
+    the Db2 cases it measures stay within the plan's unmeasured allowance and plan within MAX_RATIO at every count."""
+    import ci_shard_plan as sp
+    import db2_shard_plan as dsp
+    import det_sweep_plan as dsw
+
+    durations = dsw.load_durations()
+    assert durations
+    names = [n for n, c in dsw.case_dirs().items() if dsw.is_db2(c)]
+    sp.check_measured([n for n in names if n not in durations], len(names), "Db2 case")
+    for n in range(2, dsw.DB2_MAX_SHARDS + 1):
+        check = dsp.plan_check(names, durations, n)
+        assert check["warning"] is None, f"{n} shards: {check['warning']}"

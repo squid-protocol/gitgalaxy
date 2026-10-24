@@ -9,7 +9,7 @@ import pytest
 REPO = Path(__file__).resolve().parents[2]
 STATUS = REPO / "docs" / "language_status"
 PAGE = "generated/docs/language_status/progress.md"
-SNAPSHOT_PAGES = ("det_survey.md", "det_port_design.md", "estate4_dbb_mortgage.md", "porting_loop.md")
+SNAPSHOT_PAGES = ("det_survey.md", "det_port_design.md", "estate4_dbb_mortgage.md", "porting_loop.md", "transferability.md")
 BANNER = re.compile(r"Dated historical snapshot \((\d{4}-\d{2}-\d{2})\)")
 BANNER_WITHIN_LINES = 14
 CURRENT_CLAIM = re.compile(r"\bprograms are (translated|proven)\b|\bStatus \(\d{4}-\d{2}-\d{2}\)")

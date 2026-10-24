@@ -20,14 +20,6 @@
     },
     {
       "unit": "SM010",
-      "line": 657,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND MAP ERASE (648 on): IBM raises no condition for a map the program has just built from its own BNK1CDO, and no fault can be injected on it."
-    },
-    {
-      "unit": "SM010",
       "line": 722,
       "kind": "IF",
       "outcome": "true",
@@ -57,14 +49,6 @@
       "outcome": "false",
       "family": "G",
       "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SM010 after the first SEND MAP and '2' is never set (see 722), so the test is always true."
-    },
-    {
-      "unit": "SM010",
-      "line": 806,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND MAP DATAONLY ALARM (796 on): IBM raises no condition for a map the program has just built from its own BNK1CDO, and no fault can be injected on it."
     },
     {
       "unit": "STM010",

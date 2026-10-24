@@ -99,6 +99,77 @@ def test_a_channel_payload_round_trips_through_record_and_rehydrate(tmp_path):
         assert channel.payload_key in node
 
 
+def test_a_resolved_channel_inserts_from_the_site_list_and_restores_per_file(tmp_path):
+    call_site = CHANNELS_BY_NAME["call_site"]
+    assert call_site.resolved and [c.name for c in CHANNELS if c.resolved] == ["call_site"]
+    files = [{"path": p, "lang_id": "cobol", "raw_imports": []} for p in ("a.cbl", "b.cbl")]
+    sites = [
+        {
+            "src_path": "a.cbl",
+            "verb": "CALL",
+            "form": "literal",
+            "operand": "'B'",
+            "target": "B",
+            "resolved_path": "b.cbl",
+        },
+        {
+            "src_path": "a.cbl",
+            "verb": "LINK",
+            "form": "literal",
+            "target": "C",
+            "line": 9,
+            "commarea": "CA",
+            "sysid": "S1",
+        },
+        {"src_path": "gone.cbl", "verb": "CALL", "form": "literal", "target": "Z", "line": 1},
+    ]
+    db = tmp_path / "m.db"
+    RecordKeeper().record_mission(files, [], {}, SESSION, str(db), call_sites=sites)
+    conn = sqlite3.connect(db)
+    try:
+        rows = conn.execute(
+            "SELECT src_file_id, target, dst_file_id, line_number FROM call_site_data ORDER BY id"
+        ).fetchall()
+        ids = dict(conn.execute("SELECT file_path, id FROM file_data"))
+    finally:
+        conn.close()
+    assert rows == [(ids["a.cbl"], "B", ids["b.cbl"], 0), (ids["a.cbl"], "C", None, 9)]  # gone.cbl has no file row
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]
+    assert [s["target"] for s in node["a.cbl"]["call_sites"]] == ["B", "C"]
+    assert node["a.cbl"]["call_sites"][1] == {
+        "verb": "LINK",
+        "form": "literal",
+        "operand": None,
+        "target": "C",
+        "line": 9,
+        "commarea": "CA",
+        "sysid": "S1",
+    }
+    assert node["b.cbl"]["call_sites"] == []
+
+
+def test_a_baseline_without_the_healed_call_site_columns_restores_without_the_keys():
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "CREATE TABLE file_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, file_path TEXT)"
+        )
+        cursor.execute(
+            "CREATE TABLE call_site_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, src_file_id INTEGER,"
+            " verb TEXT, form TEXT, operand TEXT, target TEXT, dst_file_id INTEGER, line_number INTEGER)"
+        )
+        cursor.execute("INSERT INTO file_data VALUES (1, 'r', 'c', 'a.cbl')")
+        cursor.execute("INSERT INTO call_site_data VALUES (1, 'r', 'c', 1, 'CALL', 'literal', NULL, 'B', NULL, 4)")
+        call_site = CHANNELS_BY_NAME["call_site"]
+        sql = call_site.select_sql(cursor, _has_table, _has_column)
+        restored = _restore_child_table(cursor, "r", "c", call_site.table, sql, call_site.to_payload)
+        assert restored == {"a.cbl": [{"verb": "CALL", "form": "literal", "operand": None, "target": "B", "line": 4}]}
+    finally:
+        conn.close()
+
+
 def test_every_channel_declares_a_schema_that_names_its_own_table():
     assert set(CHANNELS_BY_NAME) == {c.name for c in CHANNELS}
     for channel in CHANNELS:
@@ -140,7 +211,6 @@ _GALAXY_IR = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobo
 # slices). A table leaves this set when its channel is migrated; a new channel is never added here.
 _UNMIGRATED_IR_TABLES = frozenset(
     {
-        "call_site_data",
         "transaction_data",
         "sql_statement_data",
         "web_service_data",

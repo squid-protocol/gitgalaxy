@@ -33,6 +33,15 @@ _PARENS = r"\((?:[^()]|\([^()]*\))*\)"
 # or more, on the `)` line or indented below it. Never one with an argument list or at column 0: that is
 # the next macro statement of a chain (gzdoom `EXTERN_CVAR(Bool, x)` / `CUSTOM_CVAR(Int, y, 0, 0) {`).
 _SPEC_MACRO = r"(?:[ \t]+|[ \t]*\n[ \t]+)[A-Z][A-Z0-9_]{1,63}(?![" + ID_CONTINUE + r"]|[ \t]*\()"
+# #3772: a thread-safety annotation macro WITH arguments, on its own indented line below the `)`:
+# `void Mock::AllowLeak(const void* p)\n    GTEST_LOCK_EXCLUDED_(mu) {`. Without this the macro line was read as the
+# definition (named `GTEST_LOCK_EXCLUDED_`) and the real function lost its name. Narrowed to the lock-annotation
+# vocabulary (LOCK / EXCLUDE / REQUIRE / ACQUIRE / RELEASE / GUARDED): any other indented `MACRO(args) {` stays a
+# macro statement chain. The lookahead keeps the name class single, so no two repeats compete for a character.
+_ANNOT_MACRO = (
+    r"[ \t]*\n[ \t]+(?=[A-Z0-9_]{0,63}(?:LOCK|EXCLUDE|REQUIRE|ACQUIRE|RELEASE|GUARDED))[A-Z][A-Z0-9_]{1,63}[ \t]*"
+    + _PARENS
+)
 # A trailing return type token: a qualified name with template arguments (`std::map<int, int>`).
 _RET_TOKEN = r"[a-zA-Z_:" + ID_CONTINUE + r"*<>]+"
 
@@ -392,6 +401,8 @@ DEFINITION: dict[str, Any] = {
             + _PARENS
             + r"|override|final|&{1,2}|__attribute__\((?:[^)(]|\([^)]*\))*\)|\[\[[^\]]*\]\])|"
             + _SPEC_MACRO
+            + r"|"
+            + _ANNOT_MACRO
             + r"){0,10}"
             r"(?:[ \t\n]*->[ \t]*(?:(?:const|volatile|typename)[ \t]+){0,3}(?:decltype[ \t]*"
             + _PARENS

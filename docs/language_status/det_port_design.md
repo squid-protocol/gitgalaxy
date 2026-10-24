@@ -383,7 +383,7 @@ Only generator output, never a test case:
   `DELETE CHANNEL` and `QUERY CHANNEL` (`deleteChannel` / `queryChannel`, stub GGCDELH / GGCQCHN, register X44; deleting
   the program's current channel is refused, IBM's RESP2 4 / 5 / 6 all fit it), CCSID conversion (`FROMCCSID` / `INTOCCSID`
   / `CONVERTST` / `CCSID`) and `BYTEOFFSET` / `PREPEND` on BIT containers (#5285), and `RETURN TRANSID CHANNEL` carried
-  to the next terminal task (#6352, register X17). Still refused by name: `SET`, `GET64` / `PUT64`, `INQUIRE CONTAINER`
+  to the next terminal task (#6352, register X17). `GET64` / `PUT64 CONTAINER` run as their 31-bit twins (INTO / FROM an ordinary item, ASSUMED, register X17). Still refused by name: `SET` (and `GET64 ... SET`), `INQUIRE CONTAINER`
   (BTS only). Proven on both sides by `tests/cics_crucible/test_cics_runtimes.py`; the cics-crucible case `ca-channel-browse`
   (PR #19 there) is not yet merged or pinned.
 - #4270 slice 2: interval control was refused whole -- START / RETRIEVE / RUN / FETCH in 10 census programs (3 outside

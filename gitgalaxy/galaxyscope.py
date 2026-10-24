@@ -108,6 +108,37 @@ def missing_dependencies() -> dict[str, bool]:
 # existing FileNotFoundError/CalledProcessError handling at each call site
 # already covers that case unchanged.
 _GIT_BIN = shutil.which("git") or "git"
+
+
+def _untracked_files(root: "str | Path") -> list[str]:
+    """#138: untracked, non-ignored files under `root` (what `git ls-files` never lists).
+
+    Empty when `root` is not a git work tree or git is missing (the filesystem walk then sees
+    every file). Modified-but-unstaged tracked files are not listed: they ARE in `ls-files`
+    and are read from disk, so they are scanned.
+    """
+    try:
+        out = subprocess.check_output(  # noqa: S603 -- _GIT_BIN absolute, fixed args
+            [_GIT_BIN, "ls-files", "-z", "--others", "--exclude-standard"],
+            cwd=root,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+    except (subprocess.CalledProcessError, OSError):
+        return []
+    return [u for u in out.split("\0") if u]
+
+
+def _warn_untracked(untracked: list[str]) -> None:
+    """Log one warning naming up to five untracked files that the git census skips."""
+    if untracked:
+        logging.warning(
+            f"⚠️ {len(untracked)} untracked file(s) are NOT scanned (git ls-files, the census "
+            f"a full scan uses, does not list them); `git add` to include: "
+            f"{', '.join(untracked[:5])}{' ...' if len(untracked) > 5 else ''}"
+        )
+
+
 # #3506: a scan holding any of these gets the mainframe skeleton-completeness report.
 _COMPLETENESS_LANGUAGES = frozenset({"cobol", "jcl", "bms", "csd"})
 
@@ -2345,6 +2376,8 @@ class Orchestrator:
                     self._record_anomaly(rel_path, reason)
 
             logger.info(f"CENSUS_COMPLETE: Found {len(git_paths)} tracked artifacts via Git.")
+            if not getattr(self, "single_file_target", None):
+                _warn_untracked(_untracked_files(self.root))  # #138
 
         except (subprocess.CalledProcessError, FileNotFoundError):
             self.git_tracked_files = set()
@@ -4501,25 +4534,7 @@ def main():
                     # and unstaged edits to tracked files (and `git add`ed new files) are re-scanned.
                     # An untracked file is not: a full scan's census is `git ls-files` and never sees
                     # it either, so scanning it here would break delta == full. Say so loudly.
-                    try:
-                        untracked = [
-                            u
-                            for u in subprocess.check_output(  # noqa: S603 -- _GIT_BIN absolute, fixed args
-                                [_GIT_BIN, "ls-files", "-z", "--others", "--exclude-standard"],
-                                cwd=target_path,
-                                text=True,
-                                stderr=subprocess.DEVNULL,
-                            ).split("\0")
-                            if u
-                        ]
-                    except (subprocess.CalledProcessError, OSError):
-                        untracked = []
-                    if untracked:
-                        logging.warning(
-                            f"⚠️ {len(untracked)} untracked file(s) are NOT scanned (git ls-files, the census "
-                            f"a full scan uses, does not list them either); `git add` to include: "
-                            f"{', '.join(untracked[:5])}{' ...' if len(untracked) > 5 else ''}"
-                        )
+                    _warn_untracked(_untracked_files(target_path))
                     scope.execute_incremental_scan(ram_cache, added, modified, deleted, db_out_path)
 
                 except subprocess.CalledProcessError:

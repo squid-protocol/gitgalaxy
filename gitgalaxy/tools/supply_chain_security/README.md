@@ -48,14 +48,14 @@ The first three files below live in this directory and act as discrete, speciali
 #### Showcase A: Vault Sentinel (Secret Detection)
 To prove this engine operates fast enough to be a synchronous pre-commit hook without frustrating developers, we executed the **Vault Sentinel** against the massive **tRPC** TypeScript monorepo. 
 
-The engine evaluated 871 files and performed deep-content cryptographic scans on 695 of them in **0.53 seconds** (processing over 1,300 files per second). It successfully intercepted 7 exposed environment files and caught a hardcoded API key before the commit could execute.
+The engine evaluated 871 files and performed deep-content cryptographic scans on 695 of them in **0.53 seconds** (processing over 1,300 files per second). It successfully intercepted 7 exposed environment files and caught a hardcoded API key before the commit could execute. *Single run, measured 2026-04-22; not a current or average figure.*
 
 ![Vault Sentinel Demo](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/main/docs/wiki/assets/vault_sentinel_scan.gif)
 
 #### Showcase B: Binary Anomaly Detector (Malware & Binary Triage)
 To test binary detection, we ran the **Binary Anomaly Detector** against **pwntools**, an exploit development framework containing actual compiled binaries and shellcode.
 
-The engine processed the repository at a velocity of **2,825 files per second**. By reading the raw physical bytes rather than trusting file extensions, it instantly detected 13 embedded `ELF` execution headers hidden inside the source tree.
+The engine processed the repository at a velocity of **2,825 files per second**. By reading the raw physical bytes rather than trusting file extensions, it instantly detected 13 embedded `ELF` execution headers hidden inside the source tree. *Single run, measured 2026-04-22; not a current or average figure.*
 
 ![Binary Anomaly Detector Demo](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/main/docs/wiki/assets/xray_inspector_scan.gif)
 
@@ -76,7 +76,7 @@ The engine processed the repository at a velocity of **2,825 files per second**.
 #### Showcase C: Supply Chain Firewall (Infrastructure-as-Code Audit)
 To prove the firewall can handle diverse polyglot ecosystems without throwing false positives, we ran it against the **Terraform** repository. 
 
-The engine parsed 1,834 files at a velocity of **436 files per second**. It successfully verified the integrity of the dependency tree, identified 54 unknown packages for audit, and cleared the build without tripping any false alarms on standard Go/HCL syntax.
+The engine parsed 1,834 files at a velocity of **436 files per second**. It successfully verified the integrity of the dependency tree, identified 54 unknown packages for audit, and cleared the build without tripping any false alarms on standard Go/HCL syntax. *Single run, measured 2026-04-22; not a current or average figure.*
 
 ![Supply Chain Firewall Demo](https://raw.githubusercontent.com/squid-protocol/gitgalaxy/main/docs/wiki/assets/terraform_firewall_scan.gif)
 

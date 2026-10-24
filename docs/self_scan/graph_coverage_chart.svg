@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1054 1010" width="1054" height="1010" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1244 1010" width="1244" height="1010" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
 <style>
   .surface { fill: #fcfcfb; }
   .title { font-size: 15px; font-weight: 600; fill: #0b0b0b; }
@@ -15,9 +15,9 @@
   .stripe { fill: #f0efec; }
   .track { fill: #eeede9; }
 </style>
-<rect class="surface" x="0" y="0" width="1054" height="1010"/>
+<rect class="surface" x="0" y="0" width="1244" height="1010"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 21, callee names 21, call resolution 7 of 65 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 21, callee names 21, call resolution 7, hubs 21 of 65 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -29,7 +29,9 @@
 <text class="panel-sub" x="426" y="97">names called, vs tree-sitter</text>
 <text class="panel-title" x="732" y="84">Call resolution</text>
 <text class="panel-sub" x="732" y="97">call -&gt; definition, vs a compiler</text>
-<rect class="stripe" x="16" y="106" width="1022" height="34"/>
+<text class="panel-title" x="1038" y="84">Hub agreement</text>
+<text class="panel-sub" x="1038" y="97">top-10 PageRank files, vs parser truth</text>
+<rect class="stripe" x="16" y="106" width="1212" height="34"/>
 <text class="lang" x="22" y="127.0">apex</text>
 <text class="none" x="120" y="126.0">not measured</text>
 <g><title>apex callee names: precision 95.7% of 281, recall 97.5% of 276 (raw 95.7% / 97.5%; 5 shapes without a verdict)</title>
@@ -45,6 +47,7 @@
 <text class="n" x="630" y="133">functions 60</text>
 </g>
 <text class="none" x="732" y="126.0">not measured</text>
+<text class="none" x="1038" y="126.0">not measured</text>
 <text class="lang" x="22" y="161.0">c</text>
 <g><title>c imports: precision 99.9% of 871, recall 100.0% of 873 (raw 99.9% / 100.0%; 1 shapes without a verdict); corpus libuv/libuv, redis/hiredis</title>
 <text class="pr" x="120" y="154.5">Precision</text>
@@ -82,7 +85,18 @@
 <text class="n" x="936" y="155">n=8,536 edges</text>
 <text class="n" x="936" y="167">vs libclang 18.1.1</text>
 </g>
-<rect class="stripe" x="16" y="174" width="1022" height="34"/>
+<g><title>c hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="154.5">overlap@10</text>
+<rect class="track" x="1090" y="147" width="110" height="8" rx="2"/>
+<rect x="1090" y="147" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="1205" y="155">100%</text>
+<text class="pr" x="1038" y="166.5">Spearman</text>
+<rect class="track" x="1090" y="159" width="110" height="8" rx="2"/>
+<rect x="1090" y="159" width="110.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="1205" y="167">1.00</text>
+<text class="n" x="1240" y="155">repos=2</text>
+</g>
+<rect class="stripe" x="16" y="174" width="1212" height="34"/>
 <text class="lang" x="22" y="195.0">cpp</text>
 <g><title>cpp imports: precision 99.4% of 171, recall 100.0% of 171 (raw 99.4% / 100.0%; 1 shapes without a verdict); corpus fmtlib/fmt</title>
 <text class="pr" x="120" y="188.5">Precision</text>
@@ -109,6 +123,17 @@
 <text class="n" x="630" y="201">functions 1,291</text>
 </g>
 <text class="none" x="732" y="194.0">not measured</text>
+<g><title>cpp hubs: 90% / 0.84 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="188.5">overlap@10</text>
+<rect class="track" x="1090" y="181" width="110" height="8" rx="2"/>
+<rect x="1090" y="181" width="99.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="189">90%</text>
+<text class="pr" x="1038" y="200.5">Spearman</text>
+<rect class="track" x="1090" y="193" width="110" height="8" rx="2"/>
+<rect x="1090" y="193" width="92.5" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="201">0.84</text>
+<text class="n" x="1240" y="189">repos=1</text>
+</g>
 <text class="lang" x="22" y="229.0">csharp</text>
 <g><title>csharp imports: precision 97.4% of 116, recall 61.1% of 18 (raw 9.5% / 61.1%; 3 shapes without a verdict); corpus JamesNK/Newtonsoft.Json; small n</title>
 <text class="pr" x="120" y="222.5">Precision</text>
@@ -135,7 +160,18 @@
 <text class="n" x="630" y="235">functions 650</text>
 </g>
 <text class="none" x="732" y="228.0">not measured</text>
-<rect class="stripe" x="16" y="242" width="1022" height="34"/>
+<g><title>csharp hubs: 50% / 0.49 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="222.5">overlap@10</text>
+<rect class="track" x="1090" y="215" width="110" height="8" rx="2"/>
+<rect x="1090" y="215" width="55.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="223">50%</text>
+<text class="pr" x="1038" y="234.5">Spearman</text>
+<rect class="track" x="1090" y="227" width="110" height="8" rx="2"/>
+<rect x="1090" y="227" width="54.5" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="235">0.49</text>
+<text class="n" x="1240" y="223">repos=1</text>
+</g>
+<rect class="stripe" x="16" y="242" width="1212" height="34"/>
 <text class="lang" x="22" y="263.0">dart</text>
 <g><title>dart imports: precision 100.0% of 707, recall 100.0% of 748; corpus dart-lang/http</title>
 <text class="pr" x="120" y="256.5">Precision</text>
@@ -162,6 +198,17 @@
 <text class="n" x="630" y="269">functions 1,734</text>
 </g>
 <text class="none" x="732" y="262.0">not measured</text>
+<g><title>dart hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="256.5">overlap@10</text>
+<rect class="track" x="1090" y="249" width="110" height="8" rx="2"/>
+<rect x="1090" y="249" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="257">100%</text>
+<text class="pr" x="1038" y="268.5">Spearman</text>
+<rect class="track" x="1090" y="261" width="110" height="8" rx="2"/>
+<rect x="1090" y="261" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="269">1.00</text>
+<text class="n" x="1240" y="257">repos=1</text>
+</g>
 <text class="lang" x="22" y="297.0">go</text>
 <g><title>go imports: precision 91.7% of 12, recall 91.7% of 12 (raw 91.7% / 91.7%; 2 shapes without a verdict); corpus spf13/cobra; small n</title>
 <text class="pr" x="120" y="290.5">Precision</text>
@@ -199,7 +246,17 @@
 <text class="n" x="936" y="291">n=1,636 edges</text>
 <text class="n" x="936" y="303">vs go-callgraph 0.37.0</text>
 </g>
-<rect class="stripe" x="16" y="310" width="1022" height="34"/>
+<g><title>go hubs: 100% / - (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="290.5">overlap@10</text>
+<rect class="track" x="1090" y="283" width="110" height="8" rx="2"/>
+<rect x="1090" y="283" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="291">100%</text>
+<text class="pr" x="1038" y="302.5">Spearman</text>
+<rect class="track" x="1090" y="295" width="110" height="8" rx="2"/>
+<text class="val" x="1205" y="303">-</text>
+<text class="n" x="1240" y="291">repos=1</text>
+</g>
+<rect class="stripe" x="16" y="310" width="1212" height="34"/>
 <text class="lang" x="22" y="331.0">haskell</text>
 <g><title>haskell imports: precision 100.0% of 138, recall 100.0% of 139; corpus koalaman/shellcheck</title>
 <text class="pr" x="120" y="324.5">Precision</text>
@@ -226,6 +283,17 @@
 <text class="n" x="630" y="337">functions 142</text>
 </g>
 <text class="none" x="732" y="330.0">not measured</text>
+<g><title>haskell hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="324.5">overlap@10</text>
+<rect class="track" x="1090" y="317" width="110" height="8" rx="2"/>
+<rect x="1090" y="317" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="325">100%</text>
+<text class="pr" x="1038" y="336.5">Spearman</text>
+<rect class="track" x="1090" y="329" width="110" height="8" rx="2"/>
+<rect x="1090" y="329" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="337">1.00</text>
+<text class="n" x="1240" y="325">repos=1</text>
+</g>
 <text class="lang" x="22" y="365.0">java</text>
 <g><title>java imports: precision 100.0% of 1,022, recall 100.0% of 1,085; corpus google/gson</title>
 <text class="pr" x="120" y="358.5">Precision</text>
@@ -263,7 +331,18 @@
 <text class="n" x="936" y="359">n=7,858 edges</text>
 <text class="n" x="936" y="371">vs scip-java 0.12.3</text>
 </g>
-<rect class="stripe" x="16" y="378" width="1022" height="34"/>
+<g><title>java hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="358.5">overlap@10</text>
+<rect class="track" x="1090" y="351" width="110" height="8" rx="2"/>
+<rect x="1090" y="351" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="359">100%</text>
+<text class="pr" x="1038" y="370.5">Spearman</text>
+<rect class="track" x="1090" y="363" width="110" height="8" rx="2"/>
+<rect x="1090" y="363" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="371">1.00</text>
+<text class="n" x="1240" y="359">repos=1</text>
+</g>
+<rect class="stripe" x="16" y="378" width="1212" height="34"/>
 <text class="lang" x="22" y="399.0">javascript</text>
 <g><title>javascript imports: precision 100.0% of 425, recall 99.8% of 433 (raw 100.0% / 99.8%; 1 shapes without a verdict); corpus axios/axios, expressjs/express</title>
 <text class="pr" x="120" y="392.5">Precision</text>
@@ -301,6 +380,17 @@
 <text class="n" x="936" y="393">n=29 edges</text>
 <text class="n" x="936" y="405">vs tsc (allowJs) 6.0.2</text>
 </g>
+<g><title>javascript hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="392.5">overlap@10</text>
+<rect class="track" x="1090" y="385" width="110" height="8" rx="2"/>
+<rect x="1090" y="385" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="1205" y="393">100%</text>
+<text class="pr" x="1038" y="404.5">Spearman</text>
+<rect class="track" x="1090" y="397" width="110" height="8" rx="2"/>
+<rect x="1090" y="397" width="110.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="1205" y="405">1.00</text>
+<text class="n" x="1240" y="393">repos=2</text>
+</g>
 <text class="lang" x="22" y="433.0">kotlin</text>
 <g><title>kotlin imports: precision 100.0% of 218, recall 99.2% of 377; corpus square/kotlinpoet</title>
 <text class="pr" x="120" y="426.5">Precision</text>
@@ -327,7 +417,18 @@
 <text class="n" x="630" y="439">functions 27</text>
 </g>
 <text class="none" x="732" y="432.0">not measured</text>
-<rect class="stripe" x="16" y="446" width="1022" height="34"/>
+<g><title>kotlin hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="426.5">overlap@10</text>
+<rect class="track" x="1090" y="419" width="110" height="8" rx="2"/>
+<rect x="1090" y="419" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="427">100%</text>
+<text class="pr" x="1038" y="438.5">Spearman</text>
+<rect class="track" x="1090" y="431" width="110" height="8" rx="2"/>
+<rect x="1090" y="431" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="439">1.00</text>
+<text class="n" x="1240" y="427">repos=1</text>
+</g>
+<rect class="stripe" x="16" y="446" width="1212" height="34"/>
 <text class="lang" x="22" y="467.0">lua</text>
 <g><title>lua imports: precision 100.0% of 351, recall 99.2% of 354 (raw 100.0% / 99.2%; 1 shapes without a verdict); corpus luarocks/luarocks</title>
 <text class="pr" x="120" y="460.5">Precision</text>
@@ -354,6 +455,17 @@
 <text class="n" x="630" y="473">functions 623</text>
 </g>
 <text class="none" x="732" y="466.0">not measured</text>
+<g><title>lua hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="460.5">overlap@10</text>
+<rect class="track" x="1090" y="453" width="110" height="8" rx="2"/>
+<rect x="1090" y="453" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="461">100%</text>
+<text class="pr" x="1038" y="472.5">Spearman</text>
+<rect class="track" x="1090" y="465" width="110" height="8" rx="2"/>
+<rect x="1090" y="465" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="473">1.00</text>
+<text class="n" x="1240" y="461">repos=1</text>
+</g>
 <text class="lang" x="22" y="501.0">objective-c</text>
 <g><title>objective-c imports: precision 100.0% of 682, recall 100.0% of 683; corpus SDWebImage/SDWebImage</title>
 <text class="pr" x="120" y="494.5">Precision</text>
@@ -369,7 +481,18 @@
 </g>
 <text class="none" x="426" y="500.0">not measured</text>
 <text class="none" x="732" y="500.0">not measured</text>
-<rect class="stripe" x="16" y="514" width="1022" height="34"/>
+<g><title>objective-c hubs: 100% / 0.99 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="494.5">overlap@10</text>
+<rect class="track" x="1090" y="487" width="110" height="8" rx="2"/>
+<rect x="1090" y="487" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="495">100%</text>
+<text class="pr" x="1038" y="506.5">Spearman</text>
+<rect class="track" x="1090" y="499" width="110" height="8" rx="2"/>
+<rect x="1090" y="499" width="108.7" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="507">0.99</text>
+<text class="n" x="1240" y="495">repos=1</text>
+</g>
+<rect class="stripe" x="16" y="514" width="1212" height="34"/>
 <text class="lang" x="22" y="535.0">perl</text>
 <g><title>perl imports: precision 97.9% of 47, recall 100.0% of 49 (raw 97.9% / 100.0%; 1 shapes without a verdict); corpus libwww-perl/HTTP-Message; small n</title>
 <text class="pr" x="120" y="528.5">Precision</text>
@@ -396,6 +519,17 @@
 <text class="n" x="630" y="541">functions 943</text>
 </g>
 <text class="none" x="732" y="534.0">not measured</text>
+<g><title>perl hubs: 100% / 0.97 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="528.5">overlap@10</text>
+<rect class="track" x="1090" y="521" width="110" height="8" rx="2"/>
+<rect x="1090" y="521" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="529">100%</text>
+<text class="pr" x="1038" y="540.5">Spearman</text>
+<rect class="track" x="1090" y="533" width="110" height="8" rx="2"/>
+<rect x="1090" y="533" width="106.3" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="541">0.97</text>
+<text class="n" x="1240" y="529">repos=1</text>
+</g>
 <text class="lang" x="22" y="569.0">php</text>
 <g><title>php imports: precision 99.2% of 380, recall 100.0% of 390 (raw 99.2% / 100.0%; 1 shapes without a verdict); corpus guzzle/guzzle</title>
 <text class="pr" x="120" y="562.5">Precision</text>
@@ -422,7 +556,18 @@
 <text class="n" x="630" y="575">functions 1,721</text>
 </g>
 <text class="none" x="732" y="568.0">not measured</text>
-<rect class="stripe" x="16" y="582" width="1022" height="34"/>
+<g><title>php hubs: 90% / 0.86 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="562.5">overlap@10</text>
+<rect class="track" x="1090" y="555" width="110" height="8" rx="2"/>
+<rect x="1090" y="555" width="99.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="563">90%</text>
+<text class="pr" x="1038" y="574.5">Spearman</text>
+<rect class="track" x="1090" y="567" width="110" height="8" rx="2"/>
+<rect x="1090" y="567" width="94.4" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="575">0.86</text>
+<text class="n" x="1240" y="563">repos=1</text>
+</g>
+<rect class="stripe" x="16" y="582" width="1212" height="34"/>
 <text class="lang" x="22" y="603.0">python</text>
 <g><title>python imports: precision 99.9% of 1,916, recall 100.0% of 2,101 (raw 99.9% / 100.0%; 2 shapes without a verdict); corpus encode/httpx, fastapi/fastapi, pallets/flask</title>
 <text class="pr" x="120" y="596.5">Precision</text>
@@ -460,6 +605,17 @@
 <text class="n" x="936" y="597">n=3,565 edges</text>
 <text class="n" x="936" y="609">vs pyan3 2.9.0</text>
 </g>
+<g><title>python hubs: 100% / 0.98 (repos=3) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="596.5">overlap@10</text>
+<rect class="track" x="1090" y="589" width="110" height="8" rx="2"/>
+<rect x="1090" y="589" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="1205" y="597">100%</text>
+<text class="pr" x="1038" y="608.5">Spearman</text>
+<rect class="track" x="1090" y="601" width="110" height="8" rx="2"/>
+<rect x="1090" y="601" width="107.4" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="1205" y="609">0.98</text>
+<text class="n" x="1240" y="597">repos=3</text>
+</g>
 <text class="lang" x="22" y="637.0">ruby</text>
 <g><title>ruby imports: precision 99.6% of 239, recall 99.6% of 239 (raw 99.6% / 99.6%; 2 shapes without a verdict); corpus rack/rack</title>
 <text class="pr" x="120" y="630.5">Precision</text>
@@ -486,7 +642,18 @@
 <text class="n" x="630" y="643">functions 349</text>
 </g>
 <text class="none" x="732" y="636.0">not measured</text>
-<rect class="stripe" x="16" y="650" width="1022" height="34"/>
+<g><title>ruby hubs: 100% / 0.99 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="630.5">overlap@10</text>
+<rect class="track" x="1090" y="623" width="110" height="8" rx="2"/>
+<rect x="1090" y="623" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="631">100%</text>
+<text class="pr" x="1038" y="642.5">Spearman</text>
+<rect class="track" x="1090" y="635" width="110" height="8" rx="2"/>
+<rect x="1090" y="635" width="108.7" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="643">0.99</text>
+<text class="n" x="1240" y="631">repos=1</text>
+</g>
+<rect class="stripe" x="16" y="650" width="1212" height="34"/>
 <text class="lang" x="22" y="671.0">rust</text>
 <g><title>rust imports: precision 100.0% of 153, recall 100.0% of 211; corpus serde-rs/json</title>
 <text class="pr" x="120" y="664.5">Precision</text>
@@ -524,6 +691,17 @@
 <text class="n" x="936" y="665">n=1,084 edges</text>
 <text class="n" x="936" y="677">vs rust-analyzer 1.90.0</text>
 </g>
+<g><title>rust hubs: 90% / 0.88 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="664.5">overlap@10</text>
+<rect class="track" x="1090" y="657" width="110" height="8" rx="2"/>
+<rect x="1090" y="657" width="99.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="665">90%</text>
+<text class="pr" x="1038" y="676.5">Spearman</text>
+<rect class="track" x="1090" y="669" width="110" height="8" rx="2"/>
+<rect x="1090" y="669" width="96.6" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="677">0.88</text>
+<text class="n" x="1240" y="665">repos=1</text>
+</g>
 <text class="lang" x="22" y="705.0">scala</text>
 <g><title>scala imports: precision 100.0% of 502, recall 98.3% of 529; corpus circe/circe</title>
 <text class="pr" x="120" y="698.5">Precision</text>
@@ -550,7 +728,18 @@
 <text class="n" x="630" y="711">functions 541</text>
 </g>
 <text class="none" x="732" y="704.0">not measured</text>
-<rect class="stripe" x="16" y="718" width="1022" height="34"/>
+<g><title>scala hubs: 100% / 0.98 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="698.5">overlap@10</text>
+<rect class="track" x="1090" y="691" width="110" height="8" rx="2"/>
+<rect x="1090" y="691" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="699">100%</text>
+<text class="pr" x="1038" y="710.5">Spearman</text>
+<rect class="track" x="1090" y="703" width="110" height="8" rx="2"/>
+<rect x="1090" y="703" width="107.4" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="711">0.98</text>
+<text class="n" x="1240" y="699">repos=1</text>
+</g>
+<rect class="stripe" x="16" y="718" width="1212" height="34"/>
 <text class="lang" x="22" y="739.0">shell</text>
 <g><title>shell imports: precision 100.0% of 56, recall 100.0% of 56; corpus Bash-it/bash-it, bats-core/bats-core; small n</title>
 <text class="pr" x="120" y="732.5">Precision</text>
@@ -566,6 +755,17 @@
 </g>
 <text class="none" x="426" y="738.0">not measured</text>
 <text class="none" x="732" y="738.0">not measured</text>
+<g><title>shell hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="732.5">overlap@10</text>
+<rect class="track" x="1090" y="725" width="110" height="8" rx="2"/>
+<rect x="1090" y="725" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="1205" y="733">100%</text>
+<text class="pr" x="1038" y="744.5">Spearman</text>
+<rect class="track" x="1090" y="737" width="110" height="8" rx="2"/>
+<rect x="1090" y="737" width="110.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="1205" y="745">1.00</text>
+<text class="n" x="1240" y="733">repos=2</text>
+</g>
 <text class="lang" x="22" y="773.0">solidity</text>
 <g><title>solidity imports: precision 100.0% of 810, recall 99.8% of 812 (raw 100.0% / 99.8%; 1 shapes without a verdict); corpus OpenZeppelin/openzeppelin-contracts</title>
 <text class="pr" x="120" y="766.5">Precision</text>
@@ -592,7 +792,18 @@
 <text class="n" x="630" y="779">functions 99</text>
 </g>
 <text class="none" x="732" y="772.0">not measured</text>
-<rect class="stripe" x="16" y="786" width="1022" height="34"/>
+<g><title>solidity hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="766.5">overlap@10</text>
+<rect class="track" x="1090" y="759" width="110" height="8" rx="2"/>
+<rect x="1090" y="759" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="767">100%</text>
+<text class="pr" x="1038" y="778.5">Spearman</text>
+<rect class="track" x="1090" y="771" width="110" height="8" rx="2"/>
+<rect x="1090" y="771" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="779">1.00</text>
+<text class="n" x="1240" y="767">repos=1</text>
+</g>
+<rect class="stripe" x="16" y="786" width="1212" height="34"/>
 <text class="lang" x="22" y="807.0">swift</text>
 <text class="none" x="120" y="806.0">not measured</text>
 <g><title>swift callee names: precision 99.0% of 288, recall 75.2% of 379 (raw 99.0% / 75.2%; 4 shapes without a verdict)</title>
@@ -608,6 +819,7 @@
 <text class="n" x="630" y="813">functions 132</text>
 </g>
 <text class="none" x="732" y="806.0">not measured</text>
+<text class="none" x="1038" y="806.0">not measured</text>
 <text class="lang" x="22" y="841.0">typescript</text>
 <g><title>typescript imports: precision 100.0% of 828, recall 100.0% of 870; corpus colinhacks/zod</title>
 <text class="pr" x="120" y="834.5">Precision</text>
@@ -645,7 +857,18 @@
 <text class="n" x="936" y="835">n=2,661 edges</text>
 <text class="n" x="936" y="847">vs tsc 6.0.2</text>
 </g>
-<rect class="stripe" x="16" y="854" width="1022" height="34"/>
+<g><title>typescript hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="834.5">overlap@10</text>
+<rect class="track" x="1090" y="827" width="110" height="8" rx="2"/>
+<rect x="1090" y="827" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="835">100%</text>
+<text class="pr" x="1038" y="846.5">Spearman</text>
+<rect class="track" x="1090" y="839" width="110" height="8" rx="2"/>
+<rect x="1090" y="839" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="847">1.00</text>
+<text class="n" x="1240" y="835">repos=1</text>
+</g>
+<rect class="stripe" x="16" y="854" width="1212" height="34"/>
 <text class="lang" x="22" y="875.0">zig</text>
 <g><title>zig imports: precision 100.0% of 263, recall 100.0% of 272; corpus zigtools/zls</title>
 <text class="pr" x="120" y="868.5">Precision</text>
@@ -672,9 +895,20 @@
 <text class="n" x="630" y="881">functions 3,539</text>
 </g>
 <text class="none" x="732" y="874.0">not measured</text>
+<g><title>zig hubs: 100% / 1.00 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="868.5">overlap@10</text>
+<rect class="track" x="1090" y="861" width="110" height="8" rx="2"/>
+<rect x="1090" y="861" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="869">100%</text>
+<text class="pr" x="1038" y="880.5">Spearman</text>
+<rect class="track" x="1090" y="873" width="110" height="8" rx="2"/>
+<rect x="1090" y="873" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="881">1.00</text>
+<text class="n" x="1240" y="869">repos=1</text>
+</g>
 <text class="panel-title" x="16" y="912">Not measured in any panel (42 of 65)</text>
-<text class="none" x="16" y="928">abap, acs, ada, agc_assembly, assembly, batch, blp, bms, cobol, crystal, csd, css, db2_sql, dockerfile, easytrieve, embedded_python, fortran, fsharp, glsl, groovy, hlasm, hlo, html,</text>
-<text class="none" x="16" y="944">jcl, livecode, m4, makefile, matlab, mlir, nix, pli, postgresql, powershell, proto, rexx, scheme, sqlite, tcl, td, yacc, yaml, zscript</text>
-<text class="note" x="16" y="972">* a disagreement shape behind the number has no verdict yet (docs/self_scan/graph_comparison_ledger.json): not a claim. n counts what recall is out of (import statements, calls, reference edges).</text>
+<text class="none" x="16" y="928">abap, acs, ada, agc_assembly, assembly, batch, blp, bms, cobol, crystal, csd, css, db2_sql, dockerfile, easytrieve, embedded_python, fortran, fsharp, glsl, groovy, hlasm, hlo, html, jcl, livecode, m4, makefile,</text>
+<text class="none" x="16" y="944">matlab, mlir, nix, pli, postgresql, powershell, proto, rexx, scheme, sqlite, tcl, td, yacc, yaml, zscript</text>
+<text class="note" x="16" y="972">* a disagreement shape behind the number has no verdict yet (docs/self_scan/graph_comparison_ledger.json): not a claim. n counts what recall is out of (import statements, calls, reference edges). Hubs: overlap of the top-10 PageRank files, and Spearman over their union (bar clamped at 0).</text>
 <text class="note" x="16" y="987">Call resolution is scored against the reference tool, not ground truth. Generated by tests/tools/graph_coverage_chart.py.</text>
 </svg>

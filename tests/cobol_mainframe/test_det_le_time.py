@@ -530,6 +530,7 @@ def _java_line(svc: str, args: list[str]) -> str:
     return "|".join([svc, *args])
 
 
+@pytest.mark.slow(reason="translates, javac-compiles and runs a program per case (#5178, #5606)")
 @pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
 def test_the_runtime_is_the_oracle_model_byte_for_byte(c_driver, tmp_path):
     out = tmp_path / "src/p/cobolrt"

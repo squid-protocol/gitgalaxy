@@ -1,0 +1,193 @@
+name: Equivalence E2E
+
+# #5954 slice 2: the tests in tests/cobol_mainframe that skip unless EQUIVALENCE_E2E=1 (they need the GnuCOBOL oracle image,
+# JDK 17 and Maven) proved nothing in CI: only cics-crucible.yml `runner-tests` set the variable, for tests/cics_crucible.
+# This job runs tests/cobol_mainframe (plus tests/tools/test_zos_probes.py) with EQUIVALENCE_E2E=1, cut into shards by
+# pytest-split least_duration over the committed .test_durations (one commit, so every shard cuts the same slices, #5114).
+#
+# Owner condition (2026-10-24): it must not cost a runner on every PR. The `plan` job asks tests/tools/equivalence_e2e_plan.py
+# (the #6278 change classifier) whether the PR touches the COBOL / mainframe / equivalence area; a PR that does not starts
+# no shard and the check reports success. The nightly and a manual run always run the shards. The `report` job sums the
+# run's job seconds into runner-minutes (the step summary), the number to quote per PR.
+# The five Db2-needing files (docs/ci_env_gated_tests.md) are ignored: no Db2 container here, the Db2 shard plan owns them.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
+    branches: [main]
+  schedule:
+    - cron: "17 6 * * *"  # nightly: Maven Central and the pinned GnuCOBOL package drift (as cics-crucible.yml)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    outputs:
+      mode: ${{ steps.plan.outputs.mode }}
+    steps:
+      - name: Check out the planner
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Plan the shards
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          args=(--event "$EVENT" --github-output "$GITHUB_OUTPUT")
+          if [ "$EVENT" = "pull_request" ]; then
+            # the PR's files from the API, whole or not at all (as suite-plan in smoke-test.yml): a short list is `run`
+            labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
+            mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
+            count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
+            args+=(--labels "$labels" --files)
+            if [ "${#files[@]}" -ge "$count" ]; then args+=("${files[@]}"); fi
+          fi
+          python3 tests/tools/equivalence_e2e_plan.py "${args[@]}" > e2e-plan.json || { echo "mode=run" >> "$GITHUB_OUTPUT"; echo '{"mode": "run", "reason": "the planner failed"}' > e2e-plan.json; }
+          {
+            echo "## Equivalence E2E plan"
+            echo '```json'
+            cat e2e-plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  shard:
+    name: shard ${{ matrix.group }}/4
+    needs: plan
+    if: ${{ needs.plan.outputs.mode == 'run' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false  # every shard reports its own failures
+      matrix:
+        group: [1, 2, 3, 4]
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+      OMP_NUM_THREADS: "1"
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            ci/requirements/*.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          pip install --require-hashes -r ci/requirements/test.txt
+          # the det translator's parser: without it every det test importorskips and "passes"
+          pip install --require-hashes -r ci/requirements/treesitter.txt
+          pip install --no-build-isolation -e .
+
+      - name: Cache tree-sitter language pack
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/tree-sitter-language-pack
+          key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
+          restore-keys: |
+            tree-sitter-${{ runner.os }}-
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: cics-crucible-m2-${{ hashFiles('gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+          restore-keys: |
+            cics-crucible-m2-
+            java-compile-m2-
+
+      # Same image cache as cics-crucible.yml runner-tests (one entry per Dockerfile hash); the fingerprint check is the pin (#4309).
+      - name: Cache the GnuCOBOL oracle image
+        id: image
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('tests/equivalence/gnucobol.Dockerfile') }}
+
+      - name: Load or build the oracle image, and check it against its pin (#4309)
+        run: |
+          if [ "${{ steps.image.outputs.cache-hit }}" = "true" ]; then
+            docker load -i "$RUNNER_TEMP/gnucobol-image.tar"
+          else
+            docker build -q -t gitgalaxy-gnucobol:3 -f tests/equivalence/gnucobol.Dockerfile tests/equivalence
+            docker save -o "$RUNNER_TEMP/gnucobol-image.tar" gitgalaxy-gnucobol:3
+          fi
+          python tests/tools/equivalence_oracle.py --strict
+          echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"  # the harness need not rebuild it per proof
+
+      # one pytest line: tests/test_env_gated_tests_run_in_ci_5954.py reads the paths and --ignore flags off it
+      - name: tests/cobol_mainframe under EQUIVALENCE_E2E, shard ${{ matrix.group }}/4
+        env:
+          EQUIVALENCE_E2E: "1"
+          GITGALAXY_ORACLE_STRICT: "1"
+          GROUP: ${{ matrix.group }}
+          GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-shard-${{ matrix.group }}.json
+        run: |
+          pytest tests/cobol_mainframe tests/tools/test_zos_probes.py --splits 4 --splitting-algorithm least_duration --group "$GROUP" -n 2 -q -ra --durations=25 --timeout=1200 -p no:cacheprovider --ignore=tests/cobol_mainframe/test_evidence_components.py --ignore=tests/cobol_mainframe/test_equivalence_db2_rows.py --ignore=tests/cobol_mainframe/test_regional_options.py --ignore=tests/cobol_mainframe/test_sql_dynamic.py --ignore=tests/cobol_mainframe/test_sql_unit_of_work.py --ignore=tests/cobol_mainframe/test_sql_whenever.py
+
+  # The check to read (and to require, if the owner wants it): a plan of `none` is a pass by plan, never by absence of a shard.
+  equivalence-e2e:
+    needs: [plan, shard]
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Every shard passed, or the plan proved none was needed
+        env:
+          PLAN: ${{ needs.plan.outputs.mode }}
+          PLAN_RESULT: ${{ needs.plan.result }}
+          SHARDS: ${{ needs.shard.result }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          echo "plan: $PLAN ($PLAN_RESULT), shards: $SHARDS"
+          # runner-minutes of this run so far (every finished job but this one), for the PR body / the nightly trend
+          gh api --paginate "repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100" --jq '.jobs[] | select(.name != "equivalence-e2e" and .completed_at != null) | [.name, ((.completed_at | fromdateiso8601) - (.started_at | fromdateiso8601))] | @tsv' > jobs.tsv || : > jobs.tsv
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          rows = [ln.rstrip("\n").split("\t") for ln in open("jobs.tsv", encoding="utf-8") if ln.strip()]
+          total = sum(float(s) for _, s in rows)
+          print("## Equivalence E2E runner time")
+          print("| job | seconds |\n|---|---|")
+          print("".join(f"| {n} | {float(s):.0f} |\n" for n, s in rows), end="")
+          print(f"\n**{total / 60:.1f} runner-minutes** across {len(rows)} job(s)")
+          PY
+          test "$PLAN_RESULT" = "success"
+          if [ "$PLAN" = "none" ]; then test "$SHARDS" = "skipped"; else test "$SHARDS" = "success"; fi

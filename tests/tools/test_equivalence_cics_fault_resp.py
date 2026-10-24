@@ -32,6 +32,12 @@ ACCEPTED = [
     ({"cmd": "RETURN", "resp": "LENGERR", "resp2": 26}, "RETURN - 1 22 26"),
     ({"cmd": "SYNCPOINT", "resp": "INVREQ"}, "SYNCPOINT - 1 16 200"),
     ({"cmd": "ROLLBACK", "resp": "INVREQ", "resp2": 200}, "ROLLBACK - 1 16 200"),
+    # #6271 (X72): DELAY -- EXPIRED (no RESP2) and INVREQ RESP2 4 / 5 / 6 / 22
+    ({"cmd": "DELAY", "resp": "EXPIRED"}, "DELAY - 1 31 0"),
+    ({"cmd": "DELAY", "resp": "INVREQ", "resp2": 4}, "DELAY - 1 16 4"),
+    ({"cmd": "DELAY", "resp": "INVREQ", "resp2": 5}, "DELAY - 1 16 5"),
+    ({"cmd": "DELAY", "resp": "INVREQ", "resp2": 6, "nth": 2}, "DELAY - 2 16 6"),
+    ({"cmd": "DELAY", "resp": "INVREQ", "resp2": 22, "nth": "*"}, "DELAY - * 16 22"),
 ]
 
 
@@ -55,6 +61,12 @@ REFUSED = [
     {"cmd": "SYNCPOINT", "resp": "ROLLEDBACK"},
     {"cmd": "SYNCPOINT", "resp": "INVREQ", "resp2": 1},
     {"cmd": "ROLLBACK", "resp": "LENGERR"},
+    {"cmd": "DELAY", "resp": "INVREQ"},  # four RESP2 values: the plan names one
+    {"cmd": "DELAY", "resp": "INVREQ", "resp2": 7},
+    {"cmd": "DELAY", "resp": "EXPIRED", "resp2": 1},  # IBM states no RESP2
+    {"cmd": "DELAY", "resp": "NORMAL", "resp2": 23},  # cancelled by another task: needs a second task, refused
+    {"cmd": "DELAY", "resp": "SYSIDERR"},
+    {"cmd": "DELAY", "resp": "ISCINVREQ"},
 ]
 
 
@@ -69,6 +81,8 @@ def test_the_refusal_names_register_x71():
         _lines(cmd="SYNCPOINT", resp="INVREQ", resp2=1)
     with pytest.raises(ec.Unsupported, match="X71"):
         _lines(cmd="RETURN", resp="INVREQ")
+    with pytest.raises(ec.Unsupported, match="X72"):
+        _lines(cmd="DELAY", resp="INVREQ", resp2=7)
 
 
 def test_plans_sit_beside_the_file_command_plans():
@@ -96,3 +110,13 @@ def test_the_stub_the_task_and_the_translator_read_the_same_plan():
     for cmd in ("SEND-MAP", "RECEIVE-MAP"):
         assert f'task.planned("{cmd}", {{G_jstr(m)}})' in cics.replace('\\"', '"')
     assert 'task.planned({G_jstr("ROLLBACK" if back else "SYNCPOINT")}' in cics
+
+
+def test_the_delay_stub_and_translator_read_the_same_plan():
+    stub = (REPO / "tests/equivalence/cics/ggcics_taskcontrol.c").read_text(encoding="utf-8")
+    det = (REPO / "gitgalaxy/tools/cobol_to_java/det/cics_taskcontrol.py").read_text(encoding="utf-8")
+    body = stub[stub.index("int GGCDLAY") :]
+    # planned before the POST is released and before any child is dispatched: a failed DELAY does nothing else
+    assert body.index('injected("DELAY", "-"') < body.index("post_release()") < body.index("dispatch_children()")
+    assert 'task.planned("DELAY", "-")' in det
+    assert "if ({pl}[0] == 0) task.delay(" in det

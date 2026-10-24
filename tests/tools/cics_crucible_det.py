@@ -30,7 +30,14 @@ sys.path.insert(0, str(REPO_ROOT))
 
 DET_PORTS = REPO_ROOT / "tests" / "cics_crucible" / "det-ports"
 PKG = "com.gitgalaxy.modernized"
-PROGRAMS = {"pc-wizard": ("PCWIZ", ("PCWIZ", "PCCONF"))}  # case -> (the port's key, the programs it translates)
+# case -> (the port's key, the programs it translates)
+PROGRAMS = {
+    "pc-wizard": ("PCWIZ", ("PCWIZ", "PCCONF")),
+    "pc-return-channel": (
+        "PCRC",
+        ("PCRCA", "PCRCB", "PCRCL"),
+    ),  # #5005: RETURN TRANSID CHANNEL carried to the next task
+}
 
 
 def ports_dir(case: str, dest: Path, root: Path = DET_PORTS) -> Path:
@@ -58,7 +65,8 @@ def build(case: str, crucible: Path, project: Path, root: Path = DET_PORTS) -> d
     out.mkdir(parents=True, exist_ok=True)
     bms = root / ".bms-scratch"
     try:
-        bms_copybooks(sorted(p for p in (src / "bms").iterdir() if p.suffix.lower() == ".bms"), bms)
+        maps = src / "bms"  # a case with no map ships no directory (git carries no empty one)
+        bms_copybooks(sorted(p for p in maps.iterdir() if p.suffix.lower() == ".bms") if maps.is_dir() else [], bms)
         stats = {}
         for prog in programs:
             stub = (project / "src/main/java" / PKG.replace(".", "/") / "service"

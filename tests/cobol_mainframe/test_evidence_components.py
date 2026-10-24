@@ -137,6 +137,7 @@ def test_a_cics_family_module_stales_what_its_host_file_does():
         ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_tempstorage.c"),
         ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_conditions.c"),
         ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_filecontrol.c"),
+        ("tests/equivalence/cics/ggcics.c", "tests/equivalence/cics/ggcics_faults.c"),
         ("tests/tools/equivalence_cics.py", "tests/tools/equivalence_cics_containers.py"),
         ("tests/tools/equivalence_cics.py", "tests/tools/equivalence_cics_conditions.py"),
         ("tests/tools/equivalence_cics.py", "tests/tools/equivalence_cics_filecontrol.py"),

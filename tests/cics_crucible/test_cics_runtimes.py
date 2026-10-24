@@ -62,18 +62,49 @@ def _stub_obj() -> Path:
     return obj
 
 
+_GG_CICS_TYPEDEF = re.compile(r"typedef struct \{[^}]*\} gg_cics;")
+
+
+@functools.cache
+def _stub_struct() -> str:
+    """The stub's own `gg_cics` typedef, read from ggcics.c."""
+    found = _GG_CICS_TYPEDEF.search(STUB.read_text(encoding="utf-8"))
+    assert found, "ggcics.c no longer declares `typedef struct {...} gg_cics;`"
+    return found.group(0)
+
+
+def _with_stub_struct(main: str) -> str:
+    """#6430: a main's own shorter `gg_cics` typedef is replaced by the stub's. A stub function that writes a field past
+    the main's copy (GGCLINK's `go_to`, #6400) overran the main's stack struct, which crashed on macOS only."""
+    return _GG_CICS_TYPEDEF.sub(lambda _m: _stub_struct(), main)
+
+
 @functools.cache
 def _compiled_stub(main: str) -> Path:
     base = Path(tempfile.mkdtemp(prefix="gitgalaxy-ggcics-exe-"))
     atexit.register(shutil.rmtree, base, True)
     src = base / "main.c"
-    src.write_text("#include <stdlib.h>\n" + main, encoding="ascii")
+    src.write_text("#include <stdlib.h>\n" + _with_stub_struct(main), encoding="ascii")
     exe = base / ("stub.exe" if os.name == "nt" else "stub")
     built = subprocess.run(
         [CC, "-o", str(exe), str(src), str(_stub_obj())], check=False, capture_output=True, text=True
     )  # noqa: S603
     assert built.returncode == 0, built.stderr  # the compiler's own words, on every OS
     return exe
+
+
+def test_every_stub_main_is_compiled_against_the_stubs_own_gg_cics_struct():
+    """#6430: the mains in this file declare shorter `gg_cics` structs; compiling swaps in ggcics.c's, so no stub
+    function can write past a main's copy."""
+    mains = re.findall(
+        r"^_[A-Z0-9_]*MAIN\w* = r\"\"\"(.*?)\"\"\"", Path(__file__).read_text(encoding="utf-8"), re.S | re.M
+    )
+    assert mains and any(_GG_CICS_TYPEDEF.search(m) for m in mains)
+    for main in mains:
+        swapped = _with_stub_struct(main)
+        assert swapped.count("} gg_cics;") == main.count("} gg_cics;")
+        assert all(m == _stub_struct() for m in _GG_CICS_TYPEDEF.findall(swapped))
+    assert "int go_to;" in _stub_struct() and "tochan" in _stub_struct()
 
 
 def _stub(tmp_path: Path, main: str) -> Path:

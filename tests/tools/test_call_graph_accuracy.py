@@ -47,6 +47,15 @@ def test_cause_labels_inner_function_calls_and_non_calls():
     assert cga._cause("fp", "nowhere", fns["outer"], "python", audit, False)[0] == "fp:outside-ts-function"
 
 
+def test_cause_labels_a_call_lost_to_a_tree_sitter_parse_error():
+    """--buckets: tree-sitter-zig cannot parse tuple destructuring, so the callee after it is
+    missing from the tree; that is a grammar gap (`fp:ts-parse-error`), not a call GitGalaxy invented."""
+    src = b"fn run(zir: u32) void {\n    const a, _ = pair(zir);\n    use(a);\n}\nfn clean() void {\n    use(1);\n}\n"
+    fns = {n: node for n, _, _, node in cga.ts_functions(src, "zig", audit)}
+    assert cga._cause("fp", "use", fns["run"], "zig", audit, False)[0] == "fp:ts-parse-error"
+    assert cga._cause("fp", "nowhere", fns["clean"], "zig", audit, False)[0] == "fp:outside-ts-function"
+
+
 def test_regressions_respect_the_tolerance():
     base = {"c": {"matched_functions": 5, "precision_pct": 90.0, "recall_pct": 80.0}}
     assert cga.regressions({"c": {"precision_pct": 89.6, "recall_pct": 80.0}}, base) == []

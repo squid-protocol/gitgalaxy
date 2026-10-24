@@ -4766,6 +4766,9 @@ class StructuralExtractor:
             if lang_id == "ruby"
             else ""
         )
+        # #6435: a zig `\\` line is one line of a multiline string literal, to the end of the line. Unshielded,
+        # `\\ run(1)` read as a call and `\\ a // b` or a lone `"` as a comment or a quote opener.
+        zig_ml_alt = r"(?:^|(?<=[ \t]))\\\\[^\n]*|" if lang_id == "zig" else ""
         atomic_string_pattern = (
             heredoc_opener_alt + r'""".*?"""|'  # Python Triple Double
             r"'''.*?'''|"  # Python Triple Single
@@ -4775,6 +4778,7 @@ class StructuralExtractor:
             f"{standard_single}|"  # Standard Single
             r"`(?:\\.|[^`\\])*`|"  # Standard Backtick
             + ruby_regex_alt
+            + zig_ml_alt
             # Comment marker must be at line-start or preceded by whitespace
             # (guards against e.g. shell's "$#" positional-arg-count being
             # mistaken for a comment). Same marker set previously stripped

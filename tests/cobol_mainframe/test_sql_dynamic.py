@@ -12,6 +12,7 @@ are bound by EXECUTE ... USING :H [:IND], ...: the port writes each value into t
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -324,3 +325,33 @@ def test_using_in_a_cics_program_is_refused():
     gen.cics = SimpleNamespace()
     with pytest.raises(SqlError, match="CICS"):
         _using("INSERT INTO T VALUES (?)", "USING :WS-ID", gen=gen)
+
+
+# #4269: the forms above that stay refused (DESCRIBE, CONNECT, CALL, host-variable text) wait on a burned program that
+# uses them; this pins the premise of register Q4 ("burned estates using any of them: none") so it fails when it ends.
+_BURNED_CORPORA = (
+    "aws-mainframe-modernization-carddemo",
+    "cics-async-api-credit-card-application-example",
+    "cics-banking-sample-application-cbsa",
+    "cics-genapp",
+    "dbb-mortgage-application",
+    "zecs",
+)
+_REFUSED_SQL_VERB = re.compile(r"EXEC\s+SQL\s+(CALL|CONNECT|DESCRIBE|PREPARE|EXECUTE|WHENEVER)\b", re.I)
+
+
+def test_no_burned_estate_program_issues_a_refused_dynamic_or_connection_sql_verb():
+    root = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", TOOLS.parents[1] / ".mainframe_corpora"))
+    present = [root / n for n in _BURNED_CORPORA if (root / n).is_dir()]
+    if not present:
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    hits = []
+    for corpus in present:
+        for path in corpus.rglob("*"):
+            if path.suffix.lower() not in (".cbl", ".cob", ".cpy") or not path.is_file():
+                continue
+            text = path.read_text(encoding="latin-1")
+            # a fixed-format comment line (* or / in column 7) is not a statement
+            code = "\n".join(ln for ln in text.splitlines() if len(ln) < 7 or ln[6] not in "*/")
+            hits += [f"{path.relative_to(root)}: {m.group(0)}" for m in _REFUSED_SQL_VERB.finditer(code)]
+    assert not hits, "a burned program now issues a refused SQL verb: model it (register Q4):\n" + "\n".join(hits[:10])

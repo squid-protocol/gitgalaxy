@@ -789,7 +789,7 @@
    "cbsa-dbcrfun": [
     21,
     22,
-    30,
+    33,
     35
    ],
    "cbsa-dbcrfun-generated": [
@@ -847,9 +847,9 @@
     25
    ],
    "cbsa-inqacccu": [
-    18,
+    21,
     22,
-    25,
+    31,
     33
    ],
    "cbsa-inqacccu-generated": [
@@ -891,7 +891,7 @@
    "cbsa-xfrfun": [
     27,
     28,
-    47,
+    78,
     81
    ],
    "cbsa-xfrfun-generated": [
@@ -1626,7 +1626,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "ee5c97779b22d8ae3054fed45488814ff176c25a",
+   "sha": "e1cae255af15e269b4b4c01431de5c3fd029b3b1",
    "translator": {
     "files": 145,
     "sha256": "77ff59f7a5ce257d46f5eb0f091aeecfdfeeb48a913a8cd1b608459eea12c6f7"
@@ -5097,8 +5097,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha ee5c97779b22d8ae3054fed45488814ff176c25a",
-   "python tests/tools/evidence_report.py zecs --baseline --sha ee5c97779b22d8ae3054fed45488814ff176c25a",
+   "python tests/tools/cics_census.py survey --baseline --sha e1cae255af15e269b4b4c01431de5c3fd029b3b1",
+   "python tests/tools/evidence_report.py zecs --baseline --sha e1cae255af15e269b4b4c01431de5c3fd029b3b1",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -5119,13 +5119,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "ee5c97779b22d8ae3054fed45488814ff176c25a",
+   "sha": "e1cae255af15e269b4b4c01431de5c3fd029b3b1",
    "translator": {
     "files": 145,
     "sha256": "77ff59f7a5ce257d46f5eb0f091aeecfdfeeb48a913a8cd1b608459eea12c6f7"
    }
   },
-  "translator_commit": "ee5c97779b22d8ae3054fed45488814ff176c25a",
+  "translator_commit": "e1cae255af15e269b4b4c01431de5c3fd029b3b1",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

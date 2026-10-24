@@ -415,6 +415,7 @@ graph_coverage_chart.svg	tests/tools/graph_coverage_chart.py
 graph_coverage_history.csv	tests/tools/graph_coverage_chart.py
 ground_truth_history.jsonl	tests/tools/ground_truth_ledger.py
 harness_report.md	tests/tools/harness_report.py
+how_to_add_a_fact_channel.md	tests/core_engine
 how_to_add_a_language.md	tests/signal_contract_audit.py,tests/tools/language_addition_audit.py
 issue.md	tests/tools/test_context_pack.py
 ledger.md	tests/tools/bugfix_kit.py

@@ -5963,8 +5963,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "haskell",
       "last_reconciled_at": "2026-10-24T16:49:56Z",
       "last_seen_count": 52,
@@ -6011,10 +6011,10 @@
         }
       ],
       "metric": "inner-named-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong on the owner. The calls are real, but each sits inside an inner named function: `filterWithPath constr = maybe missingPath ...` in Filter.hs parseJSON, and the `go` helper declared in the `where` clause of makeSectionsWithOffsets in Shared.hs, whose do-block holds `zipWith`, `map`, `unless` and `Div`. C8 says a call inside a nested named function belongs to that unit only, so the pair (outer, callee) is not a call of the outer function. Tree-sitter attributes them to the inner function. No credit: the outer-owner claim is wrong. Engine gap: Haskell `where`/`let` function bindings are not separate owners."
     },
     "haskell/call/not-a-call-in-ts:apply<alternative/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -11446,13 +11446,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T07:26:48Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 24,
@@ -11499,22 +11501,24 @@
         }
       ],
       "metric": "not-a-call-in-ts:undef_expression<expression_statement",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. Every recorded example is a statement `undef $var;` (`undef $@;`, `undef $raf;`, `undef $newVal;`, `undef $evalWarning;`, `undef $family;`). Here `undef` is plainly an operation with an operand: it discards the variable's value. It is a builtin invoked without parentheses, a call by C3 as for `shift`. Tree-sitter files it as an `undef_expression`, not a call, so the harness does not count it. Tree-sitter's omission."
     },
     "perl/call/not-a-call-in-ts:undef_expression<list_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 53,
@@ -11561,10 +11565,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:undef_expression<list_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right under the recorded perl ruling. Every recorded example is `undef` passed as an argument: the DBI attribute slot in `$dbh->do($sql, undef, $timestamp, ...)`, `selectall_arrayref($query, undef, @args)`, `selectcol_arrayref($sth{$target}, undef, $i)`. `undef` is a Perl builtin (a named unary operator); the perl `shift` verdict already counts a paren-less builtin as an invocation by C3/C2. Tree-sitter gives it a dedicated `undef_expression` node instead of a call node, so the harness does not count it. Judgment call: in this position `undef` is the idiom for a null argument, so it is the weakest of the three undef shapes; credit follows the builtin ruling for consistency."
     },
     "perl/call/not-a-call-in-ts:undef_expression<lowprec_logical_expression/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -11676,13 +11680,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "perl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 37,
@@ -11729,10 +11735,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:undef_expression<return_expression",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right under the recorded perl ruling. Every recorded example is `return undef;` or `return undef if ...;` (Auth.pm login_token, Bug.pm _check_datetime_field, qa_contact, _check_deadline, _check_bugid_field). `undef` is a builtin function; with no operand it returns the undefined value. A paren-less builtin is an invocation (C3, as for `shift` and `die`), and tree-sitter only differs by giving it an `undef_expression` node. Same judgment note as the list-argument shape: this is the idiomatic null return, credited for consistency with the builtin ruling."
     },
     "perl/call/not-a-call-in-ts:undef_expression<variable_declaration/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -17578,13 +17584,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 50,
@@ -17631,10 +17639,10 @@
         }
       ],
       "metric": "engine-attributes-to-another-function",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. Every recorded example is a real command invocation: `[format [msgcat::mc \"...\"] $mirrors]` and `[format ... ] [option subport]` inside a double-quoted `ui_warn`/`ui_notice` argument, and `lset lines $line_idx $new_line` opening its line inside an `if` body. The label only means the same name is found elsewhere in the file; the call inside this proc is absent. Four of the five are substitutions embedded in a string, the same miss ruled on the earlier tcl command-substitution shapes; why the line-start `lset` is missed was not traced here. Engine gap."
     },
     "tcl/call/not-a-call-in-ts:ERROR<braced_word/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -17753,8 +17761,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 45,
@@ -17801,10 +17809,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:argument<arguments",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy wrong on every recorded example. The reported callee is the parameter name in a proc header: `proc portchecksum::calc_md5 {file} {`, `calc_sha1 {file}`, `calc_rmd160 {file}`, `calc_sha256 {file}`, `proc portlint::seems_utf8 {str} {`. The reading line is the `proc` line, and `file` and `str` are formal parameters that happen to share a name with Tcl commands (`file`, `string`). Tree-sitter reads them as `argument` nodes in the arguments list, correctly. No credit: GitGalaxy's claim is the wrong one. Engine defect: a proc's formal parameter list is not a place to find a call."
     },
     "tcl/call/not-a-call-in-ts:braced_word_simple<foreach/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -17934,13 +17942,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 22,
@@ -17987,10 +17997,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:command<braced_word",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right on the callee. Every recorded example is a user command invoked at the start of its line: `portfetch::checkfiles fetch_urls`, `portmain::report_platform_info`, `portstartupitem::foreach_startupitem { ... }`, `portstartupitem::startupitem_create`. Tree-sitter reads the enclosing body (a nested proc body, or the script argument of an unknown command) as an unparsed `braced_word`, so it never descends to the command inside. Real calls that tree-sitter does not reach. One attribution flaw: in library.tcl the call inside the nested `proc PortSystem` is also filed under the enclosing `macports_worker_init`, which C8 says it does not belong to; that is a separate owner question, not a wrong callee."
     },
     "tcl/call/not-a-call-in-ts:command<command_substitution/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -18136,13 +18146,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T14:44:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-24T19:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-24T15:09:35Z",
       "last_seen_count": 32,
@@ -18189,10 +18201,10 @@
         }
       ],
       "metric": "not-a-call-in-ts:expr_cmd<command_substitution",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy right. Every recorded example is `[expr {...}]` as a command substitution: `set aftersep [expr {[string first : $element] + 3}]`, `set jobs_limit_mem [expr {int($memsize / ...) + 1}]`, `set brace_depth [expr {$opens - $closes}]`, `&& [expr {$nb_checksum % 2}] == 0`, `set proxy_str [expr {... ? ... : ...}]`. `expr` is a Tcl command and a bracketed substitution runs it, so it is an invocation (C2: built-ins are calls). Tree-sitter gives the form its own `expr_cmd` node instead of `command`, so the harness does not count it. Tree-sitter's omission, not an error in the engine."
     },
     "tcl/call/not-a-call-in-ts:global<braced_word/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [

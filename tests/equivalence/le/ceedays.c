@@ -25,8 +25,10 @@
  * or joined by one separator character (- / .) used throughout. A picture LONGER than that span -- CardDemo's
  * 'YYYYMMDD  ' -- is read as its span and the rest is ASSUMED ignored ONLY WHEN IT IS ALL BLANKS (owner decision
  * 2026-10-14, register L1): IBM does not say how characters after the last token are read. A tail with any
- * non-blank byte is NOT modelled and refused by name, as is CBSA CRECUST's 'YYYYMMDD' declared length 10 over 8 bytes
- * (its 2 extra bytes are the storage that follows the item, which z/OS would read as picture text).
+ * non-blank byte is NOT modelled and refused by name. CBSA CRECUST's 'YYYYMMDD' is declared length 10 over 8 bytes:
+ * its 2 extra bytes are the storage that follows the item, which IBM does not specify and z/OS would read as picture
+ * text; the owner ruled them blank (2026-10-23, register L1: ASSUMED). This model cannot see where the item ends, so
+ * a NUL tail byte (cobc's alignment padding after a 01 item) counts as that slack; Ceedays.java skips them by bound.
  * NOT modelled, and refused the same way: a numeric month outside 1-12 (2508 or 2517 -- IBM's documentation does
  * not settle it); a trailing blank on the part of the date the picture covers, all blanks included (#4049: whether CEEDAYS
  * ignores them -- 2507, insufficient data, once the date is shorter than the picture -- or reads a blank in a
@@ -161,7 +163,9 @@ int CEEDAYS(unsigned char *date, unsigned char *pic, unsigned char *lilian, unsi
         exit(98);
     }
     for (int i = span; i < pl; i++) {
-        if (p[i] != ' ') {
+        /* NUL is cobc's alignment padding after a 01 item, which this function cannot see the end of: the slack past
+         * CRECUST's 8-byte 'YYYYMMDD' (declared length 10), ruled blank by the owner 2026-10-23 (register L1) */
+        if (p[i] != ' ' && p[i] != 0) {
             fprintf(stderr, "CEEDAYS: picture not modelled: a non-blank tail after '%.*s'\n", span,
                     (const char *)p);
             exit(98);

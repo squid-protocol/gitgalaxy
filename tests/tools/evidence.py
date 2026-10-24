@@ -487,11 +487,20 @@ def equivalence_target(case: str) -> Target:
     data = _case_json(case)
     port_case = data.get("port_from", case)
     ports = [port_case, *data.get("uses_ports", [])]
-    for extra in data.get("programs", []):  # #4188: a LINKed program's committed model port runs in the proof
+    linked = data.get("programs", [])
+    ported = (  # #5162: the cases with a port and their program, read once per target, not once per LINKed program
+        {
+            other: _case_json(other).get("program", "").upper()
+            for other in sorted(p.parent.name for p in CASES.glob("*/case.json"))
+            if (CASES / other / "port").is_dir()
+        }
+        if linked
+        else {}
+    )
+    for extra in linked:  # #4188: a LINKed program's committed model port runs in the proof
         prog = extra["program"].upper()
-        for other in sorted(p.parent.name for p in CASES.glob("*/case.json")):
-            if other not in ports and (CASES / other / "port").is_dir() and \
-                    _case_json(other).get("program", "").upper() == prog:  # fmt: skip
+        for other, other_program in ported.items():
+            if other not in ports and other_program == prog:
                 ports.append(other)
     corpus = data["corpus"]
     specs = {

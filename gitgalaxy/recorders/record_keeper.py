@@ -1675,6 +1675,8 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_statement_file_id ON sql_statement_data(file_id);")
         # #3618: the statement text, added to a pre-#3618 DB in place.
         _ensure_columns(cursor, "sql_statement_data", ["statement_text TEXT"])
+        # #5736: the routine a `CALL` statement names (schema.proc), NULL for every other verb.
+        _ensure_columns(cursor, "sql_statement_data", ["routine_name TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_statement_table ON sql_statement_data(table_name);")
         cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_sql_statement_snapshot ON sql_statement_data(repo_name, commit_hash);"
@@ -3369,6 +3371,7 @@ class RecordKeeper:
                 "host_variables",
                 "line_number",
                 "statement_text",
+                "routine_name",
             ),
             "sql_statements",
             lambda s: (
@@ -3380,6 +3383,7 @@ class RecordKeeper:
                 s.get("host_variables"),
                 int(s.get("line", 0) or 0),
                 s.get("statement"),
+                s.get("routine"),
             ),
         )
 

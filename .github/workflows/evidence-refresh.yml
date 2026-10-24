@@ -1464,7 +1464,7 @@ jobs:
         with:
           path: main
           ref: ${{ needs.refresh.outputs.sha }}
-          persist-credentials: false
+          persist-credentials: true  # the harness step pushes to `generated` from this checkout; no PR code runs here
 
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0

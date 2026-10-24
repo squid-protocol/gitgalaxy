@@ -36,11 +36,6 @@ def test_full_tree_checkout_remains_for_schedule_and_dispatch():
     assert "sparse-checkout" not in full[0]["with"]
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="#5499: the sparse list lacks /tests/requirements-mypy.txt, so osv-scanner exits 128 on PR runs; "
-    "the one-line fix to muninn.yml needs allow_workflows. Remove this mark in the PR that applies it.",
-)
 def test_sparse_checkout_keeps_every_manifest_a_scanner_reads():
     """Manifests outside the PR path filter still feed osv-scanner, so the sparse list must carry them."""
     import fnmatch

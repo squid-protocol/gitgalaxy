@@ -101,7 +101,7 @@ def test_a_channel_payload_round_trips_through_record_and_rehydrate(tmp_path):
 
 def test_a_resolved_channel_inserts_from_the_site_list_and_restores_per_file(tmp_path):
     call_site = CHANNELS_BY_NAME["call_site"]
-    assert call_site.resolved and [c.name for c in CHANNELS if c.resolved] == ["call_site"]
+    assert call_site.resolved and [c.name for c in CHANNELS if c.resolved] == ["call_site", "transaction"]
     files = [{"path": p, "lang_id": "cobol", "raw_imports": []} for p in ("a.cbl", "b.cbl")]
     sites = [
         {
@@ -146,6 +146,32 @@ def test_a_resolved_channel_inserts_from_the_site_list_and_restores_per_file(tmp
         "sysid": "S1",
     }
     assert node["b.cbl"]["call_sites"] == []
+
+
+def test_the_transaction_channel_inserts_resolved_and_restores_per_deck(tmp_path):
+    files = [{"path": p, "lang_id": "cobol", "raw_imports": []} for p in ("d.csd", "p.cbl")]
+    txns = [
+        {"src_path": "d.csd", "transid": "ABCD", "program": "P", "group": "G", "resolved_path": "p.cbl", "line": 3},
+        {"src_path": "d.csd", "transid": "WXYZ", "program": "EXT", "line": 4},
+        {"src_path": "gone.csd", "transid": "NONE", "program": "Q"},
+    ]
+    db = tmp_path / "m.db"
+    RecordKeeper().record_mission(files, [], {}, SESSION, str(db), transactions=txns)
+    conn = sqlite3.connect(db)
+    try:
+        ids = dict(conn.execute("SELECT file_path, id FROM file_data"))
+        rows = conn.execute("SELECT file_id, transid, group_name, dst_file_id FROM transaction_data ORDER BY id")
+        rows = rows.fetchall()
+    finally:
+        conn.close()
+    # gone.csd has no file row; an unresolved program keeps a NULL destination
+    assert rows == [(ids["d.csd"], "ABCD", "G", ids["p.cbl"]), (ids["d.csd"], "WXYZ", None, None)]
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]
+    assert node["d.csd"]["transaction_defs"] == [
+        {"transid": "ABCD", "program": "P", "group": "G", "profile": None, "line": 3},
+        {"transid": "WXYZ", "program": "EXT", "group": None, "profile": None, "line": 4},
+    ]
+    assert node["p.cbl"]["transaction_defs"] == []
 
 
 def test_a_baseline_without_the_healed_call_site_columns_restores_without_the_keys():
@@ -211,7 +237,6 @@ _GALAXY_IR = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobo
 # slices). A table leaves this set when its channel is migrated; a new channel is never added here.
 _UNMIGRATED_IR_TABLES = frozenset(
     {
-        "transaction_data",
         "sql_statement_data",
         "web_service_data",
         "copy_statement_data",
@@ -260,7 +285,7 @@ _RECIPE = Path(__file__).resolve().parents[2] / "gitgalaxy" / "core" / "how_to_a
 # Tables the recipe table names that are not registry channels yet: the unmigrated galaxy_ir tables
 # the recipe has a row for, plus wrapper_data (global/resolved, no galaxy_ir loader) and file_data
 # (the host of the wrapper_facts column, not a channel). A table leaves this set when migrated.
-_UNMIGRATED_RECIPE_TABLES = (_UNMIGRATED_IR_TABLES - {"transaction_data", "copy_statement_data"}) | {
+_UNMIGRATED_RECIPE_TABLES = (_UNMIGRATED_IR_TABLES - {"copy_statement_data"}) | {
     "wrapper_data",
     "file_data",
 }

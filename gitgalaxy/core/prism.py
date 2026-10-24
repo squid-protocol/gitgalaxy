@@ -1173,21 +1173,7 @@ class Prism:
             # 4, ...), which accumulates across a whole file and can shift
             # `def` lines out of any per-line boundary tracking entirely
             # (#1198).
-            blanked = "\n" * m.group(0).count("\n")
-            # #6266: a multi-line string that is an argument, not a docstring
-            # (`execute("""..\n    """, (id,))`), leaves its closing line's
-            # tail (`, (id,))`) at column 0 once the span is gone, and the
-            # indentation slicer reads that as a dedent that ends the enclosing
-            # def (mood's `map_state_to_cobol` kept 6 of ~100 lines). Re-seat the
-            # tail at the indent of the line the string opened on.
-            if blanked:
-                line_end = m.string.find("\n", m.end())
-                tail = m.string[m.end() : len(m.string) if line_end == -1 else line_end]
-                if tail.strip():
-                    line_start = m.string.rfind("\n", 0, m.start()) + 1
-                    head = m.string[line_start : m.start()]
-                    blanked += head[: len(head) - len(head.lstrip(" \t"))]
-            return blanked
+            return "\n" * m.group(0).count("\n")
 
         # Using re.DOTALL ensures [\s\S] matches newlines correctly. The
         # plain-string and comment alternatives are ordered alongside the

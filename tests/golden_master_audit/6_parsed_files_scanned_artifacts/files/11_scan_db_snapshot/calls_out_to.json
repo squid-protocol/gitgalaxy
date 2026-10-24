@@ -145194,7 +145194,8 @@
           "replace"
         ],
         "add_guard@118": [
-          "dedent"
+          "dedent",
+          "format"
         ],
         "api_hash@161": [
           "md5",
@@ -145226,7 +145227,8 @@
         "define_from_array_api_string@389": [],
         "define_from_array_api_string@429": [
           "_argtypes_string",
-          "dedent"
+          "dedent",
+          "add_guard"
         ],
         "file_in_this_dir@98": [
           "join"
@@ -145478,12 +145480,17 @@
           "make_arrays",
           "make_ufuncs",
           "indent",
-          "dedent"
+          "dedent",
+          "basename"
         ],
         "make_ufuncs@1540": [
           "sorted",
           "keys",
-          "dedent"
+          "dedent",
+          "len",
+          "append",
+          "format",
+          "join"
         ]
       },
       "python/numpy/generate_umath_doc.py": {

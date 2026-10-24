@@ -43,7 +43,17 @@ def test_a_string_argument_does_not_end_the_def(quote):
     assert funcs["after"]["start_line"] == 9
 
 
-def test_a_docstring_and_a_closing_only_line_are_still_blank():
-    src = 'def f():\n    """doc\n    more\n    """\n    return 1\n'
-    code = _code(src)
-    assert code.split("\n")[2:4] == ["", ""]  # nothing follows a docstring: no filler
+def test_a_dedent_inside_a_bracket_is_a_continuation_a_real_one_still_ends_the_def():
+    src = (
+        "def f(a):\n"
+        "    x = g(\n"
+        "1,\n"
+        "2)\n"
+        "    return x\n"
+        "y = 3\n"
+        "def h():\n"
+        "    pass\n"
+    )
+    funcs = _funcs(_code(src))
+    assert funcs["f"]["loc"] == 5  # through `return x`, not the column-0 `1,`; `y = 3` ends it
+    assert funcs["h"]["start_line"] == 7

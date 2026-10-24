@@ -196,6 +196,55 @@ def test_a_baseline_without_the_healed_call_site_columns_restores_without_the_ke
         conn.close()
 
 
+def test_the_sql_statement_channel_round_trips_a_table_less_and_a_call_statement(tmp_path):
+    statements = [
+        {
+            "ordinal": 1,
+            "verb": "SELECT",
+            "table": "ACCT",
+            "access": "read",
+            "host_variables": "A,B",
+            "line": 5,
+            "statement": "SELECT 1",
+        },
+        {"ordinal": 2, "verb": "OPEN", "cursor": "C1", "line": 9},
+        {"ordinal": 3, "verb": "CALL", "line": 12, "routine": "S.PROC"},
+    ]
+    files = [{"path": "a.cbl", "lang_id": "cobol", "raw_imports": [], "sql_statements": statements}]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["a.cbl"]
+    assert [{k: v for k, v in r.items() if v is not None} for r in node["sql_statements"]] == statements
+    assert "routine" not in node["sql_statements"][0]  # a non-CALL row restores without the key
+
+
+def test_a_baseline_without_statement_text_or_routine_restores_them_as_null():
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "CREATE TABLE file_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, file_path TEXT)"
+        )
+        cursor.execute(
+            "CREATE TABLE sql_statement_data (id INTEGER PRIMARY KEY, repo_name TEXT, commit_hash TEXT, file_id INTEGER,"
+            " stmt_ordinal INTEGER, verb TEXT, table_name TEXT, access TEXT, cursor_name TEXT, host_variables TEXT,"
+            " line_number INTEGER)"
+        )
+        cursor.execute("INSERT INTO file_data VALUES (1, 'r', 'c', 'a.cbl')")
+        cursor.execute(
+            "INSERT INTO sql_statement_data VALUES (1, 'r', 'c', 1, 1, 'DELETE', 'T', 'delete', NULL, NULL, 3)"
+        )
+        channel = CHANNELS_BY_NAME["sql_statement"]
+        sql = channel.select_sql(cursor, _has_table, _has_column)
+        restored = _restore_child_table(cursor, "r", "c", channel.table, sql, channel.to_payload)
+        assert restored["a.cbl"][0]["statement"] is None and "routine" not in restored["a.cbl"][0]
+    finally:
+        conn.close()
+
+
+_HEALED_ONLY = {"sql_statement": ("routine_name",)}
+
+
 def test_every_channel_declares_a_schema_that_names_its_own_table():
     assert set(CHANNELS_BY_NAME) == {c.name for c in CHANNELS}
     for channel in CHANNELS:
@@ -205,7 +254,12 @@ def test_every_channel_declares_a_schema_that_names_its_own_table():
         for statement in channel.indexes:
             assert statement.startswith("CREATE INDEX IF NOT EXISTS") and f" ON {channel.table}(" in statement
         healed = [col.split()[0] for group in channel.extra_columns for col in group]
-        assert all(f"                {name} " in channel.ddl for name in healed), channel.name
+        healed_only = _HEALED_ONLY.get(
+            channel.name, ()
+        )  # added by ALTER on a fresh DB too: the stored text is unchanged
+        assert all(f"                {name} " in channel.ddl for name in healed if name not in healed_only), (
+            channel.name
+        )
 
 
 def test_a_table_created_before_a_healed_column_gains_it_and_keeps_its_rows():
@@ -237,7 +291,6 @@ _GALAXY_IR = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobo
 # slices). A table leaves this set when its channel is migrated; a new channel is never added here.
 _UNMIGRATED_IR_TABLES = frozenset(
     {
-        "sql_statement_data",
         "web_service_data",
         "copy_statement_data",
         "special_names_data",

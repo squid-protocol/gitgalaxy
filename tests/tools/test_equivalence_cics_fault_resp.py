@@ -101,11 +101,12 @@ def test_a_command_key_fits_the_stubs_parse_buffer():
 def test_the_stub_the_task_and_the_translator_read_the_same_plan():
     stub = (REPO / "tests/equivalence/cics/ggcics.c").read_text(encoding="utf-8")
     task = (REPO / "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py").read_text(encoding="utf-8")
+    faults = (REPO / "gitgalaxy/tools/cobol_to_java/cics_task_faults.py").read_text(encoding="utf-8")  # #5274
     cics = (REPO / "gitgalaxy/tools/cobol_to_java/det/cics.py").read_text(encoding="utf-8")
     for cmd in ("SEND-MAP", "RECEIVE-MAP", "RETURN", "SYNCPOINT", "ROLLBACK"):
         assert f'"{cmd}"' in stub or cmd in ("SYNCPOINT", "ROLLBACK"), cmd
     assert 'rollback ? "ROLLBACK" : "SYNCPOINT"' in stub
-    assert "public int[] planned(String cmd, String name)" in task
+    assert "public int[] planned(String cmd, String name)" in faults
     assert 'root().injected("RETURN", "-")' in task
     for cmd in ("SEND-MAP", "RECEIVE-MAP"):
         assert f'task.planned("{cmd}", {{G_jstr(m)}})' in cics.replace('\\"', '"')

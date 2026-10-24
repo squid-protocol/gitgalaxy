@@ -15,9 +15,10 @@
 #     comment and loader (checked, not generated). The recipe channel table and
 #     custom-insert channels are not registry-driven yet (#3383 remaining slices).
 #   - A resolved channel (call_site_data, `resolved=True`) is inserted from the engine's repo-wide
-#     list by record_keeper's _insert_resolved_channel; its schema and restore live here too.
-#   - Channels with a custom insert or restore (transaction_data, sql_statement_data and the
-#     later per-file channels) are not migrated yet.
+#     list by record_keeper's _insert_resolved_channel; its schema and restore live here too
+#     (transaction_data is the other one).
+#   - Channels with a custom insert or restore (sql_statement_data and the later per-file
+#     channels) are not migrated yet.
 #   - Order of CHANNELS is the insert order; each table is independent, so it
 #     does not change any row.
 #   - Data only: no import of the recorder or the rehydrator (they import this).
@@ -58,9 +59,12 @@ class FactChannel:
     ir_field: str = ""
     # A resolved channel (#3383) is inserted from the engine's repo-wide list, not a per-file
     # payload: `to_row(site, path_to_file_id)` also fills the resolved destination, and the
-    # source column is `src_file_id`. Restore reads it per file like the others (destinations
+    # source column is `src_column`. Restore reads it per file like the others (destinations
     # are re-resolved every scan).
     resolved: bool = False
+    # The column holding the owning file's id: `file_id` for a per-file channel, but a resolved
+    # channel names its own (`src_file_id` on call_site_data, `file_id` on transaction_data).
+    src_column: str = "file_id"
 
     def select_sql(self, cursor: sqlite3.Cursor, has_table: Callable, has_column: Callable) -> str:
         if callable(self.restore_select):
@@ -323,6 +327,39 @@ _CALL_SITE_DDL = """
             )
 """
 
+# #3211-followup: the CICS transaction map -- which 4-char transaction id a
+# user submits and which program CICS routes it to. Extracted from the CSD
+# `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (a PROGRAM's
+# `TRANSID(...)` is the remote-DPL mirror, not a route, #4503), then resolved to the program's file
+# by invocation_resolver.resolve_transactions.
+#   file_id     -- the .csd/JCL deck the definition lives in
+#   transid     -- the transaction id (like dataset_data.dd_name, a name,
+#                  not a file)
+#   program     -- the PROGRAM-ID it routes to, as written
+#   dst_file_id -- the file declaring that PROGRAM-ID, or NULL for a
+#                  program not in this repository
+# Like dataset_data this is deliberately NOT an edge_data kind: a
+# transaction id is not a file, so it cannot be a file_data FK. The COBOL
+# in-source routing (EXEC CICS RETURN/START/RUN TRANSID) rides in
+# call_site_data; galaxy_ir.transaction_map joins the two.
+
+_TRANSACTION_DDL = """
+            CREATE TABLE IF NOT EXISTS transaction_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                transid TEXT,
+                program TEXT,
+                group_name TEXT,
+                profile TEXT,
+                dst_file_id INTEGER,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE,
+                FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
 
 def _dataset_select(cursor, has_table, has_column):
     # #3345: the resolved-DSN pair is per-file (one JCL file determines
@@ -439,6 +476,18 @@ def _call_site_select(cursor, has_table, has_column):
         f"{commarea_cols}, {using_col}, {sysid_col} "
         "FROM call_site_data cs JOIN file_data fd ON cs.src_file_id = fd.id "
         "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id"
+    )
+
+
+def _transaction_select(_cursor, _has_table, _has_column):
+    # #3211-followup: restored per deck so an unchanged .csd/JCL keeps its transactions through a
+    # delta scan. `group_name` is aliased to the extractor's `group` payload key; `resolved_path` /
+    # `dst_file_id` are NOT restored (resolution is repo-wide and redone every scan).
+    return (
+        "SELECT fd.file_path AS _fp, td.transid, td.program, td.group_name AS _group, "
+        "td.profile, td.line_number AS line "
+        "FROM transaction_data td JOIN file_data fd ON td.file_id = fd.id "
+        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY td.id"
     )
 
 
@@ -873,6 +922,7 @@ CHANNELS = (
         ir_field="calls",
         table="call_site_data",
         resolved=True,
+        src_column="src_file_id",
         ddl=_CALL_SITE_DDL,
         extra_columns=(
             ("commarea TEXT", "commarea_length TEXT", "commarea_datalength TEXT"),
@@ -922,8 +972,42 @@ CHANNELS = (
             **{k: r[k] for k in ("commarea", "commarea_length", "commarea_datalength", "using_args", "sysid") if r[k]},
         },
     ),
+    # #3211-followup: the CICS transaction map, resolved cross-file (transid -> program -> the program's
+    # file) so it is inserted from the engine's resolved list. A definition whose deck has no file_data
+    # row is skipped; a program the repository does not contain keeps dst_file_id NULL.
+    FactChannel(
+        name="transaction",
+        ir_field="transactions",
+        table="transaction_data",
+        resolved=True,
+        ddl=_TRANSACTION_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_transaction_file_id ON transaction_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_transaction_transid ON transaction_data(transid);",
+            "CREATE INDEX IF NOT EXISTS idx_transaction_snapshot ON transaction_data(repo_name, commit_hash);",
+        ),
+        payload_key="transaction_defs",
+        columns=("transid", "program", "group_name", "profile", "dst_file_id", "line_number"),
+        to_row=lambda txn, path_to_file_id: (
+            txn.get("transid"),
+            txn.get("program"),
+            txn.get("group"),
+            txn.get("profile"),
+            path_to_file_id.get(txn.get("resolved_path") or ""),
+            int(txn.get("line", 0) or 0),
+        ),
+        restore_select=_transaction_select,
+        to_payload=lambda r: {
+            "transid": r["transid"],
+            "program": r["program"],
+            "group": r["_group"],
+            "profile": r["profile"],
+            "line": int(r["line"] or 0),
+        },
+    ),
 )
 
 CHANNELS_BY_NAME = {channel.name: channel for channel in CHANNELS}
 
 CALL_SITE_CHANNEL = next(c for c in CHANNELS if c.name == "call_site")
+TRANSACTION_CHANNEL = next(c for c in CHANNELS if c.name == "transaction")

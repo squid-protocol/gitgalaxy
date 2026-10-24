@@ -488,12 +488,37 @@ _BUILTIN_INSTANCE_METHODS_PYTHON = frozenset(
         *("close", "flush", "read", "readline", "readlines", "seek", "tell", "write", "writelines"),
     }
 )
+# #4991: methods of the Kotlin stdlib built-ins (String/CharSequence, Collection / List / Set / Map,
+# Sequence / Iterator, the Any scope functions). `s.trim()` / `map.getOrPut(k)` / `list.add(x)` on a
+# receiver the scan cannot type is the stdlib method far more often than a repo class's method of the
+# same name. Names that are mostly free functions (`run`, `with`, `lazy`) are left out.
+_BUILTIN_INSTANCE_METHODS_KOTLIN = frozenset(
+    {
+        # String / CharSequence
+        *("trim", "trimStart", "trimEnd", "split", "substring", "startsWith", "endsWith", "contains"),
+        *("replace", "lowercase", "uppercase", "toInt", "toLong", "toDouble", "toIntOrNull", "isEmpty"),
+        *("isBlank", "isNotEmpty", "isNotBlank", "padStart", "padEnd", "removePrefix", "removeSuffix"),
+        *("lines", "toCharArray", "toBoolean", "toFloat", "toLongOrNull", "toDoubleOrNull"),
+        # Collection / List / Set / Map
+        *("add", "addAll", "remove", "removeAll", "clear", "get", "set", "put", "putAll", "getOrPut"),
+        *("getOrDefault", "getOrElse", "getOrNull", "containsKey", "containsValue", "keys", "values"),
+        *("entries", "forEach", "forEachIndexed", "map", "mapNotNull", "mapIndexed", "flatMap", "filter"),
+        *("filterNot", "filterIsInstance", "first", "firstOrNull", "last", "lastOrNull", "single"),
+        *("any", "all", "none", "count", "fold", "reduce", "sorted", "sortedBy", "sortedWith", "groupBy"),
+        *("associate", "associateBy", "zip", "take", "drop", "distinct", "joinToString", "toList"),
+        *("toMutableList", "toSet", "toMutableSet", "toMap", "toTypedArray", "asSequence", "indexOf"),
+        *("iterator", "plus", "minus", "withIndex", "hasNext", "next"),
+        # Any / scope functions
+        *("let", "also", "apply", "takeIf", "takeUnless", "equals", "hashCode", "toString", "compareTo"),
+    }
+)
 _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
     "typescript": _BUILTIN_INSTANCE_METHODS_JS,
     "javascript": _BUILTIN_INSTANCE_METHODS_JS,
     "java": _BUILTIN_INSTANCE_METHODS_JAVA,
     "python": _BUILTIN_INSTANCE_METHODS_PYTHON,
     "embedded_python": _BUILTIN_INSTANCE_METHODS_PYTHON,
+    "kotlin": _BUILTIN_INSTANCE_METHODS_KOTLIN,
 }
 
 # #3756: JS/TS global namespaces whose static members (`Number.isFinite`,
@@ -1023,6 +1048,43 @@ def _ancestry(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], set[s
     return parents
 
 
+def _expand_super_ctor(
+    func: dict[str, Any],
+    index: dict[tuple[str, str], "_Bucket"],
+    parents: dict[tuple[str, str], set[str]],
+    group: str,
+    lang: str,
+    local: dict[str, set[str]],
+) -> None:
+    """#3772: a constructor's `super(...)` becomes a call to its in-repo superclass's constructor.
+
+    The detector keeps `super` (with its argument counts) only in a constructor; here it is
+    replaced by the direct parent classes the scan knows. A parent outside the repo
+    (`Exception`) leaves no call. The counts move to the parent name for overload choice.
+    """
+    owner = func.get("parent_class_name") or _leaf(str(func.get("name") or ""))[1]
+    okey = _key(_leaf(str(owner))[0], lang) if owner else ""
+    # a nested class name repeats across files (`HiColor`): the declaration in the caller's own file wins
+    direct = sorted(local.get(okey) or parents.get((group, okey)) or set()) if owner else []
+    # an `extends Base<T>` is recorded with its type arguments: `Base` names the class
+    # (a header broken after `extends A` can leave `A implements` as one recorded name)
+    named = sorted({_leaf(p.split("<")[0].split()[0])[0] for p in direct if p.strip()})
+    known = [p for p in named if _is_class(index, group, p, lang)]
+    arities = func.setdefault("calls_out_arities", {})
+    quals = func.setdefault("calls_out_qualifiers", {})
+    keyword = "super"
+    counts = arities.pop(keyword, None)
+    quals.pop(keyword, None)
+    calls = [c for c in func["calls_out_to"] if c != keyword]
+    for p in known:
+        if p not in calls:
+            calls.append(p)
+        if counts:
+            arities.setdefault(p, []).extend(a for a in counts if a not in arities.get(p, []))
+        quals.setdefault(p, [""])
+    func["calls_out_to"] = calls
+
+
 def _is_class(index: dict[tuple[str, str], "_Bucket"], group: str, name: str, lang: str) -> bool:
     bucket = index.get((group, _key(name, lang)))
     return bucket is not None and any(d.kind == "class" for d in bucket.defs)
@@ -1437,6 +1499,11 @@ def resolve_calls(
             {a: _alias_scope(t, imports, star_exports) for a, t in (namespace_aliases or {}).get(src_path, {}).items()},
         )
         lang_counts = by_lang.setdefault(lang, Counter())
+        file_parents: dict[str, set[str]] = {}
+        for cls in f.get("classes", []) or []:
+            if cls.get("name"):
+                bases = {_leaf(str(b).strip())[0] for b in cls.get("inheritance", []) or [] if str(b).strip()}
+                file_parents.setdefault(_key(str(cls["name"]), lang), set()).update(_key(b, lang) for b in bases)
         # A module's own receiver types (`app = FastAPI()` at top level) hold in
         # every function of the file that does not bind that name itself.
         module_types: dict[str, str] = {}
@@ -1447,6 +1514,8 @@ def resolve_calls(
             # #3362: calls, then unconditional transfers (COBOL GO TO). A transfer
             # resolves by the same ladder (it names a unit the same way) but is
             # its own `kind`: it never counts toward the call-resolution rates.
+            if lang in OVERLOAD_LANGS and "super" in (func.get("calls_out_to") or []):
+                _expand_super_ctor(func, index, parents, group, lang, file_parents)
             callees = [(c, "call") for c in func.get("calls_out_to") or []]
             callees += [(t, "transfer") for t in func.get("transfers_to") or []]
             # Decorators: the decorated function -> each decorator applied to it

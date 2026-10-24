@@ -368,16 +368,16 @@
 <text class="n" x="630" y="393">n=2,399 calls</text>
 <text class="n" x="630" y="405">functions 626</text>
 </g>
-<g><title>javascript call resolution: precision 100.0% of 16, recall 55.2% of 29; vs tsc (allowJs) 6.0.2; corpus import_graph; small n</title>
+<g><title>javascript call resolution: precision 99.3% of 414, recall 77.8% of 528; vs tsc (allowJs) 6.0.2; corpus import_graph</title>
 <text class="pr" x="732" y="392.5">Precision</text>
 <rect class="track" x="778" y="385" width="110" height="8" rx="2"/>
-<rect x="778" y="385" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="893" y="393">100.0%</text>
+<rect x="778" y="385" width="109.2" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="393">99.3%</text>
 <text class="pr" x="732" y="404.5">Recall</text>
 <rect class="track" x="778" y="397" width="110" height="8" rx="2"/>
-<rect x="778" y="397" width="60.7" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="893" y="405">55.2%</text>
-<text class="n" x="936" y="393">n=29 edges</text>
+<rect x="778" y="397" width="85.6" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="405">77.8%</text>
+<text class="n" x="936" y="393">n=528 edges</text>
 <text class="n" x="936" y="405">vs tsc (allowJs) 6.0.2</text>
 </g>
 <g><title>javascript hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>

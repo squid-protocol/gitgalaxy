@@ -16,6 +16,7 @@ that baseline in the same PR.
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py python` | pyan3 2.9.0 call graph | language-crucible Python | `tests/call_graph_resolution_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py typescript` | the TypeScript 6.0.2 type checker (`tests/tools/ts_callgraph.js`) | pinned typescript repos, `tests/import_graph_corpus.json` (zod) | `tests/call_graph_resolution_typescript_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py java` | scip-java 0.12.3 (javac-resolved SCIP, through `tests/tools/scip_callgraph.py`) | pinned java repos, `tests/import_graph_corpus.json` (gson) | `tests/call_graph_resolution_java_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py go` | golang.org/x/tools 0.37.0 VTA call graph (`tests/tools/go_callgraph`, Go 1.24+) | pinned go repos, `tests/import_graph_corpus.json` (cobra) | `tests/call_graph_resolution_go_baseline.json` | none yet: CI has no Go step (#3782) |
 | Import edges | `tests/tools/import_graph_accuracy.py` | each language's import statements (Python `ast`, tree-sitter), resolved by the language's own rule | pinned real repos, `tests/import_graph_corpus.json` | `tests/import_graph_accuracy_baseline.json` | `graph-accuracy-audit.yml` |
 | Span anchoring | `tests/tools/span_anchor_audit.py` | the declaration line in the raw source | language-crucible | `tests/span_anchor_baseline.json` | `graph-accuracy-audit.yml` |
 
@@ -178,6 +179,26 @@ python tests/tools/callgraph_refs.py <lang> <repo> > native.json
 python tests/tools/scip_callgraph.py compare native.json scip.json
 ```
 
+## Call resolution in Go (#3782)
+
+Go is scored against the call graph of `golang.org/x/tools` 0.37.0, built by
+`tests/tools/go_callgraph/main.go` (run through `go run -C`, so it needs a Go 1.24+ toolchain on
+PATH; the repo's own `go.sum` pins the module). It type-checks every package of the repo,
+`_test.go` files included (the engine scans them too, and leaving them out left 1,019 engine
+ends unmapped against 2 with them), builds SSA, and takes the VTA graph over a CHA seed.
+Functions are named bare (`Execute`, not `Command.Execute`) at the line of their `func`
+keyword, as the engine names them. A closure's calls belong to its enclosing function, a
+generic instantiation to its declaration, and a call that resolves to a function without a
+body in the repo is `external` (the strict-precision count).
+
+**What the Go reference cannot see (cobra, 1,636 reference edges):** build tags are the host's
+(linux/amd64), so a call in a file a build constraint excludes (a `_windows.go`) is not in the reference. VTA only follows an interface
+call to types that reach it in the analysed program, so a library method called by clients
+outside the repo has no incoming edge. Calls through `reflect` or a value that comes from
+outside get none. Read those as the reference's blind spot, not engine error. The `external`
+verdicts are the engine's: 123 confident links land on a name (`Len`, `Error`) that the checker
+resolves to the standard library, the bare-name collision the strict precision counts.
+
 ## Span anchoring
 
 A unit is mis-anchored when its `start_line` opens before the declaration, on lines that belong
@@ -221,6 +242,7 @@ PYTHONPATH="$PWD" python tests/tools/import_graph_accuracy.py --fetch-only      
 PYTHONPATH="$PWD" python tests/tools/import_graph_accuracy.py --samples 5        # report + examples
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py python --ci       # needs pyan3==2.9.0
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py typescript --ci   # needs node + typescript@6.0.2
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py go --ci           # needs Go 1.24+ on PATH
 PYTHONPATH="$PWD" python tests/tools/span_anchor_audit.py --ci
 python tests/tools/callgraph_triage.py typescript --samples 3     # ranked buckets of misses and wrong links
 python tests/tools/callgraph_check.py                             # the whole chain, one line per step

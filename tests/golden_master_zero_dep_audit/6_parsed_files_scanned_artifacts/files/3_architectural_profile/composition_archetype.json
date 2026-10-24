@@ -4093,11 +4093,11 @@
       "zig/zig_std_linux_mips/mips.zig": "Parameter Forwarders Files"
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": "State Mutators Files",
+      "zig/zls/DocumentScope.zig": "Large Core Modules (2)",
       "zig/zls/DocumentStore.zig": "Large Core Modules (2)",
       "zig/zls/Server.zig": "Large Core Modules (2)",
       "zig/zls/analysis.zig": "Large Core Modules (2)",
-      "zig/zls/ast.zig": "Large Core Modules (3)",
+      "zig/zls/ast.zig": "Large Core Modules (2)",
       "zig/zls/config_gen.zig": "Large Core Modules (2)",
       "zig/zls/langref.html.in": "Data / Markup / Trivial",
       "zig/zls/print_ast.zig": "Large Core Modules (2)"

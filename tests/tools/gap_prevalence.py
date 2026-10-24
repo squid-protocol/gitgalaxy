@@ -58,6 +58,7 @@ OWNERS: tuple[tuple[str, str], ...] = (
     (r"^EXEC SQL", "#4098 (Db2 det-port)"),
     (r"^EXEC CICS", "#4270 (cics-command-slice)"),
     (r"^grammar:", "#4462"),
+    (r"^missing copybook: estate-owned", "none (the estate's own copybook is not in the clone)"),
     (r"^missing copybook", "unowned (copybook family)"),
 )
 

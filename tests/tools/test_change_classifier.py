@@ -104,3 +104,35 @@ def test_known_names_are_the_tracked_files_not_an_ignored_one_on_disk(tmp_path):
     (tmp_path / ".gitignore").write_text("docs/sub/ignored.json\n")
     git("add", ".gitignore", "docs/sub/tracked.md")
     assert cc._known_names(tmp_path) == {"tracked.md"}
+
+
+def _git_repo(tmp_path):
+    import subprocess
+
+    def git(*a):
+        subprocess.run(["git", "-C", str(tmp_path), *a], check=True, capture_output=True)
+
+    git("init", "-q")
+    (tmp_path / "tests/tools").mkdir(parents=True)
+    (tmp_path / "tests/tools/tracked.py").write_text("x = 1\n")
+    (tmp_path / "top.py").write_text("x = 1\n")
+    (tmp_path / ".gitignore").write_text("tests/tools/scratch_*.py\n")
+    (tmp_path / "tests/tools/scratch_a.py").write_text('P = "docs/ignored_name.md"\n')
+    git("add", ".gitignore", "top.py", "tests/tools/tracked.py")
+
+
+def test_py_files_are_git_s_view_not_an_ignored_scratch_file(tmp_path):
+    """#6302 sibling: scan() and ground_truth_scopes() list .py files from git, so an ignored one changes nothing."""
+    _git_repo(tmp_path)
+    (tmp_path / "tests/tools/new.py").write_text("y = 1\n")  # new and not ignored: still read
+    names = {p.name for p in cc._py_files(tmp_path, "tests")}
+    assert names == {"tracked.py", "new.py"}
+    assert {p.name for p in cc._py_files(tmp_path, deep=False)} == {"top.py"}
+    assert {p.name for p in cc._py_files(tmp_path, "tests/tools", deep=False)} == {"tracked.py", "new.py"}
+
+
+def test_py_files_fall_back_to_disk_without_git(tmp_path, monkeypatch):
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests/a.py").write_text("x = 1\n")
+    monkeypatch.setattr(cc, "_repo_files", lambda *a, **k: None)
+    assert [p.name for p in cc._py_files(tmp_path, "tests")] == ["a.py"]

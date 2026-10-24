@@ -695,12 +695,24 @@ int GGCSCTL(gg_cics *c) {
     return 0;
 }
 
-int GGCSTXT(gg_cics *c, char *from, int len) {
+/* the text itself: SEND TEXT's event, and CONVERSE's write (which plans no SEND TEXT fault: IBM's CONVERSE has its own conditions) */
+static void send_text_event(gg_cics *c, char *from, int len) {
     char flags[41], ev[128];
     trim(c->flags, 40, flags);
     snprintf(ev, sizeof ev, "SEND-TEXT len=%d opts=%s", len, flags);
     event(ev, from, len);
     c->resp = NORMAL;
+    c->resp2 = 0;
+}
+
+int GGCSTXT(gg_cics *c, char *from, int len) {
+    int fresp, fresp2; /* #6271 (X71): a planned TSIOERR / INVREQ / LENGERR: nothing is sent */
+    if (injected("SEND-TEXT", "-", &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        return 0;
+    }
+    send_text_event(c, from, len);
     return 0;
 }
 
@@ -721,7 +733,7 @@ int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
     memcpy(saved, c->flags, sizeof saved);
     memset(c->flags, ' ', sizeof saved);
     memcpy(c->flags, "DATA", 4);
-    GGCSTXT(c, from, fromlen);
+    send_text_event(c, from, fromlen);
     memcpy(c->flags, saved, sizeof saved);
     c->len = most;
     terminal_receive(c, into);

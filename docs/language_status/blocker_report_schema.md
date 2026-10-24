@@ -56,6 +56,14 @@ other category. Fixed boilerplate (`PROGRAM-ID. REPRO1`, `WS-OUT`), CICS vocabul
 identifier of a synthetic estate and the real names in the burned estates (CardDemo, GenApp, CBSA, zECS, cics-crucible; `CICS_CRUCIBLE_PATH`, else `../cics-crucible`) when checked
 out, over the repro text too; the repro holds only vocabulary, boilerplate and hashes; hash stability per salt; the manifest equals the emitted fields.
 
+## Construct key (schema 1.2, #5865)
+
+Each blocker carries `construct`: its key in `docs/language_status/gap_prevalence.md` (`gap_prevalence.scrub_key`, a closed
+vocabulary: CICS command and spec options, SQL keywords, IBM routines, refusal classes, copybook family such as `missing
+copybook: estate-owned`). A customer scan and our ranking therefore speak one vocabulary and join on it; no name survives
+in it (a CICS option outside the command spec ends the key; `--redact-more subclass` drops it). Ingest (1.1 and 1.2 both accepted) refuses a construct that
+holds a hash and copies it to the ledger row.
+
 ## Ingestion on our side
 
 `python tests/tools/blocker_ingest.py blocker_report.anon.json --ledger FILE` turns each blocker into a row of a

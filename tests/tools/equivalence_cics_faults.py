@@ -51,6 +51,7 @@ FAULT_COMMANDS = (
     "ENQ",  # #5089: its `resource` (the RESOURCE operand as written); ENQBUSY only, see ENQ_FAULTS
     "SEND-MAP",  # #6271 (register X71): its `map`; RECEIVE-MAP too. RETURN, SYNCPOINT and ROLLBACK name none (`-`)
     "RECEIVE-MAP",
+    "SEND-TEXT",  # #6271 (X71): nameless, like RETURN
     "RETURN",
     "SYNCPOINT",
     "ROLLBACK",
@@ -201,6 +202,9 @@ def _abend_fault_line(sc: dict[str, Any], f: dict[str, Any], cmd: str) -> str:
 UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
     "SEND-MAP": {"INVMPSZ": (), "TSIOERR": (), "INVREQ": (200,)},
     "RECEIVE-MAP": {"INVMPSZ": (), "INVREQ": ()},
+    # SEND TEXT (IBM's Conditions of -send-text): TSIOERR; INVREQ RESP2 200 (the other INVREQ causes state no RESP2); LENGERR
+    # (LENGTH out of range) names none. SEND CONTROL (same conditions minus LENGERR) is a sibling gap
+    "SEND-TEXT": {"TSIOERR": (), "INVREQ": (200,), "LENGERR": ()},
     "RETURN": {"INVREQ": (1, 2, 4, 200), "LENGERR": (11, 26, 27)},
     "SYNCPOINT": {"INVREQ": (200,)},
     "ROLLBACK": {"INVREQ": (200,)},
@@ -208,7 +212,7 @@ UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
     # milliseconds out of range). IBM's NORMAL RESP2 23 (cancelled by another task) needs a second task: refused (X72)
     "DELAY": {"EXPIRED": (), "INVREQ": (4, 5, 6, 22)},
 }
-UI_NAMELESS = ("RETURN", "SYNCPOINT", "ROLLBACK", "DELAY")
+UI_NAMELESS = ("RETURN", "SYNCPOINT", "ROLLBACK", "DELAY", "SEND-TEXT")
 
 
 def _ui_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: int) -> int:

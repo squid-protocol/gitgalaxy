@@ -93,6 +93,8 @@ LANGS = (
     "perl",
     "solidity",
     "apex",
+    "powershell",
+    "tcl",
 )
 
 CALL_NODE_TYPES = frozenset(
@@ -119,6 +121,8 @@ CALL_NODE_TYPES = frozenset(
         "argument_part",  # dart: the argument list of `f(x)`, `a.f(x)`, `a?.f(x)`, `a..f(x)`
         "const_object_expression",  # dart `const Foo(1)`
         "type_conversion_expression",  # go `[]byte(s)` -- a conversion is a call (C3)
+        "command",  # powershell `Get-Item $x`, tcl `puts $x`
+        "invokation_expression",  # powershell `$o.Save(1)`, `[Foo]::Make(2)`
     }
 )
 _CALLEE_FIELDS = ("function", "method", "name", "macro", "constructor", "type")
@@ -240,7 +244,30 @@ def _dart_callee(node: Any) -> str | None:
     return ident.text.decode("utf-8", "replace") if ident is not None else None
 
 
+def _ps_tcl_callee(node: Any) -> str | None:
+    """powershell and tcl `command` nodes and powershell `invokation_expression`.
+
+    powershell: the callee is the `command_name` field when it is a plain `command_name` token; a
+    `command_name_expr` (`& $g`, `. ./a.ps1`) is dynamic or dot-sourcing, no named call. A method call
+    names the `member_name` (`$o.Save(1)`, `[Foo]::Make(2)`); a property read has no `argument_list`.
+    tcl: the callee is the first word (`name` field); `ns::k` names its rightmost segment, as the engine does.
+    """
+    if node.type == "invokation_expression":
+        member = next((c for c in node.named_children if c.type == "member_name"), None)
+        has_args = any(c.type == "argument_list" for c in node.named_children)
+        return member.text.decode("utf-8", "replace") if member is not None and has_args else None
+    name = node.child_by_field_name("name")
+    if name is not None:  # tcl
+        return name.text.decode("utf-8", "replace").rsplit("::", 1)[-1] if name.type == "simple_word" else None
+    cname = node.child_by_field_name("command_name")
+    if cname is not None and cname.type == "command_name":
+        return cname.text.decode("utf-8", "replace")
+    return None
+
+
 def _callee(node: Any) -> str | None:
+    if node.type in ("command", "invokation_expression"):
+        return _ps_tcl_callee(node)
     if node.type in ("apply", "infix"):
         return _hs_callee(node)
     if node.type == "func1op_call_expression":  # perl `shift`, `defined $x`: the built-in is the first token

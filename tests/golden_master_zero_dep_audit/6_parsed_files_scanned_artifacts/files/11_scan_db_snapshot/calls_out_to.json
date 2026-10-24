@@ -72009,6 +72009,7 @@
           "Offset"
         ],
         "_formatAndSetValue@4530": [
+          "fold",
           "formatEditUpdate",
           "_performSpellCheck",
           "reportError",
@@ -72125,7 +72126,9 @@
           "getLineAtOffset",
           "codeUnitAt"
         ],
-        "_isInternalScrollableNotification@4129": [],
+        "_isInternalScrollableNotification@4129": [
+          "findAncestorStateOfType"
+        ],
         "_isMultiline@3897": [],
         "_isSelectionWithinComposingRange@383": [],
         "_linebreak@5330": [
@@ -72281,7 +72284,9 @@
           "bringIntoView",
           "TextPosition"
         ],
-        "_scrollableNotificationIsFromSameSubtree@4135": [],
+        "_scrollableNotificationIsFromSameSubtree@4135": [
+          "findAncestorStateOfType"
+        ],
         "_selectionInViewport@4279": [
           "maybeOf",
           "transformRect",
@@ -72440,9 +72445,11 @@
           "_onTapOutside",
           "_onTapUpOutside",
           "MouseRegion",
+          "UndoHistory",
           "userUpdateTextEditingValue",
           "copyWith",
           "Focus",
+          "NotificationListener",
           "_handleContextMenuOnScroll",
           "Scrollable",
           "_NeverUserScrollableScrollPhysics",
@@ -72575,6 +72582,8 @@
         ],
         "debugFillProperties@2369": [
           "add",
+          "DiagnosticsProperty",
+          "EnumProperty",
           "IntProperty"
         ],
         "defaultSelectionHeightStyle@2076": [],
@@ -73044,14 +73053,18 @@
           "transformed"
         ],
         "debugFillProperties@1905": [
-          "add"
+          "add",
+          "DiagnosticsProperty"
         ],
         "debugFillProperties@1936": [
-          "add"
+          "add",
+          "DiagnosticsProperty"
         ],
         "debugFillProperties@637": [
           "add",
+          "DiagnosticsProperty",
           "IntProperty",
+          "EnumProperty",
           "DoubleProperty",
           "FlagProperty"
         ],
@@ -73212,7 +73225,9 @@
         "GlobalKey.constructor@171": [
           "empty"
         ],
-        "GlobalKey@165": [],
+        "GlobalKey@165": [
+          "LabeledGlobalKey"
+        ],
         "GlobalObjectKey@247": [
           "constructor"
         ],
@@ -73292,7 +73307,8 @@
           "fromParts",
           "ErrorSummary",
           "ErrorDescription",
-          "ErrorHint"
+          "ErrorHint",
+          "DiagnosticsProperty"
         ],
         "_debugCheckCompetingAncestors@6660": [
           "fromParts",
@@ -73352,7 +73368,9 @@
         "_debugReserveGlobalKeyFor@3203": [],
         "_debugStateLocked@2999": [],
         "_debugTrackElementThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans@3133": [
+          "HashMap",
           "putIfAbsent",
+          "HashSet",
           "add"
         ],
         "_debugTypesAreRight@937": [],
@@ -73417,6 +73435,7 @@
           "fromParts",
           "ErrorSummary",
           "ErrorHint",
+          "DiagnosticsProperty",
           "describeElements",
           "clear"
         ],
@@ -73440,6 +73459,7 @@
           "debugPrint",
           "fromParts",
           "ErrorSummary",
+          "DiagnosticsProperty",
           "describeElement",
           "ErrorDescription",
           "_debugTrackElementThatWillNeedToBeRebuiltDueToGlobalKeyShenanigans",
@@ -73578,7 +73598,9 @@
         "context@949": [
           "FlutterError"
         ],
-        "createElement@1592": [],
+        "createElement@1592": [
+          "ParentDataElement"
+        ],
         "createElement@1858": [
           "InheritedElement"
         ],
@@ -73644,11 +73666,15 @@
         ],
         "debugExpectsRenderObjectForSlot@4893": [],
         "debugFillProperties@1481": [
-          "add"
+          "add",
+          "EnumProperty",
+          "ObjectFlagProperty"
         ],
         "debugFillProperties@358": [],
         "debugFillProperties@5264": [
           "add",
+          "ObjectFlagProperty",
+          "DiagnosticsProperty",
           "FlagProperty",
           "toList",
           "sort",
@@ -73664,10 +73690,12 @@
           "toDiagnosticsNode"
         ],
         "debugFillProperties@6127": [
-          "add"
+          "add",
+          "DiagnosticsProperty"
         ],
         "debugFillProperties@6997": [
-          "add"
+          "add",
+          "DiagnosticsProperty"
         ],
         "debugGetCreatorChain@5223": [
           "add",
@@ -73690,6 +73718,7 @@
         ],
         "dependOnInheritedElement@2400": [],
         "dependOnInheritedElement@5073": [
+          "HashSet",
           "add",
           "updateDependencies"
         ],
@@ -73708,15 +73737,20 @@
           "FlutterError"
         ],
         "describeElement@2647": [],
-        "describeElement@3855": [],
+        "describeElement@3855": [
+          "DiagnosticsProperty"
+        ],
         "describeElements@3845": [
           "DiagnosticsBlock",
+          "map",
+          "DiagnosticsProperty",
           "toList"
         ],
         "describeMissingAncestor@2664": [],
         "describeMissingAncestor@3814": [
           "visitAncestorElements",
           "add",
+          "DiagnosticsProperty",
           "describeElements",
           "ErrorDescription"
         ],
@@ -73726,7 +73760,9 @@
           "debugGetCreatorChain"
         ],
         "describeWidget@2655": [],
-        "describeWidget@3863": [],
+        "describeWidget@3863": [
+          "DiagnosticsProperty"
+        ],
         "detachRenderObject@4458": [
           "visitChildren"
         ],
@@ -73759,10 +73795,14 @@
           "lockState",
           "_debugVerifyGlobalKeyReservation",
           "_debugVerifyIllFatedPopulation",
+          "HashSet",
           "addAll",
+          "HashMap",
+          "map",
           "toString",
           "containsKey",
           "update",
+          "MapEntry",
           "fromParts",
           "ErrorSummary",
           "ErrorDescription",
@@ -73809,7 +73849,9 @@
           "_debugCheckStateIsActiveForAncestorLookup"
         ],
         "getInheritedWidgetOfExactType@2470": [],
-        "getInheritedWidgetOfExactType@5091": [],
+        "getInheritedWidgetOfExactType@5091": [
+          "getElementForInheritedWidgetOfExactType"
+        ],
         "globalKeyCount@3169": [],
         "hashCode@104": [
           "hash",
@@ -73884,7 +73926,8 @@
         ],
         "mount@7269": [
           "filled",
-          "inflateWidget"
+          "inflateWidget",
+          "IndexedSlot"
         ],
         "mounted@2324": [],
         "mounted@3656": [],
@@ -74009,7 +74052,9 @@
           "describeForError"
         ],
         "slot@3597": [],
-        "slotFor@4137": [],
+        "slotFor@4137": [
+          "IndexedSlot"
+        ],
         "state@5938": [],
         "toDiagnosticsNode@5259": [
           "_ElementDiagnosticableTreeNode"
@@ -74164,7 +74209,9 @@
         "HeroControllerScope.none@839": [],
         "HeroControllerScope@831": [],
         "NavigationNotification@6440": [],
-        "Navigator@1565": [],
+        "Navigator@1565": [
+          "DefaultTransitionDelegate"
+        ],
         "Page@687": [],
         "RestorableRouteFuture@6319": [],
         "Route@171": [
@@ -74209,6 +74256,7 @@
         ],
         "_allRouteOverlayEntries@4123": [],
         "_cancelActivePointers@5868": [
+          "findAncestorRenderObjectOfType",
           "setState",
           "toList",
           "forEach"
@@ -74313,6 +74361,7 @@
           "remove"
         ],
         "_hookOntoRouteFuture@6413": [
+          "_getRouteById",
           "addListener",
           "then",
           "removeListener",
@@ -74372,13 +74421,15 @@
           "RouteSettings",
           "fromParts",
           "ErrorSummary",
-          "ErrorDescription"
+          "ErrorDescription",
+          "DiagnosticsProperty"
         ],
         "_transition@1020": [
           "resolve",
           "toList",
           "toSet",
           "containsKey",
+          "cast",
           "contains",
           "remove"
         ],
@@ -74405,6 +74456,7 @@
           "markNeedsExitingDecision",
           "contains",
           "_transition",
+          "cast",
           "addAll",
           "_flushHistoryUpdates"
         ],
@@ -74426,6 +74478,7 @@
         ],
         "build@5906": [
           "none",
+          "NotificationListener",
           "canPop",
           "NavigationNotification",
           "dispatch",
@@ -74470,7 +74523,9 @@
         "createDefaultValue@6231": [],
         "createDefaultValue@6373": [],
         "createRoute@6004": [],
-        "createRoute@6045": [],
+        "createRoute@6045": [
+          "_routeNamed"
+        ],
         "createRoute@6088": [
           "routeBuilder"
         ],
@@ -74484,15 +74539,18 @@
           "startsWith",
           "substring",
           "add",
+          "_routeNamed",
           "split",
           "reportError",
           "FlutterErrorDetails",
           "dispose",
           "clear",
-          "removeWhere"
+          "removeWhere",
+          "cast"
         ],
         "didAdd@285": [
           "complete",
+          "then",
           "requestFocus"
         ],
         "didAdd@3376": [
@@ -74517,6 +74575,7 @@
         "didPopNext@489": [],
         "didPush@268": [
           "complete",
+          "then",
           "requestFocus"
         ],
         "didPush@774": [],
@@ -74583,6 +74642,8 @@
           "dispose"
         ],
         "fromPrimitives@6236": [
+          "map",
+          "MapEntry",
           "from"
         ],
         "fromPrimitives@6390": [],
@@ -74598,6 +74659,7 @@
         ],
         "handleDidPopNext@3282": [
           "didPopNext",
+          "WeakReference",
           "then",
           "delayed",
           "send",
@@ -74644,6 +74706,7 @@
         "indexWhere@3656": [],
         "initState@3801": [
           "_debugCheckPageApiParameters",
+          "getElementForInheritedWidgetOfExactType",
           "_updateHeroController",
           "selectSingleEntryHistory",
           "addListener"
@@ -74680,10 +74743,13 @@
         "iterator@3701": [],
         "markForAdd@3546": [],
         "markForAdd@931": [],
-        "markForComplete@3577": [],
+        "markForComplete@3577": [
+          "complete"
+        ],
         "markForComplete@945": [],
         "markForPop@3556": [
-          "didPop"
+          "didPop",
+          "pop"
         ],
         "markForPop@938": [],
         "markForPush@3536": [],
@@ -74693,9 +74759,13 @@
         ],
         "markNeedsExitingDecision@3534": [],
         "maybeOf@2962": [
-          "StatefulElement"
+          "StatefulElement",
+          "findRootAncestorStateOfType",
+          "findAncestorStateOfType"
         ],
-        "maybeOf@854": [],
+        "maybeOf@854": [
+          "dependOnInheritedWidgetOfExactType"
+        ],
         "maybePop@2725": [
           "of"
         ],
@@ -74723,6 +74793,8 @@
         ],
         "of@2917": [
           "StatefulElement",
+          "findRootAncestorStateOfType",
+          "findAncestorStateOfType",
           "FlutterError"
         ],
         "of@873": [
@@ -74749,7 +74821,10 @@
         "popAndPushNamed@2114": [
           "of"
         ],
-        "popAndPushNamed@4887": [],
+        "popAndPushNamed@4887": [
+          "pop",
+          "pushNamed"
+        ],
         "popDisposition@382": [],
         "popUntil@2805": [
           "of"
@@ -74791,11 +74866,17 @@
         "pushNamed@1902": [
           "of"
         ],
-        "pushNamed@4745": [],
+        "pushNamed@4745": [
+          "push",
+          "_routeNamed"
+        ],
         "pushNamedAndRemoveUntil@2221": [
           "of"
         ],
-        "pushNamedAndRemoveUntil@4952": [],
+        "pushNamedAndRemoveUntil@4952": [
+          "pushAndRemoveUntil",
+          "_routeNamed"
+        ],
         "pushReplacement@2399": [
           "of"
         ],
@@ -74806,7 +74887,10 @@
         "pushReplacementNamed@2018": [
           "of"
         ],
-        "pushReplacementNamed@4810": [],
+        "pushReplacementNamed@4810": [
+          "pushReplacement",
+          "_routeNamed"
+        ],
         "removeAt@3685": [
           "notifyListeners"
         ],
@@ -74864,6 +74948,7 @@
           "of"
         ],
         "restorablePopAndPushNamed@4918": [
+          "pop",
           "restorablePushNamed"
         ],
         "restorablePush@2343": [
@@ -74961,6 +75046,7 @@
         "restoreState@3838": [
           "registerForRestoration",
           "_forcedDisposeAllRouteEntries",
+          "GlobalKey",
           "addAll",
           "restoreEntriesForPage",
           "_RouteEntry",
@@ -75050,6 +75136,7 @@
           "add",
           "addAll",
           "childConfigurationsDelegate",
+          "map",
           "_IncompleteSemanticsFragment",
           "toList",
           "clear"
@@ -75069,6 +75156,7 @@
         "_debugCanPerformMutations@2298": [
           "fromParts",
           "ErrorSummary",
+          "DiagnosticsProperty",
           "ErrorDescription",
           "ErrorHint"
         ],
@@ -75143,6 +75231,9 @@
           "contains",
           "SemanticsNode",
           "updateWith",
+          "map",
+          "whereType",
+          "expand",
           "toSet",
           "_updateSiblingNodesGeometries"
         ],
@@ -75282,7 +75373,8 @@
         "_updateChildGeometry@6087": [
           "computeChildGeometry",
           "_updateGeometry",
-          "expand"
+          "expand",
+          "whereType"
         ],
         "_updateCompositingBits@3217": [
           "visitChildren",
@@ -75440,6 +75532,7 @@
           "toDiagnosticsNode"
         ],
         "debugDescribeChildren@6522": [
+          "map",
           "toDiagnosticsNode",
           "toList"
         ],
@@ -75456,11 +75549,13 @@
           "join"
         ],
         "debugFillProperties@1670": [
-          "add"
+          "add",
+          "DiagnosticsProperty"
         ],
         "debugFillProperties@4046": [
           "add",
-          "FlagProperty"
+          "FlagProperty",
+          "DiagnosticsProperty"
         ],
         "debugFillProperties@6529": [
           "add",
@@ -75487,13 +75582,15 @@
           "fromParts",
           "ErrorSummary",
           "ErrorDescription",
-          "ErrorSpacer"
+          "ErrorSpacer",
+          "DiagnosticsProperty"
         ],
         "debugValidateChild@4400": [
           "fromParts",
           "ErrorSummary",
           "ErrorDescription",
-          "ErrorSpacer"
+          "ErrorSpacer",
+          "DiagnosticsProperty"
         ],
         "depth@2118": [],
         "describeApproximatePaintClip@3739": [],
@@ -75595,6 +75692,7 @@
           "updateChildren",
           "finishSync",
           "debugCheckForParentData",
+          "whereType",
           "Object",
           "computeAncestorInfo",
           "add",
@@ -75670,7 +75768,9 @@
         "localeForSubtree@4845": [
           "markNeedsSemanticsUpdate"
         ],
-        "markNeedsBuild@5734": [],
+        "markNeedsBuild@5734": [
+          "whereType"
+        ],
         "markNeedsCompositedLayerUpdate@3375": [
           "add",
           "requestVisualUpdate",
@@ -75718,7 +75818,9 @@
         "needsCompositing@3212": [],
         "nodesNeedingLayout@1116": [],
         "nodesNeedingPaint@1273": [],
-        "operator==@5301": [],
+        "operator==@5301": [
+          "setEquals"
+        ],
         "original@5362": [
           "SemanticsConfiguration",
           "describeSemanticsConfiguration"
@@ -75918,6 +76020,8 @@
           "toSet",
           "_marksConflictsInMergeGroup",
           "forEach",
+          "map",
+          "whereType",
           "absorbAll",
           "add",
           "removeAll",
@@ -76028,6 +76132,7 @@
           "clear",
           "add",
           "_TraversalSortNode",
+          "map",
           "toList"
         ],
         "_computeTraversalTransform@3964": [
@@ -76302,17 +76407,22 @@
         "customSemanticsActions@5862": [],
         "debugDescribeChildren@4479": [
           "debugListChildrenInOrder",
+          "map",
           "toDiagnosticsNode",
           "toList"
         ],
         "debugFillProperties@1368": [
           "add",
+          "DiagnosticsProperty",
           "TransformProperty",
+          "map",
           "getAction",
           "toList",
+          "IterableProperty",
           "toStrings",
           "StringProperty",
           "AttributedStringProperty",
+          "EnumProperty",
           "MessageProperty",
           "IntProperty",
           "DoubleProperty"
@@ -76323,13 +76433,16 @@
         ],
         "debugFillProperties@2671": [
           "add",
+          "DiagnosticsProperty",
           "StringProperty",
-          "AttributedStringProperty"
+          "AttributedStringProperty",
+          "EnumProperty"
         ],
         "debugFillProperties@4308": [
           "contains",
           "add",
           "FlagProperty",
+          "DiagnosticsProperty",
           "StringProperty",
           "toString",
           "getAsTranslation",
@@ -76338,13 +76451,15 @@
           "isIdentity",
           "split",
           "take",
+          "map",
           "substring",
           "join",
-          "map",
+          "IterableProperty",
           "toList",
           "sort",
           "toStrings",
           "AttributedStringProperty",
+          "EnumProperty",
           "MessageProperty",
           "IntProperty",
           "DoubleProperty"
@@ -76715,6 +76830,7 @@
         "onSetSelection@5596": [],
         "onSetSelection@5598": [
           "_addAction",
+          "cast",
           "TextSelection"
         ],
         "onSetText@5616": [],
@@ -76742,7 +76858,9 @@
         ],
         "operator==@1596": [],
         "operator==@753": [],
-        "operator==@863": [],
+        "operator==@863": [
+          "listEquals"
+        ],
         "owner@3116": [],
         "parent@3129": [],
         "performAction@5051": [
@@ -76797,7 +76915,8 @@
           "then",
           "reportError",
           "FlutterErrorDetails",
-          "ErrorDescription"
+          "ErrorDescription",
+          "DiagnosticsProperty"
         ],
         "sendSemanticsUpdate@4841": [
           "add",
@@ -76833,6 +76952,7 @@
           "toList",
           "sort",
           "compareTo",
+          "map",
           "forEach"
         ],
         "sortedWithinVerticalGroup@4567": [
@@ -77026,6 +77146,7 @@
         "_createAdaptationMap@897": [],
         "_lerpThemeExtensions@1794": [
           "map",
+          "MapEntry",
           "lerp",
           "addEntries",
           "where",
@@ -77073,6 +77194,9 @@
         "debugFillProperties@2290": [
           "fallback",
           "add",
+          "IterableProperty",
+          "DiagnosticsProperty",
+          "EnumProperty",
           "ColorProperty"
         ],
         "debugFillProperties@3359": [

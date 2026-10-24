@@ -386,6 +386,8 @@ estate4_candidates_requests.json	tests/cobol_mainframe,tests/tools/estate4_draw.
 estate4_dbb_mortgage.md	tests/tools/test_status_page_snapshots.py
 estate4_devdata_repos.json	tests/tools/estate4_draw.py
 estate4_preregistration.md	tests/tools/estate4_draw.py
+estate_batch_candidates.json	tests/tools/estate4_draw.py
+estate_batch_candidates_requests.json	tests/tools/estate4_draw.py
 estate_intake.md	tests/cobol_mainframe
 evidence.md	tests/tools/bugfix_kit.py
 example.com/x.md	tests/extraction

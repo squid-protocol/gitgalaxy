@@ -19,6 +19,16 @@
     "recall_pct": 100.0,
     "repos": "fmtlib/fmt"
   },
+  "csharp": {
+    "engine_edges": 116,
+    "files": 950,
+    "fn": 7,
+    "fp": 105,
+    "imports": 18,
+    "precision_pct": 9.5,
+    "recall_pct": 61.1,
+    "repos": "JamesNK/Newtonsoft.Json"
+  },
   "dart": {
     "engine_edges": 707,
     "files": 333,

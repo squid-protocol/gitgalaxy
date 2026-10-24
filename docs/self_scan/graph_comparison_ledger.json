@@ -3396,6 +3396,214 @@
       "symbol_type": "call",
       "verdict": null
     },
+    "csharp/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T08:09:09Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "csharp",
+      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_seen_count": 5,
+      "last_seen_examples": [
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Benchmarks/LowLevelBenchmarks.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Benchmarks/LowLevelBenchmarks.cs -> Src/Newtonsoft.Json/Utilities/ReflectionUtils.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Benchmarks/LowLevelBenchmarks.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Benchmarks/LowLevelBenchmarks.cs -> Src/Newtonsoft.Json/Utilities/ReflectionUtils.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/Serializer/DeserializeMetadataPropertyHandling.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/Serializer/DeserializeMetadataPropertyHandling.cs -> Src/Newtonsoft.Json.Tests/Serialization/MetadataPropertyHandlingTests.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/Serializer/DeserializeWithDependencyInjection.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/Serializer/DeserializeWithDependencyInjection.cs -> Src/Newtonsoft.Json.Tests/Serialization/DependencyInjectionTests.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Issues/Issue1620.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Issues/Issue1620.cs -> Src/Newtonsoft.Json/Utilities/ReflectionUtils.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "csharp/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T08:09:09Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "csharp",
+      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_seen_count": 3,
+      "last_seen_examples": [
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/JsonValidatingReaderTests.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/JsonValidatingReaderTests.cs -> Src/Newtonsoft.Json/Utilities/LinqBridge.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Schema/JsonSchemaGeneratorTests.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Schema/JsonSchemaGeneratorTests.cs -> Src/Newtonsoft.Json/Utilities/LinqBridge.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Serialization/SerializationErrorHandlingTests.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Serialization/SerializationErrorHandlingTests.cs -> Src/Newtonsoft.Json/Utilities/LinqBridge.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "target-not-imported",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "csharp/import/token-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T08:09:09Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "csharp",
+      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/Serializer/JsonConstructorAttribute.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/Serializer/JsonConstructorAttribute.cs -> Src/Newtonsoft.Json/JsonConstructorAttribute.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Schema/JsonSchemaGeneratorTests.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Schema/JsonSchemaGeneratorTests.cs -> Src/Newtonsoft.Json/Schema/Extensions.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "token-unresolved",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "csharp/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T08:09:09Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "csharp",
+      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_seen_count": 102,
+      "last_seen_examples": [
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Bson/BsonWriterTests.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Bson/BsonWriterTests.cs -> Src/Newtonsoft.Json/Utilities/LinqBridge.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Converters/XmlNodeConverterTest.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Converters/XmlNodeConverterTest.cs -> Src/Newtonsoft.Json/Utilities/LinqBridge.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/JsonPath/ErrorWhenNoMatchQuery.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/JsonPath/ErrorWhenNoMatchQuery.cs -> Src/Newtonsoft.Json/Utilities/LinqBridge.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/JsonPath/QueryJsonSelectToken.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/JsonPath/QueryJsonSelectToken.cs -> Src/Newtonsoft.Json/Utilities/LinqBridge.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/JsonPath/QueryJsonSelectTokenEscaped.cs",
+          "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/JsonPath/QueryJsonSelectTokenEscaped.cs -> Src/Newtonsoft.Json/Utilities/LinqBridge.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-sees-no-import-in-file",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "dart/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
@@ -4994,6 +5202,36 @@
       "status": "unvalidated",
       "still_reproduces": true,
       "symbol_type": "call",
+      "verdict": null
+    },
+    "javascript/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T08:09:09Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "javascript",
+      "last_reconciled_at": "2026-10-24T08:09:09Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "axios/tests/setup/browser.setup.js",
+          "name": "axios/tests/setup/browser.setup.js -> tests/setup/nativeCookieStore.js",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
       "verdict": null
     },
     "kotlin/import/declaration-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {

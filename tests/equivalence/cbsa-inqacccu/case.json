@@ -339,6 +339,63 @@
      "resp2": 200
     }
    ]
+  },
+  {
+   "name": "open-storm-drain-923",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 246,
+     "nth": 1,
+     "sqlcode": 923,
+     "sqlstate": "57015",
+     "why": "DB2 connection lost (SQLCODE 923): the statement fails and CHECK-FOR-STORM-DRAIN-DB2 sees WHEN 923"
+    }
+   ],
+   "why": "#6271 (storm drain): OPEN ACC-CURSOR (l.246) answers 923: CHECK-FOR-STORM-DRAIN-DB2 (l.259) takes WHEN 923, then the fail code '2' and the rollback"
+  },
+  {
+   "name": "close-storm-drain-923",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 348,
+     "nth": 1,
+     "sqlcode": 923,
+     "sqlstate": "57015",
+     "why": "DB2 connection lost (SQLCODE 923): the statement fails and CHECK-FOR-STORM-DRAIN-DB2 sees WHEN 923"
+    }
+   ],
+   "why": "#6271 (storm drain): CLOSE ACC-CURSOR (l.348) answers 923 after the FETCHes: CHECK-FOR-STORM-DRAIN-DB2 (l.362) takes WHEN 923, then fail code '4'"
+  },
+  {
+   "name": "fetch-storm-drain-923",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 466,
+     "nth": 2,
+     "sqlcode": 923,
+     "sqlstate": "57015",
+     "why": "DB2 connection lost (SQLCODE 923): the statement fails and CHECK-FOR-STORM-DRAIN-DB2 sees WHEN 923"
+    }
+   ],
+   "why": "#6271 (storm drain): the second FETCH (l.466) answers 923: CHECK-FOR-STORM-DRAIN-DB2 (l.500) takes WHEN 923, then fail code '3'"
   }
  ],
  "notes": "CBSA's inquire-accounts-for-customer service (INQACCCU, LINKed with the INQACCCU copybook's COMMAREA by BNK1CCA, CREACC and DELCUS). Its COMMAREA carries data after a POINTER (COMM-PCB-POINTER, then ACCOUNT-DETAILS OCCURS 1 TO 20 DEPENDING ON NUMBER-OF-ACCOUNTS): a POINTER is 4 bytes on z/OS and 8 under the oracle (oracle_assumptions.md C9), so each side's COMMAREA is read by its own layout and compared by name, the POINTER only as NULL. CUSTOMER-NUMBER zero or 9999999999 is not looked up; otherwise INQCUST is LINKed (run in the same task: READ FILE('CUSTOMER') by the program's own sort code, 987654) and, when it finds the customer, ACC-CURSOR is OPENed on the customer number and the program's own sort code (no ORDER BY: the order is Db2's, the same Db2 on both sides) and FETCHed into ACCOUNT-DETAILS until +100 or 20 accounts. A FETCH error (-305: a NULL date with no indicator) takes the program's failure path. The COMMAREA is compared whole (#4765): every account up to NUMBER-OF-ACCOUNTS, by name and subscript (COMM-ACC-TYPE(3)), each side's by its own count -- the det port's from the bytes it was LINKed with; ACCOUNT, CUSTOMER and ABNDFILE are compared after every scenario. Data: seed.sql and customer.txt are SYNTHETIC (customer.txt is cbsa-updcust's). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

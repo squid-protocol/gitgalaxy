@@ -111854,29 +111854,39 @@
       "perl/ack3_tests/file-permission.t": {
         "check_with@60": [
           "subtest_name",
-          "arg",
+          "plan",
           "ref",
           "run_ack_with_stderr",
           "is",
           "get_rc",
+          "scalar",
           "diag",
           "explain",
           "like"
         ],
-        "o@33": []
+        "o@33": [
+          "sprintf"
+        ]
       }
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": {
         "_handle_login_result@143": [
+          "dbh",
+          "requires_persistence",
+          "request_cache",
           "persist_login",
           "ThrowUserError",
           "ThrowCodeError",
           "fail_nodata",
+          "user",
           "logout",
           "clear_browser_cookies",
+          "disabledtext",
+          "account_ip_login_failures",
           "scalar",
           "datetime_from",
+          "local_timezone",
           "add",
           "get_defaults",
           "template_inner",
@@ -111884,12 +111894,17 @@
           "gethostbyaddr",
           "process",
           "ThrowTemplateError",
+          "error",
           "MessageToMTA",
-          "set_time_zone"
+          "set_time_zone",
+          "timezone"
         ],
-        "can_change_email@139": [],
+        "can_change_email@139": [
+          "user_can_create_account"
+        ],
         "can_change_password@86": [
-          "isa"
+          "isa",
+          "user_can_create_account"
         ],
         "can_login@96": [
           "isa"
@@ -111899,14 +111914,18 @@
         "login@48": [
           "get_login_info",
           "_handle_login_result",
+          "requires_verification",
           "check_credentials",
           "create_or_update_user",
+          "is_enabled",
           "set_authorizer"
         ],
         "login_token@114": [
-          "isa"
+          "isa",
+          "undef"
         ],
         "new@30": [
+          "params",
           "Stack",
           "Cookie"
         ],
@@ -111916,17 +111935,25 @@
       },
       "perl/bugzilla/Bug.pm": {
         "DATE_COLUMNS@243": [
-          "fields"
+          "fields",
+          "name"
         ],
         "DB_COLUMNS@63": [
+          "dbh",
+          "type",
+          "active_custom_fields",
+          "name",
           "sql_date_format",
           "process"
         ],
         "EmitDependList@4178": [
+          "request_cache",
+          "dbh",
           "prepare",
           "selectcol_arrayref"
         ],
         "LogActivityEntry@4416": [
+          "dbh",
           "prepare_cached",
           "length",
           "find_wrap_point",
@@ -111936,59 +111963,77 @@
           "execute"
         ],
         "UPDATE_COLUMNS@207": [
+          "type",
+          "active_custom_fields",
+          "name",
           "push"
         ],
         "VALIDATORS@104": [
-          "field"
+          "active_custom_fields",
+          "type",
+          "name"
         ],
         "VALIDATOR_DEPENDENCIES@176": [
-          "field"
+          "request_cache",
+          "fields",
+          "name",
+          "visibility_field"
         ],
         "ValidateDependencies@4703": [
+          "shift",
           "defined",
+          "dbh",
           "prepare",
-          "pair",
           "ref",
           "split",
-          "i",
           "ThrowUserError",
+          "exists",
           "push",
           "selectcol_arrayref",
-          "t",
-          "b",
+          "undef",
+          "keys",
           "scalar"
         ],
         "_accessor_for@4801": [
+          "type",
           "_multi_select_accessor",
+          "name",
           "_cf_accessor"
         ],
-        "_add_remove@2554": [
-          "add_method",
-          "remove_method"
-        ],
+        "_add_remove@2554": [],
         "_bugs_in_order@4201": [
-          "bug_id",
+          "dbh",
           "object_cache_get",
+          "push",
           "new_from_list",
+          "id",
           "selectall_arrayref",
-          "sql_in",
-          "row"
+          "sql_in"
         ],
         "_cf_accessor@4809": [],
         "_changes_everconfirmed@4680": [
+          "everconfirmed",
           "is_open_state"
         ],
         "_check_alias@1404": [
+          "ref",
           "split",
-          "alias",
           "trim",
           "length",
           "ThrowUserError",
-          "Bug"
+          "Bug",
+          "id"
         ],
         "_check_assigned_to@1440": [
+          "undef",
+          "user",
           "blessed",
+          "component_obj",
+          "ref",
           "in_group",
+          "product_id",
+          "default_assignee",
+          "id",
           "trim",
           "ThrowUserError",
           "check",
@@ -111996,50 +112041,84 @@
         ],
         "_check_bug_file_loc@1473": [
           "defined",
-          "trim"
+          "trim",
+          "ref"
         ],
         "_check_bug_status@1487": [
-          "statuses_available",
-          "in_group",
-          "scalar",
-          "check",
+          "undef",
+          "user",
           "ref",
+          "statuses_available",
+          "product_obj",
+          "status",
+          "in_group",
+          "id",
+          "scalar",
+          "name",
+          "check",
           "ThrowUserError",
-          "comment_required_on_change_from"
+          "comment_required_on_change_from",
+          "params",
+          "milestones",
+          "target_milestone",
+          "default_milestone",
+          "blessed"
         ],
         "_check_bugid_field@2283": [
+          "undef",
           "check",
-          "_check_relationship_loop"
+          "id",
+          "ref",
+          "_check_relationship_loop",
+          "bug_id"
         ],
         "_check_cc@1590": [
+          "undef",
           "blessed",
+          "component_obj",
+          "id",
+          "initial_cc",
           "split",
-          "person",
+          "ref",
           "trim",
-          "login_to_id"
+          "login_to_id",
+          "keys"
         ],
         "_check_comment@1613": [
+          "undef",
+          "defined",
+          "delete",
           "check_required_create_fields",
           "run_create_validators"
         ],
         "_check_commenton@1645": [
           "ref",
+          "defined",
+          "undef",
           "ThrowUserError"
         ],
         "_check_component@1663": [
+          "undef",
           "trim",
           "ThrowUserError",
           "blessed",
+          "product_obj",
+          "component",
           "check",
+          "name",
+          "is_active",
           "ref"
         ],
         "_check_creation_ts@1676": [
+          "dbh",
           "selectrow_array"
         ],
         "_check_date_field@2215": [
-          "_check_datetime_field"
+          "_check_datetime_field",
+          "undef"
         ],
         "_check_datetime_field@2220": [
+          "undef",
           "trim",
           "split",
           "validate_date",
@@ -112047,45 +112126,67 @@
           "validate_time"
         ],
         "_check_deadline@1680": [
+          "ref",
+          "user",
+          "is_timetracker",
+          "undef",
           "trim",
           "validate_date",
           "ThrowUserError"
         ],
         "_check_default_field@2243": [
+          "defined",
           "trim"
         ],
         "_check_dependencies@1700": [
-          "in_group",
-          "type",
           "ref",
+          "user",
+          "in_group",
+          "id",
           "split",
           "diff_arrays",
           "check_can_change_field",
           "ThrowUserError",
-          "modified_id",
           "check",
+          "params",
           "can_edit_product",
           "ValidateDependencies"
         ],
         "_check_dup_id@1775": [
+          "dbh",
           "trim",
           "ThrowCodeError",
           "check",
+          "id",
+          "dup_id",
           "check_is_visible",
           "_resolve_ultimate_dup_id",
+          "params",
           "ThrowUserError",
+          "reporter",
           "can_see_bug",
+          "usage_mode",
+          "cgi",
           "param",
+          "defined",
+          "template",
+          "cclist_accessible",
+          "print",
           "header",
           "process",
           "ThrowTemplateError",
-          "error"
+          "error",
+          "exit"
         ],
         "_check_field_is_mandatory@2181": [
           "blessed",
           "new",
+          "is_mandatory",
           "is_visible_on_bug",
+          "type",
+          "scalar",
           "get_legal_field_values",
+          "name",
           "ref",
           "join",
           "trim",
@@ -112093,19 +112194,27 @@
           "ThrowUserError"
         ],
         "_check_freetext_field@2245": [
+          "defined",
           "trim",
           "length",
           "ThrowUserError"
         ],
         "_check_groups@1851": [
+          "undef",
           "blessed",
-          "group",
+          "id",
+          "product_obj",
+          "defined",
+          "groups_available",
           "trim",
           "split",
+          "ref",
           "name",
           "check_no_disclose",
           "group_is_settable",
-          "ThrowUserError"
+          "ThrowUserError",
+          "groups_mandatory",
+          "values"
         ],
         "_check_integer_field@2311": [
           "defined",
@@ -112115,73 +112224,126 @@
           "abs"
         ],
         "_check_keywords@1889": [
+          "undef",
+          "defined",
+          "ref",
           "trim",
           "split",
-          "keyword",
-          "check"
+          "check",
+          "id",
+          "values"
         ],
         "_check_multi_select_field@2255": [
+          "defined",
+          "ref",
           "split",
-          "value",
           "push",
           "_check_select_field"
         ],
         "_check_priority@1925": [
+          "ref",
+          "params",
           "_check_select_field"
         ],
         "_check_product@1909": [
           "trim",
+          "ref",
           "lc",
+          "product_obj",
+          "name",
+          "user",
           "can_enter_product"
         ],
         "_check_qa_contact@1933": [
+          "undef",
           "trim",
+          "ref",
           "blessed",
+          "component_obj",
+          "params",
+          "user",
           "in_group",
+          "product_id",
+          "default_qa_contact",
+          "id",
           "check",
           "_check_strict_isolation_for_user"
         ],
         "_check_relationship_loop@2331": [
           "defined",
           "ThrowUserError",
-          "selectrow_array"
+          "dbh",
+          "selectrow_array",
+          "undef"
         ],
         "_check_reporter@1972": [
-          "login"
+          "shift",
+          "ref",
+          "reporter",
+          "id",
+          "login",
+          "user"
         ],
         "_check_resolution@1989": [
+          "undef",
           "trim",
           "ref",
+          "status",
+          "name",
+          "is_open",
           "is_open_state",
           "ThrowUserError",
           "_check_select_field",
+          "dependson",
+          "params",
+          "resolution",
+          "scalar",
           "new_from_list",
+          "isopened",
+          "id",
           "_check_commenton"
         ],
         "_check_select_field@2277": [
           "type",
-          "check"
+          "check",
+          "name"
         ],
         "_check_short_desc@2037": [
           "clean_text",
+          "defined",
           "ThrowUserError",
           "length"
         ],
-        "_check_status_whiteboard@2053": [],
+        "_check_status_whiteboard@2053": [
+          "defined"
+        ],
         "_check_strict_isolation@2056": [
+          "params",
+          "ref",
           "new",
+          "id",
+          "cc_users",
           "diff_arrays",
           "new_from_list",
+          "assigned_to",
+          "qa_contact",
+          "product_obj",
           "push",
-          "id",
+          "keys",
           "can_edit_product",
           "can_see_product",
+          "name",
+          "login",
           "scalar",
           "ThrowUserError"
         ],
         "_check_strict_isolation_for_user@2119": [
+          "params",
           "can_edit_product",
-          "ThrowUserError"
+          "ThrowUserError",
+          "login",
+          "product",
+          "id"
         ],
         "_check_tag_name@2128": [
           "clean_text",
@@ -112191,67 +112353,109 @@
           "lc"
         ],
         "_check_target_milestone@2140": [
+          "undef",
           "blessed",
+          "product_obj",
+          "target_milestone",
           "trim",
+          "default_milestone",
+          "defined",
           "check",
+          "name",
+          "is_active",
           "ThrowUserError",
           "ref"
         ],
         "_check_textarea_field@2298": [
+          "defined",
           "trim"
         ],
         "_check_time_field@2153": [
+          "ref",
+          "user",
+          "is_timetracker",
           "check_time"
         ],
         "_check_version@2167": [
+          "undef",
           "trim",
           "blessed",
+          "product_obj",
+          "version",
           "check",
+          "name",
+          "is_active",
           "ThrowUserError",
           "ref"
         ],
-        "_clear_dup_id@2655": [],
+        "_clear_dup_id@2655": [
+          "undef"
+        ],
         "_create_cf_accessors@4782": [
           "ref",
+          "request_cache",
           "fields",
-          "field",
-          "_accessor_for"
+          "_accessor_for",
+          "name",
+          "defined"
         ],
         "_extract_bug_ids@543": [
+          "shift",
+          "params",
           "push",
           "join",
           "template_var",
-          "comment",
+          "type",
+          "extra_data",
+          "already_wrapped",
+          "body",
           "E"
         ],
         "_extract_multi_selects@1232": [
-          "field",
+          "type",
+          "active_custom_fields",
+          "name",
+          "exists",
           "delete"
         ],
         "_multi_select_accessor@4818": [
-          "selectcol_arrayref"
+          "dbh",
+          "selectcol_arrayref",
+          "undef",
+          "id"
         ],
         "_preload_referenced_bugs@522": [
-          "bug",
+          "shift",
+          "duplicates",
           "object_cache_set",
           "object_cache_get",
+          "id",
           "_extract_bug_ids",
+          "comments",
           "new_from_list"
         ],
         "_refine_available_statuses@3917": [
-          "status",
+          "shift",
           "check_can_change_field",
+          "status",
+          "name",
           "push",
           "grep",
           "unshift"
         ],
         "_resolve_ultimate_dup_id@3449": [
+          "dbh",
           "prepare",
           "selectrow_array",
-          "ThrowUserError"
+          "undef",
+          "ThrowUserError",
+          "exists"
         ],
         "_send_bugmail@1382": [
           "Send",
+          "usage_mode",
+          "template",
+          "keys",
           "process",
           "ThrowTemplateError",
           "error"
@@ -112262,49 +112466,86 @@
         "_set_global_validator@2395": [
           "ref",
           "isa",
+          "id",
           "check_can_change_field",
           "new",
+          "login",
           "ThrowUserError",
           "_check_field_is_mandatory"
         ],
         "_set_product@2716": [
+          "product_obj",
           "_check_product",
+          "id",
+          "name",
+          "delete",
+          "component",
+          "version",
+          "defined",
+          "params",
+          "target_milestone",
+          "usage_mode",
           "error_mode",
           "set_component",
           "set_version",
           "check_can_change_field",
           "set_target_milestone",
+          "default_milestone",
+          "undef",
           "grep",
+          "is_active",
+          "components",
+          "milestones",
+          "versions",
+          "dbh",
           "push",
+          "uniq",
           "selectcol_arrayref",
           "join",
+          "user",
+          "groups_as_string",
           "new_from_list",
+          "template",
           "process",
           "ThrowTemplateError",
-          "error"
+          "error",
+          "exit"
         ],
         "_sync_fulltext@1249": [
+          "dbh",
           "selectall_arrayref",
+          "undef",
+          "id",
           "join",
-          "do"
+          "do",
+          "short_desc",
+          "push"
         ],
         "_zero_remaining_time@2891": [],
         "actual_time@3481": [
+          "exists",
+          "user",
+          "is_timetracker",
+          "undef",
+          "dbh",
           "prepare",
           "execute",
           "fetchrow_array"
         ],
         "add_alias@3020": [
           "_check_alias",
-          "old_alias",
+          "alias",
           "lc",
           "push"
         ],
         "add_cc@2996": [
+          "ref",
           "check",
           "_check_strict_isolation_for_user",
+          "cc_users",
           "push",
-          "grep"
+          "grep",
+          "id"
         ],
         "add_comment@3048": [
           "defined",
@@ -112313,149 +112554,237 @@
           "abs",
           "set_remaining_time",
           "max",
+          "remaining_time",
           "push"
         ],
         "add_group@3134": [
           "blessed",
+          "name",
+          "product",
+          "id",
           "check_no_disclose",
           "in_group",
+          "product_obj",
           "group_is_settable",
           "ThrowUserError",
+          "user",
+          "group_controls",
+          "groups_in",
           "push"
         ],
         "add_see_also@3219": [
+          "name",
           "blessed",
           "trim",
           "class_for",
           "check_required_create_fields",
           "run_create_validators",
+          "as_string",
           "trick_taint",
           "lc",
+          "see_also",
           "check_can_change_field",
           "ThrowUserError",
+          "delete",
           "isa",
+          "id",
+          "push",
           "bless"
         ],
         "add_tag@3305": [
+          "dbh",
+          "user",
           "_check_tag_name",
+          "tags",
           "do",
+          "undef",
+          "id",
           "selectrow_array",
+          "delete",
           "push"
         ],
         "alias@3500": [
-          "selectcol_arrayref"
+          "exists",
+          "dbh",
+          "selectcol_arrayref",
+          "undef",
+          "bug_id"
         ],
-        "any_flags_requesteeble@3514": [],
+        "any_flags_requesteeble@3514": [
+          "exists",
+          "is_requestable",
+          "is_requesteeble",
+          "flag_types",
+          "requestee_id",
+          "flags"
+        ],
         "assigned_to@3542": [
+          "exists",
           "User"
         ],
         "attachments@3531": [
+          "exists",
           "get_attachments_by_bug",
           "object_cache_set"
         ],
         "blocked@3551": [
-          "EmitDependList"
+          "exists",
+          "EmitDependList",
+          "bug_id"
         ],
         "blocks_obj@3559": [
-          "_bugs_in_order"
+          "_bugs_in_order",
+          "blocked"
         ],
         "bug_alias_to_id@4137": [
+          "dbh",
           "trick_taint",
-          "selectrow_array"
+          "selectrow_array",
+          "undef"
         ],
         "bug_file_loc@3390": [],
         "bug_group@3565": [
-          "join"
+          "join",
+          "name",
+          "groups_in"
         ],
         "bug_id@3391": [],
         "bug_severity@3392": [],
         "bug_status@3393": [],
         "cc@3580": [
-          "selectcol_arrayref"
+          "exists",
+          "dbh",
+          "selectcol_arrayref",
+          "undef",
+          "bug_id"
         ],
         "cc_users@3597": [
+          "shift",
+          "exists",
+          "dbh",
           "selectcol_arrayref",
+          "undef",
+          "id",
           "new_from_list"
         ],
         "cclist_accessible@3394": [],
         "check@372": [
+          "shift",
           "ref",
           "trim",
           "ThrowUserError",
+          "defined",
           "new",
+          "id",
           "check_is_visible"
         ],
         "check_can_change_field@4514": [
+          "shift",
+          "user",
           "defined",
           "ref",
           "diff_arrays",
           "scalar",
           "trim",
           "process",
+          "is_timetracker",
           "in_group",
           "_changes_everconfirmed",
+          "id",
+          "params",
           "is_open_state"
         ],
         "check_for_edit@405": [
+          "shift",
           "check",
+          "user",
           "can_edit_product",
-          "ThrowUserError"
+          "product_id",
+          "ThrowUserError",
+          "product"
         ],
         "check_is_visible@415": [
+          "id",
+          "user",
           "can_see_bug",
           "ThrowUserError"
         ],
         "choices@4090": [
+          "shift",
+          "exists",
+          "user",
+          "get_enterable_products",
           "grep",
+          "name",
+          "product_obj",
           "unshift",
+          "classification_id",
           "new_from_list",
+          "keys",
+          "statuses_available",
+          "components",
+          "versions",
+          "milestones",
           "Field",
-          "key"
+          "legal_values",
+          "is_active"
         ],
         "classification@3633": [],
         "classification_id@3626": [],
         "clear_resolution@2933": [
-          "ThrowUserError"
+          "shift",
+          "status",
+          "is_open",
+          "ThrowUserError",
+          "id",
+          "_clear_dup_id"
         ],
         "comments@3746": [
+          "defined",
           "match",
+          "id",
+          "dbh",
           "isa",
-          "comment",
           "preload",
+          "user",
           "setting",
+          "reverse",
           "unshift",
-          "datetime_from"
+          "pop",
+          "datetime_from",
+          "creation_ts"
         ],
         "component@3609": [],
         "component_id@3395": [],
         "component_obj@3617": [
+          "defined",
           "Component"
         ],
         "create@704": [
+          "dbh",
           "bz_start_transaction",
+          "params",
+          "defined",
           "check_required_create_fields",
           "run_create_validators",
+          "delete",
           "_extract_multi_selects",
           "insert_create_data",
           "prepare",
-          "group",
           "execute",
+          "bug_id",
+          "id",
           "do",
-          "user_id",
-          "keyword_id",
+          "undef",
           "map",
-          "depends_on_id",
           "LogActivityEntry",
-          "blocked_id",
-          "field",
-          "value",
+          "keys",
+          "ref",
           "trim",
           "split",
           "add_see_also",
           "see_also",
-          "ref_bug",
           "update",
-          "alias",
           "trick_taint",
           "process",
           "_sync_fulltext",
@@ -112464,51 +112793,90 @@
         "creation_ts@3396": [],
         "deadline@3398": [],
         "default_bug_status@3640": [
-          "scalar"
+          "shift",
+          "scalar",
+          "name"
         ],
         "delta_ts@3399": [],
         "depends_on_obj@3669": [
-          "_bugs_in_order"
+          "_bugs_in_order",
+          "dependson"
         ],
         "dependson@3661": [
-          "EmitDependList"
+          "exists",
+          "EmitDependList",
+          "bug_id"
         ],
         "dup_id@3431": [
+          "exists",
+          "undef",
+          "dbh",
           "selectrow_array"
         ],
         "duplicate_ids@3683": [
-          "selectcol_arrayref"
+          "shift",
+          "exists",
+          "dbh",
+          "selectcol_arrayref",
+          "undef",
+          "id"
         ],
         "duplicates@3675": [
-          "new_from_list"
+          "shift",
+          "exists",
+          "new_from_list",
+          "duplicate_ids"
         ],
         "editable_bug_fields@4151": [
+          "dbh",
           "bz_table_columns",
           "push",
+          "name",
           "fields",
-          "remove",
           "splice"
         ],
         "error@3400": [],
         "estimated_time@3397": [],
         "everconfirmed@3401": [],
         "fields@2361": [
+          "shift",
+          "params",
+          "name",
+          "active_custom_fields",
           "process"
         ],
         "flag_types@3695": [
+          "exists",
+          "bug_id",
           "_flag_types"
         ],
-        "flags@3711": [],
+        "flags@3711": [
+          "shift",
+          "flag_types"
+        ],
         "get_activity@4245": [
+          "dbh",
+          "user",
+          "id",
+          "defined",
           "trick_taint",
           "push",
+          "is_insider",
           "sql_date_format",
+          "params",
           "selectall_arrayref",
-          "entry",
+          "undef",
+          "is_timetracker",
+          "pop",
           "join_activity_entries",
           "new"
         ],
         "groups@3965": [
+          "shift",
+          "exists",
+          "dbh",
+          "user",
+          "groups_as_string",
           "prepare",
           "quote_identifier",
           "execute",
@@ -112516,214 +112884,367 @@
           "push"
         ],
         "groups_in@4042": [
+          "shift",
+          "exists",
+          "dbh",
           "selectcol_arrayref",
+          "undef",
+          "id",
           "new_from_list"
         ],
         "in_group@4054": [
-          "grep"
+          "grep",
+          "id",
+          "groups_in"
         ],
         "initialize@362": [
           "_create_cf_accessors"
         ],
         "isopened@3719": [
+          "shift",
+          "exists",
           "is_open_state"
         ],
         "keyword_objects@3733": [
+          "shift",
+          "defined",
+          "dbh",
           "selectcol_arrayref",
+          "undef",
+          "id",
           "new_from_list"
         ],
         "keywords@3727": [
-          "join"
+          "join",
+          "name",
+          "keyword_objects"
         ],
         "lastdiffed@3402": [],
         "map_fields@4478": [
-          "field"
+          "keys"
         ],
         "match@435": [
-          "field",
+          "shift",
+          "keys",
+          "exists",
           "push",
-          "scalar"
+          "id",
+          "ref",
+          "scalar",
+          "delete"
         ],
         "modify_keywords@3081": [
           "_check_keywords",
+          "keyword_objects",
+          "id",
+          "delete",
+          "values",
           "diff_arrays",
+          "scalar",
           "lc",
+          "name",
           "join",
           "check_can_change_field",
-          "ThrowUserError"
+          "ThrowUserError",
+          "keywords"
         ],
         "new@302": [
+          "shift",
           "ref",
-          "bug_alias_to_id"
+          "defined",
+          "bug_alias_to_id",
+          "bless",
+          "unshift"
         ],
         "new_bug_statuses@3784": [
+          "user",
           "statuses_available",
-          "in_group"
+          "in_group",
+          "id",
+          "name"
         ],
-        "object_cache_key@366": [],
+        "object_cache_key@366": [
+          "shift",
+          "user",
+          "id"
+        ],
         "op_sys@3403": [],
         "percentage_complete@3807": [
+          "shift",
+          "undef",
+          "user",
+          "is_timetracker",
+          "remaining_time",
+          "actual_time",
           "int"
         ],
         "possible_duplicates@584": [
           "ref",
           "detaint_natural",
           "ThrowCodeError",
+          "dbh",
+          "user",
           "split",
-          "word",
+          "defined",
           "length",
+          "FULLTEXT_OR",
           "join",
           "sql_fulltext_search",
           "push",
+          "id",
           "selectall_arrayref",
           "sql_limit",
-          "bug",
           "_resolve_ultimate_dup_id",
+          "uniq",
+          "scalar",
           "visible_bugs",
           "new_from_list"
         ],
         "preload@499": [
-          "bug",
+          "user",
+          "push",
+          "blocked",
+          "dependson",
+          "duplicate_ids",
+          "_preload_referenced_bugs",
+          "uniq",
           "visible_bugs"
         ],
         "priority@3404": [],
         "product@3821": [],
         "product_id@3405": [],
         "product_obj@3829": [
+          "shift",
           "Product"
         ],
         "qa_contact@3837": [
+          "exists",
+          "undef",
+          "params",
           "User"
         ],
         "related_bugs@3570": [
-          "match"
+          "name",
+          "match",
+          "id"
         ],
         "remaining_time@3406": [],
-        "remove_alias@3040": [],
+        "remove_alias@3040": [
+          "alias"
+        ],
         "remove_cc@3008": [
+          "ref",
           "check",
-          "ThrowUserError"
+          "user",
+          "id",
+          "ThrowUserError",
+          "cc_users"
         ],
         "remove_from_db@1293": [
+          "dbh",
           "ThrowCodeError",
-          "do"
+          "do",
+          "undef"
         ],
         "remove_group@3173": [
           "blessed",
+          "name",
+          "product",
+          "id",
           "check_no_disclose",
           "in_group",
           "ThrowUserError",
-          "group_is_valid"
+          "product_obj",
+          "group_is_valid",
+          "group_controls",
+          "is_active",
+          "user",
+          "groups_in"
         ],
         "remove_see_also@3264": [
+          "see_also",
+          "name",
           "blessed",
           "lc",
           "check_can_change_field",
           "ThrowUserError",
           "isa",
+          "ref_bug_url",
           "check",
+          "bug_id",
+          "user",
           "can_edit_product",
-          "local_uri"
+          "product_id",
+          "id",
+          "local_uri",
+          "push"
         ],
         "remove_tag@3341": [
+          "dbh",
+          "user",
           "_check_tag_name",
-          "do"
+          "exists",
+          "tags",
+          "undef",
+          "do",
+          "id",
+          "delete"
         ],
         "rep_platform@3408": [],
         "reporter@3852": [
+          "exists",
           "User"
         ],
         "reporter_accessible@3407": [],
         "reset_assigned_to@2574": [
-          "set_assigned_to"
+          "shift",
+          "component_obj",
+          "set_assigned_to",
+          "default_assignee"
         ],
         "reset_qa_contact@2883": [
-          "set_qa_contact"
+          "shift",
+          "component_obj",
+          "set_qa_contact",
+          "default_qa_contact"
         ],
         "resolution@3409": [],
         "run_create_validators@848": [
+          "shift",
+          "classification",
+          "name",
           "fields",
-          "field",
           "_check_field_is_mandatory",
+          "delete",
+          "id",
           "_check_reporter",
           "_check_strict_isolation",
           "process"
         ],
         "see_also@3861": [
+          "exists",
+          "dbh",
           "selectcol_arrayref",
+          "undef",
+          "id",
           "new_from_list"
         ],
         "send_changes@1310": [
+          "user",
           "split",
           "_send_bugmail",
-          "is_open_state",
           "id",
+          "undef",
+          "is_open_state",
+          "blocked",
           "join",
-          "ref_bug_id"
+          "delete",
+          "keys",
+          "uniq"
         ],
         "set_all@2428": [
+          "shift",
+          "scalar",
           "ThrowUserError",
+          "exists",
+          "defined",
           "_set_product",
           "_add_remove",
-          "name",
-          "add",
           "push",
           "grep",
-          "remove",
           "set_dependencies",
-          "action",
+          "keys",
           "modify_keywords",
           "add_comment",
           "diff_arrays",
+          "alias",
           "can",
-          "field",
+          "reset_assigned_to",
+          "reset_qa_contact",
+          "active_custom_fields",
+          "name",
           "set_custom_field",
           "_check_strict_isolation"
         ],
         "set_assigned_to@2565": [
-          "set"
+          "set",
+          "id",
+          "delete"
         ],
         "set_bug_ignored@2579": [
           "set"
         ],
         "set_bug_status@2943": [
+          "status",
           "set",
+          "delete",
+          "is_open",
           "_set_everconfirmed",
+          "name",
           "clear_resolution",
+          "resolution",
+          "defined",
           "set_resolution",
+          "id",
+          "remaining_time",
           "_zero_remaining_time"
         ],
         "set_cclist_accessible@2580": [
           "set"
         ],
         "set_comment_is_private@2582": [
-          "comment",
+          "user",
+          "is_insider",
+          "ref",
+          "comments",
+          "exists",
+          "id",
+          "delete",
+          "is_private",
           "ThrowUserError",
           "set_is_private",
-          "join"
+          "push",
+          "join",
+          "keys",
+          "scalar"
         ],
         "set_component@2610": [
+          "component_obj",
           "_check_component",
-          "cc",
+          "id",
+          "name",
+          "initial_cc",
           "add_cc"
         ],
         "set_custom_field@2629": [
+          "ref",
+          "type",
           "ThrowCodeError",
-          "set"
+          "custom",
+          "set",
+          "name"
         ],
         "set_deadline@2638": [
           "set"
         ],
         "set_dependencies@2640": [
           "_check_dependencies",
-          "detaint_natural"
+          "detaint_natural",
+          "delete"
         ],
         "set_dup_id@2657": [
+          "dup_id",
           "set",
+          "resolution",
           "set_bug_status",
+          "params",
           "Bug",
+          "delete",
           "add_cc",
-          "add_comment"
+          "reporter",
+          "add_comment",
+          "id",
+          "defined"
         ],
         "set_estimated_time@2702": [
           "set"
@@ -112741,7 +113262,9 @@
           "set"
         ],
         "set_qa_contact@2872": [
-          "set"
+          "set",
+          "id",
+          "delete"
         ],
         "set_remaining_time@2888": [
           "set"
@@ -112750,10 +113273,14 @@
           "set"
         ],
         "set_resolution@2894": [
+          "resolution",
           "set",
+          "delete",
           "_clear_dup_id",
+          "remaining_time",
           "_zero_remaining_time",
           "set_dup_id",
+          "dup_id",
           "ThrowUserError"
         ],
         "set_severity@2941": [
@@ -112776,61 +113303,94 @@
         ],
         "short_desc@3410": [],
         "show_attachment_flags@3939": [
-          "count"
+          "exists",
+          "count",
+          "bug_id"
         ],
         "status@3877": [
+          "shift",
+          "undef",
           "Status"
         ],
         "status_whiteboard@3411": [],
         "statuses_available@3885": [
+          "ref",
+          "defined",
+          "status",
+          "can_change_to",
+          "product_obj",
+          "allows_unconfirmed",
+          "name",
           "_refine_available_statuses"
         ],
         "tags@3367": [
-          "selectcol_arrayref"
+          "shift",
+          "dbh",
+          "user",
+          "exists",
+          "selectcol_arrayref",
+          "undef",
+          "id"
         ],
         "target_milestone@3412": [],
         "update@892": [
+          "shift",
+          "dbh",
+          "user",
           "selectrow_array",
           "bz_start_transaction",
           "process",
-          "field",
+          "delete",
+          "login",
+          "id",
+          "cc_users",
           "diff_arrays",
+          "scalar",
           "do",
           "sql_in",
-          "user_id",
+          "undef",
           "new_from_list",
           "join",
           "alias",
           "trick_taint",
-          "keyword_id",
-          "pair",
-          "removed_id",
+          "keyword_objects",
+          "name",
           "LogActivityEntry",
-          "added_id",
-          "scalar",
+          "groups_in",
+          "keys",
           "prepare",
-          "gid",
           "execute",
-          "comment",
           "insert_create_data",
-          "value",
+          "work_time",
+          "is_private",
+          "type",
+          "active_custom_fields",
+          "see_also",
+          "remove_from_db",
           "update_flags",
+          "defined",
+          "dup_id",
           "is_involved_in_bug",
           "update_user_last_visit",
           "match",
-          "lv",
-          "remove_from_db",
+          "exists",
           "is_bug_ignored",
           "_sync_fulltext",
           "bz_commit_transaction"
         ],
         "update_user_last_visit@4459": [
           "match",
+          "id",
           "set",
+          "update",
           "create"
         ],
         "user@4059": [
-          "in_group"
+          "shift",
+          "exists",
+          "in_group",
+          "id",
+          "params"
         ],
         "version@3413": []
       },
@@ -112841,16 +113401,24 @@
         ],
         "FETCH@709": [
           "param",
+          "undef",
           "scalar"
         ],
         "STORE@700": [
+          "shift",
+          "defined",
+          "ref",
           "param"
         ],
         "_fix_utf8@499": [
+          "shift",
           "decode",
+          "defined",
+          "ref",
           "is_utf8"
         ],
         "_init_bz_cgi_globals@24": [
+          "shift",
           "_setup_symbols"
         ],
         "_prevent_unsafe_response@315": [
@@ -112858,94 +113426,133 @@
           "ml",
           "c",
           "correct_urlbase",
-          "E",
+          "usage_mode",
+          "referer",
+          "print",
           "header",
-          "status"
+          "r",
+          "rflush",
+          "status",
+          "exit"
         ],
         "canonicalise_query@115": [
-          "key",
           "sort",
           "param",
           "url_quote",
-          "value",
           "defined",
           "push",
           "join"
         ],
         "check_etag@242": [
           "http",
-          "split",
-          "possible_etag"
+          "split"
         ],
         "clean_search_url@145": [
+          "shift",
           "param",
+          "defined",
           "delete",
-          "num",
-          "field",
           "lc",
           "scalar"
         ],
         "close_standby_message@296": [
           "set_dated_content_disp",
+          "print",
           "multipart_end",
           "multipart_start",
           "header"
         ],
         "header@377": [
-          "scalar",
           "shift",
+          "user",
+          "scalar",
           "_prevent_unsafe_response",
+          "id",
+          "authorizer",
+          "can_login",
           "cookie",
+          "params",
           "send_cookie",
           "generate_random_password",
+          "https",
+          "url_is_attachment_base",
           "process"
         ],
         "multipart_start@264": [
-          "charset",
-          "cookie"
+          "shift",
+          "defined",
+          "charset"
         ],
         "new@44": [
           "ref",
           "_init_bz_cgi_globals",
           "basename",
+          "path_info",
           "process",
           "grep",
+          "script_name",
+          "print",
           "redirect",
           "url",
           "charset",
+          "params",
+          "url_is_attachment_base",
           "redirect_to_urlbase",
+          "cgi_error",
           "header"
         ],
         "param@450": [
+          "shift",
           "scalar",
+          "request_method",
           "url_param",
-          "_fix_utf8"
+          "params",
+          "_fix_utf8",
+          "keys"
         ],
         "redirect_search_url@565": [
+          "shift",
           "param",
+          "user",
+          "id",
           "check_quietly",
-          "clean_search_url",
-          "self_url",
           "request_method",
+          "clean_search_url",
+          "create_placeholder",
+          "self_url",
           "length",
-          "redirect"
+          "print",
+          "redirect",
+          "exit"
         ],
         "redirect_to_https@624": [
+          "shift",
+          "params",
           "delete",
           "url",
-          "redirect"
+          "print",
+          "redirect",
+          "r",
+          "rflush",
+          "exit"
         ],
         "redirect_to_urlbase@648": [
+          "shift",
           "url",
+          "print",
           "redirect",
-          "correct_urlbase"
+          "correct_urlbase",
+          "exit"
         ],
         "remove_cookie@551": [
+          "shift",
           "send_cookie"
         ],
         "send_cookie@519": [
+          "shift",
           "exists",
           "ThrowCodeError",
+          "params",
           "keys",
           "unshift",
           "push",
@@ -112953,33 +113560,43 @@
         ],
         "set_dated_content_disp@678": [
           "localtime",
-          "time"
+          "time",
+          "sprintf"
         ],
         "should_set@507": [
+          "defined",
           "param"
         ],
         "url_is_attachment_base@655": [
           "use_attachbase",
           "i_am_cgi",
-          "quotemeta"
+          "params",
+          "quotemeta",
+          "url"
         ],
-        "url_param@490": []
+        "url_param@490": [
+          "shift"
+        ]
       },
       "perl/bugzilla/DB.pm": {
         "_build_connector@1373": [
-          "key",
+          "keys",
+          "ref",
           "can",
           "on_dbi_connected"
         ],
         "_build_qi@39": [],
         "_bz_add_field_table@913": [
           "bz_table_info",
-          "key",
+          "keys",
+          "_bz_schema",
           "add_table",
           "bz_add_table"
         ],
         "_bz_add_table_raw@904": [
+          "_bz_schema",
           "get_table_ddl",
+          "usage_mode",
           "install_string",
           "do"
         ],
@@ -112989,39 +113606,53 @@
         ],
         "_bz_connect_error_reasons@352": [
           "bz_locations",
+          "localconfig",
           "lc"
         ],
         "_bz_get_initial_schema@1225": [
+          "_bz_schema",
           "get_empty_schema"
         ],
         "_bz_init_schema_storage@1428": [
           "selectrow_array",
+          "_bz_get_initial_schema",
           "serialize_abstract",
+          "SCHEMA_VERSION",
+          "defined",
           "_bz_add_table_raw",
           "install_string",
           "prepare",
           "bind_param",
+          "BLOB_TYPE",
           "execute",
+          "_bz_real_schema",
           "add_table",
-          "get_table_abstract"
+          "_bz_schema",
+          "get_table_abstract",
+          "_bz_store_real_schema"
         ],
         "_bz_populate_enum_table@1554": [
           "quote_identifier",
           "selectrow_array",
+          "print",
           "prepare",
           "max",
           "map",
           "length",
-          "value",
           "execute"
         ],
         "_bz_real_schema@1489": [
+          "exists",
+          "memcached",
           "get",
           "selectrow_arrayref",
           "set",
+          "_bz_schema",
           "deserialize_abstract"
         ],
         "_bz_schema@1206": [
+          "exists",
+          "_bz_schema_class",
           "new"
         ],
         "_bz_schema_class@1197": [
@@ -113033,9 +113664,12 @@
         "_bz_store_real_schema@1525": [
           "selectrow_array",
           "serialize_abstract",
+          "SCHEMA_VERSION",
           "prepare",
           "bind_param",
+          "BLOB_TYPE",
           "execute",
+          "memcached",
           "clear"
         ],
         "_check_references@1578": [
@@ -113043,6 +113677,9 @@
           "quote_identifier",
           "do",
           "join",
+          "undef",
+          "usage_mode",
+          "print",
           "get_text"
         ],
         "_connect@159": [
@@ -113051,6 +113688,7 @@
           "new"
         ],
         "_get_no_db_connection@329": [
+          "localconfig",
           "_connect",
           "lc",
           "chomp",
@@ -113062,30 +113700,44 @@
           "longmess"
         ],
         "bz_add_column@664": [
+          "exists",
+          "defined",
           "ThrowCodeError",
           "bz_column_info",
           "dclone",
+          "delete",
+          "_bz_real_schema",
           "get_add_column_ddl",
           "quote",
+          "undef",
           "get_text",
-          "sql",
+          "usage_mode",
           "do",
+          "_bz_schema",
           "get_column_abstract",
-          "set_column"
+          "set_column",
+          "_bz_store_real_schema"
         ],
         "bz_add_field_tables@937": [
           "_bz_add_field_table",
+          "name",
+          "_bz_schema",
+          "FIELD_TABLE_SCHEMA",
+          "type",
+          "MULTI_SELECT_VALUE_TABLE",
           "bz_add_fks"
         ],
         "bz_add_fk@712": [
           "bz_add_fks"
         ],
         "bz_add_fks@717": [
-          "column",
+          "keys",
           "bz_fk_info",
           "_check_references",
+          "usage_mode",
           "get_text",
           "scalar",
+          "_bz_real_schema",
           "get_add_fks_sql",
           "do",
           "set_fk",
@@ -113094,33 +113746,52 @@
         "bz_add_index@829": [
           "bz_index_info",
           "bz_add_index_raw",
-          "set_index"
+          "_bz_real_schema",
+          "set_index",
+          "_bz_store_real_schema"
         ],
         "bz_add_index_raw@857": [
+          "_bz_schema",
           "get_add_index_ddl",
+          "print",
           "do"
         ],
         "bz_add_table@865": [
           "bz_table_info",
           "_bz_add_table_raw",
           "dclone",
+          "_bz_schema",
           "get_table_abstract",
-          "col",
-          "add_table"
+          "keys",
+          "exists",
+          "_bz_real_schema",
+          "FK_ON_CREATE",
+          "add_table",
+          "_bz_store_real_schema"
         ],
         "bz_alter_column@749": [
           "bz_column_info",
+          "_bz_schema",
           "columns_equal",
+          "exists",
+          "defined",
           "selectrow_array",
           "ThrowCodeError",
           "bz_fk_info",
           "bz_alter_column_raw",
-          "set_column"
+          "_bz_real_schema",
+          "set_column",
+          "_bz_store_real_schema"
         ],
         "bz_alter_column_raw@804": [
+          "_bz_real_schema",
           "get_alter_column_ddl",
+          "defined",
           "quote",
+          "undef",
+          "_bz_schema",
           "get_type_ddl",
+          "say",
           "do"
         ],
         "bz_alter_fk@819": [
@@ -113133,27 +113804,36 @@
           "do",
           "sql_regexp",
           "quote",
-          "ThrowUserError"
+          "ThrowUserError",
+          "errstr"
         ],
         "bz_check_requirements@184": [
+          "localconfig",
           "lc",
+          "defined",
           "bz_locations",
           "_bz_check_dbd",
+          "print",
           "_get_no_db_connection",
           "bz_check_server_version"
         ],
         "bz_check_server_version@235": [
+          "bz_server_version",
           "lc",
           "_checking_for",
           "install_string",
+          "exists",
           "vers_cmp",
           "grep"
         ],
         "bz_column_info@1230": [
+          "_bz_real_schema",
           "get_column_abstract",
-          "dclone"
+          "dclone",
+          "defined"
         ],
         "bz_commit_transaction@1339": [
+          "bz_in_transaction",
           "commit",
           "send_staged_mail",
           "ThrowCodeError"
@@ -113161,112 +113841,136 @@
         "bz_create_database@298": [
           "connect_main",
           "ping",
+          "localconfig",
           "_get_no_db_connection",
+          "say",
+          "_bz_schema",
           "get_create_database_sql",
           "do",
+          "errstr",
           "chomp",
           "_bz_connect_error_reasons"
         ],
         "bz_drop_column@966": [
           "bz_column_info",
+          "_bz_real_schema",
           "get_drop_column_ddl",
           "get_text",
-          "sql",
+          "usage_mode",
           "do",
-          "delete_column"
+          "delete_column",
+          "_bz_store_real_schema"
         ],
         "bz_drop_field_tables@958": [
-          "bz_drop_table"
+          "type",
+          "bz_drop_table",
+          "name"
         ],
         "bz_drop_fk@988": [
           "bz_fk_info",
           "get_text",
+          "usage_mode",
+          "_bz_real_schema",
           "get_drop_fk_sql",
-          "sql",
           "do",
-          "set_fk"
+          "set_fk",
+          "_bz_store_real_schema"
         ],
         "bz_drop_foreign_keys@648": [
           "bz_table_list",
-          "table",
           "bz_table_columns",
-          "column",
           "bz_drop_fk"
         ],
         "bz_drop_index@1050": [
           "bz_index_info",
-          "column",
+          "INDEX_DROPS_REQUIRE_FK_DROPS",
           "bz_drop_related_fks",
           "bz_drop_index_raw",
-          "delete_index"
+          "_bz_real_schema",
+          "delete_index",
+          "_bz_store_real_schema"
         ],
         "bz_drop_index_raw@1085": [
+          "_bz_schema",
           "get_drop_index_ddl",
-          "sql",
+          "print",
           "do"
         ],
         "bz_drop_related_fks@1040": [
+          "shift",
           "bz_get_related_fks",
-          "item",
           "bz_drop_fk"
         ],
         "bz_drop_table@1098": [
           "bz_table_info",
+          "_bz_schema",
           "get_drop_table_ddl",
           "get_text",
-          "sql",
+          "usage_mode",
           "do",
-          "delete_table"
+          "_bz_real_schema",
+          "delete_table",
+          "_bz_store_real_schema"
         ],
         "bz_enum_initial_values@585": [],
         "bz_fk_info@1119": [
-          "bz_column_info"
+          "bz_column_info",
+          "undef"
         ],
         "bz_get_related_fks@1018": [
+          "_bz_real_schema",
           "get_table_list",
-          "check_table",
           "bz_table_columns",
-          "check_column",
           "bz_fk_info",
           "push"
         ],
         "bz_in_transaction@1313": [],
         "bz_index_info@1239": [
+          "_bz_real_schema",
           "get_index_abstract",
           "ref"
         ],
         "bz_last_key@540": [
-          "last_insert_id"
+          "last_insert_id",
+          "localconfig",
+          "undef"
         ],
         "bz_populate_enum_tables@589": [
           "selectrow_array",
           "sql_limit",
           "install_string",
           "bz_enum_initial_values",
-          "_bz_populate_enum_table"
+          "each",
+          "_bz_populate_enum_table",
+          "print"
         ],
         "bz_rename_column@1127": [
           "bz_column_info",
           "ThrowCodeError",
+          "_bz_real_schema",
           "get_rename_column_ddl",
           "get_text",
-          "sql",
+          "usage_mode",
           "do",
-          "rename_column"
+          "rename_column",
+          "_bz_store_real_schema"
         ],
         "bz_rename_table@1153": [
           "bz_table_info",
           "ThrowCodeError",
           "bz_table_columns",
-          "column",
           "bz_drop_fk",
           "bz_drop_related_fks",
+          "_bz_real_schema",
           "get_rename_table_sql",
           "get_text",
+          "usage_mode",
           "do",
-          "rename_table"
+          "rename_table",
+          "_bz_store_real_schema"
         ],
         "bz_rollback_transaction@1355": [
+          "bz_in_transaction",
           "ThrowCodeError",
           "rollback"
         ],
@@ -113275,67 +113979,82 @@
         ],
         "bz_set_next_serial_value@1183": [
           "selectrow_array",
+          "_bz_real_schema",
           "get_set_serial_sql",
           "do"
         ],
         "bz_setup_database@563": [
           "_bz_init_schema_storage",
+          "_bz_schema",
           "get_table_list",
           "bz_table_info",
           "install_string",
-          "table_name",
           "bz_add_table"
         ],
         "bz_setup_foreign_keys@604": [
           "bz_fk_info",
           "get_text",
           "bz_table_list",
-          "table",
           "bz_table_columns",
-          "column",
+          "_bz_schema",
           "get_column_abstract",
+          "exists",
           "dclone",
           "bz_add_fks"
         ],
         "bz_start_transaction@1317": [
+          "bz_in_transaction",
           "begin_work",
+          "ISOLATION_LEVEL",
           "do"
         ],
         "bz_table_columns@1254": [
+          "_bz_real_schema",
           "get_table_columns"
         ],
         "bz_table_columns_real@1291": [
           "column_info",
+          "undef",
           "selectcol_arrayref"
         ],
         "bz_table_indexes@1259": [
+          "_bz_real_schema",
           "get_table_indexes_abstract",
-          "name",
+          "keys",
           "bz_index_info"
         ],
         "bz_table_info@1248": [
+          "_bz_real_schema",
           "get_table_abstract"
         ],
         "bz_table_list@1271": [
+          "_bz_real_schema",
           "get_table_list"
         ],
         "bz_table_list_real@1303": [
           "table_info",
+          "undef",
           "selectcol_arrayref"
         ],
         "connect_main@154": [
+          "localconfig",
           "_connect"
         ],
         "connect_shadow@138": [
+          "params",
+          "localconfig",
           "_connect"
         ],
         "import@383": [
-          "meth",
+          "shift",
           "can",
           "isa"
         ],
         "quote@127": [
-          "trick_taint"
+          "shift",
+          "dbh",
+          "trick_taint",
+          "defined"
         ],
         "sql_fulltext_search@489": [
           "lc",
@@ -113390,77 +114109,86 @@
           "_checking_for"
         ],
         "_check_missing@520": [
-          "module",
           "have_vers",
           "push"
         ],
         "_checking_for@777": [
           "install_string",
+          "exists",
           "ref",
+          "sprintf",
+          "print",
           "colored"
         ],
         "_get_apachectl@556": [
-          "bin_name",
-          "bin_loc"
+          "bin_loc",
+          "undef"
         ],
         "_get_extension_requirements@470": [
           "extension_requirement_packages",
-          "package",
           "can",
           "push"
         ],
         "_missing_apache_modules@533": [
           "_get_apachectl",
           "install_string",
-          "module",
+          "keys",
           "_check_apache_module",
           "push"
         ],
         "_translate_feature@679": [
-          "feature",
+          "shift",
           "push",
           "install_string",
           "join"
         ],
         "check_graphviz@688": [
+          "params",
           "_checking_for",
           "install_string",
           "bz_locations",
           "File",
-          "grep"
+          "grep",
+          "getlines",
+          "close"
         ],
         "check_requirements@484": [
+          "print",
           "install_string",
           "_check_missing",
-          "db",
+          "keys",
           "have_vers",
           "_missing_apache_modules",
           "scalar"
         ],
         "have_vers@722": [
           "set_output_encoding",
+          "VERSION",
           "new",
           "grep",
           "_checking_for"
         ],
-        "install_command@816": [],
+        "install_command@816": [
+          "shift",
+          "sprintf"
+        ],
         "map_files_to_features@835": [
-          "feature",
-          "pattern",
-          "file"
+          "keys",
+          "glob"
         ],
         "print_module_instructions@582": [
+          "scalar",
           "install_string",
           "max",
           "map",
           "length",
-          "package",
+          "print",
+          "printf",
           "_translate_feature",
           "join",
-          "module",
           "install_command",
           "DB_MODULE",
-          "db",
+          "keys",
           "colored"
         ]
       }
@@ -113470,63 +114198,97 @@
         "AUTOLOAD@5571": [
           "DoAutoLoad"
         ],
-        "AddCleanup@5579": [],
+        "AddCleanup@5579": [
+          "push"
+        ],
         "AddCompositeTags@5740": [
+          "ref",
           "GetTagTable",
           "SetupTagTable",
-          "tagID",
-          "type",
-          "ref"
+          "keys",
+          "defined",
+          "delete",
+          "unshift",
+          "push"
         ],
         "AddTagToTable@9206": [
+          "ref",
+          "keys",
           "ExpandFlags",
+          "defined",
+          "ucfirst",
           "MakeDescription",
-          "length"
+          "length",
+          "push"
         ],
         "AddTagsToLookup@5838": [
-          "AddTags"
+          "defined",
+          "AddTags",
+          "push"
         ],
         "AvailableOptions@4156": [],
         "BuildCompositeTags@3953": [
           "GetTagTable",
-          "tag",
+          "keys",
           "GetTagInfo",
           "b",
           "Doc",
+          "push",
+          "defined",
           "GroupMatches",
           "CopyAltInfo",
-          "FoundTag"
+          "FoundTag",
+          "delete",
+          "ref",
+          "warn"
         ],
         "CanCreate@4279": [
+          "shift",
+          "undef",
           "GetFileExtension",
           "uc",
           "GetFileType"
         ],
         "CanWrite@4255": [
+          "shift",
+          "undef",
           "GetFileType",
           "GetFileExtension",
           "uc",
           "grep"
         ],
-        "CleanWarning@2318": [],
+        "CleanWarning@2318": [
+          "shift",
+          "defined",
+          "undef"
+        ],
         "ClearOptions@2680": [
+          "shift",
+          "delete",
+          "keys",
           "Options"
         ],
         "CombineInfo@4381": [
-          "tag",
+          "shift",
+          "keys",
           "GetTagName"
         ],
         "ConvertBitrate@6879": [
+          "shift",
           "IsFloat",
           "sprintf"
         ],
         "ConvertDateTime@6551": [
           "grep",
-          "t",
+          "keys",
           "GroupMatches",
+          "shift",
+          "undef",
           "GetValue",
           "ShiftTime",
+          "defined",
           "reverse",
+          "unshift",
           "length",
           "x",
           "sprintf",
@@ -113539,6 +114301,7 @@
           "Sanitize"
         ],
         "ConvertDuration@6854": [
+          "shift",
           "IsFloat",
           "sprintf",
           "int"
@@ -113554,6 +114317,7 @@
           "sprintf"
         ],
         "ConvertUnixTime@6761": [
+          "defined",
           "int",
           "sprintf",
           "gmtime",
@@ -113561,35 +114325,44 @@
           "TimeZoneString"
         ],
         "CopyAltInfo@5275": [
-          "tag"
+          "defined"
         ],
         "CreateDirectory@4947": [
           "IsDirectory",
+          "length",
           "IsPC",
           "EncodeFileName",
+          "defined",
           "new",
           "Call",
           "mkdir"
         ],
         "Decode@6321": [
+          "length",
           "Decompose",
           "Recompose",
           "Warn"
         ],
         "DecodeBits@6362": [
-          "val",
+          "split",
+          "push",
           "join"
         ],
-        "DeleteTag@9629": [],
-        "DirStart@7232": [],
+        "DeleteTag@9629": [
+          "delete"
+        ],
+        "DirStart@7232": [
+          "defined"
+        ],
         "DoAutoLoad@5541": [
+          "shift",
           "split",
-          "caller",
-          "autoload"
+          "defined",
+          "caller"
         ],
         "DoEscape@9643": [
-          "val",
-          "key"
+          "ref",
+          "keys"
         ],
         "DoPackRev@6018": [
           "pack",
@@ -113605,10 +114378,13 @@
           "Seek",
           "Read",
           "Write",
+          "delete",
+          "undef",
           "substr",
           "Warn",
           "length",
           "VerboseDir",
+          "defined",
           "SetPreferredByteOrder",
           "SetByteOrder",
           "Get16u",
@@ -113620,6 +114396,7 @@
           "FoundTag",
           "Get8u",
           "Error",
+          "ref",
           "sprintf",
           "ProcessDirectory",
           "ProcessGeoTiff",
@@ -113642,11 +114419,13 @@
         "DoUnpack@6029": [
           "substr",
           "defined",
+          "undef",
           "unpack"
         ],
         "DoUnpackDbl@6046": [
           "substr",
           "defined",
+          "undef",
           "unpack",
           "SwapWords",
           "SwapBytes"
@@ -113658,37 +114437,46 @@
           "unpack"
         ],
         "DoneExtract@4414": [
+          "shift",
+          "hexdigest",
           "FoundTag",
           "FinishValidate",
-          "arg",
+          "lc",
           "push",
           "GetInfo",
-          "tag",
+          "defined",
           "VPrint",
+          "split",
+          "undef",
+          "join",
           "Encode",
+          "print",
           "Geolocate",
+          "delete",
           "Warn",
           "scalar",
-          "city",
           "GetEntry",
           "CleanWarning",
           "GetTagTable",
+          "keys",
           "HandleTag",
           "BuildCompositeTags",
-          "g8",
           "InsertTagValues",
           "ExtractInfo",
           "SetFoundTags"
         ],
         "DummyWriteProc@1241": [],
         "Encode@6352": [
-          "Decode"
+          "Decode",
+          "undef"
         ],
         "EncodeFileName@4723": [
           "IsUTF8",
           "Warn",
+          "defined",
           "WindowsLongPath",
-          "Decode"
+          "Decode",
+          "undef"
         ],
         "Error@5626": [
           "Warn",
@@ -113703,20 +114491,34 @@
           "CloseHandle"
         ],
         "ExpandFlags@5855": [
-          "key"
+          "shift",
+          "ref",
+          "keys"
         ],
         "ExpandShortcuts@5645": [
-          "entry"
+          "ref",
+          "push",
+          "defined",
+          "keys",
+          "shift",
+          "length"
         ],
         "ExtractBinary@9814": [
+          "lc",
           "Seek",
           "Read",
-          "Warn"
+          "Warn",
+          "undef"
         ],
         "ExtractInfo@2711": [
+          "shift",
+          "ref",
           "GetByteOrder",
           "new",
+          "delete",
+          "defined",
           "Options",
+          "undef",
           "ParseArguments",
           "Init",
           "FoundTag",
@@ -113726,6 +114528,7 @@
           "Warn",
           "SHA",
           "SplitFileName",
+          "length",
           "WindowsLongPath",
           "abs_path",
           "EncodeFileName",
@@ -113736,10 +114539,14 @@
           "IsDirectory",
           "Error",
           "DoneExtract",
+          "stat",
           "GetFileTime",
           "fstatx",
           "STATX_BTIME",
           "statx",
+          "btime",
+          "push",
+          "keys",
           "GetFileCreateDate",
           "ExtractMDItemTags",
           "ExtractXAttrTags",
@@ -113747,41 +114554,52 @@
           "GetFileExtension",
           "GetFileType",
           "SetFileType",
+          "join",
           "grep",
           "BinMode",
           "Tell",
           "Read",
           "Seek",
           "pos",
-          "length",
-          "func",
+          "pop",
           "DeleteTag",
           "VPrint",
           "substr",
-          "undef",
           "ConvertFileSize",
           "sprintf",
+          "ord",
           "ScanForXMP",
           "FinishTiffDump",
           "Print",
+          "close",
           "tv_interval",
           "SetByteOrder",
-          "_"
+          "exists"
         ],
-        "Filter@6483": [],
+        "Filter@6483": [
+          "defined",
+          "ref",
+          "keys"
+        ],
         "FindValue@4612": [
+          "defined",
           "GetGroup"
         ],
         "FormatSize@6253": [],
         "FoundTag@9426": [
+          "ref",
           "warn",
+          "undef",
           "GetTagTable",
           "GetTagInfo",
           "VerboseInfo",
+          "defined",
           "lc",
-          "conv",
+          "keys",
+          "delete",
           "Warn",
           "CleanWarning",
+          "push",
           "MetadataPath",
           "ValidateRaw"
         ],
@@ -113810,35 +114628,50 @@
           "DoUnpackStd"
         ],
         "GetByteOrder@6131": [],
-        "GetCompositeTagInfo@4145": [],
+        "GetCompositeTagInfo@4145": [
+          "shift",
+          "undef"
+        ],
         "GetDescription@3739": [
+          "ref",
           "DoEscape",
           "Decode",
           "MakeDescription",
           "GetTagName"
         ],
         "GetDescriptions@6467": [
+          "delete",
           "GetDescription"
         ],
         "GetDouble@6063": [
           "DoUnpackDbl"
         ],
         "GetFileExtension@9085": [
+          "shift",
           "uc"
         ],
         "GetFileTime@4997": [
+          "ref",
           "Open",
           "IsDirectory",
+          "stat",
+          "defined",
           "Warn",
           "GetOsFHandle",
+          "pack",
           "new",
           "Call",
           "GetLastError",
-          "time"
+          "unpack"
         ],
         "GetFileType@4191": [
+          "defined",
+          "keys",
+          "push",
           "GetFileExtension",
-          "uc"
+          "uc",
+          "ref",
+          "undef"
         ],
         "GetFixed16s@6098": [
           "Get16s",
@@ -113861,20 +114694,35 @@
         ],
         "GetFoundTags@3399": [
           "SetFoundTags",
+          "undef",
           "GetTagList"
         ],
         "GetGroup@3787": [
+          "ref",
+          "defined",
+          "undef",
           "sprintf",
-          "MIE"
+          "ord",
+          "MIE",
+          "push",
+          "shift",
+          "join"
         ],
         "GetGroups@3899": [
-          "tag",
+          "shift",
+          "ref",
+          "defined",
+          "keys",
           "GetGroup"
         ],
         "GetInfo@3222": [
+          "shift",
+          "defined",
           "ParseArguments",
           "SetFoundTags",
           "GetValue",
+          "delete",
+          "push",
           "GetTagList"
         ],
         "GetRational32s@6069": [
@@ -113894,36 +114742,54 @@
           "RoundFloat"
         ],
         "GetRequestedTags@3411": [],
-        "GetShortcuts@4175": [],
+        "GetShortcuts@4175": [
+          "keys"
+        ],
         "GetTableName@4590": [],
-        "GetTagID@3724": [],
-        "GetTagIndex@4601": [],
+        "GetTagID@3724": [
+          "defined"
+        ],
+        "GetTagIndex@4601": [
+          "undef"
+        ],
         "GetTagInfo@9133": [
           "GetTagInfoList",
-          "tagInfo",
           "splice",
+          "defined",
+          "undef",
           "Warn",
           "CleanWarning",
           "sprintf",
           "MakeDescription",
           "AddTagToTable"
         ],
-        "GetTagInfoList@9103": [],
+        "GetTagInfoList@9103": [
+          "warn",
+          "ref"
+        ],
         "GetTagList@3328": [
+          "ref",
+          "keys",
+          "defined",
           "SetFoundTags",
+          "undef",
+          "sort",
           "Group",
-          "tag",
           "GetGroup",
           "GetDescriptions"
         ],
         "GetTagName@4165": [],
         "GetTagTable@8927": [
+          "shift",
+          "undef",
           "warn",
           "RegisterNamespace",
+          "defined",
           "SetupTagTable",
-          "tagID",
           "TagTableKeys",
+          "delete",
           "AddTagToTable",
+          "push",
           "AddCompositeTags"
         ],
         "GetTimeZone@6719": [
@@ -113931,42 +114797,54 @@
           "int"
         ],
         "GetUnixTime@6794": [
+          "undef",
+          "warn",
           "pop",
+          "reverse",
           "TimeLocal",
           "timegm"
         ],
         "GetValue@3427": [
-          "GroupMatches",
-          "ConvertStruct",
-          "convType",
+          "push",
           "defined",
-          "oldIndex",
+          "GroupMatches",
+          "ref",
+          "ConvertStruct",
+          "exists",
           "join",
+          "delete",
+          "keys",
           "DecodeBits",
+          "undef",
           "Warn",
           "CleanWarning",
           "IsInt",
           "sprintf",
-          "ref",
+          "split",
           "Decode",
-          "conv",
           "scalar",
           "DoEscape",
           "Filter"
         ],
         "GetWarning@2313": [],
         "GroupMatches@5195": [
-          "tag",
+          "ref",
+          "split",
+          "length",
+          "lc",
           "GetGroup",
           "defined",
           "IsSameID",
-          "GetTagID"
+          "GetTagID",
+          "push"
         ],
         "HDump@6935": [
-          "skip",
+          "shift",
           "Add"
         ],
         "HandleTag@9266": [
+          "defined",
+          "undef",
           "GetTagInfo",
           "length",
           "substr",
@@ -113979,7 +114857,7 @@
           "Warn",
           "int",
           "VerboseInfo",
-          "conv",
+          "ref",
           "CleanWarning",
           "Get16u",
           "GetTagTable",
@@ -113991,16 +114869,27 @@
           "Seek",
           "Read",
           "AXS",
-          "m"
+          "m",
+          "undef"
         ],
         "ImageInfo@2382": [
+          "ref",
           "isa",
+          "shift",
+          "new",
+          "undef",
           "ParseArguments",
           "ExtractInfo",
           "GetInfo"
         ],
         "Init@4304": [
-          "Options"
+          "shift",
+          "delete",
+          "keys",
+          "undef",
+          "Options",
+          "new",
+          "ref"
         ],
         "InverseFileName@6908": [
           "Encode"
@@ -114022,14 +114911,18 @@
           "scalar"
         ],
         "IsSameID@5173": [
-          "sprintf"
+          "sprintf",
+          "ord"
         ],
         "IsUTF8@4650": [
           "pos",
           "ord",
-          "G"
+          "G",
+          "length",
+          "substr"
         ],
         "JpegMarkerName@7213": [
+          "shift",
           "sprintf"
         ],
         "LimitLongValues@6921": [
@@ -114037,18 +114930,30 @@
           "substr"
         ],
         "MakeDescription@6442": [
-          "ucfirst"
+          "ucfirst",
+          "defined"
         ],
         "MakeTagName@6428": [
+          "shift",
+          "ucfirst",
           "length"
         ],
-        "MetadataPath@9075": [],
+        "MetadataPath@9075": [
+          "shift",
+          "join"
+        ],
         "ModifyMimeType@9726": [
+          "defined",
+          "split",
           "VPrint",
           "FoundTag"
         ],
-        "NextTagKey@4634": [],
+        "NextTagKey@4634": [
+          "defined",
+          "undef"
+        ],
         "Open@4845": [
+          "delete",
           "EncodeFileName",
           "GENERIC_WRITE",
           "FILE_APPEND_DATA",
@@ -114059,58 +114964,87 @@
           "FILE_SHARE_READ",
           "FILE_SHARE_WRITE",
           "CreateFileW",
+          "undef",
           "OsFHandleOpenFd",
-          "CloseHandle"
+          "defined",
+          "CloseHandle",
+          "open"
         ],
         "Options@2412": [
+          "shift",
+          "exists",
+          "keys",
           "Group",
+          "ref",
+          "defined",
+          "delete",
           "ExpandShortcuts",
+          "lc",
+          "warn",
           "GetTagTable",
           "AddTagToTable",
-          "lc",
-          "p",
-          "warn",
+          "undef",
+          "length",
+          "push",
           "CleanWarning",
           "uc",
           "_tzset",
           "tzset"
         ],
-        "OrderedKeys@4293": [],
+        "OrderedKeys@4293": [
+          "shift",
+          "keys"
+        ],
         "OverrideFileType@9701": [
+          "defined",
+          "uc",
           "VPrint"
         ],
         "ParseArguments@5061": [
+          "shift",
+          "keys",
+          "undef",
+          "delete",
+          "ref",
           "Method",
-          "opt",
+          "push",
           "Options",
           "isa",
+          "defined",
           "is_utf8",
           "pack",
           "unpack",
           "encode",
           "new",
+          "warn",
           "ExpandShortcuts",
           "lc"
         ],
         "PrintHex@9802": [
+          "shift",
           "join",
           "unpack",
           "length"
         ],
         "Printable@6520": [
+          "defined",
+          "ref",
           "length",
           "substr"
         ],
         "ProcessBinaryData@9855": [
+          "length",
+          "defined",
+          "warn",
           "int",
           "TagTableKeys",
           "VerboseDir",
+          "undef",
           "GetByteOrder",
-          "index",
           "GetTagInfo",
           "substr",
           "Get8u",
-          "warn",
+          "push",
           "pos",
           "G",
           "Get32u",
@@ -114118,18 +115052,22 @@
           "Get_ue7",
           "Decode",
           "sprintf",
+          "lc",
           "ReadValue",
           "VerboseInfo",
           "VPrint",
           "GetTagTable",
           "eval",
+          "delete",
           "ProcessDirectory",
           "FoundTag"
         ],
         "ProcessDirectory@9024": [
+          "defined",
           "Warn",
           "GetByteOrder",
-          "proc",
+          "push",
+          "pop",
           "SetByteOrder"
         ],
         "ProcessEXIF@8478": [
@@ -114141,6 +115079,7 @@
         "ProcessJPEG@7248": [
           "new",
           "VerboseDir",
+          "undef",
           "length",
           "Read",
           "Seek",
@@ -114149,27 +115088,32 @@
           "Options",
           "Tell",
           "HDump",
+          "scalar",
           "ReadLine",
           "ord",
-          "unpack",
           "defined",
+          "unpack",
           "add",
           "chr",
           "substr",
           "x",
           "JpegMarkerName",
           "Warn",
+          "print",
           "HexDump",
           "GetTagTable",
           "HandleTag",
           "Get8u",
           "sprintf",
+          "pop",
           "FoundTag",
           "pos",
+          "delete",
           "ProcessTrailers",
           "ProcessLeicaTrailer",
           "DumpUnknownTrailer",
-          "guid",
+          "keys",
+          "push",
           "ProcessDirectory",
           "IdentifyTrailer",
           "ImageDataHash",
@@ -114177,7 +115121,6 @@
           "SetByteOrder",
           "GetTagInfo",
           "ProcessCRW",
-          "exifAPP1hdr",
           "ProcessTIFF",
           "GetValue",
           "IsInt",
@@ -114186,19 +115129,24 @@
           "Get32u",
           "Set32u",
           "Get64u",
+          "join",
           "Calculate"
         ],
         "ProcessSubTIFF@8506": [
-          "ProcessTIFF"
+          "ProcessTIFF",
+          "delete"
         ],
         "ProcessTIFF@8488": [
-          "DoProcessTIFF"
+          "DoProcessTIFF",
+          "defined"
         ],
         "ProcessTrailers@7019": [
           "Tell",
           "GetByteOrder",
           "Seek",
-          "proc",
+          "delete",
+          "push",
+          "splice",
           "VPrint",
           "Read",
           "length",
@@ -114208,16 +115156,28 @@
           "SetByteOrder"
         ],
         "Purge@4365": [
-          "length"
+          "shift",
+          "length",
+          "scalar",
+          "delete",
+          "defined",
+          "undef"
         ],
         "ReadValue@6263": [
+          "warn",
           "length",
+          "defined",
           "int",
+          "undef",
           "substr",
-          "proc",
+          "push",
           "join"
         ],
-        "RemoveTagsFromList@5245": [],
+        "RemoveTagsFromList@5245": [
+          "pop",
+          "unshift",
+          "push"
+        ],
         "RoundFloat@5937": [
           "sprintf"
         ],
@@ -114237,45 +115197,56 @@
           "DoPackStd"
         ],
         "SetByteOrder@6137": [
+          "shift",
           "unpack",
           "sprintf",
           "pack"
         ],
         "SetFileType@9666": [
-          "FoundTag"
+          "defined",
+          "ref",
+          "FoundTag",
+          "uc"
         ],
         "SetFoundTags@5301": [
-          "reqTag",
+          "shift",
+          "keys",
           "bfile",
           "Warn",
+          "defined",
           "grep",
-          "tag",
+          "undef",
           "GroupMatches",
           "CopyAltInfo",
+          "push",
           "scalar",
-          "pat",
           "RemoveTagsFromList",
-          "groupOpt",
           "Group",
-          "family",
+          "ref",
           "GetGroup",
-          "GetTagName"
+          "GetTagName",
+          "delete"
         ],
-        "SetGroup@9620": [],
+        "SetGroup@9620": [
+          "defined"
+        ],
         "SetNewGroups@3928": [
           "lc"
         ],
-        "SetPriorityDir@9611": [],
+        "SetPriorityDir@9611": [
+          "shift"
+        ],
         "SetWarning@2310": [],
         "SetupTagTable@5879": [
-          "tagID",
+          "shift",
           "TagTableKeys",
           "GetTagInfoList",
-          "tagInfo",
           "MakeTagName",
-          "ExpandFlags"
+          "ExpandFlags",
+          "defined"
         ],
         "SplitFileName@4698": [
+          "shift",
           "dirname",
           "basename",
           "length"
@@ -114288,6 +115259,8 @@
           "substr"
         ],
         "TagTableKeys@8904": [
+          "shift",
+          "keys",
           "push"
         ],
         "TimeLocal@6701": [
@@ -114295,44 +115268,65 @@
           "localtime"
         ],
         "TimeZoneString@6741": [
+          "shift",
+          "ref",
           "gmtime",
           "GetTimeZone",
           "int",
           "sprintf"
         ],
-        "ToFloat@5946": [],
+        "ToFloat@5946": [
+          "defined",
+          "undef"
+        ],
         "ToggleByteOrder@6180": [
           "SetByteOrder",
           "GetByteOrder"
         ],
-        "VPrint@9745": [],
-        "ValidTagName@6418": [],
+        "VPrint@9745": [
+          "shift",
+          "print"
+        ],
+        "ValidTagName@6418": [
+          "shift"
+        ],
         "ValidateImage@6391": [
+          "undef",
           "Options",
+          "lc",
           "GetTagName",
           "Warn"
         ],
         "VerboseDir@9761": [
+          "ref",
           "substr",
-          "GetByteOrder"
+          "defined",
+          "GetByteOrder",
+          "print"
         ],
         "VerboseDump@9782": [
+          "shift",
+          "undef",
           "HexDump"
         ],
         "Warn@5593": [
+          "defined",
           "FoundTag"
         ],
         "WindowsLongPath@4776": [
+          "length",
           "m",
+          "defined",
           "tr",
           "Warn",
           "new",
           "Decode",
+          "undef",
           "Call",
-          "length",
           "substr"
         ],
         "new@2335": [
+          "shift",
           "ref",
           "GetTagTable",
           "ClearOptions",
@@ -114341,96 +115335,141 @@
       },
       "perl/exiftool/RandomAccess.pm": {
         "BinMode@386": [
+          "shift",
           "binmode"
         ],
         "Close@395": [
+          "shift",
           "Seek",
           "Tell",
+          "keys",
+          "defined",
           "Read",
+          "printf",
+          "print",
+          "warn",
+          "delete",
           "close"
         ],
-        "Debug@95": [],
+        "Debug@95": [
+          "shift"
+        ],
         "Purge@353": [
-          "read"
+          "shift",
+          "read",
+          "defined",
+          "substr"
         ],
         "Read@178": [
+          "shift",
           "Purge",
           "read",
+          "defined",
           "substr",
           "Tell"
         ],
         "ReadLine@260": [
+          "shift",
           "Purge",
           "read",
+          "defined",
           "index",
           "length",
           "substr",
           "Tell"
         ],
         "Seek@144": [
+          "defined",
           "Slurp",
           "seek"
         ],
         "SeekTest@106": [
+          "shift",
           "seek"
         ],
         "Slurp@331": [
-          "read"
+          "shift",
+          "read",
+          "defined"
         ],
         "Tell@124": [
+          "shift",
           "tell"
         ],
         "new@59": [
           "ref",
           "length",
+          "bless",
           "SeekTest"
         ]
       },
       "perl/exiftool/exiftool": {
         "AbsPath@4505": [
+          "shift",
+          "defined",
+          "undef",
           "Options",
           "WindowsLongPath",
           "abs_path",
           "CleanFilename"
         ],
         "AcceptFile@4847": [
-          "uc"
+          "shift",
+          "uc",
+          "defined"
         ],
         "AddGroups@3929": [
-          "key",
-          "val2"
+          "ref",
+          "keys",
+          "push"
         ],
-        "AddPrintFormat@4539": [],
-        "AddSetTagsFile@4086": [],
+        "AddPrintFormat@4539": [
+          "shift",
+          "push"
+        ],
+        "AddSetTagsFile@4086": [
+          "push"
+        ],
         "CheckUTF8@4193": [
           "IsUTF8",
           "Warn",
+          "defined",
           "WarnOnce"
         ],
         "CleanFilename@4171": [
           "IsPC"
         ],
         "CleanXML@3714": [
+          "shift",
           "FixUTF8",
           "EscapeXML"
         ],
         "Cleanup@369": [
           "Unlink",
+          "defined",
+          "undef",
           "PreserveTime",
           "SetWindowTitle"
         ],
         "ConvertBinary@3952": [
-          "key",
-          "val",
+          "shift",
+          "ref",
+          "keys",
+          "undef",
+          "defined",
           "IsUTF8",
           "EncodeBase64",
           "length"
         ],
         "CreateDirectory@4779": [
+          "shift",
+          "defined",
           "Error",
-          "s"
+          "s",
+          "print"
         ],
         "DoHardLink@3680": [
+          "defined",
           "NextUnusedFilename",
           "SetFileName",
           "Warn"
@@ -114439,17 +115478,26 @@
           "SetNewValuesFromFile",
           "Infile",
           "scalar",
+          "keys",
+          "delete",
           "Options",
+          "defined",
           "PrintErrors",
           "EFile",
           "Warning"
         ],
         "EFile@4989": [
+          "shift",
+          "defined",
+          "length",
           "CreateDirectory",
           "Open",
-          "Warn"
+          "Warn",
+          "close",
+          "undef"
         ],
         "EncodeXML@3729": [
+          "shift",
           "IsUTF8",
           "EncodeBase64",
           "EscapeHTML",
@@ -114458,68 +115506,95 @@
         "Error@357": [],
         "EscapeJSON@3799": [
           "lc",
+          "defined",
           "IsUTF8",
           "EncodeBase64"
         ],
         "Exit@333": [
           "ReadMode",
-          "ReadKey"
+          "ReadKey",
+          "exit",
+          "shift"
         ],
-        "FileNotFound@4481": [],
+        "FileNotFound@4481": [
+          "shift"
+        ],
         "FilenameSPrintf@4646": [
+          "undef",
+          "defined",
           "CleanFilename",
           "Warn",
           "substr",
           "pos",
           "length",
+          "lc",
+          "split",
+          "scalar",
           "G",
           "join",
-          "uc",
-          "lc"
+          "uc"
         ],
-        "FilterArgfileLine@4893": [],
+        "FilterArgfileLine@4893": [
+          "shift",
+          "undef"
+        ],
         "FindFileWindows@4430": [
           "Options",
           "Decode",
+          "undef",
           "CleanFilename",
           "HasWildcards",
+          "Warn",
           "CheckUTF8",
           "FindFile",
           "uc",
-          "nm",
+          "quotemeta",
+          "cFileName",
+          "push",
+          "chomp",
           "EFile"
         ],
         "FormatCSV@3881": [
+          "shift",
           "IsUTF8",
           "EncodeBase64"
         ],
         "FormatJSON@3835": [
+          "ref",
+          "print",
           "EscapeJSON",
           "join",
           "OrderedKeys"
         ],
         "FormatXML@3751": [
+          "ref",
           "OrderedKeys",
-          "name",
           "EncodeXML"
         ],
         "GetImageInfo@2108": [
+          "defined",
+          "split",
           "int",
           "x",
           "SetWindowTitle",
-          "fmt",
+          "undef",
+          "length",
           "FilenameSPrintf",
           "Exists",
-          "undef",
           "SplitFileName",
           "Options",
-          "g8",
+          "keys",
           "SetAlternateFile",
+          "lc",
           "Array",
+          "hex",
+          "print",
           "close",
           "Unlink"
         ],
-        "HasWildcards@4180": [],
+        "HasWildcards@4180": [
+          "shift"
+        ],
         "Image::ExifTool::End@330": [],
         "Image::ExifTool::EndDir@329": [],
         "Infile@4109": [
@@ -114528,16 +115603,24 @@
           "BinMode"
         ],
         "IsEqual@3996": [
+          "ref",
           "scalar",
-          "key"
+          "keys"
         ],
         "LengthUTF8@4054": [
+          "shift",
+          "length",
           "decode_utf8",
           "pack",
+          "unpack",
           "new",
+          "columns",
+          "delete",
           "Warning"
         ],
         "LoadPrintFormat@4623": [
+          "defined",
+          "Error",
           "Open",
           "AddPrintFormat",
           "close"
@@ -114552,61 +115635,76 @@
           "length",
           "Num2Alpha",
           "x",
+          "uc",
           "sprintf",
           "Exists",
+          "defined",
           "AbsPath"
         ],
         "Num2Alpha@4708": [
+          "shift",
           "chr",
           "int"
         ],
         "OpenOutputFile@4801": [
           "CleanFilename",
+          "defined",
           "FilenameSPrintf",
           "NextUnusedFilename",
           "CreateDirectory",
           "Exists",
+          "Warn",
           "Open",
           "Error",
           "binmode"
         ],
         "PreserveTime@4493": [
-          "SetFileTime"
+          "SetFileTime",
+          "keys",
+          "undef"
         ],
         "PrintCSV@3901": [
-          "lcTag",
+          "shift",
+          "keys",
+          "push",
           "FormatCSV",
+          "print",
           "join",
-          "defined",
-          "file",
-          "push"
+          "defined"
         ],
         "PrintErrors@5054": [
-          "tag",
+          "push",
           "sort",
+          "keys",
           "Options",
-          "key"
+          "Warn"
         ],
         "PrintTagList@5024": [
-          "tag",
+          "shift",
+          "print",
           "printf",
           "GetFileType",
           "length"
         ],
         "Printable@4026": [
+          "shift",
+          "ref",
           "SerializeStruct",
           "join",
           "length",
-          "sprintf"
+          "sprintf",
+          "ord"
         ],
         "ProcessFiles@4232": [
           "Options",
-          "file",
+          "defined",
+          "undef",
           "IsDirectory",
           "ScanDir",
           "AcceptFile",
           "Exists",
           "Progress",
+          "Error",
           "FileNotFound",
           "push",
           "SplitFileName",
@@ -114614,27 +115712,42 @@
           "Purge",
           "Warn"
         ],
-        "Progress@5012": [],
+        "Progress@5012": [
+          "defined",
+          "print",
+          "undef"
+        ],
         "ReadStayOpen@4922": [
-          "sysread",
+          "shift",
           "length",
+          "undef",
+          "sysread",
           "pos",
           "substr",
           "FilterArgfileLine",
-          "select"
+          "defined",
+          "push",
+          "lc",
+          "unshift",
+          "select",
+          "Warn",
+          "close"
         ],
         "ScanDir@4293": [
           "Options",
           "Decode",
+          "undef",
           "HasWildcards",
           "CheckUTF8",
           "ReadDir",
+          "cFileName",
+          "chomp",
           "Warning",
           "opendir",
           "Warn",
           "readdir",
           "closedir",
-          "file",
+          "defined",
           "WarnOnce",
           "IsDirectory",
           "AcceptFile",
@@ -114647,35 +115760,42 @@
           "s"
         ],
         "SetImageInfo@3129": [
+          "defined",
           "Unlink",
+          "undef",
+          "delete",
           "GetFileType",
           "FilenameSPrintf",
+          "Warn",
           "EFile",
           "IsDirectory",
           "CanCreate",
+          "WarnOnce",
           "RestoreNewValues",
+          "push",
           "DoSetFromFile",
           "NextUnusedFilename",
           "Exists",
-          "dyFile",
+          "ref",
           "SlurpFile",
           "SetNewValue",
           "Options",
-          "f",
           "MyConvertFileName",
           "AbsPath",
+          "lc",
+          "print",
           "join",
-          "csvTag",
+          "new",
           "OrderedKeys",
+          "pop",
+          "unshift",
           "FoundTag",
           "all",
-          "exclTag",
-          "pop",
-          "exclGrp",
+          "map",
           "SetNewValuesFromFile",
-          "Warn",
           "binmode",
           "GetNewValues",
+          "length",
           "Warning",
           "GetNewFileName",
           "IsSameFile",
@@ -114692,8 +115812,8 @@
           "SetFileTime",
           "CopyFileAttrs",
           "Rename",
-          "Open",
           "Error",
+          "Open",
           "read",
           "close",
           "truncate",
@@ -114701,17 +115821,21 @@
           "SigInt"
         ],
         "SetWindowTitle@4213": [
+          "shift",
           "tr"
         ],
         "SigCont@368": [],
         "SigInt@363": [
-          "Cleanup"
+          "Cleanup",
+          "exit"
         ],
         "SlurpFile@4861": [
           "Open",
           "Warn",
           "binmode",
+          "undef",
           "read",
+          "defined",
           "close"
         ],
         "SuggestedExtension@4560": [
@@ -114722,100 +115846,197 @@
           "ftyp"
         ],
         "Warn@349": [
-          "warn"
+          "delete",
+          "warn",
+          "defined"
         ],
         "WarnOnce@358": [
           "Warn"
         ],
         "Warning@4128": [
-          "Options"
+          "Options",
+          "defined",
+          "Warn"
         ]
       }
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": {
-        "_id@158": [],
-        "_in@165": [],
-        "_instance@167": [],
-        "_limit@169": [],
-        "_maybe_accepting@171": [],
-        "_not_accepting@178": [],
-        "_out@185": [],
+        "_id@158": [
+          "shift",
+          "md5_sum"
+        ],
+        "_in@165": [
+          "scalar",
+          "keys",
+          "shift"
+        ],
+        "_instance@167": [
+          "ref",
+          "singleton"
+        ],
+        "_limit@169": [
+          "_in",
+          "max_connections"
+        ],
+        "_maybe_accepting@171": [
+          "shift",
+          "_limit",
+          "start",
+          "values"
+        ],
+        "_not_accepting@178": [
+          "shift",
+          "delete",
+          "stop",
+          "values"
+        ],
+        "_out@185": [
+          "scalar",
+          "keys",
+          "shift"
+        ],
         "_remove@187": [
-          "remove"
+          "undef",
+          "reactor",
+          "remove",
+          "_not_accepting",
+          "_maybe_accepting",
+          "delete",
+          "stop",
+          "_in",
+          "warn"
         ],
         "_stream@204": [
           "reactor",
+          "warn",
+          "weaken",
           "on",
-          "_remove"
+          "_remove",
+          "start"
         ],
         "_timer@217": [
           "_instance",
-          "method"
+          "shift",
+          "weaken",
+          "reactor"
         ],
         "acceptor@31": [
           "_instance",
-          "reactor"
+          "shift",
+          "ref",
+          "_id",
+          "reactor",
+          "_not_accepting",
+          "_maybe_accepting"
         ],
         "client@46": [
           "_instance",
+          "shift",
+          "pop",
+          "_id",
           "new",
+          "reactor",
+          "weaken",
           "on",
+          "delete",
           "_stream",
-          "cb",
+          "undef",
           "_remove",
           "connect"
         ],
         "is_running@67": [
-          "_instance"
+          "_instance",
+          "shift",
+          "reactor"
         ],
         "next_tick@69": [
-          "_instance"
+          "_instance",
+          "shift",
+          "weaken",
+          "reactor"
         ],
         "one_tick@75": [
-          "_instance"
+          "_instance",
+          "shift",
+          "croak",
+          "is_running",
+          "reactor"
         ],
         "recurring@81": [
+          "shift",
           "_timer"
         ],
         "remove@83": [
           "_instance",
+          "shift",
+          "close_gracefully",
           "_remove"
         ],
         "reset@90": [
           "_instance",
-          "emit"
+          "shift",
+          "emit",
+          "stop",
+          "push",
+          "delete",
+          "reactor"
         ],
         "server@104": [
           "_instance",
-          "on",
+          "shift",
+          "pop",
           "new",
-          "cb",
+          "weaken",
+          "on",
           "_stream",
+          "_id",
+          "max_accepts",
+          "stop_gracefully",
+          "_not_accepting",
+          "_limit",
           "listen",
           "acceptor"
         ],
-        "singleton@129": [],
+        "singleton@129": [
+          "shift",
+          "new"
+        ],
         "start@131": [
-          "_instance"
+          "_instance",
+          "shift",
+          "croak",
+          "is_running",
+          "reactor"
         ],
         "stop@137": [
-          "_instance"
+          "_instance",
+          "shift",
+          "reactor"
         ],
         "stop_gracefully@139": [
           "_instance",
-          "emit"
+          "shift",
+          "_not_accepting",
+          "emit",
+          "_in",
+          "stop"
         ],
         "stream@144": [
           "_instance",
-          "_stream"
+          "shift",
+          "_stream",
+          "_id",
+          "ref"
         ],
         "subprocess@151": [
           "new",
           "_instance",
+          "shift",
           "run"
         ],
         "timer@156": [
+          "shift",
           "_timer"
         ]
       },
@@ -114830,9 +116051,15 @@
         "AWAIT_FAIL@16": [
           "_settle_await"
         ],
-        "AWAIT_GET@18": [],
+        "AWAIT_GET@18": [
+          "shift",
+          "ref",
+          "croak"
+        ],
         "AWAIT_IS_CANCELLED@26": [],
-        "AWAIT_IS_READY@28": [],
+        "AWAIT_IS_READY@28": [
+          "shift"
+        ],
         "AWAIT_NEW_DONE@34": [
           "_await"
         ],
@@ -114840,49 +116067,72 @@
           "_await"
         ],
         "AWAIT_ON_CANCEL@37": [],
-        "AWAIT_ON_READY@39": [],
-        "AWAIT_WAIT@45": [],
+        "AWAIT_ON_READY@39": [
+          "push"
+        ],
+        "AWAIT_WAIT@45": [
+          "shift",
+          "wait",
+          "AWAIT_GET"
+        ],
         "DESTROY@51": [
+          "shift",
+          "carp",
+          "warn",
           "message",
-          "verbose"
+          "verbose",
+          "to_string"
         ],
         "_all@125": [
-          "i",
+          "clone",
+          "scalar",
           "then",
           "resolve",
           "reject"
         ],
         "_await@182": [
-          "method"
+          "shift"
         ],
         "_defer@189": [
+          "shift",
+          "undef",
+          "ioloop",
           "next_tick"
         ],
         "_finally@199": [
+          "clone",
           "resolve",
-          "then"
+          "then",
+          "delete"
         ],
         "_settle@216": [
+          "blessed",
           "can",
+          "ref",
           "isa",
+          "new",
           "then",
           "resolve",
-          "reject"
+          "reject",
+          "_defer"
         ],
         "_settle_await@236": [
           "then",
           "resolve",
           "reject",
-          "can"
+          "can",
+          "_defer"
         ],
         "_then_cb@244": [
-          "method",
+          "defined",
           "reject",
           "resolve"
         ],
         "_timer@254": [
-          "timer",
-          "method"
+          "new",
+          "ref",
+          "ioloop",
+          "timer"
         ],
         "all@58": [
           "_all"
@@ -114894,21 +116144,30 @@
           "_all"
         ],
         "catch@62": [
-          "then"
+          "shift",
+          "then",
+          "undef"
         ],
         "clone@64": [
+          "new",
           "ioloop"
         ],
         "finally@66": [
+          "shift",
           "_finally"
         ],
         "map@68": [
+          "shift",
+          "ref",
           "all",
+          "clone",
           "then",
           "resolve",
           "reject"
         ],
         "new@89": [
+          "shift",
+          "trace",
           "resolve",
           "reject"
         ],
@@ -114916,69 +116175,125 @@
           "_all"
         ],
         "reject@98": [
+          "shift",
           "_settle"
         ],
         "resolve@99": [
+          "shift",
           "_settle"
         ],
         "then@101": [
-          "_then_cb"
+          "clone",
+          "push",
+          "_then_cb",
+          "_defer"
         ],
         "timeout@115": [
+          "shift",
           "_timer"
         ],
         "timer@114": [
+          "shift",
           "_timer"
         ],
         "wait@117": [
-          "_finally"
+          "shift",
+          "ioloop",
+          "is_running",
+          "_finally",
+          "stop",
+          "start"
         ]
       },
       "perl/mojo/Template.pm": {
         "_compile@176": [
+          "shift",
+          "tree",
+          "auto_escape",
+          "push",
           "chomp",
-          "split",
-          "code",
-          "tree"
-        ],
-        "_line@236": [],
-        "_trim@242": [],
-        "_wrap@255": [
           "join",
-          "_line"
+          "quotemeta",
+          "split",
+          "length",
+          "code"
+        ],
+        "_line@236": [
+          "shift",
+          "name"
+        ],
+        "_trim@242": [
+          "shift",
+          "splice"
+        ],
+        "_wrap@255": [
+          "vars",
+          "keys",
+          "join",
+          "_line",
+          "warn"
         ],
         "parse@27": [
           "unparsed",
           "tree",
           "compiled",
+          "undef",
+          "tag_start",
+          "replace_mark",
+          "expression_mark",
+          "escape_mark",
+          "capture_end",
+          "comment_mark",
+          "capture_start",
+          "trim_mark",
+          "tag_end",
+          "line_start",
           "E",
-          "line",
-          "token",
+          "split",
+          "splice",
           "_trim",
+          "push",
           "pop"
         ],
         "process@140": [
+          "shift",
+          "compiled",
+          "_compile",
+          "code",
+          "monkey_patch",
+          "namespace",
+          "escape",
           "new",
           "inspect",
+          "unparsed",
+          "trace",
           "verbose",
           "_wrap",
-          "compiled"
+          "ref"
         ],
         "render@163": [
+          "shift",
           "parse",
           "process"
         ],
         "render_file@165": [
+          "shift",
           "name",
-          "path",
           "defined",
+          "path",
+          "slurp",
+          "encoding",
+          "decode",
           "render"
         ]
       },
       "perl/mojo/WebSocket.pm": {
         "build_message@13": [
           "encode",
+          "ref",
           "encode_json",
+          "exists",
+          "compressed",
           "new",
           "deflate",
           "flush",
@@ -114986,136 +116301,227 @@
           "length"
         ],
         "client_read@37": [
+          "shift",
           "server_read"
         ],
         "client_write@38": [
+          "shift",
           "server_write"
         ],
         "closed@40": [
-          "emit"
+          "shift",
+          "completed",
+          "emit",
+          "undef"
         ],
-        "connection@46": [],
+        "connection@46": [
+          "shift",
+          "handshake"
+        ],
         "finish@48": [
+          "shift",
           "pack",
+          "encode",
+          "defined",
           "send"
         ],
         "is_websocket@60": [],
-        "kept_alive@62": [],
-        "local_address@63": [],
-        "local_port@64": [],
+        "kept_alive@62": [
+          "shift",
+          "handshake"
+        ],
+        "local_address@63": [
+          "shift",
+          "handshake"
+        ],
+        "local_port@64": [
+          "shift",
+          "handshake"
+        ],
         "parse_message@66": [
           "emit",
           "send",
+          "undef",
           "finish",
+          "length",
           "unpack",
           "substr",
           "decode",
+          "compressed",
+          "exists",
+          "max_websocket_size",
+          "delete",
           "new",
           "inflate",
           "j",
           "has_subscribers"
         ],
-        "protocol@107": [],
-        "remote_address@109": [],
-        "remote_port@110": [],
-        "req@111": [],
-        "res@112": [],
-        "resume@114": [],
+        "protocol@107": [
+          "shift",
+          "res",
+          "headers",
+          "sec_websocket_protocol"
+        ],
+        "remote_address@109": [
+          "shift",
+          "handshake"
+        ],
+        "remote_port@110": [
+          "shift",
+          "handshake"
+        ],
+        "req@111": [
+          "shift",
+          "handshake"
+        ],
+        "res@112": [
+          "shift",
+          "handshake"
+        ],
+        "resume@114": [
+          "handshake"
+        ],
         "send@116": [
           "once",
           "build_message",
+          "ref",
           "build_frame",
+          "masked",
           "emit"
         ],
         "server_read@124": [
+          "max_websocket_size",
           "parse_frame",
           "finish",
+          "ref",
           "parse_message",
           "emit"
         ],
         "server_write@137": [
+          "shift",
           "emit",
-          "length"
+          "length",
+          "completed",
+          "delete"
         ],
         "with_compression@144": [
+          "shift",
           "compressed",
-          "sec_websocket_extensions"
+          "res",
+          "headers",
+          "sec_websocket_extensions",
+          "req"
         ],
         "with_protocols@152": [
+          "shift",
           "trim",
+          "req",
+          "headers",
+          "sec_websocket_protocol",
+          "undef",
           "defined",
-          "sec_websocket_protocol"
+          "res"
         ]
       }
     },
     "perl/spamassassin": {
       "perl/spamassassin/AsyncLoop.pm": {
         "_start_lookup@410": [
+          "defined",
+          "exists",
           "dbg",
+          "ref",
           "join"
         ],
         "abort_remaining_lookups@653": [
+          "each",
+          "keys",
           "sprintf",
+          "defined",
           "join",
           "info",
           "dbg",
-          "dnskey",
-          "tuple",
+          "delete",
+          "ref",
+          "undef",
+          "chomp",
           "bgabort"
         ],
         "bgsend_and_start_lookup@204": [
+          "shift",
+          "push",
           "dbg",
+          "defined",
+          "caller",
+          "warn",
           "idn_to_ascii",
           "is_utf8",
           "encode",
           "info",
           "uc",
           "lc",
+          "undef",
+          "exists",
+          "ref",
           "join",
-          "push",
+          "scalar",
+          "delete",
+          "chomp",
           "sprintf",
           "domain_to_search_list",
-          "parent_domain",
           "sed_path",
           "stat",
           "unlink",
           "bgsend",
           "set_response_packet",
-          "tuple",
           "_start_lookup"
         ],
         "complete_lookups@526": [
+          "defined",
+          "each",
+          "int",
           "dbg",
           "poll_responses",
+          "exists",
+          "delete",
+          "keys",
           "join",
-          "abort_remaining_lookups"
+          "abort_remaining_lookups",
+          "chomp"
         ],
         "get_lookup@492": [
           "warn"
         ],
         "last_poll_responses_time@798": [],
         "launch_queue@190": [
+          "delete",
           "dbg",
           "bgsend_and_start_lookup"
         ],
         "log_lookups_timing@506": [
-          "key",
+          "keys",
           "dbg"
         ],
         "new@64": [
+          "shift",
           "ref",
           "bless"
         ],
         "report_id_complete@782": [
-          "set_response_packet"
+          "set_response_packet",
+          "undef"
         ],
         "set_response_packet@733": [
-          "tkey",
+          "defined",
+          "keys",
           "dbg",
           "info",
           "join"
         ],
         "start_lookup@395": [
+          "shift",
+          "caller",
+          "warn",
           "_start_lookup"
         ],
         "start_queue@184": []
@@ -115124,11 +116530,15 @@
         "dump_bayes_db@158": [
           "call_plugins"
         ],
-        "finish@67": [],
+        "finish@67": [
+          "shift"
+        ],
         "force_close@80": [
+          "shift",
           "call_plugins"
         ],
         "forget@125": [
+          "defined",
           "call_plugins"
         ],
         "ignore_message@88": [
@@ -115136,15 +116546,18 @@
           "dbg"
         ],
         "is_scan_available@150": [
+          "shift",
           "call_plugins"
         ],
         "learn@105": [
+          "defined",
           "new",
           "ignore_message",
           "finish",
           "call_plugins"
         ],
         "new@49": [
+          "shift",
           "ref",
           "bless",
           "call_plugins"
@@ -115155,63 +116568,95 @@
       },
       "perl/spamassassin/HTML.pm": {
         "_merge_uri@1092": [
+          "defined",
           "index"
         ],
         "_parse_uri@1065": [],
         "_remove_dot_segments@1073": [],
-        "canon_uri@388": [],
-        "close_table_tag@488": [],
-        "close_tag@507": [],
+        "canon_uri@388": [
+          "length",
+          "substr"
+        ],
+        "close_table_tag@488": [
+          "pop"
+        ],
+        "close_tag@507": [
+          "pop"
+        ],
         "dec2hex@1049": [
           "sprintf"
         ],
         "display_text@924": [
-          "vec"
+          "shift",
+          "exists",
+          "defined",
+          "vec",
+          "push",
+          "each"
         ],
         "get_rendered_text@217": [
+          "shift",
           "join",
+          "each",
+          "defined",
           "vec"
         ],
         "get_results@211": [],
         "html_comment@1028": [
-          "encode"
+          "encode",
+          "push"
         ],
         "html_declaration@1035": [
           "encode"
         ],
         "html_end@146": [
-          "put_results"
+          "delete",
+          "defined",
+          "keys",
+          "put_results",
+          "exists",
+          "scalar"
         ],
         "html_font_invisible@809": [
+          "lc",
           "distance",
           "put_results"
         ],
         "html_start@132": [
           "put_results",
-          "new"
+          "new",
+          "push"
         ],
         "html_tag@313": [
           "encode",
+          "exists",
           "text_style",
           "html_whitespace",
           "html_uri",
           "html_tests",
           "pop"
         ],
-        "html_tests@846": [],
+        "html_tests@846": [
+          "exists"
+        ],
         "html_text@966": [
           "encode",
+          "exists",
+          "push",
           "length",
           "html_font_invisible",
           "b",
           "display_text"
         ],
         "html_uri@404": [
+          "defined",
           "push_uri",
+          "each",
           "delete",
           "is_utf8",
           "canon_uri",
-          "encode"
+          "encode",
+          "exists"
         ],
         "html_whitespace@354": [
           "display_text"
@@ -115221,16 +116666,24 @@
           "untaint_var",
           "length",
           "is_utf8",
+          "UNIVERSAL",
           "can",
+          "warn",
           "utf8_mode",
           "dbg",
-          "info"
+          "info",
+          "exists",
+          "eof"
         ],
         "parse_css_background@682": [
           "length",
-          "substr"
+          "substr",
+          "push",
+          "pop",
+          "scalar"
         ],
         "parse_font_size@762": [
+          "shift",
           "lc",
           "exists"
         ],
@@ -115239,40 +116692,45 @@
           "encode",
           "target_uri"
         ],
-        "put_results@202": [],
+        "put_results@202": [
+          "shift",
+          "each"
+        ],
         "target_uri@1109": [
           "_parse_uri",
+          "defined",
+          "undef",
           "_remove_dot_segments",
           "_merge_uri"
         ],
         "text_style@519": [
           "close_table_tag",
-          "name",
+          "keys",
+          "exists",
           "new",
           "put_results",
           "defined",
           "split",
           "lc",
           "parse_css_background",
-          "value",
           "parse_font_size",
           "blend",
+          "push",
           "close_tag"
         ]
       },
       "perl/spamassassin/Makefile.PL": {
         "MY::constants@834": [
+          "shift",
           "split",
           "constants",
           "init_MY_globals",
-          "line",
           "line_has_macro_def",
           "set_EQ_from_line",
           "get_macro",
           "set_macro",
           "join",
           "macro_def",
-          "r",
           "defined",
           "macro_ref",
           "push",
@@ -115280,17 +116738,15 @@
           "_set_macro_LOCALSTATEDIR",
           "_set_macro_DATADIR",
           "_set_macro_CONFDIR",
-          "m",
           "repository",
           "uc",
-          "macro",
           "clean_MY_globals"
         ],
         "MY::dist@966": [
+          "shift",
           "split",
           "dist",
           "init_MY_globals",
-          "line",
           "line_has_macro_def",
           "set_EQ_from_line",
           "get_macro",
@@ -115300,6 +116756,7 @@
           "join"
         ],
         "MY::install@818": [
+          "shift",
           "split",
           "install",
           "init_MY_globals",
@@ -115307,17 +116764,18 @@
           "join"
         ],
         "MY::libscan@802": [
+          "shift",
           "init_MY_globals",
           "clean_MY_globals"
         ],
         "MY::postamble@990": [
+          "shift",
           "init_MY_globals",
           "clean_MY_globals"
         ],
         "_set_macro_CONFDIR@674": [
           "repository",
           "get_macro",
-          "omacro",
           "set_macro",
           "macro_ref"
         ],
@@ -115330,7 +116788,6 @@
         "_set_macro_DATADIR@640": [
           "repository",
           "get_macro",
-          "omacro",
           "set_macro",
           "macro_ref"
         ],
@@ -115379,10 +116836,15 @@
           "opt"
         ],
         "bool@25": [
+          "undef",
+          "defined",
           "N",
           "Y"
         ],
-        "clean_MY_globals@403": [],
+        "clean_MY_globals@403": [
+          "shift",
+          "undef"
+        ],
         "float_to_version@425": [
           "sprintf"
         ],
@@ -115392,13 +116854,24 @@
         ],
         "get_macro@489": [],
         "get_macro_name_from_line@479": [],
-        "init_MY_globals@367": [],
-        "line_has_macro_def@467": [],
-        "macro_def@452": [],
+        "init_MY_globals@367": [
+          "shift",
+          "undef"
+        ],
+        "line_has_macro_def@467": [
+          "undef",
+          "defined"
+        ],
+        "macro_def@452": [
+          "undef",
+          "defined"
+        ],
         "macro_ref@441": [
           "sprintf"
         ],
-        "parse_arg@16": [],
+        "parse_arg@16": [
+          "undef"
+        ],
         "repository@536": [],
         "set_EQ_from_line@409": [
           "defined",
@@ -115406,70 +116879,95 @@
         ],
         "set_macro@518": [],
         "yesno@35": [
+          "undef",
           "bool"
         ]
       },
       "perl/spamassassin/Message.pm": {
         "DESTROY@794": [
-          "fn",
+          "shift",
           "unlink",
           "dbg"
         ],
         "_find_part_by_type@1261": [
-          "is_leaf"
+          "shift",
+          "is_leaf",
+          "push",
+          "undef"
         ],
         "_parse_multipart@946": [
           "dbg",
+          "defined",
           "substr",
+          "splice",
           "new",
           "E",
           "length",
           "push",
           "chomp",
+          "undef",
           "parse_content_type",
           "header",
           "add_body_part",
-          "split"
+          "split",
+          "lc"
         ],
         "_parse_normal@1177": [
           "dbg",
           "parse_content_type",
           "header",
           "index",
+          "defined",
           "new",
           "value",
           "parameter",
           "effective_type",
           "secure_tmpfile",
+          "chomp",
           "info",
-          "print"
+          "push",
+          "print",
+          "flush"
         ],
-        "delete_metadata@673": [],
+        "delete_metadata@673": [
+          "warn",
+          "delete",
+          "lc"
+        ],
         "extract_message_metadata@623": [
           "extract"
         ],
         "find_parts@446": [
-          "parse_body"
+          "shift",
+          "parse_body",
+          "exists"
         ],
         "finish@727": [
           "finish_metadata",
+          "delete",
+          "shift",
+          "ref",
           "close",
           "defined",
+          "exists",
           "push",
-          "fn",
           "unlink"
         ],
         "finish_metadata@713": [
           "defined",
-          "finish"
+          "finish",
+          "delete"
         ],
         "generate_msgid@599": [
+          "exists",
           "get_header",
           "get_pristine_body_digest",
           "sha1_hex"
         ],
         "get_all_metadata@687": [
-          "key",
+          "warn",
+          "keys",
+          "defined",
           "push",
           "join"
         ],
@@ -115477,20 +116975,25 @@
           "split"
         ],
         "get_body_text_array_common@1274": [
+          "exists",
           "parse_body",
           "get_header",
+          "shift",
           "is_leaf",
           "_find_part_by_type",
-          "method_name",
+          "unshift",
+          "defined",
           "dbg",
           "length",
           "index",
           "substr",
+          "push",
           "encode",
           "is_utf8",
           "split_into_array_of_short_lines"
         ],
         "get_decoded_body_text_array@1395": [
+          "defined",
           "find_parts",
           "effective_type",
           "decode",
@@ -115504,24 +117007,34 @@
           "get_body_text_array_common"
         ],
         "get_mbox_separator@504": [],
-        "get_metadata@641": [],
+        "get_metadata@641": [
+          "warn",
+          "lc"
+        ],
         "get_mimepart_digests@1245": [
+          "exists",
           "map",
           "sha1_hex",
+          "decode",
           "find_parts"
         ],
         "get_msgid@581": [
-          "get_header"
+          "get_header",
+          "defined"
         ],
         "get_pristine@528": [],
         "get_pristine_body@539": [],
         "get_pristine_body_digest@551": [
+          "exists",
           "new",
           "add",
+          "defined",
+          "hexdigest",
           "sha1_hex",
           "dbg"
         ],
         "get_pristine_header@481": [
+          "defined",
           "n",
           "get_header"
         ],
@@ -115532,13 +117045,16 @@
           "get_body_text_array_common"
         ],
         "new@97": [
+          "shift",
           "ref",
+          "defined",
           "dbg",
           "bless",
           "index",
           "sysread",
-          "split",
           "length",
+          "split",
+          "undef",
           "am_running_in_taint_mode",
           "tainted",
           "taint_var",
@@ -115549,11 +117065,15 @@
           "substr",
           "header",
           "unshift",
-          "join"
+          "join",
+          "splice"
         ],
         "parse_body@850": [
+          "exists",
           "dbg",
+          "shift",
           "index",
+          "defined",
           "_parse_multipart",
           "_parse_normal",
           "effective_type",
@@ -115561,14 +117081,19 @@
           "new",
           "add_body_part",
           "push",
+          "delete",
+          "ref",
           "close"
         ],
-        "put_metadata@658": [],
+        "put_metadata@658": [
+          "warn",
+          "lc"
+        ],
         "receive_date@816": [
+          "scalar",
           "get_all_headers"
         ],
         "split_into_array_of_short_lines@1454": [
-          "line",
           "split",
           "length",
           "rindex",
@@ -115583,44 +117108,57 @@
         ]
       },
       "perl/spamassassin/Parser.pm": {
-        "add_regression_test@1457": [],
+        "add_regression_test@1457": [
+          "push"
+        ],
         "add_test@1304": [
           "lint_warn",
           "length",
           "parse_captures",
           "compile_regexp",
+          "exists",
+          "delete",
           "is_meta_valid",
           "untaint_var",
+          "push",
           "dbg",
           "get_if_stack_as_string"
         ],
         "add_to_addrlist@1563": [
-          "addr",
-          "compile_regexp"
+          "lc",
+          "compile_regexp",
+          "warn"
         ],
         "add_to_addrlist_dkim@1626": [
           "add_to_addrlist_rcvd"
         ],
         "add_to_addrlist_rcvd@1583": [
-          "compile_regexp"
+          "lc",
+          "push",
+          "compile_regexp",
+          "warn"
         ],
         "build_command_luts@188": [
-          "cmd",
-          "name"
+          "scalar"
         ],
         "compile_meta_rules@1042": [
-          "name",
+          "keys",
           "expand_ruleglob",
-          "token",
+          "exists",
           "dbg",
+          "push",
           "get_score_set",
-          "grep"
+          "grep",
+          "splice"
         ],
         "cond_clause_can@617": [
+          "warn",
           "cond_clause_can_or_has"
         ],
         "cond_clause_can_or_has@631": [
+          "defined",
           "lint_warn",
+          "undef",
           "can"
         ],
         "cond_clause_has@626": [
@@ -115628,7 +117166,10 @@
         ],
         "cond_clause_plugin_loaded@612": [],
         "expand_ruleglob@1019": [
+          "exists",
+          "keys",
           "join",
+          "sort",
           "dbg"
         ],
         "finish_parsing@891": [
@@ -115637,10 +117178,13 @@
           "fix_priorities",
           "fix_tflags",
           "dbg",
+          "each",
           "pack_eval_args",
+          "defined",
           "lint_warn",
           "lint_trusted_networks",
-          "found_any_rules"
+          "found_any_rules",
+          "delete"
         ],
         "fix_path_relative_to_current_file@1652": [
           "sed_path",
@@ -115650,63 +117194,88 @@
           "dbg"
         ],
         "fix_priorities@1164": [
-          "rule",
-          "dep",
+          "keys",
+          "defined",
           "dbg"
         ],
         "fix_tests@678": [
           "would_log",
+          "each",
+          "exists",
           "index",
           "dbg"
         ],
         "fix_tflags@1199": [
-          "deprule",
+          "each",
           "dbg"
         ],
-        "get_if_stack_as_string@1694": [],
-        "handle_conditional@504": [
-          "push",
-          "token",
-          "untaint_var",
-          "lint_warn"
+        "get_if_stack_as_string@1694": [
+          "join"
         ],
-        "is_always_matching_regexp@1556": [],
+        "handle_conditional@504": [
+          "exists",
+          "push",
+          "untaint_var",
+          "lint_warn",
+          "undef",
+          "warn"
+        ],
+        "is_always_matching_regexp@1556": [
+          "warn"
+        ],
         "is_delimited_regexp_valid@1544": [
+          "warn",
           "compile_regexp"
         ],
         "is_meta_valid@1470": [
           "warn",
           "length",
-          "token",
+          "print",
           "lint_warn",
-          "untaint_var"
+          "untaint_var",
+          "chomp"
         ],
         "is_regexp_valid@1550": [
+          "warn",
           "compile_regexp"
         ],
         "lint_check@656": [
+          "each",
+          "exists",
           "dbg"
         ],
         "lint_trusted_networks@1252": [
-          "net_type",
-          "net",
           "contains_net",
-          "lint_warn"
+          "lint_warn",
+          "undef",
+          "push"
         ],
         "lint_warn@1668": [
+          "defined",
+          "warn",
           "info"
         ],
         "new@150": [
+          "shift",
           "ref",
           "bless"
         ],
-        "pack_eval_args@1224": [],
-        "pack_eval_method@1219": [],
+        "pack_eval_args@1224": [
+          "undef"
+        ],
+        "pack_eval_method@1219": [
+          "warn",
+          "undef"
+        ],
         "parse@207": [
+          "undef",
           "split",
           "defined",
+          "shift",
           "index",
           "version",
+          "lc",
+          "pop",
           "handle_conditional",
           "dbg",
           "push",
@@ -115714,9 +117283,11 @@
           "fix_path_relative_to_current_file",
           "read_cf",
           "unshift",
+          "warn",
           "info",
           "setup_default_code_cb",
           "call_plugins",
+          "delete",
           "lint_check",
           "fix_tests"
         ],
@@ -115730,73 +117301,93 @@
           "push"
         ],
         "remove_addrlist_value@866": [
+          "defined",
           "remove_from_addrlist",
           "split"
         ],
         "remove_from_addrlist@1608": [
-          "addr",
-          "delete"
+          "delete",
+          "lc"
         ],
         "remove_from_addrlist_dkim@1630": [
+          "lc",
           "delete"
         ],
         "remove_from_addrlist_rcvd@1617": [
-          "addr",
-          "delete"
+          "delete",
+          "lc"
         ],
         "set_addrlist_value@857": [
+          "defined",
           "add_to_addrlist",
           "split"
         ],
-        "set_bool_value@791": [],
+        "set_bool_value@791": [
+          "defined",
+          "lc"
+        ],
         "set_defaults_from_command_list@176": [
-          "cmd",
           "exists"
         ],
         "set_duration_value@774": [
+          "defined",
+          "lc",
           "untaint_var"
         ],
         "set_hash_key_value@846": [
-          "split"
+          "split",
+          "defined"
         ],
         "set_ipaddr_list@833": [
-          "net",
+          "defined",
           "split",
           "add_cidr"
         ],
-        "set_no_value@753": [],
+        "set_no_value@753": [
+          "defined"
+        ],
         "set_numeric_value@761": [
+          "defined",
           "untaint_var"
         ],
         "set_string_list@823": [
+          "defined",
           "push",
           "split"
         ],
-        "set_string_value@813": [],
+        "set_string_value@813": [
+          "defined"
+        ],
         "set_template_append@875": [],
-        "set_template_clear@881": [],
-        "setup_default_code_cb@712": []
+        "set_template_clear@881": [
+          "defined"
+        ],
+        "setup_default_code_cb@712": [
+          "warn"
+        ]
       },
       "perl/spamassassin/PerMsgStatus.pm": {
         "DESTROY@353": [
-          "fn",
+          "shift",
+          "keys",
           "unlink",
           "dbg"
         ],
         "_fixup_report_line_endings@1201": [],
         "_get@2243": [
           "index",
+          "lc",
           "get_pristine_header",
           "get_all_headers",
           "get_all_hdrs_in_rcvd_index_range",
+          "undef",
+          "push",
           "get_envelope_from",
           "get_header",
           "defined",
           "raw_header",
           "get_metadata",
-          "line",
           "parse_header_addresses",
-          "addr",
           "_decode_header",
           "is_fqdn_valid",
           "idn_to_ascii",
@@ -115805,39 +117396,44 @@
           "reverse_ip_address"
         ],
         "_get_added_headers@1208": [
-          "hf_ref",
           "_process_header",
           "mime_encode_header"
         ],
         "_get_autolearn_points@750": [
+          "exists",
           "get_score_set",
           "dbg",
-          "test",
           "bautolearn_",
           "_get_autolearn_testtype",
-          "deptest"
+          "sprintf"
         ],
-        "_get_autolearn_testtype@735": [],
+        "_get_autolearn_testtype@735": [
+          "defined"
+        ],
         "_get_tag_value_for_required_score@1935": [
+          "shift",
           "sprintf"
         ],
         "_get_tag_value_for_score@1916": [
           "sprintf",
           "_get_tag_value_for_required_score",
           "get_tag_value_for_score",
+          "defined",
           "length",
           "substr"
         ],
         "_get_tag_value_for_yesno@1908": [
-          "split"
+          "split",
+          "defined"
         ],
         "_handle_hit@3058": [
           "call_plugins",
           "index",
-          "push"
+          "push",
+          "defined",
+          "warn"
         ],
         "_process_dkim_uri_list@2833": [
-          "dk",
           "get",
           "add_uri_detail_list"
         ],
@@ -115847,16 +117443,20 @@
           "split"
         ],
         "_process_html_uri_list@2803": [
-          "html",
+          "each",
           "add_uri_detail_list",
+          "exists",
           "encode",
-          "is_utf8"
+          "is_utf8",
+          "push"
         ],
         "_process_text_uri_list@2699": [
           "get_decoded_stripped_body_text_array",
+          "_tbirdurire",
           "would_log",
-          "text",
           "untaint_var",
+          "defined",
+          "exists",
           "index",
           "dbg",
           "is_fqdn_valid",
@@ -115865,78 +117465,99 @@
           "add_uri_detail_list"
         ],
         "_replace_tags@1601": [
+          "shift",
           "_",
           "ADDEDHEADER",
           "get_tag_raw",
+          "ref",
           "encode",
           "is_utf8",
-          "join"
+          "join",
+          "defined"
         ],
-        "_tbirdurire@2550": [],
+        "_tbirdurire@2550": [
+          "exists"
+        ],
         "_wrap_desc@3093": [
           "wrap"
         ],
         "action_depends_on_tags@1644": [
+          "ref",
           "uc",
+          "defined",
           "get_tag",
+          "push",
           "dbg",
           "join",
-          "code",
-          "push"
+          "scalar"
         ],
         "add_uri_detail_list@2883": [
+          "defined",
           "dbg",
+          "push",
           "uri_list_canonicalize",
-          "cleanuri",
           "length",
           "substr",
           "uri_to_domain",
           "is_dns_available",
+          "scalar",
           "get_resolver",
+          "exists",
           "bgsend",
           "bgread",
-          "ans",
+          "answer",
           "can",
-          "info"
+          "cname",
+          "undef",
+          "chomp",
+          "info",
+          "keys",
+          "delete"
         ],
         "all_from_addrs@3580": [
+          "exists",
           "get",
+          "keys",
           "dbg",
           "join"
         ],
         "all_from_addrs_domains@3628": [
+          "exists",
           "all_from_addrs",
           "dbg",
           "join",
-          "a",
           "uri_to_domain",
+          "defined",
+          "lc",
           "push"
         ],
         "all_to_addrs@3658": [
+          "exists",
           "get",
-          "line",
+          "defined",
           "is_fqdn_valid",
           "idn_to_ascii",
+          "push",
           "dbg",
           "join"
         ],
         "check@373": [
+          "shift",
           "check_timed",
           "new",
           "run",
           "info"
         ],
         "check_cleanup@468": [
-          "rule",
+          "shift",
+          "defined",
           "sprintf",
           "push",
-          "msg",
           "length",
           "_wrap_desc"
         ],
         "check_timed@388": [
           "flush_responses",
-          "nset_name",
           "ditch_cache",
           "call_plugins",
           "delete_header",
@@ -115946,6 +117567,7 @@
           "set_score_set",
           "have_plugin",
           "delete_fulltext_tmpfile",
+          "sprintf",
           "get_names_of_tests_hit",
           "get_names_of_subtests_hit",
           "is_spam",
@@ -115953,25 +117575,30 @@
         ],
         "clear_test_state@3052": [],
         "create_fulltext_tmpfile@3518": [
+          "defined",
           "get_pristine",
           "secure_tmpfile",
           "length",
           "syswrite",
+          "close",
           "dbg"
         ],
         "delete_fulltext_tmpfile@3564": [
+          "defined",
           "unlink",
-          "dbg"
+          "dbg",
+          "delete"
         ],
         "ensure_rules_are_complete@2989": [],
         "extract_message_metadata@1998": [
           "time_method",
-          "item",
           "get",
+          "defined",
           "idn_to_ascii",
           "set_tag",
           "put_metadata",
           "dbg",
+          "push",
           "join",
           "get_metadata",
           "get_decoded_stripped_body_text_array",
@@ -115980,22 +117607,27 @@
         "finish@1953": [
           "call_plugins",
           "report_unsatisfied_actions",
-          "method"
+          "defined",
+          "undef"
         ],
         "finish_tests@1978": [],
         "get@2480": [
+          "exists",
           "_get",
           "join"
         ],
         "get_all_hdrs_in_rcvd_index_range@3456": [
+          "defined",
           "get_pristine_header",
           "split",
           "get_all_headers",
-          "hdr",
-          "join"
+          "push",
+          "join",
+          "undef"
         ],
         "get_autolearn_force_names@718": [
-          "_get_autolearn_points"
+          "_get_autolearn_points",
+          "defined"
         ],
         "get_autolearn_force_status@705": [
           "_get_autolearn_points"
@@ -116003,12 +117635,15 @@
         "get_autolearn_points@653": [
           "_get_autolearn_points"
         ],
-        "get_autolearn_status@1041": [],
+        "get_autolearn_status@1041": [
+          "defined"
+        ],
         "get_body_only_points@692": [
           "_get_autolearn_points"
         ],
         "get_content_preview@1095": [
           "get_decoded_stripped_body_text_array",
+          "shift",
           "length",
           "chomp",
           "wrap"
@@ -116021,9 +117656,10 @@
         "get_envelope_from@3299": [
           "exists",
           "dbg",
+          "defined",
           "get",
           "index",
-          "defined"
+          "undef"
         ],
         "get_head_only_points@666": [
           "_get_autolearn_points"
@@ -116034,19 +117670,25 @@
         ],
         "get_message@1136": [],
         "get_names_of_subtests_hit@954": [
+          "defined",
           "scalar",
-          "rule",
-          "join"
+          "keys",
+          "push",
+          "join",
+          "sort"
         ],
         "get_names_of_tests_hit@892": [
-          "join"
+          "join",
+          "sort"
         ],
         "get_names_of_tests_hit_with_scores@924": [
           "join",
-          "map"
+          "map",
+          "sort"
         ],
         "get_names_of_tests_hit_with_scores_hash@906": [],
         "get_report@1064": [
+          "exists",
           "time_method",
           "_replace_tags"
         ],
@@ -116054,12 +117696,20 @@
         "get_required_score@1017": [],
         "get_score@997": [],
         "get_spamd_result_log_items@1897": [
-          "ref"
+          "push"
         ],
         "get_tag@1804": [
+          "defined",
+          "uc",
+          "exists",
+          "ref",
           "join"
         ],
-        "get_tag_raw@1840": [],
+        "get_tag_raw@1840": [
+          "defined",
+          "exists",
+          "ref"
+        ],
         "get_uri_detail_list@2677": [
           "time_method",
           "_process_text_uri_list",
@@ -116067,18 +117717,25 @@
           "_process_dkim_uri_list"
         ],
         "get_uri_list@2601": [
-          "get_uri_detail_list"
+          "exists",
+          "each",
+          "get_uri_detail_list",
+          "keys"
         ],
         "got_hit@3161": [
+          "defined",
           "rule_ready",
           "get_description_for_rule",
           "dbg",
           "index",
           "_handle_hit"
         ],
-        "handle_eval_rule_errors@2995": [],
+        "handle_eval_rule_errors@2995": [
+          "warn"
+        ],
         "is_spam@876": [],
         "learn@548": [
+          "shift",
           "learn_timed",
           "new",
           "run",
@@ -116086,39 +117743,54 @@
         ],
         "learn_timed@563": [
           "call_plugins",
+          "defined",
           "time_method",
           "init_learner",
           "learn",
+          "undef",
           "did_learn",
           "finish",
           "finish_learner",
+          "exists",
           "force_close",
+          "chomp",
           "dbg"
         ],
         "mime_encode_header@1527": [
           "encode",
           "is_utf8",
-          "line",
           "split",
           "length",
           "int",
           "sprintf",
+          "ord",
           "base64_encode",
           "dbg"
         ],
         "new@282": [
+          "shift",
           "ref",
+          "undef",
           "dbg",
+          "defined",
+          "delete",
           "would_log",
           "split",
           "bless"
         ],
         "register_plugin_eval_glue@3001": [
+          "warn",
+          "exists",
+          "undef",
           "can",
+          "defined",
+          "shift",
+          "chomp",
           "push"
         ],
         "report_unsatisfied_actions@1736": [
-          "tag",
+          "keys",
+          "ref",
           "grep",
           "dbg",
           "join"
@@ -116131,20 +117803,24 @@
         ],
         "rewrite_no_report_safe@1402": [
           "split",
-          "get_pristine_header"
+          "get_pristine_header",
+          "splice"
         ],
         "rewrite_report_safe@1225": [
           "get_pristine",
           "get_report",
           "is_utf8",
+          "uc",
           "dbg",
           "encode",
           "get_pristine_header",
+          "defined",
           "_replace_tags",
           "Q",
           "t",
           "_get_added_headers",
-          "hdr",
+          "exists",
+          "lc",
           "fq_hostname",
           "Version",
           "time_to_rfc822_date",
@@ -116156,26 +117832,35 @@
           "_fixup_report_line_endings"
         ],
         "rule_ready@3254": [
-          "get_async_pending_rules"
+          "exists",
+          "get_async_pending_rules",
+          "keys"
         ],
         "sa_die@3503": [],
         "set_captures@3720": [
-          "cname",
+          "keys",
           "set_tag"
         ],
-        "set_spamd_result_item@1891": [],
+        "set_spamd_result_item@1891": [
+          "push"
+        ],
         "set_tag@1782": [
+          "uc",
           "tag_is_ready"
         ],
         "tag_is_ready@1701": [
+          "uc",
           "would_log",
           "dbg",
+          "defined",
+          "ref",
           "join",
-          "action_pending",
-          "code"
+          "warn"
         ],
         "test_log@3289": [
-          "get_current_eval_rule_name"
+          "get_current_eval_rule_name",
+          "defined",
+          "push"
         ]
       },
       "perl/spamassassin/SpamAssassin.pm": {
@@ -116184,16 +117869,14 @@
           "sprintf"
         ],
         "_get_cf_pre_files_in_dir@2302": [
+          "chomp",
           "_reorder_dir"
         ],
         "_read_cf_pre@1936": [
           "defined",
-          "path",
           "split",
           "dbg",
           "stat",
-          "file",
-          "filelistmethod",
           "read_cf_file"
         ],
         "_reorder_dir@2290": [],
@@ -116206,19 +117889,20 @@
         "add_all_addresses_to_blocklist@1152": [
           "init",
           "get_header",
-          "hdr",
           "parse_header_addresses",
-          "addr",
+          "push",
+          "defined",
           "call_plugins"
         ],
         "add_all_addresses_to_welcomelist@1061": [
-          "addr",
           "find_all_addrs_in_mail",
           "call_plugins"
         ],
         "call_plugins@2348": [
+          "shift",
           "set_global_state_dir",
           "new",
+          "warn",
           "callback"
         ],
         "check@653": [
@@ -116234,8 +117918,11 @@
         ],
         "compile_now@1462": [
           "time_method",
+          "defined",
+          "each",
           "ref",
           "init",
+          "delete",
           "dbg",
           "call_plugins",
           "parse",
@@ -116248,6 +117935,7 @@
           "force_close"
         ],
         "copy_config@2478": [
+          "defined",
           "ref",
           "time_method",
           "dbg",
@@ -116259,15 +117947,20 @@
           "get_and_create_userstate_dir",
           "first_existing_path",
           "untaint_file_path",
+          "defined",
+          "warn",
           "open",
           "read",
-          "defined",
+          "undef",
+          "close",
           "getpwnam",
           "untaint_var",
           "chown"
         ],
         "create_locker@447": [
-          "am_running_on_windows"
+          "am_running_on_windows",
+          "chomp",
+          "defined"
         ],
         "debug_diagnostics@1556": [
           "dbg"
@@ -116280,57 +117973,60 @@
           "getpwuid"
         ],
         "find_all_addrs_in_line@2413": [
-          "HOST_PATTERN",
+          "defined",
           "is_fqdn_valid",
           "is_domain_valid",
-          "defined",
           "push"
         ],
         "find_all_addrs_in_mail@2378": [
           "init",
-          "header",
           "get_header",
-          "hdr",
           "parse_header_addresses",
-          "addr",
-          "line",
-          "get_body",
           "push",
-          "find_all_addrs_in_line",
-          "defined"
+          "defined",
+          "get_body",
+          "find_all_addrs_in_line"
         ],
         "find_rule_support_file@2105": [
-          "path",
           "split",
+          "push",
           "first_existing_path"
         ],
         "finish@1622": [
           "timer_start",
           "call_plugins",
+          "delete",
           "timer_end"
         ],
         "finish_learner@833": [
-          "force_close"
+          "shift",
+          "force_close",
+          "delete"
         ],
         "first_existing_path@2263": [
-          "p",
+          "shift",
           "sed_path",
+          "defined",
           "stat"
         ],
         "get_and_create_userstate_dir@1996": [
+          "defined",
           "catdir",
           "first_existing_path",
           "sed_path",
           "dbg",
           "stat",
           "mkpath",
-          "untaint_file_path"
+          "untaint_file_path",
+          "chomp"
         ],
         "get_cf_files_in_dir@2280": [
           "_get_cf_pre_files_in_dir"
         ],
         "get_loaded_plugins_list@2513": [],
-        "get_perl_major_version@2257": [],
+        "get_perl_major_version@2257": [
+          "shift"
+        ],
         "get_pre_files_in_dir@2285": [
           "_get_cf_pre_files_in_dir"
         ],
@@ -116338,11 +118034,14 @@
           "have_callback"
         ],
         "init@1743": [
+          "defined",
+          "srand",
           "reinit_post_fork",
           "time_method",
           "set_global_state_dir",
           "first_existing_path",
           "read_pre",
+          "warn",
           "read_cf",
           "find_rule_support_file",
           "get_and_create_userstate_dir",
@@ -116353,17 +118052,21 @@
           "dbg",
           "parse_rules",
           "finish_parsing",
+          "delete",
+          "undef",
           "found_any_rules",
           "new",
           "is_scan_available",
           "set_score_set",
           "trim_rules",
-          "hf_ref",
           "timer_enable"
         ],
         "init_learner@779": [
+          "shift",
           "dbg",
-          "init"
+          "init",
+          "each",
+          "exists"
         ],
         "learn@716": [
           "init",
@@ -116395,15 +118098,15 @@
           "load"
         ],
         "new@388": [
+          "shift",
           "ref",
+          "defined",
           "bless",
           "add_facilities",
           "dbg",
           "Version",
           "join",
-          "t",
           "split",
-          "defined",
           "would_log",
           "timer_enable",
           "clean_path_in_taint_mode",
@@ -116413,6 +118116,9 @@
         "parse@596": [
           "init",
           "time_method",
+          "ref",
+          "exists",
+          "defined",
           "dbg",
           "new",
           "call_plugins"
@@ -116423,7 +118129,11 @@
         "read_cf_file@1964": [
           "dbg",
           "open",
-          "read"
+          "read",
+          "defined",
+          "close",
+          "undef",
+          "warn"
         ],
         "read_pre@1931": [
           "_read_cf_pre"
@@ -116433,17 +118143,21 @@
           "open",
           "dbg",
           "read",
+          "defined",
+          "close",
+          "undef",
           "parse_scores_only",
-          "finish_parsing"
+          "finish_parsing",
+          "delete"
         ],
         "rebuild_learner_caches@820": [
+          "shift",
           "sync"
         ],
         "remove_address_from_welcomelist@1084": [
           "call_plugins"
         ],
         "remove_all_addresses_from_welcomelist@1107": [
-          "addr",
           "find_all_addrs_in_mail",
           "call_plugins"
         ],
@@ -116457,6 +118171,7 @@
           "init",
           "time_method",
           "learn",
+          "undef",
           "new",
           "report"
         ],
@@ -116464,11 +118179,17 @@
           "init",
           "time_method",
           "learn",
+          "undef",
           "new",
           "revoke"
         ],
-        "sa_die@2444": [],
+        "sa_die@2444": [
+          "shift",
+          "warn",
+          "exit"
+        ],
         "sed_path@2219": [
+          "defined",
           "exists",
           "get_and_create_userstate_dir",
           "get_perl_major_version",
@@ -116486,10 +118207,14 @@
         ],
         "set_persistent_address_list_factory@1430": [],
         "signal_user_changed@884": [
+          "shift",
           "time_method",
           "dbg",
+          "defined",
+          "undef",
           "finish",
           "new",
+          "delete",
           "is_scan_available",
           "set_score_set",
           "call_plugins"
@@ -116503,6 +118228,7 @@
           "readdir",
           "unlink",
           "untaint_file_path",
+          "closedir",
           "pseudo_random_string",
           "touch_file",
           "dbg"
@@ -116516,16 +118242,24 @@
         "timer_enable@1647": [
           "dbg"
         ],
-        "timer_end@1681": [],
+        "timer_end@1681": [
+          "warn",
+          "defined"
+        ],
         "timer_report@1708": [
           "each",
+          "defined",
           "dbg",
-          "name",
+          "push",
           "sprintf",
           "join"
         ],
-        "timer_reset@1660": [],
+        "timer_reset@1660": [
+          "delete"
+        ],
         "timer_start@1666": [
+          "exists",
+          "push",
           "time"
         ]
       }

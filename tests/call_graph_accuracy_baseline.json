@@ -99,13 +99,13 @@
     "tp": 1331
   },
   "perl": {
-    "fn": 1971,
-    "fp": 353,
+    "fn": 239,
+    "fp": 262,
     "matched_functions": 943,
     "parse_failures": 0,
-    "precision_pct": 87.9,
-    "recall_pct": 56.6,
-    "tp": 2573
+    "precision_pct": 94.3,
+    "recall_pct": 94.7,
+    "tp": 4305
   },
   "php": {
     "fn": 73,

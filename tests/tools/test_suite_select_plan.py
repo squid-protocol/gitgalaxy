@@ -149,3 +149,21 @@ def test_replay_of_known_change_lists():
     assert plan(["docs/language_status/register/x.md"])["mode"] == "select"
     assert plan(["gitgalaxy/core/detector.py"])["mode"] == "full"
     assert plan([], "pull_request")["mode"] == "full"  # a short or empty file list is full
+
+
+def test_replay_acceptance_shapes_of_6278():
+    # #6245 (four agent-config / skill files): a select run, every reader a test, never the whole suite
+    agent = [
+        ".claude/agents/gitgalaxy-pr-worker.md",
+        ".claude/rules/python-test-traps.md",
+        ".claude/rules/test-writing.md",
+        ".claude/skills/det-port/SKILL.md",
+    ]
+    p = plan(agent)
+    assert p["mode"] in ("skip", "select")
+    assert all(x.startswith("tests/") for x in p["paths"])
+    # README.md only: its readers run (tests/core_engine among them), not the suite
+    r = plan(["README.md"])
+    assert r["mode"] == "select" and r["paths"]
+    # a test-tooling change is code: the suite plan runs it in full (ground-truth / det / db2 skip it in their own plans)
+    assert plan(["tests/tools/test_zos_probes.py", "tests/tools/zos_probes.json"])["mode"] == "full"

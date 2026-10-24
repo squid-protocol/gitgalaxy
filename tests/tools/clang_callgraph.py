@@ -38,6 +38,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 from collections import defaultdict
@@ -48,6 +49,8 @@ SKIP_DIRS = frozenset({".git", "win"})
 
 CPP_SOURCES = frozenset({".cc", ".cpp", ".cxx"})
 CPP_HEADERS = frozenset({".h", ".hh", ".hpp", ".hxx"})  # each header's directory is an -I path
+# the gtest macros whose body is `<suite>_<name>_Test::TestBody`; the engine names the unit `<name>`
+GTEST_MACRO = re.compile(r"\b(?:TEST|TEST_F|TEST_P|TYPED_TEST|TYPED_TEST_P)\s*\(\s*\w+\s*,\s*(\w+)")
 CPP_ARGS = ("-x", "c++", "-std=c++20", "-w", "-ferror-limit=0")
 
 
@@ -219,8 +222,25 @@ def _build_cpp(repo: Path) -> dict[str, Any]:
         rel = _rel(repo, loc.file.name if loc.file else None)
         return (rel, name, loc.line) if rel else None
 
+    source_lines: dict[str, list[str]] = {}
+
+    def gtest_name(cursor) -> str | None:
+        """#3784: a `TEST(suite, name) {...}` body is the method `suite_name_Test::TestBody`; the engine
+        names it `name`. The macro's own line holds the pair, so read it (`suite_name` alone is ambiguous)."""
+        loc = cursor.extent.start
+        if loc.file is None or cursor.spelling != "TestBody":
+            return None
+        lines = source_lines.get(loc.file.name)
+        if lines is None:
+            lines = source_lines[loc.file.name] = Path(loc.file.name).read_bytes().decode("latin-1").splitlines()
+        hit = GTEST_MACRO.search(lines[loc.line - 1]) if 0 < loc.line <= len(lines) else None
+        return hit.group(1) if hit else None
+
     def name_of(cursor) -> str:
         """The engine's name: bare, `Class::name` when the body is written outside the class."""
+        test = gtest_name(cursor)
+        if test:
+            return test
         # a partial specialization's constructor is spelled with its arguments: `buffer<T *, U>`
         name = (
             cursor.spelling.split("<")[0]

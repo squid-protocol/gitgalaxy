@@ -63,6 +63,19 @@
     "recall_pct": 91.7,
     "repos": "spf13/cobra"
   },
+  "groovy": {
+    "engine_edges": 1071,
+    "files": 586,
+    "fn": 41,
+    "fp": 8,
+    "hub_overlap_at_10": 0.6,
+    "hub_repos": 1,
+    "hub_spearman": -0.098,
+    "imports": 1105,
+    "precision_pct": 99.3,
+    "recall_pct": 96.3,
+    "repos": "spockframework/spock"
+  },
   "haskell": {
     "engine_edges": 138,
     "files": 31,

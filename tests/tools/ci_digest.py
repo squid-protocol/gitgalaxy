@@ -98,9 +98,16 @@ RATCHET_SLACK = 1.5  # an overage within this multiple of its limit is runner no
 # A roll-up / dependent check -> the part jobs it only summarises; it takes their non-real triage (#5273). The
 # check-runs API carries no `needs`, so this mirrors smoke-test.yml, mainframe-ground-truth.yml and det-sweep.yml.
 PARTS: dict[str, str] = {
-    "full-suite": r"^full-suite part \d+/\d+$",
-    "ground-truth": r"^ground-truth part \d+/\d+$",
-    "det": r"^(shard \d+/\d+|db2 \d+/\d+|plan)$",
+    "full-suite": r"^(full-suite part \d+/\d+|tested-tree|suite-plan)$",
+    "ground-truth": r"^(ground-truth part \d+/\d+|tested-tree|plan|ground-truth-warm)$",
+    "det": r"^(shard \d+/\d+|db2 \d+/\d+|plan|detmut)$",
+}
+# A job -> the upstream jobs it `needs` (#5276): when one of those failed as infra, a dependent that shows no failing
+# test or case (the plan / warm-up output it reads is missing) is a knock-on of it, not a code defect.
+UPSTREAM: dict[str, str] = {
+    r"^(shard|db2) \d+/\d+$": r"^plan$",
+    r"^ground-truth part \d+/\d+$": r"^(tested-tree|plan|ground-truth-warm)$",
+    r"^(full-suite part \d+/\d+|durations key)$": r"^(tested-tree|suite-plan)$",
 }
 NON_REAL = ("main", "flake", "infra")  # a roll-up with no real part takes the first of these any failed part has
 
@@ -222,6 +229,16 @@ def rollup_kind(name: str, kind: str, ex: dict[str, Any], kinds: dict[str, str])
     return next(k for k in NON_REAL if k in parts)
 
 
+def knock_on_kind(name: str, kind: str, ex: dict[str, Any], kinds: dict[str, str]) -> str:
+    """#5276: a `real` job with no failing test or case whose upstream job (UPSTREAM) failed as infra is `infra` too."""
+    if kind != "real" or ex["tests"] or ex["cases"]:
+        return kind
+    for dep, up in UPSTREAM.items():
+        if re.search(dep, name) and any(k == "infra" for part, k in kinds.items() if re.search(up, part)):
+            return "infra"
+    return kind
+
+
 def main_failures(api: pr_check.Api, lookback: int = 3) -> set[str]:
     """The checks failing on main's newest commit (#4790): a PR failing the same check inherited it from main.
     Basal persistence: when main's tip commit just landed and its checks are still pending (or not yet registered),
@@ -284,11 +301,15 @@ def digest(
     logs: Logs = job_log,
     on_main: set[str] | None = None,
     flaky: set[str] | None = None,
+    pr: dict[str, Any] | None = None,
+    runs: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    """`pr`, `runs`: the pull request and its head's check runs when the caller already read them (#6534)."""
     on_main = main_failures(api) if on_main is None else on_main
-    pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
+    pr = api(f"repos/{REPO_SLUG}/pulls/{n}") if pr is None else pr
     sha = pr["head"]["sha"]
-    runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
+    if runs is None:
+        runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
     failed = pr_check.failed_names(runs)
     newest: dict[str, dict[str, Any]] = {}
     for r in sorted(runs, key=lambda r: r.get("id", 0)):
@@ -311,7 +332,7 @@ def digest(
     kinds = {name: kind for name, _, _, kind in first}
     out = []
     for name, r, ex, kind in first:
-        kind = rollup_kind(name, kind, ex, kinds)
+        kind = knock_on_kind(name, rollup_kind(name, kind, ex, kinds), ex, kinds)
         stale = False
         if kind == "real" and name in on_main:
             kind = "main"  # the same check fails on main: fix main, not this PR

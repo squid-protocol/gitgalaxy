@@ -251,9 +251,9 @@ def test_real_failures_still_triage_real():
 # #5276: PARTS mirrors the part-job names of three workflows by hand (the check-runs API has no `needs`)
 WORKFLOWS = Path(__file__).resolve().parents[2] / ".github" / "workflows"
 ROLLUP_PARTS = {  # roll-up check -> (workflow, the part jobs whose check-run names its PARTS pattern must match)
-    "full-suite": ("smoke-test.yml", {"full-suite-part"}),
-    "ground-truth": ("mainframe-ground-truth.yml", {"ground-truth-part"}),
-    "det": ("det-sweep.yml", {"plan", "shard", "db2"}),
+    "full-suite": ("smoke-test.yml", {"full-suite-part", "tested-tree", "suite-plan"}),
+    "ground-truth": ("mainframe-ground-truth.yml", {"ground-truth-part", "tested-tree", "plan", "ground-truth-warm"}),
+    "det": ("det-sweep.yml", {"plan", "shard", "db2", "detmut"}),
 }
 MATRIX_SAMPLE = {"matrix.group": "1", "matrix.shard": "1/4"}
 
@@ -299,3 +299,33 @@ def test_every_alternative_of_the_det_pattern_matches_a_job():
     inner = cd.PARTS["det"].removeprefix("^(").removesuffix(")$")
     for alt in inner.split("|"):
         assert any(re.fullmatch(alt, n) for n in names.values()), f"no det-sweep.yml job matches {alt!r}"
+
+
+def test_a_job_whose_upstream_failed_as_infra_is_an_infra_knock_on():  # #5276
+    runs = [run(1, "plan", "cancelled"), run(2, "shard 1/6", "failure"), run(3, "durations key", "failure")]
+    logs = {1: "", 2: "det A: no plan output", 3: "no key"}
+    d = cd.digest(7, fake_api(runs), lambda i: logs[i])
+    assert {f["check"]: f["triage"] for f in d["failed"]} == {
+        "plan": "infra",
+        "shard 1/6": "infra",
+        "durations key": "real",
+    }
+    runs.append(run(4, "tested-tree", "startup_failure"))
+    d = cd.digest(7, fake_api(runs), lambda i: logs.get(i, ""))
+    assert {f["check"]: f["triage"] for f in d["failed"]}["durations key"] == "infra"
+    logs[2] = "FAILED tests/x.py::test_y - AssertionError"  # a failing test beside an infra upstream stays real
+    d = cd.digest(7, fake_api(runs), lambda i: logs.get(i, ""))
+    assert {f["check"]: f["triage"] for f in d["failed"]}["shard 1/6"] == "real"
+
+
+def test_every_upstream_pattern_matches_a_job_its_dependent_needs():  # #5276
+    import re
+
+    for workflow in ("smoke-test.yml", "mainframe-ground-truth.yml", "det-sweep.yml"):
+        jobs, names = rendered_job_names(workflow)
+        for dep, up in cd.UPSTREAM.items():
+            for dep_id in (j for j, n in names.items() if re.search(dep, n)):
+                ups = {j for j, n in names.items() if re.search(up, n)}
+                needs = jobs[dep_id].get("needs") or []
+                needs = {needs} if isinstance(needs, str) else set(needs)
+                assert ups & needs, f"{workflow}: {dep_id} needs none of {sorted(ups)}"

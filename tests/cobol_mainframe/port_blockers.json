@@ -778,7 +778,7 @@
       "fixed_by": null,
       "refused_by_name": false,
       "new_class": false,
-      "summary": "IOERR has no oracle abend code (abendOn defaults to INVREQ) and two COUSR00C harness gaps return after an XCTL; found while faulting its XCTL sites."
+      "summary": "IOERR has no oracle abend code (abendOn defaults to INVREQ); found while faulting its XCTL sites. The two COUSR00C harness gaps after an XCTL were case gaps (no scenario reached the return), closed by two scenarios in the userlist case."
     },
     {
       "id": "P053",

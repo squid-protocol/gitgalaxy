@@ -252,3 +252,30 @@ def test_no_rendered_evidence_report_page_is_tracked():
     )
     assert tracked.returncode == 0
     assert set(tracked.stdout.split()) <= {"docs/language_status/evidence_report/README.md"}
+
+
+def test_the_harness_report_is_built_in_refresh_and_published_by_its_own_main_only_step():
+    """#4493: harness_report.py runs where the corpora are (the refresh job, after the survey) and rides in the
+    blockers-survey artifact; publish-blockers publishes it in its own step, on main only, and never via a bot PR."""
+    code = _code("evidence-refresh.yml")
+    add_paths = code.split("add-paths: |", 1)[1].split("- name:", 1)[0]
+    assert "harness" not in add_paths
+    build = code.split("id: harness", 1)[1].split("- name:", 1)[0]
+    assert "continue-on-error: true" in build
+    assert "steps.survey.outcome == 'success'" in build
+    assert 'harness_report.py --survey "$GG_SCRATCH/census-cache/$SHA"' in build
+    assert '--out "$RUNNER_TEMP/blockers-cache/harness"' in build
+    job = code.split("\n  publish-blockers:", 1)[1]
+    pub = job.split("Publish the harness report to the generated branch", 1)[1]
+    step = pub.split("- name:", 1)[0]
+    assert "generated_branch.py publish --stamp harness-report" in step
+    assert "docs/language_status/harness" in step
+    assert "refs/heads/main" in pub.split("run:", 1)[0]
+    preview = job.split("Preview the harness report", 1)[1].split("- name:", 1)[0]
+    assert "refs/heads/main" in preview.split("run:", 1)[0] and "generated-preview" in preview
+    assert "create-pull-request" not in job and "gh pr merge" not in job
+
+
+def test_the_harness_report_path_is_git_ignored():
+    ignored = (WORKFLOWS.parents[1] / ".gitignore").read_text(encoding="utf-8").splitlines()
+    assert "docs/language_status/harness/" in ignored

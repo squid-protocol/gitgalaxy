@@ -65,6 +65,7 @@ def translate_case(case_dir: Path, project: Path, ports: Path) -> dict[str, dict
     import equivalence_java as ej
 
     from gitgalaxy.tools.cobol_to_java.det import program as P
+    from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts
     from gitgalaxy.tools.cobol_to_java.det.source import bms_copybooks
 
     case = cc.load_case(case_dir)
@@ -82,7 +83,9 @@ def translate_case(case_dir: Path, project: Path, ports: Path) -> dict[str, dict
         if not m:
             raise SystemExit(f"{stub_file}: no `package <pkg>.service;` line")
         pkg = m.group(1)
-        r = P.translate(case_dir / "src" / f"{prog}.cbl", dirs, stub, pkg, P.estate_files(project), project)
+        # #5649: the engine's record layouts from the scan beside the project (None without one: the translator's own)
+        r = P.translate(case_dir / "src" / f"{prog}.cbl", dirs, stub, pkg, P.estate_files(project), project,
+                        layouts=EngineLayouts.for_project(project, case_dir, f"src/{prog}.cbl"))  # fmt: skip
         out = ports / prog / "overlay"
         (out / "service").mkdir(parents=True, exist_ok=True)
         (out / "service" / f"{svc}.java").write_text(r.java, encoding="utf-8")

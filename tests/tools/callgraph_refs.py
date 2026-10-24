@@ -173,6 +173,41 @@ def tsc_js_contract(repo: Path) -> dict[str, Any]:
     return tsc_contract(repo, js=True)
 
 
+GO_HELPER = TOOLS / "go_callgraph"
+
+
+def go_contract(repo: Path) -> dict[str, Any]:
+    """golang.org/x/tools' VTA call graph of `repo` (tests/tools/go_callgraph)."""
+    try:
+        proc = subprocess.run(  # noqa: S603 -- fixed argv, a corpus path
+            ["go", "run", "-C", str(GO_HELPER), ".", str(repo)],  # noqa: S607
+            capture_output=True,
+            text=True,
+            env={**os.environ, "GOTOOLCHAIN": "local"},
+            timeout=1800,
+        )
+    except (OSError, subprocess.TimeoutExpired) as e:
+        raise SystemExit(f"callgraph_refs: go_callgraph did not run on {repo}: {e}") from e
+    if proc.returncode:
+        raise SystemExit(f"callgraph_refs: go_callgraph failed on {repo}:\n{proc.stderr[-2000:]}")
+    return json.loads(proc.stdout)
+
+
+def _go_version() -> str | None:
+    """The pinned golang.org/x/tools version, when a `go` of 1.24+ is on PATH."""
+    try:
+        out = subprocess.run(["go", "env", "GOVERSION"], capture_output=True, text=True, timeout=60)  # noqa: S603,S607
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    ver = out.stdout.strip().removeprefix("go").split(".")
+    if out.returncode or len(ver) < 2 or not ver[1].isdigit() or int(ver[1]) < 24:
+        return None
+    for line in read_source(GO_HELPER / "go.mod").text.splitlines():
+        if "golang.org/x/tools" in line:
+            return line.split()[-1].lstrip("v")
+    return None
+
+
 def _pyan_version() -> str | None:
     try:
         return importlib.metadata.version("pyan3")
@@ -245,6 +280,18 @@ REFERENCES: dict[str, Reference] = {
         (Path(__file__), TOOLS / "ts_callgraph.js"),
         True,
         'npm install --global "typescript@6.0.2"  (7.x has no JavaScript compiler API)',
+    ),
+    # Go (#3782): x/tools' VTA call graph over the type-checked SSA of cobra
+    "go": Reference(
+        "go",
+        "go-callgraph",
+        "0.37.0",
+        "import_graph",
+        go_contract,
+        _go_version,
+        (Path(__file__), GO_HELPER / "main.go", GO_HELPER / "go.mod"),
+        True,
+        "a Go 1.24+ toolchain (go) on PATH; golang.org/x/tools is fetched from tests/tools/go_callgraph/go.sum",
     ),
     # SCIP (#3783): scip-java's compiler-resolved index, through the shared SCIP adapter
     "java": Reference(

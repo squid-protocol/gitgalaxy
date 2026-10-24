@@ -17,7 +17,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="1054" height="976"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 20, callee names 15, call resolution 4 of 65 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 20, callee names 15, call resolution 5 of 65 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -139,7 +139,18 @@
 <text class="n" x="630" y="257">n=6,677 calls</text>
 <text class="n" x="630" y="269">functions 1,314</text>
 </g>
-<text class="none" x="732" y="262.0">not measured</text>
+<g><title>go call resolution: precision 99.3% of 1,367, recall 82.9% of 1,636; vs go-callgraph 0.37.0; corpus import_graph</title>
+<text class="pr" x="732" y="256.5">Precision</text>
+<rect class="track" x="778" y="249" width="110" height="8" rx="2"/>
+<rect x="778" y="249" width="109.2" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="257">99.3%</text>
+<text class="pr" x="732" y="268.5">Recall</text>
+<rect class="track" x="778" y="261" width="110" height="8" rx="2"/>
+<rect x="778" y="261" width="91.2" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="269">82.9%</text>
+<text class="n" x="936" y="257">n=1,636 edges</text>
+<text class="n" x="936" y="269">vs go-callgraph 0.37.0</text>
+</g>
 <text class="lang" x="22" y="297.0">haskell</text>
 <g><title>haskell imports: precision 100.0% of 138, recall 100.0% of 139; corpus koalaman/shellcheck</title>
 <text class="pr" x="120" y="290.5">Precision</text>

@@ -134,7 +134,7 @@
     "none": 0
    },
    "gap": "CEEHDLR: registering an LE user condition handler is not modelled",
-   "owner": "unowned",
+   "owner": "#5106 (le-condition-handling)",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -158,7 +158,7 @@
     "none": 0
    },
    "gap": "CEEHDLU: unregistering an LE user condition handler is not modelled",
-   "owner": "unowned",
+   "owner": "#5106 (le-condition-handling)",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"

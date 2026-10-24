@@ -1929,6 +1929,8 @@ _CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS: dict[str, frozenset[str]] = {
     ),
     # #6266: java has no `sizeof`; `filelump_t.sizeof()` is a static method call (mochadoom)
     "java": frozenset({"def", "function", "using", "sizeof", "alignof", "decltype", "include", "require", "typeof"}),
+    # #6454: `return` (Monad), `try`, `catch` and `finally` (Control.Exception) are ordinary functions in haskell
+    "haskell": frozenset({"return", "try", "catch", "finally"}),
 }
 
 # #5634: a rust macro invocation `name!(..)` is not a call of a function `name`. Its qualifier carries

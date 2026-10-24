@@ -17,8 +17,7 @@
 #   - A resolved channel (call_site_data, `resolved=True`) is inserted from the engine's repo-wide
 #     list by record_keeper's _insert_resolved_channel; its schema and restore live here too
 #     (transaction_data is the other one).
-#   - Channels with a custom insert or restore (sql_statement_data and the later per-file
-#     channels) are not migrated yet.
+#   - Channels with a custom insert or restore (the later per-file channels) are not migrated yet.
 #   - Order of CHANNELS is the insert order; each table is independent, so it
 #     does not change any row.
 #   - Data only: no import of the recorder or the rehydrator (they import this).
@@ -273,6 +272,25 @@ _SQL_TABLE_DDL = """
         """
 
 
+_SQL_STATEMENT_DDL = """
+            CREATE TABLE IF NOT EXISTS sql_statement_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                stmt_ordinal INTEGER,
+                verb TEXT,
+                table_name TEXT,
+                access TEXT,
+                cursor_name TEXT,
+                host_variables TEXT,
+                line_number INTEGER,
+                statement_text TEXT,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
 # #3200: one row per mainframe INVOCATION SITE -- COBOL `CALL`, CICS
 # `LINK`/`XCTL PROGRAM(...)`, JCL `EXEC PGM=`. edge_data carries the
 # resolved program-to-program edges aggregated from these, but it
@@ -476,6 +494,23 @@ def _call_site_select(cursor, has_table, has_column):
         f"{commarea_cols}, {using_col}, {sysid_col} "
         "FROM call_site_data cs JOIN file_data fd ON cs.src_file_id = fd.id "
         "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id"
+    )
+
+
+def _sql_statement_select(cursor, has_table, has_column):
+    # #3618 / #5736: a pre-#3618 baseline has no `statement_text`, a pre-#5736 one no `routine_name`;
+    # their rows come back with NULL, the shape a re-extracted row has without them.
+    def col(column, alias):
+        if has_table(cursor, "sql_statement_data") and has_column(cursor, "sql_statement_data", column):
+            return f"ss.{column} AS {alias}"
+        return f"NULL AS {alias}"
+
+    return (
+        'SELECT fd.file_path AS _fp, ss.stmt_ordinal AS ordinal, ss.verb, ss.table_name AS "table", '  # noqa: S608 -- the column aliases are literals; values are bound
+        f'ss.access, ss.cursor_name AS "cursor", ss.host_variables, ss.line_number AS line, '
+        f"{col('statement_text', 'statement')}, {col('routine_name', 'routine')} "
+        "FROM sql_statement_data ss JOIN file_data fd ON ss.file_id = fd.id "
+        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ss.id"
     )
 
 
@@ -701,6 +736,56 @@ CHANNELS = (
             "nullable": bool(r["nullable"]),
             "attributes": r["attributes"],
             "line": int(r["line"] or 0),
+        },
+    ),
+    # #3446: embedded SQL statements -- per-file, like sql_table. One row per (statement, table); a
+    # statement naming no table (OPEN/FETCH/CLOSE a cursor, COMMIT, CALL) has one row with NULL table_name.
+    FactChannel(
+        name="sql_statement",
+        ir_field="sql_statements",
+        table="sql_statement_data",
+        ddl=_SQL_STATEMENT_DDL,
+        # #3618: the statement text; #5736: the routine a `CALL` names (schema.proc), NULL otherwise.
+        extra_columns=(("statement_text TEXT",), ("routine_name TEXT",)),
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_sql_statement_file_id ON sql_statement_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_sql_statement_table ON sql_statement_data(table_name);",
+            "CREATE INDEX IF NOT EXISTS idx_sql_statement_snapshot ON sql_statement_data(repo_name, commit_hash);",
+        ),
+        payload_key="sql_statements",
+        columns=(
+            "stmt_ordinal",
+            "verb",
+            "table_name",
+            "access",
+            "cursor_name",
+            "host_variables",
+            "line_number",
+            "statement_text",
+            "routine_name",
+        ),
+        to_row=lambda s: (
+            int(s.get("ordinal", 0) or 0),
+            s.get("verb"),
+            s.get("table"),
+            s.get("access"),
+            s.get("cursor"),
+            s.get("host_variables"),
+            int(s.get("line", 0) or 0),
+            s.get("statement"),
+            s.get("routine"),
+        ),
+        restore_select=_sql_statement_select,
+        to_payload=lambda r: {
+            "ordinal": int(r["ordinal"] or 0),
+            "verb": r["verb"],
+            "table": r["table"],
+            "access": r["access"],
+            "cursor": r["cursor"],
+            "host_variables": r["host_variables"],
+            "line": int(r["line"] or 0),
+            "statement": r["statement"],
+            **({"routine": r["routine"]} if r["routine"] else {}),
         },
     ),
     # #3356: CSD resource definitions -- per-file, like sql_table_data.

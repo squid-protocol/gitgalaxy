@@ -68,7 +68,6 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
 * **A freshness test for a generated list scans tracked files** (`git ls-files`), not whatever is on disk (#6306).
 * **A bare `cat > file` (no heredoc) truncates the file to empty:** check `wc -c` before `-F body=@file`, or the PR body
   lands empty (#6323).
-* **Worker shell `python` / `mypy` not found:** see `golden-master-guidelines.md` section 4 (re-export the venv bin each Bash call).
 
 ## CI and workflow traps
 * **Never put a multi-line string inside `${{ }}`** (YAML folds newlines): use two `if:`-gated steps or a block scalar (#5612).

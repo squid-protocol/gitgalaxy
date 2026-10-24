@@ -138,6 +138,11 @@ _OWNERLESS_METHOD_LANGS = frozenset({"go"})
 # other receiver still cannot (an untyped `x.len()` would link to every repo `len`).
 _IMPL_SELF_LANGS = frozenset({"rust"})
 
+# #3784: languages where a qualifier that is no known class is usually a NAMESPACE (`fmt::format(x)`),
+# which reaches free functions only: the import-stem step never lands on a class member of the same name
+# (`formatter<T>::format`).
+_NAMESPACE_QUALIFIED_LANGS = frozenset({"cpp"})
+
 # #3401: names a BARE call always means as the language's built-in, whatever
 # the repository defines. Perl's named operators and built-in functions take
 # precedence over a user `sub` of the same name -- `sub map` in Mojo's
@@ -1367,7 +1372,9 @@ def _resolve_one(
         via = [
             d
             for p, d in bucket.all.by_path.items()
-            if p in caller.imported and (d.stem in (head, last) or posixpath.basename(d.dir) == last)
+            if p in caller.imported
+            and (d.stem in (head, last) or posixpath.basename(d.dir) == last)
+            and not (d.owner_key is not None and caller.lang in _NAMESPACE_QUALIFIED_LANGS)
         ]
         if via:
             return "import", (_nearest_of(via, caller.parts) or min(via, key=lambda d: d.path))

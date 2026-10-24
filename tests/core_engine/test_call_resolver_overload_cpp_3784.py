@@ -7,7 +7,13 @@ from gitgalaxy.core.call_resolver import CONFIDENT_RESOLUTIONS, OVERLOAD_LANGS, 
 
 
 def _fn(name, line, owner=None, args=0, calls=(), quals=None, arities=None):
-    f = {"name": name, "start_line": line, "args": args, "calls_out_to": list(calls), "calls_out_qualifiers": quals or {}}
+    f = {
+        "name": name,
+        "start_line": line,
+        "args": args,
+        "calls_out_to": list(calls),
+        "calls_out_qualifiers": quals or {},
+    }
     if owner:
         f["parent_class_name"] = owner
     if arities is not None:
@@ -30,7 +36,9 @@ def _rows(files, callee="put"):
 
 
 def _caller(arities, callee="put"):
-    return _fn("run", 3, "Box", calls=[callee], quals={callee: [""]}, arities={callee: arities} if arities is not None else {})
+    return _fn(
+        "run", 3, "Box", calls=[callee], quals={callee: [""]}, arities={callee: arities} if arities is not None else {}
+    )
 
 
 def test_cpp_is_an_overload_language_and_c_is_not():

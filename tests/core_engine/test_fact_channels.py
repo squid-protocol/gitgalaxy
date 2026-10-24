@@ -182,3 +182,37 @@ def test_every_table_galaxy_ir_loads_is_registered_or_listed_unmigrated():
     loaded = set(re.findall(r'_has_table\(cur, "(\w+)"\)', text))
     registered = {c.table for c in CHANNELS}
     assert loaded - registered == _UNMIGRATED_IR_TABLES, "register the channel, or list the legacy table"
+
+
+# The recipe's channel table (#3383): checked against the registry the same way.
+_RECIPE = Path(__file__).resolve().parents[2] / "gitgalaxy" / "core" / "how_to_add_a_fact_channel.md"
+
+# Tables the recipe table names that are not registry channels yet: the unmigrated galaxy_ir tables
+# the recipe has a row for, plus wrapper_data (global/resolved, no galaxy_ir loader) and file_data
+# (the host of the wrapper_facts column, not a channel). A table leaves this set when migrated.
+_UNMIGRATED_RECIPE_TABLES = (_UNMIGRATED_IR_TABLES - {"transaction_data", "copy_statement_data"}) | {
+    "wrapper_data",
+    "file_data",
+}
+
+
+def _recipe_tables():
+    tables = set()
+    for line in _RECIPE.read_text(encoding="utf-8").splitlines():
+        cells = line.split("|")
+        # a table row: channel | issue | extractor | table | IR accessor, between two outer pipes
+        if line.startswith("| ") and len(cells) == 7 and cells[2].strip().startswith("#"):
+            tables |= set(re.findall(r"`(\w+_data)\b", cells[4]))
+    return tables
+
+
+def test_every_channel_is_in_the_recipe_table():
+    tables = _recipe_tables()
+    assert tables, "the recipe channel table was not found"
+    for channel in CHANNELS:
+        assert channel.table in tables, f"{channel.table} has no row in how_to_add_a_fact_channel.md"
+
+
+def test_every_other_recipe_table_is_listed_unmigrated():
+    unregistered = _recipe_tables() - {c.table for c in CHANNELS}
+    assert unregistered == _UNMIGRATED_RECIPE_TABLES, "register the channel, or list the legacy table"

@@ -223,7 +223,9 @@ def _build_cpp(repo: Path) -> dict[str, Any]:
         """The engine's name: bare, `Class::name` when the body is written outside the class."""
         # a partial specialization's constructor is spelled with its arguments: `buffer<T *, U>`
         name = (
-            cursor.spelling.split("<")[0] if cursor.kind in (kinds.CONSTRUCTOR, kinds.DESTRUCTOR) else cursor.spelling
+            cursor.spelling.split("<")[0]
+            if cursor.kind in (kinds.CONSTRUCTOR, kinds.DESTRUCTOR, kinds.CONVERSION_FUNCTION)
+            else cursor.spelling
         )
         owner, written_in = cursor.semantic_parent, cursor.lexical_parent
         if (

@@ -22,7 +22,8 @@ name: Graph Accuracy Audit
 #     declaration, lower is better (#3543, tests/tools/span_anchor_audit.py).
 # Level 1 (callee names vs tree-sitter) stays in call-graph-accuracy-audit.yml.
 # #5501: ONE job (the old check name, `graph-accuracy-audit`) installs everything once and runs
-# the gates in three parallel lanes on that runner. The split into five jobs (#5562) cut the serial
+# the gates in four parallel lanes (span anchoring as two shards, #6355) on that runner. The split into five
+# jobs (#5562) cut the serial
 # 9.3 min to ~3 min of execution but measured 6.5 / 8.8 / 13.3 min wall: five runner requests plus an
 # aggregate job each waited in the queue (up to 8 min), while setup was only ~30 s per job. One runner
 # request has one queue wait. Same baselines, same --samples. Same corpus pin and fork fallback as
@@ -159,22 +160,28 @@ jobs:
           gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
           wait "$import_pid"
 
-      # Three lanes balance the measured gate times (span anchoring is the longest alone). Each gate
-      # keeps its own baseline gate, --samples and exit code; its table goes to a per-gate file and is
-      # appended to the job summary afterwards so concurrent writers cannot interleave.
-      - name: Gate every graph-accuracy baseline (three parallel lanes)
+      # Four lanes balance the measured gate times (#5501): span anchoring is the longest gate, so it runs as
+      # two --shard scans whose merge is the one baseline gate (a shard is a partial measurement and refuses
+      # --ci). Each gate keeps its own baseline, --samples and exit code; its table goes to a per-gate file
+      # and is appended to the job summary afterwards so concurrent writers cannot interleave.
+      - name: Gate every graph-accuracy baseline (four parallel lanes)
         run: |
           cd gitgalaxy
           mkdir -p "$RUNNER_TEMP/gaa"
-          gate() {  # gate <name> <command...>: log + summary per gate, one "FAIL name" line on failure
+          run_gate() {  # run_gate <name> <command...>: log per gate, one "FAIL name" line on failure
             name=$1; shift
             start=$SECONDS
-            ( echo "::group::$name"; PYTHONPATH="$PWD" "$@" --ci --summary "$RUNNER_TEMP/gaa/$name.md"; rc=$?; echo "::endgroup::"; exit $rc ) \
+            ( echo "::group::$name"; PYTHONPATH="$PWD" "$@"; rc=$?; echo "::endgroup::"; exit $rc ) \
               > "$RUNNER_TEMP/gaa/$name.log" 2>&1 \
               || echo "FAIL $name" >> "$RUNNER_TEMP/gaa/failed"
             echo "$name: $((SECONDS - start)) s" >> "$RUNNER_TEMP/gaa/times"
           }
-          ( gate span-anchoring python tests/tools/span_anchor_audit.py --samples 3 ) &
+          gate() {  # gate <name> <command...>: run_gate with the baseline gate and summary file
+            name=$1; shift
+            run_gate "$name" "$@" --ci --summary "$RUNNER_TEMP/gaa/$name.md"
+          }
+          ( run_gate span-shard-0 python tests/tools/span_anchor_audit.py --shard 0/2 --json "$RUNNER_TEMP/gaa/span0.json" --samples 3 ) &
+          ( run_gate span-shard-1 python tests/tools/span_anchor_audit.py --shard 1/2 --json "$RUNNER_TEMP/gaa/span1.json" --samples 3 ) &
           ( gate import-graph python tests/tools/import_graph_accuracy.py --samples 5
             gate call-typescript python tests/tools/call_graph_resolution.py typescript --samples 5
             gate call-javascript python tests/tools/call_graph_resolution.py javascript --samples 5
@@ -185,9 +192,15 @@ jobs:
             gate call-rust python tests/tools/call_graph_resolution.py rust --samples 5
             gate call-go python tests/tools/call_graph_resolution.py go --samples 5 ) &
           wait
+          # the one span-anchoring baseline gate, over the summed shards (skipped if a shard failed)
+          if [ -s "$RUNNER_TEMP/gaa/span0.json" ] && [ -s "$RUNNER_TEMP/gaa/span1.json" ]; then
+            gate span-anchoring python tests/tools/span_anchor_audit.py --merge "$RUNNER_TEMP/gaa/span0.json" "$RUNNER_TEMP/gaa/span1.json" --samples 3
+          fi
           cat "$RUNNER_TEMP/gaa/times"
+          for n in span-shard-0 span-shard-1 import-graph call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
+            cat "$RUNNER_TEMP/gaa/$n.log" 2>/dev/null || true
+          done
           for n in import-graph call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
-            cat "$RUNNER_TEMP/gaa/$n.log"
             cat "$RUNNER_TEMP/gaa/$n.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
           done
           if [ -s "$RUNNER_TEMP/gaa/failed" ]; then

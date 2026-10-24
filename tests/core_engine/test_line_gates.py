@@ -184,7 +184,7 @@ def test_line_gates_declared_by_3171_languages():
         assert "state_mutation" in LANGUAGE_DEFINITIONS[lang]["rules"]["_line_gates"]
 
 
-_NARROWED_3171 = ("typescript", "javascript", "python")
+_NARROWED_3171 = ("typescript", "javascript", "python", "csharp", "groovy")
 
 
 def test_line_gates_declared_by_narrowed_languages():
@@ -208,6 +208,14 @@ _NARROWED_TEXT = {
     "python": (
         "x = 1\nself.items.append(y)\nitems.pop ()\nitems.pop\n()\nd[k] = v\n"
         "foo(x=1)\ndef f(x=1):\n    pass\nif (n := 3):\n    pass\ny = 1,\n"
+    ),
+    "csharp": (
+        "var a = 1;\nitems.Add(x);\nitems.Remove (y);\nitems.Clear\t();\nitems.Add\n(z);\ncount++;\n"
+        "Foo(ref total);\nvoid M(int p = 1) { }\nif (a == b) { q.Enqueue(k); }\n"
+    ),
+    "groovy": (
+        "def a = 1\nitems.add(x)\nitems.put (k, v)\nitems.clear\t()\nitems.add\n(z)\ncount++\n"
+        "foo(x: 1)\nif (a == b) { q.push(k) }\n"
     ),
 }
 

@@ -26,6 +26,15 @@
     "recall_pct": 99.8,
     "tp": 2632
   },
+  "dart": {
+    "fn": 128,
+    "fp": 109,
+    "matched_functions": 1734,
+    "parse_failures": 0,
+    "precision_pct": 95.7,
+    "recall_pct": 95.0,
+    "tp": 2428
+  },
   "go": {
     "fn": 29,
     "fp": 9,
@@ -34,6 +43,15 @@
     "precision_pct": 99.9,
     "recall_pct": 99.6,
     "tp": 6648
+  },
+  "haskell": {
+    "fn": 273,
+    "fp": 130,
+    "matched_functions": 142,
+    "parse_failures": 0,
+    "precision_pct": 44.2,
+    "recall_pct": 27.4,
+    "tp": 103
   },
   "java": {
     "fn": 0,
@@ -70,6 +88,15 @@
     "precision_pct": 97.5,
     "recall_pct": 98.2,
     "tp": 1331
+  },
+  "perl": {
+    "fn": 1971,
+    "fp": 353,
+    "matched_functions": 943,
+    "parse_failures": 0,
+    "precision_pct": 87.9,
+    "recall_pct": 56.6,
+    "tp": 2573
   },
   "php": {
     "fn": 73,
@@ -133,5 +160,14 @@
     "precision_pct": 99.8,
     "recall_pct": 99.1,
     "tp": 27296
+  },
+  "zig": {
+    "fn": 1539,
+    "fp": 352,
+    "matched_functions": 3539,
+    "parse_failures": 0,
+    "precision_pct": 98.2,
+    "recall_pct": 92.6,
+    "tp": 19147
   }
 }

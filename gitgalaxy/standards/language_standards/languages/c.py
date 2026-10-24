@@ -454,8 +454,10 @@ DEFINITION: dict[str, Any] = {
         # inside strings and `free` as an ordinary identifier (freefunc free).
         "memory_alloc": re.compile(r"\b(malloc|calloc|realloc|free|aligned_alloc|mmap|alloca)\s*\("),
         # 37. inline_asm (The Bare Metal)
+        # GCC stacks its qualifiers (`asm volatile goto (`, `asm inline (`, `__asm__ __volatile__ (`).
         "inline_asm": re.compile(
-            r"\b(?:__asm__|asm|__asm)\b(?:\s+(?:volatile|__volatile__))?\s*\(|\b(?:__asm__|asm|__asm)\b[ \t]*\{"
+            r"\b(?:__asm__|asm|__asm)\b(?:\s+(?:volatile|__volatile__|__volatile|inline|__inline__|__inline|goto)){0,4}"
+            r"\s*\(|\b(?:__asm__|asm|__asm)\b[ \t]*\{"
         ),
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
         # 38. telemetry (Structured Logging / Telemetry)

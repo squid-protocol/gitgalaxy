@@ -82,9 +82,10 @@ import random
 import re
 import sys
 import unicodedata
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-from collections.abc import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from key_text import read_key_text  # noqa: E402 -- #3869: the key's own decoder, never the engine's
@@ -7780,6 +7781,66 @@ def sample_claims(key: dict[str, Any], n: int, seed: int) -> list[dict[str, Any]
     return random.Random(seed).sample(claims, min(n, len(claims)))
 
 
+@dataclass(frozen=True)
+class DraftSection:
+    """One answer-key section that an `add-*` command (re)drafts from source (#3383).
+
+    The discipline is shared: refresh every drafted entry, never clobber one signed
+    off with `flag`. `drop_stale` also drops an unsigned entry the new draft no longer
+    yields. `main()` builds the subcommand and its handler from DRAFT_SECTIONS, so a
+    new section adds one entry here instead of a parser and a handler branch.
+    """
+
+    cmd: str
+    section: str
+    flag: str
+    draft: Callable[[Path, dict[str, Any]], dict[str, Any]]
+    label: str
+    drop_stale: bool = False
+
+
+DRAFT_SECTIONS = (
+    DraftSection("add-pli", "pli_programs", "records_validated", lambda repo, key: draft_pli(repo), "PL/I files"),  # #3250
+    DraftSection("add-sql-access", "sql_access", "sql_access_validated", lambda repo, key: draft_sql_access(repo), "SQL table-access files"),  # #3446
+    DraftSection("add-sql-tables", "sql_tables", "sql_tables_validated", lambda repo, key: draft_sql_tables(repo), "DECLARE TABLE files"),  # #3344
+    DraftSection("add-bms", "bms_maps", "fields_validated", lambda repo, key: draft_bms(repo), "BMS maps"),  # #3347
+    DraftSection("add-jcl", "jcl_jobs", "dsns_validated", lambda repo, key: draft_jcl(repo), "JCL members"),  # #3345
+    DraftSection("add-csd", "csd_decks", "resources_validated", lambda repo, key: draft_csd(repo), "CSD decks"),  # #3356
+    DraftSection("add-cics", "cics_resources", "cics_validated", lambda repo, key: draft_cics(repo), "CICS files"),  # #3351-#3354
+    DraftSection("add-dli", "dli_calls", "dli_validated", lambda repo, key: draft_dli(repo), "DL/I files"),  # #3450
+    DraftSection("add-jcics", "jcics", "jcics_validated", lambda repo, key: draft_jcics(repo), "JCICS Java files", drop_stale=True),  # #3497
+    DraftSection("add-web-services", "web_services", "web_validated", lambda repo, key: draft_web_services(repo), "web-service JCL members", drop_stale=True),  # #3496
+    DraftSection("add-dynamic-targets", "dynamic_targets", "dynamic_validated", lambda repo, key: draft_dynamic_targets(repo), "dynamic-target files", drop_stale=True),  # #3493
+    DraftSection("add-symbolic-maps", "symbolic_maps", "symbolic_validated", lambda repo, key: draft_symbolic_maps(repo), "BMS symbolic-map files", drop_stale=True),  # #3490
+    DraftSection("add-io-moves", "io_moves", "io_moves_validated", lambda repo, key: draft_io_moves(repo), "file-I/O move files", drop_stale=True),  # #3492
+    DraftSection("add-data-moves", "data_moves", "data_moves_validated", lambda repo, key: draft_data_moves(repo), "data-move files", drop_stale=True),  # #3452
+    DraftSection("add-ims-gen", "ims_gen", "ims_gen_validated", lambda repo, key: draft_ims_gen(repo, key.get("dli_calls", {})), "IMS definition / access-check files"),  # #3477
+    DraftSection("add-call-using", "call_using", "call_using_validated", lambda repo, key: draft_call_using(repo), "CALL USING files"),  # #3454
+    DraftSection("add-job-flow", "job_flow", "jobflow_validated", lambda repo, key: draft_job_flow(repo), "JCL members' job flow"),  # #3451
+    DraftSection("add-refmods", "refmod_spans", "refmods_validated", lambda repo, key: draft_refmods(repo), "refmod files", drop_stale=True),  # #3649
+    DraftSection("add-ridflds", "cics_ridflds", "ridflds_validated", lambda repo, key: draft_ridflds(repo), "RIDFLD files", drop_stale=True),  # #3649
+    DraftSection("add-copybook-layouts", "copybook_layouts", "layouts_validated", lambda repo, key: draft_copybook_layouts(repo), "copybook layouts", drop_stale=True),  # #3602
+    DraftSection("add-runners", "runner_steps", "runners_validated", lambda repo, key: draft_runner_steps(repo), "runner files", drop_stale=True),  # #3710
+    DraftSection("add-pli-layouts", "pli_layouts", "pli_layouts_validated", lambda repo, key: draft_pli_layouts(repo), "PL/I layout files", drop_stale=True),  # #3727
+    DraftSection("add-mq", "mq_calls", "mq_validated", lambda repo, key: draft_mq(repo), "MQ files"),  # #3447
+    DraftSection("add-job-submissions", "job_submissions", "submissions_validated", lambda repo, key: draft_job_submissions(repo), "job-submitting files"),  # #3448
+    DraftSection("add-cics-tasks", "cics_tasks", "cics_tasks_validated", lambda repo, key: draft_cics_tasks(repo), "CICS task-control files"),  # #3449
+)  # fmt: skip
+DRAFT_SECTIONS_BY_CMD = {sec.cmd: sec for sec in DRAFT_SECTIONS}
+
+
+def refresh_draft_section(sec: DraftSection, repo: Path, key: dict[str, Any]) -> int:
+    """Redraft `sec` into `key`, keeping signed-off entries; returns the entry count."""
+    entries = key.get(sec.section, {})
+    if sec.drop_stale:
+        entries = {rel: e for rel, e in entries.items() if e.get(sec.flag)}
+    for rel, entry in sec.draft(repo, key).items():
+        if not entries.get(rel, {}).get(sec.flag):
+            entries[rel] = entry
+    key[sec.section] = entries
+    return len(entries)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -7796,9 +7857,6 @@ def main() -> int:
     s.add_argument("--db", type=Path)
     s.add_argument("--md", type=Path)
     s.add_argument("--json", type=Path)
-    a = sub.add_parser("add-pli")
-    a.add_argument("repo", type=Path)
-    a.add_argument("--key", type=Path, required=True)
     pm = sub.add_parser("add-pli-moves")
     pm.add_argument("repo", type=Path)
     pm.add_argument("--key", type=Path, required=True)
@@ -7808,94 +7866,26 @@ def main() -> int:
     pc = sub.add_parser("add-pli-calls")
     pc.add_argument("repo", type=Path)
     pc.add_argument("--key", type=Path, required=True)
-    qa = sub.add_parser("add-sql-access")
-    qa.add_argument("repo", type=Path)
-    qa.add_argument("--key", type=Path, required=True)
-    q = sub.add_parser("add-sql-tables")
-    q.add_argument("repo", type=Path)
-    q.add_argument("--key", type=Path, required=True)
-    b = sub.add_parser("add-bms")
-    b.add_argument("repo", type=Path)
-    b.add_argument("--key", type=Path, required=True)
-    j = sub.add_parser("add-jcl")
-    j.add_argument("repo", type=Path)
-    j.add_argument("--key", type=Path, required=True)
-    c = sub.add_parser("add-csd")
-    c.add_argument("repo", type=Path)
-    c.add_argument("--key", type=Path, required=True)
     cm = sub.add_parser("add-commarea")
     cm.add_argument("repo", type=Path)
     cm.add_argument("--key", type=Path, required=True)
-    x = sub.add_parser("add-cics")
-    x.add_argument("repo", type=Path)
-    x.add_argument("--key", type=Path, required=True)
     vs = sub.add_parser("verify-symbolic")  # #3575: sign symbolic maps against IBM's generated copybooks
     vs.add_argument("repo", type=Path)
     vs.add_argument("--key", type=Path, required=True)
-    dlp = sub.add_parser("add-dli")
-    dlp.add_argument("repo", type=Path)
-    dlp.add_argument("--key", type=Path, required=True)
-    jcp = sub.add_parser("add-jcics")
-    jcp.add_argument("repo", type=Path)
-    jcp.add_argument("--key", type=Path, required=True)
-    wsp = sub.add_parser("add-web-services")
-    wsp.add_argument("repo", type=Path)
-    wsp.add_argument("--key", type=Path, required=True)
-    dyp = sub.add_parser("add-dynamic-targets")
-    dyp.add_argument("repo", type=Path)
-    dyp.add_argument("--key", type=Path, required=True)
-    smp = sub.add_parser("add-symbolic-maps")
-    smp.add_argument("repo", type=Path)
-    smp.add_argument("--key", type=Path, required=True)
-    iop = sub.add_parser("add-io-moves")
-    iop.add_argument("repo", type=Path)
-    iop.add_argument("--key", type=Path, required=True)
-    dmp = sub.add_parser("add-data-moves")
-    dmp.add_argument("repo", type=Path)
-    dmp.add_argument("--key", type=Path, required=True)
-    igp = sub.add_parser("add-ims-gen")
-    igp.add_argument("repo", type=Path)
-    igp.add_argument("--key", type=Path, required=True)
-    cup = sub.add_parser("add-call-using")
-    cup.add_argument("repo", type=Path)
-    cup.add_argument("--key", type=Path, required=True)
-    jfp = sub.add_parser("add-job-flow")
-    jfp.add_argument("repo", type=Path)
-    jfp.add_argument("--key", type=Path, required=True)
     fdp = sub.add_parser("add-file-defs")
     fdp.add_argument("repo", type=Path)
     fdp.add_argument("--key", type=Path, required=True)
-    rmp = sub.add_parser("add-refmods")  # #3649
-    rmp.add_argument("repo", type=Path)
-    rmp.add_argument("--key", type=Path, required=True)
-    rfp = sub.add_parser("add-ridflds")  # #3649
-    rfp.add_argument("repo", type=Path)
-    rfp.add_argument("--key", type=Path, required=True)
-    cbl = sub.add_parser("add-copybook-layouts")  # #3602
-    cbl.add_argument("repo", type=Path)
-    cbl.add_argument("--key", type=Path, required=True)
-    rnr = sub.add_parser("add-runners")  # #3710
-    rnr.add_argument("repo", type=Path)
-    rnr.add_argument("--key", type=Path, required=True)
-    pll = sub.add_parser("add-pli-layouts")  # #3727
-    pll.add_argument("repo", type=Path)
-    pll.add_argument("--key", type=Path, required=True)
     uw = sub.add_parser("add-uow")
     uw.add_argument("repo", type=Path)
     uw.add_argument("--key", type=Path, required=True)
-    mq = sub.add_parser("add-mq")
-    mq.add_argument("repo", type=Path)
-    mq.add_argument("--key", type=Path, required=True)
-    js = sub.add_parser("add-job-submissions")
-    js.add_argument("repo", type=Path)
-    js.add_argument("--key", type=Path, required=True)
-    xt = sub.add_parser("add-cics-tasks")
-    xt.add_argument("repo", type=Path)
-    xt.add_argument("--key", type=Path, required=True)
     rr = sub.add_parser("redraft-records")  # #4393: re-read every program's records with the current reader
     rr.add_argument("repo", type=Path)
     rr.add_argument("--key", type=Path, required=True)
     rr.add_argument("--note", required=True, help="the verification note each changed program gets")
+    for sec in DRAFT_SECTIONS:
+        dp = sub.add_parser(sec.cmd)
+        dp.add_argument("repo", type=Path)
+        dp.add_argument("--key", type=Path, required=True)
     sp = sub.add_parser("sample")
     sp.add_argument("--key", type=Path, required=True)
     sp.add_argument("--n", type=int, default=25)
@@ -7970,66 +7960,6 @@ def main() -> int:
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(existing_pc)} PL/I call-site files -> {args.key}")
         return 0
-    if args.cmd == "add-pli":
-        # Refresh drafts, but never clobber a file someone already signed off.
-        existing = key.get("pli_programs", {})
-        for rel, entry in draft_pli(repo).items():
-            if not existing.get(rel, {}).get("records_validated"):
-                existing[rel] = entry
-        key["pli_programs"] = existing
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(existing)} PL/I files -> {args.key}")
-        return 0
-    if args.cmd == "add-sql-access":
-        # #3446: same rule as add-sql-tables -- refresh drafts, never clobber a sign-off.
-        existing_acc = key.get("sql_access", {})
-        for rel, entry in draft_sql_access(repo).items():
-            if not existing_acc.get(rel, {}).get("sql_access_validated"):
-                existing_acc[rel] = entry
-        key["sql_access"] = existing_acc
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(existing_acc)} SQL table-access files -> {args.key}")
-        return 0
-    if args.cmd == "add-sql-tables":
-        # #3344: same rule as add-pli -- refresh drafts, never clobber a sign-off.
-        existing_sql = key.get("sql_tables", {})
-        for rel, entry in draft_sql_tables(repo).items():
-            if not existing_sql.get(rel, {}).get("sql_tables_validated"):
-                existing_sql[rel] = entry
-        key["sql_tables"] = existing_sql
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(existing_sql)} DECLARE TABLE files -> {args.key}")
-        return 0
-    if args.cmd == "add-bms":
-        # Refresh drafts, but never clobber a map someone already signed off.
-        existing = key.get("bms_maps", {})
-        for rel, entry in draft_bms(repo).items():
-            if not existing.get(rel, {}).get("fields_validated"):
-                existing[rel] = entry
-        key["bms_maps"] = existing
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(existing)} BMS maps -> {args.key}")
-        return 0
-    if args.cmd == "add-jcl":
-        # #3345: the add-pli discipline -- refresh drafts, keep signed-off members.
-        jobs = key.get("jcl_jobs", {})
-        for rel, entry in draft_jcl(repo).items():
-            if not jobs.get(rel, {}).get("dsns_validated"):
-                jobs[rel] = entry
-        key["jcl_jobs"] = jobs
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(jobs)} JCL members -> {args.key}")
-        return 0
-    if args.cmd == "add-csd":
-        # #3356: the add-pli discipline -- refresh drafts, keep signed-off decks.
-        decks = key.get("csd_decks", {})
-        for rel, entry in draft_csd(repo).items():
-            if not decks.get(rel, {}).get("resources_validated"):
-                decks[rel] = entry
-        key["csd_decks"] = decks
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(decks)} CSD decks -> {args.key}")
-        return 0
     if args.cmd == "add-commarea":
         # #3355: the add-pli discipline, per keyed program -- refresh the drafted
         # `commareas` field only, never a program signed off with `commareas_validated`.
@@ -8053,117 +7983,6 @@ def main() -> int:
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"signed {signed} BMS sources against IBM-generated copybooks; {len(diffs)} differ: {diffs[:5]}")
         return 1 if diffs else 0
-    if args.cmd == "add-cics":
-        # #3351-#3354: the add-pli discipline -- refresh drafts, keep signed-off files.
-        ops = key.get("cics_resources", {})
-        for rel, entry in draft_cics(repo).items():
-            if not ops.get(rel, {}).get("cics_validated"):
-                ops[rel] = entry
-        key["cics_resources"] = ops
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(ops)} CICS files -> {args.key}")
-        return 0
-    if args.cmd == "add-dli":
-        # #3450: the add-pli discipline -- refresh drafts, keep signed-off files.
-        dl = key.get("dli_calls", {})
-        for rel, entry in draft_dli(repo).items():
-            if not dl.get(rel, {}).get("dli_validated"):
-                dl[rel] = entry
-        key["dli_calls"] = dl
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(dl)} DL/I files -> {args.key}")
-        return 0
-    if args.cmd == "add-jcics":
-        # #3497: the add-pli discipline; an unvalidated file no longer drafted is dropped.
-        jc = {rel: e for rel, e in key.get("jcics", {}).items() if e.get("jcics_validated")}
-        for rel, entry in draft_jcics(repo).items():
-            if not jc.get(rel, {}).get("jcics_validated"):
-                jc[rel] = entry
-        key["jcics"] = jc
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(jc)} JCICS Java files -> {args.key}")
-        return 0
-    if args.cmd == "add-web-services":
-        # #3496: the add-pli discipline; an unvalidated file no longer drafted is dropped.
-        ws = {rel: e for rel, e in key.get("web_services", {}).items() if e.get("web_validated")}
-        for rel, entry in draft_web_services(repo).items():
-            if not ws.get(rel, {}).get("web_validated"):
-                ws[rel] = entry
-        key["web_services"] = ws
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(ws)} web-service JCL members -> {args.key}")
-        return 0
-    if args.cmd == "add-dynamic-targets":
-        # #3493: the add-pli discipline; an unvalidated file no longer drafted is dropped.
-        dt = {rel: e for rel, e in key.get("dynamic_targets", {}).items() if e.get("dynamic_validated")}
-        for rel, entry in draft_dynamic_targets(repo).items():
-            if not dt.get(rel, {}).get("dynamic_validated"):
-                dt[rel] = entry
-        key["dynamic_targets"] = dt
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(dt)} dynamic-target files -> {args.key}")
-        return 0
-    if args.cmd == "add-symbolic-maps":
-        # #3490: the add-pli discipline -- refresh drafts, keep signed-off files.
-        sm = {rel: e for rel, e in key.get("symbolic_maps", {}).items() if e.get("symbolic_validated")}
-        for rel, entry in draft_symbolic_maps(repo).items():
-            if not sm.get(rel, {}).get("symbolic_validated"):
-                sm[rel] = entry
-        key["symbolic_maps"] = sm
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(sm)} BMS symbolic-map files -> {args.key}")
-        return 0
-    if args.cmd == "add-io-moves":
-        # #3492: the add-pli discipline; an unvalidated file no longer drafted is dropped.
-        io = {rel: e for rel, e in key.get("io_moves", {}).items() if e.get("io_moves_validated")}
-        for rel, entry in draft_io_moves(repo).items():
-            if not io.get(rel, {}).get("io_moves_validated"):
-                io[rel] = entry
-        key["io_moves"] = io
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(io)} file-I/O move files -> {args.key}")
-        return 0
-    if args.cmd == "add-data-moves":
-        # #3452: the add-pli discipline -- refresh drafts, keep signed-off files.
-        # An unvalidated file the new draft no longer yields is dropped.
-        dm = {rel: e for rel, e in key.get("data_moves", {}).items() if e.get("data_moves_validated")}
-        for rel, entry in draft_data_moves(repo).items():
-            if not dm.get(rel, {}).get("data_moves_validated"):
-                dm[rel] = entry
-        key["data_moves"] = dm
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(dm)} data-move files -> {args.key}")
-        return 0
-    if args.cmd == "add-ims-gen":
-        # #3477: the add-pli discipline -- refresh drafts, keep signed-off files.
-        ig = key.get("ims_gen", {})
-        for rel, entry in draft_ims_gen(repo, key.get("dli_calls", {})).items():
-            if not ig.get(rel, {}).get("ims_gen_validated"):
-                ig[rel] = entry
-        key["ims_gen"] = ig
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(ig)} IMS definition / access-check files -> {args.key}")
-        return 0
-    if args.cmd == "add-call-using":
-        # #3454: the add-pli discipline -- refresh drafts, keep signed-off files.
-        cu = key.get("call_using", {})
-        for rel, entry in draft_call_using(repo).items():
-            if not cu.get(rel, {}).get("call_using_validated"):
-                cu[rel] = entry
-        key["call_using"] = cu
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(cu)} CALL USING files -> {args.key}")
-        return 0
-    if args.cmd == "add-job-flow":
-        # #3451: the add-pli discipline -- refresh drafts, keep signed-off files.
-        flows = key.get("job_flow", {})
-        for rel, entry in draft_job_flow(repo).items():
-            if not flows.get(rel, {}).get("jobflow_validated"):
-                flows[rel] = entry
-        key["job_flow"] = flows
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(flows)} JCL members' job flow -> {args.key}")
-        return 0
     if args.cmd == "add-file-defs":
         # #3455: the add-pli discipline -- refresh drafts, keep signed-off files.
         fc_new, vd_new = draft_file_defs(repo)
@@ -8177,56 +7996,6 @@ def main() -> int:
         key["file_control"], key["vsam_defines"] = fc, vd
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(fc)} FILE-CONTROL programs, {len(vd)} IDCAMS JCL members -> {args.key}")
-        return 0
-    if args.cmd == "add-refmods":
-        # #3649: the add-pli discipline -- refresh drafts, keep signed-off files.
-        rm = {rel: e for rel, e in key.get("refmod_spans", {}).items() if e.get("refmods_validated")}
-        for rel, entry in draft_refmods(repo).items():
-            if not rm.get(rel, {}).get("refmods_validated"):
-                rm[rel] = entry
-        key["refmod_spans"] = rm
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(rm)} refmod files -> {args.key}")
-        return 0
-    if args.cmd == "add-ridflds":
-        # #3649: the add-pli discipline -- refresh drafts, keep signed-off files.
-        rf = {rel: e for rel, e in key.get("cics_ridflds", {}).items() if e.get("ridflds_validated")}
-        for rel, entry in draft_ridflds(repo).items():
-            if not rf.get(rel, {}).get("ridflds_validated"):
-                rf[rel] = entry
-        key["cics_ridflds"] = rf
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(rf)} RIDFLD files -> {args.key}")
-        return 0
-    if args.cmd == "add-copybook-layouts":
-        # #3602: the add-pli discipline -- refresh drafts, keep signed-off files.
-        cl = {rel: e for rel, e in key.get("copybook_layouts", {}).items() if e.get("layouts_validated")}
-        for rel, entry in draft_copybook_layouts(repo).items():
-            if not cl.get(rel, {}).get("layouts_validated"):
-                cl[rel] = entry
-        key["copybook_layouts"] = cl
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(cl)} copybook layouts -> {args.key}")
-        return 0
-    if args.cmd == "add-runners":
-        # #3710: the add-pli discipline -- refresh drafts, keep signed-off files.
-        rs = {rel: e for rel, e in key.get("runner_steps", {}).items() if e.get("runners_validated")}
-        for rel, entry in draft_runner_steps(repo).items():
-            if not rs.get(rel, {}).get("runners_validated"):
-                rs[rel] = entry
-        key["runner_steps"] = rs
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(rs)} runner files -> {args.key}")
-        return 0
-    if args.cmd == "add-pli-layouts":
-        # #3727: the add-pli discipline -- refresh drafts, keep signed-off files.
-        pl = {rel: e for rel, e in key.get("pli_layouts", {}).items() if e.get("pli_layouts_validated")}
-        for rel, entry in draft_pli_layouts(repo).items():
-            if not pl.get(rel, {}).get("pli_layouts_validated"):
-                pl[rel] = entry
-        key["pli_layouts"] = pl
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(pl)} PL/I layout files -> {args.key}")
         return 0
     if args.cmd == "add-uow":
         # #3453: the add-pli discipline -- refresh drafts, keep signed-off files.
@@ -8243,35 +8012,11 @@ def main() -> int:
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(uow)} unit-of-work files, {len(trig)} TD-trigger writers -> {args.key}")
         return 0
-    if args.cmd == "add-mq":
-        # #3447: the add-pli discipline -- refresh drafts, keep signed-off files.
-        calls = key.get("mq_calls", {})
-        for rel, entry in draft_mq(repo).items():
-            if not calls.get(rel, {}).get("mq_validated"):
-                calls[rel] = entry
-        key["mq_calls"] = calls
+    if args.cmd in DRAFT_SECTIONS_BY_CMD:
+        sec = DRAFT_SECTIONS_BY_CMD[args.cmd]
+        count = refresh_draft_section(sec, repo, key)
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(calls)} MQ files -> {args.key}")
-        return 0
-    if args.cmd == "add-job-submissions":
-        # #3448: the add-pli discipline -- refresh drafts, keep signed-off files.
-        subs = key.get("job_submissions", {})
-        for rel, entry in draft_job_submissions(repo).items():
-            if not subs.get(rel, {}).get("submissions_validated"):
-                subs[rel] = entry
-        key["job_submissions"] = subs
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(subs)} job-submitting files -> {args.key}")
-        return 0
-    if args.cmd == "add-cics-tasks":
-        # #3449: the add-pli discipline -- refresh drafts, keep signed-off files.
-        tasks = key.get("cics_tasks", {})
-        for rel, entry in draft_cics_tasks(repo).items():
-            if not tasks.get(rel, {}).get("cics_tasks_validated"):
-                tasks[rel] = entry
-        key["cics_tasks"] = tasks
-        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
-        print(f"drafted {len(tasks)} CICS task-control files -> {args.key}")
+        print(f"drafted {count} {sec.label} -> {args.key}")
         return 0
     result, md = score(repo, key, args.db)
     if args.md:

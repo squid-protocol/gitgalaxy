@@ -29,7 +29,7 @@ finding about the customer's system.
 ## 1. Compile JCL, PARMs, CBL / PROCESS conventions
 
 Request: the compile and bind JCL or procedures (every distinct compile step, including CICS-, Db2- and batch-flavoured
-ones), any OPTFILE / SYSOPTF member the step reads, and the shop's convention for `CBL` / `PROCESS` cards.
+ones), any OPTFILE / SYSOPTF member the step reads, the **CICS translator options** (the `CICS(...)` compiler option, or the translator step's PARM when the stand-alone translator is used), and the shop's convention for `CBL` / `PROCESS` cards.
 
 - **Why:** the PARM decides TRUNC, NUMPROC, ARITH, INTDATE, CICS / SQL coprocessor use and more (register C1, C5). A
   program built by a different step has a different PARM.
@@ -40,8 +40,8 @@ ones), any OPTFILE / SYSOPTF member the step reads, and the shop's convention fo
 Request: the compiler STEPLIB (library names show the release, for example `IGY630` is Enterprise COBOL 6.3), the
 product and PTF level, and the **IGYCDOPT** listing (the installation-defaults module) or the compile listing's option summary.
 
-- **Why:** a program with no PARM gets the installation defaults. TRUNC, NUMPROC, ARITH, INTDATE, CODEPAGE, ZONEDATA, DISPSIGN, NSYMBOL, SSRANGE
-  and OPTIMIZE change arithmetic and data results (register C1-C5, C10, C11); the version bounds which options exist.
+- **Why:** a program with no PARM gets the installation defaults. TRUNC, NUMPROC, ARITH, INTDATE, CODEPAGE, ZONEDATA / INVDATA, DISPSIGN, NSYMBOL, SSRANGE,
+  NUMCHECK, INITCHECK, AFP, FLOAT and OPTIMIZE change arithmetic and data results (register C1-C5, C10, C11); the version bounds which options exist.
 - **Version bounds the options (#4704):** an option the stated version does not have (NUMCHECK before 6.3, INVDATA before 6.4) is reported by `EffectiveOptions.version_conflicts()`, enters the evidence fingerprint, and means the estate's version or its PARM is wrong: ask the customer which. An estate whose version is not stated (the async credit-card corpus) reports nothing, and every option stays an assumption.
 - **If missing:** `assumed: IBM default` - IBM's shipped defaults for the stated version (for example TRUNC(STD), NUMPROC(NOPFD), ARITH(COMPAT), INTDATE(ANSI), CODEPAGE 1140).
 

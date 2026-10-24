@@ -612,6 +612,72 @@
      "status": "AC"
     }
    ]
+  },
+  {
+   "name": "entry-schd-tc-once",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vi\u009c\u0099\u0087GDL"
+   },
+   "why": "DL/I fault: the first SCHD answers TC (the task already holds the PSB): SCHEDULE-PSB TERMs and schedules again, the second SCHD is clean, and the detail is read and shown as in entry-approved",
+   "dli_faults": [
+    {
+     "op": "SCHD",
+     "nth": 1,
+     "status": "TC"
+    }
+   ]
+  },
+  {
+   "name": "entry-schd-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 1,
+    "CDEMO-CUST-ID": 1,
+    "CDEMO-CPVD-PAU-SELECTED": "vi\u009c\u0099\u0087GDL"
+   },
+   "why": "DL/I fault: every SCHD answers TC (the PSB is still held after the TERM): STATUS-OK is false, 'System error while scheduling PSB' is sent, and PROCESS-ENTER-KEY finds the PSB not scheduled (no SYNCPOINT)",
+   "dli_faults": [
+    {
+     "op": "SCHD",
+     "nth": "*",
+     "status": "TC"
+    }
+   ]
+  },
+  {
+   "name": "pf8-schd-fails",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CPVS",
+    "CDEMO-FROM-PROGRAM": "COPAUS0C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 17,
+    "CDEMO-CUST-ID": 17,
+    "CDEMO-CPVD-PAU-SELECTED": "vp\f\u0083Q\u00829\\"
+   },
+   "why": "DL/I fault: every SCHD answers TC: 'System error while scheduling PSB' and PROCESS-PF8-KEY finds the PSB not scheduled (no SYNCPOINT)",
+   "dli_faults": [
+    {
+     "op": "SCHD",
+     "nth": "*",
+     "status": "TC"
+    }
+   ]
   }
  ],
  "db2": {

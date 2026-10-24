@@ -56,6 +56,7 @@ alive 15+ minutes is listed as `STRAY?` with its pid.
 Heavy: `pr_gates.py --fast` / `--ratchets`, the full or a large pytest run (hundreds of tests or `-n`), `det_port.py run` /
 `check`, `proof_sweep.py`, `evidence.py prove`, `cics_census.py survey`, `crucible_check.py` (golden: `golden-lock.sh`, not
 `heavy-run.sh`), any `EQUIVALENCE_E2E=1` run, a galaxyscope scan of a corpus.
+A queued `heavy-run.sh pr_gates --fast` can wait past a 10 min background timeout: start it with `timeout` 3600000 (#6260).
 Light: `pytest file -k name` on a few tests, `ruff`, `git`, `gh api`, reading files, `register.py render`.
 Put the wrapping in every worker brief (the `gitgalaxy-pr-worker` agent already says so) and do it yourself.
 

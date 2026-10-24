@@ -174,7 +174,7 @@ def test_pli_schema_completeness():
     missing = set(_BASELINE_KEYS) - set(PLI_RULES)
     assert not missing, f"pli rules dict is missing baseline keys entirely (not even None): {missing}"
     extra = set(PLI_RULES) - set(_BASELINE_KEYS)
-    assert extra == {"_visibility_export_list"}, f"unexpected non-baseline keys: {extra}"
+    assert extra == {"_calls_out_masked_blocks", "_visibility_export_list"}, f"unexpected non-baseline keys: {extra}"
 
 
 def test_pli_none_keys_are_the_intended_set():

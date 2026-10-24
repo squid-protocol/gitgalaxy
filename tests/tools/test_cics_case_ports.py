@@ -37,8 +37,12 @@ def test_forge_needs_work(tmp_path):
         ccp.main([str(tmp_path), "--project", str(tmp_path), "--forge", "--ports", str(tmp_path / "p")])
 
 
-def test_overlays_and_summary(tmp_path, capsys):
+def test_overlays_and_summary(tmp_path, capsys, monkeypatch):
     pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det.engine_layout import EngineLayouts
+
+    asked: list = []  # #5649: each program asks the engine for its layouts, by path relative to the case dir
+    monkeypatch.setattr(EngineLayouts, "for_project", classmethod(lambda cls, *a, **k: asked.append(a)))
     crucible = tmp_path / "cc"
     crucible.mkdir()
     (crucible / "SPEC.md").write_text("spec")
@@ -62,3 +66,4 @@ def test_overlays_and_summary(tmp_path, capsys):
     assert "package com.x.service;" in port and "gitgalaxy-det-port" in port
     assert (ports / "GTDEMO" / "overlay" / "cobolrt" / "Cobol.java").is_file()
     assert "--sides cobol-stub java-ported" in capsys.readouterr().out
+    assert [(a[1].name, a[2]) for a in asked] == [("gt-demo", "src/GTDEMO.cbl"), ("gt-demo", "src/GTDEM2.cbl")]

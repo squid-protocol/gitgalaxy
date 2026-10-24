@@ -27,7 +27,9 @@ sys.path.insert(0, str(TESTS / "tools"))
 CC = shutil.which("cc") or shutil.which("gcc")
 needs_cc = pytest.mark.skipif(CC is None, reason="needs a C compiler")
 needs_javac = pytest.mark.skipif(shutil.which("javac") is None, reason="needs a JDK (javac)")
-javac = shutil.which("javac") or "javac"  # PATH's javac by its path: tests/tools/javac_server.py serves only an absolute one
+javac = (
+    shutil.which("javac") or "javac"
+)  # PATH's javac by its path: tests/tools/javac_server.py serves only an absolute one
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 _STUB_MAIN = r"""
@@ -60,18 +62,49 @@ def _stub_obj() -> Path:
     return obj
 
 
+_GG_CICS_TYPEDEF = re.compile(r"typedef struct \{[^}]*\} gg_cics;")
+
+
+@functools.cache
+def _stub_struct() -> str:
+    """The stub's own `gg_cics` typedef, read from ggcics.c."""
+    found = _GG_CICS_TYPEDEF.search(STUB.read_text(encoding="utf-8"))
+    assert found, "ggcics.c no longer declares `typedef struct {...} gg_cics;`"
+    return found.group(0)
+
+
+def _with_stub_struct(main: str) -> str:
+    """#6430: a main's own shorter `gg_cics` typedef is replaced by the stub's. A stub function that writes a field past
+    the main's copy (GGCLINK's `go_to`, #6400) overran the main's stack struct, which crashed on macOS only."""
+    return _GG_CICS_TYPEDEF.sub(lambda _m: _stub_struct(), main)
+
+
 @functools.cache
 def _compiled_stub(main: str) -> Path:
     base = Path(tempfile.mkdtemp(prefix="gitgalaxy-ggcics-exe-"))
     atexit.register(shutil.rmtree, base, True)
     src = base / "main.c"
-    src.write_text("#include <stdlib.h>\n" + main, encoding="ascii")
+    src.write_text("#include <stdlib.h>\n" + _with_stub_struct(main), encoding="ascii")
     exe = base / ("stub.exe" if os.name == "nt" else "stub")
     built = subprocess.run(
         [CC, "-o", str(exe), str(src), str(_stub_obj())], check=False, capture_output=True, text=True
     )  # noqa: S603
     assert built.returncode == 0, built.stderr  # the compiler's own words, on every OS
     return exe
+
+
+def test_every_stub_main_is_compiled_against_the_stubs_own_gg_cics_struct():
+    """#6430: the mains in this file declare shorter `gg_cics` structs; compiling swaps in ggcics.c's, so no stub
+    function can write past a main's copy."""
+    mains = re.findall(
+        r"^_[A-Z0-9_]*MAIN\w* = r\"\"\"(.*?)\"\"\"", Path(__file__).read_text(encoding="utf-8"), re.S | re.M
+    )
+    assert mains and any(_GG_CICS_TYPEDEF.search(m) for m in mains)
+    for main in mains:
+        swapped = _with_stub_struct(main)
+        assert swapped.count("} gg_cics;") == main.count("} gg_cics;")
+        assert all(m == _stub_struct() for m in _GG_CICS_TYPEDEF.findall(swapped))
+    assert "int go_to;" in _stub_struct() and "tochan" in _stub_struct()
 
 
 def _stub(tmp_path: Path, main: str) -> Path:
@@ -868,7 +901,7 @@ def test_the_stubs_aid_bytes_are_the_harness_dfhaid():
     values = {}
     for m in re.finditer(r"02 (DFH\w+)\s+PIC X VALUE (X'([0-9A-F]{2})'|'(''|[^'])')\.", cpy):
         values[m.group(1)] = chr(int(m.group(3), 16)) if m.group(3) else ("'" if m.group(4) == "''" else m.group(4))
-    src = STUB.read_text()
+    src = STUB.read_text() + (STUB.parent / "ggcics_conditions.c").read_text()  # #5274: GGCAID moved to its family file
     for key, dfh in names.items():
         m = re.search(r'\{"' + key + r'", (\'\\\'\'|\'.\'|0x[0-9A-F]+)\}', src)
         assert m, key
@@ -3449,9 +3482,18 @@ def test_the_stub_web_open_converse_close(tmp_path):
     out = subprocess.run([str(exe), *_X35_STEPS], env=env, capture_output=True, text=True, check=True)  # noqa: S603
     assert out.stdout.splitlines() == _X35_EXPECTED
     events = (tmp_path / "out" / "events.txt").read_text(encoding="latin-1").splitlines()
-    assert [e.split()[1] for e in events] == ["WEB-CONVERSE"] * 4
-    assert "method=PUT" in events[1] and "body=1" in events[1] and "media=746578742F706C61696E" in events[1]
-    assert "query=636C6561723D2A" in events[3] and "resp=22 resp2=57" in events[3]
+    assert [e.split()[1] for e in events] == ["WEB-OPEN"] * 5 + ["WEB-CONVERSE"] * 4 + ["WEB-CLOSE"] * 2
+    hx = lambda t: t.encode("latin-1").hex().upper()  # noqa: E731  # #4767: the connection as the program named it
+    assert events[0].endswith(f"host={hx('zecs.example')} scheme=HTTP resp=0 resp2=0")  # URIMAP: the peer's host
+    assert events[1].endswith(f"host={hx('ZECS.EXAMPLE')} scheme=HTTP resp=0 resp2=0")  # HOST: as the program wrote it
+    assert events[2].endswith("host=- scheme=HTTP resp=22 resp2=21")  # HOSTLENGTH 0: no host
+    assert events[3].endswith(f"host={hx('zecs.example')} scheme=HTTP resp=16 resp2=138")
+    assert events[4].endswith(f"host={hx('zecs.example')} scheme=- resp=16 resp2=40")  # a scheme that is neither
+    assert events[9].endswith("WEB-CLOSE pgm= resp=0 resp2=0")
+    assert events[10].endswith("WEB-CLOSE pgm= resp=19 resp2=27")
+    conv = events[5:9]
+    assert "method=PUT" in conv[1] and "body=1" in conv[1] and "media=746578742F706C61696E" in conv[1]
+    assert "query=636C6561723D2A" in conv[3] and "resp=22 resp2=57" in conv[3]
     for steps, why in _X35_REFUSED:
         bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
@@ -3520,7 +3562,7 @@ def test_cics_task_web_open_converse_close_as_the_stub_does(tmp_path):
         for (java.util.Map<String, Object> e : t.events()) {{
             System.out.println(e.get("event") + " " + e.get("host") + " " + e.get("method") + " " + e.get("path") + " ["
                     + e.get("query") + "] " + e.get("mediatype") + " " + e.get("body") + " " + e.get("resp") + "/"
-                    + e.get("resp2"));
+                    + e.get("resp2") + " " + e.get("scheme"));
         }}
         String[][] refused = {{{", ".join("{" + ", ".join('"' + x + '"' for x in steps) + "}" for steps, _ in _X35_REFUSED)}}};
         for (String[] steps : refused) {{
@@ -3561,12 +3603,20 @@ def test_cics_task_web_open_converse_close_as_the_stub_does(tmp_path):
     lines = out.splitlines()
     n = len(_X35_EXPECTED)
     assert lines[:n] == _X35_EXPECTED
-    assert lines[n:n + 4] == [
-        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0",
-        "WEB-CONVERSE zecs.example PUT /resources/zc01/k1 [] text/plain stored-data 0/0",
-        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0",
-        "WEB-CONVERSE zecs.example DELETE /deplicate/k2 [clear=*] null null 22/57"]  # fmt: skip
-    refusals = [ln for ln in lines[n + 4 :] if not ln.startswith(("open ", "conv "))]
+    # #4767: each connection opened and closed is recorded too (WEB-OPEN host and scheme as the connection names them)
+    assert lines[n:n + 11] == [
+        "WEB-OPEN zecs.example null null [null] null null 0/0 HTTP",
+        "WEB-OPEN ZECS.EXAMPLE null null [null] null null 0/0 HTTP",
+        "WEB-OPEN  null null [null] null null 22/21 HTTP",
+        "WEB-OPEN zecs.example null null [null] null null 16/138 HTTP",
+        "WEB-OPEN zecs.example null null [null] null null 16/40 null",
+        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0 null",
+        "WEB-CONVERSE zecs.example PUT /resources/zc01/k1 [] text/plain stored-data 0/0 null",
+        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0 null",
+        "WEB-CONVERSE zecs.example DELETE /deplicate/k2 [clear=*] null null 22/57 null",
+        "WEB-CLOSE null null null [null] null null 0/0 null",
+        "WEB-CLOSE null null null [null] null null 19/27 null"]  # fmt: skip
+    refusals = [ln for ln in lines[n + 11 :] if not ln.startswith(("open ", "conv "))]
     assert len(refusals) == len(_X35_REFUSED) + 1
     for got, (_steps, why) in zip(refusals, _X35_REFUSED):
         assert why in got and got.endswith(": not modelled"), (got, why)
@@ -3590,6 +3640,13 @@ _X36_STEPS = [
     "parse http://h:80x = 40 - -",
     "parse ://h = 40 - -",
     "parse http://h:65535/x = 40 40 -",
+    "parse http://[2001:db8::1]:81/a?b=c = 40 40 40",
+    "parse https://[::1]/p = 40 40 -",
+    "parse http://192.0.2.7:8080/a?b=c = 40 40 40",
+    "parse http://zecs.example/p = 5 40 -",
+    "parse http://zecs.example/long/path = 40 5 -",
+    "parse http://h/p?abcdef = 40 40 3",
+    "parse http://h/p?abcdef = 40 40 6",
 ]
 _X36_EXPECTED = [
     "parse 0/0 [HTTP] [zecs.example] 8080 [/resources/a] [k=v] 12 12 3",
@@ -3605,11 +3662,25 @@ _X36_EXPECTED = [
     "parse 16/28",
     "parse 16/28",
     "parse 0/0 [HTTP] [h] 65535 [/x] [] 1 2 -",
+    "parse 0/0 [HTTP] [2001:db8::1] 81 [/a] [b=c] 11 2 3",
+    "parse 0/0 [HTTPS] [::1] 443 [/p] [] 3 2 -",
+    "parse 0/0 [HTTP] [192.0.2.7] 8080 [/a] [b=c] 9 2 3",
+    "parse 22/29",
+    "parse 22/30",
+    "parse 22/8",
+    "parse 0/0 [HTTP] [h] 80 [/p] [abcdef] 1 2 6",
 ]
 _X36_REFUSED = [  # (steps, what both runtimes stop with)
     (["parse ftp://h/p = 40 40 -"], "scheme other than HTTP / HTTPS"),
-    (["parse http://u@h/p = 40 40 -"], "user-info or IPv6 host"),
-    (["parse http://[::1]/p = 40 40 -"], "user-info or IPv6 host"),
+    (["parse http://u@h/p = 40 40 -"], "user-info"),
+    (["parse http://[::1/p = 40 40 -"], "IPv6 host that is not"),
+    (["parse http://[]/p = 40 40 -"], "IPv6 host that is not"),
+    (["parse http://[::1]x/p = 40 40 -"], "IPv6 host that is not"),
+    (["parse http://[g::1]/p = 40 40 -"], "IPv6 host that is not"),
+    (["parse http://[::1]]/p = 40 40 -"], "IPv6 host that is not"),
+    (["parse http://h]/p = 40 40 -"], "IPv6 host that is not"),
+    (["parse http://[::1]:/p = 40 40 -"], "empty port"),
+    (["parse http://[::1]:0/p = 40 40 -"], "port 0"),
     (["parse http://h/p#f = 40 40 -"], "fragment"),
     (["parse http://h:/p = 40 40 -"], "empty port"),
     (["parse http://h:0/p = 40 40 -"], "port 0"),
@@ -3617,8 +3688,11 @@ _X36_REFUSED = [  # (steps, what both runtimes stop with)
     (["parse http://h/p 0 40 - -"], "URLLENGTH not above zero"),
     (["parse http://h/p 70 40 - -"], "length beyond its area"),
     (["parse http://h/p = 50 40 -"], "length beyond its area"),
-    (["parse http://zecs.example/p = 5 40 -"], "piece longer than its length"),
-    (["parse http://zecs.example/long/path = 40 5 -"], "piece longer than its length"),
+    (["parse http://zecs.example/long/path = 5 5 -"], "more than one condition at once"),
+    (["parse http://zecs.example/p?abc = 5 40 2"], "more than one condition at once"),
+    (["parse http://zecs.example/%4 = 5 40 -"], "more than one condition at once"),
+    (["parse http://zecs.example:99999/p = 5 40 -"], "more than one condition at once"),
+    (["parse http://zecs.example = 5 40 5"], "PATH or QUERYSTRING the URL has none of"),
     (["parse http://h = 40 40 -"], "PATH or QUERYSTRING the URL has none of"),
     (["parse http://h/p = 40 40 40"], "PATH or QUERYSTRING the URL has none of"),
     (["parse x%4 = 40 - -"], "more than one condition at once"),
@@ -3668,8 +3742,9 @@ int main(int argc, char **argv) {
 @needs_cc
 def test_the_stub_web_parse_url(tmp_path):
     """#4767 zECS (register X36), IBM WEB PARSE URL: scheme (upper case, blank-padded), host, port (explicit, else 80 / 443),
-    path and query string (still escaped) with their lengths; INVREQ 28 for a URL that is none, INVREQ 65 for a bad escape;
-    what IBM leaves open is refused."""
+    path and query string (still escaped) with their lengths, an IPv6 host without its brackets; INVREQ 28 for a URL that is
+    none, INVREQ 65 for a bad escape, LENGERR 29 / 30 / 8 for a host / path / query string longer than its length; what IBM
+    leaves open (two conditions at once, a malformed IPv6 host) is refused."""
     exe = _stub(tmp_path, _X36_MAIN)
     env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
     (tmp_path / "out").mkdir()

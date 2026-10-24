@@ -6,7 +6,12 @@
 // it a much stronger reference than a name-matching tool, though still not
 // ground truth: an `any` receiver or an unresolved import leaves it silent.
 //
-//   node tests/tools/ts_callgraph.js <repo>   > graph.json
+//   node tests/tools/ts_callgraph.js <repo> [--js]  > graph.json
+//
+// `--js` (the `javascript` mode, #3781) reads .js/.cjs/.mjs/.jsx instead of the
+// TypeScript files, with `allowJs` so the same checker resolves CommonJS
+// `require` and `exports.f = function` declarations. Untyped receivers leave
+// the checker silent more often: those links come back unconfirmed.
 //
 // Needs the `typescript` package on NODE_PATH (CI pins it; the Python side
 // passes `npm root -g` when NODE_PATH is unset). Output:
@@ -34,9 +39,11 @@ if (typeof ts.createProgram !== "function") {
   process.exit(3);
 }
 
-const repo = path.resolve(process.argv[2] || ".");
+const args = process.argv.slice(2);
+const JS = args.includes("--js");
+const repo = path.resolve(args.find((a) => !a.startsWith("--")) || ".");
 const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "build", "out", "coverage"]);
-const SOURCE = /\.(c|m)?tsx?$/;
+const SOURCE = JS ? /\.(c|m)?jsx?$/ : /\.(c|m)?tsx?$/;
 const DECLARATION = /\.d\.(c|m)?ts$/;
 
 function walk(dir, out) {
@@ -62,7 +69,7 @@ function compilerOptions() {
   return Object.assign(
     { target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.NodeNext, moduleResolution: ts.ModuleResolutionKind.NodeNext },
     options,
-    { noEmit: true, skipLibCheck: true, allowJs: false, types: [], jsx: ts.JsxEmit.Preserve },
+    { noEmit: true, skipLibCheck: true, allowJs: JS, checkJs: false, types: [], jsx: ts.JsxEmit.Preserve },
   );
 }
 
@@ -119,6 +126,19 @@ function keyOf(node) {
 // The function a declaration names: itself, a bound arrow/function
 // expression, or a class's constructor (`new Foo()` runs it).
 function functionOf(decl) {
+  // JavaScript assignment declarations: `exports.f = function`, `proto.m = () => {}`
+  // declare the property on the access expression (or the whole assignment).
+  if (ts.isBinaryExpression(decl) && decl.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+    const rhs = unwrap(decl.right);
+    return ts.isArrowFunction(rhs) || ts.isFunctionExpression(rhs) ? rhs : null;
+  }
+  if ((ts.isPropertyAccessExpression(decl) || ts.isElementAccessExpression(decl)) && ts.isBinaryExpression(decl.parent)) {
+    const b = decl.parent;
+    if (b.left === decl && b.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+      const rhs = unwrap(b.right);
+      return ts.isArrowFunction(rhs) || ts.isFunctionExpression(rhs) ? rhs : null;
+    }
+  }
   if (ts.isFunctionDeclaration(decl) || ts.isMethodDeclaration(decl) || ts.isConstructorDeclaration(decl)) {
     return decl.body ? decl : null; // an overload signature has no body
   }

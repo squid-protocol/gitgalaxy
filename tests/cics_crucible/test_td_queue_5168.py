@@ -21,6 +21,10 @@ CicsTask over one operation list per scenario (IBM, CICS TS 6.x, READQ TD / TDQU
 * IOERR on READQ TD (a planned fault, "READQ-TD"; IBM states no RESP2): "the data record in error is skipped", so an open
   extrapartition input queue loses its next record and nothing reaches INTO / SET. Only an open extrapartition queue consults the
   plan (NOTOPEN, INVREQ, QZERO, LENGERR, QIDERR and DISABLED answer first and do not count); _PLANS names the faults per scenario.
+* QBUSY on READQ TD NOSUSPEND (a planned fault, "READQ-TD", no RESP2): a LOGICAL intrapartition queue holding no record answers the
+  plan ("another task is writing to or deleting from" it); a queue with a record, or that is not LOGICAL, does not consult it. The
+  plan needs NOSUSPEND (N:queue:n; without it IBM suspends the task: refused); QBUSY on an extrapartition queue is refused, as is
+  IOERR on a LOGICAL intrapartition one. ASSUMED: every record on the queue counts as committed (a record written in the same unit of work too).
 
 Operations: W:queue:text writes, R:queue:n reads INTO an 8-byte area with LENGTH(n), P:queue reads SET, D:queue deletes, S is a
 SYNCPOINT, B a SYNCPOINT ROLLBACK, O:queue:cvda SET TDQUEUE OPENSTATUS, Q:queue INQUIRE TDQUEUE OPENSTATUS and TYPE,
@@ -317,6 +321,28 @@ _SCENARIOS: dict[str, tuple[dict[str, str] | None, dict[str, list[str]], list[st
         {"XXXX": _E, "IIII": "INDIRECT INDIRECTNAME=XXXX"}, {"XXXX": ["one", "two"]}, ["R:IIII:8", "R:XXXX:8", "R:IIII:8"],
         [f"R:IIII:8 resp=17 len=-1 {R8}", "R:XXXX:8 resp=0 len=3 into=two.....", f"R:IIII:8 resp=23 len=-1 {R8}"],
     ),
+    # QBUSY (X61): the planned fault of READQ TD NOSUSPEND on a LOGICAL intrapartition queue with no committed record
+    "planned qbusy on an empty logical queue": (
+        {"LLLL": _L}, {}, ["N:LLLL:8", "N:LLLL:8"], [f"N:LLLL:8 resp=25 len=-1 {R8}", f"N:LLLL:8 resp=23 len=-1 {R8}"],
+    ),
+    "planned qbusy waits for the records to be read": (
+        {"LLLL": _L}, {"LLLL": ["a", "b"]}, ["N:LLLL:8", "N:LLLL:8", "N:LLLL:8", "N:LLLL:8"],
+        ["N:LLLL:8 resp=0 len=1 into=a.......", "N:LLLL:8 resp=0 len=1 into=b.......", f"N:LLLL:8 resp=25 len=-1 {R8}",
+         f"N:LLLL:8 resp=23 len=-1 {R8}"],
+    ),
+    "planned qbusy on every read": (
+        {"LLLL": _L}, {}, ["N:LLLL:8", "N:LLLL:8"], [f"N:LLLL:8 resp=25 len=-1 {R8}", f"N:LLLL:8 resp=25 len=-1 {R8}"],
+    ),
+    "planned qbusy without NOSUSPEND": ({"LLLL": _L}, {}, ["R:LLLL:8"], ["REFUSED"]),
+    "planned qbusy is not consulted by a queue that is not logical": (
+        {"NNNN": "INTRA RECOVSTATUS=NO", "PPPP": "INTRA RECOVSTATUS=PHYSICAL", "AAAA": "INTRA"}, {},
+        ["N:NNNN:8", "N:PPPP:8", "N:AAAA:8"], [f"N:{q}:8 resp=23 len=-1 {R8}" for q in ("NNNN", "PPPP", "AAAA")],
+    ),
+    "planned qbusy on an extrapartition queue": ({"XXXX": _E}, {"XXXX": ["x"]}, ["N:XXXX:8"], ["REFUSED"]),
+    "planned qbusy follows a write of the same unit of work": (
+        {"LLLL": _L}, {}, ["W:LLLL:w1", "N:LLLL:8", "N:LLLL:8"],
+        ["W:LLLL:w1 resp=0", "N:LLLL:8 resp=0 len=2 into=w1......", f"N:LLLL:8 resp=25 len=-1 {R8}"],
+    ),
 }  # fmt: skip
 
 # the faults a scenario plans (the equivalence harness's form; ec.fault_lines turns them into both runtimes' lines)
@@ -335,6 +361,22 @@ _PLANS: dict[str, list[dict]] = {
     ],
     "planned ioerr through an indirect queue": [{"cmd": "READQ-TD", "queue": "IIII", "resp": "IOERR"}],
 }
+
+
+_QB = {"cmd": "READQ-TD", "queue": "LLLL", "resp": "QBUSY"}
+_PLANS.update(
+    {
+        "planned qbusy on an empty logical queue": [_QB],
+        "planned qbusy waits for the records to be read": [_QB],
+        "planned qbusy on every read": [{**_QB, "nth": "*"}],
+        "planned qbusy without NOSUSPEND": [_QB],
+        "planned qbusy is not consulted by a queue that is not logical": [
+            {**_QB, "queue": q, "nth": "*"} for q in ("NNNN", "PPPP", "AAAA")
+        ],
+        "planned qbusy on an extrapartition queue": [{**_QB, "queue": "XXXX"}],
+        "planned qbusy follows a write of the same unit of work": [_QB],
+    }
+)
 
 
 def _plan_lines(name: str) -> list[str]:
@@ -420,6 +462,7 @@ int main(int argc, char **argv) {
             int max;
             c.len = atoi(a + 7);
             max = c.len;
+            if (a[0] == 'N') strcpy(c.flags, "TDNOSUSPEND");
             GGCRDTD(&c, into, 8);
             printf("%s resp=%d len=%d into=%s\n", a, c.resp, (c.resp == 0 || (c.resp == 22 && max >= 0)) ? c.len : -1, into);
         }
@@ -481,8 +524,9 @@ def _java_scenario(name: str, queues, seed, ops) -> str:
         chain += f".withTdQueues(java.util.Set.of({names})).withTdQueueTypes(java.util.Map.of({types}))"
         if attrs:
             chain += f".withTdQueueAttributes({attrs})"
+    # one method per scenario: a single main for them all passes the JVM's 64 KB method limit
     return f"""
-        {{
+        new Object() {{ void go() {{
             System.out.println("== {name}");
             {" ".join(setup)}
             CicsTask t = new CicsTask("T", "ENTER", null, null){chain};
@@ -532,7 +576,7 @@ def _java_scenario(name: str, queues, seed, ops) -> str:
                         }}
                         System.out.println(op + " resp=" + r.resp() + " len=" + r.length() + " block=" + block);
                     }} else {{
-                        CicsTask.TdResult r = t.readqTd(p[1], Integer.parseInt(p[2]));
+                        CicsTask.TdResult r = t.readqTd(p[1], Integer.parseInt(p[2]), p[0].equals("N"));
                         String into = "........";
                         if (r.data() != null) {{
                             into = r.data() + into.substring(r.data().length());
@@ -544,7 +588,7 @@ def _java_scenario(name: str, queues, seed, ops) -> str:
                     break run;
                 }}
             }}
-        }}"""
+        }} }}.go();"""
 
 
 @pytest.fixture(scope="module")
@@ -571,6 +615,11 @@ def test_cics_task_runs_each_scenario_as_the_stub_does(name, java_outputs):
 def test_a_readq_td_fault_is_planned_as_ioerr_with_no_resp2_and_nothing_else():
     ok = {"name": "s", "faults": [{"cmd": "READQ-TD", "queue": "XXXX", "resp": "IOERR", "nth": 2}]}
     assert ec.fault_lines(ok) == [f"READQ-TD XXXX 2 {ec.CICS_RESP['IOERR']} 0"]
+    busy = {
+        "name": "s",
+        "faults": [{"cmd": "READQ-TD", "queue": "LLLL", "resp": "QBUSY"}],
+    }  # X61: QBUSY, no RESP2 either
+    assert ec.fault_lines(busy) == [f"READQ-TD LLLL 1 {ec.CICS_RESP['QBUSY']} 0"]
     for bad in (
         {"resp": "NOTOPEN"},
         {"resp": "QZERO"},

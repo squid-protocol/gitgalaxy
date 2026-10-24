@@ -30,6 +30,8 @@ MUTATION_PENDING: dict[str, str] = {
     "carddemo-cbstm03a": "#5856: a det batch port; its L5 mutation run (det_mutation.py run) and survivor review are a follow-up",
     "carddemo-cbpaup0c": "#5857: a det BMP port; its L5 mutation run (det_mutation.py run) and survivor review are a follow-up",
     "carddemo-copaua0c": "#5278: a det CICS port; its L5 mutation run (det_mutation.py run) and survivor review are a follow-up",
+    "carddemo-copaus0c": "#5233: a det CICS port; its L5 mutation run (det_mutation.py run) and survivor review are a follow-up",
+    "carddemo-copaus1c": "#5233: a det CICS port; its L5 mutation run (det_mutation.py run) and survivor review are a follow-up",
 }
 
 
@@ -135,7 +137,7 @@ def test_committed_approvals_name_a_person_and_what_they_attest():
 
 # ---- only a person writes an approval -----------------------------------------------------------------------------
 _TOOLS_WITHOUT_APPROVALS = ("equivalence.py", "equivalence_call.py", "equivalence_cics.py",
-                            "equivalence_cics_containers.py", "equivalence_cics_filecontrol.py", "cics_crucible.py",
+                            "equivalence_cics_conditions.py", "equivalence_cics_containers.py", "equivalence_cics_filecontrol.py", "equivalence_cics_tempstorage.py", "cics_crucible.py",
                             "mutation.py", "mutation_crucible.py", "mutation_scores.py", "crucible_port_provenance.py")  # fmt: skip
 _ALLOWED_WRITERS = {"_append_approval", "new_record", "save"}
 
@@ -410,7 +412,7 @@ def test_a_mistyped_name_signs_nothing(tmp_path):
 def test_the_claim_is_derived_from_the_numbers():
     t, rec = _dateutil()
     text = ev.claim(rec, ev.status(rec, t, live=False))
-    assert text.startswith("**CSUTLDTC**: byte-identical on **17 calls**")
+    assert text.startswith("**CSUTLDTC**: byte-identical on **34 calls**")
     assert "Proven through **handleCall** only; **0 ported method(s) that no proof runs**" in text
     rec = _with_unproven(rec)
     text = ev.claim(rec, ev.status(rec, t, live=False))
@@ -561,3 +563,23 @@ def test_a_changed_runtime_value_changes_the_row_and_a_note_does_not():
     noted = copy.deepcopy(effective_options(case, program=t.program))
     noted.runtime_sources = {k: "changed note" for k in noted.runtime_sources}
     assert noted.fingerprint()["runtime"] == base
+
+
+def test_the_page_shows_the_compiler_options_a_proof_ran_under():
+    t, rec = _runtime_record()
+    rec["inputs"]["options"]["effective"]["semantic"] = {"ARITH": "COMPAT", "TRUNC": "STD"}
+    (row,) = [ln for ln in ev.render_page(t, rec).splitlines() if ln.startswith("| compiler options |")]
+    assert ev.json_sha256({"ARITH": "COMPAT", "TRUNC": "STD"})[:16] in row
+    assert "(2): ARITH=COMPAT, TRUNC=STD" in row
+
+
+@pytest.mark.parametrize("semantic", [None, {}])
+def test_a_record_with_no_compiler_options_renders_no_row(semantic):
+    t, rec = _runtime_record()
+    rec["inputs"]["options"]["effective"].pop("semantic", None)
+    if semantic is not None:
+        rec["inputs"]["options"]["effective"]["semantic"] = semantic
+    page = ev.render_page(t, rec)
+    assert "| compiler options |" not in page
+    assert ev.compiler_line(rec["inputs"]["options"]) is None
+    assert ev.compiler_line(None) is None

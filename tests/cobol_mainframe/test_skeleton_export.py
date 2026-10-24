@@ -193,3 +193,20 @@ def test_the_java_generator_uses_the_skeleton(scanned, tmp_path):
     assert skeleton["program"]["program_ids"] == ["MENU"]
     assert skeleton["full_skeleton"] == f"{clean.name}/06_skeleton/MENU_skeleton.json"
     assert Path(tmp_path, skeleton["full_skeleton"]).is_file()
+
+
+def test_the_per_program_index_is_the_row_scan_it_replaced():
+    """#5142: `_by_program` hands each path the rows the old per-program scan kept: any key, join order, once per path."""
+    from gitgalaxy.tools.cobol_to_cobol.skeleton_export import _PROGRAM_KEYS, _by_program
+
+    rows = [
+        {"file": "A.cbl", "caller": "A.cbl", "callee": "B.cbl"},  # one row naming A under two keys, B under one
+        {"file": "B.cbl", "target": ["not", "a", "path"]},
+        {"program": None, "to": "A.cbl"},
+        {"file": 7, "reader": "C.pli"},
+        {"unrelated": "A.cbl"},
+    ]
+    index = _by_program(rows)
+    for path in ("A.cbl", "B.cbl", "C.pli", "missing.cbl"):
+        assert index.get(path, []) == [r for r in rows if any(r.get(k) == path for k in _PROGRAM_KEYS)]
+    assert index["A.cbl"] == [rows[0], rows[2]]

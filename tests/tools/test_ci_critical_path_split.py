@@ -187,7 +187,7 @@ def test_the_ground_truth_seconds_are_recorded_and_the_parts_balanced():
     cut them by a default weight. Refresh from the test-times-ground-truth-part-N artifacts of a main run; the replay
     of the parts must then be within 20% (#5133 acceptance)."""
     seconds, totals = _ground_truth_totals()
-    assert len(seconds) > 5500, f"only {len(seconds)} tests/cobol_mainframe/ durations recorded: refresh them"
+    assert len(seconds) > 7000, f"only {len(seconds)} tests/cobol_mainframe/ durations recorded: refresh them"
     assert max(totals) <= min(totals) * 1.2, totals
     assert seconds[0] < sum(totals) / 4, "one test is a quarter of the ground-truth job: no split can balance it"
 
@@ -311,10 +311,10 @@ def test_the_three_pre_gates_are_one_job():
     jobs = _jobs("gitgalaxy.yml")
     assert {"vault-sentinel", "xray-inspector", "supply-chain-firewall"}.isdisjoint(jobs)
     steps = jobs["pre-gate"]["steps"]
-    tools = [s["with"]["tool"] for s in steps if s.get("uses") == "./"]
-    assert tools == ["vault-sentinel", "xray-inspector", "supply-chain-firewall"]
+    gates = [s for s in steps if s.get("uses") == "./"]
+    assert [s["with"]["tool"] for s in gates] == ["vault-sentinel", "xray-inspector", "supply-chain-firewall"]
     # each gate runs even when an earlier one failed, and none may swallow its own failure
-    assert all("!cancelled()" in str(s.get("if", "")) for s in steps[2:])
+    assert all("!cancelled()" in str(s.get("if", "")) for s in gates[1:])
     assert not any(s.get("continue-on-error") for s in steps)
 
 

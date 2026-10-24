@@ -261,7 +261,35 @@ def mainframe_root(arg: Path | None) -> Path:
     return Path(env.get("GITGALAXY_MAINFRAME_CORPORA") or REPO / ".mainframe_corpora")
 
 
-def census_root(arg: Path | None, required: bool) -> Path | None:
+def check_census_root(path: Path) -> None:
+    """#6064: a census root a survey counts must hold exactly the census repos (equivalence_env.census_repos()), each
+    with at least one program. A wrong root otherwise gives a silent 0/0 or placeholder corpora (`main`, `scratch`)."""
+    import equivalence_env
+
+    expected = {r.split("/")[-1].lower(): r for r in equivalence_env.census_repos()}
+    found = dict(corpus_dirs([path]))
+    have = {n.lower(): d for n, d in found.items()}
+    missing = sorted(expected[n] for n in expected if n not in have)
+    unexpected = sorted(n for n in found if n.lower() not in expected)
+    empty = sorted(
+        expected[n]
+        for n in expected
+        if n in have
+        and not any(
+            f.is_file() and f.suffix.lower() in PROGRAM_EXTS and ".git" not in f.relative_to(have[n]).parts
+            for f in have[n].rglob("*")
+        )
+    )
+    if missing or unexpected or empty:
+        parts = [f"{label}: {', '.join(names)}" for label, names in
+                 (("missing", missing), ("unexpected", unexpected), ("no COBOL program", empty)) if names]  # fmt: skip
+        raise SystemExit(
+            f"{path} is not the census root (it must hold exactly equivalence_env.census_repos(), each with a "
+            f"program): {'; '.join(parts)}. Provision it with `equivalence_env.py --provision`, or pass --no-census"
+        )
+
+
+def census_root(arg: Path | None, required: bool, strict: bool = False) -> Path | None:
     path = arg or (Path(os.environ[CENSUS_ENV]) if os.environ.get(CENSUS_ENV) else None)
     if path is None or not path.is_dir():
         if not required:
@@ -272,6 +300,8 @@ def census_root(arg: Path | None, required: bool) -> Path | None:
             f"directory and pass --census-corpora DIR or set {CENSUS_ENV} (never commit anything from them), or "
             f"pass --no-census to count the burned / local corpora only"
         )
+    if strict:
+        check_census_root(path)
     known = census_names()
     for name, _ in corpus_dirs([path]):
         if name.lower() not in known and not is_burned(name):
@@ -280,9 +310,11 @@ def census_root(arg: Path | None, required: bool) -> Path | None:
     return path
 
 
-def roots_from(args: argparse.Namespace) -> list[Path]:
+def roots_from(args: argparse.Namespace, strict: bool = False) -> list[Path]:
     roots = [mainframe_root(args.corpora)]
-    census = None if args.no_census else census_root(args.census_corpora, required=True)  # (--no-census: no env either)
+    census = (
+        None if args.no_census else census_root(args.census_corpora, required=True, strict=strict)
+    )  # (--no-census: no env either)
     return roots + ([census] if census else [])
 
 
@@ -343,7 +375,7 @@ def cmd_survey(args: argparse.Namespace) -> int:
     if args.out is None:
         raise SystemExit("survey needs --out DIR (or --baseline)")
     mainframe = mainframe_root(args.corpora)
-    census = None if args.no_census else census_root(args.census_corpora, required=True)  # (--no-census: no env either)
+    census = None if args.no_census else census_root(args.census_corpora, required=True, strict=True)  # (#6064)
     uses = usage([mainframe, *([census] if census else [])], args.verb) if args.verb else None
     runs = survey_runs(mainframe, census, uses, args.corpus)
     return run_det_survey(args.out, args.label, runs, jobs=args.jobs, compile_ports=args.compile)
@@ -558,10 +590,17 @@ def blockers(rows: dict[tuple[str, str], dict[str, Any]], only: set[tuple[str, s
     }
 
 
+def non_burned_text(res: dict[str, Any]) -> str:
+    """#6064: a --no-census run that counted no non-burned program (no local ones either) says `non-burned: not
+    surveyed`, never `non-burned 0 / 0`."""
+    if res.get("census_surveyed") is False and not res["non_burned"]:
+        return "non-burned: not surveyed"
+    return f"non-burned {res['whole_non_burned']} / {res['non_burned']}"
+
+
 def format_blockers(res: dict[str, Any], where: str, top: int = 0) -> str:
     out = [f"# blockers in {where}: {res['scope']}",
-           f"translated whole: {res['whole']} / {res['programs']} (non-burned {res['whole_non_burned']} / "
-           f"{res['non_burned']}); refused whole (no statements translated): {res['refused']}"]  # fmt: skip
+           f"translated whole: {res['whole']} / {res['programs']} ({non_burned_text(res)}); refused whole (no statements translated): {res['refused']}"]  # fmt: skip
     if res.get("cics_programs_not_surveyed"):
         out.append(
             f"CICS programs with no survey row: {res['cics_programs_not_surveyed']} (a corpus left out of the run?)"
@@ -601,11 +640,12 @@ def cmd_blockers(args: argparse.Namespace) -> int:
         if not rows:
             raise SystemExit(f"no {args.label}-*/survey.json under {args.dir} (run `cics_census.py survey --out "
                              f"{args.dir} --label {args.label}` first)")  # fmt: skip
-        only = None if args.all_programs else cics_programs(roots_from(args))
+        only = None if args.all_programs else cics_programs(roots_from(args, strict=True))
         if args.unmask:
             return cmd_unmask(args, args.dir, args.label, only, args.dir / f"unmask-{args.label}")
         res = blockers(rows, only)
         res["scope"] = "every surveyed program" if only is None else "programs with an EXEC CICS command"
+        res["census_surveyed"] = not args.no_census
         if only is not None:
             res["cics_programs_not_surveyed"] = len(only - set(rows))
         where = f"{args.dir}/{args.label}-*"
@@ -625,6 +665,8 @@ HISTORY = REPO / "docs" / "language_status" / "blockers_history.jsonl"
 GENERATED_DIR = "docs/language_status/blockers"
 GENERATED_FILES = ("blockers.txt", "blockers.json", "meta.json")
 GENERATED_HISTORY = f"{GENERATED_DIR}/blockers_history.jsonl"
+# #6064: the LOCAL census series (tests/tools/census_nightly.py): one line per main SHA, census repos included, counts only
+GENERATED_CENSUS_HISTORY = f"{GENERATED_DIR}/census_history.jsonl"
 
 
 def _git(*argv: str) -> str:
@@ -735,7 +777,7 @@ def baseline_census(args: argparse.Namespace, root: Path) -> Path | None:
         return None
     provisioned = root / "census"
     arg = args.census_corpora or (None if os.environ.get(CENSUS_ENV) else provisioned if provisioned.is_dir() else None)
-    return census_root(arg, required=True)
+    return census_root(arg, required=True, strict=True)
 
 
 def cmd_survey_baseline(args: argparse.Namespace) -> int:
@@ -779,7 +821,7 @@ def cmd_survey_baseline(args: argparse.Namespace) -> int:
                 "census": census is not None, "seconds": round(time.time() - start),
                 "runs": {s: {"root": str(r), "corpora": names} for s, r, names in runs},
                 "translator": f"git archive {sha} ({', '.join(SNAPSHOT_PATHS)})"}  # fmt: skip
-        res = baseline_blockers(d)
+        res = baseline_blockers(d, census=census is not None)
         (d / "blockers.json").write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
         text = format_blockers(res, f"baseline {sha[:12]} ({scope})")
         (d / "blockers.txt").write_text(text + "\n", encoding="utf-8")
@@ -789,11 +831,14 @@ def cmd_survey_baseline(args: argparse.Namespace) -> int:
     return 0
 
 
-def baseline_blockers(d: Path, all_programs: bool = False) -> dict[str, Any]:
+def baseline_blockers(d: Path, all_programs: bool = False, census: bool | None = None) -> dict[str, Any]:
     rows = load_surveys(d, "before")
     only = None if all_programs else {tuple(p) for p in json.loads((d / "cics_programs.json").read_text())}
     res = blockers(rows, only)  # type: ignore[arg-type]
     res["scope"] = "every surveyed program" if only is None else "programs with an EXEC CICS command"
+    if census is None:  # (meta.json is written last: a fresh survey passes the flag)
+        census = bool(json.loads((d / "meta.json").read_text(encoding="utf-8")).get("census"))
+    res["census_surveyed"] = census
     if only is not None:
         res["cics_programs_not_surveyed"] = len(only - set(rows))
     return res
@@ -951,6 +996,8 @@ def history_entry(res: dict[str, Any], sha: str, date: str, pr: int, note: str |
     entry = {"pr": pr, "main_sha": sha, "date": date, "whole": w, "total": total, "whole_burned": w - wnb,
              "total_burned": total - nb, "whole_non_burned": wnb, "total_non_burned": nb,
              "refused_whole": res["refused"], "top_gaps": top, "scope": scope}  # fmt: skip
+    if res.get("census_surveyed") is False and not nb:  # #6064: not 0 / 0 -- the census was not surveyed
+        entry |= {"whole_non_burned": None, "total_non_burned": None, "census_surveyed": False}
     if note:
         entry["note"] = note
     return entry
@@ -962,11 +1009,16 @@ def read_history(path: Path = HISTORY) -> list[dict[str, Any]]:
     return [json.loads(ln) for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
 
 
+def nb_cell(e: dict[str, Any]) -> str:
+    return "not surveyed" if e.get("total_non_burned") is None else f"{e['whole_non_burned']}/{e['total_non_burned']}"
+
+
 def cmd_history(args: argparse.Namespace) -> int:
     path = args.file or HISTORY
     if args.action == "show":
         if args.generated:  # the nightly series published by evidence-refresh.yml (#4863)
-            rows = [json.loads(ln) for ln in read_generated(GENERATED_HISTORY).splitlines() if ln.strip()]
+            series = GENERATED_CENSUS_HISTORY if args.series == "census" else GENERATED_HISTORY
+            rows = [json.loads(ln) for ln in read_generated(series).splitlines() if ln.strip()]
         else:
             rows = read_history(path)
         if args.json:
@@ -979,7 +1031,7 @@ def cmd_history(args: argparse.Namespace) -> int:
             ref = "?" if e.get("refused_whole") is None else e["refused_whole"]
             print(f"{e['date'][:10]:<10} {('#' + str(e['pr'])) if e['pr'] else 'nightly':>6} {e['main_sha'][:9]:<10} "
                   f"{e['whole']:>4}/{e['total']:<4} {e['whole_burned']:>3}/{e['total_burned']:<3} "
-                  f"{e['whole_non_burned']:>5}/{e['total_non_burned']:<4} {ref!s:>7}  {top[:70]}"
+                  f"{nb_cell(e):>10} {ref!s:>7}  {top[:70]}"
                   f"{'  (note)' if e.get('note') else ''}")  # fmt: skip
         return 0
     if args.pr is None and not args.nightly:
@@ -1005,7 +1057,7 @@ def append_history(path: Path, d: Path, pr: int, note: str | None, nightly: bool
     with path.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
     print(f"appended to {path}: {'nightly' if nightly else '#' + str(pr)} {sha[:12]} whole {entry['whole']}/"
-          f"{entry['total']} (non-burned {entry['whole_non_burned']}/{entry['total_non_burned']}), refused whole "
+          f"{entry['total']} (non-burned {nb_cell(entry)}), refused whole "
           f"{entry['refused_whole']}")  # fmt: skip
     return 0
 
@@ -1097,6 +1149,8 @@ def main(argv: list[str] | None = None) -> int:
     h.add_argument("--nightly", action="store_true", help="append: a nightly line (no PR; one per SHA)")
     h.add_argument("--generated", action="store_true", help="show: the nightly series on origin/generated "
                    "(blockers_history.jsonl there; fetched first)")  # fmt: skip
+    h.add_argument("--series", choices=["nightly", "census"], default="nightly", help="show --generated: the CI "
+                   "nightly series, or the local census series (census_nightly.py, #6064)")  # fmt: skip
     h.add_argument("--note", help="append: a note (e.g. what the survey left out)")
     h.add_argument("--file", type=Path, help=f"the history file (default {HISTORY.relative_to(REPO)})")
     h.add_argument("--json", action="store_true")

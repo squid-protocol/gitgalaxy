@@ -1130,3 +1130,62 @@ def test_main_green_lists_the_checks_green_on_main_s_tip(monkeypatch):
     sha, green = ci_digest.main_green(api)
     assert sha == MAIN and "det" in green and "ruff-audit" not in green
     assert ci_digest.main_green(lambda p: (_ for _ in ()).throw(SystemExit("x"))) == ("", set())
+
+
+# --- #6061: a permanent auto-merge refusal (the #5950 sequence) ----------------------------------------------------
+
+REFUSAL = (
+    "GraphQL: Pull request refusing to allow a Personal Access Token to create or update workflow "
+    "`.github/workflows/det-sweep.yml` without `workflow` scope (enablePullRequestAutoMerge)"
+)
+
+
+def _replay(passes, own_red):
+    """Run decide + apply for each pass against a fake PR whose labels and calls are recorded; auto-merge is refused."""
+    labels, calls = [sg.MERGE], []
+
+    def run(argv):
+        calls.append(argv)
+        if argv[:3] == ["gh", "pr", "merge"]:
+            return subprocess.CompletedProcess(argv, 1, "", REFUSAL)
+        if "POST" in argv and any(x.startswith("labels[]=") for x in argv):
+            labels.extend(x.split("=", 1)[1] for x in argv if x.startswith("labels[]="))
+        return subprocess.CompletedProcess(argv, 0, "", "")
+
+    logs = []
+    for _ in range(passes):
+        # after the first pass the shepherd's own run is red on the head: it reads as a real failure
+        failed = [failure("real", check="shepherd")] if own_red and len(calls) else []
+        s = snap(labels=list(labels), failed=failed, digest_posted=True)
+        logs += sg.apply(7, s, sg.decide(s), run=run)
+    return labels, calls, logs
+
+
+def test_a_permanent_refusal_is_labelled_once_commented_once_and_not_a_failure():
+    labels, calls, logs = _replay(1, own_red=False)
+    assert labels == [sg.MERGE, sg.OWNER]
+    comments = [c for c in calls if any("/comments" in x for x in c)]
+    assert len(comments) == 1 and "AUTOMATION_PAT" in " ".join(comments[0])
+    assert not any("FAILED" in x for x in logs)
+
+
+def test_the_5950_sequence_has_no_label_churn_and_no_retry_after_the_refusal():
+    labels, calls, logs = _replay(6, own_red=True)
+    merges = [c for c in calls if c[:3] == ["gh", "pr", "merge"]]
+    assert len(merges) == 1  # never retried while the owner status is set
+    assert not any(c for c in calls if "DELETE" in c)  # no status label removed...
+    assert labels == [sg.MERGE, sg.OWNER]  # ...and needs-fix never added
+    api = [c for c in calls if c[:2] == ["gh", "api"]]
+    assert len(api) == 2  # one label add, one comment: nothing else, in 6 passes
+    assert not any("FAILED" in x for x in logs)
+
+
+def test_another_apply_failure_is_still_reported_failed():
+    run = lambda argv: subprocess.CompletedProcess(argv, 1, "", "HTTP 502 bad gateway")  # noqa: E731
+    acts = [{"op": "automerge", "on": True, "sha": SHA}]
+    assert "FAILED" in sg.apply(7, snap(), acts, run=run)[0]
+
+
+def test_the_owner_status_goes_when_the_merge_request_goes():
+    acts = sg.decide(snap(labels=[sg.OWNER]))
+    assert by_op(acts, "labels") == [{"op": "labels", "add": [], "remove": [sg.OWNER]}]

@@ -132,3 +132,31 @@ def test_the_harness_runs_from_the_alias_when_only_the_alias_is_loaded(monkeypat
 def test_the_harness_prefers_the_digest_name(monkeypatch):
     monkeypatch.setattr(db2, "_docker", lambda *a, **k: IDENT)
     assert db2.run_ref() == db2.IMAGE
+
+
+def test_a_start_waits_for_the_background_image_load_before_pulling(monkeypatch, tmp_path):
+    """#5601: the cache load was still running when the harness looked, so it pulled icr.io and failed on a blip."""
+    (tmp_path / "pull.log").write_text("", encoding="utf-8")
+    monkeypatch.setenv("RUNNER_TEMP", str(tmp_path))
+    seen = []
+
+    def docker(*args, **kwargs):
+        seen.append(args)
+        return ""
+
+    def sleep(_seconds):
+        (tmp_path / "pull-done").write_text("1", encoding="utf-8")  # the load ends while we wait
+        monkeypatch.setattr(db2, "_docker", lambda *a, **k: IDENT)  # and the image is there
+
+    monkeypatch.setattr(db2, "_docker", docker)
+    monkeypatch.setattr(db2.time, "sleep", sleep)
+    db2.pull_image()
+    assert not any(a[0] == "pull" for a in seen)
+
+
+def test_no_wait_outside_ci_or_without_a_background_load(monkeypatch, tmp_path):
+    monkeypatch.setattr(db2.time, "sleep", lambda _s: pytest.fail("must not wait"))
+    monkeypatch.delenv("RUNNER_TEMP", raising=False)
+    db2._await_background_load()
+    monkeypatch.setenv("RUNNER_TEMP", str(tmp_path))  # no pull.log: nothing was started
+    db2._await_background_load()

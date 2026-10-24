@@ -323,3 +323,21 @@ def test_fact_ownership_quotes_no_corpus_size():
     text = (REPO / "docs/language_status/fact_ownership.md").read_text(encoding="utf-8")
     universe = _section(text, "- **Universe:**", "- **Engine side:**")
     assert not re.search(r"\b\d+\s+(?:sources|programs|copybooks|COBOL programs)\b", universe), universe
+
+
+# ---- the READMEs that quoted a command / program count by hand (#5282, reusing the guard above) -----------------------
+
+SWEPT_READMES = (
+    "gitgalaxy/standards/cics/README.md",
+    "gitgalaxy/tools/cobol_to_cobol/README.md",
+    "tests/README.md",
+    "docs/ecosystem.md",
+    "docs/self_scan/README.md",
+)
+
+
+@pytest.mark.parametrize("rel", SWEPT_READMES)
+def test_a_swept_readme_carries_no_hand_written_status_number(rel):
+    text = _prose_only((REPO / rel).read_text(encoding="utf-8"))
+    hits = [f"{m.group(0)!r} in {line.strip()[:90]!r}" for line in text.splitlines() for m in COUNT.finditer(line)]
+    assert not hits, f"{rel}: hand-written numbers (read them off the generated page, #5282):\n" + "\n".join(hits)

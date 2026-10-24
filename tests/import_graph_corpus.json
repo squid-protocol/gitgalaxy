@@ -10,6 +10,7 @@
     {"repo": "fmtlib/fmt", "commit": "6d71f74624be5daa548073ff8e4e0c8aa5476010", "language": "cpp"},
     {"repo": "google/gson", "commit": "854c8255b625cf1e13c701a83ea9ccb4caaa576a", "language": "java"},
     {"repo": "expressjs/express", "commit": "9a34acf03cb818ff3f8bc40e44176e277a25cbb9", "language": "javascript"},
+    {"repo": "axios/axios", "commit": "aa54a5e1e0e50cd1a2561b854ae5490ff589d065", "language": "javascript"},
     {"repo": "colinhacks/zod", "commit": "2bf7b0630d5378033e90bcee82cb32b0fe04628e", "language": "typescript"},
     {"repo": "luarocks/luarocks", "commit": "2d2cc8eff2f03c23d142f8059146fb241dcf56b5", "language": "lua"},
     {"repo": "guzzle/guzzle", "commit": "93939470950a9b11e2e84204166ef5e048c55fe4", "language": "php"},
@@ -23,6 +24,8 @@
     {"repo": "circe/circe", "commit": "4e8d5262f0f2c49589739edbcd0d80b8a6392a0a", "language": "scala"},
     {"repo": "koalaman/shellcheck", "commit": "5fe4d422104829b4355ab0304e62f5b611d9c38d", "language": "haskell"},
     {"repo": "Bash-it/bash-it", "commit": "4725d29db8c0ac8c21df47664b28539f3b8fce94", "language": "shell"},
-    {"repo": "OpenZeppelin/openzeppelin-contracts", "commit": "4858ab13a5ad897f59753028f6315f9d487c4322", "language": "solidity"}
+    {"repo": "bats-core/bats-core", "commit": "5b61d8f22b46abf001e218cdd63f2938c356fa93", "language": "shell"},
+    {"repo": "OpenZeppelin/openzeppelin-contracts", "commit": "4858ab13a5ad897f59753028f6315f9d487c4322", "language": "solidity"},
+    {"repo": "JamesNK/Newtonsoft.Json", "commit": "52fa3aef1f2cadcd3a3f874251eddc98d3efbbaa", "language": "csharp"}
   ]
 }

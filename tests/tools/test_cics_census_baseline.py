@@ -67,6 +67,17 @@ def stubbed(tmp_path, monkeypatch):
     return {"calls": calls, "root": tmp_path / "scratch", "main": _corpora(tmp_path)}
 
 
+def _full_census(root: Path) -> Path:
+    """A census root holding exactly equivalence_env.census_repos(), one program each (#6064)."""
+    import equivalence_env
+
+    for repo in equivalence_env.census_repos():
+        d = root / repo.split("/")[-1]
+        d.mkdir(parents=True)
+        (d / "A.cbl").write_text(CICS)
+    return root
+
+
 def _base(st) -> list[str]:
     return ["--root", str(st["root"]), "--corpora", str(st["main"]), "--no-census"]
 
@@ -83,8 +94,7 @@ def test_the_baseline_is_surveyed_once_per_sha(stubbed, capsys):
     capsys.readouterr()
     assert cc.main(argv) == 0  # cached: nothing surveyed
     assert len(stubbed["calls"]) == 1 and "nothing to do" in capsys.readouterr().out
-    census = stubbed["root"].parent / "census"
-    (census / "cics-async-api-redbooks").mkdir(parents=True)
+    census = _full_census(stubbed["root"].parent / "census")
     with_census = ["survey", "--baseline", "--no-fetch", "--root", str(stubbed["root"]), "--corpora",
                    str(stubbed["main"]), "--census-corpora", str(census)]  # fmt: skip
     assert cc.main(with_census) == 2  # cached without the census: says so, never mixes
@@ -271,3 +281,78 @@ def test_no_census_never_reads_the_census_root(tmp_path, monkeypatch, stubbed, c
     with pytest.raises(SystemExit):
         cc.main(["usage", "RETURN", *main, "--census-corpora", str(census)])
     assert "contradict" in capsys.readouterr().err
+
+
+def test_a_bad_census_root_is_refused_naming_the_corpora(stubbed, tmp_path, capsys):
+    """#6064: `main` + `scratch` (the placeholder corpora of the broken 2026-10-14 baseline) is not the census."""
+    import equivalence_env
+
+    bad = tmp_path / "badcensus"
+    for n in ("main", "scratch"):
+        (bad / n).mkdir(parents=True)
+        (bad / n / "A.cbl").write_text(CICS)
+    argv = ["survey", "--baseline", "--no-fetch", "--root", str(stubbed["root"]), "--corpora", str(stubbed["main"]),
+            "--census-corpora", str(bad)]  # fmt: skip
+    with pytest.raises(SystemExit) as e:
+        cc.main(argv)
+    msg = str(e.value)
+    assert "unexpected: main, scratch" in msg and equivalence_env.census_repos()[0] in msg
+    assert not stubbed["calls"] and not (stubbed["root"] / "census-cache" / SHA / "meta.json").exists()
+    with pytest.raises(SystemExit, match="unexpected: main, scratch"):
+        cc.main(
+            ["survey", "--out", str(tmp_path / "s"), "--corpora", str(stubbed["main"]), "--census-corpora", str(bad)]
+        )
+    (tmp_path / "s" / "before-b").mkdir(parents=True)
+    (tmp_path / "s" / "before-b" / "survey.json").write_text(json.dumps({"c": [{"program": "A.cbl"}]}))
+    with pytest.raises(SystemExit, match="unexpected: main, scratch"):
+        cc.main(["blockers", str(tmp_path / "s"), "--corpora", str(stubbed["main"]), "--census-corpora", str(bad)])
+
+
+def test_a_census_root_with_a_missing_or_empty_repo_is_refused(stubbed, tmp_path):
+    import equivalence_env
+
+    census = _full_census(tmp_path / "census")
+    first, second = (r.split("/")[-1] for r in equivalence_env.census_repos()[:2])
+    import shutil
+
+    shutil.rmtree(census / first)
+    (census / second / "A.cbl").unlink()
+    with pytest.raises(SystemExit) as e:
+        cc.check_census_root(census)
+    assert f"missing: {equivalence_env.census_repos()[0]}" in str(e.value)
+    assert f"no COBOL program: {equivalence_env.census_repos()[1]}" in str(e.value)
+
+
+def test_a_full_census_root_passes(tmp_path):
+    cc.check_census_root(_full_census(tmp_path / "census"))
+
+
+def test_a_no_census_run_with_no_non_burned_says_not_surveyed(tmp_path, capsys):
+    """#6064: blockers.txt's header and the history line say `not surveyed`, never `non-burned 0 / 0`."""
+    res = {"scope": "s", "whole": 3, "programs": 3, "whole_non_burned": 0, "non_burned": 0, "refused": 0,
+           "histogram": {}, "gaps": [], "census_surveyed": False}  # fmt: skip
+    assert "non-burned: not surveyed" in cc.format_blockers(res, "w") and "non-burned 0" not in cc.format_blockers(
+        res, "w"
+    )
+    assert "non-burned 0 / 0" in cc.format_blockers({**res, "census_surveyed": True}, "w")
+    assert "non-burned 0 / 0" in cc.format_blockers({k: v for k, v in res.items() if k != "census_surveyed"}, "w")
+    local = {**res, "non_burned": 2, "whole_non_burned": 1}  # local non-burned corpora were counted: show them
+    assert "non-burned 1 / 2" in cc.format_blockers(local, "w")
+    entry = cc.history_entry(res, SHA, "2026-10-22T00:00:00Z", 0, None, "burned")
+    assert entry["whole_non_burned"] is None and entry["total_non_burned"] is None and entry["census_surveyed"] is False
+    assert cc.history_entry(local, SHA, "d", 0, None, "burned")["total_non_burned"] == 2
+    hist = tmp_path / "h.jsonl"
+    hist.write_text(json.dumps(entry) + "\n")
+    assert cc.main(["history", "show", "--file", str(hist)]) == 0
+    assert "not surveyed" in capsys.readouterr().out
+
+
+def test_a_bad_census_root_from_the_env_is_refused(stubbed, tmp_path, monkeypatch):
+    """#6064: $CICS_CENSUS_CORPORA naming a placeholder root is refused the same as --census-corpora."""
+    bad = tmp_path / "badcensus"
+    (bad / "scratch").mkdir(parents=True)
+    (bad / "scratch" / "A.cbl").write_text(CICS)
+    monkeypatch.setenv(cc.CENSUS_ENV, str(bad))
+    with pytest.raises(SystemExit, match="unexpected: scratch"):
+        cc.main(["survey", "--out", str(tmp_path / "s"), "--corpora", str(stubbed["main"])])
+    assert not stubbed["calls"]

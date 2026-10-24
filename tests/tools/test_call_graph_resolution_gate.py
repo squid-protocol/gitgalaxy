@@ -92,6 +92,62 @@ def test_verdict_order_agree_wrong_external_unconfirmed():
     assert cgr._verdict(ref, a, ("h.ts", "save", 5)) == "unconfirmed"
 
 
+def test_ts_callgraph_js_mode_resolves_commonjs_with_allow_js(tmp_path):
+    import json
+    import shutil
+    import subprocess
+
+    if shutil.which("node") is None:
+        pytest.skip("node is not installed")
+    env = callgraph_refs.node_env()
+    probe = "process.exit(typeof require('typescript').createProgram === 'function' ? 0 : 1)"
+    if subprocess.run(["node", "-e", probe], env=env, capture_output=True).returncode:
+        pytest.skip("no typescript with the JavaScript compiler API (<= 6.x) on NODE_PATH")
+    (tmp_path / "util.js").write_text("exports.clone = function clone(x) {\n  return x;\n};\n")
+    (tmp_path / "mod.cjs").write_text("module.exports = function build() {\n  return 1;\n};\n")
+    (tmp_path / "proto.mjs").write_text(
+        "export function Box() {}\nBox.prototype.open = function () {\n  return 2;\n};\nexport const make = () => new Box();\n"
+    )
+    (tmp_path / "main.js").write_text(
+        "var util = require('./util');\n"
+        "var build = require('./mod.cjs');\n"
+        "var proto = {};\n"
+        "proto.run = function run(s, box) {\n"
+        "  's'.trim();\n"
+        "  build();\n"
+        "  box.open();\n"
+        "  return util.clone(1);\n"
+        "};\n"
+    )
+    (tmp_path / "typed.ts").write_text("export function only() {\n  return 1;\n}\n")
+
+    def graph(*extra):
+        out = subprocess.run(
+            ["node", str(cgr.TOOLS / "ts_callgraph.js"), str(tmp_path), *extra], env=env, capture_output=True, text=True
+        )
+        assert out.returncode == 0, out.stderr
+        return json.loads(out.stdout)
+
+    g = graph("--js")
+    run = ["main.js", "run", 4]
+    assert ["typed.ts", "only", 1] not in g["defs"]  # the TypeScript files are not read in js mode
+    assert {tuple(d) for d in g["defs"]} >= {
+        ("util.js", "clone", 1),
+        ("mod.cjs", "build", 1),
+        ("proto.mjs", "open", 2),
+        ("proto.mjs", "make", 5),
+        tuple(run),
+    }
+    edges = {(tuple(e[0]), tuple(e[1])): e[2] for e in g["edges"]}
+    assert edges[(tuple(run), ("util.js", "clone", 1))] == 8  # exports.f = function through require()
+    assert edges[(tuple(run), ("mod.cjs", "build", 1))] == 6  # module.exports = function
+    assert edges[(("proto.mjs", "make", 5), ("proto.mjs", "Box", 1))] == 5  # `new Box()` runs the function
+    assert not any(e[0] == run and e[1][1] == "open" for e in g["edges"])  # an untyped receiver: silent, not wrong
+    assert [run, "trim"] in g["external"]  # a string literal's trim() is String.prototype.trim
+    # the typescript mode never reads .js
+    assert all(not d[0].endswith((".js", ".cjs", ".mjs")) for d in graph()["defs"])
+
+
 def test_ts_callgraph_resolves_calls_with_the_type_checker(tmp_path):
     import json
     import shutil
@@ -130,3 +186,168 @@ def test_ts_callgraph_resolves_calls_with_the_type_checker(tmp_path):
     # each edge carries its first call site: `t.trim()` on line 9, `clone(1)` on line 11
     assert sorted(g["edges"]) == [[run, ["main.ts", "trim", 3], 9], [run, ["util.ts", "clone", 1], 11]]
     assert g["external"] == [[run, "trim"]]  # s.trim() is String.prototype.trim
+
+
+def test_go_callgraph_resolves_calls_with_the_type_checker(tmp_path):
+    import json
+    import shutil
+
+    if shutil.which("go") is None or callgraph_refs._go_version() is None:
+        pytest.skip("no Go 1.24+ toolchain on PATH")
+    (tmp_path / "go.mod").write_text("module example.com/m\n\ngo 1.22\n")
+    (tmp_path / "util").mkdir()
+    (tmp_path / "util" / "util.go").write_text("package util\n\nfunc Clone(x int) int {\n\treturn x\n}\n")
+    (tmp_path / "main.go").write_text(
+        "package main\n"  # 1
+        "\n"
+        'import (\n\t"strings"\n\n\t"example.com/m/util"\n)\n'  # 3-7
+        "\n"
+        "type Speaker interface{ Speak() int }\n"  # 9
+        "\n"
+        "type Dog struct{}\n"  # 11
+        "\n"
+        "func (d *Dog) Speak() int { return util.Clone(1) }\n"  # 13
+        "\n"
+        "func Map[T any](x T) T { return x }\n"  # 15
+        "\n"
+        "func run(s Speaker, d Dog) int {\n"  # 17
+        '\tstrings.TrimSpace("x")\n'  # 18
+        "\tf := func() int { return d2().Speak() }\n"  # 19
+        "\t_ = Map(1)\n"  # 20
+        "\ts.Speak()\n"  # 21
+        "\treturn f()\n"  # 22
+        "}\n"
+        "\n"
+        "func d2() *Dog { return &Dog{} }\n"  # 25
+        "\n"
+        "func main() { run(&Dog{}, Dog{}) }\n"  # 27
+    )
+    g = callgraph_refs.go_contract(tmp_path)
+    run, speak, clone, mapf, d2, main = (
+        ["main.go", "run", 17],
+        ["main.go", "Speak", 13],
+        ["util/util.go", "Clone", 3],
+        ["main.go", "Map", 15],
+        ["main.go", "d2", 25],
+        ["main.go", "main", 27],
+    )
+    assert sorted(g["defs"]) == sorted([run, speak, clone, mapf, d2, main])
+    edges = {(json.dumps(a), json.dumps(b)) for a, b, _ in g["edges"]}
+    # run -> Speak is the interface call; run -> d2 is made inside a closure
+    want = [(run, speak), (run, mapf), (run, d2), (speak, clone), (main, run)]
+    assert {(json.dumps(a), json.dumps(b)) for a, b in want} <= edges
+    # a call outside the module is external, a closure's calls belong to its enclosing function
+    assert [run, "TrimSpace"] in g["external"]
+    assert g["files"] == 2
+
+
+def test_clang_callgraph_resolves_c_calls_across_translation_units(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "util.h").write_text("int helper(int x);\nint twice(int x) {\n  return helper(x) * 2;\n}\n")  # 1-4
+    (tmp_path / "util.c").write_text(
+        '#include "util.h"\n'
+        "static int hidden(int x) { return x; }\n"  # 2
+        "int helper(int x) {\n"  # 3
+        "  return hidden(x);\n"
+        "}\n"
+    )
+    (tmp_path / "other.c").write_text("static int hidden(int x) { return -x; }\nint neg(int x) { return hidden(x); }\n")
+    (tmp_path / "main.c").write_text(
+        '#include "util.h"\n'
+        "#include <string.h>\n"
+        "#define SQ(x) ((x) * (x))\n"  # looks like a call, is not one
+        "#define VIA(x) helper(x)\n"  # expands to one
+        "int run(char *s, int (*fp)(int)) {\n"  # 5
+        "  int n = (int)strlen(s);\n"
+        "  fp(n);\n"
+        "  return SQ(n) + VIA(n) + twice(n);\n"
+        "}\n"
+    )
+    (tmp_path / "win").mkdir()
+    (tmp_path / "win" / "w.c").write_text("#include <windows.h>\nint w(void) { return 1; }\n")
+    g = clang_callgraph.build(tmp_path)
+    run, twice, helper = ["main.c", "run", 5], ["util.h", "twice", 2], ["util.c", "helper", 3]
+    hidden, neg = ["util.c", "hidden", 2], ["other.c", "neg", 2]
+    # the prototype `int helper(int x);` is no def; `win/` is not parsed; each static `hidden` is its own def
+    assert sorted(g["defs"]) == sorted([run, twice, helper, hidden, ["other.c", "hidden", 1], neg])
+    # cross-file: run -> twice (a header function) and -> helper (via the macro, and twice -> helper through the
+    # prototype); a static callee is its own translation unit's definition, not the other file's `hidden`
+    assert sorted(g["edges"]) == sorted(
+        [
+            [run, twice, 8],
+            [run, helper, 8],
+            [twice, helper, 3],
+            [helper, hidden, 4],
+            [neg, ["other.c", "hidden", 1], 2],
+        ]
+    )
+    # strlen resolves only in a system header; the call through `fp` names no function
+    assert g["external"] == [[run, "strlen"]]
+    assert g["files"] == 3
+
+
+def test_clang_callgraph_resolves_cpp_calls_by_usr_with_engine_names(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None or not clang_callgraph._system_includes():
+        pytest.skip("libclang (pip install libclang==18.1.1) or a host g++ is not available")
+    (tmp_path / "inc").mkdir()
+    (tmp_path / "inc" / "lib.h").write_text(
+        "#pragma once\n"
+        "#include <cstring>\n"
+        "int proto(int x);\n"  # 3: a prototype is no def
+        "struct Foo {\n"  # 4
+        "  Foo() {}\n"  # 5
+        "  int inl() { return proto(1); }\n"  # 6
+        "  int out(int x);\n"
+        "  int out(double x);\n"
+        "};\n"
+        "template <typename T> T twice(T v) { return v + v; }\n"  # 10
+        "#define VIA(x) proto(x)\n"
+    )
+    (tmp_path / "a.cc").write_text(
+        '#include "lib.h"\n'
+        "namespace {\n"
+        "int hidden() { return 1; }\n"  # 3: internal linkage
+        "}\n"
+        "int proto(int x) { return hidden() + x; }\n"  # 5
+        "int Foo::out(int x) { return proto(x); }\n"  # 6
+        "int Foo::out(double x) { return (int)x; }\n"  # 7
+        "namespace ns { int deep() { return Foo().out(1); } }\n"  # 8
+    )
+    (tmp_path / "b.cc").write_text(
+        '#include "lib.h"\n'
+        "namespace {\n"
+        "int hidden() { return 2; }\n"  # 3
+        "}\n"
+        "int run(const char *s) {\n"  # 5
+        "  Foo f;\n"
+        "  int n = (int)strlen(s);\n"
+        "  return twice(n) + twice(1.5) + hidden() + VIA(n) + f.out(2.0) + f.inl();\n"
+        "}\n"
+    )
+    g = clang_callgraph.build(tmp_path, "cpp")
+    foo_inl, twice = ["inc/lib.h", "inl", 6], ["inc/lib.h", "twice", 10]
+    proto, out_int, out_dbl = ["a.cc", "proto", 5], ["a.cc", "Foo::out", 6], ["a.cc", "Foo::out", 7]
+    deep, run = ["a.cc", "deep", 8], ["b.cc", "run", 5]
+    hidden_a, hidden_b = ["a.cc", "hidden", 3], ["b.cc", "hidden", 3]
+    # in-class definitions keep their bare name, out-of-line ones are Class::name; the prototype is no def
+    assert ["inc/lib.h", "Foo", 5] in g["defs"]
+    assert sorted(d for d in g["defs"] if d[1] != "Foo") == sorted(
+        [foo_inl, twice, proto, out_int, out_dbl, deep, run, hidden_a, hidden_b]
+    )
+    edges = {(tuple(a), tuple(b)) for a, b, _ in g["edges"]}
+    assert (tuple(foo_inl), tuple(proto)) in edges  # the header prototype is linked to its .cc body
+    assert (tuple(proto), tuple(hidden_a)) in edges and (tuple(run), tuple(hidden_b)) in edges  # each TU's own hidden
+    assert (tuple(proto), tuple(hidden_b)) not in edges
+    assert (tuple(run), tuple(proto)) in edges  # through the macro
+    # overloads: the int and the double `out` are told apart, not linked by name
+    assert (tuple(deep), tuple(out_int)) in edges and (tuple(deep), tuple(out_dbl)) not in edges
+    assert (tuple(run), tuple(out_dbl)) in edges and (tuple(run), tuple(out_int)) not in edges
+    # both instantiations of the template are its one pattern
+    assert (tuple(run), tuple(twice)) in edges
+    # strlen is outside the repo
+    assert [run, "strlen"] in g["external"]

@@ -1,6 +1,8 @@
 """equivalence_env: JDK 17 detection (refusing loudly without one), the exported environment, the pin escape hatch."""
 
 import os
+import shutil
+import stat
 import sys
 from pathlib import Path
 
@@ -185,6 +187,34 @@ def test_provision_clones_at_the_pin_records_shas_and_is_idempotent(tmp_path, re
     assert env["CICS_CRUCIBLE_PATH"] == str(crucible)
 
 
+def test_provision_retires_a_clone_that_has_become_burned(tmp_path, remote, monkeypatch):
+    root = tmp_path / "scratch"
+    assert "retired" not in ee.provision(root, str(remote), log=lambda m: None)
+    _repo(root / "census" / "old")
+    monkeypatch.setattr(ee, "burned_names", lambda: {"old", "one"})  # "one" is still listed: kept
+    rec = ee.provision(root, str(remote), log=lambda m: None)
+    assert rec["retired"] == ["old"] and not (root / "census" / "old").exists()
+    assert (root / "census" / "one").is_dir() and set(rec["census"]) == {"one", "two"}
+
+
+def test_provision_refuses_to_retire_a_dirty_burned_clone(tmp_path, remote, monkeypatch):
+    root = tmp_path / "scratch"
+    old = _repo(root / "census" / "old")
+    (old / "f.txt").write_text("edited")
+    monkeypatch.setattr(ee, "burned_names", lambda: {"old"})
+    with pytest.raises(ee.ProvisionRefused, match="old"):
+        ee.provision(root, str(remote), log=lambda m: None)
+    assert old.is_dir()
+
+
+def test_a_non_burned_stray_is_left_alone(tmp_path, remote, monkeypatch):
+    root = tmp_path / "scratch"
+    _repo(root / "census" / "stray")
+    monkeypatch.setattr(ee, "burned_names", lambda: {"old"})
+    rec = ee.provision(root, str(remote), log=lambda m: None)
+    assert (root / "census" / "stray").is_dir() and "retired" not in rec
+
+
 def test_provision_refuses_an_estate4_candidate_before_cloning(tmp_path, remote, monkeypatch):
     monkeypatch.setattr(ee, "census_repos", lambda: ["o/one", "o/elsewhere"])
     with pytest.raises(ee.ProvisionRefused, match="o/elsewhere"):
@@ -219,3 +249,46 @@ def test_scratch_root_order(tmp_path, monkeypatch):
     monkeypatch.delenv("GG_SCRATCH")
     monkeypatch.setenv("GITGALAXY_WORKTREES", str(tmp_path / "wt"))
     assert ee.scratch_root() == tmp_path / "wt" / "_shared-scratch"
+
+
+def test_rmtree_writable_removes_read_only_files(tmp_path):
+    victim = tmp_path / "clone" / ".git" / "objects" / "6c"
+    victim.mkdir(parents=True)
+    obj = victim / "obj"
+    obj.write_text("x")
+    obj.chmod(0o444)
+    ee.rmtree_writable(tmp_path / "clone")
+    assert not (tmp_path / "clone").exists()
+
+
+def _windows_like_unlink(monkeypatch):
+    """Emulate Windows on any OS: unlinking a file without the write bit raises PermissionError (WinError 5)."""
+    real_unlink = os.unlink
+
+    def unlink(path, *args, dir_fd=None, **kwargs):
+        if not os.stat(path, dir_fd=dir_fd).st_mode & stat.S_IWRITE:
+            raise PermissionError(13, "Access is denied", str(path))
+        return real_unlink(path, *args, dir_fd=dir_fd, **kwargs)
+
+    monkeypatch.setattr(shutil.rmtree, "avoids_symlink_attacks", False, raising=False)  # Windows' path-based walk
+    monkeypatch.setattr(os, "unlink", unlink)
+
+
+def test_a_plain_rmtree_fails_on_a_read_only_object_where_rmtree_writable_succeeds(tmp_path, monkeypatch):
+    obj = tmp_path / "clone" / ".git" / "objects" / "6c" / "obj"
+    obj.parent.mkdir(parents=True)
+    obj.write_text("x")
+    obj.chmod(stat.S_IREAD)
+    _windows_like_unlink(monkeypatch)
+    with pytest.raises(PermissionError):
+        shutil.rmtree(tmp_path / "clone")
+    ee.rmtree_writable(tmp_path / "clone")
+    assert not (tmp_path / "clone").exists()
+
+
+def test_the_rmtree_hook_makes_a_read_only_file_writable_and_retries(tmp_path):
+    f = tmp_path / "ro"
+    f.write_text("x")
+    f.chmod(0o444)
+    ee._writable_retry(os.unlink, str(f), None)
+    assert not f.exists()

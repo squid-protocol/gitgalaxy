@@ -71,7 +71,11 @@ public final class DetDli {
         int par = PAR_NONE;
         Node parentage;
         Node hold;
+        List<Node> holdPath; // #5233: the segments a D-coded get-hold returned, in I/O area order (null: only the held one)
+        boolean[] holdSkip; // #5233: command code N, per holdPath entry: left out of the REPL
         boolean prevknown;
+        boolean load; // #5233: PROCOPT L / LS on a DB PCB (load mode): ISRT only, in hierarchic and key order
+        Node loadLast; // the segment the last successful load ISRT inserted
         boolean gsam; // #5233: a GSAM PCB (load mode): db is -1, out collects the records ISRT appended
         int reclen;
         String dbname;
@@ -80,7 +84,26 @@ public final class DetDli {
 
     private static final class Ssa {
         int seg;
-        int fld = -1;
+        int fld = -1; // the first qualification statement's field (-1: unqualified)
+        int op;
+        byte[] value;
+        boolean first; // #5233: command code F
+        boolean last; // #5233: command code L
+        boolean par; // #5233: command code P
+        boolean path; // #5233: command code D
+        boolean enq; // #5233: command code Q
+        boolean up; // #5233: command code U
+        boolean vee; // #5233: command code V
+        boolean noRepl; // #5233: command code N
+        Node anchor; // #5233: U / V, the node at this level on the current position (set per call by get)
+        byte[] cat; // #5233: command code C, the concatenated key in the parentheses
+        // #5233: the statements after the first, each joined to the one before by AND (or == false) or OR
+        final List<Term> more = new ArrayList<>();
+    }
+
+    private static final class Term {
+        boolean or;
+        int fld;
         int op;
         byte[] value;
     }
@@ -277,6 +300,7 @@ public final class DetDli {
                 continue;
             }
             p.db = DBS.indexOf(w[1]);
+            p.load = p.procopt.equals("L") || p.procopt.equals("LS");
             p.keylen = Integer.parseInt(w[3]);
             for (Segm s : SEGS) {
                 if (s.db == p.db) {
@@ -737,46 +761,202 @@ public final class DetDli {
             if (q == ' ') {
                 continue;
             }
+            int at = o + 9;
             if (q == '*') {
-                throw refuse("an SSA with command codes");
-            }
-            if (q != '(') {
+                // #5233: command codes, each one of A-Z 0-9 or '-', then '(' or a blank; F, L, P, C, D, N, Q, U, V and - are modelled
+                while (at < b.length && isCode(b[at] & 0xFF)) {
+                    char c = (char) (b[at] & 0xFF);
+                    if (c == 'F') {
+                        s.first = true;
+                    } else if (c == 'L') {
+                        s.last = true;
+                    } else if (c == 'P') {
+                        s.par = true;
+                    } else if (c == 'D') {
+                        s.path = true;
+                    } else if (c == 'Q') {
+                        s.enq = true;
+                    } else if (c == 'U') {
+                        s.up = true;
+                    } else if (c == 'V') {
+                        s.vee = true;
+                    } else if (c == 'N') {
+                        s.noRepl = true;
+                    } else if (c == 'C') {
+                        s.cat = new byte[0];
+                    } else if (c != '-') {
+                        throw refuse("the command code " + c);
+                    }
+                    at++;
+                }
+                if (at >= b.length || (b[at] != ' ' && b[at] != '(')) {
+                    st[0] = "AJ";
+                    return out;
+                }
+                if (b[at] == ' ') {
+                    if (s.cat != null) {
+                        st[0] = "AJ";
+                        return out;
+                    }
+                    continue;
+                }
+                at++;
+                if (s.cat != null) {
+                    // #5233: command code C, SEG*C(concatenated key): the keys from the root down to this segment
+                    int len = catLength(s.seg);
+                    if (at + len >= b.length || b[at + len] != ')') {
+                        st[0] = "AJ";
+                        return out;
+                    }
+                    s.cat = Arrays.copyOfRange(b, at, at + len);
+                    continue;
+                }
+            } else if (q != '(') {
                 st[0] = "AJ";
                 return out;
             }
-            s.fld = findFld(s.seg, name8(b, o + 9));
-            if (s.fld < 0) {
-                st[0] = "AK";
-                return out;
-            }
-            String op = new String(b, o + 17, 2, StandardCharsets.ISO_8859_1);
-            s.op = -1;
-            for (int k = 0; k < OPS.length; k++) {
-                for (String v : OPS[k]) {
-                    if (v.equals(op)) {
-                        s.op = k;
+            for (int k = 0; ; k++) {
+                int fld = findFld(s.seg, name8(b, at));
+                if (fld < 0) {
+                    st[0] = "AK";
+                    return out;
+                }
+                String op = new String(b, at + 8, 2, StandardCharsets.ISO_8859_1);
+                int opn = -1;
+                for (int j = 0; j < OPS.length; j++) {
+                    for (String v : OPS[j]) {
+                        if (v.equals(op)) {
+                            opn = j;
+                        }
                     }
                 }
-            }
-            if (s.op < 0) {
-                st[0] = "AJ";
-                return out;
-            }
-            Fld f = FLDS.get(s.fld);
-            s.value = Arrays.copyOfRange(b, o + 19, o + 19 + f.bytes);
-            int end = b[o + 19 + f.bytes] & 0xFF;
-            if (end == '&' || end == '*' || end == '+' || end == '|' || end == '#') {
-                throw refuse("a boolean SSA qualification");
-            }
-            if (end != ')') {
-                st[0] = "AJ";
-                return out;
-            }
-            if (f.type != 'C' && f.type != 'X' && f.type != 'P') {
-                throw refuse("a qualification on a field of a type other than C, X or P");
+                if (opn < 0) {
+                    st[0] = "AJ";
+                    return out;
+                }
+                Fld f = FLDS.get(fld);
+                byte[] value = Arrays.copyOfRange(b, at + 10, at + 10 + f.bytes);
+                if (k == 0) {
+                    s.fld = fld;
+                    s.op = opn;
+                    s.value = value;
+                } else {
+                    Term m = s.more.get(k - 1);
+                    m.fld = fld;
+                    m.op = opn;
+                    m.value = value;
+                }
+                int end = b[at + 10 + f.bytes] & 0xFF;
+                if (f.type != 'C' && f.type != 'X' && f.type != 'P' && (end == ')' || isBool(end))) {
+                    throw refuse("a qualification on a field of a type other than C, X or P");
+                }
+                if (end == ')') {
+                    break;
+                }
+                if (end == '#') {
+                    throw refuse("a boolean SSA with the independent AND operator (#)");
+                }
+                if (!isBool(end)) {
+                    st[0] = "AJ";
+                    return out;
+                }
+                if (k == MAX_TERMS - 1) {
+                    throw refuse("a boolean SSA of more than " + MAX_TERMS + " qualification statements");
+                }
+                Term m = new Term();
+                m.or = end == '+' || end == '|';
+                s.more.add(m);
+                at += 11 + f.bytes;
             }
         }
         return out;
+    }
+
+    private static final int MAX_TERMS = 16;
+
+    /** The bytes of a concatenated key down to a segment type (#5233, command code C). */
+    private static int catLength(int seg) {
+        int len = 0;
+        for (int t = seg; t >= 0; t = SEGS.get(t).parent) {
+            if (SEGS.get(t).key < 0) {
+                throw refuse("the command code C on a segment with no sequence field");
+            }
+            len += FLDS.get(SEGS.get(t).key).bytes;
+        }
+        return len;
+    }
+
+    /** Command code C (#5233): the concatenated key becomes one SSA per level, qualified EQ on that level's key. */
+    private static Ssa[] expandCat(Ssa[] s) {
+        if (s.length != 1 || s[0].cat == null) {
+            return s;
+        }
+        List<Integer> path = new ArrayList<>();
+        for (int t = s[0].seg; t >= 0; t = SEGS.get(t).parent) {
+            path.add(0, t);
+        }
+        Ssa[] out = new Ssa[path.size()];
+        int at = 0;
+        for (int i = 0; i < out.length; i++) {
+            Ssa x = new Ssa();
+            x.seg = path.get(i);
+            x.fld = SEGS.get(x.seg).key;
+            x.op = 0;
+            int n = FLDS.get(x.fld).bytes;
+            x.value = Arrays.copyOfRange(s[0].cat, at, at + n);
+            at += n;
+            out[i] = x;
+        }
+        out[out.length - 1].par = s[0].par;
+        out[out.length - 1].first = s[0].first;
+        return out;
+    }
+
+    /** A character a command-code list may hold. */
+    private static boolean isCode(int c) {
+        return (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-';
+    }
+
+    /** Command codes (#5233): Q on a get (no effect: one program, so no other program to wait for); F and L on a GU / GHU or an ISRT, P on a GU / GHU (a unique sequence field: no effect on ISRT, and F none on
+     *  GU, which starts from the first twin); L on a GU only as the last, unqualified SSA. Anything else is refused. */
+    private static void checkCodes(String fn, Ssa[] s) {
+        boolean gu = fn.startsWith("GU") || fn.startsWith("GHU");
+        boolean isrt = fn.equals("ISRT");
+        int ps = 0;
+        for (int i = 0; i < s.length; i++) {
+            if (s[i].cat != null && (!gu || s.length != 1 || s[i].last)) {
+                throw refuse("the command code C other than alone on a GU, without L");
+            }
+            if (s[i].path && fn.charAt(0) != 'G' && !isrt) { // #5233: D on an ISRT is the path insert
+                throw refuse("the command code D on a " + fn.trim());
+            }
+            if (s[i].path && s[i].cat != null) {
+                throw refuse("the command code D beside C");
+            }
+            if (s[i].noRepl && (fn.charAt(0) != 'G' || fn.charAt(1) != 'H' || !s[i].path)) {
+                throw refuse("the command code N other than with D on a get-hold call (" + fn.trim() + ")");
+            }
+            if (s[i].enq && fn.charAt(0) != 'G') {
+                throw refuse("the command code Q on a " + fn.trim()); // #5233: Q (enqueue) is modelled on the gets, where it changes nothing
+            }
+            if ((s[i].up || s[i].vee) && (fn.charAt(0) != 'G' || s[i].cat != null)) {
+                throw refuse("the command code " + (s[i].up ? "U" : "V") + (s[i].cat != null ? " beside C" : " on a " + fn.trim()));
+            }
+            if (s[i].par && (!gu || ++ps > 1)) {
+                throw refuse(gu ? "the command code P on more than one SSA" : "the command code P on a " + fn.trim());
+            }
+            if (s[i].first && !gu && !isrt) {
+                throw refuse("the command code F on a " + fn.trim());
+            }
+            if (s[i].last && (!(gu || isrt) || i != s.length - 1 || s[i].fld >= 0)) {
+                throw refuse("the command code L other than on the last, unqualified SSA of a GU or ISRT");
+            }
+        }
+    }
+
+    /** A boolean operator that joins two qualification statements: AND is * or &, OR is + or | (# is refused apart). */
+    private static boolean isBool(int c) {
+        return c == '&' || c == '*' || c == '+' || c == '|';
     }
 
     private static int packedSign(byte[] p, int at, int n) {
@@ -794,16 +974,31 @@ public final class DetDli {
         if (s.fld < 0) {
             return true;
         }
-        Fld f = FLDS.get(s.fld);
+        // IBM: statements joined by AND form a set, and the SSA holds when any set does. Every statement is evaluated
+        // (no short circuit) so a refusal does not depend on the data.
+        boolean any = false;
+        boolean set = term(n, s.fld, s.op, s.value);
+        for (Term m : s.more) {
+            if (m.or) {
+                any |= set;
+                set = true;
+            }
+            set &= term(n, m.fld, m.op, m.value);
+        }
+        return any | set;
+    }
+
+    private static boolean term(Node n, int fld, int op, byte[] value) {
+        Fld f = FLDS.get(fld);
         if (f.type == 'P') {
             int sa = packedSign(n.data, f.start - 1, f.bytes);
-            int sb = packedSign(s.value, 0, f.bytes);
+            int sb = packedSign(value, 0, f.bytes);
             if (sa < 0 || sb < 0 || sa != sb || (sa != 0xC && sa != 0xF)) {
                 throw refuse("a P-field qualification on operands that are not both valid with one positive sign");
             }
         }
-        int c = Arrays.compareUnsigned(n.data, f.start - 1, f.start - 1 + f.bytes, s.value, 0, f.bytes);
-        switch (s.op) {
+        int c = Arrays.compareUnsigned(n.data, f.start - 1, f.start - 1 + f.bytes, value, 0, f.bytes);
+        switch (op) {
             case 0: return c == 0;
             case 1: return c > 0;
             case 2: return c < 0;
@@ -824,6 +1019,9 @@ public final class DetDli {
             Node a = ancestorOfType(n, s[i].seg);
             if (a == null || !qualifies(a, s[i])) {
                 return false;
+            }
+            if (s[i].anchor != null && a != s[i].anchor) {
+                return false; // #5233: U / V, the SSA's level must be the one the current position is on
             }
         }
         return true;
@@ -932,6 +1130,26 @@ public final class DetDli {
             status(p, bad);
             return;
         }
+        // #5233: command codes U and V take the current position as qualification: U at its own level, V at its level and
+        // every level above; the node there is the position's ancestor-or-self of that type
+        int vee = -1;
+        for (int i = 0; i < k; i++) {
+            if (s[i].vee) {
+                vee = i;
+            }
+        }
+        for (int i = 0; i < k; i++) {
+            s[i].anchor = null;
+            if (s[i].up || i <= vee) {
+                if (p.pos != POS_AT) {
+                    throw refuse("the command code " + (i <= vee ? "V" : "U") + " with no established position");
+                }
+                s[i].anchor = ancestorOfType(p.at, s[i].seg);
+                if (s[i].anchor == null) {
+                    throw refuse("the command code " + (i <= vee ? "V" : "U") + " at a level the current position is not on");
+                }
+            }
+        }
         boolean gu = fn.charAt(1) == 'U' || fn.charAt(2) == 'U';
         boolean gnp = !gu && fn.contains("NP");
         Node from;
@@ -964,6 +1182,14 @@ public final class DetDli {
             from = p.pos == POS_START ? dbFirst(p.db) : nextInSeq(p.at);
         }
         Node n = firstSatisfying(from, bound, s, k);
+        if (n != null && gu && k > 0 && s[k - 1].last) {
+            // #5233: the last twin of the type under the parent the path found
+            for (Node c : n.parent.kids) {
+                if (c.seg == n.seg) {
+                    n = c;
+                }
+            }
+        }
         if (n == null) {
             boolean qualified = false;
             for (Ssa x : s) {
@@ -1008,10 +1234,27 @@ public final class DetDli {
                 st = "GK";
             }
         }
-        if (io.storage().bytes.length - io.offset() < n.data.length) {
+        // #5233: command code D, a path call: each D-coded SSA's segment (the found one's ancestor of that type), in
+        // hierarchic order, then the found segment itself; D on the last SSA adds nothing
+        List<Node> out = new ArrayList<>();
+        for (int i = 0; i < k - 1; i++) {
+            if (s[i].path) {
+                out.add(ancestorOfType(n, s[i].seg));
+            }
+        }
+        out.add(n);
+        int total = 0;
+        for (Node o : out) {
+            total += o.data.length;
+        }
+        if (io.storage().bytes.length - io.offset() < total) {
             throw refuse("an I/O area shorter than the segment");
         }
-        System.arraycopy(n.data, 0, io.storage().bytes, io.offset(), n.data.length);
+        int off = io.offset();
+        for (Node o : out) {
+            System.arraycopy(o.data, 0, io.storage().bytes, off, o.data.length);
+            off += o.data.length;
+        }
         status(p, st);
         feedback(p, n);
         p.pos = POS_AT;
@@ -1020,9 +1263,27 @@ public final class DetDli {
         if (!gnp) {
             p.par = PAR_AT;
             p.parentage = n;
+            for (Ssa x : s) {
+                if (x.par) {
+                    // #5233: command code P sets parentage at the level of its SSA (a GU only, checkCodes)
+                    p.parentage = ancestorOfType(n, x.seg);
+                }
+            }
         }
         if (hold) {
             p.hold = n;
+            if (out.size() > 1 || s[k - 1].noRepl) {
+                // #5233: a path get-hold: REPL replaces each segment returned, but those coded N
+                p.holdPath = out;
+                p.holdSkip = new boolean[out.size()];
+                int j = 0;
+                for (int i = 0; i < k - 1; i++) {
+                    if (s[i].path) {
+                        p.holdSkip[j++] = s[i].noRepl;
+                    }
+                }
+                p.holdSkip[j] = s[k - 1].noRepl;
+            }
         }
     }
 
@@ -1031,7 +1292,7 @@ public final class DetDli {
     // [rule RT-DLI-ISRT]
     private static void isrt(Pcb p, Field io, Ssa[] s) {
         int k = s.length;
-        if (!allows(p, 'I')) {
+        if (!p.load && !allows(p, 'I')) {
             status(p, "AM");
             return;
         }
@@ -1045,6 +1306,16 @@ public final class DetDli {
         if (bad != null) {
             status(p, bad);
             return;
+        }
+        if (p.load) {
+            loadIsrt(p, io, s);
+            return;
+        }
+        for (int i = 0; i < k - 1; i++) {
+            if (s[i].path) {
+                pathIsrt(p, io, s);
+                return;
+            }
         }
         int t = s[k - 1].seg;
         Segm sg = SEGS.get(t);
@@ -1098,9 +1369,134 @@ public final class DetDli {
         p.par = PAR_UNKNOWN;
     }
 
+    /** Load-mode ISRT (#5233, PROCOPT L / LS on a DB PCB; twin of ggdli.c's load_isrt). The database is built in hierarchic sequence: a
+     *  segment goes under the last loaded segment of its parent's type (none: LD), after the twins already loaded under that parent
+     *  and not before them (a segment type earlier in the DBD than one already there: LE; an equal sequence field: LB; a lower one:
+     *  LC). ASSUMPTION (no IBM text quoted): which of LB / LC / LD / LE a call that breaks two rules answers (the order above), and the
+     *  PCB's key feedback after a failed load ISRT (left as it was). */
+    private static void loadIsrt(Pcb p, Field io, Ssa[] s) {
+        int k = s.length;
+        if (k > 1) {
+            throw refuse("a load-mode ISRT with SSAs before the last");
+        }
+        int t = s[0].seg;
+        Segm sg = SEGS.get(t);
+        Node root = ROOTS.get(p.db);
+        if (p.loadLast == null && !root.kids.isEmpty()) {
+            throw refuse("load mode into a database that already holds segments");
+        }
+        Node parent = sg.parent < 0 ? root : ancestorOfType(p.loadLast, sg.parent);
+        if (parent == null) {
+            status(p, "LD");
+            return;
+        }
+        byte[] b = io.storage().bytes;
+        int key = io.offset() + FLDS.get(sg.key).start - 1;
+        if (!parent.kids.isEmpty()) {
+            Node last = parent.kids.get(parent.kids.size() - 1);
+            String bad = null;
+            if (last.seg > t) {
+                bad = "LE";
+            } else if (last.seg == t) {
+                int c = keyCmp(last, b, key);
+                bad = c == 0 ? "LB" : c > 0 ? "LC" : null;
+            }
+            if (bad != null) {
+                status(p, bad);
+                return;
+            }
+        }
+        Node n = new Node();
+        n.seg = t;
+        n.data = Arrays.copyOfRange(b, io.offset(), io.offset() + sg.bytes);
+        linkChild(parent, n);
+        p.loadLast = n;
+        status(p, "  ");
+        feedback(p, n);
+        p.pos = POS_AT;
+        p.at = n;
+        p.prevknown = false;
+        p.par = PAR_UNKNOWN;
+    }
+
+    /** Path ISRT (#5233, command code D on an SSA before the last): the I/O area holds each D-coded segment and then the last
+     *  one, fixed length, in hierarchic order. A level is found in its parent's children (a D-coded one by the sequence field in its
+     *  slice, another by its SSA) and inserted from its slice when a D-coded one is missing. ASSUMPTION (no IBM text quoted): a
+     *  D-coded segment that exists is kept as it is and its slice is not compared; the last segment is inserted as an ordinary ISRT. */
+    // [rule RT-DLI-ISRT]
+    private static void pathIsrt(Pcb p, Field io, Ssa[] s) {
+        int k = s.length;
+        if (SEGS.get(s[0].seg).parent >= 0) {
+            throw refuse("an ISRT whose SSAs leave out the root level");
+        }
+        byte[] b = io.storage().bytes;
+        int at = io.offset();
+        Node parent = ROOTS.get(p.db);
+        for (int i = 0; i < k; i++) {
+            int t = s[i].seg;
+            Segm sg = SEGS.get(t);
+            boolean coded = i == k - 1 || s[i].path;
+            int key = at + FLDS.get(sg.key).start - 1;
+            if (coded && at + sg.bytes > b.length) {
+                throw refuse("a path ISRT whose I/O area is shorter than the segments it names");
+            }
+            Node found = null;
+            for (Node c : parent.kids) {
+                if (c.seg == t && (coded ? keyCmp(c, b, key) == 0 : satisfies(c, s, i + 1))) {
+                    found = c;
+                    break;
+                }
+            }
+            if (i == k - 1) {
+                if (found != null) {
+                    status(p, "II");
+                    feedback(p, parent.parent != null ? parent : null);
+                    p.pos = POS_UNKNOWN;
+                    p.par = PAR_UNKNOWN;
+                    return;
+                }
+                Node n = new Node();
+                n.seg = t;
+                n.data = Arrays.copyOfRange(b, at, at + sg.bytes);
+                linkChild(parent, n);
+                status(p, "  ");
+                feedback(p, n);
+                p.pos = POS_AT;
+                p.at = n;
+                p.prevknown = false;
+                p.par = PAR_UNKNOWN;
+                return;
+            }
+            if (found == null && !coded) {
+                status(p, "GE");
+                feedback(p, parent.parent != null ? parent : null);
+                p.pos = POS_UNKNOWN;
+                p.par = PAR_UNKNOWN;
+                return;
+            }
+            if (found == null) {
+                Node n = new Node();
+                n.seg = t;
+                n.data = Arrays.copyOfRange(b, at, at + sg.bytes);
+                n.parent = parent; // so the SSA's qualification can be read before the segment is linked
+                if (!satisfies(n, s, i + 1)) {
+                    throw refuse("a path ISRT whose segment does not satisfy its own SSA");
+                }
+                linkChild(parent, n);
+                found = n;
+            } else if (!satisfies(found, s, i + 1)) {
+                throw refuse("a path ISRT whose existing segment does not satisfy its own SSA");
+            }
+            if (coded) {
+                at += sg.bytes;
+            }
+            parent = found;
+        }
+    }
+
     /** REPL / DLET: on the segment the previous call on this PCB held. */
     // [rule RT-DLI-CHANGE]
-    private static void change(Pcb p, boolean dlet, Field io, Node held, int k) {
+    private static void change(Pcb p, boolean dlet, Field io, Node held, int k, List<Node> path, boolean[] skip) {
         if (!allows(p, dlet ? 'D' : 'R')) {
             status(p, "AM");
             return;
@@ -1113,6 +1509,10 @@ public final class DetDli {
             return;
         }
         byte[] b = io.storage().bytes;
+        if (path != null) {
+            changePath(p, dlet, io, path, skip);
+            return;
+        }
         if (keyCmp(held, b, io.offset() + keyAt(held)) != 0) {
             status(p, "DA");
             return;
@@ -1146,6 +1546,60 @@ public final class DetDli {
         "LOG ", "STAT", "GSCD", "FLD ", "POS ", "INIT", "INQY", "SNAP", "PCB ", "TERM", "GMSG", "ICMD", "RCMD", "CMD ",
         "GCMD", "AUTH", "CHNG", "PURG", "DEQ ", "SETO", "APSB", "DPSB", "GSTA");
 
+    /** A GSAM PCB (load mode, #5233; twin of ggdli.c's gsam_call): ISRT appends one record, any other function is AM. */
+    // [rule RT-DLI-GSAM]
+    static void gsamCall(Pcb p, String fn, Field io, Field[] ssas) {
+        if (!fn.equals("ISRT")) {
+            status(p, "AM");
+            return;
+        }
+        if (ssas.length != 0) {
+            throw refuse("a GSAM ISRT with an SSA");
+        }
+        if (io.storage().bytes.length - io.offset() < p.reclen) {
+            throw refuse("a GSAM ISRT whose I/O area is shorter than the DBD's record");
+        }
+        p.out.write(io.storage().bytes, io.offset(), p.reclen);
+        status(p, "  ");
+    }
+
+    /** REPL / DLET after a D-coded get-hold (#5233): the I/O area holds the segments the get returned, one after another. REPL
+     *  replaces each segment from its slice of the area except those coded N; a changed sequence field in any replaced one is DA
+     *  and nothing is replaced. A DLET after a path call is not modelled. */
+    // [rule RT-DLI-CHANGE]
+    private static void changePath(Pcb p, boolean dlet, Field io, List<Node> path, boolean[] skip) {
+        if (dlet) {
+            throw refuse("a DLET after a path call (command code D)");
+        }
+        byte[] b = io.storage().bytes;
+        int off = io.offset();
+        int total = 0;
+        for (Node o : path) {
+            total += o.data.length;
+        }
+        if (b.length - off < total) {
+            throw refuse("an I/O area shorter than the segments of a path REPL");
+        }
+        int at = off;
+        for (int i = 0; i < path.size(); i++) {
+            Node o = path.get(i);
+            if (!skip[i] && keyCmp(o, b, at + keyAt(o)) != 0) {
+                status(p, "DA");
+                return;
+            }
+            at += o.data.length;
+        }
+        status(p, "  ");
+        at = off;
+        for (int i = 0; i < path.size(); i++) {
+            Node o = path.get(i);
+            if (!skip[i]) {
+                System.arraycopy(b, at, o.data, 0, o.data.length);
+            }
+            at += o.data.length;
+        }
+    }
+
     /** CALL 'CBLTDLI' USING function pcb io-area [ssa ...]. */
     // [rule RT-DLI-CALL]
     public static void call(Field function, Field pcb, Field io, Field... ssas) {
@@ -1156,6 +1610,10 @@ public final class DetDli {
         String fn = new String(function.storage().bytes, function.offset(), 4, StandardCharsets.ISO_8859_1);
         Node held = p.hold;
         p.hold = null;
+        List<Node> heldPath = p.holdPath;
+        boolean[] heldSkip = p.holdSkip;
+        p.holdPath = null;
+        p.holdSkip = null;
         String fault = KNOWN.contains(fn) ? planned(fn) : null;
         if (fault != null) {
             status(p, fault);
@@ -1168,19 +1626,8 @@ public final class DetDli {
             status(p, "AD");
             return;
         }
-        if (p.gsam) { // a GSAM PCB (load mode, #5233; twin of ggdli.c's gsam_call): ISRT appends one record, else AM
-            if (!fn.equals("ISRT")) {
-                status(p, "AM");
-                return;
-            }
-            if (ssas.length != 0) {
-                throw refuse("a GSAM ISRT with an SSA");
-            }
-            if (io.storage().bytes.length - io.offset() < p.reclen) {
-                throw refuse("a GSAM ISRT whose I/O area is shorter than the DBD's record");
-            }
-            p.out.write(io.storage().bytes, io.offset(), p.reclen);
-            status(p, "  ");
+        if (p.gsam) { // #5233
+            gsamCall(p, fn, io, ssas);
             return;
         }
         if (ssas.length > 15) {
@@ -1192,12 +1639,14 @@ public final class DetDli {
             status(p, st[0]);
             return;
         }
+        checkCodes(fn, s);
+        s = expandCat(s);
         if (fn.charAt(0) == 'G') {
             get(p, fn, io, s, fn.charAt(1) == 'H');
         } else if (fn.equals("ISRT")) {
             isrt(p, io, s);
         } else {
-            change(p, fn.charAt(0) == 'D', io, held, s.length);
+            change(p, fn.charAt(0) == 'D', io, held, s.length, heldPath, heldSkip);
         }
     }
 }

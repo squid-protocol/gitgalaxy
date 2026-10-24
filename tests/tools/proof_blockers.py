@@ -313,6 +313,15 @@ def diff_kind(report: str | None) -> str:
     return "not proven (no diff recorded)"
 
 
+COBC_NO_COMPILE = "cobc: does not compile"
+
+
+def last_line(text: str) -> str:
+    """The last non-empty line of cobc's stderr: its final diagnostic."""
+    lines = [ln.strip() for ln in (text or "").splitlines() if ln.strip()]
+    return lines[-1] if lines else ""
+
+
 def judge_equivalence(run: Run, det_baseline: dict[str, dict[str, Any]], sweeps: dict[str, dict[str, Any]],
                       branches: bool, cases_dir: Path = CASES, ledger: dict[str, Any] | None = None,
                       linked_ledger: dict[str, dict[str, Any]] | None = None) -> None:  # fmt: skip
@@ -322,7 +331,11 @@ def judge_equivalence(run: Run, det_baseline: dict[str, dict[str, Any]], sweeps:
     row = sweeps.get(run.case)
     reading = (ledger or {}).get(run.case)
     base = det_baseline.get(run.case)
-    if row is not None and not row.get("proved"):
+    if row is not None and row.get("cobol_compile_failed"):  # #4493: cobc refused the COBOL; no scenario ran
+        run.gaps.add(COBC_NO_COMPILE)
+        run.detail[COBC_NO_COMPILE] = last_line(row.get("cobc_stderr", ""))
+        return  # no scenario ran: nothing else (coverage, holes, linked counts) can be read off this case
+    elif row is not None and not row.get("proved"):
         if base is not None:
             g = f"known unproven: {base.get('issue') or 'no issue'}"
             run.gaps.add(g)
@@ -640,10 +653,17 @@ def proof_blockers(rows: dict[tuple[str, str], dict[str, Any]], roots: list[Path
     progs: dict[tuple[str, str], tuple[bool, set[str]]] = {}
     subjects: dict[tuple[str, str], dict[str, Any]] = {}
     skipped_not_cics = unreadable = 0
+    untranslated: list[dict[str, Any]] = []
     for key, row in sorted(rows.items()):
-        if not cc.whole(row):
-            continue
         text = read_text(roots, *key)
+        if not cc.whole(row):  # #4493 classes 4 / 5: refused or holey, so no proof subject yet; the page says why
+            if not only_cics or (text is not None and cc.commands(text)):
+                entry = {"corpus": key[0], "program": key[1], "burned": cc.is_burned(key[0], burned),
+                         "classes": sorted(cc.gap_classes(row))}  # fmt: skip
+                if str(row.get("error", "")).startswith("Copy"):  # #4468: the class drops the member's name; keep it
+                    entry["error"] = " ".join(str(row["error"]).split())[:300]
+                untranslated.append(entry)
+            continue
         unreadable += text is None
         if only_cics and text is not None and not cc.commands(text):
             skipped_not_cics += 1
@@ -662,6 +682,8 @@ def proof_blockers(rows: dict[tuple[str, str], dict[str, Any]], roots: list[Path
     res["scope"] = "programs with an EXEC CICS command" if only_cics else "every surveyed program"
     res["not_cics"] = skipped_not_cics
     res["unreadable"] = unreadable
+    if untranslated:  # only when non-empty: an always-present empty key breaks exact-equality tests
+        res["untranslated"] = untranslated
     mains = {r.case: r for v in eq.values() for r in v if r.role == "program"}
     res["sources"] = {"sweeps": len(sweeps), "equivalence_cases": len({r.case for v in eq.values() for r in v}),
                       "crucible_programs": len(cru),

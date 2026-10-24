@@ -96,6 +96,30 @@
     }
    ],
    "why": "30: a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CLOSE OPFILE2 fails: 'ERROR IN CLOSING 2ND FILE'"
+  },
+  {
+   "name": "root-gn-fail",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "GN",
+     "nth": 1,
+     "status": "AM"
+    }
+   ],
+   "why": "#6072: the first root GN answers AM (neither blank nor GB): 'AUTH SUM  GN FAILED' and 9999-ABEND (RC 16) with nothing unloaded"
+  },
+  {
+   "name": "child-gnp-fail",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "GNP",
+     "nth": 1,
+     "status": "AM"
+    }
+   ],
+   "why": "#6072: the first child GNP answers AM (neither blank nor GE): 'GNP CALL FAILED' and 9999-ABEND (RC 16) after the first root was written"
   }
  ]
 }

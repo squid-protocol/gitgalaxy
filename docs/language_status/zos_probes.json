@@ -4,6 +4,9 @@
     "le.runtime_options.STORAGE": "NONE,NONE,NONE,0K",
     "le.runtime_options.TRAP": "ON,SPIE",
     "le.runtime_options.ABTERMENC": "ABEND",
+    "le.source.CEEOPTS": "",
+    "le.source.CEEUOPT": "",
+    "le.source.CEEDOPT": "",
     "db2.format.DATE": "ISO",
     "db2.format.TIME": "ISO",
     "db2.format.DEC": "15",
@@ -257,6 +260,272 @@
         "R4=+000000068"
       ],
       "note": "The oracle keeps 0.68; the det port gives 0.67 (#4688, ASSUMED truncation). The z/OS result decides."
+    },
+    "c10-zoned-sign-zone-after-value-zero-and-initialize": {
+      "entries": [
+        "C10"
+      ],
+      "compile_options": "default (ZONEDATA(PFD) irrelevant: no invalid data)",
+      "question": "Last byte of a signed zoned S9(3) after VALUE ZERO and after INITIALIZE: the preferred positive sign C (X\"C0\") on IBM, the unsigned zone F (plain digit) on GnuCOBOL",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P10.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 Z1 PIC S9(3) VALUE ZERO.\n       01 Z1X REDEFINES Z1 PIC X(3).\n       01 Z2 PIC S9(3).\n       01 Z2X REDEFINES Z2 PIC X(3).\n       PROCEDURE DIVISION.\n           INITIALIZE Z2\n           IF Z1X(3:1) = \"0\"\n              DISPLAY \"VALUE=PLAIN\"\n           ELSE\n              DISPLAY \"VALUE=SIGNED\"\n           END-IF\n           IF Z2X(3:1) = \"0\"\n              DISPLAY \"INIT=PLAIN\"\n           ELSE\n              DISPLAY \"INIT=SIGNED\"\n           END-IF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "VALUE=PLAIN",
+        "INIT=PLAIN"
+      ],
+      "note": "Expected z/OS: VALUE=SIGNED, INIT=SIGNED (C zone). Register C10: the same positive value, different bytes; the comparator tolerates it per declared dataset."
+    },
+    "c16-comp5-one-and-two-digit-size": {
+      "entries": [
+        "C16",
+        "C7"
+      ],
+      "compile_options": "default (TRUNC(STD) irrelevant to COMP-5)",
+      "question": "A PIC S9(2) COMP-5 item: LENGTH OF (halfword, 2, on IBM; one byte in GnuCOBOL) and MOVE 99999 into it (COMP-5 keeps the halfword's capacity: -31073 on IBM)",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P16.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 C2 PIC S9(2) COMP-5.\n       01 LEN PIC 9(2).\n       01 NUM PIC -9(5).\n       PROCEDURE DIVISION.\n           COMPUTE LEN = LENGTH OF C2\n           DISPLAY \"LEN=\" LEN\n           MOVE 99999 TO C2\n           MOVE C2 TO NUM\n           DISPLAY \"VAL=\" NUM\n           STOP RUN.\n",
+      "oracle_expected": [
+        "LEN=01",
+        "VAL=-00097"
+      ],
+      "note": "Expected z/OS: LEN=02, VAL=-31073 (register C16, measured values for the oracle in its page)."
+    },
+    "c7-comp5-byte-order": {
+      "entries": [
+        "C7"
+      ],
+      "compile_options": "default",
+      "question": "A PIC S9(4) COMP-5 item holding 1, read through a PIC X(2) REDEFINES: X\"0001\" (big-endian, z/OS) or X\"0100\" (little-endian, x86 GnuCOBOL)",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P7.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 N PIC S9(4) COMP-5 VALUE 1.\n       01 NX REDEFINES N PIC X(2).\n       PROCEDURE DIVISION.\n           IF NX = X\"0001\"\n              DISPLAY \"BIG\"\n           ELSE\n              IF NX = X\"0100\"\n                 DISPLAY \"LITTLE\"\n              ELSE\n                 DISPLAY \"OTHER\"\n              END-IF\n           END-IF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "LITTLE"
+      ],
+      "note": "Expected z/OS: BIG. The det translator refuses a program that observes COMP-5 bytes (C7), so no burned program rests on this."
+    },
+    "c9-pointer-size": {
+      "entries": [
+        "C9"
+      ],
+      "compile_options": "default (31-bit AMODE; LP64 off)",
+      "question": "LENGTH OF a USAGE POINTER item: 4 on z/OS, 8 in GnuCOBOL on x86-64",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P9.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 P1 USAGE POINTER.\n       01 LEN PIC 9(2).\n       PROCEDURE DIVISION.\n           COMPUTE LEN = LENGTH OF P1\n           DISPLAY \"LEN=\" LEN\n           STOP RUN.\n",
+      "oracle_expected": [
+        "LEN=08"
+      ],
+      "note": "Expected z/OS: LEN=04. CBSA reaches only NULL pointers (register C9)."
+    },
+    "c17-initialize-replacing-table": {
+      "entries": [
+        "C17"
+      ],
+      "compile_options": "default",
+      "question": "INITIALIZE G REPLACING NUMERIC BY 5 where G is a table of a PIC XX and a PIC 99 item (XX is a category REPLACING does not name): IBM leaves occurrence 2 as it was (AB); GnuCOBOL copies occurrence 1 over it (spaces)",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P17.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 G.\n          05 GT OCCURS 3.\n             10 GA PIC XX VALUE SPACE.\n             10 GN PIC 99 VALUE ZERO.\n       PROCEDURE DIVISION.\n           MOVE 'AB' TO GA(2)\n           INITIALIZE G REPLACING NUMERIC BY 5\n           DISPLAY \"GA2=\" GA(2)\n           DISPLAY \"GN2=\" GN(2)\n           STOP RUN.\n",
+      "oracle_expected": [
+        "GA2=",
+        "GN2=05"
+      ],
+      "note": "Expected z/OS: GA2=AB, GN2=05. Register C17; the port follows IBM and stops by name when occurrences differ. Burned reach: CardDemo COPAUA0C 8400-UPDATE-SUMMARY."
+    },
+    "d1-ascii-vs-ebcdic-order": {
+      "entries": [
+        "D1"
+      ],
+      "compile_options": "default (no PROGRAM COLLATING SEQUENCE)",
+      "question": "Native collating order of three pairs: a vs A, 1 vs a, space vs 1. ASCII: a>A, 1<a, space<1; EBCDIC: a<A, 1>a, space<1",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P1.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 LA PIC X VALUE \"a\".\n       01 UA PIC X VALUE \"A\".\n       01 DG PIC X VALUE \"1\".\n       01 SP PIC X VALUE SPACE.\n       PROCEDURE DIVISION.\n           IF LA > UA\n              DISPLAY \"LOWER>UPPER\"\n           ELSE\n              DISPLAY \"LOWER<UPPER\"\n           END-IF\n           IF DG > LA\n              DISPLAY \"DIGIT>LOWER\"\n           ELSE\n              DISPLAY \"DIGIT<LOWER\"\n           END-IF\n           IF SP < DG\n              DISPLAY \"SPACE<DIGIT\"\n           ELSE\n              DISPLAY \"SPACE>DIGIT\"\n           END-IF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "LOWER>UPPER",
+        "DIGIT<LOWER",
+        "SPACE<DIGIT"
+      ],
+      "note": "Expected z/OS: LOWER<UPPER, DIGIT>LOWER, SPACE<DIGIT. Keys and comparisons are not audited for burned reach (register D1)."
+    },
+    "c8-display-signed-forms": {
+      "entries": [
+        "C8"
+      ],
+      "compile_options": "default",
+      "question": "DISPLAY of a signed zoned, a signed COMP and a signed COMP-3 item: the sign is overpunched in the last digit, with no separate `-`",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P8.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 Z PIC S9(3) VALUE -12.\n       01 B PIC S9(4) COMP VALUE -7.\n       01 P PIC S9(5) COMP-3 VALUE -42.\n       PROCEDURE DIVISION.\n           DISPLAY \"Z=\" Z\n           DISPLAY \"B=\" B\n           DISPLAY \"P=\" P\n           STOP RUN.\n",
+      "oracle_expected": [
+        "Z=012-",
+        "B=-00007",
+        "P=-00042"
+      ],
+      "note": "Raw cobc writes the trailing/leading `-` forms (ggdisplay.c rewrites them in the harness). Expected z/OS: Z=01K, and the COMP and COMP-3 items shown in external decimal form with the overpunch in the last digit (the register's Not-quoted bullet: B=000P, P=0004K); record what z/OS prints for B and P."
+    },
+    "d3-ascii-overpunch-sign": {
+      "entries": [
+        "D3"
+      ],
+      "compile_options": "default",
+      "question": "Zoned data whose last character is an overpunch letter (12K, 45}, 78{) read as S9(3): the zone nibble gives the sign",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P3D.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 T1 PIC X(3) VALUE \"12K\".\n       01 N1 REDEFINES T1 PIC S9(3).\n       01 T2 PIC X(3) VALUE \"45}\".\n       01 N2 REDEFINES T2 PIC S9(3).\n       01 T3 PIC X(3) VALUE \"78{\".\n       01 N3 REDEFINES T3 PIC S9(3).\n       PROCEDURE DIVISION.\n           DISPLAY \"N1=\" N1\n           DISPLAY \"N2=\" N2\n           DISPLAY \"N3=\" N3\n           COMPUTE N1 = N1 + 0\n           DISPLAY \"T1=\" T1\n           STOP RUN.\n",
+      "oracle_expected": [
+        "N1=120+",
+        "N2=450+",
+        "N3=780+",
+        "T1=120"
+      ],
+      "note": "Plain cobc -std=ibm without -fsign=EBCDIC reads the low nibble and ignores the overpunch letter; the harness passes -fsign=EBCDIC. Expected z/OS: N1=-122 (K = X'D2', negative), N2=-450 (} = X'D0'), N3=+780 ({ = X'C0'). The probe source is typed in EBCDIC on z/OS, so the letters are the overpunch characters of the code page."
+    },
+    "f2-file-status-conditions": {
+      "entries": [
+        "F2"
+      ],
+      "compile_options": "default (a VSAM KSDS behind the KFILE DD, 4-byte key at offset 0, empty; no NOSUCH DD allocated)",
+      "question": "The real conditions the injected FILE STATUS values stand for: OPEN INPUT of an unallocated file, WRITE of a duplicate key, READ NEXT past the last record",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PF2.\n       ENVIRONMENT DIVISION.\n       INPUT-OUTPUT SECTION.\n       FILE-CONTROL.\n           SELECT MISSING ASSIGN TO \"NOSUCH\"\n               ORGANIZATION IS SEQUENTIAL\n               FILE STATUS IS FS1.\n           SELECT KF ASSIGN TO \"KFILE\"\n               ORGANIZATION IS INDEXED\n               ACCESS MODE IS DYNAMIC\n               RECORD KEY IS KREC-KEY\n               FILE STATUS IS FS2.\n       DATA DIVISION.\n       FILE SECTION.\n       FD MISSING.\n       01 MREC PIC X(4).\n       FD KF.\n       01 KREC.\n           05 KREC-KEY PIC X(4).\n       WORKING-STORAGE SECTION.\n       01 FS1 PIC XX.\n       01 FS2 PIC XX.\n       PROCEDURE DIVISION.\n           OPEN INPUT MISSING\n           DISPLAY \"OPEN=\" FS1\n           OPEN OUTPUT KF\n           MOVE \"AAAA\" TO KREC-KEY\n           WRITE KREC\n           DISPLAY \"W1=\" FS2\n           WRITE KREC\n           DISPLAY \"W2=\" FS2\n           CLOSE KF\n           OPEN INPUT KF\n           READ KF NEXT\n           READ KF NEXT\n           DISPLAY \"R2=\" FS2\n           CLOSE KF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "OPEN=35",
+        "W1=00",
+        "W2=22",
+        "R2=10"
+      ],
+      "note": "The fault injection (ggfault.c, CICS faults.cfg) does not run on z/OS: this probe measures the status IBM gives each real condition, which F2 injects on both sides. Expected z/OS: the same four values; the 35 needs the DD to be absent, so leave NOSUCH unallocated."
+    },
+    "l2-cee3abd-user-abend": {
+      "entries": [
+        "L2"
+      ],
+      "compile_options": "default",
+      "question": "CALL CEE3ABD USING abcode timing with abcode 1234 and timing 0: the step ends with a user abend and the DISPLAY after it never runs",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL2.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 ABCODE PIC S9(9) COMP VALUE 1234.\n       01 TIMING PIC S9(9) COMP VALUE 0.\n       PROCEDURE DIVISION.\n           DISPLAY \"BEFORE\"\n           CALL \"CEE3ABD\" USING ABCODE TIMING\n           DISPLAY \"AFTER\"\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEE3ABD (module not found, rc=1); the equivalence harness links ggabend.c as the stand-in. Expected z/OS: BEFORE is displayed, then the step ends ABEND U1234 (the code modulo 4096), AFTER is not displayed."
+    },
+    "l1-ceedays-blank-picture-tail": {
+      "entries": [
+        "L1"
+      ],
+      "compile_options": "default",
+      "question": "CEEDAYS with picture 'YYYYMMDD  ' and date '20200115  ' (both padded to 10, as CardDemo CSUTLDTC does): is the all-blank picture tail ignored",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL1.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 PICV.\n          05 PICL PIC S9(4) COMP VALUE 10.\n          05 PICT PIC X(10) VALUE 'YYYYMMDD  '.\n       01 DATV.\n          05 DATL PIC S9(4) COMP VALUE 10.\n          05 DATT PIC X(10) VALUE '20200115  '.\n       01 LILIAN PIC S9(9) COMP VALUE -1.\n       01 FC.\n          05 SEV PIC S9(4) COMP.\n          05 MSGNO PIC S9(4) COMP.\n          05 REST PIC X(8).\n       01 SHOWL PIC -9(9).\n       01 SHOWM PIC 9(4).\n       PROCEDURE DIVISION.\n           CALL \"CEEDAYS\" USING PICV DATV LILIAN FC\n           MOVE LILIAN TO SHOWL\n           MOVE MSGNO TO SHOWM\n           DISPLAY \"LILIAN=\" SHOWL \" MSGNO=\" SHOWM\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEEDAYS (module not found, rc=1); the equivalence harness links the stand-in (tests/equivalence/le). This is the ASSUMED shape of register L1 (IBM does not say how the picture's blank tail is read). Expected z/OS if the assumption holds: LILIAN=159704 MSGNO=0000 (feedback success); anything else (a nonzero MSGNO, LILIAN=0) settles L1 as a declared difference."
+    },
+    "l1-ceedays-date-past-span-ignored": {
+      "entries": [
+        "L1"
+      ],
+      "compile_options": "default",
+      "question": "CEEDAYS with picture 'YYYYMMDD' (length 8) and a 10-byte date '20200115XX': IBM documents that characters after a valid date are ignored",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL1.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 PICV.\n          05 PICL PIC S9(4) COMP VALUE 8.\n          05 PICT PIC X(10) VALUE 'YYYYMMDD  '.\n       01 DATV.\n          05 DATL PIC S9(4) COMP VALUE 10.\n          05 DATT PIC X(10) VALUE '20200115XX'.\n       01 LILIAN PIC S9(9) COMP VALUE -1.\n       01 FC.\n          05 SEV PIC S9(4) COMP.\n          05 MSGNO PIC S9(4) COMP.\n          05 REST PIC X(8).\n       01 SHOWL PIC -9(9).\n       01 SHOWM PIC 9(4).\n       PROCEDURE DIVISION.\n           CALL \"CEEDAYS\" USING PICV DATV LILIAN FC\n           MOVE LILIAN TO SHOWL\n           MOVE MSGNO TO SHOWM\n           DISPLAY \"LILIAN=\" SHOWL \" MSGNO=\" SHOWM\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEEDAYS (module not found, rc=1); the equivalence harness links the stand-in (tests/equivalence/le). Documented shape of register L1 (LE Programming Reference, CEEDAYS: remaining characters are ignored). Expected z/OS: LILIAN=159704 MSGNO=0000."
+    },
+    "l1-ceedays-day-outside-month": {
+      "entries": [
+        "L1"
+      ],
+      "compile_options": "default",
+      "question": "CEEDAYS with picture 'YYYYMMDD' and date '20210229' (29 February of a year that is not a leap year): Lilian 0 and a nonzero feedback code",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL1.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 PICV.\n          05 PICL PIC S9(4) COMP VALUE 8.\n          05 PICT PIC X(10) VALUE 'YYYYMMDD  '.\n       01 DATV.\n          05 DATL PIC S9(4) COMP VALUE 8.\n          05 DATT PIC X(10) VALUE '20210229  '.\n       01 LILIAN PIC S9(9) COMP VALUE -1.\n       01 FC.\n          05 SEV PIC S9(4) COMP.\n          05 MSGNO PIC S9(4) COMP.\n          05 REST PIC X(8).\n       01 SHOWL PIC -9(9).\n       01 SHOWM PIC 9(4).\n       PROCEDURE DIVISION.\n           CALL \"CEEDAYS\" USING PICV DATV LILIAN FC\n           MOVE LILIAN TO SHOWL\n           MOVE MSGNO TO SHOWM\n           DISPLAY \"LILIAN=\" SHOWL \" MSGNO=\" SHOWM\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEEDAYS (module not found, rc=1); the equivalence harness links the stand-in (tests/equivalence/le). Documented shape of register L1 (a date that is not valid returns Lilian 0 and a nonzero feedback code). Expected z/OS: LILIAN=0 MSGNO=2508 (CEE2508, day not valid for the month). The register models 2508 for this; the code number is the part a z/OS run confirms."
+    },
+    "l6-ceedywk-weekdays": {
+      "entries": [
+        "L6"
+      ],
+      "compile_options": "default",
+      "question": "CEEDYWK for the Lilian number of 15 January 2020: a Wednesday, day number 4",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL6.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 LILIAN PIC S9(9) COMP VALUE 159704.\n       01 DAYNO PIC S9(9) COMP VALUE -1.\n       01 FC.\n          05 SEV PIC S9(4) COMP.\n          05 MSGNO PIC S9(4) COMP.\n          05 REST PIC X(8).\n       01 SHOWM PIC 9(4).\n       PROCEDURE DIVISION.\n           CALL \"CEEDYWK\" USING LILIAN DAYNO FC\n           DISPLAY \"DAYNO=\" DAYNO\n           MOVE MSGNO TO SHOWM\n           DISPLAY \"MSGNO=\" SHOWM\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEEDYWK (module not found, rc=1); the equivalence harness links the stand-in (tests/equivalence/le). Documented shape of register L6 (CEEDYWK: day number 1 Sunday to 7 Saturday). 15 January 2020 was a Wednesday. Expected z/OS: DAYNO=+000000004 MSGNO=0000."
+    },
+    "l6-ceeqcen-default-window": {
+      "entries": [
+        "L6"
+      ],
+      "compile_options": "default",
+      "question": "CEEQCEN with no CEESCEN call before it returns the default century start, 80",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL6.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 CENT PIC S9(9) COMP VALUE -1.\n       01 FC.\n          05 SEV PIC S9(4) COMP.\n          05 MSGNO PIC S9(4) COMP.\n          05 REST PIC X(8).\n       01 SHOWM PIC 9(4).\n       PROCEDURE DIVISION.\n           CALL \"CEEQCEN\" USING CENT FC\n           DISPLAY \"CENT=\" CENT\n           MOVE MSGNO TO SHOWM\n           DISPLAY \"MSGNO=\" SHOWM\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEEQCEN (module not found, rc=1); the equivalence harness links the stand-in (tests/equivalence/le). ASSUMED shape of register L6 for the run-wide setting; the default 80 is IBM-documented (CEEQCEN). Expected z/OS: CENT=+000000080 MSGNO=0000."
+    },
+    "a1-cobdatft-type-2-to-2": {
+      "entries": [
+        "A1"
+      ],
+      "compile_options": "default",
+      "question": "CALL COBDATFT USING the date record with input type '2' (YYYY-MM-DD) and output type '2' (YYYYMMDD) on 2020-01-15",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PA1.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 DATEREC.\n          05 INTYPE PIC X VALUE '2'.\n          05 INPDT PIC X(20) VALUE '2020-01-15'.\n          05 OUTYPE PIC X VALUE '2'.\n          05 OUTDT PIC X(20) VALUE SPACES.\n          05 ERMSG PIC X(38) VALUE SPACES.\n       PROCEDURE DIVISION.\n           CALL \"COBDATFT\" USING DATEREC\n           DISPLAY \"OUT=\" OUTDT(1:8)\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no COBDATFT (CardDemo's S/370 assembler module, module not found, rc=1); the equivalence harness links tests/equivalence/le/cobdatft.c. Needs CardDemo's COBDATFT load module in the z/OS step library. Expected z/OS (the modelled path of register A1, read from the module's MVC instructions): OUT=20200115. The error paths and input type '1' depend on the load module's literal pool and are not probed."
+    },
+    "l4-ceeigzct-cee000-after-success": {
+      "entries": [
+        "L4"
+      ],
+      "compile_options": "default",
+      "question": "CEEIGZCT copied under the 8-byte condition-token value of a 12-byte feedback group (as CBSA CRECUST does): after a CEEDAYS call that succeeds, is CEE000 true",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL4A.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 PICV.\n          05 PICL PIC S9(4) COMP VALUE 8.\n          05 PICT PIC X(8) VALUE 'YYYYMMDD'.\n       01 DATV.\n          05 DATL PIC S9(4) COMP VALUE 8.\n          05 DATT PIC X(8) VALUE '20200115'.\n       01 LILIAN PIC S9(9) COMP VALUE -1.\n       01 FC.\n          02 CONDITION-TOKEN-VALUE.\n          COPY CEEIGZCT.\n          02 CASE-SEV-CTL PIC X.\n          02 FACILITY-ID PIC XXX.\n          02 I-S-INFO PIC S9(9) COMP.\n       PROCEDURE DIVISION.\n           CALL \"CEEDAYS\" USING PICV DATV LILIAN FC\n           IF CEE000 OF FC\n              DISPLAY \"CEE000=TRUE\"\n           ELSE\n              DISPLAY \"CEE000=FALSE\"\n           END-IF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has neither the CEEIGZCT copybook nor CEEDAYS (copybook not found, rc=1); the equivalence harness uses the stand-in copybook (det/copy/CEEIGZCT.cpy) and the CEEDAYS model (tests/equivalence/le). ASSUMED shape of register L4: CEE000 is the all-zero 8-byte token. Expected z/OS (using IBM's own CEEIGZCT copybook): CEE000=TRUE. FALSE settles L4 as a declared difference."
+    },
+    "l4-ceeigzct-cee000-after-failed-call": {
+      "entries": [
+        "L4"
+      ],
+      "compile_options": "default",
+      "question": "CEEIGZCT copied under a 12-byte feedback group: after a CEEDAYS call that fails (29 February 2021), is CEE000 false",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL4B.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 PICV.\n          05 PICL PIC S9(4) COMP VALUE 8.\n          05 PICT PIC X(8) VALUE 'YYYYMMDD'.\n       01 DATV.\n          05 DATL PIC S9(4) COMP VALUE 8.\n          05 DATT PIC X(8) VALUE '20210229'.\n       01 LILIAN PIC S9(9) COMP VALUE -1.\n       01 FC.\n          02 CONDITION-TOKEN-VALUE.\n          COPY CEEIGZCT.\n          02 CASE-SEV-CTL PIC X.\n          02 FACILITY-ID PIC XXX.\n          02 I-S-INFO PIC S9(9) COMP.\n       PROCEDURE DIVISION.\n           CALL \"CEEDAYS\" USING PICV DATV LILIAN FC\n           IF CEE000 OF FC\n              DISPLAY \"CEE000=TRUE\"\n           ELSE\n              DISPLAY \"CEE000=FALSE\"\n           END-IF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has neither the CEEIGZCT copybook nor CEEDAYS (copybook not found, rc=1). Guards the L4 reading against an always-true CEE000. Expected z/OS: CEE000=FALSE (the token carries severity 3 / message 2508, so it is not the all-zero success token)."
+    },
+    "l5-ceeloct-feedback-and-gregorian-shape": {
+      "entries": [
+        "L5"
+      ],
+      "compile_options": "default",
+      "question": "CEELOCT with a 17-byte Gregorian output: is the feedback code a success and the output 17 digits (YYYYMMDDHHMISS999)",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL5A.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 LILIAN PIC S9(9) COMP VALUE -1.\n       01 SECS COMP-2 VALUE 0.\n       01 GREG PIC X(17) VALUE ALL '*'.\n       01 FC.\n          05 SEV PIC S9(4) COMP.\n          05 MSGNO PIC S9(4) COMP.\n          05 REST PIC X(8).\n       01 SHOWM PIC 9(4).\n       PROCEDURE DIVISION.\n           CALL \"CEELOCT\" USING LILIAN SECS GREG FC\n           MOVE MSGNO TO SHOWM\n           DISPLAY \"MSGNO=\" SHOWM\n           IF GREG IS NUMERIC\n              DISPLAY \"GREG=DIGITS\"\n           ELSE\n              DISPLAY \"GREG=OTHER\"\n           END-IF\n           IF LILIAN > 0\n              DISPLAY \"LILIAN=POSITIVE\"\n           END-IF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEELOCT (module not found, rc=1); the equivalence harness links the model (tests/equivalence/le/ceeloct.c). The local time is the wall clock, so the probe prints invariants only. Documented shape of register L5. Expected z/OS: MSGNO=0000, GREG=DIGITS, LILIAN=POSITIVE."
+    },
+    "l5-ceeloct-seconds-match-lilian": {
+      "entries": [
+        "L5"
+      ],
+      "compile_options": "default",
+      "question": "CEELOCT: is output_seconds (a COMP-2) the Lilian day times 86400 plus the time of day, so SECS / 86400 truncates to the Lilian day",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL5B.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 LILIAN PIC S9(9) COMP VALUE -1.\n       01 SECS COMP-2 VALUE 0.\n       01 DAYS PIC S9(9) COMP VALUE -1.\n       01 GREG PIC X(17) VALUE ALL '*'.\n       01 FC.\n          05 SEV PIC S9(4) COMP.\n          05 MSGNO PIC S9(4) COMP.\n          05 REST PIC X(8).\n       01 SHOWM PIC 9(4).\n       PROCEDURE DIVISION.\n           CALL \"CEELOCT\" USING LILIAN SECS GREG FC\n           COMPUTE DAYS = SECS / 86400\n           IF DAYS = LILIAN\n              DISPLAY \"SECS=LILIAN-DAYS\"\n           ELSE\n              DISPLAY \"SECS=OTHER\"\n           END-IF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEELOCT (module not found, rc=1). ASSUMED shape of register L5 (2): seconds = days x 86400 + time of day. Expected z/OS: SECS=LILIAN-DAYS. A z/OS compile without FLOAT(IEEE) holds the COMP-2 as hex float; the COMPUTE converts it, so the answer does not depend on the representation."
+    },
+    "l5-ceeloct-gregorian-tail": {
+      "entries": [
+        "L5"
+      ],
+      "compile_options": "default",
+      "question": "CEELOCT into a 23-byte Gregorian field pre-filled with asterisks: what does IBM write after the 17 documented characters",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PL5C.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 LILIAN PIC S9(9) COMP VALUE -1.\n       01 SECS COMP-2 VALUE 0.\n       01 GREG PIC X(23) VALUE ALL '*'.\n       01 FC.\n          05 SEV PIC S9(4) COMP.\n          05 MSGNO PIC S9(4) COMP.\n          05 REST PIC X(8).\n       01 SHOWM PIC 9(4).\n       PROCEDURE DIVISION.\n           CALL \"CEELOCT\" USING LILIAN SECS GREG FC\n           IF GREG(1:17) IS NUMERIC\n              DISPLAY \"HEAD=DIGITS\"\n           END-IF\n           IF GREG(18:6) = ALL '*'\n              DISPLAY \"TAIL=UNTOUCHED\"\n           ELSE\n              DISPLAY \"TAIL=WRITTEN\"\n           END-IF\n           STOP RUN.\n",
+      "oracle_expected": [
+        "rc=1"
+      ],
+      "note": "Plain cobc has no CEELOCT (module not found, rc=1). ASSUMED shape of register L5 (3): the model writes only the 17 documented characters. Expected z/OS if the assumption holds: HEAD=DIGITS TAIL=UNTOUCHED. TAIL=WRITTEN settles L5 (3) as a declared difference; record the bytes written."
     }
   }
 }

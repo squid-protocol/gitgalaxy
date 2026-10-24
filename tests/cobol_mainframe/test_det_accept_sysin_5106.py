@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -86,6 +87,7 @@ def _run(tmp_path: Path, stdin: bytes, accepts: int = 1) -> subprocess.Completed
                            str(tmp_path / "classes"), "Main"], input=stdin, capture_output=True)  # fmt: skip
 
 
+@pytest.mark.slow(reason="translates, javac-compiles and runs a program per case (#5178, #5606)")
 @pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
 @pytest.mark.parametrize(
     "stdin, want",

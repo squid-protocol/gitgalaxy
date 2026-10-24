@@ -1,4 +1,13 @@
 {
+  "apex": {
+    "fn": 7,
+    "fp": 12,
+    "matched_functions": 60,
+    "parse_failures": 0,
+    "precision_pct": 95.7,
+    "recall_pct": 97.5,
+    "tp": 269
+  },
   "c": {
     "fn": 90,
     "fp": 86,
@@ -142,6 +151,15 @@
     "precision_pct": 97.9,
     "recall_pct": 89.3,
     "tp": 3022
+  },
+  "solidity": {
+    "fn": 3,
+    "fp": 80,
+    "matched_functions": 99,
+    "parse_failures": 0,
+    "precision_pct": 64.6,
+    "recall_pct": 98.0,
+    "tp": 146
   },
   "swift": {
     "fn": 94,

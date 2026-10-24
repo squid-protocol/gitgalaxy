@@ -91,6 +91,8 @@ LANGS = (
     "dart",
     "haskell",
     "perl",
+    "solidity",
+    "apex",
 )
 
 CALL_NODE_TYPES = frozenset(
@@ -155,6 +157,9 @@ def _leaf_name(node: Any, depth: int = 0) -> str | None:
     if node.type in _QUALIFIED_TYPES:  # `ControlFlow::Continue`, `OS::get_singleton`
         child = node.child_by_field_name("name")
         return _leaf_name(child, depth + 1) if child is not None else None
+    # solidity `t.call{value: v}(d)` names the call, not `value`
+    if node.type == "struct_expression" and node.named_children:
+        return _leaf_name(node.named_children[0], depth + 1)
     if node.type in ("function", "method") and not node.named_children:  # perl `Foo::bar` -> `bar`
         return node.text.decode("utf-8", "replace").rsplit("::", 1)[-1]
     if node.type.endswith(_LEAF_SUFFIXES) or node.type == "name":

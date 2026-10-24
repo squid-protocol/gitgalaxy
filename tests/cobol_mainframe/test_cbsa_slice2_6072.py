@@ -15,10 +15,12 @@ def _json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_every_crdtagy_case_states_its_delay_and_put_container_failure_arms():
-    cases = _json(EQ / "infeasible_outcomes.json")["cases"]
+def test_every_crdtagy_case_states_its_put_container_failure_arm_and_plans_the_delay_fault():
+    # The DELAY failure arm is no longer infeasible: a planned DELAY fault reaches it (#6271, register X72).
     for case in AGENCIES:
-        entries = cases[case]
+        entries = _json(EQ / "infeasible_outcomes" / f"{case}.json")["entries"]
         assert {(e["unit"], e["kind"], e["outcome"], e["family"]) for e in entries} == {("A010", "IF", "true", "R")}
-        assert len({e["line"] for e in entries}) == 2
-        assert all(e["reason"].strip() for e in entries)
+        assert len({e["line"] for e in entries}) == 1
+        assert all("PUT CONTAINER" in e["reason"] for e in entries)
+        faults = [f for s in _json(EQ / case / "case.json")["scenarios"] for f in s.get("faults", [])]
+        assert any(f["cmd"] == "DELAY" for f in faults)

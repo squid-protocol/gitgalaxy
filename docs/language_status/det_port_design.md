@@ -376,8 +376,16 @@ Only generator output, never a test case:
   `ASSIGN CHANNEL` now run on CicsTask's channels (`putContainer`, `getContainer`, `deleteContainer`, `linkChannel`,
   `xctlChannel`, `assignChannel`) and the stub (GGCPUTC / GGCGETC / GGCDELC / GGCASCH, GG-CHAN), container data
   byte for byte, CONTAINERERR / CHANNELERR / LENGERR / INVREQ with IBM's RESP2 through `condition()` (AEZJ / AEZV by
-  default). Code-page conversion, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and the container browse are refused by name
-  (register X17). Proven through cics-crucible ca-channel-containers (2) on the cobol-stub side and the det port.
+  default). Code-page conversion, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and the container browse were refused by name
+  in this slice (register X17); of those, all but SET have since been modelled (see the #4951 / #5005 slice below). Proven
+  through cics-crucible ca-channel-containers (2) on the cobol-stub side and the det port.
+- #4951 / #5005 channel siblings: `MOVE CONTAINER` and `STARTBROWSE` / `GETNEXT` / `ENDBROWSE CONTAINER` (register X42),
+  `DELETE CHANNEL` and `QUERY CHANNEL` (`deleteChannel` / `queryChannel`, stub GGCDELH / GGCQCHN, register X44; deleting
+  the program's current channel is refused, IBM's RESP2 4 / 5 / 6 all fit it), CCSID conversion (`FROMCCSID` / `INTOCCSID`
+  / `CONVERTST` / `CCSID`) and `BYTEOFFSET` / `PREPEND` on BIT containers (#5285), and `RETURN TRANSID CHANNEL` carried
+  to the next terminal task (#6352, register X17). `GET64` / `PUT64 CONTAINER` run as their 31-bit twins (INTO / FROM an ordinary item, ASSUMED, register X17). Still refused by name: `SET` (and `GET64 ... SET`), `INQUIRE CONTAINER`
+  (BTS only). Proven on both sides by `tests/cics_crucible/test_cics_runtimes.py`; the cics-crucible case `ca-channel-browse`
+  (PR #19 there) is not yet merged or pinned.
 - #4270 slice 2: interval control was refused whole -- START / RETRIEVE / RUN / FETCH in 10 census programs (3 outside
   the burned estates, all RUN / FETCH). `START` (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM / LENGTH,
   RTRANSID / RTERMID / QUEUE), `RETRIEVE` (INTO / LENGTH, the data options), `CANCEL REQID` and `RUN TRANSID CHILD` now
@@ -600,7 +608,7 @@ exercised.
 
 A fourth estate, from a different IBM team: [estate4_dbb_mortgage.md](estate4_dbb_mortgage.md). 99.0% of its 204
 statements translate. EPSNBRVL (a CALL with a group USING item; 22/22 branches) and EPSCMORT (CICS, a generated BMS map,
-Db2) are proven. EPSMPMT is not proven on purpose: its payment is computed in floating point (C6; its `NUMPROC(MIG)` is modelled since #4271, C5). EPSMLIST waits for ESDS browse by RBA
+Db2) are proven. EPSMPMT is not proven on purpose: its payment is computed in floating point through an ASSUMED power (C6) and its dead-code FUNCTION ANNUITY is a hole (#5867); its `NUMPROC(MIG)` is modelled since #4271 (C5). EPSMLIST waits for ESDS browse by RBA
 (#4213). Onboarding it needed general fixes: compiler cards from column 1, `ID DIVISION`, group USING items across a
 CALL as contract DTOs, and nested COPY in a copybook's record (the IR).
 
@@ -866,7 +874,8 @@ NULL is distinct.
   indexes; logical relationships; load mode on a DB PCB. CardDemo's other DL/I program that stops at one of these:
   PAUDBLOD (CMPAT=YES, an I/O PCB). **GSAM load mode (#5233, RT-DLI-GSAM).** A TYPE=GSAM PCB with PROCOPT LS is a
   record output file (`DetDli.gsamCall`, twin of `ggdli.c`'s `gsam_call`): ISRT appends one record, any other
-  function answers AM; `carddemo-dbunldgs` proves DBUNLDGS on it. (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above.)
+  function answers AM; `carddemo-dbunldgs` proves DBUNLDGS on it. Reading a GSAM file (PROCOPT G) is used by no burned
+  program (`test_gsam_burned_5233.py` pins it) and stays refused by name. (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above.)
 - **COPAUA0C, the authorization task (`carddemo-copaua0c`, #5278).** Transid CP00: an MQTM trigger, MQGET on the request queue, IMS
   DBPAUTP0 by EXEC DLI, three VSAM reads and MQPUT replies. Proven on 17 scenarios (3 fault runs), through the deployed entry point
   too, covering 41/41 paragraphs and 58/69 branches. The det port is committed (`port/service/`, `port/provenance.json`, as CBPAUP0C's),

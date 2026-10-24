@@ -239,3 +239,16 @@ def test_the_architecture_brief_is_published_from_main_only_and_never_tracked():
     tracked = subprocess.run(["git", "ls-files", brief], cwd=REPO, capture_output=True, text=True, check=False)
     assert tracked.returncode == 0 and tracked.stdout.strip() == "", "the brief must not be committed to main"
     assert brief in (REPO / ".gitignore").read_text(encoding="utf-8").splitlines()
+
+
+def test_no_rendered_evidence_report_page_is_tracked():
+    """#4963/#5206: the report lives on generated; a committed page would be a stale fallback. Only the README stays."""
+    tracked = subprocess.run(
+        ["git", "ls-files", "docs/language_status/evidence_report"],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert tracked.returncode == 0
+    assert set(tracked.stdout.split()) <= {"docs/language_status/evidence_report/README.md"}

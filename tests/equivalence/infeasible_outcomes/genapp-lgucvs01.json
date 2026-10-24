@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "genapp-lgucvs01",
+  "entries": [
+    {
+      "unit": "WRITE-ERROR-MESSAGE",
+      "line": 121,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF EIBCALEN > 0` (the outer test of WRITE-ERROR-MESSAGE's COMMAREA copy) is false only for a call with no COMMAREA. Before any error path the program has already used the COMMAREA: lines 67-73 READs with RIDFLD(CA-Customer-Num), an item of the LINKAGE DFHCOMMAREA, so with EIBCALEN 0 it is read from no storage. The only caller, LGUCDB01 (line 136), LINKs with Commarea(DFHCOMMAREA) LENGTH(225), so EIBCALEN is 225 on every call; a harness cannot state a COMMAREA-less call without a reference to unaddressable LINKAGE storage, which IBM leaves undefined (X23: a reference past EIBCALEN is refused on both sides, the task judged up to it)."
+    }
+  ]
+}

@@ -445,7 +445,7 @@ DEFINITION: dict[str, Any] = {
             r"[ \t]*(?:[-+*/%&|^]|<<|>>|\?\?)?=(?![=>])(?![^\n(]{0,300},[ \t]*$)"
             r"|[" + ID_CONTINUE + r")\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[" + ID_START + r"(*]"
             r"|(?<=[(,])[ \t]*(?:ref|out)[ \t]+[" + ID_START + r"][" + ID_CONTINUE + r".]*[ \t]*(?=[,)])"
-            r"|\.(?:Add|AddRange|Remove|RemoveAt|Clear|Insert|Push|Pop|Enqueue|Dequeue|TryAdd|Set|Update)\s*\(",
+            r"|\.(?:Add|AddRange|Remove|RemoveAt|Clear|Insert|Push|Pop|Enqueue|Dequeue|TryAdd|Set|Update)[ \t]*\(",
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
@@ -696,5 +696,9 @@ DEFINITION: dict[str, Any] = {
         # 3084: the Microsoft.Win32.Registry/ServiceController surface is real,
         # but crucible incidence is 0 files today.
         "system_config_mutation": None,
+        # #3171 (see c.py, python.py): the mutator-call arm binds `[ \t]*\(`, not
+        # `\s*\(`, so the rule is provably line-local (zero match movement on the
+        # crucible + rosetta corpora); eligibility is re-proven at cache build.
+        "_line_gates": ("state_mutation",),
     },
 }

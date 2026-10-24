@@ -1,0 +1,195 @@
+name: Referee panel
+
+# #4438 item 4: the COBOL / CICS referee panel (tests/tools/referees/run_panel.py) on a schedule, never a PR gate. JVM
+# start-up, a Maven build and the 5-minute tree-sitter grammar generation make it a poor gate, so this workflow has no
+# pull_request or push trigger (tests/tools/test_referee_panel_workflow.py pins that). Referees are external tools,
+# installed outside the checkout at the refs pinned in REFEREE_* below (a bump changes the cache key) and never
+# vendored or imported by the product (tests/tools/referees/README.md). Scratch results only: the scorecard names other
+# tools and its publication is on hold (owner, #4438), so the only output is a short-retention artifact.
+
+on:
+  schedule:
+    - cron: "53 7 * * *"  # nightly, after cache-prune (03:41) and the 04:23 / 05:17 / 06:37 refills
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: referee-panel
+  cancel-in-progress: false
+
+jobs:
+  panel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      GITGALAXY_DISABLE_GIT_HISTORY: "1"  # a scan of a corpus must not depend on the clone depth
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+      PYTHONUTF8: "1"
+      REFEREE_COBRIX_SHA: c1716605004b50045d905229566167f640505868  # AbsaOSS/cobrix
+      REFEREE_TREESITTER_SHA: 86a2c479cb7e299e8dc3bb9db7a346502335d21e  # Spantree/tree-sitter-cobol-enterprise
+      REFEREE_MAPA_SHA: 6ebe2d4059f5b9b908341fea7c286856f4b544af  # cschneid-the-elder/mapa
+      REFEREE_CHE4Z_TAG: "2.5.1"  # eclipse-che4z/che-che4z-lsp-for-cobol
+      REFEREE_TREESITTER_CLI: "0.25.10"  # npm tree-sitter-cli; src/parser.c is not committed upstream
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Locate the referees outside the checkout
+        run: echo "REFEREES_DIR=$RUNNER_TEMP/referees" >> "$GITHUB_ENV"  # a scan must never see a referee (runner.* is not allowed in job env)
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+            ci/requirements/*.txt
+
+      - name: Setup Java
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "21"  # mapa needs 21; Che4z 17+; Cobrix 11+
+
+      - name: Install GitGalaxy
+        run: |
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          pip install --no-build-isolation -e ".[full]"
+          # py-tree-sitter >= 0.22 for the tree-sitter-cobol-enterprise adapter
+          tests/tools/ci_retry.sh 4 10 -- pip install "tree-sitter==0.26.0"
+
+      # The referees are keyed by this file: the refs above live here, so a bump is a new key and a fresh install.
+      - name: Restore the referee installs
+        id: referees
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.REFEREES_DIR }}
+          key: referee-panel-installs-${{ hashFiles('.github/workflows/referee-panel.yml') }}
+
+      - name: Install Cobrix
+        if: steps.referees.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p "$REFEREES_DIR/cobrix"
+          cd "$REFEREES_DIR/cobrix"
+          git init -q
+          git remote add origin https://github.com/AbsaOSS/cobrix
+          git fetch -q --depth 1 origin "$REFEREE_COBRIX_SHA"
+          git checkout -q FETCH_HEAD
+          # the parent POM still targets Java 7, which current JDKs refuse
+          mvn -q -B -pl cobol-parser -am -DskipTests -Dmaven.compiler.source=8 -Dmaven.compiler.target=8 package
+          mvn -q -B -pl cobol-parser dependency:build-classpath -Dmdep.outputFile="$REFEREES_DIR/cobrix.m2.cp"
+          # the classpath names jars in ~/.m2, which the referee cache does not hold: copy them next to the install
+          mkdir -p "$REFEREES_DIR/cobrix-lib"
+          tr ':' '\n' < "$REFEREES_DIR/cobrix.m2.cp" | while read -r j || [ -n "$j" ]; do cp "$j" "$REFEREES_DIR/cobrix-lib/"; done
+          ls "$REFEREES_DIR"/cobrix-lib/*.jar | paste -sd: - > "$REFEREES_DIR/cobrix.cp"
+
+      - name: Install tree-sitter-cobol-enterprise
+        if: steps.referees.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p "$REFEREES_DIR/tree-sitter-cobol-enterprise"
+          cd "$REFEREES_DIR/tree-sitter-cobol-enterprise"
+          git init -q
+          git remote add origin https://github.com/Spantree/tree-sitter-cobol-enterprise
+          git fetch -q --depth 1 origin "$REFEREE_TREESITTER_SHA"
+          git checkout -q FETCH_HEAD
+          cd "$REFEREES_DIR"
+          "$GITHUB_WORKSPACE/tests/tools/ci_retry.sh" 4 10 -- npm install --no-save "tree-sitter-cli@$REFEREE_TREESITTER_CLI"
+          cd tree-sitter-cobol-enterprise
+          "$REFEREES_DIR/node_modules/.bin/tree-sitter" generate  # ~5 min
+          cc -O2 -fPIC -shared -I src src/parser.c src/scanner.c -o "$REFEREES_DIR/cobol_enterprise.so"
+
+      - name: Install Che4z COBOL Language Support
+        if: steps.referees.outputs.cache-hit != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$REFEREES_DIR/che4z"
+          gh release download "$REFEREE_CHE4Z_TAG" -R eclipse-che4z/che-che4z-lsp-for-cobol \
+            -p "cobol-language-support-$REFEREE_CHE4Z_TAG.vsix" -D "$REFEREES_DIR/che4z"
+          unzip -q "$REFEREES_DIR/che4z/cobol-language-support-$REFEREE_CHE4Z_TAG.vsix" -d "$REFEREES_DIR/che4z/vsix"
+
+      - name: Install mapa
+        if: steps.referees.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p "$REFEREES_DIR/mapa"
+          cd "$REFEREES_DIR/mapa"
+          git init -q
+          git remote add origin https://github.com/cschneid-the-elder/mapa
+          git fetch -q --depth 1 origin "$REFEREE_MAPA_SHA"
+          git checkout -q FETCH_HEAD
+
+      # Saved right after the installs, not at job end: a panel run that exits 1 must not cost the next night a reinstall.
+      - name: Save the referee installs
+        if: steps.referees.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run the installs
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.REFEREES_DIR }}
+          key: referee-panel-installs-${{ hashFiles('.github/workflows/referee-panel.yml') }}
+
+      - name: Point the panel at the referees
+        run: |
+          jar=$(ls "$REFEREES_DIR"/cobrix/cobol-parser/target/cobol-parser_2.12-*-SNAPSHOT.jar | grep -v javadoc | head -n 1)
+          {
+            echo "COBRIX_CLASSPATH=$(cat "$REFEREES_DIR/cobrix.cp"):$jar"
+            echo "TS_COBOL_ENTERPRISE_LIB=$REFEREES_DIR/cobol_enterprise.so"
+            echo "TS_COBOL_ENTERPRISE_REPO=$REFEREES_DIR/tree-sitter-cobol-enterprise"
+            echo "CHE4Z_SERVER_JAR=$REFEREES_DIR/che4z/vsix/extension/server/jar/server.jar"
+            echo "MAPA_CALLTREE_JAR=$REFEREES_DIR/mapa/cobol/CallTree.jar"
+          } >> "$GITHUB_ENV"
+
+      - name: Restore the pinned corpora
+        id: corpora
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: referee-panel-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned corpora
+        run: |
+          rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      - name: Save the pinned corpora
+        if: steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: referee-panel-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
+
+      - name: Run the panel
+        run: |
+          PYTHONPATH="$PWD" python tests/tools/referees/run_panel.py --out "$RUNNER_TEMP/referee-panel"
+
+      - name: Summarise the run
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/referee-panel/run.json" ]; then
+            {
+              echo '### Referee panel run.json'
+              echo '```json'
+              cat "$RUNNER_TEMP/referee-panel/run.json"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # Short retention on purpose: the scorecard names other tools and is not published (owner hold, #4438).
+      - name: Upload the scorecard
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: referee-panel-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/referee-panel/run.json
+            ${{ runner.temp }}/referee-panel/scorecard.md
+            ${{ runner.temp }}/referee-panel/scorecard.json
+            ${{ runner.temp }}/referee-panel/disagreements.json
+          retention-days: 3
+          if-no-files-found: warn

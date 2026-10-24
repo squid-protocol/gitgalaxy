@@ -45,11 +45,13 @@ def test_the_cbpaup0c_scenarios_each_state_a_card_that_differs():
         "expiry-abend",
         "debug-expiry-abend",
         "checkpoint-display-compare",
+        "checkpoint-freq-compare",
         "expiry-not-numeric",
     }
-    assert len({*cards.values(), case["sysin"]}) == 8
-    # the control-card runs inject no file status; the rest fail one DL/I call each on the base card
-    assert all(faults[n]["plan"] == [] for n in cards)
+    assert len({*cards.values(), case["sysin"]}) == 9
+    # the control-card runs inject no file status, bar the frequency card (its CHKP drops the position, so a GN
+    # answers AM to end the step); the rest fail one DL/I call each on the base card
+    assert all(faults[n]["plan"] == [] for n in cards if n != "checkpoint-freq-compare")
     assert {n for n in faults if n not in cards} == {"gn-error", "gnp-error", "dlet-detail-error", "chkp-error"}
     assert all(eq.run_sysin(case, faults[n]) == case["sysin"] for n in faults if n not in cards)
     assert cards["debug-on"].endswith(" Y") and cards["expiry-abend"].startswith("05 ")

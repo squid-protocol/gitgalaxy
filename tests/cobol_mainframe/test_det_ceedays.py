@@ -1,7 +1,7 @@
 """#4952: LE CEEDAYS pictures (register L1) in the det runtime (cobolrt/le/Ceedays.java) and in the harness's COBOL-side
 model (tests/equivalence/le/ceedays.c), so CBSA CRECUST's CEEDAYS (picture 'YYYYMMDD' declared length 10 over 8 bytes, a date
-of length 10 over 8 digits) stays REFUSED by name (a non-blank picture tail is foreign storage), while CardDemo's blank-padded
-'YYYYMMDD  ' is modelled (register L1, owner decision 2026-10-14).
+of length 10 over 8 digits) is modelled with the 2 slack bytes ruled blank (owner decision 2026-10-23), as is CardDemo's
+blank-padded 'YYYYMMDD  ' (register L1, owner decision 2026-10-14); a non-blank byte inside the item is still refused.
 
 One vector table drives three checks, as test_det_le_time.py does for the other LE services:
 
@@ -9,8 +9,8 @@ One vector table drives three checks, as test_det_le_time.py does for the other 
 2. **The runtime against the oracle's model**: the same table through the Java runtime and the C model, every output
    and every refusal equal.
 3. **The picture's tail**: exactly the span, a tail of blanks (ASSUMED ignored), a tail with any non-blank byte, and a
-   declared length that overruns the item (foreign storage, poison on the C side, past the field on the Java side) are
-   each their own rows; only the blank tail converts. The date past its span is never read (IBM).
+   declared length that overruns the item (slack ruled blank: NUL padding on the C side, never read on the Java side)
+   are each their own rows; only a tail of blanks or slack converts. The date past its span is never read (IBM).
 
 The input class: every token order (YYYY MM DD in all six orders, YYYY DDD in both), adjacent and each separator, the
 declared length equal to / past the span (item exactly that long, or a longer item with blanks, or an overrunning
@@ -28,6 +28,7 @@ from pathlib import Path
 
 import pytest
 import sys
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -50,17 +51,18 @@ def _ok(y: int, m: int, d: int) -> str:
 
 
 # (date text, declared date length, picture text, declared picture length, want "<msgno>|<lilian>" or REFUSED).
-# The storage behind each text is exactly the text, then poison: a declared length past the text overruns the item.
+# The storage behind each text is exactly the text, then NUL padding: a declared length past the text overruns the item.
 VECTORS = [
     # the modelled shape before #4952, all three separators
     ("1988-05-16", 10, "YYYY-MM-DD", 10, _ok(1988, 5, 16)),
     ("1988/05/16", 10, "YYYY/MM/DD", 10, _ok(1988, 5, 16)),
     ("1988.05.16", 10, "YYYY.MM.DD", 10, _ok(1988, 5, 16)),
-    # CRECUST: 'YYYYMMDD' declared length 10 over 8 bytes: the 2 bytes past the picture are foreign storage, REFUSED
-    ("19880516", 10, "YYYYMMDD", 10, REFUSED),
-    ("20000229", 10, "YYYYMMDD", 10, REFUSED),
-    ("19880516", 9, "YYYYMMDD", 9, REFUSED),  # one byte past the item
-    ("19880516", 8, "YYYYMMDD", 100, REFUSED),  # far past it
+    # CRECUST: 'YYYYMMDD' declared length 10 over 8 bytes: the 2 bytes past the picture are slack, ruled blank (L1, ASSUMED)
+    ("19880516", 10, "YYYYMMDD", 10, _ok(1988, 5, 16)),
+    ("20000229", 10, "YYYYMMDD", 10, _ok(2000, 2, 29)),
+    ("19880516", 9, "YYYYMMDD", 9, _ok(1988, 5, 16)),  # one byte past the item
+    ("19880516", 8, "YYYYMMDD", 100, _ok(1988, 5, 16)),  # far past it
+    ("19880516", 10, "YYYYMMDDX", 12, REFUSED),  # a non-blank byte inside the item, then slack
     ("19880516", 8, "YYYYMMDD", 8, _ok(1988, 5, 16)),
     # a picture longer than its span with real blanks (CardDemo CSUTLDTC): the tail is ignored (L1, ASSUMED)
     ("19880516  ", 10, "YYYYMMDD  ", 10, _ok(1988, 5, 16)),
@@ -77,8 +79,8 @@ VECTORS = [
     ("19880516", 8, "YYYYMMDD00", 10, REFUSED),
     ("1988-05-16", 10, "YYYY-MM-DD.", 11, REFUSED),
     ("1988137", 7, "YYYYDDDX", 8, REFUSED),
-    # a blank tail whose declared length overruns the item is foreign storage too: refused
-    ("19880516", 8, "YYYYMMDD ", 12, REFUSED),
+    # a blank tail whose declared length overruns the item: the blanks, then the slack
+    ("19880516", 8, "YYYYMMDD ", 12, _ok(1988, 5, 16)),
     ("1988-05-16 x", 12, "YYYY-MM-DD", 10, _ok(1988, 5, 16)),  # IBM: remaining characters of the DATE are ignored
     # every token order and separator
     ("05161988", 8, "MMDDYYYY", 8, _ok(1988, 5, 16)),
@@ -155,13 +157,13 @@ C_DRIVER = r"""
 #include <string.h>
 int CEEDAYS(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
 /* argv: date text, declared length, picture text, declared length. The item is its text (2 + n bytes, on the heap),
- * then 256 poison bytes of foreign storage (0xFF, never a blank) for a declared length that overruns the item, as
+ * then 256 NUL bytes (cobc's padding after a 01 item) for a declared length that overruns the item, as
  * CRECUST's does. */
 static unsigned char *vstr(const char *s, int declared) {
     size_t n = strlen(s);
     unsigned char *o = malloc(2 + n + 256);
     o[0] = declared >> 8; o[1] = declared & 255; memcpy(o + 2, s, n);
-    memset(o + 2 + n, 0xFF, 256);
+    memset(o + 2 + n, 0, 256);
     return o;
 }
 int main(int argc, char **argv) {
@@ -184,7 +186,7 @@ import p.cobolrt.le.*;
 public class Probe {
     static Field vstr(String t, int declared) {
         byte[] b = t.getBytes(StandardCharsets.ISO_8859_1);
-        Storage s = new Storage(2 + b.length + 256); // the item, then foreign storage the runtime must not trust
+        Storage s = new Storage(2 + b.length + 256); // the item, then storage the runtime must not read (0xFF: a read would show)
         java.util.Arrays.fill(s.bytes, 2 + b.length, s.bytes.length, (byte) 0xFF);
         s.bytes[0] = (byte) (declared >> 8);
         s.bytes[1] = (byte) declared;
@@ -351,8 +353,24 @@ def test_only_cbsa_crecust_declares_a_vstring_length_past_its_text():
                 if int(m.group(1)) > int(m.group(2)):
                     overruns.add((estate, f.name, int(m.group(1)), int(m.group(2))))
     assert callers >= {("CSUTLDTC.cbl", "CEEDAYS"), ("CRECUST.cbl", "CEEDAYS"), ("BANKDATA.cbl", "CEEDATM")}
-    # CRECUST's picture ('YYYYMMDD', length 10 over 8) is the one overrun: refused by name (register L1); CardDemo builds
+    # CRECUST's picture ('YYYYMMDD', length 10 over 8) is the one overrun: its slack is ruled blank (register L1); CardDemo builds
     # its length from LENGTH OF the format item and BANKDATA's CEEDATM picture is exactly 14 over 14
     crecust = {o for o in overruns if o[1] == "CRECUST.cbl"}
     assert ("cics-banking-sample-application-cbsa", "CRECUST.cbl", 10, 8) in crecust
     assert {o[1] for o in overruns} == {"CRECUST.cbl"}
+
+
+def test_the_dateutil_case_calls_every_julian_day_boundary_the_model_documents():
+    """#4049: CSUTLDTC's case grows the YYYYDDD calls (day 000, 366 in a leap and a non-leap year, the Lilian and 9999
+    ends, a non-digit), each on a picture the model documents; the port answers them too (a DDD token)."""
+    import json
+
+    case = json.loads((ROOT / "tests/equivalence/carddemo-dateutil/case.json").read_text(encoding="utf-8"))
+    julian = {c["name"]: c["args"] for c in case["calls"] if c["name"].startswith("julian-")}
+    modelled = {"YYYYDDD   ", "DDDYYYY   ", "YYYY-DDD  "}
+    assert {a[1] for a in julian.values()} <= modelled
+    dates = {a[0].strip() for a in julian.values()}
+    assert {"2022000", "2023366", "2024366", "1900366", "2000366", "2024367", "1582287", "1582288", "9999365"} <= dates
+    assert any(not d.isdigit() for d in dates), "a non-digit in the date"
+    port = ROOT / "tests/equivalence/carddemo-dateutil/port/service/CsutldtcService.java"
+    assert '"DDD"' in port.read_text(encoding="utf-8")

@@ -373,6 +373,37 @@ def test_audit_recorder_carries_mainframe_facts_only_when_present(recorder, tmp_
     assert "10. Mainframe System Facts" not in files["src"]["Files"]["src/app.py"]
 
 
+def test_audit_sections_table_shapes_each_row_kind(recorder):
+    """AUDIT_SECTIONS (#3383) drives every fact section: unique keys and labels, a plain column
+    per key, a conditional column only when its value is set, and the filter on entry points."""
+    from gitgalaxy.recorders.audit_recorder import AUDIT_SECTIONS
+
+    assert len({s.key for s in AUDIT_SECTIONS}) == len(AUDIT_SECTIONS)
+    assert len({s.label for s in AUDIT_SECTIONS}) == len(AUDIT_SECTIONS)
+
+    block = recorder._mainframe_facts_block(
+        {
+            "call_sites": [{"verb": "LINK", "target": "P", "sysid": "S1"}, {"verb": "CALL"}],
+            "dataset_bindings": [{"dd_name": "A", "dsn": "X.Y", "dsn_resolution": "resolved", "dsn_resolved": "X.Y"}],
+            "csd_resources": [
+                {"resource_type": "FILE", "name": "F", "key_length": 0, "source": "MACRO", "macro_table": "DFHFCT"}
+            ],
+            "job_flow": [{"kind": "STEP", "step_ordinal": 0, "proc": None}],
+            "entry_points": [{"kind": "PROGRAM", "params": ""}, {"kind": "ENTRY", "entry_name": "E"}],
+            "data_moves": [{"line": 3, "verb": "MOVE", "source": None, "target": "T", "corresponding": True}],
+        }
+    )
+    assert list(block) == ["Call Sites", "Dataset Bindings", "CSD Resources", "Job Flow", "Entry Points", "Data Moves"]
+    assert block["Call Sites"][0]["SYSID"] == "S1"
+    assert list(block["Call Sites"][1]) == ["Verb", "Form", "Operand", "Target", "Line"]
+    assert block["Dataset Bindings"][0]["DSN Resolution"] == "resolved"
+    csd = block["CSD Resources"][0]
+    assert csd["Key Length"] == 0 and csd["Source"] == "MACRO" and "DSNAME" not in csd
+    assert block["Job Flow"][0] == {"Kind": "STEP", "Step Ordinal": 0, "Line": 0}
+    assert [e["Kind"] for e in block["Entry Points"]] == ["ENTRY"]
+    assert block["Data Moves"] == ["L3 MOVE CORR - -> T"]
+
+
 def test_function_analysis_lists_the_db_population(recorder, tmp_path):
     """#4110: "5. Function Analysis" lists exactly the units the scan DB's
     function_data holds -- slicer-synthesized units (a top-level bucket, an

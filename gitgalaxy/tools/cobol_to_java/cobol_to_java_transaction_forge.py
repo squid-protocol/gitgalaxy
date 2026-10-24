@@ -27,7 +27,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.tools.cobol_to_java.cics_task_conditions import CONDITIONS_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_containers import CONTAINERS_JAVA
+from gitgalaxy.tools.cobol_to_java.cics_task_faults import FAULTS_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_filecontrol import FILECONTROL_JAVA
 from gitgalaxy.tools.cobol_to_java.cics_task_taskcontrol import TASKCONTROL_JAVA
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
@@ -433,6 +435,7 @@ public class CicsTask {
 
     private String link(String program, Object commarea, int length, byte[] area, Channel linkChannel) {
         linkAreaBack = false;
+        boolean abendedHere = false;
         String resp = "NORMAL";
         Integer resp2 = null;
         int len = commarea == null ? 0 : length;
@@ -447,6 +450,7 @@ public class CicsTask {
             if (planned != null) {
                 resp = respName(planned[0]);
                 resp2 = planned[1];
+                abendedHere = root().ended || root().unwoundTo != null;  // #6271 (X70): `LINK PROGRAM 1 -1 0 ABCODE`
             }
         }
         transferResp2 = resp2 == null ? 0 : resp2;  // #4986: EIBRESP2 is the event's, a planned fault's too
@@ -456,7 +460,7 @@ public class CicsTask {
             events.get(events.size() - 1).put("area", java.util.Base64.getEncoder().encodeToString(
                     java.util.Arrays.copyOf(area, Math.max(0, Math.min(len, area.length)))));
         }
-        if (!"NORMAL".equals(resp)) {
+        if (!"NORMAL".equals(resp) || abendedHere) {  // a planned abend: the task is at the exit or gone; the callee never runs
             return resp;
         }
         CicsTask callee = new CicsTask(this, level + 1, program, commarea, len, commarea);
@@ -543,24 +547,6 @@ public class CicsTask {
         return this;
     }
 
-    /** ASSIGN APPLID: the region's application id, 8 characters. */
-    public String assignApplid() {
-        String a = root().applid;
-        if (a == null) {
-            throw new IllegalStateException("ASSIGN APPLID: no region configured (withRegion)");
-        }
-        return String.format(java.util.Locale.ROOT, "%-8.8s", a);
-    }
-
-    /** ASSIGN SYSID: the region's system id, 4 characters. */
-    public String assignSysid() {
-        String s = root().sysid;
-        if (s == null) {
-            throw new IllegalStateException("ASSIGN SYSID: no region configured (withRegion)");
-        }
-        return String.format(java.util.Locale.ROOT, "%-4.4s", s);
-    }
-
     // #4270 slice 3: ASSIGN STARTCODE / USERID / FACILITY / SCRNHT / SCRNWD (IBM CICS TS, EXEC CICS ASSIGN), each
     // from a fact whoever runs the task states; unstated, the option is refused, never guessed.
     private String startcode;
@@ -584,60 +570,6 @@ public class CicsTask {
     public CicsTask withScreen(int height, int width) {
         this.screen = new int[] {height, width};
         return this;
-    }
-
-    /** ASSIGN STARTCODE, 2 characters. A RUN TRANSID child's is not among IBM's codes: refused. */
-    public String assignStartcode() {
-        CicsTask r = root();
-        if (r.runChild) {
-            throw refused("ASSIGN STARTCODE in a RUN TRANSID child task (IBM lists no code for one)");
-        }
-        if (r.startcode == null) {
-            throw new IllegalStateException("ASSIGN STARTCODE: how the task was started is not stated (withStartcode)");
-        }
-        return String.format(java.util.Locale.ROOT, "%-2.2s", r.startcode);
-    }
-
-    /** ASSIGN USERID, 8 characters. */
-    public String assignUserid() {
-        String u = root().userid;
-        if (u == null) {
-            throw new IllegalStateException("ASSIGN USERID: the task's user is not stated (withUserid)");
-        }
-        return String.format(java.util.Locale.ROOT, "%-8.8s", u);
-    }
-
-    /** ASSIGN FACILITY / SCRNHT / SCRNWD's condition: INVREQ (16) for a task with no terminal (RESP2 5, "The task is
-     *  not associated with a terminal; or the task has no principal facility"), else 0. */
-    public int assignTerminalResp() {
-        statedTerminal();
-        return termid() == null ? 16 : 0;
-    }
-
-    /** #5126: whether the task has a terminal is a fact whoever runs the task states (withTermid; null states "none",
-     *  as the stub's empty $GGCICS_FACILITY); unstated it is refused, as the stub refuses, never guessed. */
-    private void statedTerminal() {
-        if (!root().termidStated) {
-            throw new IllegalStateException("ASSIGN FACILITY / TERMCHK: the task's terminal is not stated (withTermid)");
-        }
-    }
-
-    /** ASSIGN FACILITY: the principal facility, the task's terminal, 4 characters. */
-    public String assignFacility() {
-        statedTerminal();
-        if (termid() == null) {
-            throw new IllegalStateException("ASSIGN FACILITY: the task has no terminal (assignTerminalResp is INVREQ)");
-        }
-        return String.format(java.util.Locale.ROOT, "%-4.4s", termid());
-    }
-
-    /** ASSIGN SCRNHT (`width` false) / SCRNWD (true): the terminal's screen, a halfword. */
-    public int assignScreen(boolean width) {
-        int[] s = root().screen;
-        if (s == null) {
-            throw new IllegalStateException("ASSIGN SCRNHT / SCRNWD: the terminal's screen is not stated (withScreen)");
-        }
-        return width ? s[1] : s[0];
     }
 
     // #4415 slice 1: INQUIRE / SET TERMINAL UCTRANST (IBM CICS TS, EXEC CICS INQUIRE TERMINAL, SET TERMINAL): the CVDAs
@@ -1037,6 +969,13 @@ public class CicsTask {
      *  scheme other than HTTP / HTTPS), INVREQ 138 (a port above 65535). Refused: two conditions at once, a port below 1,
      *  a HOSTLENGTH past HOST, a server the run does not state. */
     public WebOpened webOpenHost(String host, int hostLength, int port, boolean portGiven, int scheme) {
+        WebOpened o = webOpenHostChecked(host, hostLength, port, portGiven, scheme);
+        event("WEB-OPEN", "host", hostLength > 0 && hostLength <= host.length() ? host.substring(0, hostLength) : "",
+                "scheme", scheme == 1096 ? "HTTP" : scheme == 1029 ? "HTTPS" : null, "resp", o.resp(), "resp2", o.resp2());
+        return o;
+    }
+
+    private WebOpened webOpenHostChecked(String host, int hostLength, int port, boolean portGiven, int scheme) {
         java.util.List<HttpPeer> peers = statedPeers();
         java.util.List<int[]> c = new java.util.ArrayList<>();
         if (hostLength <= 0) {
@@ -1074,6 +1013,7 @@ public class CicsTask {
         String n = name == null ? "" : name.strip();
         for (HttpPeer peer : statedPeers()) {
             if (n.equals(peer.urimap())) {
+                event("WEB-OPEN", "host", peer.host(), "scheme", peer.scheme(), "resp", 0, "resp2", 0);
                 return webSession(peer, true);
             }
         }
@@ -1167,9 +1107,10 @@ public class CicsTask {
         byte[] data = x.body().getBytes(cs);
         int resp = data.length > maxLength ? 22 : 0;
         int resp2 = resp == 0 ? 0 : 57;
-        event("WEB-CONVERSE", "host", s.peer().host(), "method", m, "path", p, "query", q, "mediatype", mt,
-                "body", body, "resp", resp, "resp2", resp2);
         byte[] into = resp == 0 ? data : java.util.Arrays.copyOf(data, maxLength);
+        event("WEB-CONVERSE", "host", s.peer().host(), "method", m, "path", p, "query", q, "mediatype", mt,
+                "body", body, "resp", resp, "resp2", resp2, "status", x.status(),  // #4767: the response given
+                "tolength", into.length, "into", new String(into, cs));
         return new WebResponse(resp, resp2, into, into.length, x.status(), x.statusText(),
                 String.format(java.util.Locale.ROOT, "%-56.56s", x.mediaType()));
     }
@@ -1178,7 +1119,9 @@ public class CicsTask {
     public int[] webClose(String token) {
         CicsTask r = root();
         r.statedPeers();
-        return r.webSessions.remove(token) != null ? new int[] {0, 0} : new int[] {19, 27};
+        int[] out = r.webSessions.remove(token) != null ? new int[] {0, 0} : new int[] {19, 27};
+        event("WEB-CLOSE", "resp", out[0], "resp2", out[1]);
+        return out;
     }
 
     /** WEB SEND FROM(area) FROMLENGTH(n) [MEDIATYPE(area)] ACTION(cvda) [STATUSCODE(n)] [STATUSTEXT(area) [STATUSLEN(n)]]
@@ -2110,9 +2053,12 @@ public class CicsTask {
      *  HOSTLENGTH / PATHLENGTH / QUERYSTRLEN values (null: the option is not given) and the caps the areas' sizes (the
      *  length options are read here, written by the caller to the piece's length). INVREQ 28 (no "scheme://", an empty
      *  scheme or host, a port that is not 1-5 digits or above 65535: ASSUMED), INVREQ 65 (a "%" not followed by two of
-     *  0-9 A-F). Refused: a scheme other than HTTP / HTTPS, a user-info part, a fragment, an IPv6 host, an empty port or
-     *  port 0, a lowercase hex digit in an escape, a URLLENGTH not above zero, a LENGERR (host / path / query longer than
-     *  its length), a length past its area, a PATH or QUERYSTRING asked for when the URL has none, two conditions. */
+     *  0-9 A-F), LENGERR 22 (RESP2 29 host, 30 path, 8 query string longer than its length; the areas and lengths are
+     *  left alone: ASSUMED, IBM says the data is truncated but not what the length then holds). An IPv6 host is written
+     *  in brackets and returned without them. Refused: a scheme other than HTTP / HTTPS, a user-info part, a fragment, an
+     *  IPv6 host that is not [hex:colons] or [hex:colons]:port, an empty port or port 0, a lowercase hex digit in an
+     *  escape, a URLLENGTH not above zero, a length past its area, a PATH or QUERYSTRING asked for when the URL has none,
+     *  two conditions (INVREQ and LENGERR, or two pieces too long). */
     public WebParsed webParse(String url, int urlLength, int schemeCap, Integer hostLength, int hostCap,
                               Integer pathLength, int pathCap, Integer queryLength, int queryCap) {
         if (urlLength <= 0 || urlLength > url.length()) {
@@ -2159,13 +2105,29 @@ public class CicsTask {
                 }
             }
             String auth = rest.substring(0, e);
-            if (auth.indexOf('@') >= 0 || auth.indexOf('[') >= 0 || auth.indexOf(']') >= 0) {
-                throw refused("WEB PARSE URL user-info or IPv6 host");
+            if (auth.indexOf('@') >= 0) {
+                throw refused("WEB PARSE URL user-info");
             }
-            int colon = auth.lastIndexOf(':');
-            host = colon < 0 ? auth : auth.substring(0, colon);
-            if (colon >= 0) {
-                String ps = auth.substring(colon + 1);
+            String ps = null;
+            if (auth.startsWith("[")) {
+                int close = auth.indexOf(']');
+                boolean shaped = close >= 2 && (close + 1 == auth.length() || auth.charAt(close + 1) == ':')
+                        && auth.indexOf('[', 1) < 0 && auth.indexOf(']', close + 1) < 0
+                        && auth.substring(1, close).chars().allMatch(c -> webHexAny((char) c) || c == ':' || c == '.');
+                if (!shaped) {
+                    throw refused("WEB PARSE URL IPv6 host that is not [hex:colons] or [hex:colons]:port");
+                }
+                host = auth.substring(1, close);
+                ps = close + 1 == auth.length() ? null : auth.substring(close + 2);
+            } else {
+                if (auth.indexOf('[') >= 0 || auth.indexOf(']') >= 0) {
+                    throw refused("WEB PARSE URL IPv6 host that is not [hex:colons] or [hex:colons]:port");
+                }
+                int colon = auth.lastIndexOf(':');
+                host = colon < 0 ? auth : auth.substring(0, colon);
+                ps = colon < 0 ? null : auth.substring(colon + 1);
+            }
+            if (ps != null) {
                 if (ps.isEmpty()) {
                     throw refused("WEB PARSE URL empty port");
                 }
@@ -2185,21 +2147,23 @@ public class CicsTask {
             path = q < 0 ? tail : tail.substring(0, q);
             query = q < 0 ? "" : tail.substring(q + 1);
         }
-        if (bad28 && bad65) {
+        boolean hostLong = hostLength != null && host.length() > hostLength;
+        boolean pathLong = pathLength != null && path.length() > pathLength;
+        boolean queryLong = queryLength != null && query.length() > queryLength;
+        if ((bad28 ? 1 : 0) + (bad65 ? 1 : 0) + (hostLong ? 1 : 0) + (pathLong ? 1 : 0) + (queryLong ? 1 : 0) > 1) {
             throw refused("WEB PARSE URL with more than one condition at once");
         }
         if (bad28 || bad65) {
             return new WebParsed(16, bad28 ? 28 : 65, null, null, -1, null, null);
-        }
-        if ((hostLength != null && host.length() > hostLength) || (pathLength != null && path.length() > pathLength)
-                || (queryLength != null && query.length() > queryLength)) {
-            throw refused("WEB PARSE URL piece longer than its length");
         }
         if (schemeCap > 0 && scheme.length() > schemeCap) {
             throw refused("WEB PARSE URL length beyond its area");
         }
         if ((pathLength != null && path.isEmpty()) || (queryLength != null && query.isEmpty())) {
             throw refused("WEB PARSE URL PATH or QUERYSTRING the URL has none of");
+        }
+        if (hostLong || pathLong || queryLong) {
+            return new WebParsed(22, hostLong ? 29 : pathLong ? 30 : 8, null, null, -1, null, null);
         }
         String padded = schemeCap > 0 ? String.format(java.util.Locale.ROOT, "%-" + schemeCap + "s", scheme) : scheme;
         return new WebParsed(0, 0, padded, host, port, path, query);
@@ -2574,8 +2538,14 @@ public class CicsTask {
      *  maxLength (nothing is read) or a record longer than maxLength (the record is read, so lost, and the result holds
      *  its first maxLength characters); the result's length is the record's own. #5168 (X61): an extrapartition queue is
      *  NOTOPEN when closed and INVREQ when open for output; an input one reads like an intrapartition queue, or answers
-     *  the IOERR the harness planned (READQ-TD, the record skipped). */
+     *  the IOERR the harness planned (READQ-TD, the record skipped). #5168 (X61): a LOGICAL intrapartition queue holding no
+     *  record answers the QBUSY the harness planned (another task is writing it: IBM states no RESP2); that needs NOSUSPEND
+     *  (else IBM suspends the task: refused). */
     public TdResult readqTd(String queue, int maxLength) {
+        return readqTd(queue, maxLength, false);
+    }
+
+    public TdResult readqTd(String queue, int maxLength, boolean noSuspend) {
         String q = queue.strip();
         String t = tdResolve(q);
         int kind = tdKind(t);
@@ -2592,8 +2562,17 @@ public class CicsTask {
         if (readable) {
             tdTouch(t);
         }
-        int[] planned = readable && kind == 2 ? root().injected("READQ-TD", q) : null;
-        if (planned != null) {  // #5168 (X61): a planned IOERR -- IBM: "the data record in error is skipped", nothing reaches INTO
+        boolean busyable = readable && kind == 1 && "LOGICAL".equals(tdAttr(t, "RECOVSTATUS")) && (records == null || records.isEmpty());
+        int[] planned = readable && (kind == 2 || busyable) ? root().injected("READQ-TD", q) : null;
+        if (planned != null && busyable != (planned[0] == 25)) {
+            throw new UnsupportedOperationException("a planned READQ TD " + CicsSpec.name(planned[0]) + " on " + q + ": QBUSY is for a LOGICAL intrapartition queue with no record, IOERR for an extrapartition one");
+        }
+        if (planned != null && busyable) {  // #5168 (X61): a planned QBUSY, no committed record left
+            if (!noSuspend) {
+                throw new UnsupportedOperationException("READQ TD on a planned-busy queue without NOSUSPEND: " + q + " (the task would be suspended)");
+            }
+            resp = CicsSpec.name(planned[0]);
+        } else if (planned != null) {  // #5168 (X61): a planned IOERR -- IBM: "the data record in error is skipped", nothing reaches INTO
             if (records != null && !records.isEmpty()) {
                 records.removeFirst();
                 tempStorage.tdRead.add(t);
@@ -3201,12 +3180,6 @@ CICS_TASK_JAVA += """\
         return new int[] {r[0], r[1], r[2]};
     }
 
-    /** ASSIGN INVOKINGPROG: the program that LINKed or XCTLed to this one (IBM CICS TS, ASSIGN), 8 characters;
-     *  blanks for a task's first program. */
-    public String invokingProgram() {
-        return String.format(java.util.Locale.ROOT, "%-8s", invoker == null ? "" : invoker);
-    }
-
     public String transid() {
         return transid;
     }
@@ -3345,22 +3318,6 @@ CICS_TASK_JAVA += """\
     public record Received(String resp, int length, String data) {
     }
 
-    /** #4023 follow-up: the equivalence harness's injected conditions for this task, as its stub reads them
-     *  (faults.cfg: `CMD FILE NTH RESP [RESP2]`, NTH `*` = every one; DFHRESP numbers), and the file each one
-     *  that fires is appended to (`CMD FILE NTH RESP RESP2`). Commands are counted per task. */
-    public CicsTask withFaults(List<String> plan, java.nio.file.Path log) {
-        List<String[]> parsed = new ArrayList<>();
-        for (String line : plan) {
-            String[] w = line.trim().split("[ ]+");
-            if (w.length >= 4) {
-                parsed.add(w);
-            }
-        }
-        this.faultPlan = List.copyOf(parsed);
-        this.faultLog = log;
-        return this;
-    }
-
 """
 # #5274: the file-control family's methods live in their own module (cics_task_filecontrol.py).
 CICS_TASK_JAVA += FILECONTROL_JAVA
@@ -3466,56 +3423,11 @@ CICS_TASK_JAVA += """\
         }
     }
 
-    /** #4623: a planned DUPKEY (15) is not a failure of the read: IBM retrieves the record through the non-unique
-     *  alternate index and answers DUPKEY (RESP2 140) because another with the same key follows. So `injected`
-     *  holds it back (the read runs), and a read that did find a record asks here for its outcome. */
-    private int[] deferredDupkey;  // {n, resp, resp2} of the plan line, and its command and file
-    private String deferredWhat;
-
-    private int[] dupkeyOr() {
-        if (deferredDupkey == null) {
-            return new int[] {0, 0};
-        }
-        int[] d = deferredDupkey;
-        deferredDupkey = null;
-        logFault(deferredWhat, d[0], d[1], d[2]);
-        return new int[] {d[1], d[2]};
-    }
-
-    private void logFault(String what, int n, int resp, int resp2) {
-        if (faultLog != null) {
-            try {
-                java.nio.file.Files.writeString(faultLog, what + " " + n + " " + resp + " " + resp2
-                        + System.lineSeparator(), java.nio.file.StandardOpenOption.CREATE,
-                        java.nio.file.StandardOpenOption.APPEND);
-            } catch (java.io.IOException e) {
-                throw new java.io.UncheckedIOException(e);
-            }
-        }
-    }
-
-    private int[] injected(String cmd, String file) {
-        if (faultPlan.isEmpty()) {
-            return null;
-        }
-        int n = faultSeen.merge(cmd + " " + file, 1, Integer::sum);
-        deferredDupkey = null;
-        for (String[] f : faultPlan) {
-            if (f[0].equals(cmd) && f[1].equals(file) && ("*".equals(f[2]) || Integer.parseInt(f[2]) == n)) {
-                int resp = Integer.parseInt(f[3]);
-                int resp2 = f.length > 4 ? Integer.parseInt(f[4]) : 0;
-                if (resp == 15) {  // DUPKEY: the read goes on, see dupkeyOr
-                    deferredDupkey = new int[] {n, resp, resp2};
-                    deferredWhat = cmd + " " + file;
-                    return null;
-                }
-                logFault(cmd + " " + file, n, resp, resp2);
-                return new int[] {resp, resp2};
-            }
-        }
-        return null;
-    }
-
+"""
+# #5274: the faults family's methods (withFaults, injected, logFault, logAbend, planned, the deferred DUPKEY) live in
+# their own module (cics_task_faults.py).
+CICS_TASK_JAVA += FAULTS_JAVA
+CICS_TASK_JAVA += """\
     /** The region's temporary storage this task works on (#4002): one store is shared by every task of a
      *  conversation, the way a region's TS queues outlive the task that writes them. */
     public CicsTask withTempStorage(TempStorage storage) {
@@ -3792,8 +3704,13 @@ CICS_TASK_JAVA += """\
             resp = 22;
             resp2 = 11;
         }
+        int[] planned = resp == 0 ? root().injected("RETURN", "-") : null;  // #6271 (X71): a planned INVREQ / LENGERR
+        if (planned != null) {
+            resp = planned[0];
+            resp2 = planned[1];
+        }
         if (resp != 0) {
-            event("RETURN", "level", level, "immediate", true, "transid", transid, "resp", resp == 16 ? "INVREQ" : "LENGERR",
+            event("RETURN", "level", level, "immediate", true, "transid", transid, "resp", respName(resp),
                     "resp2", resp2);
             return new int[] {resp, resp2};
         }
@@ -4169,163 +4086,13 @@ CICS_TASK_JAVA += """\
         return resp;
     }
 
-    /** HANDLE ABEND LABEL(label) (#3989, IBM EXEC CICS HANDLE ABEND): this program level's abend exit, active
-     *  from now on. An abend at this level or below it (a program it LINKs to) goes to the first active exit
-     *  from the abending level upward; see abend. */
-    public void handleAbend(String label) {
-        exitLabel = label;
-        exitActive = true;
-    }
-
-    /** HANDLE ABEND CANCEL: this level's exit is deactivated. */
-    public void handleAbendCancel() {
-        exitActive = false;
-    }
-
-    /** HANDLE ABEND RESET: the exit cancelled, or taken, is active again. */
-    public void handleAbendReset() {
-        if (exitLabel != null) {
-            exitActive = true;
-        }
-    }
-
-    /** PUSH HANDLE (#3989): saves this level's HANDLE ABEND state and suspends it (the program saves its own
-     *  HANDLE CONDITION / IGNORE CONDITION state, which it ports itself). NORMAL. */
-    public String pushHandle() {
-        pushedExits.push(new Object[] {exitLabel, exitActive});
-        exitLabel = null;
-        exitActive = false;
-        return "NORMAL";
-    }
-
-    /** POP HANDLE: restores the HANDLE ABEND state last pushed; INVREQ when none was. */
-    public String popHandle() {
-        if (pushedExits.isEmpty()) {
-            return "INVREQ";
-        }
-        Object[] saved = pushedExits.pop();
-        exitLabel = (String) saved[0];
-        exitActive = (Boolean) saved[1];
-        return "NORMAL";
-    }
-
-    /** EXEC CICS ABEND ABCODE(abcode) (#3989: with the exit search): CICS looks for an active HANDLE ABEND exit
-     *  from this level upward. Returns the label to go on at when this program's own exit takes the abend (it
-     *  is deactivated as it gets control); null when the program must stop now -- `return` from runTask --
-     *  because an exit of a linking program takes it (that program's link then reports it: abendExit()) or
-     *  none does and the task is terminated. */
-    public String abend(String abcode) {
-        return abend(abcode, "command", null, false);
-    }
-
-    /** EXEC CICS ABEND ABCODE(abcode) CANCEL: no exit is taken, the task is terminated. Returns null. */
-    public String abendCancel(String abcode) {
-        return abend(abcode, "command", null, true);
-    }
-
-    /** A condition the program neither handled nor ignored (#4003): CICS's default action abends the task
-     *  with the condition's code (abcodeFor), with the same exit search and result as abend. */
-    public String abendOnCondition(String condition) {
-        return abend(abcodeFor(condition), "condition", condition, false);
-    }
-
-    /** SEND MAP / RECEIVE MAP naming a map its mapset does not hold (#4270, register X31): IBM abend ABM0 "The map
-     *  specified for a basic mapping support (BMS) request could not be located", the transaction "abnormally
-     *  terminated with a CICS transaction dump". CICS raises no condition for it, so RESP / HANDLE CONDITION do not
-     *  see it; a HANDLE ABEND exit does (cause "system": an abend CICS itself raises). Same result as abend. */
-    public String abendMapNotFound(String map, String mapset) {
-        return abend("ABM0", "system", null, false);
-    }
-
-    /** An abend that a HANDLE ABEND LABEL exit took (#4003), named by the port itself: `label` in `program`;
-     *  the task goes on there. Prefer handleAbend + abend / abendOnCondition, which search the exits. */
-    public void abendToExit(String abcode, String cause, String condition, String program, String label) {
-        record(abcode, cause, condition, program, label);
-    }
-
-    /** After a LINK returned (#3989): the label of this program's HANDLE ABEND exit when an abend below took
-     *  it -- go on at that label -- else null. Read once: it is cleared. When the LINK returns with neither
-     *  this nor NORMAL completion (ended() is true), the task was terminated or unwound past this level. */
-    public String abendExit() {
-        String label = unwoundTo;
-        unwoundTo = null;
-        return label;
-    }
-
-    private String abend(String code, String cause, String condition, boolean cancel) {
-        CicsTask at = null;
-        for (CicsTask t = this; t != null && !cancel; t = t.parent) {
-            if (t.exitActive) {
-                at = t;
-                break;
-            }
-        }
-        if (at == null) {
-            record(code, cause, condition, null, null);
-            for (CicsTask t = this; t != null; t = t.parent) {
-                t.ended = true;
-            }
-            // the task terminates abnormally: CICS backs out its unit of work (recoverable resources)
-            if (!root().syncpointed && root().rollbackHook != null) {
-                root().rollbackHook.run();
-            }
-            tdUowEnd(true);  // #5168: a LOGICAL TD queue goes back to the last SYNCPOINT, as the stub's uow_end(1)
-            resourceUowEnd(true);  // #4892: and an MQ unit of work (W5)
-            return null;
-        }
-        at.exitActive = false;  // "the exit is deactivated when it gets control"
-        record(code, cause, condition, at.program, at.exitLabel);
-        if (at == this) {
-            return exitLabel;
-        }
-        for (CicsTask t = this; t != at; t = t.parent) {
-            t.ended = true;  // the levels below the exit are gone
-        }
-        at.unwoundTo = at.exitLabel;
-        return null;
-    }
-
-    /** ASSIGN ABCODE: the task's current abend code, blanks while there has been none. */
-    public String abcode() {
-        return root().abcode;
-    }
-
+"""
+# #5274: the conditions family's methods (ASSIGN, HANDLE ABEND, PUSH / POP HANDLE, ABEND, RESP and abend-code names) live in
+# their own module (cics_task_conditions.py), gathered into this one span.
+CICS_TASK_JAVA += CONDITIONS_JAVA
+CICS_TASK_JAVA += """\
     private CicsTask root() {
         return parent == null ? this : parent.root();
-    }
-
-    /** #4049: a DFHRESP number a fault plan names, as the condition's name (IBM CICS "RESP values"; the spec's
-     *  table, CicsSpec). */
-    static String respName(int resp) {
-        String name = CicsSpec.name(resp);
-        if (name == null) {
-            throw new IllegalArgumentException("no condition name known for RESP " + resp);
-        }
-        return name;
-    }
-
-    /** The abend code of an unhandled condition (IBM's AEIx / AEYx codes, the AEIA topic; the spec's table,
-     *  CicsSpec). */
-    public static String abcodeFor(String condition) {
-        return CicsSpec.abcodeFor(condition);
-    }
-
-    private void record(String code, String cause, String condition, String program, String label) {
-        root().abcode = code;
-        Map<String, Object> e = new LinkedHashMap<>();
-        e.put("event", "ABEND");
-        e.put("abcode", code);
-        e.put("cause", cause);
-        if (condition != null) {
-            e.put("condition", condition);
-        }
-        e.put("outcome", program == null ? "terminated" : "exit");
-        if (program != null) {
-            e.put("exit", Map.of("program", program, "label", label));
-        } else {
-            ended = true;
-        }
-        add(e);
     }
 
     public boolean ended() {

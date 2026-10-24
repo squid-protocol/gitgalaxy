@@ -140,3 +140,34 @@ def test_the_denominator_is_the_engine_registry_minus_data_formats():
 
 def test_the_committed_chart_renders_from_the_committed_data():
     gcc.render_svg(gcc.load(), gcc.all_languages())  # every committed baseline and ledger parses
+
+
+def test_hub_cells_read_the_baseline_hub_keys(tmp_path):
+    base = tmp_path / "imports.json"
+    base.write_text(
+        json.dumps(
+            {
+                "c": {"hub_overlap_at_10": 1.0, "hub_spearman": 0.5, "hub_repos": 2},
+                "go": {"hub_overlap_at_10": 0.9, "hub_repos": 1},  # no repo had a Spearman
+                "java": {"imports": 3},  # no hub measurement
+            }
+        )
+    )
+    hubs = gcc.hub_cells(base)
+    assert sorted(hubs) == ["c", "go"]
+    assert (hubs["c"].overlap, hubs["c"].spearman, hubs["c"].small) == (1.0, 0.5, False)
+    assert (hubs["go"].spearman, hubs["go"].small) == (None, True)
+
+
+def test_the_hub_column_and_panel_render(tmp_path):
+    data = _data(tmp_path)
+    hubs = {"go": gcc.HubCell(0.9, None, 1), "c": gcc.HubCell(1.0, 0.5, 2)}
+    languages = ["c", "go", "java"]
+    md = gcc.render_markdown(data, languages, hubs)
+    assert "Hub overlap@10 / Spearman (repos) |" in md
+    assert "| c | not measured | not measured | not measured | 100% / 0.50 (repos=2) |" in md  # hub-only: measured
+    assert md.count("90% / - (repos=1, small n)") == 1
+    assert "| java | 100.0% / 100.0%" in md and md.count("| not measured |") >= 1
+    svg = gcc.render_svg(data, languages, hubs=hubs)
+    assert "Hub agreement" in svg and "hubs 2 of 3 languages" in svg and ">overlap@10<" in svg
+    assert "Hub agreement" not in gcc.render_svg(data, languages)  # without hubs the chart is as before

@@ -123,3 +123,86 @@ def test_ground_truth_job_has_headroom_over_slow_runners():
     cap = int(re.search(r"timeout-minutes:\s*(\d+)", job).group(1))
     assert cap >= 30, "#5137: slow runners took 20+ min; a 20 min cap cancelled the job at 99% of pytest"
     assert "--durations=" in job
+
+
+def test_workflow_runs_pages_until_a_short_page(monkeypatch):  # #5603
+    pages = {1: 100, 2: 100, 3: 7}
+    seen = []
+
+    def fake_gh(path):
+        n = int(re.search(r"&page=(\d+)", path).group(1))
+        seen.append(n)
+        return {"workflow_runs": [{"id": i} for i in range(pages[n])]}
+
+    monkeypatch.setattr(s, "_gh", fake_gh)
+    assert len(s.workflow_runs("det-sweep.yml", "2026-10-09")) == 207
+    assert seen == [1, 2, 3]
+
+
+GATE = ("Every part passed", "failure")
+
+
+def _gate(attempt=1):
+    j = _job("ground-truth", "failure", 3, steps=[("Set up job", "success"), GATE])
+    return {**j, "run_attempt": attempt}
+
+
+def _sib(name, conclusion, steps=(), attempt=1, secs=1):
+    return {**_job(name, conclusion, secs, steps), "run_attempt": attempt}
+
+
+def test_a_gate_is_told_apart_from_a_job_with_a_real_failed_step():
+    assert s.is_gate(_gate())
+    assert not s.is_gate(_job("det", "failure", steps=[("Run tests", "failure")]))
+    assert not s.is_gate(_job("det", "failure"))  # no failed step: not a gate
+
+
+def test_a_gate_takes_the_cause_of_the_failed_parts_of_its_attempt():
+    part = _sib("part 4/4", "failure", [("Per-test time ratchet (#5166)", "failure")])
+    other_attempt = _sib("part 1/4", "failure", [("Run pytest", "failure")], attempt=2)
+    gate = _gate()
+    scope = s.scope_jobs(gate, [gate, part, other_attempt])
+    assert [j["name"] for j in scope] == ["ground-truth", "part 4/4"]
+    assert s.classify(scope) == "ratchet"
+    assert s.classify([_gate()]) == "other"  # alone, a gate says nothing
+
+
+def test_a_non_gate_is_classified_by_itself_only():
+    job = _job("det", "failure", steps=[("Build the port", "failure")])
+    assert s.scope_jobs(job, [_sib("x", "failure", [("Run tests", "failure")])]) == [job]
+
+
+def test_a_gate_failing_over_cancelled_parts_is_superseded_not_other():
+    parts = [_sib("plan", "cancelled"), _sib("part 1/2", "cancelled")]
+    assert s.classify(s.scope_jobs(_gate(), parts)) == "superseded"
+
+
+def test_cancelled_parts_at_their_timeout_are_still_a_timeout():
+    parts = [_sib("part 1/2", "cancelled", secs=20 * 60 + 5)]
+    assert s.classify(s.scope_jobs(_gate(), parts), {"part 1/2": 20}) == "timeout"
+
+
+def test_a_real_failed_part_beside_a_cancelled_one_is_not_superseded():
+    parts = [_sib("part 1/2", "cancelled"), _sib("part 2/2", "failure", [("Run pytest", "failure")])]
+    assert s.classify(s.scope_jobs(_gate(), parts)) == "test_failure"
+
+
+_WAIT = f"##[error]Db2::{s.WAIT_FAILED_MARKER}"
+
+
+@pytest.mark.parametrize(
+    ("log", "want"),
+    [
+        (f"gitgalaxy-db2 Exited (1) 3 minutes ago\n{_WAIT}", "db2_start_exited"),
+        (f"Error response from daemon: No such container: gitgalaxy-db2\n{_WAIT}", "db2_start_not_created"),
+        (f"tee: write error: No space left on device\ngitgalaxy-db2 Exited (1) ago\n{_WAIT}", "db2_start_disk"),
+        (f"gitgalaxy-db2 Up 14 minutes\n(*) Setting up instance\n{_WAIT}", "db2_start_setup_incomplete"),
+        (f"gitgalaxy-db2 Up 14 minutes\nSetup has completed.\n{_WAIT}", "db2_start"),
+        ("gitgalaxy-db2 Exited (1) ago", "db2_start"),  # no wait-step marker: another step's log, never sub-classified
+        ("", "db2_start"),
+        (f"{s.PULL_MARKER}\n{_WAIT}\nExited (", "registry_pull"),
+    ],
+)
+def test_db2_start_cause_reads_the_docker_tail(log, want):
+    assert s.db2_start_cause(log) == want
+    assert s.classify([_DB2], logs={"db2 4/4": log}) == want

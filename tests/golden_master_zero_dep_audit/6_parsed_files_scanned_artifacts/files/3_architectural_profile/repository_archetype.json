@@ -4094,8 +4094,8 @@
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "file_cluster_12",
-      "zig/zls/DocumentStore.zig": "file_cluster_12",
-      "zig/zls/Server.zig": "file_cluster_15",
+      "zig/zls/DocumentStore.zig": "file_cluster_4",
+      "zig/zls/Server.zig": "file_cluster_4",
       "zig/zls/analysis.zig": "file_cluster_4",
       "zig/zls/ast.zig": "file_cluster_4",
       "zig/zls/config_gen.zig": "file_cluster_6",

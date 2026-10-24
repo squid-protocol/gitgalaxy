@@ -134,6 +134,268 @@
     "COMM-ACC-TYPE": "OLDTYPE"
    },
    "why": "the caller's COMMAREA arrives with account 1's fields already holding text (as BNK1CCA's working storage might): every field after the POINTER is overwritten"
+  },
+  {
+   "name": "cursor-close-fails",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 348,
+     "sqlcode": -501,
+     "why": "CLOSE ACC-CURSOR refused: cursor not open"
+    }
+   ],
+   "why": "customer 1's three accounts are FETCHed, then CLOSE ACC-CURSOR fails -501: the failure path after the CLOSE (CHECK-FOR-STORM-DRAIN-DB2, 'N' / CUSTOMER-FOUND 'N' / fail code '4'), SYNCPOINT ROLLBACK returns NORMAL"
+  },
+  {
+   "name": "open-deadlock-abends-ad2z",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 246,
+     "sqlcode": -911,
+     "sqlerrmc": "00C90088",
+     "abend": "AD2Z"
+    }
+   ],
+   "why": "#6271 (X73): OPEN ACC-CURSOR deadlocks (-911) and the CICS-Db2 attach's syncpoint rollback fails: the task abends AD2Z, so ABEND-HANDLING takes its AD2Z arm (SQLERRMC the deadlock reason code 00C90088) before the program's own abend path LINKs ABNDPROC"
+  },
+  {
+   "name": "fetch-deadlock-abends-ad2z",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 466,
+     "nth": 2,
+     "sqlcode": -911,
+     "sqlerrmc": "00C90088",
+     "abend": "AD2Z"
+    }
+   ],
+   "why": "#6271 (X73): the second FETCH of ACC-CURSOR deadlocks (-911) after one account was fetched, and the attach's rollback fails: AD2Z, so the arm DISPLAYs the account number of the row fetched before the failure"
+  },
+  {
+   "name": "link-inqcust-abends-afcr",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQCUST",
+     "resp": "ABEND",
+     "abcode": "AFCR"
+    }
+   ],
+   "why": "#6271 (X70): the LINK to INQCUST abends AFCR (RLS file control abend seen at the caller): INQACCCU's own HANDLE ABEND exit takes it and the callee never runs"
+  },
+  {
+   "name": "link-inqcust-abends-afcs",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQCUST",
+     "resp": "ABEND",
+     "abcode": "AFCS"
+    }
+   ],
+   "why": "#6271 (X70): the LINK to INQCUST abends AFCS (RLS file control abend seen at the caller): INQACCCU's own HANDLE ABEND exit takes it and the callee never runs"
+  },
+  {
+   "name": "link-inqcust-abends-afct",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQCUST",
+     "resp": "ABEND",
+     "abcode": "AFCT"
+    }
+   ],
+   "why": "#6271 (X70): the LINK to INQCUST abends AFCT (RLS file control abend seen at the caller): INQACCCU's own HANDLE ABEND exit takes it and the callee never runs"
+  },
+  {
+   "name": "open-fails-rollback-invreq",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "why": "#6271 (X71): OPEN ACC-CURSOR (l.246) fails -501 and the SYNCPOINT ROLLBACK (l.266) answers INVREQ (RESP2 200): the l.271 failure arm",
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 246,
+     "nth": 1,
+     "sqlcode": -501,
+     "why": "refused (cursor state)"
+    }
+   ],
+   "faults": [
+    {
+     "cmd": "ROLLBACK",
+     "nth": 1,
+     "resp": "INVREQ",
+     "resp2": 200
+    }
+   ]
+  },
+  {
+   "name": "cursor-close-fails-rollback-invreq",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 348,
+     "sqlcode": -501,
+     "why": "CLOSE ACC-CURSOR refused: cursor not open"
+    }
+   ],
+   "why": "#6271 (X71): CLOSE ACC-CURSOR fails -501 and the SYNCPOINT ROLLBACK (l.368) answers INVREQ (RESP2 200): the l.374 failure arm",
+   "faults": [
+    {
+     "cmd": "ROLLBACK",
+     "nth": 1,
+     "resp": "INVREQ",
+     "resp2": 200
+    }
+   ]
+  },
+  {
+   "name": "fetch-fails-rollback-invreq",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "why": "#6271 (X71): the second FETCH of ACC-CURSOR (l.466) fails -501 and the SYNCPOINT ROLLBACK (l.507) answers INVREQ (RESP2 200): the l.513 failure arm",
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 466,
+     "nth": 2,
+     "sqlcode": -501,
+     "why": "refused (cursor state)"
+    }
+   ],
+   "faults": [
+    {
+     "cmd": "ROLLBACK",
+     "nth": 1,
+     "resp": "INVREQ",
+     "resp2": 200
+    }
+   ]
+  },
+  {
+   "name": "link-inqcust-abends-afct-rollback-invreq",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "why": "#6271 (X70, X71): the LINK to INQCUST abends AFCT and the SYNCPOINT ROLLBACK in ABEND-HANDLING answers INVREQ (RESP2 200): the l.743 failure arm",
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQCUST",
+     "resp": "ABEND",
+     "abcode": "AFCT"
+    },
+    {
+     "cmd": "ROLLBACK",
+     "nth": 1,
+     "resp": "INVREQ",
+     "resp2": 200
+    }
+   ]
+  },
+  {
+   "name": "open-storm-drain-923",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 246,
+     "nth": 1,
+     "sqlcode": 923,
+     "sqlstate": "57015",
+     "why": "DB2 connection lost (SQLCODE 923): the statement fails and CHECK-FOR-STORM-DRAIN-DB2 sees WHEN 923"
+    }
+   ],
+   "why": "#6271 (storm drain): OPEN ACC-CURSOR (l.246) answers 923: CHECK-FOR-STORM-DRAIN-DB2 (l.259) takes WHEN 923, then the fail code '2' and the rollback"
+  },
+  {
+   "name": "close-storm-drain-923",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 348,
+     "nth": 1,
+     "sqlcode": 923,
+     "sqlstate": "57015",
+     "why": "DB2 connection lost (SQLCODE 923): the statement fails and CHECK-FOR-STORM-DRAIN-DB2 sees WHEN 923"
+    }
+   ],
+   "why": "#6271 (storm drain): CLOSE ACC-CURSOR (l.348) answers 923 after the FETCHes: CHECK-FOR-STORM-DRAIN-DB2 (l.362) takes WHEN 923, then fail code '4'"
+  },
+  {
+   "name": "fetch-storm-drain-923",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 466,
+     "nth": 2,
+     "sqlcode": 923,
+     "sqlstate": "57015",
+     "why": "DB2 connection lost (SQLCODE 923): the statement fails and CHECK-FOR-STORM-DRAIN-DB2 sees WHEN 923"
+    }
+   ],
+   "why": "#6271 (storm drain): the second FETCH (l.466) answers 923: CHECK-FOR-STORM-DRAIN-DB2 (l.500) takes WHEN 923, then fail code '3'"
   }
  ],
  "notes": "CBSA's inquire-accounts-for-customer service (INQACCCU, LINKed with the INQACCCU copybook's COMMAREA by BNK1CCA, CREACC and DELCUS). Its COMMAREA carries data after a POINTER (COMM-PCB-POINTER, then ACCOUNT-DETAILS OCCURS 1 TO 20 DEPENDING ON NUMBER-OF-ACCOUNTS): a POINTER is 4 bytes on z/OS and 8 under the oracle (oracle_assumptions.md C9), so each side's COMMAREA is read by its own layout and compared by name, the POINTER only as NULL. CUSTOMER-NUMBER zero or 9999999999 is not looked up; otherwise INQCUST is LINKed (run in the same task: READ FILE('CUSTOMER') by the program's own sort code, 987654) and, when it finds the customer, ACC-CURSOR is OPENed on the customer number and the program's own sort code (no ORDER BY: the order is Db2's, the same Db2 on both sides) and FETCHed into ACCOUNT-DETAILS until +100 or 20 accounts. A FETCH error (-305: a NULL date with no indicator) takes the program's failure path. The COMMAREA is compared whole (#4765): every account up to NUMBER-OF-ACCOUNTS, by name and subscript (COMM-ACC-TYPE(3)), each side's by its own count -- the det port's from the bytes it was LINKed with; ACCOUNT, CUSTOMER and ABNDFILE are compared after every scenario. Data: seed.sql and customer.txt are SYNTHETIC (customer.txt is cbsa-updcust's). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

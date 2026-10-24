@@ -1165,7 +1165,7 @@
     },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 3,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 4,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 3,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 3,
       "csharp/roslyn/LanguageParser.cs": 3,
       "csharp/roslyn/License.txt": 0,
@@ -2597,7 +2597,7 @@
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
-      "php/wordpress/class-wp-query.php": 1,
+      "php/wordpress/class-wp-query.php": 0,
       "php/wordpress/formatting.php": 6,
       "php/wordpress/functions.php": 4,
       "php/wordpress/license.txt": 0,
@@ -2846,7 +2846,7 @@
       "python/fastapi/fastapi/background.py": 3,
       "python/fastapi/fastapi/cli.py": 2,
       "python/fastapi/fastapi/concurrency.py": 1,
-      "python/fastapi/fastapi/datastructures.py": 11,
+      "python/fastapi/fastapi/datastructures.py": 7,
       "python/fastapi/fastapi/encoders.py": 3,
       "python/fastapi/fastapi/exception_handlers.py": 1,
       "python/fastapi/fastapi/exceptions.py": 32,
@@ -3290,7 +3290,7 @@
       "scala/kafka/KafkaRaftManager.scala": 0,
       "scala/kafka/LogManager.scala": 2,
       "scala/kafka/Partition.scala": 5,
-      "scala/kafka/ReplicaManager.scala": 2,
+      "scala/kafka/ReplicaManager.scala": 3,
       "scala/kafka/SocketServer.scala": 5
     },
     "scheme": {

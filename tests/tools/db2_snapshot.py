@@ -6,7 +6,7 @@ one at a time (run 39696713590: the first database after 135-180 s, all of them 
 once: the container's own changes over the pinned image (`docker diff`: the instance owner and its home, ~40 MB) and
 its /database volume (the instance and its empty databases), which restore onto the pinned image in ~35 s.
 
-  key          print the cache key: the image digest and equivalence_db2.py (how the container and databases are made)
+  key          print the cache key: the image digest and the parts of equivalence_db2.py that make the container and databases (KEYED_*)
   save DIR     a FRESH container of the pinned image (never one a case has used: it would carry the case's tables), every
                pool database created as equivalence_db2 creates it, Db2 stopped cleanly; DIR gets delta.tar,
                database.tar and snapshot.json. The container is removed afterwards.
@@ -19,6 +19,7 @@ its /database volume (the instance and its empty databases), which restore onto 
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import os
@@ -33,10 +34,36 @@ POOL = 4  # the most databases a shard runs (GITGALAXY_DB2_POOL); a smaller pool
 DELTA, DATA, META = "delta.tar", "database.tar", "snapshot.json"
 
 
+# What a snapshot's bytes depend on: the container's options, the instance owner, and how a pool database is created.
+# Everything else in equivalence_db2.py (readiness waits, locks, the proof side) is not in the key: a harness edit that
+# leaves these alone keeps the cached snapshot, instead of a miss until the next main run that makes one.
+KEYED_ASSIGNS = ("CONTAINER", "NETWORK", "USER", "PASSWORD", "PORT", "DATABASE0", "POOL_ENV")
+KEYED_FUNCTIONS = ("run_args", "pool", "_instance", "_db_cfg", "_ensure_database")
+
+
+def keyed_source(text: str) -> str:
+    """The source of KEYED_ASSIGNS and KEYED_FUNCTIONS in `text`; a missing one raises (a rename must not shrink the key)."""
+    found: dict[str, str] = {}
+    for node in ast.parse(text).body:
+        if isinstance(node, ast.FunctionDef):
+            names = [node.name]
+        elif isinstance(node, ast.Assign):
+            names = [n.id for t in node.targets for n in ast.walk(t) if isinstance(n, ast.Name)]  # USER, PASSWORD = ...
+        else:
+            continue
+        for name in names:
+            if name in KEYED_ASSIGNS + KEYED_FUNCTIONS:
+                found[name] = ast.get_source_segment(text, node) or ""
+    missing = [n for n in KEYED_ASSIGNS + KEYED_FUNCTIONS if n not in found]
+    if missing:
+        raise ValueError(f"equivalence_db2.py no longer defines {missing}: update db2_snapshot.KEYED_*")
+    return "\n".join(dict.fromkeys(found[n] for n in KEYED_ASSIGNS + KEYED_FUNCTIONS))  # USER, PASSWORD: one node
+
+
 def key() -> str:
     text = SOURCE.read_text(encoding="utf-8")
     digest = re.search(r'^IMAGE = "icr\.io/db2_community/db2@sha256:([0-9a-f]{64})"', text, re.M).group(1)
-    return f"db2-snapshot-{digest[:16]}-{hashlib.sha256(text.encode()).hexdigest()[:16]}-pool{POOL}"
+    return f"db2-snapshot-{digest[:16]}-{hashlib.sha256(keyed_source(text).encode()).hexdigest()[:16]}-pool{POOL}"
 
 
 def _db2():

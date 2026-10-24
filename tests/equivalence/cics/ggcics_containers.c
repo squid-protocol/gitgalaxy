@@ -633,3 +633,33 @@ static void containers_out(void) {
     }
     fclose(f);
 }
+
+/* RETURN TRANSID(name1) CHANNEL(chan) (#5005, register X17; IBM, EXEC CICS RETURN): the channel (made empty when absent)
+ * is "made available to the next program" as its current channel, and the task ends -- its containers saved to
+ * $GGCICS_OUT/return_channel.cfg for the runner to hand the next task. Below the highest logical level it fails, INVREQ
+ * RESP2 2, and returns to the program (the event then names the level). As CicsTask.returnChannel. */
+int GGCRETC(gg_cics *c, char *unused, int len) {
+    char transid[9], name[17], ev[192], path[3000];
+    (void)unused;
+    (void)len;
+    trim(c->name1, 8, transid);
+    trim(c->chan, 16, name);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (lvl > 0) {
+        c->resp = INVREQ;
+        c->resp2 = 2;
+        snprintf(ev, sizeof ev, "RETURN level=%d transid=%s channel=%s resp=%d resp2=%d", lvl + 1, transid, name,
+                 c->resp, c->resp2);
+        event(ev, NULL, 0);
+        return 0;
+    }
+    int ch = channel_named(name, 1);
+    snprintf(path, sizeof path, "%s/return_channel.cfg", dir_out());
+    save_channel(&chans[ch - 1], path);
+    levels[lvl].state = DONE;
+    ended = 1;
+    snprintf(ev, sizeof ev, "RETURN level=1 transid=%s len=0 channel=%s", transid, name);
+    event(ev, NULL, 0);
+    return 0;
+}

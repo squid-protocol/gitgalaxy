@@ -3083,7 +3083,7 @@
     },
     "python/langchain_agents": {
       "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 4,
-      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 6,
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 7,
       "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 6
     },
     "python/micropython_usb_tls": {
@@ -3886,7 +3886,7 @@
       "typescript/fp-ts/pipeable.ts": 0
     },
     "typescript/nx_util_ai": {
-      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": 0,
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": 1,
       "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": 0
     },
     "typescript/pixijs_examples": {

@@ -56,6 +56,18 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
 * **`tests/fixtures/evidence_report/*` snapshots lag the live translator:** read current holes with `generated_branch.py
   show` (#5775).
 * **The shared venv has no pytest-xdist** (`-n4` exits 4); a serial full suite takes ~20 min: poll `full.exit` (#5960).
+* **`git archive` honors `working-tree-encoding`:** use `git show rev:path` for raw committed bytes (#6126). Aperture silently
+  drops files under a `Build/` directory (#6126).
+* **`XGBClassifier` needs scikit-learn:** to run the real-model test install it with `pip --target` into scratch plus
+  `PYTHONPATH` (#6129).
+* **Put options such as `--max-files-per-commit` before the subcommand:** a positional repo list swallows later flags (#6190).
+  Don't use `Closes #N` as a fix label (#6190).
+* **The Java crucible leg prints null event values:** a key is present with a null value, so assert `e.get("length") is None`, not `"length" not in e` (#6348).
+* **A parametrize value whose repr lands in the test id** (raw bytes) must be deterministic across processes, or xdist
+  aborts collection: give lazily-built payloads explicit `ids=` (#6257).
+* **A freshness test for a generated list scans tracked files** (`git ls-files`), not whatever is on disk (#6306).
+* **A bare `cat > file` (no heredoc) truncates the file to empty:** check `wc -c` before `-F body=@file`, or the PR body
+  lands empty (#6323).
 
 ## CI and workflow traps
 * **Never put a multi-line string inside `${{ }}`** (YAML folds newlines): use two `if:`-gated steps or a block scalar (#5612).

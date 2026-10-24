@@ -301,10 +301,11 @@ class LspSession:
 def _read_uri(uri: str) -> str | None:
     if not uri.startswith("file:"):
         return None
-    from urllib.parse import unquote, urlparse
+    from urllib.parse import urlparse
+    from urllib.request import url2pathname
 
     try:
-        return read_source(Path(unquote(urlparse(uri).path))).text
+        return read_source(Path(url2pathname(urlparse(uri).path))).text
     except OSError:
         return None
 

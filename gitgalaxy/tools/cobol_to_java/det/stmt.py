@@ -56,6 +56,9 @@ class Procedure:
     execs: dict  # placeholder number -> EXEC text
     using: list  # PROCEDURE DIVISION USING items
     returning: str | None = None  # #5106: PROCEDURE DIVISION ... RETURNING item
+    division_using: list = field(
+        default_factory=list
+    )  # #5233: the header's own USING when ENTRY 'DLITCBL' replaced `using`
 
 
 PHRASES = {"at_end": "AT-END", "not_at_end": "NOT-AT-END", "invalid_key": "INVALID-KEY",
@@ -377,7 +380,9 @@ def parse(lines: list[Line]) -> Procedure:
         # with those parameters, as PROCEDURE DIVISION USING would; reached in sequence, ENTRY does nothing.
         # #4893: IMS enters a DL/I program at DLITCBL even when PROCEDURE DIVISION has a USING of its own
         first.data["first"] = True
+        header_using = using
         using = [r.name for r in first.data["using"]]
+        return Procedure(paragraphs, execs, using, returning, header_using)
     return Procedure(paragraphs, execs, using, returning)
 
 

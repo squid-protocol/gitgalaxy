@@ -185,7 +185,7 @@ docs/language_status/evidence_report/*
 !tests/equivalence/facade_baseline.json
 !tests/equivalence/det_sweep_baseline.json
 !tests/equivalence/det_sweep_coverage/*.json
-!tests/equivalence/infeasible_outcomes.json
+!tests/equivalence/infeasible_outcomes/*.json
 !tests/cics_crucible/ports/*/*/evidence.json
 !tests/cics_crucible/fixture/**/*.json
 !tests/cics_crucible/strengthened/**/*.json

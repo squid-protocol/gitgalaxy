@@ -1121,6 +1121,35 @@ _ARITY_MAX_TYPE_ARGS = 200
 _ARITY_OPEN = {"(": ")", "[": "]", "{": "}"}
 
 
+_ZIG_TYPE_BRACE_KEYWORDS = frozenset({"struct", "union", "enum", "opaque", "error"})
+
+
+def _zig_opens_type_brace(text: str, pos: int, floor: int) -> bool:
+    """#6432: True when the `{` at `pos` opens a zig type (`error{..}`, `struct{..}`, `union(enum){..}`), not a body."""
+    end = pos
+    while end > floor and text[end - 1] in " \t\r\n":
+        end -= 1
+    if end > floor and text[end - 1] == ")":
+        depth = 0
+        end -= 1
+        while end > floor and pos - end < 256:
+            if text[end] == ")":
+                depth += 1
+            elif text[end] == "(":
+                depth -= 1
+                if depth == 0:
+                    break
+            end -= 1
+        else:
+            return False
+        while end > floor and text[end - 1] in " \t\r\n":
+            end -= 1
+    start = end
+    while start > floor and end - start < 16 and (text[start - 1].isalnum() or text[start - 1] == "_"):
+        start -= 1
+    return text[start:end] in _ZIG_TYPE_BRACE_KEYWORDS
+
+
 def _call_arity(text: str, pos: int) -> int | None:
     """#3835: the number of arguments of the call whose callee name ends at `pos`,
     or None when no argument list follows (a method reference, a declaration).
@@ -1725,6 +1754,9 @@ _DECLARATOR_BUILTIN_TYPES = frozenset(
     {"int", "char", "bool", "float", "double", "long", "short", "unsigned", "signed", "void", "auto",
      "wchar_t", "char8_t", "char16_t", "char32_t", "size_t"}
 )  # fmt: skip
+# #6454: a functional cast to a built-in type (`bool(x)`, `unsigned(n)`) constructs nothing and calls
+# nothing; only the type KEYWORDS (`size_t` and the stdint names are ordinary identifiers).
+_FUNCTIONAL_CAST_KEYWORDS = _DECLARATOR_BUILTIN_TYPES - {"auto", "void", "size_t"}
 _DECLARATOR_MAX_SCAN = 200
 
 
@@ -1898,6 +1930,10 @@ _CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS: dict[str, frozenset[str]] = {
         {"def", "function", "class", "using", "catch", "sizeof", "alignof", "decltype", "include", "require"}
         | {"require_once", "include_once", "except", "finally", "typeof"}
     ),
+    # #6266: java has no `sizeof`; `filelump_t.sizeof()` is a static method call (mochadoom)
+    "java": frozenset({"def", "function", "using", "sizeof", "alignof", "decltype", "include", "require", "typeof"}),
+    # #6454: `return` (Monad), `try`, `catch` and `finally` (Control.Exception) are ordinary functions in haskell
+    "haskell": frozenset({"return", "try", "catch", "finally"}),
 }
 
 # #5634: a rust macro invocation `name!(..)` is not a call of a function `name`. Its qualifier carries
@@ -1909,6 +1945,29 @@ def _mark_macro_qualifier(lang_id: str, text: str, callee_end: int, qualifier: s
     if lang_id == "rust" and text.startswith("!", callee_end):
         return _MACRO_QUALIFIER_PREFIX + qualifier
     return qualifier
+
+
+# #3784: a C++ call written `ns::f()` has its `::` read as `.`, so it looks like a member call `x.f()`. The
+# qualifier carries this prefix (`::fmt`, `::a.b`, `::` for a global `::f()`) so the resolver reaches free
+# functions first. `x.f()` and `p->f()` stay unmarked.
+_SCOPE_QUALIFIER_PREFIX = "::"
+
+
+def _mark_scope_qualifier(lang_id: str, text: str, callee_pos: int, qualifier: str) -> str:
+    if lang_id != "cpp":
+        return qualifier
+    j = callee_pos
+    while j > 0 and text[j - 1] in " \t\r\n":
+        j -= 1
+    if j < 2 or text[j - 2 : j] != _SCOPE_QUALIFIER_PREFIX:
+        return qualifier
+    if qualifier == "<expr>":
+        k = j - 2
+        while k > 0 and text[k - 1] in " \t\r\n":
+            k -= 1
+        # nothing before the `::`: the global scope; a template or call result stays unmarked
+        return _SCOPE_QUALIFIER_PREFIX if k == 0 or not (text[k - 1].isalnum() or text[k - 1] in "_>)]") else qualifier
+    return _SCOPE_QUALIFIER_PREFIX + qualifier
 
 
 _CALLS_OUT_GLOBAL_IGNORE = frozenset(
@@ -2594,6 +2653,10 @@ def _blank_line(line: str) -> str:
     return " " * len(body) + line[len(body) :]
 
 
+# Languages whose indentation scan treats an open bracket as a continuation (#6266).
+_BRACKET_CONTINUATION_LANGS = frozenset({"python", "micropython", "embedded_python"})
+
+
 class StructuralExtractor:
     """
     GitGalaxy Structural Extractor (Primary Heuristic Logic & Function Mapper).
@@ -2691,6 +2754,10 @@ class StructuralExtractor:
         self._bare_self_units: set[tuple[str, int]] = set()
         # #5699: the subset of those whose header names a receiver (Go `func (s *S) f(`): a method with no enclosing class
         self._receiver_units: set[tuple[str, int]] = set()
+        # #3772: overload languages: unit (name, start line) -> the argument counts of its bare calls to its own
+        # name (a sibling overload, or `this(...)` in a constructor); the resolver keeps an edge only if a count
+        # picks another overload, and prunes the call as recursion when it picks the unit itself
+        self._overload_self_calls: dict[tuple[str, int], list[int]] = {}
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -2754,6 +2821,9 @@ class StructuralExtractor:
 
         self.MAX_DEPTH = 50
         self.HANDSHAKE_LOOKAHEAD_LIMIT = 50000
+        # #6266: a unit's brace scan is not an embedded-block scan. A 1,600-line C function is ~50 KB, so the
+        # handshake limit cut it mid-body and every call past the cut was lost (doomretro M_Responder).
+        self.BODY_LOOKAHEAD_LIMIT = 500000
 
         if self.primary_lang_id not in self.languages or "rules" not in self.languages.get(self.primary_lang_id, {}):
             try:
@@ -3291,6 +3361,11 @@ class StructuralExtractor:
                     # kept for the resolver, which reaches a free `f` or prunes it as recursion
                     func["calls_out_to"].append(func["name"])
                     func["calls_out_qualifiers"][func["name"]] = [""]
+                self_arities = self._overload_self_calls.get(unit_key)
+                if self_arities is not None and func["name"] not in func["calls_out_to"]:
+                    func["calls_out_to"].append(func["name"])
+                    func["calls_out_qualifiers"][func["name"]] = [""]
+                    func.setdefault("calls_out_arities", {})[func["name"]] = self_arities
                 if innermost_cls is not None:
                     func["parent_class_name"] = innermost_cls["name"]
                     class_methods_by_id[id(innermost_cls)].append(func)
@@ -3990,7 +4065,9 @@ class StructuralExtractor:
 
             if t["pair"]:
                 open_char, close_char = t["pair"]
-                end_idx = self._find_balanced_end(content, t["start"], open_char, close_char)
+                end_idx = self._find_balanced_end(
+                    content, t["start"], open_char, close_char, self.HANDSHAKE_LOOKAHEAD_LIMIT
+                )
             else:
                 search_limit = min(t["trigger_end"] + self.HANDSHAKE_LOOKAHEAD_LIMIT, len(content))
                 end_match = t["end_pattern"].search(scan_view, pos=t["trigger_end"], endpos=search_limit)
@@ -4017,13 +4094,28 @@ class StructuralExtractor:
 
         return segments if segments else [(primary_id, content, 0)]
 
-    def _find_balanced_end(self, safe_text: str, start_pos: int, opener: str, closer: str) -> int:
+    def _find_balanced_end(
+        self, safe_text: str, start_pos: int, opener: str, closer: str, max_span: int | None = None
+    ) -> int:
         """
         C-Optimized jump-tracking algorithm.
         Expects 'safe_text' where string literals and comments have already been shielded.
+        `max_span` pins the scan to that lookahead (an embedded-block handshake passes its own). Otherwise
+        a scope still open at HANDSHAKE_LOOKAHEAD_LIMIT is rescanned out to BODY_LOOKAHEAD_LIMIT, and the
+        longer answer is kept only when it closes: a malformed scope stays cut where it always was.
         """
+        end, closed = self._scan_balanced(
+            safe_text, start_pos, opener, closer, max_span or self.HANDSHAKE_LOOKAHEAD_LIMIT
+        )
+        if closed or max_span is not None or start_pos + self.HANDSHAKE_LOOKAHEAD_LIMIT >= len(safe_text):
+            return end
+        longer, longer_closed = self._scan_balanced(safe_text, start_pos, opener, closer, self.BODY_LOOKAHEAD_LIMIT)
+        return longer if longer_closed else end
+
+    def _scan_balanced(self, safe_text: str, start_pos: int, opener: str, closer: str, span: int) -> tuple[int, bool]:
+        """One bounded scan: (end, closed). `closed` is False when the limit or the text ended first."""
         depth = 0
-        limit = min(start_pos + self.HANDSHAKE_LOOKAHEAD_LIMIT, len(safe_text))
+        limit = min(start_pos + span, len(safe_text))
         pos = start_pos
 
         while pos < limit:
@@ -4050,9 +4142,9 @@ class StructuralExtractor:
 
                 # We have cleanly exited the original scope
                 if depth <= 0:
-                    return pos
+                    return pos, True
 
-        return limit
+        return limit, False
 
     def _resolve_class_scope_end(
         self,
@@ -4706,6 +4798,9 @@ class StructuralExtractor:
             if lang_id == "ruby"
             else ""
         )
+        # #6435: a zig `\\` line is one line of a multiline string literal, to the end of the line. Unshielded,
+        # `\\ run(1)` read as a call and `\\ a // b` or a lone `"` as a comment or a quote opener.
+        zig_ml_alt = r"(?:^|(?<=[ \t]))\\\\[^\n]*|" if lang_id == "zig" else ""
         atomic_string_pattern = (
             heredoc_opener_alt + r'""".*?"""|'  # Python Triple Double
             r"'''.*?'''|"  # Python Triple Single
@@ -4715,6 +4810,7 @@ class StructuralExtractor:
             f"{standard_single}|"  # Standard Single
             r"`(?:\\.|[^`\\])*`|"  # Standard Backtick
             + ruby_regex_alt
+            + zig_ml_alt
             # Comment marker must be at line-start or preceded by whitespace
             # (guards against e.g. shell's "$#" positional-arg-count being
             # mistaken for a comment). Same marker set previously stripped
@@ -6543,8 +6639,12 @@ class StructuralExtractor:
                     elif ch == "]":
                         depth = max(0, depth - 1)
                     elif depth == 0 and (ch == opener or ch == ";"):
-                        term_idx, term_kind = pos, ("brace" if ch == opener else "semi")
-                        break
+                        # #6432: a zig type brace in the result type is no body start; step over it
+                        if ch == opener and lang_id == "zig" and _zig_opens_type_brace(safe_code, pos, params_end_idx):
+                            pos = max(pos, self._find_balanced_end(safe_code, pos, opener, closer) - 1)
+                        else:
+                            term_idx, term_kind = pos, ("brace" if ch == opener else "semi")
+                            break
                     pos += 1
                 if term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
@@ -7371,6 +7471,16 @@ class StructuralExtractor:
             # groovy 11 -- against apex/css/html/php/swift 0. tcl is the only
             # language in this fallback whose `func_start` consumes a
             # non-body brace group, so it is the only one the anchor may move for.
+            # #6432: a swift parameter default can be a closure (`cb: () -> Void = {}`): the body
+            # brace is the first one after the balanced parameter list. func_start stops before the `(`.
+            elif lang_id == "swift":
+                params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
+                brace_idx = safe_code.find(opener, params_end_idx, search_limit)
+                if brace_idx == -1:
+                    brace_idx = safe_code.find(opener, start_idx, search_limit)
+                    if brace_idx == -1:
+                        continue
+                end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
             elif lang_id == "tcl":
                 brace_idx = safe_code.find(opener, match.end(), search_limit)
                 if brace_idx == -1:
@@ -7785,6 +7895,13 @@ class StructuralExtractor:
 
             equation_start_idx = None
 
+            # #6266: inside an open bracket Python ignores indentation, and PRISM
+            # blanks a multi-line string argument down to bare newlines, so the
+            # string's closing line tail (`, (id,))`) lands at column 0. Track the
+            # bracket depth so such a line is a continuation, not a dedent.
+            bracket_depth = 0
+            track_brackets = lang_id in _BRACKET_CONTINUATION_LANGS
+
             # --- FAST O(N) INDENT TRACKER ---
             # Replaced O(N^2) array allocations with zero-copy index jumping
             while scan_pos < len(safe_code):
@@ -7796,6 +7913,14 @@ class StructuralExtractor:
 
                 if stripped:
                     current_indent = len(f_line) - len(stripped)
+                    if track_brackets:
+                        was_open = bracket_depth > 0
+                        opened = f_line.count("(") + f_line.count("[") + f_line.count("{")
+                        closed = f_line.count(")") + f_line.count("]") + f_line.count("}")
+                        bracket_depth = max(0, bracket_depth + opened - closed)
+                        if was_open:
+                            scan_pos = line_end
+                            continue
                     if current_indent <= base_indent:
                         # #1266: Haskell's convention puts a function's type
                         # signature and its defining equation(s) on SEPARATE
@@ -10509,6 +10634,7 @@ class StructuralExtractor:
         own_leaf: str | None = None
         own_qualifiers: set[str] = set()
         bare_self_hits = 0
+        kept_super = False
         # #5699: an Objective-C method header (`- (int)f:(int)a`) is no call match, so its first bare `f(` is a body call
         own_header_seen = self.primary_lang_id == "objective-c" and block.lstrip()[:1] in ("-", "+")
         if invocation_pattern:
@@ -10537,6 +10663,8 @@ class StructuralExtractor:
                 # unit's own class or `this`; `child->method(` stays a call.
                 unit_parts = _UNIT_NAME_SEPARATORS.split(name)
                 own_leaf = unit_parts[-1] if len(unit_parts) > 1 else None
+                # #6266: a destructor `~X` names its header `X(`, which is no call
+                own_dtor = unit_parts[-1][1:] if unit_parts[-1].startswith("~") else None
                 own_qualifiers = {"", "this", "self", ".".join(unit_parts[:-1]), unit_parts[-2]} if own_leaf else set()
                 header_end = (
                     _header_macro_span(safe_block)
@@ -10559,6 +10687,10 @@ class StructuralExtractor:
                             if not declared[0]:
                                 continue
                             callee, callee_pos = declared
+                        elif callee in _FUNCTIONAL_CAST_KEYWORDS and not safe_block[:callee_pos].rstrip().endswith(
+                            "operator"
+                        ):
+                            continue
                     if is_send:
                         qualifier = _message_receiver(m.group(2))
                     else:
@@ -10571,7 +10703,17 @@ class StructuralExtractor:
                     # the unit itself. Anything written with a receiver or scope is the unit itself.
                     if callee == own_leaf and qualifier in own_qualifiers and qualifier:
                         continue
+                    if callee == own_dtor and callee_pos > 0 and safe_block[callee_pos - 1] == "~":
+                        continue
+                    call_len = len(callee)
+                    if track_arities and callee == "this" and not qualifier and name[:1].isupper():
+                        # #3772: `this(...)` chains to a sibling constructor, which is named like the unit
+                        callee = name
+                    if track_arities and callee == "super" and not qualifier:
+                        # #3772: `super(...)` chains to the superclass constructor; the resolver names the parent
+                        kept_super = True
                     is_decl = callee_pos == m.start(1) and _is_declaration_header(decl_headers, m)
+                    own_header_call = callee == name and not qualifier and not own_header_seen
                     if callee == name and not qualifier:
                         # the first bare match of the unit's own name is its own header
                         if own_header_seen and not is_decl:
@@ -10583,10 +10725,11 @@ class StructuralExtractor:
                         invoked.add(callee)
                     raw_calls.append(callee)
                     seen = qualifiers_seen.setdefault(callee, [])
-                    if qualifier not in seen:
-                        seen.append(qualifier)
-                    if track_arities:
-                        arity = _call_arity(safe_block, callee_pos + len(callee))
+                    marked = _mark_scope_qualifier(self.primary_lang_id, safe_block, callee_pos, qualifier)
+                    if marked not in seen:
+                        seen.append(marked)
+                    if track_arities and not own_header_call:
+                        arity = _call_arity(safe_block, callee_pos + call_len)
                         if arity is not None and arity not in arities_seen.setdefault(callee, []):
                             arities_seen[callee].append(arity)
             else:
@@ -10642,7 +10785,7 @@ class StructuralExtractor:
                 # #4305: a pattern alternative that only consumes text (COBOL `EXIT PERFORM`) captures ""
                 if c
                 and (c not in _CALLS_OUT_GLOBAL_IGNORE or c in global_exempt)
-                and (c.casefold() if _fold_ignore else c) not in lang_ignore
+                and ((c.casefold() if _fold_ignore else c) not in lang_ignore or (kept_super and c == "super"))
                 and c != self_name
             )
         )
@@ -10720,6 +10863,8 @@ class StructuralExtractor:
             self._bare_self_units.add((name, start_line))
             if self.primary_lang_id == "go" and _GO_RECEIVER_HEADER.match(block):
                 self._receiver_units.add((name, start_line))
+        if bare_self_hits and track_arities:
+            self._overload_self_calls[(name, start_line)] = list(arities_seen.get(name, []))
         return sat, magnitude
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:

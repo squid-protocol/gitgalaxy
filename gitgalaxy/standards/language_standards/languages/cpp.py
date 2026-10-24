@@ -435,11 +435,11 @@ DEFINITION: dict[str, Any] = {
         "class_start": re.compile(
             r"^[ \t]*(?:export[ \t\n]+)?"
             r"(?:template[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>[ \t\n]*)?"
-            r"(?:class|struct|union|enum[ \t\n]+class|enum[ \t\n]+struct)[ \t\n]+(?:(?:\[\[[^\]]*\]\]|__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\))[ \t\n]*){0,5}(["
-            + ID_START
-            + r"]["
-            + ID_CONTINUE
-            + r"]*(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?)",
+            r"(?:class|struct|union|enum[ \t\n]+class|enum[ \t\n]+struct)[ \t\n]+(?:(?:\[\[[^\]]*\]\]|__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\))[ \t\n]*){0,5}"
+            # a specialization written with its qualifier (`struct fmt::formatter<T>`) is the unit `formatter<T>`,
+            # not the namespace `fmt`: step over each `Name::` and capture the last segment
+            r"(?:[" + ID_START + r"][" + ID_CONTINUE + r"]*[ \t]*::[ \t]*)*"
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"]*(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?)",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -667,8 +667,10 @@ DEFINITION: dict[str, Any] = {
         # 36. memory_alloc (Manual Memory Management)
         "memory_alloc": re.compile(r"\b(new|malloc|calloc|realloc|aligned_alloc|mmap|alloca)\b"),
         # 37. inline_asm (The Bare Metal)
+        # GCC stacks its qualifiers (`asm volatile goto (`, `asm inline (`, `__asm__ __volatile__ (`).
         "inline_asm": re.compile(
-            r"\b(?:__asm__|asm|__asm)\b(?:\s+(?:volatile|__volatile__))?\s*\(|\b(?:__asm__|asm|__asm)\b[ \t]*\{"
+            r"\b(?:__asm__|asm|__asm)\b(?:\s+(?:volatile|__volatile__|__volatile|inline|__inline__|__inline|goto)){0,4}"
+            r"\s*\(|\b(?:__asm__|asm|__asm)\b[ \t]*\{"
         ),
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
         # 38. telemetry (Structured Logging / Telemetry)

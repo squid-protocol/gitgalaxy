@@ -242,6 +242,118 @@ FILECONTROL_JAVA = """\
         return done(0, 0);
     }
 
+    /** #4443 READ FILE(file) INTO LENGTH(intoLength) RIDFLD(ridfld) [UPDATE], recorded as the SPEC 6.2 READ event: as
+     *  read / readForUpdate on the record's bytes, and a record longer than `intoLength` is LENGERR (22) RESP2 11
+     *  (IBM, EXEC CICS READ), the whole record returned for the port to move its leading bytes INTO. Refused, as
+     *  DetCics.readInto refuses them: a negative LENGTH and LENGERR on READ UPDATE (IBM does not say whether the
+     *  record is then held). The event carries `length` (the record's) whenever a record was read, `data` on NORMAL. */
+    public FileRead<byte[]> readInto(String file, byte[] ridfld, boolean update, int intoLength,
+                                     java.util.function.Supplier<Optional<byte[]>> lookup) {
+        if (intoLength < 0) {
+            throw new UnsupportedOperationException("READ LENGTH " + intoLength + " (negative): not modelled");
+        }
+        FileRead<byte[]> r = update ? readForUpdate(file, lookup) : read(file, lookup);
+        byte[] record = r.record();
+        if (record != null && record.length > intoLength) {
+            if (update) {
+                throw new UnsupportedOperationException("READ UPDATE LENGERR (whether the record is held): not modelled");
+            }
+            r = new FileRead<>(22, 11, record);
+        }
+        event("READ", "file", file, "ridfld", ridfld, "update", update ? Boolean.TRUE : null, "resp", respName(r.resp()),
+                "resp2", r.resp() == 0 ? null : r.resp2(), "length", record == null ? null : record.length,
+                "data", r.resp() == 0 ? record : null);
+        return r;
+    }
+
+    /** #6262 READ FILE(file) SET(ptr) RIDFLD(ridfld) [UPDATE], recorded as the SPEC 6.2 READ event with `set`: as read /
+     *  readForUpdate. The event carries no `length` (INTO's LENGTH is not on the SET form) and, on NORMAL, `data` the
+     *  record the pointer addresses; the caller acquires the block (acquireSet) from the returned record. */
+    public FileRead<byte[]> readSetEvent(String file, byte[] ridfld, boolean update,
+                                         java.util.function.Supplier<Optional<byte[]>> lookup) {
+        FileRead<byte[]> r = update ? readForUpdate(file, lookup) : read(file, lookup);
+        event("READ", "file", file, "ridfld", ridfld, "update", update ? Boolean.TRUE : null, "set", Boolean.TRUE,
+                "resp", respName(r.resp()), "resp2", r.resp() == 0 ? null : r.resp2(),
+                "data", r.resp() == 0 ? r.record() : null);
+        return r;
+    }
+
+    /** #4443 REWRITE FILE(file) FROM(from), recorded as the SPEC 6.2 REWRITE event: as rewrite; `store` saves `from`. */
+    public int rewriteFrom(String file, byte[] from, Runnable store) {
+        int resp = rewrite(file, store);
+        event("REWRITE", "file", file, "data", from, "resp", respName(resp), "resp2", resp == 0 ? null : resp2());
+        return resp;
+    }
+
+    /** #4443 UNLOCK FILE(file) without TOKEN, recorded as the SPEC 6.2 UNLOCK event: as unlockHeld. */
+    public int unlock(String file) {
+        int resp = unlockHeld(file);
+        event("UNLOCK", "file", file, "resp", respName(resp), "resp2", resp == 0 ? null : resp2());
+        return resp;
+    }
+
+    /** #6262 STARTBR FILE(file) RIDFLD(ridfld) [GTEQ | EQUAL], recorded as the SPEC 6.2 STARTBR event: as startbr;
+     *  `mode` is GTEQ or EQUAL, `ridfld` the key on entry, RESP2 where the command is not NORMAL. */
+    public int startbrEvent(String file, byte[] ridfld, String key, boolean equal,
+                            java.util.function.Supplier<java.util.NavigableSet<String>> keys) {
+        int resp = startbr(file, key, equal, keys);
+        event("STARTBR", "file", file, "ridfld", ridfld, "mode", equal ? "EQUAL" : "GTEQ", "resp", respName(resp),
+                "resp2", resp == 0 ? null : resp2());
+        return resp;
+    }
+
+    /** #6262 READNEXT / READPREV FILE(file) RIDFLD(ridfld) INTO LENGTH(intoLength), recorded as the SPEC 6.2 event of
+     *  that name: as readnext / readprev, then `lookup` fetches the record of the key read. `ridfld` is the key on
+     *  entry; the event carries `length` (the record's) and `data` when the read delivered the record, RESP2 where it
+     *  is not NORMAL. A record longer than `intoLength` is LENGERR (22) RESP2 11, as readInto; a negative LENGTH is refused. */
+    public Browsed readnextInto(String file, byte[] ridfld, String key, int intoLength,
+                                java.util.function.Function<String, Optional<byte[]>> lookup) {
+        return browseEvent("READNEXT", readnext(file, key), file, ridfld, intoLength, lookup, false);
+    }
+
+    /** #6262 READNEXT / READPREV FILE(file) SET(ptr) RIDFLD(ridfld): as readnextInto / readprevInto, recorded with `set`
+     *  and no `length`; `data` is the record the pointer addresses. The caller acquires the block from `lookup`'s record. */
+    public Browsed readnextSetEvent(String file, byte[] ridfld, String key,
+                                    java.util.function.Function<String, Optional<byte[]>> lookup) {
+        return browseEvent("READNEXT", readnext(file, key), file, ridfld, Integer.MAX_VALUE, lookup, true);
+    }
+
+    public Browsed readprevSetEvent(String file, byte[] ridfld, String key,
+                                    java.util.function.Function<String, Optional<byte[]>> lookup) {
+        return browseEvent("READPREV", readprev(file, key), file, ridfld, Integer.MAX_VALUE, lookup, true);
+    }
+
+    public Browsed readprevInto(String file, byte[] ridfld, String key, int intoLength,
+                                java.util.function.Function<String, Optional<byte[]>> lookup) {
+        return browseEvent("READPREV", readprev(file, key), file, ridfld, intoLength, lookup, false);
+    }
+
+    private Browsed browseEvent(String kind, Browsed b, String file, byte[] ridfld, int intoLength,
+                                java.util.function.Function<String, Optional<byte[]>> lookup, boolean set) {
+        if (intoLength < 0) {
+            throw new UnsupportedOperationException(kind + " LENGTH " + intoLength + " (negative): not modelled");
+        }
+        byte[] record = b.normal() ? lookup.apply(b.key()).orElse(null) : null;
+        int resp = b.resp();
+        int resp2 = b.resp2();
+        if (record != null && record.length > intoLength) {
+            resp = 22;
+            resp2 = 11;
+        }
+        boolean normal = resp == 0 || resp == 15;
+        event(kind, "file", file, "ridfld", ridfld, "resp", respName(resp), "resp2", resp == 0 ? null : resp2,
+                "set", set ? Boolean.TRUE : null, "length", set || record == null ? null : record.length,
+                "data", normal ? record : null);
+        return new Browsed(resp, resp2, b.key());
+    }
+
+    /** #6262 ENDBR FILE(file), recorded as the SPEC 6.2 ENDBR event: as endbr. */
+    public int endbrEvent(String file) {
+        int resp = endbr(file);
+        event("ENDBR", "file", file, "resp", respName(resp), "resp2", resp == 0 ? null : resp2());
+        return resp;
+    }
+
     /** One file's browse: its keys (asked again on every command, so a record written meanwhile is seen), how it
      *  started, and the last key read and in which direction (0: none yet). An RBA browse (#4213) keeps RBAs. */
     private static final class Browse {
@@ -260,7 +372,8 @@ FILECONTROL_JAVA = """\
     /** What a READNEXT / READPREV found: its RESP and the key read (null when none; then look nothing up). */
     public record Browsed(int resp, int resp2, String key) {
         public boolean normal() {
-            return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
+            // #4623: DUPKEY (15) delivers the record too; #6271 (X70): an injected abend answers 0 with no key and delivers none
+            return key != null && (resp == 0 || resp == 15);
         }
     }
 
@@ -449,7 +562,8 @@ FILECONTROL_JAVA = """\
      *  longer than INTO is LENGERR (22) with the record still returned (CICS copies what INTO takes). */
     public record BrowsedRba(int resp, int resp2, long rba, byte[] record) {
         public boolean normal() {
-            return resp == 0 || resp == 15;  // #4623: DUPKEY (15) delivers the record too
+            // #4623: DUPKEY (15) delivers the record too; #6271 (X70): an injected abend answers 0 with no record
+            return record != null && (resp == 0 || resp == 15);
         }
     }
 

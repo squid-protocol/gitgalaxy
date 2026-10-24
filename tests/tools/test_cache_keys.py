@@ -131,7 +131,7 @@ def test_a_sha_in_a_cache_key_is_only_the_same_base_generation():
 
 def _hashed_inputs(key):
     """The hashFiles(...) argument list of a cache key, with the checkout prefix (`base/` or `gitgalaxy/`) stripped."""
-    return [re.sub(r"^(!?)(base|gitgalaxy)/", r"\1", a) for a in re.findall(r"'([^']+)'", key) if "/" in a]
+    return [re.sub(r"^(base|gitgalaxy)/", "", a) for a in re.findall(r"'([^']+)'", key) if "/" in a]
 
 
 def test_same_base_cache_is_restored_by_java_compile_and_seeded_by_its_own_workflow():
@@ -247,19 +247,3 @@ def test_every_corpora_save_skips_pull_requests_and_pairs_with_a_restore():
     assert sorted((wf, _key(s).strip()) for wf, s in saves) == sorted((wf, _key(s).strip()) for wf, s in restores)
     for wf, s in saves:
         assert re.search(r"path:\s*\.mainframe_corpora\s*$", s, re.M), f"{wf}: save path"
-
-
-def test_engine_scan_cache_is_restored_by_java_compile_and_seeded_by_its_own_workflow():
-    """#5142: the head side's ~90 s engine scan (dsf) starts from the scan main kept. Same inputs on both ends, a save
-    only from the seeding workflow, and both runs hand java_target_matrix.py the directory."""
-    steps = [(wf, k, s) for wf, k, s in _cache_steps() if "java-scan-" in _key(s)]
-    assert sorted((wf, k) for wf, k, _ in steps) == [
-        ("java-base-generation.yml", "save"),
-        ("java-compile.yml", "restore"),
-    ]
-    save = next(s for wf, k, s in steps if k == "save")
-    restore = next(s for wf, k, s in steps if k == "restore")
-    assert _hashed_inputs(_key(save)) == _hashed_inputs(_key(restore)), "a PR would look up a key nothing writes"
-    assert "github.event_name == 'pull_request'" in restore
-    for wf in ("java-compile.yml", "java-base-generation.yml"):
-        assert '--scan-cache "$RUNNER_TEMP/java_scan_cache"' in (WORKFLOWS / wf).read_text(encoding="utf-8")

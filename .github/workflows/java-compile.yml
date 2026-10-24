@@ -186,16 +186,6 @@ jobs:
           # main commits that touch those paths (the push run is path-filtered), so most PRs missed and regenerated both sides.
           key: java-same-base-${{ matrix.corpus }}-${{ github.event_name == 'pull_request' && hashFiles('base/gitgalaxy/cobol_to_java_controller.py', 'base/gitgalaxy/cobol_refractor_controller.py', 'base/gitgalaxy/tools/cobol_to_java/**', 'base/gitgalaxy/tools/cobol_to_cobol/**', 'base/gitgalaxy/standards/yaml_reader.py', 'base/gitgalaxy/standards/fact_channel_confidence.json', 'base/tests/tools/java_target_matrix.py', 'base/tests/cobol_mainframe/corpora.json', 'base/tests/tools/mainframe_corpus.py') || hashFiles('gitgalaxy/gitgalaxy/cobol_to_java_controller.py', 'gitgalaxy/gitgalaxy/cobol_refractor_controller.py', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_cobol/**', 'gitgalaxy/gitgalaxy/standards/yaml_reader.py', 'gitgalaxy/gitgalaxy/standards/fact_channel_confidence.json', 'gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py') }}
 
-      # #5142: the engine scan both sides' skeleton path starts with (about 90 s on dsf) is kept per corpus by
-      # java-base-generation.yml, keyed on the code a scan depends on (everything but the translator and the two
-      # controllers). java_target_matrix.py re-checks its own finer digest, so a hit on this key is only a candidate.
-      - name: Restore the engine scan
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        if: github.event_name == 'pull_request'
-        with:
-          path: ${{ runner.temp }}/java_scan_cache
-          key: java-scan-${{ matrix.corpus }}-${{ hashFiles('base/gitgalaxy/**', '!base/gitgalaxy/tools/cobol_to_java/**', '!base/gitgalaxy/cobol_to_java_controller.py', '!base/gitgalaxy/cobol_refractor_controller.py', 'base/tests/cobol_mainframe/corpora.json') }}
-
       - name: Is the generated Java unchanged? (pull requests)
         id: same
         if: github.event_name == 'pull_request'
@@ -211,7 +201,6 @@ jobs:
             "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
             --same-as "$GITHUB_WORKSPACE/base" \
             --base-cache "$RUNNER_TEMP/java_base_cache" \
-            --scan-cache "$RUNNER_TEMP/java_scan_cache" \
             --work "$RUNNER_TEMP/java_same" \
             --summary "$GITHUB_STEP_SUMMARY" \
             "${ONLY[@]}"

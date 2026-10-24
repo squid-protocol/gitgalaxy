@@ -372,15 +372,15 @@
 <text class="n" x="324" y="529">n=49 imports</text>
 <text class="n" x="324" y="541">repos 1 · files 33</text>
 </g>
-<g><title>perl callee names: precision 87.9% of 2,926, recall 56.6% of 4,544 (raw 87.9% / 56.6%; 58 shapes without a verdict)</title>
+<g><title>perl callee names: precision 94.3% of 4,567, recall 94.7% of 4,544 (raw 94.3% / 94.7%; 48 shapes without a verdict)</title>
 <text class="pr" x="426" y="528.5">Precision</text>
 <rect class="track" x="472" y="521" width="110" height="8" rx="2"/>
-<rect x="472" y="521" width="96.7" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="587" y="529">87.9%*</text>
+<rect x="472" y="521" width="103.7" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="587" y="529">94.3%*</text>
 <text class="pr" x="426" y="540.5">Recall</text>
 <rect class="track" x="472" y="533" width="110" height="8" rx="2"/>
-<rect x="472" y="533" width="62.3" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="541">56.6%*</text>
+<rect x="472" y="533" width="104.2" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="541">94.7%*</text>
 <text class="n" x="630" y="529">n=4,544 calls</text>
 <text class="n" x="630" y="541">functions 943</text>
 </g>

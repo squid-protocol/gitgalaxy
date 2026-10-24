@@ -68,3 +68,27 @@ def test_the_committed_pcconf_det_port_translates_whole():
     assert "Statements: 47, translated 47, holes 0." in java
     # the one Hole left is the runtime's file-store guard, not a translated statement
     assert java.count("throw new Hole(") == java.count('throw new Hole("CICS file ')
+
+
+def test_the_committed_pc_return_immediate_det_ports_translate_whole_and_no_port_cell_is_ledgered():
+    """The `pc-return-immediate` box said "no committed port, java-ported cells fail 4/4". The four programs are
+    committed det ports (every statement translated, no hole), and the crucible baseline ledgers no java-ported or
+    java-facade cell of the case: only the `java` side, the generated stub whose PROCEDURE DIVISION is not ported."""
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2] / "tests/cics_crucible"
+    statements = {"PCIMMA": 34, "PCIMMB": 12, "PCIMML": 7, "PCIMMS": 5}
+    for program in statements:
+        svc = next((root / "ports/pc-return-immediate" / program / "overlay/service").glob("*Service.java"))
+        java = svc.read_text(encoding="utf-8")
+        n = statements[program]
+        assert f"Statements: {n}, translated {n}, holes 0." in java, program
+        assert "throw new Hole(" not in java.replace('throw new Hole("CICS file ', ""), program
+        prov = json.loads((root / "ports/pc-return-immediate" / program / "provenance.json").read_text("utf-8"))
+        assert prov["backend"] == "det" and prov["model"] is None, program
+
+    ledger = json.loads((root / "baseline.json").read_text(encoding="utf-8"))["cells"]
+    cells = {k: v for k, v in ledger.items() if k.startswith("pc-return-immediate/")}
+    assert cells, "the java side of the case is ledgered"
+    assert {k.rsplit("/", 1)[1] for k in cells} == {"java"}

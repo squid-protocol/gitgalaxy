@@ -92,6 +92,62 @@ def test_verdict_order_agree_wrong_external_unconfirmed():
     assert cgr._verdict(ref, a, ("h.ts", "save", 5)) == "unconfirmed"
 
 
+def test_ts_callgraph_js_mode_resolves_commonjs_with_allow_js(tmp_path):
+    import json
+    import shutil
+    import subprocess
+
+    if shutil.which("node") is None:
+        pytest.skip("node is not installed")
+    env = callgraph_refs.node_env()
+    probe = "process.exit(typeof require('typescript').createProgram === 'function' ? 0 : 1)"
+    if subprocess.run(["node", "-e", probe], env=env, capture_output=True).returncode:
+        pytest.skip("no typescript with the JavaScript compiler API (<= 6.x) on NODE_PATH")
+    (tmp_path / "util.js").write_text("exports.clone = function clone(x) {\n  return x;\n};\n")
+    (tmp_path / "mod.cjs").write_text("module.exports = function build() {\n  return 1;\n};\n")
+    (tmp_path / "proto.mjs").write_text(
+        "export function Box() {}\nBox.prototype.open = function () {\n  return 2;\n};\nexport const make = () => new Box();\n"
+    )
+    (tmp_path / "main.js").write_text(
+        "var util = require('./util');\n"
+        "var build = require('./mod.cjs');\n"
+        "var proto = {};\n"
+        "proto.run = function run(s, box) {\n"
+        "  's'.trim();\n"
+        "  build();\n"
+        "  box.open();\n"
+        "  return util.clone(1);\n"
+        "};\n"
+    )
+    (tmp_path / "typed.ts").write_text("export function only() {\n  return 1;\n}\n")
+
+    def graph(*extra):
+        out = subprocess.run(
+            ["node", str(cgr.TOOLS / "ts_callgraph.js"), str(tmp_path), *extra], env=env, capture_output=True, text=True
+        )
+        assert out.returncode == 0, out.stderr
+        return json.loads(out.stdout)
+
+    g = graph("--js")
+    run = ["main.js", "run", 4]
+    assert ["typed.ts", "only", 1] not in g["defs"]  # the TypeScript files are not read in js mode
+    assert {tuple(d) for d in g["defs"]} >= {
+        ("util.js", "clone", 1),
+        ("mod.cjs", "build", 1),
+        ("proto.mjs", "open", 2),
+        ("proto.mjs", "make", 5),
+        tuple(run),
+    }
+    edges = {(tuple(e[0]), tuple(e[1])): e[2] for e in g["edges"]}
+    assert edges[(tuple(run), ("util.js", "clone", 1))] == 8  # exports.f = function through require()
+    assert edges[(tuple(run), ("mod.cjs", "build", 1))] == 6  # module.exports = function
+    assert edges[(("proto.mjs", "make", 5), ("proto.mjs", "Box", 1))] == 5  # `new Box()` runs the function
+    assert not any(e[0] == run and e[1][1] == "open" for e in g["edges"])  # an untyped receiver: silent, not wrong
+    assert [run, "trim"] in g["external"]  # a string literal's trim() is String.prototype.trim
+    # the typescript mode never reads .js
+    assert all(not d[0].endswith((".js", ".cjs", ".mjs")) for d in graph()["defs"])
+
+
 def test_ts_callgraph_resolves_calls_with_the_type_checker(tmp_path):
     import json
     import shutil
@@ -130,3 +186,56 @@ def test_ts_callgraph_resolves_calls_with_the_type_checker(tmp_path):
     # each edge carries its first call site: `t.trim()` on line 9, `clone(1)` on line 11
     assert sorted(g["edges"]) == [[run, ["main.ts", "trim", 3], 9], [run, ["util.ts", "clone", 1], 11]]
     assert g["external"] == [[run, "trim"]]  # s.trim() is String.prototype.trim
+
+
+def test_go_callgraph_resolves_calls_with_the_type_checker(tmp_path):
+    import json
+    import shutil
+
+    if shutil.which("go") is None or callgraph_refs._go_version() is None:
+        pytest.skip("no Go 1.24+ toolchain on PATH")
+    (tmp_path / "go.mod").write_text("module example.com/m\n\ngo 1.22\n")
+    (tmp_path / "util").mkdir()
+    (tmp_path / "util" / "util.go").write_text("package util\n\nfunc Clone(x int) int {\n\treturn x\n}\n")
+    (tmp_path / "main.go").write_text(
+        "package main\n"  # 1
+        "\n"
+        'import (\n\t"strings"\n\n\t"example.com/m/util"\n)\n'  # 3-7
+        "\n"
+        "type Speaker interface{ Speak() int }\n"  # 9
+        "\n"
+        "type Dog struct{}\n"  # 11
+        "\n"
+        "func (d *Dog) Speak() int { return util.Clone(1) }\n"  # 13
+        "\n"
+        "func Map[T any](x T) T { return x }\n"  # 15
+        "\n"
+        "func run(s Speaker, d Dog) int {\n"  # 17
+        '\tstrings.TrimSpace("x")\n'  # 18
+        "\tf := func() int { return d2().Speak() }\n"  # 19
+        "\t_ = Map(1)\n"  # 20
+        "\ts.Speak()\n"  # 21
+        "\treturn f()\n"  # 22
+        "}\n"
+        "\n"
+        "func d2() *Dog { return &Dog{} }\n"  # 25
+        "\n"
+        "func main() { run(&Dog{}, Dog{}) }\n"  # 27
+    )
+    g = callgraph_refs.go_contract(tmp_path)
+    run, speak, clone, mapf, d2, main = (
+        ["main.go", "run", 17],
+        ["main.go", "Speak", 13],
+        ["util/util.go", "Clone", 3],
+        ["main.go", "Map", 15],
+        ["main.go", "d2", 25],
+        ["main.go", "main", 27],
+    )
+    assert sorted(g["defs"]) == sorted([run, speak, clone, mapf, d2, main])
+    edges = {(json.dumps(a), json.dumps(b)) for a, b, _ in g["edges"]}
+    # run -> Speak is the interface call; run -> d2 is made inside a closure
+    want = [(run, speak), (run, mapf), (run, d2), (speak, clone), (main, run)]
+    assert {(json.dumps(a), json.dumps(b)) for a, b in want} <= edges
+    # a call outside the module is external, a closure's calls belong to its enclosing function
+    assert [run, "TrimSpace"] in g["external"]
+    assert g["files"] == 2

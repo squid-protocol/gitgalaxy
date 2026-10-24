@@ -12,11 +12,15 @@ these pin what a registry entry must satisfy for both to work, for every entry:
      tests/tools_recorders/).
 """
 
+import dataclasses
+import re
 import sqlite3
+from pathlib import Path
 
 from gitgalaxy.core.fact_channels import CHANNELS, CHANNELS_BY_NAME, create_channel_table
 from gitgalaxy.core.state_rehydrator import StateRehydrator, _has_column, _has_table, _restore_child_table
 from gitgalaxy.recorders.record_keeper import RecordKeeper, _ensure_columns
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import EngineFile
 
 SESSION = {
     "target": "RegistryRepo",
@@ -127,3 +131,54 @@ def test_a_table_created_before_a_healed_column_gains_it_and_keeps_its_rows():
             assert cursor.execute(f"SELECT repo_name FROM {channel.table}").fetchall() == [("keep",)]  # noqa: S608
         finally:
             conn.close()
+
+
+# galaxy_ir (#3383): the SCOPE comment and the loader are checked against the registry.
+_GALAXY_IR = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobol_to_cobol" / "galaxy_ir.py"
+
+# Tables galaxy_ir loads that have no registry entry yet (custom insert or restore, #3383 remaining
+# slices). A table leaves this set when its channel is migrated; a new channel is never added here.
+_UNMIGRATED_IR_TABLES = frozenset(
+    {
+        "call_site_data",
+        "transaction_data",
+        "sql_statement_data",
+        "web_service_data",
+        "copy_statement_data",
+        "special_names_data",
+        "compiler_options_data",
+        "data_move_data",
+        "ims_gen_data",
+        "dli_call_data",
+        "entry_point_data",
+        "job_flow_data",
+        "file_control_data",
+        "vsam_define_data",
+        "uow_handler_data",
+        "mq_call_data",
+        "job_submit_data",
+        "cics_task_data",
+    }
+)
+
+
+def _galaxy_ir_source():
+    text = _GALAXY_IR.read_text(encoding="utf-8")
+    scope = text.split("\nimport bisect", 1)[0]
+    return text, scope
+
+
+def test_every_channel_names_its_galaxy_ir_field_and_loader():
+    text, scope = _galaxy_ir_source()
+    ir_fields = {f.name for f in dataclasses.fields(EngineFile)}
+    for channel in CHANNELS:
+        assert channel.ir_field in ir_fields, channel.name
+        assert channel.table in scope, f"{channel.table} missing from the galaxy_ir SCOPE comment"
+        assert f'_has_table(cur, "{channel.table}")' in text, f"galaxy_ir does not load {channel.table}"
+
+
+def test_every_table_galaxy_ir_loads_is_registered_or_listed_unmigrated():
+    text, _ = _galaxy_ir_source()
+    loaded = set(re.findall(r'_has_table\(cur, "(\w+)"\)', text))
+    registered = {c.table for c in CHANNELS}
+    assert loaded - registered == _UNMIGRATED_IR_TABLES, "register the channel, or list the legacy table"

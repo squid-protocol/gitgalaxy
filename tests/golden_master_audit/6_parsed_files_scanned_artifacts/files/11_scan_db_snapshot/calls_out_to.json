@@ -111865,7 +111865,8 @@
           "like"
         ],
         "o@33": [
-          "sprintf"
+          "sprintf",
+          "shift"
         ]
       }
     },
@@ -112687,6 +112688,7 @@
           "scalar",
           "trim",
           "process",
+          "first",
           "is_timetracker",
           "in_group",
           "_changes_everconfirmed",
@@ -112833,6 +112835,7 @@
           "push",
           "name",
           "fields",
+          "firstidx",
           "splice"
         ],
         "error@3400": [],
@@ -113065,6 +113068,7 @@
           "see_also",
           "name",
           "blessed",
+          "part",
           "lc",
           "check_can_change_field",
           "ThrowUserError",
@@ -113499,7 +113503,8 @@
           "url_is_attachment_base",
           "redirect_to_urlbase",
           "cgi_error",
-          "header"
+          "header",
+          "die"
         ],
         "param@450": [
           "shift",
@@ -113585,7 +113590,9 @@
           "can",
           "on_dbi_connected"
         ],
-        "_build_qi@39": [],
+        "_build_qi@39": [
+          "tie"
+        ],
         "_bz_add_field_table@913": [
           "bz_table_info",
           "keys",
@@ -113602,7 +113609,8 @@
         ],
         "_bz_check_dbd@214": [
           "have_vers",
-          "install_command"
+          "install_command",
+          "die"
         ],
         "_bz_connect_error_reasons@352": [
           "bz_locations",
@@ -113629,7 +113637,8 @@
           "add_table",
           "_bz_schema",
           "get_table_abstract",
-          "_bz_store_real_schema"
+          "_bz_store_real_schema",
+          "die"
         ],
         "_bz_populate_enum_table@1554": [
           "quote_identifier",
@@ -113647,6 +113656,7 @@
           "get",
           "selectrow_arrayref",
           "set",
+          "die",
           "_bz_schema",
           "deserialize_abstract"
         ],
@@ -113663,6 +113673,7 @@
         ],
         "_bz_store_real_schema@1525": [
           "selectrow_array",
+          "die",
           "serialize_abstract",
           "SCHEMA_VERSION",
           "prepare",
@@ -113680,11 +113691,13 @@
           "undef",
           "usage_mode",
           "print",
-          "get_text"
+          "get_text",
+          "die"
         ],
         "_connect@159": [
           "lc",
           "eval",
+          "die",
           "new"
         ],
         "_get_no_db_connection@329": [
@@ -113692,6 +113705,7 @@
           "_connect",
           "lc",
           "chomp",
+          "die",
           "_bz_connect_error_reasons"
         ],
         "_handle_error@174": [
@@ -113811,6 +113825,7 @@
           "localconfig",
           "lc",
           "defined",
+          "die",
           "bz_locations",
           "_bz_check_dbd",
           "print",
@@ -113849,6 +113864,7 @@
           "do",
           "errstr",
           "chomp",
+          "die",
           "_bz_connect_error_reasons"
         ],
         "bz_drop_column@966": [
@@ -113858,6 +113874,7 @@
           "get_text",
           "usage_mode",
           "do",
+          "warn",
           "delete_column",
           "_bz_store_real_schema"
         ],
@@ -113873,6 +113890,7 @@
           "_bz_real_schema",
           "get_drop_fk_sql",
           "do",
+          "warn",
           "set_fk",
           "_bz_store_real_schema"
         ],
@@ -113894,7 +113912,8 @@
           "_bz_schema",
           "get_drop_index_ddl",
           "print",
-          "do"
+          "do",
+          "warn"
         ],
         "bz_drop_related_fks@1040": [
           "shift",
@@ -113908,6 +113927,7 @@
           "get_text",
           "usage_mode",
           "do",
+          "warn",
           "_bz_real_schema",
           "delete_table",
           "_bz_store_real_schema"
@@ -114042,12 +114062,14 @@
         ],
         "connect_shadow@138": [
           "params",
+          "die",
           "localconfig",
           "_connect"
         ],
         "import@383": [
           "shift",
           "can",
+          "die",
           "isa"
         ],
         "quote@127": [
@@ -114148,6 +114170,7 @@
           "install_string",
           "bz_locations",
           "File",
+          "die",
           "grep",
           "getlines",
           "close"
@@ -114329,6 +114352,7 @@
         ],
         "CreateDirectory@4947": [
           "IsDirectory",
+          "split",
           "length",
           "IsPC",
           "EncodeFileName",
@@ -114357,6 +114381,7 @@
         "DoAutoLoad@5541": [
           "shift",
           "split",
+          "die",
           "defined",
           "caller"
         ],
@@ -114441,12 +114466,12 @@
           "hexdigest",
           "FoundTag",
           "FinishValidate",
+          "split",
           "lc",
           "push",
           "GetInfo",
           "defined",
           "VPrint",
-          "split",
           "undef",
           "join",
           "Encode",
@@ -114773,7 +114798,6 @@
           "defined",
           "SetFoundTags",
           "undef",
-          "sort",
           "Group",
           "GetGroup",
           "GetDescriptions"
@@ -114986,6 +115010,7 @@
           "undef",
           "length",
           "push",
+          "split",
           "CleanWarning",
           "uc",
           "_tzset",
@@ -115018,7 +115043,8 @@
           "new",
           "warn",
           "ExpandShortcuts",
-          "lc"
+          "lc",
+          "split"
         ],
         "PrintHex@9802": [
           "shift",
@@ -115124,6 +115150,7 @@
           "ProcessTIFF",
           "GetValue",
           "IsInt",
+          "printf",
           "OverrideFileType",
           "Decode",
           "Get32u",
@@ -115210,6 +115237,7 @@
         ],
         "SetFoundTags@5301": [
           "shift",
+          "push",
           "keys",
           "bfile",
           "Warn",
@@ -115218,7 +115246,6 @@
           "undef",
           "GroupMatches",
           "CopyAltInfo",
-          "push",
           "scalar",
           "RemoveTagsFromList",
           "Group",
@@ -115317,6 +115344,7 @@
           "length",
           "m",
           "defined",
+          "print",
           "tr",
           "Warn",
           "new",
@@ -115328,6 +115356,7 @@
         "new@2335": [
           "shift",
           "ref",
+          "bless",
           "GetTagTable",
           "ClearOptions",
           "SetNewGroups"
@@ -115475,6 +115504,7 @@
           "Warn"
         ],
         "DoSetFromFile@4141": [
+          "print",
           "SetNewValuesFromFile",
           "Infile",
           "scalar",
@@ -115492,6 +115522,7 @@
           "length",
           "CreateDirectory",
           "Open",
+          "print",
           "Warn",
           "close",
           "undef"
@@ -115511,13 +115542,15 @@
           "EncodeBase64"
         ],
         "Exit@333": [
+          "print",
           "ReadMode",
           "ReadKey",
           "exit",
           "shift"
         ],
         "FileNotFound@4481": [
-          "shift"
+          "shift",
+          "Warn"
         ],
         "FilenameSPrintf@4646": [
           "undef",
@@ -115579,8 +115612,10 @@
           "SetWindowTitle",
           "undef",
           "length",
+          "Warn",
           "FilenameSPrintf",
           "Exists",
+          "print",
           "SplitFileName",
           "Options",
           "keys",
@@ -115588,7 +115623,6 @@
           "lc",
           "Array",
           "hex",
-          "print",
           "close",
           "Unlink"
         ],
@@ -115778,20 +115812,20 @@
           "Exists",
           "ref",
           "SlurpFile",
+          "print",
           "SetNewValue",
           "Options",
           "MyConvertFileName",
           "AbsPath",
           "lc",
-          "print",
           "join",
           "new",
           "OrderedKeys",
+          "split",
           "pop",
           "unshift",
           "FoundTag",
           "all",
-          "map",
           "SetNewValuesFromFile",
           "binmode",
           "GetNewValues",
@@ -115822,7 +115856,8 @@
         ],
         "SetWindowTitle@4213": [
           "shift",
-          "tr"
+          "tr",
+          "printf"
         ],
         "SigCont@368": [],
         "SigInt@363": [
@@ -115864,7 +115899,8 @@
       "perl/mojo/IOLoop.pm": {
         "_id@158": [
           "shift",
-          "md5_sum"
+          "md5_sum",
+          "rand"
         ],
         "_in@165": [
           "scalar",
@@ -116053,6 +116089,7 @@
         ],
         "AWAIT_GET@18": [
           "shift",
+          "die",
           "ref",
           "croak"
         ],
@@ -116283,6 +116320,7 @@
           "path",
           "slurp",
           "encoding",
+          "croak",
           "decode",
           "render"
         ]
@@ -116415,6 +116453,7 @@
         "with_protocols@152": [
           "shift",
           "trim",
+          "split",
           "req",
           "headers",
           "sec_websocket_protocol",
@@ -116428,6 +116467,7 @@
       "perl/spamassassin/AsyncLoop.pm": {
         "_start_lookup@410": [
           "defined",
+          "die",
           "exists",
           "dbg",
           "ref",
@@ -116445,6 +116485,7 @@
           "ref",
           "undef",
           "chomp",
+          "die",
           "bgabort"
         ],
         "bgsend_and_start_lookup@204": [
@@ -116467,6 +116508,7 @@
           "scalar",
           "delete",
           "chomp",
+          "die",
           "sprintf",
           "domain_to_search_list",
           "sed_path",
@@ -116487,7 +116529,8 @@
           "keys",
           "join",
           "abort_remaining_lookups",
-          "chomp"
+          "chomp",
+          "die"
         ],
         "get_lookup@492": [
           "warn"
@@ -116685,7 +116728,8 @@
         "parse_font_size@762": [
           "shift",
           "lc",
-          "exists"
+          "exists",
+          "die"
         ],
         "push_uri@371": [
           "canon_uri",
@@ -116823,6 +116867,7 @@
           "get_macro",
           "symlink",
           "splitpath",
+          "die",
           "set_macro",
           "join",
           "macro_ref"
@@ -116864,6 +116909,7 @@
         ],
         "macro_def@452": [
           "undef",
+          "die",
           "defined"
         ],
         "macro_ref@441": [
@@ -116927,6 +116973,7 @@
           "info",
           "push",
           "print",
+          "die",
           "flush"
         ],
         "delete_metadata@673": [
@@ -116948,10 +116995,12 @@
           "shift",
           "ref",
           "close",
+          "die",
           "defined",
           "exists",
           "push",
-          "unlink"
+          "unlink",
+          "warn"
         ],
         "finish_metadata@713": [
           "defined",
@@ -117053,6 +117102,7 @@
           "index",
           "sysread",
           "length",
+          "die",
           "split",
           "undef",
           "am_running_in_taint_mode",
@@ -117083,7 +117133,8 @@
           "push",
           "delete",
           "ref",
-          "close"
+          "close",
+          "die"
         ],
         "put_metadata@658": [
           "warn",
@@ -117169,7 +117220,6 @@
           "exists",
           "keys",
           "join",
-          "sort",
           "dbg"
         ],
         "finish_parsing@891": [
@@ -117231,6 +117281,7 @@
           "warn",
           "length",
           "print",
+          "die",
           "lint_warn",
           "untaint_var",
           "chomp"
@@ -117483,6 +117534,7 @@
         ],
         "action_depends_on_tags@1644": [
           "ref",
+          "die",
           "uc",
           "defined",
           "get_tag",
@@ -117510,6 +117562,7 @@
           "cname",
           "undef",
           "chomp",
+          "die",
           "info",
           "keys",
           "delete"
@@ -117566,6 +117619,7 @@
           "dbg",
           "set_score_set",
           "have_plugin",
+          "die",
           "delete_fulltext_tmpfile",
           "sprintf",
           "get_names_of_tests_hit",
@@ -117578,6 +117632,7 @@
           "defined",
           "get_pristine",
           "secure_tmpfile",
+          "die",
           "length",
           "syswrite",
           "close",
@@ -117614,6 +117669,7 @@
         "get@2480": [
           "exists",
           "_get",
+          "defined",
           "join"
         ],
         "get_all_hdrs_in_rcvd_index_range@3456": [
@@ -117674,17 +117730,14 @@
           "scalar",
           "keys",
           "push",
-          "join",
-          "sort"
+          "join"
         ],
         "get_names_of_tests_hit@892": [
-          "join",
-          "sort"
+          "join"
         ],
         "get_names_of_tests_hit_with_scores@924": [
           "join",
-          "map",
-          "sort"
+          "map"
         ],
         "get_names_of_tests_hit_with_scores_hash@906": [],
         "get_report@1064": [
@@ -117870,6 +117923,7 @@
         ],
         "_get_cf_pre_files_in_dir@2302": [
           "chomp",
+          "die",
           "_reorder_dir"
         ],
         "_read_cf_pre@1936": [
@@ -117926,6 +117980,7 @@
           "dbg",
           "call_plugins",
           "parse",
+          "undef",
           "new",
           "check",
           "finish",
@@ -117951,6 +118006,8 @@
           "warn",
           "open",
           "read",
+          "print",
+          "die",
           "undef",
           "close",
           "getpwnam",
@@ -117960,6 +118017,7 @@
         "create_locker@447": [
           "am_running_on_windows",
           "chomp",
+          "die",
           "defined"
         ],
         "debug_diagnostics@1556": [
@@ -118025,7 +118083,8 @@
         ],
         "get_loaded_plugins_list@2513": [],
         "get_perl_major_version@2257": [
-          "shift"
+          "shift",
+          "die"
         ],
         "get_pre_files_in_dir@2285": [
           "_get_cf_pre_files_in_dir"
@@ -118043,6 +118102,7 @@
           "read_pre",
           "warn",
           "read_cf",
+          "die",
           "find_rule_support_file",
           "get_and_create_userstate_dir",
           "sed_path",
@@ -118081,6 +118141,7 @@
           "time",
           "init",
           "parse",
+          "undef",
           "new",
           "check",
           "finish",
@@ -118131,6 +118192,7 @@
           "open",
           "read",
           "defined",
+          "die",
           "close",
           "undef",
           "warn"
@@ -118144,6 +118206,7 @@
           "dbg",
           "read",
           "defined",
+          "die",
           "close",
           "undef",
           "parse_scores_only",

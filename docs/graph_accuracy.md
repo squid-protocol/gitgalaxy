@@ -259,9 +259,17 @@ defect. Calls through a trait object or a generic bound resolve to the bodyless 
 declaration, so they count as neither an edge nor `external`. All numbers are "vs
 rust-analyzer".
 
-Measured against rust-analyzer 1.90.0 on serde-rs/json: confident precision 92.1% (469 judged),
-ambiguous 52.3%, recall 39.9%, resolution recall 43.1%; 40 confident links resolve outside the
-repo and 158 end at a function the index has none for. Read from the real index:
+Measured against rust-analyzer 1.90.0 on serde-rs/json: confident precision 93.8% (694 judged),
+ambiguous 60.4%, recall 60.1%, resolution recall 64.9%; 41 confident links resolve outside the
+repo and 207 end at a function the index has none for. Read from the real index:
+
+- **`impl` methods carry no owner** (`class_start` has `struct`/`enum`/`trait` but an `impl` block is
+  a separate span), so `self.m()` had no class to walk and 239 of the first 424 `resolved_outside`
+  edges were `self.` calls into the same file. The resolver now lets a `self` receiver in Rust reach
+  any definition (`_IMPL_SELF_LANGS`: recall 39.9% -> 60.1%, precision 92.1% -> 93.8%). Widening
+  every receiver the same way was tried and rejected: `x.len()` linked to every repo `len`
+  (`external` 40 -> 138, precision down to about 71%). A typed receiver (`de.m()`) and a
+  `Type::new(` path need the impl's type as the owner, a detector change not made here.
 
 - rust-analyzer emits **no `enclosing_range`**, so the adapter reads a fn's extent from the
   source (`scip_callgraph._rust_enclosing`: to the `;` of a bodyless declaration, else through

@@ -276,6 +276,13 @@ def test_the_harness_report_is_built_in_refresh_and_published_by_its_own_main_on
     assert "create-pull-request" not in job and "gh pr merge" not in job
 
 
+def test_the_wiki_names_the_path_the_harness_report_is_published_to():
+    """#4493: the page a reader is pointed at is the directory the workflow publishes."""
+    wiki = (WORKFLOWS.parents[1] / "docs/wiki/05-20-equivalence-harness.md").read_text(encoding="utf-8")
+    assert "/tree/generated/docs/language_status/harness" in wiki
+    assert "docs/language_status/harness" in _code("evidence-refresh.yml").split("--stamp harness-report", 1)[1]
+
+
 def test_the_harness_report_path_is_git_ignored():
     ignored = (WORKFLOWS.parents[1] / ".gitignore").read_text(encoding="utf-8").splitlines()
     assert "docs/language_status/harness/" in ignored

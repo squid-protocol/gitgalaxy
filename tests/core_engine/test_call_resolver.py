@@ -1153,8 +1153,8 @@ def test_global_namespace_static_is_no_repo_edge_3756():
 
 
 def test_other_languages_keep_the_untyped_receiver_rule_3756():
-    # the built-in list is JS/TS/Java/Python/Kotlin only (Ruby/... unmeasured): `get` on a ruby file stays `file`
-    files = _builtin_universe("ruby", "get", "d", "rb")
+    # the built-in list is JS/TS/Java/Python/Kotlin/C#/Ruby only (PHP/Go/... unmeasured): `get` on a php file stays `file`
+    files = _builtin_universe("php", "get", "d", "php")
     row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
     assert row["step"] == "file"
 
@@ -1195,6 +1195,29 @@ def test_kotlin_non_builtin_method_and_known_receivers_stay_confident_4991():
     row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
     assert row["step"] != "receiver"
     assert row["resolution"] in CONFIDENT_RESOLUTIONS
+
+
+def test_csharp_and_ruby_builtin_method_on_untyped_receiver_is_ambiguous_4991():
+    cases = {
+        "csharp": ("cs", ("Trim", "Add", "TryGetValue", "Select", "ToString", "Contains")),
+        "ruby": ("rb", ("strip", "each", "map", "include?", "fetch", "nil?")),
+    }
+    for lang, (ext, callees) in cases.items():
+        for callee in callees:
+            files = _builtin_universe(lang, callee, "items", ext)
+            row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+            assert row["step"] == "receiver", (lang, callee)
+            assert row["resolution"] not in CONFIDENT_RESOLUTIONS
+
+
+def test_csharp_and_ruby_non_builtin_method_and_known_receivers_stay_confident_4991():
+    for lang, ext, callee, own in (("csharp", "cs", "Save", "Get"), ("ruby", "rb", "save", "get")):
+        files = _builtin_universe(lang, callee, "repo", ext)
+        assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "file", lang
+        files = _builtin_universe(lang, own, "this", ext, run_owner="Box")
+        row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+        assert row["step"] != "receiver", lang
+        assert row["resolution"] in CONFIDENT_RESOLUTIONS, lang
 
 
 # --- a package split over a module's source sets (Maven / Gradle layout) -------

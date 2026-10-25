@@ -23,6 +23,7 @@ from gitgalaxy.tools.cobol_to_java import cics_task_containers as tc  # noqa: E4
 from gitgalaxy.tools.cobol_to_java import cics_task_faults as tfl  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_taskcontrol as tt  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_web as tw  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_conditions as CN  # noqa: E402
@@ -164,6 +165,27 @@ def test_cicstask_holds_the_task_control_java_once_where_it_sat():
     for method in ("withStartData", "start", "startAt", "startRequest", "runTransid", "delay", "fetch", "freeChild",
                    "retrieve", "cancel", "post", "waitEvent"):  # fmt: skip
         assert re.search(rf"public \S+(?: \S+)? {method}\(", tt.TASKCONTROL_JAVA), method
+
+
+def test_cicstask_holds_the_web_java_once_per_part_where_it_sat():
+    """#5274: the web family is two parts, either side of the task-storage block, each spliced where it sat."""
+    java = forge.CICS_TASK_JAVA
+    for part in (tw.WEB_SESSION_JAVA, tw.WEB_REQUEST_JAVA):
+        assert java.count(part) == 1
+    a = java.index(tw.WEB_SESSION_JAVA)
+    b = java.index(tw.WEB_REQUEST_JAVA)
+    assert a + len(tw.WEB_SESSION_JAVA) < b
+    assert java[:a].endswith("        return new DocumentData(0, 0, doc.length, doc.clone());\n    }\n\n")  # DOCUMENT RETRIEVE
+    mid = java[a + len(tw.WEB_SESSION_JAVA) : b]
+    assert mid.startswith("    // ---- #4771 (register X47): storage CICS acquires") and "acquireReceived" in mid
+    assert "public WebOpened" not in mid and "public WebHeader" not in mid  # the storage block holds no web command
+    assert java[b + len(tw.WEB_REQUEST_JAVA) :].startswith("    /** The transient-data queues the CSD defines")
+    for method in ("webOpenHost", "webOpenUrimap", "webConverse", "webClose", "webSend", "webSendContainer",
+                   "webSendDocument", "webExtract", "extractTcpip", "webReceive"):  # fmt: skip
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tw.WEB_SESSION_JAVA), method
+    for method in ("webReadHeader", "webWriteHeader", "webRetrieve", "webReadParam", "webStartBrowse", "webReadNext",
+                   "webEndBrowse", "webParse"):  # fmt: skip
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tw.WEB_REQUEST_JAVA), method
 
 
 TASK_ENTRIES = ("GGCSTRT", "GGCRTRV", "GGCRUNT", "GGCCHLD", "GGCDLAY", "GGCPOST", "GGCWEVT", "GGCFETCH", "GGCFREE",

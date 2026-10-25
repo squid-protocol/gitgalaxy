@@ -40,3 +40,12 @@ The 0.8 target (720 s) is not reachable inside the 6-runner cap, so the plan tak
 per full sweep, each paying the Db2 start. Still open: re-measure on the next full sweep (both numbers), and whether
 `DB2_MAX_SHARDS` may rise (6 + 6 + plan + det = 14 of the 20-job pool, #5135). #5882 stays open until that sweep meets
 the 15 min and 1.3x numbers.
+
+## Recording slice (2026-10-25)
+
+Db2 seconds were written only by Evidence Refresh's nightly merge (`det-db2-durations-`). A manual full sweep
+(`workflow_dispatch` on main, `db2_cases: all`) also proves every Db2 case, so the `det` job now restores that cache,
+extends it with the Db2 aggregate (`--update-durations --durations durations-db2/...`) and saves it. Pull requests and
+partial case lists never write it. The startup ask (create only the databases a shard uses) was already on main: the pool
+is `min(4, ceil(cases / shards))` databases per shard, restored from the Db2 snapshot cache. Re-measure on the next full
+sweep on main.

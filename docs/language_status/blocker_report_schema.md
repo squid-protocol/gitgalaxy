@@ -90,7 +90,9 @@ customer-side ledger (`estate: customer:EST_xxxxxx`, `side`, `class` in the #505
 ## Not yet (Part of #5054)
 
 A run with the readiness scanner (#4725). The census feed and the CI ingest over each burned estate's report
-(`blocker_estate_feed.py`) are in place.
+(`blocker_estate_feed.py`, nightly in `evidence-refresh.yml`) are in place. The leak scan over the real names of
+CardDemo, GenApp, CBSA and zECS runs on every PR that reaches the ground-truth job
+(`tests/cobol_mainframe/test_blocker_leak_burned_5054.py`); the cics-crucible leg runs in `cics-crucible.yml`.
 
 ## The harness report (#4493)
 

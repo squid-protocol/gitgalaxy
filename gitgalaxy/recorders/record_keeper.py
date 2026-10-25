@@ -237,12 +237,6 @@ def _decorators_json(func: dict) -> str | None:
     return _aligned_json(func, "decorated_by", "decorated_by_qualifiers")
 
 
-# #3496: web_service_data's row fields, in column order (`transaction` is stored
-# as transaction_id: TRANSACTION is an SQL keyword).
-_WEB_SERVICE_FIELDS = ("assistant", "direction", "program", "uri", "request", "response", "interface", "container",
-                       "binding", "document", "transaction")  # fmt: skip
-
-
 class RecordKeeper:
     """
     SQLite Telemetry Recorder.
@@ -1364,31 +1358,7 @@ class RecordKeeper:
         # (core/web_services.py): one row per DFHLS2WS / DFHLS2JS (provider) or
         # DFHWS2LS / DFHJS2LS (requester) step -- the program, its URI, the request /
         # response copybook members, PGMINT, the WSBIND and WSDL / JSON schema.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS web_service_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                assistant TEXT,
-                direction TEXT,
-                program TEXT,
-                uri TEXT,
-                request TEXT,
-                response TEXT,
-                interface TEXT,
-                container TEXT,
-                binding TEXT,
-                document TEXT,
-                transaction_id TEXT,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_web_service_file_id ON web_service_data(file_id);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_web_service_snapshot ON web_service_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, "web_service", _ensure_columns)
 
         # #4457: the COPY ... REPLACING statements no record_data entry carries (a COPY after a section
         # header / FD, or before a section's first entry): one row per statement, `replacing` the JSON
@@ -3020,35 +2990,6 @@ class RecordKeeper:
             ("option", "value", "written", "line_number"),
             "compiler_options",
             lambda o: (o.get("option"), o.get("value"), o.get("written"), int(o.get("line", 0) or 0)),
-        )
-
-        # #3496: web-services assistant steps -- per-file.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "web_service_data",
-            (
-                "assistant",
-                "direction",
-                "program",
-                "uri",
-                "request",
-                "response",
-                "interface",
-                "container",
-                "binding",
-                "document",
-                "transaction_id",
-                "line_number",
-            ),
-            "web_services",
-            lambda w: (
-                *(w.get(c) for c in _WEB_SERVICE_FIELDS),
-                int(w.get("line", 0) or 0),
-            ),
         )
 
         # Synthetic top-level buckets' calls (no function_data row) -- per-file.

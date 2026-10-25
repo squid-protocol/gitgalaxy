@@ -1736,6 +1736,9 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
             return ([name(target, "GG-NAME1"), f"MOVE {1 if area else 0} TO GG-ITEM"]
                     + _call("GGCRETI", args) + ["IF GG-RESP = 0", "    GOBACK", "END-IF"]
                     + _resp(opts, True, labels))  # fmt: skip
+        if verb == "RETURN" and opts.get("TRANSID") and opts.get("RESP"):  # #6271 (X71): a planned fault fails it
+            return ([name(target, "GG-NAME1"), "MOVE 2 TO GG-ITEM"] + _call("GGCRETN", args)
+                    + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
         if verb == "RETURN":
             return [name(target, "GG-NAME1")] + _call("GGCRETN", args) + ["GOBACK"]
         # #4008: a failed XCTL (LENGERR, PGMIDERR) leaves control here, through the condition handling

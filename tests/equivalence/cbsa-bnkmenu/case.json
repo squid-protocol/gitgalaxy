@@ -392,6 +392,37 @@
     }
    ],
    "why": "ENTER: RECEIVE MAP fails INVMPSZ (planned, X71), a failure that is not MAPFAIL -- the program goes on to its abend routine"
+  },
+  {
+   "name": "first-entry-plain-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "first entry: the closing RETURN TRANSID('OMEN') COMMAREA LENGTH(1) RESP fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its A010 abend routine"
+  },
+  {
+   "name": "invalid-action-plain-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "9"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "action 9 (invalid): the closing RETURN TRANSID('OMEN') COMMAREA LENGTH(1) RESP fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its A010 abend routine"
   }
  ],
  "notes": "CBSA's main menu (BNKMENU, transaction OMEN, BMS map BNK1ME of mapset BNK1MAI: the symbolic map is generated from src/base/bms_src/BNK1MAI.bms, @bms/BNK1MAI.cpy). Pseudo-conversational: a first task (EIBCALEN 0) sends the menu; a returning one (its 1-byte COMMAREA) acts on the AID -- PA keys do nothing, PF3 / PF12 end the session, CLEAR clears the screen, ENTER reads the action and either starts the chosen transaction with RETURN TRANSID(...) IMMEDIATE or re-sends the menu with a message, any other key re-sends it with 'Invalid key pressed.'. A planned condition (X71, #6271) drives the failure paths of RECEIVE MAP (INVMPSZ), SEND MAP (INVMPSZ, TSIOERR) and RETURN IMMEDIATE (INVREQ), and so ABEND-THIS-TASK and the ABNDPROC LINKs. Not reached: the failure branches of the plain RETURN TRANSID with RESP, SEND TEXT and SEND CONTROL -- no fault can be injected on those commands yet. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

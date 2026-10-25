@@ -45,6 +45,7 @@ INPUTS = (
     ".github/workflows/det-sweep.yml",
     ".github/workflows/evidence-refresh.yml",
     # tests/tools modules a cobol_mainframe test imports (bare), named as tests
+    "tests/tools/test_blocker_report.py",  # test_blocker_leak_burned_5054.py collects its leak scan (#5054)
     "tests/tools/test_cics_spec_status.py",
     "tests/tools/test_evidence_report.py",
     "tests/tools/test_generated_docs.py",

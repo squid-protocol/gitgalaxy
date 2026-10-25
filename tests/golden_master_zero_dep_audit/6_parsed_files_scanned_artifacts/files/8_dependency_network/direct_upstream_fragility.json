@@ -2516,11 +2516,11 @@
       "perl/ack3_tests/file-permission.t": 10
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": 18,
+      "perl/bugzilla/Auth.pm": 12,
       "perl/bugzilla/Bug.pm": 28,
-      "perl/bugzilla/CGI.pm": 13,
-      "perl/bugzilla/DB.pm": 28,
-      "perl/bugzilla/Requirements.pm": 9
+      "perl/bugzilla/CGI.pm": 9,
+      "perl/bugzilla/DB.pm": 18,
+      "perl/bugzilla/Requirements.pm": 8
     },
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": 49,
@@ -2528,24 +2528,24 @@
       "perl/exiftool/Makefile.PL": 2,
       "perl/exiftool/README": 0,
       "perl/exiftool/RandomAccess.pm": 3,
-      "perl/exiftool/exiftool": 58
+      "perl/exiftool/exiftool": 25
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": 12,
+      "perl/mojo/IOLoop.pm": 10,
       "perl/mojo/Makefile.PL": 3,
-      "perl/mojo/Promise.pm": 8,
-      "perl/mojo/Template.pm": 13,
-      "perl/mojo/WebSocket.pm": 7
+      "perl/mojo/Promise.pm": 6,
+      "perl/mojo/Template.pm": 8,
+      "perl/mojo/WebSocket.pm": 6
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": 17,
+      "perl/spamassassin/AsyncLoop.pm": 11,
       "perl/spamassassin/Bayes.pm": 7,
       "perl/spamassassin/HTML.pm": 9,
       "perl/spamassassin/Makefile.PL": 10,
-      "perl/spamassassin/Message.pm": 14,
-      "perl/spamassassin/Parser.pm": 15,
-      "perl/spamassassin/PerMsgStatus.pm": 26,
-      "perl/spamassassin/SpamAssassin.pm": 54
+      "perl/spamassassin/Message.pm": 10,
+      "perl/spamassassin/Parser.pm": 13,
+      "perl/spamassassin/PerMsgStatus.pm": 16,
+      "perl/spamassassin/SpamAssassin.pm": 36
     },
     "php": {
       "php/SOURCES.md": 0

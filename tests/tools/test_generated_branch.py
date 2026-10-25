@@ -303,7 +303,7 @@ def test_push_head_pushes_cleanly(remote_and_clone, tmp_path):
     remote, clone = remote_and_clone
     gb.publish(["docs/h.csv"], "m", root=clone)
     mine = _generated_checkout(tmp_path, remote, "mine")
-    _commit(mine, "evidence/a.md", "a\n")
+    _commit(mine, "evidence/a.txt", "a\n")
     assert gb.push_head(mine) == git(remote, "rev-parse", "generated")
 
 
@@ -312,12 +312,12 @@ def test_push_head_rebases_over_a_concurrent_writer(remote_and_clone, tmp_path):
     gb.publish(["docs/h.csv"], "m", root=clone)
     mine = _generated_checkout(tmp_path, remote, "mine")
     theirs = _generated_checkout(tmp_path, remote, "theirs")
-    _commit(theirs, "other/b.md", "b\n")
+    _commit(theirs, "other/b.txt", "b\n")
     git(theirs, "push", "-q", "origin", "HEAD:generated")
-    _commit(mine, "evidence/a.md", "a\n")  # built on the old tip: a plain push is rejected
+    _commit(mine, "evidence/a.txt", "a\n")  # built on the old tip: a plain push is rejected
     gb.push_head(mine)
-    assert git(remote, "show", "generated:evidence/a.md") == "a"
-    assert git(remote, "show", "generated:other/b.md") == "b"
+    assert git(remote, "show", "generated:evidence/a.txt") == "a"
+    assert git(remote, "show", "generated:other/b.txt") == "b"
 
 
 def test_push_head_raises_and_leaves_no_rebase_on_a_conflict(remote_and_clone, tmp_path):

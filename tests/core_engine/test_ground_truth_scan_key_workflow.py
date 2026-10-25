@@ -84,7 +84,7 @@ def _import_closure(entry="gitgalaxy.galaxyscope"):
                 )
                 if base:
                     todo += [base] + [f"{base}.{a.name}" for a in n.names]
-    return {str(p.relative_to(ROOT)) for m, p in seen.items() if m.startswith("gitgalaxy")}
+    return {p.relative_to(ROOT).as_posix() for m, p in seen.items() if m.startswith("gitgalaxy")}
 
 
 def test_every_file_the_scan_imports_is_hashed():

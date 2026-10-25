@@ -23118,7 +23118,7 @@
         "downloadSource@368": 3,
         "errOnSourceDownload@343": 0,
         "fullPath@48": 0,
-        "getCopyInfoForSourcePath@133": 4,
+        "getCopyInfoForSourcePath@133": 3,
         "getCopyInfosForSourcePaths@117": 1,
         "getFilenameForDownload@347": 1,
         "isExistingDirectory@543": 0,
@@ -23367,15 +23367,15 @@
     "dockerfile/moby/builder/remotecontext": {
       "dockerfile/moby/builder/remotecontext/archive.go": {
         "Close@22": 0,
-        "FromArchive@50": 3,
-        "Hash@98": 3,
+        "FromArchive@50": 1,
+        "Hash@98": 2,
         "Remove@90": 1,
         "Root@86": 0,
         "convertPathError@26": 0,
         "normalize@119": 0
       },
       "dockerfile/moby/builder/remotecontext/detect.go": {
-        "Detect@31": 5,
+        "Detect@31": 3,
         "FullPath@177": 0,
         "StatAt@168": 1,
         "newArchiveRemote@47": 2,

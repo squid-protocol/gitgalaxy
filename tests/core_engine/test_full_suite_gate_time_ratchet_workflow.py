@@ -67,11 +67,13 @@ SLOWEST_SEEN_MIN = {
 
 
 def _legs():
-    import json
-    import re
+    """#5919: the legs are planned (suite_shard_plan.py --gate), not typed in the workflow."""
+    import sys
 
-    text = (WORKFLOWS / "full-suite-gate.yml").read_text(encoding="utf-8")
-    return [json.loads(m) for m in re.findall(r"\{\"os\":[^{}]*\}", text)]
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import suite_shard_plan
+
+    return suite_shard_plan.gate_plan(suite_shard_plan.load_durations())["matrix"]
 
 
 def test_the_pytest_step_times_out_before_its_job_so_a_stall_keeps_its_log():

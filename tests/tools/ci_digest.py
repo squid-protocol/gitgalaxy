@@ -239,17 +239,53 @@ def knock_on_kind(name: str, kind: str, ex: dict[str, Any], kinds: dict[str, str
     return kind
 
 
-def main_failures(api: pr_check.Api, lookback: int = 3) -> set[str]:
+MAIN_QUERY = """
+query($owner: String!, $name: String!) {
+  rateLimit { cost }
+  repository(owner: $owner, name: $name) {
+    ref(qualifiedName: "refs/heads/main") { target { ... on Commit { oid
+      parents(first: 1) { nodes { oid } }
+      @@SUITES@@
+    } } }
+  }
+}""".replace("@@SUITES@@", pr_check.SUITES_SELECTION)
+
+
+def main_tip(
+    api: pr_check.Api, graphql: pr_check.GraphQL | None = None
+) -> tuple[dict[str, Any], list[dict[str, Any]]] | None:
+    """(main's newest commit as REST's {sha, parents}, its check runs), or None when unreadable (#6534: one GraphQL
+    query when `graphql` is given, the two REST reads when it fails or comes back incomplete)."""
+    if graphql:
+        owner, name = REPO_SLUG.split("/")
+        try:
+            c = graphql(MAIN_QUERY, {"owner": owner, "name": name})["repository"]["ref"]["target"]
+            runs = pr_check.runs_from_suites(pr_check.whole(c["checkSuites"]))
+            return {"sha": c["oid"], "parents": [{"sha": x["oid"]} for x in c["parents"]["nodes"]]}, runs
+        except (SystemExit, KeyError, TypeError, AttributeError, ValueError):
+            pass
+    try:
+        commit = api(f"repos/{REPO_SLUG}/commits/main")
+        return commit, pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{commit['sha']}/check-runs", "check_runs")
+    except (SystemExit, KeyError, TypeError):
+        return None
+
+
+def main_failures(
+    api: pr_check.Api,
+    lookback: int = 3,
+    graphql: pr_check.GraphQL | None = None,
+    tip: tuple[dict[str, Any], list[dict[str, Any]]] | None = None,
+) -> set[str]:
     """The checks failing on main's newest commit (#4790): a PR failing the same check inherited it from main.
     Basal persistence: when main's tip commit just landed and its checks are still pending (or not yet registered),
     walk up to `lookback` first-parent commits on main so checks not yet completed on tip retain their last known
-    completed main status instead of causing a false 'real' failure during the post-merge CI window."""
-    try:
-        commit = api(f"repos/{REPO_SLUG}/commits/main")
-        sha = commit["sha"]
-        runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
-    except (SystemExit, KeyError, TypeError):
+    completed main status instead of causing a false 'real' failure during the post-merge CI window.
+    `tip`: main_tip's answer, when the pass already read it."""
+    tip = tip or main_tip(api, graphql)
+    if tip is None:
         return set()
+    commit, runs = tip
     failed, decided = _completed_names(runs)
     pending = {x.rsplit(" (", 1)[0] for x in pr_check.classify(runs, [])["pending"]}
     parents = commit.get("parents") or []
@@ -273,18 +309,21 @@ def main_failures(api: pr_check.Api, lookback: int = 3) -> set[str]:
     return failed
 
 
-def main_green(api: pr_check.Api) -> tuple[str, set[str]]:
+def main_green(
+    api: pr_check.Api,
+    graphql: pr_check.GraphQL | None = None,
+    tip: tuple[dict[str, Any], list[dict[str, Any]]] | None = None,
+) -> tuple[str, set[str]]:
     """(main's newest sha, the checks completed green on exactly that commit) (#5484). Tip only, no look-back: a check
     still pending on the tip is not green yet, so a PR waiting on main keeps waiting. Unreadable: ("", set())."""
-    try:
-        sha = api(f"repos/{REPO_SLUG}/commits/main")["sha"]
-        runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
-    except (SystemExit, KeyError, TypeError):
+    tip = tip or main_tip(api, graphql)
+    if tip is None:
         return "", set()
+    commit, runs = tip
     c = pr_check.classify(runs, [])
     failed, _ = _completed_names(runs)
     pending = {x.rsplit(" (", 1)[0] for x in c["pending"]}
-    return sha, set(c["passed"]) - failed - pending
+    return commit["sha"], set(c["passed"]) - failed - pending
 
 
 def first_attempt(api: pr_check.Api, job_id: int) -> bool:
@@ -301,11 +340,15 @@ def digest(
     logs: Logs = job_log,
     on_main: set[str] | None = None,
     flaky: set[str] | None = None,
+    pr: dict[str, Any] | None = None,
+    runs: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    """`pr`, `runs`: the pull request and its head's check runs when the caller already read them (#6534)."""
     on_main = main_failures(api) if on_main is None else on_main
-    pr = api(f"repos/{REPO_SLUG}/pulls/{n}")
+    pr = api(f"repos/{REPO_SLUG}/pulls/{n}") if pr is None else pr
     sha = pr["head"]["sha"]
-    runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
+    if runs is None:
+        runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
     failed = pr_check.failed_names(runs)
     newest: dict[str, dict[str, Any]] = {}
     for r in sorted(runs, key=lambda r: r.get("id", 0)):

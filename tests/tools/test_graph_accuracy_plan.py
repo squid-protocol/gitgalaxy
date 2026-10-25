@@ -4,6 +4,7 @@ Both directions: a gate whose inputs changed is never skipped (shared adapters, 
 language_standards file all plan every gate), and a language with no gate installs nothing.
 """
 
+import ast
 import re
 import subprocess
 import sys
@@ -32,7 +33,9 @@ def gates(*files):
         ("haskell", {IMPORT, SPAN}),
         ("dart", {IMPORT, SPAN}),
         ("swift", {IMPORT, SPAN}),
-        ("powershell", {SPAN}),  # no gate and no corpus repo
+        ("powershell", {IMPORT, SPAN}),
+        ("tcl", {IMPORT, SPAN}),
+        ("fortran", {IMPORT, SPAN}),
         ("cobol", {SPAN}),
         ("objectivec", {IMPORT, SPAN}),  # corpus key is `objective-c`
         ("python", {IMPORT, SPAN, "call-python"}),
@@ -49,7 +52,7 @@ def test_a_language_standard_selects_its_own_gates(lang, expected):
     assert gates(f"{LANG}{lang}.py") == expected
 
 
-@pytest.mark.parametrize("lang", ["haskell", "dart", "swift", "powershell", "cobol", "pli"])
+@pytest.mark.parametrize("lang", ["haskell", "dart", "swift", "powershell", "tcl", "fortran", "cobol", "pli"])
 def test_a_language_without_a_call_gate_needs_no_toolchain(lang):
     sel = gap.resolve(gap.wrap(gates(f"{LANG}{lang}.py")))
     assert [k for k in gap.TOOLCHAINS if sel[k] == "true"] == []
@@ -150,9 +153,23 @@ def workflow():
 
 def test_every_gate_the_lanes_run_is_a_planned_gate(workflow):
     run = next(s["run"] for s in workflow[1]["jobs"]["graph-accuracy-audit"]["steps"] if "lanes" in s.get("name", ""))
-    named = set(re.findall(r"\bgate ([a-z][\w-]*) python", run))
+    named = {re.sub(r"-\d$", "", n) for n in re.findall(r"\bgate ([a-z][\w-]*) python", run)}  # import-graph-N: subsets
     assert named == ALL  # span anchoring is the merge gate
     assert "want span-anchoring" in run
+
+
+def test_the_import_graph_subsets_cover_every_language_exactly_once(workflow):
+    run = next(s["run"] for s in workflow[1]["jobs"]["graph-accuracy-audit"]["steps"] if "lanes" in s.get("name", ""))
+    subsets = [m.split() for m in re.findall(r'^\s*IG\d="([^"]+)"', run, re.M)]
+    assert len(subsets) == 3
+    langs = sorted(lang for sub in subsets for lang in sub)
+    tree = ast.parse((TOOLS / "import_graph_accuracy.py").read_text(encoding="utf-8"))
+    all_langs = next(
+        ast.literal_eval(n.value) for n in tree.body if isinstance(n, ast.Assign) and n.targets[0].id == "LANGS"
+    )
+    assert langs == sorted(all_langs)  # no gap (an unmeasured language) and no overlap (a double run)
+    for n in (1, 2, 3):
+        assert f"import_graph_accuracy.py $IG{n} " in run
 
 
 def test_every_toolchain_step_is_gated_on_a_planned_switch(workflow):

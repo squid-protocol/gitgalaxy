@@ -255,7 +255,7 @@ ROLLUP_PARTS = {  # roll-up check -> (workflow, the part jobs whose check-run na
     "ground-truth": ("mainframe-ground-truth.yml", {"ground-truth-part", "tested-tree", "plan", "ground-truth-warm"}),
     "det": ("det-sweep.yml", {"plan", "shard", "db2", "detmut"}),
 }
-MATRIX_SAMPLE = {"matrix.group": "1", "matrix.shard": "1/4"}
+MATRIX_SAMPLE = {"matrix.group": "1", "matrix.shard": "1/4", "needs.shard-plan.outputs.splits": "3"}  # fmt: skip
 
 
 def rendered_job_names(workflow):
@@ -269,7 +269,7 @@ def rendered_job_names(workflow):
     names = {}
     for job_id, job in jobs.items():
         name = re.sub(
-            r"\$\{\{\s*([\w.]+)\s*\}\}", lambda m: MATRIX_SAMPLE.get(m.group(1), m.group(0)), job.get("name", job_id)
+            r"\$\{\{\s*([\w.-]+)\s*\}\}", lambda m: MATRIX_SAMPLE.get(m.group(1), m.group(0)), job.get("name", job_id)
         )
         assert "${{" not in name, f"{workflow}: job {job_id} name {name!r} has an expression this test cannot render"
         names[job_id] = name
@@ -329,3 +329,74 @@ def test_every_upstream_pattern_matches_a_job_its_dependent_needs():  # #5276
                 needs = jobs[dep_id].get("needs") or []
                 needs = {needs} if isinstance(needs, str) else set(needs)
                 assert ups & needs, f"{workflow}: {dep_id} needs none of {sorted(ups)}"
+
+
+# --- #6534: main's tip through one GraphQL query ---------------------------------------------------------------------
+
+
+def _run(i, name, status="completed", conclusion="success"):
+    return {"id": i, "name": name, "status": status, "conclusion": conclusion, "app": {"slug": "github-actions"},
+            "details_url": f"https://x/{i}", "html_url": f"https://x/{i}"}  # fmt: skip
+
+
+def _main_graphql(runs, parents=(), cut=False):
+    nodes = [
+        {"databaseId": r["id"], "name": r["name"], "status": r["status"].upper(),
+         "conclusion": r["conclusion"].upper() if r["conclusion"] else None, "detailsUrl": r["details_url"],
+         "url": r["html_url"]}
+        for r in runs
+    ]  # fmt: skip
+    suite = {"createdAt": None, "app": {"slug": "github-actions"},
+             "checkRuns": {"totalCount": len(nodes) + cut * 1000, "nodes": nodes}}  # fmt: skip
+    tip = {"oid": "m" * 40, "parents": {"nodes": [{"oid": x} for x in parents]},
+           "checkSuites": {"totalCount": 1, "nodes": [suite]}}  # fmt: skip
+    seen = []
+
+    def graphql(query, variables):
+        assert query == cd.MAIN_QUERY
+        seen.append(variables)
+        return {"repository": {"ref": {"target": tip}}}
+
+    graphql.seen = seen
+    return graphql
+
+
+def _no_rest(path):
+    raise AssertionError(f"unexpected REST read {path}")
+
+
+def test_main_green_and_failures_read_one_query_and_match_rest():
+    runs = [_run(1, "det"), _run(2, "ruff", conclusion="failure"), _run(3, "mypy", "in_progress", None)]
+    gql = _main_graphql(runs)
+    tip = cd.main_tip(_no_rest, gql)
+    assert cd.main_green(_no_rest, graphql=gql, tip=tip) == cd.main_green(fake_api([], main_runs=runs))
+    assert (
+        cd.main_failures(_no_rest, graphql=gql, tip=tip) == {"ruff"} == cd.main_failures(fake_api([], main_runs=runs))
+    )
+    assert len(gql.seen) == 1  # both functions share the one read
+
+
+def test_a_tip_with_pending_checks_walks_back_through_rest_from_the_graphql_parent():
+    parent = "p" * 40
+    gql = _main_graphql([_run(1, "det", "queued", None)], parents=[parent])
+
+    def api(path):
+        assert parent in path
+        return {"parents": []} if path.endswith(parent) else {"check_runs": [_run(9, "det", conclusion="failure")]}
+
+    assert cd.main_failures(api, graphql=gql) == {"det"}
+
+
+def test_an_unreadable_or_cut_main_query_reads_through_rest():
+    runs = [_run(1, "det")]
+
+    def fail(q, v):
+        raise SystemExit("x")
+
+    for gql in (fail, _main_graphql(runs, cut=True)):
+        assert cd.main_green(fake_api([], main_runs=runs), graphql=gql) == ("m" * 40, {"det"})
+    assert cd.main_green(_no_rest_unreadable, graphql=fail) == ("", set())
+
+
+def _no_rest_unreadable(path):
+    raise SystemExit("gh api failed")

@@ -391,6 +391,76 @@ def test_swift_resolves_by_target_and_declared_type_never_by_path(tmp_path):
     ]
 
 
+@needs_ts
+def test_powershell_import_module_dot_source_and_using_module(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "a/m.psm1": "",
+            "a/x.ps1": "",
+            "bin/P.psd1": "",
+            "lib/h.ps1": "",
+        },
+    )
+    src = (
+        b"Import-Module $PSScriptRoot\\..\\bin\\P.psd1 -DisableNameChecking\n"
+        b"Import-Module -Name 'm.psm1'\n"
+        b"Import-Module P\n"
+        b'$r = . "$PSScriptRoot/x.ps1"\n'
+        b". $f\n"
+        b"using module m\n"
+        b"using namespace System.IO\n"
+        b"# . lib/h.ps1\n"
+        b'$s = "Import-Module lib/h.ps1"\n'
+        b"Import-Module -Force $root\\lib\\h.ps1\n"
+        b"Import-Module Other\n"
+    )
+    assert iga.powershell_imports(src, "a/z.ps1", g) == [
+        {"bin/P.psd1"},
+        {"a/m.psm1"},
+        {"bin/P.psd1"},
+        {"a/x.ps1"},
+        {"a/m.psm1"},
+        {"lib/h.ps1"},
+        set(),
+    ]
+
+
+@needs_ts
+def test_tcl_source_literal_tail_and_package_provide(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "m/main.tcl": "",
+            "m/foo.tcl": "package provide foo::bar 1.0\n",
+            "m/q.tcl": "",
+            "m/a.tcl": "",
+            "m/x/y.tcl": "",
+            "tm/baz-1.2.tm": "",
+        },
+    )
+    src = (
+        b"source [file join $d x y.tcl]\n"
+        b"source $d/a.tcl\n"
+        b'source "q.tcl"\n'
+        b"package require -exact foo::bar 1.0\n"
+        b"package require baz\n"
+        b"package require Tcl 8.6\n"
+        b"source [lindex $a 0]\n"
+        b"# source a.tcl\n"
+        b'puts "source a.tcl"\n'
+    )
+    assert iga.tcl_imports(src, "m/main.tcl", g) == [
+        {"m/x/y.tcl"},
+        {"m/a.tcl"},
+        {"m/q.tcl"},
+        {"m/foo.tcl"},
+        {"tm/baz-1.2.tm"},
+        set(),
+        set(),
+    ]
+
+
 def test_groovy_resolves_by_package_and_declared_type_never_by_path(tmp_path):
     g = _group(
         tmp_path,
@@ -455,3 +525,105 @@ def test_groovy_resolves_by_package_and_declared_type_never_by_path(tmp_path):
         set(),
         set(),
     ]
+
+
+def test_fortran_resolves_by_module_name_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            # the file name means nothing: the module is found by what the file declares
+            "src/a_file.f90": "module Alpha_Mod\ncontains\n  module subroutine s()\n  end subroutine\nend module Alpha_Mod\n",
+            "src/beta.F90": "! module ghost\nmodule beta\nend module beta\n",
+            "src/dup1.f90": "module twin\nend module\n",
+            "lib/dup2.f90": "module twin\nend module\n",
+            "old/fixed.f": "c module cmt\n      module fixedmod\n      end module\n",
+            "src/sub.f90": "submodule (alpha_mod) child\nend submodule\n",
+            "src/iso_fortran_env.f90": "module iso_fortran_env\nend module\n",
+            "inc/consts.inc": "integer :: k\n",
+            "src/notes.txt": "module notmine\n",
+        },
+    )
+    src = (
+        b"program p\n"
+        b"  use alpha_mod\n"  # case-insensitive
+        b"  use :: beta\n"
+        b"  USE beta, only: x\n"
+        b"  use, non_intrinsic :: beta\n"
+        b"  use, intrinsic :: iso_fortran_env\n"  # the standard's module: no edge
+        b"  use twin\n"  # declared in two files
+        b"  use fixedmod\n"
+        b"  use ghost\n"  # only in a comment
+        b"  use child\n"  # a submodule is not usable
+        b"  use notmine\n"  # not a Fortran file
+        b"  use missing_mod\n"
+        b"  ! use beta\n"
+        b"  use_count = 3\n"  # not a use statement
+        b"  module_x = 1\n"
+        b"  include 'consts.inc'\n"
+        b"  include 'absent.inc'\n"
+        b"end program\n"
+    )
+    assert iga.fortran_imports(src, "inc/main.f90", g) == [
+        {"src/a_file.f90"},
+        {"src/beta.F90"},
+        {"src/beta.F90"},
+        {"src/beta.F90"},
+        set(),
+        {"src/dup1.f90", "lib/dup2.f90"},
+        {"old/fixed.f"},
+        set(),
+        set(),
+        set(),
+        set(),
+        {"inc/consts.inc"},
+        set(),
+    ]
+
+
+def test_fortran_fixed_form_comment_column_one_is_not_a_statement(tmp_path):
+    g = _group(tmp_path, {"a.f90": "module a\nend module\n"})
+    src = b"c      use a\n*      use a\n      use a\n"
+    assert iga.fortran_imports(src, "old/x.f", g) == [{"a.f90"}]
+
+
+def test_objc_framework_include_finds_the_header_in_a_framework_the_repo_builds(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "Kit.podspec": "Pod::Spec.new do |s|\n  s.header_dir = 'KitHeaders'\nend\n",
+            "Source/A.h": "",
+            "Source/Sub/B+Private.h": "",
+            "Source/C.mm": "",
+            "Other/Kit/D.h": "",
+            "Elsewhere.xcodeproj/project.pbxproj": "",
+            "Source/E.h": "",
+        },
+    )
+    src = (
+        b"#import <Kit/A.h>\n"  # the framework is `Kit.podspec`
+        b"#import <KitHeaders/B+Private.h>\n"  # header_dir, a flattened path tail
+        b"#include <Kit/C.h>\n"  # absent header
+        b"#import <Kit/D.h>\n"  # a real path wins: Other/Kit/D.h
+        b"#import <Elsewhere/E.h>\n"  # `Elsewhere.xcodeproj`
+        b"#import <Foundation/Foundation.h>\n"  # not this repo's framework
+        b"#import <vector>\n"
+        b'#import "A.h"\n'
+        b"@import UIKit;\n"
+    )
+    expect = [
+        {"Source/A.h"},
+        {"Source/Sub/B+Private.h"},
+        set(),
+        {"Other/Kit/D.h"},
+        {"Source/E.h"},
+        set(),
+        set(),
+        {"Source/A.h"},  # `"A.h"` quoted: not beside the file, so by suffix
+    ]
+    for rel in ("inc/main.m", "inc/main.mm", "inc/main.h"):
+        assert iga.EXTRACTORS["objective-c"](src, rel, g) == expect
+
+
+def test_c_does_not_use_the_objc_framework_rule(tmp_path):
+    g = _group(tmp_path, {"Kit.podspec": "", "Source/A.h": ""})
+    assert iga.EXTRACTORS["c"](b"#include <Kit/A.h>\n", "x.c", g) == [set()]

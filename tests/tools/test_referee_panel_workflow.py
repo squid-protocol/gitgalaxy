@@ -99,7 +99,11 @@ def test_the_upstream_refs_are_pinned():
     assert not re.search(r"git (clone|pull)\b|--branch", TEXT), "install by fetching the pinned sha, not a moving ref"
 
 
+@pytest.mark.skipif(
+    sys.platform != "linux", reason="the Install Cobrix step is bash for the ubuntu runner; on Windows `bash` is WSL"
+)
 def test_cobrix_classpath_jars_are_copied_into_the_referee_cache(tmp_path):
+    import os
     import subprocess
 
     run = _step("Install Cobrix")["run"]
@@ -110,6 +114,7 @@ def test_cobrix_classpath_jars_are_copied_into_the_referee_cache(tmp_path):
     lines = run.splitlines()
     start = next(i for i, ln in enumerate(lines) if ln.lstrip().startswith("mkdir -p") and "cobrix-lib" in ln)
     fragment = "\n".join(lines[start:])
+    # relative POSIX paths: an absolute Windows path (C:\\...) holds the ':' the fragment splits on
     m2 = tmp_path / "m2"
     m2.mkdir()
     jars = [m2 / f"dep{i}.jar" for i in range(3)]
@@ -117,12 +122,13 @@ def test_cobrix_classpath_jars_are_copied_into_the_referee_cache(tmp_path):
         j.write_text("")
     refs = tmp_path / "refs"
     refs.mkdir()
-    (refs / "cobrix.m2.cp").write_text(":".join(str(j) for j in jars))
+    (refs / "cobrix.m2.cp").write_text(":".join(f"m2/{j.name}" for j in jars))
     subprocess.run(
         ["bash", "-euo", "pipefail", "-c", fragment],
         check=True,
-        env={"REFEREES_DIR": str(refs), "PATH": "/usr/bin:/bin"},
+        cwd=tmp_path,
+        env={**os.environ, "REFEREES_DIR": "refs"},
     )
     assert sorted(p.name for p in (refs / "cobrix-lib").glob("*.jar")) == [j.name for j in jars]
     cp = (refs / "cobrix.cp").read_text().strip().split(":")
-    assert cp == [str(refs / "cobrix-lib" / j.name) for j in jars]
+    assert cp == [f"refs/cobrix-lib/{j.name}" for j in jars]

@@ -1078,8 +1078,10 @@ jobs:
           SHA: ${{ steps.asof.outputs.sha }}
         run: |
           cd gitgalaxy
+          # --crucible (#5054): the cics-crucible clone above is surveyed as one more burned corpus (+~1 min), so the
+          # blocker feed below reads its rows and its leak scan runs on it
           PYTHONPATH="$PWD" python tests/tools/cics_census.py survey --baseline --no-census --no-fetch \
-            --sha "$SHA" --root "$GG_SCRATCH"
+            --sha "$SHA" --root "$GG_SCRATCH" --crucible "$GITHUB_WORKSPACE/cics-crucible"
           {
             echo "## Translation survey (${SHA::12}, burned / pinned corpora, no census)"
             echo '```'
@@ -1089,6 +1091,47 @@ jobs:
           # the survey's cache dir minus the translator snapshot (src/) and logs: what `cics_census.py publish` reads
           mkdir -p "$RUNNER_TEMP/blockers-cache/census-cache"
           rsync -a --exclude src --exclude '*.log' "$GG_SCRATCH/census-cache/$SHA" "$RUNNER_TEMP/blockers-cache/census-cache/"
+
+      # #5054 done-when 4: each burned estate's survey through blocker_report + blocker_ingest, as a customer's report
+      # would go (rows match the blockers, known signatures link, hashes stable per salt, no source name leaks). Reads
+      # the survey just cached. A failure (a leak, or an estate whose scan did not run) never holds back the records:
+      # the step is continue-on-error and the job's last step fails the run on `steps.feed.outcome == 'failure'`.
+      - name: Blocker report and ingest per burned estate (#5054)
+        id: feed
+        if: steps.survey.outcome == 'success'
+        continue-on-error: true
+        env:
+          GG_SCRATCH: ${{ runner.temp }}/scratch
+          SHA: ${{ steps.asof.outputs.sha }}
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/blocker_estate_feed.py "$GG_SCRATCH/census-cache/$SHA" \
+            --out "$RUNNER_TEMP/blocker-feed" --extra-root "$GITHUB_WORKSPACE/cics-crucible" --require-sources
+          cat "$RUNNER_TEMP/blocker-feed/feed.md" >> "$GITHUB_STEP_SUMMARY"
+          # the unmatched rows ride the blockers-survey artifact to publish-blockers, which lays them on `generated` for the tick
+          cp "$RUNNER_TEMP/blocker-feed/feed.json" "$RUNNER_TEMP/blockers-cache/blocker_feed.json"
+
+      # #4493: the equivalence harness reports on itself (coverage, run status per program, input generation, blockers phrased
+      # as fixes). It is built here, where the pinned corpora are on disk (the layouts are read from them), from the survey
+      # just taken, and rides in the blockers-survey artifact to publish-blockers. A failure never holds back the survey, the
+      # records or the blockers publish.
+      - name: Build the harness report (#4493)
+        id: harness
+        if: steps.survey.outcome == 'success'
+        continue-on-error: true
+        env:
+          GG_SCRATCH: ${{ runner.temp }}/scratch
+          SHA: ${{ steps.asof.outputs.sha }}
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/harness_report.py --survey "$GG_SCRATCH/census-cache/$SHA" \
+            --estate "burned estates" --out "$RUNNER_TEMP/blockers-cache/harness"
+          {
+            echo "## Harness report (${SHA::12}, burned / pinned corpora)"
+            echo '```'
+            sed -n 1,12p "$RUNNER_TEMP/blockers-cache/harness/harness_report.md"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Keep the survey for the blockers publisher (#4863)
         if: steps.survey.outcome == 'success'
@@ -1345,9 +1388,9 @@ jobs:
           echo "::warning title=Evidence refresh::auto-merge could not be enabled (checks never registered); PR #$PR left open"
 
       - name: Fail when a re-proof failed
-        if: needs.records.result != 'success' || needs.det-mutation.result != 'success' || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || needs.db2.result == 'failure'
+        if: needs.records.result != 'success' || needs.det-mutation.result != 'success' || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || steps.feed.outcome == 'failure' || needs.db2.result == 'failure'
         run: |
-          echo "::error title=Evidence refresh::a record's proof, the det sweep or the Db2 job failed or could not run -- see the summary"
+          echo "::error title=Evidence refresh::a record's proof, the det sweep, the Db2 job or the blocker-feed leak scan failed or could not run -- see the summary"
           exit 1
 
   # #4863 (step 3, one survey a night, one writer): the refresh job's translation survey of main is also the nightly blockers
@@ -1425,7 +1468,7 @@ jobs:
         with:
           path: main
           ref: ${{ needs.refresh.outputs.sha }}
-          persist-credentials: false
+          persist-credentials: true  # the harness step pushes to `generated` from this checkout; no PR code runs here
 
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -1458,6 +1501,8 @@ jobs:
           mkdir -p "$RUNNER_TEMP/generated-preview"
           (cd main && PYTHONPATH="$PWD" python tests/tools/cics_census.py publish --sha "$SHA" \
             --root "$RUNNER_TEMP/blockers-survey" --into "$RUNNER_TEMP/generated-preview")
+          mkdir -p "$RUNNER_TEMP/generated-preview/docs/language_status/blockers"
+          [ ! -f "$RUNNER_TEMP/blockers-survey/blocker_feed.json" ] || cp "$RUNNER_TEMP/blockers-survey/blocker_feed.json" "$RUNNER_TEMP/generated-preview/docs/language_status/blockers/"
           {
             echo "## Blockers publish PREVIEW (${SHA::12}, ref ${GITHUB_REF_NAME}; generated NOT written)"
             echo '```'
@@ -1465,6 +1510,15 @@ jobs:
             echo '```'
             tail -1 "$RUNNER_TEMP/generated-preview/docs/language_status/blockers/blockers_history.jsonl" | cut -c1-300
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Preview the harness report (not main, nothing is pushed) (#4493)
+        if: github.ref != 'refs/heads/main'
+        run: |
+          src="$RUNNER_TEMP/blockers-survey/harness"
+          [ -f "$src/harness_report.md" ] || { echo "::warning title=Harness report::the refresh job built no harness report"; exit 0; }
+          mkdir -p "$RUNNER_TEMP/generated-preview/docs/language_status/harness"
+          cp "$src/harness_report.md" "$src/harness_report.json" "$RUNNER_TEMP/generated-preview/docs/language_status/harness/"
+          echo "Harness report PREVIEW built (generated NOT written)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Keep the preview
         if: github.ref != 'refs/heads/main'
@@ -1496,6 +1550,8 @@ jobs:
           fi
           (cd main && PYTHONPATH="$PWD" python tests/tools/cics_census.py publish --sha "$SHA" \
             --root "$RUNNER_TEMP/blockers-survey" --into "$GITHUB_WORKSPACE/generated")
+          mkdir -p generated/docs/language_status/blockers
+          [ ! -f "$RUNNER_TEMP/blockers-survey/blocker_feed.json" ] || cp "$RUNNER_TEMP/blockers-survey/blocker_feed.json" generated/docs/language_status/blockers/
           cd generated
           [ -f GENERATED_FROM ] || echo "Generated output only -- never edit by hand." > GENERATED_FROM
           if ! grep -q "docs/language_status/blockers/" GENERATED_FROM; then
@@ -1508,7 +1564,7 @@ jobs:
           fi
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
             commit -q -m "blockers baseline as of main $SHA"
-          git push -q origin HEAD:generated
+          python ../main/tests/tools/generated_branch.py push-head --root .  # #6563: another writer may have pushed since the fetch
           {
             echo "## Blockers published (${SHA::12})"
             echo '```'
@@ -1516,3 +1572,23 @@ jobs:
             echo '```'
             echo "history: $(wc -l < docs/language_status/blockers/blockers_history.jsonl) lines"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # #4493: its own step, so a harness report problem never blocks the blockers publish above.
+      - name: Publish the harness report to the generated branch (#4493)
+        if: github.ref == 'refs/heads/main'
+        env:
+          SHA: ${{ needs.refresh.outputs.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          src="$RUNNER_TEMP/blockers-survey/harness"
+          [ -f "$src/harness_report.md" ] || { echo "::warning title=Harness report::the refresh job built no harness report"; exit 0; }
+          mkdir -p main/docs/language_status/harness
+          cp "$src/harness_report.md" "$src/harness_report.json" main/docs/language_status/harness/
+          cd main
+          # `main` was checked out with persist-credentials: false (the first run on 2026-10-24 died with "could not read
+          # Username", run 40136742662): hand this one step the job token, for the push only (main-only step, no PR code)
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          python tests/tools/generated_branch.py publish --stamp harness-report \
+            --message "harness report as of main $SHA" \
+            docs/language_status/harness
+          echo "published the harness report from main ${SHA::12}: https://github.com/${GITHUB_REPOSITORY}/tree/generated/docs/language_status/harness" >> "$GITHUB_STEP_SUMMARY"

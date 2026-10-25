@@ -377,13 +377,23 @@ jobs:
         if: needs.plan.outputs.warm != 'false'
         run: tar -C "$GITGALAXY_MAINFRAME_CORPORA" -xzf "$RUNNER_TEMP/scans/corpus-scans.tgz"
 
-      # no warm job and no usable cache: this part scans every corpus itself (the pre-#5559 layout; the busy layout, or a cache evicted since the plan)
+      # no warm job and no usable cache: this part scans itself (the pre-#5559 layout; the busy layout, or a cache evicted since the plan).
+      # #5543: part 1 runs the ledger gate and scans every corpus; any other part scans only the corpora its pytest share reads
+      # (tests/tools/ground_truth_corpora.py). Collection failing leaves no file, which means every corpus.
+      - name: List this part's tests
+        if: needs.plan.outputs.warm == 'false' && steps.scans.outputs.cache-hit != 'true' && matrix.group != 1
+        continue-on-error: true
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python -m pytest --collect-only -q -p no:cacheprovider tests/cobol_mainframe/ \
+            --splits ${{ matrix.parts }} --splitting-algorithm least_duration --group ${{ matrix.group }} > "$RUNNER_TEMP/collected.txt"
+
       - name: Scan the pinned corpora in parallel
         if: needs.plan.outputs.warm == 'false' && steps.scans.outputs.cache-hit != 'true'
         run: |
           cd gitgalaxy
-          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py list | cut -d' ' -f1 \
-            | PYTHONPATH="$PWD" xargs -P 8 -I{} python tests/tools/mainframe_corpus.py scan {}
+          python tests/tools/ground_truth_corpora.py ${{ matrix.group == 1 && '--all' || '' }} --collected "$RUNNER_TEMP/collected.txt" \
+            | PYTHONPATH="$PWD" xargs -r -P 8 -I{} python tests/tools/mainframe_corpus.py scan {}
 
       # the ledger gate runs once per run: in the warm job, or here in part 1 when there is none. History on push / nightly
       # (always calm, so a cache hit lands here): published by publish-history from the artifact this part uploads.

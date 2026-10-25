@@ -396,3 +396,8 @@ gates. A failed plan runs every gate; the check name `graph-accuracy-audit` is u
 language file runs it only when the diff moves something the audit reads: for call-graph, any code line of a baseline language, else a detection
 key; for detection, a `rules` entry (every rule is scored) or a key the lens reads. Comments, `_meta` and underscore-prefixed rules skip it. A hunk
 the planner cannot place, a new file, a non-PR event or a failed plan runs it. The saving is small for detection by construction.
+
+**Tree-sitter audit and history (#6501).** `tree-sitter-accuracy-audit.yml` and `tree-sitter-accuracy-history.yml` also start with a `plan` job
+(`accuracy_audit_plan.py --audit tree-sitter|tree-sitter-history`) that outputs `langs`: a language's file selects that language (an underscore rule
+counts, `_dependency_capture` is read), a baseline file selects its language, a key the lens reads or any shared input selects all; comments and `_meta` select none.
+The history plans the diff since the last successful run, not `github.event.before` (a replaced queued run would drop its push).

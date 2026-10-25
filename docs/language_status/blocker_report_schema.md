@@ -76,11 +76,16 @@ customer-side ledger (`estate: customer:EST_xxxxxx`, `side`, `class` in the #505
   hashes replaced by `KIND_*`, so the customer's salt does not matter); `known unproven: #N` links to #N. A blocker
   with no match gets `issue: null` and a drafted issue body on stdout, for the tick to file.
 - Re-ingesting a report changes nothing; a later engine version appends to `seen_in` ("still open after 3 releases").
+- A row carries the #5051 shape (`summary`, `programs: []`, `refused_by_name: false`; a customer's program names never
+  reach us) and a `status`. A blocker of the same estate that a newer engine version's report no longer lists becomes
+  `closed` with that version in `absent_in`, and reopens if a later report lists it again. Reports are ingested in
+  engine-version order; another estate's rows are never touched. `blocker_ingest.py X --ledger FILE --check` validates
+  a ledger against the #5051 sides and classes.
 
 ## Not yet (Part of #5054)
 
-Feeding `cics_census` blockers into the report, a run with the readiness scanner (#4725), and a CI run of ingest over
-each burned estate's report.
+A run with the readiness scanner (#4725). The census feed and the CI ingest over each burned estate's report
+(`blocker_estate_feed.py`) are in place.
 
 ## The harness report (#4493)
 

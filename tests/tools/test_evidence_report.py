@@ -52,7 +52,7 @@ def tree_fingerprints_computed_once():
     def once(case):
         if case not in seen:
             seen[case] = real(case)
-        return copy.deepcopy(seen[case])
+        return dict(seen[case])  # (stale() only reads it)
 
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(dcl, "fingerprints", once)
@@ -743,6 +743,12 @@ def survey_estate(tmp_path, monkeypatch, stored, now):
     monkeypatch.setattr(er, "OUT", tmp_path / "out")
     monkeypatch.setattr(er, "record_status", dict)
     monkeypatch.setattr(er, "det_coverage", dict)
+    # zecs is in no ledger, and these tests are about the translator's currency: the ledger readers answer "no entry"
+    # at once instead of re-reading and re-fingerprinting the real ledger for every program of every build (#5162)
+    import proof_blockers as pb
+
+    monkeypatch.setattr(pb, "ledger_linked", lambda *a, **k: {})
+    monkeypatch.setattr(pb, "ledger_coverage", lambda *a, **k: None)
     monkeypatch.setattr(er, "translator_now", lambda: {"sha256": now, "files": 3})
     monkeypatch.setattr(er, "translator_at", lambda sha: {"sha256": "OLD", "files": 3})
     measured = er.measure("zecs", rows, [tmp_path / "src"], survey, {})

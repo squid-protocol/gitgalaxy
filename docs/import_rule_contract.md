@@ -122,8 +122,8 @@ namespace, which has no file of its own, so only `using static` and an alias of 
 edge from a `using` to a file named like the namespace's last segment is an open FP shape in the graph comparison
 ledger, not yet ruled on) and Groovy (#3798: `import a.b.*` names a package, so no edge; `import a.b.C`, `as`, `static` forms
 are scored against the files declaring C in a.b, read by pattern on masked text) and Swift (#3798: `import Mod` names a SwiftPM target, so no edge; only `import struct|class|...
-Mod.Name` is scored, against the files of Mod declaring Name; the engine's edge from `import Foundation` to a file named
-`Foundation.swift` is an open FP shape in the same ledger, not yet ruled on); Java and Go, where the
+Mod.Name` is scored, against the files of Mod declaring Name; the engine no longer draws an edge from `import Foundation` to a file named
+`Foundation.swift`, ruled in the same PR); Java and Go, where the
 engine's edge already lands inside the package and nothing disagrees, keep the "any file of the
 package" scoring.
 

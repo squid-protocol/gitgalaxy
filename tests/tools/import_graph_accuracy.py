@@ -87,7 +87,8 @@ RESOLUTION RULES (the language's, never the engine's)
               crate-relative. A path is the deepest module that is a file
               (a/b.rs, a/b/mod.rs under the crate dir), plus, for an item below it,
               what that module's own `use`s of the name and globs mean (re-exports,
-              two hops). `extern crate x` -> x's lib root.
+              two hops). `extern crate x` -> x's lib root. A `[[bin]] path` is a crate
+              root like src/main.rs (ripgrep's crates/core/main.rs).
   perl        `use A::B` / `require A::B` -> a file ending in A/B.pm.
   objective-c the C rule (`#import` is `#include` once); `@import Module;` is a
               framework module, external. `<Fw/X.h>` with no such path in the repo, where Fw is a
@@ -728,7 +729,7 @@ def _cargo(group: Group, d: str) -> dict[str, Any] | None:
     out: dict[str, Any] | None = None
     path = (group.root / d / "Cargo.toml") if group.root is not None else None
     if path is not None and path.is_file():
-        out = {"package": None, "edition": False, "lib": "src/lib.rs", "deps": {}, "ws_deps": {}, "inherit": set()}
+        out = {"package": None, "edition": False, "lib": "src/lib.rs", "deps": {}, "ws_deps": {}, "inherit": set(), "bins": []}
         section = ""
         try:
             text = read_source(path).text
@@ -744,6 +745,8 @@ def _cargo(group: Group, d: str) -> dict[str, Any] | None:
                 out["package"] = kv.group(2)
             if section == "package" and line.strip().startswith("edition"):
                 out["edition"] = True
+            if section == "bin" and kv and kv.group(1) == "path":
+                out["bins"].append(posixpath.normpath(posixpath.join(d, kv.group(2))))
             if section == "lib" and kv and kv.group(1) in ("name", "path"):
                 out["lib_" + kv.group(1)] = kv.group(2)
             dep = _CARGO_DEP_PATH.match(line)
@@ -798,10 +801,11 @@ def _rust_crate(rel: str, group: Group) -> tuple[str, str | None]:
             return join(parts[0], parts[1]), join(parts[0], parts[1], "main.rs")
         return join(parts[0]), None
     lib = join(_cargo(group, pkg)["lib"])
-    for root in (lib, join("src", "main.rs"), join("build.rs")):
+    bins = _cargo(group, pkg)["bins"]
+    for root in (lib, join("src", "main.rs"), join("build.rs"), *bins):
         if root == rel:
             return d, rel
-    for root in (lib, join("src", "main.rs")):
+    for root in (lib, join("src", "main.rs"), *bins):
         rd = posixpath.dirname(root)
         if root in group.files and (not rd or rel.startswith(rd + "/")):
             return rd, root

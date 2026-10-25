@@ -560,7 +560,11 @@ def _expand_import_selectors(text: str, depth: int = 0) -> list[str]:
         brace = part.find("{")
         # A selector group follows a path separator (`a.b.{`, `a::{`, `A\\{`) or
         # opens the item; `${VAR}` (shell, PowerShell) is an expansion, not one.
-        if brace == 0 or (brace > 0 and part[:brace].rstrip()[-1:] not in (".", ":", "\\")):
+        # A part that opens with `{` and closes with its `}` is an unprefixed group
+        # (Rust `use { a::B, c::{D, E} };`, #3798): its items expand with no prefix.
+        if (brace == 0 and not part.endswith("}")) or (
+            brace > 0 and part[:brace].rstrip()[-1:] not in (".", ":", "\\")
+        ):
             brace = -1
         if brace == -1 or depth > 8:
             leaf = re.split(r"\s+as\s+|\s*=>\s*", part)[0].replace("{", "").replace("}", "").strip()

@@ -18,6 +18,7 @@
     {"repo": "zigtools/zls", "commit": "0ea69abdd8f50d81989c00b6a3b9cf8ced7f9522", "language": "zig"},
     {"repo": "rack/rack", "commit": "a9833c8f3bd6b6d1e0ab35de00a1f1a16b5095f5", "language": "ruby"},
     {"repo": "serde-rs/json", "commit": "afdf6fc67247dd7fa4fcde1381e6ecc6bcc7a30e", "language": "rust"},
+    {"repo": "BurntSushi/ripgrep", "commit": "6892bc2b7efe5909cbbeec8f757ed2c4c76b1d30", "language": "rust"},
     {"repo": "libwww-perl/HTTP-Message", "commit": "e16da326d0dbb56162837233f8e8b0e1e55d2309", "language": "perl"},
     {"repo": "plack/Plack", "commit": "9599edbbdcdb4aa913ba00bc4db71cb027fa9c25", "language": "perl"},
     {"repo": "SDWebImage/SDWebImage", "commit": "c3ad5e1a9bf55c9b76d4c362430b5fcded96c502", "language": "objective-c"},

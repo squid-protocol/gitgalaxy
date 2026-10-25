@@ -98,6 +98,8 @@ museum/
 museum_2/
 *.json
 !tests/equivalence/det_sweep_durations.json
+# #6664: the measured seconds the Equivalence E2E shards split by (docs/ci_env_gated_tests.md)
+!tests/equivalence_e2e_durations.json
 # ...except committed regression-check baselines, e.g. dead_key_audit_baseline.json
 # and mypy_audit_baseline.json -- these are source, not generated output.
 !tests/*_baseline.json

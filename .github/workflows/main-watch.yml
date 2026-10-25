@@ -22,6 +22,7 @@ on:
       - "CICS Crucible"
       - "CodeQL Security Scan"
       - "Det Sweep"
+      - "Equivalence E2E"
       - "Estate Crucible"
       - "Evidence Pages"
       - "Evidence Refresh"

@@ -2598,7 +2598,7 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
       "php/wordpress/class-wp-query.php": 12,
-      "php/wordpress/formatting.php": 0,
+      "php/wordpress/formatting.php": 66,
       "php/wordpress/functions.php": 113,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 15,
@@ -4063,7 +4063,7 @@
       "zig/mach/collision.zig": 0,
       "zig/mach/graph.zig": 0,
       "zig/mach/main.zig": 0,
-      "zig/mach/module.zig": 0,
+      "zig/mach/module.zig": 21,
       "zig/mach/testing.zig": 0,
       "zig/mach/win32.zig": 72
     },

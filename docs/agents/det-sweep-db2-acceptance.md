@@ -22,11 +22,21 @@ sweeps took 756 / 476 / 699 s (1.59x) and the jobs 914 / 673 / 913 s. Case durat
 example `genapp-lgucus01` 66 s recorded, 28 s measured; `genapp-lgipdb01` 126 s recorded, 168 s measured), and one
 shard also holds the 445 s `cbsa-bankdata` case, so a shard's wall time is not its sum of case seconds over `--jobs`.
 
-## Remaining gap (not fixed here)
+## Headroom slice (landed, awaiting a full sweep)
 
-The planner picks the fewest shards whose planned slowest fits `DB2_TARGET_S` (15 min), so a typical 3-shard plan sits at
-the budget and run-to-run noise pushes about 3 runs in 4 over it. Candidate slice, in `tests/tools/det_sweep_plan.py`
-and `ci_shard_plan.py`: plan against a target below 15 min (headroom for the noise), and place the longest case first so
-a long pole does not share a shard with an even load. The trade is one more runner per full sweep (pool cap
-`DB2_MAX_SHARDS` = 6), so it needs the sizing in the PR body per `.claude/rules/ci-workflows.md`. #5882 stays open until
-a full sweep after such a change meets both numbers.
+`ci_shard_plan.shards_for` takes a `headroom`; the Db2 shards pass `det_sweep_plan.DB2_HEADROOM` = 0.8, so they plan to
+12 min instead of 15. `shard_seconds` also floors a shard at its longest case (the 432 s `cbsa-bankdata` is not split
+across `--jobs`); `timeout_minutes` and the `db2_timeout` use it too. Longest-first inside a shard was already
+#5947 (`det_port.py run`) and across shards `proof_sweep.split_cases`.
+
+Replay on the committed durations (81 Db2 cases, `DB2_SETUP_S` 420, `--jobs 4`):
+
+| Plan | Db2 shards | Planned slowest shard | Planned shard work (s) |
+|---|---|---|---|
+| headroom 1.0 (before) | 4 | 858 s | 1738 / 1753 / 1748 / 1750 |
+| headroom 0.8 (now) | 6 (the cap) | 852 s | 1167 / 1160 / 1167 / 1166 / 1166 / 1163 |
+
+The 0.8 target (720 s) is not reachable inside the 6-runner cap, so the plan takes the cap. Cost: two more Db2 runners
+per full sweep, each paying the Db2 start. Still open: re-measure on the next full sweep (both numbers), and whether
+`DB2_MAX_SHARDS` may rise (6 + 6 + plan + det = 14 of the 20-job pool, #5135). #5882 stays open until that sweep meets
+the 15 min and 1.3x numbers.

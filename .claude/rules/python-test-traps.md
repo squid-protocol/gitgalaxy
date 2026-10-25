@@ -83,3 +83,7 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   guard `iterdir()` on case dirs (#5192).
 * When two PRs change the same wait/timeout bound, grep for mirrored planner constants (`det_sweep_plan.DB2_WAIT_S`)
   and update both (#6508).
+* **A step that `cd`s into a checkout and pushes needs THAT checkout's `persist-credentials: true`:** a token on a sibling checkout is not used (#6556).
+* **Shepherd GraphQL reads:** `timelineItems.totalCount` counts every item type (use `filteredCount` to detect truncation of a filtered connection); `mergeStateStatus` is often `UNKNOWN` (re-read over REST and keep the record only if the head sha matches) (#6539).
+* **`test_shepherd_gh.py`:** a test running `sg.main(['reconcile'])` with the real `gh_api` must monkeypatch `ci_digest.main_tip` and `sg._graphql_prs`, or it shells out to `gh` (#6546).
+* **A "does not hang" spawn test starts its timeout after the child signals readiness,** not at `p.start()` (#6585).

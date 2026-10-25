@@ -23,6 +23,7 @@ from gitgalaxy.tools.cobol_to_java import cics_task_containers as tc  # noqa: E4
 from gitgalaxy.tools.cobol_to_java import cics_task_faults as tfl  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_taskcontrol as tt  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_tdqueues as tq  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_web as tw  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
@@ -167,6 +168,19 @@ def test_cicstask_holds_the_task_control_java_once_where_it_sat():
         assert re.search(rf"public \S+(?: \S+)? {method}\(", tt.TASKCONTROL_JAVA), method
 
 
+def test_cicstask_holds_the_td_queue_java_once_where_it_sat():
+    """#5274: the transient-data queue family is spliced between the web request part and the FORMATTIME code."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tq.TDQUEUES_JAVA) == 1
+    a = java.index(tq.TDQUEUES_JAVA)
+    assert java[:a].endswith(tw.WEB_REQUEST_JAVA)
+    assert java[a + len(tq.TDQUEUES_JAVA) :].startswith("    /** EXEC CICS FORMATTIME's condition")
+    for method in ("withTdQueues", "withTdQueueTypes", "withTdQueueAttributes", "setTdQueueOpenStatus", "inquireTdQueue",
+                   "setTdQueueTriggerLevel", "setTdQueueEnableStatus", "writeqTd", "readqTd", "deleteqTd"):  # fmt: skip
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tq.TDQUEUES_JAVA), method
+    assert "public record TdResult(" in tq.TDQUEUES_JAVA
+
+
 def test_cicstask_holds_the_web_java_once_per_part_where_it_sat():
     """#5274: the web family is two parts, either side of the task-storage block, each spliced where it sat."""
     java = forge.CICS_TASK_JAVA
@@ -175,7 +189,9 @@ def test_cicstask_holds_the_web_java_once_per_part_where_it_sat():
     a = java.index(tw.WEB_SESSION_JAVA)
     b = java.index(tw.WEB_REQUEST_JAVA)
     assert a + len(tw.WEB_SESSION_JAVA) < b
-    assert java[:a].endswith("        return new DocumentData(0, 0, doc.length, doc.clone());\n    }\n\n")  # DOCUMENT RETRIEVE
+    assert java[:a].endswith(
+        "        return new DocumentData(0, 0, doc.length, doc.clone());\n    }\n\n"
+    )  # DOCUMENT RETRIEVE
     mid = java[a + len(tw.WEB_SESSION_JAVA) : b]
     assert mid.startswith("    // ---- #4771 (register X47): storage CICS acquires") and "acquireReceived" in mid
     assert "public WebOpened" not in mid and "public WebHeader" not in mid  # the storage block holds no web command

@@ -126,7 +126,14 @@ def test_the_aggregate_accepts_a_skipped_warm_job_only_when_the_plan_needed_none
 def test_the_layout_follows_the_queue_and_the_cache():
     """#5543: calm = warm + 4 parts (no warm on a cache hit); busy = 2 self-warming parts; only a pull request goes busy."""
     calm = cl.choose("pull_request", "full", False, 0)
-    assert (calm["layout"], calm["warm"], calm["parts"], calm["gate_in_part"]) == ("calm", True, PARTS, False)
+    assert (calm["layout"], calm["warm"], calm["parts"], calm["gate_in_part"]) == ("calm", False, PARTS, True)
+    for event in (
+        "push",
+        "schedule",
+        "workflow_dispatch",
+    ):  # #5543: only main-side runs keep the warm job (it saves the cache)
+        main_side = cl.choose(event, "full", False, 0)
+        assert (main_side["warm"], main_side["parts"], main_side["gate_in_part"]) == (True, PARTS, False), event
     hit = cl.choose("pull_request", "full", True, cl.BUSY_ABOVE)  # at the threshold is still calm
     assert (hit["layout"], hit["warm"], hit["parts"], hit["gate_in_part"]) == ("calm", False, PARTS, True)
     for cached in (False, True):

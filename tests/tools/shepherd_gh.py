@@ -373,6 +373,8 @@ def trusted_bots(api: Api) -> set[str]:
 
 
 def _perm(api: Api, login: str) -> str | None:
+    if login in trusted_bots(api):
+        return "write"  # trusted bots (e.g. GitHub App) are authorized actors for shepherd:merge
     try:
         return api(f"repos/{REPO_SLUG}/collaborators/{login}/permission").get("permission")
     except SystemExit:

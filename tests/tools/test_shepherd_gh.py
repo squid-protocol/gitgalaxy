@@ -1624,3 +1624,23 @@ def test_trusted_bots_come_from_the_workflow_then_the_tokens_own_account(monkeyp
         "squid-protocol"
     }  # the PAT, as before
     assert sg.trusted_bots(no_user) == set()  # nothing trusted: no marker counts (never everyone)
+
+
+def test_trusted_bots_have_write_permission_without_collaborator_query(monkeypatch):
+    monkeypatch.setenv(sg.TRUSTED_BOTS_ENV, "squid-shepherd[bot], squid-protocol")
+
+    def failing_api(path, *a, **kw):
+        raise AssertionError(f"unexpected API call: {path}")
+
+    assert sg._perm(failing_api, "squid-shepherd[bot]") == "write"
+    assert sg._perm(failing_api, "squid-protocol") == "write"
+    monkeypatch.delenv(sg.TRUSTED_BOTS_ENV)
+    assert (
+        sg._perm(
+            lambda path, *a, **kw: {"permission": "read"}
+            if "collaborators" in path
+            else {"login": "someone-else"},
+            "alice",
+        )
+        == "read"
+    )

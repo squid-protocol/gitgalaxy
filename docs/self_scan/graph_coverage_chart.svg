@@ -757,17 +757,17 @@
 <text class="n" x="1240" y="733">repos=1</text>
 </g>
 <text class="lang" x="22" y="773.0">rust</text>
-<g><title>rust imports: precision 100.0% of 153, recall 100.0% of 211; corpus serde-rs/json</title>
+<g><title>rust imports: precision 99.5% of 419, recall 99.3% of 814 (raw 99.5% / 99.3%; 2 shapes without a verdict); corpus BurntSushi/ripgrep, serde-rs/json</title>
 <text class="pr" x="120" y="766.5">Precision</text>
 <rect class="track" x="166" y="759" width="110" height="8" rx="2"/>
-<rect x="166" y="759" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="767">100.0%</text>
+<rect x="166" y="759" width="109.5" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="767">99.5%*</text>
 <text class="pr" x="120" y="778.5">Recall</text>
 <rect class="track" x="166" y="771" width="110" height="8" rx="2"/>
-<rect x="166" y="771" width="110.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="779">100.0%</text>
-<text class="n" x="324" y="767">n=211 imports</text>
-<text class="n" x="324" y="779">repos 1 · files 71</text>
+<rect x="166" y="771" width="109.2" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="779">99.3%*</text>
+<text class="n" x="324" y="767">n=814 imports</text>
+<text class="n" x="324" y="779">repos 2 · files 173</text>
 </g>
 <g><title>rust callee names: precision 99.6% of 7,865, recall 99.9% of 7,570</title>
 <text class="pr" x="426" y="766.5">Precision</text>
@@ -793,16 +793,16 @@
 <text class="n" x="936" y="767">n=1,084 edges</text>
 <text class="n" x="936" y="779">vs rust-analyzer 1.90.0</text>
 </g>
-<g><title>rust hubs: 90% / 0.88 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>rust hubs: 90% / 0.65 (repos=2) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="766.5">overlap@10</text>
 <rect class="track" x="1090" y="759" width="110" height="8" rx="2"/>
-<rect x="1090" y="759" width="99.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<rect x="1090" y="759" width="99.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="1205" y="767">90%</text>
 <text class="pr" x="1038" y="778.5">Spearman</text>
 <rect class="track" x="1090" y="771" width="110" height="8" rx="2"/>
-<rect x="1090" y="771" width="96.6" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="1205" y="779">0.88</text>
-<text class="n" x="1240" y="767">repos=1</text>
+<rect x="1090" y="771" width="71.5" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="1205" y="779">0.65</text>
+<text class="n" x="1240" y="767">repos=2</text>
 </g>
 <rect class="stripe" x="16" y="786" width="1212" height="34"/>
 <text class="lang" x="22" y="807.0">scala</text>

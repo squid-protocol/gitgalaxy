@@ -14,9 +14,9 @@
    "pct": 98.9
   },
   "branches": {
-   "covered": 1070,
+   "covered": 1074,
    "total": 1171,
-   "pct": 91.4
+   "pct": 91.7
   },
   "cases_measured": 24,
   "cases": 97

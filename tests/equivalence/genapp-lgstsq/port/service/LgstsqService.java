@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.cics.CicsTask;
 import com.gitgalaxy.modernized.dto.contract.LgstsqDfhcommarea;
-import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
 import com.gitgalaxy.modernized.messaging.TempStorage;
 import com.gitgalaxy.modernized.messaging.TransientData;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,19 +100,17 @@ public class LgstsqService {
         wsRecvLen = trunc4(wsRecvLen + 5);
 
         String writeMsg = sysid + fillerX + msg;   // WRITE-MSG, 95 bytes
-        // LENGTH(WS-RECV-LEN) bytes of WRITE-MSG. A LENGTH past the 95 bytes would write the storage that follows
-        // WRITE-MSG, which no oracle here vouches for: refused, as the oracle's stub refuses it (X6).
-        if (wsRecvLen > writeMsg.length()) {
-            throw new PastFrom("WRITEQ TD LENGTH " + wsRecvLen + " > FROM's " + writeMsg.length() + " bytes: not modelled");
-        }
-        String sent = wsRecvLen <= 0 ? "" : writeMsg.substring(0, wsRecvLen);
+        // LENGTH(WS-RECV-LEN) bytes of WRITE-MSG. A LENGTH past the 95 bytes writes WRITE-MSG and then spaces up to
+        // LENGTH, as the oracle's stub does (register X6, ASSUMED: CICS writes the storage that follows).
+        String sent = wsRecvLen <= 0 ? "" : pad(writeMsg, wsRecvLen);
 
         // MAINLINE: EXEC CICS WRITEQ TD QUEUE(STDQ-NAME) FROM(WRITE-MSG) LENGTH(WS-RECV-LEN) -- RESP never tested
         // TODO: LENGTH below 1 is LENGERR on CICS (nothing written); writeqTd cannot express that, "" is passed.
         task.writeqTd(stdqName, sent);
 
         // MAINLINE: EXEC CICS WRITEQ TS QUEUE(STSQ-NAME) FROM(WRITE-MSG) NOSUSPEND LENGTH(WS-RECV-LEN) -- RESP never tested
-        task.writeqTs(stsqName, sent.getBytes(CobolRecords.charset()));
+        // A TS item is the region's bytes: CICS's default CCSID 037, as the oracle's stub writes it (#4528)
+        task.writeqTs(stsqName, sent.getBytes(java.nio.charset.Charset.forName("IBM037")));
 
         // MAINLINE: IF WS-FLAG = 'R' EXEC CICS SEND TEXT FROM(FILLER-X) WAIT ERASE LENGTH(1) FREEKB
         if (flag == 'R') {

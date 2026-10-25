@@ -130,8 +130,8 @@ public class Lgapvs01Service {
 
     /** WRITE-ERROR-MESSAGE paragraph. */
     private void writeErrorMessage(CicsTask task, Lgapvs01Dfhcommarea ca, int wsResp, int wsResp2) {
-        // EXEC CICS ASKTIME ABSTIME(WS-ABSTIME)
-        long abstime = task.asktime();
+        // EXEC CICS ASKTIME ABSTIME(WS-ABSTIME): WS-ABSTIME is PIC S9(8) COMP, so only the low 8 digits are kept
+        long abstime = task.asktime() % 100_000_000L;
         // EXEC CICS FORMATTIME ABSTIME MMDDYYYY(WS-DATE) TIME(WS-TIME): no DATESEP / TIMESEP
         String wsDate = CicsTask.formatDate(abstime, "MMDDYYYY", "");
         String wsTime = CicsTask.formatTime(abstime, "");
@@ -166,13 +166,16 @@ public class Lgapvs01Service {
         if (len > 0) {
             String whole = commareaText(ca);
             LgstsqDfhcommarea msg = new LgstsqDfhcommarea();
+            String caData;
             if (len < 91) {
                 // MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA (space padded)
-                msg.setCaData(fit(whole, 0, len) + " ".repeat(90 - len));
+                caData = fit(whole, 0, len) + " ".repeat(90 - len);
             } else {
                 // MOVE DFHCOMMAREA(1:90) TO CA-DATA
-                msg.setCaData(fit(whole, 0, 90));
+                caData = fit(whole, 0, 90);
             }
+            // CA-ERROR-MSG is FILLER 'COMMAREA=' then CA-DATA: LGSTSQ's 90 data bytes are its first 90
+            msg.setCaData(fit("COMMAREA=" + caData, 0, 90));
             // EXEC CICS LINK PROGRAM('LGSTSQ') COMMAREA(CA-ERROR-MSG) LENGTH(LENGTH OF CA-ERROR-MSG)
             task.link("LGSTSQ", msg, 99);
         }

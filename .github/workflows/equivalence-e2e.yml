@@ -16,6 +16,8 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
+  push:
+    branches: [main]  # #5954 slice 4: post-merge, planned from the pushed files like a PR (a docs-only merge starts no shard)
   schedule:
     - cron: "17 6 * * *"  # nightly: Maven Central and the pinned GnuCOBOL package drift (as cics-crucible.yml)
   workflow_dispatch:
@@ -25,7 +27,7 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}  # a later merge must not cancel the run that checks the earlier one
 
 jobs:
   plan:
@@ -52,6 +54,8 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
           EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
         run: |
           args=(--event "$EVENT" --github-output "$GITHUB_OUTPUT")
           if [ "$EVENT" = "pull_request" ]; then
@@ -61,6 +65,12 @@ jobs:
             count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
             args+=(--labels "$labels" --files)
             if [ "${#files[@]}" -ge "$count" ]; then args+=("${files[@]}"); fi
+          fi
+          if [ "$EVENT" = "push" ]; then
+            # the files this push brought in, whole or not at all (the compare API lists at most 300): a short list is `run`
+            # an empty list (API failure, too many files) is `run`: the planner fails open
+            mapfile -t files < <(gh api "repos/$REPO/compare/$BEFORE...$AFTER" --jq 'if (.files | length) < 300 then .files[] | .filename, (.previous_filename // empty) else empty end' || true)
+            args+=(--files "${files[@]}")
           fi
           python3 tests/tools/equivalence_e2e_plan.py "${args[@]}" > e2e-plan.json || { echo "mode=run" >> "$GITHUB_OUTPUT"; echo '{"mode": "run", "reason": "the planner failed"}' > e2e-plan.json; }
           {

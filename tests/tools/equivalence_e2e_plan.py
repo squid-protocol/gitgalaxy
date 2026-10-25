@@ -11,7 +11,8 @@ a PR should pay only when it can move a proof. Gated through the #6278 change cl
          gitgalaxy/, tests/cobol_mainframe, tests/equivalence, a tests/tools module the ground-truth job's tests reach
          (`change_classifier.runs_in_ground_truth`), a docs / agent-config file those tests open (`readers_of`), the
          workflow itself, the dependency pins; also the `shepherd:full` label, an unreadable or empty diff, and every event
-         that is not a pull_request (main push, nightly, manual).
+         that is neither a pull_request nor a push to main (nightly, manual). A main push (post-merge, #5954 slice 4) is
+         planned from the files the push brought in, as a PR is.
 * `none` anything else: the job reports success without starting a shard.
 
 It fails open: any doubt is `run`. Prints JSON {mode, reason}; with --github-output appends mode=none|run. Stdlib only.
@@ -87,7 +88,7 @@ def in_area(path: str, refs: dict[str, list[str]] | None = None) -> bool:
 
 
 def plan(files: list[str], event: str, labels: tuple[str, ...] = (), refs: dict | None = None) -> dict:
-    if event != "pull_request":
+    if event not in ("pull_request", "push"):
         return {"mode": "run", "reason": f"{event}: always the shards"}
     if FULL_LABEL in labels:
         return {"mode": "run", "reason": f"label {FULL_LABEL}"}

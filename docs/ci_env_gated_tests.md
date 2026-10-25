@@ -10,7 +10,7 @@ reads each shard's `--ignore` flags, so a file the shards ignore must be named b
 listed file's needs from its skip reasons; this page carries one row per listed file with those needs.
 
 `equivalence-e2e.yml` runs on a PR only when `tests/tools/equivalence_e2e_plan.py` (the #6278 change classifier) finds a
-COBOL / mainframe / equivalence path in the diff; the nightly and a manual run always run it. Its `equivalence-e2e` check
+COBOL / mainframe / equivalence path in the diff; a push to main (post-merge) is planned the same way from the pushed files; the nightly and a manual run always run it. Its `equivalence-e2e` check
 sums the run's job seconds into runner-minutes in the step summary.
 
 Needs: `docker` = the GnuCOBOL oracle image; `jdk_maven` = JDK 17 and Maven; `db2` = the Db2 container;

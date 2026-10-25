@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `03a2e6f9d` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `b09b737d1` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -20,11 +20,11 @@ Reachable denominator: 123 programs (129 - 2 - 2 - 2). These programs stay in th
 |---|---|---|---|---|---|---|---|---|---|---|
 | `aws-mainframe-modernization-carddemo` | 44 | 2 | 0 | 2 | 6 | 34 | 0 | 42 (95.5%) | 34 (77.3%) | 0 |
 | `cics-async-api-credit-card-application-example` | 10 | 0 | 0 | 0 | 0 | 10 | 0 | 10 (100.0%) | 10 (100.0%) | 0 |
-| `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 7 | 9 | 15 | 0 | 31 (100.0%) | 15 (48.4%) | 0 |
-| `cics-genapp` | 31 | 0 | 1 | 0 | 10 | 20 | 0 | 30 (96.8%) | 20 (64.5%) | 0 |
+| `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 7 | 8 | 16 | 0 | 31 (100.0%) | 16 (51.6%) | 0 |
+| `cics-genapp` | 31 | 0 | 1 | 0 | 5 | 25 | 0 | 30 (96.8%) | 25 (80.6%) | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 2 | 1 | 0 | 1 | 0 | 2 (33.3%) | 1 (16.7%) | 0 |
 | `zecs` | 7 | 2 | 0 | 2 | 0 | 3 | 0 | 5 (71.4%) | 3 (42.9%) | 0 |
-| **Total** | 129 | 6 | 3 | 12 | 25 | 83 | 0 | 120 (93.0%) | 83 (64.3%) | 0 |
+| **Total** | 129 | 6 | 3 | 12 | 19 | 89 | 0 | 120 (93.0%) | 89 (69.0%) | 0 |
 
 L0 inventoried, L1 translated whole, L2 executed equal, L3 every paragraph, L4 every net branch, L5 translator
 mutants caught (`definition_of_done.md`).
@@ -52,14 +52,14 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 |---|---|---|---|
 | 0 | 0 | 0 | 0 |
 | 1 | 9 | 9 | 8 |
-| 2 | 70 | 69 | 41 |
+| 2 | 70 | 69 | 47 |
 | 3 | 16 | 14 | 9 |
 | 4 | 21 | 19 | 16 |
 | untagged | 13 | 9 | 9 |
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-25T17:45:04Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-25T18:30:04Z.
 
 - `scope:core`: 26 open, 174 closed.
 - Milestone 28: 6 open, 97 closed.

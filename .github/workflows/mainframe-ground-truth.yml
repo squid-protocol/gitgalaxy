@@ -435,7 +435,15 @@ jobs:
           # #5133: this part's share of tests/cobol_mainframe/ (the four groups together are the whole directory); #5543: the
           # scans are unpacked from the warm job, so no test pays a cold scan
           PYTHONPATH="$PWD" python -m pytest -q -n auto --durations=25 tests/cobol_mainframe/ \
-            --splits ${{ matrix.parts }} --splitting-algorithm least_duration --group ${{ matrix.group }}
+            --splits ${{ matrix.parts }} --splitting-algorithm least_duration --group ${{ matrix.group }} --junitxml="$RUNNER_TEMP/junit.xml"
+
+      - name: "TEMP measurement: upload junit"
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: junit-gt-${{ matrix.group }}
+          path: ${{ runner.temp }}/junit.xml
+          if-no-files-found: warn
 
       # #5166 part B: the per-test time gate, as in smoke-test.yml (a test over 15 s needs a slow marker or a baseline entry;
       # a baselined one fails over its recorded time x 2.5). smoke-test ignores tests/cobol_mainframe on a PR, so this is the

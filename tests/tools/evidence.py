@@ -1430,6 +1430,30 @@ def _parse_shard(text: str) -> tuple[int, int]:
     return i, n
 
 
+def ledgered_facade_only(key: str, rec: dict[str, Any] | None, ledger: Path | None = None) -> str | None:
+    """#6680: the issue that owns a record's failure when that failure is exactly its ledgered java-facade set
+    (tests/equivalence/facade_baseline.json): runTask side passed, the facade ran, and the failing scenarios equal the
+    ledger's. Anything else (a new or fixed failure, a Java or run error) returns None and keeps failing."""
+    proof = (rec or {}).get("proof") or {}
+    fc = proof.get("facade") or {}
+    if (
+        proof.get("verdict") != "not-proven"
+        or proof.get("java_failed")
+        or fc.get("verdict") != "not-proven"
+        or fc.get("error")
+    ):
+        return None
+    path = ledger or CASES / "facade_baseline.json"
+    entry = (json.loads(path.read_text(encoding="utf-8")).get("cases") or {}).get(key) if path.is_file() else None
+    if (
+        not entry
+        or not entry.get("issue")
+        or sorted(f["scenario"] for f in fc.get("failed") or []) != sorted(entry["scenarios"])
+    ):
+        return None
+    return str(entry["issue"])
+
+
 def _selected(args: argparse.Namespace, say: Callable[[str], None] = print) -> list[Target]:
     """The targets a prove / refresh run proves: what the keys, --skip-db2 / --only-db2 and --stale leave, then (#4744) the
     --shard slice of that. Every shard sees the same tree, so the same list: slice I of N is every N-th record of it, in
@@ -1517,8 +1541,12 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"{t.key}: NOT RUN -- {got['error'].splitlines()[-1] if got['error'] else 'no report'}")
                 continue
             st = got["status"]
-            failed += ((load(t) or {}).get("proof") or {}).get("verdict") != "proven"  # the proof itself failed
-            print(f"{t.key}: {st['status']} {'; '.join(st['reasons'])}")
+            rec = load(t)
+            owner = ledgered_facade_only(t.key, rec)  # #6680: a failure already ledgered is reported, not new
+            failed += ((rec or {}).get("proof") or {}).get("verdict") != "proven" and owner is None
+            print(
+                f"{t.key}: {st['status']} {'; '.join(st['reasons'])}" + (f" (ledgered under {owner})" if owner else "")
+            )
         write_pages()
         return 1 if failed else 0
     if args.cmd == "migrate":

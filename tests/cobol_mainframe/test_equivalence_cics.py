@@ -334,7 +334,10 @@ def test_get64_and_put64_container_become_the_base_commands_stub_calls(base):
 
 
 def test_get64_container_set_is_refused_by_name():
-    for bad in ("GET64 CONTAINER(C) SET(PTR) FLENGTH(WS-N)", "GET64 CONTAINER(C) SET(PTR) FLENGTH(WS-N) INTOCCSID(1140)"):
+    for bad in (
+        "GET64 CONTAINER(C) SET(PTR) FLENGTH(WS-N)",
+        "GET64 CONTAINER(C) SET(PTR) FLENGTH(WS-N) INTOCCSID(1140)",
+    ):
         with pytest.raises(ec.Unsupported, match="64-bit pointer"):
             ec.translate_command(bad)
 

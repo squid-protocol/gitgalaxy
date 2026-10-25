@@ -494,7 +494,7 @@
    "cbsa-bnk1cac": [
     25,
     25,
-    56,
+    64,
     97
    ],
    "cbsa-bnk1cac-generated": [
@@ -506,7 +506,7 @@
    "cbsa-bnk1cca": [
     25,
     25,
-    29,
+    33,
     41
    ],
    "cbsa-bnk1cca-generated": [
@@ -518,7 +518,7 @@
    "cbsa-bnk1ccs": [
     33,
     33,
-    113,
+    122,
     143
    ],
    "cbsa-bnk1ccs-generated": [
@@ -542,7 +542,7 @@
    "cbsa-bnk1dac": [
     31,
     31,
-    44,
+    49,
     60
    ],
    "cbsa-bnk1dac-generated": [
@@ -560,7 +560,7 @@
    "cbsa-bnk1tfn": [
     28,
     28,
-    53,
+    58,
     72
    ],
    "cbsa-bnk1tfn-generated": [
@@ -932,7 +932,7 @@
    "genapp-lgipvs01": [
     1,
     1,
-    4,
+    6,
     6
    ],
    "genapp-lgipvs01-linked": [
@@ -2355,7 +2355,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "7ae5a95b190a86c4b25e66bc63921c2480318976",
+   "sha": "72d7d4027d63be4addb5382d14556d7e4f7b8f2e",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
@@ -11155,8 +11155,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 7ae5a95b190a86c4b25e66bc63921c2480318976",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 7ae5a95b190a86c4b25e66bc63921c2480318976",
+   "python tests/tools/cics_census.py survey --baseline --sha 72d7d4027d63be4addb5382d14556d7e4f7b8f2e",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 72d7d4027d63be4addb5382d14556d7e4f7b8f2e",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -11176,13 +11176,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "7ae5a95b190a86c4b25e66bc63921c2480318976",
+   "sha": "72d7d4027d63be4addb5382d14556d7e4f7b8f2e",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
    }
   },
-  "translator_commit": "7ae5a95b190a86c4b25e66bc63921c2480318976",
+  "translator_commit": "72d7d4027d63be4addb5382d14556d7e4f7b8f2e",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

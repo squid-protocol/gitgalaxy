@@ -1116,6 +1116,13 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
                 return [*ret_pre, f"{ind}int[] {rr} = {call};",
                         f"{ind}if ({rr}[0] == 0) {{ caBack.run(); throw new Goback(); }}",
                         *self.outcome(opts, f"{rr}[0]", f"{rr}[1]", ind)]  # fmt: skip
+            if opts.get("TRANSID") and "RESP" in opts:  # #6271 (X71): a planned INVREQ / LENGERR returns to the program
+                tid = self.name(_arg(opts["TRANSID"]))
+                ret_pre, call = self._return_call("returnTransidResp", tid, opts, ind, g)
+                rr = g.tmpname("rr")
+                return [*ret_pre, f"{ind}int[] {rr} = {call};",
+                        f"{ind}if ({rr}[0] == 0) {{ caBack.run(); throw new Goback(); }}",
+                        *self.outcome(opts, f"{rr}[0]", f"{rr}[1]", ind)]  # fmt: skip
             if "TRANSID" in opts or "COMMAREA" in opts:
                 tid = self.name(_arg(opts["TRANSID"])) if opts.get("TRANSID") else "null"
                 ret_pre, call = self._return_call("returnTransid", tid, opts, ind, g)

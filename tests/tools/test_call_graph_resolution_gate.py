@@ -359,8 +359,7 @@ def test_clang_callgraph_parses_a_file_naming_a_platform_macro_once_more_per_pla
         "#endif\n"
     )
     (tmp_path / "user.c").write_text(
-        "int apple_only(void);\nint fallback(void);\n"
-        "int user(void) { return apple_only() + fallback(); }\n"  # 3
+        "int apple_only(void);\nint fallback(void);\nint user(void) { return apple_only() + fallback(); }\n"  # 3
     )
     # a file that names no platform macro is parsed once, as Linux
     (tmp_path / "plain.c").write_text("int linux_only(void);\nint plain(void) { return linux_only(); }\n")

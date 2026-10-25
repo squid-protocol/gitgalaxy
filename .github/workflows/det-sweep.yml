@@ -27,7 +27,7 @@ name: Det Sweep
 # Balancing (#4847): the shards are balanced by the durations file, which every run restores from the newest
 # nightly's cache (`durations-cache/`, saved by the nightly `det` job from the shards' measured seconds) and
 # falls back to the committed tests/equivalence/det_sweep_durations.json on a miss. The Db2 cases' seconds come from
-# Evidence Refresh's nightly Db2 merge (cache `det-db2-durations-`, merged in by the plan; #5882: the nightly here
+# Evidence Refresh's nightly Db2 merge, and a manual full sweep on main (cache `det-db2-durations-`, merged in by the plan; #5882: the nightly here
 # proves no Db2 case, so they were never measured).
 # Timing (#5882): every shard writes shard.json (its cases, planned seconds, unmeasured cases) and timing.json (the
 # epoch of each phase: job start, image / Db2 ready, sweep start / end); `det` renders them planned-vs-measured
@@ -815,6 +815,17 @@ jobs:
         if: github.event_name == 'schedule' && steps.durations.outputs.cache-matched-key != ''
         run: python3 tests/tools/det_sweep_timing.py merge-durations durations-cache/det_sweep_durations.json tests/equivalence/det_sweep_durations.json  # #5882: the committed entries the cache lacks are kept
 
+      # #5882: a manual full sweep on main proves every Db2 case, so its measured seconds extend the Db2 durations
+      # (Evidence Refresh's nightly is the other writer). Main only: a cache saved on a branch or PR ref is read by no one.
+      - name: Restore the newest measured Db2 durations (manual full sweep on main, #5882)
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-db2
+          key: det-db2-durations-${{ github.run_id }}  # never an exact hit: restore-keys takes the newest saved one
+          restore-keys: |
+            det-db2-durations-
+
       # #5862: a skipped detmut (a draft, the nightly, a dispatch) passes; a stale ledger in this PR's cases fails `det`.
       - name: A stale det mutation ledger fails the required check (#5862)
         if: needs.detmut.result == 'failure'
@@ -849,6 +860,7 @@ jobs:
           DB2_CASES: ${{ needs.plan.outputs.db2_cases }}
           DB2_SHARDS: ${{ needs.plan.outputs.db2_shards }}
           EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
         run: |
           if [ "$PLAN_RESULT" != "success" ]; then echo "the plan job did not succeed ($PLAN_RESULT)"; exit 1; fi
           if [ "$SHARDS" = "0" ] && { [ "$DB2_SHARDS" = "0" ] || [ -z "$DB2_SHARDS" ]; }; then
@@ -879,7 +891,12 @@ jobs:
             if [ "$DB2_CASES" != "all" ]; then expect="$DB2_CASES"; fi
             found=$(ls db2-shards/*/sweep.json db2-shards/sweep.json 2>/dev/null || true)  # one shard: no subdirectory (#5008)
             if [ -z "$found" ]; then echo "no Db2 shard reported a sweep.json"; rc=1; else
-              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" --record-ledger | tee agg-db2.txt || rc=1
+              extra=()  # #5882: a full Db2 sweep on main records its seconds (a partial list would record a subset: skipped)
+              if [ "$EVENT" = "workflow_dispatch" ] && [ "$REF" = "refs/heads/main" ] && [ "$DB2_CASES" = "all" ]; then
+                mkdir -p durations-db2
+                extra=(--update-durations --durations durations-db2/det_sweep_durations.json)
+              fi
+              PYTHONPATH="$PWD" python tests/tools/proof_sweep.py --aggregate $found --expect "$expect" --record-ledger "${extra[@]}" | tee agg-db2.txt || rc=1
               {
                 echo "## Det sweep, Db2 cases (merged)"
                 echo '```'
@@ -917,6 +934,15 @@ jobs:
           path: tests/equivalence/det_sweep_coverage/
           if-no-files-found: ignore
           retention-days: 7
+
+      # Saved whatever the ratchet said: a duration only balances shards, never changes a verdict (#4847)
+      - name: Cache the Db2 durations (manual full sweep on main, #5882)
+        if: always() && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && hashFiles('durations-db2/det_sweep_durations.json') != ''
+        continue-on-error: true  # best effort: a miss only leaves the next plan on the older numbers
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-db2
+          key: det-db2-durations-${{ github.run_id }}
 
       - name: Stage the merged durations for the cache (nightly, #4847)
         if: github.event_name == 'schedule' && steps.aggregate.outcome == 'success'

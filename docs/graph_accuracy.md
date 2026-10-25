@@ -300,10 +300,22 @@ parsed because their names collide with the Unix ones. The adapter now parses th
 `external`, never an edge. Adapter only, no engine change. Before -> after (hiredis + libuv): confident links judged
 3,532 -> 3,942, unmapped 1,356 -> 635, precision 100.0% (unchanged), recall 41.5% -> 42.3%, resolution recall
 53.6% -> 55.2%.
-**What stays unmapped (635):** other platforms' files and `#if` branches (`aix.c`, `fsevents.c`, the `uv_barrier_*`
-fallbacks in `thread-common.c`), the `REDIS_TEST` and SSL-only test bodies, the Qt adapter and example, and `m4/`
-macros. They are outside the configurations the reference parses (Linux, and `_WIN32` for the Windows group), not
-naming differences. C++ (fmt) has no Windows-only sources and was measured in the section above.
+**C platform link groups (#3784, slice 6):** a file that names a platform macro (`_WIN32`, `__APPLE__`/`__MACH__`,
+`_AIX`, `__sun`) is now parsed once more with it defined, besides the Linux parse (a Windows-only source is parsed only
+under `-D_WIN32`). That covers the in-file branches the file-name rule missed: libuv `fsevents.c`, `aix.c`, `sunos.c`,
+the `uv_barrier_*` fallbacks in `thread-common.c`, and the `_WIN32` bodies of `test/test-tty-escape-sequence-processing.c`,
+`test-fs.c`, `test-fs-event.c`, `test-spawn.c`. A def only a platform parse saw belongs to that platform's group; a
+platform caller links its group's definitions first, then the shared ones; a Linux caller never links to a platform
+def. One function written as several `#if` variants in one file is one unit to the engine, so an edge to one variant
+links all of them (without that, 20 links were judged `wrong` for picking the other variant). The Windows-only sources also
+get `-D_MSC_VER=1800` (libuv's `snprintf.c` fallback); other files do not (it made hiredis `ffc.h` calls resolve
+outside the repo). Adapter only, no engine change. Before -> after (hiredis + libuv): confident links judged
+3,942 -> 4,264, unmapped 635 -> 237, precision 100.0% (unchanged). **Recall reads 42.3% -> 36.7% and resolution recall
+55.2% -> 49.4%** because the reference now holds the per-platform edges (9,314 -> 11,608): the denominator grew, the
+engine's links did not get worse.
+**What stays unmapped (237):** the `REDIS_TEST` and SSL-only test bodies, the Qt adapter and example, `m4/` macros, and
+other platforms' branches with no macro on the list (`__MVS__`, `__FreeBSD__`, `__QNX__`, ...). C++ (fmt) has no
+platform-only sources and was measured in the section above; its adapter needs no change for this slice.
 
 ## Span anchoring
 

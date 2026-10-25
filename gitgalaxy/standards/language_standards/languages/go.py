@@ -39,9 +39,11 @@ DEFINITION: dict[str, Any] = {
     # #3798: an import path resolves through go.mod (core/go_modules.py), never the name search.
     "imports_follow_go_modules": True,
     # #6572: a multi-line backtick raw string (a test's embedded program, a template) is data, never
-    # code: its `import ( "fmt" )` lines are not imports. A one-line ``import `fmt` `` has no newline, so
-    # it is kept; an opening backtick right after a quote is a rune/string literal, not a raw string.
-    "import_capture_blank": r"(?<!['\"])`[^`\n]{0,2000}\n[^`]{0,50000}`",
+    # code: its `import ( "fmt" )` lines are not imports. The pattern walks the "..." / '.' / one-line
+    # literals too, so a backtick inside one never shifts the pairing; only a literal spanning lines is
+    # blanked, which keeps a one-line ``import `fmt` ``.
+    "import_capture_blank": (r"`[^`]{0,50000}`" + r'|"(?:[^"\\\n]|\\.){0,1000}"' + r"|'(?:[^'\\\n]|\\.){0,8}'"),
+    "import_capture_multiline_only": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_GO,  # #3645: `(*T)(x)` conversions too

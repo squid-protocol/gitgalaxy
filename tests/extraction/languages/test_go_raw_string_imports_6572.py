@@ -19,7 +19,7 @@ _REAL = 'import (\n\t"os"\n\t"testing"\n)\n'
 
 _EMBEDDED = (
     "func f() {\n"
-    "\terr := os.WriteFile(name, []byte(`package main\n\nimport (\n\t\"fmt\"\n\t\"os\"\n\n"
+    '\terr := os.WriteFile(name, []byte(`package main\n\nimport (\n\t"fmt"\n\t"os"\n\n'
     '\t"github.com/spf13/cobra"\n)\n\nvar x = 1\n`), 0600)\n}\n'
 )
 
@@ -57,3 +57,9 @@ def test_unterminated_backticks_stay_linear():
     t = time.perf_counter()
     _imports(src)
     assert time.perf_counter() - t < 5
+
+
+def test_one_line_raw_string_before_the_embedded_program_keeps_pairing():
+    # cobra_test.go: a one-line `{{...}}` template precedes the embedded program.
+    src = "package p\n\n" + _REAL + "\nvar u = `{{if t}}{{h}}{{end}}`\n" + _EMBEDDED
+    assert _imports(src) == {"os", "testing"}

@@ -2355,10 +2355,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "435cca7d394a0f96f49d0e3397077fb76daaa266",
+   "sha": "220c5534dbe40a10f106651fccfbba5bf13dd422",
    "translator": {
-    "files": 145,
-    "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
+    "files": 147,
+    "sha256": "082b690f61a0f1f36c85948e496724e621459990b1abd3d133a9cf7676f1fa2a"
    }
   },
   "sweeps": {}
@@ -11155,8 +11155,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 435cca7d394a0f96f49d0e3397077fb76daaa266",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 435cca7d394a0f96f49d0e3397077fb76daaa266",
+   "python tests/tools/cics_census.py survey --baseline --sha 220c5534dbe40a10f106651fccfbba5bf13dd422",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 220c5534dbe40a10f106651fccfbba5bf13dd422",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -11176,13 +11176,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "435cca7d394a0f96f49d0e3397077fb76daaa266",
+   "sha": "220c5534dbe40a10f106651fccfbba5bf13dd422",
    "translator": {
-    "files": 145,
-    "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
+    "files": 147,
+    "sha256": "082b690f61a0f1f36c85948e496724e621459990b1abd3d133a9cf7676f1fa2a"
    }
   },
-  "translator_commit": "435cca7d394a0f96f49d0e3397077fb76daaa266",
+  "translator_commit": "220c5534dbe40a10f106651fccfbba5bf13dd422",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -11225,6 +11225,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
+  "fingerprint": "082b690f61a0f1f36c85948e496724e621459990b1abd3d133a9cf7676f1fa2a"
  }
 }

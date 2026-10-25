@@ -445,13 +445,13 @@ def test_ts_commands_pass_length_item_and_numitems_in_and_out():
     w = ec.translate_command("WRITEQ TS QUEUE('Q') FROM(WS-ONE) LENGTH(1) ITEM(WS-I)")
     assert w[:4] == ["MOVE 'Q' TO GG-QNAME", "MOVE 1 TO GG-LEN", "MOVE 0 TO GG-ITEM", "MOVE SPACES TO GG-FLAGS"]
     # X6 (ASSUMED): a LENGTH past the FROM item writes FROM's bytes then spaces (GG-PADQ); a record over 32767 is refused
-    assert w[4:16] == ["IF GG-LEN > LENGTH OF WS-ONE", "    IF GG-LEN > LENGTH OF GG-PADQ",
+    assert w[4:17] == ["IF GG-LEN > LENGTH OF WS-ONE", "    IF GG-LEN > LENGTH OF GG-PADQ",
                        "        DISPLAY 'WRITEQ TS LENGTH > FROM: not modelled'", "        MOVE 98 TO RETURN-CODE",
-                       "        STOP RUN", "    END-IF", "    MOVE SPACES TO GG-PADQ",
+                       "        STOP RUN", "    END-IF", "    DISPLAY 'GG-X6 PADDED WRITEQ TS'", "    MOVE SPACES TO GG-PADQ",
                        "    MOVE WS-ONE TO GG-PADQ(1:LENGTH OF WS-ONE)", "    CALL 'GGCWRTQ' USING GG-CICS",
                        "        BY REFERENCE GG-PADQ", "ELSE", "    CALL 'GGCWRTQ' USING GG-CICS"]  # fmt: skip
     assert (
-        w[16:19] == ["        BY REFERENCE WS-ONE", "END-IF", "IF GG-RESP = 0"] and "    MOVE GG-ITEM TO WS-I" == w[19]
+        w[17:20] == ["        BY REFERENCE WS-ONE", "END-IF", "IF GG-RESP = 0"] and "    MOVE GG-ITEM TO WS-I" == w[20]
     )
     r = ec.translate_command("WRITEQ TS QUEUE('Q') FROM(A) ITEM(WS-I) REWRITE")
     assert r[2:4] == ["MOVE WS-I TO GG-ITEM", "MOVE 'REWRITE' TO GG-FLAGS"] and "    MOVE GG-ITEM TO WS-I" not in r
@@ -2168,6 +2168,19 @@ def test_the_driver_runs_the_program_on_the_area_the_stub_chose():
     assert "CALL 'PROG' USING LK-CA" in drv and "CALL 'GGCAOUT' USING LK-CA BY VALUE WS-LEN" in drv
     assert "CALL 'PROG'\n" in ec.cics_driver("PROG", False)
     assert all(len(ln) <= 72 for ln in drv.splitlines())
+
+
+def test_a_padded_writeq_is_named_on_the_task_and_kept_out_of_its_display_log(tmp_path):
+    """X6 (ASSUMED, owner 2026-10-21): the stub's line on the padded path names the WRITEQ on the task (so a proof
+    states X6 for it) and is not part of the task's DISPLAY output, which the Java side never prints."""
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "events.txt").write_text("001 RETURN level=1\n", encoding="ascii")
+    (tmp_path / "stdout.txt").write_bytes(b"BEFORE\n" + ec.X6_PADDED_SAID.encode("ascii") + b"WRITEQ TD\nAFTER\n")
+    res = ec.outputs(out, {"name": "x"}, tmp_path, [])
+    assert res["x6_padded"] == ["WRITEQ TD"] and res["sysout"] == b"BEFORE\nAFTER\n"
+    (tmp_path / "stdout.txt").write_bytes(b"BEFORE\n")
+    assert "x6_padded" not in ec.outputs(out, {"name": "x"}, tmp_path, [])  # no padded WRITEQ, no key
 
 
 def test_a_reference_past_a_stated_eibcalen_is_judged_up_to_it_x22(tmp_path):

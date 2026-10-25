@@ -591,7 +591,7 @@
    "cbsa-bnk1cac": [
     25,
     25,
-    64,
+    74,
     97
    ],
    "cbsa-bnk1cac-generated": [
@@ -627,7 +627,7 @@
    "cbsa-bnk1cra": [
     28,
     28,
-    57,
+    58,
     67
    ],
    "cbsa-bnk1cra-generated": [
@@ -651,13 +651,13 @@
    "cbsa-bnk1dcs": [
     46,
     51,
-    62,
+    70,
     102
    ],
    "cbsa-bnk1tfn": [
     28,
     28,
-    58,
+    59,
     72
    ],
    "cbsa-bnk1tfn-generated": [
@@ -2862,7 +2862,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "03a2e6f9d8e0f49ee34d41dc09b4ead37d28e2d2",
+   "sha": "bf6a41fc97def4ed1795a4734830291f0dac79b3",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
@@ -3151,7 +3151,7 @@
      },
      {
       "case": "cbsa-bnk1cac",
-      "case_scenarios": 32,
+      "case_scenarios": 43,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -3217,7 +3217,7 @@
      },
      {
       "case": "cbsa-bnk1cra",
-      "case_scenarios": 28,
+      "case_scenarios": 29,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -3261,7 +3261,7 @@
      },
      {
       "case": "cbsa-bnk1dcs",
-      "case_scenarios": 22,
+      "case_scenarios": 30,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -3272,7 +3272,7 @@
      },
      {
       "case": "cbsa-bnk1tfn",
-      "case_scenarios": 46,
+      "case_scenarios": 48,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -3506,7 +3506,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:4458f67a05cbee4ee32b913ebc57fdae853258354d0a536258d6e66c817aba94",
+       "oracle_image": "sha256:2836a1bc3411c1ac3d3513fcc0665a7093e3850508a6de4e8f6bc9fed3c75128",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -10871,7 +10871,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:4458f67a05cbee4ee32b913ebc57fdae853258354d0a536258d6e66c817aba94",
+       "oracle_image": "sha256:2836a1bc3411c1ac3d3513fcc0665a7093e3850508a6de4e8f6bc9fed3c75128",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -10969,7 +10969,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:4458f67a05cbee4ee32b913ebc57fdae853258354d0a536258d6e66c817aba94",
+      "oracle_image": "sha256:2836a1bc3411c1ac3d3513fcc0665a7093e3850508a6de4e8f6bc9fed3c75128",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -11397,7 +11397,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1dcs",
-      "case_scenarios": 22,
+      "case_scenarios": 30,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -11860,14 +11860,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 79.0,
-    "branch_pct": 66.0,
+    "branch_net_pct": 91.4,
+    "branch_pct": 76.3,
     "branches": {
-     "covered": 64,
+     "covered": 74,
      "total": 97
     },
     "branches_net": {
-     "covered": 64,
+     "covered": 74,
      "total": 81
     },
     "current": true,
@@ -12051,7 +12051,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1cac",
-      "case_scenarios": 32,
+      "case_scenarios": 43,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -12074,7 +12074,7 @@
     ],
     "chosen": {
      "case": "cbsa-bnk1cac",
-     "case_scenarios": 32,
+     "case_scenarios": 43,
      "db2": true,
      "det": {
       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -12093,7 +12093,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 66.0 raw, 79.0 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 76.3 raw, 91.4 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 4,
@@ -12645,7 +12645,7 @@
      "X31",
      "X46"
     ],
-    "branch_outcomes_unrun": 33,
+    "branch_outcomes_unrun": 23,
     "commands": 11,
     "commands_backed": 7,
     "commands_not_backed": [
@@ -14397,14 +14397,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 95.0,
-    "branch_pct": 85.1,
+    "branch_net_pct": 96.7,
+    "branch_pct": 86.6,
     "branches": {
-     "covered": 57,
+     "covered": 58,
      "total": 67
     },
     "branches_net": {
-     "covered": 57,
+     "covered": 58,
      "total": 60
     },
     "current": true,
@@ -14498,7 +14498,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1cra",
-      "case_scenarios": 28,
+      "case_scenarios": 29,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -14521,7 +14521,7 @@
     ],
     "chosen": {
      "case": "cbsa-bnk1cra",
-     "case_scenarios": 28,
+     "case_scenarios": 29,
      "db2": true,
      "det": {
       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -14540,7 +14540,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 85.1 raw, 95.0 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 86.6 raw, 96.7 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 4,
@@ -15105,7 +15105,7 @@
      "X31",
      "X46"
     ],
-    "branch_outcomes_unrun": 10,
+    "branch_outcomes_unrun": 9,
     "commands": 12,
     "commands_backed": 7,
     "commands_not_backed": [
@@ -15193,14 +15193,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 95.1,
-    "branch_pct": 80.6,
+    "branch_net_pct": 96.7,
+    "branch_pct": 81.9,
     "branches": {
-     "covered": 58,
+     "covered": 59,
      "total": 72
     },
     "branches_net": {
-     "covered": 58,
+     "covered": 59,
      "total": 61
     },
     "current": true,
@@ -15334,7 +15334,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1tfn",
-      "case_scenarios": 46,
+      "case_scenarios": 48,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -15357,7 +15357,7 @@
     ],
     "chosen": {
      "case": "cbsa-bnk1tfn",
-     "case_scenarios": 46,
+     "case_scenarios": 48,
      "db2": true,
      "det": {
       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -15376,7 +15376,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 80.6 raw, 95.1 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 81.9 raw, 96.7 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 4,
@@ -15928,7 +15928,7 @@
      "X31",
      "X46"
     ],
-    "branch_outcomes_unrun": 14,
+    "branch_outcomes_unrun": 13,
     "commands": 11,
     "commands_backed": 7,
     "commands_not_backed": [
@@ -16790,7 +16790,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1cac",
-      "case_scenarios": 32,
+      "case_scenarios": 43,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -18030,14 +18030,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 60.8,
-    "branch_pct": 60.8,
+    "branch_net_pct": 68.6,
+    "branch_pct": 68.6,
     "branches": {
-     "covered": 62,
+     "covered": 70,
      "total": 102
     },
     "branches_net": {
-     "covered": 62,
+     "covered": 70,
      "total": 102
     },
     "current": true,
@@ -18059,7 +18059,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1dcs",
-      "case_scenarios": 22,
+      "case_scenarios": 30,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -18071,7 +18071,7 @@
     ],
     "chosen": {
      "case": "cbsa-bnk1dcs",
-     "case_scenarios": 22,
+     "case_scenarios": 30,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -18680,7 +18680,7 @@
      "X31",
      "X46"
     ],
-    "branch_outcomes_unrun": 40,
+    "branch_outcomes_unrun": 32,
     "commands": 14,
     "commands_backed": 8,
     "commands_not_backed": [
@@ -19619,7 +19619,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1cra",
-      "case_scenarios": 28,
+      "case_scenarios": 29,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -20299,7 +20299,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:4458f67a05cbee4ee32b913ebc57fdae853258354d0a536258d6e66c817aba94",
+       "oracle_image": "sha256:2836a1bc3411c1ac3d3513fcc0665a7093e3850508a6de4e8f6bc9fed3c75128",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -20373,7 +20373,7 @@
         "option": "TRUNC"
        }
       ],
-      "oracle_image": "sha256:4458f67a05cbee4ee32b913ebc57fdae853258354d0a536258d6e66c817aba94",
+      "oracle_image": "sha256:2836a1bc3411c1ac3d3513fcc0665a7093e3850508a6de4e8f6bc9fed3c75128",
       "oracle_matches_pin": true,
       "records_compared": 29,
       "records_equal": 29,
@@ -20928,7 +20928,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1cac",
-      "case_scenarios": 32,
+      "case_scenarios": 43,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -21617,7 +21617,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1cac",
-      "case_scenarios": 32,
+      "case_scenarios": 43,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -21661,7 +21661,7 @@
      },
      {
       "case": "cbsa-bnk1dcs",
-      "case_scenarios": 22,
+      "case_scenarios": 30,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -22376,7 +22376,7 @@
     "cases": [
      {
       "case": "cbsa-bnk1tfn",
-      "case_scenarios": 46,
+      "case_scenarios": 48,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -22883,8 +22883,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 03a2e6f9d8e0f49ee34d41dc09b4ead37d28e2d2",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 03a2e6f9d8e0f49ee34d41dc09b4ead37d28e2d2",
+   "python tests/tools/cics_census.py survey --baseline --sha bf6a41fc97def4ed1795a4734830291f0dac79b3",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha bf6a41fc97def4ed1795a4734830291f0dac79b3",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (37) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated",
@@ -22901,21 +22901,21 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
-   "sha256:4458f67a05cbee4ee32b913ebc57fdae853258354d0a536258d6e66c817aba94"
+   "sha256:2836a1bc3411c1ac3d3513fcc0665a7093e3850508a6de4e8f6bc9fed3c75128",
+   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "03a2e6f9d8e0f49ee34d41dc09b4ead37d28e2d2",
+   "sha": "bf6a41fc97def4ed1795a4734830291f0dac79b3",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
    }
   },
-  "translator_commit": "03a2e6f9d8e0f49ee34d41dc09b4ead37d28e2d2",
+  "translator_commit": "bf6a41fc97def4ed1795a4734830291f0dac79b3",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

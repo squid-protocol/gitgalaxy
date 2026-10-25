@@ -2478,6 +2478,82 @@
      "sqlcode": -913
     }
    ]
+  },
+  {
+   "name": "delete-selected-with-type-filter-changed",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 2,
+    "WS-CA-LAST-PAGE-DISPLAYED": 0,
+    "WS-CA-NEXT-PAGE-IND": "\u0000"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE",
+     "TRTSEL1I": "D",
+     "TRTYPEI": "08"
+    }
+   },
+   "why": "'D' on row 1 and a new type filter 08 on the same ENTER: 1210-EDIT-ARRAY counts the delete before 1220-EDIT-TYPECD sets FLG-TYPEFILTER-CHANGED-YES (the flag is unset at 1210), 9100-CHECK-FILTERS finds the row, no input error; 2500-SETUP-MESSAGE takes the delete WHEN with the message blank but the filter changed, so the IF at 1518 takes its false arm and no confirmation text is set"
+  },
+  {
+   "name": "update-selected-with-desc-filter-changed",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U",
+     "TRDESCI": "A"
+    }
+   },
+   "why": "'U' on row 6 (REVERAL, unchanged) and a new description filter A on the same ENTER: 1210 counts the update before 1230-EDIT-DESC sets FLG-DESCFILTER-CHANGED-YES; the pattern %A% matches rows, no input error; 2500-SETUP-MESSAGE takes the update WHEN with the message blank but the filter changed, so the IF at 1527 takes its false arm"
   }
  ],
  "notes": "CardDemo's Db2 transaction-type list (transaction CTLI, program COTRTLIC, admin menu option 5): seven types a page from CARDDEMO.TRANSACTION_TYPE through two Db2 cursors (C-TR-TYPE-FORWARD, and C-TR-TYPE-BACKWARD for PF7), optionally filtered by type code and by a description LIKE pattern; 'D' or 'U' on a row and ENTER asks for confirmation, PF10 DELETEs or UPDATEs it; PF2 goes to COTRTUPC, PF3 back to the admin menu. The paging state, the rows shown and the pending action live in the program's COMMAREA area after CARDDEMO-COMMAREA (rows never fetched are LOW-VALUES); each scenario gives the state the previous screen returned. Both sides run their SQL on one real Db2 (tests/tools/equivalence_db2.py): TRANSACTION_TYPE and TRANSACTION_TYPE_CATEGORY are created from the corpus DDL, seeded before each scenario and both compared after it. The seed is the corpus's DB2LTTYP.ctl and DB2LTCAT.ctl INSERTs unchanged, plus five types (08-12) without category rows in a separate INSERT, written for this case (and carddemo-cotrtupc): the corpus's seven types fill exactly one page, so paging needs more, and a type without category rows can be deleted. The 9999-FORMAT-DB2-MESSAGE paths (DSNTIAC is modelled for the SQLCODEs the faults use) run as sql_faults scenarios: a delete refused by the category foreign key (-532), an update or delete of a row gone meanwhile (+100), cursor and priming-query errors. Not covered: the outcomes reachable only with a blank WS-STRING-OUT (the bounds_refused scenarios, which the bounds-checked oracle cannot run), and the PF3-from-COTRTUPC resets, which no CardDemo caller produces (COTRTUPC clears its CARDDEMO-COMMAREA on entry, so its PF3 always returns to the admin menu). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",

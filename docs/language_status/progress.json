@@ -1,5 +1,5 @@
 {
- "commit": "79afbfacd",
+ "commit": "acf802b20",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -139,7 +139,7 @@
   },
   "2": {
    "l2_plus": 69,
-   "l4_plus": 38,
+   "l4_plus": 39,
    "programs": 70
   },
   "3": {
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-25T08:43:31Z",
+  "as_of": "2026-10-25T09:07:49Z",
   "core": {
    "closed": 173,
    "open": 15,
@@ -198,8 +198,8 @@
    "total": 48
   },
   "infra": {
-   "closed": 212,
-   "open": 41,
+   "closed": 213,
+   "open": 40,
    "total": 253
   },
   "measured": true,
@@ -430,15 +430,15 @@
    "aws-mainframe-modernization-carddemo": {
     "l2_plus": 42,
     "l2_plus_pct": 95.5,
-    "l4_plus": 33,
-    "l4_plus_pct": 75.0,
+    "l4_plus": 34,
+    "l4_plus_pct": 77.3,
     "l5": 0,
     "levels": {
      "L0": 2,
      "L1": 0,
      "L2": 2,
-     "L3": 7,
-     "L4": 33,
+     "L3": 6,
+     "L4": 34,
      "L5": 0
     },
     "programs": 44,
@@ -533,15 +533,15 @@
   "total": {
    "l2_plus": 120,
    "l2_plus_pct": 93.0,
-   "l4_plus": 80,
-   "l4_plus_pct": 62.0,
+   "l4_plus": 81,
+   "l4_plus_pct": 62.8,
    "l5": 0,
    "levels": {
     "L0": 6,
     "L1": 3,
     "L2": 12,
-    "L3": 28,
-    "L4": 80,
+    "L3": 27,
+    "L4": 81,
     "L5": 0
    },
    "programs": 129,

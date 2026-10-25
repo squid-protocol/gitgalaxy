@@ -12,8 +12,8 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 | L0 inventoried | 2 |
 | L1 translated whole | 0 |
 | L2 executed equivalent | 2 |
-| L3 paragraph coverage | 7 |
-| L4 branch coverage | 33 |
+| L3 paragraph coverage | 6 |
+| L4 branch coverage | 34 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 42 / 44 (95%); with holes: 2; refused: 0
@@ -31,11 +31,11 @@ era 0: 0, era 1: 5, era 2: 22, era 3: 15, era 4: 0, era none: 2
 |---|---|---|---|---|---|
 | 1 | <name>: <name> is not defined in a record of file <name> | 2 | 0 | 2 | era 3: 2 |
 
-### Proof blockers (42 programs translated whole, 33 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
+### Proof blockers (42 programs translated whole, 34 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 7 | 0 | 7 |
+| 1 | coverage: branch outcomes below the bar | 6 | 0 | 6 |
 | 2 | coverage: paragraphs below the bar | 2 | 0 | 2 |
 
 ### Missing inputs

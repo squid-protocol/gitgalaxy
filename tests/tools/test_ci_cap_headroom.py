@@ -73,3 +73,24 @@ def test_every_workflow_cap_is_a_positive_int_or_an_expression():
         for key, job in (yaml.safe_load(path.read_text(encoding="utf-8")).get("jobs") or {}).items():
             cap = job.get("timeout-minutes") if isinstance(job, dict) else None
             assert cap is None or (isinstance(cap, int) and cap > 0) or "${{" in str(cap), (path.name, key, cap)
+
+
+def test_a_job_cut_at_its_cap_is_reported_not_lost():
+    caps = {"a": 10, "b": 10, "c": 10, "d": 10}
+    jobs = [
+        {**_job("a", 10, "cancelled"), "id": 7},  # stopped at the cap
+        _job("b", 3, "cancelled"),  # cancelled early by a re-push: says nothing
+        _job("c", 5, "timed_out"),
+        _job("a", 4, "cancelled"),
+    ]
+    assert chr_.cut_at_cap(jobs, caps) == {"a": (10.0, 7)}
+
+
+def test_stopped_by_cap_reads_the_timeout_annotation(monkeypatch):
+    notes = {
+        1: [{"message": "The job has exceeded the maximum execution time of 1h0m0s"}],
+        2: [{"message": "canceled"}],
+    }
+    monkeypatch.setattr(chr_.ci_rerun_stats, "_gh", lambda path: notes[int(path.split("/")[-2])])
+    assert chr_.stopped_by_cap(1) is True
+    assert chr_.stopped_by_cap(2) is False

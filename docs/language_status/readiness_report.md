@@ -181,8 +181,8 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 | L0 inventoried | 0 |
 | L1 translated whole | 1 |
 | L2 executed equivalent | 0 |
-| L3 paragraph coverage | 12 |
-| L4 branch coverage | 18 |
+| L3 paragraph coverage | 10 |
+| L4 branch coverage | 20 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 31 / 31 (100%); with holes: 0; refused: 0
@@ -199,11 +199,11 @@ era 0: 0, era 1: 4, era 2: 24, era 3: 0, era 4: 3, era none: 0
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 
-### Proof blockers (31 programs translated whole, 18 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
+### Proof blockers (31 programs translated whole, 20 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 12 | 0 | 12 |
+| 1 | coverage: branch outcomes below the bar | 10 | 0 | 10 |
 | 2 | known unproven: det sweep baseline | 1 | 0 | 1 |
 
 ### Missing inputs

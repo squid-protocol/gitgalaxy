@@ -1,7 +1,7 @@
 """Reader for tests/crucible_pins.toml, the one manifest of crucible pins (stdlib only).
 
-TOML, because it is commented, diffable and a one-line `ref = "..."` edit. tomllib is 3.11+ and
-3.10 is supported, so on older interpreters a ~15-line parser reads the subset the manifest uses
+TOML, because it is commented, diffable and a one-line `ref = "..."` edit. the Python floor is 3.11
+(tomllib), so the ~15-line fallback parser is vestigial (#3322); it reads the subset the manifest uses
 (`[table]` headers and `key = "string"` lines); tests/tools/test_crucible_pins.py proves the two
 agree on the real file. Used by the three tests/_*crucible_pin.py wrappers and
 tests/tools/crucible_pins.py.
@@ -35,7 +35,7 @@ def parse_subset(text):
 def load(path=MANIFEST):
     text = Path(path).read_text(encoding="utf-8")
     try:
-        import tomllib  # noqa: PLC0415 -- 3.11+; the fallback below keeps 3.10 working
+        import tomllib  # noqa: PLC0415 -- 3.11 floor (#3322); fallback vestigial
     except ImportError:
         return parse_subset(text)
     return tomllib.loads(text)

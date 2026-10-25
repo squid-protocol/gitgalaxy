@@ -66,6 +66,9 @@ def test_ggcics_includes_its_families_once():
         "ggcics_tempstorage.c",  # the second part: DELETEQ TS, where it sat
         "ggcics_taskcontrol.c",
         "ggcics_enq.c",
+        "ggcics_web.c",  # the web family, part 1
+        "ggcics_web.c",  # part 2: WEB RECEIVE SET, after the storage block
+        "ggcics_web.c",  # part 3: WEB RETRIEVE and the form / browse reads
     ]
     assert "#include" not in family  # one translation unit: the family sees everything ggcics.c declared before it
     for impl in FAMILY.values():
@@ -568,3 +571,40 @@ def test_the_web_translators_reach_the_hosts_helpers_and_refuse_by_name():
     assert any("GGCWCNV" in ln for ln in lines)  # the host's _call / _resp, reached through `ec.`
     with pytest.raises(ec.Unsupported, match="WEB CONVERSE without METHOD"):
         ec.translate_command("WEB CONVERSE SESSTOKEN(WS-TOK) INTO(WS-IN)")
+
+
+# ---- web (#5274, slice 2 of the stub): WEB *, EXTRACT TCPIP -- three guarded parts around the storage block ------------
+WEB_ENTRIES = ("GGCWOPN", "GGCWCNV", "GGCWCLS", "GGCWPRS", "GGCWSND", "GGCWSDC", "GGCWSCT", "GGCWEXT", "GGCTCPX",
+               "GGCTCPN", "GGCWRCV", "GGCWRDH", "GGCWWRH", "GGCWRCS", "GGCWRTV", "GGCWRDP", "GGCWSBR", "GGCWRNX",
+               "GGCWEBR")  # fmt: skip
+
+
+def test_ggcics_holds_the_web_stubs_in_its_family_file():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    family = (STUB / "ggcics_web.c").read_text(encoding="utf-8")
+    assert "#include" not in family
+    for entry in WEB_ENTRIES:
+        assert re.search(rf"^int {entry}\(", family, re.M), entry
+        assert not re.search(rf"^int {entry}\(", host, re.M), entry
+    # the document and file-control WRITE stubs are not web: they stay in the host
+    assert re.search(r"^int GGCWTO\(", host, re.M) and re.search(r"^int GGCWRIT\(", host, re.M)
+    # every spec command that dispatches to a web or TCPIP stub has it in the family file
+    for key, cmd in COMMANDS.items():
+        if (
+            cmd.impl
+            and cmd.impl.c
+            and re.match(r"GGC(W|TCP)", cmd.impl.c)
+            and cmd.impl.c not in ("GGCWTO", "GGCWRIT", "GGCWEVT")
+        ):
+            assert re.search(rf"^int {cmd.impl.c}\(", family, re.M), key
+
+
+def test_the_web_parts_are_included_around_the_storage_block():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    at = [m.start() for m in re.finditer(r'^#include "ggcics_web\.c"', host, re.M)]
+    assert len(at) == 3
+    assert host.index("int GGCEND(") < at[0] < host.index("enum { BLK_GETMAIN") < at[1] < host.index("int GGCRECP(")
+    assert host.index("int GGCGETS(") < at[2]
+    assert host.index("#define GGCICS_WEB_PART2") < at[1] < host.index("#undef GGCICS_WEB_PART2")
+    assert host.index("#define GGCICS_WEB_PART3") < at[2] < host.index("#undef GGCICS_WEB_PART3")
+    assert host.index("int GGCADDR(") < at[1]  # WEB RECEIVE SET needs blk_set_new, defined before it

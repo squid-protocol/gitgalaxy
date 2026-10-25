@@ -15637,7 +15637,7 @@
       "shell/reactos/check_code_format.sh": [],
       "shell/reactos/codespell_changed_files.sh": [],
       "shell/reactos/codespell_check.sh": [
-        "$LWIPTOOLS"
+        "$LWIPTOOLS\"/codespell_changed_files.sh"
       ],
       "shell/reactos/configure.sh": [],
       "shell/reactos/do_code_format.sh": [],

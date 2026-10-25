@@ -4170,7 +4170,7 @@
     },
     "shell/reactos": {
       "shell/reactos/codespell_check.sh": [
-        "fcall:shell/reactos/codespell_changed_files.sh"
+        "import:shell/reactos/codespell_changed_files.sh"
       ]
     },
     "solidity/openzeppelin": {

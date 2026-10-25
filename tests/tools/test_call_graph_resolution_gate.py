@@ -381,6 +381,39 @@ def test_clang_callgraph_parses_a_file_naming_a_platform_macro_once_more_per_pla
     assert g["external"] == []
 
 
+def test_clang_callgraph_parses_freebsd_qnx_and_mvs_branches_as_platform_groups(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "unix").mkdir()
+    (tmp_path / "unix" / "bsd.c").write_text(
+        "int helper(void) { return 1; }\n"  # 1
+        "#if defined(__FreeBSD__)\n"
+        "int bsd_only(void) { return helper(); }\n"  # 3
+        "#elif defined(__QNX__)\n"
+        "int qnx_only(void) { return helper(); }\n"  # 5
+        "#elif defined(__MVS__)\n"
+        "int mvs_only(void) { return helper(); }\n"  # 7
+        "#else\n"
+        "int linux_only(void) { return helper(); }\n"  # 9
+        "#endif\n"
+    )
+    (tmp_path / "user.c").write_text(
+        "int bsd_only(void);\nint linux_only(void);\nint user(void) { return linux_only(); }\n"
+    )
+    g = clang_callgraph.build(tmp_path)
+    plat = "unix/bsd.c"
+    defs = {tuple(d) for d in g["defs"]}
+    assert {(plat, n, ln) for n, ln in (("bsd_only", 3), ("qnx_only", 5), ("mvs_only", 7), ("linux_only", 9))} <= defs
+    edges = {(tuple(a), tuple(b)) for a, b, _ in g["edges"]}
+    for name, line in (("bsd_only", 3), ("qnx_only", 5), ("mvs_only", 7)):
+        assert ((plat, name, line), (plat, "helper", 1)) in edges
+    # a Linux caller links the Linux def and never another platform's
+    assert (("user.c", "user", 3), (plat, "linux_only", 9)) in edges
+    assert not any(b[1] == "bsd_only" for _, b in edges if _[0] == "user.c")
+
+
 def test_clang_callgraph_names_a_one_argument_macro_def_as_the_engine_does(tmp_path):
     import clang_callgraph
 

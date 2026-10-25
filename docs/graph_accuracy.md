@@ -314,8 +314,25 @@ outside the repo). Adapter only, no engine change. Before -> after (hiredis + li
 55.2% -> 49.4%** because the reference now holds the per-platform edges (9,314 -> 11,608): the denominator grew, the
 engine's links did not get worse.
 **What stays unmapped (237):** the `REDIS_TEST` and SSL-only test bodies, the Qt adapter and example, `m4/` macros, and
-other platforms' branches with no macro on the list (`__MVS__`, `__FreeBSD__`, `__QNX__`, ...). C++ (fmt) has no
-platform-only sources and was measured in the section above; its adapter needs no change for this slice.
+other platforms' branches with no macro on the list. C++ (fmt) has no platform-only sources and was measured in the
+section above; its adapter needs no change for this slice.
+**C more platform rows (#3784, slice 7):** `__FreeBSD__`, `__QNX__` and `__MVS__` join `PLATFORMS` (libuv `freebsd.c`,
+`qnx.c` and the in-file branches of `kqueue.c`, `tty.c`, `fs.c`). Measured honestly, the gain is small: confident links
+judged 4,264 -> 4,266, unmapped 237 -> 236, reference edges 11,608 -> 11,617, precision 100.0%, recall 36.7% and
+resolution recall 49.4% unchanged. Most of those files are already parsed through an existing row, or their
+platform-only defs are not called from elsewhere. Adapter only; the baseline is regenerated.
+
+### The three expected findings (#3784 acceptance)
+
+| Expected finding | Where the reference handles it | Pinned by |
+|---|---|---|
+| Calls into header prototypes (bodyless declarations, #3757) | C: a prototype is no def, the call links to the body in whichever `.c` file or header defines it. C++: edges link by USR, which a prototype and its definition share | `test_clang_callgraph_resolves_c_calls_across_translation_units`, `..._cpp_calls_by_usr_with_engine_names` |
+| The C/C++ link group across translation units | C: a non-static callee links by symbol name to every external-linkage def; static callees stay in their own unit; Windows and per-platform parses are further groups. C++: USR linking; an anonymous-namespace or `static` callee stays in its own unit | the same two tests, plus `..._links_windows_sources_as_their_own_group`, `..._parses_a_file_naming_a_platform_macro_once_more_per_platform`, `..._parses_freebsd_qnx_and_mvs_branches_as_platform_groups` |
+| Macros that look like calls | Judged as the compiler sees them: `SQ(x)` expanding to arithmetic is not a call, `VIA(x)` expanding to `helper(x)` is. A def written as a one-argument macro (`TEST_IMPL(kill) {`) is named by the argument, as is a gtest body | the C test above (`SQ` / `VIA`), `..._names_a_one_argument_macro_def_as_the_engine_does`, `..._names_a_gtest_body_by_its_test_name` |
+
+All three are covered and gated by `graph-accuracy-audit.yml` against `tests/call_graph_resolution_c_baseline.json` and
+`tests/call_graph_resolution_cpp_baseline.json`. Open engine-side gaps the reference exposes (unextracted `docs/code/`,
+the `::name` template-member convention, 236 unmapped C ends) are miss-sweep leads for the engine, not reference work.
 
 ## Span anchoring
 

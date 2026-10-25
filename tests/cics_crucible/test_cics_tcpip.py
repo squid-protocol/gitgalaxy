@@ -307,6 +307,6 @@ def test_ibm_documented_answers(fixture, step, line):
 def test_the_stub_holds_an_ipv4_address_in_64_bits():
     """`long` is 32 bits on Windows (LLP64): 192.168.1.5 is above 2^31, wrapped negative there, and the stub refused a
     connection IBM answers (the Windows leg's exit 98). The number must be a `long long`."""
-    text = (Path(__file__).resolve().parents[1] / "equivalence" / "cics" / "ggcics.c").read_text(encoding="utf-8")
+    text = (Path(__file__).resolve().parents[1] / "equivalence" / "cics" / "ggcics_web.c").read_text(encoding="utf-8")
     assert "static long long ipv4_value(" in text
     assert re.search(r"^\s*long long cnum, snum;", text, re.MULTILINE)

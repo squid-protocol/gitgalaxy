@@ -327,7 +327,7 @@
    "carddemo-cotrtlic": [
     59,
     59,
-    196,
+    200,
     230
    ],
    "carddemo-cotrtlic-generated": [
@@ -663,7 +663,7 @@
    "cbsa-bnkmenu": [
     24,
     25,
-    46,
+    47,
     62
    ],
    "cbsa-crdtagy1": [
@@ -2292,10 +2292,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "7bdf81d93571b645aaed0179a552fd7ea265dec0",
+   "sha": "0b45a4736a1cf1b85445760e6e5b49837411d24f",
    "translator": {
     "files": 145,
-    "sha256": "1ae921bf866731e15d611b5207b71c2b09a2669c2f70469d37d3a9b61de286f0"
+    "sha256": "40ff1c3ce4f4e0f95f2a82f6350d45d0abf5cef54b753a9b4e8705165e95c810"
    }
   },
   "sweeps": {}
@@ -2578,7 +2578,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:db807d3975740b6f10fba470e3017857cbeddda1ff0c97da93b943ffcbd6d94c",
+       "oracle_image": "sha256:f78eb55cabe7a991b1bb2fb88925c3e9a1fd510640240111c41016bb2805aead",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -2620,7 +2620,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:db807d3975740b6f10fba470e3017857cbeddda1ff0c97da93b943ffcbd6d94c",
+      "oracle_image": "sha256:f78eb55cabe7a991b1bb2fb88925c3e9a1fd510640240111c41016bb2805aead",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -3142,7 +3142,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:db807d3975740b6f10fba470e3017857cbeddda1ff0c97da93b943ffcbd6d94c",
+       "oracle_image": "sha256:f78eb55cabe7a991b1bb2fb88925c3e9a1fd510640240111c41016bb2805aead",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -16077,7 +16077,7 @@
        "fault_runs": 16,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 214,
        "records_equal": 214,
@@ -16125,7 +16125,7 @@
       "fault_runs": 16,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 214,
       "records_equal": 214,
@@ -16143,17 +16143,24 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "current": true,
-    "det_port": "raw 71% (107/150 caught; 150 of 2849 mutants, seed 0); 43 of 43 survivors unaccounted",
+    "current": false,
+    "det_port": "stale (port moved), last measured: raw 71% (107/150 caught; 150 of 2849 mutants, seed 0); 43 of 43 survivors unaccounted",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
     "killed": 107,
     "l5": false,
     "score": 0.7133,
-    "stale_inputs": [],
+    "stale_inputs": [
+     "port"
+    ],
     "survived": 43,
     "unaccounted": 43
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 71% (107/150 caught; 150 of 2849 mutants, seed 0); 43 of 43 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 71% (107/150 caught; 150 of 2849 mutants, seed 0); 43 of 43 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -18495,7 +18502,7 @@
        "fault_runs": 7,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
        "records_compared": 236,
        "records_equal": 236,
@@ -18544,7 +18551,7 @@
       "fault_runs": 7,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
       "records_compared": 236,
       "records_equal": 236,
@@ -19568,20 +19575,92 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 85.2,
-    "branch_pct": 85.2,
+    "branch_net_pct": 89.7,
+    "branch_pct": 87.0,
     "branches": {
-     "covered": 196,
+     "covered": 200,
      "total": 230
     },
     "branches_net": {
-     "covered": 196,
-     "total": 230
+     "covered": 200,
+     "total": 223
     },
     "current": true,
-    "infeasible_netted": [],
+    "infeasible_netted": [
+     "0000-MAIN:799:false",
+     "0000-MAIN:843:false",
+     "1230-EDIT-DESC:1155:false",
+     "9200-UPDATE-RECORD:1858:false",
+     "9300-DELETE-RECORD:1911:false",
+     "9300-DELETE-RECORD:1917:false",
+     "9300-DELETE-RECORD:1927:false"
+    ],
     "infeasible_refuted": [],
-    "infeasible_stated": [],
+    "infeasible_stated": [
+     {
+      "family": "G",
+      "key": "0000-MAIN:799:false",
+      "kind": "IF",
+      "line": 799,
+      "outcome": "false",
+      "reason": "IF NOT FLG-TYPEFILTER-NOT-OK AND NOT FLG-DESCFILTER-NOT-OK: FLG-TYPEFILTER-NOT-OK and FLG-DESCFILTER-NOT-OK are set only at 1113, 1254 and 1258, each beside SET INPUT-ERROR (1112, 1252), and the flags live in WS-MISC-STORAGE (fresh every task, INITIALIZE gives spaces). This WHEN is reached only after the first WHEN INPUT-ERROR (699) was not taken, so neither flag is set and the false arm cannot be taken.",
+      "unit": "0000-MAIN"
+     },
+     {
+      "family": "G",
+      "key": "0000-MAIN:843:false",
+      "kind": "IF",
+      "line": 843,
+      "outcome": "false",
+      "reason": "IF NOT FLG-TYPEFILTER-NOT-OK AND NOT FLG-DESCFILTER-NOT-OK: FLG-TYPEFILTER-NOT-OK and FLG-DESCFILTER-NOT-OK are set only at 1113, 1254 and 1258, each beside SET INPUT-ERROR (1112, 1252), and the flags live in WS-MISC-STORAGE (fresh every task, INITIALIZE gives spaces). This WHEN is reached only after the first WHEN INPUT-ERROR (699) was not taken, so neither flag is set and the false arm cannot be taken.",
+      "unit": "0000-MAIN"
+     },
+     {
+      "family": "G",
+      "key": "1230-EDIT-DESC:1155:false",
+      "kind": "IF",
+      "line": 1155,
+      "outcome": "false",
+      "reason": "IF FLG-DESCFILTER-ISVALID: the only way past the blank test at 1147-1148 is the ELSE at 1151 that SETs FLG-DESCFILTER-ISVALID (1152), and nothing runs between, so the flag is always valid here.",
+      "unit": "1230-EDIT-DESC"
+     },
+     {
+      "family": "G",
+      "key": "9200-UPDATE-RECORD:1858:false",
+      "kind": "IF",
+      "line": 1858,
+      "outcome": "false",
+      "reason": "IF WS-NO-INFO-MESSAGE: WS-INFO-MSG is written only at 1320 (blank), 1508-1554 (2500-SETUP-MESSAGE, under 2000-SEND-MAP) and this paragraph; 9200-UPDATE-RECORD is performed from the PF10 WHEN of 0000-MAIN before any 2000-SEND-MAP in the task, and WS-MISC-STORAGE is fresh each task, so the message is still blank (SPACES or LOW-VALUES, both in WS-NO-INFO-MESSAGE) and the false arm cannot be taken. Assumption: storage without a VALUE clause starts as spaces or low-values.",
+      "unit": "9200-UPDATE-RECORD"
+     },
+     {
+      "family": "G",
+      "key": "9300-DELETE-RECORD:1911:false",
+      "kind": "IF",
+      "line": 1911,
+      "outcome": "false",
+      "reason": "IF WS-NO-INFO-MESSAGE: WS-INFO-MSG is written only at 1320 (blank), 1508-1554 (2500-SETUP-MESSAGE, under 2000-SEND-MAP) and this paragraph; 9300-DELETE-RECORD is performed from the PF10 WHEN of 0000-MAIN before any 2000-SEND-MAP in the task, and WS-MISC-STORAGE is fresh each task, so the message is still blank (SPACES or LOW-VALUES, both in WS-NO-INFO-MESSAGE) and the false arm cannot be taken. Assumption: storage without a VALUE clause starts as spaces or low-values.",
+      "unit": "9300-DELETE-RECORD"
+     },
+     {
+      "family": "G",
+      "key": "9300-DELETE-RECORD:1917:false",
+      "kind": "IF",
+      "line": 1917,
+      "outcome": "false",
+      "reason": "IF WS-RETURN-MSG-OFF: 9300-DELETE-RECORD runs only when WS-DELETES-REQUESTED > 0 with no INPUT-ERROR. WS-RETURN-MSG is cleared at 511 and, without INPUT-ERROR, is written before this point only by 1211-EDIT-ARRAY-DESC's 'No change detected' (1072), which needs a 'U' row; a 'U' row together with the 'D' row is two actions (WS-MORETHAN1ACTION sets INPUT-ERROR at 1050), so the message is always OFF here and the false arm cannot be taken.",
+      "unit": "9300-DELETE-RECORD"
+     },
+     {
+      "family": "G",
+      "key": "9300-DELETE-RECORD:1927:false",
+      "kind": "IF",
+      "line": 1927,
+      "outcome": "false",
+      "reason": "IF WS-RETURN-MSG-OFF: 9300-DELETE-RECORD runs only when WS-DELETES-REQUESTED > 0 with no INPUT-ERROR. WS-RETURN-MSG is cleared at 511 and, without INPUT-ERROR, is written before this point only by 1211-EDIT-ARRAY-DESC's 'No change detected' (1072), which needs a 'U' row; a 'U' row together with the 'D' row is two actions (WS-MORETHAN1ACTION sets INPUT-ERROR at 1050), so the message is always OFF here and the false arm cannot be taken.",
+      "unit": "9300-DELETE-RECORD"
+     }
+    ],
     "paragraph_pct": 100.0,
     "paragraphs": {
      "covered": 59,
@@ -19597,7 +19676,7 @@
     "cases": [
      {
       "case": "carddemo-cotrtlic",
-      "case_scenarios": 56,
+      "case_scenarios": 60,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -19620,7 +19699,7 @@
     ],
     "chosen": {
      "case": "carddemo-cotrtlic",
-     "case_scenarios": 56,
+     "case_scenarios": 60,
      "db2": true,
      "det": {
       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -19639,7 +19718,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 85.2 raw, 85.2 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 87.0 raw, 89.7 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 6,
@@ -20085,7 +20164,7 @@
      "X27",
      "X31"
     ],
-    "branch_outcomes_unrun": 34,
+    "branch_outcomes_unrun": 30,
     "commands": 6,
     "commands_backed": 5,
     "commands_not_backed": [
@@ -24028,8 +24107,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 7bdf81d93571b645aaed0179a552fd7ea265dec0",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 7bdf81d93571b645aaed0179a552fd7ea265dec0",
+   "python tests/tools/cics_census.py survey --baseline --sha 0b45a4736a1cf1b85445760e6e5b49837411d24f",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 0b45a4736a1cf1b85445760e6e5b49837411d24f",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -24046,22 +24125,22 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:db807d3975740b6f10fba470e3017857cbeddda1ff0c97da93b943ffcbd6d94c",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
-   "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
+   "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+   "sha256:f78eb55cabe7a991b1bb2fb88925c3e9a1fd510640240111c41016bb2805aead"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "7bdf81d93571b645aaed0179a552fd7ea265dec0",
+   "sha": "0b45a4736a1cf1b85445760e6e5b49837411d24f",
    "translator": {
     "files": 145,
-    "sha256": "1ae921bf866731e15d611b5207b71c2b09a2669c2f70469d37d3a9b61de286f0"
+    "sha256": "40ff1c3ce4f4e0f95f2a82f6350d45d0abf5cef54b753a9b4e8705165e95c810"
    }
   },
-  "translator_commit": "7bdf81d93571b645aaed0179a552fd7ea265dec0",
+  "translator_commit": "0b45a4736a1cf1b85445760e6e5b49837411d24f",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -24104,6 +24183,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "1ae921bf866731e15d611b5207b71c2b09a2669c2f70469d37d3a9b61de286f0"
+  "fingerprint": "40ff1c3ce4f4e0f95f2a82f6350d45d0abf5cef54b753a9b4e8705165e95c810"
  }
 }

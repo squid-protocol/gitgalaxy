@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `7bdf81d93571b645aaed0179a552fd7ea265dec0` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `0b45a4736a1cf1b85445760e6e5b49837411d24f` (burned + local corpora (no census)); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `1ae921bf8667`).
+The translation survey matches the translator in the tree (translator fingerprint `40ff1c3ce4f4`).
 
 ## How to read this report
 
@@ -118,7 +118,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 | src/base/cobol_src/CREACC.cbl | L3 | 292/292 | 0 | cbsa-creacc | equal | 18 | none | 34/34 (100.0%) | 26/38 (68.4%) | 26/38 (68.4%) | — | not measured (no det_mutation/ entry) | 4/8 |
 | src/base/cobol_src/CRECUST.cbl | L3 | 321/321 | 0 | cbsa-crecust | equal | 3 | none | 37/37 (100.0%) | 40/74 (54.1%) | 40/74 (54.1%) | — | not measured (no det_mutation/ entry) | 4/16 |
 | src/base/cobol_src/BNK1DCS.cbl | L2 | 648/648 | 0 | cbsa-bnk1dcs | equal | 22 | none | 46/51 (90.2%) | 62/102 (60.8%) | 62/102 (60.8%) | — | not measured (no det_mutation/ entry) | 8/14 |
-| src/base/cobol_src/BNKMENU.cbl | L2 | 366/366 | 0 | cbsa-bnkmenu | equal | 29 | none | 24/25 (96.0%) | 46/62 (74.2%) | 46/46 (100.0%) | — | not measured (no det_mutation/ entry) | 7/10 |
+| src/base/cobol_src/BNKMENU.cbl | L2 | 366/366 | 0 | cbsa-bnkmenu | equal | 31 | none | 24/25 (96.0%) | 47/62 (75.8%) | 47/47 (100.0%) | — | not measured (no det_mutation/ entry) | 7/10 |
 | src/base/cobol_src/DBCRFUN.cbl | L2 | 148/148 | 0 | cbsa-dbcrfun | equal | 29 | none | 21/22 (95.5%) | 33/35 (94.3%) | 33/35 (94.3%) | — | not measured (no det_mutation/ entry) | 5/8 |
 | src/base/cobol_src/INQACC.cbl | L2 | 227/227 | 0 | cbsa-inqacc | equal | 14 | shown equal, unapproved | 22/25 (88.0%) | 15/25 (60.0%) | 15/25 (60.0%) | — | not measured (no det_mutation/ entry) | 5/8 |
 | src/base/cobol_src/INQACCCU.cbl | L2 | 186/186 | 0 | cbsa-inqacccu | equal | 21 | none | 21/22 (95.5%) | 31/33 (93.9%) | 31/33 (93.9%) | — | not measured (no det_mutation/ entry) | 5/8 |
@@ -167,7 +167,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 - **Executed equivalence** (cbsa-bnk1uac-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (7 scenarios in case.json)
 - **Executed equivalence** (cbsa-bnkmenu, linked): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (29 scenarios in case.json)
+  - evidence record: none (31 scenarios in case.json)
 - **Executed equivalence** (cbsa-crdtagy1, linked): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (8 scenarios in case.json)
 - **Executed equivalence** (cbsa-crdtagy2, linked): det port equal (CI det-sweep ratchet on main)
@@ -1034,14 +1034,14 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
 
 ### src/base/cobol_src/BNKMENU.cbl -- L2
 
-- **Executed equivalent** on the 29 scenarios of cbsa-bnkmenu against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Executed equivalent** on the 31 scenarios of cbsa-bnkmenu against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
 - **Next level needs:** paragraph coverage >= 100.0 (now 96.0)
 - **Translation:** 366/366 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 2 found, 4 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [found at src/base/cobol_src/BNKMENU.cbl:1]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [found at src/base/cobol_src/BNKMENU.cbl:1]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.ACTION=REPLACE [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:96]; db2.bind.ISOLATION=UR [no effect; found at etc/install/base/db2jcl/DB2BIND.jcl:115]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards) [no effect; found at etc/install/base/buildjcl/CICS.jcl:7]; cics.program_definition.CONCURRENCY=THREADSAFE [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.program_definition.EXECKEY=USER [no effect; found at etc/install/base/installjcl/BANK.csd:80]; cics.region.DB2CONN=YES [no effect; found at etc/install/base/installjcl/DFH$SIP1.jcl:12]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS('SP,EDF') via the program's CBL card [no effect; found at src/base/cobol_src/ACCTCTRL.cbl:1]
 - **Executed equivalence** (cbsa-bnkmenu, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (29 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 24/25 (96.0%), branch outcomes 46/62 (74.2%) raw, 46/46 (100.0%) net of 16 stated infeasible; unrun paragraphs by name: not recorded
+  - evidence record: none (31 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 24/25 (96.0%), branch outcomes 47/62 (75.8%) raw, 47/47 (100.0%) net of 15 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1062,7 +1062,6 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - runtime facts the harness states for its commands: facility, screen, startcode, userid
   - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
   - stated infeasible branch outcome (reviewed claim, family R): A010:178:false (IF) -- Same test (178): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
-  - stated infeasible branch outcome (reviewed claim, family R): A010:178:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OMEN') COMMAREA(COMMUNICATION-AREA) LENGTH(1)` (170-176): RETURN never comes back on success, so the test runs only when RETURN itself fails. The COMMAREA is the 1-byte working-storage COMMUNICATION-AREA (inside 0-32763, a non-zero address). IBM's RETURN conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return) are INVREQ 1 (TRANSID in a program with no terminal), 2 (CHANNEL, COMMAREA or IMMEDIATE below the highest logical level), 4 (APPC logical unit), 8, 30, 200 and 203 (INPUTMSG, first-stage PLT, DPL, CHANNEL: none named here), LENGERR 11 and 26 (COMMAREA length outside 0-32763, a zero COMMAREA address with a non-zero length) and CHANNELERR 1. BNKMENU is the program of terminal transaction OMEN (T001; no program in the corpus LINKs or XCTLs to it, so it is the highest logical level), and the names are MOVEd constants. Assumption to review: the terminal is not an APPC logical unit (INVREQ 4).
   - stated infeasible branch outcome (reviewed claim, family R): IOT010:394:false (IF) -- Same test (394): a RETURN TRANSID('ODCS') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
   - stated infeasible branch outcome (reviewed claim, family R): IOT010:466:false (IF) -- Same test (466): a RETURN TRANSID('ODAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
   - stated infeasible branch outcome (reviewed claim, family R): IOT010:539:false (IF) -- Same test (539): a RETURN TRANSID('OCCS') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.
@@ -1078,7 +1077,7 @@ From `tests/equivalence/estate_options/cics-banking-sample-application-cbsa.json
   - stated infeasible branch outcome (reviewed claim, family G): SMM010:1128:false (IF) -- `IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SMM010 after the first SEND MAP (GO TO SMM999) and '2' is never set (see 1052), so the test is always true.
   - stated infeasible branch outcome (reviewed claim, family R): STM010:1218:true (IF) -- `IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND TEXT ERASE FREEKB that writes the termination message (1210-1216): IBM raises no condition for it on a terminal that just sent a map, and no fault can be injected on it.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 1 live paragraphs unrun; 16 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X27, X31, X46; commands without oracle backing: ASKTIME, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 1 live paragraphs unrun; 15 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X15, X19, X27, X31, X46; commands without oracle backing: ASKTIME, FORMATTIME, SEND CONTROL; assumption reach and the migration dimensions above: not measured
 
 ### src/base/cobol_src/DBCRFUN.cbl -- L2
 
@@ -1328,18 +1327,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `7bdf81d93571b645aaed0179a552fd7ea265dec0`
+- translator commit (the survey's): `0b45a4736a1cf1b85445760e6e5b49837411d24f`
 - corpus pin: `cics-banking-sample-application-cbsa` at `417334533178ab6e753cc64b0e0e5cf0b4952704`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:db807d3975740b6f10fba470e3017857cbeddda1ff0c97da93b943ffcbd6d94c`
+- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:f78eb55cabe7a991b1bb2fb88925c3e9a1fd510640240111c41016bb2805aead`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 7bdf81d93571b645aaed0179a552fd7ea265dec0
-python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 7bdf81d93571b645aaed0179a552fd7ea265dec0
+python tests/tools/cics_census.py survey --baseline --sha 0b45a4736a1cf1b85445760e6e5b49837411d24f
+python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 0b45a4736a1cf1b85445760e6e5b49837411d24f
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (37) need the Db2 container
 python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated

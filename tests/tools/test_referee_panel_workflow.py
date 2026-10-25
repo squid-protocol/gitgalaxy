@@ -99,6 +99,9 @@ def test_the_upstream_refs_are_pinned():
     assert not re.search(r"git (clone|pull)\b|--branch", TEXT), "install by fetching the pinned sha, not a moving ref"
 
 
+@pytest.mark.skipif(
+    sys.platform != "linux", reason="the Install Cobrix step is bash for the ubuntu runner; on Windows `bash` is WSL"
+)
 def test_cobrix_classpath_jars_are_copied_into_the_referee_cache(tmp_path):
     import os
     import subprocess

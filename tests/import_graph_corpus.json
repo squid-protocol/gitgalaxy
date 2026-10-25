@@ -34,6 +34,7 @@
     {"repo": "JamesNK/Newtonsoft.Json", "commit": "52fa3aef1f2cadcd3a3f874251eddc98d3efbbaa", "language": "csharp"},
     {"repo": "xunit/xunit", "commit": "41e7bc69452e3beff96b96c6be77ae497f832e39", "language": "csharp"},
     {"repo": "apple/swift-argument-parser", "commit": "bd10e57565e21be23b144f3770af7f2bfb068ecf", "language": "swift"},
+    {"repo": "swiftlang/swift-package-manager", "commit": "80c1fcb89babc8da56611dbb962c545662523b5e", "language": "swift", "callgraph": false},
     {"repo": "pester/Pester", "commit": "98e56d65da1642a7158992b50ded240c42a3ac18", "language": "powershell"},
     {"repo": "tcltk/tcllib", "commit": "a0f8da869ea3f8dc0dee583d18316edc435dbc64", "language": "tcl"},
     {"repo": "spockframework/spock", "commit": "ce7e8afa895210d0b06103223f10d963a83f7a08", "language": "groovy"},

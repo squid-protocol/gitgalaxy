@@ -160,6 +160,8 @@ def test_a_cics_family_module_stales_what_its_host_file_does():
         ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
          "gitgalaxy/tools/cobol_to_java/cics_task_web.py"),
         ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
+         "gitgalaxy/tools/cobol_to_java/cics_task_tdqueues.py"),
+        ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
          "gitgalaxy/tools/cobol_to_java/cics_task_tsqueues.py"),
     ):  # fmt: skip
         for t in (CRUCIBLE, LINKING, DB2_ONLINE, ONLINE, BATCH, CALL, IMS):

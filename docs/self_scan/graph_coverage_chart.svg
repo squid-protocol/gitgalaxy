@@ -17,7 +17,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="1244" height="1146"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 26, callee names 23, call resolution 8, hubs 25 of 65 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 26, callee names 23, call resolution 8, hubs 26 of 65 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -146,11 +146,11 @@
 <text class="n" x="1240" y="189">repos=1</text>
 </g>
 <text class="lang" x="22" y="229.0">csharp</text>
-<g><title>csharp imports: precision 88.8% of 143, recall 66.7% of 39 (raw 17.5% / 66.7%; 3 shapes without a verdict); corpus JamesNK/Newtonsoft.Json, xunit/xunit; small n</title>
+<g><title>csharp imports: precision 97.9% of 143, recall 66.7% of 39 (raw 17.5% / 66.7%; 3 shapes without a verdict); corpus JamesNK/Newtonsoft.Json, xunit/xunit; small n</title>
 <text class="pr" x="120" y="222.5">Precision</text>
 <rect class="track" x="166" y="215" width="110" height="8" rx="2"/>
-<rect x="166" y="215" width="97.7" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="281" y="223">88.8%*</text>
+<rect x="166" y="215" width="107.7" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="281" y="223">97.9%*</text>
 <text class="pr" x="120" y="234.5">Recall</text>
 <rect class="track" x="166" y="227" width="110" height="8" rx="2"/>
 <rect x="166" y="227" width="73.4" height="8" rx="2" fill="#eda100" opacity="0.35"/>
@@ -248,11 +248,11 @@
 </g>
 <rect class="stripe" x="16" y="310" width="1212" height="34"/>
 <text class="lang" x="22" y="331.0">go</text>
-<g><title>go imports: precision 100.0% of 121, recall 100.0% of 121 (raw 100.0% / 100.0%; 1 shapes without a verdict); corpus prometheus/client_golang, spf13/cobra</title>
+<g><title>go imports: precision 100.0% of 121, recall 100.0% of 121; corpus prometheus/client_golang, spf13/cobra</title>
 <text class="pr" x="120" y="324.5">Precision</text>
 <rect class="track" x="166" y="317" width="110" height="8" rx="2"/>
 <rect x="166" y="317" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="325">100.0%*</text>
+<text class="val" x="281" y="325">100.0%</text>
 <text class="pr" x="120" y="336.5">Recall</text>
 <rect class="track" x="166" y="329" width="110" height="8" rx="2"/>
 <rect x="166" y="329" width="110.0" height="8" rx="2" fill="#eda100"/>
@@ -769,7 +769,7 @@
 <text class="n" x="324" y="767">n=814 imports</text>
 <text class="n" x="324" y="779">repos 2 · files 173</text>
 </g>
-<g><title>rust callee names: precision 99.6% of 7,865, recall 99.9% of 7,570</title>
+<g><title>rust callee names: precision 99.6% of 7,864, recall 99.9% of 7,570</title>
 <text class="pr" x="426" y="766.5">Precision</text>
 <rect class="track" x="472" y="759" width="110" height="8" rx="2"/>
 <rect x="472" y="759" width="109.6" height="8" rx="2" fill="#4a3aa7"/>
@@ -907,15 +907,17 @@
 <text class="n" x="1240" y="869">repos=1</text>
 </g>
 <text class="lang" x="22" y="909.0">swift</text>
-<g><title>swift imports: precision - of 0, recall - of 0 (raw - / -; 1 shapes without a verdict); corpus apple/swift-argument-parser; small n</title>
+<g><title>swift imports: precision 85.3% of 348, recall 65.3% of 510; corpus apple/swift-argument-parser, swiftlang/swift-package-manager</title>
 <text class="pr" x="120" y="902.5">Precision</text>
 <rect class="track" x="166" y="895" width="110" height="8" rx="2"/>
-<text class="val" x="281" y="903">-*</text>
+<rect x="166" y="895" width="93.8" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="903">85.3%</text>
 <text class="pr" x="120" y="914.5">Recall</text>
 <rect class="track" x="166" y="907" width="110" height="8" rx="2"/>
-<text class="val" x="281" y="915">-</text>
-<text class="n" x="324" y="903">n=0 imports</text>
-<text class="n" x="324" y="915">repos 1 · files 170</text>
+<rect x="166" y="907" width="71.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="915">65.3%</text>
+<text class="n" x="324" y="903">n=510 imports</text>
+<text class="n" x="324" y="915">repos 2 · files 2,019</text>
 </g>
 <g><title>swift callee names: precision 99.0% of 305, recall 79.7% of 379 (raw 99.0% / 79.7%; 4 shapes without a verdict)</title>
 <text class="pr" x="426" y="902.5">Precision</text>
@@ -930,7 +932,17 @@
 <text class="n" x="630" y="915">functions 132</text>
 </g>
 <text class="none" x="732" y="908.0">not measured</text>
-<text class="none" x="1038" y="908.0">not measured</text>
+<g><title>swift hubs: 50% / -0.25 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="902.5">overlap@10</text>
+<rect class="track" x="1090" y="895" width="110" height="8" rx="2"/>
+<rect x="1090" y="895" width="55.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="903">50%</text>
+<text class="pr" x="1038" y="914.5">Spearman</text>
+<rect class="track" x="1090" y="907" width="110" height="8" rx="2"/>
+<rect x="1090" y="907" width="2.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="915">-0.25</text>
+<text class="n" x="1240" y="903">repos=1</text>
+</g>
 <rect class="stripe" x="16" y="922" width="1212" height="34"/>
 <text class="lang" x="22" y="943.0">tcl</text>
 <g><title>tcl imports: precision 100.0% of 33, recall 4.4% of 804 (raw 100.0% / 4.4%; 1 shapes without a verdict); corpus tcltk/tcllib</title>

@@ -830,7 +830,7 @@
    "genapp-lgapvs01": [
     3,
     3,
-    7,
+    8,
     9
    ],
    "genapp-lgastat1": [
@@ -1035,7 +1035,7 @@
    "genapp-lgupvs01": [
     3,
     3,
-    7,
+    8,
     9
    ],
    "genapp-lgwebst5": [
@@ -2355,7 +2355,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "3e2b565e58e6b9b8bd14e839b403a24227c34130",
+   "sha": "acf802b20f079761483c2aeb5f2a4b5eda078fc4",
    "translator": {
     "files": 145,
     "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
@@ -11155,8 +11155,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 3e2b565e58e6b9b8bd14e839b403a24227c34130",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 3e2b565e58e6b9b8bd14e839b403a24227c34130",
+   "python tests/tools/cics_census.py survey --baseline --sha acf802b20f079761483c2aeb5f2a4b5eda078fc4",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha acf802b20f079761483c2aeb5f2a4b5eda078fc4",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -11176,13 +11176,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "3e2b565e58e6b9b8bd14e839b403a24227c34130",
+   "sha": "acf802b20f079761483c2aeb5f2a4b5eda078fc4",
    "translator": {
     "files": 145,
     "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
    }
   },
-  "translator_commit": "3e2b565e58e6b9b8bd14e839b403a24227c34130",
+  "translator_commit": "acf802b20f079761483c2aeb5f2a4b5eda078fc4",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

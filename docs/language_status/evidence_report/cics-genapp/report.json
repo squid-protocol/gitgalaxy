@@ -945,7 +945,7 @@
    "genapp-lgapvs01": [
     3,
     3,
-    7,
+    8,
     9
    ],
    "genapp-lgastat1": [
@@ -1150,7 +1150,7 @@
    "genapp-lgupvs01": [
     3,
     3,
-    7,
+    8,
     9
    ],
    "genapp-lgwebst5": [
@@ -2218,7 +2218,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "3e2b565e58e6b9b8bd14e839b403a24227c34130",
+   "sha": "acf802b20f079761483c2aeb5f2a4b5eda078fc4",
    "translator": {
     "files": 145,
     "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
@@ -5729,7 +5729,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:c57a5680492c2f6297b1d45631ecb931cbc4eda8d80aefdfb5beb5a1da8d1a3d",
+       "oracle_image": "sha256:5d8177cca55b9bdc00406bd4fd1a6ae92947580a22fdb477b862f111105f9160",
        "oracle_matches_pin": true,
        "records_compared": 24,
        "records_equal": 24,
@@ -13593,7 +13593,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:c57a5680492c2f6297b1d45631ecb931cbc4eda8d80aefdfb5beb5a1da8d1a3d",
+       "oracle_image": "sha256:5d8177cca55b9bdc00406bd4fd1a6ae92947580a22fdb477b862f111105f9160",
        "oracle_matches_pin": true,
        "records_compared": 20,
        "records_equal": 20,
@@ -13741,7 +13741,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:c57a5680492c2f6297b1d45631ecb931cbc4eda8d80aefdfb5beb5a1da8d1a3d",
+      "oracle_image": "sha256:5d8177cca55b9bdc00406bd4fd1a6ae92947580a22fdb477b862f111105f9160",
       "oracle_matches_pin": true,
       "records_compared": 20,
       "records_equal": 20,
@@ -14676,14 +14676,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 77.8,
-    "branch_pct": 77.8,
+    "branch_net_pct": 88.9,
+    "branch_pct": 88.9,
     "branches": {
-     "covered": 7,
+     "covered": 8,
      "total": 9
     },
     "branches_net": {
-     "covered": 7,
+     "covered": 8,
      "total": 9
     },
     "current": true,
@@ -14760,7 +14760,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:c57a5680492c2f6297b1d45631ecb931cbc4eda8d80aefdfb5beb5a1da8d1a3d",
+       "oracle_image": "sha256:5d8177cca55b9bdc00406bd4fd1a6ae92947580a22fdb477b862f111105f9160",
        "oracle_matches_pin": true,
        "records_compared": 20,
        "records_equal": 20,
@@ -14808,7 +14808,7 @@
      },
      {
       "case": "genapp-lgapvs01",
-      "case_scenarios": 11,
+      "case_scenarios": 13,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -14817,7 +14817,7 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 7,
+         "covered": 8,
          "total": 9
         },
         "paragraphs": {
@@ -14825,16 +14825,15 @@
          "live": 3
         },
         "uncovered_branches": [
-         "line 173 IF false (WRITE-ERROR-MESSAGE)",
-         "line 174 IF true (WRITE-ERROR-MESSAGE)"
+         "line 173 IF false (WRITE-ERROR-MESSAGE)"
         ]
        },
        "db2": false,
        "facade": {
-        "passed": 11,
-        "runs": 11
+        "passed": 13,
+        "runs": 13
        },
-       "fault_runs": 2,
+       "fault_runs": 4,
        "java_failed": false,
        "option_differences": [
         {
@@ -14854,11 +14853,11 @@
        ],
        "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
-       "records_compared": 46,
-       "records_equal": 46,
-       "runs": 11,
-       "scenarios": 11,
-       "scenarios_equal": 11,
+       "records_compared": 66,
+       "records_equal": 66,
+       "runs": 13,
+       "scenarios": 13,
+       "scenarios_equal": 13,
        "stale_inputs": [],
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
@@ -14912,7 +14911,7 @@
     ],
     "chosen": {
      "case": "genapp-lgapvs01",
-     "case_scenarios": 11,
+     "case_scenarios": 13,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -14921,7 +14920,7 @@
      "record": {
       "coverage": {
        "branches": {
-        "covered": 7,
+        "covered": 8,
         "total": 9
        },
        "paragraphs": {
@@ -14929,16 +14928,15 @@
         "live": 3
        },
        "uncovered_branches": [
-        "line 173 IF false (WRITE-ERROR-MESSAGE)",
-        "line 174 IF true (WRITE-ERROR-MESSAGE)"
+        "line 173 IF false (WRITE-ERROR-MESSAGE)"
        ]
       },
       "db2": false,
       "facade": {
-       "passed": 11,
-       "runs": 11
+       "passed": 13,
+       "runs": 13
       },
-      "fault_runs": 2,
+      "fault_runs": 4,
       "java_failed": false,
       "option_differences": [
        {
@@ -14958,11 +14956,11 @@
       ],
       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
-      "records_compared": 46,
-      "records_equal": 46,
-      "runs": 11,
-      "scenarios": 11,
-      "scenarios_equal": 11,
+      "records_compared": 66,
+      "records_equal": 66,
+      "runs": 13,
+      "scenarios": 13,
+      "scenarios_equal": 13,
       "stale_inputs": [],
       "status_at_build": "shown equal, unapproved",
       "verdict": "all equal"
@@ -14979,7 +14977,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 77.8 raw, 77.8 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 88.9 raw, 88.9 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 5,
@@ -15324,7 +15322,7 @@
      "X27",
      "X46"
     ],
-    "branch_outcomes_unrun": 2,
+    "branch_outcomes_unrun": 1,
     "commands": 5,
     "commands_backed": 2,
     "commands_not_backed": [
@@ -17635,7 +17633,7 @@
      },
      {
       "case": "genapp-lgapvs01",
-      "case_scenarios": 11,
+      "case_scenarios": 13,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -17644,7 +17642,7 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 7,
+         "covered": 8,
          "total": 9
         },
         "paragraphs": {
@@ -17652,16 +17650,15 @@
          "live": 3
         },
         "uncovered_branches": [
-         "line 173 IF false (WRITE-ERROR-MESSAGE)",
-         "line 174 IF true (WRITE-ERROR-MESSAGE)"
+         "line 173 IF false (WRITE-ERROR-MESSAGE)"
         ]
        },
        "db2": false,
        "facade": {
-        "passed": 11,
-        "runs": 11
+        "passed": 13,
+        "runs": 13
        },
-       "fault_runs": 2,
+       "fault_runs": 4,
        "java_failed": false,
        "option_differences": [
         {
@@ -17681,11 +17678,11 @@
        ],
        "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
-       "records_compared": 46,
-       "records_equal": 46,
-       "runs": 11,
-       "scenarios": 11,
-       "scenarios_equal": 11,
+       "records_compared": 66,
+       "records_equal": 66,
+       "runs": 13,
+       "scenarios": 13,
+       "scenarios_equal": 13,
        "stale_inputs": [],
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
@@ -18018,7 +18015,7 @@
      },
      {
       "case": "genapp-lgupvs01",
-      "case_scenarios": 10,
+      "case_scenarios": 12,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -18027,7 +18024,7 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 7,
+         "covered": 8,
          "total": 9
         },
         "paragraphs": {
@@ -18035,16 +18032,15 @@
          "live": 3
         },
         "uncovered_branches": [
-         "line 191 IF false (WRITE-ERROR-MESSAGE)",
-         "line 192 IF true (WRITE-ERROR-MESSAGE)"
+         "line 191 IF false (WRITE-ERROR-MESSAGE)"
         ]
        },
        "db2": false,
        "facade": {
-        "passed": 10,
-        "runs": 10
+        "passed": 12,
+        "runs": 12
        },
-       "fault_runs": 3,
+       "fault_runs": 5,
        "java_failed": false,
        "option_differences": [
         {
@@ -18064,11 +18060,11 @@
        ],
        "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
-       "records_compared": 48,
-       "records_equal": 48,
-       "runs": 10,
-       "scenarios": 10,
-       "scenarios_equal": 10,
+       "records_compared": 66,
+       "records_equal": 66,
+       "runs": 12,
+       "scenarios": 12,
+       "scenarios_equal": 12,
        "stale_inputs": [],
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
@@ -19341,7 +19337,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:c57a5680492c2f6297b1d45631ecb931cbc4eda8d80aefdfb5beb5a1da8d1a3d",
+       "oracle_image": "sha256:5d8177cca55b9bdc00406bd4fd1a6ae92947580a22fdb477b862f111105f9160",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -19453,7 +19449,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:c57a5680492c2f6297b1d45631ecb931cbc4eda8d80aefdfb5beb5a1da8d1a3d",
+      "oracle_image": "sha256:5d8177cca55b9bdc00406bd4fd1a6ae92947580a22fdb477b862f111105f9160",
       "oracle_matches_pin": true,
       "records_compared": 18,
       "records_equal": 18,
@@ -19909,14 +19905,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 77.8,
-    "branch_pct": 77.8,
+    "branch_net_pct": 88.9,
+    "branch_pct": 88.9,
     "branches": {
-     "covered": 7,
+     "covered": 8,
      "total": 9
     },
     "branches_net": {
-     "covered": 7,
+     "covered": 8,
      "total": 9
     },
     "current": true,
@@ -20045,7 +20041,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:c57a5680492c2f6297b1d45631ecb931cbc4eda8d80aefdfb5beb5a1da8d1a3d",
+       "oracle_image": "sha256:5d8177cca55b9bdc00406bd4fd1a6ae92947580a22fdb477b862f111105f9160",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -20093,7 +20089,7 @@
      },
      {
       "case": "genapp-lgupvs01",
-      "case_scenarios": 10,
+      "case_scenarios": 12,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -20102,7 +20098,7 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 7,
+         "covered": 8,
          "total": 9
         },
         "paragraphs": {
@@ -20110,16 +20106,15 @@
          "live": 3
         },
         "uncovered_branches": [
-         "line 191 IF false (WRITE-ERROR-MESSAGE)",
-         "line 192 IF true (WRITE-ERROR-MESSAGE)"
+         "line 191 IF false (WRITE-ERROR-MESSAGE)"
         ]
        },
        "db2": false,
        "facade": {
-        "passed": 10,
-        "runs": 10
+        "passed": 12,
+        "runs": 12
        },
-       "fault_runs": 3,
+       "fault_runs": 5,
        "java_failed": false,
        "option_differences": [
         {
@@ -20139,11 +20134,11 @@
        ],
        "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
        "oracle_matches_pin": true,
-       "records_compared": 48,
-       "records_equal": 48,
-       "runs": 10,
-       "scenarios": 10,
-       "scenarios_equal": 10,
+       "records_compared": 66,
+       "records_equal": 66,
+       "runs": 12,
+       "scenarios": 12,
+       "scenarios_equal": 12,
        "stale_inputs": [],
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
@@ -20153,7 +20148,7 @@
     ],
     "chosen": {
      "case": "genapp-lgupvs01",
-     "case_scenarios": 10,
+     "case_scenarios": 12,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -20162,7 +20157,7 @@
      "record": {
       "coverage": {
        "branches": {
-        "covered": 7,
+        "covered": 8,
         "total": 9
        },
        "paragraphs": {
@@ -20170,16 +20165,15 @@
         "live": 3
        },
        "uncovered_branches": [
-        "line 191 IF false (WRITE-ERROR-MESSAGE)",
-        "line 192 IF true (WRITE-ERROR-MESSAGE)"
+        "line 191 IF false (WRITE-ERROR-MESSAGE)"
        ]
       },
       "db2": false,
       "facade": {
-       "passed": 10,
-       "runs": 10
+       "passed": 12,
+       "runs": 12
       },
-      "fault_runs": 3,
+      "fault_runs": 5,
       "java_failed": false,
       "option_differences": [
        {
@@ -20199,11 +20193,11 @@
       ],
       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
       "oracle_matches_pin": true,
-      "records_compared": 48,
-      "records_equal": 48,
-      "runs": 10,
-      "scenarios": 10,
-      "scenarios_equal": 10,
+      "records_compared": 66,
+      "records_equal": 66,
+      "runs": 12,
+      "scenarios": 12,
+      "scenarios_equal": 12,
       "stale_inputs": [],
       "status_at_build": "shown equal, unapproved",
       "verdict": "all equal"
@@ -20220,7 +20214,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 77.8 raw, 77.8 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 88.9 raw, 88.9 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 5,
@@ -20600,7 +20594,7 @@
      "X46",
      "X52"
     ],
-    "branch_outcomes_unrun": 2,
+    "branch_outcomes_unrun": 1,
     "commands": 7,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -21261,8 +21255,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 3e2b565e58e6b9b8bd14e839b403a24227c34130",
-   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 3e2b565e58e6b9b8bd14e839b403a24227c34130",
+   "python tests/tools/cics_census.py survey --baseline --sha acf802b20f079761483c2aeb5f2a4b5eda078fc4",
+   "python tests/tools/evidence_report.py cics-genapp --baseline --sha acf802b20f079761483c2aeb5f2a4b5eda078fc4",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01",
@@ -21279,7 +21273,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:c57a5680492c2f6297b1d45631ecb931cbc4eda8d80aefdfb5beb5a1da8d1a3d",
+   "sha256:5d8177cca55b9bdc00406bd4fd1a6ae92947580a22fdb477b862f111105f9160",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
@@ -21287,13 +21281,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "3e2b565e58e6b9b8bd14e839b403a24227c34130",
+   "sha": "acf802b20f079761483c2aeb5f2a4b5eda078fc4",
    "translator": {
     "files": 145,
     "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
    }
   },
-  "translator_commit": "3e2b565e58e6b9b8bd14e839b403a24227c34130",
+  "translator_commit": "acf802b20f079761483c2aeb5f2a4b5eda078fc4",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

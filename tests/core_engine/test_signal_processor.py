@@ -2136,3 +2136,20 @@ def test_signal_processor_percentiles_empty_galaxy_survives(processor):
     existing empty-state guard on _normalize_temporal_metrics)."""
     summary = processor.summarize_galaxy_metrics([], [])
     assert summary == {}
+
+
+# ==============================================================================
+# #4548 item 6: risk_safety_score must not saturate on dense-but-ordinary files
+# ==============================================================================
+def test_safety_score_keeps_dense_files_ordered_below_saturation(processor):
+    """A bypass-dense file (a shell script of unquoted variables) stays below 99 and still ranks by density."""
+    idx_safety = processor.RISK_SCHEMA.index("safety_score")
+
+    def score(bypasses):
+        meta, sig = create_synthetic_star(processor, "dense", 100, {"safety_bypasses": bypasses})
+        return processor.calculate_risk_vector(meta, sig)["risk_vector"][idx_safety]
+
+    moderate, dense, extreme = score(30), score(63), score(120)
+    assert moderate < dense < extreme
+    assert dense < 99.0, f"63 bypasses in 100 lines saturated at {dense}"
+    assert dense - moderate > 5.0, "dense files must stay distinguishable from moderate ones"

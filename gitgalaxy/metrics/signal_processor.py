@@ -1618,7 +1618,7 @@ class SignalProcessor:
         net_exposure = attack - defense
 
         try:
-            score = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 12.0) * net_exposure))
+            score = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 4.0) * net_exposure))
         except OverflowError:
             score = 100.0 if net_exposure > 0 else 0.0
 

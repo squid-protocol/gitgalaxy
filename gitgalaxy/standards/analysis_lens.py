@@ -922,7 +922,10 @@ RISK_EQUATION_TUNING = {
         "test_weight": 0.5,
         "doc_weight": 0.1,
         "laplace_smoothing": 20.0,
-        "sigmoid_slope": 12.0,
+        # #4548 item 6: slope 12 reached 99 at a net density of 0.38 weighted hits per line, so 3.8-23% of
+        # files pinned at 99-100 and the ranking among them was lost. Slope 4 (the cognitive_load slope)
+        # reaches 99 only past ~1.15, keeping dense files ordered by density.
+        "sigmoid_slope": 4.0,
         "breach_density_min": 0.03,
         "breach_floor_mult": 500.0,
         "breach_floor_max": 80.0,

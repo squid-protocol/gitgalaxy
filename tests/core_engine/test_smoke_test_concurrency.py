@@ -74,3 +74,26 @@ def test_a_main_push_is_never_cancelled_but_a_pr_is():
     """#6514: eight main push runs in a row were cancelled by the next push, so main never had a verdict."""
     assert _cancel("push", None, MAIN) is False
     assert _cancel("pull_request", 1, "refs/pull/1/merge") is True
+
+
+def _durations_if(event, part_result):
+    """Evaluate the `full-suite-durations` job condition (`!cancelled()` is true here; a skipped ancestor is not modelled)."""
+    expr = _doc()["jobs"]["full-suite-durations"]["if"]
+    body = re.fullmatch(r"\$\{\{(.*)\}\}", str(expr).strip(), re.S).group(1).strip()
+    body = body.replace("!cancelled()", "True").replace("github.event_name", repr(event))
+    body = body.replace("needs.full-suite-part.result", repr(part_result))
+    return eval(body.replace("&&", " and "), {"__builtins__": {}}, {})  # noqa: S307 -- committed workflow expression
+
+
+def test_the_nightly_stores_its_durations_though_tested_tree_is_skipped():
+    """#5133 slice 8: a bare `success()` is false under a skipped ancestor (push-only `tested-tree`), so the green
+    nightly 40179743618 skipped the job and no calibrated cache was written."""
+    job = _doc()["jobs"]["full-suite-durations"]
+    assert "success()" not in str(job["if"])
+    assert "tested-tree" not in job["needs"]  # the condition must not lean on it either way
+    assert _durations_if("schedule", "success") is True
+
+
+@pytest.mark.parametrize(("event", "part"), [("push", "success"), ("pull_request", "success"), ("schedule", "failure")])
+def test_durations_are_stored_only_by_a_nightly_whose_parts_passed(event, part):
+    assert _durations_if(event, part) is False

@@ -3322,10 +3322,9 @@
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_10": "13.3%",
         "file_cluster_12": "6.7%",
-        "file_cluster_13": "3.3%",
         "file_cluster_15": "3.3%",
         "file_cluster_16": "43.3%",
-        "file_cluster_2": "13.3%",
+        "file_cluster_2": "16.7%",
         "file_cluster_4": "10.0%",
         "file_cluster_9": "6.7%"
       },
@@ -3381,11 +3380,11 @@
       },
       "Directory Group Magnitude": 485.5,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_10": "33.3%",
+        "file_cluster_10": "41.7%",
         "file_cluster_12": "8.3%",
-        "file_cluster_13": "8.3%",
-        "file_cluster_15": "16.7%",
-        "file_cluster_16": "33.3%"
+        "file_cluster_15": "8.3%",
+        "file_cluster_16": "33.3%",
+        "file_cluster_2": "8.3%"
       },
       "File Count": 12,
       "Files": [

@@ -458,6 +458,37 @@ def _past_from(length: str | None, area: str | None, what: str) -> list[str]:
             "    MOVE 98 TO RETURN-CODE", "    STOP RUN", "END-IF"]  # fmt: skip
 
 
+def _move_to_padq(area: str) -> list[str]:
+    """The MOVE of a FROM item into GG-PADQ, on two lines when a long item name would push it past column 72."""
+    one = f"    MOVE {area} TO GG-PADQ(1:LENGTH OF {area})"
+    return (
+        [one] if len(_AREA_B) + len(one) + 4 <= 72 else [f"    MOVE {area}", f"        TO GG-PADQ(1:LENGTH OF {area})"]
+    )
+
+
+# X6: the stub's line on the padded path (_write_from), so a proof can name X6 for the task that ran it; outputs()
+# takes it out of the task's DISPLAY log (the Java side prints no such line)
+X6_PADDED_SAID = "GG-X6 PADDED "
+
+
+def _write_from(length: str | None, area: str, what: str, call: list[str]) -> list[str]:
+    """X6 (ASSUMED, owner 2026-10-21): a WRITEQ whose LENGTH runs past its FROM item writes FROM's bytes then SPACES to
+    LENGTH. IBM takes the bytes that follow the item in storage (undefined); GnuCOBOL's layout differs, so the fill is
+    the one both sides agree on (DetCics.padded). The record goes through GG-PADQ (a record is at most 32767 bytes);
+    a stated LENGTH over that is refused at run time, as before."""
+    if not length or _literal(area):
+        return call
+    return [f"IF GG-LEN > LENGTH OF {area}",
+            "    IF GG-LEN > LENGTH OF GG-PADQ",
+            f"        DISPLAY '{what} LENGTH > FROM: not modelled'",
+            "        MOVE 98 TO RETURN-CODE", "        STOP RUN", "    END-IF",
+            f"    DISPLAY '{X6_PADDED_SAID}{what}'",
+            "    MOVE SPACES TO GG-PADQ",
+            *_move_to_padq(area),
+            *["    " + ln for ln in call[:-1] + [call[-1].replace(f"BY REFERENCE {area}", "BY REFERENCE GG-PADQ")]],
+            "ELSE", *["    " + ln for ln in call], "END-IF"]  # fmt: skip
+
+
 def _td_command(verb: str, opts: dict[str, str | None], labels: list[str] | None = None) -> list[str]:
     """#5079 (X57): READQ TD / DELETEQ TD -> GGCRDTD / GGCDLTD (the queue in GG-QNAME). READQ's LENGTH is in-out, as READ's:
     in, the most INTO takes; out, the record's length, on NORMAL and LENGERR."""
@@ -1665,8 +1696,8 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         if not (queue and frm):
             raise Unsupported("WRITEQ TD without QUEUE / FROM", ["WRITEQ TD"])
         return ([name(queue, "GG-QNAME"), f"MOVE {opts.get('LENGTH') or 'LENGTH OF ' + frm} TO GG-LEN"]
-                + _past_from(opts.get("LENGTH"), frm, "WRITEQ TD")
-                + _call("GGCWRTD", [f"BY REFERENCE {frm}"]) + _resp(opts, True, labels))  # fmt: skip
+                + _write_from(opts.get("LENGTH"), frm, "WRITEQ TD", _call("GGCWRTD", [f"BY REFERENCE {frm}"]))
+                + _resp(opts, True, labels))  # fmt: skip
     if verb in ("READQ", "DELETEQ") and "TD" in opts:  # #5079 (X57): transient data, intrapartition
         return _td_command(verb, opts, labels)
     if verb == "DELETEQ" and "TD" not in opts:  # #4415 slice 2 (X29): the whole TS queue
@@ -1911,6 +1942,9 @@ def _numbered(ln: str) -> str:
 
 _DIB = "       01  DIB.\n           05 FILLER   PIC XX.\n           05 DIBSTAT  PIC XX.\n"
 
+# X6: the record a WRITEQ past its FROM item writes (_write_from); only a program that has such a WRITEQ gets it
+_PADQ = "       01  GG-PADQ PIC X(32767).\n"
+
 
 DLI_CALL = re.compile(r"\bEXEC\s+DLI\b", re.I)
 # #5233 (register I5): the CALL interfaces to DL/I. Under CICS only EXEC DLI is modelled; no burned program CALLs these.
@@ -2085,7 +2119,8 @@ def translate(source: str, copy_dirs: list[Path] | None = None) -> tuple[str, bo
         or re.search(r"^.{6} +COPY\s+\S+\s+REPLACING\b[^.]*\bBY\s+DFHCOMMAREA\b", text, re.M | re.I)
     )
     dib = _DIB if any(b[3].startswith(_DLI_TAG) for b in blocks) else ""  # (#5278: IBM's DIB, only DIBSTAT supplied)
-    text = re.sub(r"^(.{6} +WORKING-STORAGE\s+SECTION\.[^\n]*\n)", r"\1       COPY DFHEIBLK.\n" + dib, text,
+    pad = _PADQ if "GG-PADQ" in text else ""
+    text = re.sub(r"^(.{6} +WORKING-STORAGE\s+SECTION\.[^\n]*\n)", r"\1       COPY DFHEIBLK.\n" + dib + pad, text,
                   count=1, flags=re.M | re.I)  # fmt: skip
     if "COPY DFHEIBLK" not in text:
         raise Unsupported("no WORKING-STORAGE SECTION to hold the EIB")
@@ -3653,6 +3688,10 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
     res["sql"] = sqlout.read_text(encoding="latin-1") if sqlout.is_file() else ""
     said = out.parent / "stdout.txt"  # #4635: what the task DISPLAYed (the job log), as IBM writes it
     res["sysout"] = said.read_bytes() if said.is_file() else b""
+    padded = [ln for ln in res["sysout"].split(b"\n") if ln.startswith(X6_PADDED_SAID.encode("ascii"))]
+    if padded:  # X6: a WRITEQ past FROM written padded -- the stub's line, not the task's own DISPLAY
+        res["x6_padded"] = [ln.decode("ascii").removeprefix(X6_PADDED_SAID).strip() for ln in padded]
+        res["sysout"] = b"\n".join(ln for ln in res["sysout"].split(b"\n") if ln not in padded)
     log = out / "events.txt"
     for line in log.read_text(encoding="latin-1").splitlines() if log.is_file() else []:
         seq, _, rest = line.partition(" ")
@@ -5320,6 +5359,12 @@ def mask_clock_events(case: dict[str, Any], events: list[dict[str, Any]], counte
                     ca[name] = v[:start] + "<clock>".ljust(length) + v[start + length :]
                     counter[0] += 1
             e = {**e, "commarea": ca}
+        for k in ("text", "data"):  # a WRITEQ record that carries the clock (X6: LGAPDB01's CICA line past its FROM)
+            if isinstance(e.get(k), str):
+                v = _CLOCK.sub(lambda m: "<clock>" if _from_clock(m.group()) else m.group(), e[k])
+                if v != e[k]:
+                    counter[0] += 1
+                    e = {**e, k: v}
         out.append(e)
     return out
 
@@ -6065,6 +6110,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
                 print(f"{case['program']} {name}: DISPLAY output differs on {s['differing']} line(s): {s['diffs'][:3]}")
         if sc.get("derived"):
             report["outputs"][name]["sql_faults"] = sc["sql_plan"]
+        if res.get("x6_padded"):  # X6 (ASSUMED): the task ran on through a WRITEQ past FROM, padded on both sides
+            report["outputs"][name]["x6_padded"] = res["x6_padded"]
         if x6:
             report["outputs"][name]["judged_to"], report["outputs"][name]["x6"] = judged_to(x6), x6
             if not x6["ok"]:

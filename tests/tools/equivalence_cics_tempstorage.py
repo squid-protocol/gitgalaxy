@@ -68,7 +68,7 @@ def ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None 
             raise ec.Unsupported(f"{feature} REWRITE without ITEM", [feature])
         lines += [f"MOVE {item if rewrite else 0} TO GG-ITEM",
                   "MOVE 'REWRITE' TO GG-FLAGS" if rewrite else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
-        lines += ec._past_from(length, area, "WRITEQ TS") + ec._call("GGCWRTQ", [f"BY REFERENCE {area}"])
+        lines += ec._write_from(length, area, "WRITEQ TS", ec._call("GGCWRTQ", [f"BY REFERENCE {area}"]))
         if item and not rewrite:
             after += ["IF GG-RESP = 0", f"    MOVE GG-ITEM TO {item}", "END-IF"]
     if num:

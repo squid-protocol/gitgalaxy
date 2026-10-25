@@ -36,6 +36,8 @@ DEFINITION: dict[str, Any] = {
     ],
     "shebangs": ["go", "gorun", "yaegi"],
     "lexical_family": "standard_block",
+    # #3798: an import path resolves through go.mod (core/go_modules.py), never the name search.
+    "imports_follow_go_modules": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_GO,  # #3645: `(*T)(x)` conversions too

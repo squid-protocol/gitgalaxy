@@ -337,10 +337,10 @@ def test_a_pull_request_or_push_ignores_cobol_mainframe_and_nothing_else_does():
     gate = (ROOT / ".github" / "workflows" / "full-suite-gate.yml").read_text(encoding="utf-8")
     assert "PYTEST_ADDOPTS" not in gate
     # #5953: the nightly grid drops ubuntu / 3.12 (smoke-test.yml's nightly is that leg); a tag or manual run keeps it
-    assert '"${{ github.event_name }}" = "schedule" ] || {' in gate
+    assert '"$GITHUB_EVENT_NAME" = "schedule" ] || {' in gate
     # post-merge.yml's dispatch (workflow_dispatch on main, no inputs) drops it too; a PR-branch run or full_matrix=true keeps it
-    assert '"${{ github.ref }}" = "refs/heads/main" ]' in gate
-    assert '"${{ inputs.full_matrix }}" != "true" ]; }; then\n' in gate
+    assert '"$GITHUB_REF" = "refs/heads/main" ]' in gate
+    assert '"$FULL_MATRIX" != "true" ]; }; then\n' in gate
     assert '.os != "ubuntu-latest" or .["python-version"] != "3.12"' in gate
     gt = yaml.safe_load((ROOT / ".github" / "workflows" / "mainframe-ground-truth.yml").read_text(encoding="utf-8"))
     part = gt["jobs"]["ground-truth-part"]

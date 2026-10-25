@@ -158,6 +158,43 @@ def test_same_base_cache_is_restored_by_java_compile_and_seeded_by_its_own_workf
     assert "lookup-only: true" in lookup, "a push whose content key exists must not regenerate"
 
 
+def _scan_inputs(expr):
+    """The hashFiles patterns of an expression, `!` kept and the checkout prefix (`base/` or `gitgalaxy/`) stripped."""
+    return [re.sub(r"^(!?)(base|gitgalaxy)/", r"\1", a) for a in re.findall(r"'([^']+)'", expr)]
+
+
+def test_engine_scan_cache_is_restored_by_java_compile_and_seeded_by_its_own_workflow():
+    """#5142: the dsf engine scan (~90 s a side) is kept across runs. Same split as the same-base generation: java-compile
+    only restores (#4968), java-base-generation.yml saves. The key is a coarse content hash; the tool's scan_key is exact."""
+    compile_text = (WORKFLOWS / "java-compile.yml").read_text(encoding="utf-8")
+    seed_text = (WORKFLOWS / "java-base-generation.yml").read_text(encoding="utf-8")
+    steps = [(wf, k, s) for wf, k, s in _cache_steps() if "java-scan-" in _key(s) or "java_scan_cache" in s]
+    assert sorted((wf, k) for wf, k, _ in steps) == [
+        ("java-base-generation.yml", "restore"),
+        ("java-base-generation.yml", "save"),
+        ("java-compile.yml", "restore"),
+    ], steps
+    lookup = next(s for wf, k, s in steps if wf == "java-base-generation.yml" and k == "restore")
+    save = next(s for wf, k, s in steps if wf == "java-base-generation.yml" and k == "save")
+    assert "lookup-only: true" in lookup and _key(lookup) == _key(save)
+    seeded = _scan_inputs(_key(save))
+    # the compile side computes the same key from the base checkout on a PR and from its own on a push
+    (keyed,) = re.findall(r'echo "key=(java-scan-[^"]*)"', compile_text)
+    parts = re.findall(r"pull_request' && hashFiles\(([^)]*)\) \|\| hashFiles\(([^)]*)\)", keyed)
+    assert len(parts) == 3, keyed
+    for side in (0, 1):
+        got = [a for p in parts for a in _scan_inputs(p[side])]
+        assert got == seeded, "the compile-side scan key hashes different inputs than the seeding"
+    assert any(a.startswith("!") for a in seeded) and "!gitgalaxy/cobol_to_java_controller.py" in seeded
+    assert seeded[0] == "gitgalaxy/**" and "tests/tools/java_target_matrix.py" in seeded
+    # the key must change whenever the tool's exact key can: the files the scan reads from the otherwise-left-out translator
+    assert "gitgalaxy/tools/cobol_to_java/det/copy/**" in seeded
+    assert "gitgalaxy/tools/cobol_to_java/cics_task_containers.py" in seeded
+    for text in (compile_text, seed_text):
+        assert '--scan-cache "$RUNNER_TEMP/java_scan_cache"' in text
+    assert compile_text.count('--scan-cache "$RUNNER_TEMP/java_scan_cache"') == 2, "the check and the scan build"
+
+
 def test_the_seeding_workflow_is_never_cancelled_or_gated_and_never_runs_on_a_pull_request():
     text = (WORKFLOWS / "java-base-generation.yml").read_text(encoding="utf-8")
     assert "cancel-in-progress: false" in text and "github.sha" in text.split("concurrency:")[1].split("jobs:")[0]

@@ -14,9 +14,9 @@
    "pct": 98.9
   },
   "branches": {
-   "covered": 1074,
+   "covered": 1076,
    "total": 1171,
-   "pct": 91.7
+   "pct": 91.9
   },
   "cases_measured": 24,
   "cases": 97
@@ -495,7 +495,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 11
+   "tests": 13
   },
   {
    "corpus": "cics-genapp",
@@ -639,7 +639,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 10
+   "tests": 12
   },
   {
    "corpus": "cics-genapp",
@@ -1877,7 +1877,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 11
+   "tests": 13
   },
   "genapp-lgastat1": {
    "generated": [],
@@ -2103,7 +2103,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 10
+   "tests": 12
   },
   "genapp-lgwebst5": {
    "generated": [],

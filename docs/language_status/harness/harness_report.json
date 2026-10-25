@@ -914,9 +914,9 @@
     "coverage: live paragraphs no scenario runs"
    ],
    "reasons": {
-    "coverage: live paragraphs no scenario runs": "34/38 paragraphs"
+    "coverage: live paragraphs no scenario runs": "36/38 paragraphs"
    },
-   "tests": 13,
+   "tests": 17,
    "blocker": "coverage: live paragraphs no scenario runs"
   },
   {
@@ -1009,10 +1009,10 @@
     "fact: EIBRCODE (no harness states it)"
    ],
    "reasons": {
-    "coverage: live paragraphs no scenario runs": "37/119 paragraphs",
+    "coverage: live paragraphs no scenario runs": "55/119 paragraphs",
     "fact: EIBRCODE (no harness states it)": ""
    },
-   "tests": 2,
+   "tests": 11,
    "blocker": "coverage: live paragraphs no scenario runs"
   },
   {
@@ -2152,7 +2152,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 13
+   "tests": 17
   },
   "zecs-zecs001": {
    "generated": [],
@@ -2162,7 +2162,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 2
+   "tests": 11
   },
   "zecs-zecs003": {
    "generated": [],
@@ -2209,7 +2209,7 @@
     "zecs-zecs001"
    ],
    "programs_unlocked": 6,
-   "tests_unlocked": 111,
+   "tests_unlocked": 115,
    "programs_also_blocked": [],
    "then_needs": {
     "app/cbl/COACTUPC.cbl": [

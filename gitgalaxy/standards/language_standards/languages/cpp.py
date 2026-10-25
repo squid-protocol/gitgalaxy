@@ -114,6 +114,9 @@ DEFINITION: dict[str, Any] = {
     # #3644 (calls_out C3): `Type var(args)` in a body constructs a Type -- the callee is
     # the type, never the variable. A top-level helper flag, not a `rules` pattern (#2806).
     "calls_out_declarator_constructs": True,
+    # #3784: record each callee's argument counts so the call resolver can choose among same-named
+    # overloads (call_resolver.OVERLOAD_LANGS). A top-level helper flag, not a `rules` pattern.
+    "calls_out_arities": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a

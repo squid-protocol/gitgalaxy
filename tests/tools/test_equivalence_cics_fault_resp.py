@@ -123,6 +123,29 @@ def test_the_delay_stub_and_translator_read_the_same_plan():
     assert "if ({pl}[0] == 0) task.delay(" in det
 
 
+def test_a_plain_return_transid_that_codes_resp_reads_the_return_plan():
+    # #6271 (X71): the stub, the Java task and the translator all let a planned RETURN fail the plain form -- only when
+    # the program codes RESP (GG-ITEM 2); a plain RETURN with no RESP never consults the plan
+    stub = (REPO / "tests/equivalence/cics/ggcics.c").read_text(encoding="utf-8")
+    task = (REPO / "gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py").read_text(encoding="utf-8")
+    cics = (REPO / "gitgalaxy/tools/cobol_to_java/det/cics.py").read_text(encoding="utf-8")
+    body = stub[stub.index("int GGCRETN") : stub.index("int GGCRETI")]
+    assert 'c->item == 2 && lvl == 0 && injected("RETURN", "-"' in body
+    assert body.index("injected(") < body.index("return_event(transid")
+    assert "public int[] returnTransidResp(String transid, Object commarea, Integer length)" in task
+    assert 'level == 1 ? root().injected("RETURN", "-") : null' in task
+    assert 'self._return_call("returnTransidResp"' in cics
+
+
+def test_the_driver_lets_only_a_resp_coded_plain_return_fail():
+    body = "RETURN TRANSID('OMEN') COMMAREA(CA) LENGTH(1)"
+    plain = ec.translate_command(body)
+    tested = ec.translate_command(body + " RESP(R) RESP2(R2)")
+    assert plain[-1] == "GOBACK" and "MOVE 2 TO GG-ITEM" not in plain
+    assert "MOVE 2 TO GG-ITEM" in tested and "MOVE GG-RESP TO R" in tested and tested[-1] != "GOBACK"
+    assert "IF GG-RESP = 0" in tested
+
+
 # #6271 (X71): SEND TEXT (IBM, the Conditions of -send-text): TSIOERR 35; INVREQ 16 (RESP2 200, the only RESP2 it lists); LENGERR 22
 # (no RESP2). Nameless (`-`), like RETURN.
 TEXT_ACCEPTED = [

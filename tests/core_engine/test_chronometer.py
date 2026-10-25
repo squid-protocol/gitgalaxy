@@ -40,7 +40,9 @@ def test_chronometer_git_boundaries(mock_run, tmp_path):
     def git_side_effect(cmd, **kwargs):
         m = MagicMock()
         m.stdout = ""
-        if "rev-parse" in cmd:
+        if "--is-shallow-repository" in cmd:
+            m.stdout = "false\n"
+        elif "rev-parse" in cmd:
             # #2976: the gate asks git itself rather than testing (root/.git).exists(),
             # so a subdirectory of a repo (and a linked worktree) passes too.
             m.stdout = "true\n"
@@ -211,3 +213,56 @@ def test_scan_git_history_fallback_abort(mock_run, tmp_path):
 
             # Verify Popen (git log stream) was never called
             mock_popen.assert_not_called()
+
+
+# ==============================================================================
+# TEST 8: SHALLOW CLONE -> STABILITY UNAVAILABLE (#4548)
+# ==============================================================================
+def _git_fixture(shallow, tmp_path, min_t="1000", max_t="900000"):
+    def side_effect(cmd, **kwargs):
+        m = MagicMock()
+        m.stdout = ""
+        if "--is-shallow-repository" in cmd:
+            m.stdout = "true\n" if shallow else "false\n"
+        elif "rev-parse" in cmd:
+            m.stdout = "true\n"
+        elif "rev-list" in cmd:
+            m.stdout = "abc\n"
+        elif "log" in cmd and "abc" in cmd:
+            m.stdout = min_t + "\n"
+        elif "log" in cmd and "-1" in cmd and len(cmd) == 4:
+            m.stdout = max_t + "\n"
+        return m
+
+    return side_effect
+
+
+@patch("gitgalaxy.metrics.chronometer.subprocess.run")
+def test_shallow_clone_history_is_unreliable(mock_run, tmp_path):
+    from gitgalaxy.metrics.signal_processor import SignalProcessor
+
+    mock_run.side_effect = _git_fixture(True, tmp_path)
+    with patch("gitgalaxy.metrics.chronometer.subprocess.Popen"):
+        chrono = Chronometer(tmp_path, parent_logger=logging.getLogger("test"))
+    assert not chrono.history_reliable
+    chrono.mtime_map["a.c"] = 1000.0  # oldest file would read 100 (bedrock) on a full history
+    temp = chrono.get_file_history_metrics("a.c")
+    assert temp["history_unreliable"] is True
+    assert SignalProcessor._calc_raw_temporal_signals(SignalProcessor.__new__(SignalProcessor), temp) == (50.0, 0.0)
+
+
+@patch("gitgalaxy.metrics.chronometer.subprocess.run")
+def test_full_history_stays_reliable(mock_run, tmp_path):
+    mock_run.side_effect = _git_fixture(False, tmp_path)
+    with patch("gitgalaxy.metrics.chronometer.subprocess.Popen"):
+        chrono = Chronometer(tmp_path, parent_logger=logging.getLogger("test"))
+    assert chrono.history_reliable
+    assert "history_unreliable" not in chrono.get_file_history_metrics("a.c")
+
+
+@patch("gitgalaxy.metrics.chronometer.subprocess.run")
+def test_single_commit_span_is_unreliable(mock_run, tmp_path):
+    mock_run.side_effect = _git_fixture(False, tmp_path, min_t="5000", max_t="5000")
+    with patch("gitgalaxy.metrics.chronometer.subprocess.Popen"):
+        chrono = Chronometer(tmp_path, parent_logger=logging.getLogger("test"))
+    assert not chrono.history_reliable

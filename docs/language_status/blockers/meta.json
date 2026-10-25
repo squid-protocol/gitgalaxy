@@ -1,10 +1,10 @@
 {
- "sha": "7ae5a95b190a86c4b25e66bc63921c2480318976",
- "surveyed_utc": "2026-10-25T16:58:07Z",
+ "sha": "72d7d4027d63be4addb5382d14556d7e4f7b8f2e",
+ "surveyed_utc": "2026-10-25T17:46:55Z",
  "scope": "burned + local corpora (no census) + cics-crucible",
  "census": false,
  "crucible": true,
- "seconds": 234,
+ "seconds": 227,
  "runs": {
   "b": {
    "root": "/home/runner/work/gitgalaxy/gitgalaxy/.mainframe_corpora",
@@ -31,5 +31,5 @@
    ]
   }
  },
- "translator": "git archive 7ae5a95b190a86c4b25e66bc63921c2480318976 (gitgalaxy, tests/tools, pyproject.toml)"
+ "translator": "git archive 72d7d4027d63be4addb5382d14556d7e4f7b8f2e (gitgalaxy, tests/tools, pyproject.toml)"
 }

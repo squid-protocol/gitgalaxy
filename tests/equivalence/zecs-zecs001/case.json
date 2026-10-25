@@ -70,7 +70,7 @@
     {
       "name": "post-tod-a",
       "commarea": null,
-      "tod": "000102030405060708090A0B0C0D0E0F",
+      "tod": "5A5A5A5A5A5A0708090A0B0C0D0E0F10",
       "why": "POST key1 with the TOD 0001020304050607...: the key record is written with ZK-ZF-IDN X'000102030405' and the file record under it"
     },
     {
@@ -78,6 +78,244 @@
       "commarea": null,
       "tod": "D4A3C1B2E5F60718293A4B5C6D7E8F90",
       "why": "the same POST with the TOD D4A3C1B2E5F60718...: the same task, the key record's ZK-ZF-IDN is X'D4A3C1B2E5F6'"
+    },
+    {
+      "name": "get-miss",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/nokey",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: GET of a key with no key record: 3200 READ answers NOTFND and 9700 sends 204",
+      "tod": "3232323232320708090A0B0C0D0E0F10"
+    },
+    {
+      "name": "get-dangling-key",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/getdangle",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: GET of a key record whose file record is gone: 3300 READ answers NOTFND, INTERNAL-KEY is set, 3100 loops and 3200 finds ZK-ZF-KEY equal to INTERNAL-KEY and sends 204",
+      "tod": "3333333333330708090A0B0C0D0E0F10"
+    },
+    {
+      "name": "head-method",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "HEAD",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/gethit",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: a HEAD request: none of the GET / POST / PUT / DELETE arms of 2000-PROCESS-REQUEST runs",
+      "tod": "3434343434340708090A0B0C0D0E0F10"
+    },
+    {
+      "name": "post-uri-invalid",
+      "commarea": null,
+      "tod": "3535353535350708090A0B0C0D0E0F10",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/cache/freshkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "why": "#6072: a path with four slashes: 1150 sends 400"
+    },
+    {
+      "name": "post-key-too-long",
+      "commarea": null,
+      "tod": "3636363636360708090A0B0C0D0E0F10",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "why": "#6072: a 256-byte key: 1160 sends 400"
+    },
+    {
+      "name": "post-key-empty",
+      "commarea": null,
+      "tod": "3737373737370708090A0B0C0D0E0F10",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "why": "#6072: a path that ends at the fifth slash: URI-PATH-LENGTH is zero, 400"
+    },
+    {
+      "name": "delete-miss",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/nokey",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: DELETE of a key with no key record: 204",
+      "tod": "3838383838380708090A0B0C0D0E0F10"
+    },
+    {
+      "name": "deplicate-not-expired",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/deplicate/ecs/walmart/cache/depfresh",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: a /deplicate DELETE of a record inside its TTL: 5500 reads it, 5600 finds it not expired and 5700 answers 201 with the ABSTIME",
+      "tod": "3939393939390708090A0B0C0D0E0F10"
+    },
+    {
+      "name": "deplicate-expired",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/deplicate/ecs/walmart/cache/depexp",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: a /deplicate DELETE of an expired record: 5600 falls through and the delete runs",
+      "tod": "3A3A3A3A3A3A0708090A0B0C0D0E0F10"
     }
-  ]
+  ],
+  "compiler_options": [
+    "TRUNC(BIN)"
+  ],
+  "compiler_options_why": "#5089: the program MOVEs LENGTH OF ZF-RECORD (32700) to ZF-LENGTH, a PIC S9(04) COMP, then READs LENGTH(ZF-LENGTH): TRUNC(STD) stores 2700 there and every full-size record would be LENGERR (a record over 2700 bytes could never be read), so the program only works as shipped under TRUNC(BIN); ASMZECS.jcl's DFHYITVL step states no TRUNC option (assumption, register it)"
 }

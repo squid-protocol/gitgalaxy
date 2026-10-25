@@ -3,7 +3,7 @@ stub translator equivalence_cics.py, the det translator det/cics.py) still runs 
 is spliced, included or dispatched to exactly once, and each command the spec names is implemented in its family's
 module, not left behind in the host file. Containers / channels (#4270, #4951, #5005) is the first family moved; file control is the second (stub and
 forge so far: the harness and det halves are still in their host files); task / interval control is the third (stub,
-det and forge; the harness half is still in its host file)."""
+det, forge and harness)."""
 
 from __future__ import annotations
 
@@ -321,6 +321,27 @@ def test_the_harness_dispatches_temporary_storage_to_its_module():
     assert ec.ts_seed is ect.ts_seed and ec.java_ts_as_compared is ect.java_ts_as_compared
     for body, stub in (("WRITEQ TS QUEUE('Q') FROM(WS-REC)", "GGCWRTQ"), ("READQ TS QUEUE('Q') INTO(WS-REC)", "GGCREADQ"),
                        ("DELETEQ TS QUEUE('Q')", "GGCDELQ")):  # fmt: skip
+        assert any(stub in ln for ln in ec.translate_command(body)), body
+
+
+# ---- task / interval control (#5274, harness half): START / RETRIEVE / CANCEL, RUN, FETCH, FREE, DELAY, POST, WAIT, CONVERSE --
+def test_the_harness_dispatches_task_control_to_its_module():
+    import equivalence_cics_taskcontrol as ectc  # noqa: E402
+
+    names = ("_interval_command", "_run_transid", "_fetch_child", "_free_child", "_delay", "_post", "_wait_event",
+             "_converse", "_cobol_start", "_cobol_retrieve", "java_start_as_compared", "java_retrieve_as_compared")  # fmt: skip
+    for name in names:
+        assert callable(getattr(ectc, name)), name
+    for old in names[:-4] + ("_cobol_start",):
+        assert not hasattr(ec, old), old
+    assert ec.java_start_as_compared is ectc.java_start_as_compared
+    assert ec.java_retrieve_as_compared is ectc.java_retrieve_as_compared and ec._cobol_retrieve is ectc._cobol_retrieve
+    for body, stub in (("START TRANSID('ABCD') INTERVAL(10)", "GGCSTRT"), ("RETRIEVE INTO(WS-REC)", "GGCRTRV"),
+                       ("CANCEL REQID('R1')", "GGCCNCL"), ("RUN TRANSID('ABCD') CHILD(WS-TOK)", "GGCRUNT"),
+                       ("FETCH CHILD(WS-TOK)", "GGCFETCH"), ("FETCH ANY(WS-TOK)", "GGCFETCH"),
+                       ("FREE CHILD(WS-TOK)", "GGCFREE"), ("DELAY INTERVAL(5)", "GGCDLAY"),
+                       ("POST INTERVAL(5)", "GGCPOST"), ("WAIT EVENT ECADDR(WS-PTR)", "GGCWEVT"),
+                       ("CONVERSE FROM(WS-OUT) INTO(WS-IN)", "GGCCONV")):  # fmt: skip
         assert any(stub in ln for ln in ec.translate_command(body)), body
 
 

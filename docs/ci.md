@@ -1,5 +1,8 @@
 # CI: labels that merge a pull request
 
+> What has been tried to speed CI up, with the measurements and the ideas that were dropped: `docs/ci_experiments_log.md`.
+> Read it before proposing a CI change, and add an entry when you make one.
+
 For maintainers. A label on a pull request tells the CI shepherd what to do with it. You set a **request** label; the
 bot sets the **status** labels and posts at most one digest comment per head. Nothing merges unless the required
 checks on `main` are green.

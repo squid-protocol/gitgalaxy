@@ -159,6 +159,8 @@ def test_a_cics_family_module_stales_what_its_host_file_does():
          "gitgalaxy/tools/cobol_to_java/cics_task_faults.py"),
         ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
          "gitgalaxy/tools/cobol_to_java/cics_task_web.py"),
+        ("gitgalaxy/tools/cobol_to_java/cobol_to_java_transaction_forge.py",
+         "gitgalaxy/tools/cobol_to_java/cics_task_tdqueues.py"),
     ):  # fmt: skip
         for t in (CRUCIBLE, LINKING, DB2_ONLINE, ONLINE, BATCH, CALL, IMS):
             assert stale_after(t, family) == stale_after(t, host), (t.key, family)

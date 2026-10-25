@@ -47,7 +47,26 @@ burned-estate gains carrying over.
 | 5 | Era profile: burned estates lean era 2-4; the PL/I CICS seen is era 1 (`HANDLE CONDITION`, DL/I, `HANDLE AID`) | #5856-class for COBOL; PL/I untouched | none |
 | 6 | What does transfer: the statement core. Where a program translates at all, 82-94% of statements come through, and holes are named | n/a | n/a |
 
+## Update 2026-10-24 (main `7bdf81d93`): #6065 landed, so `dsf` is no longer a blind first contact
+
+The statement above that no fix derived from these corpora lands before their first-contact scan no longer holds.
+#6065 (batch file I/O without an application JCL job, `WRITE ... ADVANCING`) was written from the peek, was parked on
+2026-10-22, and was closed as completed on 2026-10-23 by #6111 (slice 1). Its own `det_survey.py --no-compile` run on
+the pinned corpora, as recorded on the issue (counts only, no commit named there; the fix is #6111):
+
+| corpus | before (peek, `082aba881`) | after #6111 (2026-10-23) |
+|---|---|---|
+| `dsf` COBOL (batch) | 0 / 7 whole, 231 / 318 statements | 0 / 7 whole, 309 / 334 statements |
+| `zopeneditor-sample` | 2 / 5 whole, 595 / 632 statements | unchanged |
+
+Read this as: the `dsf` batch statement rate moved from 72.6% to 92.5% (309 / 334) with no program becoming whole, and
+the statement denominator changed (318 to 334) because the translator now emits more of the file. Both corpora have now
+been looked at twice with their hole reasons in hand, so any later scan of them is a re-measurement, not a first
+contact. The honest first-contact number for a seventh estate still has to come from an estate nobody has read
+(the blind estate draw). The table in "Numbers" is unchanged and stays the 2026-10-22 baseline.
+
 ## Going forward
 
-- `dsf` and `zopeneditor-sample`: the next scan is the real first contact. Record it here, then decide on #6066.
+- `dsf` and `zopeneditor-sample`: their next scan is a re-measurement (see the 2026-10-24 update), not a first contact.
+  Record it here, then decide on #6066.
 - Breadth is the fix for transfer: more estates scanned at first contact (the blind estate draw), not more depth on the six.

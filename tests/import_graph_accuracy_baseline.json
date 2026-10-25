@@ -169,17 +169,17 @@
     "repos": "SDWebImage/SDWebImage, TextureGroup/Texture"
   },
   "perl": {
-    "engine_edges": 47,
-    "files": 33,
-    "fn": 0,
-    "fp": 1,
-    "hub_overlap_at_10": 1.0,
-    "hub_repos": 1,
-    "hub_spearman": 0.966,
-    "imports": 49,
-    "precision_pct": 97.9,
-    "recall_pct": 100.0,
-    "repos": "libwww-perl/HTTP-Message"
+    "engine_edges": 395,
+    "files": 269,
+    "fn": 3,
+    "fp": 5,
+    "hub_overlap_at_10": 0.95,
+    "hub_repos": 2,
+    "hub_spearman": 0.991,
+    "imports": 397,
+    "precision_pct": 98.7,
+    "recall_pct": 99.2,
+    "repos": "libwww-perl/HTTP-Message, plack/Plack"
   },
   "php": {
     "engine_edges": 380,

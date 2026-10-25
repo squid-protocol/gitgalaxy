@@ -7557,7 +7557,7 @@
     },
     "php/wordpress": {
       "Average Risk Exposures": {
-        "API Exposure": "8.0%",
+        "API Exposure": "1.16%",
         "Cognitive Load Exposure": "26.63%",
         "Commented Logic Exposure": "2.49%",
         "Concurrency Exposure": "3.99%",
@@ -7567,11 +7567,11 @@
         "Instability Exposure": "43.75%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "80.31%",
-        "Tech Debt Exposure": "25.43%",
+        "Tech Debt Exposure": "33.66%",
         "Testing Exposure": "40.86%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 14166.16,
+      "Directory Group Magnitude": 14100.16,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "12.5%",
         "file_cluster_15": "12.5%",
@@ -12737,7 +12737,7 @@
     },
     "zig/mach": {
       "Average Risk Exposures": {
-        "API Exposure": "40.75%",
+        "API Exposure": "33.68%",
         "Cognitive Load Exposure": "11.79%",
         "Commented Logic Exposure": "3.69%",
         "Concurrency Exposure": "1.67%",
@@ -12747,7 +12747,7 @@
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "41.38%",
-        "Tech Debt Exposure": "37.01%",
+        "Tech Debt Exposure": "45.81%",
         "Testing Exposure": "41.22%",
         "Volatility Exposure": "0.0%"
       },

@@ -2519,7 +2519,7 @@
       "perl/bugzilla/Auth.pm": 6.58,
       "perl/bugzilla/Bug.pm": 7.004,
       "perl/bugzilla/CGI.pm": 6.618,
-      "perl/bugzilla/DB.pm": 5.477,
+      "perl/bugzilla/DB.pm": 5.488,
       "perl/bugzilla/Requirements.pm": 6.772
     },
     "perl/exiftool": {
@@ -2528,7 +2528,7 @@
       "perl/exiftool/Makefile.PL": 3.412,
       "perl/exiftool/README": 0.0,
       "perl/exiftool/RandomAccess.pm": 6.869,
-      "perl/exiftool/exiftool": 10.021
+      "perl/exiftool/exiftool": 10.022
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": 7.724,
@@ -2544,8 +2544,8 @@
       "perl/spamassassin/Makefile.PL": 6.929,
       "perl/spamassassin/Message.pm": 6.647,
       "perl/spamassassin/Parser.pm": 6.673,
-      "perl/spamassassin/PerMsgStatus.pm": 9.379,
-      "perl/spamassassin/SpamAssassin.pm": 6.427
+      "perl/spamassassin/PerMsgStatus.pm": 9.381,
+      "perl/spamassassin/SpamAssassin.pm": 6.43
     },
     "php": {
       "php/SOURCES.md": 0.0
@@ -2598,7 +2598,7 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 2.769,
       "php/wordpress/class-wp-query.php": 6.751,
-      "php/wordpress/formatting.php": 6.509,
+      "php/wordpress/formatting.php": 6.517,
       "php/wordpress/functions.php": 5.229,
       "php/wordpress/license.txt": 0.0,
       "php/wordpress/plugin.php": 5.621,
@@ -4063,7 +4063,7 @@
       "zig/mach/collision.zig": 6.871,
       "zig/mach/graph.zig": 8.498,
       "zig/mach/main.zig": 4.865,
-      "zig/mach/module.zig": 8.279,
+      "zig/mach/module.zig": 8.272,
       "zig/mach/testing.zig": 7.062,
       "zig/mach/win32.zig": 8.825
     },

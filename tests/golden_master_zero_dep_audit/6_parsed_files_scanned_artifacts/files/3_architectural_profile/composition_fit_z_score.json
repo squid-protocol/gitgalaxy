@@ -875,7 +875,7 @@
       "cobol/cics-banking-sample-application-cbsa/DELACC.cpy": -0.533,
       "cobol/cics-banking-sample-application-cbsa/DELACCZ.cpy": -0.615,
       "cobol/cics-banking-sample-application-cbsa/DELCUS.cbl": 1.102,
-      "cobol/cics-banking-sample-application-cbsa/DELCUS.cpy": -0.368,
+      "cobol/cics-banking-sample-application-cbsa/DELCUS.cpy": -0.332,
       "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cbl": -0.627,
       "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cpy": 0.0,
       "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl": 3.144,
@@ -1373,7 +1373,7 @@
       "go/core/mgc.go": 2.599,
       "go/core/mutex.go": 0.303,
       "go/core/proc.go": 1.491,
-      "go/core/server.go": 0.941,
+      "go/core/server.go": 0.964,
       "go/core/syscall_linux.go": 0.703,
       "go/core/value.go": 1.398
     },
@@ -2493,7 +2493,7 @@
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": -0.349,
-      "nix/ghostty/default.nix": 0.024,
+      "nix/ghostty/default.nix": -0.102,
       "nix/ghostty/flake.nix": -0.267,
       "nix/ghostty/shell.nix": -0.079
     },
@@ -2516,36 +2516,36 @@
       "perl/ack3_tests/file-permission.t": 2.301
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": -0.443,
+      "perl/bugzilla/Auth.pm": -0.477,
       "perl/bugzilla/Bug.pm": 0.026,
-      "perl/bugzilla/CGI.pm": 1.096,
-      "perl/bugzilla/DB.pm": 0.5,
-      "perl/bugzilla/Requirements.pm": 0.718
+      "perl/bugzilla/CGI.pm": 1.04,
+      "perl/bugzilla/DB.pm": 0.479,
+      "perl/bugzilla/Requirements.pm": 0.696
     },
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": -0.43,
       "perl/exiftool/META.json": 0.0,
       "perl/exiftool/Makefile.PL": 0.04,
       "perl/exiftool/README": 0.0,
-      "perl/exiftool/RandomAccess.pm": 0.6,
-      "perl/exiftool/exiftool": 0.261
+      "perl/exiftool/RandomAccess.pm": 0.621,
+      "perl/exiftool/exiftool": 0.244
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": 0.222,
+      "perl/mojo/IOLoop.pm": 0.203,
       "perl/mojo/Makefile.PL": 0.124,
-      "perl/mojo/Promise.pm": 0.609,
-      "perl/mojo/Template.pm": 1.262,
-      "perl/mojo/WebSocket.pm": 1.315
+      "perl/mojo/Promise.pm": 0.601,
+      "perl/mojo/Template.pm": 1.228,
+      "perl/mojo/WebSocket.pm": 1.313
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": 0.352,
+      "perl/spamassassin/AsyncLoop.pm": 0.319,
       "perl/spamassassin/Bayes.pm": 2.075,
       "perl/spamassassin/HTML.pm": 1.413,
       "perl/spamassassin/Makefile.PL": 0.796,
-      "perl/spamassassin/Message.pm": 1.362,
-      "perl/spamassassin/Parser.pm": 1.596,
-      "perl/spamassassin/PerMsgStatus.pm": 1.52,
-      "perl/spamassassin/SpamAssassin.pm": 1.235
+      "perl/spamassassin/Message.pm": 1.336,
+      "perl/spamassassin/Parser.pm": 1.579,
+      "perl/spamassassin/PerMsgStatus.pm": 1.482,
+      "perl/spamassassin/SpamAssassin.pm": 1.227
     },
     "php": {
       "php/SOURCES.md": 0.0
@@ -2598,7 +2598,7 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": -0.224,
       "php/wordpress/class-wp-query.php": 0.223,
-      "php/wordpress/formatting.php": 0.803,
+      "php/wordpress/formatting.php": 0.779,
       "php/wordpress/functions.php": 0.447,
       "php/wordpress/license.txt": 0.0,
       "php/wordpress/plugin.php": 1.74,
@@ -3266,7 +3266,7 @@
       "rust/tokio/interval.rs": 2.072,
       "rust/tokio/lib.rs": 0.382,
       "rust/tokio/maybe_done.rs": -0.521,
-      "rust/tokio/tests.rs": -0.53,
+      "rust/tokio/tests.rs": -0.595,
       "rust/tokio/tokio_mpsc_bounded.rs": 1.901,
       "rust/tokio/tokio_named_pipe.rs": 1.573,
       "rust/tokio/tokio_udp.rs": 1.738
@@ -3299,8 +3299,8 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0.0,
       "scheme/racket/cpnanopass.ss": 1.251,
-      "scheme/racket/eval.c": 0.355,
-      "scheme/racket/fun.c": 0.125,
+      "scheme/racket/eval.c": 0.331,
+      "scheme/racket/fun.c": 0.101,
       "scheme/racket/io.ss": 1.876,
       "scheme/racket/schemify.rkt": 0.818,
       "scheme/racket/thread.rkt": 1.331

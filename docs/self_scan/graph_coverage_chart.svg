@@ -769,7 +769,7 @@
 <text class="n" x="324" y="767">n=814 imports</text>
 <text class="n" x="324" y="779">repos 2 · files 173</text>
 </g>
-<g><title>rust callee names: precision 99.6% of 7,865, recall 99.9% of 7,570</title>
+<g><title>rust callee names: precision 99.6% of 7,864, recall 99.9% of 7,570</title>
 <text class="pr" x="426" y="766.5">Precision</text>
 <rect class="track" x="472" y="759" width="110" height="8" rx="2"/>
 <rect x="472" y="759" width="109.6" height="8" rx="2" fill="#4a3aa7"/>

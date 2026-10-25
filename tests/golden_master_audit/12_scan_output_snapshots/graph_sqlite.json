@@ -10955,7 +10955,7 @@
       "shell/kubernetes/update-codegen.sh": "87e9f9184df8",
       "shell/kubernetes/util.sh": "5b31fd535ffc",
       "shell/moby/install.sh": "63c64f8ef411",
-      "shell/reactos/codespell_check.sh": "8475301ea863",
+      "shell/reactos/codespell_check.sh": "8531c237efce",
       "shell/serenity/install.sh": "9a330e0fac72",
       "shell/sqlite/tclConfigShToMake.sh": "d722b647ee9e",
       "solidity/openzeppelin/AccessControl.sol": "66fe22081d20",

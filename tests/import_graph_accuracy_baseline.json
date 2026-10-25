@@ -260,17 +260,17 @@
     "repos": "circe/circe"
   },
   "shell": {
-    "engine_edges": 56,
-    "files": 669,
+    "engine_edges": 100,
+    "files": 938,
     "fn": 0,
     "fp": 0,
     "hub_overlap_at_10": 1.0,
-    "hub_repos": 2,
+    "hub_repos": 4,
     "hub_spearman": 1.0,
-    "imports": 56,
+    "imports": 100,
     "precision_pct": 100.0,
     "recall_pct": 100.0,
-    "repos": "Bash-it/bash-it, bats-core/bats-core"
+    "repos": "Bash-it/bash-it, bats-core/bats-core, ohmybash/oh-my-bash, tfutils/tfenv"
   },
   "solidity": {
     "engine_edges": 810,

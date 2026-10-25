@@ -1078,8 +1078,10 @@ jobs:
           SHA: ${{ steps.asof.outputs.sha }}
         run: |
           cd gitgalaxy
+          # --crucible (#5054): the cics-crucible clone above is surveyed as one more burned corpus (+~1 min), so the
+          # blocker feed below reads its rows and its leak scan runs on it
           PYTHONPATH="$PWD" python tests/tools/cics_census.py survey --baseline --no-census --no-fetch \
-            --sha "$SHA" --root "$GG_SCRATCH"
+            --sha "$SHA" --root "$GG_SCRATCH" --crucible "$GITHUB_WORKSPACE/cics-crucible"
           {
             echo "## Translation survey (${SHA::12}, burned / pinned corpora, no census)"
             echo '```'
@@ -1092,8 +1094,10 @@ jobs:
 
       # #5054 done-when 4: each burned estate's survey through blocker_report + blocker_ingest, as a customer's report
       # would go (rows match the blockers, known signatures link, hashes stable per salt, no source name leaks). Reads
-      # the survey just cached; never holds back the records.
+      # the survey just cached. A failure (a leak, or an estate whose scan did not run) never holds back the records:
+      # the step is continue-on-error and the job's last step fails the run on `steps.feed.outcome == 'failure'`.
       - name: Blocker report and ingest per burned estate (#5054)
+        id: feed
         if: steps.survey.outcome == 'success'
         continue-on-error: true
         env:
@@ -1384,9 +1388,9 @@ jobs:
           echo "::warning title=Evidence refresh::auto-merge could not be enabled (checks never registered); PR #$PR left open"
 
       - name: Fail when a re-proof failed
-        if: needs.records.result != 'success' || needs.det-mutation.result != 'success' || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || needs.db2.result == 'failure'
+        if: needs.records.result != 'success' || needs.det-mutation.result != 'success' || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || steps.feed.outcome == 'failure' || needs.db2.result == 'failure'
         run: |
-          echo "::error title=Evidence refresh::a record's proof, the det sweep or the Db2 job failed or could not run -- see the summary"
+          echo "::error title=Evidence refresh::a record's proof, the det sweep, the Db2 job or the blocker-feed leak scan failed or could not run -- see the summary"
           exit 1
 
   # #4863 (step 3, one survey a night, one writer): the refresh job's translation survey of main is also the nightly blockers
@@ -1560,7 +1564,7 @@ jobs:
           fi
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
             commit -q -m "blockers baseline as of main $SHA"
-          git push -q origin HEAD:generated
+          python ../main/tests/tools/generated_branch.py push-head --root .  # #6563: another writer may have pushed since the fetch
           {
             echo "## Blockers published (${SHA::12})"
             echo '```'

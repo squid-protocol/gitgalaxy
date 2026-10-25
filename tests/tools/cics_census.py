@@ -95,10 +95,14 @@ EXCEPTION_OPTIONS = {"RESP", "RESP2", "NOHANDLE"}
 _LINE_NO = re.compile(r"^line \d+: ")
 
 
+CRUCIBLE_CORPUS = "cics-crucible"
+
+
 def burned_names() -> set[str]:
     import estate4_draw
 
-    return {n.lower() for n in estate4_draw.BURNED_NAMES}
+    # #5054: the cics-crucible checkout is development data too (blocker_estate_feed counts it as a burned estate)
+    return {n.lower() for n in estate4_draw.BURNED_NAMES} | {CRUCIBLE_CORPUS}
 
 
 def census_names() -> set[str]:
@@ -350,8 +354,9 @@ def cmd_usage(args: argparse.Namespace) -> int:
 
 # ---- survey -----------------------------------------------------------------------------------------------------
 def survey_runs(mainframe: Path, census: Path | None, uses: list[ProgramUse] | None,
-                only: list[str] | None) -> list[tuple[str, Path, list[str]]]:  # fmt: skip
-    """[(suffix, corpora root, corpus names)] -- one det_survey run each."""
+                only: list[str] | None, crucible: Path | None = None) -> list[tuple[str, Path, list[str]]]:  # fmt: skip
+    """[(suffix, corpora root, corpus names)] -- one det_survey run each. `crucible` (#5054): a cics-crucible checkout,
+    surveyed as one more burned corpus named after its directory (it is not under the mainframe corpora root)."""
     wanted = {u.corpus for u in uses} if uses is not None else None
 
     def pick(root: Path, burned: bool | None) -> list[str]:
@@ -366,6 +371,8 @@ def survey_runs(mainframe: Path, census: Path | None, uses: list[ProgramUse] | N
     if census:
         local = set(runs[0][2]) | set(runs[1][2])
         runs.append(("nb", census, [n for n in pick(census, None) if n not in local]))
+    if crucible is not None:
+        runs.append(("crucible", crucible.parent, [crucible.name]))
     return [r for r in runs if r[2]]
 
 
@@ -532,7 +539,7 @@ def gap_classes(r: dict[str, Any]) -> set[str]:
     return {gap_key(h) for h in r.get("holes", [])}
 
 
-def cics_programs(roots: list[Path]) -> set[tuple[str, str]]:
+def cics_programs(roots: list[Path], extra: list[Path] | None = None) -> set[tuple[str, str]]:
     """(corpus, program) of every COBOL program with an EXEC CICS command (names only, as `usage` reads them), and of
     every CICS Assembler / macro-level assembler member (#5158: det_survey.assembler_rows, refused by name)."""
     from det_survey import assembler_rows
@@ -540,7 +547,7 @@ def cics_programs(roots: list[Path]) -> set[tuple[str, str]]:
     from gitgalaxy.core.source_text import read_source
 
     out = set()
-    for name, corpus in corpus_dirs(roots):
+    for name, corpus in [*corpus_dirs(roots), *((d.name, d) for d in extra or [])]:
         for prog in corpus.rglob("*"):
             if prog.is_file() and prog.suffix.lower() in PROGRAM_EXTS and ".git" not in prog.relative_to(corpus).parts:
                 try:
@@ -786,13 +793,17 @@ def cmd_survey_baseline(args: argparse.Namespace) -> int:
     d = cache_dir(root, sha)
     mainframe = mainframe_root(args.corpora)
     census = baseline_census(args, root)
+    crucible = args.crucible
+    if crucible is not None and not crucible.is_dir():
+        raise SystemExit(f"--crucible {crucible} is not a directory")
     with _locked(d.parent / f"{sha}.lock"):
         meta_file = d / "meta.json"
         if meta_file.is_file() and not args.force:
             meta = json.loads(meta_file.read_text(encoding="utf-8"))
-            if meta.get("census") != (census is not None):
+            if meta.get("census") != (census is not None) or meta.get("crucible", False) != (crucible is not None):
                 print(f"baseline {sha[:12]} is cached at {d} surveyed {meta.get('scope')}, but this run asks for "
-                      f"{'burned + census' if census else 'no census'}: pass --force to survey it again",
+                      f"{'burned + census' if census else 'no census'}"
+                      f"{' + cics-crucible' if crucible else ''}: pass --force to survey it again",
                       file=sys.stderr)  # fmt: skip
                 return 2
             print(f"baseline {sha[:12]} already surveyed ({meta.get('scope')}, {meta.get('surveyed_utc')}): {d} -- "
@@ -806,7 +817,7 @@ def cmd_survey_baseline(args: argparse.Namespace) -> int:
                 (d / name).unlink(missing_ok=True)
         start = time.time()
         src = snapshot(sha, d / "src")
-        runs = survey_runs(mainframe, census, None, args.corpus)
+        runs = survey_runs(mainframe, census, None, args.corpus, crucible)
         print(f"baseline {sha[:12]}: surveying with that commit's translator ({src})", flush=True)
         rc = run_det_survey(d, "before", runs, jobs=args.jobs, compile_ports=args.compile, src=src)
         if rc:
@@ -814,11 +825,12 @@ def cmd_survey_baseline(args: argparse.Namespace) -> int:
                   file=sys.stderr)  # fmt: skip
             return rc
         roots = [mainframe, *([census] if census else [])]
-        progs = sorted(cics_programs(roots))
+        progs = sorted(cics_programs(roots, [crucible] if crucible else None))
         (d / "cics_programs.json").write_text(json.dumps([list(p) for p in progs], indent=0) + "\n", encoding="utf-8")
         scope = "burned + local + census corpora" if census else "burned + local corpora (no census)"
+        scope += " + cics-crucible" if crucible else ""
         meta = {"sha": sha, "surveyed_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "scope": scope,
-                "census": census is not None, "seconds": round(time.time() - start),
+                "census": census is not None, "crucible": crucible is not None, "seconds": round(time.time() - start),
                 "runs": {s: {"root": str(r), "corpora": names} for s, r, names in runs},
                 "translator": f"git archive {sha} ({', '.join(SNAPSHOT_PATHS)})"}  # fmt: skip
         res = baseline_blockers(d, census=census is not None)
@@ -1123,6 +1135,9 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--corpus", nargs="+", help="only these corpus names")
     s.add_argument("--compile", action="store_true", help="also compile each port (det_survey without --no-compile)")
     s.add_argument("--jobs", type=int, default=4)
+    s.add_argument(
+        "--crucible", type=Path, help="--baseline: also survey this cics-crucible checkout as a burned corpus (#5054)"
+    )
     c = sub.add_parser("compare", parents=[common, base], help="before / after table of the programs using the verb")
     c.add_argument("dir", type=Path)
     c.add_argument("--verb", nargs="+", required=True)

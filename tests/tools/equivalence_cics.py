@@ -466,6 +466,11 @@ def _move_to_padq(area: str) -> list[str]:
     )
 
 
+# X6: the stub's line on the padded path (_write_from), so a proof can name X6 for the task that ran it; outputs()
+# takes it out of the task's DISPLAY log (the Java side prints no such line)
+X6_PADDED_SAID = "GG-X6 PADDED "
+
+
 def _write_from(length: str | None, area: str, what: str, call: list[str]) -> list[str]:
     """X6 (ASSUMED, owner 2026-10-21): a WRITEQ whose LENGTH runs past its FROM item writes FROM's bytes then SPACES to
     LENGTH. IBM takes the bytes that follow the item in storage (undefined); GnuCOBOL's layout differs, so the fill is
@@ -477,6 +482,7 @@ def _write_from(length: str | None, area: str, what: str, call: list[str]) -> li
             "    IF GG-LEN > LENGTH OF GG-PADQ",
             f"        DISPLAY '{what} LENGTH > FROM: not modelled'",
             "        MOVE 98 TO RETURN-CODE", "        STOP RUN", "    END-IF",
+            f"    DISPLAY '{X6_PADDED_SAID}{what}'",
             "    MOVE SPACES TO GG-PADQ",
             *_move_to_padq(area),
             *["    " + ln for ln in call[:-1] + [call[-1].replace(f"BY REFERENCE {area}", "BY REFERENCE GG-PADQ")]],
@@ -3681,6 +3687,10 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
     res["sql"] = sqlout.read_text(encoding="latin-1") if sqlout.is_file() else ""
     said = out.parent / "stdout.txt"  # #4635: what the task DISPLAYed (the job log), as IBM writes it
     res["sysout"] = said.read_bytes() if said.is_file() else b""
+    padded = [ln for ln in res["sysout"].split(b"\n") if ln.startswith(X6_PADDED_SAID.encode("ascii"))]
+    if padded:  # X6: a WRITEQ past FROM written padded -- the stub's line, not the task's own DISPLAY
+        res["x6_padded"] = [ln.decode("ascii").removeprefix(X6_PADDED_SAID).strip() for ln in padded]
+        res["sysout"] = b"\n".join(ln for ln in res["sysout"].split(b"\n") if ln not in padded)
     log = out / "events.txt"
     for line in log.read_text(encoding="latin-1").splitlines() if log.is_file() else []:
         seq, _, rest = line.partition(" ")
@@ -6099,6 +6109,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
                 print(f"{case['program']} {name}: DISPLAY output differs on {s['differing']} line(s): {s['diffs'][:3]}")
         if sc.get("derived"):
             report["outputs"][name]["sql_faults"] = sc["sql_plan"]
+        if res.get("x6_padded"):  # X6 (ASSUMED): the task ran on through a WRITEQ past FROM, padded on both sides
+            report["outputs"][name]["x6_padded"] = res["x6_padded"]
         if x6:
             report["outputs"][name]["judged_to"], report["outputs"][name]["x6"] = judged_to(x6), x6
             if not x6["ok"]:

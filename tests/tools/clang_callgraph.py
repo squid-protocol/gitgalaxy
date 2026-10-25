@@ -24,7 +24,7 @@ the bundled libclang recovers from the headers it cannot find.
   links to the Windows definitions of a name, falling back to the shared ones (not under `unix/`), and a
   Unix caller never links to a Windows definition. A Win32 API call with no declaration (no <windows.h> on the host) is `external`. Where per-platform files in one group define the same external name, an
   edge goes to each definition.
-* Any other file naming a platform macro (`_WIN32`, `__APPLE__`, `_AIX`, `__sun`) is parsed once more with it
+* Any other file naming a platform macro (`_WIN32`, `__APPLE__`, `_AIX`, `__sun`, `__FreeBSD__`, `__QNX__`, `__MVS__`) is parsed once more with it
   defined (PLATFORMS). A def only that parse saw belongs to the platform's group; its callers link the group's
   definitions, then the shared ones. One function written as several `#if` variants in a file is one unit, as
   the engine sees it: an edge to one variant is an edge to all.
@@ -64,6 +64,9 @@ PLATFORMS: dict[str, tuple[tuple[str, ...], re.Pattern[str]]] = {
     "apple": (("-D__APPLE__", "-D__MACH__"), re.compile(r"\b__APPLE__\b|\b__MACH__\b")),
     "aix": (("-D_AIX",), re.compile(r"\b_AIX\b")),
     "sun": (("-D__sun",), re.compile(r"\b__sun\b")),
+    "freebsd": (("-D__FreeBSD__",), re.compile(r"\b__FreeBSD__\b")),
+    "qnx": (("-D__QNX__",), re.compile(r"\b__QNX__\b")),
+    "mvs": (("-D__MVS__",), re.compile(r"\b__MVS__\b")),
 }
 
 CPP_SOURCES = frozenset({".cc", ".cpp", ".cxx"})

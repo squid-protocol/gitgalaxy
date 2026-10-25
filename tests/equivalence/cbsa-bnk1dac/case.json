@@ -282,6 +282,73 @@
      "ACCNOI": "0000000B"
     }
    }
+  },
+  {
+   "name": "link-inqacc-pgmiderr",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1DA": {
+     "ACCNOI": "00000005"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQACC",
+     "resp": "PGMIDERR",
+     "nth": 1
+    }
+   ],
+   "why": "inquiry of account 5, but the LINK INQACC fails PGMIDERR: the non-NORMAL arm after the LINK"
+  },
+  {
+   "name": "link-delacc-pgmiderr",
+   "aid": "DFHPF5",
+   "commarea": {
+    "WS-COMM-EYE": "ACCT",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-ACCNO": "2",
+    "WS-COMM-CUSTNO": "0000000001"
+   },
+   "receive": {
+    "BNK1DA": {
+     "ACCNO2I": "00000002"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "DELACC",
+     "resp": "PGMIDERR",
+     "nth": 1
+    }
+   ],
+   "why": "PF5 delete of account 2, but the LINK DELACC fails PGMIDERR"
+  },
+  {
+   "name": "delete-sql-fails",
+   "aid": "DFHPF5",
+   "commarea": {
+    "WS-COMM-EYE": "ACCT",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-ACCNO": "2",
+    "WS-COMM-CUSTNO": "0000000001"
+   },
+   "receive": {
+    "BNK1DA": {
+     "ACCNO2I": "00000002"
+    }
+   },
+   "sql_faults": [
+    {
+     "program": "DELACC",
+     "table": "ACCOUNT",
+     "verb": "DELETE",
+     "sqlcode": -530
+    }
+   ],
+   "why": "PF5 delete of account 2: DELACC's DELETE FROM ACCOUNT fails -530, so it returns DEL-SUCCESS 'N' with fail code '3'"
   }
  ],
  "notes": "CBSA's display / delete-account screen (BNK1DAC, transaction ODAC, BMS map BNK1DA of mapset BNK1DAM: the symbolic map is generated from src/base/bms_src/BNK1DAM.bms, @bms/BNK1DAM.cpy). Pseudo-conversational, as every CBSA screen (PF3 RETURN TRANSID('OMEN') IMMEDIATE from the stated terminal T001, oracle_assumptions.md X27). ENTER inquires (BIF DEEDIT of the account number, LINK INQACC with its INQACC-COMMAREA, the trailing POINTER NULL) and shows the account, keeping it in WS-COMM-AREA; PF5 checks the COMMAREA's sort code and account number from that inquiry and LINKs DELACC with PARMS-SUBPGM (three POINTERs set NULL). INQACC, DELACC and ABNDPROC run in the task, as in cbsa-inqacc / cbsa-delacc. The COMMAREA compared is the one the program RETURNs, WS-COMM-AREA (LENGTH 102); a returning task's COMMAREA is given in that layout (the program's DFHCOMMAREA is the same 102 bytes). ACCOUNT, PROCTRAN and ABNDFILE are compared after every scenario. Not reached: an account number with no digit after BIF DEEDIT (not modelled: refused), DELACC's fail code 2 (code 3, 'a delete error', is reached by an enumerated SQL fault, #4173), and the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK (no fault can be injected on them). Data: seed.sql is cbsa-delacc's (SYNTHETIC). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

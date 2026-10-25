@@ -206,7 +206,7 @@ final class LeTime {
         putFc(fc, 0);
     }
 
-    /** CEESCEN: 0 to 100, else CEE2533 and the setting is unchanged. Nothing reads the window yet (CEESECS refuses YY). */
+    /** CEESCEN: 0 to 100, else CEE2533 and the setting is unchanged. CEESECS reads it for a YY. */
     static void scen(Field century, Field fc) {
         int v = getInt(century);
         if (v < 0 || v > 100) {
@@ -248,7 +248,7 @@ final class LeTime {
     }
 
     // [rule RT-LE-CEESECS]
-    static void secs(Field ts, Field pic, Field seconds, Field fc, Charset cs) {
+    static void secs(String now, Field ts, Field pic, Field seconds, Field fc, Charset cs) {
         java.util.List<Tok> p = picture("CEESECS", pic);
         byte[] db = ts.storage().bytes;
         int d0 = ts.offset();
@@ -263,8 +263,8 @@ final class LeTime {
             Tok t = p.get(k);
             char next = k + 1 < p.size() && p.get(k + 1).tag() == null ? p.get(k + 1).lit() : (char) 0;
             int w = t.tag() == null ? 1 : t.tag().length();
-            if (t.tag() != null && (t.tag().equals("YY") || t.tag().equals("DDD"))) {
-                throw refuse("CEESECS", "picture token " + t.tag() + " (the century window / a Julian day)");
+            if (t.tag() != null && t.tag().equals("DDD")) {
+                throw refuse("CEESECS", "picture token DDD (a Julian day)");
             }
             if (pos + w > dl) {
                 throw refuse("CEESECS", "a timestamp shorter than its picture");
@@ -294,6 +294,10 @@ final class LeTime {
             pos += w;
             switch (t.tag()) {
                 case "YYYY" -> v[0] = val;
+                case "YY" -> { // the century window: [system year - start, + 99], the system year the run clock's
+                    long base = Integer.parseInt(now.substring(0, 4)) - centuryStart;
+                    v[0] = base + ((val - base) % 100 + 100) % 100;
+                }
                 case "MM" -> v[1] = val;
                 case "DD" -> v[2] = val;
                 case "HH" -> v[3] = val;

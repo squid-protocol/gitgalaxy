@@ -408,6 +408,246 @@
      "SCRDTYYI": "2026"
     }
    }
+  },
+  {
+   "name": "update-title-professor",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "an update with the title 'Professor': EDIT-DATA2's EVALUATE takes its WHEN 'Professor' arm",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Professor Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
+  },
+  {
+   "name": "update-title-mr",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "an update with the title 'Mr': EDIT-DATA2's EVALUATE takes its WHEN 'Mr' arm",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Mr Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
+  },
+  {
+   "name": "update-title-miss",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "an update with the title 'Miss': EDIT-DATA2's EVALUATE takes its WHEN 'Miss' arm",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Miss Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
+  },
+  {
+   "name": "update-title-ms",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "an update with the title 'Ms': EDIT-DATA2's EVALUATE takes its WHEN 'Ms' arm",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Ms Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
+  },
+  {
+   "name": "update-title-drs",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "an update with the title 'Drs': EDIT-DATA2's EVALUATE takes its WHEN 'Drs' arm",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Drs Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
+  },
+  {
+   "name": "update-title-lord",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "an update with the title 'Lord': EDIT-DATA2's EVALUATE takes its WHEN 'Lord' arm",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Lord Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
+  },
+  {
+   "name": "update-title-sir",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "an update with the title 'Sir': EDIT-DATA2's EVALUATE takes its WHEN 'Sir' arm",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Sir Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
+  },
+  {
+   "name": "update-title-lady",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "an update with the title 'Lady': EDIT-DATA2's EVALUATE takes its WHEN 'Lady' arm",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Lady Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   }
   }
  ],
  "notes": "CBSA's display / amend / delete-customer screen (BNK1DCS, transaction ODCS, BMS map BNK1DC of mapset BNK1DCM: the symbolic map is generated from src/base/bms_src/BNK1DCM.bms, @bms/BNK1DCM.cpy). Its terminal is a stated fact of the run: T001 (EIBTRMID), UCTRANST NOUCTRAN unless a scenario says UCTRAN (INQUIRE / SET TERMINAL UCTRANST, oracle_assumptions.md X26); a first task stores the terminal's UCTRANST in the COMMAREA and turns translation off, and every exit (PF3 / PF12 / CLEAR, an abend) SETs it back from the COMMAREA (WS-COMM-TERM 451 in every returning scenario). ENTER inquires (LINK INQCUST); PF10 checks the customer and unprotects the name and address for amending (COMM-UPD 'Y'); ENTER with COMM-UPD 'Y' validates the title and address and LINKs UPDCUST; PF5 deletes through DELCUS. INQCUST, UPDCUST and ABNDPROC run in the task, as in cbsa-inqcust / cbsa-updcust. The COMMAREA compared is the one the program RETURNs, WS-COMM-AREA (LENGTH 266). CUSTOMER and ABNDFILE are compared after every scenario. Not reached: a valid PF5 delete -- DELCUS is not translated whole (cics_census: 4 holes), so no scenario LINKs it --; a terminal whose translation is on when a RECEIVE follows the SET (IBM does not say when a SET UCTRANST takes effect: refused by both runtimes, X26), a customer number with no digit after BIF DEEDIT (not modelled), a PF10 whose date / credit-score fields came back empty (UNPROT-CUST-DATA MOVEs the symbolic map's LOW-VALUES through a 9(8) REDEFINES: non-digit data in a numeric MOVE, oracle_assumptions.md C11 -- the scenarios give PF10 the screen's fields as shown), and the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK / INQUIRE / SET (no fault can be injected on them). Data: customer.txt is cbsa-updcust's (SYNTHETIC). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

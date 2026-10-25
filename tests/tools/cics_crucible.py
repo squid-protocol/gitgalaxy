@@ -19,7 +19,8 @@ pipeline and compares, cell by cell:
                          generated (their runTask bodies are skeletons until ported)
   java-ported    (scenario)  the same, with the case's committed ports laid over the services
                          (tests/cics_crucible/ports/<case>/<PROGRAM>/overlay, each proven by this
-                         runner through the porting loop and kept with its provenance.json)
+                         runner through the porting loop and kept with its provenance.json); a case
+                         with no model port runs its deterministic port, tests/cics_crucible/det-ports
   java-facade    (scenario)  #4343: the ported project again, each task entered through the program's
                          deployed entry point -- its Spring facade: handleTransaction, and handleLink for
                          a program a LINK / XCTL reaches -- with the scenario's region joined
@@ -114,6 +115,7 @@ import functools
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -159,7 +161,7 @@ CONTAINER_STOP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
 
 # SPEC 6.2: the abend code CICS gives an unhandled condition (the AEIA topic of IBM's abend codes).
 CONDITION_ABCODE = {"NOTFND": "AEIM", "LENGERR": "AEIV", "ITEMERR": "AEIZ", "QIDERR": "AEYH", "MAPFAIL": "AEI9",
-                    "ENDDATA": "AEI2", "PGMIDERR": "AEI0", "INVREQ": "AEIP",
+                    "ENDDATA": "AEI2", "PGMIDERR": "AEI0", "INVREQ": "AEIP", "IOERR": "AEIQ",
                     # #4270: IBM abend codes AEZJ / AEZV ("CONTAINERERR / CHANNELERR condition not handled")
                     "CONTAINERERR": "AEZJ", "CHANNELERR": "AEZV",
                     # #4648: IBM abend code AEY7 ("NOTAUTH condition not handled")
@@ -196,11 +198,21 @@ COBOL_CAPS = cc.Capabilities(
         "SEND-CONTROL": frozenset({"options", "cursor"}),  # #4413
         "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),
         "RECEIVE": frozenset({"resp", "length", "data"}),
-        "RETURN": frozenset({"level", "transid", "commarea", "caller_commarea", "immediate", "resp", "resp2"}),
+        "RETURN": frozenset(
+            {"level", "transid", "commarea", "caller_commarea", "immediate", "channel", "resp", "resp2"}
+        ),
         "LINK": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "XCTL": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
-        "READ": frozenset({"file", "ridfld", "resp"}),
+        # #4443 A0b: what ggcics_filecontrol.c's read_event / unlock_event and ggcics.c's rewrite_event record
+        "READ": frozenset({"file", "ridfld", "update", "set", "resp", "resp2", "length", "data"}),
+        "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
+        "UNLOCK": frozenset({"file", "resp", "resp2"}),
+        # #6262: what ggcics_filecontrol.c's browse_event and endbr line record (an RBA browse's `rba=` lines: unmodelled)
+        "STARTBR": frozenset({"file", "ridfld", "mode", "resp", "resp2"}),
+        "READNEXT": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
+        "READPREV": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
+        "ENDBR": frozenset({"file", "resp", "resp2"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
@@ -226,12 +238,23 @@ JAVA_CAPS = cc.Capabilities(
         "SEND-CONTROL": frozenset({"options", "cursor"}),  # #4413
         "RECEIVE": frozenset({"resp", "length", "data"}),
         "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),  # #4009
-        "RETURN": frozenset({"level", "transid", "commarea", "caller_commarea", "immediate", "resp", "resp2"}),
+        "RETURN": frozenset(
+            {"level", "transid", "commarea", "caller_commarea", "immediate", "channel", "resp", "resp2"}
+        ),
         "LINK": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "XCTL": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
+        # #4443, #6262: what CicsTask.readInto / readSetEvent / rewriteFrom / unlock record
+        "READ": frozenset({"file", "ridfld", "update", "set", "resp", "resp2", "length", "data"}),
+        "REWRITE": frozenset({"file", "data", "resp", "resp2"}),
+        "UNLOCK": frozenset({"file", "resp", "resp2"}),
+        # #6262: what CicsTask.startbrEvent / readnextInto / readprevInto / endbrEvent record
+        "STARTBR": frozenset({"file", "ridfld", "mode", "resp", "resp2"}),
+        "READNEXT": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
+        "READPREV": frozenset({"file", "ridfld", "set", "resp", "resp2", "length", "data"}),
+        "ENDBR": frozenset({"file", "resp", "resp2"}),
         "WRITE-OPERATOR": frozenset({"data", "resp"}),  # #4270 zECS (X32)
         "START": _START_KEYS,
         "RETRIEVE": _RETRIEVE_KEYS,
@@ -506,6 +529,7 @@ def forge(case: cc.Case, work: Path, offline: bool, overlays: list[Path] | None 
 # a tree relative to the generated package root. The committed ones -- proven by this runner, kept as
 # regression evidence with their provenance.json -- live under PORTS_DIR/<case>/<KEY>/.
 PORTS_DIR = LEDGER_DIR / "ports"
+DET_PORTS_DIR = LEDGER_DIR / "det-ports"  # #4767: a case with no model port runs its deterministic port instead
 STRENGTHENED_DIR = LEDGER_DIR / "strengthened"  # #4049: scenarios added to a case, their logs from the COBOL
 STRENGTHENED_FORMAT = "gitgalaxy/crucible-strengthened/1"
 
@@ -800,6 +824,9 @@ class EquivalenceRunTest {
         byte[] inBytes;  // ... handed to the task about to start
         byte[] answered;  // ... and what the task that just ran answered (null: none)
         boolean answeredByBytes;  // the task that just ran was entered by the byte overload (its answer is owed)
+        CicsTask.Channel pendingChannel;  // #5005 (X17): the channel the last RETURN TRANSID CHANNEL made available
+        CicsTask.Channel inChannel;  // ... handed to the task about to start
+        CicsTask.Channel outChannel;  // ... and what the task that just ran returned (null: none)
         Integer pendingLen;  // #4009: the next task's EIBCALEN (null: the whole record)
         Map<String, Object> immediate;  // #4270 (X27): RETURN IMMEDIATE -- the task attached at once, with its trigger
         LocalDateTime now;
@@ -924,6 +951,7 @@ class EquivalenceRunTest {
                     Map<String, Object> f = frame(terminal, trigger, step.get("aid").asText());
                     f.put("startcode", "TD");  // #4270 slice 3: "Terminal input or permanent transid"
                     inBytes = bytes;
+                    inChannel = transid.equals(pending) ? pendingChannel : null;  // not a typed transaction id's
                     runOne(f, transid, commarea, calen, step, List.of());
                     continue;
                 }
@@ -979,6 +1007,9 @@ class EquivalenceRunTest {
             Map<String, Object> task = new LinkedHashMap<>(frame);
             answered = null;
             answeredByBytes = false;
+            CicsTask.Channel carried = inChannel;
+            inChannel = null;
+            outChannel = null;
             task.remove("startcode");
             task.remove("http_request");
             task.put("transid", transid);
@@ -1045,6 +1076,9 @@ class EquivalenceRunTest {
                         // #4270 slice 3: ASSIGN STARTCODE / USERID / SCRNHT / SCRNWD (SPEC section 2's region)
                         .withStartcode((String) frame.get("startcode")).withUserid("CICSUSER")
                         .withScreen(24, 80);
+                if (carried != null) {
+                    t.withChannel(carried);  // #5005: RETURN TRANSID CHANNEL -- the next task's current channel
+                }
                 if (step != null && step.has("text")) {
                     t.withTerminalInput(step.get("text").asText());
                 }
@@ -1120,6 +1154,7 @@ class EquivalenceRunTest {
                                 : "runTask threw " + e;
                     }
                 }
+                outChannel = t.returnedChannel();
                 for (Map<String, Object> e : t.events()) {
                     raw.add(e);
                     Map<String, Object> copy = new LinkedHashMap<>(e);
@@ -1462,6 +1497,7 @@ class EquivalenceRunTest {
                 pendingCa = abended || transid == null ? null : commarea;
                 pendingLen = abended || transid == null ? null : length;
                 pendingBytes = abended || transid == null ? null : answered;
+                pendingChannel = abended || transid == null ? null : outChannel;  // #5005 (X17)
             }
         }
     }
@@ -1819,6 +1855,35 @@ def java_send_map(screen: Screen, e: dict[str, Any]) -> tuple[dict[str, Any], An
     return cics_bms.send_map(screen.bms, program, e.get("options") or [], e.get("cursor"))
 
 
+def _java_file_event(kind: str, e: dict[str, Any]) -> dict[str, Any]:
+    """#4443: a READ / REWRITE / UNLOCK CicsTask recorded, as the log's keys: `update`, `resp2` and `length` only when
+    the command carries them. A LENGERR READ asserts its RESP only (SPEC section 2, Files), so its RESP2 is left out."""
+    ev: dict[str, Any] = {"file": e.get("file"), "resp": e.get("resp")}
+    if e.get("set"):  # #6262: the SET form
+        ev["set"] = True
+    if kind in ("STARTBR", "READNEXT", "READPREV"):  # #6262: the key on entry; STARTBR's mode, a browse read's record
+        ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
+        if kind == "STARTBR":
+            ev["mode"] = e.get("mode")
+        else:
+            if e.get("length") is not None:
+                ev["length"] = e["length"]
+            b64 = e.get("data")
+            ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
+    if kind == "READ":
+        ev["ridfld"] = base64.b64decode(e["ridfld"]) if e.get("ridfld") is not None else None
+        if e.get("update"):
+            ev["update"] = True
+        if e.get("length") is not None:
+            ev["length"] = e["length"]
+    if kind in ("READ", "REWRITE"):
+        b64 = e.get("data")
+        ev["data"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
+    if e.get("resp2") is not None and not (kind in ("READ", "READNEXT", "READPREV") and e.get("resp") == "LENGERR"):
+        ev["resp2"] = e["resp2"]
+    return ev
+
+
 def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 screens: dict[str, Screen] | None = None) -> dict[str, Any]:  # fmt: skip
     """The generated test's output for one scenario -> an actual log for the comparison."""
@@ -1856,14 +1921,28 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                 ev.update(queue=e.get("queue"), item=e.get("item"), resp=e.get("resp"), data=data)
                 if kind == "READQ-TS":
                     ev["length"] = e.get("length")
+            elif kind in (
+                "READ",
+                "REWRITE",
+                "UNLOCK",
+                "STARTBR",
+                "READNEXT",
+                "READPREV",
+                "ENDBR",
+            ):  # #4443, #6262: byte[] ridfld / data arrive as base64, EBCDIC bytes
+                ev.update(_java_file_event(kind, e))
             elif kind == "WRITE-OPERATOR":  # #4270 zECS (X32): the console message, as the text CicsTask recorded
                 ev.update(data=cc.RawArea(str(e.get("text") or "").encode("latin-1"), "latin-1"), resp=e.get("resp"))
             elif kind == "RECEIVE-MAP":
                 ev.update(map=e.get("map"), mapset=e.get("mapset"), resp=e.get("resp"))
-            elif kind == "RETURN" and e.get("resp") is not None:  # #4270 (X27): a RETURN IMMEDIATE that failed
-                ev.update(
-                    level=e["level"], immediate=True, transid=e.get("transid"), resp=e["resp"], resp2=e.get("resp2")
-                )
+            elif (
+                kind == "RETURN" and e.get("resp") is not None
+            ):  # a RETURN that failed: IMMEDIATE (X27), or CHANNEL (#5005)
+                ev.update(level=e["level"], transid=e.get("transid"), resp=e["resp"], resp2=e.get("resp2"))
+                if e.get("channel") is not None:
+                    ev["channel"] = e["channel"]
+                else:
+                    ev["immediate"] = True
             elif kind == "RETURN" and (e.get("level") or 1) > 1:  # #4004: back to the linking program
                 # #3989: the caller sees the LINK's LENGTH bytes of it (CicsTask records that LENGTH here)
                 # #5053: and, when the program took the LINK's COMMAREA bytes, the bytes lastLinkBytes() answered
@@ -1877,6 +1956,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
                                                         _answered_layout(e.get("commarea"), shapes)))  # fmt: skip
                 if e.get("immediate"):  # #4270 (X27)
                     ev["immediate"] = True
+                if e.get("channel") is not None:  # #5005 (X17): RETURN TRANSID CHANNEL
+                    ev["channel"] = e["channel"]
             elif kind == "LINK":
                 # #5053: the bytes the caller handed the LINK (the event's `area`, in the runtime page) are the sent
                 # COMMAREA's bytes -- a numeric DISPLAY field holding spaces too, which the DTO cannot carry
@@ -2259,19 +2340,59 @@ def _cobol_events(out: Path, program: str, screens: dict[str, Screen] | None = N
             ev.update(target=arg("target"), length=int(arg("len") or 0),
                       commarea=cc.RawArea(data, "latin-1") if arg("area") == "1" else None, resp=resp,
                       resp2=int(arg("resp2") or 0) if resp != "NORMAL" else None)  # fmt: skip
-        elif verb == "READ":
-            ev.update(file=arg("file"), ridfld=arg("key").encode(cc.EBCDIC),
-                      resp=names.get(int(arg("resp") or 0), arg("resp")))  # fmt: skip
+        elif verb in ("READ", "REWRITE", "UNLOCK"):  # #4443 A0b: SPEC 6.2 keys only where the command carries them
+            ev.update(file=arg("file"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+            if verb == "READ":
+                ev["ridfld"] = arg("key").encode(cc.EBCDIC)
+                if arg("upd"):
+                    ev["update"] = True
+                if arg("set"):  # #6262
+                    ev["set"] = True
+                if arg("len"):
+                    ev["length"] = int(arg("len"))
+                ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] == "NORMAL" else None
+            elif verb == "REWRITE":
+                ev["data"] = cc.RawArea(data, "latin-1")
+            # SPEC section 2 asserts LENGERR's RESP only
+            if arg("resp2") and not (verb == "READ" and ev["resp"] == "LENGERR"):
+                ev["resp2"] = int(arg("resp2"))
+        elif verb in (
+            "STARTBR",
+            "READNEXT",
+            "READPREV",
+            "ENDBR",
+        ):  # #6262: SPEC 6.2 keys only where the command carries them
+            ev.update(file=arg("file"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+            if arg("rba"):  # the RBA browse (#4213) has no Java-leg event: its RIDFLD is a fullword, not a key
+                ev["ridfld"] = cc.Unmodelled("an RBA browse's event")
+            elif verb != "ENDBR":
+                ev["ridfld"] = bytes.fromhex(arg("rid")).decode("latin-1").encode(cc.EBCDIC)
+            if verb == "STARTBR" and not arg("rba"):
+                ev["mode"] = arg("mode")
+            if verb in ("READNEXT", "READPREV") and not arg("rba"):
+                if arg("set"):  # #6262
+                    ev["set"] = True
+                if arg("len"):
+                    ev["length"] = int(arg("len"))
+                ev["data"] = cc.RawArea(data, "latin-1") if ev["resp"] in ("NORMAL", "DUPKEY") else None
+            if arg("resp2") and not (verb != "STARTBR" and verb != "ENDBR" and ev["resp"] == "LENGERR"):
+                ev["resp2"] = int(arg("resp2"))
         elif verb in ("RETURN", "END"):
             level = int(arg("level") or 1)
             ev = {"event": "RETURN", "program": issuer, "level": level}
             if arg("resp"):  # #4270 (X27): a RETURN IMMEDIATE that failed (GGCRETI) -- it went on in the program
-                ev.update(immediate=True, transid=arg("transid"), resp=names.get(int(arg("resp")), arg("resp")),
+                ev.update(transid=arg("transid"), resp=names.get(int(arg("resp")), arg("resp")),
                           resp2=int(arg("resp2") or 0))  # fmt: skip
+                if arg("channel"):  # #5005 (X17): or a RETURN CHANNEL below the highest level (GGCRETC)
+                    ev["channel"] = arg("channel")
+                else:
+                    ev["immediate"] = True
             elif level == 1:
                 ev.update(transid=arg("transid") or None, commarea=cc.RawArea(data, "latin-1") if data else None)
                 if arg("immediate"):  # #4270 (X27)
                     ev["immediate"] = True
+                if arg("channel"):  # #5005 (X17)
+                    ev["channel"] = arg("channel")
             else:  # #4004: the LINK COMMAREA as the linking program now sees it (len -1: the LINK had none)
                 ev["caller_commarea"] = cc.RawArea(data, "latin-1") if int(arg("len") or -1) >= 0 else None
         elif verb == "XCTL":  # #4008: RESP2 only where the command is not NORMAL (SPEC 6.2)
@@ -2314,7 +2435,7 @@ def seed_files(case: cc.Case, work: Path, sid: str) -> str:
     for log in case.expected.values():
         for task in log.get("tasks") or []:
             for ev in task.get("events") or []:
-                if ev.get("event") == "READ" and isinstance(ev.get("ridfld"), str):
+                if ev.get("event") in ("READ", "STARTBR", "READNEXT", "READPREV") and isinstance(ev.get("ridfld"), str):
                     keylen.setdefault(ev["file"], len(ev["ridfld"]))
     rel = f"runs/{sid}/files"
     root = work / rel
@@ -2367,7 +2488,10 @@ class Container:
 
     def sh(self, script: str) -> subprocess.CompletedProcess[str]:
         try:
-            return subprocess.run(["docker", "exec", self.id, "bash", "-c", script],  # noqa: S603, S607
+            import equivalence_common as common
+
+            bounded = common.guarded(f"bash -c {shlex.quote(script)}", CONTAINER_EXEC_TIMEOUT - 10)  # see guarded()
+            return subprocess.run(["docker", "exec", self.id, "bash", "-c", bounded],  # noqa: S603, S607
                                   capture_output=True, text=True, check=False,
                                   timeout=CONTAINER_EXEC_TIMEOUT)  # fmt: skip
         except subprocess.TimeoutExpired as exc:
@@ -2766,27 +2890,21 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
     count = iter(range(1000))
     origin = origin_peers(case, sc)
     files_cfg = seed_files(case, work, sc["id"])  # #4443
+    carried: list[Path | None] = [None]  # #5005 (X17): the channel the terminal's last RETURN CHANNEL left for its next task
 
     def run_one(frame: dict[str, Any], transid: str, commarea: bytes | None, step: dict[str, Any] | None,
                 data: list[Any], requests: list[tuple[str, int]]) -> dict[str, Any]:  # fmt: skip
         rel = f"runs/{sc['id']}/{next(count):02d}"
         if origin is not None:  # #4767 (X35): each task process is told the origin servers (not a log key)
             frame = {**frame, "http_peers": origin}
-        return run_task(
-            case,
-            box,
-            work,
-            rel,
-            ts,
-            transid,
-            frame,
-            commarea,
-            step,
-            data,
-            requests,
-            task_faults(sc, transid),
-            files_cfg,
-        )
+        terminal = frame.get("termid") == case.data["terminal"]
+        channel = carried[0] if (frame.get("trigger") or {}).get("kind") == "terminal" else None
+        task = run_task(case, box, work, rel, ts, transid, frame, commarea, step, data, requests,
+                        task_faults(sc, transid), files_cfg, channel)  # fmt: skip
+        if terminal:  # as drive_scenario's pending RETURN: only a normal end passes it on
+            saved = work / rel / "out" / "return_channel.cfg"
+            carried[0] = saved if task["end"] == "normal" and saved.is_file() else None
+        return task
 
     tasks, stopped = drive_scenario(case, sc, run_one)
     return {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts)},
@@ -2796,7 +2914,8 @@ def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path
 def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, transid: str, frame: dict[str, Any],
              commarea: bytes | None, step: dict[str, Any] | None, data: list[Any] | None = None,
              requests: list[tuple[str, int]] | None = None,
-             faults: list[str] | None = None, files_cfg: str = "") -> dict[str, Any]:  # fmt: skip
+             faults: list[str] | None = None, files_cfg: str = "",
+             channel: Path | None = None) -> dict[str, Any]:  # fmt: skip
     """One task in one process: its inputs in `rel` (the COMMAREA, the terminal's input -- a step's text or
     map fields -- the EIB, the CSD's programs and transactions, #4006: the START data it RETRIEVEs and the
     unexpired requests a CANCEL searches, the virtual clock), then the stub's events as the task's."""
@@ -2842,6 +2961,8 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
             )
     if commarea:
         (d / "commarea.in").write_bytes(commarea)
+    if channel is not None:  # #5005 (X17): the channel the previous task RETURNed, its current channel (GGCCHIN)
+        shutil.copy(channel, d / "channel.cfg")
     if http_req is not None:
         import equivalence_cics as ec
 
@@ -2959,10 +3080,19 @@ class PortOptions:
     ports: Path | None = None
     forge_cache: Path | None = None  # #4047: forge()'s `cache`
     root: Path = PORTS_DIR  # <case>/<KEY>/overlay: where each case's committed ports are, unless `ports` is given
+    det_root: Path | None = DET_PORTS_DIR  # the det-port-only fallback (None: off); never read when `ports` is given
     overlays: list[Path] = dataclasses.field(default_factory=list)
     program: str | None = None
     actual: dict[str, dict[str, Any]] = dataclasses.field(default_factory=dict)
     entries: dict[str, list[dict[str, Any]]] = dataclasses.field(default_factory=dict)  # #4343: java-facade's
+
+
+def det_port_overlays(case_id: str, dest: Path, root: Path = DET_PORTS_DIR) -> dict[str, Path]:
+    """#4767: the overlays of a case's committed deterministic port (tests/cics_crucible/det-ports/<case>), each with
+    the runtime it compiles with. The models' ports win: a case with one never reaches this."""
+    import cics_crucible_det as det
+
+    return case_overlays(det.ports_dir(case_id, dest, root))
 
 
 def measure_ported(case: cc.Case, work: Path, offline: bool, opts: PortOptions,
@@ -2970,6 +3100,8 @@ def measure_ported(case: cc.Case, work: Path, offline: bool, opts: PortOptions,
     """The java-ported side: the generated project with the case's ports laid over it, scenario by scenario; and
     the java-facade side (#4343): the same project, each task entered through its program's facade."""
     ported = case_overlays(opts.ports if opts.ports is not None else opts.root / case.id)
+    if not ported and opts.ports is None and opts.det_root is not None and (opts.det_root / case.id).is_dir():
+        ported = det_port_overlays(case.id, work / "det-ports", opts.det_root)
     trees = [*ported.values(), *opts.overlays]
     scenarios = [sc for sc in case.scenarios
                  if opts.program is None or opts.program in scenario_programs(case.expected[sc["id"]])]  # fmt: skip

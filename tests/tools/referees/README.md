@@ -113,7 +113,9 @@ step exit codes and seconds, per-source member status counts) under the scratch 
 `--out` inside the checkout is refused, and nothing is posted or published (the owner's hold, #4438). It exits 2
 before running anything when a referee's variable (`COBRIX_CLASSPATH`, `TS_COBOL_ENTERPRISE_LIB`,
 `CHE4Z_SERVER_JAR`, `MAPA_CALLTREE_JAR`) is unset or names a missing file, and 1 after all corpora ran when a
-step failed or a referee parsed no member of a corpus. JVM start-up and the 5-minute grammar generation make it a
+step failed or a referee parsed no member of any corpus. A referee that cannot parse one corpus (tree-sitter on
+`dbb-mortgage-application`'s `CBL` cards) or has no members there (Cobrix reads layouts only) is a `notes` entry in
+`run.json`, not a failure (first dispatch, #4438). JVM start-up and the 5-minute grammar generation make it a
 poor PR gate, so it is meant for a scheduled or manual run, never a `pull_request` trigger.
 
 With two or more referees the scorecard also has an "Engine vs the referee majority" table (#4438): per

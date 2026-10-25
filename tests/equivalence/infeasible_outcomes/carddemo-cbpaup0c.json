@@ -1,0 +1,21 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-cbpaup0c",
+  "entries": [
+    {
+      "unit": "6000-EXIT",
+      "kind": "PARAGRAPH",
+      "outcome": "entered",
+      "family": "R",
+      "reason": "IBM IMS (DL/I Application Programming: DLET, status code DJ): 6000-EXIT is reached only by falling out of 'IF DIBSTAT = SPACES' (340) true, which no run can take: the summary DLET follows a GNP that answered GE/GB, holds nothing, and answers DJ, whose arm PERFORMs 9999-ABEND (GOBACK). See the entry for line 340."
+    },
+    {
+      "unit": "6000-DELETE-AUTH-SUMMARY",
+      "line": 340,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "R",
+      "reason": "IBM IMS (DL/I Application Programming: DLET, status code DJ): a DLET must follow a successful Get Hold call, and DJ answers a DLET with none. The only way into 6000-DELETE-AUTH-SUMMARY is the performed-until loop over 3000-FIND-NEXT-AUTH-DTL ending, which is a GNP answering GE or GB (WHEN OTHER abends); a GNP that found nothing holds nothing, so the summary DLET always answers DJ and 'IF DIBSTAT = SPACES' (the ADD 1 TO WS-NO-SUMRY-DELETED arm) cannot run. expiry-abend and debug-expiry-abend show it: both sides answer DJ and abend RC 16."
+    }
+  ]
+}

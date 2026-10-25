@@ -144,6 +144,7 @@ class Body:
         self.node = node
         self.calls, self.refs, self.preproc, self.text_only, self.types = {}, set(), [], [], set()
         self.broken = False  # an ERROR node inside: tree-sitter may have closed the body early
+        self.nested = []  # 1-based last lines of real nested definitions (methods, or functions a misparse ran over)
         callees = set()
         body = node.child_by_field_name("body") or node
         stack = [body]
@@ -159,7 +160,10 @@ class Body:
                 if n.parent is not None and n.parent.type == "field_declaration_list":
                     continue  # a local class's method is its own unit
                 if _is_real_nested_function(n):
+                    self.nested.append(n.end_point[0] + 1)
                     continue  # nyx-o8: a nested function's calls are credited to it, not to the outer (as the engine does)
+                if _keyword_named(n):  # `MACRO\n if (x)` reads as a definition named `if`
+                    self.broken = True
                 inner = n.child_by_field_name("body")  # C has no nested functions: a misparsed statement
                 end = inner.start_byte if inner is not None else n.end_byte
                 self._text_calls(n.text[: end - n.start_byte])
@@ -268,13 +272,22 @@ def function_nodes(tree):
     return out
 
 
+def _keyword_named(node):
+    """A ``function_definition`` tree-sitter made of a statement: ``INLEVEL\n if (x) ...`` (a bare macro statement, no
+    semicolon) reads as a K&R definition named ``if`` whose head can run to the end of the file (srb2, #6266)."""
+    decl = node.child_by_field_name("declarator")
+    name = callee_node(decl.child_by_field_name("declarator")) if decl is not None else None
+    return name is not None and decode_bytes(name.text) in KEYWORDS
+
+
 def definition_at(nodes, line):
-    """The function_definition whose head spans 1-based ``line`` (start row <= line <= body's first row)."""
+    """The function_definition whose head spans 1-based ``line`` (start row <= line <= body's first row); never a
+    keyword-named misparse, whose head would swallow every function below it."""
     row = line - 1
     best = None
     for n in nodes:
         body = n.child_by_field_name("body")
-        if body is None:
+        if body is None or _keyword_named(n):
             continue
         if n.start_point[0] <= row <= body.start_point[0] and (best is None or n.start_point[0] >= best.start_point[0]):
             best = n
@@ -334,8 +347,12 @@ class Port:
             body = Body(node) if node is not None else TextBody(src, start)
             if node is not None and body.broken:
                 braces = TextBody(src, start)
-                # end_point[0], never .row: .row on the temporary Point read freed memory (tree-sitter 0.26, #5630)
-                if braces.calls is not None and braces.end_line > node.end_point[0] + 1:
+                # end_point[0], never .row: .row on the temporary Point read freed memory (tree-sitter 0.26, #5630).
+                # Braces ending earlier: the node ran over the code below (srb2's bare macro statements, MSVC __asm,
+                # #6266), unless the braces hold whole methods (a broken DE_PIMPL class: their calls are theirs)
+                ends = node.end_point[0] + 1
+                earlier = braces.end_line < ends and all(row > braces.end_line for row in body.nested)
+                if braces.calls is not None and (braces.end_line > ends or earlier):
                     body = braces
             caller = bare(fname)
             eng = {bare(c) for c in callees} & self.defined

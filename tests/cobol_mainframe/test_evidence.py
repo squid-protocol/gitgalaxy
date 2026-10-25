@@ -137,7 +137,7 @@ def test_committed_approvals_name_a_person_and_what_they_attest():
 
 # ---- only a person writes an approval -----------------------------------------------------------------------------
 _TOOLS_WITHOUT_APPROVALS = ("equivalence.py", "equivalence_call.py", "equivalence_cics.py",
-                            "equivalence_cics_containers.py", "equivalence_cics_filecontrol.py", "equivalence_cics_tempstorage.py", "cics_crucible.py",
+                            "equivalence_cics_conditions.py", "equivalence_cics_containers.py", "equivalence_cics_filecontrol.py", "equivalence_cics_tempstorage.py", "cics_crucible.py",
                             "mutation.py", "mutation_crucible.py", "mutation_scores.py", "crucible_port_provenance.py")  # fmt: skip
 _ALLOWED_WRITERS = {"_append_approval", "new_record", "save"}
 
@@ -470,6 +470,24 @@ def test_a_task_judged_up_to_x6_is_recorded_and_stated_as_an_assumption():
     assert proof["outputs"]["error-path"]["assumes"] == "X6"
 
 
+def test_a_task_that_ran_a_padded_writeq_states_x6_as_an_assumption():
+    """X6 ASSUMED (owner 2026-10-21): a task that runs on through a WRITEQ past FROM (padded on both sides) is judged
+    whole, and still names X6 among its proof's assumptions; the page says it was padded, not judged up to a refusal."""
+    t = next(t for t, _ in _records())
+    report = {"proven": True, "outputs": {
+        "whole": {"equal": 2, "records": 2},
+        "error-path": {"equal": 6, "records": 6, "x6_padded": ["WRITEQ TD", "WRITEQ TS"]}}}  # fmt: skip
+    proof = ev.proof_section(t, report, "d")
+    assert proof["outputs"]["whole"] == {"equal": 2, "records": 2}
+    assert proof["outputs"]["error-path"] == {"equal": 6, "records": 6, "assumes": "X6",
+                                              "x6_padded": ["WRITEQ TD", "WRITEQ TS"]}  # fmt: skip
+    assert "judged_to" not in proof["outputs"]["error-path"]
+    page = ev.render_page(t, {**_runtime_record()[1], "proof": proof})
+    assert "| error-path | 6 | 6 (assumes X6: a WRITEQ past FROM, padded) |" in page
+    assert "Assumes oracle_assumptions.md X6 for 1 task(s) (error-path): each ran a WRITEQ" in page
+    assert "judged up to the refusal" not in page and "each is compared up" not in page
+
+
 # ---- #4744: the refresh's shards ---------------------------------------------------------------------------------------
 def _refresh_args(*extra):
     ap_args = ["refresh", "--stale", "--skip-db2", *extra]
@@ -583,3 +601,21 @@ def test_a_record_with_no_compiler_options_renders_no_row(semantic):
     assert "| compiler options |" not in page
     assert ev.compiler_line(rec["inputs"]["options"]) is None
     assert ev.compiler_line(None) is None
+
+
+def test_a_scenario_records_the_commands_its_cobol_run_executed():
+    """#5229: `commands` is the sorted distinct verbs of the oracle run, without the end-state snapshots; a scenario
+    with none carries no key (python-test-traps.md)."""
+    sys.path.insert(0, str(REPO / "tests" / "tools"))
+    import equivalence_cics as ec
+
+    events = [{"event": "RECEIVE-MAP"}, {"event": "WRITEQ-TS"}, {"event": "RECEIVE-MAP"},
+              {"event": "COMMAREA"}, {"event": "CONTAINERS"}, {"event": "RETURN"}]  # fmt: skip
+    assert ec.executed_commands(events) == ["RECEIVE-MAP", "RETURN", "WRITEQ-TS"]
+    assert ec.executed_commands([{"event": "COMMAREA"}]) == []
+    t = next(t for t, _ in _records())
+    report = {"proven": True, "outputs": {"a": {"equal": 3, "records": 3, "commands": ["RETURN", "WRITEQ-TS"]},
+                                          "b": {"equal": 1, "records": 1}}}  # fmt: skip
+    proof = ev.proof_section(t, report, "d")
+    assert proof["outputs"]["a"] == {"equal": 3, "records": 3, "commands": ["RETURN", "WRITEQ-TS"]}
+    assert proof["outputs"]["b"] == {"equal": 1, "records": 1}

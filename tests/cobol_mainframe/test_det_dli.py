@@ -56,9 +56,9 @@ SEED = b"".join([
 ])  # fmt: skip
 
 
-def _stage(dest: Path, seed: bytes = SEED) -> list[dict]:
+def _stage(dest: Path, seed: bytes = SEED, psb: str | None = None) -> list[dict]:
     db = ei.dbd((FIXTURE / "LVLDBD.dbd").read_text(encoding="latin-1"), "LVLDBD.dbd")
-    pcbs = ei.psb((FIXTURE / "LVLPSB.psb").read_text(encoding="latin-1"), "LVLPSB.psb", {db["name"]: db})
+    pcbs = ei.psb(psb or (FIXTURE / "LVLPSB.psb").read_text(encoding="latin-1"), "LVLPSB.psb", {db["name"]: db})
     dbd_cfg, psb_cfg = ei.config({db["name"]: db}, pcbs)
     dest.mkdir(parents=True, exist_ok=True)
     (dest / "dbd.cfg").write_text(dbd_cfg, encoding="ascii")
@@ -120,7 +120,8 @@ GEN = "         PSBGEN  LANG=COBOL,PSBNAME=P,CMPAT=NO\n"
         ("G        PCB     TYPE=GSAM,DBDNAME=X,PROCOPT=LS\n" + GEN, "GSAM DBD X is not one of"),
         ("G        PCB     TYPE=GSAM,DBDNAME=G,PROCOPT=GO\n" + GEN, "reading a GSAM file is not"),
         (PCB.replace("KEYLEN=2", "KEYLEN=2,PROCSEQ=XIDX") + GEN, "PROCSEQ"),
-        (PCB.replace("PROCOPT=A", "PROCOPT=L") + GEN, "load mode"),
+        (PCB.replace("PROCOPT=A", "PROCOPT=AL") + GEN, "load mode with another option"),
+        (PCB.replace("PROCOPT=A", "PROCOPT=L") + PCB.replace("P1", "P2") + GEN, "a load-mode PCB on X beside another PCB"),
         (PCB.replace("PARENT=0", "PARENT=0,PROCOPT=G") + GEN, "segment-level PROCOPT"),
         (PCB.replace("DBDNAME=X", "DBDNAME=Y") + GEN, "not one of the case's DBDs"),
     ],
@@ -247,6 +248,17 @@ def _translate(tmp_path: Path, src: str):
     return P.translate(tmp_path / "DLIT.cbl", [], "public class DlitService {\n}\n", PKG, None, project)
 
 
+def test_ceetdli_is_the_same_detdli_call_as_cbltdli_at_the_entry_and_a_hole_in_a_bmp(tmp_path):
+    """#5233: LE's CEETDLI takes CBLTDLI's USING list; in a BMP (entered USING its I/O PCB) it stays a hole by name."""
+    r = _translate(
+        tmp_path, _program(["    CALL 'CEETDLI' USING FN PCB1 IOA", "    CALL 'CEETDLI' USING FN PCB2 IOA SSA SSA1(2)"])
+    )
+    assert not r.stats["holes"], r.stats["holes"]
+    assert len(re.findall(r"DetDli\.call\(", r.java)) == 2 and re.search(r"DetDli\.enter\(\w+, \w+\);", r.java)
+    r = _translate(tmp_path, _program(["    CALL 'CEETDLI' USING FN PCB2 IOA"], entry=None, using=" USING PCB1 PCB2"))
+    assert any("CEETDLI" in h for h in r.stats["holes"]), r.stats["holes"]
+
+
 @pytest.mark.parametrize("using", ["", " USING PCB1 PCB2", " USING PCB2"])
 def test_cbltdli_is_a_detdli_call_and_the_entry_binds_the_pcbs(tmp_path, using):
     """IMS enters the program at DLITCBL (with its own USING list) whatever PROCEDURE DIVISION USING says; every
@@ -272,7 +284,9 @@ def test_cbltdli_is_a_detdli_call_and_the_entry_binds_the_pcbs(tmp_path, using):
         (["    CALL 'CBLTDLI' USING FN PCB1"], "    ENTRY 'DLITCBL' USING PCB1 PCB2.", "up to 15 SSAs expected"),
         (["    CALL 'CBLTDLI' USING FN PCB1 'X'"], "    ENTRY 'DLITCBL' USING PCB1 PCB2.", "BY REFERENCE expected"),
         (["    CALL 'AIBTDLI' USING FN PCB1 IOA"], "    ENTRY 'DLITCBL' USING PCB1 PCB2.", "through an AIB"),
-        (["    CALL 'CEETDLI' USING FN PCB1 IOA"], "    ENTRY 'DLITCBL' USING PCB1 PCB2.", "Language Environment DL/I"),
+        (["    CALL 'CEETDLI' USING FN IOA IOA"], "    ENTRY 'DLITCBL' USING PCB1 PCB2.", "not one IMS passed"),
+        (["    CALL 'CEETDLI' USING FN PCB1"], "    ENTRY 'DLITCBL' USING PCB1 PCB2.", "up to 15 SSAs expected"),
+        (["    CALL 'CEETDLI' USING FN PCB1 IOA"], None, "a program IMS does not enter at ENTRY"),
     ],
 )  # fmt: skip
 def test_what_the_translator_does_not_model_is_a_hole_by_name(tmp_path, proc, entry, why):
@@ -281,8 +295,10 @@ def test_what_the_translator_does_not_model_is_a_hole_by_name(tmp_path, proc, en
 
 
 # ---- the level fixture on both runtimes (the first-time number: PR body) ----------------------------------------------
-def _cobol_side(work: Path, seed: bytes = SEED, prog: str = "DLILVL", edit=None) -> tuple[str, bytes]:
-    pcbs = _stage(work / "dli", seed)
+def _cobol_side(
+    work: Path, seed: bytes = SEED, prog: str = "DLILVL", edit=None, psb: str | None = None
+) -> tuple[str, bytes]:
+    pcbs = _stage(work / "dli", seed, psb)
     (work / "dliout").mkdir()
     src = work / "src"
     src.mkdir()
@@ -298,13 +314,15 @@ def _cobol_side(work: Path, seed: bytes = SEED, prog: str = "DLILVL", edit=None)
     return run.stdout, (work / "dliout" / "LVLDBD.out").read_bytes()
 
 
-def _java_side(work: Path, seed: bytes = SEED, prog: str = "DLILVL", edit=None) -> tuple[str, bytes]:
+def _java_side(
+    work: Path, seed: bytes = SEED, prog: str = "DLILVL", edit=None, psb: str | None = None
+) -> tuple[str, bytes]:
     pytest.importorskip("tree_sitter_language_pack")
     sys.path.insert(0, str(ROOT / "tests" / "cobol_mainframe"))
     import test_det_programs as tdp
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
-    _stage(work / "dli", seed)
+    _stage(work / "dli", seed, psb)
     (work / "dliout").mkdir()
     project = work / "project"
     tdp._batch_package(project / "src/main/java")
@@ -412,6 +430,36 @@ CMD_EXPECTED = [
     # C on a GU: the concatenated key names the segment (a dependent, a deeper one), parentage is the segment found
     "Q25 [  ] E002BOB", "Q26 [  ] S2JAVA", "Q27 [GE]",  # S2 is the last skill of E001, which has no dependents
     "Q28 [GE]", "Q29 [  ] E003CAROL",  # no such EMP under D100; an EMP under the second DEPT
+    # D, a path call: DEPT, EMP and SKILL come back one after another (the first 4, 4 and 2 bytes of each); D on the last SSA adds nothing
+    "Q30 [  ] D100/E001/S1",
+    "Q31 [  ] E001/S2JA/",  # a GN of EMP*D, SKILL: the next skill, with its EMP in front
+    "Q32 [  ] D100/E001/", "Q33 [  ] D100/    /",  # DEPT*D, EMP; DEPT*D alone
+    "Q34 [  ] D200/E003/S1",  # a qualified DEPT with D
+    # DEPT*DP, EMP (parentage the DEPT), then GNPs of EMP*D, SKILL: each skill under D100 with its EMP, then GE
+    "Q35 [  ] D100/E001/", "Q36 [  ] E001/S1CO/", "Q37 [  ] E001/S2JA/", "Q38 [GE]     /    /",  # nothing found: the area is untouched (blank)
+    "Q39 [  ] D100/E001/",  # GHU
+    # Q (enqueue) changes nothing with one program: on an unqualified and a qualified SSA, a GN, a GNP that finds nothing,
+    # a GHU, and beside L
+    "Q40 [  ] D100SALES", "Q41 [  ] E003CAROL", "Q42 [  ] E004DAVE", "Q43 [GE]", "Q44 [  ] E003CAROL", "Q45 [  ] E002BOB",
+    # U and V make the current position a qualification (U at its level, V at it and above): position E002 under D100, then
+    # DEPT*U, EMP | DEPT*U, EMP(E002) | DEPT*V, EMP*V | DEPT, EMP*U | a GN DEPT*U, PROJ | DEPT*V | GNP EMP, SKILL | GNP
+    # EMP*V, SKILL (the next skill of the same EMP) | DEPT*U, EMP(E003): E003 is under D200, not the position's D100
+    "Q46 [  ] E001ALICE", "Q47 [  ] E002BOB", "Q48 [  ] E002BOB", "Q49 [  ] E002BOB", "Q50 [  ] P1ALPHA", "Q51 [  ] D100SALES",
+    "Q52 [  ] E001ALICE", "Q53 [  ] S1COBOL", "Q54 [  ] S2JAVA", "Q55 [GE]",
+    # N (no replace) beside D on a GHU, then REPL of the path: DEPT*DN, EMP: only the EMP is replaced (the DEPT name stays SALES)
+    "Q56 [  ] D100/E001/", "Q57 [  ] D100/E001/", "Q58 [  ] E001XENIA", "Q59 [  ] D100SALES",
+    # DEPT*D, EMP*DN: the DEPT is replaced and the EMP is not
+    "Q60 [  ] D100/E001/", "Q61 [  ] D100/E001/", "Q62 [  ] D100ALPHA", "Q63 [  ] E001XENIA",
+    # an N segment's sequence field is not compared (D999 in the DEPT's slice), the EMP is replaced
+    "Q64 [  ] D100/E001/", "Q65 [  ] D999/E001/", "Q66 [  ] D100ALPHA", "Q67 [  ] E001NEWNM",
+    # a changed sequence field in a replaced segment is DA, and nothing is replaced
+    "Q68 [  ] D100/E001/", "Q69 [DA] D100/E999/", "Q70 [  ] E001NEWNM",
+    # D on an ISRT before the last SSA, the path insert: DEPT*D, EMP inserts a new root and its child; the GU reads the child back
+    "Q71 [  ] EMP", "Q72 [  ] E010ZED",
+    # an existing D-coded DEPT is kept (its slice is not compared: its name, ALPHA since Q62, stays), the EMP is inserted under it; the same call again is II
+    "Q73 [  ] EMP", "Q74 [  ] D100ALPHA", "Q75 [  ] E011ABEL", "Q76 [II] DEPT",
+    # three levels, DEPT*D, EMP*D, SKILL; then a qualified DEPT without D (found by its SSA), EMP*D, SKILL; a qualified DEPT that is missing: GE
+    "Q77 [  ] SKILL", "Q78 [  ] S9TEST", "Q79 [  ] SKILL", "Q80 [  ] E030CY", "Q81 [  ] S8X", "Q82 [GE]",
 ]  # fmt: skip
 
 
@@ -422,7 +470,10 @@ def test_command_codes_answer_the_same_on_both_runtimes(tmp_path):
     assert _lines(cobol_out) == CMD_EXPECTED
     assert _lines(java_out) == CMD_EXPECTED
     assert cobol_db == java_db
-    keys = [(n, d[:4].decode("latin-1").strip()) for n, d in ei.split(cobol_db, {"DEPT": 20, "EMP": 20, "SKILL": 8, "PROJ": 12})]
+    keys = [
+        (n, d[:4].decode("latin-1").strip())
+        for n, d in ei.split(cobol_db, {"DEPT": 20, "EMP": 20, "SKILL": 8, "PROJ": 12})
+    ]
     assert ("EMP", "E004") in keys and keys.index(("EMP", "E004")) == keys.index(("EMP", "E003")) + 2
 
 
@@ -434,17 +485,45 @@ def _swap(old: str, new: str):
     return edit
 
 
+def _swaps(*pairs: tuple[str, str]):
+    edits = [_swap(old, new) for old, new in pairs]
+
+    def edit(s: str) -> str:
+        for one in edits:
+            s = one(s)
+        return s
+
+    return edit
+
+
 @E2E
 @pytest.mark.parametrize(
     "edit, why",
     [
-        (_swap("'DEPT    *L '", "'DEPT    *D '"), "the command code D"),
         (_swap("'DEPT    *L '", "'DEPT    *N '"), "the command code N"),
-        (_swap("'DEPT    *L '", "'DEPT    *Q '"), "the command code Q"),
-        (_swap("'DEPT    *L '", "'DEPT    *U '"), "the command code U"),
-        (_swap("'DEPT    *L '", "'DEPT    *V '"), "the command code V"),
+        (_swaps(("'DEPT    *L '", "'DEPT    *Q '"), ("F-GU PCB1 IOA C-DL", "F-ISRT PCB1 IOA C-DL")),
+         "the command code Q on a ISRT"),  # Q is modelled on the gets only
+        (_swap("'DEPT    *L '", "'DEPT    *U '"), "the command code U with no established position"),
+        (_swap("'DEPT    *L '", "'DEPT    *V '"), "the command code V with no established position"),
+        (_swaps(("'DEPT    *L '", "'DEPT    *U '"), ("F-GU PCB1 IOA C-DL", "F-ISRT PCB1 IOA C-DL")),
+         "the command code U on a ISRT"),  # U and V are modelled on the gets only
+        (_swaps(("'DEPT    *L '", "'DEPT    *V '"), ("F-GU PCB1 IOA C-DL", "F-ISRT PCB1 IOA C-DL")),
+         "the command code V on a ISRT"),
+        (_swaps(("'EMP     *CD'", "'EMP     *CU'"), ("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CE2",
+                                                       "CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CDE")),
+         "the command code U beside C"),
         (_swap("'DEPT    *L '", "'DEPT    *3 '"), "the command code 3"),
-        (_swap("'DEPT    *L '", "'DEPT    *-D'"), "the command code D"),  # a refused code later in the list
+        # #5233: the DEDB subset-pointer codes no burned program uses stay refused by name
+        *[(_swap("'DEPT    *L '", f"'DEPT    *{c} '"), f"the command code {c}") for c in "MRSWZ19"],
+        (_swap("PIC X(11) VALUE 'DEPT    *L '", "PIC X(12) VALUE 'DEPT    *-N '"),
+         "the command code N other than with D on a get-hold call"),  # N later in the list, on a GU
+        (_swap("F-GHU PCB1 IOP C-DDN S-EMP", "F-GU PCB1 IOP C-DDN S-EMP"), "the command code N other than with D on a get-hold call"),
+        (_swap("'DEPT    *DN '", "'DEPT    *N  '"), "the command code N other than with D on a get-hold call"),  # N without D (a hold get)
+        (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-ISRT PCB1 IOA C-DDN"),
+         "the command code N other than with D on a get-hold call (ISRT)"),  # no replace is a get-hold's, not a path insert's
+        (_swap("F-ISRT PCB1 IOP C-DD S-EMP", "F-ISRT PCB1 IOP C-DDN S-EMP"),
+         "the command code N other than with D on a get-hold call (ISRT)"),  # N beside D on a path insert
+        (_swap("PIC X(4) VALUE 'REPL'", "PIC X(4) VALUE 'DLET'"), "a DLET after a path call"),
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DF"),
          "the command code F on a GN"),
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-DL"),
@@ -456,6 +535,8 @@ def _swap(old: str, new: str):
         (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-DL", "CALL 'CBLTDLI' USING F-GN PCB1 IOA C-CE2"),
          "the command code C other than"),
         (_swap("IOA S-DEPT S-EMP C-SKL", "IOA C-CE2 C-CS2"), "the command code C other than"),
+        (_swap("CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CE2", "CALL 'CBLTDLI' USING F-GU PCB1 IOA C-CDE"),
+         "the command code D beside C"),
         (_swap("IOA S-DEPT C-EL", "IOA C-DL C-EL"), "the command code L other than"),  # L on a path SSA
         (_swap("IOA C-DQ C-EL", "IOA C-DQL C-EL"), "the command code L other than"),  # L on a qualified SSA
     ],
@@ -1115,3 +1196,101 @@ def test_detdli_a_gsam_pcb_in_load_mode_appends_records_and_refuses_what_it_does
     assert records.read_bytes() == b"AAAAAAAABBBBBBBB"
     dup, _ = run("GSAM G LS 8\nGSAM G LS 8\n", "dup")
     assert dup == ["CBLTDLI: two GSAM PCBs on one database is not modelled"]
+
+
+@E2E
+def test_a_path_isrt_with_an_area_shorter_than_its_segments_is_refused_by_the_java_runtime(tmp_path):
+    # the C twin cannot see the area's size (register I5), so only the Java side refuses
+    short = _swap("F-ISRT PCB1 IOP C-DD S-EMP", "F-ISRT PCB1 IOA C-DD S-EMP")
+    with pytest.raises(subprocess.CalledProcessError) as e:
+        _java_side(tmp_path / "java", prog="DLICMD", edit=short)
+    assert "a path ISRT whose I/O area is shorter" in (e.value.stderr or b"").decode("utf-8")
+
+
+# ---- #5233: load mode on a DB PCB (PROCOPT L / LS) -----------------------------------------------------------------
+LOAD_PSB = ("LOADPCB  PCB     TYPE=DB,DBDNAME=LVLDBD,PROCOPT=L,KEYLEN=10\n"
+            + "".join(f"         SENSEG  NAME={n},PARENT={par}\n"
+                      for n, par in [("DEPT", 0), ("EMP", "DEPT"), ("SKILL", "EMP"), ("PROJ", "DEPT")])
+            + "         PSBGEN  LANG=COBOL,PSBNAME=LOADPSB,CMPAT=NO\n         END\n")  # fmt: skip
+
+# (call, segment, I/O area, IBM status): ISRT in hierarchic and key order loads; a duplicate key is LB, a lower key than
+# the last twin LC, a segment type earlier than one already under the parent LE, no parent of its type loaded LD;
+# every other function is AM (the call is not compatible with the load PROCOPT)
+LOAD_STEPS = [
+    ("ISRT", "DEPT", "D100SALES", "  "), ("ISRT", "EMP", "E001ALICE", "  "), ("ISRT", "SKILL", "S1COBOL", "  "),
+    ("ISRT", "SKILL", "S2JAVA", "  "), ("ISRT", "SKILL", "S2JAVA", "LB"), ("ISRT", "SKILL", "S1COBOL", "LC"),
+    ("ISRT", "EMP", "E002BOB", "  "), ("ISRT", "EMP", "E001ALICE", "LC"), ("ISRT", "PROJ", "P1ALPHA", "  "),
+    ("ISRT", "EMP", "E003CAROL", "LE"), ("ISRT", "SKILL", "S3DB2", "LD"), ("ISRT", "DEPT", "D050OPS", "LC"),
+    ("ISRT", "DEPT", "D100SALES", "LB"), ("ISRT", "DEPT", "D200OPS", "  "), ("ISRT", "SKILL", "S1COBOL", "LD"),
+    ("GU", "DEPT", "", "AM"), ("GN", None, "", "AM"), ("GHU", "DEPT", "", "AM"), ("REPL", None, "", "AM"),
+    ("DLET", None, "", "AM"),
+]  # fmt: skip
+
+
+def _load_program() -> str:
+    lines = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. DLILOAD.", "DATA DIVISION.", "WORKING-STORAGE SECTION.",
+             "01  W-Q PIC 99 VALUE 0.", "01  IOA PIC X(60)."]  # fmt: skip
+    for fn in sorted({c for c, *_ in LOAD_STEPS}):
+        lines.append(f"01  F-{fn} PIC X(4) VALUE '{fn:<4}'.")
+    for seg in ("DEPT", "EMP", "SKILL", "PROJ"):
+        lines.append(f"01  S-{seg} PIC X(9) VALUE '{seg:<9}'.")
+    lines += ["LINKAGE SECTION.", "01  PCB1.", "    05 P1-DBD PIC X(8).", "    05 P1-LEVEL PIC X(2).",
+              "    05 P1-STATUS PIC X(2).", "    05 FILLER PIC X(34).", "PROCEDURE DIVISION.", "MAIN-PARA.",
+              "    ENTRY 'DLITCBL' USING PCB1."]  # fmt: skip
+    for i, (fn, seg, area, _) in enumerate(LOAD_STEPS, 1):
+        lines += [f"    MOVE {i} TO W-Q", f"    MOVE '{area}' TO IOA"]
+        ssa = f" S-{seg}" if seg and fn != "REPL" else ""
+        lines += [f"    CALL 'CBLTDLI' USING F-{fn} PCB1 IOA{ssa}", "    DISPLAY 'Q' W-Q ' [' P1-STATUS ']'"]
+    lines.append("    GOBACK.")
+    return "\n".join(" " * 7 + ln for ln in lines) + "\n"
+
+
+def test_a_load_mode_pcb_is_one_the_harness_models():
+    pcbs = ei.psb(LOAD_PSB, "LOADPSB.psb", {"LVLDBD": ei.dbd((FIXTURE / "LVLDBD.dbd").read_text(), "LVLDBD.dbd")})
+    assert [(p["dbd"], p["procopt"]) for p in pcbs] == [("LVLDBD", "L")]
+    assert "PCB LVLDBD L 10" in ei.config({}, pcbs)[1]
+    with pytest.raises(ei.Unsupported, match="load mode under CICS"):
+        ei.psb(LOAD_PSB.replace("PROCOPT=L", "PROCOPT=LS"), "LOADPSB.psb", {"LVLDBD": ei.dbd(
+            (FIXTURE / "LVLDBD.dbd").read_text(), "LVLDBD.dbd")}, cics=True)  # fmt: skip
+
+
+@E2E
+def test_load_mode_answers_lb_lc_ld_le_and_am_the_same_on_both_runtimes(tmp_path):
+    expected = [f"Q{i:02d} [{st}]" for i, (*_, st) in enumerate(LOAD_STEPS, 1)]
+    cobol_out, cobol_db = _cobol_side(
+        tmp_path / "cobol", seed=b"", prog="DLILVL", edit=lambda _: _load_program(), psb=LOAD_PSB
+    )
+    java_out, java_db = _java_side(
+        tmp_path / "java", seed=b"", prog="DLILVL", edit=lambda _: _load_program(), psb=LOAD_PSB
+    )
+    assert _lines(cobol_out) == expected
+    assert _lines(java_out) == expected
+    assert cobol_db == java_db
+    keys = [(n, d[:4].decode("latin-1").strip()[: 2 if n in ("SKILL", "PROJ") else 4])
+            for n, d in ei.split(cobol_db, {"DEPT": 20, "EMP": 20, "SKILL": 8, "PROJ": 12})]  # fmt: skip
+    assert keys == [("DEPT", "D100"), ("EMP", "E001"), ("SKILL", "S1"), ("SKILL", "S2"), ("EMP", "E002"),
+                    ("PROJ", "P1"), ("DEPT", "D200")]  # fmt: skip
+
+
+@E2E
+def test_load_mode_into_a_database_that_holds_segments_is_refused_by_both_runtimes(tmp_path):
+    with pytest.raises(AssertionError, match="load mode into a database that already holds segments"):
+        _cobol_side(tmp_path / "cobol", prog="DLILVL", edit=lambda _: _load_program(), psb=LOAD_PSB)
+    with pytest.raises(subprocess.CalledProcessError):
+        _java_side(tmp_path / "java", prog="DLILVL", edit=lambda _: _load_program(), psb=LOAD_PSB)
+
+
+def _ceetdli(text: str) -> str:
+    return text.replace("'CBLTDLI'", "'CEETDLI'")
+
+
+@E2E
+@pytest.mark.parametrize("prog", ["DLILVL", "DLICMD", "DLIBOOL"])
+def test_ceetdli_answers_what_cbltdli_answers_on_both_runtimes(tmp_path, prog):
+    """#5233: each fixture (every modelled call, status, command code and boolean SSA) with CBLTDLI renamed CEETDLI:
+    both runtimes print what the unrenamed fixture prints and leave the same database."""
+    cobol_out, cobol_db = _cobol_side(tmp_path / "cobol", prog=prog, edit=_ceetdli)
+    java_out, java_db = _java_side(tmp_path / "java", prog=prog, edit=_ceetdli)
+    base_out, base_db = _cobol_side(tmp_path / "base", prog=prog)
+    assert _lines(cobol_out) == _lines(java_out) == _lines(base_out)
+    assert cobol_db == java_db == base_db

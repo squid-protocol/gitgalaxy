@@ -107,9 +107,11 @@ step above, but the spine describes *how*, this is *did you actually do it*:
 - [ ] **`llm_recorder.py` brief section**: a `_<name>_facts_lines(parsed_files)` that summarizes
   (roots + counts, not the full tree) and returns `[]` when absent. Not golden-mastered, but still
   required — a channel with only the audit block leaves the LLM brief blind to it.
-- [ ] **Recipe channel table** (`gitgalaxy/core/how_to_add_a_fact_channel.md`'s table) and any
-  **README** that lists channels (`gitgalaxy/core/README.md`, `docs/ecosystem.md` if the channel
-  changes cross-repo consumers) get a new row — a channel that only exists in code and not in the
+- [ ] **Recipe channel table** (`gitgalaxy/core/how_to_add_a_fact_channel.md`'s table: a row naming the table
+  in its table column) and a paragraph in **`gitgalaxy/recorders/README.md`** (the DB schema doc; both are
+  checked against the registry by `tests/core_engine/test_fact_channels.py`, so a missing one fails there). Any
+  other **README** that lists channels (`gitgalaxy/core/README.md`, `docs/ecosystem.md` if the channel
+  changes cross-repo consumers) gets a new row — a channel that only exists in code and not in the
   reference table gets re-discovered from scratch by the next agent.
 
 ## PR-body evidence template

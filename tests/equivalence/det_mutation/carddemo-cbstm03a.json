@@ -5,18 +5,18 @@
  "case": "carddemo-cbstm03a",
  "entry": {
   "program": "CBSTM03A",
-  "commit": "eb64cd45c0244e1d2d5ab90e7ed73e4a40696a99",
-  "date": "2026-10-23",
+  "commit": "259186624666a59cc87b52aee11315a7e68746c6+uncommitted",
+  "date": "2026-10-25",
   "mode": "fast",
   "seed": 0,
   "mutants": 3181,
   "out_of_scope": 0,
   "chosen": 150,
-  "coverage": "proven on 5 runs, covering 25/25 paragraphs and 0/46 branches",
+  "coverage": "proven on 14 runs, covering 25/25 paragraphs and 43/46 branches",
   "counts": {
-   "killed": 93,
+   "killed": 98,
    "timeout": 0,
-   "survived": 53,
+   "survived": 48,
    "stillborn": 4,
    "error": 0,
    "pending": 0
@@ -26,6 +26,7 @@
    "04e6ab17bb",
    "05d61808f4",
    "09fe59b705",
+   "1192c5e7bb",
    "18509f251a",
    "2296e22124",
    "2341b48287",
@@ -59,6 +60,7 @@
    "6e03f061ad",
    "7083047cc5",
    "78ba48bd60",
+   "7a2ef4acb3",
    "7b87cf8947",
    "7bddcceb9b",
    "7c02810ab3",
@@ -102,11 +104,14 @@
    "db51123954",
    "dbf6ae5e3a",
    "e01c02b5d6",
+   "e04bdb119a",
    "e2055ebd36",
    "e53496695f",
    "e90a34fa48",
    "eab1dc08d6",
    "f0c55270fa",
+   "f11024851e",
+   "f16573f9e2",
    "f20410445a",
    "f3c655bced",
    "f7dfd9328f",
@@ -372,22 +377,6 @@
     "after": "if (!(true)) return GOTO | 3;"
    },
    {
-    "id": "f11024851e",
-    "op": "NEG",
-    "file": "service/Cbstm03aService.java",
-    "line": 1352,
-    "before": "} else if (true) {",
-    "after": "} else if (!(true)) {"
-   },
-   {
-    "id": "7a2ef4acb3",
-    "op": "DEL",
-    "file": "service/Cbstm03aService.java",
-    "line": 1358,
-    "before": "perform(25, 25);",
-    "after": "/* perform(25, 25); */"
-   },
-   {
     "id": "bb54600ac5",
     "op": "CON",
     "file": "service/Cbstm03aService.java",
@@ -428,28 +417,12 @@
     "after": "f61_TR_CNT = Cobol.binary(BigDecimal.valueOf(f61_TR_CNT).add(t120), 5, true, false, CS);"
    },
    {
-    "id": "f16573f9e2",
-    "op": "NEG",
-    "file": "service/Cbstm03aService.java",
-    "line": 2210,
-    "before": "} else if (true) {",
-    "after": "} else if (!(true)) {"
-   },
-   {
     "id": "ddd4707fdd",
     "op": "DEL",
     "file": "service/Cbstm03aService.java",
     "line": 2324,
     "before": "Cobol.moveFigurative(Figurative.ZEROS, f74_WS_M03B_RC, CS);",
     "after": "/* Cobol.moveFigurative(Figurative.ZEROS, f74_WS_M03B_RC, CS); */"
-   },
-   {
-    "id": "1192c5e7bb",
-    "op": "ROR",
-    "file": "service/Cbstm03aService.java",
-    "line": 2331,
-    "before": "if ((Cobol.compare(f74_WS_M03B_RC, \"00\", CS) == 0 || Cobol.compare(f74_WS_M03B_RC, \"04\", CS) == 0)) {",
-    "after": "if ((Cobol.compare(f74_WS_M03B_RC, \"00\", CS) == 0 || Cobol.compare(f74_WS_M03B_RC, \"04\", CS) != 0)) {"
    },
    {
     "id": "5bd7913a6a",
@@ -532,14 +505,6 @@
     "after": "if (!(true)) return GOTO | 6;"
    },
    {
-    "id": "e04bdb119a",
-    "op": "CON",
-    "file": "service/Cbstm03bService.java",
-    "line": 457,
-    "before": "if (true) return GOTO | 6;",
-    "after": "if (true) return GOTO | 7;"
-   },
-   {
     "id": "0da6f2560b",
     "op": "NEG",
     "file": "service/Cbstm03bService.java",
@@ -549,12 +514,13 @@
    }
   ],
   "inputs": {
-   "port": "541ea1250c52a854b8a25144ac65b8487a0bf2ea686e2613db598a1b077700b1",
-   "generator": "140bceaf0d6727d934e5f0eeca6332e708567250dcb4326c21e7fded289bf18f",
-   "case": "af6663eb14651396ca2cbb49ace512b21f5994b5935231110b1592e96209ce13",
+   "port": "3a8212914d45de226a985ace596accea7080cebb3c35cfaa2dd57186fceb8083",
+   "generator": "bc48178c3dfae1c2ca4049a32efab25db207169122fb9727ede5fb6e33209ece",
+   "case": "ea3dbbc9af779d309d0815135bf48d04dc9f59e36df88f4557f3878b46211d04",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "efbe51075ec1adca1d2de680be9c28392f4d525f661d39c1d5f9eeaf7ae38c86",
-   "oracle": "e9e74c7b948ad1020416ad6ae58cb9ae52e4027557d0f25419d12926e20cc83e"
+   "harness": "5c6a45c8494ae94210d478a7876ea38fd4acc7ceebf50b60ff58c8e607eb058d",
+   "oracle": "7e57488c79c77a09bd66129bc3cc144ac3a66e074a3acc9f05f277b1f41caa82",
+   "survivors": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   },
   "components": {
    "generator": {
@@ -574,17 +540,17 @@
     "generator:cobolrt/batch/DetFiles.java": "fe03a6459ba1dcc2a8ad367c4b7cd1debaf1ab9c661697c4841c726f99354ba1",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "5835676e90b8075f69e69802dc022e2830ebe3ffccae9b2ad090ee45a18931de",
+    "generator:core": "aae8bd6be007ebbfb4c7c2427b7bd4fd033ec36f528cca49600462bbb475d413",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd"
    },
    "harness": {
-    "harness:core": "d62c9af2a5f83bb39a1deffe40cd7d7d63bb0d2945c4e8cec6b12503931f45ef"
+    "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99"
    },
    "oracle": {
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:file-io": "e74b2733865b6c48f5ccf8d292c81c28e4827e0229e7383baeb7a3a26327f501",
-    "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
+    "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
    }
   }
  }

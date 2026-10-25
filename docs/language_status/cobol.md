@@ -132,6 +132,11 @@ representing different perspectives on the same action, asserted together in
 statement also fires `reflection_metaprogramming`'s own bare catch-all alternative, layered on top
 of whichever CICS/SQL-specific signature it also matches (`io`, `concurrency`, `telemetry`, etc.).
 
+**`EXEC SQL CALL` is not a COBOL `CALL`.** A `CALL` inside any `EXEC ... END-EXEC` block is masked from
+`calls_out_to` and `call_site_data` (#4304). The Db2 stored procedure it names is carried on its
+`sql_statement_data` row as `routine_name` (`schema.proc`, #5736); `CALL :HV` names none. No burned
+estate program uses `EXEC SQL CALL`, so nothing consumes the column yet.
+
 ## 4. What GitGalaxy explicitly does not track
 
 Four keys are hard-set to `None` in COBOL's `rules` dict (Rule 4 of the engine's generation rules:

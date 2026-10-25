@@ -289,4 +289,19 @@ def test_a_body_tree_sitter_closes_early_on_a_parse_error_uses_the_brace_fallbac
     funcs = [("m.c", "helper", 1, []), ("m.c", "f", 2, ["log_it", "helper"]), ("m.c", "log_it", 9, [])]
     repo, scan = make_port(tmp_path, "linuxdoom", {"m.c": EARLY_CLOSE_SRC}, funcs)
     r = co.body_oracle(co.Port("linuxdoom", repo, co.load_port(repo, co.find_db(scan))))
-    assert (r["recall"], r["precision"], r["text_fallback_functions"]) == (1.0, 1.0, 1)
+    # 2: log_it too, whose only parse is the bare-macro `if` "definition" below (see the next test)
+    assert (r["recall"], r["precision"], r["text_fallback_functions"]) == (1.0, 1.0, 2)
+
+
+def test_a_bare_macro_statement_misparsed_as_a_definition_named_if_neither_swallows_nor_matches(tmp_path):
+    # srb2's lua_baselib.c (#6266): `COUNTER_MACRO\n if (!base)` parses as a K&R definition named `if` whose head runs
+    # over the functions below. Matching it gave later functions the wrong body; walking it gave f the file's calls.
+    tree = co._parser("c").parse(EARLY_CLOSE_SRC.encode())
+    nodes = co.function_nodes(tree)
+    assert [co._keyword_named(n) for n in nodes] == [False, False, True]
+    assert co.Body(nodes[1]).broken
+    assert co.definition_at(nodes, 9) is None
+    funcs = [("m.c", "helper", 1, []), ("m.c", "f", 2, ["log_it", "helper"]), ("m.c", "log_it", 9, [])]
+    repo, scan = make_port(tmp_path, "linuxdoom", {"m.c": EARLY_CLOSE_SRC}, funcs)
+    r = co.body_oracle(co.Port("linuxdoom", repo, co.load_port(repo, co.find_db(scan))))
+    assert (r["recall"], r["precision"]) == (1.0, 1.0)

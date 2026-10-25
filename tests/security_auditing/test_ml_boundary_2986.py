@@ -106,3 +106,8 @@ def test_full_extra_carries_every_package_the_ml_layer_needs():
     names = {spec.split(">")[0].split("=")[0].split("[")[0].strip().lower() for spec in extras["full"]}
     # XGBClassifier raises ImportError without scikit-learn, so the ML layer needs all four.
     assert {"xgboost", "scikit-learn", "pandas", "numpy"} <= names
+
+    # CI installs the hash-locked set, not the extra: a lock without scikit-learn makes the real-model leg skip.
+    for lock in ("engines.in", "engines.txt", "test.txt"):
+        text = (REPO_ROOT / "ci" / "requirements" / lock).read_text(encoding="utf-8").lower()
+        assert "scikit-learn" in text, lock

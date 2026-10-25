@@ -16,6 +16,8 @@ on:
     branches: [main]
     paths:
       - "gitgalaxy/**"
+      # #6278 slice 4: a standalone tool nothing here imports (test_engine_reach_workflows.py proves it from the import closure)
+      - "!gitgalaxy/tools/terabyte_log_scanning/**"
       - "pyproject.toml"
       - "tests/cics_crucible/ports/**"
       - "tests/equivalence/*/port/**"
@@ -91,13 +93,14 @@ jobs:
           pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Setup JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Cache Maven dependencies
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: maven_dependencies
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
           key: ports-compile-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
@@ -165,3 +168,12 @@ jobs:
             grep -E '^(ok|FAIL|all |[0-9]+ of|  - )' "$RUNNER_TEMP/ports_compile.txt" 2>/dev/null || echo "(no output)"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the Maven dependencies to the cache
+        if: success() && github.event_name != 'pull_request' && steps.maven_dependencies.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: ports-compile-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}

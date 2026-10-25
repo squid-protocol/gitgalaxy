@@ -35,7 +35,8 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
 * **Never build JSON by string interpolation in tests when a value is a filesystem path:** use `json.dumps` (Windows
   backslashes) (#5549).
 * **`read_text(errors="replace")` on a corpus file in a test fails `tests/test_source_reads.py`:** use
-  `gitgalaxy.core.source_text.read_source` (#5658).
+  `gitgalaxy.core.source_text.read_source` (#5658). The same test flags `.decode(..., errors="replace")` in `tests/tools`:
+  use `gitgalaxy.core.source_text.decode_bytes` (#6521).
 * **`dead_key_audit` flags a constant dict subscript that is read only once** (#5627).
 * **`tree_sitter_accuracy_audit.py` takes `--lang <name>`, not `--language`** (#5503).
 * **C evaluation order:** `memcpy(b, f(&n), n)` reads `n` before `f` runs; take the pointer into a local first (ASan
@@ -62,8 +63,12 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   `PYTHONPATH` (#6129).
 * **Put options such as `--max-files-per-commit` before the subcommand:** a positional repo list swallows later flags (#6190).
   Don't use `Closes #N` as a fix label (#6190).
-* **In a worker shell `python` is not on PATH between Bash calls:** re-export the selfscan venv bin each call or
-  `heavy-run.sh` fails (#6180, #6202; see `golden-master-guidelines.md` section 4).
+* **The Java crucible leg prints null event values:** a key is present with a null value, so assert `e.get("length") is None`, not `"length" not in e` (#6348).
+* **A parametrize value whose repr lands in the test id** (raw bytes) must be deterministic across processes, or xdist
+  aborts collection: give lazily-built payloads explicit `ids=` (#6257).
+* **A freshness test for a generated list scans tracked files** (`git ls-files`), not whatever is on disk (#6306).
+* **A bare `cat > file` (no heredoc) truncates the file to empty:** check `wc -c` before `-F body=@file`, or the PR body
+  lands empty (#6323).
 
 ## CI and workflow traps
 * **Never put a multi-line string inside `${{ }}`** (YAML folds newlines): use two `if:`-gated steps or a block scalar (#5612).
@@ -76,3 +81,9 @@ globs: "gitgalaxy/**/*.py,tests/**/*.py"
   recent commits before calling it a flake (#5184).
 * A cics-crucible `case.json` can list a `sources.copy` directory that is not on disk (git carries no empty dir):
   guard `iterdir()` on case dirs (#5192).
+* When two PRs change the same wait/timeout bound, grep for mirrored planner constants (`det_sweep_plan.DB2_WAIT_S`)
+  and update both (#6508).
+* **A step that `cd`s into a checkout and pushes needs THAT checkout's `persist-credentials: true`:** a token on a sibling checkout is not used (#6556).
+* **Shepherd GraphQL reads:** `timelineItems.totalCount` counts every item type (use `filteredCount` to detect truncation of a filtered connection); `mergeStateStatus` is often `UNKNOWN` (re-read over REST and keep the record only if the head sha matches) (#6539).
+* **`test_shepherd_gh.py`:** a test running `sg.main(['reconcile'])` with the real `gh_api` must monkeypatch `ci_digest.main_tip` and `sg._graphql_prs`, or it shells out to `gh` (#6546).
+* **A "does not hang" spawn test starts its timeout after the child signals readiness,** not at `p.start()` (#6585).

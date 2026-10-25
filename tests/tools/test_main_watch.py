@@ -96,9 +96,11 @@ def test_main_watch_checks_out_main_only_and_has_reconcile():
     assert "schedule:" in wf and "reconcile" in wf and "head.sha" not in wf.replace("workflow_run.head_sha", "")
 
 
-def test_post_merge_dispatches_with_the_pat():
+def test_post_merge_dispatches_with_a_token_whose_runs_trigger():
+    """A dispatch with the workflow's own GITHUB_TOKEN starts no run; the squid-shepherd App's token does, with the PAT
+    as the fallback when the mint fails (promoter-bot#64: the App has its own API quota)."""
     wf = read("post-merge.yml")
-    assert "DISPATCH_TOKEN: ${{ secrets.AUTOMATION_PAT }}" in wf
+    assert "DISPATCH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}" in wf
     assert "run: python3 tests/tools/post_merge_dispatch.py" in wf  # #5136: the dispatch rule moved into the script
     script = (REPO / "tests" / "tools" / "post_merge_dispatch.py").read_text(encoding="utf-8")
     assert 'GH_TOKEN=os.environ.get("DISPATCH_TOKEN")' in script and '"gh", "workflow", "run"' in script

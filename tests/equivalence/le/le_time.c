@@ -21,7 +21,8 @@
  * holds the same value in the item's own usage, register C6), strings halfword-prefixed (VSTRING), the feedback code
  * 12 bytes: all zero on success, else severity 3, message number, 0x59, 'CEE' in EBCDIC.
  * CEEGMT reads the case's pinned clock, $COB_CURRENT_DATE ("YYYY/MM/DD HH:MM:SS.CC"), as GMT (the det runtime's
- * CURRENT-DATE carries offset +0000); without one the model refuses (exit 98).
+ * CURRENT-DATE carries offset +0000); without one the model refuses (exit 98). So does a CEESECS with a YY, whose
+ * century window is anchored on that clock's year.
  * Pictures modelled: YYYY YY MM DD DDD HH MI SS 99 999 and literal punctuation. Anything else IBM documents (month and
  * day names, AP, Z-suppression, eras, a null picture) is refused: "NAME: ... is not modelled" on stderr, exit 98.
  */
@@ -196,9 +197,32 @@ static int format(const tok *p, int np, long n, int hh, int mi, int ss, int ms, 
     return w;
 }
 
-/* A VSTRING result: halfword length, the text, nothing past it. The item's size is not visible here: an output item
- * shorter than the result (IBM: truncated, CEE2526 / CEE2527) is refused by the Java side and unmodelled here. */
-static void put_vstring(unsigned char *out, const char *text, int len) {
+/* The declared size of a caller's output item: the harness reads the program's DATA DIVISION and gives
+ * GG_LE_OUT_SIZES="CEEDATE=80,CEEDATM=80" (tests/tools/le_out_size.py); GnuCOBOL passes this routine a bare pointer.
+ * -1: not stated (an item the harness could not size), so nothing is checked, as before. */
+static long out_size(const char *svc) {
+    const char *s = getenv("GG_LE_OUT_SIZES");
+    size_t n = strlen(svc);
+    while (s && *s) {
+        if (!strncmp(s, svc, n) && s[n] == '=') {
+            return atol(s + n + 1);
+        }
+        s = strchr(s, ',');
+        if (s) {
+            s++;
+        }
+    }
+    return -1;
+}
+
+/* A VSTRING result: halfword length, the text, nothing past it. IBM cuts a result longer than its output item
+ * (CEE2526 / CEE2527); that is refused by name here, as the Java side does (LeTime.putVstring), whenever the item's
+ * size is stated, rather than written over the storage beside it. */
+static void put_vstring(const char *svc, unsigned char *out, const char *text, int len) {
+    long size = out_size(svc);
+    if (size >= 0 && size < 2L + len) {
+        refuse(svc, "an output item shorter than the result (CEE2526 / CEE2527 truncation)");
+    }
     out[0] = (unsigned char)(len >> 8);
     out[1] = (unsigned char)len;
     memcpy(out + 2, text, (size_t)len);
@@ -210,13 +234,25 @@ static void clear_vstring(unsigned char *out) {
 
 /* ---------------------------------------------------------------------------------------------- services */
 
-static int gmt(unsigned char *lilian, unsigned char *seconds, unsigned char *fc) {
+static void read_clock(const char *svc, int *y, int *mo, int *d, int *hh, int *mi, int *ss, int *hs) {
     const char *s = getenv("COB_CURRENT_DATE");
-    int y, mo, d, hh, mi, ss, hs = 0;
-    if (!s || sscanf(s, "%d/%d/%d %d:%d:%d.%d", &y, &mo, &d, &hh, &mi, &ss, &hs) < 6) {
-        fprintf(stderr, "CEEGMT: no pinned clock ($COB_CURRENT_DATE) is not modelled\n");
+    *hs = 0;
+    if (!s || sscanf(s, "%d/%d/%d %d:%d:%d.%d", y, mo, d, hh, mi, ss, hs) < 6) {
+        fprintf(stderr, "%s: no pinned clock ($COB_CURRENT_DATE) is not modelled\n", svc);
         exit(98);
     }
+}
+
+/* The system year, for the century window (CEESECS YY): the pinned clock's. */
+static long system_year(const char *svc) {
+    int y, mo, d, hh, mi, ss, hs;
+    read_clock(svc, &y, &mo, &d, &hh, &mi, &ss, &hs);
+    return y;
+}
+
+static int gmt(unsigned char *lilian, unsigned char *seconds, unsigned char *fc) {
+    int y, mo, d, hh, mi, ss, hs;
+    read_clock("CEEGMT", &y, &mo, &d, &hh, &mi, &ss, &hs);
     long days = civil(y, mo, d) - EPOCH;
     put_int(lilian, days);
     put_double(seconds, (double)((long long)days * 86400LL + hh * 3600LL + mi * 60LL + ss) + hs / 100.0);
@@ -250,8 +286,8 @@ int CEEUTCO(unsigned char *hours, unsigned char *minutes, unsigned char *seconds
     return gmto(hours, minutes, seconds, fc);
 }
 
-/* The century window's start, years before the system date: 80 (the ILE default) until CEESCEN sets it. Nothing reads
- * it yet: CEESECS refuses YY. */
+/* The century window's start, years before the system date: 80 (the ILE default) until CEESCEN sets it. CEESECS reads
+ * it for a YY (the window is [system year - start, + 99]; the system year is the pinned clock's). */
 static long century_start = 80;
 
 int CEEQCEN(unsigned char *century, unsigned char *fc) {
@@ -282,7 +318,7 @@ int CEEDATE(unsigned char *lilian, unsigned char *pic, unsigned char *out, unsig
         put_fc(fc, 2512);
         return 0;
     }
-    put_vstring(out, buf, format(p, np, n, 0, 0, 0, 0, buf));
+    put_vstring("CEEDATE", out, buf, format(p, np, n, 0, 0, 0, 0, buf));
     put_fc(fc, 0);
     return 0;
 }
@@ -300,7 +336,7 @@ int CEEDATM(unsigned char *seconds, unsigned char *pic, unsigned char *out, unsi
     long long w = (long long)whole;
     int ms = (int)floor((v - whole) * 1000.0);
     long long sod = w % 86400LL;
-    put_vstring(out, buf, format(p, np, (long)(w / 86400LL), (int)(sod / 3600), (int)(sod / 60 % 60), (int)(sod % 60), ms, buf));
+    put_vstring("CEEDATM", out, buf, format(p, np, (long)(w / 86400LL), (int)(sod / 3600), (int)(sod / 60 % 60), (int)(sod % 60), ms, buf));
     put_fc(fc, 0);
     return 0;
 }
@@ -421,8 +457,8 @@ int CEESECS(unsigned char *ts, unsigned char *pic, unsigned char *seconds, unsig
         const char *t = p[k].tag;
         char next = k + 1 < np && !p[k + 1].tag[0] ? p[k + 1].lit : 0;
         int w = t[0] ? (int)strlen(t) : 1;
-        if (!strcmp(t, "YY") || !strcmp(t, "DDD")) {
-            refuse("CEESECS", "picture token YY / DDD (the century window / a Julian day)");
+        if (!strcmp(t, "DDD")) {
+            refuse("CEESECS", "picture token DDD (a Julian day)");
         }
         if (pos + w > dl) {
             refuse("CEESECS", "a timestamp shorter than its picture");
@@ -452,6 +488,9 @@ int CEESECS(unsigned char *ts, unsigned char *pic, unsigned char *seconds, unsig
         pos += w;
         if (!strcmp(t, "YYYY")) {
             v[0] = val;
+        } else if (!strcmp(t, "YY")) {
+            long base = system_year("CEESECS") - century_start; /* the window's first year */
+            v[0] = base + ((val - base) % 100 + 100) % 100;
         } else if (!strcmp(t, "MM")) {
             v[1] = val;
         } else if (!strcmp(t, "DD")) {

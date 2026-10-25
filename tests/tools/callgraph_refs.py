@@ -43,6 +43,7 @@ from typing import Any
 from collections.abc import Callable
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import clang_callgraph  # noqa: E402
 import scip_callgraph  # noqa: E402
 from launcher_exe import npm_executable  # noqa: E402
 
@@ -151,11 +152,12 @@ def node_env() -> dict[str, str]:
     return env
 
 
-def tsc_contract(repo: Path) -> dict[str, Any]:
-    """The TypeScript checker's call graph of `repo` (tests/tools/ts_callgraph.js)."""
+def tsc_contract(repo: Path, js: bool = False) -> dict[str, Any]:
+    """The TypeScript checker's call graph of `repo` (tests/tools/ts_callgraph.js);
+    `js` reads the JavaScript files with allowJs (#3781)."""
     try:
         proc = subprocess.run(  # noqa: S603 -- fixed argv, a corpus path
-            ["node", str(TOOLS / "ts_callgraph.js"), str(repo)],  # noqa: S607
+            ["node", str(TOOLS / "ts_callgraph.js"), str(repo), *(["--js"] if js else [])],  # noqa: S607
             capture_output=True,
             text=True,
             env=node_env(),
@@ -167,11 +169,61 @@ def tsc_contract(repo: Path) -> dict[str, Any]:
     return json.loads(proc.stdout)
 
 
+def tsc_js_contract(repo: Path) -> dict[str, Any]:
+    """The same checker over a repo's .js/.cjs/.mjs files (allowJs)."""
+    return tsc_contract(repo, js=True)
+
+
+GO_HELPER = TOOLS / "go_callgraph"
+
+
+def go_contract(repo: Path) -> dict[str, Any]:
+    """golang.org/x/tools' VTA call graph of `repo` (tests/tools/go_callgraph)."""
+    try:
+        proc = subprocess.run(  # noqa: S603 -- fixed argv, a corpus path
+            ["go", "run", "-C", str(GO_HELPER), ".", str(repo)],  # noqa: S607
+            capture_output=True,
+            text=True,
+            env={**os.environ, "GOTOOLCHAIN": "local"},
+            timeout=1800,
+        )
+    except (OSError, subprocess.TimeoutExpired) as e:
+        raise SystemExit(f"callgraph_refs: go_callgraph did not run on {repo}: {e}") from e
+    if proc.returncode:
+        raise SystemExit(f"callgraph_refs: go_callgraph failed on {repo}:\n{proc.stderr[-2000:]}")
+    return json.loads(proc.stdout)
+
+
+def _go_version() -> str | None:
+    """The pinned golang.org/x/tools version, when a `go` of 1.24+ is on PATH."""
+    try:
+        out = subprocess.run(["go", "env", "GOVERSION"], capture_output=True, text=True, timeout=60)  # noqa: S603,S607
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    ver = out.stdout.strip().removeprefix("go").split(".")
+    if out.returncode or len(ver) < 2 or not ver[1].isdigit() or int(ver[1]) < 24:
+        return None
+    for line in read_source(GO_HELPER / "go.mod").text.splitlines():
+        if "golang.org/x/tools" in line:
+            return line.split()[-1].lstrip("v")
+    return None
+
+
 def _pyan_version() -> str | None:
     try:
         return importlib.metadata.version("pyan3")
     except importlib.metadata.PackageNotFoundError:
         return None
+
+
+def clang_contract(repo: Path) -> dict[str, Any]:
+    """libclang's call graph of `repo`'s C sources (tests/tools/clang_callgraph.py, #3784)."""
+    return clang_callgraph.build(repo)
+
+
+def clang_cpp_contract(repo: Path) -> dict[str, Any]:
+    """The same for C++ sources: USR-linked overloads, `Class::method` names (#3784)."""
+    return clang_callgraph.build(repo, "cpp")
 
 
 def _tsc_version() -> str | None:
@@ -228,6 +280,54 @@ REFERENCES: dict[str, Reference] = {
         True,
         'npm install --global "typescript@6.0.2"  (7.x has no JavaScript compiler API)',
     ),
+    # untyped JavaScript through the same checker (#3781); a distinct tool name keeps BY_TOOL unambiguous
+    "javascript": Reference(
+        "javascript",
+        "tsc (allowJs)",
+        "6.0.2",
+        "import_graph",
+        tsc_js_contract,
+        _tsc_version,
+        (Path(__file__), TOOLS / "ts_callgraph.js"),
+        True,
+        'npm install --global "typescript@6.0.2"  (7.x has no JavaScript compiler API)',
+    ),
+    # Go (#3782): x/tools' VTA call graph over the type-checked SSA of cobra
+    "go": Reference(
+        "go",
+        "go-callgraph",
+        "0.37.0",
+        "import_graph",
+        go_contract,
+        _go_version,
+        (Path(__file__), GO_HELPER / "main.go", GO_HELPER / "go.mod"),
+        True,
+        "a Go 1.24+ toolchain (go) on PATH; golang.org/x/tools is fetched from tests/tools/go_callgraph/go.sum",
+    ),
+    # C through libclang's resolved calls (#3784)
+    "c": Reference(
+        "c",
+        "libclang",
+        "18.1.1",
+        "import_graph",
+        clang_contract,
+        clang_callgraph.libclang_version,
+        (Path(__file__), TOOLS / "clang_callgraph.py"),
+        True,
+        'pip install "libclang==18.1.1"',
+    ),
+    # C++ through the same libclang, linked by USR; a distinct tool name keeps BY_TOOL unambiguous
+    "cpp": Reference(
+        "cpp",
+        "libclang (c++)",
+        "18.1.1",
+        "import_graph",
+        clang_cpp_contract,
+        clang_callgraph.libclang_version,
+        (Path(__file__), TOOLS / "clang_callgraph.py"),
+        True,
+        'pip install "libclang==18.1.1"  (and a host g++ for the C++ system headers)',
+    ),
     # SCIP (#3783): scip-java's compiler-resolved index, through the shared SCIP adapter
     "java": Reference(
         "java",
@@ -239,6 +339,18 @@ REFERENCES: dict[str, Reference] = {
         (Path(__file__), TOOLS / "scip_callgraph.py"),
         True,
         "a JDK 17+ (java, javac) and Maven (mvn) on PATH; the pinned scip-java jars are fetched on first use",
+    ),
+    # SCIP (#3785): rust-analyzer's index of serde-rs/json, through the shared SCIP adapter
+    "rust": Reference(
+        "rust",
+        "rust-analyzer",
+        scip_callgraph.RUST_ANALYZER_VERSION,
+        "import_graph",
+        scip_callgraph.rust_analyzer_contract,
+        scip_callgraph.rust_analyzer_version,
+        (Path(__file__), TOOLS / "scip_callgraph.py"),
+        True,
+        "a Rust toolchain (cargo, rustc 1.90.0) with its rust-analyzer component on PATH: rustup component add rust-analyzer",
     ),
 }
 BY_TOOL = {r.tool: r for r in REFERENCES.values()}
@@ -256,7 +368,8 @@ def corpus_repos(lang: str) -> list[tuple[str, Path]]:
     sys.path.insert(0, str(TOOLS))
     import import_graph_accuracy as iga
 
-    entries = [e for e in iga.load_manifest() if e["language"] == lang]
+    # an entry with "callgraph": false is an import-graph repo only (no buildable or baselined call reference, #3798)
+    entries = [e for e in iga.load_manifest() if e["language"] == lang and e.get("callgraph", True)]
     missing = [e["repo"] for e in entries if not (iga.repo_dir(iga.CORPUS, e) / ".git").is_dir()]
     if missing:
         raise SystemExit(f"callgraph_refs: not fetched: {missing} -- run import_graph_accuracy.py --fetch-only")

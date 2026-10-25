@@ -137,7 +137,7 @@ DEFINITION: dict[str, Any] = {
             r"|\bfunction\s+(?:(?:global|script|local|private):)?(["
             + ID_CONTINUE
             + r"-]+)\s*(\((?:[^()]|\([^()]*\))*\))"
-            r"|^[ \t]*(?:(?:hidden|static)\s+)*(?:\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+)?"
+            r"|^[ \t]*(?:(?:hidden|static)\s+)*(?:\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s*)?"
             r"(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch)\b)"
             r"([" + ID_START + r"][" + ID_CONTINUE + r"]*)\s*(\((?:[^()]|\([^()]*\))*\))\s*[ \t\n]*\{",
             re.I | re.M,
@@ -182,7 +182,7 @@ DEFINITION: dict[str, Any] = {
         # keyword exclusion.
         "func_start": re.compile(
             r"^[ \t]*(?:function|filter|workflow)\s+(?:(?:global|script|local|private):)?([" + ID_CONTINUE + r"-]+)"
-            r"|^[ \t]*(?:(?:hidden|static)\s+)*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch|param)\b)(["
+            r"|^[ \t]*(?:(?:hidden|static)\s+)*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s*(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch|param)\b)(["
             + ID_START
             + r"]["
             + ID_CONTINUE

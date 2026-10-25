@@ -140,6 +140,21 @@ def test_rust_use_paths_follow_the_module_tree_and_cargo(tmp_path):
 
 
 @needs_ts
+def test_rust_bin_path_is_a_crate_root(tmp_path):
+    # #3798: ripgrep's `[[bin]] path = "crates/core/main.rs"` roots `crate::` for the files under it.
+    g = _group(
+        tmp_path,
+        {
+            "Cargo.toml": '[package]\nname = "rg"\nedition = "2021"\n[[bin]]\nname = "rg"\npath = "crates/core/main.rs"\n',
+            "crates/core/main.rs": "mod flags;\n",
+            "crates/core/flags/mod.rs": "",
+            "crates/core/flags/defs.rs": "",
+        },
+    )
+    assert iga.rust_imports(b"use crate::flags::defs;\n", "crates/core/flags/mod.rs", g) == [{"crates/core/flags/defs.rs"}]
+
+
+@needs_ts
 def test_java_nested_class_import_lives_in_the_outer_class_file(tmp_path):
     g = _group(tmp_path, {"src/com/acme/TestTypes.java": "", "src/com/acme/Util.java": ""})
     src = b"import com.acme.TestTypes.BagOfPrimitives;\nimport static com.acme.Util.helper;\n"
@@ -223,5 +238,448 @@ def test_haskell_shell_and_solidity_rules(tmp_path):
     assert iga.solidity_imports(sol, "contracts/access/Foo.sol", g) == [
         {"contracts/utils/Context.sol"},
         {"contracts/access/Ownable.sol"},
+        set(),
+    ]
+
+
+@needs_ts
+def test_csharp_resolves_by_namespace_and_type_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            # file name and directory mean nothing: the type is found by what the file declares
+            "src/Misc/Odd.cs": "namespace Acme.Util\n{\n    public class Helper { public enum Kind { A } }\n}\n",
+            "src/Scoped.cs": "namespace Acme.Scoped;\n\npublic struct Pair { }\n",
+            # declarations wrapped in #if / #region are still declarations
+            "src/Wrapped.cs": "#if NET\n#region r\nnamespace Acme.Wrapped\n{\n    public interface IThing { }\n}\n#endregion\n#endif\n",
+            "src/Partial1.cs": "namespace Acme.Util { public partial class Split { } }\n",
+            "src/Partial2.cs": "namespace Acme.Util { public partial class Split { } }\n",
+        },
+    )
+    src = (
+        b"using System;\n"
+        b"using Acme.Util;\n"  # a namespace: contract C7, no edge
+        b"using static Acme.Util.Helper;\n"
+        b"using static Acme.Util.Helper.Kind;\n"  # a nested type falls back to its owner
+        b"using Pair = Acme.Scoped.Pair;\n"
+        b"using Ns = Acme.Wrapped;\n"  # an alias of a namespace is a namespace
+        b"global using static Acme.Util.Split;\n"
+        b"using static Missing.Thing;\n"
+        b"namespace Acme.Util { using Scoped; using static Helper; class C { void M() { using (var x = new D()) { } } } }\n"
+    )
+    assert iga.csharp_imports(src, "src/Use.cs", g) == [
+        set(),  # System
+        set(),
+        {"src/Misc/Odd.cs"},
+        {"src/Misc/Odd.cs"},
+        {"src/Scoped.cs"},
+        set(),
+        {"src/Partial1.cs", "src/Partial2.cs"},  # a partial type is several files
+        set(),
+        set(),  # relative `using Scoped;` under Acme.Util is no namespace of the repo
+        {"src/Misc/Odd.cs"},  # `using static Helper;` under the enclosing Acme.Util
+    ]
+
+
+def _star(hub, leaves):
+    return {(leaf, hub) for leaf in leaves}
+
+
+def test_hub_agreement_identical_graphs_agree_fully():
+    nodes = [f"f{i}.py" for i in range(14)]
+    edges = _star("f0.py", nodes[1:]) | _star("f1.py", nodes[3:])
+    h = iga.hub_agreement(edges, set(edges), nodes)
+    assert (h["overlap_at_k"], h["spearman"], h["k"], h["n"]) == (1.0, 1.0, 10, 14)
+
+
+def test_hub_agreement_drops_when_the_engine_misses_the_hub():
+    nodes = [f"f{i:02}.py" for i in range(30)]
+    truth = {(f"f{i:02}.py", f"f{i - 20:02}.py") for i in range(20, 30)}  # f00-f09 are the hubs
+    engine = {(f"f{i:02}.py", f"f{i - 10:02}.py") for i in range(20, 30)}  # f10-f19 instead
+    h = iga.hub_agreement(engine, truth, nodes)
+    assert h["overlap_at_k"] < 1.0
+    assert h["spearman"] is not None and h["spearman"] < 1.0
+
+
+def test_hub_agreement_is_none_for_thin_input():
+    nodes = [f"f{i}.py" for i in range(9)]
+    edges = _star("f0.py", nodes[1:])
+    assert iga.hub_agreement(edges, edges, nodes) is None  # fewer than k files
+    more = [f"f{i}.py" for i in range(12)]
+    assert iga.hub_agreement(edges, set(), more) is None  # no truth edges
+
+
+def test_hub_agreement_ignores_edges_outside_the_node_set_and_edge_order():
+    nodes = [f"f{i}.py" for i in range(12)]
+    truth = _star("f0.py", nodes[1:])
+    a = iga.hub_agreement(truth | {("f1.py", "other.c")}, truth, nodes)
+    b = iga.hub_agreement(set(reversed(sorted(truth))), truth, nodes)
+    assert a == b == iga.hub_agreement(truth, truth, nodes)
+
+
+def test_score_group_records_hubs_with_one_edge_per_file_of_a_statement(tmp_path):
+    files = {f"pkg/m{i}.py": "" for i in range(12)}
+    files["pkg/__init__.py"] = ""
+    files["pkg/user.py"] = "from pkg import m1, m2\n"
+    (tmp_path / "pkg").mkdir(exist_ok=True)
+    for rel, text in files.items():
+        (tmp_path / rel).write_text(text)
+    langs = {rel: "python" for rel in files}
+    r = iga.score_group(tmp_path, langs, {("pkg/user.py", "pkg/m1.py")}, ("python",))["python"]
+    assert r["hubs"]["n"] == 14 and r["hubs"]["k"] == 10
+    assert 0.0 <= r["hubs"]["overlap_at_k"] <= 1.0
+
+
+def test_regressions_ignore_hub_fields_and_old_baselines_still_load():
+    base = {"python": {"imports": 100, "engine_edges": 90, "precision_pct": 90.0, "recall_pct": 60.0}}
+    cur = {"python": {"precision_pct": 90.0, "recall_pct": 60.0, "hub_overlap_at_10": 0.0, "hub_spearman": -1.0}}
+    assert iga.regressions(cur, base) == []
+    assert "n/a" in iga.render({"python": {**base["python"], "repos": "r", "files": 1, "fp": 0, "fn": 0}})
+
+
+@needs_ts
+def test_swift_resolves_by_target_and_declared_type_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "Package.swift": (
+                "import PackageDescription\n"
+                'let package = Package(name: "P", targets: [\n'
+                '  .target(name: "Core", dependencies: ["Odd"]),\n'
+                '  .target(name: "Odd", path: "Vendor/odd"),\n'
+                '  .testTarget(name: "CoreTests", dependencies: ["Core"]),\n'
+                "])\n"
+            ),
+            # file name and directory mean nothing: the name is found by what the file declares
+            "Sources/Core/Misc.swift": (
+                "public struct Pair { public enum Kind { case a } }\n"
+                "public protocol Proto {}\n"
+                "public typealias Alias = Int\n"
+                "public func helper() {}\n"
+                "public let limit = 1\n"
+                "public var counter = 0\n"
+                "#if os(Linux)\npublic final class Wrapped {}\n#endif\n"
+            ),
+            "Sources/Core/Split1.swift": "public struct Split {}\n",
+            "Sources/Core/Split2.swift": "extension Split {}\n",
+            "Vendor/odd/Thing.swift": "public class Thing {}\n",
+            "Tests/CoreTests/Pair.swift": "struct Pair {}\n",
+        },
+    )
+    src = (
+        b"import Foundation\n"
+        b"import Core\n"  # a module: contract C7, no edge
+        b"@testable import Core\n"
+        b"@_exported import Odd\n"
+        b"public import Core\n"
+        b"import struct Core.Pair\n"
+        b"import struct Core.Pair.Kind\n"  # a nested type falls back to its owner
+        b"import protocol Core.Proto\n"
+        b"import typealias Core.Alias\n"
+        b"import func Core.helper\n"
+        b"import let Core.limit\n"
+        b"import var Core.counter\n"
+        b"import class Core.Wrapped\n"
+        b"import struct Core.Split\n"  # a type and its extension are two files
+        b"import class Odd.Thing\n"  # a custom `path:` is honoured
+        b"import struct WinSDK.CONSOLE_SCREEN_BUFFER_INFO\n"  # no target of the repo
+        b"import struct Core.Missing\n"
+    )
+    assert iga.swift_imports(src, "Sources/App/Use.swift", g) == [
+        set(),
+        set(),
+        set(),
+        set(),
+        set(),
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Misc.swift"},
+        {"Sources/Core/Split1.swift", "Sources/Core/Split2.swift"},
+        {"Vendor/odd/Thing.swift"},
+        set(),
+        set(),
+    ]
+
+
+@needs_ts
+def test_powershell_import_module_dot_source_and_using_module(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "a/m.psm1": "",
+            "a/x.ps1": "",
+            "bin/P.psd1": "",
+            "lib/h.ps1": "",
+        },
+    )
+    src = (
+        b"Import-Module $PSScriptRoot\\..\\bin\\P.psd1 -DisableNameChecking\n"
+        b"Import-Module -Name 'm.psm1'\n"
+        b"Import-Module P\n"
+        b'$r = . "$PSScriptRoot/x.ps1"\n'
+        b". $f\n"
+        b"using module m\n"
+        b"using namespace System.IO\n"
+        b"# . lib/h.ps1\n"
+        b'$s = "Import-Module lib/h.ps1"\n'
+        b"Import-Module -Force $root\\lib\\h.ps1\n"
+        b"Import-Module Other\n"
+    )
+    assert iga.powershell_imports(src, "a/z.ps1", g) == [
+        {"bin/P.psd1"},
+        {"a/m.psm1"},
+        {"bin/P.psd1"},
+        {"a/x.ps1"},
+        {"a/m.psm1"},
+        {"lib/h.ps1"},
+        set(),
+    ]
+
+
+@needs_ts
+def test_tcl_source_literal_tail_and_package_provide(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "m/main.tcl": "",
+            "m/foo.tcl": "package provide foo::bar 1.0\n",
+            "m/q.tcl": "",
+            "m/a.tcl": "",
+            "m/x/y.tcl": "",
+            "tm/baz-1.2.tm": "",
+        },
+    )
+    src = (
+        b"source [file join $d x y.tcl]\n"
+        b"source $d/a.tcl\n"
+        b'source "q.tcl"\n'
+        b"package require -exact foo::bar 1.0\n"
+        b"package require baz\n"
+        b"package require Tcl 8.6\n"
+        b"source [lindex $a 0]\n"
+        b"# source a.tcl\n"
+        b'puts "source a.tcl"\n'
+    )
+    assert iga.tcl_imports(src, "m/main.tcl", g) == [
+        {"m/x/y.tcl"},
+        {"m/a.tcl"},
+        {"m/q.tcl"},
+        {"m/foo.tcl"},
+        {"tm/baz-1.2.tm"},
+        set(),
+        set(),
+    ]
+
+
+def test_groovy_resolves_by_package_and_declared_type_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            # file name and directory mean nothing: the name is found by what the file declares
+            "src/main/groovy/Misc.groovy": (
+                "package a.b\n\n"
+                "class Pair { static class Inner {} static int helper() { 1 } }\n"
+                "interface Proto {}\n"
+                "trait Walks {}\n"
+                "enum Kind { A }\n"
+                "@interface Marker {}\n"
+            ),
+            "x/Split1.groovy": "package a.b\nclass Split {}\n",
+            "x/Split2.groovy": "package a.b\nclass Split {}\n",
+            "scripts/build.gradle": "def x = 1\n",
+            "scripts/Tool.groovy": "println 'hi'\n",
+            "lib/c/Other.groovy": "package c\nclass Other {}\n",
+            "lib/a/b/Native.java": "package a.b;\npublic class Native {}\n",
+        },
+    )
+    src = (
+        b"package app\n"
+        b"import a.b.Pair\n"
+        b"import a.b.Pair as P\n"
+        b"import a.b.Pair.Inner\n"  # a nested name falls back to its owner
+        b"import static a.b.Pair.helper\n"
+        b"import static a.b.Pair.*\n"  # an owner's members: its file
+        b"import a.b.*\n"  # a package: contract C7, no edge
+        b"import a.b.Proto\n"
+        b"import a.b.Walks\n"
+        b"import a.b.Kind\n"
+        b"import a.b.Marker\n"
+        b"import a.b.Split\n"  # declared in two files
+        b"import Tool\n"  # a script declares its file stem
+        b"import c.Other\n"
+        b"import a.b.Native\n"  # a Java class, by Java's path rule
+        b"import java.util.List\n"
+        b"import groovy.json.JsonSlurper\n"
+        b"import a.b.Missing\n"
+        b"// import c.Other\n"
+        b"/* import c.Other */\n"
+        b"def s = '''\nimport c.Other\n'''\n"
+    )
+    misc = {"src/main/groovy/Misc.groovy"}
+    assert iga.groovy_imports(src, "app/Use.groovy", g) == [
+        misc,
+        misc,
+        misc,
+        misc,
+        misc,
+        set(),
+        misc,
+        misc,
+        misc,
+        misc,
+        {"x/Split1.groovy", "x/Split2.groovy"},
+        {"scripts/Tool.groovy"},
+        {"lib/c/Other.groovy"},
+        {"lib/a/b/Native.java"},
+        set(),
+        set(),
+        set(),
+    ]
+
+
+def test_fortran_resolves_by_module_name_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            # the file name means nothing: the module is found by what the file declares
+            "src/a_file.f90": "module Alpha_Mod\ncontains\n  module subroutine s()\n  end subroutine\nend module Alpha_Mod\n",
+            "src/beta.F90": "! module ghost\nmodule beta\nend module beta\n",
+            "src/dup1.f90": "module twin\nend module\n",
+            "lib/dup2.f90": "module twin\nend module\n",
+            "old/fixed.f": "c module cmt\n      module fixedmod\n      end module\n",
+            "src/sub.f90": "submodule (alpha_mod) child\nend submodule\n",
+            "src/iso_fortran_env.f90": "module iso_fortran_env\nend module\n",
+            "inc/consts.inc": "integer :: k\n",
+            "src/notes.txt": "module notmine\n",
+        },
+    )
+    src = (
+        b"program p\n"
+        b"  use alpha_mod\n"  # case-insensitive
+        b"  use :: beta\n"
+        b"  USE beta, only: x\n"
+        b"  use, non_intrinsic :: beta\n"
+        b"  use, intrinsic :: iso_fortran_env\n"  # the standard's module: no edge
+        b"  use twin\n"  # declared in two files
+        b"  use fixedmod\n"
+        b"  use ghost\n"  # only in a comment
+        b"  use child\n"  # a submodule is not usable
+        b"  use notmine\n"  # not a Fortran file
+        b"  use missing_mod\n"
+        b"  ! use beta\n"
+        b"  use_count = 3\n"  # not a use statement
+        b"  module_x = 1\n"
+        b"  include 'consts.inc'\n"
+        b"  include 'absent.inc'\n"
+        b"end program\n"
+    )
+    assert iga.fortran_imports(src, "inc/main.f90", g) == [
+        {"src/a_file.f90"},
+        {"src/beta.F90"},
+        {"src/beta.F90"},
+        {"src/beta.F90"},
+        set(),
+        {"src/dup1.f90", "lib/dup2.f90"},
+        {"old/fixed.f"},
+        set(),
+        set(),
+        set(),
+        set(),
+        {"inc/consts.inc"},
+        set(),
+    ]
+
+
+def test_fortran_fixed_form_comment_column_one_is_not_a_statement(tmp_path):
+    g = _group(tmp_path, {"a.f90": "module a\nend module\n"})
+    src = b"c      use a\n*      use a\n      use a\n"
+    assert iga.fortran_imports(src, "old/x.f", g) == [{"a.f90"}]
+
+
+def test_objc_framework_include_finds_the_header_in_a_framework_the_repo_builds(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "Kit.podspec": "Pod::Spec.new do |s|\n  s.header_dir = 'KitHeaders'\nend\n",
+            "Source/A.h": "",
+            "Source/Sub/B+Private.h": "",
+            "Source/C.mm": "",
+            "Other/Kit/D.h": "",
+            "Elsewhere.xcodeproj/project.pbxproj": "",
+            "Source/E.h": "",
+        },
+    )
+    src = (
+        b"#import <Kit/A.h>\n"  # the framework is `Kit.podspec`
+        b"#import <KitHeaders/B+Private.h>\n"  # header_dir, a flattened path tail
+        b"#include <Kit/C.h>\n"  # absent header
+        b"#import <Kit/D.h>\n"  # a real path wins: Other/Kit/D.h
+        b"#import <Elsewhere/E.h>\n"  # `Elsewhere.xcodeproj`
+        b"#import <Foundation/Foundation.h>\n"  # not this repo's framework
+        b"#import <vector>\n"
+        b'#import "A.h"\n'
+        b"@import UIKit;\n"
+    )
+    expect = [
+        {"Source/A.h"},
+        {"Source/Sub/B+Private.h"},
+        set(),
+        {"Other/Kit/D.h"},
+        {"Source/E.h"},
+        set(),
+        set(),
+        {"Source/A.h"},  # `"A.h"` quoted: not beside the file, so by suffix
+    ]
+    for rel in ("inc/main.m", "inc/main.mm", "inc/main.h"):
+        assert iga.EXTRACTORS["objective-c"](src, rel, g) == expect
+
+
+def test_c_does_not_use_the_objc_framework_rule(tmp_path):
+    g = _group(tmp_path, {"Kit.podspec": "", "Source/A.h": ""})
+    assert iga.EXTRACTORS["c"](b"#include <Kit/A.h>\n", "x.c", g) == [set()]
+
+
+def test_matlab_resolves_by_package_and_name_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "+pkg/+sub/Widget.m": "classdef Widget\nend\n",
+            "+pkg/helper.m": "function helper()\nend\n",
+            "@Old/Old.m": "classdef Old\nend\n",
+            "@Old/method.m": "function method(o)\nend\n",
+            "ETS.m": "classdef ETS\nend\n",
+            "+pkg/private/hidden.m": "function hidden()\nend\n",
+        },
+    )
+    src = (
+        b"import pkg.sub.Widget\n"
+        b"  import pkg.helper;\n"
+        b"import pkg.sub.*\n"  # a package: no file, no edge
+        b"import ETS.*\n"  # a class: its static members
+        b"import ETS.make\n"  # a member: the owner's file
+        b"import Old.*\n"
+        b"import pkg.Widget pkg.helper\n"  # two arguments on one line
+        b"import matlab.unittest.TestCase\n"  # external
+        b"import pkg.sub.Missing\n"
+        b"% import pkg.helper\n"
+        b"%{\nimport ETS.*\n%}\n"
+        b"important = 1\n"
+        b"import = 2\n"
+    )
+    assert iga.matlab_imports(src, "t/test.m", g) == [
+        {"+pkg/+sub/Widget.m"},
+        {"+pkg/helper.m"},
+        set(),
+        {"ETS.m"},
+        {"ETS.m"},
+        {"@Old/Old.m"},
+        set(),
+        {"+pkg/helper.m"},
+        set(),
         set(),
     ]

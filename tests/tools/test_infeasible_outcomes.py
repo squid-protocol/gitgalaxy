@@ -37,8 +37,8 @@ def test_the_committed_ledger_is_well_formed():
 
 
 def test_stated_is_what_a_report_shows(tmp_path):
-    f = tmp_path / "l.json"
-    f.write_text(json.dumps({"format": io.FORMAT, "cases": {"c": [E]}}))
+    f = tmp_path / "l"
+    io.write_case("c", [E], f)
     assert io.stated("c", f) == [dict(E, key="P:9:true")]
     assert io.stated("nope", f) == []
 
@@ -48,11 +48,119 @@ def test_the_ledger_is_tracked():
     import subprocess
 
     out = subprocess.run(["git", "ls-files", "--error-unmatch", str(io.LEDGER)], cwd=io.REPO, capture_output=True)
-    assert out.returncode == 0, "tests/equivalence/infeasible_outcomes.json is not tracked: see .gitignore"
+    assert out.returncode == 0, "tests/equivalence/infeasible_outcomes/ is not tracked: see .gitignore"
+    for case in ("carddemo-cardlist", "cbsa-bnk1cra"):  # a *.json ignore rule hides a file only per file
+        f = io.LEDGER / f"{case}.json"
+        assert (
+            subprocess.run(["git", "ls-files", "--error-unmatch", str(f)], cwd=io.REPO, capture_output=True).returncode
+            == 0
+        )
+
+
+def test_the_old_single_file_is_gone_and_each_case_has_its_own_sorted_file():
+    assert not (
+        io.CASES / "infeasible_outcomes.json"
+    ).exists()  # a rebased branch re-adding it would double the entries
+    files = sorted(io.LEDGER.glob("*.json"))
+    assert len(files) == len(io.load()) >= 47
+    for f in files:
+        body = json.loads(f.read_text(encoding="utf-8"))
+        assert (body["format"], body["case"]) == (io.FORMAT, f.stem)
+        assert body["entries"] == sorted(body["entries"], key=io.sort_key)
+        assert f.read_text(encoding="utf-8") == json.dumps(body, indent=2, ensure_ascii=False) + "\n"
+
+
+def test_load_reads_a_directory_and_the_old_single_file(tmp_path):
+    io.write_case("c", [E], tmp_path / "infeasible_outcomes")
+    (tmp_path / "infeasible_outcomes.json").write_text(json.dumps({"cases": {"old": [E]}}))
+    assert io.load(tmp_path / "infeasible_outcomes") == {"c": [E], "old": [E]}
+    assert io.load(tmp_path / "nothing") == {}
+
+
+PARA = {"unit": "6000-EXIT", "kind": "PARAGRAPH", "outcome": "entered", "family": "G", "reason": "no caller gets here"}
+
+
+def test_a_paragraph_entry_leaves_the_live_paragraph_total_when_the_proof_left_it():
+    ledger = {"c": [PARA, E]}
+    unc = ["9:true", "paragraph:6000-EXIT", "paragraph:OTHER-PARA"]
+    assert io.key(PARA) == "6000-EXIT:paragraph"
+    assert io.adjust("c", (15, 16, 3, 4), unc, ledger) == ((15, 15, 3, 3), ["6000-EXIT:paragraph", "P:9:true"], [])
+    assert io.adjust("c", (15, 16, 3, 4), [{"name": "6000-EXIT", "line": 348}], ledger)[1:] == (
+        ["6000-EXIT:paragraph"],
+        ["P:9:true"],
+    )
+    assert io.adjust("c", (16, 16, 4, 4), [], ledger)[2] == ["6000-EXIT:paragraph", "P:9:true"]  # reached: refuted
+    assert io.adjust("c", (15, 16, 3, 4), None, ledger)[0] == (15, 15, 3, 3)  # counts only: every entry taken
+    assert io.outcome_set(unc) == {(9, "true")} and io.paragraph_set(unc) == {"6000-EXIT", "OTHER-PARA"}
+
+
+def test_a_sweep_that_entered_a_stated_paragraph_fails():
+    ledger = {"c": [PARA]}
+    assert io.check({"c": {"proved": True, "uncovered": ["paragraph:6000-EXIT"]}}, ledger)[0] == []
+    (problem,) = io.check({"c": {"proved": True, "uncovered": ["12:false"]}}, ledger)[0]
+    assert "6000-EXIT:paragraph" in problem and "reached" in problem
+
+
+def test_uncovered_of_lists_branch_outcomes_then_paragraphs():
+    cov = {
+        "branches": {"uncovered": [{"line": 340, "outcome": "true"}]},
+        "paragraphs": {"uncovered": [{"name": "X", "line": 3}]},
+    }
+    assert io.uncovered_of(cov) == ["340:true", "paragraph:X"]
+    assert io.uncovered_of({"branches": {"uncovered": []}}) == []
+
+
+def _case(tmp_path, name="c"):
+    d = tmp_path / "cases" / name
+    d.mkdir(parents=True)
+    (d / "case.json").write_text("{}")
+    (d / "evidence.json").write_text(json.dumps({"coverage": {"uncovered_branches": [
+        {"line": 9, "kind": "IF", "outcome": "true", "unit": "P"}]}}))  # fmt: skip
+    return tmp_path / "cases", tmp_path / "out"
+
+
+def test_add_writes_sorted_entries_and_takes_unit_and_kind_from_the_evidence(tmp_path):
+    cases, out = _case(tmp_path)
+    kw = {"family": "G", "reason": "every caller set it first", "cases_dir": cases, "directory": out}
+    io.add("c", paragraph="Z-EXIT", **kw)
+    e = io.add("c", line=9, arm="true", **kw)
+    assert (e["unit"], e["kind"]) == ("P", "IF")
+    assert io.add("c", line=4, arm="false", unit="Q", kind="EVALUATE", **kw)["unit"] == "Q"
+    assert [x["unit"] for x in io.load(out)["c"]] == ["Z-EXIT", "Q", "P"]  # line-less first, then by line
+    assert io.problems_in(io.load(out), cases) == []
+
+
+def test_add_refuses_a_duplicate_an_unknown_case_a_missing_unit_and_a_bad_family(tmp_path):
+    import pytest
+
+    cases, out = _case(tmp_path)
+    kw = {"family": "G", "reason": "r", "cases_dir": cases, "directory": out}
+    io.add("c", paragraph="X", **kw)
+    with pytest.raises(ValueError, match="listed twice"):
+        io.add("c", paragraph="X", **kw)
+    with pytest.raises(ValueError, match="no such case"):
+        io.add("nope", paragraph="X", **kw)
+    with pytest.raises(ValueError, match="--unit and --kind"):
+        io.add("c", line=77, arm="true", **kw)
+    with pytest.raises(ValueError, match="--paragraph NAME"):
+        io.add("c", **kw)
+    with pytest.raises(ValueError, match="unknown family"):
+        io.add("c", paragraph="Y", **{**kw, "family": "Z"})
+    assert [x["unit"] for x in io.load(out)["c"]] == ["X"]  # nothing half-written
+
+
+def test_the_planner_proves_the_case_whose_file_changed():
+    import det_sweep_plan as plan
+
+    cases = {"alpha": {}, "beta": {}}
+    p = plan.plan(["tests/equivalence/infeasible_outcomes/beta.json"], "pull_request", cases)
+    assert (p["mode"], p["cases"]) == ("narrow", ["beta"])
+    p = plan.plan(["tests/equivalence/infeasible_outcomes/ghost.json"], "pull_request", cases)
+    assert p["mode"] == "full"  # a file of no case: when in doubt, full
 
 
 def test_genapp_vsam_no_commarea_outcomes_are_stated_where_the_proof_leaves_only_them():
-    """#5252: lgacvs01 / lgdpvs01 / lgucvs01 leave only WRITE-ERROR-MESSAGE's `IF EIBCALEN > 0` false (a COMMAREA-less call, X23)."""
+    """#5252: lgacvs01 / lgdpvs01 / lgucvs01 / lgapvs01 / lgupvs01 leave only WRITE-ERROR-MESSAGE's `IF EIBCALEN > 0` false (a COMMAREA-less call, X23)."""
     ledger = io.load()
     for case, line in (("genapp-lgacvs01", 106), ("genapp-lgdpvs01", 117), ("genapp-lgucvs01", 121)):
         (e,) = ledger[case]
@@ -60,6 +168,12 @@ def test_genapp_vsam_no_commarea_outcomes_are_stated_where_the_proof_leaves_only
         assert "X23" in e["reason"] and "LENGTH(" in e["reason"]
         uncovered = [{"line": line, "outcome": "false"}]
         assert io.adjust(case, (3, 3, 3, 4), uncovered, ledger)[0] == (3, 3, 3, 3)
+    for case, line in (("genapp-lgapvs01", 173), ("genapp-lgupvs01", 191)):
+        (e,) = ledger[case]
+        assert (e["unit"], e["line"], e["kind"], e["outcome"]) == ("WRITE-ERROR-MESSAGE", line, "IF", "false")
+        assert "X23" in e["reason"] and "LENGTH(" in e["reason"]
+        uncovered = [{"line": line, "outcome": "false"}]
+        assert io.adjust(case, (3, 3, 8, 9), uncovered, ledger)[0] == (3, 3, 8, 8)
 
 
 def test_genapp_lgdpvs01_proof_stops_at_the_first_link_of_write_error_message():

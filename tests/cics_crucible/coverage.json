@@ -793,6 +793,19 @@
    "live": 5,
    "outcomes": 10,
    "scenarios": {
+    "parse": {
+     "units": [
+      "DO-PARSE",
+      "MAIN-PARA",
+      "PARSE-PARA"
+     ],
+     "outcomes": [
+      "61:WHEN@62",
+      "134:true",
+      "139:true",
+      "144:false"
+     ]
+    },
     "errors": {
      "units": [
       "DO-PARSE",
@@ -801,6 +814,17 @@
      ],
      "outcomes": [
       "61:WHEN@64",
+      "134:false"
+     ]
+    },
+    "lengerr": {
+     "units": [
+      "DO-PARSE",
+      "LENGTH-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "61:WHEN@66",
       "134:false"
      ]
     }
@@ -1089,6 +1113,53 @@
    "live": 9,
    "outcomes": 9,
    "scenarios": {
+    "update-rewrite": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "REWRITE-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@42",
+      "137:true",
+      "147:false"
+     ]
+    },
+    "unlock-rewrite": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "UNLOCK-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@44",
+      "137:true",
+      "147:false",
+      "147:true"
+     ]
+    },
+    "unlock-nothing": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "NOTHING-PARA",
+      "READ-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@46",
+      "137:true",
+      "147:false",
+      "147:true"
+     ]
+    },
     "read-short": {
      "units": [
       "LOG-D",
@@ -1812,6 +1883,89 @@
       "42:false",
       "46:OTHER"
      ]
+    }
+   }
+  },
+  "pc-return-channel/PCRCA": {
+   "live": 5,
+   "outcomes": 4,
+   "scenarios": {
+    "carry": {
+     "units": [
+      "CARRY-PARA",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "29:WHEN@30"
+     ]
+    },
+    "modify": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA",
+      "MODIFY-PARA"
+     ],
+     "outcomes": [
+      "29:WHEN@32"
+     ]
+    },
+    "link-level2": {
+     "units": [
+      "LINK-PARA",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "29:WHEN@34"
+     ]
+    }
+   }
+  },
+  "pc-return-channel/PCRCB": {
+   "live": 7,
+   "outcomes": 6,
+   "scenarios": {
+    "carry": {
+     "units": [
+      "LOG-ENTRY",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "42:none"
+     ]
+    },
+    "modify": {
+     "units": [
+      "GET-EXTRA",
+      "LOG-ENTRY",
+      "LOG-RESP",
+      "MAIN-PARA",
+      "STAGE-1",
+      "STAGE-2",
+      "STAGE-3"
+     ],
+     "outcomes": [
+      "42:WHEN@43",
+      "42:WHEN@45",
+      "42:WHEN@47",
+      "87:false",
+      "87:true"
+     ]
+    }
+   }
+  },
+  "pc-return-channel/PCRCL": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "link-level2": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
     }
    }
   },

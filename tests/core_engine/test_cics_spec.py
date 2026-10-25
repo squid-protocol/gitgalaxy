@@ -86,6 +86,7 @@ IMPORTERS: set[str] = {
     "gitgalaxy/tools/cobol_to_java/det/cics.py",
     "gitgalaxy/tools/cobol_to_java/det/expr.py",
     "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_cics_conditions.py",  # #5274: the conditions family split out of equivalence_cics.py
     "tests/tools/cics_spec_status.py",
     "tests/tools/proof_blockers.py",
     "tests/tools/blocker_report.py",  # #5054: the blocker signatures' vocabulary is the spec's command and option words
@@ -166,6 +167,7 @@ def test_resp_tables():
     )
     assert RESP_NAME[12] == "FILENOTFOUND"  # (DSIDERR, its older name, is an alias)
     assert set(CONDITION_ABEND) <= set(DFHRESP)
+    assert CONDITION_ABEND["IOERR"] == "AEIQ"  # #6166: IBM abend AEIQ, "IOERR condition not handled"
 
 
 # ---- the CLI -------------------------------------------------------------------------------------------------------
@@ -252,10 +254,10 @@ def test_coverage_45_full_entries_and_the_name_only_api_commands():
     by_status: dict[str, list[str]] = {}
     for c in COMMANDS.values():
         by_status.setdefault(c.status, []).append(c.key)
-    assert len(by_status["modelled"]) == 100 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
+    assert len(by_status["modelled"]) == 102 and sorted(by_status["engine-only"]) == ["LOAD", "RELEASE"]
     # IBM's CICS TS 6.x command summary: 259 API command names, 57 with full entries (+ INQUIRE PROGRAM, SPI; #4767: WEB
-    # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER; #4940: READ FORMFIELD / QUERYPARM and the nine WEB browse forms; #4941: RETRIEVE; #4951: MOVE CONTAINER, STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER; #4950: FREE CHILD; #4972: EXTRACT WEB, EXTRACT TCPIP; #5005: DELETE CHANNEL, QUERY CHANNEL; #4771: GETMAIN / FREEMAIN; #5078: UNLOCK; #5079: READQ TD, DELETEQ TD, ADDRESS, POST, WAIT EVENT, CONVERSE; #5039: REWIND COUNTER, UPDATE COUNTER, no longer name-only), 9 forms of a modelled command (api.py's docstring), the other 155 name-only
-    assert len(by_status["refused"]) == 155
+    # OPEN / CONVERSE / CLOSE / PARSE URL / SEND / EXTRACT / RECEIVE / READ + WRITE HTTPHEADER; #4940: READ FORMFIELD / QUERYPARM and the nine WEB browse forms; #4941: RETRIEVE; #4951: MOVE CONTAINER, STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER; #4950: FREE CHILD; #4972: EXTRACT WEB, EXTRACT TCPIP; #5005: DELETE CHANNEL, QUERY CHANNEL, GET64 / PUT64 CONTAINER; #4771: GETMAIN / FREEMAIN; #5078: UNLOCK; #5079: READQ TD, DELETEQ TD, ADDRESS, POST, WAIT EVENT, CONVERSE; #5039: REWIND COUNTER, UPDATE COUNTER, no longer name-only), 9 forms of a modelled command (api.py's docstring), the other 153 name-only
+    assert len(by_status["refused"]) == 153
     for key in by_status["refused"]:
         c = COMMANDS[key]
         assert c.why and not c.options and not c.outcomes, key

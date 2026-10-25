@@ -46,9 +46,8 @@ def test_ecs001_terminal_input_exceeds_the_receive_area():
 
 
 def test_ecs001_infeasible_entries_name_a_family_and_a_reason():
-    data = json.loads((EQUIV / "infeasible_outcomes.json").read_text(encoding="utf-8"))
-    entries = data["cases"]["zecs-ecs001"]
+    entries = json.loads((EQUIV / "infeasible_outcomes" / "zecs-ecs001.json").read_text(encoding="utf-8"))["entries"]
     assert {e["line"] for e in entries} == {197, 353}
     for e in entries:
-        assert e["family"] in data["families"]
+        assert e["family"] in "GCR"
         assert e["reason"]

@@ -67,6 +67,15 @@ diff be" is answered from data instead of a guess informed only by the issue tex
     issue: it resolves the paths, function/class names and backticked identifiers the issue names and
     prints `path:start-end` pointers (plus one hop of callers/callees and big-file flags) capped at
     ~3k tokens; `--body-file` runs it offline. Ranges are hints from the last scan.
+    `--eval N` measures it: for the newest N squash-merged PRs that close an issue it rebuilds the pack as
+    of just before the PR and reports how many changed code files the pack names (regenerate the DB at the
+    commit under test first; ~10 s plus one `gh` call per issue).
+  - **Wiring into `churn worker` (promoter-bot):** before launching a worker, run
+    `python tests/tools/context_pack.py <N> --db <worktree>/docs/self_scan/gitgalaxy_master.db` (DB at the
+    `origin/main` commit) and append stdout to `prompt.md`. The pack carries its own `## Where to look`
+    heading; empty output (nothing resolved) means add nothing; exit 2 means no DB, so skip it.
   - It doesn't parse inside large dict/list literals (e.g. it can't tell you where the
     `"scala"` key starts inside `language_standards.py`'s `LANGUAGE_DEFINITIONS`) — it's for
     orientation and prioritization, not symbol lookup. Read the actual file for that.
+
+Whether the DB pays off for agents is an open experiment: protocol and results in `docs/agents/self-scan-ab-protocol.md` (#4479).

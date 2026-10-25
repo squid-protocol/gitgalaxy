@@ -98,6 +98,7 @@ LIBRARY_CLOCK = {
     "CEELOCT",
     "CEEGMT",
     "CEEUTC",
+    "CEESECS",  # #5003: the system year the century window (a YY) is anchored on
 }  # the routines that read the run's clock (the harness pins it, like CURRENT-DATE)
 # The COMP-2 arguments (by position) a routine reads or stores by value (Cobol.num / Cobol.store), never by bytes: HFP on
 # z/OS, IEEE on the oracle (register C6). Every routine with one, and every clock routine, also takes the charset last.
@@ -2998,8 +2999,8 @@ class Gen:
             target = self.field_expr(ret_ref)
             out.append(f"{ind}Cobol.store({target}, BigDecimal.valueOf({rc}), false, CS);")
             return out
-        if prog in ("CBLTDLI", *dli.REFUSED_BY_NAME):  # #4893: IMS DL/I (det/dli.py, register family I)
-            if prog != "CBLTDLI":
+        if prog in (*dli.CALLS, *dli.REFUSED_BY_NAME):  # #4893: IMS DL/I (det/dli.py, register family I)
+            if prog not in dli.CALLS:
                 raise Untranslatable(dli.REFUSED_BY_NAME[prog])
             return dli.call(self, s, ind)
         lib = LIBRARY.get(prog)

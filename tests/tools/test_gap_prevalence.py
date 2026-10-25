@@ -96,6 +96,12 @@ def test_missing_inventory_and_deterministic_render(rows_and_inv):
     assert gp.eras_of("no-such-corpus", d) == {}
 
 
+@pytest.mark.parametrize("service", ["CEEHDLR", "CEEHDLU", "CEEMGET", "CEESGL", "CEENCOD", "CEEMRCE", "CEE3SRP"])
+def test_every_le_condition_service_gap_is_owned_by_5106(service):
+    assert gp.owner_of(f"{service}: an LE condition service is not modelled") == "#5106 (le-condition-handling)"
+    assert gp.owner_of("CEEIGZCT: x") == "unowned"  # the stand-in copybook is not a condition service
+
+
 # ---- census half: aggregates under opaque labels, no names -------------------------------------------------------
 CENSUS = ("some-census-repo", "other-census-repo")
 
@@ -109,7 +115,14 @@ CENSUS = ("some-census-repo", "other-census-repo")
         ("EXEC SQL: SELECT FROM PAYROLL", "EXEC SQL: other"),  # a table name could name the repo
         ("EXEC SQL: <name> host variable", "EXEC SQL: other"),
         ("EXEC DLI: GU SEGMENT PAYSEG", "EXEC DLI"),
-        ("missing copybook PAYREC (ambiguous)", "missing copybook"),
+        ("missing copybook PAYREC (ambiguous)", "missing copybook: estate-owned"),
+        ("missing copybook PAYREC", "missing copybook: estate-owned"),
+        ("missing copybook DFHAID", "missing copybook: CICS system"),
+        ("missing copybook SQLCA", "missing copybook: Db2 system"),
+        ("missing copybook CMQV", "missing copybook: MQ system"),
+        ("missing copybook AIBLK", "missing copybook: IMS system"),
+        ("missing copybook CEEIGZCT", "missing copybook: LE system"),
+        ("missing copybook MYDFHREC", "missing copybook: estate-owned"),  # a prefix inside the name is not a prefix
         ("refused: CICS Assembler", "refused: CICS Assembler"),
         ("refused: ExprError: PAYROLL thing", "refused: ExprError"),
         ("grammar: does not parse", "grammar: does not parse"),
@@ -221,3 +234,108 @@ def test_render_adds_the_census_section(rows_and_inv):
 def test_scrub_key_itemises_the_other_buckets_without_names(gap, key):
     assert gp.scrub_key(gap) == key
     assert not re.search(r"PAY[A-Z]*", key)  # the key is the table's string, never a slice of the source
+
+
+def test_copybook_family_owner_and_status():
+    assert gp.owner_of("missing copybook: MQ system") == "#4892"
+    assert gp.owner_of("missing copybook: IMS system") == "#4893"
+    assert gp.owner_of("missing copybook: CICS system") == "#4270 (cics-command-slice)"
+    assert gp.owner_of("missing copybook: estate-owned").startswith("none (the estate's own")
+    assert gp.owner_of("missing copybook: LE system") == "unowned (copybook family)"
+    assert gp.status_of("missing copybook: LE system") == "unknown"
+
+
+def test_copybook_family_keys_never_carry_the_member_name():
+    for member in ("PAYREC", "DFHPAYX", "SQLCAPAY", "CMQPAY", "AIBPAY", "CEEPAY"):
+        key = gp.scrub_key(f"missing copybook {member} (ambiguous)")
+        assert "PAY" not in key and key.startswith("missing copybook: ")
+
+
+@pytest.mark.parametrize(
+    ("gap", "key"),
+    [
+        ("refused: LayoutError: VALUE (…) not modelled", "refused: LayoutError: VALUE not modelled"),
+        ("refused: LayoutError: <name> COMP-3 VALUE 'x': not a number", "refused: LayoutError: VALUE not a number"),
+        (
+            "refused: LayoutError: 01 <name> REDEFINES <name>, no 01 of that name before it",
+            "refused: LayoutError: REDEFINES target not found",
+        ),
+        (
+            "refused: LayoutError: <name> REDEFINES <name>, not a sibling before it",
+            "refused: LayoutError: REDEFINES target not a sibling",
+        ),
+        (
+            "refused: LayoutError: level N <name> has no 01 above it",
+            "refused: LayoutError: level without an 01 above it",
+        ),
+        (
+            "refused: LayoutError: DATA DIVISION does not parse near expanded line(s) (…)",
+            "refused: LayoutError: DATA DIVISION does not parse",
+        ),
+        (
+            "refused: LayoutDisagrees: PAYREC: the engine's layout differs from the translator's: (…)",
+            "refused: LayoutDisagrees: layout differs from the engine's",
+        ),
+        (
+            "refused: LayoutDisagrees: PAYREC: the engine's fields (N) do not pair with the record's (N)",
+            "refused: LayoutDisagrees: fields do not pair with the record's",
+        ),
+        (
+            "refused: LayoutDisagrees: PAYREC: the engine does not know the record's width",
+            "refused: LayoutDisagrees: record width unknown to the engine",
+        ),
+        (
+            "refused: UnitRefused: text after END PROGRAM <name>, outside (…)",
+            "refused: UnitRefused: text after END PROGRAM",
+        ),
+        (
+            "refused: UnitRefused: END PROGRAM <name> closes no open program of (…)",
+            "refused: UnitRefused: END PROGRAM closes no open program",
+        ),
+        (
+            "refused: UnitRefused: p.cbl: no PROGRAM-ID: a member to be copied, not a program",
+            "refused: UnitRefused: no PROGRAM-ID (a member to be copied)",
+        ),
+        (
+            "refused: UnitRefused: <name> is nested in <name>, which declares (…)",
+            "refused: UnitRefused: nested program",
+        ),
+        (
+            "refused: UnitRefused: no program <name> in the source (…)",
+            "refused: UnitRefused: requested program not in the source",
+        ),
+        ("refused: ExprError: reference modification not closed", "refused: ExprError: reference modification form"),
+        (
+            "refused: ExprError: NULL: only compared (…) with a pointer",
+            "refused: ExprError: NULL compared with a non-pointer",
+        ),
+        ("refused: ExprError: ADDRESS OF", "refused: ExprError: ADDRESS OF"),
+        (
+            "refused: ExprError: DFHRESP(…) is not a documented condition",
+            "refused: ExprError: DFHRESP condition not documented",
+        ),
+        (
+            "refused: ExprError: DFHVALUE(…) is not a documented CVDA",
+            "refused: ExprError: DFHVALUE CVDA not documented",
+        ),
+        ("refused: ExprError: unbalanced parenthesis in condition", "refused: ExprError: unbalanced parenthesis"),
+        ("refused: ExprError: left over in condition: <name> X", "refused: ExprError: expression does not parse"),
+        ("refused: ExprError: not a relation: '…'", "refused: ExprError: not a condition / relation"),
+        ("refused: ExprError: not a data name: <name>", "refused: ExprError: not a data name"),
+        ("refused: ExprError: ALL '…'", "refused: ExprError: ALL form"),
+        ("refused: LayoutError: something new", "refused: LayoutError"),  # unknown message: the bare class
+    ],
+)
+def test_scrub_key_itemises_the_translator_refusals(gap, key):
+    assert gp.scrub_key(gap) == key
+    assert not re.search(r"PAY[A-Z]*", key)
+
+
+def test_every_refusal_pattern_anchors_on_a_text_the_translator_raises():
+    root = Path(gp.REPO) / "gitgalaxy" / "tools" / "cobol_to_java" / "det"
+    src = "".join(p.read_text(encoding="utf-8") for p in root.glob("*.py"))
+    for anchor in ("has no 01 above it", "DATA DIVISION does not parse", "do not pair with the record", "no PROGRAM-ID",
+                   "is nested in", "reference modification not closed", "is not a documented CVDA", "unbalanced parenthesis",
+                   "left over in condition", "not a relation", "not a data name", "closes no open program", "not a sibling before it",
+                   "not a number", "no 01 of that name", "does not know the record's width", "layout differs"):  # fmt: skip
+        assert anchor in src, anchor

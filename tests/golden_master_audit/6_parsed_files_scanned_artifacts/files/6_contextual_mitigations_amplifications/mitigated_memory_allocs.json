@@ -145,12 +145,12 @@
       "zig/zig/main.zig": "10 instances"
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": "2 instances",
-      "zig/zls/DocumentStore.zig": "47 instances",
-      "zig/zls/Server.zig": "33 instances",
-      "zig/zls/analysis.zig": "4 instances",
-      "zig/zls/ast.zig": "3 instances",
-      "zig/zls/config_gen.zig": "19 instances",
+      "zig/zls/DocumentScope.zig": "3 instances",
+      "zig/zls/DocumentStore.zig": "52 instances",
+      "zig/zls/Server.zig": "35 instances",
+      "zig/zls/analysis.zig": "5 instances",
+      "zig/zls/ast.zig": "6 instances",
+      "zig/zls/config_gen.zig": "21 instances",
       "zig/zls/print_ast.zig": "1 instances"
     }
   },

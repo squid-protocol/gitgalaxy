@@ -6,10 +6,14 @@ a guard every caller has already satisfied, a WHEN on a constant table or a boun
 sets apart only what control flow alone shows (after a GO TO / XCTL / RETURN ...: `after_transfer`); a data-flow
 fact like these is stated here instead, by a person, with its reason:
 
-    tests/equivalence/infeasible_outcomes.json
-    {"format": "infeasible-outcomes/1", "issue": "#4602", "about": ...,
-     "cases": {CASE: [{"unit": PARAGRAPH, "line": N, "kind": "IF"|"EVALUATE", "outcome": "true"|"false"|"WHEN@N"|
-                       "OTHER"|"none", "family": "G"|"C"|"R", "reason": WHY NO INPUT REACHES IT, citing the COBOL}]}}
+    tests/equivalence/infeasible_outcomes/<CASE>.json     (one file per case: ladder slices stop conflicting, #6072)
+    {"format": "infeasible-outcomes/2", "case": CASE,
+     "entries": [{"unit": PARAGRAPH, "line": N, "kind": "IF"|"EVALUATE", "outcome": "true"|"false"|"WHEN@N"|
+                  "OTHER"|"none", "family": "G"|"C"|"R", "reason": WHY NO INPUT REACHES IT, citing the COBOL}]}
+
+A whole paragraph no input enters is stated the same way, kind "PARAGRAPH", outcome "entered" (`line` optional): it
+leaves the live-paragraph total as a branch entry leaves the branch total, and the proof entering it refutes it.
+`load()` still reads the old single file ({"cases": {CASE: [...]}}) when one sits beside the directory (tests, scratch).
 
 `line` is the original program's line (the case's program_source), as cobol_coverage reports it. The entries are
 assumptions of the proof, the same standing as the `unreachable` verdict in docs/language_status/mutation_scores.json:
@@ -23,6 +27,9 @@ How they are used:
     wrong, and the entry goes, with what it was learned from.
 
     python tests/tools/infeasible_outcomes.py show [CASE ...]       # the entries, as the PR table
+    python tests/tools/infeasible_outcomes.py add CASE (--line N --arm OUTCOME | --paragraph NAME) --family G|C|R --reason WHY
+                                                                    # [--unit P --kind IF]: written sorted; unit / kind
+                                                                    # come from the case's evidence.json when it lists the outcome
     python tests/tools/infeasible_outcomes.py check SWEEP [SWEEP ...] # against proof_sweep.py --det-only work dirs
 """
 
@@ -38,9 +45,11 @@ from collections.abc import Iterable
 TOOLS = Path(__file__).resolve().parent
 REPO = TOOLS.parents[1]
 CASES = REPO / "tests" / "equivalence"
-LEDGER = CASES / "infeasible_outcomes.json"
-FORMAT = "infeasible-outcomes/1"
+LEDGER = CASES / "infeasible_outcomes"
+FORMAT = "infeasible-outcomes/2"
+PARAGRAPH = "PARAGRAPH"  # the kind of an entry that states a whole paragraph (outcome "entered")
 FIELDS = ("unit", "line", "kind", "outcome", "family", "reason")
+PARAGRAPH_FIELDS = ("unit", "kind", "outcome", "family", "reason")  # a paragraph entry's line is optional
 FAMILIES = {
     "G": "a guard every caller has already satisfied (data flow)",
     "C": "a test of a constant: a copybook VALUE never written, a table built once, a loop index with fixed bounds",
@@ -48,17 +57,48 @@ FAMILIES = {
 }
 
 
-def load(path: Path = LEDGER) -> dict[str, list[dict[str, Any]]]:
-    return json.loads(path.read_text(encoding="utf-8")).get("cases", {}) if path.is_file() else {}
+def load(path: Path | None = None) -> dict[str, list[dict[str, Any]]]:
+    """case -> entries: the per-case files of directory `path` (default LEDGER), plus the old single file
+    `<path>.json` when one sits beside it."""
+    path = LEDGER if path is None else path
+    out: dict[str, list[dict[str, Any]]] = {}
+    legacy = path.with_name(path.name + ".json")
+    if legacy.is_file():
+        out.update(json.loads(legacy.read_text(encoding="utf-8")).get("cases", {}))
+    if path.is_dir():
+        for f in sorted(path.glob("*.json")):
+            out[f.stem] = json.loads(f.read_text(encoding="utf-8")).get("entries", [])
+    return out
+
+
+def is_paragraph(entry: dict[str, Any]) -> bool:
+    return entry.get("kind") == PARAGRAPH
 
 
 def key(entry: dict[str, Any]) -> str:
-    """`unit:line:outcome`, the form #4602 names an entry by."""
+    """`unit:line:outcome`, the form #4602 names an entry by (`unit:paragraph` for a whole paragraph)."""
+    if is_paragraph(entry):
+        return f"{entry['unit']}:paragraph"
     return f"{entry['unit']}:{entry['line']}:{entry['outcome']}"
 
 
+def sort_key(entry: dict[str, Any]) -> tuple[int, str, str]:
+    return int(entry.get("line") or 0), entry["unit"], entry["outcome"]
+
+
+def write_case(case: str, entries: list[dict[str, Any]], directory: Path | None = None) -> Path:
+    """The case's file, entries sorted, one line per field (stable diffs)."""
+    directory = LEDGER if directory is None else directory
+    directory.mkdir(parents=True, exist_ok=True)
+    f = directory / f"{case}.json"
+    body = {"format": FORMAT, "case": case, "entries": sorted(entries, key=sort_key)}
+    f.write_text(json.dumps(body, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return f
+
+
 def stated(case: str, path: Path = LEDGER) -> list[dict[str, Any]]:
-    """The case's infeasible outcomes, each {unit, line, kind, outcome, family, reason, key}: for a report that shows
+    """The case's infeasible outcomes, each {unit, line, kind, outcome, family, reason, key} (a PARAGRAPH entry may have
+    no `line`; test `is_paragraph` before reading it): for a report that shows
     them as stated assumptions of the proof (tests/tools/evidence_report.py)."""
     return [dict(e, key=key(e)) for e in load(path).get(case, [])]
 
@@ -67,32 +107,66 @@ def problems_in(ledger: dict[str, list[dict[str, Any]]], cases_dir: Path = CASES
     """What is wrong with the ledger itself: an unknown case, a missing field, a duplicate, an empty reason."""
     out = []
     for case, entries in sorted(ledger.items()):
+        if not entries:
+            out.append(f"infeasible outcomes: {case}: no entries (remove the file)")
         if not (cases_dir / case / "case.json").is_file():
             out.append(f"infeasible outcomes: {case}: no such case")
         seen = set()
         for e in entries:
-            missing = [f for f in FIELDS if e.get(f) in (None, "")]
+            missing = [f for f in (PARAGRAPH_FIELDS if is_paragraph(e) else FIELDS) if e.get(f) in (None, "")]
             if missing:
                 out.append(f"infeasible outcomes: {case}: an entry lacks {', '.join(missing)}: {e}")
                 continue
             if e["family"] not in FAMILIES:
                 out.append(f"infeasible outcomes: {case}: {key(e)}: unknown family {e['family']!r}")
-            if (e["line"], e["outcome"]) in seen:
+            if key(e) in seen:
                 out.append(f"infeasible outcomes: {case}: {key(e)} listed twice")
-            seen.add((e["line"], e["outcome"]))
+            seen.add(key(e))
     return out
+
+
+PARAGRAPH_MARK = "paragraph:"
 
 
 def outcome_set(uncovered: Iterable[Any]) -> set[tuple[int, str]]:
-    """(line, outcome) from a coverage summary's `uncovered` list ({line, outcome, ...}) or "line:outcome" strings."""
+    """(line, outcome) from a coverage summary's `uncovered` list ({line, outcome, ...}) or "line:outcome" strings;
+    the "paragraph:NAME" strings of `uncovered_of` are no outcome and are skipped."""
     out = set()
     for u in uncovered:
         if isinstance(u, str):
+            if u.startswith(PARAGRAPH_MARK):
+                continue
             ln, _, o = u.partition(":")
             out.add((int(ln), o))
-        else:
+        elif "outcome" in u:
             out.add((int(u["line"]), str(u["outcome"])))
     return out
+
+
+def paragraph_set(uncovered: Iterable[Any]) -> set[str]:
+    """The names of the uncovered paragraphs in an `uncovered` list ("paragraph:NAME" strings, or {name, line})."""
+    out = set()
+    for u in uncovered:
+        if isinstance(u, str) and u.startswith(PARAGRAPH_MARK):
+            out.add(u[len(PARAGRAPH_MARK) :])
+        elif isinstance(u, dict) and "name" in u and "outcome" not in u:
+            out.add(str(u["name"]))
+    return out
+
+
+def uncovered_of(coverage: dict[str, Any]) -> list[str]:
+    """What a proof's coverage.json left uncovered: "line:outcome" for each branch outcome, "paragraph:NAME" for each
+    live paragraph no run entered (the sweep rows' `uncovered`)."""
+    out = [f"{u['line']}:{u['outcome']}" for u in coverage["branches"]["uncovered"]]
+    out += [PARAGRAPH_MARK + u["name"] for u in (coverage.get("paragraphs") or {}).get("uncovered") or []]
+    return out
+
+
+def is_open(e: dict[str, Any], open_: set[tuple[int, str]], paragraphs: set[str]) -> bool:
+    """Did the proof leave this entry's outcome (or paragraph) uncovered?"""
+    if is_paragraph(e):
+        return e["unit"] in paragraphs
+    return (int(e["line"]), e["outcome"]) in open_
 
 
 def adjust(case: str, cov: tuple[int, int, int, int] | None, uncovered: Iterable[Any] | None,
@@ -105,11 +179,13 @@ def adjust(case: str, cov: tuple[int, int, int, int] | None, uncovered: Iterable
         return cov, [], []
     pc, pl, bc, bt = cov
     if uncovered is None:
-        return (pc, pl, bc, bt - len(entries)), [key(e) for e in entries], []
-    open_ = outcome_set(uncovered)
-    out = [key(e) for e in entries if (int(e["line"]), e["outcome"]) in open_]
-    reached = [key(e) for e in entries if (int(e["line"]), e["outcome"]) not in open_]
-    return (pc, pl, bc, bt - len(out)), out, reached
+        np = sum(1 for e in entries if is_paragraph(e))
+        return (pc, pl - np, bc, bt - (len(entries) - np)), [key(e) for e in entries], []
+    open_, paras = outcome_set(uncovered), paragraph_set(uncovered)
+    out = [e for e in entries if is_open(e, open_, paras)]
+    reached = [key(e) for e in entries if not is_open(e, open_, paras)]
+    np = sum(1 for e in out if is_paragraph(e))
+    return (pc, pl - np, bc, bt - (len(out) - np)), [key(e) for e in out], reached
 
 
 def check(det: dict[str, dict[str, Any]], ledger: dict[str, list[dict[str, Any]]] | None = None) -> tuple[list[str], list[str]]:  # fmt: skip
@@ -125,12 +201,12 @@ def check(det: dict[str, dict[str, Any]], ledger: dict[str, list[dict[str, Any]]
         if row.get("uncovered") is None:
             warnings.append(f"infeasible outcomes: {case}: the sweep kept no uncovered outcomes; claims not checked")
             continue
-        open_ = outcome_set(row["uncovered"])
+        open_, paras = outcome_set(row["uncovered"]), paragraph_set(row["uncovered"])
         for e in entries:
-            if (int(e["line"]), e["outcome"]) not in open_:
+            if not is_open(e, open_, paras):
                 problems.append(f"infeasible outcomes: {case}: {key(e)} is stated infeasible, but the proof reached it "
                                 f"(or it is no counted outcome): the claim is wrong -- remove the entry from "
-                                f"{LEDGER.relative_to(REPO)} and say why in the PR")  # fmt: skip
+                                f"{LEDGER.relative_to(REPO)}/{case}.json and say why in the PR")  # fmt: skip
     return problems, warnings
 
 
@@ -141,9 +217,51 @@ def table(cases: list[str] | None = None) -> str:
         if cases and case not in cases:
             continue
         for e in entries:
-            rows.append(f"| {case} | {e['unit']}:{e['line']} | {e['kind']} {e['outcome']} | {e['family']} | "
+            where = e["unit"] if is_paragraph(e) else f"{e['unit']}:{e['line']}"
+            rows.append(f"| {case} | {where} | {e['kind']} {e['outcome']} | {e['family']} | "
                         f"{e['reason']} |")  # fmt: skip
     return "\n".join(rows)
+
+
+def evidence_branch(case: str, line: int, arm: str, cases_dir: Path = CASES) -> dict[str, Any] | None:
+    """The case's recorded uncovered branch at `line` with outcome `arm` (evidence.json), for its unit and kind."""
+    f = cases_dir / case / "evidence.json"
+    if not f.is_file():
+        return None
+    for b in (json.loads(f.read_text(encoding="utf-8")).get("coverage") or {}).get("uncovered_branches") or []:
+        if int(b["line"]) == line and b["outcome"] == arm:
+            return b
+    return None
+
+
+def add(case: str, *, family: str, reason: str, line: int | None = None, arm: str | None = None,
+        paragraph: str | None = None, unit: str | None = None, kind: str | None = None,
+        cases_dir: Path = CASES, directory: Path | None = None) -> dict[str, Any]:  # fmt: skip
+    """Add one entry to the case's file (written sorted); a bad or duplicate entry raises ValueError."""
+    if not (cases_dir / case / "case.json").is_file():
+        raise ValueError(f"no such case: {case}")
+    if (paragraph is None) == (line is None or arm is None):
+        raise ValueError("give --paragraph NAME, or --line N with --arm OUTCOME")
+    if paragraph is not None:
+        entry = {"unit": paragraph, "kind": PARAGRAPH, "outcome": "entered", "family": family, "reason": reason}
+        if line is not None:
+            entry["line"] = line
+    else:
+        assert line is not None and arm is not None
+        found = evidence_branch(case, line, arm, cases_dir)
+        unit, kind = unit or (found or {}).get("unit"), kind or (found or {}).get("kind")
+        if not unit or not kind:
+            raise ValueError(
+                f"{case} line {line} {arm}: not in its evidence.json uncovered branches; give --unit and --kind"
+            )
+        entry = {"unit": unit, "line": line, "kind": kind, "outcome": arm, "family": family, "reason": reason}
+    directory = LEDGER if directory is None else directory
+    entries = load(directory).get(case, []) + [entry]
+    problems = problems_in({case: entries}, cases_dir)
+    if problems:
+        raise ValueError("; ".join(problems))
+    write_case(case, entries, directory)
+    return entry
 
 
 def _sweep_rows(dirs: list[Path]) -> dict[str, dict[str, Any]]:
@@ -154,7 +272,7 @@ def _sweep_rows(dirs: list[Path]) -> dict[str, dict[str, Any]]:
             if row.get("uncovered") is None:
                 cj = f.parent / "det" / case / "proof" / "cobol" / "coverage.json"
                 if cj.is_file():
-                    row = dict(row, uncovered=json.loads(cj.read_text(encoding="utf-8"))["branches"]["uncovered"])
+                    row = dict(row, uncovered=uncovered_of(json.loads(cj.read_text(encoding="utf-8"))))
             out[case] = row
     return out
 
@@ -166,7 +284,25 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("cases", nargs="*")
     c = sub.add_parser("check")
     c.add_argument("sweeps", type=Path, nargs="+")
+    a = sub.add_parser("add", help="state one branch outcome or paragraph no input reaches")
+    a.add_argument("case")
+    a.add_argument("--line", type=int)
+    a.add_argument("--arm", help="the outcome: true | false | WHEN@N | OTHER | none")
+    a.add_argument("--paragraph", help="a whole paragraph no input enters")
+    a.add_argument("--unit")
+    a.add_argument("--kind")
+    a.add_argument("--family", required=True, choices=sorted(FAMILIES))
+    a.add_argument("--reason", required=True)
     args = ap.parse_args(argv)
+    if args.cmd == "add":
+        try:
+            e = add(args.case, family=args.family, reason=args.reason, line=args.line, arm=args.arm,
+                    paragraph=args.paragraph, unit=args.unit, kind=args.kind)  # fmt: skip
+        except ValueError as err:
+            print(f"infeasible outcomes: {err}")
+            return 1
+        print(f"added {key(e)} to {LEDGER.relative_to(REPO)}/{args.case}.json")
+        return 0
     if args.cmd == "show":
         print(table(args.cases or None))
         return 0

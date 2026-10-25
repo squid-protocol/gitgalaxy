@@ -117,14 +117,31 @@ def test_a_cics_proposal_may_set_any_commarea_field_of_the_layout_and_plan_a_fau
 
 
 _FAULT_KEY = {"XCTL": "program", "LINK": "program", "WRITEQ-TS": "queue", "START": "transid", "CANCEL": "reqid",
-              "ENQ": "resource"}  # fmt: skip
-_FAULT_RESP = {"ENQ": ("ENQBUSY", 0)}  # #5089 (X60): the one condition IBM lists for ENQ that a plan raises; no RESP2
+              "ENQ": "resource", "SEND-MAP": "map", "RECEIVE-MAP": "map"}  # fmt: skip
+_FAULT_RESP = {
+    "ENQ": ("ENQBUSY", 0),
+    "SEND-MAP": ("TSIOERR", 0),
+    "RECEIVE-MAP": ("INVMPSZ", 0),
+    "RETURN": ("INVREQ", 1),
+    "SYNCPOINT": ("INVREQ", 200),
+    "ROLLBACK": ("INVREQ", 200),
+    "DELAY": ("INVREQ", 6),
+    "SEND-TEXT": ("TSIOERR", 0),
+}  # #6271 (X71, X72)
+_NAMELESS = (
+    "RETRIEVE",
+    "RETURN",
+    "SYNCPOINT",
+    "ROLLBACK",
+    "DELAY",
+    "SEND-TEXT",
+)  # fault_lines names them "-"  # #5089 (X60): the one condition IBM lists for ENQ that a plan raises; no RESP2
 
 
 def _fault_member_scenario(cmd):
     resp, resp2 = _FAULT_RESP.get(cmd, ("NOTAUTH", 101))
     plan = {"cmd": cmd, "resp": resp, **({"resp2": resp2} if resp2 else {})}
-    if cmd != "RETRIEVE":
+    if cmd not in _NAMELESS:
         plan[_FAULT_KEY.get(cmd, "file")] = "TARGET1"
     return {"name": "x", "faults": [plan]}
 
@@ -135,7 +152,7 @@ def test_the_strengthen_loop_plans_a_fault_for_every_fault_command(cmd):
     sc = _fault_member_scenario(cmd)
     ec = st.eq_cics()
     assert st.validate(CICS, sc, set(), set()) is None
-    name = "-" if cmd == "RETRIEVE" else "TARGET1"
+    name = "-" if cmd in _NAMELESS else "TARGET1"
     resp, resp2 = _FAULT_RESP.get(cmd, ("NOTAUTH", 101))
     assert ec.fault_lines(sc) == [f"{cmd} {name} 1 {ec.CICS_RESP[resp]} {resp2}"]
 

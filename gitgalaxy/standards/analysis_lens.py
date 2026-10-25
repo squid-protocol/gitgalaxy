@@ -924,7 +924,10 @@ RISK_EQUATION_TUNING = {
         "test_weight": 0.5,
         "doc_weight": 0.1,
         "laplace_smoothing": 20.0,
-        "sigmoid_slope": 12.0,
+        # #4548 item 6: slope 12 reached 99 at a net density of 0.38 weighted hits per line, so 3.8-23% of
+        # files pinned at 99-100 and the ranking among them was lost. Slope 4 (the cognitive_load slope)
+        # reaches 99 only past ~1.15, keeping dense files ordered by density.
+        "sigmoid_slope": 4.0,
         "breach_density_min": 0.03,
         "breach_floor_mult": 500.0,
         "breach_floor_max": 80.0,
@@ -1594,7 +1597,7 @@ def inactive_vectors(scan_config: dict[str, Any] | None = None) -> set[str]:
 # ------------------------------------------------------------------------------
 
 SURFACE_FAMILIES: dict[str, list[str]] = {
-    "memory": ["pointers", "memory_alloc", "explicit_casts"],
+    "memory": ["memory_alloc", "explicit_casts"],
     "cleanup": ["cleanup"],
     "guards": ["safety", "immutability_locks", "encapsulation"],
     "danger": ["safety_bypasses", "high_risk_execution", "inline_asm", "panics_and_aborts"],
@@ -1671,6 +1674,10 @@ SURFACE_FAMILY_EXEMPT: dict[str, str] = {
     "reflection_metaprogramming": (
         "metaprogramming marker: language-level macro/reflection count, not a threat surface (#4548)"
     ),
+    # --- pointer-use marker (1, #4548): a dereference/indirection count (92-98% of the old memory family
+    # --- on C/C++), a language-idiom density, not a memory-corruption signal. Allocation and cast
+    # --- surface stay in the memory family; the raw `pointers` count is still emitted per file ---
+    "pointers": "pointer-use marker: dereference/indirection count, not a memory-corruption surface (#4548)",
     # --- sec_* lens duplicates (6): would double-count signals already
     # --- summed under their non-sec_ counterpart's family ---
     "sec_safety_bypasses": "sec_* duplicate of 'safety_bypasses' (danger family); would double-count",

@@ -7,7 +7,7 @@
     "Percent_Visible": 90.0,
     "dominant_language": "typescript",
     "file_composition_distribution": {
-      "Callbacks & Closures Files": 63,
+      "Callbacks & Closures Files": 65,
       "Compute Cores Files": 71,
       "Data / Markup / Trivial": 691,
       "Declarative / Non-Code": 742,
@@ -15,11 +15,11 @@
       "Generic / Templated Code Files": 73,
       "Interface Declarations Files": 429,
       "Large Core Modules": 337,
-      "Large Core Modules (2)": 248,
-      "Large Core Modules (3)": 301,
+      "Large Core Modules (2)": 250,
+      "Large Core Modules (3)": 298,
       "Many-Argument Workhorses Files": 77,
       "Parameter Forwarders Files": 180,
-      "State Mutators Files": 78,
+      "State Mutators Files": 77,
       "Type Conversions Files": 13
     },
     "repo_composition_archetype": "Unvalidated",

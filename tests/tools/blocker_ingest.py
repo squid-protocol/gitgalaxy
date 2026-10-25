@@ -99,14 +99,22 @@ def load_catalogue(path: Path | None = None) -> list[dict[str, Any]]:
     return sorted(entries, key=lambda e: -len(e["prefix"]))
 
 
-def match_issue(category: str, signature: str, catalogue: list[dict[str, Any]]) -> int | None:
+def signature_key(category: str, signature: str) -> str:
+    """The salt-free identity of a construct: what links two customers' (or two runs') reports of the same blocker."""
+    return f"{category}|{normalise(signature)}"
+
+
+def match_issue(
+    category: str, signature: str, catalogue: list[dict[str, Any]], filed: dict[str, int] | None = None
+) -> int | None:
+    """The issue for a construct: the catalogue first, then an issue already opened for that signature (`filed`)."""
     norm = normalise(signature)
     if category == "known-unproven" and (m := re.fullmatch(r"known unproven: #(\d+)", norm)):
         return int(m.group(1))
     for e in catalogue:
         if e["category"] == category and (norm == e["prefix"] or norm.startswith(e["prefix"] + " ")):
             return int(e["issue"])
-    return None
+    return int(filed[signature_key(category, signature)]) if filed and signature_key(category, signature) in filed else None
 
 
 def check_ledger(ledger: dict[str, Any], port_blockers: Path | None = None) -> list[str]:
@@ -136,11 +144,20 @@ def check_ledger(ledger: dict[str, Any], port_blockers: Path | None = None) -> l
     return errors
 
 
+def load_filed(path: Path | None) -> dict[str, int]:
+    """`{signature_key: issue}` from a filed-signatures file (missing file or no path: nothing filed yet)."""
+    if path is None or not path.is_file():
+        return {}
+    return {k: int(v) for k, v in json.loads(path.read_text(encoding="utf-8")).get("filed", {}).items()}
+
+
 def row_id(estate: str, blk: str) -> str:
     return f"C-{estate[4:]}-{blk[4:]}"
 
 
-def ingest(rep: dict[str, Any], ledger: dict[str, Any], catalogue: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def ingest(
+    rep: dict[str, Any], ledger: dict[str, Any], catalogue: list[dict[str, Any]], filed: dict[str, int] | None = None
+) -> list[dict[str, Any]]:
     """Merge the report's blockers into `ledger["rows"]`; return the rows that are new and match no issue."""
     errors = check_report(rep)
     if errors:
@@ -152,7 +169,7 @@ def ingest(rep: dict[str, Any], ledger: dict[str, Any], catalogue: list[dict[str
     for b in rep["blockers"]:
         rid = row_id(rep["estate"], b["id"])
         side, cls = CATEGORY_CLASS[b["category"]]
-        issue = match_issue(b["category"], b["signature"], catalogue)
+        issue = match_issue(b["category"], b["signature"], catalogue, filed)
         row = rows.get(rid)
         if row is None:
             row = {"id": rid, "estate": estate, "side": side, "class": cls, "category": b["category"],
@@ -196,6 +213,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("report", type=Path, help="blocker_report.anon.json")
     ap.add_argument("--ledger", type=Path, required=True, help="customer-side ledger (created when missing)")
     ap.add_argument("--signatures", type=Path, help="signature catalogue (default: the committed one)")
+    ap.add_argument("--filed", type=Path, help="issues already opened per signature (blocker_estate_feed.py file)")
     ap.add_argument("--check", action="store_true", help="only validate the ledger as #5051 rows; report is ignored")
     args = ap.parse_args(argv)
     if args.check:
@@ -205,7 +223,7 @@ def main(argv: list[str] | None = None) -> int:
     rep = json.loads(args.report.read_text(encoding="utf-8"))
     ledger = json.loads(args.ledger.read_text(encoding="utf-8")) if args.ledger.is_file() else {}
     try:
-        fresh = ingest(rep, ledger, load_catalogue(args.signatures))
+        fresh = ingest(rep, ledger, load_catalogue(args.signatures), load_filed(args.filed))
     except ValueError as e:
         print(e, file=sys.stderr)
         return 1

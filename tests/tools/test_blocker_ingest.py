@@ -211,3 +211,27 @@ def test_cli_check_and_a_ledger_that_fails_the_check(tmp_path, capsys):
     led.write_text(json.dumps(data))
     assert bi.main([str(led), "--ledger", str(led), "--check"]) == 1
     assert "side must be" in capsys.readouterr().err
+
+
+def test_an_issue_opened_for_a_signature_links_every_later_report_whatever_the_salt():
+    rep = anon(KNOWN)
+    _, fresh = ingest(rep)
+    assert [r["signature"] for r in fresh] == ["no case"]
+    filed = {bi.signature_key(r["category"], r["signature"]): 7001 for r in fresh}
+    for salt in (SALT, b"\x07" * 16):
+        ledger: dict = {}
+        again = bi.ingest(anon(KNOWN, salt), ledger, bi.load_catalogue(), filed)
+        assert again == [] and {r["signature"]: r["issue"] for r in ledger["rows"]}["no case"] == 7001
+
+
+def test_the_catalogue_wins_over_a_filed_issue():
+    sig = "EXEC CICS READQ TD"
+    key = bi.signature_key("cics-command", sig)
+    assert bi.match_issue("cics-command", sig, bi.load_catalogue(), {key: 1}) == 5079
+
+
+def test_load_filed_reads_the_file_or_nothing(tmp_path):
+    assert bi.load_filed(None) == {} and bi.load_filed(tmp_path / "none.json") == {}
+    f = tmp_path / "f.json"
+    f.write_text('{"schema": 1, "filed": {"other|x KIND_*": 5}}', encoding="utf-8")
+    assert bi.load_filed(f) == {"other|x KIND_*": 5}

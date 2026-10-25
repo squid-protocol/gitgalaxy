@@ -75,6 +75,11 @@ customer-side ledger (`estate: customer:EST_xxxxxx`, `side`, `class` in the #505
 - A signature is matched to an issue by `tests/cobol_mainframe/blocker_signatures.json` (category plus a word prefix,
   hashes replaced by `KIND_*`, so the customer's salt does not matter); `known unproven: #N` links to #N. A blocker
   with no match gets `issue: null` and a drafted issue body on stdout, for the tick to file.
+- **Opening a new issue.** `blocker_estate_feed.py queue --feed FILE --filed FILED.json` lists one item per distinct
+  construct (category plus the salt-free signature), however many estates or customers report it, and leaves out any
+  construct already in `FILED.json`. With `--open-issues` it opens one issue per item (REST `gh api`, never in CI) and
+  records `{category|signature: issue}` in `FILED.json`; `blocker_ingest.py ... --filed FILED.json` then links every later
+  report of that construct to the issue (the catalogue still wins), so it is neither re-queued nor re-opened.
 - Re-ingesting a report changes nothing; a later engine version appends to `seen_in` ("still open after 3 releases").
 - A row carries the #5051 shape (`summary`, `programs: []`, `refused_by_name: false`; a customer's program names never
   reach us) and a `status`. A blocker of the same estate that a newer engine version's report no longer lists becomes

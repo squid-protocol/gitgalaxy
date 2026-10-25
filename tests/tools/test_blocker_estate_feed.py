@@ -156,3 +156,37 @@ def test_unmatched_rows_become_a_deduped_queue(tmp_path, capsys):
     assert bef.main(["queue", "--feed", str(tmp_path / "feed.json"), "--out", str(out)]) == 0
     assert json.loads(out.read_text(encoding="utf-8")) == items
     assert "SECRETFLD" not in out.read_text(encoding="utf-8")
+
+
+def test_one_construct_from_two_estates_is_one_queue_item(tmp_path):
+    gaps = {**KNOWN, "P9": ["something never seen: SECRETFLD"]}
+    feed(tmp_path, ["cics-genapp", "zecs"], gaps)
+    data = json.loads((tmp_path / "feed.json").read_text(encoding="utf-8"))
+    rows = [r for v in data["unmatched"].values() for r in v]
+    items = bef.queue(data)
+    assert len(items) < len(rows)
+    assert sorted(i for it in items for i in it["ids"]) == sorted({r["id"] for r in rows})
+    assert all(len(it["ids"]) >= 1 and it["key"].startswith(it["category"] + "|") for it in items)
+
+
+def test_opened_issues_are_recorded_and_not_reopened(tmp_path):
+    feed(tmp_path, ["cics-genapp"], {**KNOWN, "P9": ["something never seen: SECRETFLD"]})
+    data = json.loads((tmp_path / "feed.json").read_text(encoding="utf-8"))
+    items = bef.queue(data)
+    made: list[tuple[str, str]] = []
+
+    def create(title, body):
+        made.append((title, body))
+        return 9000 + len(made)
+
+    filed = tmp_path / "out" / "filed.json"
+    assert len(bef.file_issues(items, filed, create)) == len(items) == len(made)
+    assert "SECRETFLD" not in " ".join(t + b for t, b in made)
+    assert bef.file_issues(items, filed, create) == [] and len(made) == len(items)  # a second run opens nothing
+    assert bef.queue(data, bef.bi.load_filed(filed)) == []
+
+
+def test_open_issues_needs_a_filed_file(tmp_path):
+    (tmp_path / "f.json").write_text('{"unmatched": {}}', encoding="utf-8")
+    with pytest.raises(SystemExit):
+        bef.queue_main(["--feed", str(tmp_path / "f.json"), "--open-issues"])

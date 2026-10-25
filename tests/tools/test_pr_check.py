@@ -163,3 +163,113 @@ def test_main_merge_on_a_draft_only_marks_it_ready(monkeypatch):
     api = fake_api(pr={"draft": True}, runs=[run("ruff-audit", "success", 1)])
     assert pc.main(["7", "--merge"], api=api) == 1
     assert [a[:3] for a in seen] == [["gh", "pr", "ready"]]
+
+
+# --- #6534 slice 4: check() reads through one GraphQL query, REST on anything short of whole ---
+
+
+def gql_pr(runs=(), files=(), contexts=(), **over):
+    """A CHECK_QUERY pullRequest: one check suite holding `runs` (name, conclusion, status)."""
+    nodes = [{"databaseId": i, "name": n, "status": st.upper(), "conclusion": c.upper() if c else None,
+              "detailsUrl": f"https://github.com/o/r/actions/runs/{i}", "url": f"https://x/{i}"}
+             for i, (n, c, st) in enumerate(runs, 1)]  # fmt: skip
+    p = {"id": "PR_x", "number": 7, "title": "t", "state": "OPEN", "merged": False, "isDraft": False,
+         "mergeable": "MERGEABLE", "mergeStateStatus": "CLEAN", "headRefOid": SHA,
+         "files": {"totalCount": len(files), "nodes": list(files)},
+         "commits": {"nodes": [{"commit": {"oid": SHA, "status": {"contexts": list(contexts)},
+                                           "checkSuites": {"totalCount": 1, "nodes": [{
+                                               "createdAt": "t", "app": {"slug": "github-actions"},
+                                               "checkRuns": {"totalCount": len(nodes), "nodes": nodes}}]}}}]},
+         **over}  # fmt: skip
+    return p
+
+
+def fake_graphql(p):
+    calls = []
+
+    def graphql(query, variables):
+        calls.append((query, variables))
+        if isinstance(p, Exception):
+            raise p
+        return {"repository": {"pullRequest": p}}
+
+    graphql.calls = calls  # type: ignore[attr-defined]
+    return graphql
+
+
+def no_rest(path):
+    raise AssertionError(f"REST read {path}")
+
+
+PIN_FILE = {"path": "tests/crucible_pins.toml", "additions": 1, "deletions": 1, "changeType": "MODIFIED"}
+
+
+def test_pr_fields_live_in_pr_check_and_shepherd_uses_them():
+    import shepherd_gh as sg
+
+    assert "@@SUITES@@" not in pc.PR_FIELDS and "checkSuites(first: 100)" in pc.PR_FIELDS
+    assert sg.PR_FIELDS is pc.PR_FIELDS and pc.PR_FIELDS in sg.PR_QUERY
+
+
+def test_graphql_and_rest_give_the_same_result():
+    cases = [
+        ({}, [("ruff-audit", "success", "completed")], [PIN_FILE]),
+        ({"isDraft": True}, [("a", "success", "completed"), ("a", "cancelled", "completed")], []),
+        ({"mergeable": "CONFLICTING", "mergeStateStatus": "DIRTY"},
+         [("det", "failure", "completed"), ("x", None, "queued")], [PIN_FILE]),
+        ({"mergeStateStatus": "BLOCKED"}, [("a", "skipped", "completed")], []),
+    ]  # fmt: skip
+    for over, runs, files in cases:
+        g = pc.check(
+            7, no_rest, fake_graphql(gql_pr(runs, files, contexts=[{"context": "ci/x", "state": "PENDING"}], **over))
+        )
+        rest_files = [{"filename": f["path"], "status": "modified", "additions": 1, "deletions": 1} for f in files]
+        rest_runs = [run(n, c, i, st) for i, (n, c, st) in enumerate(runs, 1)]
+        rest = pc.check(7, fake_api(
+            pr={"draft": over.get("isDraft", False), "mergeable": over.get("mergeable") != "CONFLICTING",
+                "mergeable_state": over.get("mergeStateStatus", "CLEAN").lower()},
+            runs=rest_runs, statuses=[{"context": "ci/x", "state": "pending"}], files=rest_files))  # fmt: skip
+        assert g == rest
+
+
+def test_a_green_pr_is_one_graphql_call_and_no_rest():
+    gq = fake_graphql(gql_pr([("a", "success", "completed")], [PIN_FILE]))
+    res = pc.check(7, no_rest, gq)
+    assert res["ready"] and res["head_sha"] == SHA and res["node_id"] == "PR_x" and len(gq.calls) == 1
+    assert res["files"][0]["flag"].startswith("crucible PIN")
+    assert gq.calls[0][1] == {"owner": "squid-protocol", "name": "gitgalaxy", "n": 7}
+
+
+def test_every_change_type_maps_to_a_rest_status():
+    for ct, want in {"ADDED": "added", "MODIFIED": "modified", "REMOVED": "removed", "RENAMED": "renamed",
+                     "COPIED": "copied", "CHANGED": "changed"}.items():  # fmt: skip
+        f = {"path": "a.py", "additions": 2, "deletions": 3, "changeType": ct}
+        got = pc.check(7, no_rest, fake_graphql(gql_pr([("a", "success", "completed")], [f])))["files"][0]
+        assert (got["status"], got["additions"], got["deletions"]) == (want, 2, 3)
+
+
+def test_incomplete_graphql_reads_fall_back_to_rest():
+    ok = [("a", "success", "completed")]
+    big = gql_pr(ok, [PIN_FILE])
+    big["files"]["totalCount"] = 101  # more files than came back
+    cut = gql_pr(ok)
+    cut["commits"]["nodes"][0]["commit"]["checkSuites"]["nodes"][0]["checkRuns"]["totalCount"] = 101
+    moved = gql_pr(ok, headRefOid="f" * 40)
+    broken = gql_pr(ok)
+    del broken["files"]
+    for bad in (
+        SystemExit("gh api graphql failed"), None, big, cut, moved, broken,
+        gql_pr(ok, mergeable="UNKNOWN"), gql_pr(ok, mergeStateStatus="UNKNOWN"),
+    ):  # fmt: skip
+        api = fake_api(runs=[run("rest-run", "success", 1)])
+        res = pc.check(7, api, fake_graphql(bad))
+        assert len(api.calls) == 4 and res["checks"]["passed"] == ["rest-run"], bad
+
+
+def test_main_reads_through_graphql_by_default_and_rest_with_an_injected_api(monkeypatch, capsys):
+    gq = fake_graphql(gql_pr([("a", "success", "completed")]))
+    monkeypatch.setattr(pc, "gh_graphql", gq)
+    assert pc.main(["7", "--json"]) == 0  # the default api (gh_api) is never called: the query answered
+    assert len(gq.calls) == 1 and '"ready": true' in capsys.readouterr().out
+    assert pc.main(["7"], api=fake_api(runs=[run("a", "success", 1)])) == 0
+    assert len(gq.calls) == 1  # an injected api is REST only

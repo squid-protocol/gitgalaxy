@@ -1438,9 +1438,10 @@ def _in_scope_same_file(bucket: "_Bucket", path: str, caller_line: int) -> _Defi
 # told apart by their parameters. The resolver picks among them by the argument
 # counts the caller used (the detector's `calls_out_arities`); when a count still
 # matches several overloads, or none, the call is ambiguous (`overload`), a row
-# but never an edge. Measured on gson vs scip-java: 1,653 of 1,923 wrong confident
+# but never an edge. #3784: C++ joins (libclang on fmt judged 220 links the wrong overload).
+# Measured on gson vs scip-java: 1,653 of 1,923 wrong confident
 # links were an arbitrary pick among overloads.
-OVERLOAD_LANGS = frozenset({"java"})
+OVERLOAD_LANGS = frozenset({"java", "cpp"})
 
 
 def _overloads(index: dict[tuple[str, str], "_Bucket"], dst: _Definition, group: str, lang: str) -> list[_Definition]:

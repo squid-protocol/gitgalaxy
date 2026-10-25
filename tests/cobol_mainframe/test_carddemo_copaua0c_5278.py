@@ -32,6 +32,7 @@ SCENARIOS = [
     "same-account-twice", "amount-without-decimals", "amount-with-sign", "three-requests-mixed",
     "read-xref-io-error", "read-acct-io-error", "read-cust-io-error", "no-trigger-data", "no-reply-queue",
     "gu-summary-bad-status", "repl-summary-fails", "request-longer-than-buffer", "schd-held-after-term",
+    "open-request-queue-fails", "get-request-fails", "close-request-queue-fails",
 ]  # fmt: skip
 
 
@@ -145,6 +146,42 @@ def test_the_request_limit_exit_is_stated_as_unprovable_not_left_silent():
     if corpus is None:
         pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
     src = read_source(corpus / APP / "cbl/COPAUA0C.cbl").text.splitlines()
-    assert "WS-RESP-LENGTH" in src[45] and "VALUE 1" in src[45] and "W02-PUT-BUFFER" in src[107] and "X(200)" in src[107]
-    assert sum("WS-RESP-LENGTH" in ln for ln in src) == 3  # declared, the STRING POINTER, the MQPUT1 length: never reset
+    assert (
+        "WS-RESP-LENGTH" in src[45] and "VALUE 1" in src[45] and "W02-PUT-BUFFER" in src[107] and "X(200)" in src[107]
+    )
+    assert (
+        sum("WS-RESP-LENGTH" in ln for ln in src) == 3
+    )  # declared, the STRING POINTER, the MQPUT1 length: never reset
     assert "WS-REQSTS-PROCESS-LIMIT" in src[338] and "VALUE 500" in src[39]
+
+
+def test_the_mq_fault_scenarios_plan_one_failing_call_each():
+    import equivalence_mq as emq
+
+    case = _case()
+    by_name = {s["name"]: s for s in case["scenarios"]}
+    plans = {
+        "open-request-queue-fails": ("MQOPEN", 1),
+        "get-request-fails": ("MQGET", 1),
+        "close-request-queue-fails": ("MQCLOSE", 1),
+    }
+    for name, (verb, nth) in plans.items():
+        faults = by_name[name]["mq_faults"]
+        assert [(f["call"], f["nth"]) for f in faults] == [(verb, nth)]
+        text = emq.cfg(emq.state(case, by_name[name]), "latin-1")
+        assert f"FAULT {verb} {nth} {faults[0]['reason']}" in text
+
+
+@pytest.mark.parametrize(
+    "plan",
+    [
+        [{"call": "MQDISC", "nth": 1, "reason": 2009}],
+        [{"call": "MQCLOSE", "nth": 0, "reason": 2009}],
+        [{"call": "MQCLOSE", "nth": 1, "reason": 2016}],
+    ],
+)
+def test_a_bad_mq_fault_plan_is_refused(plan):
+    import equivalence_mq as emq
+
+    with pytest.raises(ValueError):
+        emq.fault_plan(plan, "x")

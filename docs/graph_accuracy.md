@@ -279,6 +279,15 @@ vocabulary. Before -> after: confident precision 91.1% -> 91.4%, recall 16.3% ->
 newly mapped callers enter its denominator and only 67 of their edges link; the other 95 fall in buckets already open
 (`ambiguous/receiver` +33, `not_extracted/other` +28, `resolved_outside` +22). Linked edges rose by a net 67; confident-wrong links did not rise (wrong-overload 90 -> 89).
 
+**Overload choice (#3784):** C++ joins `OVERLOAD_LANGS`: the detector records each callee's argument counts
+(`calls_out_arities`), and the resolver picks the same-class, same-file overload declaring that many parameters. A
+count that matches several overloads or none (a default argument, a variadic, an uncounted `Type x(args)`
+construction) leaves an ambiguous `overload` row, never an edge. Measured on fmt (2,188 confident links judged, was
+2,479): precision 92.3% (was 84.1%), strict 82.0% (was 74.9%), wrong-overload links 23 (was 220), recall 20.8% (was
+21.5%), resolution recall 60.5% (was 63.3%). The recall dip is the trade: calls the counts cannot choose are no longer
+guessed. **C (hiredis, libuv)** has no overloads; the reference run is unchanged (2,163 judged, precision 100.0%,
+recall 25.3%, resolution recall 58.8%), so the unmapped links (2,789) are the open C item.
+
 ## Span anchoring
 
 A unit is mis-anchored when its `start_line` opens before the declaration, on lines that belong
@@ -395,3 +404,8 @@ gates. A failed plan runs every gate; the check name `graph-accuracy-audit` is u
 language file runs it only when the diff moves something the audit reads: for call-graph, any code line of a baseline language, else a detection
 key; for detection, a `rules` entry (every rule is scored) or a key the lens reads. Comments, `_meta` and underscore-prefixed rules skip it. A hunk
 the planner cannot place, a new file, a non-PR event or a failed plan runs it. The saving is small for detection by construction.
+
+**Tree-sitter audit and history (#6501).** `tree-sitter-accuracy-audit.yml` and `tree-sitter-accuracy-history.yml` also start with a `plan` job
+(`accuracy_audit_plan.py --audit tree-sitter|tree-sitter-history`) that outputs `langs`: a language's file selects that language (an underscore rule
+counts, `_dependency_capture` is read), a baseline file selects its language, a key the lens reads or any shared input selects all; comments and `_meta` select none.
+The history plans the diff since the last successful run, not `github.event.before` (a replaced queued run would drop its push).

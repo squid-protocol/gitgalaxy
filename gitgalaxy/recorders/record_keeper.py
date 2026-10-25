@@ -1072,32 +1072,7 @@ class RecordKeeper:
         #   timing            -- INTERVAL / TIME / AFTER / FOR / UNTIL + units, as written
         #   attributes        -- every other kept option (COMPSTATUS, ABCODE, LENGTH,
         #                        NOSUSPEND, ...)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS cics_task_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                verb TEXT,
-                target_kind TEXT,
-                target_operand TEXT,
-                target_name TEXT,
-                target_resolution TEXT,
-                target_candidates TEXT,
-                channel_operand TEXT,
-                channel_name TEXT,
-                token TEXT,
-                record_clause TEXT,
-                record_name TEXT,
-                timing TEXT,
-                attributes TEXT,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_task_file_id ON cics_task_data(file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_task_target ON cics_task_data(verb, target_name);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_task_snapshot ON cics_task_data(repo_name, commit_hash);")
+        create_channel_table(cursor, "cics_task", _ensure_columns)
 
         # #3448: job submission through the internal reader (core/job_submits.py).
         #   kind         -- JOB (a COBOL literal `//NAME JOB` card) | EXEC (a COBOL
@@ -1490,26 +1465,7 @@ class RecordKeeper:
         # subscripts dropped); source_kind item | literal | figurative | function |
         # length | address, source NULL for INITIALIZE; *_refmod flag a reference
         # modification; corresponding flags MOVE CORRESPONDING.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS data_move_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                verb TEXT,
-                source TEXT,
-                source_kind TEXT,
-                target TEXT,
-                corresponding INTEGER,
-                source_refmod INTEGER,
-                target_refmod INTEGER,
-                line_number INTEGER,
-                source_refmod_text TEXT,
-                target_refmod_text TEXT,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_data_move_file_id ON data_move_data(file_id);")
+        create_channel_table(cursor, "data_move", _ensure_columns)
         # The slicer's synthetic top-level buckets (`__global_context__`: a Python
         # module's import-time code, Mode D's loose code). They have no
         # function_data row (#2691), but they are callers: their calls are kept
@@ -1532,11 +1488,8 @@ class RecordKeeper:
             )
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_synthetic_unit_file_id ON synthetic_unit_data(file_id);")
-        # #3655: the reference modifications as written, added to a pre-#3655 DB in place.
-        _ensure_columns(cursor, "data_move_data", ["source_refmod_text TEXT", "target_refmod_text TEXT"])
         # #3835: a pre-#3835 DB gains the synthetic units' call-site argument counts
         _ensure_columns(cursor, "synthetic_unit_data", ["calls_out_arities TEXT"])
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_data_move_snapshot ON data_move_data(repo_name, commit_hash);")
 
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
         # user submits and which program CICS routes it to. Extracted from the CSD
@@ -2717,49 +2670,6 @@ class RecordKeeper:
                 channel.to_row,
             )
 
-        # #3449: CICS task control -- per-file, like cics_resource_data.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "cics_task_data",
-            (
-                "verb",
-                "target_kind",
-                "target_operand",
-                "target_name",
-                "target_resolution",
-                "target_candidates",
-                "channel_operand",
-                "channel_name",
-                "token",
-                "record_clause",
-                "record_name",
-                "timing",
-                "attributes",
-                "line_number",
-            ),
-            "cics_tasks",
-            lambda t: (
-                t.get("verb"),
-                t.get("target_kind"),
-                t.get("operand"),
-                t.get("name"),
-                t.get("resolution"),
-                t.get("candidates"),
-                t.get("channel_operand"),
-                t.get("channel"),
-                t.get("token"),
-                t.get("record_clause"),
-                t.get("record"),
-                t.get("timing"),
-                t.get("attributes"),
-                int(t.get("line", 0) or 0),
-            ),
-        )
-
         # #3448: job-submission evidence -- per-file, like cics_task_data.
         _insert_per_file_child(
             cursor,
@@ -3177,41 +3087,6 @@ class RecordKeeper:
                 _arities_json(u),
                 json.dumps(u["transfers_to"]) if u.get("transfers_to") else None,
                 int(bool(u.get("calls_only"))),
-            ),
-        )
-
-        # #3452: field-level data movement -- per-file.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "data_move_data",
-            (
-                "verb",
-                "source",
-                "source_kind",
-                "target",
-                "corresponding",
-                "source_refmod",
-                "target_refmod",
-                "line_number",
-                "source_refmod_text",
-                "target_refmod_text",
-            ),
-            "data_moves",
-            lambda m: (
-                m.get("verb"),
-                m.get("source"),
-                m.get("source_kind"),
-                m.get("target"),
-                int(bool(m.get("corresponding"))),
-                int(bool(m.get("source_refmod"))),
-                int(bool(m.get("target_refmod"))),
-                int(m.get("line", 0) or 0),
-                m.get("source_refmod_text"),
-                m.get("target_refmod_text"),
             ),
         )
 

@@ -63189,16 +63189,20 @@
         "Variant@377": [],
         "Variant@378": [],
         "Variant@550": [
-          "static_cast"
+          "static_cast",
+          "Variant"
         ],
         "Variant@553": [
-          "static_cast"
+          "static_cast",
+          "Variant"
         ],
         "Variant@556": [
-          "static_cast"
+          "static_cast",
+          "Variant"
         ],
         "Variant@559": [
-          "static_cast"
+          "static_cast",
+          "Variant"
         ],
         "Variant@867": [],
         "Variant@872": [],
@@ -63537,7 +63541,8 @@
           "ok",
           "assign",
           "data",
-          "size"
+          "size",
+          "MlirToFlatBufferTranslateFunction"
         ],
         "Translator::AppendBufferData@4430": [
           "get",

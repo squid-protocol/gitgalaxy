@@ -25,15 +25,15 @@
       },
       {
         "btw": 0.0,
-        "path": "dockerfile/moby/builder/dockerfile/copy.go",
-        "score": 0.001,
-        "state_mutation": 95.106
-      },
-      {
-        "btw": 0.0,
         "path": "dockerfile/moby/builder/dockerfile/internals.go",
         "score": 0.001,
         "state_mutation": 99.6514
+      },
+      {
+        "btw": 0.0,
+        "path": "abap/abapGit/zabapgit.prog.abap",
+        "score": 0.0,
+        "state_mutation": 0.0
       }
     ],
     "fragile_dependency_chain": [
@@ -72,32 +72,32 @@
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 12.97,
-        "score": 1297.0
+        "pr": 12.981,
+        "score": 1298.1
       },
       {
         "doc": 96.9697,
         "path": "python/fastapi/fastapi/applications.py",
-        "pr": 10.206,
-        "score": 989.673
+        "pr": 10.209,
+        "score": 989.964
       },
       {
         "doc": 100.0,
         "path": "rust/tokio/lib.rs",
-        "pr": 6.541,
-        "score": 654.1
+        "pr": 6.427,
+        "score": 642.7
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 6.146,
-        "score": 614.6
+        "pr": 6.149,
+        "score": 614.9
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/param_functions.py",
-        "pr": 5.804,
-        "score": 580.4
+        "pr": 5.805,
+        "score": 580.5
       }
     ]
   }

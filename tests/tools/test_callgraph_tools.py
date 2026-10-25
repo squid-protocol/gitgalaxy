@@ -118,6 +118,20 @@ def test_content_id_is_the_git_tree_for_a_clean_checkout_and_a_file_hash_otherwi
     assert callgraph_refs.content_id(repo).startswith("files-")
 
 
+def test_an_import_graph_only_repo_is_not_in_the_call_graph_corpus(tmp_path, monkeypatch):
+    import import_graph_accuracy as iga
+
+    entries = [
+        {"repo": "a/kept", "commit": "0", "language": "go"},
+        {"repo": "b/import-only", "commit": "0", "language": "go", "callgraph": False},
+    ]
+    for e in entries:
+        (iga.repo_dir(tmp_path, e) / ".git").mkdir(parents=True)
+    monkeypatch.setattr(iga, "CORPUS", tmp_path)
+    monkeypatch.setattr(iga, "load_manifest", lambda: entries)
+    assert [name for name, _ in callgraph_refs.corpus_repos("go")] == ["a/kept"]
+
+
 def test_a_missing_reference_tool_stops_the_run(tmp_path, monkeypatch):
     ref = dataclasses.replace(_fake_ref(CONTRACT, tmp_path / "a.js", []), installed=lambda: None)
     monkeypatch.setitem(callgraph_refs.REFERENCES, "typescript", ref)

@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -66,6 +67,8 @@ public final class QueueManager {
     private int qmgrCcsid = 37;
     private final List<Msg> msgs = new ArrayList<>();
     private final List<Handle> handles = new ArrayList<>();
+    private final List<String[]> faults = new ArrayList<>();  // {verb, nth, reason}: the calls the case plans to fail
+    private final Map<String, Integer> calls = new HashMap<>();
     private long seqc;
     private long msgidc;
     private final Sink sink;
@@ -85,6 +88,8 @@ public final class QueueManager {
             } else if (w[0].equals("Q") && w.length == 4) {
                 qnames.add(w[1]);
                 qdefaults.add(new int[] {Integer.parseInt(w[2]), Integer.parseInt(w[3])});
+            } else if (w[0].equals("FAULT") && w.length == 4) {
+                faults.add(new String[] {w[1], w[2], w[3]});
             } else if (w[0].equals("M") && w.length == 4) {
                 int q = qnames.indexOf(w[1]);
                 byte[] md = HEX.parseHex(w[2]);
@@ -94,6 +99,18 @@ public final class QueueManager {
                 add(q, md, w[3].equals("-") ? new byte[0] : HEX.parseHex(w[3]), AVAIL);
             }
         }
+    }
+
+    /** The reason code the case plans for this call of `verb` (the nth, counting every call of that verb), or 0. The
+     *  planned call is not performed: the caller answers the reason. The twin of ggmq.c's planned(). */
+    private int planned(String verb) {
+        int n = calls.merge(verb, 1, Integer::sum);
+        for (String[] f : faults) {
+            if (f[0].equals(verb) && Integer.parseInt(f[1]) == n) {
+                return Integer.parseInt(f[2]);
+            }
+        }
+        return 0;
     }
 
     private static UnsupportedOperationException refused(String call, String what) {
@@ -259,6 +276,12 @@ public final class QueueManager {
     public void mqopen(Ref hconn, Ref od, Ref options, Ref hobj, Ref cc, Ref rc) {
         hconnOk("MQOPEN", hconn);
         int o = be32(options, 0);
+        int fr = planned("MQOPEN");
+        if (fr != 0) {
+            done(cc, rc, fr);
+            sink.event("MQOPEN", "queue", name48(od, 12), "cc", comp(fr), "rc", fr, "options", o, "hobj", 0);
+            return;
+        }
         if ((o & ~OO_MODELLED) != 0) {
             throw refused("MQOPEN", "an option other than INPUT-*, OUTPUT, SAVE-ALL-CONTEXT, PASS-*-CONTEXT, "
                     + "FAIL-IF-QUIESCING");
@@ -298,6 +321,13 @@ public final class QueueManager {
     // [rule RT-MQ-CLOSE]
     public void mqclose(Ref hconn, Ref hobj, Ref options, Ref cc, Ref rc) {
         hconnOk("MQCLOSE", hconn);
+        int fr = planned("MQCLOSE");
+        if (fr != 0) {
+            int fh = handle(hobj);
+            done(cc, rc, fr);
+            sink.event("MQCLOSE", "queue", qname(fh >= 0 ? handles.get(fh).q() : -1), "cc", comp(fr), "rc", fr);
+            return;
+        }
         if (be32(options, 0) != 0) {
             throw refused("MQCLOSE", "an option other than MQCO_NONE");
         }
@@ -316,6 +346,14 @@ public final class QueueManager {
     // [rule RT-MQ-GET]
     public void mqget(Ref hconn, Ref hobj, Ref md, Ref gmo, Ref buflen, Ref buffer, Ref datalen, Ref cc, Ref rc) {
         hconnOk("MQGET", hconn);
+        int fr = planned("MQGET");
+        if (fr != 0) {
+            int fh = handle(hobj);
+            done(cc, rc, fr);
+            sink.event("MQGET", "queue", qname(fh >= 0 ? handles.get(fh).q() : -1), "cc", comp(fr), "rc", fr, "len", -1,
+                    "data", "");
+            return;
+        }
         if (!bytesAre(md, 0, "MD  ") || be32(md, 4) != 1) {
             throw refused("MQGET", "an MQMD other than version 1");
         }
@@ -469,6 +507,13 @@ public final class QueueManager {
     // [rule RT-MQ-PUT]
     public void mqput(Ref hconn, Ref hobj, Ref md, Ref pmo, Ref buflen, Ref buffer, Ref cc, Ref rc) {
         hconnOk("MQPUT", hconn);
+        int fr = planned("MQPUT");
+        if (fr != 0) {
+            int fh = handle(hobj);
+            done(cc, rc, fr);
+            putEvent("MQPUT", qname(fh >= 0 ? handles.get(fh).q() : -1), fr, md, buffer, be32(buflen, 0));
+            return;
+        }
         int h = handle(hobj);
         int q = h >= 0 ? handles.get(h).q() : -1;
         int r;
@@ -486,6 +531,12 @@ public final class QueueManager {
     /** MQPUT1 (Hconn, ObjDesc, MsgDesc, PutMsgOpts, BufferLength, Buffer, CompCode, Reason): open, put, close */
     public void mqput1(Ref hconn, Ref od, Ref md, Ref pmo, Ref buflen, Ref buffer, Ref cc, Ref rc) {
         hconnOk("MQPUT1", hconn);
+        int fr = planned("MQPUT1");
+        if (fr != 0) {
+            done(cc, rc, fr);
+            putEvent("MQPUT1", name48(od, 12), fr, md, buffer, be32(buflen, 0));
+            return;
+        }
         String[] name = new String[1];
         int q = resolveOd("MQPUT1", od, name);
         int r = q < 0 ? 2085 : put("MQPUT1", q, md, pmo, buflen, buffer);

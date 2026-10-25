@@ -22,7 +22,7 @@ one or more gap classes:
   no det port (crucible)   its crucible case runs the COBOL, but no det port of it is committed
   coverage: ...            the proof leaves live paragraphs (and with --branches, branch outcomes) no scenario runs:
                            translated code no proof judged. The outcomes a case states no input can reach
-                           (tests/equivalence/infeasible_outcomes.json, #4602) are taken out of its branch total and
+                           (tests/equivalence/infeasible_outcomes/<case>.json, #4602) are taken out of its branch total and
                            printed; one the proof reached is the gap `infeasible outcome reached`
   fact: NAME               a runtime fact the case would need and no harness states: an EIB field neither runtime
                            sets (EIBCPOSN, EIBRCODE, ...: both sides read zero, z/OS does not; EIBTASKN and EIBDS only under a
@@ -404,7 +404,7 @@ def evidence_uncovered(case: str, cases_dir: Path = CASES) -> list[dict[str, Any
 
 def stated_infeasible(run: Run, cov: tuple[int, int, int, int] | None, uncovered: list[Any] | None,
                       cases_dir: Path = CASES) -> tuple[int, int, int, int] | None:  # fmt: skip
-    """#4602: the case's stated infeasible outcomes (tests/equivalence/infeasible_outcomes.json) out of its branch
+    """#4602: the case's stated infeasible outcomes (tests/equivalence/infeasible_outcomes/<case>.json) out of its branch
     total, listed in run.infeasible; one the proof reached refutes the claim and is a gap."""
     import infeasible_outcomes as io
 
@@ -733,7 +733,7 @@ def print_report(res: dict[str, Any], top: int, label: str) -> None:
     stated = [p for p in res["programs"] if p.get("infeasible")]
     if stated:  # #4602: assumptions of the proof, always shown
         print(
-            "\nstated infeasible outcomes, taken out of the branch totals (tests/equivalence/infeasible_outcomes.json):"
+            "\nstated infeasible outcomes, taken out of the branch totals (tests/equivalence/infeasible_outcomes/<case>.json):"
         )
         for p in stated:
             print(f"  {Path(p['program']).stem} ({p['case']}): {', '.join(p['infeasible'])}")

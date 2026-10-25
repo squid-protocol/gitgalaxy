@@ -877,15 +877,23 @@ def test_copaua0c_options_sit_inside_what_the_oracle_models():
     assert v["MQCO-NONE"] == 0  # the only MQCLOSE option modelled (W6)
 
 
-def test_copaua0c_includes_only_copybooks_the_models_ship():
-    """#5278: every CMQ* member COPAUA0C COPYs is a GitGalaxy stand-in, so no MQ copybook gap is left to refuse it."""
+def test_every_burned_program_includes_only_copybooks_the_models_ship():
+    """#5278: every CMQ* member a burned program COPYs is a GitGalaxy stand-in, so no MQ copybook gap (CMQGMOV, CMQODV)
+    is left to refuse any of them whole; COPAUA0C, CODATE01 and COACCT01 are among them."""
     calls = _burned_mq_calls()
     if not calls:
         pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
     corpora = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", ROOT / ".mainframe_corpora"))
-    src = corpora / "aws-mainframe-modernization-carddemo/app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl"
-    used = {m.upper() for m in re.findall(r"^\s{7}\s*COPY\s+(CMQ\w*)", src.read_text(encoding="latin-1"), re.M)}
-    assert used and used <= set(SPEC.STAND_INS), sorted(used - set(SPEC.STAND_INS))
+    copied: dict[str, set[str]] = {}
+    for name in BURNED_CORPORA:
+        for p in (corpora / name).rglob("*") if (corpora / name).is_dir() else ():
+            if p.suffix.lower() in (".cbl", ".cob", ".cobol") and p.is_file():
+                text = p.read_text(encoding="latin-1")
+                for m in re.findall(r"^.{6}[ \t]+COPY\s+(CMQ\w*)", text, re.M | re.IGNORECASE):
+                    copied.setdefault(p.stem.upper(), set()).add(m.upper())
+    assert {"CODATE01", "COACCT01", "COPAUA0C"} <= set(copied), sorted(copied)
+    used = set().union(*copied.values())
+    assert used <= set(SPEC.STAND_INS), sorted(used - set(SPEC.STAND_INS))
     assert all((COPY / f"{n}.cpy").is_file() for n in used)
 
 

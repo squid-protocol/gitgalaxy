@@ -87,3 +87,54 @@ def test_every_other_event_is_unchanged(event):
 def test_the_full_label_keeps_every_db2_case():
     p = dsp.plan(["tests/tools/equivalence.py"], "pull_request", CASES, ["shepherd:full"])
     assert p["db2_cases"] == "all"
+
+
+# The db2 job runs on ubuntu; on a Windows runner `bash` is the WSL launcher (no distribution installed, UTF-16 output,
+# no /usr/bin), so the script-behaviour tests are Linux-only like test_ci_retry.py and test_box_tools.py.
+needs_linux_bash = pytest.mark.skipif(sys.platform != "linux", reason="the db2 job's bash runs on the Linux runners")
+
+
+def _pool_for(tmp_path, cases, shard):
+    """Run the db2 job's pool-sizing lines (up to the ready dir) the way the workflow does; return GITGALAXY_DB2_POOL."""
+    import shutil
+    import subprocess
+
+    yaml = pytest.importorskip("yaml")
+    if shutil.which("bash") is None:
+        pytest.skip("needs bash")
+    wf = TOOLS.parents[1] / ".github" / "workflows" / "det-sweep.yml"
+    steps = yaml.safe_load(wf.read_text(encoding="utf-8"))["jobs"]["db2"]["steps"]
+    run = next(s["run"] for s in steps if "GITGALAXY_DB2_POOL" in s.get("run", ""))
+    script = run.split("mkdir -p")[0]
+    env_file = tmp_path / "env"
+    env_file.touch()
+    subprocess.run(
+        ["bash", "-c", script],
+        check=True,
+        env={"PATH": "/usr/bin:/bin", "CASES": cases, "SHARD": shard, "GITHUB_ENV": str(env_file)},
+    )
+    return int(dict(ln.split("=", 1) for ln in env_file.read_text().split())["GITGALAXY_DB2_POOL"])
+
+
+@needs_linux_bash
+@pytest.mark.parametrize(
+    ("n_cases", "shard", "expected"),
+    [
+        (1, "1/1", 1),
+        (3, "1/1", 3),
+        (4, "1/1", 4),
+        (12, "1/1", 4),
+        (13, "1/6", 3),
+        (6, "1/6", 1),
+        (7, "2/6", 2),
+        (70, "1/6", 4),
+    ],
+)
+def test_a_db2_shard_creates_only_the_databases_its_share_of_cases_uses(tmp_path, n_cases, shard, expected):
+    cases = ",".join(f"c{i}" for i in range(n_cases))
+    assert _pool_for(tmp_path, cases, shard) == expected
+
+
+@needs_linux_bash
+def test_a_full_sweep_shard_keeps_the_whole_pool(tmp_path):
+    assert _pool_for(tmp_path, "all", "3/6") == 4

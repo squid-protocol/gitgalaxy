@@ -218,6 +218,17 @@ def test_zig_and_dart_bodies_are_siblings_of_the_signature_yet_belong_to_it():
     assert got["a"] == {"x"} and got["c"] == {"z"}
 
 
+def test_dart_constructor_initializer_list_and_const_callees_belong_to_the_constructor():
+    """#6454: the `initializers` sit beside `constructor_signature`, and `const Foo.named()` names `named`."""
+    src = (
+        "class A {\n  A({Foo? f, Bar? b}) : _f = f ?? const Foo(), _b = b ?? const Bar.make() {\n    go();\n  }\n"
+        "  A.n(int q) : w = Baz(q);\n}\n"
+    )
+    got = _calls("dart", src)
+    assert got["A"] == {"Foo", "make", "go"}
+    assert got["A.n"] == {"Baz"}
+
+
 @pytest.mark.parametrize(
     "lang, src",
     [

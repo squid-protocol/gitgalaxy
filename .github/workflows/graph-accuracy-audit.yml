@@ -247,7 +247,7 @@ jobs:
           # c 31, go 23, typescript 17, javascript 14 = 1800 s, so ~450 s per lane is the floor on 4 cores. cpp and
           # import-graph-1 are the CPU-heavy gates: keep them on separate lanes. The import-graph gate runs as three
           # language subsets (each its own baseline gate over that subset; together exactly LANGS, pinned by a test).
-          IG1="python tcl go c lua ruby"
+          IG1="python tcl go c lua ruby matlab"
           IG2="objective-c csharp javascript typescript shell solidity rust perl"
           IG3="cpp java php zig dart kotlin scala haskell swift powershell groovy fortran"
           ( gate call-cpp python tests/tools/call_graph_resolution.py cpp --samples 5

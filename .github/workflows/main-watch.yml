@@ -21,6 +21,7 @@ on:
     workflows:
       - "CICS Crucible"
       - "CodeQL Security Scan"
+      - "Crucible Path Independence"
       - "Det Sweep"
       - "Estate Crucible"
       - "Evidence Pages"

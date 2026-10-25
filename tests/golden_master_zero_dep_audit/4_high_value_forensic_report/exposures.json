@@ -223,19 +223,19 @@
     "safety_score": {
       "highest": [
         {
-          "name": "build-toolchain.sh",
-          "path": "shell/haiku/build-toolchain.sh",
-          "value": 100.0
-        },
-        {
           "name": "generate_ids_from_drivers.sh",
           "path": "shell/haiku/generate_ids_from_drivers.sh",
-          "value": 100.0
+          "value": 99.8772
         },
         {
           "name": "config3270.sh",
           "path": "shell/linux/config3270.sh",
-          "value": 100.0
+          "value": 99.8451
+        },
+        {
+          "name": "build-toolchain.sh",
+          "path": "shell/haiku/build-toolchain.sh",
+          "value": 99.2241
         }
       ],
       "lowest": [

@@ -38,34 +38,34 @@
     ],
     "fragile_dependency_chain": [
       {
-        "close": 0.0562,
-        "err": 66.2775,
-        "path": "python/fastapi/fastapi/applications.py",
-        "score": 3.723
-      },
-      {
         "close": 0.0591,
-        "err": 60.143,
+        "err": 53.4232,
         "path": "python/fastapi/fastapi/__init__.py",
-        "score": 3.555
+        "score": 3.157
       },
       {
-        "close": 0.033,
-        "err": 91.4708,
-        "path": "python/fastapi/fastapi/exceptions.py",
-        "score": 3.021
+        "close": 0.0562,
+        "err": 55.607,
+        "path": "python/fastapi/fastapi/applications.py",
+        "score": 3.124
       },
       {
         "close": 0.0308,
-        "err": 90.4651,
+        "err": 80.0,
         "path": "python/fastapi/fastapi/datastructures.py",
-        "score": 2.785
+        "score": 2.463
       },
       {
-        "close": 0.0324,
-        "err": 84.3093,
-        "path": "python/fastapi/fastapi/routing.py",
-        "score": 2.731
+        "close": 0.033,
+        "err": 70.5405,
+        "path": "python/fastapi/fastapi/exceptions.py",
+        "score": 2.33
+      },
+      {
+        "close": 0.0402,
+        "err": 54.3705,
+        "path": "python/fastapi/fastapi/param_functions.py",
+        "score": 2.187
       }
     ],
     "undocumented_critical_path": [

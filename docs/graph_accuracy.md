@@ -288,6 +288,17 @@ construction) leaves an ambiguous `overload` row, never an edge. Measured on fmt
 guessed. **C (hiredis, libuv)** has no overloads; the reference run is unchanged (2,163 judged, precision 100.0%,
 recall 25.3%, resolution recall 58.8%), so the unmapped links (2,789) are the open C item.
 
+**Class-template member names (#3772):** `Foo<T>::bar(...) {` was named `::bar`: the name tokenizer split at the
+`<`, `,` and `>` of the class's argument list and kept the tail. The detector now strips a class-template argument list
+that is directly followed by `::` (three nesting levels, as the `func_start` rule), so the unit is `Foo::bar` as libclang
+names it (constructors, destructors, operators, `ns::Foo<T>::m` and `template<>` specialisations alike; `operator<`,
+`operator<<` and a return type's `<...>` keep theirs). The own-header filter strips the same list, so the header's
+`Foo<T>::m(` is not read as a call to `m`. Measured on fmt, before -> after: linked edges 2,089 -> 2,139, recall 21.5% ->
+22.0%, resolution recall 59.8% -> 61.3%, `caller_unmapped` 1,249 -> 1,226, confident precision 92.5% -> 92.2% (inside the
+0.5-point tolerance), wrong 170 -> 180 and `unmapped_src` 504 -> 544: callers that were unnamed enter the judged set
+with their links, 10 of them wrong (not read in source one by one). Test:
+`tests/extraction/languages/test_cpp_template_member_names_3772.py`.
+
 **C macro-defined functions (#3784):** libuv defines its tests as `TEST_IMPL(kill) {`, which declares `run_test_kill`;
 the engine names the unit `kill`. The adapter now names a def written as a one-argument macro by the argument (the
 same idea as the gtest names above), so those engine ends map. Adapter only, no engine change. Before -> after

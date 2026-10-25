@@ -1023,6 +1023,11 @@ _COBOL_SEPARATOR_PERIOD_RE = re.compile(r"\.(?=\s|$)")
 # #3329: member-access separators a call's qualifier is joined by -- `a.b()`,
 # `p->f()`, `Ns::f()`, `a?.b()`. Longest first, so `->`/`::`/`?.` win over `.`.
 _QUALIFIER_SEPARATORS = ("->", "::", "?.", ".")
+# #3772: the template argument list (nested three levels, as cpp.py `_TPL_QUAL`) of a class-template qualifier.
+# Only one directly followed by `::` matches, so `operator<`, `operator<<` and a return type's `<...>` stay.
+_CPP_TEMPLATE_ARGS = r"<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>"
+_CPP_TEMPLATE_QUALIFIER = re.compile(_CPP_TEMPLATE_ARGS + r"(?=[ \t]*::)")
+_CPP_TEMPLATE_ARGS_RE = re.compile(_CPP_TEMPLATE_ARGS)
 # #3837: in java `->` only ever ends a lambda's parameters (`() -> toJson(gson, x)`),
 # so a call right after it is bare, not one on an `<expr>` receiver. Kotlin, Groovy
 # and Scala read `->` the same way, but no compiler reference measures them yet.
@@ -10714,7 +10719,18 @@ class StructuralExtractor:
                     # #5628: a bare `leaf(` may reach a different unit of that name, in this file
                     # or another: kept, and the call resolver drops it when it only resolves to
                     # the unit itself. Anything written with a receiver or scope is the unit itself.
-                    if callee == own_leaf and qualifier in own_qualifiers and qualifier:
+                    if (
+                        callee == own_leaf
+                        and qualifier
+                        and (
+                            qualifier in own_qualifiers
+                            # #3772: the header `Foo<T>::m(` is qualified `Foo<T>`, the unit `Foo::m`
+                            or (
+                                self.primary_lang_id == "cpp"
+                                and _CPP_TEMPLATE_ARGS_RE.sub("", qualifier) in own_qualifiers
+                            )
+                        )
+                    ):
                         continue
                     if callee == own_dtor and callee_pos > 0 and safe_block[callee_pos - 1] == "~":
                         continue
@@ -11095,6 +11111,11 @@ class StructuralExtractor:
         # bare keyword (`run`) instead and passes through this branch unchanged.
         if self.primary_lang_id == "yaml":
             return match_strip
+
+        # #3772: a class-template qualifier (`Foo<A, B>::bar`) names the class `Foo`, as the compiler
+        # reference does; the tokenizer below splits at `<`/`,`/`>` and kept only `::bar`.
+        if self.primary_lang_id == "cpp" and "<" in match_strip:
+            raw_match = match_strip = _CPP_TEMPLATE_QUALIFIER.sub("", match_strip)
 
         # 1.2 Python Decorator Stripping
         if "@" in match_strip and "def " in match_strip:

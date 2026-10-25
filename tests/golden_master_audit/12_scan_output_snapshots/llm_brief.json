@@ -207,7 +207,7 @@
     "> Percentile columns elsewhere in this brief that come from the Tier-2 snapshot percentiles are SNAPSHOT-RELATIVE: \"87\" means this file's value sits at the 87th percentile of THIS repo's files for that surface -- true by construction (Hazen average-rank), not a calibrated 0-100 risk threshold like the section 6 sigmoid scores above. An all-zero surface across the whole repo reads as 0.0 for every file, never a false-median 50.",
     "| Family | Repo Total | Files w/ Signal | P90 File Value | Top File |",
     "|---|---|---|---|---|",
-    "| memory | 66295 | 964 | 11 | `cobol/gnucobol_internals/codegen.c` |",
+    "| memory | 14611 | 809 | 9 | `typescript/typescript_compiler/checker.ts` |",
     "| cleanup | 4053 | 580 | 2 | `zig/zig/Sema.zig` |",
     "| guards | 62068 | 1380 | 20 | `zig/zig/Sema.zig` |",
     "| danger | 28805 | 1508 | 18 | `fortran/wrf/regtest_hwrf.csh` |",

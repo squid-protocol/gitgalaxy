@@ -518,6 +518,52 @@ _BUILTIN_INSTANCE_METHODS_KOTLIN = frozenset(
         *("let", "also", "apply", "takeIf", "takeUnless", "equals", "hashCode", "toString", "compareTo"),
     }
 )
+# #4991: methods of the C# BCL built-ins (string, List<T> / IEnumerable<T> / LINQ, Dictionary, HashSet,
+# StringBuilder, object). `s.Trim()` / `dict.TryGetValue(k, out v)` / `list.Add(x)` on a receiver the scan
+# cannot type is the BCL method far more often than a repo class's method of the same name.
+_BUILTIN_INSTANCE_METHODS_CSHARP = frozenset(
+    {
+        # string / StringBuilder
+        *("Trim", "TrimStart", "TrimEnd", "Split", "Substring", "StartsWith", "EndsWith", "Contains"),
+        *("Replace", "ToLower", "ToUpper", "ToLowerInvariant", "ToUpperInvariant", "IndexOf", "PadLeft"),
+        *("PadRight", "Insert", "Append", "AppendLine", "AppendFormat", "IsNullOrEmpty", "CompareTo"),
+        # List / Dictionary / HashSet / collections
+        *("Add", "AddRange", "Remove", "RemoveAt", "RemoveAll", "Clear", "Sort", "Reverse", "ToArray"),
+        *("TryGetValue", "ContainsKey", "ContainsValue", "TryAdd", "GetValueOrDefault", "Push", "Pop"),
+        *("Peek", "Enqueue", "Dequeue", "UnionWith", "IntersectWith", "ExceptWith", "IsSubsetOf"),
+        *("GetEnumerator", "MoveNext", "CopyTo", "ForEach", "Exists", "FindAll", "BinarySearch"),
+        # LINQ
+        *("Select", "Where", "SelectMany", "OrderBy", "OrderByDescending", "ThenBy", "GroupBy", "Any"),
+        *("All", "Count", "First", "FirstOrDefault", "Last", "LastOrDefault", "Single", "SingleOrDefault"),
+        *("Skip", "Take", "Distinct", "Union", "Intersect", "Except", "Concat", "Zip", "Aggregate"),
+        *("ToList", "ToDictionary", "ToHashSet", "Sum", "Min", "Max", "Average", "Cast", "OfType"),
+        # object / IDisposable
+        *("Equals", "GetHashCode", "GetType", "ToString", "Dispose"),
+    }
+)
+# #4991: methods of the Ruby core classes (String, Array, Hash, Enumerable, Object). `s.strip` /
+# `h.fetch(k)` / `list.map { ... }` on a receiver the scan cannot type is the core method far more
+# often than a repo class's method of the same name. `[]` / `<<` are operators, not call names.
+_BUILTIN_INSTANCE_METHODS_RUBY = frozenset(
+    {
+        # String / Symbol
+        *("strip", "lstrip", "rstrip", "chomp", "chop", "chars", "upcase", "downcase", "capitalize"),
+        *("swapcase", "start_with?", "end_with?", "include?", "gsub", "sub", "split", "scan", "tr"),
+        *("to_s", "to_i", "to_f", "to_sym", "to_a", "to_h", "empty?", "length", "size", "slice"),
+        *("index", "center", "ljust", "rjust", "format", "concat", "prepend", "freeze", "dup", "clone"),
+        # Array / Hash / Enumerable
+        *("each", "each_with_index", "each_with_object", "each_pair", "each_key", "each_value", "map"),
+        *("collect", "select", "filter", "reject", "find", "detect", "find_all", "reduce", "inject"),
+        *("flat_map", "group_by", "partition", "sort", "sort_by", "min_by", "max_by", "sum", "count"),
+        *("first", "last", "take", "drop", "push", "pop", "shift", "unshift", "insert", "delete"),
+        *("delete_if", "keep_if", "compact", "flatten", "uniq", "zip", "reverse", "rotate", "sample"),
+        *("shuffle", "any?", "all?", "none?", "one?", "key?", "has_key?", "value?", "fetch", "dig"),
+        *("keys", "values", "merge", "merge!", "update", "store", "tally", "min", "max", "join"),
+        # Object / Kernel
+        *("nil?", "is_a?", "kind_of?", "respond_to?", "instance_of?", "equal?", "eql?", "hash"),
+        *("inspect", "tap", "then", "send", "public_send", "instance_variable_get", "freeze"),
+    }
+)
 _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
     "typescript": _BUILTIN_INSTANCE_METHODS_JS,
     "javascript": _BUILTIN_INSTANCE_METHODS_JS,
@@ -525,6 +571,8 @@ _BUILTIN_INSTANCE_METHODS: dict[str, frozenset[str]] = {
     "python": _BUILTIN_INSTANCE_METHODS_PYTHON,
     "embedded_python": _BUILTIN_INSTANCE_METHODS_PYTHON,
     "kotlin": _BUILTIN_INSTANCE_METHODS_KOTLIN,
+    "csharp": _BUILTIN_INSTANCE_METHODS_CSHARP,
+    "ruby": _BUILTIN_INSTANCE_METHODS_RUBY,
 }
 
 # #3756: JS/TS global namespaces whose static members (`Number.isFinite`,

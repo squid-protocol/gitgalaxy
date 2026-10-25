@@ -1,21 +1,16 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 11,
+ "scenarios": 20,
  "paragraphs": {
-  "covered": 55,
+  "covered": 62,
   "live": 119
  },
  "branches": {
-  "covered": 68,
+  "covered": 85,
   "total": 200
  },
  "uncovered": {
   "paragraphs": [
-   "1210-ZCXXSD:640",
-   "1210-EXIT:663",
-   "1325-CLEAR-TYPE:764",
-   "1325-EXIT:772",
-   "1500-AUTHENTICATE:778",
    "1500-EXIT:809",
    "1600-USER-ACCESS:816",
    "1600-EXIT:830",
@@ -67,8 +62,6 @@
    "9300-EXIT:2005",
    "9500-STATUS-409:2034",
    "9500-EXIT:2052",
-   "9600-AUTH-ERROR:2058",
-   "9600-EXIT:2072",
    "9800-STATUS-507:2105",
    "9800-EXIT:2119",
    "9900-WRITE-CSSL:2125",
@@ -77,34 +70,17 @@
    "9999-EXIT:2163"
   ],
   "branches": [
-   "486:true",
    "492:false",
    "540:true",
    "552:true",
-   "628:false",
-   "631:true",
    "660:true",
-   "660:false",
-   "699:true",
-   "704:true",
    "704:false",
-   "707:true",
-   "712:true",
    "713:true",
-   "713:false",
-   "717:true",
-   "718:true",
    "718:false",
-   "746:true",
    "752:true",
-   "752:false",
-   "789:true",
-   "789:false",
    "793:true",
-   "793:false",
    "800:true",
    "800:false",
-   "804:true",
    "804:false",
    "826:true",
    "826:false",
@@ -209,11 +185,6 @@
    "1968:false",
    "1984:true",
    "1984:false",
-   "paragraph:1210-ZCXXSD",
-   "paragraph:1210-EXIT",
-   "paragraph:1325-CLEAR-TYPE",
-   "paragraph:1325-EXIT",
-   "paragraph:1500-AUTHENTICATE",
    "paragraph:1500-EXIT",
    "paragraph:1600-USER-ACCESS",
    "paragraph:1600-EXIT",
@@ -265,8 +236,6 @@
    "paragraph:9300-EXIT",
    "paragraph:9500-STATUS-409",
    "paragraph:9500-EXIT",
-   "paragraph:9600-AUTH-ERROR",
-   "paragraph:9600-EXIT",
    "paragraph:9800-STATUS-507",
    "paragraph:9800-EXIT",
    "paragraph:9900-WRITE-CSSL",
@@ -276,7 +245,7 @@
   ]
  },
  "inputs": {
-  "case": "5a60c0be75b66975f6cba7eeeb6af8b6989f435abc8cdda46f510a6d325fd606",
+  "case": "2e5d539950c6a65aaf558758333efc52471b66132e691c67104419a2c3a393e8",
   "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
   "harness": "5c6a45c8494ae94210d478a7876ea38fd4acc7ceebf50b60ff58c8e607eb058d",
   "oracle": "7e57488c79c77a09bd66129bc3cc144ac3a66e074a3acc9f05f277b1f41caa82",
@@ -292,5 +261,5 @@
    }
   }
  },
- "measured_at": "1f28acd66cf3335221c267e814943689631f5078"
+ "measured_at": "bf6a41fc97def4ed1795a4734830291f0dac79b3"
 }

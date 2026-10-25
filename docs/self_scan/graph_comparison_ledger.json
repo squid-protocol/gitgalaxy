@@ -9200,6 +9200,68 @@
       "symbol_type": "import",
       "verdict": null
     },
+    "matlab/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-25T19:08:24Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "matlab",
+      "last_reconciled_at": "2026-10-25T19:08:24Z",
+      "last_seen_count": 9,
+      "last_seen_examples": [
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "objective-c/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"

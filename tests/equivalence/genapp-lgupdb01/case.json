@@ -12,6 +12,10 @@
   {
    "program": "LGUPVS01",
    "program_source": "base/src/lgupvs01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
   }
  ],
  "datasets": {
@@ -62,6 +66,11 @@
  },
  "linked": true,
  "screens": {},
+ "region": {
+  "applid": "GENAPP",
+  "sysid": "CICA",
+  "why": "a deployment fact: LGSTSQ (the error logger WRITE-ERROR-MESSAGE LINKs) ASSIGNs SYSID into the message it writes; GenApp names no region in the corpus"
+ },
  "scenarios": [
   {
    "name": "update-endowment",
@@ -107,6 +116,133 @@
     "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
    },
    "why": "a house update of an endowment policy: UPDATE HOUSE finds no row (+100)"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: the no-commarea arm of the entry check, WRITE-ERROR-MESSAGE with no COMMAREA copy (IF EIBCALEN > 0 false), then ABEND LGCA"
+  },
+  {
+   "name": "policy-not-found",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000992026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "the first FETCH answers +100 (no POLICY row for policy 99): '01', the cursor is closed"
+  },
+  {
+   "name": "unknown-request-id",
+   "commarea": {
+    "CA-REQUEST-ID": "01UXXX",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "LASTCHANGED matches but the request id names no policy type: the EVALUATE finds no WHEN, nothing is updated in a type table, and the POLICY row is still updated"
+  },
+  {
+   "name": "endowment-request-for-house",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "4",
+    "CA-REQUEST-SPECIFIC": "00000000062026-01-012027-01-012011-09-01-22.32.42.0000000000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "an endowment update of a house policy: UPDATE ENDOWMENT finds no row (+100), '01'"
+  },
+  {
+   "name": "motor-request-for-endowment",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "a motor update of an endowment policy: UPDATE MOTOR finds no row (+100), '01'"
+  },
+  {
+   "name": "motor-update-no-row",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "sql_faults": [
+    {
+     "table": "MOTOR",
+     "verb": "UPDATE",
+     "nth": 1,
+     "sqlcode": 100
+    }
+   ],
+   "why": "UPDATE MOTOR is answered +100 (no row) whatever the seed holds: '01', the arm the unfaulted motor-request-for-endowment run does not reach"
+  },
+  {
+   "name": "open-cursor-fails",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "sql_faults": [
+    {
+     "line": 255,
+     "nth": 1,
+     "sqlcode": -904,
+     "sqlstate": "57011"
+    }
+   ],
+   "why": "OPEN POLICY_CURSOR answers -904 (resource unavailable): the OTHER arm, '90', WRITE-ERROR-MESSAGE with a full COMMAREA, RETURN"
+  },
+  {
+   "name": "close-cursor-fails-501",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "sql_faults": [
+    {
+     "line": 365,
+     "nth": 1,
+     "sqlcode": -501,
+     "sqlstate": "24501"
+    }
+   ],
+   "why": "CLOSE POLICY_CURSOR answers -501 (cursor not open): '00', RETURN without the final LINK of LGUPVS01"
+  },
+  {
+   "name": "close-cursor-fails-other",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "sql_faults": [
+    {
+     "line": 365,
+     "nth": 1,
+     "sqlcode": -904,
+     "sqlstate": "57011"
+    }
+   ],
+   "why": "CLOSE POLICY_CURSOR answers -904: the OTHER arm, '90', WRITE-ERROR-MESSAGE, RETURN"
+  },
+  {
+   "name": "short-commarea-open-fails",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "commarea_length": 40,
+   "sql_faults": [
+    {
+     "line": 255,
+     "nth": 1,
+     "sqlcode": -904,
+     "sqlstate": "57011"
+    }
+   ],
+   "why": "a 40-byte COMMAREA (header and the customer and policy numbers): the entry reads nothing past byte 28 before OPEN fails, so WRITE-ERROR-MESSAGE copies the whole 40 bytes (IF EIBCALEN < 91 true)"
   }
  ],
  "notes": "GenApp's update-policy service (LGUPDB01, LINKed with the LGCMAREA COMMAREA): a cursor FOR UPDATE reads the customer's policy; if its LASTCHANGED is the one the request carries (optimistic locking), the type's table (ENDOWMENT / HOUSE / MOTOR) is UPDATEd, then the POLICY row through the cursor (WHERE CURRENT OF, LASTCHANGED = CURRENT TIMESTAMP), its new LASTCHANGED is read back into the COMMAREA, and LGUPVS01 is LINKed to rewrite the VSAM copy of the policy. The case runs LGUPVS01 in the same task. Not here: the paths on which LGUPVS01 fails (no such policy, a customer that does not own it, an unknown request id) LINK LGSTSQ, whose WRITEQ LENGTH runs past its FROM area -- bytes from whatever storage follows, which GnuCOBOL lays out unlike IBM's compiler (oracle_assumptions.md X6). POLICY.LASTCHANGED and CA-LASTCHANGED (CA-REQUEST-SPECIFIC(31:26): the COMMAREA is compared through its REDEFINESd area) are clock fields: a value the run wrote is compared as a timestamp, not by its digits. The COMMAREA is described by its caller LGUPOL01's record (COPY LGCMAREA): LGUPDB01's own comes through EXEC SQL INCLUDE."

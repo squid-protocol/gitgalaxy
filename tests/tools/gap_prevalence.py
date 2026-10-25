@@ -171,6 +171,39 @@ _CONSTRUCTS: tuple[tuple[str, str], ...] = (
     (r"^EXHIBIT NAMED", "EXHIBIT NAMED: only plain names and literals"),
     (r"^MOVE CORRESPONDING", "MOVE CORRESPONDING"),
 )
+# #5865 slice 5: the translator's own refusal texts (det/layout.py, expr.py, engine_layout.py, source.py) as name-free keys,
+# matched on the message after `refused: <Class>: `. Same closed-vocabulary rule; no match keeps the bare class.
+_REFUSALS: tuple[tuple[str, str], ...] = (
+    (r"^LayoutError: .*VALUE .*not modelled", "refused: LayoutError: VALUE not modelled"),
+    (r"^LayoutError: .*VALUE .*not a number", "refused: LayoutError: VALUE not a number"),
+    (r"^LayoutError: .*REDEFINES .*no 01 of that name", "refused: LayoutError: REDEFINES target not found"),
+    (r"^LayoutError: .*REDEFINES .*not a sibling", "refused: LayoutError: REDEFINES target not a sibling"),
+    (r"^LayoutError: .*has no 01 above it", "refused: LayoutError: level without an 01 above it"),
+    (r"^LayoutError: DATA DIVISION does not parse", "refused: LayoutError: DATA DIVISION does not parse"),
+    (r"^LayoutDisagrees: .*layout differs", "refused: LayoutDisagrees: layout differs from the engine's"),
+    (r"^LayoutDisagrees: .*do not pair", "refused: LayoutDisagrees: fields do not pair with the record's"),
+    (r"^LayoutDisagrees: .*record's width", "refused: LayoutDisagrees: record width unknown to the engine"),
+    (r"^UnitRefused: .*text after END PROGRAM", "refused: UnitRefused: text after END PROGRAM"),
+    (r"^UnitRefused: .*END PROGRAM .*closes no open", "refused: UnitRefused: END PROGRAM closes no open program"),
+    (r"^UnitRefused: .*no PROGRAM-ID", "refused: UnitRefused: no PROGRAM-ID (a member to be copied)"),
+    (r"^UnitRefused: .*is nested in", "refused: UnitRefused: nested program"),
+    (r"^UnitRefused: no program .* in the source", "refused: UnitRefused: requested program not in the source"),
+    (r"^ExprError: .*reference modification", "refused: ExprError: reference modification form"),
+    (r"^ExprError: .*NULL", "refused: ExprError: NULL compared with a non-pointer"),
+    (r"^ExprError: .*ADDRESS OF", "refused: ExprError: ADDRESS OF"),
+    (r"^ExprError: .*DFHRESP", "refused: ExprError: DFHRESP condition not documented"),
+    (r"^ExprError: .*DFHVALUE", "refused: ExprError: DFHVALUE CVDA not documented"),
+    (r"^ExprError: .*unbalanced parenthesis", "refused: ExprError: unbalanced parenthesis"),
+    (
+        r"^ExprError: .*(?:left over in|unexpected end of|missing operand)",
+        "refused: ExprError: expression does not parse",
+    ),
+    (r"^ExprError: .*(?:not a condition|not a relation)", "refused: ExprError: not a condition / relation"),
+    (r"^ExprError: .*not a data name", "refused: ExprError: not a data name"),
+    (r"^ExprError: ALL\b", "refused: ExprError: ALL form"),
+)
+
+
 # #5865 slice 4: the copybook family. IBM-supplied member prefixes -> the system whose copybook it is; a closed vocabulary,
 # so the key is the table's string and never the member name. Anything else is the estate's own.
 _COPYBOOK_FAMILIES: tuple[tuple[tuple[str, ...], str], ...] = (
@@ -210,6 +243,10 @@ def scrub_key(gap: str) -> str:
         return "grammar: does not parse" if "does not parse" in gap else "grammar: other"
     if m := re.match(r"refused: (macro-level CICS|CICS Assembler)$", gap):
         return gap
+    if gap.startswith("refused: "):
+        for pat, key in _REFUSALS:
+            if re.search(pat, gap[len("refused: ") :]):
+                return key
     if m := re.match(r"refused: ([A-Za-z]+)", gap):
         return f"refused: {m.group(1)}"
     if m := re.fullmatch(r"<name>: (no such item|undeclared item)", gap):

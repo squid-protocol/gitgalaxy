@@ -4583,8 +4583,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   output_char_date (CEEDATM, CEEDATE) are halfword-prefixed VSTRINGs in COBOL: the model writes the length then the
   text and touches nothing past it; a failing call writes a zero length and leaves the text. IBM says the output is
   blanks on error and cut to the output's length (CEE2526 / CEE2527) but states no COBOL layout for an output declared
-  `PIC X(n)`, as BANKDATA's `DATM-CONV` is (it reads `DATM-CONV(1:14)` only in a debug line). The Java side refuses an
-  output item shorter than the result (the C model is handed a bare pointer and cannot see the item's size), so 2526 / 2527 are never produced. `test_det_le_time.py` pins the Java side: for CEEDATE and CEEDATM an item one byte short of 2 + the result is refused, one of exactly that size is filled whole. A COBOL-side refusal is not possible in the oracle (GnuCOBOL passes no size to a CALLed C routine), so the census test (below) is what keeps a burned program from reaching it.
+  `PIC X(n)`, as BANKDATA's `DATM-CONV` is (it reads `DATM-CONV(1:14)` only in a debug line). Both sides refuse an
+  output item shorter than the result, so 2526 / 2527 are never produced. The Java side knows the item's size. The C model is handed a bare pointer (GnuCOBOL passes no size to a CALLed C routine), so the harness reads the program's DATA DIVISION (`tests/tools/le_out_size.py`) and gives the model `GG_LE_OUT_SIZES=CEEDATE=n,CEEDATM=n`; a result longer than the item is then refused by name (exit 98), the smallest resolved item of a service's calls counting. An item the harness cannot size exactly (COPY or LINKAGE member, REDEFINES, OCCURS, non-DISPLAY usage, subscript, a name declared twice) is left unchecked on the C side, and the census test (below) is what keeps a burned program from reaching it. `test_det_le_time.py` pins both sides: for CEEDATE and CEEDATM an item one byte short of 2 + the result is refused, one of exactly that size is filled whole, byte for byte equal across the two.
   (3) The milliseconds of a Lilian second are the fraction floored to a thousandth, so a value in `.9995` is `.999`;
   a seconds value is valid below 265 621 680 000. (4) CEESECS answers CEE2525 (picture mismatch) for a non-digit in
   a numeric position or a delimiter that differs from the picture's: IBM names the code, not its trigger. (5) A
@@ -4626,8 +4626,8 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   default)"). Not modelled because the default is IBM's locale table (a country code, which this model does not carry) and the oracle
   has no such table to prove it against, so a guessed picture could not be checked; no burned program omits a picture (next bullet). Settled for the burned estates (#5003 [c:51f133ad]): the refusal is the final state until a burned program omits a picture; the census test fails first when one does, and the default is then modelled with IBM's table and an oracle to check it.
 - **IBM references.** The pages above; CEELOCT's example (L5) and the symbolic feedback codes (L4).
-- **Not modelled, no burned program needs them (#5003).** CEEFMDA / CEEFMDT / CEEFMDV, null (default) pictures and CEE2526 / CEE2527
-  truncation (CEESECI and CEEDYWK are modelled, above). A sweep of the burned estates finds no call to any of them (CRECUST and CSUTLDTC call CEEDAYS, BANKDATA CEEGMT and
+- **Not modelled, no burned program needs them (#5003).** CEEFMDA / CEEFMDT / CEEFMDV and null (default) pictures; CEE2526 / CEE2527
+  truncation is refused on both sides (above) (CEESECI and CEEDYWK are modelled, above). A sweep of the burned estates finds no call to any of them (CRECUST and CSUTLDTC call CEEDAYS, BANKDATA CEEGMT and
   CEEDATM with a 14-byte picture and an 80-byte output), so there is nothing to prove; they stay refused by name (the CALL is a hole that names the service). `tests/cobol_mainframe/test_le_fmd_census_5003.py` pins the census: it fails when a burned source calls CEEFMDx, omits a picture, or writes an output shorter than the picture's result, and when the translator stops refusing CEEFMDx.
 
 ## Assembler routines

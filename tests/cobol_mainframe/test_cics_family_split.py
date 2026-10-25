@@ -3,7 +3,7 @@ stub translator equivalence_cics.py, the det translator det/cics.py) still runs 
 is spliced, included or dispatched to exactly once, and each command the spec names is implemented in its family's
 module, not left behind in the host file. Containers / channels (#4270, #4951, #5005) is the first family moved; file control is the second (stub and
 forge so far: the harness and det halves are still in their host files); task / interval control is the third (stub,
-det and forge; the harness half is still in its host file)."""
+det, forge and harness)."""
 
 from __future__ import annotations
 
@@ -23,6 +23,9 @@ from gitgalaxy.tools.cobol_to_java import cics_task_containers as tc  # noqa: E4
 from gitgalaxy.tools.cobol_to_java import cics_task_faults as tfl  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_taskcontrol as tt  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_tdqueues as tq  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_tsqueues as tsq  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_web as tw  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_conditions as CN  # noqa: E402
@@ -57,6 +60,7 @@ def test_ggcics_includes_its_families_once():
     host = (STUB / "ggcics.c").read_text(encoding="utf-8")
     family = (STUB / "ggcics_containers.c").read_text(encoding="utf-8")
     assert re.findall(r'^#include "(ggcics_\w+\.c)"', host, re.M) == [
+        "ggcics_faults.c",
         "ggcics_filecontrol.c",
         "ggcics_tempstorage.c",
         "ggcics_conditions.c",
@@ -65,6 +69,9 @@ def test_ggcics_includes_its_families_once():
         "ggcics_tempstorage.c",  # the second part: DELETEQ TS, where it sat
         "ggcics_taskcontrol.c",
         "ggcics_enq.c",
+        "ggcics_web.c",  # the web family, part 1
+        "ggcics_web.c",  # part 2: WEB RECEIVE SET, after the storage block
+        "ggcics_web.c",  # part 3: WEB RETRIEVE and the form / browse reads
     ]
     assert "#include" not in family  # one translation unit: the family sees everything ggcics.c declared before it
     for impl in FAMILY.values():
@@ -151,6 +158,19 @@ def test_the_det_translator_holds_the_task_control_methods_in_its_mixin():
     assert "pointer" in vars(C.Cics)  # shared with the other families: it stays the translator's own
 
 
+def test_cicstask_holds_the_ts_queue_java_once_where_it_sat():
+    """#5274: the TS queue family is spliced between the faults family and sendMap."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tsq.TSQUEUES_JAVA) == 1
+    a = java.index(tsq.TSQUEUES_JAVA)
+    assert java[:a].endswith(tfl.FAULTS_JAVA)
+    assert java[a + len(tsq.TSQUEUES_JAVA) :].startswith("    public void sendMap(String map, Object screen) {")
+    for method in ("withTempStorage", "writeqTs", "rewriteqTs", "readqTs", "readqTsNext"):
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tsq.TSQUEUES_JAVA), method
+    assert "public record TsResult(" in tsq.TSQUEUES_JAVA
+    assert "public static final class TempStorage" in tsq.TSQUEUES_JAVA
+
+
 def test_cicstask_holds_the_task_control_java_once_where_it_sat():
     java = forge.CICS_TASK_JAVA
     assert java.count(tt.TASKCONTROL_JAVA) == 1
@@ -160,6 +180,42 @@ def test_cicstask_holds_the_task_control_java_once_where_it_sat():
     for method in ("withStartData", "start", "startAt", "startRequest", "runTransid", "delay", "fetch", "freeChild",
                    "retrieve", "cancel", "post", "waitEvent"):  # fmt: skip
         assert re.search(rf"public \S+(?: \S+)? {method}\(", tt.TASKCONTROL_JAVA), method
+
+
+def test_cicstask_holds_the_td_queue_java_once_where_it_sat():
+    """#5274: the transient-data queue family is spliced between the web request part and the FORMATTIME code."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tq.TDQUEUES_JAVA) == 1
+    a = java.index(tq.TDQUEUES_JAVA)
+    assert java[:a].endswith(tw.WEB_REQUEST_JAVA)
+    assert java[a + len(tq.TDQUEUES_JAVA) :].startswith("    /** EXEC CICS FORMATTIME's condition")
+    for method in ("withTdQueues", "withTdQueueTypes", "withTdQueueAttributes", "setTdQueueOpenStatus", "inquireTdQueue",
+                   "setTdQueueTriggerLevel", "setTdQueueEnableStatus", "writeqTd", "readqTd", "deleteqTd"):  # fmt: skip
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tq.TDQUEUES_JAVA), method
+    assert "public record TdResult(" in tq.TDQUEUES_JAVA
+
+
+def test_cicstask_holds_the_web_java_once_per_part_where_it_sat():
+    """#5274: the web family is two parts, either side of the task-storage block, each spliced where it sat."""
+    java = forge.CICS_TASK_JAVA
+    for part in (tw.WEB_SESSION_JAVA, tw.WEB_REQUEST_JAVA):
+        assert java.count(part) == 1
+    a = java.index(tw.WEB_SESSION_JAVA)
+    b = java.index(tw.WEB_REQUEST_JAVA)
+    assert a + len(tw.WEB_SESSION_JAVA) < b
+    assert java[:a].endswith(
+        "        return new DocumentData(0, 0, doc.length, doc.clone());\n    }\n\n"
+    )  # DOCUMENT RETRIEVE
+    mid = java[a + len(tw.WEB_SESSION_JAVA) : b]
+    assert mid.startswith("    // ---- #4771 (register X47): storage CICS acquires") and "acquireReceived" in mid
+    assert "public WebOpened" not in mid and "public WebHeader" not in mid  # the storage block holds no web command
+    assert java[b + len(tw.WEB_REQUEST_JAVA) :].startswith("    /** The transient-data queues the CSD defines")
+    for method in ("webOpenHost", "webOpenUrimap", "webConverse", "webClose", "webSend", "webSendContainer",
+                   "webSendDocument", "webExtract", "extractTcpip", "webReceive"):  # fmt: skip
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tw.WEB_SESSION_JAVA), method
+    for method in ("webReadHeader", "webWriteHeader", "webRetrieve", "webReadParam", "webStartBrowse", "webReadNext",
+                   "webEndBrowse", "webParse"):  # fmt: skip
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tw.WEB_REQUEST_JAVA), method
 
 
 TASK_ENTRIES = ("GGCSTRT", "GGCRTRV", "GGCRUNT", "GGCCHLD", "GGCDLAY", "GGCPOST", "GGCWEVT", "GGCFETCH", "GGCFREE",
@@ -268,6 +324,26 @@ def test_ggcics_holds_the_condition_and_abend_handlers_in_its_family_file():
     )
 
 
+def test_ggcics_holds_the_fault_injection_in_its_family_file():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    family = (STUB / "ggcics_faults.c").read_text(encoding="utf-8")
+    assert "#include" not in family
+    for entry in ("GGCSQLAB",):
+        assert re.search(rf"^int {entry}\(", family, re.M), entry
+        assert not re.search(rf"^int {entry}\(", host, re.M), entry
+    for helper in ("injected_at", "dupkey_apply", "map_not_found"):
+        assert re.search(rf"^static \w+ {helper}\(", family, re.M), helper
+        assert not re.search(rf"^static \w+ {helper}\(", host, re.M), helper
+    for state in ("fault_counts", "fault_keys", "dupkey"):
+        assert state in family and not re.search(rf"^static .*\b{state}\b", host, re.M), state
+    # the include sits where the state did: after the spec header, before the file-control family that calls injected()
+    assert (
+        host.index('#include "ggcics_spec.h"')
+        < host.index('#include "ggcics_faults.c"')
+        < host.index('#include "ggcics_filecontrol.c"')
+    )
+
+
 def test_deleteq_ts_is_the_second_include_of_the_temporary_storage_family():
     host = (STUB / "ggcics.c").read_text(encoding="utf-8")
     family = (STUB / "ggcics_tempstorage.c").read_text(encoding="utf-8")
@@ -300,6 +376,27 @@ def test_the_harness_dispatches_temporary_storage_to_its_module():
     assert ec.ts_seed is ect.ts_seed and ec.java_ts_as_compared is ect.java_ts_as_compared
     for body, stub in (("WRITEQ TS QUEUE('Q') FROM(WS-REC)", "GGCWRTQ"), ("READQ TS QUEUE('Q') INTO(WS-REC)", "GGCREADQ"),
                        ("DELETEQ TS QUEUE('Q')", "GGCDELQ")):  # fmt: skip
+        assert any(stub in ln for ln in ec.translate_command(body)), body
+
+
+# ---- task / interval control (#5274, harness half): START / RETRIEVE / CANCEL, RUN, FETCH, FREE, DELAY, POST, WAIT, CONVERSE --
+def test_the_harness_dispatches_task_control_to_its_module():
+    import equivalence_cics_taskcontrol as ectc  # noqa: E402
+
+    names = ("_interval_command", "_run_transid", "_fetch_child", "_free_child", "_delay", "_post", "_wait_event",
+             "_converse", "_cobol_start", "_cobol_retrieve", "java_start_as_compared", "java_retrieve_as_compared")  # fmt: skip
+    for name in names:
+        assert callable(getattr(ectc, name)), name
+    for old in names[:-4] + ("_cobol_start",):
+        assert not hasattr(ec, old), old
+    assert ec.java_start_as_compared is ectc.java_start_as_compared
+    assert ec.java_retrieve_as_compared is ectc.java_retrieve_as_compared and ec._cobol_retrieve is ectc._cobol_retrieve
+    for body, stub in (("START TRANSID('ABCD') INTERVAL(10)", "GGCSTRT"), ("RETRIEVE INTO(WS-REC)", "GGCRTRV"),
+                       ("CANCEL REQID('R1')", "GGCCNCL"), ("RUN TRANSID('ABCD') CHILD(WS-TOK)", "GGCRUNT"),
+                       ("FETCH CHILD(WS-TOK)", "GGCFETCH"), ("FETCH ANY(WS-TOK)", "GGCFETCH"),
+                       ("FREE CHILD(WS-TOK)", "GGCFREE"), ("DELAY INTERVAL(5)", "GGCDLAY"),
+                       ("POST INTERVAL(5)", "GGCPOST"), ("WAIT EVENT ECADDR(WS-PTR)", "GGCWEVT"),
+                       ("CONVERSE FROM(WS-OUT) INTO(WS-IN)", "GGCCONV")):  # fmt: skip
         assert any(stub in ln for ln in ec.translate_command(body)), body
 
 
@@ -464,3 +561,102 @@ def test_the_abend_exit_check_is_one_shape_after_a_link_and_after_an_injected_fi
     ]
     src = Path(C.__file__).read_text(encoding="utf-8")
     assert src.count("self.abend_exit(ind)") == 2 and "task.abendExit()" not in src  # LINK and the file command
+
+
+# ---- faults (#5274, harness half): the scenario fault-injection planner, IBM's conditions and RESP2 per command -------
+def test_the_harness_dispatches_faults_to_its_module():
+    import equivalence_cics_faults as ecf  # noqa: E402
+
+    for name in ("fault_lines", "dli_fault_lines", "enq_fault_key", "FAULT_COMMANDS", "UI_FAULT_CONDITIONS",
+                 "FILE_FAULT_CONDITIONS", "LINK_REFUSED_CONDITIONS", "_file_fault_resp2", "_ui_fault_resp2",
+                 "_abend_fault_line"):  # fmt: skip
+        assert hasattr(ecf, name), name
+    for old in ("_file_fault_resp2", "_ui_fault_resp2", "_abend_fault_line", "_FAULT_NAME", "FILE_FAULT_REFUSED"):
+        assert not hasattr(ec, old), old
+    for name in ("fault_lines", "dli_fault_lines", "enq_fault_key", "FAULT_COMMANDS", "UI_FAULT_CONDITIONS",
+                 "FILE_FAULT_CONDITIONS", "LINK_REFUSED_CONDITIONS"):  # fmt: skip
+        assert getattr(ec, name) is getattr(ecf, name), name
+    assert "CICS_RESP" in vars(ec) and "CICS_RESP" not in vars(ecf)  # built from the host's DFHRESP: stays there
+
+
+def test_fault_lines_cover_each_planning_family():
+    plans = (
+        ({"cmd": "READ", "file": "F", "resp": "NOTFND"}, "READ F 1 13 80"),  # file control, IBM's RESP2
+        ({"cmd": "ROLLBACK", "resp": "INVREQ"}, "ROLLBACK - 1 16 200"),  # terminal / unit of work
+        ({"cmd": "ENQ", "resource": "ws-res ", "resp": "ENQBUSY"}, "ENQ WS-RES 1 55 0"),
+        ({"cmd": "READQ-TD", "queue": "Q", "resp": "IOERR"}, f"READQ-TD Q 1 {ec.CICS_RESP['IOERR']} 0"),
+        ({"cmd": "XCTL", "program": "P", "resp": "PGMIDERR", "resp2": 3}, "XCTL P 1 27 3"),
+        ({"cmd": "READ", "file": "F", "resp": "ABEND", "abcode": "AFCR"}, "READ F 1 -1 0 AFCR"),
+    )
+    for plan, line in plans:
+        assert ec.fault_lines({"name": "s", "faults": [plan]}) == [line], plan
+    assert ec.fault_lines({"name": "s", "sql_abend_plan": ["SQL P:1 1 -1 0 AD2Z"]}) == ["SQL P:1 1 -1 0 AD2Z"]
+    with pytest.raises(ec.Unsupported):
+        ec.fault_lines({"name": "s", "faults": [{"cmd": "DELETE", "file": "F", "resp": "DUPKEY"}]})  # register X48
+    assert ec.dli_fault_lines({"ims": {}}, {"name": "s"}) == []
+    assert any("GGCENQ" in ln for ln in ec.translate_command("ENQ RESOURCE(WS-RES)"))
+
+
+# ---- web (#5274, harness half): the HTTP scenario inputs, the WEB / EXTRACT TCPIP translators, the web event readers ----
+def test_the_harness_dispatches_web_to_its_module():
+    import equivalence_cics_web as ecw  # noqa: E402
+
+    moved = ("_web_requires", "_web_parse", "_web_send", "_web_extract", "_extract_tcpip", "_web_receive", "_web_retrieve",
+             "_web_header", "_web_forms", "_web", "_WEB_KIND", "_cobol_web", "_cobol_web_open", "_cobol_web_send",
+             "_cobol_web_header", "_cobol_web_receive", "http_peers", "http_peers_cfg", "http_request",
+             "http_request_cfg", "tcpip", "tcpip_cfg")  # fmt: skip
+    for name in moved:
+        assert hasattr(ecw, name), name
+    for old in moved[:11]:  # the translators left the host (the event readers stay reachable as aliases)
+        assert not hasattr(ec, old), old
+    for name in ("http_peers", "http_peers_cfg", "http_request", "http_request_cfg", "tcpip", "tcpip_cfg",
+                 "_cobol_web", "_cobol_web_open", "_cobol_web_send", "_cobol_web_header"):  # fmt: skip
+        assert getattr(ec, name) is getattr(ecw, name), name
+    for shared in ("_pointer", "_getmain", "_freemain", "_address", "mapsets_env", "doctemplates"):
+        assert hasattr(ec, shared) and not hasattr(ecw, shared), shared  # not web: they stay in the host
+
+
+def test_the_web_translators_reach_the_hosts_helpers_and_refuse_by_name():
+    lines = ec.translate_command(
+        "WEB CONVERSE SESSTOKEN(WS-TOK) PATH(WS-PATH) PATHLENGTH(WS-PL) METHOD(WS-M) INTO(WS-IN)"
+    )
+    assert any("GGCWCNV" in ln for ln in lines)  # the host's _call / _resp, reached through `ec.`
+    with pytest.raises(ec.Unsupported, match="WEB CONVERSE without METHOD"):
+        ec.translate_command("WEB CONVERSE SESSTOKEN(WS-TOK) INTO(WS-IN)")
+
+
+# ---- web (#5274, slice 2 of the stub): WEB *, EXTRACT TCPIP -- three guarded parts around the storage block ------------
+WEB_ENTRIES = ("GGCWOPN", "GGCWCNV", "GGCWCLS", "GGCWPRS", "GGCWSND", "GGCWSDC", "GGCWSCT", "GGCWEXT", "GGCTCPX",
+               "GGCTCPN", "GGCWRCV", "GGCWRDH", "GGCWWRH", "GGCWRCS", "GGCWRTV", "GGCWRDP", "GGCWSBR", "GGCWRNX",
+               "GGCWEBR")  # fmt: skip
+
+
+def test_ggcics_holds_the_web_stubs_in_its_family_file():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    family = (STUB / "ggcics_web.c").read_text(encoding="utf-8")
+    assert "#include" not in family
+    for entry in WEB_ENTRIES:
+        assert re.search(rf"^int {entry}\(", family, re.M), entry
+        assert not re.search(rf"^int {entry}\(", host, re.M), entry
+    # the document and file-control WRITE stubs are not web: they stay in the host
+    assert re.search(r"^int GGCWTO\(", host, re.M) and re.search(r"^int GGCWRIT\(", host, re.M)
+    # every spec command that dispatches to a web or TCPIP stub has it in the family file
+    for key, cmd in COMMANDS.items():
+        if (
+            cmd.impl
+            and cmd.impl.c
+            and re.match(r"GGC(W|TCP)", cmd.impl.c)
+            and cmd.impl.c not in ("GGCWTO", "GGCWRIT", "GGCWEVT")
+        ):
+            assert re.search(rf"^int {cmd.impl.c}\(", family, re.M), key
+
+
+def test_the_web_parts_are_included_around_the_storage_block():
+    host = (STUB / "ggcics.c").read_text(encoding="utf-8")
+    at = [m.start() for m in re.finditer(r'^#include "ggcics_web\.c"', host, re.M)]
+    assert len(at) == 3
+    assert host.index("int GGCEND(") < at[0] < host.index("enum { BLK_GETMAIN") < at[1] < host.index("int GGCRECP(")
+    assert host.index("int GGCGETS(") < at[2]
+    assert host.index("#define GGCICS_WEB_PART2") < at[1] < host.index("#undef GGCICS_WEB_PART2")
+    assert host.index("#define GGCICS_WEB_PART3") < at[2] < host.index("#undef GGCICS_WEB_PART3")
+    assert host.index("int GGCADDR(") < at[1]  # WEB RECEIVE SET needs blk_set_new, defined before it

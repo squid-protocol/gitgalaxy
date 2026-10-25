@@ -97,7 +97,8 @@ def write_case(case: str, entries: list[dict[str, Any]], directory: Path | None 
 
 
 def stated(case: str, path: Path = LEDGER) -> list[dict[str, Any]]:
-    """The case's infeasible outcomes, each {unit, line, kind, outcome, family, reason, key}: for a report that shows
+    """The case's infeasible outcomes, each {unit, line, kind, outcome, family, reason, key} (a PARAGRAPH entry may have
+    no `line`; test `is_paragraph` before reading it): for a report that shows
     them as stated assumptions of the proof (tests/tools/evidence_report.py)."""
     return [dict(e, key=key(e)) for e in load(path).get(case, [])]
 

@@ -76,65 +76,56 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Emits the matrix for this checkpoint. A tag push gets the full
-  # grid; a PR label gets the trimmed grid described in the header comment.
+  # #5919, #5156: the legs (parts, `even`, timeout, step_timeout) come from the measured durations
+  # (suite_shard_plan.py --gate over the committed .test_durations), not from YAML: the suite grows every day. Every
+  # trigger runs the same grid (since 3.10 was dropped, #3322, the trimmed and untrimmed grids were equal), so
+  # `full_matrix=true` only keeps the ubuntu / 3.12 leg on a main dispatch. The queue depth is read on a pull request or manual run only (empty = calm).
+  # A plan that fails (no durations) fails this job, so no leg starts.
   matrix:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read  # the queued PR jobs (ci_layout.py --print-waiting)
     outputs:
       include: ${{ steps.pick.outputs.include }}
     steps:
-      - name: Pick matrix for this trigger
+      - name: Check out the planner
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: |
+            tests/tools/suite_shard_plan.py
+            tests/tools/ci_shard_plan.py
+            tests/tools/ci_layout.py
+            tests/tools/post_merge_dispatch.py
+            .test_durations
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Plan the legs for this trigger
         id: pick
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          FULL_MATRIX: ${{ inputs.full_matrix }}
         run: |
-          if [ "${{ github.event_name }}" = "push" ] || [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.full_matrix }}" = "true" ]; then
-            # Release tag, or a manual run that asked for it: every supported
-            # environment, untrimmed.
-            include='[
-              {"os":"ubuntu-latest","python-version":"3.11","part":1,"splits":2,"timeout":20,"step_timeout":17},
-              {"os":"ubuntu-latest","python-version":"3.11","part":2,"splits":2,"timeout":20,"step_timeout":17},
-              {"os":"ubuntu-latest","python-version":"3.12","part":1,"splits":2,"timeout":20,"step_timeout":17},
-              {"os":"ubuntu-latest","python-version":"3.12","part":2,"splits":2,"timeout":20,"step_timeout":17},
-              {"os":"windows-latest","python-version":"3.11","part":1,"splits":3,"even":true,"timeout":27,"step_timeout":24},
-              {"os":"windows-latest","python-version":"3.11","part":2,"splits":3,"even":true,"timeout":27,"step_timeout":24},
-              {"os":"windows-latest","python-version":"3.11","part":3,"splits":3,"even":true,"timeout":27,"step_timeout":24},
-              {"os":"windows-latest","python-version":"3.12","part":1,"splits":2,"even":true,"timeout":25,"step_timeout":22},
-              {"os":"windows-latest","python-version":"3.12","part":2,"splits":2,"even":true,"timeout":25,"step_timeout":22},
-              {"os":"macos-latest","python-version":"3.11","part":1,"splits":2,"timeout":26,"step_timeout":23},
-              {"os":"macos-latest","python-version":"3.11","part":2,"splits":2,"timeout":26,"step_timeout":23},
-              {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":26,"step_timeout":23},
-              {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":26,"step_timeout":23}
-            ]'
-          else
-            # plain manual re-run: since 3.10 was dropped (#3322) the supported
-            # Pythons are just floor (3.11) + ceiling (3.12), so this equals the
-            # untrimmed grid above.
-            include='[
-              {"os":"ubuntu-latest","python-version":"3.11","part":1,"splits":2,"timeout":20,"step_timeout":17},
-              {"os":"ubuntu-latest","python-version":"3.11","part":2,"splits":2,"timeout":20,"step_timeout":17},
-              {"os":"ubuntu-latest","python-version":"3.12","part":1,"splits":2,"timeout":20,"step_timeout":17},
-              {"os":"ubuntu-latest","python-version":"3.12","part":2,"splits":2,"timeout":20,"step_timeout":17},
-              {"os":"windows-latest","python-version":"3.11","part":1,"splits":3,"even":true,"timeout":27,"step_timeout":24},
-              {"os":"windows-latest","python-version":"3.11","part":2,"splits":3,"even":true,"timeout":27,"step_timeout":24},
-              {"os":"windows-latest","python-version":"3.11","part":3,"splits":3,"even":true,"timeout":27,"step_timeout":24},
-              {"os":"windows-latest","python-version":"3.12","part":1,"splits":2,"even":true,"timeout":25,"step_timeout":22},
-              {"os":"windows-latest","python-version":"3.12","part":2,"splits":2,"even":true,"timeout":25,"step_timeout":22},
-              {"os":"macos-latest","python-version":"3.11","part":1,"splits":2,"timeout":26,"step_timeout":23},
-              {"os":"macos-latest","python-version":"3.11","part":2,"splits":2,"timeout":26,"step_timeout":23},
-              {"os":"macos-latest","python-version":"3.12","part":1,"splits":2,"timeout":26,"step_timeout":23},
-              {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":26,"step_timeout":23}
-            ]'
+          waiting=""
+          if [ "$GITHUB_EVENT_NAME" != "push" ] && [ "$GITHUB_EVENT_NAME" != "schedule" ]; then waiting=$(python3 tests/tools/ci_layout.py --print-waiting || true); fi
+          python3 tests/tools/suite_shard_plan.py --gate ${waiting:+--waiting "$waiting"} | tee plan.out
+          include=$(sed -n 's/^matrix=//p' plan.out)
+          # #5953: smoke-test.yml runs the same suite on ubuntu / 3.12 nightly and on every main push (the gate leg only adds
+          # test_evidence_components, run by mainframe-ground-truth.yml): the nightly and post-merge (main) dispatch drop that leg
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ] || { [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$GITHUB_REF" = "refs/heads/main" ] && [ "$FULL_MATRIX" != "true" ]; }; then
+            include=$(echo "$include" | jq -c 'map(select(.os != "ubuntu-latest" or .["python-version"] != "3.12"))')
           fi
-          echo "include=$(echo "$include" | tr -d '\n ')" >> "$GITHUB_OUTPUT"
+          echo "include=$include" >> "$GITHUB_OUTPUT"
 
   full-suite-matrix:
     needs: matrix
     runs-on: ${{ matrix.os }}
-    # #4903, #5152: ~1.5x each leg's measured time. Unsharded legs outgrew their caps (2026-10-14: ubuntu ~28-30 min, windows 3.12
-    # 33, macOS ~29, all cancelled/killed at 30/35/28), so every leg now runs in 2 parts. A leg that sets "timeout" overrides the default.
-    # 2026-10-20: windows 3.11 parts took 22-25 min of a 33-min cap (#5764) -> 3 parts (~17-18 min each with setup, cap 27); macOS parts
-    # up to 16.7 min -> cap 26 (was 22).
+    # #5919: the leg count and its timeout come from the plan job (measured durations x a per-OS slowdown), not from YAML.
+    # The `|| 30` is only the fallback for a leg that carries no timeout.
     timeout-minutes: ${{ matrix.timeout || 30 }}
     env:
       PYTHONUTF8: "1"
@@ -191,8 +182,7 @@ jobs:
             tree-sitter-${{ runner.os }}-
 
       # Sharding (pytest-split over the committed .test_durations, like smoke-test.yml's full-suite parts, #4836): a leg
-      # with "part"/"splits" runs one duration-balanced group. Windows and macOS are 2 parts each (#4903: Windows was
-      # 29-41 min as one leg). The Python 3.10 legs are gone (#3322).
+      # with a part and a splits count runs one duration-balanced group. The plan job sizes each leg (#5919). The Python 3.10 legs are gone (#3322).
       - name: Full Suite (${{ matrix.os }}, Python ${{ matrix.python-version }})
         shell: bash
         # #5764: a stall outside any test (--timeout never fires) failed as a job-level "cancelled" with its log lost; a step

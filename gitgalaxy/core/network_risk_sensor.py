@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from gitgalaxy.core.copy_libraries import CopyLibraries, MemberIndex
+from gitgalaxy.core.go_modules import GoModules
 from gitgalaxy.core.graph_engine import (
     GraphIndex,
     WorkBudget,
@@ -113,6 +114,10 @@ _MODULE_TREE_OWNERS = frozenset({"mod.rs", "lib.rs", "main.rs", "build.rs"})
 # #4544: the languages whose import paths core/rust_modules.py resolves.
 MODULE_TREE_LANGS = frozenset(
     lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("imports_follow_module_tree")
+)
+# #3798: the languages whose import paths core/go_modules.py resolves.
+GO_MODULE_LANGS = frozenset(
+    lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("imports_follow_go_modules")
 )
 _CRATE_ROOT_DIRS = frozenset({"tests", "examples", "benches"})
 
@@ -227,6 +232,8 @@ class NetworkRiskSensor:
         self._dir_tails: set[str] | None = None
         # #4544: the Rust module resolver of the latest _build_resolution_map, or None.
         self._rust: RustModules | None = None
+        # #3798: the Go module resolver of the latest _build_resolution_map, or None.
+        self._go: GoModules | None = None
         # #3665: the scanned directory, when the caller has one (galaxyscope sets
         # it). Only used to tell two same-named candidates apart as ONE file: a
         # symlinked header (`include/X.h -> ../Core/X.h`) is scanned at both paths.
@@ -285,6 +292,12 @@ class NetworkRiskSensor:
         self._rust = (
             RustModules(files, self._by_norm_path, self.root)
             if any(str(f.get("lang_id", "")).lower() in MODULE_TREE_LANGS for f in files)
+            else None
+        )
+        # #3798: Go import paths resolve by go.mod (core/go_modules.py).
+        self._go = (
+            GoModules(files, self._by_norm_path, self.root)
+            if any(str(f.get("lang_id", "")).lower() in GO_MODULE_LANGS for f in files)
             else None
         )
         return resolution_map
@@ -374,6 +387,11 @@ class NetworkRiskSensor:
         and five false edges appeared. A target in `NON_IMPORTABLE_LANGS` is accepted only
         when the token spells that file's own extension (`require("./data.json")`, `source
         ci.yml`), which is a positive statement that a data file is meant."""
+        if src_lang == "swift" and "." not in target_token and "/" not in target_token:
+            # #3798 (import contract C7): `import Foundation` names a module, which has no file of
+            # its own; the stem search would hand it a local `Foundation.swift`. `import struct
+            # Mod.Name` carries a dot and still resolves.
+            return None
         hit = self._resolve_target_unguarded(
             target_token, resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts
         )
@@ -453,6 +471,10 @@ class NetworkRiskSensor:
                 here = posixpath.dirname(curr_path.replace("\\", "/"))
                 return self._by_norm_path.get(posixpath.normpath(posixpath.join(here, target_token)))
             return self._rust.resolve(target_token, curr_path) if self._rust is not None else None
+
+        # #3798: a Go import path is a module path: stdlib / external draw no edge.
+        if src_def.get("imports_follow_go_modules"):
+            return self._go.resolve(target_token) if self._go is not None else None
 
         # #3597: Dart `package:name/path.dart` is <name>/lib/path.dart, found as a
         # path tail; any other scheme (`dart:io`) is the SDK.

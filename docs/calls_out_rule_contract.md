@@ -68,6 +68,10 @@ constructor call. Rust's own pattern (`CALLS_OUT_RUST`, #3643) drops a capitalis
 one-line argument list is followed by `=>`, a pattern `|`, a binding `=` or a guard `if`; it also
 takes macros (`format!(`, `vec![`) and turbofish calls (`collect::<Vec<_>>()`). A closure-trait bound
 (`F: Fn(&T)`, `impl FnOnce(u8)`) is a type, and `Fn`/`FnMut`/`FnOnce` are in rust's keyword set (C2).
+The pattern operand of `matches!` / `assert_matches!` / `debug_assert_matches!` (`matches!(x, A(_) | B(..))`)
+is a pattern too, though its last alternative is followed by the macro's `)`: rust's `_calls_out_masked_blocks`
+blanks it (its `mask` group, #6454). The macro name, a guard's calls and a first operand's calls stay; a
+`matches!` whose first operand holds a call is not masked (a known gap).
 
 **C4 · A transfer is not a call.** An unconditional jump that does not return (`goto`, COBOL
 `GO TO`, assembly `jmp`, AGC `TC Q` used as a return) is not an invocation. The branch contract
@@ -157,7 +161,7 @@ fixed it: the census below predates that fix.
 | glsl | C-style | 0 | 0 | no functions sliced on the crucible (no evidence) |
 | go | C-style | 897 | 4,732 | K: `func` literal (436); conversions `uint32(x)` are calls (C3) |
 | groovy | C-style | 745 | 1,760 | A: `@Issue(` etc. (71) |
-| haskell | own | 147 | 281 | own juxtaposition rule; captures lambda/pattern variables (`x`, `m`, `f`) -- R (recall/precision gap, ledgered #3264) |
+| haskell | own | 147 | 281 | own juxtaposition rule (#6454: `f x`, `f (g x)`, `Just x`, signatures masked, `return`/`try`/`catch`/`finally` are calls); `f $ x` / `f $! x` / `withObject "k" $ ...` heads are calls and a definition's left side (`f (Foo a) = ...`, `let g x = ...`) is masked; still misses calls past a `#ifdef` span cut and attributes where-bound bodies to the parent -- R (ledgered #3264) |
 | hlasm | own | 1 | 0 | agrees (`=V()` only; system macros a ledgered recall gap) |
 | hlo | own | 0 | 0 | agrees (`calls=`/`to_apply=`); no functions sliced |
 | html | blind | -- | -- | agrees (C7: declared blind) |
@@ -176,7 +180,7 @@ fixed it: the census below predates that fix.
 | nix | blind | -- | -- | agrees (C7: declared blind) |
 | objective-c | own | 156 | 269 | own rule: unary selectors are a ledgered recall gap; agrees otherwise |
 | pbtxt | blind | -- | -- | agrees (C7: declared blind) |
-| perl | C-style | 886 | 2,580 | K: `qw(` 30, `and`/`or`/`do`/`until` |
+| perl | C-style | 886 | 2,580 | K: `qw(` 30, `and`/`or`/`do`/`until`; `die` is a call (#6433), `or`/`and` are anchors, not callees |
 | php | C-style | 1,703 | 7,104 | K: `foreach` 237, `isset` 209, `empty` 152, `elseif` 114, `array` 111, `unset` 78, `use` 44, `fn` 44, `match`, `die` |
 | plaintext | blind | -- | -- | agrees (C7: declared blind) |
 | pli | CALL verb | 7 | 6 | agrees (CALL) |
@@ -198,7 +202,7 @@ fixed it: the census below predates that fix.
 | xml | blind | -- | -- | agrees (C7: declared blind) |
 | yacc | C-style | 27 | 89 | agrees (C actions) |
 | yaml | blind | -- | -- | agrees (C7: declared blind) |
-| zig | C-style | 3,525 | 19,370 | D (nested `fn`, 296); K: `and (`/`or (`, `union(enum)`; `@builtin(` are calls (C2) |
+| zig | C-style | 3,525 | 19,370 | D (nested `fn`, 296); K: `and (`/`or (`, `union(enum)`; `@builtin(` are calls (C2); a `\\` multiline-string line is shielded whole (#6435) |
 
 Summary: 37 of 65 languages agree outside the global **B**. The rest are **K** (19), **A** (6),
 **D** (8), **S** (1: tcl), **G** (1: cobol), **I** (1: matlab) and **R** (1: haskell). Every

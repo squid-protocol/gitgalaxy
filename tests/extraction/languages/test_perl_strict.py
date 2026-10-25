@@ -663,3 +663,29 @@ sub my_func {
 
     payload = "my " + (" " * 10000) + "("
     assert_redos_immune(calls_out, payload)
+
+
+def test_perl_foreach_loop_variable_is_not_a_call():
+    """#6434: a sigil-prefixed loop variable followed by `(` is not a callee."""
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    perl = LANGUAGE_DEFINITIONS["perl"]
+    loops = [
+        "foreach my $arg ( @args ) { }",
+        "foreach my $arg (@args) { }",
+        "for my $arg (1..3) { }",
+        "foreach our $arg (@l) { }",
+        "foreach local $arg (@l) { }",
+        "for state $arg (@l) { }",
+        "foreach $arg (@l) { }",
+        "for $arg (@l) { }",
+        "foreach my $arg (sort keys %h) { }",
+    ]
+    for loop in loops:
+        code = f"sub f {{\n    {loop}\n    real_call($x);\n    Pkg::other(1);\n    $o->meth(2);\n}}\n"
+        res = StructuralExtractor("perl", {"perl": perl}).splice(code, "")
+        calls = res["functions"][0]["calls_out_to"]
+        assert "arg" not in calls, loop
+        for kept in ("real_call", "other", "meth"):
+            assert kept in calls, (loop, kept)

@@ -337,7 +337,7 @@ def test_monorepo_contextual_alias_resolution(caplog):
     assert "'lodash' -> 'malicious-core'" in caplog.text, "Failed to traverse upwards to authoritative manifest!"
 
 
-def _run_firewall_audit_with_absolute_path(result_queue):
+def _run_firewall_audit_with_absolute_path(result_queue, started):
     """
     Multiprocessing target for test_absolute_path_does_not_infinite_loop_
     in_alias_resolution below. Rebuilds everything inside the child
@@ -350,6 +350,7 @@ def _run_firewall_audit_with_absolute_path(result_queue):
     mock_ram_graph = [
         {"path": "/opt/app/src/main.py", "raw_imports": ["lodash"], "equations": {}, "coding_loc": 10},
     ]
+    started.set()  # imports and config are done: the parent's hang bound starts here
     result = fm.run_firewall_audit(mock_ram_graph, alias_map={}, config=config)
     result_queue.put(result["imports_unknown"])
 
@@ -373,8 +374,15 @@ def test_absolute_path_does_not_infinite_loop_in_alias_resolution():
     """
     ctx = multiprocessing.get_context("spawn")
     result_queue = ctx.Queue()
-    p = ctx.Process(target=_run_firewall_audit_with_absolute_path, args=(result_queue,))
+    started = ctx.Event()
+    p = ctx.Process(target=_run_firewall_audit_with_absolute_path, args=(result_queue, started))
     p.start()
+    # The 10 s bound is for the audit, not interpreter start-up: a spawned child on a loaded Windows
+    # runner can spend that long importing before it runs anything (#6584, same as #4494).
+    if not started.wait(120):
+        p.terminate()
+        p.join()
+        raise AssertionError("the firewall child process never finished start-up")
     p.join(timeout=10)
 
     if p.is_alive():

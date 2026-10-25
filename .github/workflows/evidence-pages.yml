@@ -113,5 +113,5 @@ jobs:
           fi
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
             commit -q -m "evidence pages as of main $GITHUB_SHA"
-          git push -q origin HEAD:generated
+          python ../main/tests/tools/generated_branch.py push-head --root .  # #6563: another writer may have pushed since the fetch
           echo "published $(ls docs/language_status/evidence | wc -l) pages from main $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"

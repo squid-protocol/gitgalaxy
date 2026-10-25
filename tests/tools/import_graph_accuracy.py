@@ -87,10 +87,14 @@ RESOLUTION RULES (the language's, never the engine's)
               crate-relative. A path is the deepest module that is a file
               (a/b.rs, a/b/mod.rs under the crate dir), plus, for an item below it,
               what that module's own `use`s of the name and globs mean (re-exports,
-              two hops). `extern crate x` -> x's lib root.
+              two hops). `extern crate x` -> x's lib root. A `[[bin]] path` is a crate
+              root like src/main.rs (ripgrep's crates/core/main.rs).
   perl        `use A::B` / `require A::B` -> a file ending in A/B.pm.
   objective-c the C rule (`#import` is `#include` once); `@import Module;` is a
-              framework module, external.
+              framework module, external. `<Fw/X.h>` with no such path in the repo, where Fw is a
+              framework the repo builds (a `Fw.xcodeproj`, a `Fw.podspec`, a podspec's
+              `header_dir` / `module_name`), is the files ending in X.h: the framework's headers
+              are flattened (Objective-C++ `.mm` files included, same rule).
   dart        `package:p/x.dart` -> <p's pubspec.yaml directory>/lib/x.dart for a
               package in the repo, else external; `dart:` is the SDK; any other
               URI (import, export, part, part of) is relative to the file.
@@ -108,6 +112,52 @@ RESOLUTION RULES (the language's, never the engine's)
   solidity    `./`/`../` relative to the file; `@scope/pkg/x.sol` through a
               package.json in the repo named @scope/pkg (npm remapping); else
               from the project root; otherwise a dependency.
+
+  powershell  `Import-Module p` / `using module p` / `. p.ps1`: `$PSScriptRoot` and a plain relative
+              path resolve against the file, a path behind another variable keeps its literal tail
+              (suffix match), a bare name is a module (Name.psm1 / Name.psd1 anywhere). `using
+              namespace|assembly` names no file; a `. $f` is dynamic.
+  tcl         `source p`: a literal path against the file, else its literal tail by suffix
+              (`[file join $d a b.tcl]` -> a/b.tcl); a fully dynamic path is not scored.
+              `package require X`: the files that `package provide X` (or a `X-1.0.tm` module).
+
+  csharp      by NAMESPACE and NAME, never by path (a .cs file's directory means nothing):
+              `using A.B;` names a namespace (block or file-scoped declaration), which has
+              no file of its own: import contract C7, so no edge, never one per declaring
+              file; `using static A.B.C;` the files declaring type C in A.B (a nested type
+              falls back to its owner); `using X = A.B.C;` the same when C is a type;
+              `global using` alike. `#if` / `#region` bodies are read, every branch. A using inside `namespace N { }` is also tried under each
+              enclosing namespace of N. A namespace nothing in the repo declares (System.*) is external.
+
+  swift       by MODULE and NAME, never by path: `import Mod` (also `@testable`, `@_exported`,
+              `public import`) names a SwiftPM target, which has no file of its own: import
+              contract C7, so no edge. `import struct|class|enum|protocol|typealias|func|var|let
+              Mod.Name` the files in target Mod's directory declaring Name (a nested name falls
+              back to its owner; an extension counts as a declaration). Targets and their
+              directories come from Package.swift, read by pattern (it is code): `path:` else
+              Sources/<Name>, Tests/<Name> (testTarget), Plugins/<Name> (plugin). `#if` bodies
+              are read, every branch. A module no target names (Foundation, WinSDK) is external.
+
+  groovy      by PACKAGE and NAME, never by path (as Kotlin / Scala): `import a.b.C`, `import a.b.C as D`
+              and `import static a.b.C.m` the files declaring C in a.b (a nested or member name falls
+              back to its owner); `import a.b.*` names a package: import contract C7, so no edge;
+              `import static a.b.C.*` is C's file. Read by pattern on text with comments and strings
+              blanked (the tree-sitter grammar parses `import` as a generic command and breaks on
+              `a.b.*` followed by another import). A script file with no class declares its file stem.
+              A Java class is found by Java's rule (a/b/C.java); java.* / groovy.* are external.
+
+  fortran     by MODULE NAME, never by path: `use m`, `use m, only: x` and `use :: m` are the files
+              declaring `module m` (case-insensitive; a name two files declare is both). `use,
+              intrinsic :: m` is the standard's module, no edge. `module procedure/subroutine/
+              function` are not module declarations; `submodule (p) s` declares no usable name.
+              `include 'f'` / `#include "f"` are the file by path suffix. Comments
+              blanked first (`!` to end of line; fixed-form `c`/`*` in column 1).
+
+  matlab      by PACKAGE and NAME, never by path: `+a/+b/C.m` is `a.b.C` (a class or package function),
+              `@C/C.m` is class C. `import a.b.C` is that file (`import C.m` a member: the owner's
+              file); `import a.b.*` names a package: contract C7, no edge, unless a.b is a class (its
+              static members: the class file). Several arguments on one line are each scored.
+              `%` and `%{ %}` comments blanked. matlab.* / java.* / org.* match no file: external.
 
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
@@ -159,7 +209,8 @@ BASELINE = REPO_ROOT / "tests" / "import_graph_accuracy_baseline.json"
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import graph_ledger as gl  # noqa: E402
 
-from gitgalaxy.core.source_text import read_source
+from gitgalaxy.core.graph_engine import GraphIndex, pagerank
+from gitgalaxy.core.source_text import decode_bytes, read_source
 
 LANGS = (
     "python",
@@ -182,6 +233,13 @@ LANGS = (
     "haskell",
     "shell",
     "solidity",
+    "csharp",
+    "swift",
+    "powershell",
+    "tcl",
+    "groovy",
+    "fortran",
+    "matlab",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -391,10 +449,41 @@ def c_imports(lang: str) -> Callable[[bytes, str, Group], list[set[str]]]:
                     local = group.exact(posixpath.join(posixpath.dirname(rel), spec))
                     out.append(local or group.suffix(spec))
                 elif c.type == "system_lib_string":
-                    out.append(group.suffix(_text(c, src).strip("<> ")))
+                    spec = _text(c, src).strip("<> ")
+                    found = group.suffix(spec)
+                    if not found and lang == "objc":
+                        found = _objc_framework_header(spec, group)
+                    out.append(found)
         return out
 
     return imports
+
+
+def _objc_frameworks(group: Group) -> set[str]:
+    """Framework names the repo itself builds: `Name.xcodeproj`, `Name.podspec`, a podspec's header_dir / module_name."""
+    if "objc_fw" not in group._cache:
+        names: set[str] = set()
+        for f in group.files:
+            stem, ext = posixpath.splitext(posixpath.basename(f))
+            if ext == ".podspec" and group.root is not None:
+                names.add(stem)
+                text = read_source(group.root / f).text
+                names.update(
+                    m.group(1) for m in re.finditer(r"\b(?:header_dir|module_name)\s*=\s*['\"]([^'\"]+)['\"]", text)
+                )
+        for d in group.by_dir:
+            for part in d.split("/"):
+                if part.endswith(".xcodeproj"):
+                    names.add(part[: -len(".xcodeproj")])
+        group._cache["objc_fw"] = names
+    return group._cache["objc_fw"]
+
+
+def _objc_framework_header(spec: str, group: Group) -> set[str]:
+    """`<Fw/X.h>` where Fw is a framework this repo builds: its headers are flattened into the framework, so X.h is
+    found by its own path tail wherever the source tree keeps it (a CocoaPods header_dir or an Xcode header map)."""
+    fw, _, rest = spec.partition("/")
+    return group.suffix(rest) if rest and fw in _objc_frameworks(group) else set()
 
 
 def java_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
@@ -647,7 +736,7 @@ def _cargo(group: Group, d: str) -> dict[str, Any] | None:
     out: dict[str, Any] | None = None
     path = (group.root / d / "Cargo.toml") if group.root is not None else None
     if path is not None and path.is_file():
-        out = {"package": None, "edition": False, "lib": "src/lib.rs", "deps": {}, "ws_deps": {}, "inherit": set()}
+        out = {"package": None, "edition": False, "lib": "src/lib.rs", "deps": {}, "ws_deps": {}, "inherit": set(), "bins": []}
         section = ""
         try:
             text = read_source(path).text
@@ -663,6 +752,8 @@ def _cargo(group: Group, d: str) -> dict[str, Any] | None:
                 out["package"] = kv.group(2)
             if section == "package" and line.strip().startswith("edition"):
                 out["edition"] = True
+            if section == "bin" and kv and kv.group(1) == "path":
+                out["bins"].append(posixpath.normpath(posixpath.join(d, kv.group(2))))
             if section == "lib" and kv and kv.group(1) in ("name", "path"):
                 out["lib_" + kv.group(1)] = kv.group(2)
             dep = _CARGO_DEP_PATH.match(line)
@@ -717,10 +808,11 @@ def _rust_crate(rel: str, group: Group) -> tuple[str, str | None]:
             return join(parts[0], parts[1]), join(parts[0], parts[1], "main.rs")
         return join(parts[0]), None
     lib = join(_cargo(group, pkg)["lib"])
-    for root in (lib, join("src", "main.rs"), join("build.rs")):
+    bins = _cargo(group, pkg)["bins"]
+    for root in (lib, join("src", "main.rs"), join("build.rs"), *bins):
         if root == rel:
             return d, rel
-    for root in (lib, join("src", "main.rs")):
+    for root in (lib, join("src", "main.rs"), *bins):
         rd = posixpath.dirname(root)
         if root in group.files and (not rd or rel.startswith(rd + "/")):
             return rd, root
@@ -1022,6 +1114,18 @@ def _index_members(
         _index_members(body.children, pkg_of_block, f, src, by_name, by_pkg, pkg_object)
 
 
+def _jvm_java_finder(group: Group) -> Callable[[list[str]], set[str]]:
+    def java_file(parts: list[str]) -> set[str]:
+        for cut in range(0, min(3, len(parts))):
+            head = parts[: len(parts) - cut]
+            hit = group.suffix("/".join(head) + ".java") if head else set()
+            if hit:
+                return hit
+        return set()
+
+    return java_file
+
+
 def _jvm_decl_index(group: Group, lang: str, exts: tuple[str, ...]) -> dict[str, Any]:
     """Kotlin / Scala: a declaration's file is found by PACKAGE and NAME, not by
     path -- neither language ties the directory or the file name to what it
@@ -1043,15 +1147,7 @@ def _jvm_decl_index(group: Group, lang: str, exts: tuple[str, ...]) -> dict[str,
             continue
         _index_members(_ts_tree(lang, src).children, [], f, src, by_name, by_pkg, pkg_object)
 
-    def java_file(parts: list[str]) -> set[str]:
-        for cut in range(0, min(3, len(parts))):
-            head = parts[: len(parts) - cut]
-            hit = group.suffix("/".join(head) + ".java") if head else set()
-            if hit:
-                return hit
-        return set()
-
-    group._cache[key] = {"name": by_name, "pkg": by_pkg, "pkg_object": pkg_object, "java": java_file}
+    group._cache[key] = {"name": by_name, "pkg": by_pkg, "pkg_object": pkg_object, "java": _jvm_java_finder(group)}
     return group._cache[key]
 
 
@@ -1267,6 +1363,525 @@ def solidity_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_CS_TYPES = frozenset(
+    {
+        "class_declaration",
+        "struct_declaration",
+        "interface_declaration",
+        "enum_declaration",
+        "record_declaration",
+        "record_struct_declaration",
+        "delegate_declaration",
+    }
+)
+
+
+def _cs_name(node: Any, src: bytes) -> list[str]:
+    return [p for p in _text(node, src).replace(" ", "").split(".") if p] if node is not None else []
+
+
+def _cs_scan(node: Any, src: bytes, ns: list[str], on_type: Any, on_ns: Any, on_using: Any) -> list[str]:
+    """Walk one compilation unit's declarations. `ns` is the enclosing namespace; a file-scoped
+    `namespace N;` extends it for what follows. Returns the (possibly extended) namespace."""
+    for c in node.children:
+        t = c.type
+        if t == "namespace_declaration":
+            inner = [*ns, *_cs_name(c.child_by_field_name("name"), src)]
+            on_ns(inner)
+            body = c.child_by_field_name("body")
+            if body is not None:
+                _cs_scan(body, src, inner, on_type, on_ns, on_using)
+        elif t == "file_scoped_namespace_declaration":
+            ns = [*ns, *_cs_name(c.child_by_field_name("name"), src)]
+            on_ns(ns)
+        elif t in _CS_TYPES:
+            name = c.child_by_field_name("name")
+            if name is not None:
+                on_type(ns, _text(name, src))
+        elif t == "using_directive":
+            on_using(c, ns)
+        elif t.startswith("preproc_"):
+            # `#if` / `#region` wrap whole files' declarations (Newtonsoft's LinqBridge.cs): every
+            # branch is read, as the parser cannot tell which symbols the build defines.
+            ns = _cs_scan(c, src, ns, on_type, on_ns, on_using)
+    return ns
+
+
+def _cs_index(group: Group) -> dict[str, Any]:
+    """Every .cs file's declared namespaces and top-level types, parsed once."""
+    if "cs" in group._cache:
+        return group._cache["cs"]
+    by_ns: dict[str, set[str]] = collections.defaultdict(set)
+    by_type: dict[tuple[str, str], set[str]] = collections.defaultdict(set)
+    for f in sorted(group.files):
+        if not f.endswith(".cs") or group.root is None:
+            continue
+        try:
+            src = (group.root / f).read_bytes()
+        except OSError:
+            continue
+
+        def on_ns(parts: list[str], f: str = f) -> None:
+            by_ns[".".join(parts)].add(f)
+
+        def on_type(ns: list[str], name: str, f: str = f) -> None:
+            by_type[(".".join(ns), name)].add(f)
+
+        _cs_scan(_ts_tree("csharp", src), src, [], on_type, on_ns, lambda *_: None)
+    group._cache["cs"] = {"ns": by_ns, "type": by_type}
+    return group._cache["cs"]
+
+
+def _cs_resolve(index: dict[str, Any], parts: list[str], enclosing: list[str], static: bool) -> set[str]:
+    """`parts` as a namespace (unless `static`; import contract C7, so no file), else as `ns.Type`
+    (a nested type falls back to its owner), tried absolutely then under each enclosing namespace,
+    innermost first."""
+    for cut in range(len(enclosing), -1, -1):
+        full = [*enclosing[:cut], *parts]
+        if not static and index["ns"].get(".".join(full)):
+            return set()  # import contract C7: a whole-namespace import is no edge (C# has no namespace file)
+        for drop in (0, 1):
+            head = full[: len(full) - drop]
+            if len(head) >= 2 or (len(head) == 1 and head[0]):
+                hit = index["type"].get((".".join(head[:-1]), head[-1]))
+                if hit:
+                    return set(hit)
+    return set()
+
+
+def csharp_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _cs_index(group)
+    found: list[tuple[Any, list[str]]] = []
+    _cs_scan(_ts_tree("csharp", src), src, [], lambda *_: None, lambda *_: None, lambda c, ns: found.append((c, ns)))
+    out = []
+    for c, ns in found:
+        static = any(x.type == "static" for x in c.children)
+        # `using X = A.B;` names its target after the `=`; the alias is the `name` field.
+        alias = c.child_by_field_name("name")
+        target = next((x for x in c.children if x.type in ("qualified_name", "identifier") and x != alias), None)
+        if target is None:
+            continue
+        out.append(_cs_resolve(index, _cs_name(target, src), ns, static))
+    return out
+
+
+_SW_TARGET = re.compile(r"\.(target|executableTarget|testTarget|macro|plugin|systemLibrary)\(")
+_SW_NAME = re.compile(r'\bname:\s*"([^"\n]{1,100})"')
+_SW_PATH = re.compile(r'\bpath:\s*"([^"\n]{1,200})"')
+_SW_SCOPED = frozenset({"struct", "class", "enum", "protocol", "typealias", "func", "var", "let"})
+_SW_DEFAULT_DIR = {"testTarget": "Tests", "plugin": "Plugins"}
+
+
+def _sw_call_text(text: str, start: int) -> str:
+    """The text of the call whose `(` sits just before `start`, by paren depth (bounded)."""
+    depth = 1
+    end = min(len(text), start + 4000)
+    for i in range(start, end):
+        ch = text[i]
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                return text[start:i]
+    return text[start:end]
+
+
+def _sw_targets(group: Group) -> dict[str, str]:
+    """SwiftPM target name -> its directory (relative to the group root), from every Package.swift."""
+    out: dict[str, str] = {}
+    for pkg in sorted(f for f in group.files if f.endswith("Package.swift")):
+        if group.root is None or posixpath.basename(pkg) != "Package.swift":
+            continue
+        try:
+            text = read_source(group.root / pkg).text
+        except OSError:
+            continue
+        base = posixpath.dirname(pkg)
+        for m in _SW_TARGET.finditer(text):
+            call = _sw_call_text(text, m.end())
+            name = _SW_NAME.search(call)
+            if name is None:
+                continue
+            path = _SW_PATH.search(call)
+            rel = path.group(1) if path else posixpath.join(_SW_DEFAULT_DIR.get(m.group(1), "Sources"), name.group(1))
+            out.setdefault(name.group(1), posixpath.normpath(posixpath.join(base, rel)))
+    return out
+
+
+def _sw_decls(node: Any, src: bytes, out: set[str]) -> None:
+    """Names declared at one file's top level. `#if` is a flat directive, so its body is read as is."""
+    for c in node.children:
+        t = c.type
+        if t in ("class_declaration", "protocol_declaration", "typealias_declaration", "function_declaration"):
+            name = c.child_by_field_name("name")
+            if name is not None:
+                out.add(_text(name, src).strip().split(".")[0].split("<")[0])
+        elif t == "property_declaration":
+            for n in _walk(c):
+                if n.type == "simple_identifier" and n.parent is not None and n.parent.type == "pattern":
+                    out.add(_text(n, src))
+        elif "if_config" in t or "compiler" in t:
+            _sw_decls(c, src, out)
+
+
+def _sw_index(group: Group) -> dict[str, dict[str, set[str]]]:
+    """target name -> declared name -> the files of that target declaring it, parsed once."""
+    if "sw" in group._cache:
+        return group._cache["sw"]
+    index: dict[str, dict[str, set[str]]] = {}
+    targets = _sw_targets(group)
+    for f in sorted(group.files):
+        if not f.endswith(".swift") or group.root is None:
+            continue
+        owner = max(
+            (n for n, d in targets.items() if f.startswith(d + "/")),
+            key=lambda n: len(targets[n]),
+            default=None,
+        )
+        if owner is None:
+            continue
+        try:
+            src = (group.root / f).read_bytes()
+        except OSError:
+            continue
+        names: set[str] = set()
+        _sw_decls(_ts_tree("swift", src), src, names)
+        for nm in names:
+            index.setdefault(owner, {}).setdefault(nm, set()).add(f)
+    for t in targets:
+        index.setdefault(t, {})
+    group._cache["sw"] = index
+    return index
+
+
+def swift_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _sw_index(group)
+    out = []
+    for n in _ts_tree("swift", src).children:
+        if n.type != "import_declaration":
+            continue
+        ident = next((c for c in n.children if c.type == "identifier"), None)
+        if ident is None:
+            continue
+        parts = [p for p in _text(ident, src).replace(" ", "").split(".") if p]
+        scoped = any(c.type in _SW_SCOPED for c in n.children)
+        # import contract C7: `import Mod` names a module (a target), which has no file
+        if not scoped or len(parts) < 2:
+            out.append(set())
+            continue
+        decls = index.get(parts[0], {})
+        out.append(set(decls.get(parts[1], ())))
+    return out
+
+
+_PS_MODULE_EXTS = (".psm1", ".psd1", ".ps1")
+_PS_PARAM = re.compile(r"-(?:Name|Path|FullyQualifiedName|LiteralPath)\b[ \t:]*", re.I)
+
+
+def _ps_path_arg(rest: str) -> str | None:
+    """The module or script an `Import-Module` / `using module` line names: the value of
+    -Name / -Path when given, else the first argument that is not a -Parameter."""
+    m = _PS_PARAM.search(rest)
+    if m:
+        rest = rest[m.end() :]
+    for tok in re.findall(r"'[^'\n]*'|\"[^\"\n]*\"|[^\s;|,)]+", rest):
+        if not tok.startswith("-"):
+            return tok.strip("'\"")
+    return None
+
+
+def _ps_resolve(spec: str, rel: str, group: Group) -> set[str]:
+    """`$PSScriptRoot\\..\\x.psm1` is relative to the file; a path behind another
+    variable keeps its literal tail and matches by suffix (the variable is
+    configuration); a bare name is a module: Name.psm1 / Name.psd1 anywhere."""
+    spec = spec.replace("\\", "/")
+    here = posixpath.dirname(rel)
+    if spec.lower().startswith("$psscriptroot"):
+        spec = spec[len("$psscriptroot") :].lstrip("/")
+        return group.exact(posixpath.join(here, spec)) or group.suffix(spec.lstrip("./"))
+    if "$" in spec:
+        tail = spec.rsplit("$", 1)[1]
+        tail = tail.split("/", 1)[1] if "/" in tail else ""
+        return group.suffix(tail.lstrip("./")) if tail.lower().endswith(_PS_MODULE_EXTS) else set()
+    if "/" not in spec and not spec.lower().endswith(_PS_MODULE_EXTS):
+        return set().union(*(group.suffix(spec + e) for e in _PS_MODULE_EXTS[:2]))
+    return group.exact(posixpath.join(here, spec)) or group.suffix(spec.lstrip("./"))
+
+
+def powershell_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    out = []
+    for n in _walk(_ts_tree("powershell", src)):
+        if n.type != "command":
+            continue
+        name = n.child_by_field_name("command_name")
+        text = _text(n, src)
+        if name is not None and name.type == "command_name":
+            verb = _text(name, src).lower()
+            rest = text[len(_text(name, src)) :]
+            if verb == "using":
+                kind, _, rest = rest.strip().partition(" ")
+                if kind.lower() != "module":
+                    continue  # namespace and assembly name no file
+            elif verb != "import-module":
+                continue
+            spec = _ps_path_arg(rest)
+            if spec:
+                out.append(_ps_resolve(spec, rel, group))
+        elif any(c.type == "command_invokation_operator" and _text(c, src) == "." for c in n.children):
+            expr = next((c for c in n.children if c.type == "command_name_expr"), None)
+            spec = _text(expr, src).strip("'\"") if expr is not None else ""
+            if spec.lower().endswith(".ps1"):  # `. $f` is dynamic
+                out.append(_ps_resolve(spec, rel, group))
+    return out
+
+
+def _tcl_provides(group: Group) -> dict[str, set[str]]:
+    """package name -> files that `package provide` it, or are its `name-1.0.tm` module file."""
+    if "tcl" not in group._cache:
+        index: dict[str, set[str]] = collections.defaultdict(set)
+        for f in group.files:
+            tm = re.fullmatch(r"(?:.*/)?([^/]+?)-\d[^/]*\.tm", f)
+            if tm:  # a module file: `foo/bar-1.0.tm` provides foo::bar, and bar
+                parent = posixpath.dirname(f).rsplit("/", 1)[-1]
+                index[tm.group(1)].add(f)
+                index[parent + "::" + tm.group(1)].add(f)
+            if not f.endswith((".tcl", ".tm", ".tk")) or group.root is None:
+                continue
+            try:
+                text = read_source(group.root / f).text
+            except OSError:
+                continue
+            for m in re.finditer(r"^[ \t]*package[ \t]+provide[ \t]+([^\s\"'{}\[\]]+)", text, re.M):
+                index[m.group(1)].add(f)
+        group._cache["tcl"] = index
+    return group._cache["tcl"]
+
+
+def _tcl_source_tail(arg: Any, src: bytes, keep: list[str]) -> str | None:
+    """The literal path a `source` argument spells: `x.tcl`, `$dir/x.tcl` -> `x.tcl`,
+    `[file join $dir a b.tcl]` -> `a/b.tcl`. Fully dynamic (`$f`, `[lindex ...]`) -> None."""
+    text = _text(arg, src).strip()
+    first = keep[0] if keep else ""
+    text = text[text.index(first) :] if first and first in text else text  # drop leading -options
+    if text.startswith("[") and text.endswith("]"):
+        words = [w for w in re.findall(r"\S+", text[1:-1])[1:] if w.lower() != "join"]
+        if not words:
+            return None
+        tail = []
+        for w in words:
+            if w.startswith(("$", "[")) or w in (".", ".."):
+                tail = []
+            else:
+                tail.append(w.strip('"{}'))
+        return "/".join(tail) or None
+    text = text.strip('"{}')
+    if "$" in text or "[" in text:
+        after = text.rsplit("$", 1)[1] if "$" in text else ""
+        text = after.split("/", 1)[1] if "/" in after else ""
+    return text or None
+
+
+def tcl_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    out = []
+    provides = _tcl_provides(group)
+    for n in _walk(_ts_tree("tcl", src)):
+        if n.type != "command":
+            continue
+        name = n.child_by_field_name("name")
+        args = n.child_by_field_name("arguments")
+        if name is None or args is None:
+            continue
+        verb = _text(name, src)
+        words = args.named_children
+        if verb == "source":
+            words = [w for w in words if not _text(w, src).startswith("-")]
+            tail = _tcl_source_tail(args, src, [_text(w, src) for w in words]) if words else None
+            if tail and not tail.startswith("/"):
+                out.append(group.exact(posixpath.join(posixpath.dirname(rel), tail)) or group.suffix(tail.lstrip("./")))
+        elif verb == "package" and words and _text(words[0], src) == "require":
+            names = [_text(w, src) for w in words[1:] if not _text(w, src).startswith("-")]
+            if names and re.fullmatch(r"[\w:.]+", names[0]):
+                out.append(set(provides.get(names[0], ())))
+    return out
+
+
+_GV_COMMENT_STRING = re.compile(
+    r"/\*.*?\*/|//[^\n]*|\"\"\".*?\"\"\"|\'\'\'.*?\'\'\'|\"(?:\\.|[^\"\\\n]){0,500}\"|\'(?:\\.|[^\'\\\n]){0,500}\'",
+    re.DOTALL,
+)
+_GV_IMPORT = re.compile(
+    r"^[ \t]*import[ \t]+(static[ \t]+)?([A-Za-z_$][\w$]*(?:[ \t]*\.[ \t]*(?:[A-Za-z_$][\w$]*|\*))*)(?:[ \t]+as[ \t]+[A-Za-z_$][\w$]*)?",
+    re.MULTILINE,
+)
+_GV_PACKAGE = re.compile(r"^[ \t]*package[ \t]+([A-Za-z_$][\w$]*(?:[ \t]*\.[ \t]*[A-Za-z_$][\w$]*)*)", re.MULTILINE)
+_GV_DECL = re.compile(
+    r"^[ \t]*(?:@[\w$.]+(?:\([^)\n]*\))?[ \t]*|[a-z]+[ \t]+)*(?:class|interface|trait|enum|record|@interface)[ \t]+([A-Za-z_$][\w$]*)",
+    re.MULTILINE,
+)
+
+
+def _gv_mask(text: str) -> str:
+    """Comments and string literals blanked (newlines kept), so an `import` inside one is not read."""
+    return _GV_COMMENT_STRING.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), text)
+
+
+def _gv_index(group: Group) -> dict[str, Any]:
+    """package -> declared name -> files, over every .groovy / .gradle file, parsed once."""
+    if "gv" in group._cache:
+        return group._cache["gv"]
+    by_name: dict[tuple[str, str], set[str]] = collections.defaultdict(set)
+    by_pkg: dict[str, set[str]] = collections.defaultdict(set)
+    for f in sorted(group.files):
+        if not f.endswith((".groovy", ".gradle")) or group.root is None:
+            continue
+        try:
+            text = _gv_mask(read_source(group.root / f).text)
+        except OSError:
+            continue
+        pm = _GV_PACKAGE.search(text)
+        pkg = re.sub(r"\s+", "", pm.group(1)) if pm else ""
+        by_pkg[pkg].add(f)
+        names = {m.group(1) for m in _GV_DECL.finditer(text)}
+        if not names:
+            names = {posixpath.basename(f).rsplit(".", 1)[0]}  # a script is a class named for its file
+        for nm in names:
+            by_name[(pkg, nm)].add(f)
+    group._cache["gv"] = {"name": by_name, "pkg": by_pkg, "pkg_object": {}, "java": _jvm_java_finder(group)}
+    return group._cache["gv"]
+
+
+def groovy_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _gv_index(group)
+    text = _gv_mask(decode_bytes(src))
+    out = []
+    for m in _GV_IMPORT.finditer(text):
+        parts = [p.strip() for p in m.group(2).split(".")]
+        wildcard = parts[-1] == "*"
+        if wildcard:
+            parts = parts[:-1]
+        if not parts:
+            continue
+        # import contract C7: `import a.b.*` names a package, which has no file of its own
+        if wildcard and not m.group(1):
+            out.append(set())
+            continue
+        out.append(_jvm_resolve(index, parts, wildcard, ""))
+    return out
+
+
+_FT_EXTS = (".f90", ".f95", ".f03", ".f08", ".f18", ".f", ".for", ".f77", ".ftn", ".fpp")
+_FT_FIXED = (".f", ".for", ".f77")
+_FT_MODULE = re.compile(r"^[ \t]*module[ \t]+(\w+)[ \t]*$", re.MULTILINE | re.IGNORECASE)
+_FT_USE = re.compile(
+    r"^[ \t]*use(?:[ \t]*,[ \t]*(non_)?(intrinsic)[ \t]*::|[ \t]*::|[ \t]+)[ \t]*(\w+)",
+    re.MULTILINE | re.IGNORECASE,
+)
+_FT_INCLUDE = re.compile(r"^[ \t]*#?[ \t]*include[ \t]*(?:\"([^\"\n]+)\"|'([^'\n]+)')", re.MULTILINE | re.IGNORECASE)
+
+
+def _ft_mask(text: str, fixed: bool) -> str:
+    """Comments blanked (newlines kept): `!` to end of line, and fixed-form `c` / `*` in column 1."""
+    if fixed:
+        text = re.sub(r"^[cC*][^\n]*", lambda m: " " * len(m.group(0)), text, flags=re.MULTILINE)
+    return re.sub(r"![^\n]*", lambda m: " " * len(m.group(0)), text)
+
+
+def _ft_index(group: Group) -> dict[str, set[str]]:
+    """lower-case module name -> files declaring it, over every Fortran source file, parsed once."""
+    if "ft" in group._cache:
+        return group._cache["ft"]
+    by_name: dict[str, set[str]] = collections.defaultdict(set)
+    for f in sorted(group.files):
+        if not f.lower().endswith(_FT_EXTS) or group.root is None:
+            continue
+        try:
+            text = _ft_mask(read_source(group.root / f).text, f.lower().endswith(_FT_FIXED))
+        except OSError:
+            continue
+        for m in _FT_MODULE.finditer(text):
+            by_name[m.group(1).lower()].add(f)
+    group._cache["ft"] = by_name
+    return by_name
+
+
+def fortran_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _ft_index(group)
+    text = _ft_mask(decode_bytes(src), rel.lower().endswith(_FT_FIXED))
+    out: list[tuple[int, set[str]]] = []
+    for m in _FT_USE.finditer(text):
+        # `use, intrinsic :: m` is the standard's module, not a repo file (`non_intrinsic` is)
+        out.append((m.start(), set() if m.group(2) and not m.group(1) else set(index.get(m.group(3).lower(), ()))))
+    here = posixpath.dirname(rel)
+    for m in _FT_INCLUDE.finditer(text):
+        spec = m.group(1) or m.group(2)
+        out.append((m.start(), group.exact(posixpath.join(here, spec)) or group.suffix(spec)))
+    return [t for _, t in sorted(out, key=lambda x: x[0])]
+
+
+_ML_IMPORT = re.compile(r"^[ \t]*import[ \t]+([A-Za-z_][^\n;%]*)", re.MULTILINE)
+
+
+def _ml_mask(text: str) -> str:
+    """`%{ ... %}` block comments and `%` line comments blanked (newlines kept)."""
+    text = re.sub(
+        r"^[ \t]*%\{[ \t]*\n.*?^[ \t]*%\}[ \t]*$", lambda m: re.sub(r"[^\n]", " ", m.group(0)), text, flags=re.M | re.S
+    )
+    return re.sub(r"%[^\n]*", lambda m: " " * len(m.group(0)), text)
+
+
+def _ml_index(group: Group) -> dict[tuple[str, ...], set[str]]:
+    """qualified name -> files: `+a/+b/C.m` is (a, b, C); `@C/C.m` is C's class file (a method file
+    `@C/m.m` and a `private/` helper name nothing importable)."""
+    if "ml" not in group._cache:
+        index: dict[tuple[str, ...], set[str]] = collections.defaultdict(set)
+        for f in sorted(group.files):
+            if not f.endswith(".m"):
+                continue
+            dirs, stem = f.split("/")[:-1], posixpath.basename(f)[:-2]
+            if dirs and dirs[-1] == "private":
+                continue
+            if dirs and dirs[-1].startswith("@"):
+                if dirs[-1][1:] != stem:
+                    continue
+                dirs = dirs[:-1]
+            pkg: list[str] = []
+            for d in reversed(dirs):
+                if not d.startswith("+"):
+                    break
+                pkg.insert(0, d[1:])
+            index[(*pkg, stem)].add(f)
+        group._cache["ml"] = index
+    return group._cache["ml"]
+
+
+def matlab_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _ml_index(group)
+    out = []
+    for m in _ML_IMPORT.finditer(_ml_mask(decode_bytes(src))):
+        for arg in m.group(1).split():
+            if arg == "...":
+                break
+            parts = arg.split(".")
+            wildcard = parts[-1] == "*"
+            if wildcard:
+                parts = parts[:-1]
+            if not parts or not all(parts):
+                continue
+            if wildcard:
+                # `import a.b.*` names a package (contract C7: no file, no edge) unless a.b is a
+                # class, whose static members it imports: the class file
+                out.append(set(index.get(tuple(parts), ())))
+                continue
+            # `import a.b.C` is a class or package function; `import C.m` a member: the owner's file
+            out.append(
+                next(
+                    (set(index[tuple(parts[:k])]) for k in range(len(parts), 0, -1) if tuple(parts[:k]) in index), set()
+                )
+            )
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -1288,6 +1903,13 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "haskell": haskell_imports,
     "shell": shell_imports,
     "solidity": solidity_imports,
+    "csharp": csharp_imports,
+    "swift": swift_imports,
+    "powershell": powershell_imports,
+    "tcl": tcl_imports,
+    "groovy": groovy_imports,
+    "fortran": fortran_imports,
+    "matlab": matlab_imports,
 }
 
 
@@ -1423,6 +2045,71 @@ def import_cause(kind: str, truth: set[str], union: set[str], tokens: list[str],
 # ----------------------------------------------------------------------------- scoring
 
 
+HUB_K = 10
+
+
+def _ranks(edges: set[tuple[str, str]], nodes: list[str]) -> dict[str, float] | None:
+    """File -> rank (1 = top PageRank, ties averaged) from the engine's own pagerank, or None."""
+    try:
+        scores = pagerank(GraphIndex(nodes, ((s, d, 1.0) for s, d in sorted(edges))))
+    except RuntimeError:  # did not converge
+        return None
+    order = sorted(range(len(nodes)), key=lambda i: (-scores[i], nodes[i]))
+    ranks: dict[str, float] = {}
+    i = 0
+    while i < len(order):
+        j = i
+        while j + 1 < len(order) and scores[order[j + 1]] == scores[order[i]]:
+            j += 1
+        for x in order[i : j + 1]:
+            ranks[nodes[x]] = (i + j) / 2 + 1
+        i = j + 1
+    return ranks
+
+
+def _top(ranks: dict[str, float], k: int) -> list[str]:
+    return sorted(ranks, key=lambda n: (ranks[n], n))[:k]
+
+
+def _spearman(a: list[float], b: list[float]) -> float | None:
+    n = len(a)
+    ma, mb = sum(a) / n, sum(b) / n
+    va = sum((x - ma) ** 2 for x in a)
+    vb = sum((y - mb) ** 2 for y in b)
+    if not va or not vb:
+        return None
+    return sum((x - ma) * (y - mb) for x, y in zip(a, b, strict=True)) / (va * vb) ** 0.5
+
+
+def hub_agreement(
+    engine_edges: set[tuple[str, str]], truth_edges: set[tuple[str, str]], nodes: Iterable[str], k: int = HUB_K
+) -> dict[str, Any] | None:
+    """Do the engine's top-k PageRank files match the top-k on the parser-truth graph (#3797)?
+
+    Both graphs share one node set (the group's files of the language); edges are distinct pairs of
+    weight 1.0 with both ends in it. `overlap_at_k` = |top-k & top-k| / k; `spearman` is the rank
+    correlation (full-graph average ranks) over the union of the two top-k sets. None when the group
+    has fewer than k files, no truth edges, or a graph's PageRank does not converge."""
+    names = sorted(set(nodes))
+    have = set(names)
+    eng = {e for e in engine_edges if e[0] in have and e[1] in have}
+    tru = {e for e in truth_edges if e[0] in have and e[1] in have}
+    if len(names) < k or not tru:
+        return None
+    re, rt = _ranks(eng, names), _ranks(tru, names)
+    if re is None or rt is None:
+        return None
+    te, tt = _top(re, k), _top(rt, k)
+    union = sorted(set(te) | set(tt))
+    rho = _spearman([re[n] for n in union], [rt[n] for n in union])
+    return {
+        "overlap_at_k": len(set(te) & set(tt)) / k,
+        "spearman": None if rho is None else round(rho, 4),
+        "k": k,
+        "n": len(names),
+    }
+
+
 def score_group(
     group_dir: Path,
     langs: dict[str, str],
@@ -1437,6 +2124,7 @@ def score_group(
     out_edges: dict[str, set[str]] = collections.defaultdict(set)
     for s, d in edges:
         out_edges[s].add(d)
+    truth_edges: dict[str, set[tuple[str, str]]] = collections.defaultdict(set)
     for rel, lang in langs.items():
         if lang not in wanted or lang not in EXTRACTORS:
             continue
@@ -1451,6 +2139,7 @@ def score_group(
         mine = out_edges.get(rel, set())
         tokens = (raw or {}).get(rel, [])
         union = set().union(*resolvable) if resolvable else set()
+        truth_edges[lang] |= {(rel, d) for d in union}  # a multi-file statement adds an edge to each file
         for t in resolvable:
             r["imports"] += 1
             if mine & t:
@@ -1466,6 +2155,10 @@ def score_group(
             else:
                 r["fp"].append(f"{rel} -> {d}")
                 r["causes"].append((import_cause("fp", {d}, union, tokens, True), rel, f"{rel} -> {d}"))
+    for lang, r in per.items():
+        hubs = hub_agreement(edges, truth_edges[lang], [p for p, lg in langs.items() if lg == lang])
+        if hubs:
+            r["hubs"] = hubs
     return per
 
 
@@ -1527,9 +2220,12 @@ def measure(
                         "fp": [],
                         "fn": [],
                         "causes": [],
+                        "hubs": [],
                     },
                 )
                 t["repos"].append(e["repo"])
+                if r.get("hubs"):
+                    t["hubs"].append(r["hubs"])
                 for k in ("files", "imports", "found", "edges", "correct"):
                     t[k] += r[k]
                 name = e["repo"].split("/")[1]
@@ -1554,6 +2250,7 @@ def measure(
             "sample_fn": sorted(t["fn"])[:samples],
             "correct": t["correct"],
             "found": t["found"],
+            **_hub_means(t["hubs"]),
         }
         if buckets:
             counts = collections.Counter(c for c, _, _ in t["causes"])
@@ -1567,18 +2264,37 @@ def measure(
     return results
 
 
+def _hub_means(hubs: list[dict[str, Any]]) -> dict[str, Any]:
+    """Language-level hub agreement: the mean over repos that have one (PageRank does not pool
+    across repos). Absent when no repo qualified, so older baselines and exact-equality stay valid."""
+    if not hubs:
+        return {}
+    rhos = [h["spearman"] for h in hubs if h["spearman"] is not None]
+    out: dict[str, Any] = {
+        "hub_overlap_at_10": round(sum(h["overlap_at_k"] for h in hubs) / len(hubs), 3),
+        "hub_repos": len(hubs),
+    }
+    if rhos:
+        out["hub_spearman"] = round(sum(rhos) / len(rhos), 3)
+    return out
+
+
 def render(results: dict[str, dict[str, Any]]) -> str:
     def pct(v: float | None) -> str:
         return "n/a" if v is None else f"{v}%"
 
+    def num(v: float | None) -> str:
+        return "n/a" if v is None else f"{v:.2f}"
+
     lines = [
-        "| language | repos | files | resolvable imports | engine edges | precision | recall | FP | FN |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| language | repos | files | resolvable imports | engine edges | precision | recall | FP | FN | hub overlap@10 | hub Spearman |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for lang, r in results.items():
         lines.append(
             f"| {lang} | {r['repos']} | {r['files']} | {r['imports']} | {r['engine_edges']} | "
-            f"{pct(r['precision_pct'])} | {pct(r['recall_pct'])} | {r['fp']} | {r['fn']} |"
+            f"{pct(r['precision_pct'])} | {pct(r['recall_pct'])} | {r['fp']} | {r['fn']} | "
+            f"{num(r.get('hub_overlap_at_10'))} | {num(r.get('hub_spearman'))} |"
         )
     return "\n".join(lines)
 

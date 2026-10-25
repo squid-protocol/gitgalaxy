@@ -1023,6 +1023,11 @@ _COBOL_SEPARATOR_PERIOD_RE = re.compile(r"\.(?=\s|$)")
 # #3329: member-access separators a call's qualifier is joined by -- `a.b()`,
 # `p->f()`, `Ns::f()`, `a?.b()`. Longest first, so `->`/`::`/`?.` win over `.`.
 _QUALIFIER_SEPARATORS = ("->", "::", "?.", ".")
+# #3772: the template argument list (nested three levels, as cpp.py `_TPL_QUAL`) of a class-template qualifier.
+# Only one directly followed by `::` matches, so `operator<`, `operator<<` and a return type's `<...>` stay.
+_CPP_TEMPLATE_ARGS = r"<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>"
+_CPP_TEMPLATE_QUALIFIER = re.compile(_CPP_TEMPLATE_ARGS + r"(?=[ \t]*::)")
+_CPP_TEMPLATE_ARGS_RE = re.compile(_CPP_TEMPLATE_ARGS)
 # #3837: in java `->` only ever ends a lambda's parameters (`() -> toJson(gson, x)`),
 # so a call right after it is bare, not one on an `<expr>` receiver. Kotlin, Groovy
 # and Scala read `->` the same way, but no compiler reference measures them yet.
@@ -1119,6 +1124,35 @@ def _qualifier_separators(lang_id: str) -> tuple[str, ...]:
 _ARITY_MAX_SCAN = 4000
 _ARITY_MAX_TYPE_ARGS = 200
 _ARITY_OPEN = {"(": ")", "[": "]", "{": "}"}
+
+
+_ZIG_TYPE_BRACE_KEYWORDS = frozenset({"struct", "union", "enum", "opaque", "error"})
+
+
+def _zig_opens_type_brace(text: str, pos: int, floor: int) -> bool:
+    """#6432: True when the `{` at `pos` opens a zig type (`error{..}`, `struct{..}`, `union(enum){..}`), not a body."""
+    end = pos
+    while end > floor and text[end - 1] in " \t\r\n":
+        end -= 1
+    if end > floor and text[end - 1] == ")":
+        depth = 0
+        end -= 1
+        while end > floor and pos - end < 256:
+            if text[end] == ")":
+                depth += 1
+            elif text[end] == "(":
+                depth -= 1
+                if depth == 0:
+                    break
+            end -= 1
+        else:
+            return False
+        while end > floor and text[end - 1] in " \t\r\n":
+            end -= 1
+    start = end
+    while start > floor and end - start < 16 and (text[start - 1].isalnum() or text[start - 1] == "_"):
+        start -= 1
+    return text[start:end] in _ZIG_TYPE_BRACE_KEYWORDS
 
 
 def _call_arity(text: str, pos: int) -> int | None:
@@ -1725,6 +1759,9 @@ _DECLARATOR_BUILTIN_TYPES = frozenset(
     {"int", "char", "bool", "float", "double", "long", "short", "unsigned", "signed", "void", "auto",
      "wchar_t", "char8_t", "char16_t", "char32_t", "size_t"}
 )  # fmt: skip
+# #6454: a functional cast to a built-in type (`bool(x)`, `unsigned(n)`) constructs nothing and calls
+# nothing; only the type KEYWORDS (`size_t` and the stdint names are ordinary identifiers).
+_FUNCTIONAL_CAST_KEYWORDS = _DECLARATOR_BUILTIN_TYPES - {"auto", "void", "size_t"}
 _DECLARATOR_MAX_SCAN = 200
 
 
@@ -1900,6 +1937,8 @@ _CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS: dict[str, frozenset[str]] = {
     ),
     # #6266: java has no `sizeof`; `filelump_t.sizeof()` is a static method call (mochadoom)
     "java": frozenset({"def", "function", "using", "sizeof", "alignof", "decltype", "include", "require", "typeof"}),
+    # #6454: `return` (Monad), `try`, `catch` and `finally` (Control.Exception) are ordinary functions in haskell
+    "haskell": frozenset({"return", "try", "catch", "finally"}),
 }
 
 # #5634: a rust macro invocation `name!(..)` is not a call of a function `name`. Its qualifier carries
@@ -1911,6 +1950,29 @@ def _mark_macro_qualifier(lang_id: str, text: str, callee_end: int, qualifier: s
     if lang_id == "rust" and text.startswith("!", callee_end):
         return _MACRO_QUALIFIER_PREFIX + qualifier
     return qualifier
+
+
+# #3784: a C++ call written `ns::f()` has its `::` read as `.`, so it looks like a member call `x.f()`. The
+# qualifier carries this prefix (`::fmt`, `::a.b`, `::` for a global `::f()`) so the resolver reaches free
+# functions first. `x.f()` and `p->f()` stay unmarked.
+_SCOPE_QUALIFIER_PREFIX = "::"
+
+
+def _mark_scope_qualifier(lang_id: str, text: str, callee_pos: int, qualifier: str) -> str:
+    if lang_id != "cpp":
+        return qualifier
+    j = callee_pos
+    while j > 0 and text[j - 1] in " \t\r\n":
+        j -= 1
+    if j < 2 or text[j - 2 : j] != _SCOPE_QUALIFIER_PREFIX:
+        return qualifier
+    if qualifier == "<expr>":
+        k = j - 2
+        while k > 0 and text[k - 1] in " \t\r\n":
+            k -= 1
+        # nothing before the `::`: the global scope; a template or call result stays unmarked
+        return _SCOPE_QUALIFIER_PREFIX if k == 0 or not (text[k - 1].isalnum() or text[k - 1] in "_>)]") else qualifier
+    return _SCOPE_QUALIFIER_PREFIX + qualifier
 
 
 _CALLS_OUT_GLOBAL_IGNORE = frozenset(
@@ -2163,6 +2225,15 @@ INVOCATION_MODELS = frozenset({INVOCATION_BY_NAME, INVOCATION_POSITIONAL})
 # `docs/unreferenced_by_name_contract.md`, corollary 7.
 IDENTIFIER_CASE_SENSITIVE = "sensitive"
 IDENTIFIER_CASE_INSENSITIVE = "insensitive"
+
+
+def _blank_masked_match(m: "re.Match[str]") -> str:
+    """Blank a `_calls_out_masked_blocks` match, or only its `mask` group, keeping line breaks (#6454)."""
+    text = m.group(0)
+    if "mask" not in m.re.groupindex or m.start("mask") < 0:
+        return re.sub(r"[^\n]", " ", text)
+    lo, hi = m.start("mask") - m.start(), m.end("mask") - m.start()
+    return text[:lo] + re.sub(r"[^\n]", " ", text[lo:hi]) + text[hi:]
 
 
 def _blank_literals_except_callee(text: str, verb: re.Pattern) -> str:
@@ -2596,6 +2667,10 @@ def _blank_line(line: str) -> str:
     return " " * len(body) + line[len(body) :]
 
 
+# Languages whose indentation scan treats an open bracket as a continuation (#6266).
+_BRACKET_CONTINUATION_LANGS = frozenset({"python", "micropython", "embedded_python"})
+
+
 class StructuralExtractor:
     """
     GitGalaxy Structural Extractor (Primary Heuristic Logic & Function Mapper).
@@ -2693,6 +2768,10 @@ class StructuralExtractor:
         self._bare_self_units: set[tuple[str, int]] = set()
         # #5699: the subset of those whose header names a receiver (Go `func (s *S) f(`): a method with no enclosing class
         self._receiver_units: set[tuple[str, int]] = set()
+        # #3772: overload languages: unit (name, start line) -> the argument counts of its bare calls to its own
+        # name (a sibling overload, or `this(...)` in a constructor); the resolver keeps an edge only if a count
+        # picks another overload, and prunes the call as recursion when it picks the unit itself
+        self._overload_self_calls: dict[tuple[str, int], list[int]] = {}
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -3296,6 +3375,11 @@ class StructuralExtractor:
                     # kept for the resolver, which reaches a free `f` or prunes it as recursion
                     func["calls_out_to"].append(func["name"])
                     func["calls_out_qualifiers"][func["name"]] = [""]
+                self_arities = self._overload_self_calls.get(unit_key)
+                if self_arities is not None and func["name"] not in func["calls_out_to"]:
+                    func["calls_out_to"].append(func["name"])
+                    func["calls_out_qualifiers"][func["name"]] = [""]
+                    func.setdefault("calls_out_arities", {})[func["name"]] = self_arities
                 if innermost_cls is not None:
                     func["parent_class_name"] = innermost_cls["name"]
                     class_methods_by_id[id(innermost_cls)].append(func)
@@ -4728,6 +4812,9 @@ class StructuralExtractor:
             if lang_id == "ruby"
             else ""
         )
+        # #6435: a zig `\\` line is one line of a multiline string literal, to the end of the line. Unshielded,
+        # `\\ run(1)` read as a call and `\\ a // b` or a lone `"` as a comment or a quote opener.
+        zig_ml_alt = r"(?:^|(?<=[ \t]))\\\\[^\n]*|" if lang_id == "zig" else ""
         atomic_string_pattern = (
             heredoc_opener_alt + r'""".*?"""|'  # Python Triple Double
             r"'''.*?'''|"  # Python Triple Single
@@ -4737,6 +4824,7 @@ class StructuralExtractor:
             f"{standard_single}|"  # Standard Single
             r"`(?:\\.|[^`\\])*`|"  # Standard Backtick
             + ruby_regex_alt
+            + zig_ml_alt
             # Comment marker must be at line-start or preceded by whitespace
             # (guards against e.g. shell's "$#" positional-arg-count being
             # mistaken for a comment). Same marker set previously stripped
@@ -6565,8 +6653,12 @@ class StructuralExtractor:
                     elif ch == "]":
                         depth = max(0, depth - 1)
                     elif depth == 0 and (ch == opener or ch == ";"):
-                        term_idx, term_kind = pos, ("brace" if ch == opener else "semi")
-                        break
+                        # #6432: a zig type brace in the result type is no body start; step over it
+                        if ch == opener and lang_id == "zig" and _zig_opens_type_brace(safe_code, pos, params_end_idx):
+                            pos = max(pos, self._find_balanced_end(safe_code, pos, opener, closer) - 1)
+                        else:
+                            term_idx, term_kind = pos, ("brace" if ch == opener else "semi")
+                            break
                     pos += 1
                 if term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
@@ -7393,6 +7485,16 @@ class StructuralExtractor:
             # groovy 11 -- against apex/css/html/php/swift 0. tcl is the only
             # language in this fallback whose `func_start` consumes a
             # non-body brace group, so it is the only one the anchor may move for.
+            # #6432: a swift parameter default can be a closure (`cb: () -> Void = {}`): the body
+            # brace is the first one after the balanced parameter list. func_start stops before the `(`.
+            elif lang_id == "swift":
+                params_end_idx = self._find_balanced_end(safe_code, match.end(), "(", ")")
+                brace_idx = safe_code.find(opener, params_end_idx, search_limit)
+                if brace_idx == -1:
+                    brace_idx = safe_code.find(opener, start_idx, search_limit)
+                    if brace_idx == -1:
+                        continue
+                end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
             elif lang_id == "tcl":
                 brace_idx = safe_code.find(opener, match.end(), search_limit)
                 if brace_idx == -1:
@@ -7807,6 +7909,13 @@ class StructuralExtractor:
 
             equation_start_idx = None
 
+            # #6266: inside an open bracket Python ignores indentation, and PRISM
+            # blanks a multi-line string argument down to bare newlines, so the
+            # string's closing line tail (`, (id,))`) lands at column 0. Track the
+            # bracket depth so such a line is a continuation, not a dedent.
+            bracket_depth = 0
+            track_brackets = lang_id in _BRACKET_CONTINUATION_LANGS
+
             # --- FAST O(N) INDENT TRACKER ---
             # Replaced O(N^2) array allocations with zero-copy index jumping
             while scan_pos < len(safe_code):
@@ -7818,6 +7927,14 @@ class StructuralExtractor:
 
                 if stripped:
                     current_indent = len(f_line) - len(stripped)
+                    if track_brackets:
+                        was_open = bracket_depth > 0
+                        opened = f_line.count("(") + f_line.count("[") + f_line.count("{")
+                        closed = f_line.count(")") + f_line.count("]") + f_line.count("}")
+                        bracket_depth = max(0, bracket_depth + opened - closed)
+                        if was_open:
+                            scan_pos = line_end
+                            continue
                     if current_indent <= base_indent:
                         # #1266: Haskell's convention puts a function's type
                         # signature and its defining equation(s) on SEPARATE
@@ -10531,6 +10648,7 @@ class StructuralExtractor:
         own_leaf: str | None = None
         own_qualifiers: set[str] = set()
         bare_self_hits = 0
+        kept_super = False
         # #5699: an Objective-C method header (`- (int)f:(int)a`) is no call match, so its first bare `f(` is a body call
         own_header_seen = self.primary_lang_id == "objective-c" and block.lstrip()[:1] in ("-", "+")
         if invocation_pattern:
@@ -10538,6 +10656,10 @@ class StructuralExtractor:
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
             message_receivers = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_message_receivers"))
             if message_receivers or _is_qualified_calls_out(invocation_pattern):
+                # #6454: the same mask as below; same length, so every position stays valid
+                masked_q = rules.get("_calls_out_masked_blocks")
+                if isinstance(masked_q, re.Pattern):
+                    safe_block = masked_q.sub(_blank_masked_match, safe_block)
                 receiver_text = safe_block
                 # #3360 (C5): note which callees were captured only on a nested
                 # func_start header (`def inner(`). _function_slice drops them
@@ -10583,6 +10705,10 @@ class StructuralExtractor:
                             if not declared[0]:
                                 continue
                             callee, callee_pos = declared
+                        elif callee in _FUNCTIONAL_CAST_KEYWORDS and not safe_block[:callee_pos].rstrip().endswith(
+                            "operator"
+                        ):
+                            continue
                     if is_send:
                         qualifier = _message_receiver(m.group(2))
                     else:
@@ -10593,11 +10719,30 @@ class StructuralExtractor:
                     # #5628: a bare `leaf(` may reach a different unit of that name, in this file
                     # or another: kept, and the call resolver drops it when it only resolves to
                     # the unit itself. Anything written with a receiver or scope is the unit itself.
-                    if callee == own_leaf and qualifier in own_qualifiers and qualifier:
+                    if (
+                        callee == own_leaf
+                        and qualifier
+                        and (
+                            qualifier in own_qualifiers
+                            # #3772: the header `Foo<T>::m(` is qualified `Foo<T>`, the unit `Foo::m`
+                            or (
+                                self.primary_lang_id == "cpp"
+                                and _CPP_TEMPLATE_ARGS_RE.sub("", qualifier) in own_qualifiers
+                            )
+                        )
+                    ):
                         continue
                     if callee == own_dtor and callee_pos > 0 and safe_block[callee_pos - 1] == "~":
                         continue
+                    call_len = len(callee)
+                    if track_arities and callee == "this" and not qualifier and name[:1].isupper():
+                        # #3772: `this(...)` chains to a sibling constructor, which is named like the unit
+                        callee = name
+                    if track_arities and callee == "super" and not qualifier:
+                        # #3772: `super(...)` chains to the superclass constructor; the resolver names the parent
+                        kept_super = True
                     is_decl = callee_pos == m.start(1) and _is_declaration_header(decl_headers, m)
+                    own_header_call = callee == name and not qualifier and not own_header_seen
                     if callee == name and not qualifier:
                         # the first bare match of the unit's own name is its own header
                         if own_header_seen and not is_decl:
@@ -10609,10 +10754,11 @@ class StructuralExtractor:
                         invoked.add(callee)
                     raw_calls.append(callee)
                     seen = qualifiers_seen.setdefault(callee, [])
-                    if qualifier not in seen:
-                        seen.append(qualifier)
-                    if track_arities:
-                        arity = _call_arity(safe_block, callee_pos + len(callee))
+                    marked = _mark_scope_qualifier(self.primary_lang_id, safe_block, callee_pos, qualifier)
+                    if marked not in seen:
+                        seen.append(marked)
+                    if track_arities and not own_header_call:
+                        arity = _call_arity(safe_block, callee_pos + call_len)
                         if arity is not None and arity not in arities_seen.setdefault(callee, []):
                             arities_seen[callee].append(arity)
             else:
@@ -10628,7 +10774,9 @@ class StructuralExtractor:
                 # hold no call of this language; blanked with their line breaks kept.
                 masked = rules.get("_calls_out_masked_blocks")
                 if isinstance(masked, re.Pattern):
-                    safe_block = masked.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), safe_block)
+                    # #6454: a named group `mask` blanks only that span (rust `matches!(x, PATTERN)`
+                    # keeps the macro name a call); a pattern without one blanks the whole match.
+                    safe_block = masked.sub(_blank_masked_match, safe_block)
                 raw_calls = invocation_pattern.findall(safe_block)
                 if invocation_pattern.groups > 1:
                     # #5639: one group per alternative (Objective-C: C call, message selector)
@@ -10668,7 +10816,7 @@ class StructuralExtractor:
                 # #4305: a pattern alternative that only consumes text (COBOL `EXIT PERFORM`) captures ""
                 if c
                 and (c not in _CALLS_OUT_GLOBAL_IGNORE or c in global_exempt)
-                and (c.casefold() if _fold_ignore else c) not in lang_ignore
+                and ((c.casefold() if _fold_ignore else c) not in lang_ignore or (kept_super and c == "super"))
                 and c != self_name
             )
         )
@@ -10746,6 +10894,8 @@ class StructuralExtractor:
             self._bare_self_units.add((name, start_line))
             if self.primary_lang_id == "go" and _GO_RECEIVER_HEADER.match(block):
                 self._receiver_units.add((name, start_line))
+        if bare_self_hits and track_arities:
+            self._overload_self_calls[(name, start_line)] = list(arities_seen.get(name, []))
         return sat, magnitude
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:
@@ -10961,6 +11111,11 @@ class StructuralExtractor:
         # bare keyword (`run`) instead and passes through this branch unchanged.
         if self.primary_lang_id == "yaml":
             return match_strip
+
+        # #3772: a class-template qualifier (`Foo<A, B>::bar`) names the class `Foo`, as the compiler
+        # reference does; the tokenizer below splits at `<`/`,`/`>` and kept only `::bar`.
+        if self.primary_lang_id == "cpp" and "<" in match_strip:
+            raw_match = match_strip = _CPP_TEMPLATE_QUALIFIER.sub("", match_strip)
 
         # 1.2 Python Decorator Stripping
         if "@" in match_strip and "def " in match_strip:

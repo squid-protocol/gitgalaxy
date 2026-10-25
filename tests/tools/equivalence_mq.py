@@ -15,6 +15,11 @@ manager's CCSID resolved as a put resolves them; a MsgId not stated is GGMQSTATE
 A scenario's (or the case's) "start_data": [RECORD, ...] -- the START data the task was started with, in RETRIEVE
 order: {"text": ...}, {"hex": ...}, or {"mqtm": {"qname": ..., "processname": ..., "triggerdata": ..., "appltype": 1,
 "applid": ..., "envdata": ..., "userdata": ...}} (a trigger message, MQTM_LENGTH_1: the CKTI trigger monitor's START).
+
+A scenario's "mq_faults": [{"call": "MQCLOSE", "nth": 1, "reason": 2009}, ...] plans MQI calls to fail: the nth call
+of that verb (every call of it counts) is not performed and answers the IBM reason (FAULT_REASONS), CompCode MQCC_FAILED,
+the stated queues untouched. Both models read it as `FAULT VERB NTH REASON` lines of mq.cfg; the failed call's event
+carries the reason, so the proof compares it on both sides.
 """
 
 from __future__ import annotations
@@ -31,6 +36,15 @@ MDLEN = 324
 MODEL = Path(__file__).resolve().parents[1] / "equivalence" / "mq" / "ggmq.c"
 MQ_CALL = re.compile(r"(?i)\bCALL\s+['\"]MQ")
 EVENTS = ("MQOPEN", "MQCLOSE", "MQGET", "MQPUT", "MQPUT1")
+# IBM MQ reason codes a call may fail with whatever the queues hold (a planned fault's reasons), and the verbs each fits
+FAULT_REASONS = {
+    2009: ("MQRC_CONNECTION_BROKEN", EVENTS),
+    2035: ("MQRC_NOT_AUTHORIZED", ("MQOPEN", "MQPUT1")),
+    2016: ("MQRC_GET_INHIBITED", ("MQGET",)),
+    2051: ("MQRC_PUT_INHIBITED", ("MQPUT", "MQPUT1")),
+    2161: ("MQRC_Q_MGR_QUIESCING", EVENTS),
+    2162: ("MQRC_Q_MGR_STOPPING", EVENTS),
+}
 COMPARED = ("cc", "rc", "len", "options", "hobj", "msgid")
 
 
@@ -49,12 +63,32 @@ def state(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | None:
     """The queue manager the scenario's task runs with, or None: the case states none."""
     st = copy.deepcopy(sc["mq"] if "mq" in sc else case.get("mq"))
     if st is None:
+        if sc.get("mq_faults"):
+            raise ValueError(f'scenario {sc.get("name")}: "mq_faults" in a case with no "mq" section')
         return None
+    if sc.get("mq_faults"):
+        st["faults"] = fault_plan(sc["mq_faults"], sc.get("name"))
     for q, msgs in (sc.get("mq_messages") or {}).items():
         if q not in st["queues"]:
             raise ValueError(f'scenario {sc.get("name")}: "mq_messages" names {q}, a queue the "mq" section has not')
         st["queues"][q]["messages"] = msgs
     return st
+
+
+def fault_plan(plan: list[dict[str, Any]], name: str | None) -> list[dict[str, Any]]:
+    """A scenario's `mq_faults`, checked: a modelled verb, a positive nth, a reason IBM gives that verb."""
+    out = []
+    for f in plan:
+        verb, nth, reason = f.get("call"), f.get("nth", 1), f.get("reason")
+        if verb not in EVENTS:
+            raise ValueError(f"scenario {name}: mq_faults call {verb!r} is not one of {EVENTS}")
+        if not isinstance(nth, int) or nth < 1:
+            raise ValueError(f"scenario {name}: mq_faults nth {nth!r} is not a call number from 1")
+        if reason not in FAULT_REASONS or verb not in FAULT_REASONS[reason][1]:
+            raise ValueError(f"scenario {name}: mq_faults reason {reason!r} is not one IBM gives {verb} "
+                             f"({sorted(r for r, v in FAULT_REASONS.items() if verb in v[1])})")  # fmt: skip
+        out.append({"call": verb, "nth": nth, "reason": reason})
+    return out
 
 
 def md_image(msg: dict[str, Any], queue: dict[str, Any], st: dict[str, Any], n: int, enc: str) -> bytes:
@@ -85,6 +119,7 @@ def cfg(st: dict[str, Any], enc: str) -> str:
         if not re.fullmatch(r"[A-Za-z0-9._/%]{1,48}", name):
             raise ValueError(f"{name!r}: not a queue name (IBM: 1-48 of A-Z a-z 0-9 . / _ %)")
         lines.append(f"Q {name} {q.get('priority', 0)} {q.get('persistence', 0)}")
+    lines += [f"FAULT {f['call']} {f['nth']} {f['reason']}" for f in st.get("faults", [])]
     for name, q in st["queues"].items():
         for msg in q.get("messages", []):
             n += 1

@@ -680,10 +680,63 @@
      "sqlcode": -913
     }
    ]
+  },
+  {
+   "name": "enter-backed-out-key-unchanged",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "B",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "01",
+     "TRTYDSCI": "PURCHASE"
+    }
+   },
+   "why": "'B' (TTUP-CHANGES-BACKED-OUT) and ENTER with the stored key and description sent back unchanged: 1210 passes, 1205 finds no change and 1200 leaves 'B', so 2000-DECIDE-ACTION's BACKED-OUT arm (1041) runs -> TTUP-CHANGES-NOT-OK"
+  },
+  {
+   "name": "enter-delete-started-key-unchanged-abends",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "8",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "01",
+     "TRTYDSCI": "PURCHASE"
+    }
+   },
+   "why": "'8' (TTUP-START-DELETE, left by a refused DELETE) and ENTER, key and description unchanged: 1200 leaves '8' (0000-MAIN resets only 'C', 'L', 'F', '7', '6') and no 2000-DECIDE-ACTION arm names it, so WHEN OTHER (1073) reaches ABEND-ROUTINE with 'UNEXPECTED DATA SCENARIO'"
+  },
+  {
+   "name": "pf5-update-positive-sqlcode",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "N",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE",
+    "TTUP-NEW-TTYP-TYPE": "01",
+    "TTUP-NEW-TTYP-TYPE-DESC": "PURCHASES"
+   },
+   "why": "PF5 saves and the UPDATE returns a positive SQLCODE other than +100 (+304): 9600's EVALUATE has no WHEN for it and falls through (1555 none); WHEN OTHER (1587) reports the update done",
+   "sql_faults": [
+    {
+     "line": 1544,
+     "nth": 1,
+     "sqlcode": 304,
+     "sqlstate": "01504"
+    }
+   ]
   }
  ],
  "notes": "CardDemo's Db2 transaction-type maintenance screen (transaction CTTU, program COTRTUPC, admin menu option 6 or PF2 on COTRTLIC): a type code is validated and looked up in CARDDEMO.TRANSACTION_TYPE; a found type's description can be changed (ENTER validates, PF5 saves, PF12 cancels) or the type deleted (PF4, PF4 again to confirm); a type not found can be added (PF5, the description, ENTER, PF5: the UPDATE finds no row and the program INSERTs). The state between screens is TTUP-CHANGE-ACTION and the old / new details in the program's own COMMAREA area after CARDDEMO-COMMAREA; on entry the program INITIALIZEs CARDDEMO-COMMAREA, so every later screen carries an empty CardDemo area with context 1 -- the scenarios give that state. Both sides run their SQL on one real Db2 (tests/tools/equivalence_db2.py): TRANSACTION_TYPE and TRANSACTION_TYPE_CATEGORY (whose ON DELETE RESTRICT foreign key makes deleting type 01 return -532) are created from the corpus DDL, seeded before each scenario and both compared after it. The seed is the corpus's DB2LTTYP.ctl and DB2LTCAT.ctl INSERTs unchanged, plus five types (08-12) without category rows in a separate INSERT, written for this case and its sibling carddemo-cotrtlic (08 is the type a delete can remove). The SELECT and UPDATE failure branches (-911, -913, a positive +304) run as injected sql_faults scenarios (search-select-*, pf5-update-*); the INSERT failure is a derived fault. Not covered: the 'UNEXPECTED DATA SCENARIO' ABEND-ROUTINE body, whose stated-infeasible outcomes are in tests/equivalence/infeasible_outcomes/carddemo-cotrtupc.json. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
- "bounds_refused": {
-  "search-select-positive-sqlcode": "COTRTUPC reads the 49-level VARCHAR DCL-TR-DESCRIPTION-TEXT with length 0 after a SELECT that returned +304 and filled no host variable; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout"
- }
+ "zero_length_refmod": "COTRTUPC reads the 49-level VARCHAR DCL-TR-DESCRIPTION-TEXT with length 0 in 9500 after a SELECT that returned +304 and filled no host variable; IBM (no SSRANGE) moves an empty item, so the MOVE changes nothing (X8)"
 }

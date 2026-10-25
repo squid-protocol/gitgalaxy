@@ -728,7 +728,7 @@
         "copaua0c"
       ],
       "issue": 5278,
-      "fixed_by": null,
+      "fixed_by": "#5300",
       "refused_by_name": false,
       "new_class": false,
       "summary": "The remaining CardDemo MQ program and the MQINQ / MQSET calls it uses were not modelled; CMQGMOV / CMQODV copybooks refused the program whole."
@@ -778,7 +778,7 @@
       "fixed_by": null,
       "refused_by_name": false,
       "new_class": false,
-      "summary": "IOERR has no oracle abend code (abendOn defaults to INVREQ) and two COUSR00C harness gaps return after an XCTL; found while faulting its XCTL sites."
+      "summary": "IOERR has no oracle abend code (abendOn defaults to INVREQ); found while faulting its XCTL sites. The two COUSR00C harness gaps after an XCTL were case gaps (no scenario reached the return), closed by two scenarios in the userlist case."
     },
     {
       "id": "P053",
@@ -1564,6 +1564,175 @@
       "refused_by_name": false,
       "new_class": false,
       "summary": "A NOT ON SIZE ERROR after a nested unterminated arithmetic statement bound to the outer statement; the phrase belongs to the innermost open one, so the port ran different statements than the oracle."
+    },
+    {
+      "id": "P105",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "det",
+      "class": "oracle-model",
+      "programs": [],
+      "issue": 4684,
+      "fixed_by": "#4689",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A result overflowing an unsigned binary receiver's bytes (no ON SIZE ERROR) was stored unlike GnuCOBOL's native arithmetic; found by the P-scaled fuzz, reproduced with an unscaled PICTURE. The det runtime now wraps an unsigned binary ADD / SUBTRACT as cobc does."
+    },
+    {
+      "id": "P106",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "harness",
+      "class": "oracle-model",
+      "programs": [],
+      "issue": 4751,
+      "fixed_by": "#4754",
+      "refused_by_name": true,
+      "new_class": false,
+      "summary": "GnuCOBOL lays out a 1-2 digit COMP-5 item in one byte where IBM uses a halfword, so a group holding one gets different offsets and a value past the byte wraps differently; found fuzzing typed binary stores. Refused on the oracle side and declared as register C16, not modelled."
+    },
+    {
+      "id": "P107",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "harness",
+      "class": "commarea-bytes",
+      "programs": [
+        "inqacccu"
+      ],
+      "issue": 4765,
+      "fixed_by": "#4772",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A COMMAREA with an OCCURS was compared at its first occurrence only, and a det LINK of an OCCURS DTO passed the first occurrence's extent; CBSA INQACCCU (up to 20 accounts) was never proven past account 1. The harness now compares every occurrence and the whole table travels."
+    },
+    {
+      "id": "P108",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [],
+      "issue": 4940,
+      "fixed_by": "#4971",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (HTTPHEADER, FORMFIELD, QUERYPARM) were name-only, so a program reading its inbound request got no port; modelled over the stated request (register X38). No burned program is known to use them."
+    },
+    {
+      "id": "P109",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [],
+      "issue": 4941,
+      "fixed_by": "#5036",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "WEB RETRIEVE (server) was name-only: a program retrieving the document it received was refused whole; modelled on both runtimes (register X41), the NORMAL form and SEND ACTION(EVENTUAL) in a later PR."
+    },
+    {
+      "id": "P110",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [],
+      "issue": 4972,
+      "fixed_by": "#5026",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "EXTRACT WEB and EXTRACT TCPIP (client/server address, port, SSL type) were name-only, the older request-reading forms next to WEB EXTRACT; modelled from the stated request (register X38) on both runtimes and translators."
+    },
+    {
+      "id": "P111",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "harness",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 4965,
+      "fixed_by": "#5050",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The CICS crucible and the equivalence harness entered only through handleTransaction(String, T): the byte-carrying overload and lastAnswerBytes() were driven by no scenario, leaving 5 mutation survivors in it triaged unreachable. The harness now drives it and compares the answered bytes with the RETURN's."
+    },
+    {
+      "id": "P112",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [],
+      "issue": 5039,
+      "fixed_by": "#5098",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "CICS fullword named-counter commands (DEFINE / QUERY COUNTER MINIMUM / MAXIMUM, GET INCREMENT WRAP, REWIND, UPDATE, REDUCE / COMPAREMIN / COMPAREMAX, NOSUSPEND) were refused by name after the DCOUNTER slice; modelled on both runtimes, X30's signed reading of low-values stays an assumption."
+    },
+    {
+      "id": "P113",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [],
+      "issue": 5082,
+      "fixed_by": "#5115",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Det RECEIVE MAP ignored DFHMDF JUSTIFY: AMT is JUSTIFY=(RIGHT,ZERO), IBM right-justifies and zero-fills the input and the COBOL side does, so a det PCCONF (translated whole, 47/47) failed 4 of 6 cells against pc-wizard; also proof_reach counted det helpers as ported-unproven."
+    },
+    {
+      "id": "P114",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [],
+      "issue": 5092,
+      "fixed_by": "#5204",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Tokenless update holds recorded INVREQ RESP2 0 in both runtimes (REWRITE with no prior READ UPDATE: 30; DELETE without RIDFLD: 31; a second tokenless READ UPDATE: 28, not modelled); modelled with the full-key READ and DELETE INVREQ / NOTFND RESP2 values checked against IBM's pages."
+    },
+    {
+      "id": "P115",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 5645,
+      "fixed_by": "#5654",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The det translator resolved COPY with its own regex that did not match a quoted copybook literal with an extension (COPY \"x.cpy\".), so the copybook was never expanded and its items were unresolved in the generated Java; the scanner and translator now share one COPY / REPLACING rule."
+    },
+    {
+      "id": "P116",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "vsam",
+      "programs": [],
+      "issue": 6065,
+      "fixed_by": "#6111",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "In an estate with no application JCL job the batch forge emitted no batch package (CobolFiles), so every OPEN / READ / WRITE / CLOSE was a hole (~50 statements), and WRITE ... ADVANCING phrases were holes too (33); about two-thirds of the holes in two non-burned survey corpora. Batch file runtime now generated for file-owning estates; unmodelled WRITE phrases are named."
     }
   ]
 }

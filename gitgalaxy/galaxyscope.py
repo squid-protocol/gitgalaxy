@@ -440,7 +440,14 @@ def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def:
     # of example source), newlines kept.
     blank = lang_def.get("import_capture_blank")
     if blank:
-        content = re.sub(blank, lambda m: re.sub(r"[^\n]", " ", m.group()), content)
+        # #6572: `import_capture_multiline_only` -- the pattern also walks the single-line literals
+        # (to keep quote parity) and only a literal spanning lines is blanked.
+        only_multiline = lang_def.get("import_capture_multiline_only")
+        content = re.sub(
+            blank,
+            lambda m: m.group() if only_multiline and "\n" not in m.group() else re.sub(r"[^\n]", " ", m.group()),
+            content,
+        )
     relative_groups = lang_def.get("relative_import_groups")
     local_group = lang_def.get("local_module_capture_group")
     path_group = lang_def.get("module_path_capture_group")
@@ -588,7 +595,11 @@ def _expand_import_selectors(text: str, depth: int = 0) -> list[str]:
         brace = part.find("{")
         # A selector group follows a path separator (`a.b.{`, `a::{`, `A\\{`) or
         # opens the item; `${VAR}` (shell, PowerShell) is an expansion, not one.
-        if brace == 0 or (brace > 0 and part[:brace].rstrip()[-1:] not in (".", ":", "\\")):
+        # A part that opens with `{` and closes with its `}` is an unprefixed group
+        # (Rust `use { a::B, c::{D, E} };`, #3798): its items expand with no prefix.
+        if (brace == 0 and not part.endswith("}")) or (
+            brace > 0 and part[:brace].rstrip()[-1:] not in (".", ":", "\\")
+        ):
             brace = -1
         if brace == -1 or depth > 8:
             leaf = re.split(r"\s+as\s+|\s*=>\s*", part)[0].replace("{", "").replace("}", "").strip()

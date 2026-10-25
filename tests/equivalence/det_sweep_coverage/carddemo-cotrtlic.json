@@ -1,33 +1,49 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 54,
+ "scenarios": 71,
  "paragraphs": {
   "covered": 59,
   "live": 59
  },
  "branches": {
-  "covered": 196,
+  "covered": 218,
   "total": 230
  },
+ "uncovered": {
+  "branches": [
+   "799:false",
+   "843:false",
+   "991:true",
+   "1155:false",
+   "1445:WHEN@1454",
+   "1506:OTHER",
+   "1543:false",
+   "1546:false",
+   "1858:false",
+   "1911:false",
+   "1917:false",
+   "1927:false"
+  ]
+ },
  "inputs": {
-  "case": "9d9824a93852ac97c5cb907f053c47b8687eda975d6db7cfeef676d635d20af9",
+  "case": "595c9925c0eb126a9b0f28df9c61cd0b2e2df6d894f53281b1d79fc965e332c0",
   "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-  "harness": "da2c3ff87512c11dd74bd9daae9017fa3f4ee7e7dc962ead4c5cae60412c4c1a",
-  "oracle": "259eac82d3d461a50b75abe68a4adf977008cfc5feb0e8a9a4db3a6d3be2b3bd",
+  "harness": "18a9dbcc2db040042740dcc95a5f569645fcde734d747f6fcc25b2204f8a1310",
+  "oracle": "0514e5278b3ee5c2ecc1bea81310ac2415c67fb097a14dc1f9de2d7f72d04d59",
   "components": {
    "harness": {
-    "harness:cics": "8feec8001ee23f80c59f6c43d4895fae7bbd59b5e44d5eccc70af7a0cf403b6c",
-    "harness:core": "808b8ac9e553c3caffe3e5b89d7b7a1d8a04cd0b273490c8f2fb0e16aeb53e77",
+    "harness:cics": "2f89ad8244369870c93dbc2caefcb96f45310e470aba1338afc32058742fbbe5",
+    "harness:core": "23d30bc5d7ad7ba3ee2afbb9f7e50b29799194790891e835576cf0c949d42dbd",
     "harness:db2": "df4cefe238f828f2233ef1ae1b7c77c21265c7f5ab3af61e753544d50120cd66"
    },
    "oracle": {
-    "oracle:cics-stub": "e0506eff6ce935b608cab4b0535b35c2cb81d8feb919f73e898afe2b0d81c6d8",
+    "oracle:cics-stub": "51cd8ed5f2e11cd4742311993fcc8e5f739cba767936a86d0bce6400523555d0",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
-    "oracle:le": "d3ad2b23aac02cd604a06ef216dc42a338c6584b5c475c9fddeaf1cf551bc668"
+    "oracle:le": "4fec0fd2411f43c866dc95cbc9e40f5caf30ad88dd1f430b47625c41da044764"
    }
   }
  },
- "measured_at": "a2d7805e5db024a85b0be1f4a9f8e92e9d82685c"
+ "measured_at": "3ce03380c523369af4cd255eb403f490665b3bc1"
 }

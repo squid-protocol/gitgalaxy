@@ -1025,10 +1025,12 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
                 if not opts.get("LENGTH") or (fixed_len is not None and fixed_len <= self.size(_arg(opts["FROM"])))
                 else 'new String(DetCics.withinRecord({}, {}, "SEND TEXT"), CS)'
             ).format(f, n)
+            pl = g.tmpname("planned")  # #6271 (X71): a planned TSIOERR / INVREQ / LENGERR sends nothing
             return [f"{ind}String {t} = {text};",
-                    f"{ind}task.sendText({t}.substring(0, Math.min({t}.length(), {n})), {n}"
+                    f'{ind}int[] {pl} = task.planned("SEND-TEXT", "-");',
+                    f"{ind}if ({pl}[0] == 0) task.sendText({t}.substring(0, Math.min({t}.length(), {n})), {n}"
                     f"{''.join(', ' + G_jstr(x) for x in flags)});",
-                    *self.outcome(opts, "0", "0", ind)]  # fmt: skip
+                    *self.outcome(opts, f"{pl}[0]", f"{pl}[1]", ind)]  # fmt: skip
         if verb == "RECEIVE" and "MAP" in opts:
             return self.receive_map(opts, ind)
         if verb == "LINK":
@@ -1111,6 +1113,13 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
                 ret_pre, call = self._return_call("returnImmediate", tid, opts, ind, g)
                 rr = g.tmpname("rr")
                 # failing (INVREQ / LENGERR) it returns to the program, which tests RESP; else the task ends
+                return [*ret_pre, f"{ind}int[] {rr} = {call};",
+                        f"{ind}if ({rr}[0] == 0) {{ caBack.run(); throw new Goback(); }}",
+                        *self.outcome(opts, f"{rr}[0]", f"{rr}[1]", ind)]  # fmt: skip
+            if opts.get("TRANSID") and "RESP" in opts:  # #6271 (X71): a planned INVREQ / LENGERR returns to the program
+                tid = self.name(_arg(opts["TRANSID"]))
+                ret_pre, call = self._return_call("returnTransidResp", tid, opts, ind, g)
+                rr = g.tmpname("rr")
                 return [*ret_pre, f"{ind}int[] {rr} = {call};",
                         f"{ind}if ({rr}[0] == 0) {{ caBack.run(); throw new Goback(); }}",
                         *self.outcome(opts, f"{rr}[0]", f"{rr}[1]", ind)]  # fmt: skip
@@ -1308,11 +1317,11 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
         if verb == "WRITEQ TD":
             r = g.tmpname("resp")
             f = self.read_field(_arg(opts["FROM"]))
-            n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["FROM"])))
-            if opts.get("LENGTH"):  # #4607 x X6: a LENGTH past FROM is refused, as the stub refuses it
-                n = f'DetCics.within({f}, {n}, "WRITEQ TD")'
-            return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, "
-                    f"Cobol.text({f}, CS).substring(0, {n}));",
+            if opts.get("LENGTH"):  # X6 (ASSUMED): a LENGTH past FROM writes FROM's bytes then spaces, as the stub does
+                data = f'new String(DetCics.padded({f}, {self.int_(_arg(opts["LENGTH"]))}, "WRITEQ TD", CS), CS)'
+            else:
+                data = f"Cobol.text({f}, CS)"
+            return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, {data});",
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
         if verb == "DELETEQ TD":  # #5079 (X57): every record of an intrapartition queue
             r = g.tmpname("resp")
@@ -2012,11 +2021,12 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
             return [f"{ind}int {r} = task.deleteqTs({queue});", *self.outcome(opts, r, "0", ind)]
         if verb == "WRITEQ":
             f = self.read_field(_arg(opts.get("FROM")))
-            n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{f}.length()"
-            if opts.get("LENGTH"):  # #4607 x X6: a LENGTH past FROM is refused, as the stub refuses it
-                n = f'DetCics.within({f}, {n}, "WRITEQ TS")'
+            if opts.get("LENGTH"):  # X6 (ASSUMED): a LENGTH past FROM writes FROM's bytes then spaces, as the stub does
+                body = f'DetCics.padded({f}, {self.int_(_arg(opts["LENGTH"]))}, "WRITEQ TS", CS)'
+            else:
+                body = f"DetCics.bytes({f}, {f}.length())"
             # #4528: the item in the region's page, as the COBOL side's region keeps it
-            data = f"DetCics.toRegion(DetCics.bytes({f}, {n}), CS, REGION)"
+            data = f"DetCics.toRegion({body}, CS, REGION)"
             if "REWRITE" in opts:
                 out.append(
                     f"{ind}CicsTask.TsResult {r} = task.rewriteqTs({queue}, {self.int_(_arg(opts.get('ITEM')))}, {data});"

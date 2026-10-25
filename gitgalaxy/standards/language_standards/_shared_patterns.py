@@ -283,6 +283,17 @@ CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION = re.compile(
     r"\s*\("
 )
 
+# #6454: Dart's form of the C3 generic pattern. A Dart type argument may be nullable
+# (`ValueNotifier<String?>(null)`, `Completer<T?>()`), so `?` is allowed inside the list; `:` is
+# not (no Dart type-argument list holds one), which keeps a ternary `a<b ? c : d>(e)` out.
+# Everything else is CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION's, bounds included.
+_DART_GENERIC_ARG_CHAR = r"[^<>()\n;{}=|!:\"']"
+CALLS_OUT_DART = re.compile(
+    rf"(?<!@)\b([{ID_START}][{ID_CONTINUE}]*)"
+    r"(?:<(?:" + _DART_GENERIC_ARG_CHAR + r"|<" + _DART_GENERIC_ARG_CHAR + r"{0,200}>\??){0,200}>[ \t]*)?"
+    r"\s*\("
+)
+
 # #3377: Ruby calls without parentheses. `name(` alone found a third of Ruby's
 # calls: idiomatic Ruby writes `obj.to_s`, `xs.each do`, `puts x`, and method
 # names end in `?`/`!` (`key?(k)`, `command! "brew"`). Group 1 is the callee,
@@ -327,6 +338,52 @@ CALLS_OUT_RUBY = re.compile(
     r"|^[ \t]*(?!" + _RUBY_KEYWORD + r")(?=[a-z_][" + ID_CONTINUE + r"]*!?[ \t]+"
     r"(?!(?:if|unless|while|until|rescue|and|or|then|do|in)\b)[" + ID_CONTINUE + r":\"'@$\[%]))"
     r"(" + _RUBY_CALLEE + r")",
+    re.M,
+)
+
+# #6433: Perl calls without parentheses. `name(` alone missed `$obj->method`, `shift`,
+# `blessed $x`, `delete $h->{k}` and `plan tests => 4`. Group 1 is the callee, so
+# detector.py runs it exactly like CALLS_OUT_C_STYLE (qualifier capture, C5 header
+# check). A name is a call when it:
+#   - follows `->` (`$o->save`, `$class->SUPER::new`): a method call, parens or not;
+#   - is followed by `(` and no sigil precedes it (`$x(` is a variable);
+#   - is a unary/list built-in written bare (`shift`, `delete $h->{k}`, `keys %h`),
+#     unless it is a hash key (`{shift}`, `shift =>`);
+#   - opens a statement, or follows `=`, `(`, `!`, `,`, `&&`, `||` or `return`, with an
+#     argument start after blanks (`$ @ \ " '`, a heredoc `<<`, or `word =>`):
+#     `blessed $x`, `plan tests => 4`, `my $v = fetch $k;`. Keywords and word
+#     operators are excluded.
+# A bare word with no `->`, paren or argument (`foo`) is never matched: without a
+# symbol table Perl cannot tell a bareword from a call. Quantifiers are bounded or run
+# over characters their neighbours cannot start with.
+_PERL_NAME = rf"[{ID_START}][{ID_CONTINUE}]*"
+_PERL_KEYWORD = (
+    r"(?:my|our|local|state|sub|use|no|package|require|return|if|elsif|else|unless|while|until|for|foreach"
+    r"|do|eval|and|or|not|xor|x|lt|gt|le|ge|eq|ne|cmp|last|next|redo|goto|when|given|default|continue)"
+    rf"(?![{ID_CONTINUE}])"
+)
+_PERL_BUILTIN = (
+    r"(?:shift|pop|delete|defined|exists|ref|scalar|lc|uc|lcfirst|ucfirst|length|chomp|chop|chr|ord|int|abs|hex"
+    r"|oct|sqrt|log|exp|sin|cos|keys|values|each|caller|undef|rmdir|readlink|chdir|quotemeta|sleep|rand|srand"
+    r"|exit|localtime|gmtime|close|readdir|closedir|stat|lstat|umask|fc|lock)"
+    rf"(?![{ID_CONTINUE}])(?![ \t]*=>)(?!\}})"
+)
+# #6433: a block (`first { $_ > 0 } @l`, `bless {}, $c`), a `%hash`, a `qq{..}` string, or an
+# upper-case file handle (`print OUT $x`) also opens an argument list.
+_PERL_ARG = (
+    rf"(?:[$@\\\"']|%[{ID_START}$]|<<[\"'A-Z_~]|{_PERL_NAME}[ \t]*=>|q[qwx]?[{{(\[<]"
+    r"|\{[^{}\n]{0,200}\}[ \t]*[@$(,]|[A-Z][A-Z0-9_]*[ \t]+[$\"'@])"
+)
+_PERL_NOT_CALL = rf"(?:map|grep|sort)(?![{ID_CONTINUE}])"
+CALLS_OUT_PERL = re.compile(
+    r"(?:(?<=->)(?:SUPER::)?"
+    rf"|(?<![$@%{ID_CONTINUE}>-])(?={_PERL_NAME}[ \t]*\()"
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?={_PERL_BUILTIN})"
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=split(?![{ID_CONTINUE}])[ \t]*/)"
+    rf"|(?:^[ \t]*|(?<==[ \t])|(?<=\()|(?<=!)|(?<=,[ \t])|(?<=&&[ \t])|(?<=\|\|[ \t])|(?<=return[ \t])"
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?:or|and|xor|not)[ \t]+)"
+    rf"(?!{_PERL_KEYWORD})(?!{_PERL_NOT_CALL})(?={_PERL_NAME}[ \t]+{_PERL_ARG}))"
+    rf"({_PERL_NAME})",
     re.M,
 )
 
@@ -424,7 +481,9 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_C_STYLE_NO_ANNOTATION,
     CALLS_OUT_C_STYLE_GENERIC,
     CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
+    CALLS_OUT_DART,
     CALLS_OUT_RUBY,
+    CALLS_OUT_PERL,
     CALLS_OUT_RUST,
     CALLS_OUT_GO,
 )

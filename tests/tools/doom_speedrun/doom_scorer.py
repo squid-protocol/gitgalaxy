@@ -257,7 +257,7 @@ def callgraph_columns(oracle):
 
 def callgraph_check(name, repo, dbp):
     """Check 7 for one scanned port: the C/C++ body oracle for a licensed C/C++ port, else the tree-sitter oracle
-    over the port's go/java/csharp/rust/javascript/python functions (ts_callgraph_oracle); ``n/a`` columns when the
+    over the port's go/java/csharp/rust/javascript/python/kotlin/lua/shell/tcl functions (ts_callgraph_oracle); ``n/a`` columns when the
     port has no function an oracle covers. Returns (columns, passed)."""
     import callgraph_oracle
     import ts_callgraph_oracle

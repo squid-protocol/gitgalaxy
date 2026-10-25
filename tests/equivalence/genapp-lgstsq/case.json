@@ -74,6 +74,12 @@
    },
    "commarea_length": 90,
    "why": "all 81 bytes of CA-DATA that fit under EIBCALEN 90"
+  },
+  {
+   "name": "terminal-queue-prefix",
+   "terminal": "LGSQ Q=ABCDoperator text",
+   "commarea": null,
+   "why": "INVOKINGPROG is blank (the oracle names no caller), so the RECEIVE arm runs: the line after the 5-byte transid is the message, and its leading 'Q=' makes the TS queue name GENA + the next 4 bytes and the message the 83 bytes after them (LENGTH - 7 + 5)"
   }
  ],
  "notes": "GenApp's error logger (LGSTSQ), the program every GenApp program LINKs on a non-NORMAL RESP. LINKed with a COMMAREA (ASSIGN INVOKINGPROG is the caller's name, so the 'C' arm runs): COMMA-DATA (90 bytes) is the message, WRITEQ TD to CSMT and WRITEQ TS to GENAERRS (or GENA + the 4 bytes after a leading 'Q=') with LENGTH = EIBCALEN + 5 (- 7 for a 'Q=' prefix), the SYSID of the region in front. The case ships the LINKed arm only: the transaction arm (INVOKINGPROG blank: RECEIVE INTO, SEND TEXT) needs a started task, and a case is either LINKed or started. A COMMAREA longer than 90 bytes (the callers' 99-byte CA-ERROR-MSG, 101-byte ERROR-MSG) gives LENGTH > FROM on the WRITEQ TD, which the oracle refuses by name (oracle_assumptions.md X6): not here. The region ASSIGN SYSID is a deployment fact the corpus does not name. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",

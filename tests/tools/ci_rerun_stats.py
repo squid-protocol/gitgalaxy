@@ -20,6 +20,13 @@ from datetime import datetime
 
 REPO = "squid-protocol/gitgalaxy"
 PULL_MARKER = "INFRASTRUCTURE (not a code defect): could not pull"  # equivalence_db2.Db2ImagePullError (#5097)
+WAIT_FAILED_MARKER = "the background Db2 start did not bring up GGDB"  # det-sweep.yml's wait step (#5601): its log then holds the docker tail
+# (substring, cause) in precedence order, matched against a log that carries WAIT_FAILED_MARKER
+DB2_START_CAUSES = (
+    ("No space left on device", "db2_start_disk"),
+    ("No such container", "db2_start_not_created"),
+    (" Exited (", "db2_start_exited"),  # `docker ps -a` shows the container stopped
+)
 TIMEOUT_SLACK_S = 30  # a job cancelled this close to its cap (or over) hit timeout-minutes, not a person
 
 
@@ -46,12 +53,27 @@ def scope_jobs(job: dict, attempt_jobs: list[dict]) -> list[dict]:
     return [job, *same]
 
 
+def db2_start_cause(log: str) -> str:
+    """Why a Db2 start failed, read from the docker state and log tail the det-sweep wait step prints (#5601).
+
+    db2_start_disk | db2_start_not_created | db2_start_exited | db2_start_setup_incomplete (container up, first-start
+    setup never finished: a slow start) | db2_start (no tail in the log: expired, empty, or another step's log)."""
+    if PULL_MARKER in log:
+        return "registry_pull"
+    if WAIT_FAILED_MARKER not in log:
+        return "db2_start"
+    for needle, cause in DB2_START_CAUSES:
+        if needle in log:
+            return cause
+    return "db2_start" if "Setup has completed" in log else "db2_start_setup_incomplete"
+
+
 def classify(
     jobs: list[dict], timeout_minutes: dict[str, int] | None = None, logs: dict[str, str] | None = None
 ) -> str:
-    """One cause for a failed attempt: timeout | superseded | registry_pull | db2_start | ratchet | artifact_missing | test_failure | other | none.
+    """One cause for a failed attempt: timeout | superseded | registry_pull | db2_start (or a db2_start_* sub-cause) | ratchet | artifact_missing | test_failure | other | none.
 
-    `logs` maps a job name to its log text; only a failed Db2 step consults it (registry_pull vs db2_start)."""
+    `logs` maps a job name to its log text; only a failed Db2 step consults it (registry_pull vs db2_start, see db2_start_cause)."""
     timeout_minutes = timeout_minutes or {}
     logs = logs or {}
     bad = [j for j in jobs if j.get("conclusion") in ("failure", "cancelled", "timed_out")]
@@ -72,7 +94,7 @@ def classify(
                 continue
             name = step.get("name", "").lower()
             if "db2" in name:
-                return "registry_pull" if PULL_MARKER in logs.get(job.get("name", ""), "") else "db2_start"
+                return db2_start_cause(logs.get(job.get("name", ""), ""))
             if "ratchet" in name:
                 return "ratchet"
             if name.startswith("download"):

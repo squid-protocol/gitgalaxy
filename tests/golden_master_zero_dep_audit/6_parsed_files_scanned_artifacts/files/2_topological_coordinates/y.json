@@ -2598,7 +2598,7 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": -297.14,
       "php/wordpress/class-wp-query.php": -230.62,
-      "php/wordpress/formatting.php": -107.25,
+      "php/wordpress/formatting.php": -107.3,
       "php/wordpress/functions.php": -224.26,
       "php/wordpress/license.txt": -107.26,
       "php/wordpress/plugin.php": -105.48,
@@ -2694,14 +2694,14 @@
       "powershell/core/Microsoft.WSMan.Management.psd1": -98.97,
       "powershell/core/PSDiagnostics.psd1": 44.53,
       "powershell/core/Parse-MarkdownLink.ps1": -119.72,
-      "powershell/core/PowerShell__build.psm1": -109.65,
+      "powershell/core/PowerShell__build.psm1": -109.67,
       "powershell/core/RegisterManifest.ps1": 152.34,
       "powershell/core/RegisterMicrosoftUpdate.ps1": -156.37,
       "powershell/core/Run-AttackSurfaceAnalyzer.ps1": 76.59,
       "powershell/core/Run.ps1": -46.03,
       "powershell/core/SSHRemoting.Basic.Tests.ps1": -106.55,
       "powershell/core/analyze-pr-test-failures.ps1": 94.94,
-      "powershell/core/build.psm1": 41.52,
+      "powershell/core/build.psm1": 41.53,
       "powershell/core/ci.psm1": 33.29,
       "powershell/core/ciModule.Tests.ps1": 57.62,
       "powershell/core/install-powershell.ps1": -73.94,
@@ -3100,7 +3100,7 @@
       "python/numpy/crackfortran.py": -220.31,
       "python/numpy/cversions.txt": -238.55,
       "python/numpy/func2subr.py": -79.41,
-      "python/numpy/genapi.py": -325.06,
+      "python/numpy/genapi.py": -325.07,
       "python/numpy/generate_numpy_api.py": -121.2,
       "python/numpy/generate_ufunc_api.py": -144.24,
       "python/numpy/generate_umath.py": -275.05,
@@ -3749,12 +3749,12 @@
       "swift/SOURCES.md": 27.26
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": 189.53,
-      "swift/alamofire/Alamofire.podspec": 255.48,
-      "swift/alamofire/Package.swift": 64.48,
-      "swift/alamofire/ParameterEncoder.swift": 134.22,
-      "swift/alamofire/Request.swift": 82.81,
-      "swift/alamofire/Response.swift": 255.28,
+      "swift/alamofire/AFError.swift": 189.52,
+      "swift/alamofire/Alamofire.podspec": 255.53,
+      "swift/alamofire/Package.swift": 64.42,
+      "swift/alamofire/ParameterEncoder.swift": 134.19,
+      "swift/alamofire/Request.swift": 82.75,
+      "swift/alamofire/Response.swift": 255.34,
       "swift/alamofire/Session.swift": 135.59
     },
     "tabular": {
@@ -4053,7 +4053,7 @@
     "zig/bun": {
       "zig/bun/LICENSE.md": 125.07,
       "zig/bun/MimallocArena.zig": 204.35,
-      "zig/bun/Parser.zig": 205.47,
+      "zig/bun/Parser.zig": 205.48,
       "zig/bun/comptime_string_map.zig": 55.08,
       "zig/bun/napi.zig": 177.39
     },
@@ -4069,38 +4069,38 @@
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 32.54,
-      "zig/tigerbeetle/build.zig": 250.64,
-      "zig/tigerbeetle/build_multiversion.zig": 183.86,
+      "zig/tigerbeetle/build.zig": 250.65,
+      "zig/tigerbeetle/build_multiversion.zig": 199.52,
       "zig/tigerbeetle/cluster.zig": 95.97,
-      "zig/tigerbeetle/config.zig": 269.63,
-      "zig/tigerbeetle/constants.zig": 237.83,
+      "zig/tigerbeetle/config.zig": 269.64,
+      "zig/tigerbeetle/constants.zig": 222.39,
       "zig/tigerbeetle/copyhound.zig": 80.46,
       "zig/tigerbeetle/counting_allocator.zig": 104.76,
-      "zig/tigerbeetle/direction.zig": 70.8,
-      "zig/tigerbeetle/download.sh": 315.38,
+      "zig/tigerbeetle/direction.zig": 70.76,
+      "zig/tigerbeetle/download.sh": 315.39,
       "zig/tigerbeetle/download.win.ps1": 13.41,
       "zig/tigerbeetle/state_machine.zig": 130.94
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 1.36,
+      "zig/zig/Compilation.zig": 1.92,
       "zig/zig/InternPool.zig": -158.66,
       "zig/zig/Sema.zig": -41.41,
-      "zig/zig/Type.zig": -197.71,
-      "zig/zig/Zcu.zig": -5.89,
+      "zig/zig/Type.zig": -197.76,
+      "zig/zig/Zcu.zig": -5.84,
       "zig/zig/main.zig": -87.99
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": -145.94
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": -131.69,
-      "zig/zls/DocumentStore.zig": -190.71,
-      "zig/zls/Server.zig": -186.07,
+      "zig/zls/DocumentScope.zig": -131.95,
+      "zig/zls/DocumentStore.zig": -190.61,
+      "zig/zls/Server.zig": -185.91,
       "zig/zls/analysis.zig": -190.97,
-      "zig/zls/ast.zig": -143.47,
-      "zig/zls/config_gen.zig": -145.8,
-      "zig/zls/langref.html.in": -201.86,
-      "zig/zls/print_ast.zig": -146.97
+      "zig/zls/ast.zig": -143.6,
+      "zig/zls/config_gen.zig": -145.74,
+      "zig/zls/langref.html.in": -201.93,
+      "zig/zls/print_ast.zig": -146.86
     }
   },
   "path": [

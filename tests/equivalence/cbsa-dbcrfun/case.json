@@ -468,6 +468,82 @@
     }
    ],
    "why": "#6271 (X73): the ACCOUNT UPDATE deadlocks (-911) and the CICS-Db2 attach's syncpoint rollback fails: the task abends AD2Z, so ABEND-HANDLING takes its AD2Z arm (diagnostics DISPLAYed, SQLERRMC the deadlock reason code 00C90088) before the program's own abend"
+  },
+  {
+   "name": "rollback-invreq-then-abndproc-abends-afcr",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000001",
+    "SUBPGM-AMT": "-100.50",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "0"
+   },
+   "why": "#6271 (X70, X71): the ROLLBACK after the failed PROCTRAN INSERT answers INVREQ and the LINK to ABNDPROC abends AFCR: ABEND-HANDLING takes the AFCR arm and its SYNCPOINT (l.750) answers NORMAL (l.756 false arm)",
+   "sql_faults": [
+    {
+     "table": "PROCTRAN",
+     "verb": "INSERT",
+     "sqlcode": -911
+    }
+   ],
+   "faults": [
+    {
+     "cmd": "ROLLBACK",
+     "nth": 1,
+     "resp": "INVREQ",
+     "resp2": 200
+    },
+    {
+     "cmd": "LINK",
+     "program": "ABNDPROC",
+     "resp": "ABEND",
+     "abcode": "AFCR"
+    }
+   ]
+  },
+  {
+   "name": "rollback-invreq-then-abndproc-afcr-rollback-invreq",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000001",
+    "SUBPGM-AMT": "-100.50",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "0"
+   },
+   "why": "#6271 (X70, X71): as rollback-invreq-then-abndproc-abends-afcr, but ABEND-HANDLING's SYNCPOINT ROLLBACK (the 2nd ROLLBACK) answers INVREQ (RESP2 200) too: the l.756 failure arm",
+   "sql_faults": [
+    {
+     "table": "PROCTRAN",
+     "verb": "INSERT",
+     "sqlcode": -911
+    }
+   ],
+   "faults": [
+    {
+     "cmd": "ROLLBACK",
+     "nth": 1,
+     "resp": "INVREQ",
+     "resp2": 200
+    },
+    {
+     "cmd": "LINK",
+     "program": "ABNDPROC",
+     "resp": "ABEND",
+     "abcode": "AFCR"
+    },
+    {
+     "cmd": "ROLLBACK",
+     "nth": 2,
+     "resp": "INVREQ",
+     "resp2": 200
+    }
+   ]
   }
  ],
  "notes": "CBSA's debit/credit service (DBCRFUN, LINKed with the PAYDBCR copybook's COMMAREA): COMM-SORTC is overwritten with the program's own sort code (987654) and the account is read by it and COMM-ACCNO with a SELECT INTO from Db2 table ACCOUNT (unqualified: the bind's QUALIFIER, IBMUSER); a failed SELECT gives COMM-SUCCESS 'N' with COMM-FAIL-CODE '1' (+100) or '2' (any other SQLCODE, e.g. -305). COMM-FACILTYPE 496 marks a payment, anything else a teller transaction. A payment debit (COMM-AMT < 0) to a MORTGAGE or LOAN fails '4', and one that would take the available balance below zero fails '3' (the overdraft limit is never consulted); a payment credit to a MORTGAGE or LOAN fails '4'; teller transactions have no checks. Otherwise both balances are adjusted by COMM-AMT (COMPUTE, no ON SIZE ERROR), the row is UPDATEd, COMM-AV-BAL/COMM-ACT-BAL are returned, and a PROCTRAN row is INSERTed: type DEB/CRE with 'COUNTER WTHDRW'/'COUNTER RECVED', or PDR/PCR with COMM-ORIGIN(1:14) for a payment, dated DD.MM.YYYY and timed HHMMSS from the case clock (ASKTIME/FORMATTIME), ref EIBTASKN; then 'Y' '0'. Both tables are compared after every scenario. A failed PROCTRAN INSERT (-911) followed by a planned SYNCPOINT ROLLBACK INVREQ (X71, #6271) drives the rollback-failure path into ABNDPROC. The COMMAREA is described by the record its caller BNK1CRA passes (SUBPGM-PARMS), the layout of DBCRFUN's PAYDBCR copybook under the caller's names: the generated DTO is the caller's.",

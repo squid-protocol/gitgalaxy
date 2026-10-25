@@ -4,12 +4,13 @@ per-test seconds in `.test_durations` through ci_shard_plan (#5919 slice 3). Std
 anything is installed.
 
     --smoke        emits `matrix` ({"group": [1..N]}), `splits` (N) and `timeout` (minutes of a part job)
-    --gate [--full]  emits `matrix` (the leg `include` list: os, python-version, part, splits, [even], timeout,
+    --gate         emits `matrix` (the leg `include` list: os, python-version, part, splits, [even], timeout,
                    step_timeout) for the Full Suite Gate
 
 The workflow's plan job calls this module, so adding tests moves the plan, not the YAML. The committed durations are
-Linux CI seconds: a Windows or macOS leg multiplies them by its SPEED. The model constants were calibrated so today's
-durations reproduce today's part counts (Smoke 3; Gate ubuntu 2, macOS 2, Windows 3.11 3 and 3.12 2).
+Linux CI seconds: a Windows or macOS leg multiplies them by its SPEED. The model constants were calibrated so the
+durations reproduce the proven part counts (Smoke 3; Gate ubuntu 2, macOS 2, Windows 3.11 3 and
+3.12 2); a durations refresh moves the plan (#6146's halved ground-truth seconds plan Smoke 2).
 """
 
 from __future__ import annotations
@@ -33,7 +34,7 @@ SMOKE_MAX_PARTS = 6  # this workflow's share of the 20-job pool
 SMOKE_TIMEOUT_FLOOR, SMOKE_TIMEOUT_CEILING = 25, 30  # minutes
 
 # Gate: every leg is (os, python, SPEED over the Linux seconds). A leg's parts share GATE_MAX_PARTS of the pool each.
-GATE_SETUP_S = 240
+GATE_SETUP_S = 480  # recalibrated #5919: Windows and macOS installs take ~8 min; 240 s planned one Ubuntu part and caps below the measured legs
 GATE_TARGET_S = 20 * 60
 GATE_MAX_PARTS = 4
 GATE_TIMEOUT_FLOOR, GATE_TIMEOUT_CEILING = 20, 35

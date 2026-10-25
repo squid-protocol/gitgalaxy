@@ -91,6 +91,9 @@ class Chronometer:
 
         self.root = Path(root_path).resolve()
         self.is_git_enabled = False
+        # #4548: False when git history cannot date files (shallow clone, or a
+        # single-commit span): every file then carries the checkout commit's time.
+        self.history_reliable = True
 
         # #335: was `from gitgalaxy.standards import gitgalaxy_config as
         # config`, the raw unmerged module -- meant no YAML/CLI override
@@ -169,6 +172,7 @@ class Chronometer:
         # Step C: Populate Churn and MTime Maps
         if self.is_git_enabled:
             self._scan_git_history()
+            self._check_history_reliable()
         else:
             self._survey_filesystem_mtimes()
 
@@ -191,6 +195,30 @@ class Chronometer:
             f"Visible Timeline: {self.repo_max_time - self.repo_min_time:.0f}s | "
             f"Cached Artifacts: {len(self.mtime_map)}"
         )
+
+    def _check_history_reliable(self):
+        """#4548: a shallow clone (or a one-commit span) dates every file at the checkout commit.
+
+        Stability then reads 0 or 100 for the whole repo (an artifact of clone depth, not of
+        the code), so the signal processor is told to report the neutral instead.
+        """
+        shallow = False
+        try:
+            res = subprocess.run(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                [_GIT_BIN, "rev-parse", "--is-shallow-repository"],
+                cwd=self.root,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            shallow = res.stdout.strip() == "true"
+        except (subprocess.CalledProcessError, OSError):
+            pass
+        if shallow or self.repo_max_time - self.repo_min_time < 300.0:
+            self.history_reliable = False
+            self.logger.warning(
+                "Shallow or single-commit git history: stability and churn are unavailable (reported neutral)."
+            )
 
     def _determine_commit_bounds(self):
         """
@@ -525,7 +553,7 @@ class Chronometer:
         # Churn lookup
         commit_count = self.churn_map.get(lookup_key, 0)
 
-        return {
+        out: dict[str, Any] = {
             "commit_count": commit_count,
             "mtime": mtime,
             "repo_min_time": self.repo_min_time,
@@ -533,3 +561,6 @@ class Chronometer:
             "is_git_tracked": self.is_git_enabled,
             "authors": self.author_map.get(lookup_key, {}),
         }
+        if not self.history_reliable:
+            out["history_unreliable"] = True  # #4548: added only when set
+        return out

@@ -83,7 +83,11 @@ jobs:
           git checkout -q FETCH_HEAD
           # the parent POM still targets Java 7, which current JDKs refuse
           mvn -q -B -pl cobol-parser -am -DskipTests -Dmaven.compiler.source=8 -Dmaven.compiler.target=8 package
-          mvn -q -B -pl cobol-parser dependency:build-classpath -Dmdep.outputFile="$REFEREES_DIR/cobrix.cp"
+          mvn -q -B -pl cobol-parser dependency:build-classpath -Dmdep.outputFile="$REFEREES_DIR/cobrix.m2.cp"
+          # the classpath names jars in ~/.m2, which the referee cache does not hold: copy them next to the install
+          mkdir -p "$REFEREES_DIR/cobrix-lib"
+          tr ':' '\n' < "$REFEREES_DIR/cobrix.m2.cp" | while read -r j || [ -n "$j" ]; do cp "$j" "$REFEREES_DIR/cobrix-lib/"; done
+          ls "$REFEREES_DIR"/cobrix-lib/*.jar | paste -sd: - > "$REFEREES_DIR/cobrix.cp"
 
       - name: Install tree-sitter-cobol-enterprise
         if: steps.referees.outputs.cache-hit != 'true'

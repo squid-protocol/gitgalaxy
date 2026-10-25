@@ -5,8 +5,9 @@ mainframe-ground-truth.yml, #5543).
     python3 tests/tools/ci_layout.py --event pull_request --mode full --cache-hit false \
         [--waiting N] [--busy-above 8] [--github-output PATH] [--summary PATH]     # env: GH_TOKEN, GITHUB_REPOSITORY
 
-  calm   a warm job (fetch, parallel scans, the ledger gate) + 4 parts that unpack its scans: the shortest critical path
-         while runners are free. A cache hit on the scans (corpora.json + engine state, saved on main) skips the warm
+  calm   4 parts; a push, the nightly and a manual run also run a warm job (fetch, parallel scans, the ledger gate) whose
+         scans the parts unpack and main saves. A pull request has no warm job: on a cache miss its parts warm for
+         themselves (one fewer serial queue wait and runner). A cache hit on the scans (corpora.json + engine state, saved on main) skips the warm
          job: the parts restore the scans and part 1 runs the (cheap) gate.
   busy   2 parts and no warm job, each part warming its own scans (the pre-#5559 layout): fewer runners and fewer serial
          queue waits when PR jobs are waiting for one. Pull requests only: a push, the nightly and a manual run are
@@ -56,11 +57,18 @@ def choose(event: str, mode: str, cache_hit: bool, waiting: int | None, busy_abo
         }
     else:
         why = f"{waiting} PR jobs waiting for a runner (<= {busy_above}): calm"
-    warm = not cache_hit
+    # A pull request on a cache miss skips the warm job too: it would be a fourth serial queue wait and a fifth runner
+    # request; the 4 parts scan for themselves. Push / nightly / manual runs keep it: it saves the scans cache.
+    warm = not cache_hit and event != "pull_request"
+    if cache_hit:
+        how = "the scans are cached: no warm job"
+    elif warm:
+        how = "no cached scans: warm job + 4 parts (it saves the scans cache)"
+    else:
+        how = "no cached scans: no warm job (a serial queue wait), 4 self-warming parts"
     return {
         "layout": "calm",
-        "reason": why
-        + ("; the scans are cached: no warm job" if cache_hit else "; no cached scans: warm job + 4 parts"),
+        "reason": why + "; " + how,
         "warm": warm,
         "parts": CALM_PARTS,
         "gate_in_part": not warm,

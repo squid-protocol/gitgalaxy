@@ -102,7 +102,9 @@ HARNESS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "t
            "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py",
            "tests/tools/equivalence_cics_containers.py", "tests/tools/equivalence_cics_filecontrol.py",
            "tests/tools/equivalence_cics_conditions.py",
+           "tests/tools/equivalence_cics_faults.py",
            "tests/tools/equivalence_cics_tempstorage.py",
+           "tests/tools/equivalence_cics_taskcontrol.py",
            "tests/tools/equivalence_call.py",
            "tests/tools/equivalence_cache.py", "tests/tools/equivalence_db2.py", "tests/tools/equivalence_oracle.py",
            "tests/tools/cobol_coverage.py", "tests/tools/java_target_matrix.py",
@@ -243,7 +245,9 @@ COMPONENTS: tuple[Component, ...] = (
             "tests/tools/equivalence_cics_containers.py",
             "tests/tools/equivalence_cics_filecontrol.py",
             "tests/tools/equivalence_cics_conditions.py",
+            "tests/tools/equivalence_cics_faults.py",
             "tests/tools/equivalence_cics_tempstorage.py",
+            "tests/tools/equivalence_cics_taskcontrol.py",
         ),  # #5274: its families
         lambda u: u.cics_harness,
         "run_case for kind cics; batch Db2 SQL faults and call arg encoding import it; a plain batch run never does",
@@ -487,11 +491,20 @@ def equivalence_target(case: str) -> Target:
     data = _case_json(case)
     port_case = data.get("port_from", case)
     ports = [port_case, *data.get("uses_ports", [])]
-    for extra in data.get("programs", []):  # #4188: a LINKed program's committed model port runs in the proof
+    linked = data.get("programs", [])
+    ported = (  # #5162: the cases with a port and their program, read once per target, not once per LINKed program
+        {
+            other: _case_json(other).get("program", "").upper()
+            for other in sorted(p.parent.name for p in CASES.glob("*/case.json"))
+            if (CASES / other / "port").is_dir()
+        }
+        if linked
+        else {}
+    )
+    for extra in linked:  # #4188: a LINKed program's committed model port runs in the proof
         prog = extra["program"].upper()
-        for other in sorted(p.parent.name for p in CASES.glob("*/case.json")):
-            if other not in ports and (CASES / other / "port").is_dir() and \
-                    _case_json(other).get("program", "").upper() == prog:  # fmt: skip
+        for other, other_program in ported.items():
+            if other not in ports and other_program == prog:
                 ports.append(other)
     corpus = data["corpus"]
     specs = {
@@ -683,10 +696,14 @@ def proof_section(t: Target, report: dict[str, Any], digest: str) -> dict[str, A
     outputs: dict[str, Any] = {}
     for name, o in (report.get("outputs") or {}).items():
         outputs[name] = {"equal": o.get("equal"), "records": o.get("records", o.get("events"))}
+        if o.get("commands"):  # #5229: the CICS commands the scenario's COBOL run executed (the reach's input)
+            outputs[name]["commands"] = list(o["commands"])
         if o.get("judged_to"):  # #4173 / #4607 (X6): a task compared only up to a LINK not run or a refused WRITEQ
             outputs[name]["judged_to"] = o["judged_to"]
             if o.get("x6"):  # #4270: or X23, a reference past a stated EIBCALEN
                 outputs[name]["assumes"] = o["x6"].get("assumes", "X6")
+        elif o.get("x6_padded"):  # X6 (ASSUMED, owner 2026-10-21): the task ran on through a WRITEQ past FROM
+            outputs[name]["assumes"], outputs[name]["x6_padded"] = "X6", o["x6_padded"]
     envs = [e["name"] for e in report.get("environments") or []]
     rc = report.get("return_code") or {}
     sysout = report.get("sysout")
@@ -1189,13 +1206,19 @@ def render_page(t: Target, rec: dict[str, Any]) -> str:
     lines.append(f"| written by | {who} |")
     lines += ["", "## Proof outputs", "", "| output | equal | compared |", "|---|---|---|"]
     for k, v in sorted((p.get("outputs") or {}).items()):
-        refusal = f" (judged up to the refusal: {v['assumes']})" if v.get("assumes") else ""
+        refusal = (f" (assumes {v['assumes']}: a WRITEQ past FROM, padded)" if v.get("x6_padded")
+                   else f" (judged up to the refusal: {v['assumes']})" if v.get("assumes") else "")  # fmt: skip
         lines.append(f"| {k} | {v['equal']} | {v['records']}{refusal} |")
-    x6 = sorted(k for k, v in (p.get("outputs") or {}).items() if v.get("assumes") == "X6")
+    x6 = sorted(k for k, v in (p.get("outputs") or {}).items() if v.get("assumes") == "X6" and not v.get("x6_padded"))
     if x6:  # owner decision on #4607: the proof states X6 as an assumption of these tasks
         lines += ["", f"Assumes oracle_assumptions.md X6 for {len(x6)} task(s) ({', '.join(x6)}): each is compared up "
                   "to a WRITEQ whose LENGTH runs past its FROM area, refused on both sides; what z/OS writes there and "
                   "what the task does after it are not claimed (not settled on z/OS, #4050)."]  # fmt: skip
+    pad = sorted(k for k, v in (p.get("outputs") or {}).items() if v.get("x6_padded"))
+    if pad:  # owner decision 2026-10-21: the padded WRITEQ is an assumption of every task that runs it
+        lines += ["", f"Assumes oracle_assumptions.md X6 for {len(pad)} task(s) ({', '.join(pad)}): each ran a WRITEQ "
+                  "whose LENGTH runs past its FROM area, written on both sides as FROM's bytes then spaces (ASSUMED); "
+                  "z/OS writes the storage that follows FROM, which is not claimed (not settled on z/OS, #4050)."]  # fmt: skip
     x22 = sorted(k for k, v in (p.get("outputs") or {}).items() if v.get("assumes") == "X23")
     if x22:  # #4270: a task given a COMMAREA of a stated length that referenced past it
         lines += ["", f"Assumes oracle_assumptions.md X23 for {len(x22)} task(s) ({', '.join(x22)}): each is given a "

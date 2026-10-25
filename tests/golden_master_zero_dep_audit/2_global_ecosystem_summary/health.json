@@ -4,9 +4,9 @@
     "health"
   ],
   "value": {
-    "avg_cognitive_load": 20.036,
+    "avg_cognitive_load": 20.031,
     "avg_documentation": 50.531,
-    "avg_safety_score": 45.589,
-    "avg_tech_debt": 26.342
+    "avg_safety_score": 38.588,
+    "avg_tech_debt": 26.38
   }
 }

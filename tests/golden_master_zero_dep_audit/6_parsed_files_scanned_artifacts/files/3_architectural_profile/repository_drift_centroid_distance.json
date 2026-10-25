@@ -1254,70 +1254,70 @@
       "dockerfile/SOURCES.md": 0.0
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": 6.218,
-      "dockerfile/moby/builder/dockerfile/buildargs_test.go": 6.951,
-      "dockerfile/moby/builder/dockerfile/builder.go": 6.518,
+      "dockerfile/moby/builder/dockerfile/buildargs.go": 6.216,
+      "dockerfile/moby/builder/dockerfile/buildargs_test.go": 6.727,
+      "dockerfile/moby/builder/dockerfile/builder.go": 6.5,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 6.202,
-      "dockerfile/moby/builder/dockerfile/builder_windows.go": 5.671,
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": 7.126,
-      "dockerfile/moby/builder/dockerfile/copy.go": 6.271,
-      "dockerfile/moby/builder/dockerfile/copy_test.go": 5.07,
-      "dockerfile/moby/builder/dockerfile/copy_unix.go": 4.892,
-      "dockerfile/moby/builder/dockerfile/copy_windows.go": 4.72,
-      "dockerfile/moby/builder/dockerfile/dispatchers.go": 6.317,
-      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 7.209,
-      "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 5.958,
-      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 5.147,
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 6.446,
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 6.256,
-      "dockerfile/moby/builder/dockerfile/evaluator.go": 7.199,
-      "dockerfile/moby/builder/dockerfile/evaluator_test.go": 7.356,
-      "dockerfile/moby/builder/dockerfile/imagecontext.go": 6.478,
-      "dockerfile/moby/builder/dockerfile/imagecontext_test.go": 7.137,
-      "dockerfile/moby/builder/dockerfile/imageprobe.go": 6.301,
-      "dockerfile/moby/builder/dockerfile/internals.go": 5.965,
-      "dockerfile/moby/builder/dockerfile/internals_linux.go": 6.615,
-      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 5.481,
-      "dockerfile/moby/builder/dockerfile/internals_test.go": 6.906,
-      "dockerfile/moby/builder/dockerfile/internals_windows.go": 6.179,
-      "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 5.798,
+      "dockerfile/moby/builder/dockerfile/builder_windows.go": 5.691,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 7.145,
+      "dockerfile/moby/builder/dockerfile/copy.go": 6.244,
+      "dockerfile/moby/builder/dockerfile/copy_test.go": 4.799,
+      "dockerfile/moby/builder/dockerfile/copy_unix.go": 4.662,
+      "dockerfile/moby/builder/dockerfile/copy_windows.go": 4.667,
+      "dockerfile/moby/builder/dockerfile/dispatchers.go": 6.32,
+      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 7.212,
+      "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 5.686,
+      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 5.086,
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 6.281,
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 6.206,
+      "dockerfile/moby/builder/dockerfile/evaluator.go": 7.09,
+      "dockerfile/moby/builder/dockerfile/evaluator_test.go": 7.218,
+      "dockerfile/moby/builder/dockerfile/imagecontext.go": 6.439,
+      "dockerfile/moby/builder/dockerfile/imagecontext_test.go": 7.071,
+      "dockerfile/moby/builder/dockerfile/imageprobe.go": 6.232,
+      "dockerfile/moby/builder/dockerfile/internals.go": 5.897,
+      "dockerfile/moby/builder/dockerfile/internals_linux.go": 6.684,
+      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 5.398,
+      "dockerfile/moby/builder/dockerfile/internals_test.go": 6.715,
+      "dockerfile/moby/builder/dockerfile/internals_windows.go": 6.059,
+      "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 5.281,
       "dockerfile/moby/builder/dockerfile/metrics.go": 6.268,
-      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 5.694,
-      "dockerfile/moby/builder/dockerfile/utils_test.go": 6.144
+      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 5.717,
+      "dockerfile/moby/builder/dockerfile/utils_test.go": 6.162
     },
     "dockerfile/moby/builder/remotecontext": {
-      "dockerfile/moby/builder/remotecontext/archive.go": 6.781,
-      "dockerfile/moby/builder/remotecontext/detect.go": 6.513,
-      "dockerfile/moby/builder/remotecontext/detect_test.go": 7.052,
-      "dockerfile/moby/builder/remotecontext/filehash.go": 5.922,
-      "dockerfile/moby/builder/remotecontext/git.go": 6.98,
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": 8.077,
-      "dockerfile/moby/builder/remotecontext/mimetype.go": 5.979,
-      "dockerfile/moby/builder/remotecontext/mimetype_test.go": 6.908,
-      "dockerfile/moby/builder/remotecontext/remote.go": 7.573,
-      "dockerfile/moby/builder/remotecontext/remote_test.go": 7.12,
-      "dockerfile/moby/builder/remotecontext/tarsum_test.go": 6.55,
-      "dockerfile/moby/builder/remotecontext/utils_test.go": 6.134
+      "dockerfile/moby/builder/remotecontext/archive.go": 6.626,
+      "dockerfile/moby/builder/remotecontext/detect.go": 6.311,
+      "dockerfile/moby/builder/remotecontext/detect_test.go": 6.704,
+      "dockerfile/moby/builder/remotecontext/filehash.go": 5.794,
+      "dockerfile/moby/builder/remotecontext/git.go": 6.661,
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": 7.812,
+      "dockerfile/moby/builder/remotecontext/mimetype.go": 6.06,
+      "dockerfile/moby/builder/remotecontext/mimetype_test.go": 6.596,
+      "dockerfile/moby/builder/remotecontext/remote.go": 7.533,
+      "dockerfile/moby/builder/remotecontext/remote_test.go": 7.177,
+      "dockerfile/moby/builder/remotecontext/tarsum_test.go": 6.57,
+      "dockerfile/moby/builder/remotecontext/utils_test.go": 6.152
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 7.185,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 7.145
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 7.275,
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 7.207
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 4.45,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 8.086,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 4.737,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 6.67,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 7.384,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 7.07,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 4.767,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 6.636,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 7.353,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0.0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 7.543,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 6.194,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 6.495,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 5.39
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 7.544,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 6.271,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 6.464,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 5.401
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 5.013,
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 5.358
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 5.135,
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 5.299
     },
     "dockerfile/moby/test_targets": {
       "dockerfile/moby/test_targets/daemon.Dockerfile": 7.704,
@@ -1369,28 +1369,28 @@
     },
     "go/core": {
       "go/core/PATENTS": 0.0,
-      "go/core/main.go": 8.474,
+      "go/core/main.go": 8.454,
       "go/core/mgc.go": 6.31,
       "go/core/mutex.go": 6.451,
       "go/core/proc.go": 7.133,
-      "go/core/server.go": 8.354,
+      "go/core/server.go": 8.362,
       "go/core/syscall_linux.go": 7.369,
-      "go/core/value.go": 7.771
+      "go/core/value.go": 7.772
     },
     "go/go_runtime_rand": {
       "go/go_runtime_rand/rand.go": 4.935
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 6.618,
-      "go/kubernetes/generic.go": 7.114,
-      "go/kubernetes/kubelet.go": 6.582,
+      "go/kubernetes/csi_plugin.go": 6.648,
+      "go/kubernetes/generic.go": 7.126,
+      "go/kubernetes/kubelet.go": 6.594,
       "go/kubernetes/options.go": 5.644,
-      "go/kubernetes/proxier.go": 7.215,
-      "go/kubernetes/replica_set.go": 6.837,
-      "go/kubernetes/scheduler.go": 7.238
+      "go/kubernetes/proxier.go": 7.228,
+      "go/kubernetes/replica_set.go": 6.855,
+      "go/kubernetes/scheduler.go": 7.256
     },
     "go/kubernetes_kubectl_tls": {
-      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 5.759
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 5.827
     },
     "groovy": {
       "groovy/SOURCES.md": 0.0
@@ -2519,7 +2519,7 @@
       "perl/bugzilla/Auth.pm": 6.58,
       "perl/bugzilla/Bug.pm": 7.004,
       "perl/bugzilla/CGI.pm": 6.618,
-      "perl/bugzilla/DB.pm": 5.477,
+      "perl/bugzilla/DB.pm": 5.488,
       "perl/bugzilla/Requirements.pm": 6.772
     },
     "perl/exiftool": {
@@ -2528,7 +2528,7 @@
       "perl/exiftool/Makefile.PL": 3.412,
       "perl/exiftool/README": 0.0,
       "perl/exiftool/RandomAccess.pm": 6.869,
-      "perl/exiftool/exiftool": 10.021
+      "perl/exiftool/exiftool": 10.022
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": 7.724,
@@ -2544,8 +2544,8 @@
       "perl/spamassassin/Makefile.PL": 6.929,
       "perl/spamassassin/Message.pm": 6.647,
       "perl/spamassassin/Parser.pm": 6.673,
-      "perl/spamassassin/PerMsgStatus.pm": 9.379,
-      "perl/spamassassin/SpamAssassin.pm": 6.427
+      "perl/spamassassin/PerMsgStatus.pm": 9.381,
+      "perl/spamassassin/SpamAssassin.pm": 6.43
     },
     "php": {
       "php/SOURCES.md": 0.0
@@ -2598,7 +2598,7 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 2.769,
       "php/wordpress/class-wp-query.php": 6.751,
-      "php/wordpress/formatting.php": 6.509,
+      "php/wordpress/formatting.php": 6.517,
       "php/wordpress/functions.php": 5.229,
       "php/wordpress/license.txt": 0.0,
       "php/wordpress/plugin.php": 5.621,
@@ -2694,14 +2694,14 @@
       "powershell/core/Microsoft.WSMan.Management.psd1": 3.02,
       "powershell/core/PSDiagnostics.psd1": 2.266,
       "powershell/core/Parse-MarkdownLink.ps1": 9.748,
-      "powershell/core/PowerShell__build.psm1": 8.266,
+      "powershell/core/PowerShell__build.psm1": 8.535,
       "powershell/core/RegisterManifest.ps1": 9.55,
       "powershell/core/RegisterMicrosoftUpdate.ps1": 5.859,
       "powershell/core/Run-AttackSurfaceAnalyzer.ps1": 9.099,
       "powershell/core/Run.ps1": 9.977,
       "powershell/core/SSHRemoting.Basic.Tests.ps1": 9.016,
       "powershell/core/analyze-pr-test-failures.ps1": 8.943,
-      "powershell/core/build.psm1": 8.273,
+      "powershell/core/build.psm1": 8.541,
       "powershell/core/ci.psm1": 8.03,
       "powershell/core/ciModule.Tests.ps1": 9.125,
       "powershell/core/install-powershell.ps1": 10.138,
@@ -2931,7 +2931,7 @@
       "python/fastapi/tests/test_generic_parameterless_depends.py": 6.89,
       "python/fastapi/tests/test_get_model_definitions_formfeed_escape.py": 6.591,
       "python/fastapi/tests/test_get_request_body.py": 5.725,
-      "python/fastapi/tests/test_http_connection_injection.py": 9.134,
+      "python/fastapi/tests/test_http_connection_injection.py": 8.766,
       "python/fastapi/tests/test_include_route.py": 8.203,
       "python/fastapi/tests/test_include_router_defaults_overrides.py": 5.922,
       "python/fastapi/tests/test_infer_param_optionality.py": 5.474,
@@ -3063,12 +3063,12 @@
       "python/fastapi/tests/test_union_inherited_body.py": 5.831,
       "python/fastapi/tests/test_validate_response.py": 7.911,
       "python/fastapi/tests/test_validate_response_dataclass.py": 7.529,
-      "python/fastapi/tests/test_validation_error_context.py": 8.049,
+      "python/fastapi/tests/test_validation_error_context.py": 7.994,
       "python/fastapi/tests/test_vibe.py": 8.726,
       "python/fastapi/tests/test_webhooks_security.py": 6.752,
       "python/fastapi/tests/test_wrapped_method_forward_reference.py": 6.728,
-      "python/fastapi/tests/test_ws_dependencies.py": 8.74,
-      "python/fastapi/tests/test_ws_router.py": 8.45,
+      "python/fastapi/tests/test_ws_dependencies.py": 8.336,
+      "python/fastapi/tests/test_ws_router.py": 8.423,
       "python/fastapi/tests/utils.py": 6.383
     },
     "python/homeassistant_anthropic": {
@@ -3100,10 +3100,10 @@
       "python/numpy/crackfortran.py": 11.12,
       "python/numpy/cversions.txt": 0.0,
       "python/numpy/func2subr.py": 11.912,
-      "python/numpy/genapi.py": 6.296,
+      "python/numpy/genapi.py": 6.297,
       "python/numpy/generate_numpy_api.py": 7.729,
       "python/numpy/generate_ufunc_api.py": 6.944,
-      "python/numpy/generate_umath.py": 6.775,
+      "python/numpy/generate_umath.py": 5.858,
       "python/numpy/generate_umath_doc.py": 5.647,
       "python/numpy/lapack_litemodule.c": 7.02,
       "python/numpy/numpy_api.py": 5.388,
@@ -3755,7 +3755,7 @@
       "swift/alamofire/ParameterEncoder.swift": 7.727,
       "swift/alamofire/Request.swift": 8.808,
       "swift/alamofire/Response.swift": 6.611,
-      "swift/alamofire/Session.swift": 7.657
+      "swift/alamofire/Session.swift": 7.692
     },
     "tabular": {
       "tabular/SOURCES.md": 0.0
@@ -4055,7 +4055,7 @@
       "zig/bun/MimallocArena.zig": 6.262,
       "zig/bun/Parser.zig": 8.416,
       "zig/bun/comptime_string_map.zig": 8.372,
-      "zig/bun/napi.zig": 7.681
+      "zig/bun/napi.zig": 7.68
     },
     "zig/mach": {
       "zig/mach/Core.zig": 6.321,
@@ -4063,42 +4063,42 @@
       "zig/mach/collision.zig": 6.871,
       "zig/mach/graph.zig": 8.498,
       "zig/mach/main.zig": 4.865,
-      "zig/mach/module.zig": 8.279,
+      "zig/mach/module.zig": 8.272,
       "zig/mach/testing.zig": 7.062,
       "zig/mach/win32.zig": 8.825
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 7.567,
-      "zig/tigerbeetle/build.zig": 6.283,
-      "zig/tigerbeetle/build_multiversion.zig": 6.72,
+      "zig/tigerbeetle/build.zig": 6.263,
+      "zig/tigerbeetle/build_multiversion.zig": 6.695,
       "zig/tigerbeetle/cluster.zig": 9.169,
       "zig/tigerbeetle/config.zig": 7.269,
       "zig/tigerbeetle/constants.zig": 6.785,
       "zig/tigerbeetle/copyhound.zig": 7.482,
       "zig/tigerbeetle/counting_allocator.zig": 8.169,
-      "zig/tigerbeetle/direction.zig": 6.42,
+      "zig/tigerbeetle/direction.zig": 6.436,
       "zig/tigerbeetle/download.sh": 8.471,
       "zig/tigerbeetle/download.win.ps1": 8.643,
-      "zig/tigerbeetle/state_machine.zig": 8.154
+      "zig/tigerbeetle/state_machine.zig": 8.147
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 9.014,
-      "zig/zig/InternPool.zig": 10.738,
-      "zig/zig/Sema.zig": 10.408,
-      "zig/zig/Type.zig": 8.192,
-      "zig/zig/Zcu.zig": 8.574,
-      "zig/zig/main.zig": 7.504
+      "zig/zig/Compilation.zig": 9.04,
+      "zig/zig/InternPool.zig": 10.734,
+      "zig/zig/Sema.zig": 10.397,
+      "zig/zig/Type.zig": 8.169,
+      "zig/zig/Zcu.zig": 8.695,
+      "zig/zig/main.zig": 7.427
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 5.946
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": 6.609,
-      "zig/zls/DocumentStore.zig": 6.658,
-      "zig/zls/Server.zig": 8.474,
-      "zig/zls/analysis.zig": 8.959,
-      "zig/zls/ast.zig": 7.293,
-      "zig/zls/config_gen.zig": 7.513,
+      "zig/zls/DocumentScope.zig": 6.977,
+      "zig/zls/DocumentStore.zig": 8.206,
+      "zig/zls/Server.zig": 6.673,
+      "zig/zls/analysis.zig": 7.508,
+      "zig/zls/ast.zig": 7.018,
+      "zig/zls/config_gen.zig": 9.382,
       "zig/zls/langref.html.in": 5.513,
       "zig/zls/print_ast.zig": 5.946
     }

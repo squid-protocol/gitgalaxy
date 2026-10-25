@@ -1407,8 +1407,8 @@ class SignalProcessor:
 
     def _calc_raw_temporal_signals(self, temp: dict[str, Any]) -> tuple[float, float]:
         """Calculates Stability (Age) and Raw Churn (Seismic Frequency)."""
-        if not temp or not temp.get("is_git_tracked", False):
-            return 50.0, 0.0
+        if not temp or not temp.get("is_git_tracked", False) or temp.get("history_unreliable", False):
+            return 50.0, 0.0  # #4548: no usable history (non-git, shallow clone): neutral, not a score
 
         mtime = temp.get("mtime", 0.0)
         repo_min = temp.get("repo_min_time", mtime)
@@ -1618,7 +1618,7 @@ class SignalProcessor:
         net_exposure = attack - defense
 
         try:
-            score = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 12.0) * net_exposure))
+            score = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 4.0) * net_exposure))
         except OverflowError:
             score = 100.0 if net_exposure > 0 else 0.0
 

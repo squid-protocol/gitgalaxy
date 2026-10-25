@@ -149,3 +149,50 @@ def test_replay_of_known_change_lists():
     assert plan(["docs/language_status/register/x.md"])["mode"] == "select"
     assert plan(["gitgalaxy/core/detector.py"])["mode"] == "full"
     assert plan([], "pull_request")["mode"] == "full"  # a short or empty file list is full
+
+
+def test_replay_acceptance_shapes_of_6278():
+    # #6245 (four agent-config / skill files): a select run, every reader a test, never the whole suite
+    agent = [
+        ".claude/agents/gitgalaxy-pr-worker.md",
+        ".claude/rules/python-test-traps.md",
+        ".claude/rules/test-writing.md",
+        ".claude/skills/det-port/SKILL.md",
+    ]
+    p = plan(agent)
+    assert p["mode"] in ("skip", "select")
+    assert all(x.startswith("tests/") for x in p["paths"])
+    # README.md only: its readers run (tests/core_engine among them), not the suite
+    r = plan(["README.md"])
+    assert r["mode"] == "select" and r["paths"]
+    # a test-tooling change is code: the suite plan runs it in full (ground-truth / det / db2 skip it in their own plans)
+    assert plan(["tests/tools/test_zos_probes.py", "tests/tools/zos_probes.json"])["mode"] == "full"
+
+
+def _pr(n, *paths):
+    return {"number": n, "files": [{"path": x} for x in paths]}
+
+
+def test_replay_counts_each_mode_and_runs_full_when_in_doubt():
+    prs = [
+        _pr(1, "README.md"),
+        _pr(2, "gitgalaxy/core/detector.py"),
+        _pr(3),  # no files: unreadable
+        _pr(4, *[f"docs/x{i}.md" for i in range(100)]),  # gh may have cut the list short
+    ]
+    r = sp.replay(prs, REFS)
+    assert (r["prs"], r["skip"] + r["select"], r["full"]) == (4, 1, 3)
+    assert r["select_share"] + r["skip_share"] == 0.25 and r["full_share"] == 0.75
+    assert sp.replay([], REFS)["full_share"] == 0.0
+
+
+def test_the_replay_cli_reports_and_a_gh_failure_is_exit_1(monkeypatch, capsys):
+    monkeypatch.setattr(sp, "run_replay", lambda n: {"prs": n})
+    monkeypatch.setattr(sys, "argv", ["x", "--replay", "3"])
+    assert sp.main() == 0 and '"prs": 3' in capsys.readouterr().out
+
+    def boom(n):
+        raise RuntimeError("no gh")
+
+    monkeypatch.setattr(sp, "run_replay", boom)
+    assert sp.main() == 1 and "replay failed" in capsys.readouterr().err

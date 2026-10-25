@@ -20394,7 +20394,7 @@
         "Equals@26": 0,
         "GetHashCode@31": 0,
         "Initialize@24": 2,
-        "ToString@33": 5
+        "ToString@33": 0
       },
       "csharp/roslyn/LanguageParser.cs": {
         "AccumulateExplicitInterfaceName@6907": 3,
@@ -42888,7 +42888,7 @@
         "default_branch@1315": 0,
         "default_refspec@1114": 0,
         "default_refspec@1306": 0,
-        "detect@1639": 1,
+        "detect@1639": 0,
         "detect_from_symbol@1691": 1,
         "detect_from_url@1653": 1,
         "env@1373": 0,

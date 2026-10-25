@@ -475,7 +475,7 @@ def test_deltas_report_stale_against_current(tmp_path, monkeypatch, capsys):
 # ---- #4758: a Db2 case's det verdict from a sweep, else from the ledger the scheduled Db2 sweep wrote ----------------
 GENAPP = "cics-genapp"
 DB2_CASE = "genapp-lgacus01"  # a Db2 case: CI's per-PR det-sweep skips it, the evidence refresh's db2 job sweeps it
-DB2_COV = [3, 3, 4, 8]
+DB2_COV = [3, 3, 2, 8]  # lgacus01 has four reviewed infeasible outcomes: 2 covered leaves 2 open, still L3
 
 
 def db2_fixture(tmp_path, monkeypatch, cov, sweep=None, isolate=False):
@@ -508,12 +508,12 @@ def test_a_db2_case_with_no_sweep_and_no_ledger_entry_is_not_run(tmp_path, monke
 
 @pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_a_db2_verdict_from_a_sweep_input(tmp_path, monkeypatch):
-    row = {"proved": True, "coverage": "proven on 8 scenarios, covering 3/3 paragraphs and 4/8 branches",
+    row = {"proved": True, "coverage": "proven on 8 scenarios, covering 3/3 paragraphs and 2/8 branches",
            "translated": "", "first_diff": "", "uncovered": None}  # fmt: skip
     _, p = db2_fixture(tmp_path, monkeypatch, None, sweep=row)
     det = p["equivalence"]["chosen"]["det"]
     assert (det["state"], det["source"]) == ("equal", "local sweep (proof_sweep.py --det-only)")
-    assert (p["level"], p["level_current"]) == ("L3", True)  # 3/3 paragraphs, 4/8 branches
+    assert (p["level"], p["level_current"]) == ("L3", True)  # 3/3 paragraphs, 2/8 branches
     assert p["coverage"]["source"] == "local sweep coverage line"
 
 

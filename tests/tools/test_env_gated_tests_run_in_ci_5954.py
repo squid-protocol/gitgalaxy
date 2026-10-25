@@ -4,11 +4,16 @@ and CICS_CRUCIBLE_PATH (for the four files that read the checkout). This guard l
 named in UNCOVERED below, and fails when a listed file becomes covered (or disappears), so the list only shrinks."""
 
 import re
+import sys
 from pathlib import Path
 
 from gitgalaxy.core.source_text import read_source
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import equivalence_e2e_select  # noqa: E402
+
 REPO = Path(__file__).resolve().parents[2]
+SELECTOR = "tests/tools/equivalence_e2e_select.py"  # a shard step that runs it passes its output to pytest
 TESTS = REPO / "tests"
 WORKFLOWS = REPO / ".github" / "workflows"
 
@@ -71,10 +76,12 @@ def _workflow_coverage():
             is_e2e = re.match(r"\s*EQUIVALENCE_E2E\s*:\s*[\"']?1", line)
             if not is_e2e and not re.match(r"\s*(?:-\s*)?CICS_CRUCIBLE_PATH\s*:", line):
                 continue
-            for later in lines[i + 1 : i + 15]:
+            for j, later in enumerate(lines[i + 1 : i + 15]):
                 if "pytest" in later:
                     words = later.split()
                     named = re.findall(r"\btests/[\w./-]*", " ".join(w for w in words if not w.startswith("--")))
+                    if any(SELECTOR in ln for ln in lines[i + 1 : i + 1 + j]):  # #6664: the files the selector prints
+                        named += equivalence_e2e_select.select(REPO)
                     if is_e2e:
                         ignored = [w.split("=", 1)[1].rstrip("/") for w in words if w.startswith("--ignore=")]
                         runs.append(([r.rstrip("/") for r in named], ignored))
@@ -119,13 +126,37 @@ def test_the_runner_tests_job_is_seen_as_covering_cics_crucible():
 
 def test_the_e2e_shards_ignore_the_db2_files_and_the_db2_job_runs_them():
     runs, _ = _workflow_coverage()
-    shards = [r for r in runs if "tests/cobol_mainframe" in r[0]]
+    shards = [r for r in runs if any(p.startswith("tests/cobol_mainframe/") for p in r[0])]
     assert shards and "tests/tools/test_zos_probes.py" in shards[0][0]
     assert set(shards[0][1]) >= set(DB2_FILES)
     assert _reached_e2e("tests/cobol_mainframe/test_det_funcs.py", runs)
     for f in DB2_FILES:
         assert not _reached(f, *shards[0]), f"the shards must leave {f} to the db2 job"
         assert any(f in named and f not in ignored for named, ignored in runs), f"no pytest run names {f}"
+
+
+# #6664: files with no EQUIVALENCE_E2E read whose tests ground-truth skips ("no JDK 17", a jar) and the shards run:
+# measured from junit outcomes of runs 40225533892 / 40225536142. The selector keeps them through their skip reasons.
+JDK_ONLY = (
+    "tests/cobol_mainframe/test_no_jcl_batch_controller.py",
+    "tests/cobol_mainframe/test_mvs_oracle_5856.py",
+    "tests/cobol_mainframe/test_generated_record_layer.py",
+    "tests/cobol_mainframe/test_key_collation.py",
+    "tests/cobol_mainframe/test_decimal_comma.py",
+)
+
+
+def test_the_e2e_selector_keeps_the_gated_and_tool_skipped_files_and_drops_the_rest():
+    picked = set(equivalence_e2e_select.select(REPO))
+    e2e, _ = _gated()
+    mainframe_gated = {f for f in e2e if f.startswith("tests/cobol_mainframe/") and f not in DB2_FILES}
+    assert mainframe_gated <= picked, sorted(mainframe_gated - picked)
+    assert set(JDK_ONLY) <= picked, sorted(set(JDK_ONLY) - picked)
+    # ground-truth runs these with the same result: 82 s and 65 s of the 1810 s the shards ran twice
+    assert (
+        not {"tests/cobol_mainframe/test_assess.py", "tests/cobol_mainframe/test_refraction_differential.py"} & picked
+    )
+    assert not set(DB2_FILES) & picked
 
 
 def test_every_uncovered_file_states_what_it_needs():

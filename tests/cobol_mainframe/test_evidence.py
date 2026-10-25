@@ -470,6 +470,24 @@ def test_a_task_judged_up_to_x6_is_recorded_and_stated_as_an_assumption():
     assert proof["outputs"]["error-path"]["assumes"] == "X6"
 
 
+def test_a_task_that_ran_a_padded_writeq_states_x6_as_an_assumption():
+    """X6 ASSUMED (owner 2026-10-21): a task that runs on through a WRITEQ past FROM (padded on both sides) is judged
+    whole, and still names X6 among its proof's assumptions; the page says it was padded, not judged up to a refusal."""
+    t = next(t for t, _ in _records())
+    report = {"proven": True, "outputs": {
+        "whole": {"equal": 2, "records": 2},
+        "error-path": {"equal": 6, "records": 6, "x6_padded": ["WRITEQ TD", "WRITEQ TS"]}}}  # fmt: skip
+    proof = ev.proof_section(t, report, "d")
+    assert proof["outputs"]["whole"] == {"equal": 2, "records": 2}
+    assert proof["outputs"]["error-path"] == {"equal": 6, "records": 6, "assumes": "X6",
+                                              "x6_padded": ["WRITEQ TD", "WRITEQ TS"]}  # fmt: skip
+    assert "judged_to" not in proof["outputs"]["error-path"]
+    page = ev.render_page(t, {**_runtime_record()[1], "proof": proof})
+    assert "| error-path | 6 | 6 (assumes X6: a WRITEQ past FROM, padded) |" in page
+    assert "Assumes oracle_assumptions.md X6 for 1 task(s) (error-path): each ran a WRITEQ" in page
+    assert "judged up to the refusal" not in page and "each is compared up" not in page
+
+
 # ---- #4744: the refresh's shards ---------------------------------------------------------------------------------------
 def _refresh_args(*extra):
     ap_args = ["refresh", "--stale", "--skip-db2", *extra]

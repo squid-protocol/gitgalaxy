@@ -78,6 +78,814 @@
       "commarea": null,
       "tod": "D4A3C1B2E5F60718293A4B5C6D7E8F90",
       "why": "the same POST with the TOD D4A3C1B2E5F60718...: the same task, the key record's ZK-ZF-IDN is X'D4A3C1B2E5F6'"
+    },
+    {
+      "name": "get-hit",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/gethit",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: GET of a cached key: 3200 reads the key record, 3300 the one-segment file record (ZK-SEGMENTS Y), the TTL is not past, 3400 stages it and 3600 sends 200 with its media type text/plain (SRVCONVERT arm)"
+    },
+    {
+      "name": "get-binary",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/getbin",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: GET of a record stored as application/octet-stream: 3600 takes the NOSRVCONVERT arm"
+    },
+    {
+      "name": "get-no-media",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/getnomedia",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: GET of a record whose ZF-MEDIA is spaces: 3600 sends it as text/plain"
+    },
+    {
+      "name": "get-miss",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/nokey",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: GET of a key with no key record: 3200 READ answers NOTFND and 9700 sends 204"
+    },
+    {
+      "name": "get-expired",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/getexp",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: GET of a record past its TTL (stored two hours ago, TTL 3600): 3310 sends 204 and deletes the key and file records"
+    },
+    {
+      "name": "get-dangling-key",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/getdangle",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: GET of a key record whose file record is gone: 3300 READ answers NOTFND, INTERNAL-KEY is set, 3100 loops and 3200 finds ZK-ZF-KEY equal to INTERNAL-KEY and sends 204"
+    },
+    {
+      "name": "get-two-segments",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/getseg",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: GET of a two-segment record: 3400 GETMAINs 2 x 32000, 3500 reads the second segment and 3600 sends the joined message"
+    },
+    {
+      "name": "get-segment-gone",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/getseg2gone",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: GET of a record whose ZF-SEGMENTS is 2 with the second segment missing: 3500 READ answers NOTFND, 3510 FREEMAINs, the loop re-reads the key and 204 follows"
+    },
+    {
+      "name": "get-unsegmented",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "GET",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/getnoseg",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: GET of a key record whose ZK-SEGMENTS is not Y and a file record with segment 0: 3300 does not set ZF-SEGMENT, 3400 raises it to one"
+    },
+    {
+      "name": "head-method",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "HEAD",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/gethit",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: a HEAD request: none of the GET / POST / PUT / DELETE arms of 2000-PROCESS-REQUEST runs"
+    },
+    {
+      "name": "post-overwrite",
+      "commarea": null,
+      "tod": "000102030405060708090A0B0C0D0E0F",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/oldkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "new body"
+      },
+      "why": "#6072: POST of a key that has a key record: 4100 READ UPDATE is NORMAL, 4110 primes the new unique id, 4500 REWRITEs the key and 4700 deletes the old two segments (until the DELETE answers NOTFND)"
+    },
+    {
+      "name": "put-overwrite",
+      "commarea": null,
+      "tod": "000102030405060708090A0B0C0D0E0F",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "PUT",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/oldkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "put body"
+      },
+      "why": "#6072: PUT of the same key as binary: the same overwrite, and WEB RECEIVE without SRVCONVERT only"
+    },
+    {
+      "name": "post-ttl-query",
+      "commarea": null,
+      "tod": "000102030405060708090A0B0C0D0E0F",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/freshkey",
+        "query": "ttl=600",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "why": "#6072: POST with ttl=600: 1310 takes a numeric TTL above FIVE-MINUTES"
+    },
+    {
+      "name": "post-ttl-short",
+      "commarea": null,
+      "tod": "000102030405060708090A0B0C0D0E0F",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/freshkey",
+        "query": "ttl=60",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "why": "#6072: ttl=60: below FIVE-MINUTES, raised to 300"
+    },
+    {
+      "name": "post-ttl-not-numeric",
+      "commarea": null,
+      "tod": "000102030405060708090A0B0C0D0E0F",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/freshkey",
+        "query": "ttl=abc",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "why": "#6072: ttl=abc: TTL-SECONDS is not numeric, the 1800-second default stands"
+    },
+    {
+      "name": "post-ttl-long",
+      "commarea": null,
+      "tod": "000102030405060708090A0B0C0D0E0F",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/freshkey",
+        "query": "ttl=100000",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "why": "#6072: ttl=100000: above 24 hours; the ETTL program is not installed, so 1312 answers a condition and the TTL is capped at 24 hours"
+    },
+    {
+      "name": "post-replicate-aa",
+      "commarea": null,
+      "tod": "000102030405060708090A0B0C0D0E0F",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "doctemplates": {
+        "ZC01DC": "type: AA\r%http://zecs-b.example.com:8080\r%"
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/freshkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "rep"
+      },
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs-b.example.com",
+          "port": 8080,
+          "urimap": null,
+          "path": null,
+          "exchanges": [
+            {
+              "method": "POST",
+              "path": "/replicate/ecs/walmart/cache/freshkey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "#6072: active/active data center: 4600 WEB OPENs the partner, POSTs /replicate/... and closes before the 200 is sent"
+    },
+    {
+      "name": "post-not-resources",
+      "commarea": null,
+      "tod": "000102030405060708090A0B0C0D0E0F",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "doctemplates": {
+        "ZC01DC": "type: AA\r%http://zecs-b.example.com:8080\r%"
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/replicate/ecs/walmart/cache/freshkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "r"
+      },
+      "why": "#6072: a POST on a /replicate path: no authentication, no replication"
+    },
+    {
+      "name": "post-uri-invalid",
+      "commarea": null,
+      "tod": "000102030405060708090A0B0C0D0E0F",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/cache/freshkey",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "why": "#6072: a path with four slashes: 1150 sends 400"
+    },
+    {
+      "name": "post-key-too-long",
+      "commarea": null,
+      "tod": "000102030405060708090A0B0C0D0E0F",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "why": "#6072: a 256-byte key: 1160 sends 400"
+    },
+    {
+      "name": "post-key-empty",
+      "commarea": null,
+      "tod": "000102030405060708090A0B0C0D0E0F",
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": "v"
+      },
+      "why": "#6072: a path that ends at the fifth slash: URI-PATH-LENGTH is zero, 400"
+    },
+    {
+      "name": "delete-hit",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/delkey",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: DELETE of a two-segment key: 5000, 5100, 5200 until NOTFND, 5300 sends 200"
+    },
+    {
+      "name": "delete-miss",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/nokey",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: DELETE of a key with no key record: 204"
+    },
+    {
+      "name": "delete-replicate-aa",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "doctemplates": {
+        "ZC01DC": "type: AA\r%http://zecs-b.example.com:8080\r%"
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/delkey",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs-b.example.com",
+          "port": 8080,
+          "urimap": null,
+          "path": null,
+          "exchanges": [
+            {
+              "method": "DELETE",
+              "path": "/replicate/ecs/walmart/cache/delkey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "#6072: DELETE on an active/active center: 5400 replicates the delete first"
+    },
+    {
+      "name": "delete-replicate-as",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "doctemplates": {
+        "ZC01DC": "type: AS\r%http://zecs-b.example.com:8080\r%"
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/delkey",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs-b.example.com",
+          "port": 8080,
+          "urimap": null,
+          "path": null,
+          "exchanges": [
+            {
+              "method": "DELETE",
+              "path": "/replicate/ecs/walmart/cache/delkey",
+              "query": "",
+              "status": 200,
+              "statustext": "OK",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "#6072: DELETE on an active/standby center: replicated after the 200"
+    },
+    {
+      "name": "delete-clear-query",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/delkey",
+        "query": "clear=a",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: DELETE with a seven-byte query clear=a: 1320 UNSTRINGs the type and does not XCTL (CLEAR-TEXT is not *)"
+    },
+    {
+      "name": "deplicate-not-expired",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/deplicate/ecs/walmart/cache/depfresh",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: a /deplicate DELETE of a record inside its TTL: 5500 reads it, 5600 finds it not expired and 5700 answers 201 with the ABSTIME"
+    },
+    {
+      "name": "deplicate-expired",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/deplicate/ecs/walmart/cache/depexp",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: a /deplicate DELETE of an expired record: 5600 falls through and the delete runs"
+    },
+    {
+      "name": "deplicate-file-gone",
+      "commarea": null,
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-ops.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey-ops.bin"
+        }
+      },
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "DELETE",
+        "version": "HTTP/1.1",
+        "path": "/deplicate/ecs/walmart/cache/depgone",
+        "query": "",
+        "headers": [],
+        "mediatype": null,
+        "body": null
+      },
+      "why": "#6072: a /deplicate DELETE whose file record is gone: 5500 READ is not NORMAL, the delete runs"
     }
   ]
 }

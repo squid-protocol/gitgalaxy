@@ -78,3 +78,27 @@ Single-job (narrow) plans are 5-7 min in every window and not an acceptance case
   jobs (narrow-ish case lists, not the 6-shard full plan); neither is a `db2_cases: all` sweep, and no manual full sweep
   (`workflow_dispatch`) or `push` run has any db2 job. The full-sweep numbers still need one run of the main workflow with
   `db2_cases: all`; then rerun the commands above. #5882 stays open until that run meets both limits.
+
+## Full sweeps on main (2026-10-25)
+
+Two manual `workflow_dispatch` runs on main (`db2_cases: all`, 81 Db2 cases, 6 Db2 shards, headroom 0.8). Job minutes are
+a db2 job's `started_at` to `completed_at` (what `det_sweep_measure.py db2` reports); sweep seconds are the
+`proof_sweep.py` step alone, read from each job log (`echo "$start"` to `sweep: ratchet left to the aggregate`).
+
+| Run | Snapshot cache | Job minutes per shard (1..6) | Slowest | Slowest / fastest | Sweep seconds (1..6) | Sweep ratio |
+|---|---|---|---|---|---|---|
+| 40171341678 | cold (all 6 missed `db2-snapshot-...-pool4`) | 16.0 / 10.5 / 10.6 / 8.9 / 11.6 / 10.0 | 16.0 min | 1.80 | 512 / 413 / 447 / 382 / 418 / 428 | 1.34 |
+| 40174285397 | warm (all 6 restored it) | 9.7 / 8.9 / 8.4 / 9.65 / 8.15 / 10.35 | 10.35 min | 1.27 | 434 / 383 / 317 / 422 / 314 / 422 | 1.38 |
+
+- **Why run 1 missed:** the pool-size change (#6545) changed the snapshot key, so no shard had a snapshot. Every shard
+  paid the full Db2 create, and shard 1 also spent 3.4 min saving the cache after its sweep (07:41:33 to 07:44:52);
+  without that tail its job is 12.6 min. The key is saved on main now, so a cold start is a one-off per key change.
+- **Warm run 2:** every shard is under 15 min (slowest 10.35) and the job-minute ratio is 1.27, so both acceptance
+  numbers hold on job minutes. Measured on the sweep step alone the spread is 1.38 (314 s to 434 s): case seconds still
+  move run to run, as above.
+- **Timeouts:** none in either run. **Measured durations:** the `det` job saved `det-db2-durations-40171341678` and
+  `-40174285397`, so every Db2 case has a fresh entry.
+- Reproduce: `python tests/tools/det_sweep_measure.py db2 --since 2026-10-18 --event workflow_dispatch`.
+- Verdict: 15 min met in both warm and cold-minus-save; 1.3x met on job minutes in the one warm run, not on sweep
+  seconds alone. If a later warm full sweep goes over 1.3x on job minutes, the next fix is `split_cases` balance (the
+  432 s `cbsa-bankdata` case pins one shard's floor), not a higher `DB2_MAX_SHARDS`.

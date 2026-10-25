@@ -1,0 +1,21 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-inqacccu",
+  "entries": [
+    {
+      "unit": "AH999",
+      "kind": "PARAGRAPH",
+      "outcome": "entered",
+      "family": "G",
+      "reason": "AH999 (l.825, EXIT) is entered only by falling out of `IF WS-STORM-DRAIN = 'N'` (l.817): the true arm ends in EXEC CICS ABEND, which does not return, and the false arm needs WS-STORM-DRAIN 'Y', which only the AFCR/AFCS/AFCT arm sets and that arm ends in EXEC CICS RETURN (see the entry for l.817). Nothing PERFORMs or GO TOs AH999."
+    },
+    {
+      "unit": "AH010",
+      "line": 817,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-STORM-DRAIN = 'N'` (l.817) is false only when WS-STORM-DRAIN is 'Y'. It starts 'N' and is set 'Y' only in the WHEN 'AFCR'/'AFCS'/'AFCT' arm of EVALUATE MY-ABEND-CODE (l.703), which ends in an unconditional MOVE 'N' TO COMM-SUCCESS / EXEC CICS RETURN before END-EVALUATE, so l.817 is never reached with 'Y'; the AD2Z arm and the unnamed codes (EVALUATE none arm) arrive with 'N' and take the true arm (EXEC CICS ABEND)."
+    }
+  ]
+}

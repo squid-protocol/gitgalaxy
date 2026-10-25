@@ -316,7 +316,9 @@ def build_case_report(case: str, sweep: Path | None, led: dict[str, dict[str, An
     kind_unit = {b.line: (b.kind, b.unit) for b in [*inv.branches, *inv.after_transfer]}
     scanned = scan_program(src) if scan else None
     edges = graph(scanned, inv.units) if scanned else {}
-    stated = {(e["line"], e["outcome"]): e for e in infeasible_outcomes.stated(case)}
+    all_stated = infeasible_outcomes.stated(case)
+    stated = {(e["line"], e["outcome"]): e for e in all_stated if not infeasible_outcomes.is_paragraph(e)}
+    stated_paragraphs = {str(e["unit"]).upper(): e for e in all_stated if infeasible_outcomes.is_paragraph(e)}
 
     def where(unit: str | None) -> dict[str, Any]:
         info = (scanned or {}).get(str(unit).upper()) if unit else None
@@ -326,6 +328,9 @@ def build_case_report(case: str, sweep: Path | None, led: dict[str, dict[str, An
 
     paragraphs = [{"name": p["name"], "file": meta["program_source"], "line": p["line"], **where(p["name"])}
                   for p in gaps["paragraphs"]]  # fmt: skip
+    for p in paragraphs:  # a whole paragraph stated infeasible (no `line` needed) marks its gap like a branch does
+        if (e := stated_paragraphs.get(str(p["name"]).upper())) is not None:
+            p["infeasible"] = {"family": e["family"], "reason": e["reason"]}
     branches = []
     for b in gaps["branches"]:
         kind, unit = (b.get("kind"), b.get("unit")) if b.get("kind") else kind_unit.get(b["line"], (UNKNOWN, None))
@@ -340,7 +345,7 @@ def build_case_report(case: str, sweep: Path | None, led: dict[str, dict[str, An
         branches.append(row)
     rep.update({"origin": gaps["origin"], "entry": entry, "scan": "ok" if scanned else "failed",
                 "paragraphs": paragraphs, "branches": branches,
-                "infeasible_stated": infeasible_outcomes.stated(case)})  # fmt: skip
+                "infeasible_stated": all_stated})  # fmt: skip
     return rep
 
 
@@ -363,9 +368,11 @@ def render_md(reports: list[dict[str, Any]]) -> str:
             out.append(f"\nmeasured from {r['origin']}; scan {r['scan']}; entry paragraph `{r['entry']}`; "
                        f"{len(r['paragraphs'])} paragraph gap(s), {len(r['branches'])} branch gap(s)\n")  # fmt: skip
             if r["paragraphs"]:
-                out += ["| paragraph | file:line | complexity | loc | PERFORM path |", "|---|---|---|---|---|"]
-                out += [f"| `{p['name']}` | {_where(p)} | {p['complexity']} | {p['loc']} | {_cell(p['perform_path'])} |"
-                        for p in r["paragraphs"]]  # fmt: skip
+                out += ["| paragraph | file:line | complexity | loc | PERFORM path | infeasible |", "|---|---|---|---|---|---|"]
+                for p in r["paragraphs"]:
+                    inf = f"{p['infeasible']['family']}: {p['infeasible']['reason']}" if "infeasible" in p else ""
+                    out.append(f"| `{p['name']}` | {_where(p)} | {p['complexity']} | {p['loc']} | "
+                               f"{_cell(p['perform_path'])} | {_cell(inf)} |")  # fmt: skip
                 out.append("")
             if r["branches"]:
                 out += [

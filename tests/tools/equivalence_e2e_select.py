@@ -13,7 +13,8 @@ the 696 that ran only in the shards (3177 s) sit in 46 files. A file is selected
   a JDK, Maven or a jar (5 of the 46 files skip in ground-truth for "no JDK 17" and read no variable).
 
 That keeps every one of the 696 and 188 s of the duplicates. tests/tools/test_zos_probes.py is always added, and the
-five Db2 files (the `db2` job runs them) and test_evidence_components.py (ground-truth runs it) are left out. Stdlib only.
+five Db2 files (the `db2` job runs them) and test_evidence_components.py (ground-truth runs it) are left out. Runs
+after the install: it reads through gitgalaxy.core.source_text (#3813).
 """
 
 from __future__ import annotations
@@ -21,6 +22,8 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
+
+from gitgalaxy.core.source_text import read_source
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from equivalence_e2e_plan import DB2_FILES  # noqa: E402
@@ -41,7 +44,7 @@ def select(root: Path = REPO_ROOT) -> list[str]:
     picked = []
     for f in sorted((root / "tests" / "cobol_mainframe").rglob("test_*.py")):
         rel = f.relative_to(root).as_posix()
-        if rel not in LEFT_OUT and selected_by(f.read_text(encoding="utf-8", errors="replace")):
+        if rel not in LEFT_OUT and selected_by(read_source(f).text):  # #3813: no lossy decode
             picked.append(rel)
     return picked + [p for p in ALWAYS if (root / p).is_file()]
 

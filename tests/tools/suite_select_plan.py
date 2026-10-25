@@ -3,6 +3,7 @@
 
     python tests/tools/suite_select_plan.py [--event pull_request] [--base origin/main] [--files FILE ...]
                                             [--labels a,b] [--github-output PATH]
+    python tests/tools/suite_select_plan.py --replay 50     # how many recent merged PRs skip / select / run the full suite
 
 `full-suite` is a required check, so it always starts and reports; this planner says how much it runs (as
 ground_truth_plan.py does for `ground-truth`):
@@ -86,6 +87,33 @@ def plan(
     return {"mode": "select", "reason": f"docs / agent config only: the {len(paths)} reader(s) run", "paths": paths}
 
 
+def replay(prs: list[dict], refs: dict | None = None, root: Path = REPO_ROOT) -> dict:
+    """Plan the pull requests in `prs` (`gh pr list --json number,files`) and count each mode. A PR whose `files` list
+    holds 100 entries may be cut short by gh, and one with no files is unreadable: both count as full (when in doubt, run)."""
+    refs = change_classifier.load() if refs is None else refs
+    modes: dict[str, list[int]] = {"skip": [], "select": [], "full": []}
+    for pr in prs:
+        files = [f["path"] for f in pr.get("files") or [] if f.get("path")]
+        mode = "full" if len(files) >= 100 else plan(files, "pull_request", (), refs, root)["mode"]
+        modes[mode].append(pr["number"])
+    n = len(prs)
+    out: dict = {"prs": n}
+    for m, nums in modes.items():
+        out[m] = len(nums)
+        out[f"{m}_share"] = round(len(nums) / n, 3) if n else 0.0
+    out["skipped_prs"] = modes["skip"]
+    out["selected_prs"] = modes["select"]
+    return out
+
+
+def run_replay(n: int) -> dict:
+    proc = subprocess.run(["gh", "pr", "list", "--state", "merged", "-L", str(n), "--json", "number,files"],  # noqa: S603, S607
+                          cwd=REPO_ROOT, capture_output=True, text=True, check=False)  # fmt: skip
+    if proc.returncode != 0:
+        raise RuntimeError(proc.stderr.strip() or "gh pr list failed")
+    return replay(json.loads(proc.stdout))
+
+
 def changed_files(base: str) -> list[str]:
     proc = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], cwd=REPO_ROOT,  # noqa: S603, S607
                           capture_output=True, text=True, check=False)  # fmt: skip
@@ -101,7 +129,17 @@ def main() -> int:
     ap.add_argument("--files", nargs="*", help="the changed files, instead of git diff --name-only BASE...HEAD")
     ap.add_argument("--labels", default="", help="comma-separated PR labels")
     ap.add_argument("--github-output", type=Path, help="append mode=skip|select|full and paths= for later steps")
+    ap.add_argument(
+        "--replay", type=int, metavar="N", help="plan the last N merged PRs (needs gh), report the mode shares"
+    )
     args = ap.parse_args()
+    if args.replay:
+        try:
+            print(json.dumps(run_replay(args.replay), indent=1))
+        except (RuntimeError, OSError, ValueError) as e:
+            print(f"replay failed: {e}", file=sys.stderr)
+            return 1
+        return 0
     try:
         files = (
             args.files if args.files is not None else (changed_files(args.base) if args.event == "pull_request" else [])

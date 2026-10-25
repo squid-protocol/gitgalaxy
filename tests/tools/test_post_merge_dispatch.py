@@ -178,3 +178,24 @@ def test_the_old_per_merge_triggers_are_gone():
     for name in pmd.TARGETS:
         doc, _ = load(name)
         assert "tested-tree" not in doc["jobs"], name
+
+
+# #6670: advisory checks that never failed on a PR run only here (dispatch + nightly); their PR trigger stays for `paths`
+POST_MERGE_ONLY = {
+    "fact-crosscheck.yml": "crosscheck",
+    "unicode-gauntlet.yml": "gauntlet",
+    "estate-crucible.yml": "estate",
+    "crucible-path-independence.yml": "path-independence",
+}
+
+
+@pytest.mark.parametrize("name", sorted(POST_MERGE_ONLY))
+def test_a_post_merge_only_check_skips_on_a_pr_and_is_dispatched(name):
+    doc, _ = load(name)
+    assert pmd.TARGETS.get(name) == pmd.FROM_PR_FILTER, f"{name} must be a from-pr-filter dispatch target"
+    assert pmd.pr_paths((pmd.WORKFLOWS / name).read_text(encoding="utf-8")), f"{name} lost the paths the dispatch reads"
+    assert set(doc["jobs"]) == {POST_MERGE_ONLY[name]}, f"{name}: a new job must skip on a PR too"
+    for job, spec in doc["jobs"].items():
+        cond = str(spec.get("if") or "")
+        assert "github.event_name != 'pull_request'" in cond, f"{name}:{job} still runs on a PR"
+        assert "||" not in cond, f"{name}:{job}: an `||` would let a PR event through"

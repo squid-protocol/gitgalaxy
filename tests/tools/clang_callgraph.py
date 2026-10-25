@@ -19,9 +19,11 @@ the bundled libclang recovers from the headers it cannot find.
   skipped. A macro that expands to a call is a call here, as the compiler sees it.
 * A def written as a one-argument macro (`TEST_IMPL(kill) {`, which declares `run_test_kill`) is named
   by the macro's argument, as the engine names it.
-* Directories named `win` are not parsed: Windows-only sources need <windows.h>
-  and their names collide with the Unix ones. Where per-platform files define the
-  same external name, an edge goes to each definition.
+* Windows-only sources (a `win` directory, a `*-win.c` / `*_win.c` file, `sockcompat.c`) are a second
+  link group, parsed with `-D_WIN32` (#3784): their names collide with the Unix ones, so a Windows caller
+  links to the Windows definitions of a name, falling back to the shared ones (not under `unix/`), and a
+  Unix caller never links to a Windows definition. A Win32 API call with no declaration (no <windows.h> on the host) is `external`. Where per-platform files in one group define the same external name, an
+  edge goes to each definition.
 
 C++ (`cpp`) differs in four ways:
 * Sources are .cc/.cpp/.cxx, parsed as C++; definitions are found in namespaces and
@@ -47,7 +49,9 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-SKIP_DIRS = frozenset({".git", "win"})
+SKIP_DIRS = frozenset({".git", "win"})  # C++ mode; the C walk keeps `win` as its own link group
+WIN_STEM = re.compile(r"(?:^|[-_])win(?:32)?$")
+WIN_FILES = frozenset({"sockcompat.c"})
 
 CPP_SOURCES = frozenset({".cc", ".cpp", ".cxx"})
 CPP_HEADERS = frozenset({".h", ".hh", ".hpp", ".hxx"})  # each header's directory is an -I path
@@ -62,11 +66,17 @@ def _install_hint() -> str:
     return 'pip install "libclang==18.1.1"  (the Python clang.cindex bindings with a bundled libclang)'
 
 
-def _walk(repo: Path):
+def _walk(repo: Path, skip: frozenset[str] = SKIP_DIRS):
     for root, dirs, files in os.walk(repo):
-        dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS)
+        dirs[:] = sorted(d for d in dirs if d not in skip)
         for f in sorted(files):
             yield Path(root) / f
+
+
+def _is_windows_source(repo: Path, p: Path) -> bool:
+    """Whether a C source belongs to the Windows link group (built only for `_WIN32`)."""
+    rel = p.relative_to(repo)
+    return "win" in rel.parts[:-1] or bool(WIN_STEM.search(p.stem)) or p.name in WIN_FILES
 
 
 def _rel(repo: Path, name: str | None) -> str | None:
@@ -86,19 +96,20 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
 
     repo = repo.resolve()
     sources, include_dirs = [], set()
-    for p in _walk(repo):
+    for p in _walk(repo, frozenset({".git"})):
         if p.suffix == ".c":
             sources.append(p)
         elif p.suffix == ".h":
             include_dirs.add(str(p.parent))
     args = ["-x", "c", "-w", "-ferror-limit=0", f"-I{repo}", *(f"-I{d}" for d in sorted(include_dirs))]
+    win_args = [*args, "-D_WIN32", "-DWIN32_LEAN_AND_MEAN"]
     kinds = cindex.CursorKind
     index = cindex.Index.create()
 
     defs: dict[tuple[str, str, int], bool] = {}  # key -> has external linkage
-    calls: list[tuple[tuple[str, str, int], str, int]] = []  # caller, external callee name, line
+    calls: list[tuple[tuple[str, str, int], str, int, bool]] = []  # caller, external callee name, line, windows group
     static_edges: dict[tuple[tuple, tuple], int] = {}
-    seen_callers: set[tuple[str, str, int]] = set()
+    seen_callers: set[tuple[tuple[str, str, int], bool]] = set()
 
     source_lines: dict[str, list[str]] = {}
 
@@ -117,7 +128,8 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
         return (rel, macro_name(cursor), loc.line) if rel else None
 
     for src in sources:
-        tu = index.parse(str(src), args=args)
+        windows = _is_windows_source(repo, src)
+        tu = index.parse(str(src), args=win_args if windows else args)
         for top in tu.cursor.get_children():
             if top.kind != kinds.FUNCTION_DECL or not top.is_definition():
                 continue
@@ -125,9 +137,9 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
             if caller is None:
                 continue
             defs[caller] = top.storage_class != cindex.StorageClass.STATIC
-            if caller in seen_callers:  # a header function met again through another .c file
+            if (caller, windows) in seen_callers:  # a header function met again through another .c file
                 continue
-            seen_callers.add(caller)
+            seen_callers.add((caller, windows))
             for node in top.walk_preorder():
                 if node.kind != kinds.CALL_EXPR:
                     continue
@@ -140,17 +152,26 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
                     if callee and callee != caller:
                         static_edges.setdefault((caller, callee), node.location.line)
                 else:
-                    calls.append((caller, target.spelling, node.location.line))
+                    calls.append((caller, target.spelling, node.location.line, windows))
 
-    by_name: dict[str, list[tuple[str, str, int]]] = defaultdict(list)
+    by_name: dict[str, list[tuple[str, str, int]]] = defaultdict(list)  # the Unix link group
+    win_by_name: dict[str, list[tuple[str, str, int]]] = defaultdict(list)
+    shared_by_name: dict[str, list[tuple[str, str, int]]] = defaultdict(list)  # a Windows build links these too
     for k, external_linkage in defs.items():
-        if external_linkage:
+        if not external_linkage:
+            continue
+        if _is_windows_source(repo, repo / k[0]):
+            win_by_name[k[1]].append(k)
+        else:
             by_name[k[1]].append(k)
+            if "unix" not in k[0].split("/")[:-1]:
+                shared_by_name[k[1]].append(k)
     edges: dict[tuple, int] = dict(static_edges)
     external: set[tuple] = set()
-    for caller, name, line in calls:
-        targets = [t for t in by_name.get(name, ()) if t != caller]
-        if not targets and name not in by_name:
+    for caller, name, line, windows in calls:
+        group = (win_by_name.get(name) or shared_by_name.get(name, ())) if windows else by_name.get(name, ())
+        targets = [t for t in group if t != caller]
+        if not targets and name not in by_name and name not in win_by_name:
             external.add((caller, name))
         for t in targets:
             edges.setdefault((caller, t), line)

@@ -1758,7 +1758,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "acf802b20f079761483c2aeb5f2a4b5eda078fc4",
+   "sha": "37f482bd76beb267b699401195b3bf44e9e16a82",
    "translator": {
     "files": 145,
     "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
@@ -6568,8 +6568,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha acf802b20f079761483c2aeb5f2a4b5eda078fc4",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha acf802b20f079761483c2aeb5f2a4b5eda078fc4",
+   "python tests/tools/cics_census.py survey --baseline --sha 37f482bd76beb267b699401195b3bf44e9e16a82",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 37f482bd76beb267b699401195b3bf44e9e16a82",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -6590,13 +6590,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "acf802b20f079761483c2aeb5f2a4b5eda078fc4",
+   "sha": "37f482bd76beb267b699401195b3bf44e9e16a82",
    "translator": {
     "files": 145,
     "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
    }
   },
-  "translator_commit": "acf802b20f079761483c2aeb5f2a4b5eda078fc4",
+  "translator_commit": "37f482bd76beb267b699401195b3bf44e9e16a82",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

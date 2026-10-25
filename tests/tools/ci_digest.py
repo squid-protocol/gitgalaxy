@@ -13,7 +13,7 @@ failed and nothing else did, only the time ratchet failed on tests outside the P
 limit, or the first attempt of a check the flake-history cache learned is flaky failed; rerun it once) or `real` (a fixer's job).
 A roll-up check (full-suite, ground-truth, det) takes the triage of its failed part jobs. `main` is also a stale base
 (#5273): the failing tests' files changed on origin/main since the PR's merge-base, so `git merge origin/main` is the
-whole fix -- then the job log's error lines and its last lines, ANSI and timestamps stripped, and the repro: the
+whole fix (also when main changed engine source and this PR touches none of it, #5276) -- then the job log's error lines and its last lines, ANSI and timestamps stripped, and the repro: the
 local command for that check from REPRO (pr_gates' own gate and ratchet names where one exists, otherwise the tool),
 filled with what the log names (the failing pytest node ids, the det cases not proven). A check with no local
 equivalent (CodeQL, Muninn, the dead-key audit ...) says so.
@@ -176,7 +176,12 @@ def triage(
     return "real"
 
 
-def repro(name: str, ex: dict[str, Any], kind: str = "real", stale: bool = False) -> str | None:
+def repro(name: str, ex: dict[str, Any], kind: str = "real", stale: bool | str = False) -> str | None:
+    if kind == "main" and stale == "source":
+        return (
+            "stale base (main changed engine source since this branch, and this PR touches none of it): "
+            "git merge origin/main; if the test still fails after the merge it is this PR's"
+        )
     if kind == "main" and stale:
         return "stale base (main changed these tests since this branch): git merge origin/main"
     if kind == "main":
@@ -215,6 +220,21 @@ def files_since_merge_base(api: pr_check.Api, sha: str) -> set[str]:
         return {f["filename"] for f in api(f"repos/{REPO_SLUG}/compare/{base}...main").get("files", [])}
     except (SystemExit, KeyError, TypeError):
         return set()
+
+
+def stale_by_source(mine: set[str] | None, main_changed: set[str], tests: list[str]) -> bool:
+    """#5276: main changed engine source since the merge-base (its fix for a test file it never touched) and this PR
+    provably cannot have moved the failing tests: its file list is readable and holds no engine source, conftest,
+    fixture or file beside a failing test. Anything else stays `real` (a real breakage read as `main` once is the risk)."""
+    if mine is None or not any(f.startswith("gitgalaxy/") for f in main_changed):
+        return False
+    dirs = {t.split("::")[0].rpartition("/")[0] for t in tests}
+    return not any(
+        f.startswith(("gitgalaxy/", "tests/fixtures/"))
+        or f.rpartition("/")[2] == "conftest.py"
+        or f.rpartition("/")[0] in dirs
+        for f in mine
+    )
 
 
 def rollup_kind(name: str, kind: str, ex: dict[str, Any], kinds: dict[str, str]) -> str:
@@ -372,14 +392,17 @@ def digest(
     out = []
     for name, r, ex, kind in first:
         kind = knock_on_kind(name, rollup_kind(name, kind, ex, kinds), ex, kinds)
-        stale = False
+        stale: bool | str = False
         if kind == "real" and name in on_main:
             kind = "main"  # the same check fails on main: fix main, not this PR
         elif kind == "real" and ex["tests"]:
             files = {t.split("::")[0] for t in ex["tests"]}
             mine = diff_files()
-            if mine is not None and files & files_since_merge_base(api, sha) and not files & mine:
+            since = files_since_merge_base(api, sha)
+            if mine is not None and files & since and not files & mine:
                 kind, stale = "main", True  # main fixed these tests since the merge-base (#5273)
+            elif stale_by_source(mine, since, ex["tests"]):
+                kind, stale = "main", "source"  # main's fix was in source only, the PR touches none of it (#5276)
         ids = RUN_JOB.search(r.get("details_url") or "")
         if kind == "real" and flaky and name in flaky and ids and first_attempt(api, int(ids.group(2))):
             kind = "flake"  # a learned flake's first failure gets one rerun; a second failure is real

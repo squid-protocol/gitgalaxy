@@ -23,6 +23,7 @@ on:
       - "CodeQL Security Scan"
       - "Crucible Path Independence"
       - "Det Sweep"
+      - "Equivalence E2E"
       - "Estate Crucible"
       - "Evidence Pages"
       - "Evidence Refresh"

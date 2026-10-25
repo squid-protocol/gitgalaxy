@@ -79,3 +79,77 @@ def test_the_workflow_wires_the_planner_to_the_shards():
     text = (REPO / ".github" / "workflows" / "equivalence-e2e.yml").read_text(encoding="utf-8")
     assert "tests/tools/equivalence_e2e_plan.py" in text
     assert "needs.plan.outputs.mode == 'run'" in text.replace('"', "'")
+
+
+# --- the db2 job (#6664) ---------------------------------------------------------------------------------------------
+DB2 = ep.db2_inputs()
+
+
+def plan_db2(files, event="pull_request", labels=()):
+    return ep.plan(files, event, tuple(labels), REFS, DB2)["db2"]
+
+
+def test_the_db2_closure_reaches_the_translator_the_harness_and_the_scripts_the_tests_run():
+    modules, cases = DB2
+    assert set(ep.DB2_FILES) <= modules
+    for path in (
+        "gitgalaxy/tools/cobol_to_java/det/sql.py",  # imported directly
+        "tests/tools/equivalence_db2.py",
+        "tests/tools/det_port.py",  # run as a subprocess (tools / "det_port.py")
+        "tests/tools/equivalence.py",
+    ):
+        assert path in modules, path
+    assert {"cbsa-inqacccu", "mortgage-cmort"} <= cases  # a -generated case's base, and a case read by path
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "gitgalaxy/tools/cobol_to_java/det/sql.py",
+        "gitgalaxy/tools/cobol_to_java/det/cobolrt/sql/DetSql.java",  # a runtime file: not Python, so fail open
+        "tests/cobol_mainframe/test_sql_whenever.py",
+        "tests/equivalence/db2/whenever/cbl/WHENDEMO.cbl",  # shared Db2 harness data, not a case
+        "tests/equivalence/cbsa-inqacccu/case.json",
+        "tests/equivalence/det_sweep_coverage/cbsa-inqacccu.json",
+        "tests/equivalence/gnucobol.Dockerfile",
+        ".github/workflows/equivalence-e2e.yml",
+        "ci/requirements/test.txt",
+    ],
+)
+def test_an_input_of_the_db2_files_runs_db2(path):
+    assert plan_db2([path, "README.md"]) == "run"
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "tests/cobol_mainframe/test_det_funcs.py",  # a shard file the Db2 files do not import
+        "tests/equivalence/asynccc-crdtchk/case.json",  # a case no Db2 file names
+        "tests/equivalence/det_sweep_coverage/asynccc-crdtchk.json",
+    ],
+)
+def test_a_shard_only_change_skips_db2(path):
+    assert path not in DB2[0]
+    assert ep.plan([path], "pull_request", (), REFS, DB2)["mode"] == "run"
+    assert plan_db2([path]) == "none"
+
+
+@pytest.mark.parametrize("event", ["push", "schedule", "workflow_dispatch"])
+def test_main_nightly_and_manual_always_run_db2(event):
+    assert plan_db2(["README.md"], event) == "run"
+
+
+def test_label_and_empty_diff_run_db2_and_no_area_skips_it():
+    assert plan_db2(["tests/cobol_mainframe/test_det_funcs.py"], labels=["shepherd:full"]) == "run"
+    assert plan_db2([]) == "run"
+    assert plan_db2(["README.md"]) == "none"
+
+
+def test_the_db2_files_are_the_ones_the_workflow_splits_off():
+    text = (REPO / ".github" / "workflows" / "equivalence-e2e.yml").read_text(encoding="utf-8")
+    for f in ep.DB2_FILES:
+        assert f"--ignore={f}" in text, f"the shards do not --ignore {f}"
+        assert text.count(f) >= 2, f"the db2 job does not run {f}"
+    flat = text.replace('"', "'")
+    assert "needs.plan.outputs.db2 != 'none'" in flat
+    assert "db2: ${{ steps.plan.outputs.db2 }}" in text

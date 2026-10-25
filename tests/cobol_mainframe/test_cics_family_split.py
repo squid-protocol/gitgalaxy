@@ -24,6 +24,7 @@ from gitgalaxy.tools.cobol_to_java import cics_task_faults as tfl  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_taskcontrol as tt  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_tdqueues as tq  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_tsqueues as tsq  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_web as tw  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
@@ -155,6 +156,19 @@ def test_the_det_translator_holds_the_task_control_methods_in_its_mixin():
         if cmd.impl and cmd.impl.translator.split(".")[1] in TASK_METHODS:
             assert callable(getattr(C.Cics, cmd.impl.translator.split(".")[1])), key
     assert "pointer" in vars(C.Cics)  # shared with the other families: it stays the translator's own
+
+
+def test_cicstask_holds_the_ts_queue_java_once_where_it_sat():
+    """#5274: the TS queue family is spliced between the faults family and sendMap."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tsq.TSQUEUES_JAVA) == 1
+    a = java.index(tsq.TSQUEUES_JAVA)
+    assert java[:a].endswith(tfl.FAULTS_JAVA)
+    assert java[a + len(tsq.TSQUEUES_JAVA) :].startswith("    public void sendMap(String map, Object screen) {")
+    for method in ("withTempStorage", "writeqTs", "rewriteqTs", "readqTs", "readqTsNext"):
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tsq.TSQUEUES_JAVA), method
+    assert "public record TsResult(" in tsq.TSQUEUES_JAVA
+    assert "public static final class TempStorage" in tsq.TSQUEUES_JAVA
 
 
 def test_cicstask_holds_the_task_control_java_once_where_it_sat():

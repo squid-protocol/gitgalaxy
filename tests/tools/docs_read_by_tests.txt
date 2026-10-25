@@ -336,6 +336,8 @@ docs/language_status/register/X63.md	tests/cobol_mainframe
 docs/language_status/register/X68.md	tests/cobol_mainframe
 docs/language_status/register/_layout.json	tests/tools/register.py
 docs/language_status/register/_parts/	tests/tools/register.py
+docs/language_status/trials/	tests/tools/trial.py
+docs/language_status/trials/*.md	tests/tools/trial.py
 docs/language_status/zos_calibration.json	tests/tools/register.py
 docs/language_status/zos_probes.json	tests/tools/zos_probes.py
 docs/mainframe_ingestion_checklist.md	gitgalaxy
@@ -403,6 +405,7 @@ evidence.md	tests/tools/bugfix_kit.py
 example.com/x.md	tests/extraction
 feed.md	tests/tools/blocker_estate_feed.py
 file.md	tests/extraction
+fresh-1.md	tests/cobol_mainframe
 fresh_estate_trials.md	tests/tools/trial.py
 fresh_estate_trials.svg	tests/tools/trial.py
 gap_prevalence.md	tests/tools/gap_prevalence.py
@@ -416,6 +419,7 @@ gitgalaxy/tools/supply_chain_security/README.md	tests/tools/test_readme_hand_cou
 github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md	tests/tools/test_progress_slide.py
 github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/definition_of_done.md	tests/tools/support_matrix.py
 github.com/squid-protocol/gitgalaxy/blob/main/docs/zero_dependency_mode.md	gitgalaxy
+gone.md	tests/cobol_mainframe
 grade.md	tests/tools/cross_verify.py,tests/tools/cross_verify_sections.py
 graph_comparison_ledger.json	tests/tools/graph_ledger.py
 graph_coverage_chart.svg	tests/tools/graph_coverage_chart.py
@@ -440,7 +444,8 @@ oracle_assumptions.md	gitgalaxy,tests/cobol_mainframe,tests/tools/cics_spec_stat
 other/c.md	tests/extraction
 p.md	tests/tools/test_generated_docs.py
 padded.md	tests/extraction
-page.md	tests/tools/test_cics_spec_status.py
+page.md	tests/cobol_mainframe,tests/tools/test_cics_spec_status.py
+pilot-A.md	tests/cobol_mainframe
 port_blockers.md	tests/tools/port_blockers.py
 port_order.md	gitgalaxy
 porting_loop.md	tests/tools/test_status_page_snapshots.py
@@ -472,6 +477,7 @@ tree_sitter_accuracy_history.csv	tests/tools/tree_sitter_accuracy_audit.py
 tri_comparison_chart.svg	tests/tools/tri_comparison_chart.py
 tri_comparison_ledger.json	tests/tools/tri_comparison_ledger.py
 tri_comparison_points_of_interest.md	tests/tools/tri_comparison_report.py
+trials/fresh-1.md	tests/cobol_mainframe
 x.md	tests/tools/test_generated_docs.py
 x_galaxy_llm.md	tests/test_golden_outputs_snapshot.py
 y.md	tests/extraction

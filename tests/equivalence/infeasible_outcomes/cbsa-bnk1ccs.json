@@ -1,0 +1,62 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-bnk1ccs",
+  "entries": [
+    {
+      "unit": "A010",
+      "line": 284,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (284): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "A010",
+      "line": 284,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "R",
+      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OCCS') COMMAREA(WS-COMM-AREA) LENGTH(248)` (275-279): RETURN never comes back on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for it with a 248-byte COMMAREA and an installed TRANSID."
+    },
+    {
+      "unit": "SM010",
+      "line": 1363,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 51), set by no statement: only `SET SEND-ERASE` and `SET SEND-DATAONLY-ALARM` (181, 267, 370) write the flag."
+    },
+    {
+      "unit": "SM010",
+      "line": 1373,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1363), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 1373,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1363), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 1440,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SM010 after the first SEND MAP and '2' is never set (see 1363), so the test is always true."
+    },
+    {
+      "unit": "STM010",
+      "line": 1531,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "R",
+      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND TEXT ERASE FREEKB that writes the termination message (1526-1532): IBM raises no condition for it on a terminal that just sent a map, and no fault can be injected on it."
+    }
+  ]
+}

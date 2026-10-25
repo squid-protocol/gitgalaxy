@@ -631,6 +631,31 @@
     }
    },
    "why": "interest rate '1.234': more than two characters after the point, the re-count from point+2 stays inside INTRTI (1 + 2 + length 5 - 1 = 7), finds no point and tallies 0 -- the rate is accepted"
+  },
+  {
+   "name": "pf12-send-text-tsioerr",
+   "aid": "DFHPF12",
+   "commarea": {},
+   "faults": [
+    {
+     "cmd": "SEND-TEXT",
+     "resp": "TSIOERR"
+    }
+   ],
+   "why": "PF12: SEND-TERMINATION-MSG's SEND TEXT ERASE FREEKB (STM010) fails TSIOERR (planned, register X71): nothing is sent and the non-NORMAL arm takes the abend routine"
+  },
+  {
+   "name": "first-entry-plain-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "EIBCALEN 0: the closing RETURN TRANSID .. COMMAREA RESP (A010) fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its A010 abend routine"
   }
  ],
  "notes": "CBSA's create-account screen (BNK1CAC, transaction OCAC, BMS map BNK1CA of mapset BNK1CAM: the symbolic map is generated from src/base/bms_src/BNK1CAM.bms, @bms/BNK1CAM.cpy). Pseudo-conversational: a first task (EIBCALEN 0) sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 RETURN TRANSID('OMEN') IMMEDIATE (the task's terminal T001 is stated: oracle_assumptions.md X27), PF12 the termination message, CLEAR, ENTER, any other key 'Invalid key pressed.'. ENTER RECEIVEs the map (MAPFAIL abends HBNK through ABNDPROC), BIF DEEDITs the customer number and overdraft, validates the customer number, the account type (upper or lower case), the interest rate (digits, one point, two places, NUMVAL as COMP-1 between 0 and 9999.99) and the overdraft, then LINKs CREACC with SUBPGM-PARMS -- CREACC, INQCUST, INQACCCU and ABNDPROC run in the task, as in cbsa-creacc -- and shows the new account or CREACC's failure. ACCOUNT, PROCTRAN, CONTROL, CUSTOMER and ABNDFILE are compared after every scenario. Every rate typed is exact in both IEEE and HFP (a binary fraction: 1.5, 3.25, 17.75 ...): FUNCTION NUMVAL into the COMP-1 INTRTI-COMP-1 is IBM's long HFP rounded to short in the det port and GnuCOBOL's IEEE float truncated on the MOVE to SUBPGM-INT-RT, which agree only on such values (oracle_assumptions.md C6). INTRT is a NUM field with no JUSTIFY, so a short rate is RIGHT,ZERO justified (leading zeros, #5116) and no scenario types letters into it or into the NUM CUSTNO / OVERDR: a 3270 numeric field cannot key them (owner decision on #5116, 2026-10-15: rate-letters and overdraft-letters dropped). Every rate is typed as all seven characters: IBM does not say what INTRTL holds after BMS justifies the input (X54 assumption 3: the length typed), and INTRTI(1:INTRTL) of a shorter text would be its leading zeros. The COMMAREA is compared as the program RETURNs it, WS-COMM-AREA (the same 32-byte layout as its DFHCOMMAREA, which it reads back only for EIBCALEN). The overdraft is typed as all eight characters, as over the map's initial underscores: EDIT-DATA trims trailing spaces from its length with FUNCTION REVERSE / INSPECT LEADING, and a shorter typed value makes OVERDRL negative and the next INSPECT's reference modification (1:OVERDRL) undefined. Not reached: a customer number or overdraft with no digit at all (BIF DEEDIT of such a field is not modelled: refused), the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK (no fault can be injected on them) and CREACC's fail codes 2-7 that only a Db2 or ENQ failure gives (cbsa-creacc covers them). Data: seed.sql and customer.txt are SYNTHETIC (cbsa-creacc's). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",

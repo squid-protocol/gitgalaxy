@@ -72,7 +72,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 60
+   "tests": 62
   },
   {
    "corpus": "aws-mainframe-modernization-carddemo",
@@ -1441,7 +1441,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 60,
+   "tests": 62,
    "non_vsam": [
     "db2"
    ]
@@ -2611,7 +2611,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 880
+   "tests_held": 882
   },
   {
    "cause": "ims",

@@ -26,6 +26,7 @@ QUOTING = ("quote", "quote_spanned", "stringify")
 NAME_NODES = {
     "identifier", "field_identifier", "property_identifier", "type_identifier", "simple_identifier",
     "predefined_type",  # C# `new string(..)`: a constructor of a built-in type, kind ``type`` (#6266)
+    "word", "simple_word",  # a shell / Tcl command word names the command it runs (#5640)
 }  # fmt: skip
 # a qualified callee reduces to the field that names the function (``a.b.f`` -> ``f``)
 NAME_FIELD = {
@@ -33,6 +34,7 @@ NAME_FIELD = {
     "member_access_expression": "name", "field_expression": "field", "scoped_identifier": "name",
     "generic_name": None, "generic_function": "function", "member_binding_expression": "name",
     "conditional_access_expression": "name", "navigation_suffix": None,
+    "dot_index_expression": "field", "method_index_expression": "method", "command_name": None,
 }  # fmt: skip
 # a qualified callee whose name is the LAST child (Kotlin ``a.b.f``: ``navigation_expression`` = receiver + suffix)
 LAST_CHILD = frozenset({"navigation_expression"})
@@ -40,7 +42,7 @@ TEXT_NODES = {
     "comment", "line_comment", "block_comment", "string", "string_literal", "interpreted_string_literal",
     "raw_string_literal", "rune_literal", "template_string", "verbatim_string_literal", "character_literal",
     "string_content",
-    "multiline_comment", "multiline_string_literal",
+    "multiline_comment", "multiline_string_literal", "raw_string", "heredoc_body",
 }  # fmt: skip
 
 
@@ -88,6 +90,10 @@ SPECS = {
                        {"new_expression"},
                        {"arrow_function", "function_expression"}),
     "python": Spec("python", {"function_definition"}, {"call": "function"}),
+    # shell and Tcl: a command word naming a function defined in the port is a call (#5640); Lua is an ordinary call
+    "lua": Spec("lua", {"function_declaration"}, {"function_call": "name"}),
+    "shell": Spec("bash", {"function_definition"}, {"command": "name"}),
+    "tcl": Spec("tcl", {"procedure"}, {"command": "name"}),
     # a callee of None is the call node's first named child (Kotlin has no field for it)
     "kotlin": Spec("kotlin", {"function_declaration", "secondary_constructor", "anonymous_initializer"},
                    {"call_expression": None}),

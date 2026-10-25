@@ -33,14 +33,6 @@
     "tests/extraction/languages/test_immutability_locks_contract_2772.py::test_immutability_locks_redos_sweep": 20.97,
     "tests/security_auditing/test_redos_poison.py::TestProductionRegexSecurity::test_production_regex_redos_immunity": 11.2,
     "tests/test_unicode_gauntlet.py::test_the_oracle_is_sound_on_the_mainframe_seed": 46.4,
-    "tests/tools/test_evidence_report.py::test_a_committed_report_is_not_failed_by_a_translator_merge_unless_live": 15.59,
-    "tests/tools/test_evidence_report.py::test_a_report_surveyed_before_the_fingerprint_stays_as_committed_while_its_commit_is_current": 20.94,
-    "tests/tools/test_evidence_report.py::test_a_survey_run_stores_the_translator_fingerprint": 11.71,
-    "tests/tools/test_evidence_report.py::test_a_translator_merge_without_a_refresh_fails_the_release_gate_and_a_refresh_passes": 52.28,
-    "tests/tools/test_evidence_report.py::test_check_fails_on_an_edited_report": 26.22,
-    "tests/tools/test_evidence_report.py::test_deltas_report_stale_against_current": 10.62,
-    "tests/tools/test_evidence_report.py::test_measure_reads_commands_and_facts": 22.85,
-    "tests/tools/test_evidence_report.py::test_the_release_gate_fails_while_a_level_is_stale": 21.13,
     "tests/tools/test_ground_truth_plan.py::test_no_skippable_tool_is_reached_by_the_jobs_tests": 34.6
   },
   "threshold_s": 10.0

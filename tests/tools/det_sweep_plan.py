@@ -108,6 +108,9 @@ GENERATOR = tuple(
 GENERATOR += ("gitgalaxy/tools/cobol_to_java/cics_task_containers.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_filecontrol.py",  # #5448 split it out too (#5885)
               "gitgalaxy/tools/cobol_to_java/cics_task_taskcontrol.py",
+              "gitgalaxy/tools/cobol_to_java/cics_task_web.py",
+              "gitgalaxy/tools/cobol_to_java/cics_task_tdqueues.py",
+              "gitgalaxy/tools/cobol_to_java/cics_task_tsqueues.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_conditions.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_faults.py")  # fmt: skip
 

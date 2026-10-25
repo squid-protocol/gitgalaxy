@@ -72,8 +72,8 @@ jobs:
   # .test_durations: one file, so every part cuts the same split). The first cut was two hand-listed files (the ~1480 s
   # test_det_nondigit_zoned.py and test_evidence_components.py) against everything else; a list goes stale as tests move,
   # and a new file always landed in part 1. The ledger gate (and the history it appends) runs once: in the warm job, or in
-  # part 1 when there is none (#5543: tests/tools/ci_layout.py, which `plan` runs, picks the layout: calm = a warm job + 4 parts, skipped
-  # when main saved the scans for this corpora.json + engine state; busy = 2 self-warming parts); the recorded seconds leave the parts level (test_ci_critical_path_split replays the split). `ground-truth`
+  # part 1 when there is none (#5543: tests/tools/ci_layout.py, which `plan` runs, picks the layout: calm = 4 parts, plus a warm job on push / nightly / manual runs only (a PR has none: its parts warm for
+  # themselves, one fewer serial queue wait), skipped when main saved the scans for this corpora.json + engine state; busy = 2 self-warming parts); the recorded seconds leave the parts level (test_ci_critical_path_split replays the split). `ground-truth`
   # below stays the required check (the ruleset names it), exactly as `full-suite` aggregates the suite's parts.
   # #5164: `ground-truth` is required, so it cannot take a path filter (a filtered-out required check never reports).
   # Like det-sweep's plan job (#4825), `plan` reads the diff: a pull request that changes no ground-truth input (docs,
@@ -142,7 +142,7 @@ jobs:
           key: ${{ steps.key.outputs.scans }}
           lookup-only: true
 
-      # calm: warm job + 4 parts (the warm job is skipped on a cache hit); busy: 2 self-warming parts, no warm job. The
+      # calm: 4 parts (a warm job only on push / nightly / manual runs, and not on a cache hit); busy: 2 self-warming parts, no warm job. The
       # choice and why are in the summary. A failed step leaves the outputs empty: warm job + 4 parts, as before.
       - name: Choose the layout
         id: layout

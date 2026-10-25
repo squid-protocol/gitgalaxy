@@ -387,6 +387,11 @@ class NetworkRiskSensor:
         and five false edges appeared. A target in `NON_IMPORTABLE_LANGS` is accepted only
         when the token spells that file's own extension (`require("./data.json")`, `source
         ci.yml`), which is a positive statement that a data file is meant."""
+        if src_lang == "swift" and "." not in target_token and "/" not in target_token:
+            # #3798 (import contract C7): `import Foundation` names a module, which has no file of
+            # its own; the stem search would hand it a local `Foundation.swift`. `import struct
+            # Mod.Name` carries a dot and still resolves.
+            return None
         hit = self._resolve_target_unguarded(
             target_token, resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts
         )

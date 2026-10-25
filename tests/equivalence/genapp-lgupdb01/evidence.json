@@ -17,17 +17,18 @@
   "port": {
    "paths": [
     "tests/equivalence/genapp-lgupdb01/port/**",
-    "tests/equivalence/genapp-lgupvs01/port/**"
+    "tests/equivalence/genapp-lgupvs01/port/**",
+    "tests/equivalence/genapp-lgstsq/port/**"
    ],
-   "files": 2,
-   "sha256": "80d0aa7ab4b3ad726edca93ca7fa312954eac7ee205589ed803f3fb832dde24e"
+   "files": 3,
+   "sha256": "b193995e263fae562791efb0195e78a1afb75a8263e0bad42e788a159108e40a"
   },
   "case": {
    "paths": [
     "tests/equivalence/genapp-lgupdb01/**"
    ],
    "files": 2,
-   "sha256": "74984f1fdb517f9a636a73d3f6c0f39a47c059c5d0f9d5042e80af4e0a808992"
+   "sha256": "9ea9d5299c0c5eaf114d44d5100a600e145791123061fbaa3fa606ae41277c23"
   },
   "harness": {
    "paths": [
@@ -41,6 +42,7 @@
     "tests/tools/equivalence_cics_conditions.py",
     "tests/tools/equivalence_cics_faults.py",
     "tests/tools/equivalence_cics_tempstorage.py",
+    "tests/tools/equivalence_cics_taskcontrol.py",
     "tests/tools/equivalence_call.py",
     "tests/tools/equivalence_cache.py",
     "tests/tools/equivalence_db2.py",
@@ -49,11 +51,11 @@
     "tests/tools/java_target_matrix.py",
     "tests/tools/equivalence_ims.py"
    ],
-   "files": 17,
-   "sha256": "11d0327f04866262b0e223f527aed8cf1083f9ad5e1c5e4c5f393bf02840f681",
+   "files": 18,
+   "sha256": "8e3e00f2309ded81b723db7a5f9b6aabc56e5607555d6f86a3241d71131b1ddb",
    "components": {
-    "harness:cics": "e48890dcaedd6de4793545fa7c02da9398198aa2fa2633799b6df3edf5af8589",
-    "harness:core": "23d30bc5d7ad7ba3ee2afbb9f7e50b29799194790891e835576cf0c949d42dbd",
+    "harness:cics": "868a00b4715c47c4349274595075f4c3556edcb9f4a88102b2b09238b05777d3",
+    "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99",
     "harness:db2": "df4cefe238f828f2233ef1ae1b7c77c21265c7f5ab3af61e753544d50120cd66"
    }
   },
@@ -69,22 +71,22 @@
     "tests/tools/equivalence_sql.py",
     "tests/equivalence/ims/ggdli.c"
    ],
-   "files": 45,
-   "sha256": "0514e5278b3ee5c2ecc1bea81310ac2415c67fb097a14dc1f9de2d7f72d04d59",
+   "files": 46,
+   "sha256": "7e57488c79c77a09bd66129bc3cc144ac3a66e074a3acc9f05f277b1f41caa82",
    "components": {
-    "oracle:cics-stub": "51cd8ed5f2e11cd4742311993fcc8e5f739cba767936a86d0bce6400523555d0",
+    "oracle:cics-stub": "9c1e9f9bd69cc3bd03eb1f52389adb74a64621058b09ecd32f3853eb98cc1698",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
-    "oracle:le": "4fec0fd2411f43c866dc95cbc9e40f5caf30ad88dd1f430b47625c41da044764"
+    "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
    }
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 109,
-   "sha256": "4b417f3caf6b9417c4b3bbfdaaf8059ab8e0f7ccdd7b75660ad7e44a6a8a6463",
+   "files": 112,
+   "sha256": "bc48178c3dfae1c2ca4049a32efab25db207169122fb9727ede5fb6e33209ece",
    "components": {
     "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
     "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
@@ -126,7 +128,7 @@
     "generator:cobolrt/sql/DetSql.java": "6b04507a609ed3fc607fd152de0bff932798865b6657ba34ab1cbc35c4a6cfb0",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "95e268fa1c62caa08d6d10d04f9ca3d678baa0c213464725dba72f41f3d9d57c",
+    "generator:core": "aae8bd6be007ebbfb4c7c2427b7bd4fd033ec36f528cca49600462bbb475d413",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/bll": "51a3de21e2afa9301080d7613bf7ba13c0a053a90c9b4c1b92acfd676b923163",
     "generator:det/cics": "6fd3b3f809e6ca8bfd5d9dac922b1dc2961ae0280dad4172457ecf02c20f2295",
@@ -239,34 +241,181 @@
    },
    "runtime_sha256": "95d95b29ee402f9e60e387bd556e5076af66d0bd4c4f549241f603b4f4c3cc89"
   },
-  "digest": "23c58e965adc620b27f4c3a5f8bd8ae47931b1b8f7d82d1ce438a63cfb3d6031"
+  "digest": "d6d5afbefe9fd63871afc2188fc5badbc261af5c81f9454cbd85081b3b158d9f"
  },
  "proof": {
-  "at": "2026-10-25T04:00:17Z",
-  "verdict": "proven",
-  "runs": 5,
-  "fault_runs": 0,
+  "at": "2026-10-25T22:13:14Z",
+  "verdict": "not-proven",
+  "runs": 15,
+  "fault_runs": 5,
   "environments": null,
   "outputs": {
    "update-endowment": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
    },
    "update-house": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
    },
    "update-motor": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
    },
    "stale-lastchanged": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
    },
    "house-request-for-endowment": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN"
+    ]
+   },
+   "no-commarea": {
+    "equal": 3,
+    "records": 5,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ]
+   },
+   "policy-not-found": {
+    "equal": 10,
+    "records": 10,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS",
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "unknown-request-id": {
+    "equal": 10,
+    "records": 10,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS",
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "endowment-request-for-house": {
+    "equal": 2,
+    "records": 2,
+    "commands": [
+     "RETURN"
+    ]
+   },
+   "motor-request-for-endowment": {
+    "equal": 6,
+    "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "motor-update-no-row": {
+    "equal": 0,
+    "records": 2,
+    "commands": [
+     "RETURN"
+    ]
+   },
+   "open-cursor-fails": {
+    "equal": 0,
+    "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "close-cursor-fails-501": {
+    "equal": 0,
+    "records": 2,
+    "commands": [
+     "RETURN"
+    ]
+   },
+   "close-cursor-fails-other": {
+    "equal": 0,
+    "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "short-commarea-open-fails": {
+    "equal": 0,
+    "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
    }
   },
   "return_code_equal": null,
@@ -274,56 +423,61 @@
   "attributes_compared": null,
   "java_failed": false,
   "facade": {
-   "verdict": "proven",
-   "runs": 5,
-   "passed": 5,
+   "verdict": "not-proven",
+   "runs": 15,
+   "passed": 8,
    "entry_points": [
     "handleLink"
    ],
-   "failed": [],
+   "failed": [
+    {
+     "scenario": "close-cursor-fails-501",
+     "why": "differs (0/2 events equal, files differ)"
+    },
+    {
+     "scenario": "close-cursor-fails-other",
+     "why": "differs (0/10 events equal, files differ)"
+    },
+    {
+     "scenario": "motor-request-for-endowment",
+     "why": "differs (6/10 events equal)"
+    },
+    {
+     "scenario": "motor-update-no-row",
+     "why": "differs (0/2 events equal, files differ)"
+    },
+    {
+     "scenario": "no-commarea",
+     "why": "differs (3/5 events equal)"
+    },
+    {
+     "scenario": "open-cursor-fails",
+     "why": "differs (0/10 events equal, files differ)"
+    },
+    {
+     "scenario": "short-commarea-open-fails",
+     "why": "differs (0/10 events equal, files differ)"
+    }
+   ],
    "error": null
   },
-  "harness_commit": "8c397cd336f0accb12d4941e172611c586e7d1df+uncommitted",
-  "inputs_digest": "23c58e965adc620b27f4c3a5f8bd8ae47931b1b8f7d82d1ce438a63cfb3d6031"
+  "harness_commit": "0637c27c5228d1139595a4ac9b5420a2fbcc4db9+uncommitted",
+  "inputs_digest": "d6d5afbefe9fd63871afc2188fc5badbc261af5c81f9454cbd85081b3b158d9f"
  },
  "coverage": {
   "paragraphs": {
-   "covered": 8,
+   "covered": 9,
    "live": 9
   },
   "branches": {
-   "covered": 17,
+   "covered": 33,
    "total": 38
   },
   "uncovered_branches": [
    {
-    "line": 183,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "MAINLINE"
-   },
-   {
     "line": 259,
     "kind": "EVALUATE",
     "outcome": "WHEN@262",
-    "unit": "UPDATE-POLICY-DB2-INFO"
-   },
-   {
-    "line": 259,
-    "kind": "EVALUATE",
-    "outcome": "OTHER",
-    "unit": "UPDATE-POLICY-DB2-INFO"
-   },
-   {
-    "line": 275,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "UPDATE-POLICY-DB2-INFO"
-   },
-   {
-    "line": 283,
-    "kind": "EVALUATE",
-    "outcome": "none",
     "unit": "UPDATE-POLICY-DB2-INFO"
    },
    {
@@ -335,38 +489,8 @@
    {
     "line": 351,
     "kind": "IF",
-    "outcome": "true",
-    "unit": "UPDATE-POLICY-DB2-INFO"
-   },
-   {
-    "line": 351,
-    "kind": "IF",
     "outcome": "false",
     "unit": "UPDATE-POLICY-DB2-INFO"
-   },
-   {
-    "line": 369,
-    "kind": "EVALUATE",
-    "outcome": "WHEN@372",
-    "unit": "CLOSE-PCURSOR"
-   },
-   {
-    "line": 369,
-    "kind": "EVALUATE",
-    "outcome": "OTHER",
-    "unit": "CLOSE-PCURSOR"
-   },
-   {
-    "line": 408,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "UPDATE-ENDOW-DB2-INFO"
-   },
-   {
-    "line": 410,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "UPDATE-ENDOW-DB2-INFO"
    },
    {
     "line": 410,
@@ -379,48 +503,6 @@
     "kind": "IF",
     "outcome": "false",
     "unit": "UPDATE-HOUSE-DB2-INFO"
-   },
-   {
-    "line": 485,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "UPDATE-MOTOR-DB2-INFO"
-   },
-   {
-    "line": 487,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "UPDATE-MOTOR-DB2-INFO"
-   },
-   {
-    "line": 487,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "UPDATE-MOTOR-DB2-INFO"
-   },
-   {
-    "line": 520,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "WRITE-ERROR-MESSAGE"
-   },
-   {
-    "line": 520,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "WRITE-ERROR-MESSAGE"
-   },
-   {
-    "line": 521,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "WRITE-ERROR-MESSAGE"
-   },
-   {
-    "line": 521,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "WRITE-ERROR-MESSAGE"
    }
   ],
   "handler_labels": {
@@ -428,7 +510,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "23c58e965adc620b27f4c3a5f8bd8ae47931b1b8f7d82d1ce438a63cfb3d6031"
+  "inputs_digest": "d6d5afbefe9fd63871afc2188fc5badbc261af5c81f9454cbd85081b3b158d9f"
  },
  "reach": {
   "entry_points": [
@@ -498,7 +580,7 @@
   "source": "docs/language_status/mutation_scores.json#genapp-lgupdb01/LGUPDB01",
   "inputs": {
    "port": {
-    "sha256": "d7fd33e34ffb35605f072ec7bfb18c9a325201b981c203bb8a6e2467da355e50"
+    "sha256": "78fe70e32d694b284d4e36240504b9b99ff3a24edb5b8dfef14f29812b2c2f12"
    },
    "case": {
     "sha256": "74984f1fdb517f9a636a73d3f6c0f39a47c059c5d0f9d5042e80af4e0a808992"
@@ -558,7 +640,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "741b362eee7da821cbb0d20762e2f7020c047c9e3e05e0ec674249299201a372"
+    "sha256": "bcfd4700f0f4d540d5bb4cfc6442417c8420394d5486992472df6c157a15db92"
    },
    {
     "path": "tests/equivalence/cics/ggcics_conditions.c",
@@ -595,6 +677,10 @@
    {
     "path": "tests/equivalence/cics/ggcics_transientdata.c",
     "sha256": "00961a38063f8fe5179068dee7457d1dc5b5eab7bfd48f1323f637888df5a265"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_web.c",
+    "sha256": "285bd1252683719b3c44191405432493d86a5da25766502252ca21930efd46cf"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -706,7 +792,7 @@
    },
    {
     "path": "tests/equivalence/le/le_time.c",
-    "sha256": "073fe9a311428333bc4e3521bf841c1ba8ac1135aa45c3ecef18f810da393d77"
+    "sha256": "5d710d14456328c2f1b3f4e9cbdb4eb08ca210dd0462199fc1be46f1333bfc47"
    },
    {
     "path": "tests/equivalence/le/mvswait.c",
@@ -741,7 +827,7 @@
   "provenance_file": {
    "path": "tests/equivalence/genapp-lgupdb01/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "2b1024e7d148b652ae6c4e6ae19e45404b05caa9116f886e3f6da8e68eb5440e"
+   "sha256": "0e863d3c8a4656d4b7016f1215a81afd00b1e46238746c39801ceff1b488832f"
   }
  },
  "approvals": []

@@ -1260,7 +1260,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3310,7 +3310,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3734,7 +3734,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -3796,7 +3796,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -3842,8 +3842,8 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
-      "last_seen_count": 2,
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 8,
       "last_seen_examples": [
         {
           "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/Serializer/JsonConstructorAttribute.cs",
@@ -3856,6 +3856,30 @@
         {
           "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Schema/JsonSchemaGeneratorTests.cs",
           "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Schema/JsonSchemaGeneratorTests.cs -> Src/Newtonsoft.Json/Schema/Extensions.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "xunit/src/xunit.v3.runner.inproc.console/ConsoleRunner.cs",
+          "name": "xunit/src/xunit.v3.runner.inproc.console/ConsoleRunner.cs -> src/xunit.v3.runner.common/Messages/DiagnosticMessage.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "xunit/src/xunit.v3.runner.inproc.console/ConsoleRunner.cs",
+          "name": "xunit/src/xunit.v3.runner.inproc.console/ConsoleRunner.cs -> src/xunit.v3.runner.common/Messages/ErrorMessage.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "xunit/src/xunit.v3.runner.inproc.console/ConsoleRunnerInProcess.cs",
+          "name": "xunit/src/xunit.v3.runner.inproc.console/ConsoleRunnerInProcess.cs -> src/xunit.v3.runner.common/Messages/DiagnosticMessage.cs",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -3882,8 +3906,8 @@
       "investigated_at": "2026-10-24T13:10:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "csharp",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
-      "last_seen_count": 102,
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 115,
       "last_seen_examples": [
         {
           "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Bson/BsonWriterTests.cs",
@@ -4850,7 +4874,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "dart",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 35,
       "last_seen_examples": [
         {
@@ -4912,7 +4936,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -4966,7 +4990,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4988,15 +5012,17 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T22:00:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "fortran",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 276,
       "last_seen_examples": [
         {
@@ -5041,10 +5067,10 @@
         }
       ],
       "metric": "capture-missed",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "Fortran resolves a use by MODULE name; the engine resolves by file stem. fpm_cmd_export lives in cmd/export.f90 and fpm_error in error.f90, so the token is captured but no stem matches. The module-name rule is right, GitGalaxy missed the edge."
     },
     "fortran/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5055,10 +5081,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T22:00:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "fortran",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 20,
       "last_seen_examples": [
         {
@@ -5103,24 +5129,26 @@
         }
       ],
       "metric": "target-not-imported",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "use, intrinsic :: iso_fortran_env names the compiler's intrinsic module and creates no file dependency; the engine linked it to example_packages/nonintrinsic/src/iso_fortran_env.f90 by stem. The engine edge is false."
     },
     "fortran/import/token-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T22:00:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "fortran",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 48,
       "last_seen_examples": [
         {
@@ -5165,10 +5193,10 @@
         }
       ],
       "metric": "token-unresolved",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "The token (fpm_environment, fpm_os) equals the stem of both a .f90/.F90 file and a .c file, so the engine refuses the ambiguous stem. Module name picks the Fortran file. GitGalaxy missed the edge."
     },
     "fortran/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -5182,7 +5210,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "fortran",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 29,
       "last_seen_examples": [
         {
@@ -5236,15 +5264,17 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T22:00:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "fortran",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5257,10 +5287,10 @@
         }
       ],
       "metric": "truth-sees-no-import-in-file",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "submodule(parent_unused) child_unused is a real dependency on the parent module's file; the harness reads only use statements. The engine edge is right."
     },
     "go/call/call_expression/func_literal+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -5832,7 +5862,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5862,7 +5892,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5876,7 +5906,7 @@
       ],
       "metric": "truth-sees-no-import-in-file",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "import",
       "verdict": null
     },
@@ -5884,15 +5914,17 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T18:27:12Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "groovy",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 41,
       "last_seen_examples": [
         {
@@ -5937,10 +5969,10 @@
         }
       ],
       "metric": "declaration-unresolved",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "import static pkg.Class.member names pkg.Class (AsciiDocLinkVerifier.groovy); the engine does not resolve static-member imports to the class file. GitGalaxy missed a real import."
     },
     "groovy/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5951,10 +5983,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T18:27:12Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "groovy",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -5999,10 +6031,10 @@
         }
       ],
       "metric": "target-not-imported",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "The file imports java.lang.annotation.Target (JDK); the engine linked it to the project's spock Target.java by stem. The engine edge is false."
     },
     "groovy/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -6013,10 +6045,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T18:27:12Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "groovy",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -6045,10 +6077,10 @@
         }
       ],
       "metric": "truth-sees-no-import-in-file",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "Fast/Slow.groovy import java.lang.annotation.Target and EmbeddedSpecRunner explicitly imports org.junit.platform.engine.Filter (an explicit import beats the org.spockframework.util.* wildcard), so no edge to the project's Target.java/Filter.java exists. The engine edge is false."
     },
     "haskell/call/apply/apply/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -8538,7 +8570,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8648,7 +8680,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8688,7 +8720,7 @@
       "investigated_at": "2026-10-02T15:31:51Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799 JVM sweep)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9088,7 +9120,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "lua",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -9134,7 +9166,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "lua",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -9168,6 +9200,68 @@
       "symbol_type": "import",
       "verdict": null
     },
+    "matlab/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-25T19:08:24Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "matlab",
+      "last_reconciled_at": "2026-10-25T19:08:24Z",
+      "last_seen_count": 9,
+      "last_seen_examples": [
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "objective-c/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
@@ -9182,7 +9276,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "objective-c",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -12450,7 +12544,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -12512,7 +12606,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -12558,7 +12652,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -13404,7 +13498,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -14282,7 +14376,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14846,7 +14940,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14876,7 +14970,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -15062,7 +15156,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -15092,7 +15186,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -16494,6 +16588,106 @@
       "symbol_type": "call",
       "verdict": null
     },
+    "rust/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-25T06:35:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "rust",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 6,
+      "last_seen_examples": [
+        {
+          "file_path": "ripgrep/crates/core/flags/complete/bash.rs",
+          "name": "ripgrep/crates/core/flags/complete/bash.rs -> crates/core/flags/defs.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "ripgrep/crates/core/flags/complete/fish.rs",
+          "name": "ripgrep/crates/core/flags/complete/fish.rs -> crates/core/flags/defs.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "ripgrep/crates/core/flags/complete/powershell.rs",
+          "name": "ripgrep/crates/core/flags/complete/powershell.rs -> crates/core/flags/defs.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "ripgrep/crates/core/flags/doc/help.rs",
+          "name": "ripgrep/crates/core/flags/doc/help.rs -> crates/core/flags/defs.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "ripgrep/crates/core/flags/doc/man.rs",
+          "name": "ripgrep/crates/core/flags/doc/man.rs -> crates/core/flags/defs.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "rust/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-25T06:35:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "rust",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "ripgrep/crates/core/flags/complete/bash.rs",
+          "name": "ripgrep/crates/core/flags/complete/bash.rs -> crates/core/flags/mod.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "ripgrep/crates/core/flags/complete/powershell.rs",
+          "name": "ripgrep/crates/core/flags/complete/powershell.rs -> crates/core/flags/mod.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "target-not-imported",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "scala/call/call_expression/call_expression/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
@@ -17106,7 +17300,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -17170,7 +17364,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -17234,7 +17428,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -17272,7 +17466,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -17310,7 +17504,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -17342,7 +17536,7 @@
       "investigated_at": "2026-09-25T18:40:28Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -17406,7 +17600,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -17916,7 +18110,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -17954,7 +18148,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "solidity",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 24,
       "last_seen_examples": [
         {
@@ -18248,7 +18442,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 22,
       "last_seen_examples": [
         {
@@ -18294,7 +18488,7 @@
       ],
       "metric": "truth-sees-no-import-in-file",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "import",
       "verdict": null
     },
@@ -19490,15 +19684,17 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T19:18:17Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 278,
       "last_seen_examples": [
         {
@@ -19543,10 +19739,10 @@
         }
       ],
       "metric": "capture-missed",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "No engine token for the import: package ifneeded in pkgIndex.tcl and source via [file join ...] forms are not captured. Both are real imports under the Tcl rule. GitGalaxy missed them."
     },
     "tcl/import/capture-none-in-file/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -19560,7 +19756,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -19582,15 +19778,17 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T19:18:17Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 437,
       "last_seen_examples": [
         {
@@ -19635,24 +19833,26 @@
         }
       ],
       "metric": "token-unresolved",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "The captured token names the target, but the engine's stem search refuses it: a same-stem doc page (md/html) or sibling file makes the match ambiguous, and tokens arrive mangled ('time;', '[file'). The Tcl rule (source path, package require -> package provide) resolves them. GitGalaxy missed a real import."
     },
     "tcl/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T19:18:17Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
-      "last_reconciled_at": "2026-10-25T04:26:56Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 53,
       "last_seen_examples": [
         {
@@ -19697,10 +19897,10 @@
         }
       ],
       "metric": "truth-names-several-files",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "One package require names every file that package-provides it; the engine links at most one name-matched file. The Tcl rule is right, GitGalaxy missed the other providers."
     },
     "typescript/call/call_expression/call_expression+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

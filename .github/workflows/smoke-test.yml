@@ -256,7 +256,8 @@ jobs:
           pip install --no-build-isolation -e .
 
       - name: Cache tree-sitter language pack
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: tree_sitter_language_pack
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/tree-sitter-language-pack
           key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
@@ -393,6 +394,15 @@ jobs:
           path: ${{ runner.temp }}/durations-part-${{ matrix.group }}.json
           retention-days: 7
 
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the tree-sitter language pack to the cache
+        if: success() && github.event_name != 'pull_request' && steps.tree_sitter_language_pack.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/tree-sitter-language-pack
+          key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
+
   # #5133: the evidence level deltas (advisory, #4703) used to be the last step of part 3, which made it the slowest part
   # (it waits for the report on top of its share of the suite). Its own job: it starts with the parts, is never in
   # `full-suite`'s needs (so it cannot hold the required check back), and continue-on-error keeps a failure from
@@ -436,7 +446,10 @@ jobs:
   full-suite-durations:
     name: store the suite's durations
     needs: [shard-plan, full-suite-part]
-    if: github.event_name == 'schedule' && success()
+    # #5133 slice 8: not a bare success(): that is false when ANY ancestor in the needs chain was skipped, and the push-only
+    # `tested-tree` (an ancestor through full-suite-part) is skipped on a schedule run, so the green nightly of 2026-10-25
+    # (run 40179743618) skipped this job and stored no cache.
+    if: ${{ !cancelled() && github.event_name == 'schedule' && needs.full-suite-part.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

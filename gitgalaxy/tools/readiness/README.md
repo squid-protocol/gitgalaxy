@@ -133,7 +133,7 @@ statements resolve:
 ## Limits
 
 - **Readiness is static inventory, not runtime proof.** `gitgalaxy assess` tells you which programs translate whole (`L1`) and which rules block the rest (`L0`); reaching `L2–L4` requires running the equivalence harness ([`cobol-to-java`](../cobol_to_java/README.md)) against test scenarios.
-- **`--jcl` option extraction is a follow-up:** Pass site compiler/runtime options via `--options FILE` (`estate_options.json`, `#4704`); automatic extraction of compile `PARM`s from JCL in `gitgalaxy assess --jcl` is tracked as a follow-up to `#4726`.
+- **`--jcl` reads only what the JCL states:** `gitgalaxy assess --jcl` takes the compile `PARM`s from your JCL (#5710); where compile steps disagree it keeps only the options all of them agree on and names the rest on standard error. It cannot be combined with `--options FILE` (`estate_options.json`, #4704); see [`docs/assess.md`](../../../docs/assess.md).
 - **Non-burned estates report counts only in committed fixtures:** To keep unburned estates blind for first-contact trials, [`tests/tools/era_distribution.py`](../../../tests/tools/era_distribution.py) commits only aggregate era and tell counts (`tests/fixtures/era_distribution/summary.json`), never per-program rows.
 
 ---

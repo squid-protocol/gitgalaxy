@@ -601,3 +601,58 @@ def test_a_record_with_no_compiler_options_renders_no_row(semantic):
     assert "| compiler options |" not in page
     assert ev.compiler_line(rec["inputs"]["options"]) is None
     assert ev.compiler_line(None) is None
+
+
+def test_a_scenario_records_the_commands_its_cobol_run_executed():
+    """#5229: `commands` is the sorted distinct verbs of the oracle run, without the end-state snapshots; a scenario
+    with none carries no key (python-test-traps.md)."""
+    sys.path.insert(0, str(REPO / "tests" / "tools"))
+    import equivalence_cics as ec
+
+    events = [{"event": "RECEIVE-MAP"}, {"event": "WRITEQ-TS"}, {"event": "RECEIVE-MAP"},
+              {"event": "COMMAREA"}, {"event": "CONTAINERS"}, {"event": "RETURN"}]  # fmt: skip
+    assert ec.executed_commands(events) == ["RECEIVE-MAP", "RETURN", "WRITEQ-TS"]
+    assert ec.executed_commands([{"event": "COMMAREA"}]) == []
+    t = next(t for t, _ in _records())
+    report = {"proven": True, "outputs": {"a": {"equal": 3, "records": 3, "commands": ["RETURN", "WRITEQ-TS"]},
+                                          "b": {"equal": 1, "records": 1}}}  # fmt: skip
+    proof = ev.proof_section(t, report, "d")
+    assert proof["outputs"]["a"] == {"equal": 3, "records": 3, "commands": ["RETURN", "WRITEQ-TS"]}
+    assert proof["outputs"]["b"] == {"equal": 1, "records": 1}
+
+
+# ---- #6680: a ledgered facade failure does not fail the refresh -------------------------------------------------------
+def _facade_rec(failed, **over):
+    proof = {"verdict": "not-proven", "java_failed": False,
+             "facade": {"verdict": "not-proven", "error": None, "failed": [{"scenario": n} for n in failed]}}  # fmt: skip
+    return {"proof": {**proof, **over}}
+
+
+@pytest.fixture
+def _ledger(tmp_path):
+    p = tmp_path / "facade_baseline.json"
+    p.write_text(json.dumps({"cases": {"k": {"issue": "#1", "why": "w", "scenarios": ["a", "b"]}}}), encoding="utf-8")
+    return p
+
+
+@pytest.mark.parametrize(
+    "key,rec,want",
+    [
+        ("k", _facade_rec(["b", "a"]), "#1"),
+        ("k", _facade_rec(["a"]), None),  # one fixed: update the ledger
+        ("k", _facade_rec(["a", "b", "c"]), None),  # a new failure
+        ("k", _facade_rec(["a", "b"], java_failed=True), None),
+        ("k", {"proof": {**_facade_rec(["a", "b"])["proof"], "facade": {"verdict": "not-proven", "error": "x", "failed": [{"scenario": "a"}, {"scenario": "b"}]}}}, None),
+        ("other", _facade_rec(["a", "b"]), None),
+        ("k", {"proof": {"verdict": "not-proven"}}, None),
+        ("k", None, None),
+    ],
+)  # fmt: skip
+def test_only_the_exact_ledgered_facade_failure_is_exempt(_ledger, key, rec, want):
+    assert ev.ledgered_facade_only(key, rec, _ledger) == want
+
+
+def test_the_committed_ledgered_records_do_not_fail_prove(monkeypatch, capsys):
+    keys = json.loads(FACADE_BASELINE.read_text(encoding="utf-8"))["cases"]
+    for k in keys:
+        assert ev.ledgered_facade_only(k, ev.load(ev.target(k))) == keys[k]["issue"]

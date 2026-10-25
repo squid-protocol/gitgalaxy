@@ -57306,8 +57306,7 @@
           "_edit_current"
         ],
         "EditorNode::edit_resource@1723": [
-          "get_singleton",
-          "edit_resource"
+          "get_singleton"
         ],
         "EditorNode::ensure_main_scene@6454": [
           "set_meta",
@@ -58254,7 +58253,6 @@
           "ERR_FAIL_COND_MSG",
           "get_parent",
           "remove_child",
-          "set_edited_scene_root",
           "cast_to",
           "show",
           "get_singleton",
@@ -58789,7 +58787,6 @@
           "shutdown",
           "get_interface_count",
           "get_interface",
-          "cleanup",
           "end",
           "clear_thread_load_tasks",
           "remove_custom_loaders",
@@ -58810,6 +58807,7 @@
           "deinitialize_extensions",
           "uninitialize_modules",
           "unregister_editor_types",
+          "cleanup",
           "unregister_platform_apis",
           "unregister_driver_types",
           "unregister_scene_types",
@@ -58884,7 +58882,6 @@
           "get_language",
           "update",
           "is_active",
-          "iteration",
           "print_line",
           "vformat",
           "rtos",
@@ -58909,8 +58906,7 @@
           "print_header_rich",
           "String",
           "get_full_version_string",
-          "get_datetime_string_from_unix_time",
-          "print_header"
+          "get_datetime_string_from_unix_time"
         ],
         "Main::print_help@526": [
           "print_header",
@@ -59460,7 +59456,6 @@
           "localize_path",
           "has_scenes_in_session",
           "load_scene",
-          "start",
           "set_keep_open",
           "load_default_certificates",
           "add_current_scene",
@@ -59770,10 +59765,10 @@
           "insert",
           "get_groups",
           "add_to_group",
-          "_duplicate",
           "add_child",
           "move_child",
           "get_node",
+          "_duplicate",
           "get_index"
         ],
         "Node::_duplicate_properties@3070": [
@@ -59869,16 +59864,14 @@
           "_update_children_cache",
           "String",
           "get_path_to",
-          "size",
-          "_get_tree_string"
+          "size"
         ],
         "Node::_get_tree_string_pretty@2548": [
           "utf8",
           "_update_children_cache",
           "String",
           "get_name",
-          "size",
-          "_get_tree_string_pretty"
+          "size"
         ],
         "Node::_is_enabled@990": [],
         "Node::_move_child@533": [
@@ -60241,8 +60234,7 @@
           "ptr",
           "size",
           "String",
-          "match",
-          "find_child"
+          "match"
         ],
         "Node::find_children@2017": [
           "ERR_THREAD_GUARD_V",
@@ -60263,8 +60255,7 @@
           "get_global_class_path",
           "get_path",
           "get_base_script",
-          "append_array",
-          "find_children"
+          "append_array"
         ],
         "Node::find_common_parent_with@2310": [
           "const_cast",
@@ -62668,8 +62659,7 @@
           "is_zero"
         ],
         "Variant::is_read_only@3464": [
-          "reinterpret_cast",
-          "is_read_only"
+          "reinterpret_cast"
         ],
         "Variant::is_ref_counted@3433": [
           "_get_obj",
@@ -62991,10 +62981,10 @@
           "hash_murmur3_one_float",
           "get_id",
           "_get_obj",
-          "recursive_hash",
           "get_name",
           "hash_murmur3_one_64",
           "get_object_id",
+          "recursive_hash",
           "get_array",
           "size",
           "likely",
@@ -63034,7 +63024,6 @@
           "Dictionary",
           "Array",
           "static_cast",
-          "reference",
           "create"
         ],
         "Variant::register_types@3567": [
@@ -65102,8 +65091,7 @@
           "GetCurrentVirtualDesktopIdFromRegistry",
           "GetVirtualDesktopIdsFromRegistry",
           "SetId",
-          "SaveData",
-          "SyncVirtualDesktops"
+          "SaveData"
         ],
         "FancyZones::ToggleEditor@529": [
           "SetEvent",
@@ -149371,7 +149359,6 @@
           "split_for_impl",
           "filter",
           "matches",
-          "Lifetime",
           "new",
           "extend",
           "Type",

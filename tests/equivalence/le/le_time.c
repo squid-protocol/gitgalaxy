@@ -197,9 +197,32 @@ static int format(const tok *p, int np, long n, int hh, int mi, int ss, int ms, 
     return w;
 }
 
-/* A VSTRING result: halfword length, the text, nothing past it. The item's size is not visible here: an output item
- * shorter than the result (IBM: truncated, CEE2526 / CEE2527) is refused by the Java side and unmodelled here. */
-static void put_vstring(unsigned char *out, const char *text, int len) {
+/* The declared size of a caller's output item: the harness reads the program's DATA DIVISION and gives
+ * GG_LE_OUT_SIZES="CEEDATE=80,CEEDATM=80" (tests/tools/le_out_size.py); GnuCOBOL passes this routine a bare pointer.
+ * -1: not stated (an item the harness could not size), so nothing is checked, as before. */
+static long out_size(const char *svc) {
+    const char *s = getenv("GG_LE_OUT_SIZES");
+    size_t n = strlen(svc);
+    while (s && *s) {
+        if (!strncmp(s, svc, n) && s[n] == '=') {
+            return atol(s + n + 1);
+        }
+        s = strchr(s, ',');
+        if (s) {
+            s++;
+        }
+    }
+    return -1;
+}
+
+/* A VSTRING result: halfword length, the text, nothing past it. IBM cuts a result longer than its output item
+ * (CEE2526 / CEE2527); that is refused by name here, as the Java side does (LeTime.putVstring), whenever the item's
+ * size is stated, rather than written over the storage beside it. */
+static void put_vstring(const char *svc, unsigned char *out, const char *text, int len) {
+    long size = out_size(svc);
+    if (size >= 0 && size < 2L + len) {
+        refuse(svc, "an output item shorter than the result (CEE2526 / CEE2527 truncation)");
+    }
     out[0] = (unsigned char)(len >> 8);
     out[1] = (unsigned char)len;
     memcpy(out + 2, text, (size_t)len);
@@ -295,7 +318,7 @@ int CEEDATE(unsigned char *lilian, unsigned char *pic, unsigned char *out, unsig
         put_fc(fc, 2512);
         return 0;
     }
-    put_vstring(out, buf, format(p, np, n, 0, 0, 0, 0, buf));
+    put_vstring("CEEDATE", out, buf, format(p, np, n, 0, 0, 0, 0, buf));
     put_fc(fc, 0);
     return 0;
 }
@@ -313,7 +336,7 @@ int CEEDATM(unsigned char *seconds, unsigned char *pic, unsigned char *out, unsi
     long long w = (long long)whole;
     int ms = (int)floor((v - whole) * 1000.0);
     long long sod = w % 86400LL;
-    put_vstring(out, buf, format(p, np, (long)(w / 86400LL), (int)(sod / 3600), (int)(sod / 60 % 60), (int)(sod % 60), ms, buf));
+    put_vstring("CEEDATM", out, buf, format(p, np, (long)(w / 86400LL), (int)(sod / 3600), (int)(sod / 60 % 60), (int)(sod % 60), ms, buf));
     put_fc(fc, 0);
     return 0;
 }

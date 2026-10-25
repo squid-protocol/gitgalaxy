@@ -104,6 +104,7 @@ HARNESS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "t
            "tests/tools/equivalence_cics_conditions.py",
            "tests/tools/equivalence_cics_faults.py",
            "tests/tools/equivalence_cics_tempstorage.py",
+           "tests/tools/equivalence_cics_taskcontrol.py",
            "tests/tools/equivalence_call.py",
            "tests/tools/equivalence_cache.py", "tests/tools/equivalence_db2.py", "tests/tools/equivalence_oracle.py",
            "tests/tools/cobol_coverage.py", "tests/tools/java_target_matrix.py",
@@ -246,6 +247,7 @@ COMPONENTS: tuple[Component, ...] = (
             "tests/tools/equivalence_cics_conditions.py",
             "tests/tools/equivalence_cics_faults.py",
             "tests/tools/equivalence_cics_tempstorage.py",
+            "tests/tools/equivalence_cics_taskcontrol.py",
         ),  # #5274: its families
         lambda u: u.cics_harness,
         "run_case for kind cics; batch Db2 SQL faults and call arg encoding import it; a plain batch run never does",
@@ -694,6 +696,8 @@ def proof_section(t: Target, report: dict[str, Any], digest: str) -> dict[str, A
     outputs: dict[str, Any] = {}
     for name, o in (report.get("outputs") or {}).items():
         outputs[name] = {"equal": o.get("equal"), "records": o.get("records", o.get("events"))}
+        if o.get("commands"):  # #5229: the CICS commands the scenario's COBOL run executed (the reach's input)
+            outputs[name]["commands"] = list(o["commands"])
         if o.get("judged_to"):  # #4173 / #4607 (X6): a task compared only up to a LINK not run or a refused WRITEQ
             outputs[name]["judged_to"] = o["judged_to"]
             if o.get("x6"):  # #4270: or X23, a reference past a stated EIBCALEN
@@ -1426,6 +1430,30 @@ def _parse_shard(text: str) -> tuple[int, int]:
     return i, n
 
 
+def ledgered_facade_only(key: str, rec: dict[str, Any] | None, ledger: Path | None = None) -> str | None:
+    """#6680: the issue that owns a record's failure when that failure is exactly its ledgered java-facade set
+    (tests/equivalence/facade_baseline.json): runTask side passed, the facade ran, and the failing scenarios equal the
+    ledger's. Anything else (a new or fixed failure, a Java or run error) returns None and keeps failing."""
+    proof = (rec or {}).get("proof") or {}
+    fc = proof.get("facade") or {}
+    if (
+        proof.get("verdict") != "not-proven"
+        or proof.get("java_failed")
+        or fc.get("verdict") != "not-proven"
+        or fc.get("error")
+    ):
+        return None
+    path = ledger or CASES / "facade_baseline.json"
+    entry = (json.loads(path.read_text(encoding="utf-8")).get("cases") or {}).get(key) if path.is_file() else None
+    if (
+        not entry
+        or not entry.get("issue")
+        or sorted(f["scenario"] for f in fc.get("failed") or []) != sorted(entry["scenarios"])
+    ):
+        return None
+    return str(entry["issue"])
+
+
 def _selected(args: argparse.Namespace, say: Callable[[str], None] = print) -> list[Target]:
     """The targets a prove / refresh run proves: what the keys, --skip-db2 / --only-db2 and --stale leave, then (#4744) the
     --shard slice of that. Every shard sees the same tree, so the same list: slice I of N is every N-th record of it, in
@@ -1513,8 +1541,12 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"{t.key}: NOT RUN -- {got['error'].splitlines()[-1] if got['error'] else 'no report'}")
                 continue
             st = got["status"]
-            failed += ((load(t) or {}).get("proof") or {}).get("verdict") != "proven"  # the proof itself failed
-            print(f"{t.key}: {st['status']} {'; '.join(st['reasons'])}")
+            rec = load(t)
+            owner = ledgered_facade_only(t.key, rec)  # #6680: a failure already ledgered is reported, not new
+            failed += ((rec or {}).get("proof") or {}).get("verdict") != "proven" and owner is None
+            print(
+                f"{t.key}: {st['status']} {'; '.join(st['reasons'])}" + (f" (ledgered under {owner})" if owner else "")
+            )
         write_pages()
         return 1 if failed else 0
     if args.cmd == "migrate":

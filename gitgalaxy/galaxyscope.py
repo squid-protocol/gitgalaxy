@@ -113,6 +113,34 @@ _COMPLETENESS_LANGUAGES = frozenset({"cobol", "jcl", "bms", "csd"})
 
 logger = logging.getLogger("GalaxyScope")
 
+
+def _untracked_files(root: "Path | str") -> list[str]:
+    """Untracked, non-ignored files under `root` (empty when not a git repo or git is missing).
+
+    A git census (`git ls-files`) never lists these, so a scan silently skips them (#138).
+    Modified-but-unstaged tracked files are listed by ls-files and read from disk, so they are scanned.
+    """
+    try:
+        out = subprocess.check_output(  # noqa: S603 -- _GIT_BIN absolute, fixed args
+            [_GIT_BIN, "ls-files", "-z", "--others", "--exclude-standard"],
+            cwd=root,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+    except (subprocess.CalledProcessError, OSError):
+        return []
+    # .gitgalaxy/ is the engine's own cache dir, created by every run: never the user's uncommitted work.
+    return [u for u in out.split("\0") if u and not u.startswith(".gitgalaxy/")]
+
+
+def _untracked_warning(untracked: list[str]) -> str:
+    shown = ", ".join(untracked[:5]) + (" ..." if len(untracked) > 5 else "")
+    return (
+        f"{len(untracked)} untracked file(s) are NOT scanned (the census is `git ls-files`); "
+        f"`git add` them to include: {shown}"
+    )
+
+
 # ==============================================================================
 # WORKER PROCESS: ISOLATED MEMORY SPACE FOR PASS 1 (CPU BOUND)
 # ==============================================================================
@@ -412,7 +440,14 @@ def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def:
     # of example source), newlines kept.
     blank = lang_def.get("import_capture_blank")
     if blank:
-        content = re.sub(blank, lambda m: re.sub(r"[^\n]", " ", m.group()), content)
+        # #6572: `import_capture_multiline_only` -- the pattern also walks the single-line literals
+        # (to keep quote parity) and only a literal spanning lines is blanked.
+        only_multiline = lang_def.get("import_capture_multiline_only")
+        content = re.sub(
+            blank,
+            lambda m: m.group() if only_multiline and "\n" not in m.group() else re.sub(r"[^\n]", " ", m.group()),
+            content,
+        )
     relative_groups = lang_def.get("relative_import_groups")
     local_group = lang_def.get("local_module_capture_group")
     path_group = lang_def.get("module_path_capture_group")
@@ -560,7 +595,11 @@ def _expand_import_selectors(text: str, depth: int = 0) -> list[str]:
         brace = part.find("{")
         # A selector group follows a path separator (`a.b.{`, `a::{`, `A\\{`) or
         # opens the item; `${VAR}` (shell, PowerShell) is an expansion, not one.
-        if brace == 0 or (brace > 0 and part[:brace].rstrip()[-1:] not in (".", ":", "\\")):
+        # A part that opens with `{` and closes with its `}` is an unprefixed group
+        # (Rust `use { a::B, c::{D, E} };`, #3798): its items expand with no prefix.
+        if (brace == 0 and not part.endswith("}")) or (
+            brace > 0 and part[:brace].rstrip()[-1:] not in (".", ":", "\\")
+        ):
             brace = -1
         if brace == -1 or depth > 8:
             leaf = re.split(r"\s+as\s+|\s*=>\s*", part)[0].replace("{", "").replace("}", "").strip()
@@ -2345,6 +2384,10 @@ class Orchestrator:
                     self._record_anomaly(rel_path, reason)
 
             logger.info(f"CENSUS_COMPLETE: Found {len(git_paths)} tracked artifacts via Git.")
+            if not getattr(self, "single_file_target", None):
+                self.untracked_files = _untracked_files(self.root)
+                if self.untracked_files:
+                    logger.warning("UNTRACKED_FILES: " + _untracked_warning(self.untracked_files))
 
         except (subprocess.CalledProcessError, FileNotFoundError):
             self.git_tracked_files = set()
@@ -4501,25 +4544,9 @@ def main():
                     # and unstaged edits to tracked files (and `git add`ed new files) are re-scanned.
                     # An untracked file is not: a full scan's census is `git ls-files` and never sees
                     # it either, so scanning it here would break delta == full. Say so loudly.
-                    try:
-                        untracked = [
-                            u
-                            for u in subprocess.check_output(  # noqa: S603 -- _GIT_BIN absolute, fixed args
-                                [_GIT_BIN, "ls-files", "-z", "--others", "--exclude-standard"],
-                                cwd=target_path,
-                                text=True,
-                                stderr=subprocess.DEVNULL,
-                            ).split("\0")
-                            if u
-                        ]
-                    except (subprocess.CalledProcessError, OSError):
-                        untracked = []
+                    untracked = _untracked_files(target_path)
                     if untracked:
-                        logging.warning(
-                            f"⚠️ {len(untracked)} untracked file(s) are NOT scanned (git ls-files, the census "
-                            f"a full scan uses, does not list them either); `git add` to include: "
-                            f"{', '.join(untracked[:5])}{' ...' if len(untracked) > 5 else ''}"
-                        )
+                        logging.warning("⚠️ " + _untracked_warning(untracked))
                     scope.execute_incremental_scan(ram_cache, added, modified, deleted, db_out_path)
 
                 except subprocess.CalledProcessError:

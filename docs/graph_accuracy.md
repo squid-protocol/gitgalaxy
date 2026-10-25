@@ -228,7 +228,7 @@ call graph. Directories named `win` are not parsed (they need `<windows.h>`).
 25.3%, resolution recall 58.8%, 2,790 confident links unmapped.
 
 **What the reference cannot see:** it parses one preprocessor configuration (Linux), so code under
-`#ifdef _WIN32` or another platform's branch has no reference def (its engine links are `unmapped`). And
+another platform's branch has no reference def (its engine links are `unmapped`); Windows-only sources are a second link group since #3784 (below). And
 the recall gap has engine-side causes the reference is right about: libuv's `TEST_IMPL(name)` functions
 (612 reference defs the engine does not extract) and `docs/code/` (113 defs, files the engine does not ingest).
 Headers libclang cannot find (the bundled build has no compiler headers) leave some types unknown, but a
@@ -287,6 +287,63 @@ construction) leaves an ambiguous `overload` row, never an edge. Measured on fmt
 21.5%), resolution recall 60.5% (was 63.3%). The recall dip is the trade: calls the counts cannot choose are no longer
 guessed. **C (hiredis, libuv)** has no overloads; the reference run is unchanged (2,163 judged, precision 100.0%,
 recall 25.3%, resolution recall 58.8%), so the unmapped links (2,789) are the open C item.
+
+**Class-template member names (#3772):** `Foo<T>::bar(...) {` was named `::bar`: the name tokenizer split at the
+`<`, `,` and `>` of the class's argument list and kept the tail. The detector now strips a class-template argument list
+that is directly followed by `::` (three nesting levels, as the `func_start` rule), so the unit is `Foo::bar` as libclang
+names it (constructors, destructors, operators, `ns::Foo<T>::m` and `template<>` specialisations alike; `operator<`,
+`operator<<` and a return type's `<...>` keep theirs). The own-header filter strips the same list, so the header's
+`Foo<T>::m(` is not read as a call to `m`. Measured on fmt, before -> after: linked edges 2,089 -> 2,139, recall 21.5% ->
+22.0%, resolution recall 59.8% -> 61.3%, `caller_unmapped` 1,249 -> 1,226, confident precision 92.5% -> 92.2% (inside the
+0.5-point tolerance), wrong 170 -> 180 and `unmapped_src` 504 -> 544: callers that were unnamed enter the judged set
+with their links, 10 of them wrong (not read in source one by one). Test:
+`tests/extraction/languages/test_cpp_template_member_names_3772.py`.
+
+**C macro-defined functions (#3784):** libuv defines its tests as `TEST_IMPL(kill) {`, which declares `run_test_kill`;
+the engine names the unit `kill`. The adapter now names a def written as a one-argument macro by the argument (the
+same idea as the gtest names above), so those engine ends map. Adapter only, no engine change. Before -> after
+(hiredis + libuv): confident links judged 2,163 -> 3,532, unmapped 2,789 -> 1,356, precision 100.0% (unchanged),
+recall 25.3% -> 41.5%. Resolution recall reads 58.8% -> 53.6% because the newly mapped callers enter its denominator.
+**C Windows link group (#3784):** libuv `src/win/` (25 files), `test/runner-win.c` and hiredis `sockcompat.c` were not
+parsed because their names collide with the Unix ones. The adapter now parses them as a second group under
+`-D_WIN32`: a Windows caller links to the Windows definitions of a name, falling back to the shared ones (not under
+`unix/`); a Unix caller never links to a Windows definition. No `windows.h` on the host, so a Win32 API call is
+`external`, never an edge. Adapter only, no engine change. Before -> after (hiredis + libuv): confident links judged
+3,532 -> 3,942, unmapped 1,356 -> 635, precision 100.0% (unchanged), recall 41.5% -> 42.3%, resolution recall
+53.6% -> 55.2%.
+**C platform link groups (#3784, slice 6):** a file that names a platform macro (`_WIN32`, `__APPLE__`/`__MACH__`,
+`_AIX`, `__sun`) is now parsed once more with it defined, besides the Linux parse (a Windows-only source is parsed only
+under `-D_WIN32`). That covers the in-file branches the file-name rule missed: libuv `fsevents.c`, `aix.c`, `sunos.c`,
+the `uv_barrier_*` fallbacks in `thread-common.c`, and the `_WIN32` bodies of `test/test-tty-escape-sequence-processing.c`,
+`test-fs.c`, `test-fs-event.c`, `test-spawn.c`. A def only a platform parse saw belongs to that platform's group; a
+platform caller links its group's definitions first, then the shared ones; a Linux caller never links to a platform
+def. One function written as several `#if` variants in one file is one unit to the engine, so an edge to one variant
+links all of them (without that, 20 links were judged `wrong` for picking the other variant). The Windows-only sources also
+get `-D_MSC_VER=1800` (libuv's `snprintf.c` fallback); other files do not (it made hiredis `ffc.h` calls resolve
+outside the repo). Adapter only, no engine change. Before -> after (hiredis + libuv): confident links judged
+3,942 -> 4,264, unmapped 635 -> 237, precision 100.0% (unchanged). **Recall reads 42.3% -> 36.7% and resolution recall
+55.2% -> 49.4%** because the reference now holds the per-platform edges (9,314 -> 11,608): the denominator grew, the
+engine's links did not get worse.
+**What stays unmapped (237):** the `REDIS_TEST` and SSL-only test bodies, the Qt adapter and example, `m4/` macros, and
+other platforms' branches with no macro on the list. C++ (fmt) has no platform-only sources and was measured in the
+section above; its adapter needs no change for this slice.
+**C more platform rows (#3784, slice 7):** `__FreeBSD__`, `__QNX__` and `__MVS__` join `PLATFORMS` (libuv `freebsd.c`,
+`qnx.c` and the in-file branches of `kqueue.c`, `tty.c`, `fs.c`). Measured honestly, the gain is small: confident links
+judged 4,264 -> 4,266, unmapped 237 -> 236, reference edges 11,608 -> 11,617, precision 100.0%, recall 36.7% and
+resolution recall 49.4% unchanged. Most of those files are already parsed through an existing row, or their
+platform-only defs are not called from elsewhere. Adapter only; the baseline is regenerated.
+
+### The three expected findings (#3784 acceptance)
+
+| Expected finding | Where the reference handles it | Pinned by |
+|---|---|---|
+| Calls into header prototypes (bodyless declarations, #3757) | C: a prototype is no def, the call links to the body in whichever `.c` file or header defines it. C++: edges link by USR, which a prototype and its definition share | `test_clang_callgraph_resolves_c_calls_across_translation_units`, `..._cpp_calls_by_usr_with_engine_names` |
+| The C/C++ link group across translation units | C: a non-static callee links by symbol name to every external-linkage def; static callees stay in their own unit; Windows and per-platform parses are further groups. C++: USR linking; an anonymous-namespace or `static` callee stays in its own unit | the same two tests, plus `..._links_windows_sources_as_their_own_group`, `..._parses_a_file_naming_a_platform_macro_once_more_per_platform`, `..._parses_freebsd_qnx_and_mvs_branches_as_platform_groups` |
+| Macros that look like calls | Judged as the compiler sees them: `SQ(x)` expanding to arithmetic is not a call, `VIA(x)` expanding to `helper(x)` is. A def written as a one-argument macro (`TEST_IMPL(kill) {`) is named by the argument, as is a gtest body | the C test above (`SQ` / `VIA`), `..._names_a_one_argument_macro_def_as_the_engine_does`, `..._names_a_gtest_body_by_its_test_name` |
+
+All three are covered and gated by `graph-accuracy-audit.yml` against `tests/call_graph_resolution_c_baseline.json` and
+`tests/call_graph_resolution_cpp_baseline.json`. Open engine-side gaps the reference exposes (unextracted `docs/code/`,
+the `::name` template-member convention, 236 unmapped C ends) are miss-sweep leads for the engine, not reference work.
 
 ## Span anchoring
 

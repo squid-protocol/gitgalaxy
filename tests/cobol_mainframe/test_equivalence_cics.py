@@ -2591,7 +2591,9 @@ def test_extract_tcpip_becomes_a_stub_call():
                  "MOVE GG-NUM TO WS-P", "MOVE GG-NUM TO WS-T", "MOVE 300 TO WS-CF", "MOVE 300 TO WS-SF"):  # fmt: skip
         assert back in tail, back
     # the stub reads exactly the flag words this emits (ggcics.c GGCTCPX / GGCTCPN)
-    stub = (Path(ec.__file__).resolve().parents[1] / "equivalence" / "cics" / "ggcics.c").read_text(encoding="utf-8")
+    stub = (Path(ec.__file__).resolve().parents[1] / "equivalence" / "cics" / "ggcics_web.c").read_text(
+        encoding="utf-8"
+    )
     for word in ("A1", "N1", "A2", "N2", "U1", "U2", "F1", "F2"):
         assert f'strstr(flags, "{word}")' in stub, word
     for word in ("CNU", "SNU", "PORT"):

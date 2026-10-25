@@ -39,7 +39,9 @@ import equivalence_cics_conditions as cics_conditions  # #5274: the conditions /
 import equivalence_cics_containers as cics_containers  # #5274: the channels / containers family
 import equivalence_cics_faults as cics_faults  # #5274: the fault-injection planner
 import equivalence_cics_filecontrol as cics_filecontrol  # #5274: the file control family
+import equivalence_cics_taskcontrol as cics_taskcontrol  # #5274: the task / interval control family
 import equivalence_cics_tempstorage as cics_tempstorage  # #5274: the temporary storage family
+import equivalence_cics_web as cics_web  # #5274: the web / HTTP / TCP/IP family
 import equivalence_db2
 import equivalence_ims  # #5278
 import equivalence_inputs  # #3804
@@ -66,6 +68,19 @@ FILE_FAULT_CONDITIONS = cics_faults.FILE_FAULT_CONDITIONS
 LINK_REFUSED_CONDITIONS = cics_faults.LINK_REFUSED_CONDITIONS
 ts_seed = cics_tempstorage.ts_seed  # public names the tests and the compare step reach through this module
 java_ts_as_compared = cics_tempstorage.java_ts_as_compared
+java_start_as_compared = cics_taskcontrol.java_start_as_compared
+java_retrieve_as_compared = cics_taskcontrol.java_retrieve_as_compared
+_cobol_retrieve = cics_taskcontrol._cobol_retrieve  # (the unit test reads it through this module)
+http_peers = cics_web.http_peers  # public names the tests and the runners reach through this module
+http_peers_cfg = cics_web.http_peers_cfg
+http_request = cics_web.http_request
+http_request_cfg = cics_web.http_request_cfg
+tcpip = cics_web.tcpip
+tcpip_cfg = cics_web.tcpip_cfg
+_cobol_web = cics_web._cobol_web  # (the unit tests read the event readers through this module)
+_cobol_web_open = cics_web._cobol_web_open
+_cobol_web_send = cics_web._cobol_web_send
+_cobol_web_header = cics_web._cobol_web_header
 STUB = common.CASES / "cics"
 LE_MODELS = common.CASES / "le"  # Language Environment service models (CEEDAYS) a CALLed subprogram may use
 
@@ -259,41 +274,6 @@ def urimaps(case: dict[str, Any], sc: dict[str, Any]) -> list[list[str]] | None:
     return defs
 
 
-_HTTP_PEER_KEYS = {"scheme", "host", "port", "urimap", "path", "exchanges"}
-_HTTP_X_KEYS = {"method", "path", "query", "status", "statustext", "mediatype", "body"}
-
-
-def http_peers(case: dict[str, Any], sc: dict[str, Any]) -> list[dict[str, Any]] | None:
-    """#4767 zECS (X35): the HTTP servers the task can reach -- the scenario's "http_peers", else the case's: [{"scheme":
-    "HTTP" | "HTTPS", "host", "port", "urimap" (the CLIENT URIMAP naming it, or null), "path" (that URIMAP's path, or null),
-    "exchanges": [{"method", "path", "query" ("" for none), "status", "statustext", "mediatype", "body"}, ...]}, ...],
-    each exchange the response to one request (method, path and query matched, in order), stated on both sides (the stub's
-    $GGCICS_HTTP, CicsTask.withHttpPeers) in the program's characters. Unstated, None: both runtimes refuse every WEB
-    command by name."""
-    peers = sc.get("http_peers", case.get("http_peers"))
-    if peers is None:
-        return None
-
-    def text(v: Any, blank: bool = True) -> bool:
-        return isinstance(v, str) and (blank or bool(v)) and not any(c.isspace() for c in v)
-
-    ok = isinstance(peers, list) and all(
-        isinstance(p, dict) and set(p) == _HTTP_PEER_KEYS and p["scheme"] in ("HTTP", "HTTPS") and text(p["host"], False)
-        and isinstance(p["port"], int) and 0 < p["port"] <= 65535
-        and (p["urimap"] is None or (text(p["urimap"], False) and len(p["urimap"]) <= 8))
-        and (p["path"] is None or text(p["path"], False)) and isinstance(p["exchanges"], list)
-        and all(isinstance(x, dict) and set(x) == _HTTP_X_KEYS and x["method"] in ("GET", "HEAD", "DELETE", "POST", "PUT",
-                                                                                  "PATCH")
-                and text(x["path"], False) and text(x["query"]) and isinstance(x["status"], int) and 0 < x["status"] < 1000
-                and isinstance(x["statustext"], str) and text(x["mediatype"]) and isinstance(x["body"], str)
-                for x in p["exchanges"])
-        for p in peers)  # fmt: skip
-    if not ok:
-        raise Unsupported(f'scenario {sc.get("name")}: "http_peers" lists {{scheme, host, port, urimap, path, exchanges: '
-                          "[{method, path, query, status, statustext, mediatype, body}]}", ["WEB OPEN"])  # fmt: skip
-    return peers
-
-
 def mapsets_env(case: dict[str, Any]) -> str:
     """#4270 (X31) / #5076: the case's "maps" ({MAP: {"mapset": MAPSET}}, as a cics-crucible case states them) as the stub's
     $GGCICS_MAPSETS (`MAPSET=MAP,MAP;MAPSET=MAP`), so a SEND MAP / RECEIVE MAP for a map its mapset does not hold abends
@@ -303,21 +283,6 @@ def mapsets_env(case: dict[str, Any]) -> str:
     for m, spec in sorted(case["maps"].items()):
         held.setdefault(spec["mapset"], []).append(m)
     return ";".join(f"{ms}={','.join(maps)}" for ms, maps in sorted(held.items()))
-
-
-def http_peers_cfg(peers: list[dict[str, Any]], enc: str) -> str:
-    """#4767 (X35): the stub's $GGCICS_HTTP file (ggcics.c GGCWOPN): `P SCHEME HOSTHEX PORT URIMAP|- PATHHEX|-` per peer,
-    then `X METHOD PATHHEX QUERYHEX|- STATUS STATUSTEXTHEX|- MEDIATYPEHEX|- BODYHEX|-` per response, hex in the data's page."""
-
-    def hx(v: str | None) -> str:
-        return v.encode(enc).hex().upper() if v else "-"
-
-    lines = []
-    for p in peers:
-        lines.append(f"P {p['scheme']} {hx(p['host'])} {p['port']} {p['urimap'] or '-'} {hx(p['path'])}")
-        lines += [f"X {x['method']} {hx(x['path'])} {hx(x['query'])} {x['status']} {hx(x['statustext'])} "
-                  f"{hx(x['mediatype'])} {hx(x['body'])}" for x in p["exchanges"]]  # fmt: skip
-    return "".join(f"{ln}\n" for ln in lines)
 
 
 def doctemplates(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, str] | None:
@@ -523,542 +488,6 @@ def _td_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
             + after + _resp(opts, True, labels))  # fmt: skip
 
 
-def _fetch_child(key: str, opts: dict[str, str | None], labels: list[str]) -> list[str]:
-    """#4884, #4950: FETCH ANY / FETCH CHILD(token) -> GGCFETCH: GG-FLAGS names CHILD (the token in GG-QNAME), NOSUSPEND,
-    TIMEOUT (GG-NUM) and CHANNEL; on NORMAL the stub's answers go to the program's areas -- the token (ANY), the reply
-    channel's name (CHANNEL), the abend code (ABCODE, only for a child that abended) and COMPSTATUS's CVDA."""
-    form = key.split()[1]
-    _check_spec(key, opts, ("FETCH",))
-    if not opts.get(form):
-        raise Unsupported(_rule(key, "required", form), [key])
-    if "NOSUSPEND" in opts and "TIMEOUT" in opts:
-        raise Unsupported(_rule(key, "at_most_one", "NOSUSPEND", "NOSUSPEND", "TIMEOUT"), [key])
-    if any(o in opts and not opts[o] for o in ("TIMEOUT", "CHANNEL", "ABCODE", "COMPSTATUS")):
-        raise Unsupported(NEEDS_ARGUMENT, [key])
-    flags = " ".join(
-        o for o in ("CHILD", "NOSUSPEND", "TIMEOUT", "CHANNEL") if o in opts or (o == "CHILD" and form == "CHILD")
-    )
-    lines = [f"MOVE {opts['CHILD']} TO GG-QNAME" if form == "CHILD" else "MOVE SPACES TO GG-QNAME",
-             f"MOVE '{flags}' TO GG-FLAGS" if flags else "MOVE SPACES TO GG-FLAGS",
-             f"MOVE {opts['TIMEOUT']} TO GG-NUM" if "TIMEOUT" in opts else "MOVE 0 TO GG-NUM"]  # fmt: skip
-    after = [f"    MOVE GG-QNAME TO {opts['ANY']}"] if form == "ANY" else []
-    if "CHANNEL" in opts:
-        after.append(f"    MOVE GG-CHAN TO {opts['CHANNEL']}")
-    if "ABCODE" in opts:
-        after += ["    IF GG-ITEM = 1", f"        MOVE GG-NAME1(1:4) TO {opts['ABCODE']}", "    END-IF"]
-    if "COMPSTATUS" in opts:
-        after.append(f"    MOVE GG-NUM TO {opts['COMPSTATUS']}")
-    after = ["IF GG-RESP = 0", *after, "END-IF"] if after else []
-    return lines + _call("GGCFETCH", []) + after + _resp(opts, True, labels)
-
-
-def _free_child(opts: dict[str, str | None], labels: list[str]) -> list[str]:
-    """#4950: FREE CHILD(token) -> GGCFREE (the token in GG-QNAME)."""
-    _check_spec("FREE CHILD", opts, ("FREE", "CHILD"))
-    if not opts.get("CHILD"):
-        raise Unsupported(_rule("FREE CHILD", "required", "CHILD"), ["FREE CHILD"])
-    return [f"MOVE {opts['CHILD']} TO GG-QNAME"] + _call("GGCFREE", []) + _resp(opts, True, labels)
-
-
-def _delay(opts: dict[str, str | None], labels: list[str]) -> list[str]:
-    """#4950: DELAY -> GGCDLAY: GG-FLAGS INTERVAL (GG-NUM), TIME, or FOR (HOURS / MINUTES / SECONDS / MILLISECS in GG-HOURS
-    / GG-MINS / GG-SECS / GG-LEN, -999999999 when not given); none: INTERVAL(0). The stub dispatches the RUN children
-    at it (a task takes no time, X4: NORMAL at once)."""
-    _check_spec("DELAY", opts, ("DELAY",), lambda bad: [f"DELAY {bad[0]}"])
-    given = [o for o in ("INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS") if o in opts]
-    if any(not opts[o] for o in given):
-        raise Unsupported(NEEDS_ARGUMENT, ["DELAY"])
-    if "TIME" in opts:
-        lines = ["MOVE 'TIME' TO GG-FLAGS"]
-    elif "INTERVAL" in opts:
-        lines = ["MOVE 'INTERVAL' TO GG-FLAGS", f"MOVE {opts['INTERVAL']} TO GG-NUM"]
-    elif given:
-        lines = ["MOVE 'FOR' TO GG-FLAGS"] + [f"MOVE {opts.get(o) or -999999999} TO {f}" for o, f in (
-            ("HOURS", "GG-HOURS"), ("MINUTES", "GG-MINS"), ("SECONDS", "GG-SECS"), ("MILLISECS", "GG-LEN"))]  # fmt: skip
-    else:
-        lines = ["MOVE SPACES TO GG-FLAGS"]
-    return lines + _call("GGCDLAY", []) + _resp(opts, False, labels)
-
-
-def _post(opts: dict[str, str | None], labels: list[str]) -> list[str]:
-    """#5079 (register X63): POST INTERVAL / TIME (GG-NUM) | AFTER / AT HOURS MINUTES SECONDS (GG-HOURS / GG-MINS / GG-SECS,
-    -999999999 when not given; GG-FLAGS says which) [REQID (GG-QNAME)] [SET(ptr)] -> GGCPOST, which sets the pointer to the
-    timer-event control area (no SET: GG-PTR takes it), and returns the REQID it ran under in GG-NAME1: EIBREQID when the
-    program gave none (IBM: CICS "generates one", ASSUMED POSTnnnn). The option rules as the det translator's."""
-    key = "POST"
-    _check_spec(key, opts, ("POST",), lambda bad: [f"{key} {o}" for o in bad])
-    whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
-    if len(whens) > 1:
-        raise Unsupported(_rule(key, "at_most_one", "INTERVAL", " and ".join(whens)), ["POST " + " ".join(whens)])
-    when = whens[0] if whens else "INTERVAL"
-    hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
-    if (when in ("AFTER", "AT")) != bool(hms):
-        raise Unsupported(_rule(key, "requires", "HOURS", when, " ".join(hms)), [f"POST {when}"])
-    if any(not opts.get(o) for o in [*hms, *(o for o in ("INTERVAL", "TIME", "SET", "REQID") if o in opts)]):
-        raise Unsupported(NEEDS_ARGUMENT, [f"POST {when}"])
-    lines = [f"MOVE '{when}' TO GG-FLAGS",
-             f"MOVE {opts['REQID']} TO GG-QNAME" if opts.get("REQID") else "MOVE SPACES TO GG-QNAME",
-             f"MOVE {opts.get(when) or 0} TO GG-NUM" if when in ("INTERVAL", "TIME") else "MOVE 0 TO GG-NUM"]  # fmt: skip
-    lines += [f"MOVE {opts.get(o) or -999999999} TO {f}"
-              for o, f in (("HOURS", "GG-HOURS"), ("MINUTES", "GG-MINS"), ("SECONDS", "GG-SECS")) if hms]  # fmt: skip
-    ptr = _pointer(key, opts["SET"]) if opts.get("SET") else "GG-PTR"
-    lines += _call("GGCPOST", [f"BY REFERENCE {ptr}"])
-    if not opts.get("REQID"):
-        lines += ["IF GG-RESP = 0", "    MOVE GG-NAME1 TO EIBREQID", "END-IF"]
-    return lines + _resp(opts, True, labels)
-
-
-def _wait_event(opts: dict[str, str | None], labels: list[str]) -> list[str]:
-    """#5079 (register X63): WAIT EVENT ECADDR(ptr) [NAME] -> GGCWEVT (the area a POST made is posted at its expiry; INVREQ
-    RESP2 2 for a null pointer; an address that is no POST's area is refused by the stub). The option rules as the translator's."""
-    key = "WAIT EVENT"
-    _check_spec(
-        key, {o: v for o, v in opts.items() if o != "EVENT"}, ("WAIT",), lambda bad: [f"{key} {o}" for o in bad]
-    )
-    if not opts.get("ECADDR"):
-        raise Unsupported(_rule(key, "required", "ECADDR"), [key])
-    return _call("GGCWEVT", [f"BY REFERENCE {_pointer(key, opts['ECADDR'])}"]) + _resp(opts, True, labels)
-
-
-def _converse(opts: dict[str, str | None], labels: list[str]) -> list[str]:
-    """#5079 (register X63): CONVERSE FROM [FROMLENGTH] INTO [TOLENGTH] [MAXLENGTH] [NOTRUNCATE] -> GGCCONV: the FROM data
-    written to the terminal (a plain SEND's event), then the terminal RECEIVE of the reply (GG-LEN the most taken, GG-FLAGS
-    NOTRUNCATE; on return the reply's length, -1 for a negative FROMLENGTH: LENGERR, nothing sent). TOLENGTH is set on NORMAL
-    / LENGERR. The option rules as the det translator's (SET and the conversation options refused by name)."""
-    key = "CONVERSE"
-    _check_spec(key, opts, (key,), lambda bad: [f"{key} {o}" for o in bad])
-    for req in ("FROM", "INTO"):
-        if not opts.get(req):
-            raise Unsupported(_rule(key, "required", req), [key])
-    sent = _one_of(key, opts, "FROMLENGTH", "FROMFLENGTH")
-    length = _one_of(key, opts, "TOLENGTH", "TOFLENGTH")
-    most = _one_of(key, opts, "MAXLENGTH", "MAXFLENGTH")
-    src, into = opts["FROM"], opts["INTO"]
-    lines = ["MOVE 'NOTRUNCATE' TO GG-FLAGS" if "NOTRUNCATE" in opts else "MOVE SPACES TO GG-FLAGS",
-             f"MOVE {most or length or f'LENGTH OF {into}'} TO GG-LEN"]  # fmt: skip
-    lines += _call("GGCCONV", [f"BY REFERENCE {src}", f"BY VALUE {sent or f'LENGTH OF {src}'}", f"BY REFERENCE {into}"])
-    settable = bool(length) and re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()) is None
-    if settable:
-        lines += ["IF GG-LEN >= 0 AND (GG-RESP = 0 OR GG-RESP = 22)", f"    MOVE GG-LEN TO {length}", "END-IF"]
-    return lines + _resp(opts, True, labels)
-
-
-def _run_transid(opts: dict[str, str | None], labels: list[str]) -> list[str]:
-    """#4270 slice 2: RUN TRANSID(x) CHILD(area) -> GGCRUNT (the child is an event; the runner's scheduler runs it
-    once this task has ended). CHANNEL (#4884): the child's copy of a channel, in GG-CHAN. Any option IBM's RUN TRANSID
-    lists beyond TRANSID / CHILD / CHANNEL is refused."""
-    _check_spec("RUN", opts, ("RUN",))
-    if not opts.get("TRANSID") or not opts.get("CHILD"):
-        raise Unsupported(_rule("RUN", "required", "TRANSID"), ["RUN"])
-    if "CHANNEL" in opts and not opts["CHANNEL"]:
-        raise Unsupported(NEEDS_ARGUMENT, ["RUN CHANNEL"])
-    channel = ["MOVE 'CHANNEL' TO GG-FLAGS", f"MOVE {opts['CHANNEL']} TO GG-CHAN"] if opts.get("CHANNEL") else [
-        "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
-    return (
-        [f"MOVE {opts['TRANSID']} TO GG-NAME1", *channel]
-        + _call("GGCRUNT", [f"BY REFERENCE {opts['CHILD']}"])
-        + _resp(opts, True, labels)
-    )
-
-
-def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str]) -> list[str]:
-    """#4006: START -> GGCSTRT (the request is an event; the runner's scheduler dispatches it), RETRIEVE
-    -> GGCRTRV (LENGTH in-out, set back on NORMAL / LENGERR), CANCEL REQID -> GGCCNCL. #4270: AFTER / AT HOURS /
-    MINUTES / SECONDS (GG-HOURS / GG-MINS / GG-SECS, -999999999 when not given) and the data options RTRANSID /
-    RTERMID / QUEUE (GG-RTRAN / GG-RTERM / GG-RQUEUE, named in GG-FLAGS) on both."""
-    _check_spec(verb, opts, (verb,))  # (a deny-list until spec PR 3: an unknown option was ignored)
-    named = [o for o in ("RTRANSID", "RTERMID", "QUEUE") if o in opts]
-    if any(not opts.get(o) for o in named):
-        raise Unsupported(NEEDS_ARGUMENT, [f"{verb} {o}" for o in named])
-    data_in = {"RTRANSID": "GG-RTRAN", "RTERMID": "GG-RTERM", "QUEUE": "GG-RQUEUE"}
-    if verb == "START":
-        if not opts.get("TRANSID"):
-            raise Unsupported(_rule("START", "required", "TRANSID"), ["START"])
-        whens = [w for w in ("INTERVAL", "TIME", "AFTER", "AT") if w in opts]
-        if len(whens) > 1:
-            raise Unsupported(_rule("START", "at_most_one", "INTERVAL", " and ".join(whens)),
-                              ["START " + " ".join(whens)])  # fmt: skip
-        when = whens[0] if whens else "INTERVAL"
-        hms = [o for o in ("HOURS", "MINUTES", "SECONDS") if o in opts]
-        if (when in ("AFTER", "AT")) != bool(hms):
-            raise Unsupported(_rule("START", "requires", "HOURS", when, " ".join(hms)), [f"START {when}"])
-        if any(not opts.get(o) for o in hms):
-            raise Unsupported(NEEDS_ARGUMENT, [f"START {when}"])
-        area = opts.get("FROM")
-        given_length = _one_of("START", opts, "LENGTH", "FLENGTH")
-        if given_length is not None and not area:  # (a deny-list until spec PR 3: the length was moved, no area)
-            raise Unsupported(_rule("START", "requires", "LENGTH"), ["START"])
-        if "CHANNEL" in opts:  # #4950: START CHANNEL's form -- no expiry, no data options, no REQID
-            if not opts["CHANNEL"]:
-                raise Unsupported(NEEDS_ARGUMENT, ["START CHANNEL"])
-            for g in SPEC["START"].groups:
-                if g.kind == "at_most_one" and g.options[0] == "CHANNEL" and all(o in opts for o in g.options):
-                    raise Unsupported(g.msg.format(g.options[1]), ["START CHANNEL"])
-        flags = " ".join(
-            [when] + (["PROTECT"] if "PROTECT" in opts else []) + named + (["CHANNEL"] if "CHANNEL" in opts else [])
-        )
-        length = given_length or (f"LENGTH OF {area}" if area else "0")
-        lines = [f"MOVE {opts['TRANSID']} TO GG-NAME1",
-                 f"MOVE {opts['TERMID']} TO GG-NAME2" if opts.get("TERMID") else "MOVE SPACES TO GG-NAME2",
-                 f"MOVE {opts['REQID']} TO GG-QNAME" if opts.get("REQID") else "MOVE SPACES TO GG-QNAME",
-                 f"MOVE {opts.get(when) or 0} TO GG-NUM",  # (AFTER / AT: GG-HOURS ...)
-                 f"MOVE '{flags}' TO GG-FLAGS", f"MOVE {length} TO GG-LEN",
-                 f"MOVE {1 if area else 0} TO GG-ITEM"]  # fmt: skip
-        if hms:
-            lines += [f"MOVE {opts.get(o) or -999999999} TO {f}"
-                      for o, f in (("HOURS", "GG-HOURS"), ("MINUTES", "GG-MINS"), ("SECONDS", "GG-SECS"))]  # fmt: skip
-        lines += [f"MOVE {opts[o]} TO {data_in[o]}" for o in named]
-        if "CHANNEL" in opts:
-            lines.append(f"MOVE {opts['CHANNEL']} TO GG-CHAN")
-        lines += _past_from(opts.get("LENGTH") or opts.get("FLENGTH"), area, "START")
-        return lines + _call("GGCSTRT", [f"BY REFERENCE {area or 'GG-FLAGS'}"]) + _resp(opts, True, labels)
-    if verb == "RETRIEVE":
-        into, setp = opts.get("INTO"), opts.get("SET")
-        length = _one_of("RETRIEVE", opts, "LENGTH", "FLENGTH")
-        if setp:  # #5042 (X58): SET(pointer) LENGTH(data-area) -> GGCRTRS, the data as a new block
-            if into:
-                raise Unsupported(_rule("RETRIEVE", "at_most_one", "INTO"), ["RETRIEVE"])
-            if not length or re.fullmatch(r"(?is)[+-]?\d+|LENGTH\s+OF\s+.+", length.strip()):
-                raise Unsupported(_rule("RETRIEVE", "requires", "SET"), ["RETRIEVE"])
-        elif not into and (not named or length):
-            raise Unsupported(_rule("RETRIEVE", "requires", "LENGTH"), ["RETRIEVE"])
-        flags = " ".join((["INTO"] if into or setp else []) + named)
-        lines = [f"MOVE '{flags}' TO GG-FLAGS", f"MOVE {length or (f'LENGTH OF {into}' if into else '0')} TO GG-LEN"]
-        if setp:
-            lines += _call("GGCRTRS", [f"BY REFERENCE {_pointer('RETRIEVE', setp)}"])
-        else:
-            lines += _call("GGCRTRV", [f"BY REFERENCE {into or 'GG-FLAGS'}"])
-        if length:
-            lines += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"]
-        if named:
-            lines += [
-                "IF GG-RESP = 0 OR GG-RESP = 22",
-                *[f"    MOVE {data_in[o]} TO {opts[o]}" for o in named],
-                "END-IF",
-            ]
-        return lines + _resp(opts, True, labels)
-    if not opts.get("REQID"):
-        raise Unsupported(_rule("CANCEL", "required", "REQID"), ["CANCEL without REQID"])
-    return [f"MOVE {opts['REQID']} TO GG-QNAME"] + _call("GGCCNCL", []) + _resp(opts, True, labels)
-
-
-_HTTP_REQ_KEYS = {"scheme", "host", "port", "method", "version", "path", "query", "headers", "mediatype", "body"}
-
-
-def http_request(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | None:
-    """#4767 zECS (X37): the inbound HTTP request the task serves -- the scenario's "http_request", else the case's: {"scheme":
-    "HTTP" | "HTTPS", "host", "port", "method", "version" ("HTTP/1.1"), "path", "query" ("" for none), "headers": [[name,
-    value], ...], "mediatype" and "body" (both null: no body)}. Stated on both sides (the stub's $GGCICS_WEBREQ,
-    CicsTask.withHttpRequest); WEB SEND, WEB RECEIVE, WEB EXTRACT and WEB READ / WRITE HTTPHEADER need it (X37, X38).
-    Unstated, None: both runtimes refuse them by name."""
-    req = sc.get("http_request", case.get("http_request"))
-    if req is None:
-        return None
-
-    def text(v: Any) -> bool:
-        return isinstance(v, str) and bool(v) and not any(c.isspace() for c in v)
-
-    ok = (isinstance(req, dict) and set(req) == _HTTP_REQ_KEYS and req["scheme"] in ("HTTP", "HTTPS")
-          and text(req["host"]) and isinstance(req["port"], int) and 0 < req["port"] <= 65535
-          and req["method"] in ("GET", "HEAD", "DELETE", "POST", "PUT", "PATCH") and text(req["version"])
-          and text(req["path"]) and isinstance(req["query"], str) and not any(c.isspace() for c in req["query"])
-          and isinstance(req["headers"], list)
-          and all(isinstance(h, list) and len(h) == 2 and text(h[0]) and isinstance(h[1], str) for h in req["headers"])
-          and (req["mediatype"] is None) == (req["body"] is None)
-          and (req["mediatype"] is None or (text(req["mediatype"]) and isinstance(req["body"], str))))  # fmt: skip
-    if not ok:
-        raise Unsupported(f'scenario {sc.get("name")}: "http_request" is {{scheme, host, port, method, version, path, query, '
-                          "headers: [[name, value]], mediatype, body}", ["WEB SEND"])  # fmt: skip
-    return req
-
-
-def http_request_cfg(req: dict[str, Any], enc: str) -> str:
-    """#4767 (X37, X38): the stub's $GGCICS_WEBREQ file (ggcics.c webreq_load): `R SCHEME HOSTHEX PORT METHOD PATHHEX
-    QUERYHEX|-`, `V VERSIONHEX`, `B MEDIAHEX BODYHEX|-` (a request with a body) and a `H NAMEHEX VALUEHEX|-` line per header,
-    hex in the data's page."""
-
-    def hx(v: str | None) -> str:
-        return v.encode(enc).hex().upper() if v else "-"
-
-    lines = [f"R {req['scheme']} {hx(req['host'])} {req['port']} {req['method']} {hx(req['path'])} {hx(req['query'])}",
-             f"V {hx(req['version'])}"]  # fmt: skip
-    if req["body"] is not None:  # (#4767 X38: WEB RECEIVE reads the body and its media type)
-        lines.append(f"B {hx(req['mediatype'])} {hx(req['body'])}")
-    lines += [f"H {hx(n)} {hx(v)}" for n, v in req["headers"]]
-    return "".join(f"{ln}\n" for ln in lines)
-
-
-_TCPIP_KEYS = {"client_addr", "client_name", "server_addr", "server_name", "port", "ssl_type"}
-
-
-def tcpip(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, Any] | None:
-    """#4972 (X38): the TCP/IP connection the task was started on -- the scenario's "tcpip", else the case's: {"client_addr",
-    "server_addr" (IPv4 dotted decimal: any other text is refused by both runtimes), "client_name", "server_name" (null: the
-    DNS knows none), "port", "ssl_type" ("SSL", "NOSSL", "CLIENTAUTH", "ATTLSAWARE")}. Stated on both sides (the stub's
-    $GGCICS_TCPIP, CicsTask.withTcpip); EXTRACT TCPIP needs it. Unstated, None: both runtimes refuse it by name."""
-    conn = sc.get("tcpip", case.get("tcpip"))
-    if conn is None:
-        return None
-
-    def text(v: Any) -> bool:
-        return isinstance(v, str) and bool(v) and not any(c.isspace() for c in v)
-
-    ok = (isinstance(conn, dict) and set(conn) == _TCPIP_KEYS and text(conn["client_addr"]) and text(conn["server_addr"])
-          and (conn["client_name"] is None or text(conn["client_name"]))
-          and (conn["server_name"] is None or text(conn["server_name"]))
-          and isinstance(conn["port"], int) and 0 < conn["port"] <= 65535
-          and conn["ssl_type"] in ("SSL", "NOSSL", "CLIENTAUTH", "ATTLSAWARE"))  # fmt: skip
-    if not ok:
-        raise Unsupported(f'scenario {sc.get("name")}: "tcpip" is {{client_addr, client_name, server_addr, server_name, '
-                          "port, ssl_type}", ["EXTRACT TCPIP"])  # fmt: skip
-    return conn
-
-
-def tcpip_cfg(conn: dict[str, Any], enc: str) -> str:
-    """#4972 (X38): the stub's $GGCICS_TCPIP file (ggcics.c tcpip_load): `T CLIENTADDR CLIENTNAMEHEX|- SERVERADDR
-    SERVERNAMEHEX|- PORT SSLTYPE`, the names in hex in the data's page."""
-
-    def hx(v: str | None) -> str:
-        return v.encode(enc).hex().upper() if v else "-"
-
-    return (f"T {conn['client_addr']} {hx(conn['client_name'])} {conn['server_addr']} {hx(conn['server_name'])} "
-            f"{conn['port']} {conn['ssl_type']}\n")  # fmt: skip
-
-
-def _web_requires(key: str, option: str, needed: str) -> str:
-    """#4767: the message of the command's `requires` rule from `option` to `needed`, as the translator words it."""
-    return next(
-        g.msg for g in SPEC[key].groups if g.kind == "requires" and g.options[0] == option and needed in g.any_of
-    )
-
-
-def _web_parse(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4767 zECS (register X36): WEB PARSE URL -> GGCWPRS (URLLENGTH in GG-LEN, HOSTLENGTH / PATHLENGTH / QUERYSTRLEN in
-    GG-HOURS / GG-MINS / GG-SECS, GG-FLAGS names SCHEME HOST PATH QUERY given; the stub writes the pieces), then on NORMAL
-    the pieces' lengths and PORTNUMBER (GG-NUM) moved back to the program's fields. The option rules as the det
-    translator's."""
-    key = "WEB PARSE URL"
-    _check_spec(key, opts, ("WEB", "PARSE"), lambda bad: [f"{key} {o}" for o in bad])
-    for o in ("URL", "URLLENGTH"):
-        if not opts.get(o):
-            raise Unsupported(_rule(key, "required", o), [key])
-    for a, n in (("HOST", "HOSTLENGTH"), ("PATH", "PATHLENGTH"), ("QUERYSTRING", "QUERYSTRLEN")):
-        if (a in opts) != (n in opts):
-            raise Unsupported(_web_requires(key, a, n), [key])
-        if a in opts and not (opts[a] and opts[n]):
-            raise Unsupported(NEEDS_ARGUMENT, [key])
-    for o in ("SCHEMENAME", "PORTNUMBER"):
-        if o in opts and not opts[o]:
-            raise Unsupported(NEEDS_ARGUMENT, [key])
-    for o in ("URL", "SCHEMENAME", "HOST", "PATH", "QUERYSTRING"):
-        if opts.get(o) and _literal(opts[o]):
-            raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
-    given = [w for o, w in (("SCHEMENAME", "SCHEME"), ("HOST", "HOST"), ("PATH", "PATH"), ("QUERYSTRING", "QUERY"))
-             if o in opts]  # fmt: skip
-    lines = [f"MOVE {opts['URLLENGTH']} TO GG-LEN"]
-    for n, gg in (("HOSTLENGTH", "GG-HOURS"), ("PATHLENGTH", "GG-MINS"), ("QUERYSTRLEN", "GG-SECS")):
-        lines.append(f"MOVE {opts.get(n) or '0'} TO {gg}")
-    lines.append(f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS")
-    args = []
-    for o in ("URL", "SCHEMENAME", "HOST", "PATH", "QUERYSTRING"):
-        area = opts.get(o) or "GG-QNAME"  # (an option not given: a placeholder the stub does not read)
-        args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
-    back = [f"    MOVE {gg} TO {opts[n]}" for n, gg in (("HOSTLENGTH", "GG-HOURS"), ("PATHLENGTH", "GG-MINS"),
-                                                      ("QUERYSTRLEN", "GG-SECS")) if opts.get(n)]  # fmt: skip
-    if opts.get("PORTNUMBER"):
-        back.append(f"    MOVE GG-NUM TO {opts['PORTNUMBER']}")
-    after = ["IF GG-RESP = 0", *back, "END-IF"] if back else []
-    return lines + _call("GGCWPRS", args) + after + _resp(opts, True, labels)
-
-
-def _web_send(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4767 zECS (register X37): WEB SEND -> GGCWSND (FROMLENGTH in GG-LEN, ACTION's CVDA in GG-ITEM (0: none), STATUSCODE in
-    GG-NUM (-1: none), STATUSLEN in GG-HOURS (-1: the whole STATUSTEXT area, ASSUMED), the conversion in GG-MINS (0 / 1
-    SRVCONVERT / 2 NOSRVCONVERT); GG-FLAGS names MEDIA STEXT given). The option rules as the det translator's."""
-    key = "WEB SEND"
-    _check_spec(key, opts, ("WEB", "SEND"), lambda bad: [f"{key} {o}" for o in bad])
-    if sum(o in opts for o in ("FROM", "DOCTOKEN", "CONTAINER")) != 1:
-        raise Unsupported(_rule(key, "one_of", "FROM"), [key])
-    if "CHANNEL" in opts and "CONTAINER" not in opts:
-        raise Unsupported(_web_requires(key, "CHANNEL", "CONTAINER"), [key])
-    if "FROM" in opts and "FROMLENGTH" not in opts:
-        raise Unsupported(_web_requires(key, "FROM", "FROMLENGTH"), [key])
-    if "FROMLENGTH" in opts and "FROM" not in opts:
-        raise Unsupported(_web_requires(key, "FROMLENGTH", "FROM"), [key])
-    if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
-        raise Unsupported(_rule(key, "at_most_one", "SRVCONVERT"), [key])
-    if "STATUSLEN" in opts and "STATUSTEXT" not in opts:
-        raise Unsupported(_web_requires(key, "STATUSLEN", "STATUSTEXT"), [key])
-    if "DOCSTATUS" in opts and "DOCTOKEN" not in opts:
-        raise Unsupported(_web_requires(key, "DOCSTATUS", "DOCTOKEN"), [key])
-    for o in (
-        "FROMLENGTH",
-        "DOCTOKEN",
-        "CONTAINER",
-        "CHANNEL",
-        "MEDIATYPE",
-        "ACTION",
-        "DOCSTATUS",
-        "STATUSCODE",
-        "STATUSTEXT",
-        "STATUSLEN",
-    ):
-        if o in opts and not opts[o]:
-            raise Unsupported(NEEDS_ARGUMENT, [key])
-    for o in ("FROM", "DOCTOKEN", "MEDIATYPE", "STATUSTEXT"):
-        if opts.get(o) and _literal(opts[o]):
-            raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
-    conv = 1 if "SRVCONVERT" in opts else 2 if "NOSRVCONVERT" in opts else 0
-    given = [w for o, w in (("MEDIATYPE", "MEDIA"), ("STATUSTEXT", "STEXT"), ("CHANNEL", "CHANNEL")) if o in opts]
-    lines = [f"MOVE {opts.get('FROMLENGTH') or '0'} TO GG-LEN", f"MOVE {opts.get('ACTION') or '0'} TO GG-ITEM",
-             f"MOVE {opts.get('STATUSCODE') or '-1'} TO GG-NUM", f"MOVE {opts.get('STATUSLEN') or '-1'} TO GG-HOURS",
-             f"MOVE {conv} TO GG-MINS", f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
-    if "DOCTOKEN" in opts:  # #4941 (X37): DOCSTATUS's CVDA in GG-SECS (0: none; DOCDELETE 295, NODOCDELETE 296)
-        lines.append(f"MOVE {opts.get('DOCSTATUS') or '0'} TO GG-SECS")
-    args = []
-    for o in ("DOCTOKEN" if "DOCTOKEN" in opts else "FROM", "MEDIATYPE", "STATUSTEXT"):
-        area = opts.get(o) or "GG-QNAME"  # (an option not given: a placeholder the stub does not read)
-        args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
-    if "CONTAINER" in opts:  # #5037 (X37): the response is a container's data (GG-QNAME its name, GG-CHAN its channel)
-        lines.append(f"MOVE {opts['CONTAINER']} TO GG-QNAME")
-        if "CHANNEL" in opts:
-            lines.append(f"MOVE {opts['CHANNEL']} TO GG-CHAN")
-        args = []
-        for o in ("MEDIATYPE", "STATUSTEXT"):
-            area = opts.get(o) or "GG-QNAME"
-            args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
-        return lines + _call("GGCWSCT", args) + _resp(opts, True, labels)
-    # (#4767 X37: DOCTOKEN -> GGCWSDC, the response being the document the token names)
-    return lines + _call("GGCWSDC" if "DOCTOKEN" in opts else "GGCWSND", args) + _resp(opts, True, labels)
-
-
-def _web_extract(opts: dict[str, str | None], labels: list[str] | None, key: str = "WEB EXTRACT") -> list[str]:
-    """#4767 zECS (register X38): WEB EXTRACT (server) -> GGCWEXT (HOSTLENGTH / METHODLENGTH / VERSIONLEN / PATHLENGTH /
-    QUERYSTRLEN in GG-LEN / GG-HOURS / GG-MINS / GG-SECS / GG-ITEM, each moved back as the piece's length; GG-FLAGS names HOST
-    METHOD VERSION PATH QUERY given; the stub writes the pieces, the port in GG-NUM and the scheme in GG-NAME1), then on NORMAL
-    the lengths, PORTNUMBER, SCHEME (a CVDA: 1096 HTTP, 1029 HTTPS) and REQUESTTYPE (1033 HTTPYES) moved to the program's
-    fields. The option rules as the det translator's. #4972: EXTRACT WEB (`key`) is the same command, IBM's synonym."""
-    _check_spec(key, opts, tuple(key.split()), lambda bad: [f"{key} {o}" for o in bad])
-    pieces = (("HOST", "HOSTLENGTH", "GG-LEN"), ("HTTPMETHOD", "METHODLENGTH", "GG-HOURS"),
-              ("HTTPVERSION", "VERSIONLEN", "GG-MINS"), ("PATH", "PATHLENGTH", "GG-SECS"),
-              ("QUERYSTRING", "QUERYSTRLEN", "GG-ITEM"))  # fmt: skip
-    for a, n, _ in pieces:
-        if (a in opts) != (n in opts):
-            raise Unsupported(_web_requires(key, a, n), [key])
-        if a in opts and not (opts[a] and opts[n]):
-            raise Unsupported(NEEDS_ARGUMENT, [key])
-        if opts.get(a) and _literal(opts[a]):
-            raise Unsupported(f"{key} {a} as a literal: a data area is the COBOL form", [key])
-    for o in ("SCHEME", "PORTNUMBER", "REQUESTTYPE"):
-        if o in opts and not opts[o]:
-            raise Unsupported(NEEDS_ARGUMENT, [key])
-    words = {"HOST": "HOST", "HTTPMETHOD": "METHOD", "HTTPVERSION": "VERSION", "PATH": "PATH", "QUERYSTRING": "QUERY"}
-    given = [words[a] for a, _, _ in pieces if a in opts]
-    lines = [f"MOVE {opts[n]} TO {gg}" if n in opts else f"MOVE 0 TO {gg}" for _, n, gg in pieces]
-    lines.append(f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS")
-    args = []
-    for a, _, _ in pieces:
-        area = opts.get(a) or "GG-QNAME"  # (a piece not asked for: a placeholder the stub does not read)
-        args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
-    back = [f"    MOVE {gg} TO {opts[n]}" for _, n, gg in pieces if n in opts]
-    if opts.get("PORTNUMBER"):
-        back.append(f"    MOVE GG-NUM TO {opts['PORTNUMBER']}")
-    if opts.get("SCHEME"):
-        back += [f"    MOVE 1096 TO {opts['SCHEME']}", f"    IF GG-NAME1(1:5) = 'HTTPS'", f"        MOVE 1029 TO {opts['SCHEME']}",
-                 "    END-IF"]  # fmt: skip
-    if opts.get("REQUESTTYPE"):
-        back.append(f"    MOVE 1033 TO {opts['REQUESTTYPE']}")
-    after = ["IF GG-RESP = 0", *back, "END-IF"] if back else []
-    return lines + _call("GGCWEXT", args) + after + _resp(opts, True, labels)
-
-
-def _extract_tcpip(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4972 zECS (register X38): EXTRACT TCPIP -> GGCTCPX (CADDRLENGTH / CNAMELENGTH / SADDRLENGTH / SNAMELENGTH in GG-LEN /
-    GG-HOURS / GG-MINS / GG-SECS, 0 for an area asked for whose length option is missing, each moved back as the piece's
-    length; GG-FLAGS names A1 N1 A2 N2 the areas given and U1 U2 F1 F2 the client / server address number and address
-    family asked for), then on NORMAL each number from GGCTCPN (CLIENTADDRNU, SERVERADDRNU, PORTNUMNU, SSLTYPE's CVDA)
-    and the families (IPV4, 300) moved to the program's fields. The option rules as the det translator's."""
-    key = "EXTRACT TCPIP"
-    _check_spec(key, opts, ("EXTRACT", "TCPIP"), lambda bad: [f"{key} {o}" for o in bad])
-    pieces = (("CLIENTADDR", "CADDRLENGTH", "GG-LEN", "A1"), ("CLIENTNAME", "CNAMELENGTH", "GG-HOURS", "N1"),
-              ("SERVERADDR", "SADDRLENGTH", "GG-MINS", "A2"), ("SERVERNAME", "SNAMELENGTH", "GG-SECS", "N2"))  # fmt: skip
-    for a, n, _, _ in pieces:
-        if n in opts and a not in opts:
-            raise Unsupported(_web_requires(key, n, a), [key])
-        if a in opts and (not opts[a] or _literal(opts[a])):
-            raise Unsupported(
-                NEEDS_ARGUMENT if not opts[a] else f"{key} {a} as a literal: a data area is the COBOL form", [key]
-            )
-        if n in opts and not opts[n]:
-            raise Unsupported(NEEDS_ARGUMENT, [key])
-    numbers = (("CLIENTADDRNU", "U1"), ("SERVERADDRNU", "U2"), ("CLNTIPFAMILY", "F1"), ("SRVRIPFAMILY", "F2"))
-    for o in ("CLIENTADDRNU", "SERVERADDRNU", "CLNTIPFAMILY", "SRVRIPFAMILY", "PORTNUMNU", "SSLTYPE"):
-        if o in opts and not opts[o]:
-            raise Unsupported(NEEDS_ARGUMENT, [key])
-    given = [w for a, _, _, w in pieces if a in opts] + [w for o, w in numbers if o in opts]
-    lines = [f"MOVE {(opts.get(n) or '0') if a in opts else '0'} TO {gg}" for a, n, gg, _ in pieces]
-    lines.append(f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS")
-    args = []
-    for a, _, _, _ in pieces:
-        area = opts.get(a) or "GG-QNAME"  # (an area not asked for: a placeholder the stub does not read)
-        args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
-    back = [f"    MOVE {gg} TO {opts[n]}" for a, n, gg, _ in pieces if n in opts and a in opts]
-    for o, token in (("CLIENTADDRNU", "CNU"), ("SERVERADDRNU", "SNU"), ("PORTNUMNU", "PORT"), ("SSLTYPE", "SSL")):
-        if opts.get(o):
-            back += [
-                f"    MOVE '{token}' TO GG-FLAGS",
-                "    CALL 'GGCTCPN' USING GG-CICS",
-                f"    MOVE GG-NUM TO {opts[o]}",
-            ]
-    back += [
-        f"    MOVE 300 TO {opts[o]}" for o in ("CLNTIPFAMILY", "SRVRIPFAMILY") if opts.get(o)
-    ]  # (IPV4: IPv6 is refused)
-    after = ["IF GG-RESP = 0", *back, "END-IF"] if back else []
-    return lines + _call("GGCTCPX", args) + after + _resp(opts, True, labels)
-
-
-def _web_receive(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4767 zECS (register X38): WEB RECEIVE INTO (server) -> GGCWRCV (MAXLENGTH in GG-NUM; GG-FLAGS MEDIA when MEDIATYPE is
-    given; the stub writes INTO and MEDIATYPE and sets GG-LEN to the bytes returned), then on NORMAL / LENGERR 57 LENGTH moved
-    from GG-LEN. #4771 (X47): SET(pointer) -> GGCWRCS, the body in a new block the pointer addresses (MAXLENGTH optional: all
-    the data). The option rules as the det translator's."""
-    key = "WEB RECEIVE"
-    _check_spec(key, opts, ("WEB", "RECEIVE"), lambda bad: [f"{key} {o}" for o in bad])
-    if ("INTO" in opts) == ("SET" in opts) or not (opts.get("INTO") or opts.get("SET")):
-        raise Unsupported(_rule(key, "one_of", "INTO"), [key])
-    if "INTO" in opts and not opts.get("MAXLENGTH"):
-        raise Unsupported(_web_requires(key, "INTO", "MAXLENGTH"), [key])
-    if "SET" in opts and not opts.get("LENGTH"):
-        raise Unsupported(_web_requires(key, "SET", "LENGTH"), [key])
-    if "SRVCONVERT" in opts and "NOSRVCONVERT" in opts:
-        raise Unsupported(_rule(key, "at_most_one", "SRVCONVERT"), [key])
-    for o in ("INTO", "MEDIATYPE"):
-        if o in opts and (not opts[o] or _literal(opts[o])):
-            raise Unsupported(
-                NEEDS_ARGUMENT if not opts[o] else f"{key} {o} as a literal: a data area is the COBOL form", [key]
-            )
-    if "LENGTH" in opts and not opts["LENGTH"]:
-        raise Unsupported(NEEDS_ARGUMENT, [key])
-    lines = [
-        f"MOVE {opts['MAXLENGTH']} TO GG-NUM" if opts.get("MAXLENGTH") else "MOVE 2147483647 TO GG-NUM",
-        "MOVE 'MEDIA' TO GG-FLAGS" if "MEDIATYPE" in opts else "MOVE SPACES TO GG-FLAGS",
-    ]
-    media = opts.get("MEDIATYPE") or "GG-QNAME"
-    if "SET" in opts:
-        args = [f"BY REFERENCE {_pointer(key, opts['SET'])}", f"BY REFERENCE {media}", f"BY VALUE LENGTH OF {media}"]
-        entry = "GGCWRCS"
-    else:
-        args = [f"BY REFERENCE {opts['INTO']}", f"BY VALUE LENGTH OF {opts['INTO']}", f"BY REFERENCE {media}",
-                f"BY VALUE LENGTH OF {media}"]  # fmt: skip
-        entry = "GGCWRCV"
-    after = (
-        ["IF GG-RESP = 0 OR GG-RESP2 = 57", f"    MOVE GG-LEN TO {opts['LENGTH']}", "END-IF"]
-        if opts.get("LENGTH")
-        else []
-    )
-    return lines + _call(entry, args) + after + _resp(opts, True, labels)
-
-
 def _pointer(key: str, text: str | None) -> str:
     """#4771 (X47): the USAGE POINTER item an option names: a plain data name (GnuCOBOL's own compile refuses a name that is no
     pointer; a subscripted or qualified one is refused here, as the translator refuses it)."""
@@ -1126,171 +555,6 @@ def _freemain(opts: dict[str, str | None], labels: list[str] | None) -> list[str
     return _call("GGCFREM", [f"BY REFERENCE {_pointer(key, opts['DATAPOINTER'])}"]) + _resp(opts, True, labels)
 
 
-def _web_retrieve(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4941 (register X41): WEB RETRIEVE DOCTOKEN(area) -> GGCWRTV, which writes the DOCTOKEN of the last ACTION(EVENTUAL)
-    document send on NORMAL only. The option rules as the det translator's."""
-    key = "WEB RETRIEVE"
-    _check_spec(key, opts, ("WEB", "RETRIEVE"), lambda bad: [f"{key} {o}" for o in bad])
-    if not opts.get("DOCTOKEN"):
-        raise Unsupported(_rule(key, "required", "DOCTOKEN"), [key])
-    if _literal(opts["DOCTOKEN"]):
-        raise Unsupported(f"{key} DOCTOKEN as a literal: a data area is the COBOL form", [key])
-    area = opts["DOCTOKEN"]
-    return _call("GGCWRTV", [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]) + _resp(opts, True, labels)
-
-
-def _web_header(form: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4767 zECS (register X38): WEB READ HTTPHEADER -> GGCWRDH, WEB WRITE HTTPHEADER -> GGCWWRH (NAMELENGTH in GG-LEN,
-    VALUELENGTH in GG-NUM; READ's VALUELENGTH moved back from GG-NUM on NORMAL). The option rules as the det translator's."""
-    key = f"WEB {form} HTTPHEADER"
-    _check_spec(key, opts, ("WEB", form), lambda bad: [f"{key} {o}" for o in bad])
-    for o in ("HTTPHEADER", "NAMELENGTH", "VALUE", "VALUELENGTH"):
-        if not opts.get(o):
-            raise Unsupported(_rule(key, "required", o), [key])
-    for o in ("HTTPHEADER", "VALUE"):
-        if _literal(opts[o]):
-            raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
-    lines = [f"MOVE {opts['NAMELENGTH']} TO GG-LEN", f"MOVE {opts['VALUELENGTH']} TO GG-NUM"]
-    args = [f"BY REFERENCE {opts['HTTPHEADER']}", f"BY VALUE LENGTH OF {opts['HTTPHEADER']}",
-            f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}"]  # fmt: skip
-    entry = "GGCWRDH" if form == "READ" else "GGCWWRH"
-    after = ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUELENGTH']}", "END-IF"] if form == "READ" else []
-    return lines + _call(entry, args) + after + _resp(opts, True, labels)
-
-
-_WEB_KIND = {"HTTPHEADER": 0, "FORMFIELD": 1, "QUERYPARM": 2}  # GG-ITEM: which pairs a WEB READ / browse form reads
-
-
-def _web_forms(form: str, opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4940 (register X38): WEB READ FORMFIELD / QUERYPARM -> GGCWRDP (NAMELENGTH in GG-LEN, VALUELENGTH in GG-NUM, moved
-    back when the value was returned, also cut), WEB STARTBROWSE -> GGCWSBR (GG-FLAGS NAME when a name is given), WEB READNEXT
-    -> GGCWRNX (both lengths in, the pair's whole lengths out), WEB ENDBROWSE -> GGCWEBR; GG-ITEM names the kind
-    (_WEB_KIND). The option rules as the det translator's."""
-    kind = next(k for k in _WEB_KIND if k in opts)
-    key = f"WEB {form} {kind}"
-    _check_spec(key, opts, ("WEB", form), lambda bad: [f"{key} {o}" for o in bad])
-    item = f"MOVE {_WEB_KIND[kind]} TO GG-ITEM"
-    if form == "ENDBROWSE":
-        return [item] + _call("GGCWEBR", []) + _resp(opts, True, labels)
-    if form == "STARTBROWSE":
-        named = bool(opts.get(kind))
-        if kind == "HTTPHEADER" and named:
-            raise Unsupported("WEB STARTBROWSE HTTPHEADER: a name to start at is not documented: not modelled", [key])
-        if named and not opts.get("NAMELENGTH"):
-            raise Unsupported(
-                f"WEB STARTBROWSE {kind}(name) without NAMELENGTH (IBM: it is required with a name)", [key]
-            )
-        if "NAMELENGTH" in opts and not named:
-            raise Unsupported(f"WEB STARTBROWSE {kind} NAMELENGTH without a name", [key])
-        if named and _literal(opts[kind]):
-            raise Unsupported(f"{key} {kind} as a literal: a data area is the COBOL form", [key])
-        area = opts[kind] if named else "GG-QNAME"
-        lines = [item, f"MOVE {opts['NAMELENGTH']} TO GG-LEN" if named else "MOVE 0 TO GG-LEN",
-                 "MOVE 'NAME' TO GG-FLAGS" if named else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
-        return (
-            lines + _call("GGCWSBR", [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]) + _resp(opts, True, labels)
-        )
-    for o in (kind, "NAMELENGTH", "VALUE", "VALUELENGTH"):
-        if not opts.get(o):
-            raise Unsupported(_rule(key, "required", o), [key])
-    for o in (kind, "VALUE"):
-        if _literal(opts[o]):
-            raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
-    lines = [item, f"MOVE {opts['NAMELENGTH']} TO GG-LEN", f"MOVE {opts['VALUELENGTH']} TO GG-NUM"]
-    args = [f"BY REFERENCE {opts[kind]}", f"BY VALUE LENGTH OF {opts[kind]}",
-            f"BY REFERENCE {opts['VALUE']}", f"BY VALUE LENGTH OF {opts['VALUE']}"]  # fmt: skip
-    if form == "READ":
-        after = [
-            "IF GG-RESP = 0 OR (GG-RESP = 22 AND GG-RESP2 = 5)",
-            f"    MOVE GG-NUM TO {opts['VALUELENGTH']}",
-            "END-IF",
-        ]
-        return lines + _call("GGCWRDP", args) + after + _resp(opts, True, labels)
-    after = ["IF GG-RESP = 0 OR (GG-RESP = 22 AND (GG-RESP2 = 4 OR GG-RESP2 = 5))",
-             f"    MOVE GG-LEN TO {opts['NAMELENGTH']}", f"    MOVE GG-NUM TO {opts['VALUELENGTH']}", "END-IF"]  # fmt: skip
-    return lines + _call("GGCWRNX", args) + after + _resp(opts, True, labels)
-
-
-def _web(opts: dict[str, str | None], labels: list[str] | None) -> list[str]:
-    """#4767 zECS (register X35): WEB OPEN -> GGCWOPN (GG-FLAGS URIMAP, the name in GG-NAME1; or HOST [PORT], HOSTLENGTH in
-    GG-LEN, the SCHEME CVDA in GG-ITEM, PORTNUMBER in GG-NUM), the SESSTOKEN area written by the stub on NORMAL; WEB
-    CONVERSE -> GGCWCNV (the METHOD CVDA in GG-NUM, PATHLENGTH / QUERYSTRLEN / FROMLENGTH in GG-HOURS / GG-MINS / GG-SECS,
-    MAXLENGTH -- INTO's length when omitted -- in GG-LEN, STATUSLEN in GG-ITEM (-1: none); GG-FLAGS names PATH QUERY FROM
-    MEDIA given; the stub writes INTO / STATUSTEXT / MEDIATYPE), TOLENGTH and STATUSCODE moved from GG-LEN / GG-NUM when a
-    response came back (NORMAL, LENGERR 57); WEB CLOSE -> GGCWCLS. The option rules as the det translator's."""
-    form = next(f for f in ("OPEN", "CONVERSE", "CLOSE") if f in opts)
-    key = f"WEB {form}"
-    _check_spec(key, opts, ("WEB", form), lambda bad: [f"{key} {o}" for o in bad])
-    tok = opts.get("SESSTOKEN")
-    if not tok:
-        raise Unsupported(_rule(key, "required", "SESSTOKEN"), [key])
-    for o in ("SESSTOKEN", "HOST", "PATH", "QUERYSTRING", "FROM", "MEDIATYPE", "INTO", "STATUSTEXT"):
-        if opts.get(o) and _literal(opts[o]):  # (IBM's COBOL form takes a data area)
-            raise Unsupported(f"{key} {o} as a literal: a data area is the COBOL form", [key])
-    if form == "CLOSE":
-        return _call("GGCWCLS", [f"BY REFERENCE {tok}"]) + _resp(opts, True, labels)
-    if form == "OPEN":
-        if ("URIMAP" in opts) == ("HOST" in opts):
-            raise Unsupported(_rule(key, "one_of", "URIMAP"), [key])
-        if ("HOST" in opts) != ("HOSTLENGTH" in opts):
-            raise Unsupported(_web_requires(key, "HOST", "HOSTLENGTH"), [key])
-        if "HOST" in opts and "SCHEME" not in opts:
-            raise Unsupported(_web_requires(key, "HOST", "SCHEME"), [key])
-        for o in ("PORTNUMBER", "SCHEME"):
-            if o in opts and "HOST" not in opts:
-                raise Unsupported(_web_requires(key, "PORTNUMBER", "HOST").format(o), [key])
-        if "URIMAP" in opts:
-            if not opts["URIMAP"]:
-                raise Unsupported(NEEDS_ARGUMENT, [key])
-            lines = [f"MOVE {opts['URIMAP']} TO GG-NAME1", "MOVE 'URIMAP' TO GG-FLAGS"]
-            return (lines + _call("GGCWOPN", [f"BY REFERENCE {tok}", "BY REFERENCE GG-QNAME", "BY VALUE LENGTH OF GG-QNAME"])
-                    + _resp(opts, True, labels))  # fmt: skip
-        for o in ("HOST", "HOSTLENGTH", "SCHEME", "PORTNUMBER"):
-            if o in opts and not opts[o]:
-                raise Unsupported(NEEDS_ARGUMENT, [key])
-        lines = [f"MOVE {opts['HOSTLENGTH']} TO GG-LEN", f"MOVE {opts['SCHEME']} TO GG-ITEM"]
-        if opts.get("PORTNUMBER"):
-            lines += [f"MOVE {opts['PORTNUMBER']} TO GG-NUM", "MOVE 'HOST PORT' TO GG-FLAGS"]
-        else:
-            lines.append("MOVE 'HOST' TO GG-FLAGS")
-        host = opts["HOST"]
-        return (lines + _call("GGCWOPN", [f"BY REFERENCE {tok}", f"BY REFERENCE {host}", f"BY VALUE LENGTH OF {host}"])
-                + _resp(opts, True, labels))  # fmt: skip
-    for o in ("METHOD", "INTO"):
-        if not opts.get(o):
-            raise Unsupported(_rule(key, "required", o), [key])
-    for a, n in (("PATH", "PATHLENGTH"), ("QUERYSTRING", "QUERYSTRLEN"), ("FROM", "FROMLENGTH"),
-                 ("STATUSTEXT", "STATUSLEN")):  # fmt: skip
-        if (a in opts) != (n in opts):
-            raise Unsupported(_web_requires(key, a, n), [key])
-        if a in opts and not (opts[a] and opts[n]):
-            raise Unsupported(NEEDS_ARGUMENT, [key])
-    if sum(o in opts for o in ("CLIENTCONV", "CLICONVERT", "NOINCONVERT", "NOOUTCONVERT", "NOCLICONVERT")) > 1:
-        raise Unsupported(_rule(key, "at_most_one", "CLIENTCONV"), [key])
-    if "CLIENTCONV" in opts and not opts["CLIENTCONV"]:
-        raise Unsupported(NEEDS_ARGUMENT, [key])
-    into = opts["INTO"]
-    lines = [f"MOVE {opts['METHOD']} TO GG-NUM", f"MOVE {opts.get('MAXLENGTH') or f'LENGTH OF {into}'} TO GG-LEN",
-             f"MOVE {opts.get('STATUSLEN') or '-1'} TO GG-ITEM"]  # fmt: skip
-    for n, gg in (("PATHLENGTH", "GG-HOURS"), ("QUERYSTRLEN", "GG-MINS"), ("FROMLENGTH", "GG-SECS")):
-        lines.append(f"MOVE {opts.get(n) or '0'} TO {gg}")
-    given = [w for o, w in (("PATH", "PATH"), ("QUERYSTRING", "QUERY"), ("FROM", "FROM"), ("MEDIATYPE", "MEDIA"))
-             if opts.get(o)]  # fmt: skip
-    lines.append(f"MOVE '{' '.join(given)}' TO GG-FLAGS" if given else "MOVE SPACES TO GG-FLAGS")
-    args = [f"BY REFERENCE {tok}"]
-    for o in ("PATH", "QUERYSTRING", "FROM", "MEDIATYPE", "INTO", "STATUSTEXT"):
-        area = opts.get(o)
-        area = area or "GG-QNAME"  # (an option not given: a placeholder the stub does not read)
-        args += [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]
-    after = []
-    if opts.get("TOLENGTH") or opts.get("STATUSCODE"):
-        after = ["IF GG-RESP = 0 OR (GG-RESP = 22 AND GG-RESP2 = 57)"]
-        after += [f"    MOVE GG-LEN TO {opts['TOLENGTH']}"] if opts.get("TOLENGTH") else []
-        after += [f"    MOVE GG-NUM TO {opts['STATUSCODE']}"] if opts.get("STATUSCODE") else []
-        after.append("END-IF")
-    return lines + _call("GGCWCNV", args) + after + _resp(opts, True, labels)
-
-
 # #5126 (X64): the file control commands set EIBDS, "the symbolic identifier of the last data set referred to in a file
 # control request" (IBM, EIB fields); every other EIB resource field stays unmodelled.
 EIBDS_VERBS = frozenset({"READ", "READNEXT", "READPREV", "RESETBR", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE",
@@ -1350,13 +614,13 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
     if verb == "GGSQLAB":  # #6271 (X73): the harness's own marker after a Db2 statement planned to abend AD2Z
         return ["MOVE 0 TO GG-GOTO", f"MOVE {opts['NAME']} TO GG-FLAGS", *_call("GGCSQLAB", []), *_map_abend(labels)]
     if verb == "DELAY":  # #4950: the wait at which RUN children are dispatched (GGCDLAY)
-        return _delay(opts, labels)
+        return cics_taskcontrol._delay(opts, labels)
     if verb == "POST":  # #5079 (X63): a timer-event control area
-        return _post(opts, labels)
+        return cics_taskcontrol._post(opts, labels)
     if verb == "WAIT" and "EVENT" in opts and opts["EVENT"] is None:
-        return _wait_event(opts, labels)
+        return cics_taskcontrol._wait_event(opts, labels)
     if verb == "CONVERSE":
-        return _converse(opts, labels)
+        return cics_taskcontrol._converse(opts, labels)
     if verb in ("ENQ", "DEQ"):
         # one task in the region: nothing else holds the resource (ENQ / DEQ NORMAL), and a task takes no time
         # (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
@@ -1508,17 +772,17 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
             lines.append(f"MOVE GG-NUM TO {opts[o]}" if o == "ODFACILTYPE" else f"MOVE GG-NAME1 TO {opts[o]}")
         return lines + _resp(opts, False, labels)
     if (verb == "WEB PARSE" or (verb == "WEB" and "PARSE" in opts)) and "URL" in opts:  # #4767 (X36): WEB PARSE URL
-        return _web_parse(opts, labels)
+        return cics_web._web_parse(opts, labels)
     if verb == "WEB SEND" or (verb == "WEB" and "SEND" in opts):  # #4767 (X37): the server's response
-        return _web_send(opts, labels)
+        return cics_web._web_send(opts, labels)
     if verb == "WEB EXTRACT" or (verb == "WEB" and "EXTRACT" in opts):  # #4767 (X38): the server reads its request
-        return _web_extract(opts, labels)
+        return cics_web._web_extract(opts, labels)
     if verb == "EXTRACT" and "WEB" in opts:  # #4972 (X38): the same, IBM's synonym
-        return _web_extract(opts, labels, "EXTRACT WEB")
+        return cics_web._web_extract(opts, labels, "EXTRACT WEB")
     if verb == "EXTRACT" and "TCPIP" in opts:  # #4972 (X38): the connection the task was started on
-        return _extract_tcpip(opts, labels)
+        return cics_web._extract_tcpip(opts, labels)
     if verb == "WEB RECEIVE" or (verb == "WEB" and "RECEIVE" in opts):
-        return _web_receive(opts, labels)
+        return cics_web._web_receive(opts, labels)
     if verb == "GETMAIN":  # #4771 (X47): task storage addressed by a pointer
         return _getmain(opts, labels)
     if verb == "FREEMAIN":
@@ -1526,17 +790,19 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
     if verb == "ADDRESS":  # #5079 (X59): a pointer to the EIB / the COMMAREA
         return _address(opts, labels)
     if verb == "WEB" and "RETRIEVE" in opts:  # #4941 (X41): the document of the last WEB SEND
-        return _web_retrieve(opts, labels)
+        return cics_web._web_retrieve(opts, labels)
     if verb == "WEB" and "HTTPHEADER" in opts and ({"READ", "WRITE"} & set(opts)):
-        return _web_header("READ" if "READ" in opts else "WRITE", opts, labels)
+        return cics_web._web_header("READ" if "READ" in opts else "WRITE", opts, labels)
     if (
         verb == "WEB"
         and ({"READ", "STARTBROWSE", "READNEXT", "ENDBROWSE"} & set(opts))
-        and any(k in opts for k in _WEB_KIND)
+        and any(k in opts for k in cics_web._WEB_KIND)
     ):
-        return _web_forms(next(f for f in ("READ", "STARTBROWSE", "READNEXT", "ENDBROWSE") if f in opts), opts, labels)
+        return cics_web._web_forms(
+            next(f for f in ("READ", "STARTBROWSE", "READNEXT", "ENDBROWSE") if f in opts), opts, labels
+        )
     if verb == "WEB" and ({"OPEN", "CONVERSE", "CLOSE"} & set(opts)):  # #4767 zECS (X35): CICS web support, client
-        return _web(opts, labels)
+        return cics_web._web(opts, labels)
     if verb == "DOCUMENT" and ({"CREATE", "RETRIEVE"} & set(opts)):  # #4769 zECS (X33): the document handler
         form = "CREATE" if "CREATE" in opts else "RETRIEVE"
         key = f"DOCUMENT {form}"
@@ -1777,13 +1043,13 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
                 + _call("GGCXCTL", args)
                 + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
     if verb == "RUN":  # #4270 slice 2: RUN TRANSID CHILD (#4884: CHANNEL)
-        return _run_transid(opts, labels)
+        return cics_taskcontrol._run_transid(opts, labels)
     if verb == "FETCH" and ("ANY" in opts) != ("CHILD" in opts):  # #4884, #4950
-        return _fetch_child("FETCH ANY" if "ANY" in opts else "FETCH CHILD", opts, labels)
+        return cics_taskcontrol._fetch_child("FETCH ANY" if "ANY" in opts else "FETCH CHILD", opts, labels)
     if verb == "FREE" and "CHILD" in opts:  # #4950
-        return _free_child(opts, labels)
+        return cics_taskcontrol._free_child(opts, labels)
     if verb in ("START", "RETRIEVE", "CANCEL"):  # #4006: interval control
-        return _interval_command(verb, opts, labels)
+        return cics_taskcontrol._interval_command(verb, opts, labels)
     if verb == "LINK":  # #4004: a new level runs the program on the caller's own COMMAREA storage
         _check_spec("LINK", opts, (verb,), lambda bad: [f"{verb} {bad[0]}"])
         if not opts.get("PROGRAM"):
@@ -3519,84 +2785,6 @@ def _day_of_year(y: int, m: int, d: int) -> int:
 RESP_NAMES = {n: name for name, n in DFHRESP.items()}  # #4607: the stub logs a RESP by number, CicsTask by name
 
 
-def _cobol_start(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
-    """#4270 (GenApp LGWEBST5): a START the stub logged (GGCSTRT: `interval=` or `time=` hhmmss, `protect` 0 / 1,
-    `resp` by number, `expires` from $GGCICS_NOW -- the case's clock --, `area` 1 with FROM, its bytes in the event's
-    blob) as CicsTask.start records it: {transid, termid, interval | time, reqid, protect, resp, resp2, expires,
-    from}. FROM is compared as text in the data's page, as a WRITEQ TS item is (`java_start_as_compared`)."""
-    resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
-    when = "time" if "time" in kv else "interval"
-    out: dict[str, Any] = {"transid": kv.get("transid", ""), "termid": kv.get("termid") or None,
-                           when: kv.get(when) or None, "protect": kv.get("protect") == "1", "resp": resp,
-                           "expires": kv.get("expires") or None}  # fmt: skip
-    if kv.get("reqid"):
-        out["reqid"] = kv["reqid"]
-    if resp in ("INVREQ", "CHANNELERR"):  # (#4950: CHANNELERR RESP2 1, an incorrect CHANNEL name)
-        out["resp2"] = int(kv.get("resp2", "0"))
-    for key in ("rtransid", "rtermid", "queue"):  # the data options the program named (hex of the trimmed name)
-        if key in kv:
-            out[key] = bytes.fromhex(kv[key]).decode("latin-1")
-    if kv.get("area") == "1":
-        text = common._decode_text(data, enc)
-        out["from"] = f"<undecodable {data!r} in {enc}>" if text is None else text
-    else:
-        out["from"] = None
-    return out
-
-
-def _cobol_retrieve(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
-    """#5089: a RETRIEVE the stub logged (GGCRTRV: `resp` by number, `len` the stored length -1 for none, `into` 1 with
-    INTO, the bytes copied in the event's blob, `rtransid` / `rtermid` / `queue` as hex of the name) as
-    CicsTask.retrieve records it: {resp, length, data, rtransid?, rtermid?, queue?}; the data compared as text in the
-    data's page, as START's FROM is (java_retrieve_as_compared)."""
-    resp = RESP_NAMES.get(int(kv.get("resp", "0")), kv.get("resp", ""))
-    length = int(kv.get("len", "-1"))
-    out: dict[str, Any] = {"resp": resp, "length": None if length < 0 or kv.get("into") != "1" else length}
-    if kv.get("into") == "1" and length >= 0:
-        text = common._decode_text(data, enc)
-        out["data"] = f"<undecodable {data!r} in {enc}>" if text is None else text
-    else:
-        out["data"] = None
-    for key in ("rtransid", "rtermid", "queue"):
-        if key in kv:
-            out[key] = bytes.fromhex(kv[key]).decode("latin-1")
-    return out
-
-
-def java_retrieve_as_compared(e: dict[str, Any]) -> dict[str, Any]:
-    """#5089: CicsTask's RETRIEVE event as the comparison reads it: its data (bytes, base64 in the JSON) in the region's
-    page, as text (java_start_as_compared)."""
-    import base64
-
-    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
-
-    data = e.get("data")
-    if not isinstance(data, str):
-        return {**e, "data": None}
-    raw = base64.b64decode(data)
-    try:
-        return {**e, "data": raw.decode(REGION_PAGE)}
-    except UnicodeDecodeError:
-        return {**e, "data": f"<undecodable {raw!r} in {REGION_PAGE}>"}
-
-
-def java_start_as_compared(e: dict[str, Any]) -> dict[str, Any]:
-    """#4270: CicsTask's START event as the comparison reads it: its FROM data (bytes, base64 in the JSON) in the
-    region's page, as text (java_ts_as_compared)."""
-    import base64
-
-    from gitgalaxy.tools.cobol_to_java.det.cics import REGION_PAGE
-
-    data = e.get("from")
-    if not isinstance(data, str):
-        return {**e, "from": None}
-    raw = base64.b64decode(data)
-    try:
-        return {**e, "from": raw.decode(REGION_PAGE)}
-    except UnicodeDecodeError:
-        return {**e, "from": f"<undecodable {raw!r} in {REGION_PAGE}>"}
-
-
 X6_WRITEQ = re.compile(r"WRITEQ T[SD] LENGTH > FROM: not modelled")
 # #4270 (X23): the stub's guard page after a COMMAREA of a stated length (GGCAREA): a reference past EIBCALEN
 X23_PAST = re.compile(r"COMMAREA past EIBCALEN: not modelled")
@@ -3733,27 +2921,27 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             text = common._decode_text(data, enc)
             res.setdefault("operator", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
         elif verb == "WEB-CONVERSE":  # #4767 (X35): the request the program sent, as CicsTask records it
-            res.setdefault("web", []).append(_cobol_web(kv, data, enc))
+            res.setdefault("web", []).append(cics_web._cobol_web(kv, data, enc))
         elif verb == "WEB-OPEN":  # #4767 (X35): the connection opened, as CicsTask records it
-            res.setdefault("webopen", []).append(_cobol_web_open(kv, enc))
+            res.setdefault("webopen", []).append(cics_web._cobol_web_open(kv, enc))
         elif verb == "WEB-CLOSE":  # #4767 (X35): the session closed, as CicsTask.webClose records it
             res.setdefault("webclose", []).append({"resp": int(kv["resp"]), "resp2": int(kv["resp2"])})
         elif verb == "WEB-SEND":  # #4767 (X37): the response the program sent, as CicsTask records it
-            res.setdefault("websend", []).append(_cobol_web_send(kv, data, enc))
+            res.setdefault("websend", []).append(cics_web._cobol_web_send(kv, data, enc))
         elif verb == "WEB-HEADER":  # #4767 (X38): a response header the program wrote
             res.setdefault("webheader", []).append(_cobol_web_header(kv, enc))
         elif verb == "WEB-RECEIVE":  # #4767 (X38): the request body the program read, as CicsTask records it
-            res.setdefault("webreceive", []).append(_cobol_web_receive(kv, data, enc))
+            res.setdefault("webreceive", []).append(cics_web._cobol_web_receive(kv, data, enc))
         elif verb == "WRITEQ-TS":  # #4607: as CicsTask records it (queue, data, resp, item)
             res.setdefault("ts", []).append(cics_tempstorage.cobol_ts(kv, data, enc))
         elif verb in ("READQ-TS", "READQ-TD", "RECEIVE"):  # #4270 (GenApp LGICVS01): as CicsTask records them
             res.setdefault("reads", []).append(_cobol_read(verb, kv, data, enc))
         elif verb == "START":  # #4270 (GenApp LGWEBST5): as CicsTask records it
-            res.setdefault("starts", []).append(_cobol_start(kv, data, enc))
+            res.setdefault("starts", []).append(cics_taskcontrol._cobol_start(kv, data, enc))
             if "channel" in kv:  # #4950: START CHANNEL -- the copy the started task gets (NNN.channel)
                 res["starts"][-1]["channel"] = channel_copy(out / f"{seq}.channel")
         elif verb == "RETRIEVE":  # #5089: as CicsTask.retrieve records it
-            res.setdefault("retrieves", []).append(_cobol_retrieve(kv, data, enc))
+            res.setdefault("retrieves", []).append(cics_taskcontrol._cobol_retrieve(kv, data, enc))
         elif verb in equivalence_mq.EVENTS:  # #4892: an MQI call, as QueueManager records it
             res.setdefault("mq", []).append(equivalence_mq.cobol_event(verb, kv, data))
         elif verb == "CHILD":  # #4950: a RUN TRANSID child the task's wait dispatched -- what it did, in its directory
@@ -5215,9 +4403,9 @@ def _java_events(case: dict[str, Any], out: Path, shape: dict[str, Any],
             if e.get("event") == "READQ-TS":  # #4270: the item's bytes as text
                 e.update(java_read_as_compared(e))
             if e.get("event") == "START":  # #4270: the FROM data's bytes as text
-                e.update(java_start_as_compared(e))
+                e.update(cics_taskcontrol.java_start_as_compared(e))
             if e.get("event") == "RETRIEVE":  # #5089: the data's bytes as text
-                e.update(java_retrieve_as_compared(e))
+                e.update(cics_taskcontrol.java_retrieve_as_compared(e))
             if e.get("event") == "COMMAREA" and e.get("area") is not None:  # #4765: the bytes the port left
                 if sc.get("dto_entry") and isinstance(e.get("commarea"), dict):  # #5863: the DTO too (compare_events)
                     e["dto"] = java_commarea(e["commarea"], shape, ca_fields or [], enc)
@@ -5396,50 +4584,6 @@ def compare_sql(case: dict[str, Any], sc: dict[str, Any], res: dict[str, Any], j
     return equivalence_db2.compare_outcomes(equivalence_db2.cobol_outcomes(res.get("sql", "")), java)
 
 
-def _cobol_web(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
-    """#4767 (X35): a WEB-CONVERSE line of the stub's events (hex fields in the data's page) as CicsTask records it."""
-
-    def text(h: str) -> str:
-        return "" if h == "-" else bytes.fromhex(h).decode(enc)
-
-    body = kv.get("body") == "1"
-    return {"host": text(kv["host"]), "method": kv["method"], "path": text(kv["path"]), "query": text(kv["query"]),
-            "mediatype": text(kv["media"]) if body else None, "body": data.decode(enc) if body else None,
-            "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
-
-
-def _cobol_web_open(kv: dict[str, str], enc: str) -> dict[str, Any]:
-    """#4767 (X35): a WEB-OPEN line of the stub's events (the host in hex, '-' none; the scheme as named, '-' none) as
-    CicsTask records it."""
-    return {"host": "" if kv["host"] == "-" else bytes.fromhex(kv["host"]).decode(enc),
-            "scheme": None if kv["scheme"] == "-" else kv["scheme"],
-            "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
-
-
-def _cobol_web_send(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
-    """#4767 (X37): a WEB-SEND line of the stub's events (hex fields in the data's page) as CicsTask records it."""
-
-    def text(h: str) -> str | None:
-        return None if h == "-" else bytes.fromhex(h).decode(enc)
-
-    return {"status": int(kv["status"]), "statustext": text(kv["stext"]), "mediatype": text(kv["media"]),
-            "body": data.decode(enc), "action": kv["action"], "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
-
-
-def _cobol_web_header(kv: dict[str, str], enc: str) -> dict[str, Any]:
-    """#4767 (X38): a WEB-HEADER line of the stub's events (hex fields in the data's page) as CicsTask records it."""
-    return {"name": bytes.fromhex(kv["name"]).decode(enc), "value": bytes.fromhex(kv["value"]).decode(enc),
-            "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
-
-
-def _cobol_web_receive(kv: dict[str, str], data: bytes, enc: str) -> dict[str, Any]:
-    """#4767 (X38): a WEB-RECEIVE line of the stub's events (the media type in hex, the bytes returned as the data) as CicsTask
-    records it; LENGERR 16 returned nothing (no body)."""
-    none = kv["resp2"] == "16"
-    return {"mediatype": None if kv["media"] == "-" else bytes.fromhex(kv["media"]).decode(enc),
-            "body": None if none else data.decode(enc), "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
-
-
 def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     """The COBOL task's outputs as the event list CicsTask records."""
     out: list[dict[str, Any]] = []
@@ -5579,6 +4723,14 @@ def _link_as_compared(e: dict[str, Any]) -> dict[str, Any]:
     if e.get("event") == "LINK":
         return {"event": "LINK", "program": e.get("program") or e.get("target")}
     return e
+
+
+_STATE_EVENTS = frozenset({"COMMAREA", "CONTAINERS", "DLI-DBS", "MQ-QUEUES"})  # end-state snapshots, not commands
+
+
+def executed_commands(events: list[dict[str, Any]]) -> list[str]:
+    """#5229: the distinct stub verbs the COBOL task executed (the oracle side, before any judging mask), sorted."""
+    return sorted({e["event"] for e in events if e.get("event") and e["event"] not in _STATE_EVENTS})
 
 
 def linked_result(case: dict[str, Any], events: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -6085,7 +5237,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     ok = True
     for name, res in cobol.items():
         clock = [0]  # the clock fields masked in this scenario (a case's "clock_fields")
-        cev = mask_clock_events(case, linked_result(case, cobol_events(res)), clock)
+        ran = cobol_events(res)
+        cev = mask_clock_events(case, linked_result(case, ran), clock)
         jev = mask_clock_events(case, linked_result(case, java.get(name, [])), clock)
         sc = next(x for x in case["scenarios"] if x["name"] == name)
         if sc.get("prefix_link"):  # #4173: a fault task that LINKs to a program the case does not run -- both
@@ -6097,6 +5250,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                                    "cobol": cev, "java": jev,
                                    **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip
+        if executed_commands(ran):  # #5229: only when non-empty (python-test-traps.md)
+            report["outputs"][name]["commands"] = executed_commands(ran)
         ok &= d["equal"] == d["events"]
         if case.get("sysout", True) and not (sc.get("prefix_link") or x6 or sc.get("prefix_x6")):
             # #4635: the task's DISPLAY output, as batch proofs compare SYSOUT (#4056); a task judged up to a point

@@ -79,5 +79,4 @@ for `import` (the `#include` lines live in `wadsrc/static/zscript.zs`, outside t
 - `class_start` names stay empty until `zscript` joins `_CLASS_START_NAMED_EXTRACTION_LANGS` in `detector.py`
   (needs the harden-class-start-extraction pass).
 - No keyword-rosetta control folder or ledger entries; no `tri_comparison_chart.py` `_GG_ONLY_LANGS` entry.
-- No `docs/language_status/README.md` index row.
 - No ACS / DECORATE / MAPINFO / SNDINFO support.

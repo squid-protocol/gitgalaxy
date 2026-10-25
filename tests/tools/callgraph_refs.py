@@ -368,7 +368,7 @@ def corpus_repos(lang: str) -> list[tuple[str, Path]]:
     sys.path.insert(0, str(TOOLS))
     import import_graph_accuracy as iga
 
-    # an entry with "callgraph": false is an import-graph repo only (its reference tool cannot build it, #3798)
+    # an entry with "callgraph": false is an import-graph repo only (no buildable or baselined call reference, #3798)
     entries = [e for e in iga.load_manifest() if e["language"] == lang and e.get("callgraph", True)]
     missing = [e["repo"] for e in entries if not (iga.repo_dir(iga.CORPUS, e) / ".git").is_dir()]
     if missing:

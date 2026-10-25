@@ -17,9 +17,17 @@ the bundled libclang recovers from the headers it cannot find.
   translation units). A callee with no def in the repo (libc, a system header)
   is `external`. A call through a function pointer names no function and is
   skipped. A macro that expands to a call is a call here, as the compiler sees it.
-* Directories named `win` are not parsed: Windows-only sources need <windows.h>
-  and their names collide with the Unix ones. Where per-platform files define the
-  same external name, an edge goes to each definition.
+* A def written as a one-argument macro (`TEST_IMPL(kill) {`, which declares `run_test_kill`) is named
+  by the macro's argument, as the engine names it.
+* Windows-only sources (a `win` directory, a `*-win.c` / `*_win.c` file, `sockcompat.c`) are a second
+  link group, parsed with `-D_WIN32` (#3784): their names collide with the Unix ones, so a Windows caller
+  links to the Windows definitions of a name, falling back to the shared ones (not under `unix/`), and a
+  Unix caller never links to a Windows definition. A Win32 API call with no declaration (no <windows.h> on the host) is `external`. Where per-platform files in one group define the same external name, an
+  edge goes to each definition.
+* Any other file naming a platform macro (`_WIN32`, `__APPLE__`, `_AIX`, `__sun`, `__FreeBSD__`, `__QNX__`, `__MVS__`) is parsed once more with it
+  defined (PLATFORMS). A def only that parse saw belongs to the platform's group; its callers link the group's
+  definitions, then the shared ones. One function written as several `#if` variants in a file is one unit, as
+  the engine sees it: an edge to one variant is an edge to all.
 
 C++ (`cpp`) differs in four ways:
 * Sources are .cc/.cpp/.cxx, parsed as C++; definitions are found in namespaces and
@@ -45,12 +53,28 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-SKIP_DIRS = frozenset({".git", "win"})
+SKIP_DIRS = frozenset({".git", "win"})  # C++ mode; the C walk keeps `win` as its own link group
+WIN_STEM = re.compile(r"(?:^|[-_])win(?:32)?$")
+WIN_FILES = frozenset({"sockcompat.c"})
+# the C link groups beyond the base (Linux) one: a file that names the platform's macro is parsed once more with
+# them defined (#3784). A Windows-only source is parsed only that way.
+BASE, WINDOWS = "base", "win"
+PLATFORMS: dict[str, tuple[tuple[str, ...], re.Pattern[str]]] = {
+    WINDOWS: (("-D_WIN32", "-DWIN32_LEAN_AND_MEAN"), re.compile(r"\b_WIN32\b")),
+    "apple": (("-D__APPLE__", "-D__MACH__"), re.compile(r"\b__APPLE__\b|\b__MACH__\b")),
+    "aix": (("-D_AIX",), re.compile(r"\b_AIX\b")),
+    "sun": (("-D__sun",), re.compile(r"\b__sun\b")),
+    "freebsd": (("-D__FreeBSD__",), re.compile(r"\b__FreeBSD__\b")),
+    "qnx": (("-D__QNX__",), re.compile(r"\b__QNX__\b")),
+    "mvs": (("-D__MVS__",), re.compile(r"\b__MVS__\b")),
+}
 
 CPP_SOURCES = frozenset({".cc", ".cpp", ".cxx"})
 CPP_HEADERS = frozenset({".h", ".hh", ".hpp", ".hxx"})  # each header's directory is an -I path
 # the gtest macros whose body is `<suite>_<name>_Test::TestBody`; the engine names the unit `<name>`
 GTEST_MACRO = re.compile(r"\b(?:TEST|TEST_F|TEST_P|TYPED_TEST|TYPED_TEST_P)\s*\(\s*\w+\s*,\s*(\w+)")
+# `TEST_IMPL(name) {` and its siblings define `run_test_name`; the engine names the unit `name` (#3784)
+IMPL_MACRO = re.compile(r"^\s*[A-Z][A-Z0-9_]*\(\s*(\w+)\s*\)\s*\{?\s*$")
 CPP_ARGS = ("-x", "c++", "-std=c++20", "-w", "-ferror-limit=0")
 
 
@@ -58,11 +82,17 @@ def _install_hint() -> str:
     return 'pip install "libclang==18.1.1"  (the Python clang.cindex bindings with a bundled libclang)'
 
 
-def _walk(repo: Path):
+def _walk(repo: Path, skip: frozenset[str] = SKIP_DIRS):
     for root, dirs, files in os.walk(repo):
-        dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS)
+        dirs[:] = sorted(d for d in dirs if d not in skip)
         for f in sorted(files):
             yield Path(root) / f
+
+
+def _is_windows_source(repo: Path, p: Path) -> bool:
+    """Whether a C source belongs to the Windows link group (built only for `_WIN32`)."""
+    rel = p.relative_to(repo)
+    return "win" in rel.parts[:-1] or bool(WIN_STEM.search(p.stem)) or p.name in WIN_FILES
 
 
 def _rel(repo: Path, name: str | None) -> str | None:
@@ -82,7 +112,7 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
 
     repo = repo.resolve()
     sources, include_dirs = [], set()
-    for p in _walk(repo):
+    for p in _walk(repo, frozenset({".git"})):
         if p.suffix == ".c":
             sources.append(p)
         elif p.suffix == ".h":
@@ -91,51 +121,92 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
     kinds = cindex.CursorKind
     index = cindex.Index.create()
 
-    defs: dict[tuple[str, str, int], bool] = {}  # key -> has external linkage
-    calls: list[tuple[tuple[str, str, int], str, int]] = []  # caller, external callee name, line
+    defs: dict[tuple[str, str, int], set[str]] = defaultdict(set)  # key -> the groups whose parse defined it
+    calls: list[tuple[tuple[str, str, int], str, int, str]] = []  # caller, external callee name, line, group
     static_edges: dict[tuple[tuple, tuple], int] = {}
-    seen_callers: set[tuple[str, str, int]] = set()
+    linkage: dict[tuple[str, str, int], bool] = {}  # key -> has external linkage
+    seen_callers: set[tuple[tuple[str, str, int], str]] = set()
+
+    source_lines: dict[str, list[str]] = {}
+
+    def macro_name(cursor) -> str:
+        """The engine's name for a def written `MACRO(name) {`: `name`, not the macro's `run_test_name`."""
+        loc = cursor.extent.start
+        lines = source_lines.get(loc.file.name)
+        if lines is None:
+            lines = source_lines[loc.file.name] = Path(loc.file.name).read_bytes().decode("latin-1").splitlines()
+        hit = IMPL_MACRO.match(lines[loc.line - 1]) if 0 < loc.line <= len(lines) else None
+        return hit.group(1) if hit and cursor.spelling.endswith(hit.group(1)) else cursor.spelling
 
     def key_of(cursor) -> tuple[str, str, int] | None:
         loc = cursor.extent.start
         rel = _rel(repo, loc.file.name if loc.file else None)
-        return (rel, cursor.spelling, loc.line) if rel else None
+        return (rel, macro_name(cursor), loc.line) if rel else None
 
     for src in sources:
-        tu = index.parse(str(src), args=args)
-        for top in tu.cursor.get_children():
-            if top.kind != kinds.FUNCTION_DECL or not top.is_definition():
-                continue
-            caller = key_of(top)
-            if caller is None:
-                continue
-            defs[caller] = top.storage_class != cindex.StorageClass.STATIC
-            if caller in seen_callers:  # a header function met again through another .c file
-                continue
-            seen_callers.add(caller)
-            for node in top.walk_preorder():
-                if node.kind != kinds.CALL_EXPR:
+        text = src.read_bytes().decode("latin-1")
+        windows_only = _is_windows_source(repo, src)
+        # the base (Linux) parse, then one more per other platform the file names a macro of
+        parses = [] if windows_only else [(BASE, args)]
+        for group, (macros, trigger) in PLATFORMS.items():
+            if (windows_only and group == WINDOWS) or (not windows_only and trigger.search(text)):
+                # the Windows-only sources are built by MSVC, whose `_MSC_VER` selects their old-compiler fallbacks
+                msvc = ["-D_MSC_VER=1800"] if windows_only and group == WINDOWS else []
+                parses.append((group, [*args, *macros, *msvc]))
+        for group, parse_args in parses:
+            tu = index.parse(str(src), args=parse_args)
+            for top in tu.cursor.get_children():
+                if top.kind != kinds.FUNCTION_DECL or not top.is_definition():
                     continue
-                target = node.referenced
-                if target is None or target.kind != kinds.FUNCTION_DECL:
+                caller = key_of(top)
+                if caller is None:
                     continue
-                if target.storage_class == cindex.StorageClass.STATIC:
-                    body = target.get_definition()
-                    callee = key_of(body) if body is not None else None
-                    if callee and callee != caller:
-                        static_edges.setdefault((caller, callee), node.location.line)
-                else:
-                    calls.append((caller, target.spelling, node.location.line))
+                defs[caller].add(group)
+                linkage[caller] = top.storage_class != cindex.StorageClass.STATIC
+                if (caller, group) in seen_callers:  # a header function met again through another .c file
+                    continue
+                seen_callers.add((caller, group))
+                for node in top.walk_preorder():
+                    if node.kind != kinds.CALL_EXPR:
+                        continue
+                    target = node.referenced
+                    if target is None or target.kind != kinds.FUNCTION_DECL:
+                        continue
+                    if target.storage_class == cindex.StorageClass.STATIC:
+                        body = target.get_definition()
+                        callee = key_of(body) if body is not None else None
+                        if callee and callee != caller:
+                            static_edges.setdefault((caller, callee), node.location.line)
+                    else:
+                        calls.append((caller, target.spelling, node.location.line, group))
 
-    by_name: dict[str, list[tuple[str, str, int]]] = defaultdict(list)
-    for k, external_linkage in defs.items():
-        if external_linkage:
-            by_name[k[1]].append(k)
+    # link groups: a def the base parse saw is shared; one only a platform parse saw belongs to that platform
+    by_group: dict[str, dict[str, list[tuple[str, str, int]]]] = {g: defaultdict(list) for g in (BASE, *PLATFORMS)}
+    shared_by_name: dict[str, list[tuple[str, str, int]]] = defaultdict(list)  # a Windows build links these too
+    for k, groups in defs.items():
+        if not linkage[k]:
+            continue
+        for g in (BASE,) if BASE in groups else groups:
+            by_group[g][k[1]].append(k)
+        if BASE in groups and "unix" not in k[0].split("/")[:-1]:
+            shared_by_name[k[1]].append(k)
+    variants: dict[tuple[str, str], list[tuple[str, str, int]]] = defaultdict(list)
+    for k in defs:
+        if linkage[k]:
+            variants[k[:2]].append(k)
+    named = {n for g in by_group.values() for n in g}
     edges: dict[tuple, int] = dict(static_edges)
     external: set[tuple] = set()
-    for caller, name, line in calls:
-        targets = [t for t in by_name.get(name, ()) if t != caller]
-        if not targets and name not in by_name:
+    for caller, name, line, group in calls:
+        if group == BASE:
+            found = by_group[BASE].get(name, ())
+        elif group == WINDOWS:
+            found = by_group[WINDOWS].get(name) or shared_by_name.get(name, ())
+        else:  # another Unix flavour links its own definitions, falling back to the shared ones
+            found = by_group[group].get(name) or by_group[BASE].get(name, ())
+        # one function written as several `#if` variants in a file is one unit to the engine: link them all
+        targets = [v for t in found if t != caller for v in variants[t[:2]]]
+        if not targets and name not in named:
             external.add((caller, name))
         for t in targets:
             edges.setdefault((caller, t), line)

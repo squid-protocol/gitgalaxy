@@ -140,6 +140,21 @@ def test_rust_use_paths_follow_the_module_tree_and_cargo(tmp_path):
 
 
 @needs_ts
+def test_rust_bin_path_is_a_crate_root(tmp_path):
+    # #3798: ripgrep's `[[bin]] path = "crates/core/main.rs"` roots `crate::` for the files under it.
+    g = _group(
+        tmp_path,
+        {
+            "Cargo.toml": '[package]\nname = "rg"\nedition = "2021"\n[[bin]]\nname = "rg"\npath = "crates/core/main.rs"\n',
+            "crates/core/main.rs": "mod flags;\n",
+            "crates/core/flags/mod.rs": "",
+            "crates/core/flags/defs.rs": "",
+        },
+    )
+    assert iga.rust_imports(b"use crate::flags::defs;\n", "crates/core/flags/mod.rs", g) == [{"crates/core/flags/defs.rs"}]
+
+
+@needs_ts
 def test_java_nested_class_import_lives_in_the_outer_class_file(tmp_path):
     g = _group(tmp_path, {"src/com/acme/TestTypes.java": "", "src/com/acme/Util.java": ""})
     src = b"import com.acme.TestTypes.BagOfPrimitives;\nimport static com.acme.Util.helper;\n"
@@ -627,3 +642,44 @@ def test_objc_framework_include_finds_the_header_in_a_framework_the_repo_builds(
 def test_c_does_not_use_the_objc_framework_rule(tmp_path):
     g = _group(tmp_path, {"Kit.podspec": "", "Source/A.h": ""})
     assert iga.EXTRACTORS["c"](b"#include <Kit/A.h>\n", "x.c", g) == [set()]
+
+
+def test_matlab_resolves_by_package_and_name_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "+pkg/+sub/Widget.m": "classdef Widget\nend\n",
+            "+pkg/helper.m": "function helper()\nend\n",
+            "@Old/Old.m": "classdef Old\nend\n",
+            "@Old/method.m": "function method(o)\nend\n",
+            "ETS.m": "classdef ETS\nend\n",
+            "+pkg/private/hidden.m": "function hidden()\nend\n",
+        },
+    )
+    src = (
+        b"import pkg.sub.Widget\n"
+        b"  import pkg.helper;\n"
+        b"import pkg.sub.*\n"  # a package: no file, no edge
+        b"import ETS.*\n"  # a class: its static members
+        b"import ETS.make\n"  # a member: the owner's file
+        b"import Old.*\n"
+        b"import pkg.Widget pkg.helper\n"  # two arguments on one line
+        b"import matlab.unittest.TestCase\n"  # external
+        b"import pkg.sub.Missing\n"
+        b"% import pkg.helper\n"
+        b"%{\nimport ETS.*\n%}\n"
+        b"important = 1\n"
+        b"import = 2\n"
+    )
+    assert iga.matlab_imports(src, "t/test.m", g) == [
+        {"+pkg/+sub/Widget.m"},
+        {"+pkg/helper.m"},
+        set(),
+        {"ETS.m"},
+        {"ETS.m"},
+        {"@Old/Old.m"},
+        set(),
+        {"+pkg/helper.m"},
+        set(),
+        set(),
+    ]

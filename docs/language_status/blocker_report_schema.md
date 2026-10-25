@@ -103,3 +103,5 @@ layout, shipped data, skipped), and the blockers stated as fixes. Each non-prove
 highest-ranked gap). `tests_unlocked` counts the scenarios of the cases of programs for which the blocker is the only gap
 left; `then_needs` lists what a program still needs after it. Non-burned programs are counted, never named. The page is
 generated output and is not committed.
+
+A fresh-estate trial's page (`trial.py report --write`, `docs/language_status/trials/<estate>.md`) uses the same vocabulary (proven / differs / couldn't run / not attempted) but is built from `trials.json` alone: its blockers are the failure causes (ticket, generator, engine, harness, model), and it has no paragraph or branch coverage (#4493).

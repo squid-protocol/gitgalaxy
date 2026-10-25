@@ -52,10 +52,23 @@ def tree_fingerprints_computed_once():
     def once(case):
         if case not in seen:
             seen[case] = real(case)
-        return copy.deepcopy(seen[case])
+        return dict(seen[case])  # (stale() only reads it)
+
+    import proof_blockers as pb
+
+    real_ledger, ledgers = pb._ledger, {}
+
+    def ledger():
+        """#5162: _ledger() stats every ledger file on each of ~1,000 calls a build; no test here writes one, and a
+        test's own `load` or directory is a different key."""
+        key = (id(dcl.load), str(dcl.LEDGER_DIR))
+        if key not in ledgers:
+            ledgers[key] = real_ledger()
+        return ledgers[key]
 
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(dcl, "fingerprints", once)
+        mp.setattr(pb, "_ledger", ledger)
         yield
 
 
@@ -462,7 +475,7 @@ def test_deltas_report_stale_against_current(tmp_path, monkeypatch, capsys):
 # ---- #4758: a Db2 case's det verdict from a sweep, else from the ledger the scheduled Db2 sweep wrote ----------------
 GENAPP = "cics-genapp"
 DB2_CASE = "genapp-lgacus01"  # a Db2 case: CI's per-PR det-sweep skips it, the evidence refresh's db2 job sweeps it
-DB2_COV = [3, 3, 4, 8]
+DB2_COV = [3, 3, 2, 8]  # lgacus01 has four reviewed infeasible outcomes: 2 covered leaves 2 open, still L3
 
 
 def db2_fixture(tmp_path, monkeypatch, cov, sweep=None, isolate=False):
@@ -495,12 +508,12 @@ def test_a_db2_case_with_no_sweep_and_no_ledger_entry_is_not_run(tmp_path, monke
 
 @pytest.mark.slow(reason="builds the evidence report live over the Db2 case (#5178)")
 def test_a_db2_verdict_from_a_sweep_input(tmp_path, monkeypatch):
-    row = {"proved": True, "coverage": "proven on 8 scenarios, covering 3/3 paragraphs and 4/8 branches",
+    row = {"proved": True, "coverage": "proven on 8 scenarios, covering 3/3 paragraphs and 2/8 branches",
            "translated": "", "first_diff": "", "uncovered": None}  # fmt: skip
     _, p = db2_fixture(tmp_path, monkeypatch, None, sweep=row)
     det = p["equivalence"]["chosen"]["det"]
     assert (det["state"], det["source"]) == ("equal", "local sweep (proof_sweep.py --det-only)")
-    assert (p["level"], p["level_current"]) == ("L3", True)  # 3/3 paragraphs, 4/8 branches
+    assert (p["level"], p["level_current"]) == ("L3", True)  # 3/3 paragraphs, 2/8 branches
     assert p["coverage"]["source"] == "local sweep coverage line"
 
 
@@ -743,6 +756,12 @@ def survey_estate(tmp_path, monkeypatch, stored, now):
     monkeypatch.setattr(er, "OUT", tmp_path / "out")
     monkeypatch.setattr(er, "record_status", dict)
     monkeypatch.setattr(er, "det_coverage", dict)
+    # zecs is in no ledger, and these tests are about the translator's currency: the ledger readers answer "no entry"
+    # at once instead of re-reading and re-fingerprinting the real ledger for every program of every build (#5162)
+    import proof_blockers as pb
+
+    monkeypatch.setattr(pb, "ledger_linked", lambda *a, **k: {})
+    monkeypatch.setattr(pb, "ledger_coverage", lambda *a, **k: None)
     monkeypatch.setattr(er, "translator_now", lambda: {"sha256": now, "files": 3})
     monkeypatch.setattr(er, "translator_at", lambda sha: {"sha256": "OLD", "files": 3})
     measured = er.measure("zecs", rows, [tmp_path / "src"], survey, {})

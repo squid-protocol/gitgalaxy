@@ -87,7 +87,8 @@ RESOLUTION RULES (the language's, never the engine's)
               crate-relative. A path is the deepest module that is a file
               (a/b.rs, a/b/mod.rs under the crate dir), plus, for an item below it,
               what that module's own `use`s of the name and globs mean (re-exports,
-              two hops). `extern crate x` -> x's lib root.
+              two hops). `extern crate x` -> x's lib root. A `[[bin]] path` is a crate
+              root like src/main.rs (ripgrep's crates/core/main.rs).
   perl        `use A::B` / `require A::B` -> a file ending in A/B.pm.
   objective-c the C rule (`#import` is `#include` once); `@import Module;` is a
               framework module, external. `<Fw/X.h>` with no such path in the repo, where Fw is a
@@ -151,6 +152,12 @@ RESOLUTION RULES (the language's, never the engine's)
               function` are not module declarations; `submodule (p) s` declares no usable name.
               `include 'f'` / `#include "f"` are the file by path suffix. Comments
               blanked first (`!` to end of line; fixed-form `c`/`*` in column 1).
+
+  matlab      by PACKAGE and NAME, never by path: `+a/+b/C.m` is `a.b.C` (a class or package function),
+              `@C/C.m` is class C. `import a.b.C` is that file (`import C.m` a member: the owner's
+              file); `import a.b.*` names a package: contract C7, no edge, unless a.b is a class (its
+              static members: the class file). Several arguments on one line are each scored.
+              `%` and `%{ %}` comments blanked. matlab.* / java.* / org.* match no file: external.
 
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
@@ -232,6 +239,7 @@ LANGS = (
     "tcl",
     "groovy",
     "fortran",
+    "matlab",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -728,7 +736,7 @@ def _cargo(group: Group, d: str) -> dict[str, Any] | None:
     out: dict[str, Any] | None = None
     path = (group.root / d / "Cargo.toml") if group.root is not None else None
     if path is not None and path.is_file():
-        out = {"package": None, "edition": False, "lib": "src/lib.rs", "deps": {}, "ws_deps": {}, "inherit": set()}
+        out = {"package": None, "edition": False, "lib": "src/lib.rs", "deps": {}, "ws_deps": {}, "inherit": set(), "bins": []}
         section = ""
         try:
             text = read_source(path).text
@@ -744,6 +752,8 @@ def _cargo(group: Group, d: str) -> dict[str, Any] | None:
                 out["package"] = kv.group(2)
             if section == "package" and line.strip().startswith("edition"):
                 out["edition"] = True
+            if section == "bin" and kv and kv.group(1) == "path":
+                out["bins"].append(posixpath.normpath(posixpath.join(d, kv.group(2))))
             if section == "lib" and kv and kv.group(1) in ("name", "path"):
                 out["lib_" + kv.group(1)] = kv.group(2)
             dep = _CARGO_DEP_PATH.match(line)
@@ -798,10 +808,11 @@ def _rust_crate(rel: str, group: Group) -> tuple[str, str | None]:
             return join(parts[0], parts[1]), join(parts[0], parts[1], "main.rs")
         return join(parts[0]), None
     lib = join(_cargo(group, pkg)["lib"])
-    for root in (lib, join("src", "main.rs"), join("build.rs")):
+    bins = _cargo(group, pkg)["bins"]
+    for root in (lib, join("src", "main.rs"), join("build.rs"), *bins):
         if root == rel:
             return d, rel
-    for root in (lib, join("src", "main.rs")):
+    for root in (lib, join("src", "main.rs"), *bins):
         rd = posixpath.dirname(root)
         if root in group.files and (not rd or rel.startswith(rd + "/")):
             return rd, root
@@ -1808,6 +1819,69 @@ def fortran_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return [t for _, t in sorted(out, key=lambda x: x[0])]
 
 
+_ML_IMPORT = re.compile(r"^[ \t]*import[ \t]+([A-Za-z_][^\n;%]*)", re.MULTILINE)
+
+
+def _ml_mask(text: str) -> str:
+    """`%{ ... %}` block comments and `%` line comments blanked (newlines kept)."""
+    text = re.sub(
+        r"^[ \t]*%\{[ \t]*\n.*?^[ \t]*%\}[ \t]*$", lambda m: re.sub(r"[^\n]", " ", m.group(0)), text, flags=re.M | re.S
+    )
+    return re.sub(r"%[^\n]*", lambda m: " " * len(m.group(0)), text)
+
+
+def _ml_index(group: Group) -> dict[tuple[str, ...], set[str]]:
+    """qualified name -> files: `+a/+b/C.m` is (a, b, C); `@C/C.m` is C's class file (a method file
+    `@C/m.m` and a `private/` helper name nothing importable)."""
+    if "ml" not in group._cache:
+        index: dict[tuple[str, ...], set[str]] = collections.defaultdict(set)
+        for f in sorted(group.files):
+            if not f.endswith(".m"):
+                continue
+            dirs, stem = f.split("/")[:-1], posixpath.basename(f)[:-2]
+            if dirs and dirs[-1] == "private":
+                continue
+            if dirs and dirs[-1].startswith("@"):
+                if dirs[-1][1:] != stem:
+                    continue
+                dirs = dirs[:-1]
+            pkg: list[str] = []
+            for d in reversed(dirs):
+                if not d.startswith("+"):
+                    break
+                pkg.insert(0, d[1:])
+            index[(*pkg, stem)].add(f)
+        group._cache["ml"] = index
+    return group._cache["ml"]
+
+
+def matlab_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _ml_index(group)
+    out = []
+    for m in _ML_IMPORT.finditer(_ml_mask(decode_bytes(src))):
+        for arg in m.group(1).split():
+            if arg == "...":
+                break
+            parts = arg.split(".")
+            wildcard = parts[-1] == "*"
+            if wildcard:
+                parts = parts[:-1]
+            if not parts or not all(parts):
+                continue
+            if wildcard:
+                # `import a.b.*` names a package (contract C7: no file, no edge) unless a.b is a
+                # class, whose static members it imports: the class file
+                out.append(set(index.get(tuple(parts), ())))
+                continue
+            # `import a.b.C` is a class or package function; `import C.m` a member: the owner's file
+            out.append(
+                next(
+                    (set(index[tuple(parts[:k])]) for k in range(len(parts), 0, -1) if tuple(parts[:k]) in index), set()
+                )
+            )
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -1835,6 +1909,7 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "tcl": tcl_imports,
     "groovy": groovy_imports,
     "fortran": fortran_imports,
+    "matlab": matlab_imports,
 }
 
 

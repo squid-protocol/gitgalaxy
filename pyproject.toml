@@ -150,6 +150,9 @@ exclude = [
 line-length = 120
 target-version = "py311"
 
+[tool.mypy]
+python_version = "3.11"
+
 [tool.ruff.lint]
 # Deliberately scoped, not `ALL` -- see #469 for the measured rationale behind
 # each inclusion/exclusion. In short: BLE/TRY were excluded because they

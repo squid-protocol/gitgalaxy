@@ -266,12 +266,10 @@ def test_clang_callgraph_resolves_c_calls_across_translation_units(tmp_path):
         "  return SQ(n) + VIA(n) + twice(n);\n"
         "}\n"
     )
-    (tmp_path / "win").mkdir()
-    (tmp_path / "win" / "w.c").write_text("#include <windows.h>\nint w(void) { return 1; }\n")
     g = clang_callgraph.build(tmp_path)
     run, twice, helper = ["main.c", "run", 5], ["util.h", "twice", 2], ["util.c", "helper", 3]
     hidden, neg = ["util.c", "hidden", 2], ["other.c", "neg", 2]
-    # the prototype `int helper(int x);` is no def; `win/` is not parsed; each static `hidden` is its own def
+    # the prototype `int helper(int x);` is no def; each static `hidden` is its own def
     assert sorted(g["defs"]) == sorted([run, twice, helper, hidden, ["other.c", "hidden", 1], neg])
     # cross-file: run -> twice (a header function) and -> helper (via the macro, and twice -> helper through the
     # prototype); a static callee is its own translation unit's definition, not the other file's `hidden`
@@ -287,6 +285,165 @@ def test_clang_callgraph_resolves_c_calls_across_translation_units(tmp_path):
     # strlen resolves only in a system header; the call through `fp` names no function
     assert g["external"] == [[run, "strlen"]]
     assert g["files"] == 3
+
+
+def test_clang_callgraph_links_windows_sources_as_their_own_group(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "unix").mkdir()
+    (tmp_path / "win").mkdir()
+    (tmp_path / "common.c").write_text("int shared(void) { return 1; }\nint both(void) { return 2; }\n")  # 1, 2
+    (tmp_path / "unix" / "u.c").write_text(
+        "int shared(void);\nint both(void);\nint u_only(void) { return 3; }\n"  # 3
+        "int uv_x(void) { return u_only() + both() + shared(); }\n"  # 4
+    )
+    # the Windows copy of `both` and `uv_x`; windows.h is not on this host, so `Sleep` is an implicit declaration: external, never an edge
+    (tmp_path / "win" / "w.c").write_text(
+        "#include <windows.h>\n"
+        "int both(void) { return 4; }\n"  # 2
+        "int uv_x(void) {\n"  # 3
+        "  Sleep(1);\n"
+        "  return both() + shared();\n"  # 5
+        "}\n"
+    )
+    (tmp_path / "main-win.c").write_text(
+        "int uv_x(void);\n#ifdef _WIN32\nint main_win(void) { return uv_x(); }\n#endif\n"
+    )
+    (tmp_path / "plain.c").write_text("int uv_x(void);\nint plain(void) { return uv_x(); }\n")
+    g = clang_callgraph.build(tmp_path)
+    shared, both_c, both_w = ["common.c", "shared", 1], ["common.c", "both", 2], ["win/w.c", "both", 2]
+    ux_u, ux_w, main_win, plain = (
+        ["unix/u.c", "uv_x", 4],
+        ["win/w.c", "uv_x", 3],
+        ["main-win.c", "main_win", 3],
+        ["plain.c", "plain", 2],
+    )
+    # `-D_WIN32` keeps the `#ifdef _WIN32` body of main-win.c
+    assert main_win in g["defs"] and ux_w in g["defs"]
+    edges = {(tuple(a), tuple(b)) for a, b, _ in g["edges"]}
+    # a Windows caller takes the Windows `both` and falls back to the shared `shared`; it never reaches unix/
+    assert (tuple(ux_w), tuple(both_w)) in edges and (tuple(ux_w), tuple(shared)) in edges
+    assert (tuple(ux_w), tuple(both_c)) not in edges
+    # a Unix caller never links to a Windows definition
+    assert (tuple(ux_u), tuple(both_c)) in edges and (tuple(ux_u), tuple(both_w)) not in edges
+    # a Windows-file caller of `uv_x` links the Windows definition only; a shared-file caller links the Unix one only
+    assert (tuple(main_win), tuple(ux_w)) in edges and (tuple(main_win), tuple(ux_u)) not in edges
+    assert (tuple(plain), tuple(ux_u)) in edges and (tuple(plain), tuple(ux_w)) not in edges
+    assert g["external"] == [[ux_w, "Sleep"]]
+
+
+def test_clang_callgraph_parses_a_file_naming_a_platform_macro_once_more_per_platform(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "unix").mkdir()
+    # one file, three configurations: Linux (the base parse), `__APPLE__`, `_AIX`, and an unnamed platform
+    (tmp_path / "unix" / "plat.c").write_text(
+        "int helper(void) { return 1; }\n"  # 1
+        "#if defined(__APPLE__)\n"
+        "int apple_only(void) { return helper(); }\n"  # 3
+        "#elif defined(_AIX)\n"
+        "int aix_only(void) { return helper(); }\n"  # 5
+        "#elif defined(__sun)\n"
+        "int sun_only(void) { return 1; }\n"  # 7
+        "#else\n"
+        "int linux_only(void) { return helper(); }\n"  # 9
+        "#endif\n"
+        "#if defined(__APPLE__) || defined(_AIX)\n"
+        "int fallback(void) { return 1; }\n"  # 12
+        "#else\n"
+        "int fallback(void) { return 2; }\n"  # 14
+        "#endif\n"
+    )
+    (tmp_path / "user.c").write_text(
+        "int apple_only(void);\nint fallback(void);\nint user(void) { return apple_only() + fallback(); }\n"  # 3
+    )
+    # a file that names no platform macro is parsed once, as Linux
+    (tmp_path / "plain.c").write_text("int linux_only(void);\nint plain(void) { return linux_only(); }\n")
+    g = clang_callgraph.build(tmp_path)
+    plat = "unix/plat.c"
+    defs = {tuple(d) for d in g["defs"]}
+    assert {(plat, n, ln) for n, ln in (("apple_only", 3), ("aix_only", 5), ("sun_only", 7), ("linux_only", 9))} <= defs
+    edges = {(tuple(a), tuple(b)) for a, b, _ in g["edges"]}
+    helper = (plat, "helper", 1)
+    # each platform's caller links the shared helper from its own configuration
+    for name, line in (("apple_only", 3), ("aix_only", 5), ("linux_only", 9)):
+        assert ((plat, name, line), helper) in edges
+    # a Linux caller never links a def only another platform has (a repo function all the same, not external), but
+    # reaches every `#if` variant of one function (one unit to the engine)
+    user = ("user.c", "user", 3)
+    assert (user, (plat, "apple_only", 3)) not in edges
+    assert (user, (plat, "fallback", 12)) in edges and (user, (plat, "fallback", 14)) in edges
+    assert (("plain.c", "plain", 2), (plat, "linux_only", 9)) in edges
+    assert g["external"] == []
+
+
+def test_clang_callgraph_parses_freebsd_qnx_and_mvs_branches_as_platform_groups(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "unix").mkdir()
+    (tmp_path / "unix" / "bsd.c").write_text(
+        "int helper(void) { return 1; }\n"  # 1
+        "#if defined(__FreeBSD__)\n"
+        "int bsd_only(void) { return helper(); }\n"  # 3
+        "#elif defined(__QNX__)\n"
+        "int qnx_only(void) { return helper(); }\n"  # 5
+        "#elif defined(__MVS__)\n"
+        "int mvs_only(void) { return helper(); }\n"  # 7
+        "#else\n"
+        "int linux_only(void) { return helper(); }\n"  # 9
+        "#endif\n"
+    )
+    (tmp_path / "user.c").write_text(
+        "int bsd_only(void);\nint linux_only(void);\nint user(void) { return linux_only(); }\n"
+    )
+    g = clang_callgraph.build(tmp_path)
+    plat = "unix/bsd.c"
+    defs = {tuple(d) for d in g["defs"]}
+    assert {(plat, n, ln) for n, ln in (("bsd_only", 3), ("qnx_only", 5), ("mvs_only", 7), ("linux_only", 9))} <= defs
+    edges = {(tuple(a), tuple(b)) for a, b, _ in g["edges"]}
+    for name, line in (("bsd_only", 3), ("qnx_only", 5), ("mvs_only", 7)):
+        assert ((plat, name, line), (plat, "helper", 1)) in edges
+    # a Linux caller links the Linux def and never another platform's
+    assert (("user.c", "user", 3), (plat, "linux_only", 9)) in edges
+    assert not any(b[1] == "bsd_only" for _, b in edges if _[0] == "user.c")
+
+
+def test_clang_callgraph_names_a_one_argument_macro_def_as_the_engine_does(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "task.h").write_text(
+        "#define TEST_IMPL(name) int run_test_##name(void); int run_test_##name(void)\n"
+        "#define HELPER_IMPL(name) int run_helper_##name(void); int run_helper_##name(void)\n"
+        "int shared(void);\n"
+    )
+    (tmp_path / "t.c").write_text(
+        '#include "task.h"\n'
+        "int shared(void) { return 1; }\n"  # 2
+        "TEST_IMPL(kill) {\n"  # 3
+        "  return shared();\n"
+        "}\n"
+        "HELPER_IMPL(kill_helper) {\n"  # 6
+        "  return 0;\n"
+        "}\n"
+        "int run_plain(void) { return shared(); }\n"  # 9
+    )
+    g = clang_callgraph.build(tmp_path)
+    # the engine names `TEST_IMPL(kill)` `kill`, not the `run_test_kill` the macro declares; a plain def is unchanged
+    assert sorted(g["defs"]) == [
+        ["t.c", "kill", 3],
+        ["t.c", "kill_helper", 6],
+        ["t.c", "run_plain", 9],
+        ["t.c", "shared", 2],
+    ]
+    assert [["t.c", "kill", 3], ["t.c", "shared", 2], 4] in g["edges"]
 
 
 def test_clang_callgraph_resolves_cpp_calls_by_usr_with_engine_names(tmp_path):

@@ -102,6 +102,7 @@ import cobol_coverage as cov  # noqa: E402 -- #4023
 import equivalence_common
 import equivalence_db2
 import equivalence_ims
+import le_out_size
 import equivalence_mvs
 import equivalence_oracle
 import equivalence_sql
@@ -388,6 +389,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     if ims and fault is not None and dli_fault_plan(fault_plan(fault)):  # #5857: the DL/I statuses the fault run plans
         (work / "dli.faults").write_text(dli_fault_plan(fault_plan(fault)), encoding="ascii")
         sqlenv += "GGDLI_FAULTS=/work/dli.faults GGDLI_FAULTS_LOG=/work/FAULTS "
+    sqlenv += le_out_size.env(program)  # #5003: the output item's size, which the LE date models cannot see
     sqlenv += f"GGMVS_STEP='{case['mvs_step']}' " if case.get("mvs_step") is not None else ""
     if db2:  # #4173: each statement the step runs traced; a fault run's SQL faults, those that fire logged
         # #4507: and what Db2 answered each one (equivalence_db2.cobol_outcomes)
@@ -462,10 +464,9 @@ def cobol_coverage(case: dict[str, Any], corpus: Path, traces: list[Path], out: 
     source, staged = read_program(case, corpus / case["program_source"])
     program, _flags = compile_options(case, source)
     staged_file = traces[0].parent / "src" / "PROGRAM.cbl" if traces else None
-    rewritten = bool(case.get("db2")) or (bool(case.get("ims")) and equivalence_ims.bmp_using(source) is not None)
-    if (
-        rewritten and staged_file is not None and staged_file.is_file()
-    ):  # what ran: the precompiled / BMP-rewritten text
+    # what ran is the staged text: the Db2 precompile, the BMP rewrite and the PSA -> TCB -> TIOT lowering (#5856, A2)
+    # each move or replace lines, and the trace names the staged text's lines (#6072)
+    if staged_file is not None and staged_file.is_file():
         program = staged_file.read_text(encoding=staged)
     return cov.write_run_coverage(out, source=corpus / case["program_source"], original=source, compiled=program,
                                   traces=[t for t in traces if t.is_file()], compiled_name="PROGRAM.cbl",

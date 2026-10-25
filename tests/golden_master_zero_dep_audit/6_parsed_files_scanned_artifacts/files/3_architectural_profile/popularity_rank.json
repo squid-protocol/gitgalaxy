@@ -1166,7 +1166,7 @@
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 3,
       "csharp/roslyn/CSharpSyntaxTree.cs": 3,
-      "csharp/roslyn/DiagnosticAnalyzer.cs": 3,
+      "csharp/roslyn/DiagnosticAnalyzer.cs": 2,
       "csharp/roslyn/LanguageParser.cs": 3,
       "csharp/roslyn/License.txt": 0,
       "csharp/roslyn/MethodCompiler.cs": 1,

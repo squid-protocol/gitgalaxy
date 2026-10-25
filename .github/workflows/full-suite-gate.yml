@@ -79,7 +79,7 @@ jobs:
   # #5919, #5156: the legs (parts, `even`, timeout, step_timeout) come from the measured durations
   # (suite_shard_plan.py --gate over the committed .test_durations), not from YAML: the suite grows every day. Every
   # trigger runs the same grid (since 3.10 was dropped, #3322, the trimmed and untrimmed grids were equal), so
-  # `full_matrix` only documents intent. The queue depth is read on a pull request or manual run only (empty = calm).
+  # `full_matrix=true` only keeps the ubuntu / 3.12 leg on a main dispatch. The queue depth is read on a pull request or manual run only (empty = calm).
   # A plan that fails (no durations) fails this job, so no leg starts.
   matrix:
     runs-on: ubuntu-latest
@@ -108,14 +108,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          FULL_MATRIX: ${{ inputs.full_matrix }}
         run: |
           waiting=""
           if [ "$GITHUB_EVENT_NAME" != "push" ] && [ "$GITHUB_EVENT_NAME" != "schedule" ]; then waiting=$(python3 tests/tools/ci_layout.py --print-waiting || true); fi
           python3 tests/tools/suite_shard_plan.py --gate ${waiting:+--waiting "$waiting"} | tee plan.out
           include=$(sed -n 's/^matrix=//p' plan.out)
-          # #5953: the nightly smoke-test.yml run (04:23) is the same suite on ubuntu / 3.12 (the gate leg only adds
-          # test_evidence_components, which mainframe-ground-truth.yml runs), so the nightly grid drops that leg
-          if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+          # #5953: smoke-test.yml runs the same suite on ubuntu / 3.12 nightly and on every main push (the gate leg only adds
+          # test_evidence_components, run by mainframe-ground-truth.yml): the nightly and post-merge (main) dispatch drop that leg
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ] || { [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$GITHUB_REF" = "refs/heads/main" ] && [ "$FULL_MATRIX" != "true" ]; }; then
             include=$(echo "$include" | jq -c 'map(select(.os != "ubuntu-latest" or .["python-version"] != "3.12"))')
           fi
           echo "include=$include" >> "$GITHUB_OUTPUT"

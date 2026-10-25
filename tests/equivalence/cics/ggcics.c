@@ -745,13 +745,6 @@ int GGCCONV(gg_cics *c, char *from, int fromlen, char *into) {
  * that program now sees it (`len` -1: the LINK had none). */
 static void return_event(const char *transid, char *commarea, int len);
 
-int GGCRETN(gg_cics *c, char *commarea, int len) {
-    char transid[9];
-    trim(c->name1, 8, transid);
-    return_event(transid, commarea, len);
-    return 0;
-}
-
 /* XCTL PROGRAM(name1) [COMMAREA LENGTH: GG-ITEM 1] (IBM, EXEC CICS XCTL): the program ends and
  * the target runs at the same level, with a copy of LENGTH bytes from the named area -- all of
  * them, even past the end of the item (#4008). It fails, and control stays in the issuing
@@ -821,6 +814,26 @@ static void return_event(const char *transid, char *commarea, int len) {
         snprintf(ev, sizeof ev, "RETURN level=%d transid= len=%d", lvl + 1, L->link_area ? L->link_len : -1);
         event(ev, L->link_area, L->link_area ? L->link_len : 0);
     }
+}
+
+/* #6271 (X71): a plain RETURN TRANSID the program tests (GG-ITEM 2: it codes RESP) can fail on a planned INVREQ (1, 2, 4,
+ * 200) / LENGERR (11, 26, 27) at the highest level; the task goes on and nothing is passed to the next one. A plain RETURN
+ * that codes no RESP never consults the plan (its failure would be an abend IBM does not describe: not planned). */
+int GGCRETN(gg_cics *c, char *commarea, int len) {
+    char transid[9], ev[128];
+    int fresp, fresp2;
+    trim(c->name1, 8, transid);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (c->item == 2 && lvl == 0 && injected("RETURN", "-", &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        snprintf(ev, sizeof ev, "RETURN level=1 transid=%s resp=%d resp2=%d", transid, c->resp, c->resp2);
+        event(ev, NULL, 0);
+        return 0;
+    }
+    return_event(transid, commarea, len);
+    return 0;
 }
 
 /* RETURN TRANSID(name1) [COMMAREA LENGTH: GG-ITEM 1] IMMEDIATE (#4270, register X27; IBM, EXEC CICS RETURN): the next task

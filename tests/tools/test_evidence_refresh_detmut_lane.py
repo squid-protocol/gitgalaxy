@@ -60,3 +60,21 @@ def test_a_failed_ledger_job_blocks_auto_merge(jobs):
 def test_the_artifact_step_takes_only_ledger_json(jobs):
     step = next(s for s in jobs["refresh"]["steps"] if s.get("name", "").startswith("Put the renewed det mutation"))
     assert "! -name '*.json'" in step["run"] and "-type l" in step["run"]
+
+
+def test_the_blocker_feed_failure_fails_the_run_after_the_records_are_kept(jobs):
+    """#5054: a leak (or a leak scan that did not run) must turn the run red, but only at the last step."""
+    steps = jobs["refresh"]["steps"]
+    feed = next(s for s in steps if s.get("id") == "feed")
+    assert feed.get("continue-on-error") is True and "--require-sources" in feed["run"]
+    final = next(s for s in steps if s.get("name") == "Fail when a re-proof failed")
+    assert "steps.feed.outcome == 'failure'" in final["if"]
+    assert steps.index(final) > steps.index(feed)
+
+
+def test_the_survey_includes_the_cics_crucible_clone(jobs):
+    steps = jobs["refresh"]["steps"]
+    survey = next(s for s in steps if s.get("id") == "survey")
+    assert '--crucible "$GITHUB_WORKSPACE/cics-crucible"' in survey["run"]
+    feed = next(s for s in steps if s.get("id") == "feed")
+    assert '--extra-root "$GITHUB_WORKSPACE/cics-crucible"' in feed["run"]

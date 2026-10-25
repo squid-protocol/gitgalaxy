@@ -12,12 +12,12 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 
 ## All reported estates
 
-- Programs: 57; at E0 0, E1 5, E2 31, E3 21, E4 0; executed equivalent or above (E2+): 52/57 (91.2%).
-- Coverage over the programs with a record: paragraphs 567/574 (98.8%), branch outcomes 1664/1807 (92.1%).
+- Programs: 57; at E0 0, E1 7, E2 29, E3 21, E4 0; executed equivalent or above (E2+): 50/57 (87.7%).
+- Coverage over the programs with a record: paragraphs 569/574 (99.1%), branch outcomes 1686/1807 (93.3%).
 - Mutation: 52 program(s) measured, killed 2874/4212 (68.2%) raw (adjusted for equivalent / unreachable survivors: 2874/3340 (86.0%)); survivors case_gap 274, harness_gap 191, equivalent 516, unreachable 356, untriaged 0; open survivors 465.
 - Holes (stub / ported_unproven methods): 4. Declared differences: 13.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 52).
-- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 57 of 57 programs measured): 11945 (15542 code lines in all); in programs at E2+ 10057/11945 (84.2%), E3+ 862/11945 (7.2%), E4 0/11945 (0.0%); paragraph coverage weighted by lines 11775/11945 (98.6%).
+- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 57 of 57 programs measured): 11945 (15542 code lines in all); in programs at E2+ 9494/11945 (79.5%), E3+ 862/11945 (7.2%), E4 0/11945 (0.0%); paragraph coverage weighted by lines 11848/11945 (99.2%).
 
 ## aws-mainframe-modernization-carddemo
 
@@ -108,18 +108,18 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 
 ## cics-genapp
 
-- Programs: 6; at E0 0, E1 0, E2 6, E3 0, E4 0; executed equivalent or above (E2+): 6/6 (100.0%).
-- Coverage over the programs with a record: paragraphs 24/27 (88.9%), branch outcomes 58/105 (55.2%).
+- Programs: 6; at E0 0, E1 2, E2 4, E3 0, E4 0; executed equivalent or above (E2+): 4/6 (66.7%).
+- Coverage over the programs with a record: paragraphs 26/27 (96.3%), branch outcomes 80/105 (76.2%).
 - Mutation: 6 program(s) measured, killed 340/729 (46.6%) raw (adjusted for equivalent / unreachable survivors: 340/638 (53.3%)); survivors case_gap 121, harness_gap 177, equivalent 20, unreachable 71, untriaged 0; open survivors 298.
 - Holes (stub / ported_unproven methods): 0. Declared differences: 12.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 6).
-- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 6 of 6 programs measured): 881 (1266 code lines in all); in programs at E2+ 881/881 (100.0%), E3+ 0/881 (0.0%), E4 0/881 (0.0%); paragraph coverage weighted by lines 785/881 (89.1%).
+- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 6 of 6 programs measured): 881 (1266 code lines in all); in programs at E2+ 318/881 (36.1%), E3+ 0/881 (0.0%), E4 0/881 (0.0%); paragraph coverage weighted by lines 858/881 (97.4%).
 
 | program | case | lines | level | proof | oracle | coverage (para / branch) | mutation | differences | approval | what stops the next level |
 |---|---|---|---|---|---|---|---|---|---|---|
-| LGAPDB01 | genapp-lgapdb01 | 326 | E2 | 6 runs / 0 fault | gnucobol-models | 6/7 / 18/31 | 58/137, open 71 | 2 | - | coverage short: 6/7 paragraphs, 18/31 branch outcomes |
+| LGAPDB01 | genapp-lgapdb01 | 326 | E1 | 8 runs / 1 fault | gnucobol-models | 7/7 / 23/31 | 58/137, open 71 | 2 | - | the proof did not compare equal on every scenario |
 | LGAPVS01 | genapp-lgapvs01 | 79 | E2 | 13 runs / 4 fault | gnucobol-models | 3/3 / 8/9 | 72/125, open 41 | 2 | - | coverage short: 3/3 paragraphs, 8/9 branch outcomes |
 | LGICDB01 | genapp-lgicdb01 | 93 | E2 | 12 runs / 0 fault | gnucobol-models | 3/4 / 4/12 | 51/130, open 56 | 2 | - | coverage short: 3/4 paragraphs, 4/12 branch outcomes |
-| LGSTSQ | genapp-lgstsq | 53 | E2 | 7 runs / 0 fault | gnucobol-models | 1/1 / 3/6 | 25/78, open 44 | 2 | - | coverage short: 1/1 paragraphs, 3/6 branch outcomes |
-| LGUPDB01 | genapp-lgupdb01 | 237 | E2 | 5 runs / 0 fault | gnucobol-models | 8/9 / 17/38 | 68/140, open 52 | 2 | - | coverage short: 8/9 paragraphs, 17/38 branch outcomes |
+| LGSTSQ | genapp-lgstsq | 53 | E2 | 8 runs / 0 fault | gnucobol-models | 1/1 / 4/6 | 25/78, open 44 | 2 | - | coverage short: 1/1 paragraphs, 4/6 branch outcomes |
+| LGUPDB01 | genapp-lgupdb01 | 237 | E1 | 15 runs / 5 fault | gnucobol-models | 9/9 / 33/38 | 68/140, open 52 | 2 | - | the proof did not compare equal on every scenario |
 | LGUPVS01 | genapp-lgupvs01 | 93 | E2 | 12 runs / 5 fault | gnucobol-models | 3/3 / 8/9 | 66/119, open 34 | 2 | - | coverage short: 3/3 paragraphs, 8/9 branch outcomes |

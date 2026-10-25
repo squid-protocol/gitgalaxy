@@ -327,19 +327,19 @@
    "carddemo-cotrtlic": [
     59,
     59,
-    200,
+    216,
     230
    ],
    "carddemo-cotrtlic-generated": [
     53,
     59,
-    139,
+    156,
     230
    ],
    "carddemo-cotrtupc": [
     63,
     63,
-    139,
+    140,
     166
    ],
    "carddemo-dailyval": [
@@ -909,7 +909,7 @@
    "genapp-lgapvs01": [
     3,
     3,
-    5,
+    7,
     9
    ],
    "genapp-lgastat1": [
@@ -933,19 +933,19 @@
    "genapp-lgdpol01": [
     3,
     3,
-    8,
+    9,
     12
    ],
    "genapp-lgdpol01-generated": [
     3,
     3,
-    8,
+    9,
     12
    ],
    "genapp-lgdpvs01": [
     3,
     3,
-    0,
+    3,
     4
    ],
    "genapp-lgicdb01": [
@@ -1020,12 +1020,7 @@
     4,
     6
    ],
-   "genapp-lgsetup": [
-    1,
-    1,
-    2,
-    2
-   ],
+   "genapp-lgsetup": null,
    "genapp-lgstsq": [
     1,
     1,
@@ -1033,33 +1028,33 @@
     6
    ],
    "genapp-lgtestc1": [
-    9,
     10,
-    16,
+    10,
+    18,
     18
    ],
    "genapp-lgtestp1": [
-    7,
     10,
-    14,
+    10,
+    19,
     19
    ],
    "genapp-lgtestp2": [
-    7,
     10,
-    14,
+    10,
+    19,
     19
    ],
    "genapp-lgtestp3": [
-    7,
     10,
-    14,
+    10,
+    19,
     19
    ],
    "genapp-lgtestp4": [
-    7,
     9,
-    18,
+    9,
+    22,
     22
    ],
    "genapp-lgucdb01": [
@@ -1119,7 +1114,7 @@
    "genapp-lgupvs01": [
     3,
     3,
-    5,
+    7,
     9
    ],
    "genapp-lgwebst5": [
@@ -2291,11 +2286,11 @@
   },
   "survey": {
    "label": "before",
-   "scope": "burned + local corpora (no census)",
-   "sha": "0b45a4736a1cf1b85445760e6e5b49837411d24f",
+   "scope": "burned + local corpora (no census) + cics-crucible",
+   "sha": "1781eb33a3ee08dc313e26e2542c0f68faef5e54",
    "translator": {
     "files": 145,
-    "sha256": "40ff1c3ce4f4e0f95f2a82f6350d45d0abf5cef54b753a9b4e8705165e95c810"
+    "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
    }
   },
   "sweeps": {}
@@ -2578,7 +2573,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:f78eb55cabe7a991b1bb2fb88925c3e9a1fd510640240111c41016bb2805aead",
+       "oracle_image": "sha256:1ac42543ec226c6bda71f2e067737dacfd9b8a47705148f29a6d9896cd8f2e9b",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -2620,7 +2615,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:f78eb55cabe7a991b1bb2fb88925c3e9a1fd510640240111c41016bb2805aead",
+      "oracle_image": "sha256:1ac42543ec226c6bda71f2e067737dacfd9b8a47705148f29a6d9896cd8f2e9b",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -3142,7 +3137,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:f78eb55cabe7a991b1bb2fb88925c3e9a1fd510640240111c41016bb2805aead",
+       "oracle_image": "sha256:1ac42543ec226c6bda71f2e067737dacfd9b8a47705148f29a6d9896cd8f2e9b",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -4548,6 +4543,874 @@
     "source_defects": [],
     "statements": 58,
     "translated": 58,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
+      "id": "X3",
+      "status": "MATCHED"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+      "id": "X20",
+      "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "EXEC CICS HANDLE ABEND PROGRAM(name) names a program that gets control when the task abends. The det translator honours LABEL, CANCEL and RESET and refuses PROGRAM by name with this entry; the cobol-stub refuses it too (equivalence_cics.Unsupported), so the two sides agree",
+      "id": "X67",
+      "status": "REFUSED"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 84.3,
+    "branches": {
+     "covered": 140,
+     "total": 166
+    },
+    "branches_net": {
+     "covered": 140,
+     "total": 140
+    },
+    "current": true,
+    "infeasible_netted": [
+     "0001-CHECK-PFKEYS:605:false",
+     "1200-EDIT-MAP-INPUTS:701:true",
+     "1200-EDIT-MAP-INPUTS:721:true",
+     "1205-COMPARE-OLD-NEW:799:false",
+     "1205-COMPARE-OLD-NEW:805:false",
+     "1230-EDIT-ALPHANUM-REQD:863:false",
+     "1230-EDIT-ALPHANUM-REQD:890:false",
+     "1245-EDIT-NUM-REQD:921:false",
+     "1245-EDIT-NUM-REQD:940:false",
+     "1245-EDIT-NUM-REQD:958:false",
+     "2000-DECIDE-ACTION:979:WHEN@1016",
+     "2000-DECIDE-ACTION:979:WHEN@1046",
+     "2000-DECIDE-ACTION:979:WHEN@1053",
+     "2000-DECIDE-ACTION:979:WHEN@1065",
+     "2000-DECIDE-ACTION:1024:false",
+     "2000-DECIDE-ACTION:1067:false",
+     "2000-DECIDE-ACTION:1067:true",
+     "3250-SETUP-INFOMSG:1213:WHEN@1243",
+     "3250-SETUP-INFOMSG:1213:none",
+     "3390-SETUP-INFOMSG-ATTRS:1387:true",
+     "9100-GET-TRANSACTION-TYPE:1492:false",
+     "9100-GET-TRANSACTION-TYPE:1498:false",
+     "9600-WRITE-PROCESSING:1563:false",
+     "9600-WRITE-PROCESSING:1580:WHEN@1583",
+     "9600-WRITE-PROCESSING:1580:WHEN@1585",
+     "ABEND-ROUTINE:1677:true"
+    ],
+    "infeasible_refuted": [],
+    "infeasible_stated": [
+     {
+      "family": "G",
+      "key": "0001-CHECK-PFKEYS:605:false",
+      "kind": "IF",
+      "line": 605,
+      "outcome": "false",
+      "reason": "IF WS-RETURN-MSG-OFF: WS-RETURN-MSG is set OFF (spaces) at 362 on every entry and nothing writes it before 0001-CHECK-PFKEYS runs, so the message is always OFF here and the false arm cannot be taken.",
+      "unit": "0001-CHECK-PFKEYS"
+     },
+     {
+      "family": "G",
+      "key": "1200-EDIT-MAP-INPUTS:701:true",
+      "kind": "IF",
+      "line": 701,
+      "outcome": "true",
+      "reason": "0000-MAIN (line 503) handles PFK05 with TTUP-DETAILS-NOT-FOUND first; PFK05 on any other state is rejected by 0001-CHECK-PFKEYS before this edit runs",
+      "unit": "1200-EDIT-MAP-INPUTS"
+     },
+     {
+      "family": "G",
+      "key": "1200-EDIT-MAP-INPUTS:721:true",
+      "kind": "IF",
+      "line": 721,
+      "outcome": "true",
+      "reason": "IF WS-RETURN-MSG-OFF after FLG-TRANFILTER-BLANK: the blank flag comes only from 1245-EDIT-NUM-REQD (via 1210), whose blank arm at 921 writes ' must be supplied.' into WS-RETURN-MSG when it is OFF, and it is the first writer on this path, so the message is never OFF at 721.",
+      "unit": "1200-EDIT-MAP-INPUTS"
+     },
+     {
+      "family": "G",
+      "key": "1205-COMPARE-OLD-NEW:799:false",
+      "kind": "IF",
+      "line": 799,
+      "outcome": "false",
+      "reason": "IF WS-RETURN-MSG-OFF: 1205 is reached only after 1210 passed with the type valid, and no passing edit writes WS-RETURN-MSG (NO-CHANGES-DETECTED at 800 is its first writer), so the message is always OFF here.",
+      "unit": "1205-COMPARE-OLD-NEW"
+     },
+     {
+      "family": "G",
+      "key": "1205-COMPARE-OLD-NEW:805:false",
+      "kind": "IF",
+      "line": 805,
+      "outcome": "false",
+      "reason": "IF WS-RETURN-MSG-OFF: same path as 799; nothing has written WS-RETURN-MSG before 1205, so the message is always OFF.",
+      "unit": "1205-COMPARE-OLD-NEW"
+     },
+     {
+      "family": "G",
+      "key": "1230-EDIT-ALPHANUM-REQD:863:false",
+      "kind": "IF",
+      "line": 863,
+      "outcome": "false",
+      "reason": "IF WS-RETURN-MSG-OFF in the blank arm: 1230 is reached (line 761) only when the type edit passed and 1205 left the message OFF (CHANGE-HAS-OCCURRED at 806 does not write it), and 1230 is the first writer, so the message is OFF.",
+      "unit": "1230-EDIT-ALPHANUM-REQD"
+     },
+     {
+      "family": "G",
+      "key": "1230-EDIT-ALPHANUM-REQD:890:false",
+      "kind": "IF",
+      "line": 890,
+      "outcome": "false",
+      "reason": "IF WS-RETURN-MSG-OFF in the not-ok arm: same path as 863, the first writer on it, message OFF.",
+      "unit": "1230-EDIT-ALPHANUM-REQD"
+     },
+     {
+      "family": "G",
+      "key": "1245-EDIT-NUM-REQD:921:false",
+      "kind": "IF",
+      "line": 921,
+      "outcome": "false",
+      "reason": "IF WS-RETURN-MSG-OFF in the blank arm: 1245 runs first on the edit path (from 1210), the message is OFF since 362 and nothing writes it before, so the false arm cannot be taken.",
+      "unit": "1245-EDIT-NUM-REQD"
+     },
+     {
+      "family": "G",
+      "key": "1245-EDIT-NUM-REQD:940:false",
+      "kind": "IF",
+      "line": 940,
+      "outcome": "false",
+      "reason": "IF WS-RETURN-MSG-OFF in the non-numeric arm: same as 921, first writer on its path.",
+      "unit": "1245-EDIT-NUM-REQD"
+     },
+     {
+      "family": "G",
+      "key": "1245-EDIT-NUM-REQD:958:false",
+      "kind": "IF",
+      "line": 958,
+      "outcome": "false",
+      "reason": "IF WS-RETURN-MSG-OFF in the zero arm: same as 921, first writer on its path.",
+      "unit": "1245-EDIT-NUM-REQD"
+     },
+     {
+      "family": "G",
+      "key": "2000-DECIDE-ACTION:979:WHEN@1016",
+      "kind": "EVALUATE",
+      "line": 979,
+      "outcome": "WHEN@1016",
+      "reason": "the earlier WHEN CCARD-AID-PFK12 arm (with the same TTUP-CONFIRM-DELETE state test) is taken first for every input that satisfies this WHEN, so this arm is subsumed",
+      "unit": "2000-DECIDE-ACTION"
+     },
+     {
+      "family": "G",
+      "key": "2000-DECIDE-ACTION:979:WHEN@1046",
+      "kind": "EVALUATE",
+      "line": 979,
+      "outcome": "WHEN@1046",
+      "reason": "TTUP-INVALID-SEARCH-KEYS is SET only at line 729 and is immediately followed by SET TTUP-DETAILS-NOT-FETCHED, so the state is never live when 2000-DECIDE-ACTION evaluates it",
+      "unit": "2000-DECIDE-ACTION"
+     },
+     {
+      "family": "G",
+      "key": "2000-DECIDE-ACTION:979:WHEN@1053",
+      "kind": "EVALUATE",
+      "line": 979,
+      "outcome": "WHEN@1053",
+      "reason": "an earlier branch in 0000-MAIN (line 503) handles PFK05 with TTUP-DETAILS-NOT-FOUND before 2000-DECIDE-ACTION is reached",
+      "unit": "2000-DECIDE-ACTION"
+     },
+     {
+      "family": "G",
+      "key": "2000-DECIDE-ACTION:979:WHEN@1065",
+      "kind": "EVALUATE",
+      "line": 979,
+      "outcome": "WHEN@1065",
+      "reason": "WHEN TTUP-CHANGES-OKAYED-AND-DONE: 0000-MAIN's first EVALUATE (line 410) resets a stored 'C' to TTUP-DETAILS-NOT-FETCHED before any path reaches 2000-DECIDE-ACTION, nothing in 1000-PROCESS-INPUTS sets 'C', and 9600 (which does, at 1588) goes straight to 3000-SEND-MAP, so the state is never 'C' when 2000 runs.",
+      "unit": "2000-DECIDE-ACTION"
+     },
+     {
+      "family": "G",
+      "key": "2000-DECIDE-ACTION:1024:false",
+      "kind": "IF",
+      "line": 1024,
+      "outcome": "false",
+      "reason": "IF INPUT-ERROR OR NO-CHANGES-DETECTED OR WS-INVALID-KEY (TTUP-SHOW-DETAILS arm): 2000-DECIDE-ACTION is reached with 'S' only through 1200, whose exits with 'S' kept are the no-change exit (1205 sets NO-CHANGES-DETECTED, since the message is always OFF there, see 799) or an input error; PF12 on 'S' takes the first WHEN, and a stale-key invalid key is sent before 1000 runs. No path reaches the else arm.",
+      "unit": "2000-DECIDE-ACTION"
+     },
+     {
+      "family": "G",
+      "key": "2000-DECIDE-ACTION:1067:false",
+      "kind": "IF",
+      "line": 1067,
+      "outcome": "false",
+      "reason": "IF CDEMO-FROM-TRANID blank, inside WHEN TTUP-CHANGES-OKAYED-AND-DONE (1065): that arm cannot be taken (see its entry), so neither arm of the test runs.",
+      "unit": "2000-DECIDE-ACTION"
+     },
+     {
+      "family": "G",
+      "key": "2000-DECIDE-ACTION:1067:true",
+      "kind": "IF",
+      "line": 1067,
+      "outcome": "true",
+      "reason": "IF CDEMO-FROM-TRANID blank, inside WHEN TTUP-CHANGES-OKAYED-AND-DONE (1065): that arm cannot be taken (see its entry), so neither arm of the test runs.",
+      "unit": "2000-DECIDE-ACTION"
+     },
+     {
+      "family": "G",
+      "key": "3250-SETUP-INFOMSG:1213:WHEN@1243",
+      "kind": "EVALUATE",
+      "line": 1213,
+      "outcome": "WHEN@1243",
+      "reason": "WHEN TTUP-CHANGES-OKAYED-BUT-FAILED in 3250-SETUP-INFOMSG: the state is SET only at 1584, under WHEN TABLE-UPDATE-FAILED (1583), which cannot be taken (see that entry); 2000-DECIDE-ACTION abends on a stored 'F' (WHEN OTHER) before 3000-SEND-MAP, so 3250 never sees it.",
+      "unit": "3250-SETUP-INFOMSG"
+     },
+     {
+      "family": "G",
+      "key": "3250-SETUP-INFOMSG:1213:none",
+      "kind": "EVALUATE",
+      "line": 1213,
+      "outcome": "none",
+      "reason": "the last WHEN is WS-NO-INFO-MESSAGE (WS-INFO-MSG blank), which is true for any message not matched by an earlier WHEN; WS-INFO-MSG is written only in this EVALUATE",
+      "unit": "3250-SETUP-INFOMSG"
+     },
+     {
+      "family": "G",
+      "key": "3390-SETUP-INFOMSG-ATTRS:1387:true",
+      "kind": "IF",
+      "line": 1387,
+      "outcome": "true",
+      "reason": "3390 runs only after 3250 has set a message, so WS-NO-INFO-MESSAGE is never true here",
+      "unit": "3390-SETUP-INFOMSG-ATTRS"
+     },
+     {
+      "family": "G",
+      "key": "9100-GET-TRANSACTION-TYPE:1492:false",
+      "kind": "IF",
+      "line": 1492,
+      "outcome": "false",
+      "reason": "WS-RETURN-MSG is set OFF at line 990 before 9000 runs, and nothing before this IF writes a message",
+      "unit": "9100-GET-TRANSACTION-TYPE"
+     },
+     {
+      "family": "G",
+      "key": "9100-GET-TRANSACTION-TYPE:1498:false",
+      "kind": "IF",
+      "line": 1498,
+      "outcome": "false",
+      "reason": "same as 1492: WS-RETURN-MSG is still OFF on every path reaching this IF",
+      "unit": "9100-GET-TRANSACTION-TYPE"
+     },
+     {
+      "family": "G",
+      "key": "9600-WRITE-PROCESSING:1563:false",
+      "kind": "IF",
+      "line": 1563,
+      "outcome": "false",
+      "reason": "WS-RETURN-MSG is OFF on the PF5 path into 9600, which clears it before the write",
+      "unit": "9600-WRITE-PROCESSING"
+     },
+     {
+      "family": "G",
+      "key": "9600-WRITE-PROCESSING:1580:WHEN@1583",
+      "kind": "EVALUATE",
+      "line": 1580,
+      "outcome": "WHEN@1583",
+      "reason": "WHEN TABLE-UPDATE-FAILED: the 88 is an 'Update of record failed' value of WS-RETURN-MSG, set at 1568 (and 1608 via 9700) and immediately overwritten by the STRING into WS-RETURN-MSG that starts 'Error updating:' / 'Error inserting record into:', with no statement between, so the field never equals the 88 value at 1580 and the arm cannot be taken.",
+      "unit": "9600-WRITE-PROCESSING"
+     },
+     {
+      "family": "G",
+      "key": "9600-WRITE-PROCESSING:1580:WHEN@1585",
+      "kind": "EVALUATE",
+      "line": 1580,
+      "outcome": "WHEN@1585",
+      "reason": "DATA-WAS-CHANGED-BEFORE-UPDATE is an 88 on WS-RETURN-MSG that no statement in COTRTUPC sets; its text appears only in the VALUE clause, so the WHEN cannot be true",
+      "unit": "9600-WRITE-PROCESSING"
+     },
+     {
+      "family": "C",
+      "key": "ABEND-ROUTINE:1677:true",
+      "kind": "IF",
+      "line": 1677,
+      "outcome": "true",
+      "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 19-20), a separate 01-level ABEND-DATA that no INITIALIZE of the program names, and the program writes it only at 1077-1078 (a non-blank literal) and 1678. It is never LOW-VALUES.",
+      "unit": "ABEND-ROUTINE"
+     }
+    ],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 63,
+     "live": 63
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "carddemo-cotrtupc",
+      "case_scenarios": 50,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "carddemo-cotrtupc",
+     "case_scenarios": 50,
+     "db2": true,
+     "det": {
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+   ],
+   "options": {
+    "assumed": 6,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 0,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "samples/proc/BLDCIDB2.prc:149",
+      "value": "YES"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "samples/proc/BLDCIDB2.prc:148",
+      "value": "CS"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.PARM",
+      "provenance": "found",
+      "source": "samples/proc/BLDCIDB2.prc:47",
+      "value": "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "samples/proc/BUILDONL.prc:40",
+      "value": "CICS"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "ABEND",
+     "crucible_cases": [
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "HANDLE ABEND",
+     "crucible_cases": [
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X67"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RECEIVE MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND TEXT",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X20"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "SYNCPOINT",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X3"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "XCTL",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X27",
+     "X31"
+    ],
+    "branch_outcomes_unrun": 26,
+    "commands": 8,
+    "commands_backed": 7,
+    "commands_not_backed": [
+     "SYNCPOINT"
+    ],
+    "facts_unstated": 0,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 436,
+    "translated": 436,
     "whole": true
    }
   },
@@ -16142,9 +17005,9 @@
    "level": "L4",
    "level_current": true,
    "mutation": {
-    "accounted": 0,
+    "accounted": 21,
     "current": false,
-    "det_port": "stale (port moved), last measured: raw 71% (107/150 caught; 150 of 2849 mutants, seed 0); 43 of 43 survivors unaccounted",
+    "det_port": "stale (port moved), last measured: raw 71% (107/150 caught; 150 of 2849 mutants, seed 0); 22 of 43 survivors unaccounted",
     "drifted": [
      "generator",
      "harness",
@@ -16157,10 +17020,10 @@
      "port"
     ],
     "survived": 43,
-    "unaccounted": 43
+    "unaccounted": 22
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 71% (107/150 caught; 150 of 2849 mutants, seed 0); 43 of 43 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 71% (107/150 caught; 150 of 2849 mutants, seed 0); 22 of 43 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -19575,14 +20438,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 89.7,
-    "branch_pct": 87.0,
+    "branch_net_pct": 96.9,
+    "branch_pct": 93.9,
     "branches": {
-     "covered": 200,
+     "covered": 216,
      "total": 230
     },
     "branches_net": {
-     "covered": 200,
+     "covered": 216,
      "total": 223
     },
     "current": true,
@@ -19718,7 +20581,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 87.0 raw, 89.7 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 93.9 raw, 96.9 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 6,
@@ -20164,7 +21027,7 @@
      "X27",
      "X31"
     ],
-    "branch_outcomes_unrun": 30,
+    "branch_outcomes_unrun": 14,
     "commands": 6,
     "commands_backed": 5,
     "commands_not_backed": [
@@ -20186,874 +21049,6 @@
     "source_defects": [],
     "statements": 632,
     "translated": 632,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
-    "facts_unstated": [],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept",
-      "id": "X3",
-      "status": "MATCHED"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
-      "id": "X20",
-      "status": "MATCHED (REFUSED where the region cannot decide)"
-     },
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
-      "id": "X31",
-      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
-     },
-     {
-      "area": "CICS",
-      "entry": "EXEC CICS HANDLE ABEND PROGRAM(name) names a program that gets control when the task abends. The det translator honours LABEL, CANCEL and RESET and refuses PROGRAM by name with this entry; the cobol-stub refuses it too (equivalence_cics.Unsupported), so the two sides agree",
-      "id": "X67",
-      "status": "REFUSED"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 99.3,
-    "branch_pct": 83.7,
-    "branches": {
-     "covered": 139,
-     "total": 166
-    },
-    "branches_net": {
-     "covered": 139,
-     "total": 140
-    },
-    "current": true,
-    "infeasible_netted": [
-     "0001-CHECK-PFKEYS:605:false",
-     "1200-EDIT-MAP-INPUTS:701:true",
-     "1200-EDIT-MAP-INPUTS:721:true",
-     "1205-COMPARE-OLD-NEW:799:false",
-     "1205-COMPARE-OLD-NEW:805:false",
-     "1230-EDIT-ALPHANUM-REQD:863:false",
-     "1230-EDIT-ALPHANUM-REQD:890:false",
-     "1245-EDIT-NUM-REQD:921:false",
-     "1245-EDIT-NUM-REQD:940:false",
-     "1245-EDIT-NUM-REQD:958:false",
-     "2000-DECIDE-ACTION:979:WHEN@1016",
-     "2000-DECIDE-ACTION:979:WHEN@1046",
-     "2000-DECIDE-ACTION:979:WHEN@1053",
-     "2000-DECIDE-ACTION:979:WHEN@1065",
-     "2000-DECIDE-ACTION:1024:false",
-     "2000-DECIDE-ACTION:1067:false",
-     "2000-DECIDE-ACTION:1067:true",
-     "3250-SETUP-INFOMSG:1213:WHEN@1243",
-     "3250-SETUP-INFOMSG:1213:none",
-     "3390-SETUP-INFOMSG-ATTRS:1387:true",
-     "9100-GET-TRANSACTION-TYPE:1492:false",
-     "9100-GET-TRANSACTION-TYPE:1498:false",
-     "9600-WRITE-PROCESSING:1563:false",
-     "9600-WRITE-PROCESSING:1580:WHEN@1583",
-     "9600-WRITE-PROCESSING:1580:WHEN@1585",
-     "ABEND-ROUTINE:1677:true"
-    ],
-    "infeasible_refuted": [],
-    "infeasible_stated": [
-     {
-      "family": "G",
-      "key": "0001-CHECK-PFKEYS:605:false",
-      "kind": "IF",
-      "line": 605,
-      "outcome": "false",
-      "reason": "IF WS-RETURN-MSG-OFF: WS-RETURN-MSG is set OFF (spaces) at 362 on every entry and nothing writes it before 0001-CHECK-PFKEYS runs, so the message is always OFF here and the false arm cannot be taken.",
-      "unit": "0001-CHECK-PFKEYS"
-     },
-     {
-      "family": "G",
-      "key": "1200-EDIT-MAP-INPUTS:701:true",
-      "kind": "IF",
-      "line": 701,
-      "outcome": "true",
-      "reason": "0000-MAIN (line 503) handles PFK05 with TTUP-DETAILS-NOT-FOUND first; PFK05 on any other state is rejected by 0001-CHECK-PFKEYS before this edit runs",
-      "unit": "1200-EDIT-MAP-INPUTS"
-     },
-     {
-      "family": "G",
-      "key": "1200-EDIT-MAP-INPUTS:721:true",
-      "kind": "IF",
-      "line": 721,
-      "outcome": "true",
-      "reason": "IF WS-RETURN-MSG-OFF after FLG-TRANFILTER-BLANK: the blank flag comes only from 1245-EDIT-NUM-REQD (via 1210), whose blank arm at 921 writes ' must be supplied.' into WS-RETURN-MSG when it is OFF, and it is the first writer on this path, so the message is never OFF at 721.",
-      "unit": "1200-EDIT-MAP-INPUTS"
-     },
-     {
-      "family": "G",
-      "key": "1205-COMPARE-OLD-NEW:799:false",
-      "kind": "IF",
-      "line": 799,
-      "outcome": "false",
-      "reason": "IF WS-RETURN-MSG-OFF: 1205 is reached only after 1210 passed with the type valid, and no passing edit writes WS-RETURN-MSG (NO-CHANGES-DETECTED at 800 is its first writer), so the message is always OFF here.",
-      "unit": "1205-COMPARE-OLD-NEW"
-     },
-     {
-      "family": "G",
-      "key": "1205-COMPARE-OLD-NEW:805:false",
-      "kind": "IF",
-      "line": 805,
-      "outcome": "false",
-      "reason": "IF WS-RETURN-MSG-OFF: same path as 799; nothing has written WS-RETURN-MSG before 1205, so the message is always OFF.",
-      "unit": "1205-COMPARE-OLD-NEW"
-     },
-     {
-      "family": "G",
-      "key": "1230-EDIT-ALPHANUM-REQD:863:false",
-      "kind": "IF",
-      "line": 863,
-      "outcome": "false",
-      "reason": "IF WS-RETURN-MSG-OFF in the blank arm: 1230 is reached (line 761) only when the type edit passed and 1205 left the message OFF (CHANGE-HAS-OCCURRED at 806 does not write it), and 1230 is the first writer, so the message is OFF.",
-      "unit": "1230-EDIT-ALPHANUM-REQD"
-     },
-     {
-      "family": "G",
-      "key": "1230-EDIT-ALPHANUM-REQD:890:false",
-      "kind": "IF",
-      "line": 890,
-      "outcome": "false",
-      "reason": "IF WS-RETURN-MSG-OFF in the not-ok arm: same path as 863, the first writer on it, message OFF.",
-      "unit": "1230-EDIT-ALPHANUM-REQD"
-     },
-     {
-      "family": "G",
-      "key": "1245-EDIT-NUM-REQD:921:false",
-      "kind": "IF",
-      "line": 921,
-      "outcome": "false",
-      "reason": "IF WS-RETURN-MSG-OFF in the blank arm: 1245 runs first on the edit path (from 1210), the message is OFF since 362 and nothing writes it before, so the false arm cannot be taken.",
-      "unit": "1245-EDIT-NUM-REQD"
-     },
-     {
-      "family": "G",
-      "key": "1245-EDIT-NUM-REQD:940:false",
-      "kind": "IF",
-      "line": 940,
-      "outcome": "false",
-      "reason": "IF WS-RETURN-MSG-OFF in the non-numeric arm: same as 921, first writer on its path.",
-      "unit": "1245-EDIT-NUM-REQD"
-     },
-     {
-      "family": "G",
-      "key": "1245-EDIT-NUM-REQD:958:false",
-      "kind": "IF",
-      "line": 958,
-      "outcome": "false",
-      "reason": "IF WS-RETURN-MSG-OFF in the zero arm: same as 921, first writer on its path.",
-      "unit": "1245-EDIT-NUM-REQD"
-     },
-     {
-      "family": "G",
-      "key": "2000-DECIDE-ACTION:979:WHEN@1016",
-      "kind": "EVALUATE",
-      "line": 979,
-      "outcome": "WHEN@1016",
-      "reason": "the earlier WHEN CCARD-AID-PFK12 arm (with the same TTUP-CONFIRM-DELETE state test) is taken first for every input that satisfies this WHEN, so this arm is subsumed",
-      "unit": "2000-DECIDE-ACTION"
-     },
-     {
-      "family": "G",
-      "key": "2000-DECIDE-ACTION:979:WHEN@1046",
-      "kind": "EVALUATE",
-      "line": 979,
-      "outcome": "WHEN@1046",
-      "reason": "TTUP-INVALID-SEARCH-KEYS is SET only at line 729 and is immediately followed by SET TTUP-DETAILS-NOT-FETCHED, so the state is never live when 2000-DECIDE-ACTION evaluates it",
-      "unit": "2000-DECIDE-ACTION"
-     },
-     {
-      "family": "G",
-      "key": "2000-DECIDE-ACTION:979:WHEN@1053",
-      "kind": "EVALUATE",
-      "line": 979,
-      "outcome": "WHEN@1053",
-      "reason": "an earlier branch in 0000-MAIN (line 503) handles PFK05 with TTUP-DETAILS-NOT-FOUND before 2000-DECIDE-ACTION is reached",
-      "unit": "2000-DECIDE-ACTION"
-     },
-     {
-      "family": "G",
-      "key": "2000-DECIDE-ACTION:979:WHEN@1065",
-      "kind": "EVALUATE",
-      "line": 979,
-      "outcome": "WHEN@1065",
-      "reason": "WHEN TTUP-CHANGES-OKAYED-AND-DONE: 0000-MAIN's first EVALUATE (line 410) resets a stored 'C' to TTUP-DETAILS-NOT-FETCHED before any path reaches 2000-DECIDE-ACTION, nothing in 1000-PROCESS-INPUTS sets 'C', and 9600 (which does, at 1588) goes straight to 3000-SEND-MAP, so the state is never 'C' when 2000 runs.",
-      "unit": "2000-DECIDE-ACTION"
-     },
-     {
-      "family": "G",
-      "key": "2000-DECIDE-ACTION:1024:false",
-      "kind": "IF",
-      "line": 1024,
-      "outcome": "false",
-      "reason": "IF INPUT-ERROR OR NO-CHANGES-DETECTED OR WS-INVALID-KEY (TTUP-SHOW-DETAILS arm): 2000-DECIDE-ACTION is reached with 'S' only through 1200, whose exits with 'S' kept are the no-change exit (1205 sets NO-CHANGES-DETECTED, since the message is always OFF there, see 799) or an input error; PF12 on 'S' takes the first WHEN, and a stale-key invalid key is sent before 1000 runs. No path reaches the else arm.",
-      "unit": "2000-DECIDE-ACTION"
-     },
-     {
-      "family": "G",
-      "key": "2000-DECIDE-ACTION:1067:false",
-      "kind": "IF",
-      "line": 1067,
-      "outcome": "false",
-      "reason": "IF CDEMO-FROM-TRANID blank, inside WHEN TTUP-CHANGES-OKAYED-AND-DONE (1065): that arm cannot be taken (see its entry), so neither arm of the test runs.",
-      "unit": "2000-DECIDE-ACTION"
-     },
-     {
-      "family": "G",
-      "key": "2000-DECIDE-ACTION:1067:true",
-      "kind": "IF",
-      "line": 1067,
-      "outcome": "true",
-      "reason": "IF CDEMO-FROM-TRANID blank, inside WHEN TTUP-CHANGES-OKAYED-AND-DONE (1065): that arm cannot be taken (see its entry), so neither arm of the test runs.",
-      "unit": "2000-DECIDE-ACTION"
-     },
-     {
-      "family": "G",
-      "key": "3250-SETUP-INFOMSG:1213:WHEN@1243",
-      "kind": "EVALUATE",
-      "line": 1213,
-      "outcome": "WHEN@1243",
-      "reason": "WHEN TTUP-CHANGES-OKAYED-BUT-FAILED in 3250-SETUP-INFOMSG: the state is SET only at 1584, under WHEN TABLE-UPDATE-FAILED (1583), which cannot be taken (see that entry); 2000-DECIDE-ACTION abends on a stored 'F' (WHEN OTHER) before 3000-SEND-MAP, so 3250 never sees it.",
-      "unit": "3250-SETUP-INFOMSG"
-     },
-     {
-      "family": "G",
-      "key": "3250-SETUP-INFOMSG:1213:none",
-      "kind": "EVALUATE",
-      "line": 1213,
-      "outcome": "none",
-      "reason": "the last WHEN is WS-NO-INFO-MESSAGE (WS-INFO-MSG blank), which is true for any message not matched by an earlier WHEN; WS-INFO-MSG is written only in this EVALUATE",
-      "unit": "3250-SETUP-INFOMSG"
-     },
-     {
-      "family": "G",
-      "key": "3390-SETUP-INFOMSG-ATTRS:1387:true",
-      "kind": "IF",
-      "line": 1387,
-      "outcome": "true",
-      "reason": "3390 runs only after 3250 has set a message, so WS-NO-INFO-MESSAGE is never true here",
-      "unit": "3390-SETUP-INFOMSG-ATTRS"
-     },
-     {
-      "family": "G",
-      "key": "9100-GET-TRANSACTION-TYPE:1492:false",
-      "kind": "IF",
-      "line": 1492,
-      "outcome": "false",
-      "reason": "WS-RETURN-MSG is set OFF at line 990 before 9000 runs, and nothing before this IF writes a message",
-      "unit": "9100-GET-TRANSACTION-TYPE"
-     },
-     {
-      "family": "G",
-      "key": "9100-GET-TRANSACTION-TYPE:1498:false",
-      "kind": "IF",
-      "line": 1498,
-      "outcome": "false",
-      "reason": "same as 1492: WS-RETURN-MSG is still OFF on every path reaching this IF",
-      "unit": "9100-GET-TRANSACTION-TYPE"
-     },
-     {
-      "family": "G",
-      "key": "9600-WRITE-PROCESSING:1563:false",
-      "kind": "IF",
-      "line": 1563,
-      "outcome": "false",
-      "reason": "WS-RETURN-MSG is OFF on the PF5 path into 9600, which clears it before the write",
-      "unit": "9600-WRITE-PROCESSING"
-     },
-     {
-      "family": "G",
-      "key": "9600-WRITE-PROCESSING:1580:WHEN@1583",
-      "kind": "EVALUATE",
-      "line": 1580,
-      "outcome": "WHEN@1583",
-      "reason": "WHEN TABLE-UPDATE-FAILED: the 88 is an 'Update of record failed' value of WS-RETURN-MSG, set at 1568 (and 1608 via 9700) and immediately overwritten by the STRING into WS-RETURN-MSG that starts 'Error updating:' / 'Error inserting record into:', with no statement between, so the field never equals the 88 value at 1580 and the arm cannot be taken.",
-      "unit": "9600-WRITE-PROCESSING"
-     },
-     {
-      "family": "G",
-      "key": "9600-WRITE-PROCESSING:1580:WHEN@1585",
-      "kind": "EVALUATE",
-      "line": 1580,
-      "outcome": "WHEN@1585",
-      "reason": "DATA-WAS-CHANGED-BEFORE-UPDATE is an 88 on WS-RETURN-MSG that no statement in COTRTUPC sets; its text appears only in the VALUE clause, so the WHEN cannot be true",
-      "unit": "9600-WRITE-PROCESSING"
-     },
-     {
-      "family": "C",
-      "key": "ABEND-ROUTINE:1677:true",
-      "kind": "IF",
-      "line": 1677,
-      "outcome": "true",
-      "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 19-20), a separate 01-level ABEND-DATA that no INITIALIZE of the program names, and the program writes it only at 1077-1078 (a non-blank literal) and 1678. It is never LOW-VALUES.",
-      "unit": "ABEND-ROUTINE"
-     }
-    ],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 63,
-     "live": 63
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "carddemo-cotrtupc",
-      "case_scenarios": 50,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "carddemo-cotrtupc",
-     "case_scenarios": 50,
-     "db2": true,
-     "det": {
-      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L3",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "branch coverage >= 100.0 net (now 83.7 raw, 99.3 net of the reviewed infeasible outcomes)"
-   ],
-   "options": {
-    "assumed": 6,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 0,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.CURRENTDATA",
-      "provenance": "found",
-      "source": "samples/proc/BLDCIDB2.prc:149",
-      "value": "YES"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ISOLATION",
-      "provenance": "found",
-      "source": "samples/proc/BLDCIDB2.prc:148",
-      "value": "CS"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.PARM",
-      "provenance": "found",
-      "source": "samples/proc/BLDCIDB2.prc:47",
-      "value": "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "samples/proc/BUILDONL.prc:40",
-      "value": "CICS"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": true,
-     "command": "ABEND",
-     "crucible_cases": [
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "HANDLE ABEND",
-     "crucible_cases": [
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X67"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RECEIVE MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND TEXT",
-     "crucible_cases": [
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X20"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "SYNCPOINT",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X3"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "XCTL",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X27",
-     "X31"
-    ],
-    "branch_outcomes_unrun": 27,
-    "commands": 8,
-    "commands_backed": 7,
-    "commands_not_backed": [
-     "SYNCPOINT"
-    ],
-    "facts_unstated": 0,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 436,
-    "translated": 436,
     "whole": true
    }
   },
@@ -24107,8 +24102,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0b45a4736a1cf1b85445760e6e5b49837411d24f",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 0b45a4736a1cf1b85445760e6e5b49837411d24f",
+   "python tests/tools/cics_census.py survey --baseline --sha 1781eb33a3ee08dc313e26e2542c0f68faef5e54",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 1781eb33a3ee08dc313e26e2542c0f68faef5e54",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -24125,22 +24120,22 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
+   "sha256:1ac42543ec226c6bda71f2e067737dacfd9b8a47705148f29a6d9896cd8f2e9b",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
-   "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
-   "sha256:f78eb55cabe7a991b1bb2fb88925c3e9a1fd510640240111c41016bb2805aead"
+   "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
-   "scope": "burned + local corpora (no census)",
-   "sha": "0b45a4736a1cf1b85445760e6e5b49837411d24f",
+   "scope": "burned + local corpora (no census) + cics-crucible",
+   "sha": "1781eb33a3ee08dc313e26e2542c0f68faef5e54",
    "translator": {
     "files": 145,
-    "sha256": "40ff1c3ce4f4e0f95f2a82f6350d45d0abf5cef54b753a9b4e8705165e95c810"
+    "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
    }
   },
-  "translator_commit": "0b45a4736a1cf1b85445760e6e5b49837411d24f",
+  "translator_commit": "1781eb33a3ee08dc313e26e2542c0f68faef5e54",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -24150,8 +24145,8 @@
    "L0": 2,
    "L1": 0,
    "L2": 2,
-   "L3": 8,
-   "L4": 32,
+   "L3": 7,
+   "L4": 33,
    "L5": 0
   },
   "histogram_stale": {
@@ -24183,6 +24178,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "40ff1c3ce4f4e0f95f2a82f6350d45d0abf5cef54b753a9b4e8705165e95c810"
+  "fingerprint": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
  }
 }

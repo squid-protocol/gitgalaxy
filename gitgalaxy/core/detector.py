@@ -1023,6 +1023,11 @@ _COBOL_SEPARATOR_PERIOD_RE = re.compile(r"\.(?=\s|$)")
 # #3329: member-access separators a call's qualifier is joined by -- `a.b()`,
 # `p->f()`, `Ns::f()`, `a?.b()`. Longest first, so `->`/`::`/`?.` win over `.`.
 _QUALIFIER_SEPARATORS = ("->", "::", "?.", ".")
+# #3772: the template argument list (nested three levels, as cpp.py `_TPL_QUAL`) of a class-template qualifier.
+# Only one directly followed by `::` matches, so `operator<`, `operator<<` and a return type's `<...>` stay.
+_CPP_TEMPLATE_ARGS = r"<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>"
+_CPP_TEMPLATE_QUALIFIER = re.compile(_CPP_TEMPLATE_ARGS + r"(?=[ \t]*::)")
+_CPP_TEMPLATE_ARGS_RE = re.compile(_CPP_TEMPLATE_ARGS)
 # #3837: in java `->` only ever ends a lambda's parameters (`() -> toJson(gson, x)`),
 # so a call right after it is bare, not one on an `<expr>` receiver. Kotlin, Groovy
 # and Scala read `->` the same way, but no compiler reference measures them yet.
@@ -2220,6 +2225,15 @@ INVOCATION_MODELS = frozenset({INVOCATION_BY_NAME, INVOCATION_POSITIONAL})
 # `docs/unreferenced_by_name_contract.md`, corollary 7.
 IDENTIFIER_CASE_SENSITIVE = "sensitive"
 IDENTIFIER_CASE_INSENSITIVE = "insensitive"
+
+
+def _blank_masked_match(m: "re.Match[str]") -> str:
+    """Blank a `_calls_out_masked_blocks` match, or only its `mask` group, keeping line breaks (#6454)."""
+    text = m.group(0)
+    if "mask" not in m.re.groupindex or m.start("mask") < 0:
+        return re.sub(r"[^\n]", " ", text)
+    lo, hi = m.start("mask") - m.start(), m.end("mask") - m.start()
+    return text[:lo] + re.sub(r"[^\n]", " ", text[lo:hi]) + text[hi:]
 
 
 def _blank_literals_except_callee(text: str, verb: re.Pattern) -> str:
@@ -10642,6 +10656,10 @@ class StructuralExtractor:
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
             message_receivers = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_message_receivers"))
             if message_receivers or _is_qualified_calls_out(invocation_pattern):
+                # #6454: the same mask as below; same length, so every position stays valid
+                masked_q = rules.get("_calls_out_masked_blocks")
+                if isinstance(masked_q, re.Pattern):
+                    safe_block = masked_q.sub(_blank_masked_match, safe_block)
                 receiver_text = safe_block
                 # #3360 (C5): note which callees were captured only on a nested
                 # func_start header (`def inner(`). _function_slice drops them
@@ -10701,7 +10719,18 @@ class StructuralExtractor:
                     # #5628: a bare `leaf(` may reach a different unit of that name, in this file
                     # or another: kept, and the call resolver drops it when it only resolves to
                     # the unit itself. Anything written with a receiver or scope is the unit itself.
-                    if callee == own_leaf and qualifier in own_qualifiers and qualifier:
+                    if (
+                        callee == own_leaf
+                        and qualifier
+                        and (
+                            qualifier in own_qualifiers
+                            # #3772: the header `Foo<T>::m(` is qualified `Foo<T>`, the unit `Foo::m`
+                            or (
+                                self.primary_lang_id == "cpp"
+                                and _CPP_TEMPLATE_ARGS_RE.sub("", qualifier) in own_qualifiers
+                            )
+                        )
+                    ):
                         continue
                     if callee == own_dtor and callee_pos > 0 and safe_block[callee_pos - 1] == "~":
                         continue
@@ -10745,7 +10774,9 @@ class StructuralExtractor:
                 # hold no call of this language; blanked with their line breaks kept.
                 masked = rules.get("_calls_out_masked_blocks")
                 if isinstance(masked, re.Pattern):
-                    safe_block = masked.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), safe_block)
+                    # #6454: a named group `mask` blanks only that span (rust `matches!(x, PATTERN)`
+                    # keeps the macro name a call); a pattern without one blanks the whole match.
+                    safe_block = masked.sub(_blank_masked_match, safe_block)
                 raw_calls = invocation_pattern.findall(safe_block)
                 if invocation_pattern.groups > 1:
                     # #5639: one group per alternative (Objective-C: C call, message selector)
@@ -11080,6 +11111,11 @@ class StructuralExtractor:
         # bare keyword (`run`) instead and passes through this branch unchanged.
         if self.primary_lang_id == "yaml":
             return match_strip
+
+        # #3772: a class-template qualifier (`Foo<A, B>::bar`) names the class `Foo`, as the compiler
+        # reference does; the tokenizer below splits at `<`/`,`/`>` and kept only `::bar`.
+        if self.primary_lang_id == "cpp" and "<" in match_strip:
+            raw_match = match_strip = _CPP_TEMPLATE_QUALIFIER.sub("", match_strip)
 
         # 1.2 Python Decorator Stripping
         if "@" in match_strip and "def " in match_strip:

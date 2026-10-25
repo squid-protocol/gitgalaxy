@@ -146,9 +146,45 @@
     }
    ],
    "why": "the REWRITE fails NOSPACE: '82', WRITE-ERROR-MESSAGE, ABEND LGV4"
+  },
+  {
+   "name": "update-short-commarea-28",
+   "commarea": {
+    "CA-REQUEST-ID": "01U9XX",
+    "CA-CUSTOMER-NUM": 8,
+    "CA-REQUEST-SPECIFIC": "0000000004"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "KSDSPOLY",
+     "resp": "IOERR",
+     "why": "an I/O error on the data set (IBM: READ IOERR)"
+    }
+   ],
+   "why": "#5252 (EIBCALEN): the caller passed 28 bytes (type 9 reads nothing past the key, which ends at byte 28); the READ fails IOERR: '80', WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG, then IF EIBCALEN < 91 is true, DFHCOMMAREA(1:28) moves to CA-DATA and the second LINK carries it space padded",
+   "commarea_length": 28
+  },
+  {
+   "name": "update-short-commarea-90",
+   "commarea": {
+    "CA-REQUEST-ID": "01U9XX",
+    "CA-CUSTOMER-NUM": 8,
+    "CA-REQUEST-SPECIFIC": "0000000004"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "KSDSPOLY",
+     "resp": "IOERR",
+     "why": "an I/O error on the data set (IBM: READ IOERR)"
+    }
+   ],
+   "why": "#5252 (EIBCALEN): the caller passed 90 bytes (type 9 reads nothing past the key, which ends at byte 28); the READ fails IOERR: '80', WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG, then IF EIBCALEN < 91 is true, DFHCOMMAREA(1:90) moves to CA-DATA and the second LINK carries it space padded",
+   "commarea_length": 90
   }
  ],
- "notes": "GenApp's VSAM 'update policy' (LGUPVS01, LINKed by LGUPDB01): the key and WF-POLICY-DATA built as in LGAPVS01, then EXEC CICS READ FILE('KSDSPOLY') INTO(WS-FileIn) LENGTH(WS-Commarea-Len = EIBCALEN) RIDFLD(WF-Policy-Key) KEYLENGTH(21) UPDATE and REWRITE FROM(WF-Policy-Info) LENGTH(64); on NORMAL it GOBACKs. Each scenario's KSDSPOLY is compared after the task. Every non-NORMAL RESP in this program goes to WRITE-ERROR-MESSAGE (ASKTIME, FORMATTIME, then EXEC CICS LINK PROGRAM('LGSTSQ') with ERROR-MSG and a second LINK with the 99-byte CA-ERROR-MSG). The case's programs list adds LGSTSQ to the same task (X6, #4607), so the error paths run: NOTFND on the READ UPDATE ('81', ABEND LGV3) and IOERR on it, IOERR and NOSPACE on the REWRITE ('82', ABEND LGV4). A task that reaches WRITE-ERROR-MESSAGE is judged only up to the first LGSTSQ LINK: this program's 101-byte ERROR-MSG is longer than LGSTSQ's 95-byte WRITE-MSG, so the oracle refuses the WRITEQ TD by name (X6, LENGTH > FROM: not modelled); the RESP, the file and the LINK itself are compared before it. The faults list injects the file RESPs a healthy data set cannot give; the region ASSIGN SYSID is a deployment fact the corpus does not name. The IF EIBCALEN > 0 / IF EIBCALEN < 91 arms of WRITE-ERROR-MESSAGE (4 branches) come after that first LINK and stay uncovered until X6 models LENGTH > FROM; a short-commarea scenario would stop at the same refusal, so none is stated. There is no STARTCODE D arm in this program (it never ASSIGNs STARTCODE). The READ's LENGTH is modelled on both sides (#4436, oracle_assumptions.md X14): WS-Commarea-Len is MOVEd from EIBCALEN (32500 here; 225 when LGUPDB01 LINKs it), unlike the 1024-byte INTO area; the 64-byte record is shorter than both (NORMAL), and LENGTH is set back to 64. A shorter LENGTH would truncate with LENGERR -- on READ UPDATE refused by name, and its path LINKs LGSTSQ anyway. Keys: WF-POLICY-KEY is the request-type byte followed by 20 digits, so every key mixes a letter and digits; the WHEN OTHER scenario puts a digit in that first byte (digits sort before letters in ASCII, after them in EBCDIC). No browse is issued, so no key order is exercised (the comparison sorts each side's records by key bytes). Data: ksdspoly.txt is built from GenApp's own sample policies (base/cntl/db2cre.jcl's policy rows joined with their endowment / house / motor / commercial rows), laid out as WF-POLICY-INFO (request-type letter + customer + policy number, then the type's 43 bytes) -- the record LGAPVS01 writes; policy 7 (type C, no commercial row) is left out. ONE synthetic record is added: key '9' + customer 6 + policy 7 with blank data, so that the WHEN OTHER branch has an existing record to rewrite (GenApp never writes such a key itself). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "notes": "GenApp's VSAM 'update policy' (LGUPVS01, LINKed by LGUPDB01): the key and WF-POLICY-DATA built as in LGAPVS01, then EXEC CICS READ FILE('KSDSPOLY') INTO(WS-FileIn) LENGTH(WS-Commarea-Len = EIBCALEN) RIDFLD(WF-Policy-Key) KEYLENGTH(21) UPDATE and REWRITE FROM(WF-Policy-Info) LENGTH(64); on NORMAL it GOBACKs. Each scenario's KSDSPOLY is compared after the task. Every non-NORMAL RESP in this program goes to WRITE-ERROR-MESSAGE (ASKTIME, FORMATTIME, then EXEC CICS LINK PROGRAM('LGSTSQ') with ERROR-MSG and a second LINK with the 99-byte CA-ERROR-MSG). The case's programs list adds LGSTSQ to the same task (X6, #4607), so the error paths run: NOTFND on the READ UPDATE ('81', ABEND LGV3) and IOERR on it, IOERR and NOSPACE on the REWRITE ('82', ABEND LGV4). A task that reaches WRITE-ERROR-MESSAGE runs to its end: LGSTSQ's WRITEQ TD / TS of a LENGTH past its 95-byte WRITE-MSG (this program's 101-byte ERROR-MSG, then the 99-byte CA-ERROR-MSG) is padded with spaces on both sides and ASSUMED (register X6, `x6_padded`, #5252), so the RESP, the file, both LINKs and the end state are compared; the proof names X6 among its assumptions. The short-commarea scenarios pass 28 and 90 bytes (type 9, an injected READ IOERR) and reach IF EIBCALEN < 91 true; a call with no COMMAREA (EIBCALEN 0) is not covered (X23-class), so that one branch is stated infeasible. The faults list injects the file RESPs a healthy data set cannot give; the region ASSIGN SYSID is a deployment fact the corpus does not name. The IF EIBCALEN > 0 false arm is stated infeasible (infeasible_outcomes/genapp-lgupvs01.json, X23). There is no STARTCODE D arm in this program (it never ASSIGNs STARTCODE). The READ's LENGTH is modelled on both sides (#4436, oracle_assumptions.md X14): WS-Commarea-Len is MOVEd from EIBCALEN (32500 here; 225 when LGUPDB01 LINKs it), unlike the 1024-byte INTO area; the 64-byte record is shorter than both (NORMAL), and LENGTH is set back to 64. A shorter LENGTH would truncate with LENGERR -- on READ UPDATE refused by name, and its path LINKs LGSTSQ anyway. Keys: WF-POLICY-KEY is the request-type byte followed by 20 digits, so every key mixes a letter and digits; the WHEN OTHER scenario puts a digit in that first byte (digits sort before letters in ASCII, after them in EBCDIC). No browse is issued, so no key order is exercised (the comparison sorts each side's records by key bytes). Data: ksdspoly.txt is built from GenApp's own sample policies (base/cntl/db2cre.jcl's policy rows joined with their endowment / house / motor / commercial rows), laid out as WF-POLICY-INFO (request-type letter + customer + policy number, then the type's 43 bytes) -- the record LGAPVS01 writes; policy 7 (type C, no commercial row) is left out. ONE synthetic record is added: key '9' + customer 6 + policy 7 with blank data, so that the WHEN OTHER branch has an existing record to rewrite (GenApp never writes such a key itself). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
  "programs": [
   {
    "program": "LGSTSQ",

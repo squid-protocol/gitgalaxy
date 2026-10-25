@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Does a pull request move a per-language accuracy audit? (the "plan" job of call-graph-accuracy-audit.yml,
-detection-accuracy-audit.yml, tree-sitter-accuracy-audit.yml and tree-sitter-accuracy-history.yml, #6501)
+detection-accuracy-audit.yml, tree-sitter-accuracy-audit.yml, tree-sitter-accuracy-history.yml,
+tri-comparison-audit.yml, tri-comparison-history.yml and graph-comparison-history.yml, #6501)
 
-    python tests/tools/accuracy_audit_plan.py --audit {call-graph,detection,tree-sitter,tree-sitter-history}
+    python tests/tools/accuracy_audit_plan.py --audit {call-graph,detection,tree-sitter,tree-sitter-history,
+                                                       tri-comparison,tri-comparison-history,graph-comparison-history}
                                               [--event pull_request|push] [--base origin/main]
                                               [--files FILE ...] [--github-output PATH]
     python tests/tools/accuracy_audit_plan.py --audit detection --replay 50
@@ -29,6 +31,14 @@ job runs before anything is installed, as graph_accuracy_plan.py does) and decid
               push --base <that run's commit>`; github.event.before would miss a push whose queued run was replaced). It re-measures every language, but `--history` appends nothing when
               the numbers are unchanged, so a push that cannot move a language needs no run.
 
+  tri-comparison  the tree-sitter rule with the committed tests/tri_comparison_baseline_<lang>.json files as the language set
+              (output `langs`): a language with no tri baseline is not gated, so its rule edits select nothing.
+  tri-comparison-history  push-to-main: `--all --write` re-measures every corpus language into an in-place chart and ledger,
+              so any languages/<lang>.py hunk beyond comments and `_meta` runs it (an underscore rule counts); no `langs`.
+  graph-comparison-history  push-to-main: refreshes the call ledger (languages in the call baseline) and the import ledger
+              (languages in tests/import_graph_corpus.json). A diff beyond comments and `_meta` to one of those languages
+              runs it; any other language falls back to the detection rule.
+
 Anything the planner cannot place runs the audit: a new, deleted or unreadable file, a hunk outside the DEFINITION dict,
 a non-pull_request event, an empty diff, a failed git call. Every other path in the audit's own list (EVERYTHING) runs it;
 any file the workflow's `paths:` lists but this module does not know also runs it. Output: `run=true|false` for the job.
@@ -46,24 +56,39 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import change_classifier  # noqa: E402
-from graph_accuracy_plan import _glob, _norm  # noqa: E402
+from graph_accuracy_plan import _glob, _norm, corpus_languages  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 T = "tests/tools/"
 LANG_DIR = "gitgalaxy/standards/language_standards/languages/"
 LANG_STANDARDS = "gitgalaxy/standards/language_standards/"
 CALL, DETECTION, TREE, HISTORY = "call-graph", "detection", "tree-sitter", "tree-sitter-history"
+TRI, TRI_HISTORY, GRAPH_HISTORY = "tri-comparison", "tri-comparison-history", "graph-comparison-history"
 WORKFLOWS = {
     CALL: "call-graph-accuracy-audit.yml",
     DETECTION: "detection-accuracy-audit.yml",
     TREE: "tree-sitter-accuracy-audit.yml",
     HISTORY: "tree-sitter-accuracy-history.yml",
+    TRI: "tri-comparison-audit.yml",
+    TRI_HISTORY: "tri-comparison-history.yml",
+    GRAPH_HISTORY: "graph-comparison-history.yml",
 }
 # The only event each audit is planned on; any other event (schedule, workflow_dispatch, ...) runs it.
-EVENTS = {CALL: "pull_request", DETECTION: "pull_request", TREE: "pull_request", HISTORY: "push"}
+EVENTS = {
+    CALL: "pull_request",
+    DETECTION: "pull_request",
+    TREE: "pull_request",
+    HISTORY: "push",
+    TRI: "pull_request",
+    TRI_HISTORY: "push",
+    GRAPH_HISTORY: "push",
+}
 BASELINE = "tests/call_graph_accuracy_baseline.json"
 TREE_BASELINE = "tests/tree_sitter_accuracy_baseline_"
+TRI_BASELINE = "tests/tri_comparison_baseline_"
 ALL_LANGS = "all"
+# The audits that gate a per-language baseline set and so emit `langs`, with the baseline file prefix that names the set.
+SELECTING = {TREE: TREE_BASELINE, HISTORY: TREE_BASELINE, TRI: TRI_BASELINE}
 
 _COMMON = (
     "tests/crucible_pins.toml",
@@ -104,6 +129,44 @@ EVERYTHING = {
         T + "tree_sitter_accuracy_audit.py",
         ".github/workflows/tree-sitter-accuracy-history.yml",
     ),
+    TRI: (
+        *_COMMON,
+        "gitgalaxy/core/detector.py",
+        "gitgalaxy/core/prism.py",
+        T + "tri_comparison_chart.py",
+        T + "tri_comparison_gatherer.py",
+        T + "tri_comparison_reconcile.py",
+        T + "tri_comparison_ledger.py",
+        ".github/workflows/tri-comparison-audit.yml",
+    ),
+    TRI_HISTORY: (
+        *_COMMON,
+        "gitgalaxy/core/detector.py",
+        "gitgalaxy/core/prism.py",
+        T + "tri_comparison_chart.py",
+        T + "tri_comparison_gatherer.py",
+        T + "tri_comparison_reconcile.py",
+        T + "tri_comparison_ledger.py",
+        "tests/tri_comparison_baseline_*.json",
+        ".github/workflows/tri-comparison-history.yml",
+    ),
+    GRAPH_HISTORY: (
+        *_COMMON,
+        "gitgalaxy/core/detector.py",
+        "gitgalaxy/core/prism.py",
+        "gitgalaxy/core/network_risk_sensor.py",
+        "gitgalaxy/galaxyscope.py",
+        T + "call_graph_accuracy.py",
+        T + "import_graph_accuracy.py",
+        T + "graph_ledger.py",
+        T + "tri_comparison_ledger.py",
+        T + "graph_coverage_chart.py",
+        BASELINE,
+        "tests/import_graph_accuracy_baseline.json",
+        "tests/import_graph_corpus.json",
+        "tests/call_graph_resolution*_baseline.json",
+        ".github/workflows/graph-comparison-history.yml",
+    ),
 }
 # The top-level keys of a language DEFINITION that language_lens.py reads (test_accuracy_audit_plan pins this set
 # against the keys the lens, the registry and the overrides quote). `rules` is separate: its underscore-prefixed
@@ -134,10 +197,18 @@ def baseline_languages(root: Path = REPO_ROOT) -> frozenset[str]:
     return frozenset(_norm(k) for k in json.loads((root / BASELINE).read_text(encoding="utf-8")))
 
 
-def tree_sitter_languages(root: Path = REPO_ROOT) -> dict[str, str]:
-    """Normalised language -> the name in its baseline file (`objectivec` -> `objective-c`), one per committed baseline."""
-    prefix = TREE_BASELINE.rsplit("/", 1)[1]
+def tree_sitter_languages(root: Path = REPO_ROOT, baseline: str = TREE_BASELINE) -> dict[str, str]:
+    """Normalised language -> the name in its baseline file (`objectivec` -> `objective-c`), one per committed baseline
+    (the tree-sitter ones, or `baseline=TRI_BASELINE` for the tri-comparison ones)."""
+    prefix = baseline.rsplit("/", 1)[1]
     return {_norm(p.stem[len(prefix) :]): p.stem[len(prefix) :] for p in (root / "tests").glob(f"{prefix}*.json")}
+
+
+def scored_languages(audit: str, root: Path = REPO_ROOT) -> frozenset[str]:
+    """The normalised languages whose diff is judged by more than the detection rule: the call baseline, plus (for the
+    graph ledger history) the import corpus."""
+    langs = baseline_languages(root)
+    return langs | corpus_languages(root) if audit == GRAPH_HISTORY else langs
 
 
 def locate(lines: list[str], lineno: int) -> Place | None:
@@ -223,7 +294,7 @@ def language_moves(
         found = places(path)
     except (RuntimeError, OSError, ValueError):  # a new or deleted file, an unreadable base: when in doubt, run
         return True
-    if audit == CALL and _norm(stem) in baseline:
+    if audit == TRI_HISTORY or (audit in (CALL, GRAPH_HISTORY) and _norm(stem) in baseline):
         return any(moves_call_graph(p) for p in found)
     return any(moves_detection(p) for p in found)
 
@@ -252,7 +323,7 @@ def plan(
     baseline: frozenset[str] | None = None,
     langs: dict[str, str] | None = None,
 ) -> dict:
-    tree = audit in (TREE, HISTORY)
+    tree = audit in SELECTING
     every = {"langs": ALL_LANGS} if tree else {}
     if event != EVENTS[audit]:
         return {"run": True, "reason": f"{event}: always", "inputs": [], **every}
@@ -263,18 +334,19 @@ def plan(
             "inputs": [],
             **every,
         }
-    baseline = baseline_languages() if baseline is None else baseline
-    langs = (tree_sitter_languages() if langs is None else langs) if tree else {}
+    baseline = scored_languages(audit) if baseline is None else baseline
+    prefix = SELECTING.get(audit, "")
+    langs = (tree_sitter_languages(baseline=prefix) if langs is None else langs) if tree else {}
     inputs: list[str] = []
     selected: set[str] = set()
     everything = False
     for f in sorted(files):
-        if f in EVERYTHING[audit]:
+        if _glob(f, list(EVERYTHING[audit])):
             inputs.append(f)
             everything = True
-        elif tree and f.startswith(TREE_BASELINE) and f.endswith(".json"):
+        elif tree and f.startswith(prefix) and f.endswith(".json"):
             inputs.append(f)
-            selected.add(f[len(TREE_BASELINE) : -5])
+            selected.add(f[len(prefix) : -5])
         elif f.startswith(LANG_DIR) and f.endswith(".py") and "/" not in f[len(LANG_DIR) :]:
             if tree:
                 moved = tree_languages(f, langs, places)
@@ -325,8 +397,8 @@ def replay(prs: list[dict], audit: str, baseline: frozenset[str]) -> dict:
     paths = workflow_paths(audit)
     before = after = 0
     ran_after: list[int] = []
-    tree = audit in (TREE, HISTORY)
-    n_langs = len(tree_sitter_languages()) if tree else 0
+    tree = audit in SELECTING
+    n_langs = len(tree_sitter_languages(baseline=SELECTING[audit])) if tree else 0
     langs_before = langs_after = 0  # tree-sitter: language corpora scanned
     for pr in prs:
         files = [f["path"] for f in pr.get("files") or [] if f.get("path")]
@@ -372,7 +444,7 @@ def run_replay(n: int, audit: str) -> dict:
     )
     if proc.returncode != 0:
         raise RuntimeError(proc.stderr.strip() or "gh pr list failed")
-    return replay(json.loads(proc.stdout), audit, baseline_languages())
+    return replay(json.loads(proc.stdout), audit, scored_languages(audit))
 
 
 def main() -> int:
@@ -402,7 +474,7 @@ def main() -> int:
             "run": True,
             "reason": f"cannot plan ({e})",
             "inputs": [],
-            **({"langs": ALL_LANGS} if args.audit in (TREE, HISTORY) else {}),
+            **({"langs": ALL_LANGS} if args.audit in SELECTING else {}),
         }
     print(json.dumps(p, indent=1))
     if args.github_output:

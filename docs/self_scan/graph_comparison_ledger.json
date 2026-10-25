@@ -1260,7 +1260,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3310,7 +3310,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3734,7 +3734,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -3796,7 +3796,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -3842,8 +3842,8 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
-      "last_seen_count": 2,
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 8,
       "last_seen_examples": [
         {
           "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Documentation/Samples/Serializer/JsonConstructorAttribute.cs",
@@ -3856,6 +3856,30 @@
         {
           "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Schema/JsonSchemaGeneratorTests.cs",
           "name": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Schema/JsonSchemaGeneratorTests.cs -> Src/Newtonsoft.Json/Schema/Extensions.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "xunit/src/xunit.v3.runner.inproc.console/ConsoleRunner.cs",
+          "name": "xunit/src/xunit.v3.runner.inproc.console/ConsoleRunner.cs -> src/xunit.v3.runner.common/Messages/DiagnosticMessage.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "xunit/src/xunit.v3.runner.inproc.console/ConsoleRunner.cs",
+          "name": "xunit/src/xunit.v3.runner.inproc.console/ConsoleRunner.cs -> src/xunit.v3.runner.common/Messages/ErrorMessage.cs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "xunit/src/xunit.v3.runner.inproc.console/ConsoleRunnerInProcess.cs",
+          "name": "xunit/src/xunit.v3.runner.inproc.console/ConsoleRunnerInProcess.cs -> src/xunit.v3.runner.common/Messages/DiagnosticMessage.cs",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -3882,8 +3906,8 @@
       "investigated_at": "2026-10-24T13:10:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "csharp",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
-      "last_seen_count": 102,
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 115,
       "last_seen_examples": [
         {
           "file_path": "Newtonsoft.Json/Src/Newtonsoft.Json.Tests/Bson/BsonWriterTests.cs",
@@ -3944,7 +3968,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3958,7 +3982,7 @@
       ],
       "metric": "argument_part/-+generic+bang",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -3976,7 +4000,7 @@
       "investigated_at": "2026-10-24T13:10:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 88,
       "last_seen_examples": [
         {
@@ -4022,7 +4046,7 @@
       ],
       "metric": "argument_part/-+generic",
       "status": "validated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": "GitGalaxy missed it: a generic call `f<T>(x)` / `Foo<T>(x)` is a call (C3) and tree-sitter finds it through argument_part after a type_arguments node; the engine's call capture needs the name directly before `(` and skips the `<...>` between. Read the recorded examples. Engine defect: dart generic invocations are dropped."
     },
@@ -4038,23 +4062,23 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 12,
       "last_seen_examples": [
-        {
-          "file_path": "dart/flutter/framework.dart",
-          "name": "toString -> shortHash",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 216
-          }
-        },
         {
           "file_path": "dart/flutter/framework.dart",
           "name": "toString -> describeIdentity",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 218
+          }
+        },
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "toString -> shortHash",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 216
           }
         },
         {
@@ -4102,8 +4126,8 @@
       "investigated_at": "2026-10-24T14:33:04Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
-      "last_seen_count": 27,
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
+      "last_seen_count": 13,
       "last_seen_examples": [
         {
           "file_path": "dart/flutter/framework.dart",
@@ -4111,14 +4135,6 @@
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 3417
-          }
-        },
-        {
-          "file_path": "dart/flutter/framework.dart",
-          "name": "finalizeTree -> map",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 3361
           }
         },
         {
@@ -4135,6 +4151,14 @@
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 6717
+          }
+        },
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "attachRenderObject -> toStringShort",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 6926
           }
         },
         {
@@ -4164,7 +4188,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -4194,7 +4218,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<argument",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4210,7 +4234,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4224,7 +4248,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<assignment_expression",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4240,7 +4264,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4254,7 +4278,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<cascade_section",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4270,7 +4294,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4284,7 +4308,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<conditional_expression",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4300,7 +4324,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4314,7 +4338,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<equality_expression",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4330,7 +4354,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -4352,7 +4376,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<if_null_expression",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4368,7 +4392,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4382,7 +4406,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<named_argument",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4398,7 +4422,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4412,7 +4436,7 @@
       ],
       "metric": "not-a-call-in-ts:const_object_expression<optional_formal_parameters",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4428,7 +4452,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4458,7 +4482,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4488,7 +4512,7 @@
       "investigated_at": "2026-10-24T13:10:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 51,
       "last_seen_examples": [
         {
@@ -4534,7 +4558,7 @@
       ],
       "metric": "not-a-call-in-ts:formal_parameter<optional_formal_parameters",
       "status": "validated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": "GitGalaxy wrong: the name is a parameter TYPE in an optional/named parameter list (`{Foo? x, int y = 0}`), a declaration, not a call (C3). The engine matches `Type name(` shapes inside the braces/brackets. Read the recorded examples. Engine defect: type names in optional_formal_parameters are counted as callees."
     },
@@ -4550,7 +4574,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4563,6 +4587,74 @@
         }
       ],
       "metric": "not-a-call-in-ts:initialized_variable_definition<local_variable_declaration",
+      "status": "unvalidated",
+      "still_reproduces": false,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "dart/call/not-a-call-in-ts:initializer_list_entry<initializers/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T22:16:49Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "LabeledGlobalKey -> constructor",
+          "readings": {
+            "gitgalaxy": 208,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "dart/flutter/theme_data.dart",
+          "name": "MaterialBasedCupertinoThemeData._ -> raw",
+          "readings": {
+            "gitgalaxy": 2980,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:initializer_list_entry<initializers",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "dart/call/not-a-call-in-ts:object_pattern<for_loop_parts/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T22:16:49Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "dart",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "dart/flutter/framework.dart",
+          "name": "finalizeTree -> MapEntry",
+          "readings": {
+            "gitgalaxy": 3369,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "not-a-call-in-ts:object_pattern<for_loop_parts",
       "status": "unvalidated",
       "still_reproduces": true,
       "symbol_type": "call",
@@ -4580,7 +4672,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -4618,7 +4710,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4648,8 +4740,8 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
-      "last_seen_count": 4,
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
+      "last_seen_count": 2,
       "last_seen_examples": [
         {
           "file_path": "dart/flutter/editable_text.dart",
@@ -4664,22 +4756,6 @@
           "name": "_handleContextMenuOnParentScroll -> ScrollEndNotification",
           "readings": {
             "gitgalaxy": 4161,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "dart/flutter/theme_data.dart",
-          "name": "ThemeData -> InputDecorationThemeData",
-          "readings": {
-            "gitgalaxy": 392,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "dart/flutter/theme_data.dart",
-          "name": "ThemeData -> AppBarThemeData",
-          "readings": {
-            "gitgalaxy": 538,
             "tree_sitter": null
           }
         }
@@ -4702,7 +4778,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4716,7 +4792,7 @@
       ],
       "metric": "not-a-call-in-ts:unconditional_assignable_selector<selector",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "call",
       "verdict": null
     },
@@ -4734,44 +4810,44 @@
       "investigated_at": "2026-10-24T13:50:00Z",
       "investigated_by": "claude (churn worker, #3799)",
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T15:09:35Z",
-      "last_seen_count": 36,
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
+      "last_seen_count": 13,
       "last_seen_examples": [
         {
           "file_path": "dart/flutter/editable_text.dart",
-          "name": "EditableText -> empty",
+          "name": "_DiscreteKeyFrameSimulation.iOSBlinkingCaret -> _",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "dart/flutter/editable_text.dart",
-          "name": "EditableText -> _inferKeyboardType",
+          "file_path": "dart/flutter/events.dart",
+          "name": "PointerEnterEvent -> identical",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "dart/flutter/editable_text.dart",
-          "name": "EditableText -> _inferAutocorrect",
+          "file_path": "dart/flutter/events.dart",
+          "name": "PointerExitEvent -> identical",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "dart/flutter/editable_text.dart",
-          "name": "_Editable -> extractFromInlineSpan",
+          "file_path": "dart/flutter/events.dart",
+          "name": "PointerMoveEvent -> identical",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "dart/flutter/editable_text.dart",
-          "name": "TextEditingController -> TextEditingValue",
+          "file_path": "dart/flutter/events.dart",
+          "name": "PointerUpEvent -> identical",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -4798,7 +4874,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 35,
       "last_seen_examples": [
         {
@@ -4860,7 +4936,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -4914,7 +4990,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "dart",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4931,6 +5007,290 @@
       "still_reproduces": false,
       "symbol_type": "import",
       "verdict": null
+    },
+    "fortran/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [
+        "tree_sitter"
+      ],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T22:00:25Z",
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
+      "language": "fortran",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 276,
+      "last_seen_examples": [
+        {
+          "file_path": "fpm/app/main.f90",
+          "name": "fpm/app/main.f90 -> src/fpm/cmd/export.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/app/main.f90",
+          "name": "fpm/app/main.f90 -> src/fpm/cmd/install.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/app/main.f90",
+          "name": "fpm/app/main.f90 -> src/fpm/cmd/new.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/app/main.f90",
+          "name": "fpm/app/main.f90 -> src/fpm/cmd/publish.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/app/main.f90",
+          "name": "fpm/app/main.f90 -> src/fpm/cmd/update.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": "Fortran resolves a use by MODULE name; the engine resolves by file stem. fpm_cmd_export lives in cmd/export.f90 and fpm_error in error.f90, so the token is captured but no stem matches. The module-name rule is right, GitGalaxy missed the edge."
+    },
+    "fortran/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T22:00:25Z",
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
+      "language": "fortran",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 20,
+      "last_seen_examples": [
+        {
+          "file_path": "fpm/app/main.f90",
+          "name": "fpm/app/main.f90 -> example_packages/nonintrinsic/src/iso_fortran_env.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/example_packages/shared_app_only/test/test.f90",
+          "name": "fpm/example_packages/shared_app_only/test/test.f90 -> example_packages/nonintrinsic/src/iso_fortran_env.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/example_packages/static_app_only/test/test.f90",
+          "name": "fpm/example_packages/static_app_only/test/test.f90 -> example_packages/nonintrinsic/src/iso_fortran_env.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/src/fpm.f90",
+          "name": "fpm/src/fpm.f90 -> example_packages/nonintrinsic/src/iso_fortran_env.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/src/fpm/cmd/install.f90",
+          "name": "fpm/src/fpm/cmd/install.f90 -> example_packages/nonintrinsic/src/iso_fortran_env.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "target-not-imported",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": "use, intrinsic :: iso_fortran_env names the compiler's intrinsic module and creates no file dependency; the engine linked it to example_packages/nonintrinsic/src/iso_fortran_env.f90 by stem. The engine edge is false."
+    },
+    "fortran/import/token-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [
+        "tree_sitter"
+      ],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T22:00:25Z",
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
+      "language": "fortran",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 48,
+      "last_seen_examples": [
+        {
+          "file_path": "fpm/app/main.f90",
+          "name": "fpm/app/main.f90 -> src/fpm_os.F90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/example_packages/implicit-typing/app/main.f90",
+          "name": "fpm/example_packages/implicit-typing/app/main.f90 -> example_packages/implicit-typing/src/impl.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/src/fpm.f90",
+          "name": "fpm/src/fpm.f90 -> src/fpm_environment.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/src/fpm/cmd/new.f90",
+          "name": "fpm/src/fpm/cmd/new.f90 -> src/fpm_environment.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/src/fpm/dependency.f90",
+          "name": "fpm/src/fpm/dependency.f90 -> src/fpm_environment.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "token-unresolved",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": "The token (fpm_environment, fpm_os) equals the stem of both a .f90/.F90 file and a .c file, so the engine refuses the ambiguous stem. Module name picks the Fortran file. GitGalaxy missed the edge."
+    },
+    "fortran/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T22:00:25Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "fortran",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 29,
+      "last_seen_examples": [
+        {
+          "file_path": "fpm/example_packages/app_with_submodule/app/app1/main1.f90",
+          "name": "fpm/example_packages/app_with_submodule/app/app1/main1.f90 -> example_packages/app_with_submodule/src/parent.f90 (+2)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/example_packages/app_with_submodule/app/app2/main2.f90",
+          "name": "fpm/example_packages/app_with_submodule/app/app2/main2.f90 -> example_packages/app_with_submodule/src/parent.f90 (+2)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/example_packages/circular_test/src/hello_test.f90",
+          "name": "fpm/example_packages/circular_test/src/hello_test.f90 -> example_packages/circular_example/src/greet_m.f90 (+4)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/example_packages/fixed-form/app/main.f90",
+          "name": "fpm/example_packages/fixed-form/app/main.f90 -> example_packages/fixed-form/src/lib.f90 (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "fpm/example_packages/free-form/app/main.f",
+          "name": "fpm/example_packages/free-form/app/main.f -> example_packages/fixed-form/src/lib.f90 (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-names-several-files",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "fortran/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-24T22:00:25Z",
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
+      "language": "fortran",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "fpm/example_packages/submodule_tree_shake/src/child_unused.f90",
+          "name": "fpm/example_packages/submodule_tree_shake/src/child_unused.f90 -> example_packages/submodule_tree_shake/src/parent_unused.f90",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-sees-no-import-in-file",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": "submodule(parent_unused) child_unused is a real dependency on the parent module's file; the harness reads only use statements. The engine edge is right."
     },
     "go/call/call_expression/func_literal+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -5502,7 +5862,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-24T19:18:16Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5516,7 +5876,7 @@
       ],
       "metric": "truth-names-several-files",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "import",
       "verdict": null
     },
@@ -5532,12 +5892,12 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-24T19:18:16Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
           "file_path": "cobra/cobra_test.go",
-          "name": "cobra/cobra_test.go -> cobra.go",
+          "name": "cobra/cobra_test.go -> active_help.go",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -5546,7 +5906,7 @@
       ],
       "metric": "truth-sees-no-import-in-file",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "import",
       "verdict": null
     },
@@ -5554,15 +5914,17 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T18:27:12Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "groovy",
-      "last_reconciled_at": "2026-10-24T18:27:12Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 41,
       "last_seen_examples": [
         {
@@ -5607,10 +5969,10 @@
         }
       ],
       "metric": "declaration-unresolved",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "import static pkg.Class.member names pkg.Class (AsciiDocLinkVerifier.groovy); the engine does not resolve static-member imports to the class file. GitGalaxy missed a real import."
     },
     "groovy/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5621,10 +5983,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T18:27:12Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "groovy",
-      "last_reconciled_at": "2026-10-24T18:27:12Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -5669,10 +6031,10 @@
         }
       ],
       "metric": "target-not-imported",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "The file imports java.lang.annotation.Target (JDK); the engine linked it to the project's spock Target.java by stem. The engine edge is false."
     },
     "groovy/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5683,10 +6045,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T18:27:12Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "groovy",
-      "last_reconciled_at": "2026-10-24T18:27:12Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -5715,10 +6077,10 @@
         }
       ],
       "metric": "truth-sees-no-import-in-file",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "Fast/Slow.groovy import java.lang.annotation.Target and EmbeddedSpecRunner explicitly imports org.junit.platform.engine.Filter (an explicit import beats the org.spockframework.util.* wildcard), so no edge to the project's Target.java/Filter.java exists. The engine edge is false."
     },
     "haskell/call/apply/apply/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -8208,7 +8570,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8318,7 +8680,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8358,7 +8720,7 @@
       "investigated_at": "2026-10-02T15:31:51Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799 JVM sweep)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8758,7 +9120,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "lua",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -8804,7 +9166,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "lua",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -8838,6 +9200,68 @@
       "symbol_type": "import",
       "verdict": null
     },
+    "matlab/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-25T19:08:24Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "matlab",
+      "last_reconciled_at": "2026-10-25T19:08:24Z",
+      "last_seen_count": 9,
+      "last_seen_examples": [
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "robotics-toolbox-matlab/unit_test/ETS2Test.m",
+          "name": "robotics-toolbox-matlab/unit_test/ETS2Test.m -> ETS2.m",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "objective-c/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
@@ -8852,44 +9276,44 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "objective-c",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
-      "last_seen_count": 18,
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 10,
       "last_seen_examples": [
         {
-          "file_path": "SDWebImage/SDWebImage/Private/NSBezierPath+SDRoundedCorners.h",
-          "name": "SDWebImage/SDWebImage/Private/NSBezierPath+SDRoundedCorners.h -> SDWebImage/Core/SDWebImageCompat.h (+1)",
+          "file_path": "SDWebImage/SDWebImage/include/SDWebImage/SDWebImage.h",
+          "name": "SDWebImage/SDWebImage/include/SDWebImage/SDWebImage.h -> SDWebImageMapKit/MapKit/MKAnnotationView+WebCache.h (+1)",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "SDWebImage/SDWebImage/Private/NSBezierPath+SDRoundedCorners.h",
-          "name": "SDWebImage/SDWebImage/Private/NSBezierPath+SDRoundedCorners.h -> SDWebImage/Core/UIImage+Transform.h (+1)",
+          "file_path": "SDWebImage/WebImage/SDWebImage.h",
+          "name": "SDWebImage/WebImage/SDWebImage.h -> SDWebImageMapKit/MapKit/MKAnnotationView+WebCache.h (+1)",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "SDWebImage/SDWebImage/Private/SDAssociatedObject.h",
-          "name": "SDWebImage/SDWebImage/Private/SDAssociatedObject.h -> SDWebImage/Core/SDWebImageCompat.h (+1)",
+          "file_path": "Texture/Source/ASVideoNode.mm",
+          "name": "Texture/Source/ASVideoNode.mm -> Source/ASVideoNode.h (+1)",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "SDWebImage/SDWebImage/Private/SDAssociatedObject.m",
-          "name": "SDWebImage/SDWebImage/Private/SDAssociatedObject.m -> SDWebImage/Core/UIImage+ExtendedCacheData.h (+1)",
+          "file_path": "Texture/Source/ASVideoPlayerNode.h",
+          "name": "Texture/Source/ASVideoPlayerNode.h -> Source/ASVideoNode.h (+1)",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "SDWebImage/SDWebImage/Private/SDAssociatedObject.m",
-          "name": "SDWebImage/SDWebImage/Private/SDAssociatedObject.m -> SDWebImage/Core/UIImage+ForceDecode.h (+1)",
+          "file_path": "Texture/Source/AsyncDisplayKit.h",
+          "name": "Texture/Source/AsyncDisplayKit.h -> Source/ASVideoNode.h (+1)",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -8898,7 +9322,7 @@
       ],
       "metric": "truth-names-several-files",
       "status": "validated",
-      "still_reproduces": false,
+      "still_reproduces": true,
       "symbol_type": "import",
       "verdict": "GitGalaxy missed them: the two-file truth sets are one file -- SDWebImage/include/SDWebImage/*.h are symlinks to SDWebImage/Core/*.h; the resolver counts the symlink as a second candidate, calls the import ambiguous and draws no edge. Engine defect #3648."
     },
@@ -12108,6 +12532,114 @@
       "symbol_type": "call",
       "verdict": "GitGalaxy wrong. Read in perl/exiftool and perl/spamassassin: the recorded callees are text the engine lifts out of regex bodies, interpolated strings and hash keys, not calls: `m{^/usr(/local)?/?$}` and `m{^/opt(/|$)}` in Makefile.PL give `usr` and `opt`; `\"G$family\"` and `$$tagInfo{Groups}` in GetGroup give `G` and `Group`; the single-letter names (`E`, `c`, `x`, `b`) have the same source. No credit: the claim is wrong. Engine defect: a regex or string body is not a place to find a call (C2/C3 name only real invocations)."
     },
+    "perl/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-25T04:26:56Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 5,
+      "last_seen_examples": [
+        {
+          "file_path": "Plack/t/HTTP-Server-PSGI/framing.t",
+          "name": "Plack/t/HTTP-Server-PSGI/framing.t -> t/Plack-Response/response.t",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Plack/t/HTTP-Server-PSGI/harakiri.t",
+          "name": "Plack/t/HTTP-Server-PSGI/harakiri.t -> t/Plack-Response/response.t",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Plack/t/Plack-Handler/apache2.t",
+          "name": "Plack/t/Plack-Handler/apache2.t -> lib/Plack/Handler/Apache2.pm",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Plack/t/Plack-Middleware/cgibin_exec.t",
+          "name": "Plack/t/Plack-Middleware/cgibin_exec.t -> lib/Plack/Handler/CGI.pm",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Plack/t/Plack-Middleware/wrapcgi_exec.t",
+          "name": "Plack/t/Plack-Middleware/wrapcgi_exec.t -> lib/Plack/Handler/CGI.pm",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "target-not-imported",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "perl/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-25T04:26:56Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 3,
+      "last_seen_examples": [
+        {
+          "file_path": "Plack/t/HTTP-Server-PSGI/framing.t",
+          "name": "Plack/t/HTTP-Server-PSGI/framing.t -> lib/HTTP/Server/PSGI.pm (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Plack/t/HTTP-Server-PSGI/listen.t",
+          "name": "Plack/t/HTTP-Server-PSGI/listen.t -> lib/HTTP/Server/PSGI.pm (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "Plack/t/HTTP-Server-PSGI/read_size.t",
+          "name": "Plack/t/HTTP-Server-PSGI/read_size.t -> lib/HTTP/Server/PSGI.pm (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-names-several-files",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "perl/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
@@ -12120,7 +12652,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -12134,7 +12666,7 @@
       ],
       "metric": "truth-sees-no-import-in-file",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "import",
       "verdict": null
     },
@@ -12966,7 +13498,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -13231,6 +13763,68 @@
         }
       ],
       "metric": "inner-named-function_statement",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "call",
+      "verdict": null
+    },
+    "powershell/call/invokation_expression/-+generic/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-24T22:16:49Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "powershell",
+      "last_reconciled_at": "2026-10-24T22:16:49Z",
+      "last_seen_count": 20,
+      "last_seen_examples": [
+        {
+          "file_path": "powershell/core/PowerShell__build.psm1",
+          "name": "ToString -> AppendFormat",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3176
+          }
+        },
+        {
+          "file_path": "powershell/core/PowerShell__build.psm1",
+          "name": "ToString -> AppendLine",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3222
+          }
+        },
+        {
+          "file_path": "powershell/core/PowerShell__build.psm1",
+          "name": "ToString -> Append",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3229
+          }
+        },
+        {
+          "file_path": "powershell/core/PowerShell__build.psm1",
+          "name": "ToString -> AppendFormat",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3224
+          }
+        },
+        {
+          "file_path": "powershell/core/PowerShell__build.psm1",
+          "name": "ToString -> appendformat",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 3307
+          }
+        }
+      ],
+      "metric": "invokation_expression/-+generic",
       "status": "unvalidated",
       "still_reproduces": true,
       "symbol_type": "call",
@@ -13782,7 +14376,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "powershell",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14346,7 +14940,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-24T19:18:16Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14376,7 +14970,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-24T19:18:16Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14562,7 +15156,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14592,7 +15186,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -15994,6 +16588,106 @@
       "symbol_type": "call",
       "verdict": null
     },
+    "rust/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-25T06:35:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "rust",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 6,
+      "last_seen_examples": [
+        {
+          "file_path": "ripgrep/crates/core/flags/complete/bash.rs",
+          "name": "ripgrep/crates/core/flags/complete/bash.rs -> crates/core/flags/defs.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "ripgrep/crates/core/flags/complete/fish.rs",
+          "name": "ripgrep/crates/core/flags/complete/fish.rs -> crates/core/flags/defs.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "ripgrep/crates/core/flags/complete/powershell.rs",
+          "name": "ripgrep/crates/core/flags/complete/powershell.rs -> crates/core/flags/defs.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "ripgrep/crates/core/flags/doc/help.rs",
+          "name": "ripgrep/crates/core/flags/doc/help.rs -> crates/core/flags/defs.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "ripgrep/crates/core/flags/doc/man.rs",
+          "name": "ripgrep/crates/core/flags/doc/man.rs -> crates/core/flags/defs.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "rust/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-10-25T06:35:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "rust",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "ripgrep/crates/core/flags/complete/bash.rs",
+          "name": "ripgrep/crates/core/flags/complete/bash.rs -> crates/core/flags/mod.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "ripgrep/crates/core/flags/complete/powershell.rs",
+          "name": "ripgrep/crates/core/flags/complete/powershell.rs -> crates/core/flags/mod.rs",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "target-not-imported",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "scala/call/call_expression/call_expression/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
@@ -16606,7 +17300,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -16670,7 +17364,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -16734,7 +17428,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -16772,7 +17466,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -16810,7 +17504,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -16842,7 +17536,7 @@
       "investigated_at": "2026-09-25T18:40:28Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -16906,7 +17600,7 @@
       "investigated_at": "2026-10-02T12:00:00Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -17416,7 +18110,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -17454,7 +18148,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "solidity",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 24,
       "last_seen_examples": [
         {
@@ -17748,7 +18442,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "swift",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 22,
       "last_seen_examples": [
         {
@@ -17794,7 +18488,7 @@
       ],
       "metric": "truth-sees-no-import-in-file",
       "status": "unvalidated",
-      "still_reproduces": true,
+      "still_reproduces": false,
       "symbol_type": "import",
       "verdict": null
     },
@@ -18990,15 +19684,17 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T19:18:17Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 278,
       "last_seen_examples": [
         {
@@ -19043,10 +19739,10 @@
         }
       ],
       "metric": "capture-missed",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "No engine token for the import: package ifneeded in pkgIndex.tcl and source via [file join ...] forms are not captured. Both are real imports under the Tcl rule. GitGalaxy missed them."
     },
     "tcl/import/capture-none-in-file/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -19060,7 +19756,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "tcl",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -19082,15 +19778,17 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T19:18:17Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 437,
       "last_seen_examples": [
         {
@@ -19135,24 +19833,26 @@
         }
       ],
       "metric": "token-unresolved",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "The captured token names the target, but the engine's stem search refuses it: a same-stem doc page (md/html) or sibling file makes the match ambiguous, and tokens arrive mangled ('time;', '[file'). The Tcl rule (source path, package require -> package provide) resolves them. GitGalaxy missed a real import."
     },
     "tcl/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T19:18:17Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
-      "last_reconciled_at": "2026-10-24T19:18:17Z",
+      "last_reconciled_at": "2026-10-25T11:10:56Z",
       "last_seen_count": 53,
       "last_seen_examples": [
         {
@@ -19197,10 +19897,10 @@
         }
       ],
       "metric": "truth-names-several-files",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "One package require names every file that package-provides it; the engine links at most one name-matched file. The Tcl rule is right, GitGalaxy missed the other providers."
     },
     "typescript/call/call_expression/call_expression+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

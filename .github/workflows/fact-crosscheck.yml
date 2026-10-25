@@ -22,6 +22,8 @@ on:
     branches: [main]
     paths:
       - "gitgalaxy/**"
+      # #6278 slice 4: a standalone tool nothing here imports (test_engine_reach_workflows.py proves it from the import closure)
+      - "!gitgalaxy/tools/terabyte_log_scanning/**"
       - "pyproject.toml"
       - "tests/tools/fact_crosscheck.py"
       - "tests/tools/referees/translator_adapter.py"
@@ -55,7 +57,9 @@ concurrency:
 
 jobs:
   crosscheck:
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    # #6670: not on a PR (it never failed on one in 7 days; pr_gates.py runs it before a push). The pull_request trigger
+    # stays for its `paths`: post_merge_dispatch.py reads them as this workflow's relevance filter on main.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 12  # install + 7 corpus scans + the crucible scan + ~10 s of comparison; a hang should fail fast
     env:

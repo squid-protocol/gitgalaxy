@@ -58,6 +58,9 @@ DB2_PER_SHARD = 6  # narrow: about this many Db2 cases per runner (a Db2 start i
 # counts above are the fallback when no durations are given.
 DB2_SETUP_S = 420  # job start, checkout, Db2 container + databases (~6 min, #5882) before the first proof
 DB2_TARGET_S = 15 * 60  # a Db2 job, start to sweep end (det_sweep_timing.BUDGET_SECONDS)
+# #5882: plan to this share of DB2_TARGET_S: case seconds move 30-50% run to run, so a plan that just fits the budget missed
+# it in 3 runs of 4 (docs/agents/det-sweep-db2-acceptance.md); the price is about one more Db2 runner per full sweep.
+DB2_HEADROOM = 0.8
 SHARD_SETUP_S = 300  # a non-Db2 shard: checkout, install, the GnuCOBOL image
 SHARD_TARGET_S = 10 * 60  # #5919: a non-Db2 shard, start to sweep end (the fewest runners that fit)
 MAX_RATIO = 1.3  # planned slowest / fastest shard (det_sweep_timing.MAX_RATIO)
@@ -105,6 +108,9 @@ GENERATOR = tuple(
 GENERATOR += ("gitgalaxy/tools/cobol_to_java/cics_task_containers.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_filecontrol.py",  # #5448 split it out too (#5885)
               "gitgalaxy/tools/cobol_to_java/cics_task_taskcontrol.py",
+              "gitgalaxy/tools/cobol_to_java/cics_task_web.py",
+              "gitgalaxy/tools/cobol_to_java/cics_task_tdqueues.py",
+              "gitgalaxy/tools/cobol_to_java/cics_task_tsqueues.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_conditions.py",
               "gitgalaxy/tools/cobol_to_java/cics_task_faults.py")  # fmt: skip
 
@@ -448,6 +454,7 @@ def db2_shards_for(p: dict, n_db2: int | None = None, durations: dict[str, float
             PROOF_JOBS,
             DB2_TARGET_S,
             shard_plan.pool_cap(DB2_MAX_SHARDS, waiting),
+            DB2_HEADROOM,
         )
         return [f"{i}/{n}" for i in range(1, n + 1)]
     if p["db2_cases"] == "all":
@@ -476,7 +483,7 @@ def timeouts_for(p: dict, durations: dict[str, float] | None, db2_setup_s: float
             shard_plan = _shard_plan()
             w, _ = shard_plan.weights(names, durations)
             if key == "db2_timeout":
-                proving = shard_plan.slowest_shard(w, n) / PROOF_JOBS
+                proving = shard_plan.shard_seconds(w, n, 0, PROOF_JOBS)  # the long pole included
                 planned = SHARD_SETUP_S + DB2_WAIT_S + proving * shard_plan.MARGIN
                 out[key] = max(DB2_TIMEOUT_FLOOR, min(DB2_TIMEOUT_CEILING, math.ceil(planned / 60)))
             else:

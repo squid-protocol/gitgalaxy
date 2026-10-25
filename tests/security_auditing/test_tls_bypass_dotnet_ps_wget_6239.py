@@ -25,6 +25,11 @@ _FIRES = [
     "wget --no-check-certificate https://host/x.tgz",
     "wget -q -O - --no-check-certificate https://host/install.sh | sh",
     "check_certificate = off",
+    "[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }",
+    "[Net.ServicePointManager]::ServerCertificateValidationCallback = { return $true }",
+    "[System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy",
+    "[System.Net.ServicePointManager]::CertificatePolicy = [TrustAllCertsPolicy]::new()",
+    "public bool CheckValidationResult(ServicePoint sp, X509Certificate c, WebRequest r, int p) {\n    return true;\n}",
 ]
 
 _SILENT = [
@@ -40,6 +45,11 @@ _SILENT = [
     "wget --check-certificate=on https://host/x.tgz",
     "echo wget is great\n# --no-check-certificate is unsafe",
     "check_certificate = on",
+    "[Net.ServicePointManager]::ServerCertificateValidationCallback = { param($s, $c) $c.Thumbprint -eq $pin }",
+    "[Net.ServicePointManager]::ServerCertificateValidationCallback = $null",
+    "[Net.ServicePointManager]::CertificatePolicy = $null",
+    "[Net.ServicePointManager]::CertificatePolicy = New-Object PinnedCertsPolicy",
+    "public bool CheckValidationResult(ServicePoint sp, X509Certificate c, WebRequest r, int p) {\n    return false;\n}",
 ]
 
 
@@ -60,8 +70,11 @@ def test_tls_bypass_near_miss_is_silent(text):
         "ServerCertificateValidationCallback = delegate " + "(a) " * 3000,
         "wget " + "-q " * 5000,
         "-SkipCertificateCheck" * 3000,
+        "ServerCertificateValidationCallback = { " * 3000,
+        "CertificatePolicy = " * 3000,
+        "CheckValidationResult(" + "a" * 5000,
     ],
-    ids=["callback", "delegate", "wget", "skip"],
+    ids=["callback", "delegate", "wget", "skip", "psblock", "policy", "cvr"],
 )
 def test_tls_bypass_patterns_are_not_redos(text):
     start = time.perf_counter()

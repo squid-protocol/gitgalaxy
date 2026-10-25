@@ -13,7 +13,7 @@ failed and nothing else did, only the time ratchet failed on tests outside the P
 limit, or the first attempt of a check the flake-history cache learned is flaky failed; rerun it once) or `real` (a fixer's job).
 A roll-up check (full-suite, ground-truth, det) takes the triage of its failed part jobs. `main` is also a stale base
 (#5273): the failing tests' files changed on origin/main since the PR's merge-base, so `git merge origin/main` is the
-whole fix -- then the job log's error lines and its last lines, ANSI and timestamps stripped, and the repro: the
+whole fix (also when main changed engine source and this PR touches none of it, #5276) -- then the job log's error lines and its last lines, ANSI and timestamps stripped, and the repro: the
 local command for that check from REPRO (pr_gates' own gate and ratchet names where one exists, otherwise the tool),
 filled with what the log names (the failing pytest node ids, the det cases not proven). A check with no local
 equivalent (CodeQL, Muninn, the dead-key audit ...) says so.
@@ -176,7 +176,12 @@ def triage(
     return "real"
 
 
-def repro(name: str, ex: dict[str, Any], kind: str = "real", stale: bool = False) -> str | None:
+def repro(name: str, ex: dict[str, Any], kind: str = "real", stale: bool | str = False) -> str | None:
+    if kind == "main" and stale == "source":
+        return (
+            "stale base (main changed engine source since this branch, and this PR touches none of it): "
+            "git merge origin/main; if the test still fails after the merge it is this PR's"
+        )
     if kind == "main" and stale:
         return "stale base (main changed these tests since this branch): git merge origin/main"
     if kind == "main":
@@ -217,6 +222,21 @@ def files_since_merge_base(api: pr_check.Api, sha: str) -> set[str]:
         return set()
 
 
+def stale_by_source(mine: set[str] | None, main_changed: set[str], tests: list[str]) -> bool:
+    """#5276: main changed engine source since the merge-base (its fix for a test file it never touched) and this PR
+    provably cannot have moved the failing tests: its file list is readable and holds no engine source, conftest,
+    fixture or file beside a failing test. Anything else stays `real` (a real breakage read as `main` once is the risk)."""
+    if mine is None or not any(f.startswith("gitgalaxy/") for f in main_changed):
+        return False
+    dirs = {t.split("::")[0].rpartition("/")[0] for t in tests}
+    return not any(
+        f.startswith(("gitgalaxy/", "tests/fixtures/"))
+        or f.rpartition("/")[2] == "conftest.py"
+        or f.rpartition("/")[0] in dirs
+        for f in mine
+    )
+
+
 def rollup_kind(name: str, kind: str, ex: dict[str, Any], kinds: dict[str, str]) -> str:
     """#5273: a `real` roll-up check (full-suite, ground-truth, det) whose failed part jobs are all non-real takes theirs:
     a Db2 image pull leaves `det` with "shard did not report", a suite part is over its time limit."""
@@ -239,17 +259,53 @@ def knock_on_kind(name: str, kind: str, ex: dict[str, Any], kinds: dict[str, str
     return kind
 
 
-def main_failures(api: pr_check.Api, lookback: int = 3) -> set[str]:
+MAIN_QUERY = """
+query($owner: String!, $name: String!) {
+  rateLimit { cost }
+  repository(owner: $owner, name: $name) {
+    ref(qualifiedName: "refs/heads/main") { target { ... on Commit { oid
+      parents(first: 1) { nodes { oid } }
+      @@SUITES@@
+    } } }
+  }
+}""".replace("@@SUITES@@", pr_check.SUITES_SELECTION)
+
+
+def main_tip(
+    api: pr_check.Api, graphql: pr_check.GraphQL | None = None
+) -> tuple[dict[str, Any], list[dict[str, Any]]] | None:
+    """(main's newest commit as REST's {sha, parents}, its check runs), or None when unreadable (#6534: one GraphQL
+    query when `graphql` is given, the two REST reads when it fails or comes back incomplete)."""
+    if graphql:
+        owner, name = REPO_SLUG.split("/")
+        try:
+            c = graphql(MAIN_QUERY, {"owner": owner, "name": name})["repository"]["ref"]["target"]
+            runs = pr_check.runs_from_suites(pr_check.whole(c["checkSuites"]))
+            return {"sha": c["oid"], "parents": [{"sha": x["oid"]} for x in c["parents"]["nodes"]]}, runs
+        except (SystemExit, KeyError, TypeError, AttributeError, ValueError):
+            pass
+    try:
+        commit = api(f"repos/{REPO_SLUG}/commits/main")
+        return commit, pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{commit['sha']}/check-runs", "check_runs")
+    except (SystemExit, KeyError, TypeError):
+        return None
+
+
+def main_failures(
+    api: pr_check.Api,
+    lookback: int = 3,
+    graphql: pr_check.GraphQL | None = None,
+    tip: tuple[dict[str, Any], list[dict[str, Any]]] | None = None,
+) -> set[str]:
     """The checks failing on main's newest commit (#4790): a PR failing the same check inherited it from main.
     Basal persistence: when main's tip commit just landed and its checks are still pending (or not yet registered),
     walk up to `lookback` first-parent commits on main so checks not yet completed on tip retain their last known
-    completed main status instead of causing a false 'real' failure during the post-merge CI window."""
-    try:
-        commit = api(f"repos/{REPO_SLUG}/commits/main")
-        sha = commit["sha"]
-        runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
-    except (SystemExit, KeyError, TypeError):
+    completed main status instead of causing a false 'real' failure during the post-merge CI window.
+    `tip`: main_tip's answer, when the pass already read it."""
+    tip = tip or main_tip(api, graphql)
+    if tip is None:
         return set()
+    commit, runs = tip
     failed, decided = _completed_names(runs)
     pending = {x.rsplit(" (", 1)[0] for x in pr_check.classify(runs, [])["pending"]}
     parents = commit.get("parents") or []
@@ -273,18 +329,21 @@ def main_failures(api: pr_check.Api, lookback: int = 3) -> set[str]:
     return failed
 
 
-def main_green(api: pr_check.Api) -> tuple[str, set[str]]:
+def main_green(
+    api: pr_check.Api,
+    graphql: pr_check.GraphQL | None = None,
+    tip: tuple[dict[str, Any], list[dict[str, Any]]] | None = None,
+) -> tuple[str, set[str]]:
     """(main's newest sha, the checks completed green on exactly that commit) (#5484). Tip only, no look-back: a check
     still pending on the tip is not green yet, so a PR waiting on main keeps waiting. Unreadable: ("", set())."""
-    try:
-        sha = api(f"repos/{REPO_SLUG}/commits/main")["sha"]
-        runs = pr_check.paged(api, f"repos/{REPO_SLUG}/commits/{sha}/check-runs", "check_runs")
-    except (SystemExit, KeyError, TypeError):
+    tip = tip or main_tip(api, graphql)
+    if tip is None:
         return "", set()
+    commit, runs = tip
     c = pr_check.classify(runs, [])
     failed, _ = _completed_names(runs)
     pending = {x.rsplit(" (", 1)[0] for x in c["pending"]}
-    return sha, set(c["passed"]) - failed - pending
+    return commit["sha"], set(c["passed"]) - failed - pending
 
 
 def first_attempt(api: pr_check.Api, job_id: int) -> bool:
@@ -333,14 +392,17 @@ def digest(
     out = []
     for name, r, ex, kind in first:
         kind = knock_on_kind(name, rollup_kind(name, kind, ex, kinds), ex, kinds)
-        stale = False
+        stale: bool | str = False
         if kind == "real" and name in on_main:
             kind = "main"  # the same check fails on main: fix main, not this PR
         elif kind == "real" and ex["tests"]:
             files = {t.split("::")[0] for t in ex["tests"]}
             mine = diff_files()
-            if mine is not None and files & files_since_merge_base(api, sha) and not files & mine:
+            since = files_since_merge_base(api, sha)
+            if mine is not None and files & since and not files & mine:
                 kind, stale = "main", True  # main fixed these tests since the merge-base (#5273)
+            elif stale_by_source(mine, since, ex["tests"]):
+                kind, stale = "main", "source"  # main's fix was in source only, the PR touches none of it (#5276)
         ids = RUN_JOB.search(r.get("details_url") or "")
         if kind == "real" and flaky and name in flaky and ids and first_attempt(api, int(ids.group(2))):
             kind = "flake"  # a learned flake's first failure gets one rerun; a second failure is real

@@ -326,6 +326,10 @@ class SecurityLens:
                 # #6239: .NET accept-any certificate callbacks, PowerShell -SkipCertificateCheck, wget --no-check-certificate.
                 r"\bDangerousAcceptAnyServerCertificateValidator\b|"
                 r"\bServerCertificate(?:Custom)?ValidationCallback[ \t]*\+?=[^;{}]{0,100}?(?:=>[ \t]*(?:\{[ \t\r\n]{0,40}return[ \t]+)?true\b|\bdelegate\b[^;{}]{0,80}\{[ \t\r\n]{0,40}return[ \t]+true\b)|"
+                # PowerShell spellings: a `{ $true }` script block, a TrustAll* CertificatePolicy, a CheckValidationResult returning true.
+                r"\bServerCertificateValidationCallback[ \t]*\+?=[ \t]*\{[ \t\r\n]{0,40}(?:return[ \t]+)?\$true\b|"
+                r"\bCertificatePolicy[ \t]*=[ \t]*(?:New-Object[ \t]+)?\[?[\w.]{0,40}TrustAll|"
+                r"\bCheckValidationResult[ \t]*\([^)\n]{0,160}\)[ \t\r\n]{0,20}\{[ \t\r\n]{0,40}return[ \t]+\$?true\b|"
                 r"(?<![\w-])-SkipCertificateCheck\b(?![ \t]*:[ \t]*\$false)|"
                 r"\bwget\b[^\n|;&]{0,120}?[ \t]--no-check-certificate\b|"
                 r"^[ \t]*check_certificate[ \t]*=[ \t]*(?:off|no)\b|"

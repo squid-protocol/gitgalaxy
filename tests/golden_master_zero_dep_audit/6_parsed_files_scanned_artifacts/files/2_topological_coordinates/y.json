@@ -2598,7 +2598,7 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": -297.14,
       "php/wordpress/class-wp-query.php": -230.62,
-      "php/wordpress/formatting.php": -107.25,
+      "php/wordpress/formatting.php": -107.3,
       "php/wordpress/functions.php": -224.26,
       "php/wordpress/license.txt": -107.26,
       "php/wordpress/plugin.php": -105.48,

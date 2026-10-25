@@ -47,7 +47,44 @@ burned-estate gains carrying over.
 | 5 | Era profile: burned estates lean era 2-4; the PL/I CICS seen is era 1 (`HANDLE CONDITION`, DL/I, `HANDLE AID`) | #5856-class for COBOL; PL/I untouched | none |
 | 6 | What does transfer: the statement core. Where a program translates at all, 82-94% of statements come through, and holes are named | n/a | n/a |
 
+## Update 2026-10-24 (main `7bdf81d93`): #6065 landed, so `dsf` is no longer a blind first contact
+
+The statement above that no fix derived from these corpora lands before their first-contact scan no longer holds.
+#6065 (batch file I/O without an application JCL job, `WRITE ... ADVANCING`) was written from the peek, was parked on
+2026-10-22, and was closed as completed on 2026-10-23 by #6111 (slice 1). Its own `det_survey.py --no-compile` run on
+the pinned corpora, as recorded on the issue (counts only, no commit named there; the fix is #6111):
+
+| corpus | before (peek, `082aba881`) | after #6111 (2026-10-23) |
+|---|---|---|
+| `dsf` COBOL (batch) | 0 / 7 whole, 231 / 318 statements | 0 / 7 whole, 309 / 334 statements |
+| `zopeneditor-sample` | 2 / 5 whole, 595 / 632 statements | unchanged |
+
+Read this as: the `dsf` batch statement rate moved from 72.6% to 92.5% (309 / 334) with no program becoming whole, and
+the statement denominator changed (318 to 334) because the translator now emits more of the file. Both corpora have now
+been looked at twice with their hole reasons in hand, so any later scan of them is a re-measurement, not a first
+contact. The honest first-contact number for a seventh estate still has to come from an estate nobody has read
+(the blind estate draw). The table in "Numbers" is unchanged and stays the 2026-10-22 baseline.
+
+## Update 2026-10-25 (main `a3f1ac8ca`): burned side re-read, non-burned side still unmeasured
+
+Burned estates only. From the generated progress page (evidence reports of the six burned estates; the oracle is
+GnuCOBOL plus IBM documentation, not z/OS):
+
+| burned estates | programs | translated whole | L2+ (executed equal) | L4+ (every net branch) | L5 |
+|---|---|---|---|---|---|
+| 6 estates | 129 | 123 | 120 (93.0%) | 83 (64.3%) | 0 |
+
+The six programs that are not whole each have a non-translator blocker: two source defects IBM rejects (#5866), two
+CICS Assembler members the COBOL translator refuses (#5859), two held by an owner ruling or by a need for captured
+z/OS results (#5106, #5867). The 123 of 129 matches the 2026-10-22 row, so the burned side did not move in the
+whole-translation count; it moved up the ladder (proof depth), which is depth on six estates, not transfer.
+
+Gap pointers re-checked on 2026-10-25: #6065 closed, #5856 closed, #6066 open (frontier), #6064 open. No burned
+program needs any gap in the table above. The non-burned rate is still the 2026-10-22 peek: the first scheduled census
+run (#6064) has not run, so no newer non-burned number exists and none is claimed here.
+
 ## Going forward
 
-- `dsf` and `zopeneditor-sample`: the next scan is the real first contact. Record it here, then decide on #6066.
+- `dsf` and `zopeneditor-sample`: their next scan is a re-measurement (see the 2026-10-24 update), not a first contact.
+  Record it here, then decide on #6066.
 - Breadth is the fix for transfer: more estates scanned at first contact (the blind estate draw), not more depth on the six.

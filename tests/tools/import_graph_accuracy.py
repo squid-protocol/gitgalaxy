@@ -87,10 +87,14 @@ RESOLUTION RULES (the language's, never the engine's)
               crate-relative. A path is the deepest module that is a file
               (a/b.rs, a/b/mod.rs under the crate dir), plus, for an item below it,
               what that module's own `use`s of the name and globs mean (re-exports,
-              two hops). `extern crate x` -> x's lib root.
+              two hops). `extern crate x` -> x's lib root. A `[[bin]] path` is a crate
+              root like src/main.rs (ripgrep's crates/core/main.rs).
   perl        `use A::B` / `require A::B` -> a file ending in A/B.pm.
   objective-c the C rule (`#import` is `#include` once); `@import Module;` is a
-              framework module, external.
+              framework module, external. `<Fw/X.h>` with no such path in the repo, where Fw is a
+              framework the repo builds (a `Fw.xcodeproj`, a `Fw.podspec`, a podspec's
+              `header_dir` / `module_name`), is the files ending in X.h: the framework's headers
+              are flattened (Objective-C++ `.mm` files included, same rule).
   dart        `package:p/x.dart` -> <p's pubspec.yaml directory>/lib/x.dart for a
               package in the repo, else external; `dart:` is the SDK; any other
               URI (import, export, part, part of) is relative to the file.
@@ -141,6 +145,19 @@ RESOLUTION RULES (the language's, never the engine's)
               blanked (the tree-sitter grammar parses `import` as a generic command and breaks on
               `a.b.*` followed by another import). A script file with no class declares its file stem.
               A Java class is found by Java's rule (a/b/C.java); java.* / groovy.* are external.
+
+  fortran     by MODULE NAME, never by path: `use m`, `use m, only: x` and `use :: m` are the files
+              declaring `module m` (case-insensitive; a name two files declare is both). `use,
+              intrinsic :: m` is the standard's module, no edge. `module procedure/subroutine/
+              function` are not module declarations; `submodule (p) s` declares no usable name.
+              `include 'f'` / `#include "f"` are the file by path suffix. Comments
+              blanked first (`!` to end of line; fixed-form `c`/`*` in column 1).
+
+  matlab      by PACKAGE and NAME, never by path: `+a/+b/C.m` is `a.b.C` (a class or package function),
+              `@C/C.m` is class C. `import a.b.C` is that file (`import C.m` a member: the owner's
+              file); `import a.b.*` names a package: contract C7, no edge, unless a.b is a class (its
+              static members: the class file). Several arguments on one line are each scored.
+              `%` and `%{ %}` comments blanked. matlab.* / java.* / org.* match no file: external.
 
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
@@ -221,6 +238,8 @@ LANGS = (
     "powershell",
     "tcl",
     "groovy",
+    "fortran",
+    "matlab",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -430,10 +449,41 @@ def c_imports(lang: str) -> Callable[[bytes, str, Group], list[set[str]]]:
                     local = group.exact(posixpath.join(posixpath.dirname(rel), spec))
                     out.append(local or group.suffix(spec))
                 elif c.type == "system_lib_string":
-                    out.append(group.suffix(_text(c, src).strip("<> ")))
+                    spec = _text(c, src).strip("<> ")
+                    found = group.suffix(spec)
+                    if not found and lang == "objc":
+                        found = _objc_framework_header(spec, group)
+                    out.append(found)
         return out
 
     return imports
+
+
+def _objc_frameworks(group: Group) -> set[str]:
+    """Framework names the repo itself builds: `Name.xcodeproj`, `Name.podspec`, a podspec's header_dir / module_name."""
+    if "objc_fw" not in group._cache:
+        names: set[str] = set()
+        for f in group.files:
+            stem, ext = posixpath.splitext(posixpath.basename(f))
+            if ext == ".podspec" and group.root is not None:
+                names.add(stem)
+                text = read_source(group.root / f).text
+                names.update(
+                    m.group(1) for m in re.finditer(r"\b(?:header_dir|module_name)\s*=\s*['\"]([^'\"]+)['\"]", text)
+                )
+        for d in group.by_dir:
+            for part in d.split("/"):
+                if part.endswith(".xcodeproj"):
+                    names.add(part[: -len(".xcodeproj")])
+        group._cache["objc_fw"] = names
+    return group._cache["objc_fw"]
+
+
+def _objc_framework_header(spec: str, group: Group) -> set[str]:
+    """`<Fw/X.h>` where Fw is a framework this repo builds: its headers are flattened into the framework, so X.h is
+    found by its own path tail wherever the source tree keeps it (a CocoaPods header_dir or an Xcode header map)."""
+    fw, _, rest = spec.partition("/")
+    return group.suffix(rest) if rest and fw in _objc_frameworks(group) else set()
 
 
 def java_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
@@ -686,7 +736,7 @@ def _cargo(group: Group, d: str) -> dict[str, Any] | None:
     out: dict[str, Any] | None = None
     path = (group.root / d / "Cargo.toml") if group.root is not None else None
     if path is not None and path.is_file():
-        out = {"package": None, "edition": False, "lib": "src/lib.rs", "deps": {}, "ws_deps": {}, "inherit": set()}
+        out = {"package": None, "edition": False, "lib": "src/lib.rs", "deps": {}, "ws_deps": {}, "inherit": set(), "bins": []}
         section = ""
         try:
             text = read_source(path).text
@@ -702,6 +752,8 @@ def _cargo(group: Group, d: str) -> dict[str, Any] | None:
                 out["package"] = kv.group(2)
             if section == "package" and line.strip().startswith("edition"):
                 out["edition"] = True
+            if section == "bin" and kv and kv.group(1) == "path":
+                out["bins"].append(posixpath.normpath(posixpath.join(d, kv.group(2))))
             if section == "lib" and kv and kv.group(1) in ("name", "path"):
                 out["lib_" + kv.group(1)] = kv.group(2)
             dep = _CARGO_DEP_PATH.match(line)
@@ -756,10 +808,11 @@ def _rust_crate(rel: str, group: Group) -> tuple[str, str | None]:
             return join(parts[0], parts[1]), join(parts[0], parts[1], "main.rs")
         return join(parts[0]), None
     lib = join(_cargo(group, pkg)["lib"])
-    for root in (lib, join("src", "main.rs"), join("build.rs")):
+    bins = _cargo(group, pkg)["bins"]
+    for root in (lib, join("src", "main.rs"), join("build.rs"), *bins):
         if root == rel:
             return d, rel
-    for root in (lib, join("src", "main.rs")):
+    for root in (lib, join("src", "main.rs"), *bins):
         rd = posixpath.dirname(root)
         if root in group.files and (not rd or rel.startswith(rd + "/")):
             return rd, root
@@ -1717,6 +1770,118 @@ def groovy_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+_FT_EXTS = (".f90", ".f95", ".f03", ".f08", ".f18", ".f", ".for", ".f77", ".ftn", ".fpp")
+_FT_FIXED = (".f", ".for", ".f77")
+_FT_MODULE = re.compile(r"^[ \t]*module[ \t]+(\w+)[ \t]*$", re.MULTILINE | re.IGNORECASE)
+_FT_USE = re.compile(
+    r"^[ \t]*use(?:[ \t]*,[ \t]*(non_)?(intrinsic)[ \t]*::|[ \t]*::|[ \t]+)[ \t]*(\w+)",
+    re.MULTILINE | re.IGNORECASE,
+)
+_FT_INCLUDE = re.compile(r"^[ \t]*#?[ \t]*include[ \t]*(?:\"([^\"\n]+)\"|'([^'\n]+)')", re.MULTILINE | re.IGNORECASE)
+
+
+def _ft_mask(text: str, fixed: bool) -> str:
+    """Comments blanked (newlines kept): `!` to end of line, and fixed-form `c` / `*` in column 1."""
+    if fixed:
+        text = re.sub(r"^[cC*][^\n]*", lambda m: " " * len(m.group(0)), text, flags=re.MULTILINE)
+    return re.sub(r"![^\n]*", lambda m: " " * len(m.group(0)), text)
+
+
+def _ft_index(group: Group) -> dict[str, set[str]]:
+    """lower-case module name -> files declaring it, over every Fortran source file, parsed once."""
+    if "ft" in group._cache:
+        return group._cache["ft"]
+    by_name: dict[str, set[str]] = collections.defaultdict(set)
+    for f in sorted(group.files):
+        if not f.lower().endswith(_FT_EXTS) or group.root is None:
+            continue
+        try:
+            text = _ft_mask(read_source(group.root / f).text, f.lower().endswith(_FT_FIXED))
+        except OSError:
+            continue
+        for m in _FT_MODULE.finditer(text):
+            by_name[m.group(1).lower()].add(f)
+    group._cache["ft"] = by_name
+    return by_name
+
+
+def fortran_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _ft_index(group)
+    text = _ft_mask(decode_bytes(src), rel.lower().endswith(_FT_FIXED))
+    out: list[tuple[int, set[str]]] = []
+    for m in _FT_USE.finditer(text):
+        # `use, intrinsic :: m` is the standard's module, not a repo file (`non_intrinsic` is)
+        out.append((m.start(), set() if m.group(2) and not m.group(1) else set(index.get(m.group(3).lower(), ()))))
+    here = posixpath.dirname(rel)
+    for m in _FT_INCLUDE.finditer(text):
+        spec = m.group(1) or m.group(2)
+        out.append((m.start(), group.exact(posixpath.join(here, spec)) or group.suffix(spec)))
+    return [t for _, t in sorted(out, key=lambda x: x[0])]
+
+
+_ML_IMPORT = re.compile(r"^[ \t]*import[ \t]+([A-Za-z_][^\n;%]*)", re.MULTILINE)
+
+
+def _ml_mask(text: str) -> str:
+    """`%{ ... %}` block comments and `%` line comments blanked (newlines kept)."""
+    text = re.sub(
+        r"^[ \t]*%\{[ \t]*\n.*?^[ \t]*%\}[ \t]*$", lambda m: re.sub(r"[^\n]", " ", m.group(0)), text, flags=re.M | re.S
+    )
+    return re.sub(r"%[^\n]*", lambda m: " " * len(m.group(0)), text)
+
+
+def _ml_index(group: Group) -> dict[tuple[str, ...], set[str]]:
+    """qualified name -> files: `+a/+b/C.m` is (a, b, C); `@C/C.m` is C's class file (a method file
+    `@C/m.m` and a `private/` helper name nothing importable)."""
+    if "ml" not in group._cache:
+        index: dict[tuple[str, ...], set[str]] = collections.defaultdict(set)
+        for f in sorted(group.files):
+            if not f.endswith(".m"):
+                continue
+            dirs, stem = f.split("/")[:-1], posixpath.basename(f)[:-2]
+            if dirs and dirs[-1] == "private":
+                continue
+            if dirs and dirs[-1].startswith("@"):
+                if dirs[-1][1:] != stem:
+                    continue
+                dirs = dirs[:-1]
+            pkg: list[str] = []
+            for d in reversed(dirs):
+                if not d.startswith("+"):
+                    break
+                pkg.insert(0, d[1:])
+            index[(*pkg, stem)].add(f)
+        group._cache["ml"] = index
+    return group._cache["ml"]
+
+
+def matlab_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _ml_index(group)
+    out = []
+    for m in _ML_IMPORT.finditer(_ml_mask(decode_bytes(src))):
+        for arg in m.group(1).split():
+            if arg == "...":
+                break
+            parts = arg.split(".")
+            wildcard = parts[-1] == "*"
+            if wildcard:
+                parts = parts[:-1]
+            if not parts or not all(parts):
+                continue
+            if wildcard:
+                # `import a.b.*` names a package (contract C7: no file, no edge) unless a.b is a
+                # class, whose static members it imports: the class file
+                out.append(set(index.get(tuple(parts), ())))
+                continue
+            # `import a.b.C` is a class or package function; `import C.m` a member: the owner's file
+            out.append(
+                next(
+                    (set(index[tuple(parts[:k])]) for k in range(len(parts), 0, -1) if tuple(parts[:k]) in index), set()
+                )
+            )
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -1743,6 +1908,8 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "powershell": powershell_imports,
     "tcl": tcl_imports,
     "groovy": groovy_imports,
+    "fortran": fortran_imports,
+    "matlab": matlab_imports,
 }
 
 

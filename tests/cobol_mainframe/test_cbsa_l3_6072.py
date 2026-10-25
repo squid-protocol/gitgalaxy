@@ -47,8 +47,9 @@ def test_bnkmenu_states_its_unreachable_arms():
     entries = json.loads(path.read_text(encoding="utf-8"))["entries"]
     menu = {(e["unit"], e["line"], e["outcome"]): e for e in entries}
     assert ("IOT010", 897, "false") in menu
-    assert menu[("A010", 178, "true")]["family"] == "R"
-    # the RESP-fault scenarios (#6292) reach the failing-RETURN / SEND MAP arms, so those are no longer stated
+    # the RESP-fault scenarios (#6292) reach the failing-RETURN / SEND MAP arms, and a planned INVREQ on the
+    # plain RETURN TRANSID reaches A010's (#6271), so those are no longer stated
     assert ("IOT010", 394, "true") not in menu
+    assert ("A010", 178, "true") not in menu
     assert all(e["reason"] for e in entries)
     assert not (EQUIV / "infeasible_outcomes" / "cbsa-dbcrfun.json").exists()

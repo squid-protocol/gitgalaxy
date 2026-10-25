@@ -140,6 +140,21 @@ def test_rust_use_paths_follow_the_module_tree_and_cargo(tmp_path):
 
 
 @needs_ts
+def test_rust_bin_path_is_a_crate_root(tmp_path):
+    # #3798: ripgrep's `[[bin]] path = "crates/core/main.rs"` roots `crate::` for the files under it.
+    g = _group(
+        tmp_path,
+        {
+            "Cargo.toml": '[package]\nname = "rg"\nedition = "2021"\n[[bin]]\nname = "rg"\npath = "crates/core/main.rs"\n',
+            "crates/core/main.rs": "mod flags;\n",
+            "crates/core/flags/mod.rs": "",
+            "crates/core/flags/defs.rs": "",
+        },
+    )
+    assert iga.rust_imports(b"use crate::flags::defs;\n", "crates/core/flags/mod.rs", g) == [{"crates/core/flags/defs.rs"}]
+
+
+@needs_ts
 def test_java_nested_class_import_lives_in_the_outer_class_file(tmp_path):
     g = _group(tmp_path, {"src/com/acme/TestTypes.java": "", "src/com/acme/Util.java": ""})
     src = b"import com.acme.TestTypes.BagOfPrimitives;\nimport static com.acme.Util.helper;\n"
@@ -522,6 +537,149 @@ def test_groovy_resolves_by_package_and_declared_type_never_by_path(tmp_path):
         {"lib/c/Other.groovy"},
         {"lib/a/b/Native.java"},
         set(),
+        set(),
+        set(),
+    ]
+
+
+def test_fortran_resolves_by_module_name_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            # the file name means nothing: the module is found by what the file declares
+            "src/a_file.f90": "module Alpha_Mod\ncontains\n  module subroutine s()\n  end subroutine\nend module Alpha_Mod\n",
+            "src/beta.F90": "! module ghost\nmodule beta\nend module beta\n",
+            "src/dup1.f90": "module twin\nend module\n",
+            "lib/dup2.f90": "module twin\nend module\n",
+            "old/fixed.f": "c module cmt\n      module fixedmod\n      end module\n",
+            "src/sub.f90": "submodule (alpha_mod) child\nend submodule\n",
+            "src/iso_fortran_env.f90": "module iso_fortran_env\nend module\n",
+            "inc/consts.inc": "integer :: k\n",
+            "src/notes.txt": "module notmine\n",
+        },
+    )
+    src = (
+        b"program p\n"
+        b"  use alpha_mod\n"  # case-insensitive
+        b"  use :: beta\n"
+        b"  USE beta, only: x\n"
+        b"  use, non_intrinsic :: beta\n"
+        b"  use, intrinsic :: iso_fortran_env\n"  # the standard's module: no edge
+        b"  use twin\n"  # declared in two files
+        b"  use fixedmod\n"
+        b"  use ghost\n"  # only in a comment
+        b"  use child\n"  # a submodule is not usable
+        b"  use notmine\n"  # not a Fortran file
+        b"  use missing_mod\n"
+        b"  ! use beta\n"
+        b"  use_count = 3\n"  # not a use statement
+        b"  module_x = 1\n"
+        b"  include 'consts.inc'\n"
+        b"  include 'absent.inc'\n"
+        b"end program\n"
+    )
+    assert iga.fortran_imports(src, "inc/main.f90", g) == [
+        {"src/a_file.f90"},
+        {"src/beta.F90"},
+        {"src/beta.F90"},
+        {"src/beta.F90"},
+        set(),
+        {"src/dup1.f90", "lib/dup2.f90"},
+        {"old/fixed.f"},
+        set(),
+        set(),
+        set(),
+        set(),
+        {"inc/consts.inc"},
+        set(),
+    ]
+
+
+def test_fortran_fixed_form_comment_column_one_is_not_a_statement(tmp_path):
+    g = _group(tmp_path, {"a.f90": "module a\nend module\n"})
+    src = b"c      use a\n*      use a\n      use a\n"
+    assert iga.fortran_imports(src, "old/x.f", g) == [{"a.f90"}]
+
+
+def test_objc_framework_include_finds_the_header_in_a_framework_the_repo_builds(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "Kit.podspec": "Pod::Spec.new do |s|\n  s.header_dir = 'KitHeaders'\nend\n",
+            "Source/A.h": "",
+            "Source/Sub/B+Private.h": "",
+            "Source/C.mm": "",
+            "Other/Kit/D.h": "",
+            "Elsewhere.xcodeproj/project.pbxproj": "",
+            "Source/E.h": "",
+        },
+    )
+    src = (
+        b"#import <Kit/A.h>\n"  # the framework is `Kit.podspec`
+        b"#import <KitHeaders/B+Private.h>\n"  # header_dir, a flattened path tail
+        b"#include <Kit/C.h>\n"  # absent header
+        b"#import <Kit/D.h>\n"  # a real path wins: Other/Kit/D.h
+        b"#import <Elsewhere/E.h>\n"  # `Elsewhere.xcodeproj`
+        b"#import <Foundation/Foundation.h>\n"  # not this repo's framework
+        b"#import <vector>\n"
+        b'#import "A.h"\n'
+        b"@import UIKit;\n"
+    )
+    expect = [
+        {"Source/A.h"},
+        {"Source/Sub/B+Private.h"},
+        set(),
+        {"Other/Kit/D.h"},
+        {"Source/E.h"},
+        set(),
+        set(),
+        {"Source/A.h"},  # `"A.h"` quoted: not beside the file, so by suffix
+    ]
+    for rel in ("inc/main.m", "inc/main.mm", "inc/main.h"):
+        assert iga.EXTRACTORS["objective-c"](src, rel, g) == expect
+
+
+def test_c_does_not_use_the_objc_framework_rule(tmp_path):
+    g = _group(tmp_path, {"Kit.podspec": "", "Source/A.h": ""})
+    assert iga.EXTRACTORS["c"](b"#include <Kit/A.h>\n", "x.c", g) == [set()]
+
+
+def test_matlab_resolves_by_package_and_name_never_by_path(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "+pkg/+sub/Widget.m": "classdef Widget\nend\n",
+            "+pkg/helper.m": "function helper()\nend\n",
+            "@Old/Old.m": "classdef Old\nend\n",
+            "@Old/method.m": "function method(o)\nend\n",
+            "ETS.m": "classdef ETS\nend\n",
+            "+pkg/private/hidden.m": "function hidden()\nend\n",
+        },
+    )
+    src = (
+        b"import pkg.sub.Widget\n"
+        b"  import pkg.helper;\n"
+        b"import pkg.sub.*\n"  # a package: no file, no edge
+        b"import ETS.*\n"  # a class: its static members
+        b"import ETS.make\n"  # a member: the owner's file
+        b"import Old.*\n"
+        b"import pkg.Widget pkg.helper\n"  # two arguments on one line
+        b"import matlab.unittest.TestCase\n"  # external
+        b"import pkg.sub.Missing\n"
+        b"% import pkg.helper\n"
+        b"%{\nimport ETS.*\n%}\n"
+        b"important = 1\n"
+        b"import = 2\n"
+    )
+    assert iga.matlab_imports(src, "t/test.m", g) == [
+        {"+pkg/+sub/Widget.m"},
+        {"+pkg/helper.m"},
+        set(),
+        {"ETS.m"},
+        {"ETS.m"},
+        {"@Old/Old.m"},
+        set(),
+        {"+pkg/helper.m"},
         set(),
         set(),
     ]

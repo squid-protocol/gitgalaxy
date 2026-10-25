@@ -230,3 +230,23 @@ def test_the_real_scan_reads_paragraph_start_lines(tmp_path):
     if scan is None:
         pytest.skip("galaxyscope --db-only did not run here")
     assert scan["CHECK-IT"]["start_line"] == 7 and "RARE-PARA" in scan["CHECK-IT"]["calls"]
+
+
+@pytest.mark.parametrize("with_line", [False, True])
+def test_a_stated_paragraph_entry_marks_its_gap_with_or_without_a_line(tree, tmp_path, monkeypatch, with_line):
+    _, corpus = tree
+    monkeypatch.setattr(lg, "scan_program", lambda src: SCAN)
+    para = {"unit": "rare-para", "kind": "PARAGRAPH", "outcome": "entered", "family": "R", "reason": "DJ status"}
+    if with_line:
+        para["line"] = 20
+    branch = {"unit": "CHECK-IT", "line": 8, "kind": "IF", "outcome": "false", "family": "G", "reason": "checked"}
+    monkeypatch.setattr(infeasible_outcomes, "stated", lambda case, path=None: [para, branch])
+    sw = sweep_dir(tmp_path, paragraphs=[{"name": "RARE-PARA", "line": 20}, {"name": "MAIN-PARA", "line": 4}],
+                   branches=[{"line": 8, "kind": "IF", "outcome": "false", "unit": "CHECK-IT"}])  # fmt: skip
+    rep = lg.build_case_report("tiny-case", sw, {}, corpus)
+    marks = {p["name"]: p.get("infeasible") for p in rep["paragraphs"]}
+    assert marks == {"RARE-PARA": {"family": "R", "reason": "DJ status"}, "MAIN-PARA": None}
+    assert rep["branches"][0]["infeasible"] == {"family": "G", "reason": "checked"}
+    assert rep["infeasible_stated"] == [para, branch]
+    out = lg.render_md([rep])
+    assert "| infeasible |" in out and "R: DJ status" in out

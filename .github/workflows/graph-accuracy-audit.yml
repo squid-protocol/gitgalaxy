@@ -68,6 +68,12 @@ on:
       - ".github/workflows/graph-accuracy-audit.yml"
       - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
+  # #6675: a nightly run on main (every gate: graph_accuracy_plan plans all of them off a pull_request) saves the one
+  # scip-java / cargo / Go cache every PR restores; a PR only restores (its own saves were scoped to its ref, 2.4 GB of
+  # copies no other PR could read). It is also the graph gates' main-side signal.
+  schedule:
+    - cron: "13 7 * * *"  # nightly
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -165,8 +171,9 @@ jobs:
           java-version: "21"
 
       - name: Cache scip-java and Maven dependencies
+        id: scip_java_and_maven_dependencies
         if: steps.sel.outputs.java == 'true'
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cache/gitgalaxy/scip-java-*
@@ -183,8 +190,9 @@ jobs:
           rustup default 1.90.0
 
       - name: Cache cargo registry
+        id: cargo_registry
         if: steps.sel.outputs.rust == 'true'
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/registry
@@ -199,6 +207,8 @@ jobs:
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: "1.24"
+          # #6675: setup-go's cache restores and saves in one; off on a PR (it would save a copy scoped to the PR's ref)
+          cache: ${{ github.event_name != 'pull_request' }}
           cache-dependency-path: gitgalaxy/tests/tools/go_callgraph/go.sum
 
       # The two corpora are fetched in parallel, once for every gate that reads them.
@@ -218,7 +228,7 @@ jobs:
           fi
           if [ -n "$import_pid" ]; then wait "$import_pid"; fi
 
-      # Four lanes balance the measured gate times (#5501): span anchoring is the longest gate, so it runs as
+      # Four lanes balance the measured gate times (#5501; the lane comment below has the figures): span anchoring is the longest gate, so it runs as
       # two --shard scans whose merge is the one baseline gate (a shard is a partial measurement and refuses
       # --ci). Each gate keeps its own baseline, --samples and exit code; its table goes to a per-gate file
       # and is appended to the job summary afterwards so concurrent writers cannot interleave.
@@ -239,18 +249,28 @@ jobs:
           }
           gate() {  # gate <name> <command...>: run_gate with the baseline gate and summary file
             name=$1; shift
-            want "$name" || return 0
+            want "${name%-[0-9]}" || return 0  # import-graph-1..3 are subsets of the planned import-graph gate
             run_gate "$name" "$@" --ci --summary "$RUNNER_TEMP/gaa/$name.md"
           }
-          ( ! want span-anchoring || run_gate span-shard-0 python tests/tools/span_anchor_audit.py --shard 0/2 --json "$RUNNER_TEMP/gaa/span0.json" --samples 3 ) &
-          ( ! want span-anchoring || run_gate span-shard-1 python tests/tools/span_anchor_audit.py --shard 1/2 --json "$RUNNER_TEMP/gaa/span1.json" --samples 3 ) &
-          ( gate import-graph python tests/tools/import_graph_accuracy.py --samples 5
-            gate call-typescript python tests/tools/call_graph_resolution.py typescript --samples 5
-            gate call-javascript python tests/tools/call_graph_resolution.py javascript --samples 5
-            gate call-c python tests/tools/call_graph_resolution.py c --samples 5 ) &
-          ( gate call-java python tests/tools/call_graph_resolution.py java --samples 5
+          # Lanes balanced on the gate times measured in run 40160191245 (#5501), longest first: span-shard-1 253,
+          # cpp 315, import-graph-1 295, -2 216, java 192, span-shard-0 160, import-graph-3 147, python 96, rust 41,
+          # c 31, go 23, typescript 17, javascript 14 = 1800 s, so ~450 s per lane is the floor on 4 cores. cpp and
+          # import-graph-1 are the CPU-heavy gates: keep them on separate lanes. The import-graph gate runs as three
+          # language subsets (each its own baseline gate over that subset; together exactly LANGS, pinned by a test).
+          IG1="python tcl go c lua ruby matlab"
+          IG2="objective-c csharp javascript typescript shell solidity rust perl"
+          IG3="cpp java php zig dart kotlin scala haskell swift powershell groovy fortran"
+          ( gate call-cpp python tests/tools/call_graph_resolution.py cpp --samples 5
             gate call-python python tests/tools/call_graph_resolution.py python --samples 5
-            gate call-cpp python tests/tools/call_graph_resolution.py cpp --samples 5
+            gate call-c python tests/tools/call_graph_resolution.py c --samples 5 ) &
+          ( gate import-graph-1 python tests/tools/import_graph_accuracy.py $IG1 --jobs 2 --samples 5
+            gate import-graph-3 python tests/tools/import_graph_accuracy.py $IG3 --jobs 2 --samples 5
+            gate call-javascript python tests/tools/call_graph_resolution.py javascript --samples 5 ) &
+          ( ! want span-anchoring || run_gate span-shard-1 python tests/tools/span_anchor_audit.py --shard 1/2 --json "$RUNNER_TEMP/gaa/span1.json" --samples 3
+            gate call-java python tests/tools/call_graph_resolution.py java --samples 5
+            gate call-typescript python tests/tools/call_graph_resolution.py typescript --samples 5 ) &
+          ( gate import-graph-2 python tests/tools/import_graph_accuracy.py $IG2 --jobs 2 --samples 5
+            ! want span-anchoring || run_gate span-shard-0 python tests/tools/span_anchor_audit.py --shard 0/2 --json "$RUNNER_TEMP/gaa/span0.json" --samples 3
             gate call-rust python tests/tools/call_graph_resolution.py rust --samples 5
             gate call-go python tests/tools/call_graph_resolution.py go --samples 5 ) &
           wait
@@ -259,13 +279,36 @@ jobs:
             gate span-anchoring python tests/tools/span_anchor_audit.py --merge "$RUNNER_TEMP/gaa/span0.json" "$RUNNER_TEMP/gaa/span1.json" --samples 3
           fi
           cat "$RUNNER_TEMP/gaa/times"
-          for n in span-shard-0 span-shard-1 import-graph call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
+          { echo "### Graph-accuracy gate times"; echo '```'; cat "$RUNNER_TEMP/gaa/times"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          for n in span-shard-0 span-shard-1 import-graph-1 import-graph-2 import-graph-3 call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
             cat "$RUNNER_TEMP/gaa/$n.log" 2>/dev/null || true
           done
-          for n in import-graph call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
+          for n in import-graph-1 import-graph-2 import-graph-3 call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
             cat "$RUNNER_TEMP/gaa/$n.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
           done
           if [ -s "$RUNNER_TEMP/gaa/failed" ]; then
             cat "$RUNNER_TEMP/gaa/failed"
             exit 1
           fi
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save scip-java and Maven dependencies to the cache
+        if: success() && github.event_name != 'pull_request' && steps.scip_java_and_maven_dependencies.outputs.cache-hit != 'true' && (steps.sel.outputs.java == 'true')
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/gitgalaxy/scip-java-*
+            ~/.m2/repository
+          key: scip-java-${{ hashFiles('gitgalaxy/tests/tools/scip_callgraph.py', 'gitgalaxy/tests/import_graph_corpus.json') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the cargo registry to the cache
+        if: success() && github.event_name != 'pull_request' && steps.cargo_registry.outputs.cache-hit != 'true' && (steps.sel.outputs.rust == 'true')
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: cargo-registry-${{ hashFiles('gitgalaxy/tests/import_graph_corpus.json') }}

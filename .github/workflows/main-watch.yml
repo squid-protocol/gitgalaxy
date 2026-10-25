@@ -21,7 +21,9 @@ on:
     workflows:
       - "CICS Crucible"
       - "CodeQL Security Scan"
+      - "Crucible Path Independence"
       - "Det Sweep"
+      - "Equivalence E2E"
       - "Estate Crucible"
       - "Evidence Pages"
       - "Evidence Refresh"
@@ -29,6 +31,7 @@ on:
       - "Full Suite Gate (All OS x Python)"
       - "Generated Java Compiles"
       - "GitGalaxy Smoke Tests"
+      - "Graph Accuracy Audit"
       - "Mainframe Ground Truth"
       - "Muninn Security Scan"
       - "OS Smoke Grid"

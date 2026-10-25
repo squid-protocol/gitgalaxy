@@ -9,7 +9,9 @@ linked to an existing issue when its construct signature matches the catalogue
 for the tick to file. Rows go to --ledger, never to the committed port_blockers.json (that one is burned estates only).
 The report is checked against the published schema first: an unknown field, an identifier that is not a hash, or a
 signature word outside the allow-listed vocabulary refuses the file. Re-ingesting a report changes nothing; a report
-from a later engine version appends to the row's `seen_in`, which is how "still open after 3 releases" shows.
+from a later engine version appends to the row's `seen_in`, which is how "still open after 3 releases" shows. A blocker
+of the same estate that a later version's report no longer lists becomes `status: closed` with that version in
+`absent_in`; it reopens if a later report lists it again. `--check` validates a ledger as #5051 rows.
 """
 
 from __future__ import annotations
@@ -28,6 +30,7 @@ sys.path.insert(0, str(TOOLS))
 import blocker_report as br  # noqa: E402
 
 SIGNATURES = REPO / "tests" / "cobol_mainframe" / "blocker_signatures.json"
+PORT_BLOCKERS = REPO / "tests" / "cobol_mainframe" / "port_blockers.json"
 SUPPORTED = ("1.1", "1.2")
 
 # blocker_report category -> (#5051 side, class). Every CATEGORIES value has one.
@@ -96,21 +99,65 @@ def load_catalogue(path: Path | None = None) -> list[dict[str, Any]]:
     return sorted(entries, key=lambda e: -len(e["prefix"]))
 
 
-def match_issue(category: str, signature: str, catalogue: list[dict[str, Any]]) -> int | None:
+def signature_key(category: str, signature: str) -> str:
+    """The salt-free identity of a construct: what links two customers' (or two runs') reports of the same blocker."""
+    return f"{category}|{normalise(signature)}"
+
+
+def match_issue(
+    category: str, signature: str, catalogue: list[dict[str, Any]], filed: dict[str, int] | None = None
+) -> int | None:
+    """The issue for a construct: the catalogue first, then an issue already opened for that signature (`filed`)."""
     norm = normalise(signature)
     if category == "known-unproven" and (m := re.fullmatch(r"known unproven: #(\d+)", norm)):
         return int(m.group(1))
     for e in catalogue:
         if e["category"] == category and (norm == e["prefix"] or norm.startswith(e["prefix"] + " ")):
             return int(e["issue"])
-    return None
+    return int(filed[signature_key(category, signature)]) if filed and signature_key(category, signature) in filed else None
+
+
+def check_ledger(ledger: dict[str, Any], port_blockers: Path | None = None) -> list[str]:
+    """Why a customer-side ledger is not made of well-formed #5051 rows (empty when it is)."""
+    vocab = json.loads((port_blockers or PORT_BLOCKERS).read_text(encoding="utf-8"))
+    errors: list[str] = []
+    seen: set[str] = set()
+    for r in ledger.get("rows", []):
+        where = str(r.get("id"))
+        if where in seen:
+            errors.append(f"{where}: duplicate row id")
+        seen.add(where)
+        if not re.fullmatch(r"customer:EST_[0-9a-f]{%d}" % br.HASH_HEX, str(r.get("estate"))):
+            errors.append(f"{where}: estate must be customer:EST_xxxxxx")
+        if r.get("side") not in vocab["sides"]:
+            errors.append(f"{where}: side must be one of {vocab['sides']}")
+        if r.get("class") not in vocab["classes"]:
+            errors.append(f"{where}: class must be one of {vocab['classes']}")
+        if r.get("issue") is not None and not isinstance(r["issue"], int):
+            errors.append(f"{where}: issue is a number or null")
+        if r.get("status") not in ("open", "closed"):
+            errors.append(f"{where}: status is open or closed")
+        if not r.get("summary") or not isinstance(r.get("programs"), list) or r.get("refused_by_name") is not False:
+            errors.append(f"{where}: needs summary, programs (a list) and refused_by_name false")
+        if not r.get("seen_in"):
+            errors.append(f"{where}: seen_in names at least one engine version")
+    return errors
+
+
+def load_filed(path: Path | None) -> dict[str, int]:
+    """`{signature_key: issue}` from a filed-signatures file (missing file or no path: nothing filed yet)."""
+    if path is None or not path.is_file():
+        return {}
+    return {k: int(v) for k, v in json.loads(path.read_text(encoding="utf-8")).get("filed", {}).items()}
 
 
 def row_id(estate: str, blk: str) -> str:
     return f"C-{estate[4:]}-{blk[4:]}"
 
 
-def ingest(rep: dict[str, Any], ledger: dict[str, Any], catalogue: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def ingest(
+    rep: dict[str, Any], ledger: dict[str, Any], catalogue: list[dict[str, Any]], filed: dict[str, int] | None = None
+) -> list[dict[str, Any]]:
     """Merge the report's blockers into `ledger["rows"]`; return the rows that are new and match no issue."""
     errors = check_report(rep)
     if errors:
@@ -118,14 +165,16 @@ def ingest(rep: dict[str, Any], ledger: dict[str, Any], catalogue: list[dict[str
     rows = {r["id"]: r for r in ledger.setdefault("rows", [])}
     estate, version = f"customer:{rep['estate']}", rep["engine_version"]
     fresh: list[dict[str, Any]] = []
+    listed = {row_id(rep["estate"], b["id"]) for b in rep["blockers"]}
     for b in rep["blockers"]:
         rid = row_id(rep["estate"], b["id"])
         side, cls = CATEGORY_CLASS[b["category"]]
-        issue = match_issue(b["category"], b["signature"], catalogue)
+        issue = match_issue(b["category"], b["signature"], catalogue, filed)
         row = rows.get(rid)
         if row is None:
             row = {"id": rid, "estate": estate, "side": side, "class": cls, "category": b["category"],
-                   "signature": b["signature"], "issue": issue, "seen_in": []}  # fmt: skip
+                   "signature": b["signature"], "summary": b["signature"], "programs": [], "refused_by_name": False,
+                   "issue": issue, "status": "open", "seen_in": []}  # fmt: skip
             for k in ("subclass", "construct", "repro"):
                 if k in b:
                     row[k] = b[k]
@@ -135,9 +184,16 @@ def ingest(rep: dict[str, Any], ledger: dict[str, Any], catalogue: list[dict[str
         if version not in row["seen_in"]:
             row["seen_in"].append(version)
         row["issue"] = row["issue"] or issue
+        row["status"] = "open"  # present in this report: new, still open, or back after a closure
         for k in ("programs_blocked", "programs_only_gap", "programs_one_away"):
             if k in b:
                 row[k] = b[k]  # the latest report's counts
+    for row in rows.values():
+        # A newer engine version's report no longer lists a blocker of this estate: it is closed there.
+        if row["estate"] == estate and row["id"] not in listed and version not in row["seen_in"]:
+            row["status"] = "closed"
+            if version not in row.setdefault("absent_in", []):
+                row["absent_in"].append(version)
     ledger["rows"] = sorted(rows.values(), key=lambda r: r["id"])
     return fresh
 
@@ -157,17 +213,27 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("report", type=Path, help="blocker_report.anon.json")
     ap.add_argument("--ledger", type=Path, required=True, help="customer-side ledger (created when missing)")
     ap.add_argument("--signatures", type=Path, help="signature catalogue (default: the committed one)")
+    ap.add_argument("--filed", type=Path, help="issues already opened per signature (blocker_estate_feed.py file)")
+    ap.add_argument("--check", action="store_true", help="only validate the ledger as #5051 rows; report is ignored")
     args = ap.parse_args(argv)
+    if args.check:
+        errors = check_ledger(json.loads(args.ledger.read_text(encoding="utf-8")))
+        print("\n".join(errors) if errors else "ledger ok", file=sys.stderr if errors else sys.stdout)
+        return 1 if errors else 0
     rep = json.loads(args.report.read_text(encoding="utf-8"))
     ledger = json.loads(args.ledger.read_text(encoding="utf-8")) if args.ledger.is_file() else {}
     try:
-        fresh = ingest(rep, ledger, load_catalogue(args.signatures))
+        fresh = ingest(rep, ledger, load_catalogue(args.signatures), load_filed(args.filed))
     except ValueError as e:
         print(e, file=sys.stderr)
         return 1
     args.ledger.parent.mkdir(parents=True, exist_ok=True)
     args.ledger.write_text(json.dumps(ledger, indent=1) + "\n", encoding="utf-8")
     linked = sum(1 for r in ledger["rows"] if r["issue"])
+    errors = check_ledger(ledger)
+    if errors:
+        print("\n".join(errors), file=sys.stderr)
+        return 1
     print(f"{len(ledger['rows'])} rows, {linked} linked to an issue, {len(fresh)} new without one")
     for r in fresh:
         print(draft_issue(r))

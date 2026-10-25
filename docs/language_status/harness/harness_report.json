@@ -1009,10 +1009,10 @@
     "fact: EIBRCODE (no harness states it)"
    ],
    "reasons": {
-    "coverage: live paragraphs no scenario runs": "55/119 paragraphs",
+    "coverage: live paragraphs no scenario runs": "62/119 paragraphs",
     "fact: EIBRCODE (no harness states it)": ""
    },
-   "tests": 11,
+   "tests": 20,
    "blocker": "coverage: live paragraphs no scenario runs"
   },
   {
@@ -2174,7 +2174,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 11
+   "tests": 20
   },
   "zecs-zecs003": {
    "generated": [],

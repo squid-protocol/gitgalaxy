@@ -140,6 +140,21 @@ def test_rust_use_paths_follow_the_module_tree_and_cargo(tmp_path):
 
 
 @needs_ts
+def test_rust_bin_path_is_a_crate_root(tmp_path):
+    # #3798: ripgrep's `[[bin]] path = "crates/core/main.rs"` roots `crate::` for the files under it.
+    g = _group(
+        tmp_path,
+        {
+            "Cargo.toml": '[package]\nname = "rg"\nedition = "2021"\n[[bin]]\nname = "rg"\npath = "crates/core/main.rs"\n',
+            "crates/core/main.rs": "mod flags;\n",
+            "crates/core/flags/mod.rs": "",
+            "crates/core/flags/defs.rs": "",
+        },
+    )
+    assert iga.rust_imports(b"use crate::flags::defs;\n", "crates/core/flags/mod.rs", g) == [{"crates/core/flags/defs.rs"}]
+
+
+@needs_ts
 def test_java_nested_class_import_lives_in_the_outer_class_file(tmp_path):
     g = _group(tmp_path, {"src/com/acme/TestTypes.java": "", "src/com/acme/Util.java": ""})
     src = b"import com.acme.TestTypes.BagOfPrimitives;\nimport static com.acme.Util.helper;\n"

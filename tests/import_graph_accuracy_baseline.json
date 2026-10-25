@@ -234,17 +234,17 @@
     "repos": "rack/rack"
   },
   "rust": {
-    "engine_edges": 153,
-    "files": 71,
-    "fn": 0,
-    "fp": 0,
+    "engine_edges": 419,
+    "files": 173,
+    "fn": 6,
+    "fp": 2,
     "hub_overlap_at_10": 0.9,
-    "hub_repos": 1,
-    "hub_spearman": 0.878,
-    "imports": 211,
-    "precision_pct": 100.0,
-    "recall_pct": 100.0,
-    "repos": "serde-rs/json"
+    "hub_repos": 2,
+    "hub_spearman": 0.65,
+    "imports": 814,
+    "precision_pct": 99.5,
+    "recall_pct": 99.3,
+    "repos": "BurntSushi/ripgrep, serde-rs/json"
   },
   "scala": {
     "engine_edges": 502,

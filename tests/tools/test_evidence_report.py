@@ -54,8 +54,21 @@ def tree_fingerprints_computed_once():
             seen[case] = real(case)
         return dict(seen[case])  # (stale() only reads it)
 
+    import proof_blockers as pb
+
+    real_ledger, ledgers = pb._ledger, {}
+
+    def ledger():
+        """#5162: _ledger() stats every ledger file on each of ~1,000 calls a build; no test here writes one, and a
+        test's own `load` or directory is a different key."""
+        key = (id(dcl.load), str(dcl.LEDGER_DIR))
+        if key not in ledgers:
+            ledgers[key] = real_ledger()
+        return ledgers[key]
+
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(dcl, "fingerprints", once)
+        mp.setattr(pb, "_ledger", ledger)
         yield
 
 

@@ -12,7 +12,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COCRDLIC](carddemo-cardlist.md) | carddemo-cardlist | cics | proven, unapproved |  | 46 | 36/36 / 147/149 | 82/94 / 82/82 | 0 | - |
 | [COCRDSLC](carddemo-cardview.md) | carddemo-cardview | cics | proven, unapproved |  | 25 | 30/30 / 69/75 | 60/91 / 60/65 | 0 | - |
 | [CBPAUP0C](carddemo-cbpaup0c.md) | carddemo-cbpaup0c | batch | proven, unapproved |  | 13 | 15/16 / 38/40 | - | 0 | - |
-| [CBSTM03A](carddemo-cbstm03a.md) | carddemo-cbstm03a | batch | proven, unapproved |  | 5 | 25/25 / 0/46 | - | 0 | - |
+| [CBSTM03A](carddemo-cbstm03a.md) | carddemo-cbstm03a | batch | proven, unapproved |  | 5 | 25/25 / 34/46 | - | 0 | - |
 | [COPAUA0C](carddemo-copaua0c.md) | carddemo-copaua0c | cics | proven, unapproved |  | 25 | 41/41 / 63/69 | - | 0 | - |
 | [COPAUS0C](carddemo-copaus0c.md) | carddemo-copaus0c | cics | proven, unapproved |  | 37 | 20/20 / 88/93 | - | 0 | - |
 | [COPAUS1C](carddemo-copaus1c.md) | carddemo-copaus1c | cics | proven, unapproved |  | 35 | 15/15 / 48/48 | - | 0 | - |

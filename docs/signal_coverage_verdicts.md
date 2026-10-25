@@ -29,4 +29,4 @@ detection** (the construct is in the crucible or a plant and the rule misses it)
 * The `hardware_bridge` Python list still lacks `smbus`, `spidev`, `RPi.GPIO`, `gpiozero`: contract-eligible peripheral I/O.
 * Crucible additions (needs a release and pin bump, `docs/ecosystem.md`): mermaid/plantuml docs in more repos, a
   feature-flagged, RAG and LLM-app service, pyserial/BLE code under `data/python`.
-* Safety bypass forms still unread: Java trust-all `HostnameVerifier`, .NET `ServerCertificateValidationCallback`, PowerShell `-SkipCertificateCheck`, `wget --no-check-certificate`.
+* Safety bypass forms still unread: none known among the TLS-verification set of #6239 (Java trust-all, .NET and PowerShell accept-any callbacks and policies, `-SkipCertificateCheck`, `wget --no-check-certificate`, all read since #6414 / #6531 and this slice).

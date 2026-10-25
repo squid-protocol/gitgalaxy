@@ -145,7 +145,7 @@
   },
   "rust": {
     "fn": 5,
-    "fp": 300,
+    "fp": 299,
     "matched_functions": 1956,
     "parse_failures": 0,
     "precision_pct": 96.2,

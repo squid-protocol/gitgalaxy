@@ -73,7 +73,7 @@
 <text class="n" x="630" y="155">n=13,064 calls</text>
 <text class="n" x="630" y="167">functions 2,561</text>
 </g>
-<g><title>c call resolution: precision 100.0% of 4,264, recall 36.7% of 11,608; vs libclang 18.1.1; corpus import_graph</title>
+<g><title>c call resolution: precision 100.0% of 4,266, recall 36.7% of 11,617; vs libclang 18.1.1; corpus import_graph</title>
 <text class="pr" x="732" y="154.5">Precision</text>
 <rect class="track" x="778" y="147" width="110" height="8" rx="2"/>
 <rect x="778" y="147" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
@@ -82,7 +82,7 @@
 <rect class="track" x="778" y="159" width="110" height="8" rx="2"/>
 <rect x="778" y="159" width="40.4" height="8" rx="2" fill="#eda100"/>
 <text class="val" x="893" y="167">36.7%</text>
-<text class="n" x="936" y="155">n=11,608 edges</text>
+<text class="n" x="936" y="155">n=11,617 edges</text>
 <text class="n" x="936" y="167">vs libclang 18.1.1</text>
 </g>
 <g><title>c hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>

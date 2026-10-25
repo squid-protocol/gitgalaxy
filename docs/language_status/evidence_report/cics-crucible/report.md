@@ -4,9 +4,9 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `220c5534dbe40a10f106651fccfbba5bf13dd422` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `69fe9f9eb994f98f90a11142b4965bf2f31a234d` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
-The translation survey matches the translator in the tree (translator fingerprint `082b690f61a0`).
+The translation survey matches the translator in the tree (translator fingerprint `5830644a0fbd`).
 
 ## How to read this report
 
@@ -1228,7 +1228,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `220c5534dbe40a10f106651fccfbba5bf13dd422`
+- translator commit (the survey's): `69fe9f9eb994f98f90a11142b4965bf2f31a234d`
 - corpus pin: `cics-crucible` at `—`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -1238,8 +1238,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 220c5534dbe40a10f106651fccfbba5bf13dd422
-python tests/tools/evidence_report.py cics-crucible --baseline --sha 220c5534dbe40a10f106651fccfbba5bf13dd422
+python tests/tools/cics_census.py survey --baseline --sha 69fe9f9eb994f98f90a11142b4965bf2f31a234d
+python tests/tools/evidence_report.py cics-crucible --baseline --sha 69fe9f9eb994f98f90a11142b4965bf2f31a234d
 python tests/tools/evidence_report.py --refresh
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

@@ -27,7 +27,7 @@
     "tests/equivalence/genapp-lgupvs01/**"
    ],
    "files": 2,
-   "sha256": "52e4cbe907cdaa8705b7c6e82cbf07a07afca94f325ce1bd1f24eba2b8cb6532"
+   "sha256": "cf090a05ff554fee8cf2589ccf9b8df289cd3bd4ea5a06a3c9e02cea03143909"
   },
   "harness": {
    "paths": [
@@ -41,6 +41,7 @@
     "tests/tools/equivalence_cics_conditions.py",
     "tests/tools/equivalence_cics_faults.py",
     "tests/tools/equivalence_cics_tempstorage.py",
+    "tests/tools/equivalence_cics_taskcontrol.py",
     "tests/tools/equivalence_call.py",
     "tests/tools/equivalence_cache.py",
     "tests/tools/equivalence_db2.py",
@@ -49,11 +50,11 @@
     "tests/tools/java_target_matrix.py",
     "tests/tools/equivalence_ims.py"
    ],
-   "files": 17,
-   "sha256": "11d0327f04866262b0e223f527aed8cf1083f9ad5e1c5e4c5f393bf02840f681",
+   "files": 18,
+   "sha256": "58b1c152306e8656d19fb54f74fc894ec6133acaff623a046dbc41bf715c9e74",
    "components": {
-    "harness:cics": "e48890dcaedd6de4793545fa7c02da9398198aa2fa2633799b6df3edf5af8589",
-    "harness:core": "23d30bc5d7ad7ba3ee2afbb9f7e50b29799194790891e835576cf0c949d42dbd"
+    "harness:cics": "8f42c9a8a942481bc0640f1bdf01424c1737345b1aa6f93dc1a7ad80702b2ef4",
+    "harness:core": "f00bb08a7824c25d62122ae00c61891b37e44294e33f7a73dad22eae74961c2f"
    }
   },
   "oracle": {
@@ -236,13 +237,13 @@
    },
    "runtime_sha256": "95d95b29ee402f9e60e387bd556e5076af66d0bd4c4f549241f603b4f4c3cc89"
   },
-  "digest": "447bb8df831fe2b319b983616744b27aa8642053dc5ee9bb033ffe3f0a9515ee"
+  "digest": "2a3ed460ca71f2dde645d26b9f6b405623880ffed2d52f5b1261307ccdc6154e"
  },
  "proof": {
-  "at": "2026-10-25T03:59:32Z",
+  "at": "2026-10-25T07:46:41Z",
   "verdict": "proven",
-  "runs": 10,
-  "fault_runs": 3,
+  "runs": 12,
+  "fault_runs": 5,
   "environments": null,
   "outputs": {
    "update-endowment": {
@@ -312,6 +313,28 @@
      "WRITEQ TD",
      "WRITEQ TS"
     ]
+   },
+   "update-short-commarea-28": {
+    "equal": 9,
+    "records": 9,
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS",
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "update-short-commarea-90": {
+    "equal": 9,
+    "records": 9,
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS",
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
    }
   },
   "return_code_equal": null,
@@ -320,16 +343,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 10,
-   "passed": 10,
+   "runs": 12,
+   "passed": 12,
    "entry_points": [
     "handleLink"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "8c397cd336f0accb12d4941e172611c586e7d1df+uncommitted",
-  "inputs_digest": "447bb8df831fe2b319b983616744b27aa8642053dc5ee9bb033ffe3f0a9515ee"
+  "harness_commit": "1736419084faa8f342d4f60e68ed63dbef62a691+uncommitted",
+  "inputs_digest": "2a3ed460ca71f2dde645d26b9f6b405623880ffed2d52f5b1261307ccdc6154e"
  },
  "coverage": {
   "paragraphs": {
@@ -337,7 +360,7 @@
    "live": 3
   },
   "branches": {
-   "covered": 7,
+   "covered": 8,
    "total": 9
   },
   "uncovered_branches": [
@@ -346,12 +369,6 @@
     "kind": "IF",
     "outcome": "false",
     "unit": "WRITE-ERROR-MESSAGE"
-   },
-   {
-    "line": 192,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "WRITE-ERROR-MESSAGE"
    }
   ],
   "handler_labels": {
@@ -359,7 +376,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "447bb8df831fe2b319b983616744b27aa8642053dc5ee9bb033ffe3f0a9515ee"
+  "inputs_digest": "2a3ed460ca71f2dde645d26b9f6b405623880ffed2d52f5b1261307ccdc6154e"
  },
  "reach": {
   "entry_points": [

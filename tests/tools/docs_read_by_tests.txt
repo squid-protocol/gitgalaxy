@@ -202,8 +202,8 @@ ai_agent_jobs/ports/POSTIT/attempts/002_work/prompt.md	tests/cobol_mainframe
 answer.md	gitgalaxy
 b.md	tests/extraction,tests/security_auditing
 blob/main/docs/language_status/cics_field_testing.md	tests/tools/publish_examples.py
-blocker_report.anon.md	tests/tools/blocker_report.py,tests/tools/test_blocker_report.py
-blocker_report.full.md	tests/tools/blocker_report.py,tests/tools/test_blocker_report.py
+blocker_report.anon.md	tests/cobol_mainframe,tests/tools/blocker_report.py,tests/tools/test_blocker_report.py
+blocker_report.full.md	tests/cobol_mainframe,tests/tools/blocker_report.py,tests/tools/test_blocker_report.py
 blockers_history.jsonl	tests/tools/cics_census.py,tests/tools/test_census_nightly.py,tests/tools/test_cics_census_baseline.py
 brief.md	tests/tools/cross_verify.py,tests/tools/cross_verify_sections.py
 call_resolution_history.csv	tests/tools/call_resolution_rates.py

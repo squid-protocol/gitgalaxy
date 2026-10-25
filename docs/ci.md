@@ -1,5 +1,8 @@
 # CI: labels that merge a pull request
 
+> What has been tried to speed CI up, with the measurements and the ideas that were dropped: `docs/ci_experiments_log.md`.
+> Read it before proposing a CI change, and add an entry when you make one.
+
 For maintainers. A label on a pull request tells the CI shepherd what to do with it. You set a **request** label; the
 bot sets the **status** labels and posts at most one digest comment per head. Nothing merges unless the required
 checks on `main` are green.
@@ -227,6 +230,8 @@ after the change that caused it. A red result then covers the range of merges si
 Main-side cache saves in the moved workflows (`github.event_name != 'pull_request'`) still happen on a dispatch, which runs
 on `main` and so writes the cache scope every PR reads.
 
+**No cache is saved by a pull request (#6675).** On 2026-10-25 the Actions cache held 10.69 GB in 127 entries against GitHub's 10 GB limit, the oldest last read 10.6 h earlier: past the limit GitHub evicts the least recently used, so a cache main saved lived about half a day (`cache-prune.yml` trims nightly, and PRs refilled it within ~12 h). A PR's save is scoped to its own ref, which no other PR reads, and 20 combined `actions/cache` steps in 7 PR workflows still saved there (2.18 GB of scip-java from graph-accuracy alone, which never ran on main; 9 PR copies of `db2-odbc-cli` re-saved after main's was evicted). Each is now `actions/cache/restore` plus an `actions/cache/save` at the end of its job that runs only off pull requests and only on a miss (continue-on-error, as #5024 did for the corpora); setup-go's built-in cache is off on a PR; graph-accuracy-audit.yml has a nightly run that seeds its caches on main (and Main Watch watches it). `test_cache_keys.py` fails on a combined cache step in a PR workflow and on a save a PR can reach.
+
 ## Main is red (main-watch)
 
 `.github/workflows/main-watch.yml` opens one `ci-red-main` issue per workflow that fails on main and closes it when
@@ -287,7 +292,7 @@ PR CI is limited by queueing (a pool of about 20 concurrent jobs), so every job 
 * `gitgalaxy.yml`: Vault Sentinel, X-Ray Inspector and Supply Chain Firewall (59 s, 42 s and 147 s of job time on a recent PR, mostly setup) are the three steps of one `pre-gate` job. A later step runs after an earlier failure (`!cancelled()`), so one push still reports every failing gate. The check name is now `Pre-gate (Vault Sentinel, X-Ray, Supply Chain)`.
 * `muninn.yml`, `codeql.yml`: a PR starts them only when `gitgalaxy/**`, `.github/**`, a dependency pin (`pyproject.toml`, `ci/requirements/**`, `templates/requirements/**`, `requirements*.txt`, `action.yml`) changes (Muninn also `.claude/**`). The weekly schedules stay as the backstop for everything else.
 * `muninn.yml` on a PR checks out only the filter's paths (sparse, #5499): "Run Muninn" 7 m 28 s -> about 56 s, checkov being 84% of the old step. The sparse list keeps `tests/requirements-mypy.txt` (#6489), the one manifest osv-scanner finds, so osv-scanner scans on PR runs again (run 40118929687, 2026-10-24: "Run Muninn" 68 s, `osv-scanner: 0 finding(s)` in 9 s instead of exiting 128); `test_muninn_scope.py` guards every tracked `*requirements*.txt`. Same-SHA check (#5499): dispatch `muninn.yml` twice with `scope: full` and `scope: pr`, download the two `muninn-sarif-*` artifacts and run `python tests/tools/muninn_scope_diff.py FULL.sarif PR.sarif`; it exits 0 only when the findings inside the PR checkout's paths are equal, and lists the full-scan-only findings by directory.
-* `golden-crucible.yml`: a PR starts the two legs only for engine code, the golden fixtures and their helper modules, the crucible pin, dependencies or the workflow itself, minus the COBOL-to-Java translator and its entry point (no scan reads them) and prose: the same exclusion as `crucible-path-independence.yml`. `tests/tools/test_ci_critical_path_split.py` checks the filters against sample changed paths and that every bare module `test_golden_crucible.py` imports is covered.
+* `golden-crucible.yml`: a PR starts the two legs only for engine code, the golden fixtures and their helper modules, the crucible pin, dependencies or the workflow itself, minus the COBOL-to-Java translator and its entry point (no scan reads them) and prose: the same exclusion as `crucible-path-independence.yml`. `tests/tools/test_ci_critical_path_split.py` checks the filters against sample changed paths and that every bare module `test_golden_crucible.py` imports is covered. It runs no per-test time ratchet (#5257, decided 2026-10-25): the marker selects two tests that share one module-scoped `galaxyscope` run over the whole crucible, so the scan's 2.5-4 minutes land on whichever test runs first and `time_ratchet.py` would read a shared fixture, not a slow test (#5269). The scan is already bounded by `GOLDEN_SCAN_TIMEOUT` and the job's `timeout-minutes: 30`; the two tests are absent from `.test_durations` (opt-in marker), and the job takes 2.5-4 minutes per leg (runs 40229427427, 40218760491).
 
 | PR type | Jobs before | Jobs after | Job-minutes saved (recent runs) |
 |---|---|---|---|

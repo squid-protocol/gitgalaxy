@@ -50,9 +50,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "5c6a45c8494ae94210d478a7876ea38fd4acc7ceebf50b60ff58c8e607eb058d",
+   "sha256": "8e3e00f2309ded81b723db7a5f9b6aabc56e5607555d6f86a3241d71131b1ddb",
    "components": {
-    "harness:cics": "c8082a866bea929927c4bbf75c3899a9093156caa484ecaebef7df5c6f63ad5b",
+    "harness:cics": "868a00b4715c47c4349274595075f4c3556edcb9f4a88102b2b09238b05777d3",
     "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99"
    }
   },
@@ -191,10 +191,10 @@
    },
    "runtime_sha256": "95d95b29ee402f9e60e387bd556e5076af66d0bd4c4f549241f603b4f4c3cc89"
   },
-  "digest": "b47a468fea9e893afbe7b6a5ad69ecf5116a72ce71c07a9108acba26d1781926"
+  "digest": "791a93003f53645826444c8c47c360a85306885ed290c5cf4948cdc18a6e8d94"
  },
  "proof": {
-  "at": "2026-10-25T18:54:45Z",
+  "at": "2026-10-25T22:12:24Z",
   "verdict": "proven",
   "runs": 8,
   "fault_runs": 0,
@@ -202,35 +202,91 @@
   "outputs": {
    "full-commarea": {
     "equal": 6,
-    "records": 6
+    "records": 6,
+    "commands": [
+     "RECEIVE",
+     "RETURN",
+     "SEND-TEXT",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ]
    },
    "caller-error-record": {
     "equal": 6,
-    "records": 6
+    "records": 6,
+    "commands": [
+     "RECEIVE",
+     "RETURN",
+     "SEND-TEXT",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ]
    },
    "short-commarea": {
     "equal": 6,
-    "records": 6
+    "records": 6,
+    "commands": [
+     "RECEIVE",
+     "RETURN",
+     "SEND-TEXT",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ]
    },
    "tiny-commarea": {
     "equal": 6,
-    "records": 6
+    "records": 6,
+    "commands": [
+     "RECEIVE",
+     "RETURN",
+     "SEND-TEXT",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ]
    },
    "tag-only": {
     "equal": 6,
-    "records": 6
+    "records": 6,
+    "commands": [
+     "RECEIVE",
+     "RETURN",
+     "SEND-TEXT",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ]
    },
    "blank-text": {
     "equal": 6,
-    "records": 6
+    "records": 6,
+    "commands": [
+     "RECEIVE",
+     "RETURN",
+     "SEND-TEXT",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ]
    },
    "full-text-bytes": {
     "equal": 6,
-    "records": 6
+    "records": 6,
+    "commands": [
+     "RECEIVE",
+     "RETURN",
+     "SEND-TEXT",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ]
    },
    "terminal-queue-prefix": {
     "equal": 5,
-    "records": 5
+    "records": 5,
+    "commands": [
+     "RECEIVE",
+     "RETURN",
+     "SEND-TEXT",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ]
    }
   },
   "return_code_equal": null,
@@ -247,8 +303,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "b81909002975bdc276d13a6e687b22efe93dbead+uncommitted",
-  "inputs_digest": "b47a468fea9e893afbe7b6a5ad69ecf5116a72ce71c07a9108acba26d1781926"
+  "harness_commit": "0637c27c5228d1139595a4ac9b5420a2fbcc4db9+uncommitted",
+  "inputs_digest": "791a93003f53645826444c8c47c360a85306885ed290c5cf4948cdc18a6e8d94"
  },
  "coverage": {
   "paragraphs": {
@@ -278,7 +334,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "b47a468fea9e893afbe7b6a5ad69ecf5116a72ce71c07a9108acba26d1781926"
+  "inputs_digest": "791a93003f53645826444c8c47c360a85306885ed290c5cf4948cdc18a6e8d94"
  },
  "reach": {
   "entry_points": [

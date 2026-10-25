@@ -182,6 +182,13 @@ mode's venv: from your default shell it silently updates just one fixture (#2547
   Their local runners need the main `.venv` on PATH and refuse to pass on zero languages checked.
 - Full protocol, conflict handling (`golden_store.py export`), runner commands: `docs/agents/differential-scan.md`.
 
+## Changing CI to make it faster or cheaper
+
+Read `docs/ci_experiments_log.md` first: what has been tried, measured and dropped (and why), so a dead end is not
+re-proposed. The pool of ~20 concurrent runners is the limit, so judge a change by the **slot-minutes** it frees (a
+queued job holds no slot), not by how many runner requests it removes. Add an entry, with the measurement and its
+sample, in the PR that makes the change.
+
 ## Re-running the OS x Python matrix
 
 `full-suite-gate.yml` runs on the `labeled` event only, so commits pushed after labelling never go through the

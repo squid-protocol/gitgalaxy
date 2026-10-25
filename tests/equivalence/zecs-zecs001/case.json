@@ -504,6 +504,24 @@
         "body": null
       },
       "why": "DELETE with a 7-byte query clear=x: 1320-CLEAR unstrings it, 1325-CLEAR-TYPE runs, CLEAR-TEXT is not '*' so no XCTL to ZECS003"
+    },
+    {
+      "name": "post-body-empty",
+      "commarea": null,
+      "tod": "4949494949490708090A0B0C0D0E0F10",
+      "http_request": {
+        "scheme": "HTTP",
+        "host": "zecs.example.com",
+        "port": 8080,
+        "method": "POST",
+        "version": "HTTP/1.1",
+        "path": "/resources/ecs/walmart/cache/emptybody",
+        "query": "",
+        "headers": [],
+        "mediatype": "application/octet-stream",
+        "body": ""
+      },
+      "why": "POST with no body: RECEIVE-LENGTH is zero, so 9300-WEB-ERROR and a 400"
     }
   ],
   "compiler_options": [

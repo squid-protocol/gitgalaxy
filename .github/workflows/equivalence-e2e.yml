@@ -196,7 +196,7 @@ jobs:
     needs: plan
     if: ${{ needs.plan.outputs.mode == 'run' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"

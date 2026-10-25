@@ -9,17 +9,17 @@
   "proven": 74,
   "proven_pct": 71.8,
   "paragraphs": {
-   "covered": 353,
-   "live": 357,
-   "pct": 98.9
+   "covered": 363,
+   "live": 366,
+   "pct": 99.2
   },
   "branches": {
-   "covered": 1076,
-   "total": 1171,
-   "pct": 91.9
+   "covered": 1115,
+   "total": 1209,
+   "pct": 92.2
   },
-  "cases_measured": 24,
-  "cases": 98
+  "cases_measured": 25,
+  "cases": 99
  },
  "status_counts": {
   "proven": 74,
@@ -603,7 +603,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 7
+   "tests": 8
   },
   {
    "corpus": "cics-genapp",
@@ -635,11 +635,11 @@
   {
    "corpus": "cics-genapp",
    "program": "base/src/lgupdb01.cbl",
-   "case": "genapp-lgupol01",
+   "case": "genapp-lgupdb01",
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 10
+   "tests": 15
   },
   {
    "corpus": "cics-genapp",
@@ -832,7 +832,7 @@
    "reasons": {
     "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs": "2/3 paragraphs"
    },
-   "tests": 6,
+   "tests": 8,
    "blocker": "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs"
   },
   {
@@ -1868,7 +1868,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 6,
+   "tests": 8,
    "non_vsam": [
     "db2"
    ]
@@ -1992,7 +1992,7 @@
    "shipped": [],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 7
+   "tests": 8
   },
   "genapp-lgtestc1": {
    "generated": [],
@@ -2086,6 +2086,18 @@
    "skipped": [],
    "scenarios_generated": false,
    "tests": 10
+  },
+  "genapp-lgupdb01": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSPOLY"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 15,
+   "non_vsam": [
+    "db2"
+   ]
   },
   "genapp-lgupol01": {
    "generated": [],
@@ -2331,7 +2343,7 @@
     "genapp-lgtestp4"
    ],
    "programs_unlocked": 1,
-   "tests_unlocked": 6,
+   "tests_unlocked": 8,
    "programs_also_blocked": [],
    "then_needs": {
     "base/src/lgtestp1.cbl": [
@@ -2486,7 +2498,7 @@
  "input_blockers": [
   {
    "cause": "db2",
-   "fix": "Provide DDL or sample rows for the Db2 tables (generated rows cover only some programs): 38 input(s) in carddemo-copaus1c, carddemo-copaus2c, carddemo-cotrtlic, carddemo-cotrtupc, cbsa-acctctrl, cbsa-bnk1cac, cbsa-bnk1cca, cbsa-bnk1ccs, cbsa-bnk1cra, cbsa-bnk1dac, cbsa-bnk1tfn, cbsa-bnk1uac, cbsa-custctrl, cbsa-dbcrfun, cbsa-delacc, cbsa-delcus, cbsa-inqacc, cbsa-inqacccu, cbsa-updacc, cbsa-xfrfun, genapp-lgacdb02, genapp-lgacus01, genapp-lgapdb01, genapp-lgdpdb01-generated, genapp-lgdpol01-generated, genapp-lgicdb01-generated, genapp-lgicus01, genapp-lgipdb01, genapp-lgipol01, genapp-lgtestc1, genapp-lgtestp1, genapp-lgtestp2, genapp-lgtestp3, genapp-lgtestp4, genapp-lgucdb01-generated, genapp-lgucus01-generated, genapp-lgupol01, mortgage-cmort.",
+   "fix": "Provide DDL or sample rows for the Db2 tables (generated rows cover only some programs): 39 input(s) in carddemo-copaus1c, carddemo-copaus2c, carddemo-cotrtlic, carddemo-cotrtupc, cbsa-acctctrl, cbsa-bnk1cac, cbsa-bnk1cca, cbsa-bnk1ccs, cbsa-bnk1cra, cbsa-bnk1dac, cbsa-bnk1tfn, cbsa-bnk1uac, cbsa-custctrl, cbsa-dbcrfun, cbsa-delacc, cbsa-delcus, cbsa-inqacc, cbsa-inqacccu, cbsa-updacc, cbsa-xfrfun, genapp-lgacdb02, genapp-lgacus01, genapp-lgapdb01, genapp-lgdpdb01-generated, genapp-lgdpol01-generated, genapp-lgicdb01-generated, genapp-lgicus01, genapp-lgipdb01, genapp-lgipol01, genapp-lgtestc1, genapp-lgtestp1, genapp-lgtestp2, genapp-lgtestp3, genapp-lgtestp4, genapp-lgucdb01-generated, genapp-lgucus01-generated, genapp-lgupdb01, genapp-lgupol01, mortgage-cmort.",
    "items": [
     "carddemo-copaus1c: case input",
     "carddemo-copaus2c: case input",
@@ -2524,6 +2536,7 @@
     "genapp-lgtestp4: case input",
     "genapp-lgucdb01-generated: case input",
     "genapp-lgucus01-generated: case input",
+    "genapp-lgupdb01: case input",
     "genapp-lgupol01: case input",
     "mortgage-cmort: case input"
    ],
@@ -2564,6 +2577,7 @@
     "genapp-lgtestp4",
     "genapp-lgucdb01-generated",
     "genapp-lgucus01-generated",
+    "genapp-lgupdb01",
     "genapp-lgupol01",
     "mortgage-cmort"
    ],
@@ -2612,7 +2626,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 950
+   "tests_held": 967
   },
   {
    "cause": "ims",

@@ -5,6 +5,7 @@
     {"repo": "pallets/flask", "commit": "d73fa1cdcbd8b1465c151db8924ba58b1dd14e35", "language": "python"},
     {"repo": "encode/httpx", "commit": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254", "language": "python"},
     {"repo": "spf13/cobra", "commit": "adbc8813901bba65827259daa8e22ff94ec1f30e", "language": "go"},
+    {"repo": "prometheus/client_golang", "commit": "95ea5b861424a273ed9c7abde4b217a1f5789993", "language": "go"},
     {"repo": "redis/hiredis", "commit": "058ebcdf36c5b05b759c613564fb958ec363c90f", "language": "c"},
     {"repo": "libuv/libuv", "commit": "9be264a4efa515dcb6ced36267dac7a03f308be3", "language": "c"},
     {"repo": "fmtlib/fmt", "commit": "6d71f74624be5daa548073ff8e4e0c8aa5476010", "language": "cpp"},

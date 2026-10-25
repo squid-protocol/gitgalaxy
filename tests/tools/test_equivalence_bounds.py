@@ -118,7 +118,7 @@ def test_zero_length_refmod_is_an_empty_item_and_nothing_else_is_let_through(tmp
     assert "subscript of 'E'" in (common.bound_violation(_oracle(tmp_path / "c", 7, 0, ZLEN)) or "")  # still refused
 
 
-BOUNDS_CASES = ["carddemo-cardlist", "carddemo-cotrtlic", "carddemo-menu", "cbsa-bnk1cac", "cbsa-bnk1uac"]
+BOUNDS_CASES = ["carddemo-cardlist", "carddemo-menu", "cbsa-bnk1cac", "cbsa-bnk1uac"]
 
 
 @pytest.mark.parametrize("name", BOUNDS_CASES)

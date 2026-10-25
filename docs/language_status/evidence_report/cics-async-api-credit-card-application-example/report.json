@@ -1109,15 +1109,15 @@
     18
    ],
    "zecs-zecs000": [
-    34,
+    36,
     38,
-    38,
+    44,
     46
    ],
    "zecs-zecs001": [
-    37,
+    55,
     119,
-    38,
+    68,
     200
    ],
    "zecs-zecs003": [
@@ -1758,7 +1758,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "72d7d4027d63be4addb5382d14556d7e4f7b8f2e",
+   "sha": "03a2e6f9d8e0f49ee34d41dc09b4ead37d28e2d2",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
@@ -6568,8 +6568,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 72d7d4027d63be4addb5382d14556d7e4f7b8f2e",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 72d7d4027d63be4addb5382d14556d7e4f7b8f2e",
+   "python tests/tools/cics_census.py survey --baseline --sha 03a2e6f9d8e0f49ee34d41dc09b4ead37d28e2d2",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 03a2e6f9d8e0f49ee34d41dc09b4ead37d28e2d2",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -6590,13 +6590,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "72d7d4027d63be4addb5382d14556d7e4f7b8f2e",
+   "sha": "03a2e6f9d8e0f49ee34d41dc09b4ead37d28e2d2",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
    }
   },
-  "translator_commit": "72d7d4027d63be4addb5382d14556d7e4f7b8f2e",
+  "translator_commit": "03a2e6f9d8e0f49ee34d41dc09b4ead37d28e2d2",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

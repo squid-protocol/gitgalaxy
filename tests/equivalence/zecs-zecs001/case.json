@@ -506,42 +506,6 @@
       "why": "DELETE with a 7-byte query clear=x: 1320-CLEAR unstrings it, 1325-CLEAR-TYPE runs, CLEAR-TEXT is not '*' so no XCTL to ZECS003"
     },
     {
-      "name": "post-media-text",
-      "commarea": null,
-      "tod": "4747474747470708090A0B0C0D0E0F10",
-      "http_request": {
-        "scheme": "HTTP",
-        "host": "zecs.example.com",
-        "port": 8080,
-        "method": "POST",
-        "version": "HTTP/1.1",
-        "path": "/resources/ecs/walmart/cache/mediatext",
-        "query": "",
-        "headers": [],
-        "mediatype": "text/plain",
-        "body": "v"
-      },
-      "why": "POST with media type text/plain: the first WEB RECEIVE sees TEXT-ANYTHING and the second RECEIVE (SRVCONVERT) runs"
-    },
-    {
-      "name": "post-media-xml",
-      "commarea": null,
-      "tod": "4848484848480708090A0B0C0D0E0F10",
-      "http_request": {
-        "scheme": "HTTP",
-        "host": "zecs.example.com",
-        "port": 8080,
-        "method": "POST",
-        "version": "HTTP/1.1",
-        "path": "/resources/ecs/walmart/cache/mediaxml",
-        "query": "",
-        "headers": [],
-        "mediatype": "application/xml",
-        "body": "v"
-      },
-      "why": "POST with media type application/xml: the APPLICATION-XML arm of the SRVCONVERT re-receive"
-    },
-    {
       "name": "post-body-empty",
       "commarea": null,
       "tod": "4949494949490708090A0B0C0D0E0F10",

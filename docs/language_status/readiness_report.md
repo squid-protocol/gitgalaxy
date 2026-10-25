@@ -12,8 +12,8 @@ the charter in `definition_of_done.md`. Counts only; a level is an evidence leve
 | L0 inventoried | 2 |
 | L1 translated whole | 0 |
 | L2 executed equivalent | 2 |
-| L3 paragraph coverage | 8 |
-| L4 branch coverage | 32 |
+| L3 paragraph coverage | 7 |
+| L4 branch coverage | 33 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 42 / 44 (95%); with holes: 2; refused: 0
@@ -31,11 +31,11 @@ era 0: 0, era 1: 5, era 2: 22, era 3: 15, era 4: 0, era none: 2
 |---|---|---|---|---|---|
 | 1 | <name>: <name> is not defined in a record of file <name> | 2 | 0 | 2 | era 3: 2 |
 
-### Proof blockers (42 programs translated whole, 32 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
+### Proof blockers (42 programs translated whole, 33 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 8 | 0 | 8 |
+| 1 | coverage: branch outcomes below the bar | 7 | 0 | 7 |
 | 2 | coverage: paragraphs below the bar | 2 | 0 | 2 |
 
 ### Missing inputs
@@ -179,15 +179,15 @@ era 0: 0, era 1: 0, era 2: 22, era 3: 1, era 4: 6, era none: 2
 | level | programs at exactly this level |
 |---|---|
 | L0 inventoried | 0 |
-| L1 translated whole | 0 |
-| L2 executed equivalent | 5 |
-| L3 paragraph coverage | 13 |
-| L4 branch coverage | 13 |
+| L1 translated whole | 1 |
+| L2 executed equivalent | 0 |
+| L3 paragraph coverage | 12 |
+| L4 branch coverage | 18 |
 | L5 mutants accounted for | 0 |
 
 - translated whole: 31 / 31 (100%); with holes: 0; refused: 0
 - whole-translated but a CALL / LINK target has holes (below L2 until it is closed): 0
-- executed equivalent (L2 and above): 31 / 31
+- executed equivalent (L2 and above): 30 / 31
 - charter bars for L3 / L4: paragraphs 100.0%, branches 100.0%
 
 Era evidence (programs by latest era a tell reaches):
@@ -199,12 +199,12 @@ era 0: 0, era 1: 4, era 2: 24, era 3: 0, era 4: 3, era none: 0
 | rank | rule (gap class) | makes whole alone | one rule away | touched | era mix of the alone-set |
 |---|---|---|---|---|---|
 
-### Proof blockers (31 programs translated whole, 13 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
+### Proof blockers (31 programs translated whole, 18 with no proof gap; top 2 of 2 classes, `proof_blockers.py` statistics)
 
 | rank | what stops the proof | alone | one gap away | touched |
 |---|---|---|---|---|
-| 1 | coverage: branch outcomes below the bar | 13 | 0 | 13 |
-| 2 | coverage: paragraphs below the bar | 5 | 0 | 5 |
+| 1 | coverage: branch outcomes below the bar | 12 | 0 | 12 |
+| 2 | known unproven: det sweep baseline | 1 | 0 | 1 |
 
 ### Missing inputs
 

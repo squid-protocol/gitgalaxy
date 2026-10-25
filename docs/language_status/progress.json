@@ -1,5 +1,5 @@
 {
- "commit": "7b06c1639",
+ "commit": "5b6a21296",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -134,12 +134,12 @@
   },
   "1": {
    "l2_plus": 9,
-   "l4_plus": 4,
+   "l4_plus": 8,
    "programs": 9
   },
   "2": {
    "l2_plus": 69,
-   "l4_plus": 35,
+   "l4_plus": 38,
    "programs": 70
   },
   "3": {
@@ -148,8 +148,8 @@
    "programs": 16
   },
   "4": {
-   "l2_plus": 20,
-   "l4_plus": 17,
+   "l2_plus": 19,
+   "l4_plus": 16,
    "programs": 21
   },
   "none": {
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-25T06:14:24Z",
+  "as_of": "2026-10-25T06:41:24Z",
   "core": {
    "closed": 173,
    "open": 15,
@@ -430,15 +430,15 @@
    "aws-mainframe-modernization-carddemo": {
     "l2_plus": 42,
     "l2_plus_pct": 95.5,
-    "l4_plus": 32,
-    "l4_plus_pct": 72.7,
+    "l4_plus": 33,
+    "l4_plus_pct": 75.0,
     "l5": 0,
     "levels": {
      "L0": 2,
      "L1": 0,
      "L2": 2,
-     "L3": 8,
-     "L4": 32,
+     "L3": 7,
+     "L4": 33,
      "L5": 0
     },
     "programs": 44,
@@ -479,17 +479,17 @@
     "translated_whole": 31
    },
    "cics-genapp": {
-    "l2_plus": 31,
-    "l2_plus_pct": 100.0,
-    "l4_plus": 13,
-    "l4_plus_pct": 41.9,
+    "l2_plus": 30,
+    "l2_plus_pct": 96.8,
+    "l4_plus": 18,
+    "l4_plus_pct": 58.1,
     "l5": 0,
     "levels": {
      "L0": 0,
-     "L1": 0,
-     "L2": 5,
-     "L3": 13,
-     "L4": 13,
+     "L1": 1,
+     "L2": 0,
+     "L3": 12,
+     "L4": 18,
      "L5": 0
     },
     "programs": 31,
@@ -531,17 +531,17 @@
    }
   },
   "total": {
-   "l2_plus": 121,
-   "l2_plus_pct": 93.8,
-   "l4_plus": 74,
-   "l4_plus_pct": 57.4,
+   "l2_plus": 120,
+   "l2_plus_pct": 93.0,
+   "l4_plus": 80,
+   "l4_plus_pct": 62.0,
    "l5": 0,
    "levels": {
     "L0": 6,
-    "L1": 2,
-    "L2": 17,
-    "L3": 30,
-    "L4": 74,
+    "L1": 3,
+    "L2": 12,
+    "L3": 28,
+    "L4": 80,
     "L5": 0
    },
    "programs": 129,

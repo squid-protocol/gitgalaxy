@@ -1,6 +1,6 @@
 # Progress
 
-Generated from main at `7b06c1639` by `tests/tools/progress_report.py` (#5280); do not edit. Every
+Generated from main at `5b6a21296` by `tests/tools/progress_report.py` (#5280); do not edit. Every
 denominator is fixed and every number names its source below. A level is an evidence level, never a bare
 claim of correctness: the oracle is GnuCOBOL plus IBM documentation, not z/OS.
 
@@ -18,13 +18,13 @@ Reachable denominator: 123 programs (129 - 2 - 2 - 2). These programs stay in th
 
 | Estate | Programs | L0 | L1 | L2 | L3 | L4 | L5 | L2+ | L4+ | L5 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `aws-mainframe-modernization-carddemo` | 44 | 2 | 0 | 2 | 8 | 32 | 0 | 42 (95.5%) | 32 (72.7%) | 0 |
+| `aws-mainframe-modernization-carddemo` | 44 | 2 | 0 | 2 | 7 | 33 | 0 | 42 (95.5%) | 33 (75.0%) | 0 |
 | `cics-async-api-credit-card-application-example` | 10 | 0 | 0 | 0 | 0 | 10 | 0 | 10 (100.0%) | 10 (100.0%) | 0 |
 | `cics-banking-sample-application-cbsa` | 31 | 0 | 0 | 7 | 9 | 15 | 0 | 31 (100.0%) | 15 (48.4%) | 0 |
-| `cics-genapp` | 31 | 0 | 0 | 5 | 13 | 13 | 0 | 31 (100.0%) | 13 (41.9%) | 0 |
+| `cics-genapp` | 31 | 0 | 1 | 0 | 12 | 18 | 0 | 30 (96.8%) | 18 (58.1%) | 0 |
 | `dbb-mortgage-application` | 6 | 2 | 2 | 1 | 0 | 1 | 0 | 2 (33.3%) | 1 (16.7%) | 0 |
 | `zecs` | 7 | 2 | 0 | 2 | 0 | 3 | 0 | 5 (71.4%) | 3 (42.9%) | 0 |
-| **Total** | 129 | 6 | 2 | 17 | 30 | 74 | 0 | 121 (93.8%) | 74 (57.4%) | 0 |
+| **Total** | 129 | 6 | 3 | 12 | 28 | 80 | 0 | 120 (93.0%) | 80 (62.0%) | 0 |
 
 L0 inventoried, L1 translated whole, L2 executed equal, L3 every paragraph, L4 every net branch, L5 translator
 mutants caught (`definition_of_done.md`).
@@ -51,15 +51,15 @@ Source: tests/fixtures/feature_inventory/<estate>.json (era_tags.py). Programs p
 | Era | Programs | L2+ | L4+ |
 |---|---|---|---|
 | 0 | 0 | 0 | 0 |
-| 1 | 9 | 9 | 4 |
-| 2 | 70 | 69 | 35 |
+| 1 | 9 | 9 | 8 |
+| 2 | 70 | 69 | 38 |
 | 3 | 16 | 14 | 9 |
-| 4 | 21 | 20 | 17 |
+| 4 | 21 | 19 | 16 |
 | untagged | 13 | 9 | 9 |
 
 ## 4. Core burn-down
 
-Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-25T06:14:24Z.
+Source: GitHub issues by scope:* label (progress_issues_cache.json), as of 2026-10-25T06:41:24Z.
 
 - `scope:core`: 15 open, 173 closed.
 - Milestone 28: 6 open, 97 closed.

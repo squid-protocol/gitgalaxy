@@ -1,5 +1,5 @@
 {
- "commit": "3ce03380c",
+ "commit": "ff55a250c",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -32,9 +32,9 @@
      "REFUSED": 3
     },
     "CICS": {
-     "ASSUMED": 18,
+     "ASSUMED": 19,
      "MATCHED": 7,
-     "REFUSED": 2
+     "REFUSED": 1
     },
     "DATA": {
      "ASSUMED": 1,
@@ -95,10 +95,10 @@
    "measured_on_zos": 0,
    "rules": 186,
    "status": {
-    "ASSUMED": 62,
+    "ASSUMED": 63,
     "DIFFERS": 23,
     "MATCHED": 87,
-    "REFUSED": 14
+    "REFUSED": 13
    }
   },
   "crucibles": {
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-25T03:51:22Z",
+  "as_of": "2026-10-25T03:59:11Z",
   "core": {
    "closed": 173,
    "open": 15,

@@ -334,6 +334,53 @@ def test_clang_callgraph_links_windows_sources_as_their_own_group(tmp_path):
     assert g["external"] == [[ux_w, "Sleep"]]
 
 
+def test_clang_callgraph_parses_a_file_naming_a_platform_macro_once_more_per_platform(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "unix").mkdir()
+    # one file, three configurations: Linux (the base parse), `__APPLE__`, `_AIX`, and an unnamed platform
+    (tmp_path / "unix" / "plat.c").write_text(
+        "int helper(void) { return 1; }\n"  # 1
+        "#if defined(__APPLE__)\n"
+        "int apple_only(void) { return helper(); }\n"  # 3
+        "#elif defined(_AIX)\n"
+        "int aix_only(void) { return helper(); }\n"  # 5
+        "#elif defined(__sun)\n"
+        "int sun_only(void) { return 1; }\n"  # 7
+        "#else\n"
+        "int linux_only(void) { return helper(); }\n"  # 9
+        "#endif\n"
+        "#if defined(__APPLE__) || defined(_AIX)\n"
+        "int fallback(void) { return 1; }\n"  # 12
+        "#else\n"
+        "int fallback(void) { return 2; }\n"  # 14
+        "#endif\n"
+    )
+    (tmp_path / "user.c").write_text(
+        "int apple_only(void);\nint fallback(void);\nint user(void) { return apple_only() + fallback(); }\n"  # 3
+    )
+    # a file that names no platform macro is parsed once, as Linux
+    (tmp_path / "plain.c").write_text("int linux_only(void);\nint plain(void) { return linux_only(); }\n")
+    g = clang_callgraph.build(tmp_path)
+    plat = "unix/plat.c"
+    defs = {tuple(d) for d in g["defs"]}
+    assert {(plat, n, ln) for n, ln in (("apple_only", 3), ("aix_only", 5), ("sun_only", 7), ("linux_only", 9))} <= defs
+    edges = {(tuple(a), tuple(b)) for a, b, _ in g["edges"]}
+    helper = (plat, "helper", 1)
+    # each platform's caller links the shared helper from its own configuration
+    for name, line in (("apple_only", 3), ("aix_only", 5), ("linux_only", 9)):
+        assert ((plat, name, line), helper) in edges
+    # a Linux caller never links a def only another platform has (a repo function all the same, not external), but
+    # reaches every `#if` variant of one function (one unit to the engine)
+    user = ("user.c", "user", 3)
+    assert (user, (plat, "apple_only", 3)) not in edges
+    assert (user, (plat, "fallback", 12)) in edges and (user, (plat, "fallback", 14)) in edges
+    assert (("plain.c", "plain", 2), (plat, "linux_only", 9)) in edges
+    assert g["external"] == []
+
+
 def test_clang_callgraph_names_a_one_argument_macro_def_as_the_engine_does(tmp_path):
     import clang_callgraph
 

@@ -12262,7 +12262,7 @@
 <p>Verification risk is calculated across a five-level hierarchy:
 - <strong>Level 1 (Function):</strong> Calculates <code>BaseImpact</code> by subtracting internal defenses (assertions, guards) from structural impact, applying a negative modifier for bypassed tests (<code>it.skip</code>). External tests dilute their defensive weight (<code>DefensiveRatio</code>) if they target multiple functions. An inverse decay formula yields the residual <code>UntestedImpact</code>.
 - <strong>Level 2 (Class):</strong> Aggregates function-level impact into <code>ClassUntestedImpact</code>.
-- <strong>Level 3 (File):</strong> Normalizes total impact per executable line of code (<code>CodingLOC</code>), applying a language Opacity Tax (<span class="arithmatex">\(Ot\)</span>), Directory Test Dampener, and Blast Radius to calculate <code>AdjustedDensity</code>. A logistic Sigmoid function maps this to a 0–100 score.
+- <strong>Level 3 (File):</strong> Normalizes total impact per executable line of code (<code>CodingLOC</code>), applying a language Opacity Tax (<span class="arithmatex">\(Ot\)</span>, 1.0 for every language since the #2720 pilot), Directory Test Dampener, and Blast Radius to calculate <code>AdjustedDensity</code>. A logistic Sigmoid function maps this to a 0–100 score.
 - <strong>Level 4 (Directory):</strong> Mass-weighted average using <code>CodingLOC</code> of child files.
 - <strong>Level 5 (Repository):</strong> Mass-weighted average across top-level directories.</p>
 <p><strong>Mathematical Formulation (Function Level)</strong>

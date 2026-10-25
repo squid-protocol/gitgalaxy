@@ -12328,7 +12328,7 @@ $<span class="arithmatex">\(RiskExposure = \left( \frac{((RiskHits + Irc) \times
 <tr>
 <td><strong>This language lets you leave things unsaid.</strong> Unenforced error paths, implicit globals, no memory safety, no static types.</td>
 <td>The language specification — objective yes/no columns, checkable against documentation.</td>
-<td><code>analysis_lens.LANGUAGE_STRICTNESS</code>: one row per language; <span class="arithmatex">\(Irc\)</span> = number of gaps (0–4), <span class="arithmatex">\(Ot = 1 + 0.1 \cdot Irc\)</span>. Data, markup and configuration formats have no runtime and carry <strong>no</strong> term. Dialects resolve through <code>LANGUAGE_FAMILY</code>.</td>
+<td><code>analysis_lens.LANGUAGE_STRICTNESS</code>: one row per language; <span class="arithmatex">\(Irc\)</span> = gaps × <code>STRICTNESS_IRC_PER_GAP</code>, <span class="arithmatex">\(Ot = 1 +\)</span> gaps × <code>STRICTNESS_OT_PER_GAP</code>, both weights <strong>zero</strong> since the #2720 pilot (the table is documentation). Data, markup and configuration formats have no runtime and carry <strong>no</strong> term. Dialects resolve through <code>LANGUAGE_FAMILY</code>.</td>
 <td>the tier lists</td>
 </tr>
 <tr>
@@ -12339,7 +12339,7 @@ $<span class="arithmatex">\(RiskExposure = \left( \frac{((RiskHits + Irc) \times
 </tr>
 </tbody>
 </table>
-<p>Two invariants bound the mechanism. <span class="arithmatex">\(Irc\)</span> <em>corrects</em> measured risk and never creates it: zero measured evidence scores zero in every language (#2655). And the weight on the strictness term is provisional — nothing in the system can validate a language-level shift yet (keyword-rosetta's null hypothesis <em>is</em> "no correction", the crucible has no risk labels), so #2720 pilots an outcome fixture before that weight is trusted with more than it carries now.</p>
+<p>Two invariants bound the mechanism. <span class="arithmatex">\(Irc\)</span> <em>corrects</em> measured risk and never creates it: zero measured evidence scores zero in every language (#2655). And the weight on the strictness term is zero: the #2720 outcome-label pilot found no consistent predictive value at equal measured evidence (pooled fix-rate ratio 0.67, opposite to the table, with per-repo signs disagreeing; memo on #2716), so the owner set it to zero on 2026-10-23. The per-file dynamism term (#2719) did predict later fixes (about 1.27×) and keeps its weight. A non-zero strictness weight needs a measured effect, not a re-tune.</p>
 <p>The tables the engine actually reads are rendered below from the data files, never typed by hand — a hand-written copy is how the repo once carried two tier tables that disagreed for twenty languages.</p>
 <h4 id="language-strictness">Language strictness</h4>
 <!-- generated:strictness -->
@@ -12971,7 +12971,7 @@ $<span class="arithmatex">\(RiskExposure = \left( \frac{((RiskHits + Irc) \times
 <p>Processing utilizes constant-time floating-point math per file component, resulting in <span class="arithmatex">\(O(1)\)</span> metric transformation time per unit post-extraction.</p>
 <h2 id="future-work">Future Work</h2>
 <ul>
-<li>Outcome calibration of the strictness weight against fix-commit history (#2720); the fidelity coefficients are already measured, not tuned.</li>
+<li>A strictness weight above zero only with a measured effect: #2720's pilot found none (and could not test COBOL); the fidelity coefficients are already measured, not tuned.</li>
 <li>Configurable Breach Cap thresholds per repository.</li>
 </ul>
 <h2 id="related-components">Related Components</h2>

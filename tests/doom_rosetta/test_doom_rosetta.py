@@ -131,8 +131,11 @@ LANG_FIXTURES = {  # language -> (file, source with f calling g, h; g, h and the
     "javascript": ("a.js", "function g() {}\nfunction h() {}\nfunction f() {\n  g();\n  o.h();\n}\n"),
     "kotlin": ("a.kt", "fun g() {}\nfun h() {}\nfun f() {\n    g()\n    x.h()\n}\n"),
     "python": ("a.py", "def g():\n    pass\ndef h():\n    pass\ndef f():\n    g()\n    o.h()\n"),
+    "lua": ("a.lua", "function g() end\nfunction h() end\nfunction f()\n  g()\n  o:h()\nend\n"),
+    "shell": ("a.sh", "g() { :; }\nh() { :; }\nf() {\n  g\n  h x\n}\n"),
+    "tcl": ("a.tcl", "proc g {} {}\nproc h {} {}\nproc f {} {\n  g\n  h x\n}\n"),
 }
-FIXTURE_START = {"go": 4, "java": 4, "csharp": 4, "rust": 3, "javascript": 3, "python": 5, "kotlin": 3}
+FIXTURE_START = {"go": 4, "java": 4, "csharp": 4, "rust": 3, "javascript": 3, "python": 5, "kotlin": 3, "lua": 3, "shell": 3, "tcl": 3}
 
 
 @pytest.mark.parametrize("lang", sorted(LANG_FIXTURES))
@@ -162,6 +165,30 @@ def test_ts_oracle_scores_each_covered_language(lang, tmp_path):
     _scan_db(tmp_path / "u.db", rows + [k, (rel, lang, "f", FIXTURE_START[lang], ["g", "h", "k"])])
     cols, ok = doom_scorer.callgraph_check("a-port", tmp_path, tmp_path / "u.db")
     assert (cols["callgraph_misses"], cols["callgraph_engine_only"], ok) == (0, 1, False), cols
+
+
+def test_ts_oracle_reads_the_small_script_call_shapes(tmp_path):
+    """#5640: a Lua call after ``..`` and under ``while not``, a shell command word and ``$(..)`` substitution, and a Tcl
+    command on the line after a closing ``}`` are calls; a string or comment naming a function is not."""
+    pytest.importorskip("tree_sitter_language_pack")
+    import ts_callgraph_oracle as ts
+
+    cases = {
+        "lua": (
+            "a.lua",
+            "function g() end\nfunction h() end\nfunction f()\n  w(\"x\"..g(1))\n  while not h(2) do end\n  -- g()\nend\n",
+            3,
+        ),
+        "shell": ("a.sh", "g() { :; }\nh() { :; }\nf() {\n  x=$(g 1)\n  echo \"h\"\n  if true; then\n    h\n  fi\n}\n", 3),
+        "tcl": ("a.tcl", "proc g {} {}\nproc h {} {}\nproc f {} {\n  if {1} {\n    g\n  }\n  h\n}\n", 3),
+    }
+    for lang, (rel, src, start) in cases.items():
+        if not ts.available(lang):
+            pytest.skip(f"tree-sitter language pack has no {lang} grammar")
+        (tmp_path / rel).write_text(src)
+        rows = [(rel, lang, "g", 1, []), (rel, lang, "h", 2, []), (rel, lang, "f", start, ["g", "h"])]
+        res = ts.body_oracle(tmp_path, rows)
+        assert (res["oracle_calls"], res["misses_by_shape"], res["engine_only_by_kind"]) == (2, {}, {}), (lang, res)
 
 
 def test_ts_oracle_scores_a_bound_function_expression_as_its_own_unit(tmp_path):

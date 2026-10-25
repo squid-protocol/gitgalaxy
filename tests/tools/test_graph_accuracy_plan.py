@@ -158,6 +158,19 @@ def test_every_gate_the_lanes_run_is_a_planned_gate(workflow):
     assert "want span-anchoring" in run
 
 
+def test_every_gate_runs_in_exactly_one_lane_slot(workflow):
+    run = next(s["run"] for s in workflow[1]["jobs"]["graph-accuracy-audit"]["steps"] if "lanes" in s.get("name", ""))
+    body = run[: run.index("\nwait\n")]  # the lanes, before the span-anchoring merge gate
+    gates = re.findall(r"\bgate ([a-z][\w-]*) python", body)
+    shards = re.findall(r"run_gate (span-shard-[01]) python", body)
+    assert sorted(gates) == sorted(
+        [f"call-{n}" for n in ("c", "cpp", "go", "java", "javascript", "python", "rust", "typescript")]
+        + [f"import-graph-{n}" for n in (1, 2, 3)]
+    )  # a rebalance neither drops nor doubles a gate
+    assert sorted(shards) == ["span-shard-0", "span-shard-1"]
+    assert body.count(") &") == 4
+
+
 def test_the_import_graph_subsets_cover_every_language_exactly_once(workflow):
     run = next(s["run"] for s in workflow[1]["jobs"]["graph-accuracy-audit"]["steps"] if "lanes" in s.get("name", ""))
     subsets = [m.split() for m in re.findall(r'^\s*IG\d="([^"]+)"', run, re.M)]

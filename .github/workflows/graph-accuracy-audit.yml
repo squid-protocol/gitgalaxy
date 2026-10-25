@@ -218,7 +218,7 @@ jobs:
           fi
           if [ -n "$import_pid" ]; then wait "$import_pid"; fi
 
-      # Four lanes balance the measured gate times (#5501): span anchoring is the longest gate, so it runs as
+      # Four lanes balance the measured gate times (#5501; the lane comment below has the figures): span anchoring is the longest gate, so it runs as
       # two --shard scans whose merge is the one baseline gate (a shard is a partial measurement and refuses
       # --ci). Each gate keeps its own baseline, --samples and exit code; its table goes to a per-gate file
       # and is appended to the job summary afterwards so concurrent writers cannot interleave.
@@ -242,24 +242,27 @@ jobs:
             want "${name%-[0-9]}" || return 0  # import-graph-1..3 are subsets of the planned import-graph gate
             run_gate "$name" "$@" --ci --summary "$RUNNER_TEMP/gaa/$name.md"
           }
-          # Lanes sum to ~410 s each from the measured gate times (#5501): the 444 s import-graph gate runs as three
+          # Lanes balanced on the gate times measured in run 40160191245 (#5501), longest first: span-shard-1 253,
+          # cpp 315, import-graph-1 295, -2 216, java 192, span-shard-0 160, import-graph-3 147, python 96, rust 41,
+          # c 31, go 23, typescript 17, javascript 14 = 1800 s, so ~450 s per lane is the floor on 4 cores. cpp and
+          # import-graph-1 are the CPU-heavy gates: keep them on separate lanes. The import-graph gate runs as three
           # language subsets (each its own baseline gate over that subset; together exactly LANGS, pinned by a test).
           IG1="python tcl go c lua ruby"
           IG2="objective-c csharp javascript typescript shell solidity rust perl"
           IG3="cpp java php zig dart kotlin scala haskell swift powershell groovy fortran"
-          ( ! want span-anchoring || run_gate span-shard-1 python tests/tools/span_anchor_audit.py --shard 1/2 --json "$RUNNER_TEMP/gaa/span1.json" --samples 3
-            gate call-python python tests/tools/call_graph_resolution.py python --samples 5 ) &
-          ( gate call-java python tests/tools/call_graph_resolution.py java --samples 5
-            gate import-graph-1 python tests/tools/import_graph_accuracy.py $IG1 --jobs 2 --samples 5 ) &
-          ( ! want span-anchoring || run_gate span-shard-0 python tests/tools/span_anchor_audit.py --shard 0/2 --json "$RUNNER_TEMP/gaa/span0.json" --samples 3
-            gate import-graph-2 python tests/tools/import_graph_accuracy.py $IG2 --jobs 2 --samples 5
-            gate call-rust python tests/tools/call_graph_resolution.py rust --samples 5 ) &
           ( gate call-cpp python tests/tools/call_graph_resolution.py cpp --samples 5
+            gate call-python python tests/tools/call_graph_resolution.py python --samples 5
+            gate call-c python tests/tools/call_graph_resolution.py c --samples 5 ) &
+          ( gate import-graph-1 python tests/tools/import_graph_accuracy.py $IG1 --jobs 2 --samples 5
             gate import-graph-3 python tests/tools/import_graph_accuracy.py $IG3 --jobs 2 --samples 5
-            gate call-c python tests/tools/call_graph_resolution.py c --samples 5
-            gate call-go python tests/tools/call_graph_resolution.py go --samples 5
-            gate call-typescript python tests/tools/call_graph_resolution.py typescript --samples 5
             gate call-javascript python tests/tools/call_graph_resolution.py javascript --samples 5 ) &
+          ( ! want span-anchoring || run_gate span-shard-1 python tests/tools/span_anchor_audit.py --shard 1/2 --json "$RUNNER_TEMP/gaa/span1.json" --samples 3
+            gate call-java python tests/tools/call_graph_resolution.py java --samples 5
+            gate call-typescript python tests/tools/call_graph_resolution.py typescript --samples 5 ) &
+          ( gate import-graph-2 python tests/tools/import_graph_accuracy.py $IG2 --jobs 2 --samples 5
+            ! want span-anchoring || run_gate span-shard-0 python tests/tools/span_anchor_audit.py --shard 0/2 --json "$RUNNER_TEMP/gaa/span0.json" --samples 3
+            gate call-rust python tests/tools/call_graph_resolution.py rust --samples 5
+            gate call-go python tests/tools/call_graph_resolution.py go --samples 5 ) &
           wait
           # the one span-anchoring baseline gate, over the summed shards (skipped if a shard failed)
           if want span-anchoring && [ -s "$RUNNER_TEMP/gaa/span0.json" ] && [ -s "$RUNNER_TEMP/gaa/span1.json" ]; then

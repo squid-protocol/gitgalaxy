@@ -126,10 +126,10 @@ jobs:
               {"os":"macos-latest","python-version":"3.12","part":2,"splits":2,"timeout":26,"step_timeout":23}
             ]'
           fi
-          # #5953: the nightly smoke-test.yml run (04:23) is the same suite on ubuntu / 3.12 (the gate leg only adds
-          # test_evidence_components, which mainframe-ground-truth.yml runs), so the nightly grid drops that leg
+          # #5953: smoke-test.yml runs the same suite on ubuntu / 3.12 nightly and on every main push (the gate leg only adds
+          # test_evidence_components, run by mainframe-ground-truth.yml): the nightly and post-merge (main) dispatch drop that leg
           include=$(echo "$include" | tr -d '\n ')
-          if [ "${{ github.event_name }}" = "schedule" ]; then
+          if [ "${{ github.event_name }}" = "schedule" ] || { [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.ref }}" = "refs/heads/main" ] && [ "${{ inputs.full_matrix }}" != "true" ]; }; then
             include=$(echo "$include" | jq -c 'map(select(.os != "ubuntu-latest" or .["python-version"] != "3.12"))')
           fi
           echo "include=$include" >> "$GITHUB_OUTPUT"

@@ -68,6 +68,22 @@
    "terminal": "LGPF C000000001",
    "commarea": null,
    "why": "nine digits typed: 15 - 6 = 9, WS-COMMAREA(2:9) moved to PART-KEY-NUM PIC 9(10) (an alphanumeric sending item into a numeric DISPLAY one: right-aligned, a leading zero) -> commercial policy 10 of customer 1"
+  },
+  {
+   "name": "dpl-key-on-file",
+   "startcode": "D",
+   "commarea": {
+    "COMMA-DATA-TEXT": "M0000000002"
+   },
+   "why": "STARTCODE D (a distributed program link, not a terminal start): WS-FLAG is 'C', the RECEIVE is skipped and the key goes back in COMMA-DATA with no SEND TEXT; the other arm of the STARTCODE test than the terminal scenarios take (#6072)"
+  },
+  {
+   "name": "dpl-other-type",
+   "startcode": "D",
+   "commarea": {
+    "COMMA-DATA-TEXT": "E0000000009"
+   },
+   "why": "STARTCODE D with no endowment policy at or after customer 9: the first house policy comes back, a type other than E, so 'Policy Bad=' goes back in COMMA-DATA on the 'C' arm (#6072)"
   }
  ],
  "notes": "GenApp's VSAM policy key inquiry (LGIPVS01, transaction LGPF in the CSD: base/cntl/cdef121.jcl; a terminal transaction: no GenApp program LINKs it). It ASSIGNs SYSID, STARTCODE and INVOKINGPROG; a terminal task (STARTCODE 'TD', X19, INVOKINGPROG blank: the first program) RECEIVEs the operator's line (an unformatted RECEIVE: the scenario's terminal input), takes the policy type and the customer number after the transaction id, and EXEC CICS READ FILE('KSDSPOLY') INTO(CA-AREA) LENGTH(F64 = 64) RIDFLD(PART-KEY) KEYLENGTH(F11 = 11) GENERIC GTEQ: the first policy whose type + customer number is at or after the key's. A policy of the key's type sends 'Policy Key=' and its 21-byte key; another type, or NOTFND, 'Policy Bad=' with 13 in both numbers; SEND TEXT FROM(WRITE-MSG) LENGTH(80) ERASE WAIT FREEKB, then RETURN. The COMMAREA path (STARTCODE 'D', a DPL) is the genapp-lgipvs01-linked case. Data: ksdspoly.txt is the genapp-lgupdb01 case's ten GenApp sample policies. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."

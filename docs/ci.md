@@ -289,6 +289,8 @@ The critical path (time-to-green) is unchanged on an engine PR: it is `full-suit
 ## Smoke suite plan (#6278 item 3)
 `suite_select_plan.py` (the classifier's `area()`) plans the `full-suite` on a PR: `skip` (prose nothing opens, `full-suite` reports success), `select` (docs / agent config only: just the tests that read them) or `full`; `shepherd:full` forces full. Push, nightly and dispatch always run the full suite. `push: paths-ignore: docs/**` stays on purpose: a push cannot be planned (the diff is not a PR's), and dropping it would run the full suite on every docs-bot push to main; the PR run already tested those docs.
 
+`python tests/tools/suite_select_plan.py --replay 50` (needs `gh`) plans the last N merged PRs and prints the skip / select / full counts. Measured 2026-10-25 on the last 50 merged PRs: 0 skip, 8 select (16%), 42 full (84%). The suite runs in full for most PRs because most change the engine or `tests/tools`; the select share is the docs / agent-config PRs, each running only its readers instead of the whole suite.
+
 ## Smoke on main is queued, not cancelled (#6514)
 
 A main push no longer cancels the previous push's Smoke run (`smoke-test.yml`): under a stream of merges 8 runs in a row were cancelled on 2026-10-24, so main never had a green run and `ci-red-main` could not close. One run goes on and the newest push waits behind it (GitHub keeps one pending run per group). A PR re-push and a manual dispatch still cancel. Cost: a main push run is about 5-6 min per full-suite part (see the #5543 measurement above), now paid for the runs that used to be cancelled early; at most two main runs exist at a time. `java-compile.yml` still cancels main pushes the same way.

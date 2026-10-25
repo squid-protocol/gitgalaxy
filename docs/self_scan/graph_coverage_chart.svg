@@ -248,17 +248,17 @@
 </g>
 <rect class="stripe" x="16" y="310" width="1212" height="34"/>
 <text class="lang" x="22" y="331.0">go</text>
-<g><title>go imports: precision 91.7% of 12, recall 91.7% of 12 (raw 91.7% / 91.7%; 2 shapes without a verdict); corpus spf13/cobra; small n</title>
+<g><title>go imports: precision 99.2% of 122, recall 100.0% of 121 (raw 99.2% / 100.0%; 1 shapes without a verdict); corpus prometheus/client_golang, spf13/cobra</title>
 <text class="pr" x="120" y="324.5">Precision</text>
 <rect class="track" x="166" y="317" width="110" height="8" rx="2"/>
-<rect x="166" y="317" width="100.9" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="281" y="325">91.7%*</text>
+<rect x="166" y="317" width="109.1" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="325">99.2%*</text>
 <text class="pr" x="120" y="336.5">Recall</text>
 <rect class="track" x="166" y="329" width="110" height="8" rx="2"/>
-<rect x="166" y="329" width="100.9" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="281" y="337">91.7%*</text>
-<text class="n" x="324" y="325">n=12 imports</text>
-<text class="n" x="324" y="337">repos 1 · files 36</text>
+<rect x="166" y="329" width="110.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="337">100.0%</text>
+<text class="n" x="324" y="325">n=121 imports</text>
+<text class="n" x="324" y="337">repos 2 · files 186</text>
 </g>
 <g><title>go callee names: precision 99.9% of 6,657, recall 99.6% of 6,677 (raw 99.9% / 99.6%; 7 shapes without a verdict)</title>
 <text class="pr" x="426" y="324.5">Precision</text>
@@ -284,15 +284,16 @@
 <text class="n" x="936" y="325">n=1,636 edges</text>
 <text class="n" x="936" y="337">vs go-callgraph 0.37.0</text>
 </g>
-<g><title>go hubs: 100% / - (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>go hubs: 50% / -0.70 (repos=2) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="324.5">overlap@10</text>
 <rect class="track" x="1090" y="317" width="110" height="8" rx="2"/>
-<rect x="1090" y="317" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="1205" y="325">100%</text>
+<rect x="1090" y="317" width="55.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="1205" y="325">50%</text>
 <text class="pr" x="1038" y="336.5">Spearman</text>
 <rect class="track" x="1090" y="329" width="110" height="8" rx="2"/>
-<text class="val" x="1205" y="337">-</text>
-<text class="n" x="1240" y="325">repos=1</text>
+<rect x="1090" y="329" width="2.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="1205" y="337">-0.70</text>
+<text class="n" x="1240" y="325">repos=2</text>
 </g>
 <text class="lang" x="22" y="365.0">groovy</text>
 <g><title>groovy imports: precision 99.3% of 1,071, recall 96.3% of 1,105 (raw 99.3% / 96.3%; 3 shapes without a verdict); corpus spockframework/spock</title>

@@ -2466,10 +2466,6 @@
         "import:lua/redis/strict.lua",
         "import:ruby/rails/base.rb"
       ],
-      "perl/bugzilla/DB.pm": [
-        "import:jcl/cics-banking-sample-application-cbsa/DEFAULT.jcl",
-        "import:nix/ghostty/default.nix"
-      ],
       "perl/bugzilla/Requirements.pm": [
         "import:lua/redis/strict.lua",
         "import:ruby/rails/base.rb"
@@ -2486,9 +2482,7 @@
       ],
       "perl/exiftool/exiftool": [
         "fcall:perl/exiftool/RandomAccess.pm",
-        "import:hlasm/che4z_hlasm/B.hlasm",
-        "import:lua/redis/strict.lua",
-        "import:php/wordpress/formatting.php"
+        "import:lua/redis/strict.lua"
       ]
     },
     "perl/mojo": {
@@ -2518,14 +2512,12 @@
         "import:lua/redis/strict.lua"
       ],
       "perl/spamassassin/PerMsgStatus.pm": [
-        "import:lua/redis/strict.lua",
-        "import:scheme/racket/eval.c"
+        "import:lua/redis/strict.lua"
       ],
       "perl/spamassassin/SpamAssassin.pm": [
         "fcall:perl/spamassassin/Bayes.pm",
         "fcall:perl/spamassassin/Message.pm",
-        "import:lua/redis/strict.lua",
-        "import:rust/tokio/tests.rs"
+        "import:lua/redis/strict.lua"
       ]
     },
     "php/guzzle": {

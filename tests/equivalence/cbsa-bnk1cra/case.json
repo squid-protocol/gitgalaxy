@@ -423,6 +423,19 @@
      "resp": "TSIOERR"
     }
    ]
+  },
+  {
+   "name": "account-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CD": {
+     "ACCNOI": "0000000B",
+     "SIGNI": "+",
+     "AMTI": "100.50"
+    }
+   },
+   "why": "account '0000000B': BIF DEEDIT leaves a letter, ACCNOI NOT NUMERIC -- 'Please enter an account number.', no LINK"
   }
  ],
  "notes": "CBSA's credit / debit screen (BNK1CRA, transaction OCRA, BMS map BNK1CD of mapset BNK1CDM: the symbolic map is generated from src/base/bms_src/BNK1CDM.bms, @bms/BNK1CDM.cpy). Pseudo-conversational, as every CBSA screen (PF3 RETURN TRANSID('OMEN') IMMEDIATE from the stated terminal T001, oracle_assumptions.md X27). ENTER RECEIVEs the map (MAPFAIL abends HBNK through ABNDPROC), BIF DEEDITs the account number, checks it is not zero and the sign is + or -, validates the amount character by character and converts it with FUNCTION NUMVAL into the COMP-2 WS-AMOUNT-AS-FLOAT (negated for '-'), then INQUIREs its own ASSOCIATION for the origin data and LINKs DBCRFUN with SUBPGM-PARMS (run in the task, as in cbsa-dbcrfun). The task's origin data is a stated fact of the run (oracle_assumptions.md X29): APPLID CBSAREGN, user CICSUSER, facility T001, network CBSANET, facility type TERMINAL (a teller transaction to DBCRFUN), or NONE (DBCRFUN's 496, a payment) where a scenario says so. Every amount that reaches NUMVAL is exact in both IEEE and HFP (100.50, 50.25, 12.75, 1.5 ...): IBM's long HFP and the oracle's IEEE agree only on such values (oracle_assumptions.md C6). The COMMAREA compared is the one the program RETURNs, WS-COMM-AREA. ACCOUNT, PROCTRAN and ABNDFILE are compared after every scenario. Not reached: an account number with no digit after BIF DEEDIT (not modelled: refused) and the failure branches after SEND TEXT / SEND CONTROL / RETURN / LINK / INQUIRE (no fault can be injected on them). Data: seed.sql is cbsa-dbcrfun's (SYNTHETIC). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

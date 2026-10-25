@@ -843,21 +843,21 @@
 <text class="n" x="1240" y="801">repos=1</text>
 </g>
 <text class="lang" x="22" y="841.0">shell</text>
-<g><title>shell imports: precision 100.0% of 56, recall 100.0% of 56; corpus Bash-it/bash-it, bats-core/bats-core; small n</title>
+<g><title>shell imports: precision 100.0% of 100, recall 100.0% of 100; corpus Bash-it/bash-it, bats-core/bats-core, ohmybash/oh-my-bash, tfutils/tfenv</title>
 <text class="pr" x="120" y="834.5">Precision</text>
 <rect class="track" x="166" y="827" width="110" height="8" rx="2"/>
-<rect x="166" y="827" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<rect x="166" y="827" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="281" y="835">100.0%</text>
 <text class="pr" x="120" y="846.5">Recall</text>
 <rect class="track" x="166" y="839" width="110" height="8" rx="2"/>
-<rect x="166" y="839" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<rect x="166" y="839" width="110.0" height="8" rx="2" fill="#eda100"/>
 <text class="val" x="281" y="847">100.0%</text>
-<text class="n" x="324" y="835">n=56 imports</text>
-<text class="n" x="324" y="847">repos 2 · files 669</text>
+<text class="n" x="324" y="835">n=100 imports</text>
+<text class="n" x="324" y="847">repos 4 · files 938</text>
 </g>
 <text class="none" x="426" y="840.0">not measured</text>
 <text class="none" x="732" y="840.0">not measured</text>
-<g><title>shell hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>
+<g><title>shell hubs: 100% / 1.00 (repos=4) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="834.5">overlap@10</text>
 <rect class="track" x="1090" y="827" width="110" height="8" rx="2"/>
 <rect x="1090" y="827" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
@@ -866,7 +866,7 @@
 <rect class="track" x="1090" y="839" width="110" height="8" rx="2"/>
 <rect x="1090" y="839" width="110.0" height="8" rx="2" fill="#eda100"/>
 <text class="val" x="1205" y="847">1.00</text>
-<text class="n" x="1240" y="835">repos=2</text>
+<text class="n" x="1240" y="835">repos=4</text>
 </g>
 <rect class="stripe" x="16" y="854" width="1212" height="34"/>
 <text class="lang" x="22" y="875.0">solidity</text>

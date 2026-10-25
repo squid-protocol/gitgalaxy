@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `1781eb33a3ee08dc313e26e2542c0f68faef5e54` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `3e2b565e58e6b9b8bd14e839b403a24227c34130` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `5b7f5e7ccb86`).
 
@@ -43,12 +43,12 @@ The translation survey matches the translator in the tree (translator fingerprin
 | L0 | 2 | 0 |
 | L1 | 0 | 0 |
 | L2 | 2 | 0 |
-| L3 | 7 | 0 |
-| L4 | 33 | 0 |
+| L3 | 6 | 0 |
+| L4 | 34 | 0 |
 | L5 | 0 | 0 |
 
 - stale (`*`, last measured): 0 of 44 programs; the rest are current
-- L2+: 42 (0 awaiting re-check); L3+: 40 (0 awaiting re-check); L4+: 33 (0 awaiting re-check)
+- L2+: 42 (0 awaiting re-check); L3+: 40 (0 awaiting re-check); L4+: 34 (0 awaiting re-check)
 
 - programs: 44 (with an EXEC CICS command: 25; source not read: 0)
 - translated whole: 42; refused whole: 0; holes left: 10
@@ -94,6 +94,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | L4 | 88/88 | 0 | carddemo-paudblod | equal | None | none | 16/16 (100.0%) | 33/34 (97.1%) | 33/33 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | L4 | 73/73 | 0 | carddemo-paudbunl | equal | None | none | 10/10 (100.0%) | 22/22 (100.0%) | 22/22 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | L4 | 58/58 | 0 | carddemo-cobtupdt | equal | None | none | 9/9 (100.0%) | 16/20 (80.0%) | 16/16 (100.0%) | — | not measured (no det_mutation/ entry) | — |
+| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | L4 | 632/632 | 0 | carddemo-cotrtlic | equal | 62 | none | 59/59 (100.0%) | 218/230 (94.8%) | 218/218 (100.0%) | — | not measured (no det_mutation/ entry) | 5/6 |
 | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | L4 | 436/436 | 0 | carddemo-cotrtupc | equal | 50 | none | 63/63 (100.0%) | 140/166 (84.3%) | 140/140 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
 | app/cbl/CBACT01C.cbl | L4 | 190/190 | 0 | carddemo-readacct | equal | None | none | 16/16 (100.0%) | 43/44 (97.7%) | 43/43 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | app/cbl/CBACT02C.cbl | L4 | 63/63 | 0 | carddemo-readcard | equal | 0 | shown equal, unapproved | 5/5 (100.0%) | 21/22 (95.5%) | 21/21 (100.0%) | — | not measured (no det_mutation/ entry) | — |
@@ -123,10 +124,9 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 | app/cbl/COUSR03C.cbl | L4 | 115/115 | 0 | carddemo-userdel | equal | 32 | shown equal, unapproved | 11/11 (100.0%) | 31/32 (96.9%) | 31/31 (100.0%) | 57% (stale) | stale (port moved), last measured: raw 57% (81/143 caught; 150 of 1317 mutants, seed 0); 13 of 62 survivors unaccounted | 4/6 |
 | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | L3 | 344/344 | 0 | carddemo-copaua0c | equal | 25 | shown equal, unapproved | 41/41 (100.0%) | 63/69 (91.3%) | 63/64 (98.4%) | — | not measured (no det_mutation/ entry) | 2/7 |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | L3 | 370/370 | 0 | carddemo-copaus0c | equal | 37 | shown equal, unapproved | 20/20 (100.0%) | 88/93 (94.6%) | 88/90 (97.8%) | — | not measured (no det_mutation/ entry) | 4/6 |
-| app/app-transaction-type-db2/cbl/COTRTLIC.cbl | L3 | 632/632 | 0 | carddemo-cotrtlic | equal | 60 | none | 59/59 (100.0%) | 216/230 (93.9%) | 216/223 (96.9%) | — | not measured (no det_mutation/ entry) | 5/6 |
 | app/app-vsam-mq/cbl/COACCT01.cbl | L3 | 205/205 | 0 | carddemo-coacct01 | equal | 10 | none | 13/13 (100.0%) | 4/31 (12.9%) | 4/31 (12.9%) | — | not measured (no det_mutation/ entry) | 2/4 |
 | app/app-vsam-mq/cbl/CODATE01.cbl | L3 | 182/182 | 0 | carddemo-codate01 | equal | 9 | none | 13/13 (100.0%) | 4/26 (15.4%) | 4/26 (15.4%) | — | not measured (no det_mutation/ entry) | 2/5 |
-| app/cbl/CBSTM03A.CBL | L3 | 424/424 | 0 | carddemo-cbstm03a | equal | 2 | shown equal, unapproved | 25/25 (100.0%) | 0/46 (0.0%) | 0/46 (0.0%) | 64% (stale) | stale (port moved), last measured: raw 64% (93/146 caught; 150 of 3181 mutants, seed 0); 53 of 53 survivors unaccounted | — |
+| app/cbl/CBSTM03A.CBL | L3 | 424/424 | 0 | carddemo-cbstm03a | equal | 2 | shown equal, unapproved | 25/25 (100.0%) | 34/46 (73.9%) | 34/46 (73.9%) | 64% (stale) | stale (port moved), last measured: raw 64% (93/146 caught; 150 of 3181 mutants, seed 0); 53 of 53 survivors unaccounted | — |
 | app/cbl/CSUTLDTC.cbl | L3 | 27/27 | 0 | carddemo-dateutil | equal | 1 | shown equal, unapproved | 2/2 (100.0%) | 4/10 (40.0%) | 4/10 (40.0%) | — | not measured (no det_mutation/ entry) | — |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | L2 | 110/110 | 0 | carddemo-cbpaup0c | equal | 1 | shown equal, unapproved | 15/16 (93.8%) | 38/40 (95.0%) | 38/39 (97.4%) | — | not measured (no det_mutation/ entry) | — |
 | app/cbl/COACTUPC.cbl | L2 | 1415/1415 | 0 | carddemo-acctupdate | equal | 138 | none | 90/95 (94.7%) | 311/397 (78.3%) | 311/396 (78.5%) | — | not measured (no det_mutation/ entry) | 7/11 |
@@ -259,6 +259,46 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   - stated infeasible branch outcome (reviewed claim, family R): 10033-DELETE-DB:207:none (EVALUATE) -- `EVALUATE TRUE` at 207 has no WHEN OTHER and falls through only for a positive SQLCODE that is neither +100 nor negative. The arms are `= ZERO` (208), `= +100` (210) and `< 0` (216). Db2 answers a single-row statement with host variables only 0, a negative error or, for UPDATE and DELETE, +100 (Db2 SQL Reference, SQLCODE values: +100 is 'no row found'; INSERT ... VALUES raises no +100 and these statements carry no warning-class SQLCODE), so every answer lands in a WHEN. The proof's Db2 is the oracle: its SQLCODE is compared statement by statement (compare_sql) and none of the generated or hand-written runs returns another positive code.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 4 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
+
+### app/app-transaction-type-db2/cbl/COTRTLIC.cbl -- L4
+
+- **Executed equivalent** on the 62 scenarios of carddemo-cotrtlic against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 632/632 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
+- **Executed equivalence** (carddemo-cotrtlic, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (62 scenarios in case.json)
+- **Executed equivalence** (carddemo-cotrtlic-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (7 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 59/59 (100.0%), branch outcomes 218/230 (94.8%) raw, 218/218 (100.0%) net of 12 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | SYNCPOINT | full | none | no |
+  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
+  - z/OS-calibrated: 0 of 4 named assumptions (none measured on z/OS)
+  - stated infeasible branch outcome (reviewed claim, family G): 0000-MAIN:799:false (IF) -- IF NOT FLG-TYPEFILTER-NOT-OK AND NOT FLG-DESCFILTER-NOT-OK: FLG-TYPEFILTER-NOT-OK and FLG-DESCFILTER-NOT-OK are set only at 1113, 1254 and 1258, each beside SET INPUT-ERROR (1112, 1252), and the flags live in WS-MISC-STORAGE (fresh every task, INITIALIZE gives spaces). This WHEN is reached only after the first WHEN INPUT-ERROR (699) was not taken, so neither flag is set and the false arm cannot be taken.
+  - stated infeasible branch outcome (reviewed claim, family G): 0000-MAIN:843:false (IF) -- IF NOT FLG-TYPEFILTER-NOT-OK AND NOT FLG-DESCFILTER-NOT-OK: FLG-TYPEFILTER-NOT-OK and FLG-DESCFILTER-NOT-OK are set only at 1113, 1254 and 1258, each beside SET INPUT-ERROR (1112, 1252), and the flags live in WS-MISC-STORAGE (fresh every task, INITIALIZE gives spaces). This WHEN is reached only after the first WHEN INPUT-ERROR (699) was not taken, so neither flag is set and the false arm cannot be taken.
+  - stated infeasible branch outcome (reviewed claim, family G): 1210-EDIT-ARRAY:991:true (IF) -- IF FLG-TYPEFILTER-CHANGED-YES OR FLG-DESCFILTER-CHANGED-YES: the two flags are set only at 1136 and 1174, inside 1220-EDIT-TYPECD and 1230-EDIT-DESC, which 1200-EDIT-INPUTS performs after 1210-EDIT-ARRAY; WS-MISC-STORAGE is fresh every task and holds no VALUE for them, so neither flag is 'Y' when 1210 runs and the true arm cannot be taken. Assumption: storage without a VALUE clause starts as spaces or low-values.
+  - stated infeasible branch outcome (reviewed claim, family G): 1230-EDIT-DESC:1155:false (IF) -- IF FLG-DESCFILTER-ISVALID: the only way past the blank test at 1147-1148 is the ELSE at 1151 that SETs FLG-DESCFILTER-ISVALID (1152), and nothing runs between, so the flag is always valid here.
+  - stated infeasible branch outcome (reviewed claim, family G): 2400-SETUP-SCREEN-ATTRS:1445:WHEN@1454 (EVALUATE) -- WHEN WS-IN-TYPE-CD = 0: WS-IN-TYPE-CD is PIC X(02) and the literal 0 has one digit, so IBM (numeric integer literal against an alphanumeric item: the literal is compared as the alphanumeric '0', the shorter operand padded with spaces) and cobc both compare it with '0 ', never with '00'; the case's type-filter-zeros scenario ('00') runs and does not take the arm. '0 ' is not NUMERIC, so 1220-EDIT-TYPECD sets FLG-TYPEFILTER-NOT-OK, which the earlier WHEN (1450-1451) takes; spaces, low-values and a valid two-digit code never equal '0 ' or reach this WHEN.
+  - stated infeasible branch outcome (reviewed claim, family G): 2500-SETUP-MESSAGE:1506:OTHER (EVALUATE) -- EVALUATE TRUE (OTHER): the arm before it, WHEN WS-NO-INFO-MESSAGE (1550), is true for every input that reaches it: 2000-SEND-MAP performs 2100-SCREEN-INIT (SET WS-NO-INFO-MESSAGE at 1320) before 2500-SETUP-MESSAGE, and WS-INFO-MSG is written only in 2500 itself and at 1859/1912 (PF10 paths that send the map afterwards, taking the first WHENs of this EVALUATE), so the message is blank whenever an unmatched input falls through.
+  - stated infeasible branch outcome (reviewed claim, family G): 2500-SETUP-MESSAGE:1543:false (IF) -- IF WS-NO-INFO-MESSAGE (PF8 WHEN at 1541): 2100-SCREEN-INIT sets WS-NO-INFO-MESSAGE at 1320 earlier in the same 2000-SEND-MAP and no WHEN of 2500's EVALUATE runs before the one selected, so the message is blank on entry and the false arm cannot be taken.
+  - stated infeasible branch outcome (reviewed claim, family G): 2500-SETUP-MESSAGE:1546:false (IF) -- IF CA-LAST-PAGE-NOT-SHOWN AND CA-NEXT-PAGE-NOT-EXISTS (PF8 WHEN at 1541): the WHEN already holds CA-NEXT-PAGE-NOT-EXISTS, so the false arm needs CA-LAST-PAGE-SHOWN, but the earlier WHEN (1536-1538: PF8, next page not exists, last page shown) takes every such input first.
+  - stated infeasible branch outcome (reviewed claim, family G): 9200-UPDATE-RECORD:1858:false (IF) -- IF WS-NO-INFO-MESSAGE: WS-INFO-MSG is written only at 1320 (blank), 1508-1554 (2500-SETUP-MESSAGE, under 2000-SEND-MAP) and this paragraph; 9200-UPDATE-RECORD is performed from the PF10 WHEN of 0000-MAIN before any 2000-SEND-MAP in the task, and WS-MISC-STORAGE is fresh each task, so the message is still blank (SPACES or LOW-VALUES, both in WS-NO-INFO-MESSAGE) and the false arm cannot be taken. Assumption: storage without a VALUE clause starts as spaces or low-values.
+  - stated infeasible branch outcome (reviewed claim, family G): 9300-DELETE-RECORD:1911:false (IF) -- IF WS-NO-INFO-MESSAGE: WS-INFO-MSG is written only at 1320 (blank), 1508-1554 (2500-SETUP-MESSAGE, under 2000-SEND-MAP) and this paragraph; 9300-DELETE-RECORD is performed from the PF10 WHEN of 0000-MAIN before any 2000-SEND-MAP in the task, and WS-MISC-STORAGE is fresh each task, so the message is still blank (SPACES or LOW-VALUES, both in WS-NO-INFO-MESSAGE) and the false arm cannot be taken. Assumption: storage without a VALUE clause starts as spaces or low-values.
+  - stated infeasible branch outcome (reviewed claim, family G): 9300-DELETE-RECORD:1917:false (IF) -- IF WS-RETURN-MSG-OFF: 9300-DELETE-RECORD runs only when WS-DELETES-REQUESTED > 0 with no INPUT-ERROR. WS-RETURN-MSG is cleared at 511 and, without INPUT-ERROR, is written before this point only by 1211-EDIT-ARRAY-DESC's 'No change detected' (1072), which needs a 'U' row; a 'U' row together with the 'D' row is two actions (WS-MORETHAN1ACTION sets INPUT-ERROR at 1050), so the message is always OFF here and the false arm cannot be taken.
+  - stated infeasible branch outcome (reviewed claim, family G): 9300-DELETE-RECORD:1927:false (IF) -- IF WS-RETURN-MSG-OFF: 9300-DELETE-RECORD runs only when WS-DELETES-REQUESTED > 0 with no INPUT-ERROR. WS-RETURN-MSG is cleared at 511 and, without INPUT-ERROR, is written before this point only by 1211-EDIT-ARRAY-DESC's 'No change detected' (1072), which needs a 'U' row; a 'U' row together with the 'D' row is two actions (WS-MORETHAN1ACTION sets INPUT-ERROR at 1050), so the message is always OFF here and the false arm cannot be taken.
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 12 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: SYNCPOINT; assumption reach and the migration dimensions above: not measured
 
 ### app/app-transaction-type-db2/cbl/COTRTUPC.cbl -- L4
 
@@ -1079,41 +1119,6 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 5 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X31; commands without oracle backing: READ, SYNCPOINT; assumption reach and the migration dimensions above: not measured
 
-### app/app-transaction-type-db2/cbl/COTRTLIC.cbl -- L3
-
-- **Executed equivalent** on the 60 scenarios of carddemo-cotrtlic against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 93.9 raw, 96.9 net of the reviewed infeasible outcomes)
-- **Translation:** 632/632 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
-- **Executed equivalence** (carddemo-cotrtlic, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (60 scenarios in case.json)
-- **Executed equivalence** (carddemo-cotrtlic-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (7 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 59/59 (100.0%), branch outcomes 216/230 (93.9%) raw, 216/223 (96.9%) net of 7 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | RECEIVE MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND MAP | full | hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SEND TEXT | full | ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | SYNCPOINT | full | none | no |
-  | XCTL | full | ca-channel-containers (yes / no), ca-xctl-versions (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X3 (MATCHED), X20 (MATCHED (REFUSED where the region cannot decide)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X31 (ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)); reach: not measured
-  - z/OS-calibrated: 0 of 4 named assumptions (none measured on z/OS)
-  - stated infeasible branch outcome (reviewed claim, family G): 0000-MAIN:799:false (IF) -- IF NOT FLG-TYPEFILTER-NOT-OK AND NOT FLG-DESCFILTER-NOT-OK: FLG-TYPEFILTER-NOT-OK and FLG-DESCFILTER-NOT-OK are set only at 1113, 1254 and 1258, each beside SET INPUT-ERROR (1112, 1252), and the flags live in WS-MISC-STORAGE (fresh every task, INITIALIZE gives spaces). This WHEN is reached only after the first WHEN INPUT-ERROR (699) was not taken, so neither flag is set and the false arm cannot be taken.
-  - stated infeasible branch outcome (reviewed claim, family G): 0000-MAIN:843:false (IF) -- IF NOT FLG-TYPEFILTER-NOT-OK AND NOT FLG-DESCFILTER-NOT-OK: FLG-TYPEFILTER-NOT-OK and FLG-DESCFILTER-NOT-OK are set only at 1113, 1254 and 1258, each beside SET INPUT-ERROR (1112, 1252), and the flags live in WS-MISC-STORAGE (fresh every task, INITIALIZE gives spaces). This WHEN is reached only after the first WHEN INPUT-ERROR (699) was not taken, so neither flag is set and the false arm cannot be taken.
-  - stated infeasible branch outcome (reviewed claim, family G): 1230-EDIT-DESC:1155:false (IF) -- IF FLG-DESCFILTER-ISVALID: the only way past the blank test at 1147-1148 is the ELSE at 1151 that SETs FLG-DESCFILTER-ISVALID (1152), and nothing runs between, so the flag is always valid here.
-  - stated infeasible branch outcome (reviewed claim, family G): 9200-UPDATE-RECORD:1858:false (IF) -- IF WS-NO-INFO-MESSAGE: WS-INFO-MSG is written only at 1320 (blank), 1508-1554 (2500-SETUP-MESSAGE, under 2000-SEND-MAP) and this paragraph; 9200-UPDATE-RECORD is performed from the PF10 WHEN of 0000-MAIN before any 2000-SEND-MAP in the task, and WS-MISC-STORAGE is fresh each task, so the message is still blank (SPACES or LOW-VALUES, both in WS-NO-INFO-MESSAGE) and the false arm cannot be taken. Assumption: storage without a VALUE clause starts as spaces or low-values.
-  - stated infeasible branch outcome (reviewed claim, family G): 9300-DELETE-RECORD:1911:false (IF) -- IF WS-NO-INFO-MESSAGE: WS-INFO-MSG is written only at 1320 (blank), 1508-1554 (2500-SETUP-MESSAGE, under 2000-SEND-MAP) and this paragraph; 9300-DELETE-RECORD is performed from the PF10 WHEN of 0000-MAIN before any 2000-SEND-MAP in the task, and WS-MISC-STORAGE is fresh each task, so the message is still blank (SPACES or LOW-VALUES, both in WS-NO-INFO-MESSAGE) and the false arm cannot be taken. Assumption: storage without a VALUE clause starts as spaces or low-values.
-  - stated infeasible branch outcome (reviewed claim, family G): 9300-DELETE-RECORD:1917:false (IF) -- IF WS-RETURN-MSG-OFF: 9300-DELETE-RECORD runs only when WS-DELETES-REQUESTED > 0 with no INPUT-ERROR. WS-RETURN-MSG is cleared at 511 and, without INPUT-ERROR, is written before this point only by 1211-EDIT-ARRAY-DESC's 'No change detected' (1072), which needs a 'U' row; a 'U' row together with the 'D' row is two actions (WS-MORETHAN1ACTION sets INPUT-ERROR at 1050), so the message is always OFF here and the false arm cannot be taken.
-  - stated infeasible branch outcome (reviewed claim, family G): 9300-DELETE-RECORD:1927:false (IF) -- IF WS-RETURN-MSG-OFF: 9300-DELETE-RECORD runs only when WS-DELETES-REQUESTED > 0 with no INPUT-ERROR. WS-RETURN-MSG is cleared at 511 and, without INPUT-ERROR, is written before this point only by 1211-EDIT-ARRAY-DESC's 'No change detected' (1072), which needs a 'U' row; a 'U' row together with the 'D' row is two actions (WS-MORETHAN1ACTION sets INPUT-ERROR at 1050), so the message is always OFF here and the false arm cannot be taken.
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 14 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X31; commands without oracle backing: SYNCPOINT; assumption reach and the migration dimensions above: not measured
-
 ### app/app-vsam-mq/cbl/COACCT01.cbl -- L3
 
 - **Executed equivalent** on the 10 scenarios of carddemo-coacct01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
@@ -1166,18 +1171,18 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 ### app/cbl/CBSTM03A.CBL -- L3
 
 - **Executed equivalent** on the batch runs of carddemo-cbstm03a against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 0.0 raw, 0.0 net of the reviewed infeasible outcomes)
+- **Next level needs:** branch coverage >= 100.0 net (now 73.9 raw, 73.9 net of the reviewed infeasible outcomes)
 - **Translation:** 424/424 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
 - **Executed equivalence** (carddemo-cbstm03a, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 2/2 scenarios equal, 4186/4186 records equal, 5 runs (4 fault runs)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 25/25 (100.0%), branch outcomes 0/46 (0.0%) raw, 0/46 (0.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 25/25 (100.0%), branch outcomes 34/46 (73.9%) raw, 34/46 (73.9%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing:** no EXEC CICS command
 - **Assumptions relied on:** named by its commands' spec entries: none; reach: not measured
   - z/OS-calibrated: 0 of 0 named assumptions (none measured on z/OS)
 - **Det-port mutation:** stale (port moved), last measured: raw 64% (93/146 caught; 150 of 3181 mutants, seed 0); 53 of 53 survivors unaccounted
-- **Residual risk:** 46 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 12 branch outcomes unrun; assumption reach and the migration dimensions above: not measured
 
 ### app/cbl/CSUTLDTC.cbl -- L3
 
@@ -1307,18 +1312,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `1781eb33a3ee08dc313e26e2542c0f68faef5e54`
+- translator commit (the survey's): `3e2b565e58e6b9b8bd14e839b403a24227c34130`
 - corpus pin: `aws-mainframe-modernization-carddemo` at `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:1ac42543ec226c6bda71f2e067737dacfd9b8a47705148f29a6d9896cd8f2e9b`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`, `sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005`
+- oracle images the evidence records ran on: `sha256:14eb45c96aea0159e162d56f7b346f7c527431e96171985dff882cb8982937cf`, `sha256:c57a5680492c2f6297b1d45631ecb931cbc4eda8d80aefdfb5beb5a1da8d1a3d`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`, `sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 1781eb33a3ee08dc313e26e2542c0f68faef5e54
-python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 1781eb33a3ee08dc313e26e2542c0f68faef5e54
+python tests/tools/cics_census.py survey --baseline --sha 3e2b565e58e6b9b8bd14e839b403a24227c34130
+python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 3e2b565e58e6b9b8bd14e839b403a24227c34130
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container
 python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd

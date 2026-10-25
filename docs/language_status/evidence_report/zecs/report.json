@@ -315,7 +315,7 @@
    "carddemo-cbstm03a": [
     25,
     25,
-    0,
+    34,
     46
    ],
    "carddemo-cbstm03b": [
@@ -387,7 +387,7 @@
    "carddemo-cotrtlic": [
     59,
     59,
-    216,
+    218,
     230
    ],
    "carddemo-cotrtlic-generated": [
@@ -1621,7 +1621,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "1781eb33a3ee08dc313e26e2542c0f68faef5e54",
+   "sha": "3e2b565e58e6b9b8bd14e839b403a24227c34130",
    "translator": {
     "files": 145,
     "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
@@ -5092,8 +5092,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 1781eb33a3ee08dc313e26e2542c0f68faef5e54",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 1781eb33a3ee08dc313e26e2542c0f68faef5e54",
+   "python tests/tools/cics_census.py survey --baseline --sha 3e2b565e58e6b9b8bd14e839b403a24227c34130",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 3e2b565e58e6b9b8bd14e839b403a24227c34130",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -5114,13 +5114,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "1781eb33a3ee08dc313e26e2542c0f68faef5e54",
+   "sha": "3e2b565e58e6b9b8bd14e839b403a24227c34130",
    "translator": {
     "files": 145,
     "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
    }
   },
-  "translator_commit": "1781eb33a3ee08dc313e26e2542c0f68faef5e54",
+  "translator_commit": "3e2b565e58e6b9b8bd14e839b403a24227c34130",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

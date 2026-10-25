@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `1781eb33a3ee08dc313e26e2542c0f68faef5e54` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `3e2b565e58e6b9b8bd14e839b403a24227c34130` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `5b7f5e7ccb86`).
 
@@ -340,7 +340,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `1781eb33a3ee08dc313e26e2542c0f68faef5e54`
+- translator commit (the survey's): `3e2b565e58e6b9b8bd14e839b403a24227c34130`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -350,8 +350,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 1781eb33a3ee08dc313e26e2542c0f68faef5e54
-python tests/tools/evidence_report.py zecs --baseline --sha 1781eb33a3ee08dc313e26e2542c0f68faef5e54
+python tests/tools/cics_census.py survey --baseline --sha 3e2b565e58e6b9b8bd14e839b403a24227c34130
+python tests/tools/evidence_report.py zecs --baseline --sha 3e2b565e58e6b9b8bd14e839b403a24227c34130
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsplt
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

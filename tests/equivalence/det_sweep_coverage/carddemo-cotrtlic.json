@@ -1,42 +1,26 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 58,
+ "scenarios": 69,
  "paragraphs": {
   "covered": 59,
   "live": 59
  },
  "branches": {
-  "covered": 200,
+  "covered": 216,
   "total": 230
  },
  "uncovered": {
   "branches": [
-   "698:WHEN@721",
-   "713:false",
    "799:false",
    "843:false",
    "991:true",
-   "1111:true",
    "1155:false",
-   "1251:true",
-   "1253:true",
-   "1253:false",
-   "1257:true",
-   "1257:false",
    "1445:WHEN@1454",
-   "1477:true",
-   "1482:true",
-   "1506:WHEN@1511",
-   "1506:WHEN@1532",
-   "1506:WHEN@1536",
    "1506:OTHER",
    "1518:false",
    "1527:false",
    "1543:false",
    "1546:false",
-   "1819:OTHER",
-   "1825:true",
-   "1825:false",
    "1858:false",
    "1911:false",
    "1917:false",
@@ -44,18 +28,18 @@
   ]
  },
  "inputs": {
-  "case": "2aba885558ed8705d7ef0c157c8d9796dfccc08257a3caeac9eb451429894317",
+  "case": "f99a7cad50c79ba6f4d4ae84b5bd2e4f3af44fefacd7439b6c089a10eb922746",
   "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-  "harness": "d2af894d90223b538c15d3b03fc51ccf3772afbccff34faebda26f29bf1c55df",
-  "oracle": "07517ec3431588d67d67ed60be3f71579d0c3ee85c19d09a3ac4b455a41a95a4",
+  "harness": "18a9dbcc2db040042740dcc95a5f569645fcde734d747f6fcc25b2204f8a1310",
+  "oracle": "0514e5278b3ee5c2ecc1bea81310ac2415c67fb097a14dc1f9de2d7f72d04d59",
   "components": {
    "harness": {
-    "harness:cics": "3a04632fbe8cde65ed39c6dd31179cf0dae47770977ddb77454672ab26eedebb",
-    "harness:core": "abb309e753cbd32d00e4058d673b33ffac9b880df211acab1ca95eeab176cc04",
+    "harness:cics": "2f89ad8244369870c93dbc2caefcb96f45310e470aba1338afc32058742fbbe5",
+    "harness:core": "23d30bc5d7ad7ba3ee2afbb9f7e50b29799194790891e835576cf0c949d42dbd",
     "harness:db2": "df4cefe238f828f2233ef1ae1b7c77c21265c7f5ab3af61e753544d50120cd66"
    },
    "oracle": {
-    "oracle:cics-stub": "dd0e2983d87ff60e2e5ec4598543ecc58274c2c3ee85f6aa476e1601c5d16c36",
+    "oracle:cics-stub": "51cd8ed5f2e11cd4742311993fcc8e5f739cba767936a86d0bce6400523555d0",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
@@ -63,5 +47,5 @@
    }
   }
  },
- "measured_at": "fef3b8b7b1095ce500e7c38f4edb8ac5b3f662f5"
+ "measured_at": "f714481d69367c8646ad025f23efafa97a94bd49"
 }

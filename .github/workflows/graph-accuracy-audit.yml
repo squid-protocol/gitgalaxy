@@ -239,30 +239,38 @@ jobs:
           }
           gate() {  # gate <name> <command...>: run_gate with the baseline gate and summary file
             name=$1; shift
-            want "$name" || return 0
+            want "${name%-[0-9]}" || return 0  # import-graph-1..3 are subsets of the planned import-graph gate
             run_gate "$name" "$@" --ci --summary "$RUNNER_TEMP/gaa/$name.md"
           }
-          ( ! want span-anchoring || run_gate span-shard-0 python tests/tools/span_anchor_audit.py --shard 0/2 --json "$RUNNER_TEMP/gaa/span0.json" --samples 3 ) &
-          ( ! want span-anchoring || run_gate span-shard-1 python tests/tools/span_anchor_audit.py --shard 1/2 --json "$RUNNER_TEMP/gaa/span1.json" --samples 3 ) &
-          ( gate import-graph python tests/tools/import_graph_accuracy.py --samples 5
-            gate call-typescript python tests/tools/call_graph_resolution.py typescript --samples 5
-            gate call-javascript python tests/tools/call_graph_resolution.py javascript --samples 5
-            gate call-c python tests/tools/call_graph_resolution.py c --samples 5 ) &
+          # Lanes sum to ~410 s each from the measured gate times (#5501): the 444 s import-graph gate runs as three
+          # language subsets (each its own baseline gate over that subset; together exactly LANGS, pinned by a test).
+          IG1="python tcl go c lua ruby"
+          IG2="objective-c csharp javascript typescript shell solidity rust perl"
+          IG3="cpp java php zig dart kotlin scala haskell swift powershell groovy fortran"
+          ( ! want span-anchoring || run_gate span-shard-1 python tests/tools/span_anchor_audit.py --shard 1/2 --json "$RUNNER_TEMP/gaa/span1.json" --samples 3
+            gate call-python python tests/tools/call_graph_resolution.py python --samples 5 ) &
           ( gate call-java python tests/tools/call_graph_resolution.py java --samples 5
-            gate call-python python tests/tools/call_graph_resolution.py python --samples 5
-            gate call-cpp python tests/tools/call_graph_resolution.py cpp --samples 5
-            gate call-rust python tests/tools/call_graph_resolution.py rust --samples 5
-            gate call-go python tests/tools/call_graph_resolution.py go --samples 5 ) &
+            gate import-graph-1 python tests/tools/import_graph_accuracy.py $IG1 --jobs 2 --samples 5 ) &
+          ( ! want span-anchoring || run_gate span-shard-0 python tests/tools/span_anchor_audit.py --shard 0/2 --json "$RUNNER_TEMP/gaa/span0.json" --samples 3
+            gate import-graph-2 python tests/tools/import_graph_accuracy.py $IG2 --jobs 2 --samples 5
+            gate call-rust python tests/tools/call_graph_resolution.py rust --samples 5 ) &
+          ( gate call-cpp python tests/tools/call_graph_resolution.py cpp --samples 5
+            gate import-graph-3 python tests/tools/import_graph_accuracy.py $IG3 --jobs 2 --samples 5
+            gate call-c python tests/tools/call_graph_resolution.py c --samples 5
+            gate call-go python tests/tools/call_graph_resolution.py go --samples 5
+            gate call-typescript python tests/tools/call_graph_resolution.py typescript --samples 5
+            gate call-javascript python tests/tools/call_graph_resolution.py javascript --samples 5 ) &
           wait
           # the one span-anchoring baseline gate, over the summed shards (skipped if a shard failed)
           if want span-anchoring && [ -s "$RUNNER_TEMP/gaa/span0.json" ] && [ -s "$RUNNER_TEMP/gaa/span1.json" ]; then
             gate span-anchoring python tests/tools/span_anchor_audit.py --merge "$RUNNER_TEMP/gaa/span0.json" "$RUNNER_TEMP/gaa/span1.json" --samples 3
           fi
           cat "$RUNNER_TEMP/gaa/times"
-          for n in span-shard-0 span-shard-1 import-graph call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
+          { echo "### Graph-accuracy gate times"; echo '```'; cat "$RUNNER_TEMP/gaa/times"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          for n in span-shard-0 span-shard-1 import-graph-1 import-graph-2 import-graph-3 call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
             cat "$RUNNER_TEMP/gaa/$n.log" 2>/dev/null || true
           done
-          for n in import-graph call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
+          for n in import-graph-1 import-graph-2 import-graph-3 call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
             cat "$RUNNER_TEMP/gaa/$n.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
           done
           if [ -s "$RUNNER_TEMP/gaa/failed" ]; then

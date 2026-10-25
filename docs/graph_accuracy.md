@@ -288,6 +288,16 @@ construction) leaves an ambiguous `overload` row, never an edge. Measured on fmt
 guessed. **C (hiredis, libuv)** has no overloads; the reference run is unchanged (2,163 judged, precision 100.0%,
 recall 25.3%, resolution recall 58.8%), so the unmapped links (2,789) are the open C item.
 
+**C macro-defined functions (#3784):** libuv defines its tests as `TEST_IMPL(kill) {`, which declares `run_test_kill`;
+the engine names the unit `kill`. The adapter now names a def written as a one-argument macro by the argument (the
+same idea as the gtest names above), so those engine ends map. Adapter only, no engine change. Before -> after
+(hiredis + libuv): confident links judged 2,163 -> 3,532, unmapped 2,789 -> 1,356, precision 100.0% (unchanged),
+recall 25.3% -> 41.5%. Resolution recall reads 58.8% -> 53.6% because the newly mapped callers enter its denominator.
+**What stays unmapped (1,356):** libuv `src/win/` and the Windows-only test helpers (the adapter does not parse `win`
+directories), other platforms' files and `#if` branches (`aix.c`, `fsevents.c`, the `uv_barrier_*` fallbacks in
+`thread-common.c`), hiredis `sockcompat.c`/`win32.h`, the `REDIS_TEST` and SSL-only test bodies, the Qt adapter and
+example, and `m4/` macros. They are outside the one Linux configuration the reference parses, not naming differences.
+
 ## Span anchoring
 
 A unit is mis-anchored when its `start_line` opens before the declaration, on lines that belong

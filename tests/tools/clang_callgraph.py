@@ -17,6 +17,8 @@ the bundled libclang recovers from the headers it cannot find.
   translation units). A callee with no def in the repo (libc, a system header)
   is `external`. A call through a function pointer names no function and is
   skipped. A macro that expands to a call is a call here, as the compiler sees it.
+* A def written as a one-argument macro (`TEST_IMPL(kill) {`, which declares `run_test_kill`) is named
+  by the macro's argument, as the engine names it.
 * Directories named `win` are not parsed: Windows-only sources need <windows.h>
   and their names collide with the Unix ones. Where per-platform files define the
   same external name, an edge goes to each definition.
@@ -51,6 +53,8 @@ CPP_SOURCES = frozenset({".cc", ".cpp", ".cxx"})
 CPP_HEADERS = frozenset({".h", ".hh", ".hpp", ".hxx"})  # each header's directory is an -I path
 # the gtest macros whose body is `<suite>_<name>_Test::TestBody`; the engine names the unit `<name>`
 GTEST_MACRO = re.compile(r"\b(?:TEST|TEST_F|TEST_P|TYPED_TEST|TYPED_TEST_P)\s*\(\s*\w+\s*,\s*(\w+)")
+# `TEST_IMPL(name) {` and its siblings define `run_test_name`; the engine names the unit `name` (#3784)
+IMPL_MACRO = re.compile(r"^\s*[A-Z][A-Z0-9_]*\(\s*(\w+)\s*\)\s*\{?\s*$")
 CPP_ARGS = ("-x", "c++", "-std=c++20", "-w", "-ferror-limit=0")
 
 
@@ -96,10 +100,21 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
     static_edges: dict[tuple[tuple, tuple], int] = {}
     seen_callers: set[tuple[str, str, int]] = set()
 
+    source_lines: dict[str, list[str]] = {}
+
+    def macro_name(cursor) -> str:
+        """The engine's name for a def written `MACRO(name) {`: `name`, not the macro's `run_test_name`."""
+        loc = cursor.extent.start
+        lines = source_lines.get(loc.file.name)
+        if lines is None:
+            lines = source_lines[loc.file.name] = Path(loc.file.name).read_bytes().decode("latin-1").splitlines()
+        hit = IMPL_MACRO.match(lines[loc.line - 1]) if 0 < loc.line <= len(lines) else None
+        return hit.group(1) if hit and cursor.spelling.endswith(hit.group(1)) else cursor.spelling
+
     def key_of(cursor) -> tuple[str, str, int] | None:
         loc = cursor.extent.start
         rel = _rel(repo, loc.file.name if loc.file else None)
-        return (rel, cursor.spelling, loc.line) if rel else None
+        return (rel, macro_name(cursor), loc.line) if rel else None
 
     for src in sources:
         tu = index.parse(str(src), args=args)

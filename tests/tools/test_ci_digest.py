@@ -251,7 +251,7 @@ def test_source_stale_stays_real_when_the_pr_could_have_caused_it():  # #5276
     for files in (["gitgalaxy/z.py"], ["tests/core_engine/test_other.py"], ["tests/conftest.py"],
                   ["tests/fixtures/a.json"], ["docs/a.md", "gitgalaxy/z.py"]):  # fmt: skip
         assert _source_stale(files)["triage"] == "real", files
-    assert _source_stale(["docs/a.md"], main_files=["docs/b.md", "tests/x/test_q.py"])["triage"] == "real"
+    assert _source_stale(["docs/a.md"], main_files=["scripts/b.txt", "tests/x/test_q.py"])["triage"] == "real"
 
 
 def test_source_stale_with_an_unreadable_pr_file_list_stays_real():  # #5276

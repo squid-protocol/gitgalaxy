@@ -39,6 +39,7 @@
     {"repo": "tcltk/tcllib", "commit": "a0f8da869ea3f8dc0dee583d18316edc435dbc64", "language": "tcl"},
     {"repo": "spockframework/spock", "commit": "ce7e8afa895210d0b06103223f10d963a83f7a08", "language": "groovy"},
     {"repo": "fortran-lang/fpm", "commit": "68971cf22f2fba2bf59f87389d47aedfda28b5eb", "language": "fortran"},
+    {"repo": "petercorke/robotics-toolbox-matlab", "commit": "06fddf5228cbfa1132fa63b8e336b43c5ed04899", "language": "matlab"},
     {"repo": "TextureGroup/Texture", "commit": "d8aa8c796dd7770ea177989253ef1cf8878cd50a", "language": "objective-c"}
   ]
 }

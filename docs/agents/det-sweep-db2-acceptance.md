@@ -49,3 +49,32 @@ extends it with the Db2 aggregate (`--update-durations --durations durations-db2
 partial case lists never write it. The startup ask (create only the databases a shard uses) was already on main: the pool
 is `min(4, ceil(cases / shards))` databases per shard, restored from the Db2 snapshot cache. Re-measure on the next full
 sweep on main.
+
+## Re-measure with the committed tool (2026-10-25)
+
+The hand calls above are now `tests/tools/det_sweep_measure.py db2` (offline-tested maths in
+`test_det_sweep_measure.py`). It reads each run's db2 jobs (`db2 I/N`, start to completion; only successful jobs give
+shard times), groups runs by planned db2 job count, and counts a job as a timeout only when its annotation holds "exceeded
+the maximum execution time" (a cancelled superseded push is not one). Reproduce:
+
+    python tests/tools/det_sweep_measure.py db2 --since 2026-10-18 --cut 2026-10-25T03:47:00Z   # headroom (#6567) merged 03:46Z
+    python tests/tools/det_sweep_measure.py db2 --since 2026-10-18 --event workflow_dispatch    # manual full sweeps
+
+Result (pull_request runs from 2026-10-18; the API window is the newest ~1000 runs):
+
+| Side | Db2 jobs | Complete runs | Slowest >= 15 min | Median / max slowest | Ratio > 1.3 | Timeouts |
+|---|---|---|---|---|---|---|
+| before the cut | 3 | 62 | 48 | 15.9 / 23.9 min | 17 (median 1.18) | 0 |
+| before the cut | 5 | 29 | 1 | 12.2 / 22.9 min | 14 (median 1.30) | 0 |
+| after the cut | 3 | 2 | 1 | 15.2 / 15.8 min | 0 (median 1.23) | 0 |
+
+Single-job (narrow) plans are 5-7 min in every window and not an acceptance case.
+
+- **Timeouts:** none in any window (the 2 earlier failures are the non-timeout "Download the plan's durations" step).
+  Met.
+- **Every Db2 case measured:** `det_sweep_plan.db2_names({"db2_cases": "all"})` gives 81 cases, all 81 have an entry in
+  `det_sweep_durations.json`. Met.
+- **Shards under 15 min and within 1.3x:** not yet decidable. Only 2 post-headroom runs had a multi-shard plan, both 3
+  jobs (narrow-ish case lists, not the 6-shard full plan); neither is a `db2_cases: all` sweep, and no manual full sweep
+  (`workflow_dispatch`) or `push` run has any db2 job. The full-sweep numbers still need one run of the main workflow with
+  `db2_cases: all`; then rerun the commands above. #5882 stays open until that run meets both limits.

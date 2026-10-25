@@ -562,7 +562,9 @@ def test_the_harness_dispatches_web_to_its_module():
 
 
 def test_the_web_translators_reach_the_hosts_helpers_and_refuse_by_name():
-    lines = ec.translate_command("WEB CONVERSE SESSTOKEN(WS-TOK) PATH(WS-PATH) PATHLENGTH(WS-PL) METHOD(WS-M) INTO(WS-IN)")
+    lines = ec.translate_command(
+        "WEB CONVERSE SESSTOKEN(WS-TOK) PATH(WS-PATH) PATHLENGTH(WS-PL) METHOD(WS-M) INTO(WS-IN)"
+    )
     assert any("GGCWCNV" in ln for ln in lines)  # the host's _call / _resp, reached through `ec.`
     with pytest.raises(ec.Unsupported, match="WEB CONVERSE without METHOD"):
         ec.translate_command("WEB CONVERSE SESSTOKEN(WS-TOK) INTO(WS-IN)")

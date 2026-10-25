@@ -428,7 +428,9 @@ def _web_forms(form: str, opts: dict[str, str | None], labels: list[str] | None)
     if form == "STARTBROWSE":
         named = bool(opts.get(kind))
         if kind == "HTTPHEADER" and named:
-            raise ec.Unsupported("WEB STARTBROWSE HTTPHEADER: a name to start at is not documented: not modelled", [key])
+            raise ec.Unsupported(
+                "WEB STARTBROWSE HTTPHEADER: a name to start at is not documented: not modelled", [key]
+            )
         if named and not opts.get("NAMELENGTH"):
             raise ec.Unsupported(
                 f"WEB STARTBROWSE {kind}(name) without NAMELENGTH (IBM: it is required with a name)", [key]
@@ -441,7 +443,9 @@ def _web_forms(form: str, opts: dict[str, str | None], labels: list[str] | None)
         lines = [item, f"MOVE {opts['NAMELENGTH']} TO GG-LEN" if named else "MOVE 0 TO GG-LEN",
                  "MOVE 'NAME' TO GG-FLAGS" if named else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
         return (
-            lines + ec._call("GGCWSBR", [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"]) + ec._resp(opts, True, labels)
+            lines
+            + ec._call("GGCWSBR", [f"BY REFERENCE {area}", f"BY VALUE LENGTH OF {area}"])
+            + ec._resp(opts, True, labels)
         )
     for o in (kind, "NAMELENGTH", "VALUE", "VALUELENGTH"):
         if not opts.get(o):
@@ -586,4 +590,3 @@ def _cobol_web_receive(kv: dict[str, str], data: bytes, enc: str) -> dict[str, A
     none = kv["resp2"] == "16"
     return {"mediatype": None if kv["media"] == "-" else bytes.fromhex(kv["media"]).decode(enc),
             "body": None if none else data.decode(enc), "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}  # fmt: skip
-

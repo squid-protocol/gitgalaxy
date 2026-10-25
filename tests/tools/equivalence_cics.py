@@ -274,8 +274,6 @@ def urimaps(case: dict[str, Any], sc: dict[str, Any]) -> list[list[str]] | None:
     return defs
 
 
-
-
 def mapsets_env(case: dict[str, Any]) -> str:
     """#4270 (X31) / #5076: the case's "maps" ({MAP: {"mapset": MAPSET}}, as a cics-crucible case states them) as the stub's
     $GGCICS_MAPSETS (`MAPSET=MAP,MAP;MAPSET=MAP`), so a SEND MAP / RECEIVE MAP for a map its mapset does not hold abends
@@ -285,8 +283,6 @@ def mapsets_env(case: dict[str, Any]) -> str:
     for m, spec in sorted(case["maps"].items()):
         held.setdefault(spec["mapset"], []).append(m)
     return ";".join(f"{ms}={','.join(maps)}" for ms, maps in sorted(held.items()))
-
-
 
 
 def doctemplates(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, str] | None:
@@ -490,10 +486,6 @@ def _td_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     lines.append(f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN")
     return (lines + _call("GGCRDTD", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
             + after + _resp(opts, True, labels))  # fmt: skip
-
-
-
-
 
 
 def _pointer(key: str, text: str | None) -> str:
@@ -806,7 +798,9 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
         and ({"READ", "STARTBROWSE", "READNEXT", "ENDBROWSE"} & set(opts))
         and any(k in opts for k in cics_web._WEB_KIND)
     ):
-        return cics_web._web_forms(next(f for f in ("READ", "STARTBROWSE", "READNEXT", "ENDBROWSE") if f in opts), opts, labels)
+        return cics_web._web_forms(
+            next(f for f in ("READ", "STARTBROWSE", "READNEXT", "ENDBROWSE") if f in opts), opts, labels
+        )
     if verb == "WEB" and ({"OPEN", "CONVERSE", "CLOSE"} & set(opts)):  # #4767 zECS (X35): CICS web support, client
         return cics_web._web(opts, labels)
     if verb == "DOCUMENT" and ({"CREATE", "RETRIEVE"} & set(opts)):  # #4769 zECS (X33): the document handler
@@ -4588,7 +4582,6 @@ def compare_sql(case: dict[str, Any], sc: dict[str, Any], res: dict[str, Any], j
     jfile = java_out / f"{sc['name']}.sqlout"
     java = equivalence_db2.java_outcomes(jfile.read_text(encoding="latin-1") if jfile.is_file() else "")
     return equivalence_db2.compare_outcomes(equivalence_db2.cobol_outcomes(res.get("sql", "")), java)
-
 
 
 def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:

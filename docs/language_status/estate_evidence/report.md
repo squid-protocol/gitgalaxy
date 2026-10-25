@@ -13,7 +13,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 ## All reported estates
 
 - Programs: 57; at E0 0, E1 5, E2 31, E3 21, E4 0; executed equivalent or above (E2+): 52/57 (91.2%).
-- Coverage over the programs with a record: paragraphs 567/574 (98.8%), branch outcomes 1615/1807 (89.4%).
+- Coverage over the programs with a record: paragraphs 567/574 (98.8%), branch outcomes 1619/1807 (89.6%).
 - Mutation: 52 program(s) measured, killed 2874/4212 (68.2%) raw (adjusted for equivalent / unreachable survivors: 2874/3340 (86.0%)); survivors case_gap 274, harness_gap 191, equivalent 516, unreachable 356, untriaged 0; open survivors 465.
 - Holes (stub / ported_unproven methods): 4. Declared differences: 13.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 52).
@@ -109,7 +109,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 ## cics-genapp
 
 - Programs: 6; at E0 0, E1 0, E2 6, E3 0, E4 0; executed equivalent or above (E2+): 6/6 (100.0%).
-- Coverage over the programs with a record: paragraphs 24/27 (88.9%), branch outcomes 52/105 (49.5%).
+- Coverage over the programs with a record: paragraphs 24/27 (88.9%), branch outcomes 56/105 (53.3%).
 - Mutation: 6 program(s) measured, killed 340/729 (46.6%) raw (adjusted for equivalent / unreachable survivors: 340/638 (53.3%)); survivors case_gap 121, harness_gap 177, equivalent 20, unreachable 71, untriaged 0; open survivors 298.
 - Holes (stub / ported_unproven methods): 0. Declared differences: 12.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 6).
@@ -118,8 +118,8 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 | program | case | lines | level | proof | oracle | coverage (para / branch) | mutation | differences | approval | what stops the next level |
 |---|---|---|---|---|---|---|---|---|---|---|
 | LGAPDB01 | genapp-lgapdb01 | 326 | E2 | 6 runs / 0 fault | gnucobol-models | 6/7 / 18/31 | 58/137, open 71 | 2 | - | coverage short: 6/7 paragraphs, 18/31 branch outcomes |
-| LGAPVS01 | genapp-lgapvs01 | 79 | E2 | 11 runs / 2 fault | gnucobol-models | 3/3 / 5/9 | 72/125, open 41 | 2 | - | coverage short: 3/3 paragraphs, 5/9 branch outcomes |
+| LGAPVS01 | genapp-lgapvs01 | 79 | E2 | 11 runs / 2 fault | gnucobol-models | 3/3 / 7/9 | 72/125, open 41 | 2 | - | coverage short: 3/3 paragraphs, 7/9 branch outcomes |
 | LGICDB01 | genapp-lgicdb01 | 93 | E2 | 12 runs / 0 fault | gnucobol-models | 3/4 / 4/12 | 51/130, open 56 | 2 | - | coverage short: 3/4 paragraphs, 4/12 branch outcomes |
 | LGSTSQ | genapp-lgstsq | 53 | E2 | 7 runs / 0 fault | gnucobol-models | 1/1 / 3/6 | 25/78, open 44 | 2 | - | coverage short: 1/1 paragraphs, 3/6 branch outcomes |
 | LGUPDB01 | genapp-lgupdb01 | 237 | E2 | 5 runs / 0 fault | gnucobol-models | 8/9 / 17/38 | 68/140, open 52 | 2 | - | coverage short: 8/9 paragraphs, 17/38 branch outcomes |
-| LGUPVS01 | genapp-lgupvs01 | 93 | E2 | 10 runs / 3 fault | gnucobol-models | 3/3 / 5/9 | 66/119, open 34 | 2 | - | coverage short: 3/3 paragraphs, 5/9 branch outcomes |
+| LGUPVS01 | genapp-lgupvs01 | 93 | E2 | 10 runs / 3 fault | gnucobol-models | 3/3 / 7/9 | 66/119, open 34 | 2 | - | coverage short: 3/3 paragraphs, 7/9 branch outcomes |

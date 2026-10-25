@@ -13,7 +13,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 ## All reported estates
 
 - Programs: 57; at E0 0, E1 5, E2 31, E3 21, E4 0; executed equivalent or above (E2+): 52/57 (91.2%).
-- Coverage over the programs with a record: paragraphs 567/574 (98.8%), branch outcomes 1619/1807 (89.6%).
+- Coverage over the programs with a record: paragraphs 567/574 (98.8%), branch outcomes 1653/1807 (91.5%).
 - Mutation: 52 program(s) measured, killed 2874/4212 (68.2%) raw (adjusted for equivalent / unreachable survivors: 2874/3340 (86.0%)); survivors case_gap 274, harness_gap 191, equivalent 516, unreachable 356, untriaged 0; open survivors 465.
 - Holes (stub / ported_unproven methods): 4. Declared differences: 13.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 52).
@@ -22,7 +22,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 ## aws-mainframe-modernization-carddemo
 
 - Programs: 28; at E0 0, E1 4, E2 23, E3 1, E4 0; executed equivalent or above (E2+): 24/28 (85.7%).
-- Coverage over the programs with a record: paragraphs 460/461 (99.8%), branch outcomes 1452/1577 (92.1%).
+- Coverage over the programs with a record: paragraphs 460/461 (99.8%), branch outcomes 1486/1577 (94.2%).
 - Mutation: 23 program(s) measured, killed 2049/2737 (74.9%) raw (adjusted for equivalent / unreachable survivors: 2049/2132 (96.1%)); survivors case_gap 75, harness_gap 7, equivalent 380, unreachable 225, untriaged 0; open survivors 82.
 - Holes (stub / ported_unproven methods): 3. Declared differences: 0.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 23).
@@ -36,7 +36,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 | COCRDLIC | carddemo-cardlist | 849 | E2 | 46 runs / 9 fault | gnucobol-models | 36/36 / 147/149 | 82/94, open 0 | 0 | - | coverage short: 36/36 paragraphs, 147/149 branch outcomes |
 | COCRDSLC | carddemo-cardview | 442 | E2 | 25 runs / 3 fault | gnucobol-models | 30/30 / 69/75 | 60/91, open 5 | 0 | - | coverage short: 30/30 paragraphs, 69/75 branch outcomes |
 | CBPAUP0C | carddemo-cbpaup0c | 180 | E2 | 13 runs / 12 fault | gnucobol-models | 15/16 / 38/40 | - | 0 | - | coverage short: 15/16 paragraphs, 38/40 branch outcomes |
-| CBSTM03A | carddemo-cbstm03a | 566 | E2 | 5 runs / 4 fault | gnucobol-models | 25/25 / 0/46 | - | 0 | - | coverage short: 25/25 paragraphs, 0/46 branch outcomes |
+| CBSTM03A | carddemo-cbstm03a | 566 | E2 | 5 runs / 4 fault | gnucobol-models | 25/25 / 34/46 | - | 0 | - | coverage short: 25/25 paragraphs, 34/46 branch outcomes |
 | COPAUA0C | carddemo-copaua0c | 607 | E2 | 25 runs / 7 fault | gnucobol-models | 41/41 / 63/69 | - | 0 | - | coverage short: 41/41 paragraphs, 63/69 branch outcomes |
 | COPAUS0C | carddemo-copaus0c | 665 | E2 | 37 runs / 12 fault | gnucobol-models | 20/20 / 88/93 | - | 0 | - | coverage short: 20/20 paragraphs, 88/93 branch outcomes |
 | COPAUS1C | carddemo-copaus1c | 343 | E1 | 35 runs / 14 fault | gnucobol-models | 15/15 / 48/48 | - | 0 | - | a program it LINKs or CALLs has holes or no executed-equivalent record: program:COPAUS2C |

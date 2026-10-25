@@ -90,6 +90,25 @@ def test_the_workflows_still_read_the_shape_the_plan_emits():
     assert re.search(r"matrix\.group", (WORKFLOWS / "smoke-test.yml").read_text(encoding="utf-8"))
 
 
+def test_gate_plan_job_reads_the_queue_and_feeds_the_matrix():
+    yaml = pytest.importorskip("yaml")
+    jobs = yaml.safe_load((WORKFLOWS / "full-suite-gate.yml").read_text(encoding="utf-8"))["jobs"]
+    plan_job = jobs["matrix"]
+    assert plan_job["permissions"]["actions"] == "read"
+    run = "\n".join(s.get("run", "") for s in plan_job["steps"])
+    assert "ci_layout.py --print-waiting" in run and "${waiting:+--waiting" in run
+    assert "suite_shard_plan.py --gate" in run
+    checkout = next(s for s in plan_job["steps"] if "checkout" in s.get("uses", ""))
+    for needed in (
+        "suite_shard_plan.py",
+        "ci_shard_plan.py",
+        "ci_layout.py",
+        "post_merge_dispatch.py",
+        ".test_durations",
+    ):
+        assert needed in checkout["with"]["sparse-checkout"]
+    assert jobs["full-suite-matrix"]["strategy"]["matrix"]["include"] == "${{ fromJSON(needs.matrix.outputs.include) }}"
+
 
 def _smoke_jobs():
     yaml = pytest.importorskip("yaml")
@@ -123,7 +142,13 @@ def test_smoke_shard_plan_reads_the_queue_and_balances_by_the_parts_durations():
     assert any(s.get("with", {}).get("key") == "${{ needs.durations.outputs.key }}" for s in plan_job["steps"])
     checkout = next(s for s in plan_job["steps"] if "checkout" in s.get("uses", ""))
     # ci_layout reads the queue through post_merge_dispatch: without it the plan is always calm
-    for needed in ("suite_shard_plan.py", "ci_shard_plan.py", "ci_layout.py", "post_merge_dispatch.py", ".test_durations"):
+    for needed in (
+        "suite_shard_plan.py",
+        "ci_shard_plan.py",
+        "ci_layout.py",
+        "post_merge_dispatch.py",
+        ".test_durations",
+    ):
         assert needed in checkout["with"]["sparse-checkout"]
     for job in ("full-suite-durations", "suite-time"):  # the per-part artifact counts follow the plan, not a 3
         assert "shard-plan" in jobs[job]["needs"]

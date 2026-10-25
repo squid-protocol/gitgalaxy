@@ -149,3 +149,65 @@ def test_a_construct_that_is_not_a_ranking_key_is_refused():
     rep = anon(KNOWN)
     rep["blockers"][0]["construct"] = "missing copybook CPY_7f3a1c"
     assert any("construct" in e for e in bi.check_report(rep))
+
+
+def test_every_category_row_is_a_valid_5051_row():
+    gaps = {f"P{i}": [g] for i, g in enumerate(["EXEC CICS READQ TS NUMITEMS", "no case", "refused: macro-level CICS",
+                                                 "known unproven: #4101", "EXEC CICS ADDRESS COMMAREA"])}  # fmt: skip
+    for rep in (anon(KNOWN), anon(gaps), anon(GAPS), anon(KNOWN, redact=("subclass", "counts", "repro"))):
+        ledger, _ = ingest(rep)
+        assert bi.check_ledger(ledger) == []
+        assert all(r["status"] == "open" and r["programs"] == [] and r["summary"] for r in ledger["rows"])
+
+
+def test_check_ledger_refuses_bad_rows():
+    ledger, _ = ingest(anon(KNOWN))
+    for key, value in (("side", "nowhere"), ("class", "nope"), ("estate", "cics-genapp"), ("issue", "#12"),
+                       ("status", "fixed"), ("seen_in", []), ("programs", None)):  # fmt: skip
+        bad = copy.deepcopy(ledger)
+        bad["rows"][0][key] = value
+        assert bi.check_ledger(bad), key
+    bad = copy.deepcopy(ledger)
+    bad["rows"].append(bad["rows"][0])
+    assert any("duplicate" in e for e in bi.check_ledger(bad))
+
+
+def test_a_blocker_missing_from_a_newer_report_closes_and_reopens():
+    full = anon(KNOWN)
+    ledger, _ = ingest(full)
+    dropped = full["blockers"][0]
+    rid = bi.row_id(full["estate"], dropped["id"])
+    newer = {**full, "engine_version": "9.9.9", "blockers": full["blockers"][1:]}
+    ledger, _ = ingest(newer, ledger)
+    by_id = {r["id"]: r for r in ledger["rows"]}
+    assert by_id[rid]["status"] == "closed" and by_id[rid]["absent_in"] == ["9.9.9"]
+    assert all(r["status"] == "open" for k, r in by_id.items() if k != rid)
+    before = copy.deepcopy(ledger)
+    ledger, _ = ingest(newer, ledger)  # same report again changes nothing
+    assert ledger == before
+    back = {**full, "engine_version": "10.0.0"}
+    ledger, _ = ingest(back, ledger)
+    row = {r["id"]: r for r in ledger["rows"]}[rid]
+    assert row["status"] == "open" and row["absent_in"] == ["9.9.9"] and row["seen_in"][-1] == "10.0.0"
+    assert bi.check_ledger(ledger) == []
+
+
+def test_closure_touches_only_the_reporting_estate():
+    a, b = anon(KNOWN), anon(KNOWN, OTHER)
+    ledger, _ = ingest(a)
+    ledger, _ = ingest(b, ledger)
+    ledger, _ = ingest({**a, "engine_version": "9.9.9", "blockers": []}, ledger)
+    mine = f"customer:{a['estate']}"
+    assert all((r["status"] == "closed") == (r["estate"] == mine) for r in ledger["rows"])
+
+
+def test_cli_check_and_a_ledger_that_fails_the_check(tmp_path, capsys):
+    src, led = tmp_path / "anon.json", tmp_path / "ledger.json"
+    src.write_text(json.dumps(anon(KNOWN)))
+    assert bi.main([str(src), "--ledger", str(led)]) == 0
+    assert bi.main([str(led), "--ledger", str(led), "--check"]) == 0
+    data = json.loads(led.read_text())
+    data["rows"][0]["side"] = "nowhere"
+    led.write_text(json.dumps(data))
+    assert bi.main([str(led), "--ledger", str(led), "--check"]) == 1
+    assert "side must be" in capsys.readouterr().err

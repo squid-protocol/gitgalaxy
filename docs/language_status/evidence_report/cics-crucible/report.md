@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `d33f8195d95317326a58460d2eb540a914d481e4` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `7ae5a95b190a86c4b25e66bc63921c2480318976` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `5830644a0fbd`).
 
@@ -1228,7 +1228,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `d33f8195d95317326a58460d2eb540a914d481e4`
+- translator commit (the survey's): `7ae5a95b190a86c4b25e66bc63921c2480318976`
 - corpus pin: `cics-crucible` at `—`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -1238,8 +1238,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha d33f8195d95317326a58460d2eb540a914d481e4
-python tests/tools/evidence_report.py cics-crucible --baseline --sha d33f8195d95317326a58460d2eb540a914d481e4
+python tests/tools/cics_census.py survey --baseline --sha 7ae5a95b190a86c4b25e66bc63921c2480318976
+python tests/tools/evidence_report.py cics-crucible --baseline --sha 7ae5a95b190a86c4b25e66bc63921c2480318976
 python tests/tools/evidence_report.py --refresh
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin
 ```

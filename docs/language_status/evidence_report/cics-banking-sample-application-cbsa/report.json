@@ -273,7 +273,7 @@
    "carddemo-cbstm03a": [
     25,
     25,
-    34,
+    43,
     46
    ],
    "carddemo-cbstm03b": [
@@ -2862,7 +2862,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "d33f8195d95317326a58460d2eb540a914d481e4",
+   "sha": "7ae5a95b190a86c4b25e66bc63921c2480318976",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
@@ -3506,7 +3506,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:282091bac9a0248f9349ce44139ddd3f60310a03953f524e6e34c7f0d4cd9bea",
+       "oracle_image": "sha256:ba4932ff15bd12d609ea24c6f8a065d2445b413eb5c56354463af9c949259365",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -10049,7 +10049,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:282091bac9a0248f9349ce44139ddd3f60310a03953f524e6e34c7f0d4cd9bea",
+       "oracle_image": "sha256:ba4932ff15bd12d609ea24c6f8a065d2445b413eb5c56354463af9c949259365",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -10147,7 +10147,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:282091bac9a0248f9349ce44139ddd3f60310a03953f524e6e34c7f0d4cd9bea",
+      "oracle_image": "sha256:ba4932ff15bd12d609ea24c6f8a065d2445b413eb5c56354463af9c949259365",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -19648,7 +19648,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:282091bac9a0248f9349ce44139ddd3f60310a03953f524e6e34c7f0d4cd9bea",
+       "oracle_image": "sha256:ba4932ff15bd12d609ea24c6f8a065d2445b413eb5c56354463af9c949259365",
        "oracle_matches_pin": true,
        "records_compared": 29,
        "records_equal": 29,
@@ -19722,7 +19722,7 @@
         "option": "TRUNC"
        }
       ],
-      "oracle_image": "sha256:282091bac9a0248f9349ce44139ddd3f60310a03953f524e6e34c7f0d4cd9bea",
+      "oracle_image": "sha256:ba4932ff15bd12d609ea24c6f8a065d2445b413eb5c56354463af9c949259365",
       "oracle_matches_pin": true,
       "records_compared": 29,
       "records_equal": 29,
@@ -22161,8 +22161,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha d33f8195d95317326a58460d2eb540a914d481e4",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha d33f8195d95317326a58460d2eb540a914d481e4",
+   "python tests/tools/cics_census.py survey --baseline --sha 7ae5a95b190a86c4b25e66bc63921c2480318976",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 7ae5a95b190a86c4b25e66bc63921c2480318976",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (37) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated",
@@ -22179,21 +22179,21 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:282091bac9a0248f9349ce44139ddd3f60310a03953f524e6e34c7f0d4cd9bea",
-   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc"
+   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+   "sha256:ba4932ff15bd12d609ea24c6f8a065d2445b413eb5c56354463af9c949259365"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "d33f8195d95317326a58460d2eb540a914d481e4",
+   "sha": "7ae5a95b190a86c4b25e66bc63921c2480318976",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
    }
   },
-  "translator_commit": "d33f8195d95317326a58460d2eb540a914d481e4",
+  "translator_commit": "7ae5a95b190a86c4b25e66bc63921c2480318976",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

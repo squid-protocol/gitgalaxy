@@ -255,7 +255,7 @@
    "carddemo-cbstm03a": [
     25,
     25,
-    34,
+    43,
     46
    ],
    "carddemo-cbstm03b": [
@@ -2287,7 +2287,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "d33f8195d95317326a58460d2eb540a914d481e4",
+   "sha": "7ae5a95b190a86c4b25e66bc63921c2480318976",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
@@ -2573,7 +2573,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:282091bac9a0248f9349ce44139ddd3f60310a03953f524e6e34c7f0d4cd9bea",
+       "oracle_image": "sha256:ba4932ff15bd12d609ea24c6f8a065d2445b413eb5c56354463af9c949259365",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -2615,7 +2615,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:282091bac9a0248f9349ce44139ddd3f60310a03953f524e6e34c7f0d4cd9bea",
+      "oracle_image": "sha256:ba4932ff15bd12d609ea24c6f8a065d2445b413eb5c56354463af9c949259365",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -3137,7 +3137,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:282091bac9a0248f9349ce44139ddd3f60310a03953f524e6e34c7f0d4cd9bea",
+       "oracle_image": "sha256:ba4932ff15bd12d609ea24c6f8a065d2445b413eb5c56354463af9c949259365",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -21980,20 +21980,42 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 73.9,
-    "branch_pct": 73.9,
+    "branch_net_pct": 97.7,
+    "branch_pct": 93.5,
     "branches": {
-     "covered": 34,
+     "covered": 43,
      "total": 46
     },
     "branches_net": {
-     "covered": 34,
-     "total": 46
+     "covered": 43,
+     "total": 44
     },
     "current": true,
-    "infeasible_netted": [],
+    "infeasible_netted": [
+     "0000-START:298:OTHER",
+     "1000-MAINLINE:318:false"
+    ],
     "infeasible_refuted": [],
-    "infeasible_stated": [],
+    "infeasible_stated": [
+     {
+      "family": "C",
+      "key": "0000-START:298:OTHER",
+      "kind": "EVALUATE",
+      "line": 298,
+      "outcome": "OTHER",
+      "reason": "`EVALUATE WS-FL-DD` has WHEN 'TRNXFILE', 'XREFFILE', 'CUSTFILE', 'ACCTFILE' and 'READTRNX'. WS-FL-DD is `VALUE 'TRNXFILE'` (67) and is written only at 760, 779, 797 and 851, each with one of 'READTRNX', 'CUSTFILE', 'ACCTFILE' and 'XREFFILE', so 0000-START (reached by fall-through and `GO TO 0000-START` at those four lines) never sees another value.",
+      "unit": "0000-START"
+     },
+     {
+      "family": "G",
+      "key": "1000-MAINLINE:318:false",
+      "kind": "IF",
+      "line": 318,
+      "outcome": "false",
+      "reason": "`IF END-OF-FILE = 'N'` is the first statement inside `PERFORM UNTIL END-OF-FILE = 'Y'` (317). END-OF-FILE is `VALUE 'N'` (70) and is written only at 357 (`MOVE 'Y'`), so inside the body it is 'N' whenever the loop test lets it in; the false arm would need a value that is neither 'Y' nor 'N'.",
+      "unit": "1000-MAINLINE"
+     }
+    ],
     "paragraph_pct": 100.0,
     "paragraphs": {
      "covered": 25,
@@ -22018,7 +22040,7 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 34,
+         "covered": 43,
          "total": 46
         },
         "paragraphs": {
@@ -22028,28 +22050,19 @@
         "uncovered_branches": [
          "line 287 IF false (None)",
          "line 298 EVALUATE OTHER (0000-START)",
-         "line 318 IF false (1000-MAINLINE)",
-         "line 353 EVALUATE OTHER (1000-XREFFILE-GET-NEXT)",
-         "line 379 EVALUATE OTHER (2000-CUSTFILE-GET)",
-         "line 403 EVALUATE OTHER (3000-ACCTFILE-GET)",
-         "line 748 IF false (8100-TRNXFILE-OPEN)",
-         "line 837 EVALUATE OTHER (8500-READTRNX-READ)",
-         "line 862 IF false (9100-TRNXFILE-CLOSE)",
-         "line 879 IF false (9200-XREFFILE-CLOSE)",
-         "line 895 IF false (9300-CUSTFILE-CLOSE)",
-         "line 911 IF false (9400-ACCTFILE-CLOSE)"
+         "line 318 IF false (1000-MAINLINE)"
         ]
        },
        "db2": false,
        "facade": null,
-       "fault_runs": 4,
+       "fault_runs": 13,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+       "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
        "oracle_matches_pin": true,
        "records_compared": 4186,
        "records_equal": 4186,
-       "runs": 5,
+       "runs": 14,
        "scenarios": 2,
        "scenarios_equal": 2,
        "stale_inputs": [],
@@ -22070,7 +22083,7 @@
      "record": {
       "coverage": {
        "branches": {
-        "covered": 34,
+        "covered": 43,
         "total": 46
        },
        "paragraphs": {
@@ -22080,28 +22093,19 @@
        "uncovered_branches": [
         "line 287 IF false (None)",
         "line 298 EVALUATE OTHER (0000-START)",
-        "line 318 IF false (1000-MAINLINE)",
-        "line 353 EVALUATE OTHER (1000-XREFFILE-GET-NEXT)",
-        "line 379 EVALUATE OTHER (2000-CUSTFILE-GET)",
-        "line 403 EVALUATE OTHER (3000-ACCTFILE-GET)",
-        "line 748 IF false (8100-TRNXFILE-OPEN)",
-        "line 837 EVALUATE OTHER (8500-READTRNX-READ)",
-        "line 862 IF false (9100-TRNXFILE-CLOSE)",
-        "line 879 IF false (9200-XREFFILE-CLOSE)",
-        "line 895 IF false (9300-CUSTFILE-CLOSE)",
-        "line 911 IF false (9400-ACCTFILE-CLOSE)"
+        "line 318 IF false (1000-MAINLINE)"
        ]
       },
       "db2": false,
       "facade": null,
-      "fault_runs": 4,
+      "fault_runs": 13,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+      "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
       "oracle_matches_pin": true,
       "records_compared": 4186,
       "records_equal": 4186,
-      "runs": 5,
+      "runs": 14,
       "scenarios": 2,
       "scenarios_equal": 2,
       "stale_inputs": [],
@@ -22115,24 +22119,17 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "current": false,
-    "det_port": "stale (port moved), last measured: raw 64% (93/146 caught; 150 of 3181 mutants, seed 0); 53 of 53 survivors unaccounted",
-    "drifted": [
-     "generator",
-     "harness",
-     "oracle"
-    ],
-    "killed": 93,
+    "current": true,
+    "det_port": "raw 67% (98/146 caught; 150 of 3181 mutants, seed 0); 48 of 48 survivors unaccounted",
+    "killed": 98,
     "l5": false,
-    "score": 0.637,
-    "stale_inputs": [
-     "port"
-    ],
-    "survived": 53,
-    "unaccounted": 53
+    "score": 0.6712,
+    "stale_inputs": [],
+    "survived": 48,
+    "unaccounted": 48
    },
    "next": [
-    "branch coverage >= 100.0 net (now 73.9 raw, 73.9 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 93.5 raw, 97.7 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 6,
@@ -22286,7 +22283,7 @@
    "program": "app/cbl/CBSTM03A.CBL",
    "residual": {
     "assumed_or_differs_named": [],
-    "branch_outcomes_unrun": 12,
+    "branch_outcomes_unrun": 3,
     "commands": 0,
     "commands_backed": 0,
     "commands_not_backed": [],
@@ -24084,8 +24081,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha d33f8195d95317326a58460d2eb540a914d481e4",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha d33f8195d95317326a58460d2eb540a914d481e4",
+   "python tests/tools/cics_census.py survey --baseline --sha 7ae5a95b190a86c4b25e66bc63921c2480318976",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 7ae5a95b190a86c4b25e66bc63921c2480318976",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -24102,7 +24099,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:282091bac9a0248f9349ce44139ddd3f60310a03953f524e6e34c7f0d4cd9bea",
+   "sha256:ba4932ff15bd12d609ea24c6f8a065d2445b413eb5c56354463af9c949259365",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
    "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
   ],
@@ -24111,13 +24108,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "d33f8195d95317326a58460d2eb540a914d481e4",
+   "sha": "7ae5a95b190a86c4b25e66bc63921c2480318976",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
    }
   },
-  "translator_commit": "d33f8195d95317326a58460d2eb540a914d481e4",
+  "translator_commit": "7ae5a95b190a86c4b25e66bc63921c2480318976",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

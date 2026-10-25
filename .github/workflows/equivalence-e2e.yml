@@ -113,7 +113,8 @@ jobs:
           pip install --no-build-isolation -e .
 
       - name: Cache tree-sitter language pack
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: tree_sitter_language_pack
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/tree-sitter-language-pack
           key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
@@ -154,7 +155,8 @@ jobs:
           /usr/lib/jvm/java-17-openjdk-amd64/bin/javac -version
 
       - name: Cache Maven dependencies
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: maven_dependencies
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
           key: cics-crucible-m2-${{ hashFiles('gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
@@ -165,7 +167,7 @@ jobs:
       # Same image cache as cics-crucible.yml runner-tests (one entry per Dockerfile hash); the fingerprint check is the pin (#4309).
       - name: Cache the GnuCOBOL oracle image
         id: image
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/gnucobol-image.tar
           key: gnucobol-image-${{ hashFiles('tests/equivalence/gnucobol.Dockerfile') }}
@@ -205,6 +207,33 @@ jobs:
           path: ${{ runner.temp }}/times-shard-${{ matrix.group }}.json
           if-no-files-found: warn
           retention-days: 14
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the tree-sitter language pack to the cache
+        if: success() && github.event_name != 'pull_request' && steps.tree_sitter_language_pack.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/tree-sitter-language-pack
+          key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the Maven dependencies to the cache
+        if: success() && github.event_name != 'pull_request' && steps.maven_dependencies.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: cics-crucible-m2-${{ hashFiles('gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the GnuCOBOL oracle image to the cache
+        if: success() && github.event_name != 'pull_request' && steps.image.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('tests/equivalence/gnucobol.Dockerfile') }}
 
   # #5954 slice 3: the five test files that also need a Db2 container, in one job (the shards `--ignore` them). One runner
   # and a pool of three databases, one per xdist worker: the rows file alone is ~34 min serial (50 proofs of ~45 s), so the
@@ -264,7 +293,8 @@ jobs:
           pip install --no-build-isolation -e .
 
       - name: Cache tree-sitter language pack
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: tree_sitter_language_pack
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/tree-sitter-language-pack
           key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
@@ -303,7 +333,8 @@ jobs:
           sudo ln -s "$JAVA_HOME" /usr/lib/jvm/java-17-openjdk-amd64
 
       - name: Cache Maven dependencies
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: maven_dependencies
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
           key: cics-crucible-m2-${{ hashFiles('gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
@@ -314,7 +345,7 @@ jobs:
 
       - name: Cache the GnuCOBOL oracle image
         id: image
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/gnucobol-image.tar
           key: gnucobol-image-${{ hashFiles('tests/equivalence/gnucobol.Dockerfile') }}
@@ -332,7 +363,8 @@ jobs:
 
       # IBM's ODBC driver, the Db2 image's one download (#4980): cached on its pin as det-sweep.yml does
       - name: Cache the Db2 ODBC CLI driver (#4980)
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: db2_odbc_cli_driver
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: tests/equivalence/linuxx64_odbc_cli.tar.gz
           key: db2-odbc-cli-${{ hashFiles('tests/equivalence/odbc_cli.pin') }}
@@ -346,6 +378,42 @@ jobs:
           GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-db2.json
         run: |
           pytest tests/cobol_mainframe/test_equivalence_db2_rows.py tests/cobol_mainframe/test_regional_options.py tests/cobol_mainframe/test_sql_dynamic.py tests/cobol_mainframe/test_sql_unit_of_work.py tests/cobol_mainframe/test_sql_whenever.py -n 3 -q -ra --durations=25 --timeout=1800 -p no:cacheprovider --deselect=tests/cobol_mainframe/test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace --deselect=tests/cobol_mainframe/test_equivalence_db2_rows.py::test_the_inqacccu_det_port_holds_on_generated_db2_rows
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the tree-sitter language pack to the cache
+        if: success() && github.event_name != 'pull_request' && steps.tree_sitter_language_pack.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/tree-sitter-language-pack
+          key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the Maven dependencies to the cache
+        if: success() && github.event_name != 'pull_request' && steps.maven_dependencies.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: cics-crucible-m2-${{ hashFiles('gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the GnuCOBOL oracle image to the cache
+        if: success() && github.event_name != 'pull_request' && steps.image.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('tests/equivalence/gnucobol.Dockerfile') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the Db2 ODBC CLI driver to the cache
+        if: success() && github.event_name != 'pull_request' && steps.db2_odbc_cli_driver.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tests/equivalence/linuxx64_odbc_cli.tar.gz
+          key: db2-odbc-cli-${{ hashFiles('tests/equivalence/odbc_cli.pin') }}
 
   # The check to read (and to require, if the owner wants it): a plan of `none` is a pass by plan, never by absence of a shard.
   equivalence-e2e:

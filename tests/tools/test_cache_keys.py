@@ -284,3 +284,43 @@ def test_every_corpora_save_skips_pull_requests_and_pairs_with_a_restore():
     assert sorted((wf, _key(s).strip()) for wf, s in saves) == sorted((wf, _key(s).strip()) for wf, s in restores)
     for wf, s in saves:
         assert re.search(r"path:\s*\.mainframe_corpora\s*$", s, re.M), f"{wf}: save path"
+
+
+# --- #6675: every cache, not just the corpora ---------------------------------------------------------------------------
+# 2026-10-25: 10.69 GB / 127 caches, the oldest last read 10.6 h earlier: GitHub evicts past 10 GB, so main's caches
+# lived half a day. Combined actions/cache steps on pull_request workflows had saved 2.18 GB of scip-java (graph-accuracy
+# never ran on main, so no PR could read another's) and 9 PR copies of db2-odbc-cli (main's had been evicted).
+def _pr_workflows():
+    return sorted(wf.name for wf in WORKFLOWS.glob("*.yml") if "pull_request" in _triggers(wf.name))
+
+
+def test_no_pull_request_workflow_has_a_combined_cache_step():
+    pr = set(_pr_workflows())
+    bad = sorted({wf for wf, k, _ in _cache_steps() if k == "both" and wf in pr})
+    assert not bad, f"{bad}: use actions/cache/restore + a save that skips pull requests (#6675, as #5024)"
+
+
+NON_PR_GUARD = re.compile(r"github\.event_name\s*(?:!=\s*'pull_request'|==\s*'(?:schedule|workflow_dispatch|push)')")
+
+
+def test_every_cache_save_on_a_pull_request_workflow_skips_pull_requests():
+    """`!= 'pull_request'`, or an `==` that pins a non-PR event (det-sweep's nightly / dispatch durations saves)."""
+    pr = set(_pr_workflows())
+    bad = [
+        (wf, _key(s).strip()) for wf, k, s in _cache_steps() if k == "save" and wf in pr and not NON_PR_GUARD.search(s)
+    ]
+    assert not bad, f"a save on a PR is scoped to that PR's ref, which nothing else reads (#6675): {bad}"
+
+
+def test_setup_go_does_not_cache_on_a_pull_request():
+    """setup-go's built-in cache restores and saves in one step, so on a PR it is off (#6675)."""
+    for wf in _pr_workflows():
+        text = (WORKFLOWS / wf).read_text(encoding="utf-8")
+        for step in re.split(r"\n\s+- (?=name:|uses:)", text):
+            if "actions/setup-go@" in step:
+                assert "cache: ${{ github.event_name != 'pull_request' }}" in step, wf
+
+
+def test_graph_accuracy_seeds_its_caches_on_main():
+    """The only run that can save scip-java / cargo / Go for every PR is one on main: the nightly (#6675)."""
+    assert {"schedule", "workflow_dispatch"} <= _triggers("graph-accuracy-audit.yml")

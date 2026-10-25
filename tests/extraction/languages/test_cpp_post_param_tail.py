@@ -46,6 +46,13 @@ CASES = [
     ("void f(T t) requires Foo<T> {", "f"),
     ("void f(T t) requires (sizeof(T) > 4) {", "f"),
     ("void f() try {", "f"),
+    # #3772: a thread-safety annotation macro with arguments, on its own line below the `)`
+    ("void Mock::AllowLeak(const void* p)\n    GTEST_LOCK_EXCLUDED_(internal::g_mutex) {", "Mock::AllowLeak"),
+    ("void Done() const\n    GTEST_LOCK_EXCLUDED_(mutex_) {", "Done"),
+    ("void Run(int a,\n         int b) const override\n      GTEST_LOCK_EXCLUDED_(g_mutex) {", "Run"),
+    ("bool Check() const\n    GTEST_EXCLUSIVE_LOCK_REQUIRED_(mutex_) {", "Check"),
+    ("void f()\n    ABSL_LOCKS_EXCLUDED(mu_) noexcept {", "f"),
+    ("void f()\n    EXCLUSIVE_LOCKS_REQUIRED(a, b)\n    GUARDED_BY(c) {", "f"),
 ]
 
 
@@ -67,6 +74,18 @@ def test_macro_chain_keeps_its_name(payload, name):
 
 
 @pytest.mark.parametrize(
+    "payload,name",
+    [
+        # #3772: only the lock-annotation vocabulary is a tail; any other indented macro stays a chain
+        ("  EXTERN_CVAR(Bool, x)\n  CUSTOM_CVAR(Int, y, 0, 0) {", "CUSTOM_CVAR"),  # unchanged by #3772
+        ("void f()\n    DEFINE_THING(a, b) {", "DEFINE_THING"),
+    ],
+)
+def test_other_indented_macro_is_not_a_tail(payload, name):
+    assert _name(payload) == name
+
+
+@pytest.mark.parametrize(
     "payload",
     [
         "struct alignas(16) VEC {",
@@ -74,6 +93,7 @@ def test_macro_chain_keeps_its_name(payload, name):
         "    if (x) LIKELY {",
         "x = f() -> g {",
         "void f() MY_ATTR(1, 2) {",  # an argument-list macro reads as a macro statement chain
+        "void f() GTEST_LOCK_EXCLUDED_(mu) {",  # #3772: the annotation tail is for a line of its own
     ],
 )
 def test_post_param_tail_invalid(payload):
@@ -89,6 +109,9 @@ def test_post_param_tail_invalid(payload):
         "auto f() -> " + "A, " * 400,
         "void f() requires " + "a && " * 400,
         "void f()\n" + "  X\n" * 400,
+        "void f()" + "\n  LOCK_A(x)" * 400,
+        "void f()\n  " + "LOCK_" * 400 + "(x)",
+        "void f()\n  LOCK(" + "(a)" * 400,
     ],
 )
 def test_post_param_tail_redos(payload):

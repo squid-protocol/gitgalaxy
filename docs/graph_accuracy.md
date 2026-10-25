@@ -271,6 +271,14 @@ function the caller cannot see is never linked (`std::move` must not reach a rep
 confident links judged, was 2,325): precision 84.1% (unchanged), recall 21.5% (was 20.1%), resolution recall 63.3% (was
 58.8%), ambiguous precision 35.1% (was 34.1%), 220 wrong-overload links (was 203; more links are judged).
 
+**Lock-annotation tail (#3772):** `void Mock::AllowLeak(const void* p)` followed on its own indented line by
+`GTEST_LOCK_EXCLUDED_(mu) {` was named after the macro, so its callers were unmapped. The `func_start` tail now
+accepts an indented annotation macro with arguments from the LOCK / EXCLUDE / REQUIRE / ACQUIRE / RELEASE / GUARDED
+vocabulary. Before -> after: confident precision 91.1% -> 91.4%, recall 16.3% -> 17.0%, ambiguous precision
+41.5% -> 47.1%, 162 fewer `caller_unmapped`, 67 more links. Resolution recall reads 63.8% -> 62.6% because the 162
+newly mapped callers enter its denominator and only 67 of their edges link; the other 95 fall in buckets already open
+(`ambiguous/receiver` +33, `not_extracted/other` +28, `resolved_outside` +22). Linked edges rose by a net 67; confident-wrong links did not rise (wrong-overload 90 -> 89).
+
 **Overload choice (#3784):** C++ joins `OVERLOAD_LANGS`: the detector records each callee's argument counts
 (`calls_out_arities`), and the resolver picks the same-class, same-file overload declaring that many parameters. A
 count that matches several overloads or none (a default argument, a variadic, an uncounted `Type x(args)`

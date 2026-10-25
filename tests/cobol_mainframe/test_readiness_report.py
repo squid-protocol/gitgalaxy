@@ -221,3 +221,58 @@ def test_caveats_narrow_to_the_reached_entries_and_mix_with_unmeasured_programs(
 def test_fully_measured_caveats_carry_no_named_only_key_and_render_without_upper_bound():
     rows = rr.caveats([_prog(["A1", "A2"], {"registers": ["A1"]}), _prog(["A1"], {"registers": []})])
     assert rows == [{"id": "A1", "status": "ASSUMED", "area": "area A1", "programs": 1}]
+
+
+def test_blockers_one_run_writes_full_and_anonymized_reports_with_stable_hashes(tmp_path):
+    """#5054 done-when 1 and 3: both reports from one run; each full blocker is in the twin under the same category
+    with at least its programs; the hashes repeat with the same salt and change with another."""
+    import blocker_report as br
+
+    estate = rr.estates()[0]
+    salt = tmp_path / "salt"
+
+    def run(out, salt_file):
+        assert (
+            rr.main(["--blockers", str(out), "--salt-file", str(salt_file), "--out", str(tmp_path / "r.md"), estate])
+            == 0
+        )
+        return out / estate
+
+    a, b, other = run(tmp_path / "a", salt), run(tmp_path / "b", salt), run(tmp_path / "c", tmp_path / "salt2")
+    names = sorted(p.name for p in a.iterdir())
+    assert names == [
+        "blocker_report.anon.json",
+        "blocker_report.anon.md",
+        "blocker_report.full.json",
+        "blocker_report.full.md",
+    ]
+    full = json.loads((a / "blocker_report.full.json").read_text(encoding="utf-8"))
+    anon = json.loads((a / "blocker_report.anon.json").read_text(encoding="utf-8"))
+    assert full["blockers"], "the snapshot estate has blockers to compare"
+    key = br.load_salt(salt)
+    twin = {(x["category"], x["signature"]) for x in anon["blockers"]}
+    cats = {}
+    for g in full["blockers"]:
+        cat, _sub, sig = br.classify(g["gap"], key)
+        assert (cat, sig) in twin, g["gap"]
+        cats.setdefault(cat, set()).add(g["gap"])
+    for cat, gaps in cats.items():
+        blocked = {p["program"] for p in full["programs"] if gaps & set(p["gaps"])}
+        assert sum(x["programs_blocked"] for x in anon["blockers"] if x["category"] == cat) >= len(blocked) > 0
+    assert (a / "blocker_report.anon.json").read_bytes() == (b / "blocker_report.anon.json").read_bytes()
+    assert (a / "blocker_report.anon.json").read_bytes() != (other / "blocker_report.anon.json").read_bytes()
+
+
+def test_blockers_needs_a_salt_file():
+    with pytest.raises(SystemExit):
+        rr.main(["--blockers", "somewhere"])
+
+
+def test_blocker_result_is_proof_blockers_shaped():
+    res = rr.blocker_result(
+        "E",
+        [prog("A", gaps=["EXEC CICS FORMATTIME RESP"]), prog("B", nxt=["an equivalence case that runs it"]), prog("C")],
+    )
+    assert res["whole"] == 3 and res["proven"] == 1
+    assert {g["gap"] for g in res["gaps"]} == {"EXEC CICS FORMATTIME RESP", "no case"}
+    assert [p["gaps"] for p in res["programs"]] == [["EXEC CICS FORMATTIME RESP"], ["no case"], []]

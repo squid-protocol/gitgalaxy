@@ -35,6 +35,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from gitgalaxy.tools.cobol_to_java.det import gen as G  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+import le_out_size  # noqa: E402 -- #5003
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 LE_C = ROOT / "tests/equivalence/le/le_time.c"
@@ -510,8 +511,9 @@ def _bare_env() -> dict[str, str]:
     return {k: os.environ[k] for k in ("SYSTEMROOT",) if k in os.environ} if os.name == "nt" else {}
 
 
-def _run_c(exe: Path, svc: str, args: list[str]) -> str:
-    run = subprocess.run([str(exe), svc, *args], capture_output=True, text=True, check=False, env=_bare_env())  # noqa: S603
+def _run_c(exe: Path, svc: str, args: list[str], sizes: str | None = None) -> str:
+    env = {**_bare_env(), **({"GG_LE_OUT_SIZES": sizes} if sizes is not None else {})}
+    run = subprocess.run([str(exe), svc, *args], capture_output=True, text=True, check=False, env=env)  # noqa: S603
     if run.returncode == 98:
         assert run.stderr.rstrip().endswith("is not modelled"), run.stderr
         return REFUSED
@@ -753,3 +755,67 @@ def test_the_runtime_refuses_an_output_item_shorter_than_the_result_and_fills_on
     for row in rows[1:]:
         fc, text = row.split("|")
         assert fc == "0" * 24 and len(text) == n, row  # a zero feedback token and the whole result
+
+
+@pytest.mark.parametrize("svc, value, pic, n", SHORT_OUTPUT, ids=[f"{v[0]}:{v[2]}" for v in SHORT_OUTPUT])
+def test_the_oracle_refuses_a_stated_output_size_shorter_than_the_result_and_fills_one_that_fits(
+    c_driver, java_probe, svc, value, pic, n
+):
+    """The C model of #5003 [c:a06ff706]: the size comes from the harness (GG_LE_OUT_SIZES), as the Java item's does."""
+    sizes = [2 + n - 1, 2 + n, 2 + n + 1]
+    java = java_probe([f"{svc}|{value}|{pic}|{k}" for k in sizes])
+    for k, want in zip(sizes, java, strict=True):
+        got = _run_c(c_driver, svc, [value, pic], sizes=f"{svc}={k}")
+        if want == REFUSED:
+            assert got == REFUSED, (k, got)
+        else:
+            assert got == "0" * 24 + "|" + want.split("|")[1], (k, got, want)
+    assert _run_c(c_driver, svc, [value, pic], sizes=f"{svc}={2 + n - 1}") == REFUSED
+    assert _run_c(c_driver, svc, [value, pic], sizes=f"{svc}={2 + n}") != REFUSED
+    other = "CEEDATM" if svc == "CEEDATE" else "CEEDATE"
+    assert (
+        _run_c(c_driver, svc, [value, pic], sizes=f"{other}=1") != REFUSED
+    )  # another service's size is not this one's
+    assert _run_c(c_driver, svc, [value, pic]) != REFUSED  # no size stated: as before
+
+
+def _src(*lines: str) -> str:
+    """Fixed-format source: each line in columns 8-72."""
+    return "".join("       " + ln + "\n" for ln in lines)
+
+
+def test_the_harness_states_the_declared_output_size_of_each_call():
+    src = _src(
+        "01  WS-DATE.",
+        "    05  DATM-LEN      PIC S9(4) COMP.",
+        "    05  DATM-CONV     PIC X(80).",
+        "01  SMALL-OUT         PIC X(12).",
+        "01  GRP.",
+        "    05  A             PIC X(10).",
+        "    05  B             PIC XX.",
+        "PROCEDURE DIVISION.",
+        "    CALL 'CEEDATM' USING SECS, PIC, DATM-CONV, FC.",
+        "    CALL 'CEEDATE' USING BY REFERENCE LIL BY REFERENCE PIC",
+        "         BY REFERENCE GRP BY REFERENCE FC.",
+        "    CALL 'CEEDATE' USING LIL, PIC, SMALL-OUT, FC.",
+    )
+    assert le_out_size.output_sizes(src) == {"CEEDATM": 80, "CEEDATE": 12}  # the smallest of a service's calls
+    assert le_out_size.env(src) == "GG_LE_OUT_SIZES=CEEDATE=12,CEEDATM=80 "
+
+
+@pytest.mark.parametrize(
+    "decl",
+    [
+        ["01  OUT-A REDEFINES OTHER PIC X(80)."],
+        ["01  OUT-A PIC X(80) OCCURS 3."],
+        ["01  OUT-A PIC S9(4) COMP."],
+        ["01  OUT-A PIC X(80).", "01  OUT-A PIC X(4)."],  # declared twice
+        ["01  OUT-A.", "    05  BODY PIC X(80).", "    05  MORE PIC X(4) OCCURS 2."],  # a group with an unsized child
+        [],  # a COPY member or LINKAGE item the source does not declare
+    ],
+    ids=["redefines", "occurs", "comp", "twice", "group-with-occurs", "undeclared"],
+)
+def test_the_harness_states_no_size_it_cannot_state_exactly(decl):
+    src = _src(*decl, "PROCEDURE DIVISION.", "    CALL 'CEEDATM' USING SECS, PIC, OUT-A, FC.")
+    assert le_out_size.output_sizes(src) == {}
+    assert le_out_size.env(src) == ""

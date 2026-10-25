@@ -228,7 +228,7 @@ call graph. Directories named `win` are not parsed (they need `<windows.h>`).
 25.3%, resolution recall 58.8%, 2,790 confident links unmapped.
 
 **What the reference cannot see:** it parses one preprocessor configuration (Linux), so code under
-`#ifdef _WIN32` or another platform's branch has no reference def (its engine links are `unmapped`). And
+another platform's branch has no reference def (its engine links are `unmapped`); Windows-only sources are a second link group since #3784 (below). And
 the recall gap has engine-side causes the reference is right about: libuv's `TEST_IMPL(name)` functions
 (612 reference defs the engine does not extract) and `docs/code/` (113 defs, files the engine does not ingest).
 Headers libclang cannot find (the bundled build has no compiler headers) leave some types unknown, but a
@@ -293,10 +293,17 @@ the engine names the unit `kill`. The adapter now names a def written as a one-a
 same idea as the gtest names above), so those engine ends map. Adapter only, no engine change. Before -> after
 (hiredis + libuv): confident links judged 2,163 -> 3,532, unmapped 2,789 -> 1,356, precision 100.0% (unchanged),
 recall 25.3% -> 41.5%. Resolution recall reads 58.8% -> 53.6% because the newly mapped callers enter its denominator.
-**What stays unmapped (1,356):** libuv `src/win/` and the Windows-only test helpers (the adapter does not parse `win`
-directories), other platforms' files and `#if` branches (`aix.c`, `fsevents.c`, the `uv_barrier_*` fallbacks in
-`thread-common.c`), hiredis `sockcompat.c`/`win32.h`, the `REDIS_TEST` and SSL-only test bodies, the Qt adapter and
-example, and `m4/` macros. They are outside the one Linux configuration the reference parses, not naming differences.
+**C Windows link group (#3784):** libuv `src/win/` (25 files), `test/runner-win.c` and hiredis `sockcompat.c` were not
+parsed because their names collide with the Unix ones. The adapter now parses them as a second group under
+`-D_WIN32`: a Windows caller links to the Windows definitions of a name, falling back to the shared ones (not under
+`unix/`); a Unix caller never links to a Windows definition. No `windows.h` on the host, so a Win32 API call is
+`external`, never an edge. Adapter only, no engine change. Before -> after (hiredis + libuv): confident links judged
+3,532 -> 3,942, unmapped 1,356 -> 635, precision 100.0% (unchanged), recall 41.5% -> 42.3%, resolution recall
+53.6% -> 55.2%.
+**What stays unmapped (635):** other platforms' files and `#if` branches (`aix.c`, `fsevents.c`, the `uv_barrier_*`
+fallbacks in `thread-common.c`), the `REDIS_TEST` and SSL-only test bodies, the Qt adapter and example, and `m4/`
+macros. They are outside the configurations the reference parses (Linux, and `_WIN32` for the Windows group), not
+naming differences. C++ (fmt) has no Windows-only sources and was measured in the section above.
 
 ## Span anchoring
 

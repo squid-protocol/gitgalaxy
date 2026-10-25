@@ -266,12 +266,10 @@ def test_clang_callgraph_resolves_c_calls_across_translation_units(tmp_path):
         "  return SQ(n) + VIA(n) + twice(n);\n"
         "}\n"
     )
-    (tmp_path / "win").mkdir()
-    (tmp_path / "win" / "w.c").write_text("#include <windows.h>\nint w(void) { return 1; }\n")
     g = clang_callgraph.build(tmp_path)
     run, twice, helper = ["main.c", "run", 5], ["util.h", "twice", 2], ["util.c", "helper", 3]
     hidden, neg = ["util.c", "hidden", 2], ["other.c", "neg", 2]
-    # the prototype `int helper(int x);` is no def; `win/` is not parsed; each static `hidden` is its own def
+    # the prototype `int helper(int x);` is no def; each static `hidden` is its own def
     assert sorted(g["defs"]) == sorted([run, twice, helper, hidden, ["other.c", "hidden", 1], neg])
     # cross-file: run -> twice (a header function) and -> helper (via the macro, and twice -> helper through the
     # prototype); a static callee is its own translation unit's definition, not the other file's `hidden`
@@ -287,6 +285,53 @@ def test_clang_callgraph_resolves_c_calls_across_translation_units(tmp_path):
     # strlen resolves only in a system header; the call through `fp` names no function
     assert g["external"] == [[run, "strlen"]]
     assert g["files"] == 3
+
+
+def test_clang_callgraph_links_windows_sources_as_their_own_group(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "unix").mkdir()
+    (tmp_path / "win").mkdir()
+    (tmp_path / "common.c").write_text("int shared(void) { return 1; }\nint both(void) { return 2; }\n")  # 1, 2
+    (tmp_path / "unix" / "u.c").write_text(
+        "int shared(void);\nint both(void);\nint u_only(void) { return 3; }\n"  # 3
+        "int uv_x(void) { return u_only() + both() + shared(); }\n"  # 4
+    )
+    # the Windows copy of `both` and `uv_x`; windows.h is not on this host, so `Sleep` is an implicit declaration: external, never an edge
+    (tmp_path / "win" / "w.c").write_text(
+        "#include <windows.h>\n"
+        "int both(void) { return 4; }\n"  # 2
+        "int uv_x(void) {\n"  # 3
+        "  Sleep(1);\n"
+        "  return both() + shared();\n"  # 5
+        "}\n"
+    )
+    (tmp_path / "main-win.c").write_text(
+        "int uv_x(void);\n#ifdef _WIN32\nint main_win(void) { return uv_x(); }\n#endif\n"
+    )
+    (tmp_path / "plain.c").write_text("int uv_x(void);\nint plain(void) { return uv_x(); }\n")
+    g = clang_callgraph.build(tmp_path)
+    shared, both_c, both_w = ["common.c", "shared", 1], ["common.c", "both", 2], ["win/w.c", "both", 2]
+    ux_u, ux_w, main_win, plain = (
+        ["unix/u.c", "uv_x", 4],
+        ["win/w.c", "uv_x", 3],
+        ["main-win.c", "main_win", 3],
+        ["plain.c", "plain", 2],
+    )
+    # `-D_WIN32` keeps the `#ifdef _WIN32` body of main-win.c
+    assert main_win in g["defs"] and ux_w in g["defs"]
+    edges = {(tuple(a), tuple(b)) for a, b, _ in g["edges"]}
+    # a Windows caller takes the Windows `both` and falls back to the shared `shared`; it never reaches unix/
+    assert (tuple(ux_w), tuple(both_w)) in edges and (tuple(ux_w), tuple(shared)) in edges
+    assert (tuple(ux_w), tuple(both_c)) not in edges
+    # a Unix caller never links to a Windows definition
+    assert (tuple(ux_u), tuple(both_c)) in edges and (tuple(ux_u), tuple(both_w)) not in edges
+    # a Windows-file caller of `uv_x` links the Windows definition only; a shared-file caller links the Unix one only
+    assert (tuple(main_win), tuple(ux_w)) in edges and (tuple(main_win), tuple(ux_u)) not in edges
+    assert (tuple(plain), tuple(ux_u)) in edges and (tuple(plain), tuple(ux_w)) not in edges
+    assert g["external"] == [[ux_w, "Sleep"]]
 
 
 def test_clang_callgraph_names_a_one_argument_macro_def_as_the_engine_does(tmp_path):

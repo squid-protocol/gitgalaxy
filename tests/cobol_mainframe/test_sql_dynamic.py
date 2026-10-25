@@ -400,6 +400,8 @@ def test_scroll_and_multi_row_forms_are_refused_in_a_cics_program_too(sql):
     [
         "FETCH C1 INTO :A",
         "FETCH NEXT FROM C1 INTO :A",
+        "Fetch Cust_Cursor\n  INTO\n        :A,\n        :B",  # GenApp LGIPDB01's spelling on an INSENSITIVE SCROLL cursor
+        "fetch zip_cursor into :a",
         "FETCH FIRST-CUR INTO :A",  # a cursor whose name starts with an orientation word
         "FETCH PRIOR-ROW INTO :A",
         "INSERT INTO T (A) VALUES ('FOR 3 ROWS')",

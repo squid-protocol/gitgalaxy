@@ -289,6 +289,38 @@ def test_clang_callgraph_resolves_c_calls_across_translation_units(tmp_path):
     assert g["files"] == 3
 
 
+def test_clang_callgraph_names_a_one_argument_macro_def_as_the_engine_does(tmp_path):
+    import clang_callgraph
+
+    if clang_callgraph.libclang_version() is None:
+        pytest.skip("libclang (pip install libclang==18.1.1) is not installed")
+    (tmp_path / "task.h").write_text(
+        "#define TEST_IMPL(name) int run_test_##name(void); int run_test_##name(void)\n"
+        "#define HELPER_IMPL(name) int run_helper_##name(void); int run_helper_##name(void)\n"
+        "int shared(void);\n"
+    )
+    (tmp_path / "t.c").write_text(
+        '#include "task.h"\n'
+        "int shared(void) { return 1; }\n"  # 2
+        "TEST_IMPL(kill) {\n"  # 3
+        "  return shared();\n"
+        "}\n"
+        "HELPER_IMPL(kill_helper) {\n"  # 6
+        "  return 0;\n"
+        "}\n"
+        "int run_plain(void) { return shared(); }\n"  # 9
+    )
+    g = clang_callgraph.build(tmp_path)
+    # the engine names `TEST_IMPL(kill)` `kill`, not the `run_test_kill` the macro declares; a plain def is unchanged
+    assert sorted(g["defs"]) == [
+        ["t.c", "kill", 3],
+        ["t.c", "kill_helper", 6],
+        ["t.c", "run_plain", 9],
+        ["t.c", "shared", 2],
+    ]
+    assert [["t.c", "kill", 3], ["t.c", "shared", 2], 4] in g["edges"]
+
+
 def test_clang_callgraph_resolves_cpp_calls_by_usr_with_engine_names(tmp_path):
     import clang_callgraph
 

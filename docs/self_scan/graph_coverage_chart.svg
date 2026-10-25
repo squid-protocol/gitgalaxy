@@ -73,7 +73,7 @@
 <text class="n" x="630" y="155">n=13,064 calls</text>
 <text class="n" x="630" y="167">functions 2,561</text>
 </g>
-<g><title>c call resolution: precision 100.0% of 4,264, recall 36.7% of 11,608; vs libclang 18.1.1; corpus import_graph</title>
+<g><title>c call resolution: precision 100.0% of 4,266, recall 36.7% of 11,617; vs libclang 18.1.1; corpus import_graph</title>
 <text class="pr" x="732" y="154.5">Precision</text>
 <rect class="track" x="778" y="147" width="110" height="8" rx="2"/>
 <rect x="778" y="147" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
@@ -82,7 +82,7 @@
 <rect class="track" x="778" y="159" width="110" height="8" rx="2"/>
 <rect x="778" y="159" width="40.4" height="8" rx="2" fill="#eda100"/>
 <text class="val" x="893" y="167">36.7%</text>
-<text class="n" x="936" y="155">n=11,608 edges</text>
+<text class="n" x="936" y="155">n=11,617 edges</text>
 <text class="n" x="936" y="167">vs libclang 18.1.1</text>
 </g>
 <g><title>c hubs: 100% / 1.00 (repos=2) (overlap@10 / Spearman)</title>
@@ -221,11 +221,11 @@
 <text class="n" x="1240" y="257">repos=1</text>
 </g>
 <text class="lang" x="22" y="297.0">fortran</text>
-<g><title>fortran imports: precision 92.9% of 294, recall 44.4% of 635 (raw 92.9% / 44.4%; 5 shapes without a verdict); corpus fortran-lang/fpm</title>
+<g><title>fortran imports: precision 93.2% of 294, recall 44.4% of 635 (raw 92.9% / 44.4%; 1 shapes without a verdict); corpus fortran-lang/fpm</title>
 <text class="pr" x="120" y="290.5">Precision</text>
 <rect class="track" x="166" y="283" width="110" height="8" rx="2"/>
-<rect x="166" y="283" width="102.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="291">92.9%*</text>
+<rect x="166" y="283" width="102.5" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="291">93.2%</text>
 <text class="pr" x="120" y="302.5">Recall</text>
 <rect class="track" x="166" y="295" width="110" height="8" rx="2"/>
 <rect x="166" y="295" width="48.8" height="8" rx="2" fill="#eda100"/>
@@ -296,15 +296,15 @@
 <text class="n" x="1240" y="325">repos=2</text>
 </g>
 <text class="lang" x="22" y="365.0">groovy</text>
-<g><title>groovy imports: precision 99.3% of 1,071, recall 96.3% of 1,105 (raw 99.3% / 96.3%; 3 shapes without a verdict); corpus spockframework/spock</title>
+<g><title>groovy imports: precision 99.3% of 1,071, recall 96.3% of 1,105; corpus spockframework/spock</title>
 <text class="pr" x="120" y="358.5">Precision</text>
 <rect class="track" x="166" y="351" width="110" height="8" rx="2"/>
 <rect x="166" y="351" width="109.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="359">99.3%*</text>
+<text class="val" x="281" y="359">99.3%</text>
 <text class="pr" x="120" y="370.5">Recall</text>
 <rect class="track" x="166" y="363" width="110" height="8" rx="2"/>
 <rect x="166" y="363" width="105.9" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="371">96.3%*</text>
+<text class="val" x="281" y="371">96.3%</text>
 <text class="n" x="324" y="359">n=1,105 imports</text>
 <text class="n" x="324" y="371">repos 1 · files 586</text>
 </g>
@@ -934,7 +934,7 @@
 <text class="none" x="1038" y="908.0">not measured</text>
 <rect class="stripe" x="16" y="922" width="1212" height="34"/>
 <text class="lang" x="22" y="943.0">tcl</text>
-<g><title>tcl imports: precision 100.0% of 33, recall 4.4% of 804 (raw 100.0% / 4.4%; 4 shapes without a verdict); corpus tcltk/tcllib</title>
+<g><title>tcl imports: precision 100.0% of 33, recall 4.4% of 804 (raw 100.0% / 4.4%; 1 shapes without a verdict); corpus tcltk/tcllib</title>
 <text class="pr" x="120" y="936.5">Precision</text>
 <rect class="track" x="166" y="929" width="110" height="8" rx="2"/>
 <rect x="166" y="929" width="110.0" height="8" rx="2" fill="#4a3aa7"/>

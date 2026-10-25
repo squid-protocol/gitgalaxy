@@ -4988,13 +4988,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T22:00:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "fortran",
       "last_reconciled_at": "2026-10-25T06:35:38Z",
       "last_seen_count": 276,
@@ -5041,10 +5043,10 @@
         }
       ],
       "metric": "capture-missed",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "Fortran resolves a use by MODULE name; the engine resolves by file stem. fpm_cmd_export lives in cmd/export.f90 and fpm_error in error.f90, so the token is captured but no stem matches. The module-name rule is right, GitGalaxy missed the edge."
     },
     "fortran/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5055,8 +5057,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T22:00:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "fortran",
       "last_reconciled_at": "2026-10-25T06:35:38Z",
       "last_seen_count": 20,
@@ -5103,22 +5105,24 @@
         }
       ],
       "metric": "target-not-imported",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "use, intrinsic :: iso_fortran_env names the compiler's intrinsic module and creates no file dependency; the engine linked it to example_packages/nonintrinsic/src/iso_fortran_env.f90 by stem. The engine edge is false."
     },
     "fortran/import/token-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T22:00:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "fortran",
       "last_reconciled_at": "2026-10-25T06:35:38Z",
       "last_seen_count": 48,
@@ -5165,10 +5169,10 @@
         }
       ],
       "metric": "token-unresolved",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "The token (fpm_environment, fpm_os) equals the stem of both a .f90/.F90 file and a .c file, so the engine refuses the ambiguous stem. Module name picks the Fortran file. GitGalaxy missed the edge."
     },
     "fortran/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -5236,13 +5240,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T22:00:25Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "fortran",
       "last_reconciled_at": "2026-10-25T06:35:38Z",
       "last_seen_count": 1,
@@ -5257,10 +5263,10 @@
         }
       ],
       "metric": "truth-sees-no-import-in-file",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "submodule(parent_unused) child_unused is a real dependency on the parent module's file; the harness reads only use statements. The engine edge is right."
     },
     "go/call/call_expression/func_literal+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -5884,13 +5890,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T18:27:12Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "groovy",
       "last_reconciled_at": "2026-10-25T06:35:38Z",
       "last_seen_count": 41,
@@ -5937,10 +5945,10 @@
         }
       ],
       "metric": "declaration-unresolved",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "import static pkg.Class.member names pkg.Class (AsciiDocLinkVerifier.groovy); the engine does not resolve static-member imports to the class file. GitGalaxy missed a real import."
     },
     "groovy/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -5951,8 +5959,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T18:27:12Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "groovy",
       "last_reconciled_at": "2026-10-25T06:35:38Z",
       "last_seen_count": 5,
@@ -5999,10 +6007,10 @@
         }
       ],
       "metric": "target-not-imported",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "The file imports java.lang.annotation.Target (JDK); the engine linked it to the project's spock Target.java by stem. The engine edge is false."
     },
     "groovy/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -6013,8 +6021,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-10-24T18:27:12Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "groovy",
       "last_reconciled_at": "2026-10-25T06:35:38Z",
       "last_seen_count": 3,
@@ -6045,10 +6053,10 @@
         }
       ],
       "metric": "truth-sees-no-import-in-file",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "Fast/Slow.groovy import java.lang.annotation.Target and EmbeddedSpecRunner explicitly imports org.junit.platform.engine.Filter (an explicit import beats the org.spockframework.util.* wildcard), so no edge to the project's Target.java/Filter.java exists. The engine edge is false."
     },
     "haskell/call/apply/apply/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -19590,13 +19598,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T19:18:17Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-25T06:35:38Z",
       "last_seen_count": 278,
@@ -19643,10 +19653,10 @@
         }
       ],
       "metric": "capture-missed",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "No engine token for the import: package ifneeded in pkgIndex.tcl and source via [file join ...] forms are not captured. Both are real imports under the Tcl rule. GitGalaxy missed them."
     },
     "tcl/import/capture-none-in-file/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -19682,13 +19692,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T19:18:17Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-25T06:35:38Z",
       "last_seen_count": 437,
@@ -19735,22 +19747,24 @@
         }
       ],
       "metric": "token-unresolved",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "The captured token names the target, but the engine's stem search refuses it: a same-stem doc page (md/html) or sibling file makes the match ambiguous, and tokens arrive mangled ('time;', '[file'). The Tcl rule (source path, package require -> package provide) resolves them. GitGalaxy missed a real import."
     },
     "tcl/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-10-24T19:18:17Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-25T11:30:00Z",
+      "investigated_by": "claude (churn worker, #3799)",
       "language": "tcl",
       "last_reconciled_at": "2026-10-25T06:35:38Z",
       "last_seen_count": 53,
@@ -19797,10 +19811,10 @@
         }
       ],
       "metric": "truth-names-several-files",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "One package require names every file that package-provides it; the engine links at most one name-matched file. The Tcl rule is right, GitGalaxy missed the other providers."
     },
     "typescript/call/call_expression/call_expression+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

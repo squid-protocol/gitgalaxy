@@ -54,8 +54,7 @@ baseline-gated audits / `crucible_check.py` before pushing anything that touches
   when the stack lands, or say so. Stacked PRs run few CI checks until retargeted to main.
 - Text with backticks (PR bodies, commit messages, rulings) goes through a quoted heredoc
   (`<<'EOF'`) or a file, never an unquoted heredoc or a double-quoted `-c` string.
-- Third-party code, papers or tools: follow `docs/research/third-party-material-policy.md` (ideas
-  only, never their code; stop and ask the owner on anything legally questionable).
+- Third-party code, papers or tools: `docs/research/third-party-material-policy.md` (ideas only, never their code; ask the owner if legally questionable).
 - Agent knowledge (lessons, traps, owner policy) lives in the repo, not personal memory:
   `.claude/rules/agent-memory.md`.
 
@@ -204,16 +203,13 @@ matrix. After pushing to a labelled PR: `gh workflow run "Full Suite Gate (All O
 
 ## Issue generation and pipeline/CI triage
 
-Two subagents with pinned models are set up for this so routine triage doesn't burn main-context
-tokens or a premium model: `.claude/agents/issue-triage.md` (filing well-formed GitHub issues
-from findings) and `.claude/agents/pipeline-manager.md` (CI status / Dependabot triage — reports
-recommendations, never merges/closes/pushes on its own authority). Invoke via the
-`issue-generation` and `pipeline-check` skills, or the Agent tool directly.
+Pinned-model subagents keep routine triage off the main context: `.claude/agents/issue-triage.md` (files well-formed
+issues from findings) and `.claude/agents/pipeline-manager.md` (CI / Dependabot triage; reports, never merges, closes or
+pushes on its own authority). Invoke via the `issue-generation` / `pipeline-check` skills or the Agent tool.
 
 ## Model tiering
 
-Sonnet by default; Opus manually for architecture planning. Subagents pin models in frontmatter (new ones default to
-Haiku). Details: `docs/agents/model-tiering.md`.
+Sonnet by default; Opus manually for architecture planning; subagents pin models in frontmatter. Details: `docs/agents/model-tiering.md`.
 
 ## Licensing
 

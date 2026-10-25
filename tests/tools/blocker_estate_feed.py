@@ -71,7 +71,12 @@ def source_names(root: Path, limit: int = 4000) -> set[str]:
         if f.suffix.lower() in _SOURCE_SUFFIXES and f.is_file() and f.stat().st_size < 400_000:
             names.update(_NAME.findall(read_source(f).text))
             names.add(f.stem.upper())
-    vocab = br.vocabulary()
+    # the manifest's field descriptions are fixed text, the same for every customer: a source named CUSTOMER (CBSA) is
+    # not a leak because the prose says "customer salt"
+    prose = {
+        w.upper() for d in (*br.ANON_BLOCKER_FIELDS.values(), *br.ANON_REPORT_FIELDS.values()) for w in _WORD.findall(d)
+    }
+    vocab = br.vocabulary() | prose
     return {n for n in names if len(n) >= 4 and n not in vocab and n not in RESERVED and not bi._public_word(n)}
 
 

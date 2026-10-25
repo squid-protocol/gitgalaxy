@@ -53,6 +53,10 @@ def test_a_failed_ledger_job_blocks_auto_merge(jobs):
     steps = jobs["refresh"]["steps"]
     auto = next(s for s in steps if s.get("name", "").startswith("Enable squash auto-merge"))
     assert "needs.det-mutation.result == 'success'" in auto["if"]
+    assert "labels[]=shepherd:merge" in auto["run"] and "shepherd:approved" in auto["run"]
+    rehome = next(s for s in steps if s.get("name", "").startswith("Advance gitgalaxy to latest origin/main"))
+    cpr = next(s for s in steps if s.get("id") == "cpr")
+    assert steps.index(rehome) < steps.index(cpr) < steps.index(auto)
     hold = [s for s in steps if "needs.det-mutation.result != 'success'" in str(s.get("if", ""))]
     assert hold, "the run must fail when the ledger job failed"
 

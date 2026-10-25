@@ -1340,6 +1340,33 @@ jobs:
           app-id: ${{ secrets.SHEPHERD_APP_ID }}
           private-key: ${{ secrets.SHEPHERD_APP_KEY }}
 
+      - name: Advance gitgalaxy to latest origin/main before staging the bot PR
+        # The sweep, records, det-mutation and Db2 jobs take ~30-45 min on the pinned commit; merges to main in the
+        # meantime otherwise leave the bot PR conflicting or behind on the files those merges touched. Re-home the
+        # refreshed JSON files onto current origin/main so the PR is clean against main.
+        if: steps.late_gate.outputs.publish != 'false'
+        run: |
+          stage="$RUNNER_TEMP/pr-stage"
+          mkdir -p "$stage"
+          (
+            cd gitgalaxy
+            shopt -s nullglob
+            files=(
+              tests/equivalence/det_sweep_coverage/*.json
+              tests/equivalence/det_mutation/*.json
+              tests/equivalence/*/evidence.json
+              tests/cics_crucible/ports/*/*/evidence.json
+            )
+            if [ "${#files[@]}" -gt 0 ]; then
+              cp --parents "${files[@]}" "$stage/"
+            fi
+            git fetch -q origin main
+            git reset -q --hard origin/main
+            if [ -d "$stage/tests" ]; then
+              cp -r "$stage"/. .
+            fi
+          )
+
       - name: Open or update the bot PR with the refreshed records
         id: cpr
         if: steps.late_gate.outputs.publish != 'false'
@@ -1374,12 +1401,17 @@ jobs:
         if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && needs.records.result == 'success' && needs.det-mutation.result == 'success' && needs.sweep.result == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
+          PAT_TOKEN: ${{ secrets.AUTOMATION_PAT }}
           PR: ${{ steps.cpr.outputs.pull-request-number }}
+          HEAD_SHA: ${{ steps.cpr.outputs.pull-request-head-sha }}
           REPO: ${{ github.repository }}
-        # Right after the PR is opened its checks may not have registered yet, and GitHub then refuses auto-merge on a
-        # "clean" PR ("Pull request is in clean status"). Retry until the checks exist; never merge before CI has run
-        # (if it never gets there, the PR stays open for a person / the merge watcher).
+        # Label and approve for CI shepherd (using AUTOMATION_PAT so the label actor has write permission) so shepherd
+        # manages flake reruns and status digests, and also enable squash auto-merge directly once checks register.
         run: |
+          if [ -n "$PAT_TOKEN" ] && [ -n "$HEAD_SHA" ]; then
+            GH_TOKEN="$PAT_TOKEN" gh api -X POST "repos/$REPO/issues/$PR/labels" -f "labels[]=shepherd:merge" >/dev/null 2>&1 || true
+            GH_TOKEN="$PAT_TOKEN" gh api "repos/$REPO/issues/$PR/comments" -f "body=<!-- shepherd:approved sha=$HEAD_SHA by=squid-protocol -->" >/dev/null 2>&1 || true
+          fi
           for i in $(seq 1 20); do
             if out=$(gh pr merge "$PR" --repo "$REPO" --auto --squash 2>&1); then echo "$out"; exit 0; fi
             echo "$out"

@@ -290,9 +290,16 @@ def test_changed_cases_reads_real_git_and_cases_to_rerun_keeps_the_ledgered(monk
     _git(tmp_path, "checkout", "-q", "-b", "pr")
     for d in ("a", "b", "det_mutation"):
         (eq / d / "case.json").write_text('{"x": 1}', encoding="utf-8")
+    (eq / "c").mkdir(parents=True)
+    (eq / "c" / "evidence.json").write_text('{"refreshed": 1}', encoding="utf-8")
+    (eq / "c" / "evidence.md").write_text("report", encoding="utf-8")
+    _git(tmp_path, "add", ".")
     _git(tmp_path, "commit", "-qam", "change")
     monkeypatch.setattr(dm, "REPO", tmp_path)
-    assert dm.changed_cases("main") == {"a", "b"}  # the ledger directory is not a case
+    assert dm.changed_cases("main") == {
+        "a",
+        "b",
+    }  # the ledger directory and refreshed evidence.json/md are not case inputs
     monkeypatch.setattr(dm, "load", lambda: {"a": entry()})
     assert dm.cases_to_rerun("main") == ["a"]
     assert dm.cases_to_rerun("no-such-ref") == []

@@ -540,3 +540,31 @@ def test_fault_lines_cover_each_planning_family():
         ec.fault_lines({"name": "s", "faults": [{"cmd": "DELETE", "file": "F", "resp": "DUPKEY"}]})  # register X48
     assert ec.dli_fault_lines({"ims": {}}, {"name": "s"}) == []
     assert any("GGCENQ" in ln for ln in ec.translate_command("ENQ RESOURCE(WS-RES)"))
+
+
+# ---- web (#5274, harness half): the HTTP scenario inputs, the WEB / EXTRACT TCPIP translators, the web event readers ----
+def test_the_harness_dispatches_web_to_its_module():
+    import equivalence_cics_web as ecw  # noqa: E402
+
+    moved = ("_web_requires", "_web_parse", "_web_send", "_web_extract", "_extract_tcpip", "_web_receive", "_web_retrieve",
+             "_web_header", "_web_forms", "_web", "_WEB_KIND", "_cobol_web", "_cobol_web_open", "_cobol_web_send",
+             "_cobol_web_header", "_cobol_web_receive", "http_peers", "http_peers_cfg", "http_request",
+             "http_request_cfg", "tcpip", "tcpip_cfg")  # fmt: skip
+    for name in moved:
+        assert hasattr(ecw, name), name
+    for old in moved[:11]:  # the translators left the host (the event readers stay reachable as aliases)
+        assert not hasattr(ec, old), old
+    for name in ("http_peers", "http_peers_cfg", "http_request", "http_request_cfg", "tcpip", "tcpip_cfg",
+                 "_cobol_web", "_cobol_web_open", "_cobol_web_send", "_cobol_web_header"):  # fmt: skip
+        assert getattr(ec, name) is getattr(ecw, name), name
+    for shared in ("_pointer", "_getmain", "_freemain", "_address", "mapsets_env", "doctemplates"):
+        assert hasattr(ec, shared) and not hasattr(ecw, shared), shared  # not web: they stay in the host
+
+
+def test_the_web_translators_reach_the_hosts_helpers_and_refuse_by_name():
+    lines = ec.translate_command(
+        "WEB CONVERSE SESSTOKEN(WS-TOK) PATH(WS-PATH) PATHLENGTH(WS-PL) METHOD(WS-M) INTO(WS-IN)"
+    )
+    assert any("GGCWCNV" in ln for ln in lines)  # the host's _call / _resp, reached through `ec.`
+    with pytest.raises(ec.Unsupported, match="WEB CONVERSE without METHOD"):
+        ec.translate_command("WEB CONVERSE SESSTOKEN(WS-TOK) INTO(WS-IN)")

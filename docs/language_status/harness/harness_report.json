@@ -396,7 +396,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 32
+   "tests": 43
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -706,7 +706,7 @@
    "reasons": {
     "coverage: LINKed program DBCRFUN has live paragraphs no scenario runs": "16/22 paragraphs"
    },
-   "tests": 28,
+   "tests": 29,
    "blocker": "coverage: LINKed program DBCRFUN has live paragraphs no scenario runs"
   },
   {
@@ -734,7 +734,7 @@
    "reasons": {
     "coverage: LINKed program XFRFUN has live paragraphs no scenario runs": "27/28 paragraphs"
    },
-   "tests": 46,
+   "tests": 48,
    "blocker": "coverage: LINKed program XFRFUN has live paragraphs no scenario runs"
   },
   {
@@ -948,7 +948,7 @@
     "coverage: LINKed program INQACCCU has live paragraphs no scenario runs": "16/22 paragraphs",
     "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "13/25 paragraphs"
    },
-   "tests": 32,
+   "tests": 43,
    "blocker": "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
   },
   {
@@ -980,7 +980,7 @@
     "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "7/25 paragraphs",
     "coverage: live paragraphs no scenario runs": "46/51 paragraphs"
    },
-   "tests": 22,
+   "tests": 30,
    "blocker": "coverage: live paragraphs no scenario runs"
   },
   {
@@ -1560,7 +1560,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 32,
+   "tests": 43,
    "non_vsam": [
     "db2"
    ]
@@ -1598,7 +1598,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 28,
+   "tests": 29,
    "non_vsam": [
     "db2"
    ]
@@ -1623,7 +1623,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 22
+   "tests": 30
   },
   "cbsa-bnk1tfn": {
    "generated": [],
@@ -1632,7 +1632,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 46,
+   "tests": 48,
    "non_vsam": [
     "db2"
    ]
@@ -2249,7 +2249,7 @@
     "cbsa-bnk1tfn"
    ],
    "programs_unlocked": 1,
-   "tests_unlocked": 46,
+   "tests_unlocked": 48,
    "programs_also_blocked": [],
    "then_needs": {}
   },
@@ -2263,7 +2263,7 @@
     "cbsa-bnk1cra"
    ],
    "programs_unlocked": 1,
-   "tests_unlocked": 28,
+   "tests_unlocked": 29,
    "programs_also_blocked": [],
    "then_needs": {}
   },
@@ -2612,7 +2612,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 936
+   "tests_held": 950
   },
   {
    "cause": "ims",

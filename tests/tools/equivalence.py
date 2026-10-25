@@ -102,6 +102,7 @@ import cobol_coverage as cov  # noqa: E402 -- #4023
 import equivalence_common
 import equivalence_db2
 import equivalence_ims
+import le_out_size
 import equivalence_mvs
 import equivalence_oracle
 import equivalence_sql
@@ -388,6 +389,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     if ims and fault is not None and dli_fault_plan(fault_plan(fault)):  # #5857: the DL/I statuses the fault run plans
         (work / "dli.faults").write_text(dli_fault_plan(fault_plan(fault)), encoding="ascii")
         sqlenv += "GGDLI_FAULTS=/work/dli.faults GGDLI_FAULTS_LOG=/work/FAULTS "
+    sqlenv += le_out_size.env(program)  # #5003: the output item's size, which the LE date models cannot see
     sqlenv += f"GGMVS_STEP='{case['mvs_step']}' " if case.get("mvs_step") is not None else ""
     if db2:  # #4173: each statement the step runs traced; a fault run's SQL faults, those that fire logged
         # #4507: and what Db2 answered each one (equivalence_db2.cobol_outcomes)

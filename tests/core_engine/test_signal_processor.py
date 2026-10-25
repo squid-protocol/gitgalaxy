@@ -1954,7 +1954,7 @@ def test_signal_processor_surface_relations_formulas(processor):
             "safety": 6,  # guards = 6
             "safety_bypasses": 1,  # danger = 1
             "cleanup": 5,  # cleanup = 5
-            "pointers": 1,  # memory = 1
+            "memory_alloc": 1,  # memory = 1
         },
     )
     res = processor.calculate_risk_vector(meta, sig)
@@ -2153,3 +2153,18 @@ def test_safety_score_keeps_dense_files_ordered_below_saturation(processor):
     assert moderate < dense < extreme
     assert dense < 99.0, f"63 bypasses in 100 lines saturated at {dense}"
     assert dense - moderate > 5.0, "dense files must stay distinguishable from moderate ones"
+
+
+def test_memory_family_ignores_pointer_dereferences_4548(processor):
+    """#4548 item 5: `pointers` is a dereference count (92-98% of the old memory family on C/C++), not a
+    memory-corruption signal. A pointer-heavy file with no allocation or casts has fam_memory 0; allocation
+    and casts still count, and the raw pointers signal is untouched."""
+    meta, sig = create_synthetic_star(processor, "ptr_heavy", 200, {"pointers": 500})
+    fam = processor.calculate_risk_vector(meta, sig)["telemetry"]["surface_families"]
+    assert fam["memory"] == 0
+
+    meta, sig = create_synthetic_star(
+        processor, "alloc_cast", 200, {"pointers": 500, "memory_alloc": 3, "explicit_casts": 2}
+    )
+    fam = processor.calculate_risk_vector(meta, sig)["telemetry"]["surface_families"]
+    assert fam["memory"] == 5

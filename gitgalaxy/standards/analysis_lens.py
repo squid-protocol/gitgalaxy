@@ -1595,7 +1595,7 @@ def inactive_vectors(scan_config: dict[str, Any] | None = None) -> set[str]:
 # ------------------------------------------------------------------------------
 
 SURFACE_FAMILIES: dict[str, list[str]] = {
-    "memory": ["pointers", "memory_alloc", "explicit_casts"],
+    "memory": ["memory_alloc", "explicit_casts"],
     "cleanup": ["cleanup"],
     "guards": ["safety", "immutability_locks", "encapsulation"],
     "danger": ["safety_bypasses", "high_risk_execution", "inline_asm", "panics_and_aborts"],
@@ -1672,6 +1672,10 @@ SURFACE_FAMILY_EXEMPT: dict[str, str] = {
     "reflection_metaprogramming": (
         "metaprogramming marker: language-level macro/reflection count, not a threat surface (#4548)"
     ),
+    # --- pointer-use marker (1, #4548): a dereference/indirection count (92-98% of the old memory family
+    # --- on C/C++), a language-idiom density, not a memory-corruption signal. Allocation and cast
+    # --- surface stay in the memory family; the raw `pointers` count is still emitted per file ---
+    "pointers": "pointer-use marker: dereference/indirection count, not a memory-corruption surface (#4548)",
     # --- sec_* lens duplicates (6): would double-count signals already
     # --- summed under their non-sec_ counterpart's family ---
     "sec_safety_bypasses": "sec_* duplicate of 'safety_bypasses' (danger family); would double-count",

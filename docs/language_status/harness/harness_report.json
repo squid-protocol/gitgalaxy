@@ -6,8 +6,8 @@
   "programs": 103,
   "with_case": 103,
   "with_case_pct": 100.0,
-  "proven": 73,
-  "proven_pct": 70.9,
+  "proven": 72,
+  "proven_pct": 69.9,
   "paragraphs": {
    "covered": 353,
    "live": 357,
@@ -22,10 +22,10 @@
   "cases": 97
  },
  "status_counts": {
-  "proven": 73,
+  "proven": 72,
   "differs": 0,
   "ran, coverage open": 28,
-  "couldn't run": 2,
+  "couldn't run": 3,
   "not attempted": 0
  },
  "programs": [
@@ -580,15 +580,6 @@
   },
   {
    "corpus": "cics-genapp",
-   "program": "base/src/lgsetup.cbl",
-   "case": "genapp-lgsetup",
-   "status": "proven",
-   "gaps": [],
-   "reasons": {},
-   "tests": 2
-  },
-  {
-   "corpus": "cics-genapp",
    "program": "base/src/lgstsq.cbl",
    "case": "genapp-lgstsq",
    "status": "proven",
@@ -883,6 +874,20 @@
    "blocker": "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs"
   },
   {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgsetup.cbl",
+   "case": "genapp-lgsetup",
+   "status": "couldn't run",
+   "gaps": [
+    "known unproven: #5252"
+   ],
+   "reasons": {
+    "known unproven: #5252": "LGSETUP's SEND TEXT FROM(WRITE-MSG-H) LENGTH(24) sends WRITE-MSG-H and the item after it, WRITE-MSG-HIGH PIC 9(10). The det port holds that numeric as a typed BigDecimal that never reaches the record's bytes (DetCics.withinRecord reads the bytes), so Java sends 0000000000 where GnuCOBOL sends the customer number. Unmasked on 2026-10-21 when X6 became ASSUMED: the run used to stop at the WRITEQ TS past FROM (98) before this SEND TEXT. Fix: pack the enclosing record's typed items before a past-FROM read (the pack_ methods are emitted only under --groups)."
+   },
+   "tests": 2,
+   "blocker": "known unproven: #5252"
+  },
+  {
    "corpus": "dbb-mortgage-application",
    "program": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
    "case": "mortgage-cmort",
@@ -1043,6 +1048,30 @@
    "blocker": "coverage: LINKed program CRDTAGY1 has live paragraphs no scenario runs"
   },
   {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgtestc1.cbl",
+   "case": "genapp-lgtestc1",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program LGACUS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGICUS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUCUS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUCVS01 has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program LGACUS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs": "3/4 paragraphs",
+    "coverage: LINKed program LGICUS01 has live paragraphs no scenario runs": "3/4 paragraphs",
+    "coverage: LINKed program LGUCUS01 has live paragraphs no scenario runs": "3/4 paragraphs",
+    "coverage: LINKed program LGUCVS01 has live paragraphs no scenario runs": "2/3 paragraphs"
+   },
+   "tests": 14,
+   "blocker": "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs"
+  },
+  {
    "corpus": "cics-async-api-credit-card-application-example",
    "program": "src/ASYNCPNT.cbl",
    "case": "asynccc-asyncpnt",
@@ -1070,32 +1099,6 @@
   },
   {
    "corpus": "cics-genapp",
-   "program": "base/src/lgtestc1.cbl",
-   "case": "genapp-lgtestc1",
-   "status": "ran, coverage open",
-   "gaps": [
-    "coverage: LINKed program LGACUS01 has live paragraphs no scenario runs",
-    "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs",
-    "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs",
-    "coverage: LINKed program LGICUS01 has live paragraphs no scenario runs",
-    "coverage: LINKed program LGUCUS01 has live paragraphs no scenario runs",
-    "coverage: LINKed program LGUCVS01 has live paragraphs no scenario runs",
-    "coverage: live paragraphs no scenario runs"
-   ],
-   "reasons": {
-    "coverage: LINKed program LGACUS01 has live paragraphs no scenario runs": "2/3 paragraphs",
-    "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
-    "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs": "3/4 paragraphs",
-    "coverage: LINKed program LGICUS01 has live paragraphs no scenario runs": "3/4 paragraphs",
-    "coverage: LINKed program LGUCUS01 has live paragraphs no scenario runs": "3/4 paragraphs",
-    "coverage: LINKed program LGUCVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
-    "coverage: live paragraphs no scenario runs": "9/10 paragraphs"
-   },
-   "tests": 14,
-   "blocker": "coverage: live paragraphs no scenario runs"
-  },
-  {
-   "corpus": "cics-genapp",
    "program": "base/src/lgtestp1.cbl",
    "case": "genapp-lgtestp1",
    "status": "ran, coverage open",
@@ -1109,8 +1112,7 @@
     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
-    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs",
-    "coverage: live paragraphs no scenario runs"
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
    ],
    "reasons": {
     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs": "4/7 paragraphs",
@@ -1122,11 +1124,10 @@
     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs": "1/2 paragraphs",
     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs": "7/9 paragraphs",
     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs": "3/4 paragraphs",
-    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
-    "coverage: live paragraphs no scenario runs": "7/10 paragraphs"
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs": "2/3 paragraphs"
    },
    "tests": 15,
-   "blocker": "coverage: live paragraphs no scenario runs"
+   "blocker": "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs"
   },
   {
    "corpus": "cics-genapp",
@@ -1143,8 +1144,7 @@
     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
-    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs",
-    "coverage: live paragraphs no scenario runs"
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
    ],
    "reasons": {
     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs": "4/7 paragraphs",
@@ -1156,11 +1156,10 @@
     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs": "1/2 paragraphs",
     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs": "7/9 paragraphs",
     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs": "3/4 paragraphs",
-    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
-    "coverage: live paragraphs no scenario runs": "7/10 paragraphs"
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs": "2/3 paragraphs"
    },
    "tests": 15,
-   "blocker": "coverage: live paragraphs no scenario runs"
+   "blocker": "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs"
   },
   {
    "corpus": "cics-genapp",
@@ -1177,8 +1176,7 @@
     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
-    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs",
-    "coverage: live paragraphs no scenario runs"
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
    ],
    "reasons": {
     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs": "4/7 paragraphs",
@@ -1190,11 +1188,10 @@
     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs": "1/2 paragraphs",
     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs": "7/9 paragraphs",
     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs": "3/4 paragraphs",
-    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
-    "coverage: live paragraphs no scenario runs": "7/10 paragraphs"
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs": "2/3 paragraphs"
    },
    "tests": 15,
-   "blocker": "coverage: live paragraphs no scenario runs"
+   "blocker": "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs"
   },
   {
    "corpus": "cics-genapp",
@@ -1211,8 +1208,7 @@
     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
-    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs",
-    "coverage: live paragraphs no scenario runs"
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
    ],
    "reasons": {
     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs": "4/7 paragraphs",
@@ -1224,11 +1220,10 @@
     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs": "1/2 paragraphs",
     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs": "0/9 paragraphs",
     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs": "0/4 paragraphs",
-    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs": "0/3 paragraphs",
-    "coverage: live paragraphs no scenario runs": "7/9 paragraphs"
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs": "0/3 paragraphs"
    },
    "tests": 16,
-   "blocker": "coverage: live paragraphs no scenario runs"
+   "blocker": "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs"
   }
  ],
  "inputs": {
@@ -2187,17 +2182,12 @@
  "blockers": [
   {
    "gap": "coverage: live paragraphs no scenario runs",
-   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 17 programs: Source/ZECS000.cbl, Source/ZECS001.cbl, app/cbl/COACTUPC.cbl, base/src/lgapol01.cbl, base/src/lgtestc1.cbl, base/src/lgtestp1.cbl, base/src/lgtestp2.cbl, base/src/lgtestp3.cbl, base/src/lgtestp4.cbl, src/base/cobol_src/BNK1DCS.cbl, src/base/cobol_src/BNKMENU.cbl, src/base/cobol_src/DBCRFUN.cbl, src/base/cobol_src/INQACC.cbl, src/base/cobol_src/INQACCCU.cbl, src/base/cobol_src/INQCUST.cbl, src/base/cobol_src/XFRFUN.cbl, zBuilder/MortgageApplication/cobol/epsmlist.cbl (cases: carddemo-acctupdate, cbsa-bnk1cac, cbsa-bnk1dcs, cbsa-bnkmenu, cbsa-dbcrfun, cbsa-inqacc, cbsa-inqcust, cbsa-xfrfun, genapp-lgtestc1, genapp-lgtestp1, genapp-lgtestp2, genapp-lgtestp3, genapp-lgtestp4, mortgage-mlist, zecs-zecs000, zecs-zecs001).",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 12 programs: Source/ZECS000.cbl, Source/ZECS001.cbl, app/cbl/COACTUPC.cbl, base/src/lgapol01.cbl, src/base/cobol_src/BNK1DCS.cbl, src/base/cobol_src/BNKMENU.cbl, src/base/cobol_src/DBCRFUN.cbl, src/base/cobol_src/INQACC.cbl, src/base/cobol_src/INQACCCU.cbl, src/base/cobol_src/INQCUST.cbl, src/base/cobol_src/XFRFUN.cbl, zBuilder/MortgageApplication/cobol/epsmlist.cbl (cases: carddemo-acctupdate, cbsa-bnk1cac, cbsa-bnk1dcs, cbsa-bnkmenu, cbsa-dbcrfun, cbsa-inqacc, cbsa-inqcust, cbsa-xfrfun, genapp-lgtestp1, mortgage-mlist, zecs-zecs000, zecs-zecs001).",
    "programs": [
     "Source/ZECS000.cbl",
     "Source/ZECS001.cbl",
     "app/cbl/COACTUPC.cbl",
     "base/src/lgapol01.cbl",
-    "base/src/lgtestc1.cbl",
-    "base/src/lgtestp1.cbl",
-    "base/src/lgtestp2.cbl",
-    "base/src/lgtestp3.cbl",
-    "base/src/lgtestp4.cbl",
     "src/base/cobol_src/BNK1DCS.cbl",
     "src/base/cobol_src/BNKMENU.cbl",
     "src/base/cobol_src/DBCRFUN.cbl",
@@ -2216,11 +2206,7 @@
     "cbsa-inqacc",
     "cbsa-inqcust",
     "cbsa-xfrfun",
-    "genapp-lgtestc1",
     "genapp-lgtestp1",
-    "genapp-lgtestp2",
-    "genapp-lgtestp3",
-    "genapp-lgtestp4",
     "mortgage-mlist",
     "zecs-zecs000",
     "zecs-zecs001"
@@ -2237,62 +2223,6 @@
     ],
     "Source/ZECS001.cbl": [
      "fact: EIBRCODE (no harness states it)"
-    ],
-    "base/src/lgtestc1.cbl": [
-     "coverage: LINKed program LGACUS01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGICUS01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUCUS01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUCVS01 has live paragraphs no scenario runs"
-    ],
-    "base/src/lgtestp1.cbl": [
-     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
-    ],
-    "base/src/lgtestp2.cbl": [
-     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
-    ],
-    "base/src/lgtestp3.cbl": [
-     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
-    ],
-    "base/src/lgtestp4.cbl": [
-     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
-     "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
     ]
    }
   },
@@ -2356,38 +2286,94 @@
   },
   {
    "gap": "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
-   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: base/src/lgapdb01.cbl (cases: genapp-lgapdb01).",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 5 programs: base/src/lgapdb01.cbl, base/src/lgtestp1.cbl, base/src/lgtestp2.cbl, base/src/lgtestp3.cbl, base/src/lgtestp4.cbl (cases: genapp-lgapdb01, genapp-lgtestp1, genapp-lgtestp2, genapp-lgtestp3, genapp-lgtestp4).",
    "programs": [
-    "base/src/lgapdb01.cbl"
-   ],
-   "cases": [
-    "genapp-lgapdb01"
-   ],
-   "programs_unlocked": 1,
-   "tests_unlocked": 6,
-   "programs_also_blocked": [
+    "base/src/lgapdb01.cbl",
     "base/src/lgtestp1.cbl",
     "base/src/lgtestp2.cbl",
     "base/src/lgtestp3.cbl",
     "base/src/lgtestp4.cbl"
    ],
-   "then_needs": {}
+   "cases": [
+    "genapp-lgapdb01",
+    "genapp-lgtestp1",
+    "genapp-lgtestp2",
+    "genapp-lgtestp3",
+    "genapp-lgtestp4"
+   ],
+   "programs_unlocked": 1,
+   "tests_unlocked": 6,
+   "programs_also_blocked": [],
+   "then_needs": {
+    "base/src/lgtestp1.cbl": [
+     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
+    ],
+    "base/src/lgtestp2.cbl": [
+     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
+    ],
+    "base/src/lgtestp3.cbl": [
+     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
+    ],
+    "base/src/lgtestp4.cbl": [
+     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
+    ]
+   }
   },
   {
    "gap": "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs",
-   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: base/src/lgacus01.cbl (cases: genapp-lgacus01).",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 2 programs: base/src/lgacus01.cbl, base/src/lgtestc1.cbl (cases: genapp-lgacus01, genapp-lgtestc1).",
    "programs": [
-    "base/src/lgacus01.cbl"
+    "base/src/lgacus01.cbl",
+    "base/src/lgtestc1.cbl"
    ],
    "cases": [
-    "genapp-lgacus01"
+    "genapp-lgacus01",
+    "genapp-lgtestc1"
    ],
    "programs_unlocked": 1,
    "tests_unlocked": 5,
-   "programs_also_blocked": [
-    "base/src/lgtestc1.cbl"
-   ],
-   "then_needs": {}
+   "programs_also_blocked": [],
+   "then_needs": {
+    "base/src/lgtestc1.cbl": [
+     "coverage: LINKed program LGACUS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGICUS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUCUS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUCVS01 has live paragraphs no scenario runs"
+    ]
+   }
   },
   {
    "gap": "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs",
@@ -2403,6 +2389,20 @@
    "programs_also_blocked": [
     "base/src/lgtestc1.cbl"
    ],
+   "then_needs": {}
+  },
+  {
+   "gap": "known unproven: #5252",
+   "fix": "Fix #5252 (LGSETUP's SEND TEXT FROM(WRITE-MSG-H) LENGTH(24) sends WRITE-MSG-H and the item after it, WRITE-MSG-HIGH PIC 9(10). The det port holds that numeric as a type...) to prove 1 program: base/src/lgsetup.cbl (cases: genapp-lgsetup).",
+   "programs": [
+    "base/src/lgsetup.cbl"
+   ],
+   "cases": [
+    "genapp-lgsetup"
+   ],
+   "programs_unlocked": 1,
+   "tests_unlocked": 2,
+   "programs_also_blocked": [],
    "then_needs": {}
   },
   {

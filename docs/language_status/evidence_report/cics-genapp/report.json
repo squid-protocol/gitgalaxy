@@ -4123,7 +4123,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:08d97cce0e0d76049a6a82143a9402ad5b510e53fbda8c6e7746e6b58688bfd4",
+       "oracle_image": "sha256:aa2eef2964421e764bc48913dc39b79ac4e6cc793eb78f4edb932ba8218fc86a",
        "oracle_matches_pin": true,
        "records_compared": 20,
        "records_equal": 20,
@@ -6436,7 +6436,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:08d97cce0e0d76049a6a82143a9402ad5b510e53fbda8c6e7746e6b58688bfd4",
+       "oracle_image": "sha256:aa2eef2964421e764bc48913dc39b79ac4e6cc793eb78f4edb932ba8218fc86a",
        "oracle_matches_pin": true,
        "records_compared": 24,
        "records_equal": 24,
@@ -13300,7 +13300,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:08d97cce0e0d76049a6a82143a9402ad5b510e53fbda8c6e7746e6b58688bfd4",
+       "oracle_image": "sha256:aa2eef2964421e764bc48913dc39b79ac4e6cc793eb78f4edb932ba8218fc86a",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -15069,7 +15069,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:08d97cce0e0d76049a6a82143a9402ad5b510e53fbda8c6e7746e6b58688bfd4",
+       "oracle_image": "sha256:aa2eef2964421e764bc48913dc39b79ac4e6cc793eb78f4edb932ba8218fc86a",
        "oracle_matches_pin": true,
        "records_compared": 20,
        "records_equal": 20,
@@ -15217,7 +15217,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:08d97cce0e0d76049a6a82143a9402ad5b510e53fbda8c6e7746e6b58688bfd4",
+      "oracle_image": "sha256:aa2eef2964421e764bc48913dc39b79ac4e6cc793eb78f4edb932ba8218fc86a",
       "oracle_matches_pin": true,
       "records_compared": 20,
       "records_equal": 20,
@@ -20118,7 +20118,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:08d97cce0e0d76049a6a82143a9402ad5b510e53fbda8c6e7746e6b58688bfd4",
+       "oracle_image": "sha256:aa2eef2964421e764bc48913dc39b79ac4e6cc793eb78f4edb932ba8218fc86a",
        "oracle_matches_pin": true,
        "records_compared": 18,
        "records_equal": 18,
@@ -20230,7 +20230,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:08d97cce0e0d76049a6a82143a9402ad5b510e53fbda8c6e7746e6b58688bfd4",
+      "oracle_image": "sha256:aa2eef2964421e764bc48913dc39b79ac4e6cc793eb78f4edb932ba8218fc86a",
       "oracle_matches_pin": true,
       "records_compared": 18,
       "records_equal": 18,
@@ -21297,7 +21297,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:08d97cce0e0d76049a6a82143a9402ad5b510e53fbda8c6e7746e6b58688bfd4",
+   "sha256:aa2eef2964421e764bc48913dc39b79ac4e6cc793eb78f4edb932ba8218fc86a",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f"
   ],
   "pin_manifest": "tests/crucible_pins.toml",

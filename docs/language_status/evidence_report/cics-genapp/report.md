@@ -1301,7 +1301,7 @@ From the spec entries of the commands the programs use, with the register's stat
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:08d97cce0e0d76049a6a82143a9402ad5b510e53fbda8c6e7746e6b58688bfd4`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
+- oracle images the evidence records ran on: `sha256:aa2eef2964421e764bc48913dc39b79ac4e6cc793eb78f4edb932ba8218fc86a`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
 
 Regenerate this report and re-run its proofs:
 

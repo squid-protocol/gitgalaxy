@@ -26,17 +26,17 @@
     "repos": "fmtlib/fmt"
   },
   "csharp": {
-    "engine_edges": 116,
-    "files": 950,
-    "fn": 7,
-    "fp": 105,
+    "engine_edges": 143,
+    "files": 2496,
+    "fn": 13,
+    "fp": 118,
     "hub_overlap_at_10": 0.5,
-    "hub_repos": 1,
-    "hub_spearman": 0.495,
-    "imports": 18,
-    "precision_pct": 9.5,
-    "recall_pct": 61.1,
-    "repos": "JamesNK/Newtonsoft.Json"
+    "hub_repos": 2,
+    "hub_spearman": 0.104,
+    "imports": 39,
+    "precision_pct": 17.5,
+    "recall_pct": 66.7,
+    "repos": "JamesNK/Newtonsoft.Json, xunit/xunit"
   },
   "dart": {
     "engine_edges": 707,

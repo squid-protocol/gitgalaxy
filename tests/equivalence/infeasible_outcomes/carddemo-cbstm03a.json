@@ -1,0 +1,22 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-cbstm03a",
+  "entries": [
+    {
+      "unit": "0000-START",
+      "line": 298,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "C",
+      "reason": "`EVALUATE WS-FL-DD` has WHEN 'TRNXFILE', 'XREFFILE', 'CUSTFILE', 'ACCTFILE' and 'READTRNX'. WS-FL-DD is `VALUE 'TRNXFILE'` (67) and is written only at 760, 779, 797 and 851, each with one of 'READTRNX', 'CUSTFILE', 'ACCTFILE' and 'XREFFILE', so 0000-START (reached by fall-through and `GO TO 0000-START` at those four lines) never sees another value."
+    },
+    {
+      "unit": "1000-MAINLINE",
+      "line": 318,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF END-OF-FILE = 'N'` is the first statement inside `PERFORM UNTIL END-OF-FILE = 'Y'` (317). END-OF-FILE is `VALUE 'N'` (70) and is written only at 357 (`MOVE 'Y'`), so inside the body it is 'N' whenever the loop test lets it in; the false arm would need a value that is neither 'Y' nor 'N'."
+    }
+  ]
+}

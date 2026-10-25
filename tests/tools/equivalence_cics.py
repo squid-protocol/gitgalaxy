@@ -3093,6 +3093,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         (src / "GGCRUN.cbl").write_text(task_dispatcher(linked), encoding="ascii")
         subs.append("src/GGCRUN.cbl")
     common.comp5_layout_guard(src)  # #4751: a 1- or 2-digit COMP-5 is one byte in GnuCOBOL, a halfword on z/OS (C16)
+    common.stage_zero_length_conf(case, src)  # X8: a case that lets a zero-length reference modification through
     compile_task = (
         f"cobc -x -std=ibm -fsign=EBCDIC -fstatic-call {cov.TRACE_FLAG} {''.join(f + ' ' for f in option_flags)}"
         f"-I /work/src -o task src/EQCICSDR.cbl src/PROGRAM.cbl {''.join(s + ' ' for s in subs)}src/ggcics.c"

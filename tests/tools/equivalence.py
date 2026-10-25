@@ -125,6 +125,7 @@ from equivalence_common import (
     option_differences,
     read_program,
     stage_copybooks,
+    stage_zero_length_conf,
     require_ascii_runtime,
     reuse,
     run_cobol_step,
@@ -316,6 +317,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
         subs += f" src/SUB{Path(rel).stem.upper()}.cbl"
     stage_copybooks(case, corpus, src)
     comp5_layout_guard(src)  # #4751: a 1- or 2-digit COMP-5 is one byte in GnuCOBOL, a halfword on z/OS (C16)
+    stage_zero_length_conf(case, src)  # X8: a case that lets a zero-length reference modification through
     script = ["set -e", "cd /work"]
     flags = " ".join(["-std=ibm -fsign=EBCDIC", *option_flags, "-I /work/src"])
     import equivalence_inputs  # #3804: `@generate` inputs, from their record layouts

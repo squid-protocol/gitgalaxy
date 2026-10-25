@@ -186,14 +186,59 @@ def run(rows: dict[tuple[str, str], dict[str, Any]], roots: list[Path], out: Pat
 FEED_PATH = "docs/language_status/blockers/blocker_feed.json"
 
 
-def queue(feed: dict[str, Any]) -> list[dict[str, Any]]:
-    """The churn queue from a feed.json: one item per unmatched ledger row, deduped by row id, in a stable order."""
+def queue(feed: dict[str, Any], filed: dict[str, int] | None = None) -> list[dict[str, Any]]:
+    """The churn queue from a feed.json: one item per distinct construct (category + salt-free signature), however many
+    estates or customers report it; `ids` lists its rows. A construct already in `filed` has its issue and is not queued."""
     seen: dict[str, dict[str, Any]] = {}
     for rows in feed.get("unmatched", {}).values():
-        for r in rows:
-            seen.setdefault(r["id"], {"id": r["id"], "category": r["category"], "class": r["class"], "side": r["side"],
-                                      "signature": r["signature"], "body": r.get("issue_body") or bi.draft_issue(r)})  # fmt: skip
-    return [seen[k] for k in sorted(seen)]
+        for r in sorted(rows, key=lambda x: x["id"]):
+            key = bi.signature_key(r["category"], r["signature"])
+            if filed and key in filed:
+                continue
+            item = seen.setdefault(key, {"id": r["id"], "ids": [], "key": key, "category": r["category"],
+                                         "class": r["class"], "side": r["side"], "signature": r["signature"],
+                                         "body": r.get("issue_body") or bi.draft_issue(r)})  # fmt: skip
+            if r["id"] not in item["ids"]:
+                item["ids"].append(r["id"])
+    return sorted(seen.values(), key=lambda i: i["id"])
+
+
+def _read_feed(args: argparse.Namespace) -> dict[str, Any]:
+    if args.generated:
+        import generated_branch
+
+        data = generated_branch.read_published(FEED_PATH, REPO)
+        if data is None:
+            raise SystemExit(f"{FEED_PATH} is not published on the generated branch yet")
+        return json.loads(data.decode("utf-8"))
+    return json.loads(args.feed.read_text(encoding="utf-8"))
+
+
+def gh_create_issue(title: str, body: str) -> int:
+    """Open an issue on the repo through the REST API (gh 2.45 fails on the GraphQL path) and return its number."""
+    import subprocess
+
+    out = subprocess.run(
+        ["gh", "api", "repos/squid-protocol/gitgalaxy/issues", "-f", f"title={title}", "-f", f"body={body}", "-q", ".number"],
+        check=True, capture_output=True, text=True,
+    )  # fmt: skip
+    return int(out.stdout.strip())
+
+
+def file_issues(items: list[dict[str, Any]], filed_path: Path, create: Any = None) -> list[tuple[dict[str, Any], int]]:
+    """Open one issue per queue item (`create` makes the issue; the CLI passes gh_create_issue only with --open-issues) and record each under its signature key in
+    `filed_path`, so the next ingest links to it and the next queue skips it."""
+    done: list[tuple[dict[str, Any], int]] = []
+    data = json.loads(filed_path.read_text(encoding="utf-8")) if filed_path.is_file() else {"schema": 1, "filed": {}}
+    for it in items:
+        if it["key"] in data["filed"]:
+            continue
+        n = create(f"Customer blocker: {it['signature']} ({it['category']})", it["body"])
+        data["filed"][it["key"]] = n
+        done.append((it, n))
+        filed_path.parent.mkdir(parents=True, exist_ok=True)
+        filed_path.write_text(json.dumps(data, indent=1, sort_keys=True) + "\n", encoding="utf-8")  # after each: a crash loses none
+    return done
 
 
 def queue_main(argv: list[str]) -> int:
@@ -204,22 +249,20 @@ def queue_main(argv: list[str]) -> int:
     src.add_argument("--feed", type=Path, help="a feed.json")
     src.add_argument("--generated", action="store_true", help=f"read {FEED_PATH} from the generated branch")
     ap.add_argument("--out", type=Path, help="write the queue as JSON here")
+    ap.add_argument("--filed", type=Path, help="signatures already opened as issues: left out of the queue")
+    ap.add_argument("--open-issues", action="store_true", help="open one issue per queued construct (needs --filed)")
     args = ap.parse_args(argv)
-    if args.generated:
-        import generated_branch
-
-        data = generated_branch.read_published(FEED_PATH, REPO)
-        if data is None:
-            raise SystemExit(f"{FEED_PATH} is not published on the generated branch yet")
-        feed = json.loads(data.decode("utf-8"))
-    else:
-        feed = json.loads(args.feed.read_text(encoding="utf-8"))
-    items = queue(feed)
+    if args.open_issues and not args.filed:
+        raise SystemExit("--open-issues needs --filed (where the opened issue numbers are recorded)")
+    items = queue(_read_feed(args), bi.load_filed(args.filed))
     if args.out:
         args.out.write_text(json.dumps(items, indent=1) + "\n", encoding="utf-8")
-    print(f"{len(items)} unmatched blocker rows for the queue")
+    print(f"{len(items)} unmatched blocker constructs for the queue")
     for it in items:
         print(it["body"])
+    if args.open_issues:
+        for it, n in file_issues(items, args.filed, gh_create_issue):
+            print(f"opened #{n} for {it['key']}")
     return 0
 
 

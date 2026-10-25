@@ -207,7 +207,7 @@ def crucible_pins() -> dict[str, str]:
         return {"cics": m.group(1) if m else ""}
     if str(REPO / "tests") not in sys.path:
         sys.path.insert(0, str(REPO / "tests"))
-    import _crucible_manifest  # noqa: PLC0415 -- tomllib is 3.11+; the manifest reader covers 3.10 (#4836)
+    import _crucible_manifest  # noqa: PLC0415 -- tomllib fallback vestigial, 3.11 floor (#3322, #4836)
 
     return {k: v.get("ref", "") for k, v in sorted(_crucible_manifest.load(PIN_MANIFEST).items())}
 

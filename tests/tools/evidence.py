@@ -104,6 +104,7 @@ HARNESS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "t
            "tests/tools/equivalence_cics_conditions.py",
            "tests/tools/equivalence_cics_faults.py",
            "tests/tools/equivalence_cics_tempstorage.py",
+           "tests/tools/equivalence_cics_taskcontrol.py",
            "tests/tools/equivalence_call.py",
            "tests/tools/equivalence_cache.py", "tests/tools/equivalence_db2.py", "tests/tools/equivalence_oracle.py",
            "tests/tools/cobol_coverage.py", "tests/tools/java_target_matrix.py",
@@ -246,6 +247,7 @@ COMPONENTS: tuple[Component, ...] = (
             "tests/tools/equivalence_cics_conditions.py",
             "tests/tools/equivalence_cics_faults.py",
             "tests/tools/equivalence_cics_tempstorage.py",
+            "tests/tools/equivalence_cics_taskcontrol.py",
         ),  # #5274: its families
         lambda u: u.cics_harness,
         "run_case for kind cics; batch Db2 SQL faults and call arg encoding import it; a plain batch run never does",

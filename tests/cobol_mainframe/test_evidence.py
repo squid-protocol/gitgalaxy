@@ -601,3 +601,21 @@ def test_a_record_with_no_compiler_options_renders_no_row(semantic):
     assert "| compiler options |" not in page
     assert ev.compiler_line(rec["inputs"]["options"]) is None
     assert ev.compiler_line(None) is None
+
+
+def test_a_scenario_records_the_commands_its_cobol_run_executed():
+    """#5229: `commands` is the sorted distinct verbs of the oracle run, without the end-state snapshots; a scenario
+    with none carries no key (python-test-traps.md)."""
+    sys.path.insert(0, str(REPO / "tests" / "tools"))
+    import equivalence_cics as ec
+
+    events = [{"event": "RECEIVE-MAP"}, {"event": "WRITEQ-TS"}, {"event": "RECEIVE-MAP"},
+              {"event": "COMMAREA"}, {"event": "CONTAINERS"}, {"event": "RETURN"}]  # fmt: skip
+    assert ec.executed_commands(events) == ["RECEIVE-MAP", "RETURN", "WRITEQ-TS"]
+    assert ec.executed_commands([{"event": "COMMAREA"}]) == []
+    t = next(t for t, _ in _records())
+    report = {"proven": True, "outputs": {"a": {"equal": 3, "records": 3, "commands": ["RETURN", "WRITEQ-TS"]},
+                                          "b": {"equal": 1, "records": 1}}}  # fmt: skip
+    proof = ev.proof_section(t, report, "d")
+    assert proof["outputs"]["a"] == {"equal": 3, "records": 3, "commands": ["RETURN", "WRITEQ-TS"]}
+    assert proof["outputs"]["b"] == {"equal": 1, "records": 1}

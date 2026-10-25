@@ -696,6 +696,8 @@ def proof_section(t: Target, report: dict[str, Any], digest: str) -> dict[str, A
     outputs: dict[str, Any] = {}
     for name, o in (report.get("outputs") or {}).items():
         outputs[name] = {"equal": o.get("equal"), "records": o.get("records", o.get("events"))}
+        if o.get("commands"):  # #5229: the CICS commands the scenario's COBOL run executed (the reach's input)
+            outputs[name]["commands"] = list(o["commands"])
         if o.get("judged_to"):  # #4173 / #4607 (X6): a task compared only up to a LINK not run or a refused WRITEQ
             outputs[name]["judged_to"] = o["judged_to"]
             if o.get("x6"):  # #4270: or X23, a reference past a stated EIBCALEN

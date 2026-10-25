@@ -945,7 +945,7 @@
    "genapp-lgapdb01": [
     7,
     7,
-    23,
+    28,
     31
    ],
    "genapp-lgapdb01-generated": [
@@ -1084,7 +1084,7 @@
    "genapp-lgstsq": [
     1,
     1,
-    3,
+    4,
     6
    ],
    "genapp-lgtestc1": [
@@ -1150,7 +1150,7 @@
    "genapp-lgupdb01": [
     9,
     9,
-    26,
+    38,
     38
    ],
    "genapp-lgupdb01-generated": [
@@ -1595,7 +1595,7 @@
    },
    "genapp-lgapdb01": {
     "stale": [],
-    "status": "shown equal, unapproved"
+    "status": "not-shown equal"
    },
    "genapp-lgapvs01": {
     "stale": [],
@@ -1611,7 +1611,7 @@
    },
    "genapp-lgupdb01": {
     "stale": [],
-    "status": "shown equal, unapproved"
+    "status": "not-shown equal"
    },
    "genapp-lgupvs01": {
     "stale": [],
@@ -1621,7 +1621,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "bf6a41fc97def4ed1795a4734830291f0dac79b3",
+   "sha": "ddbdb66388a59a951b55bbe43b1b39b2f5f522ec",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
@@ -5092,8 +5092,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha bf6a41fc97def4ed1795a4734830291f0dac79b3",
-   "python tests/tools/evidence_report.py zecs --baseline --sha bf6a41fc97def4ed1795a4734830291f0dac79b3",
+   "python tests/tools/cics_census.py survey --baseline --sha ddbdb66388a59a951b55bbe43b1b39b2f5f522ec",
+   "python tests/tools/evidence_report.py zecs --baseline --sha ddbdb66388a59a951b55bbe43b1b39b2f5f522ec",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -5114,13 +5114,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "bf6a41fc97def4ed1795a4734830291f0dac79b3",
+   "sha": "ddbdb66388a59a951b55bbe43b1b39b2f5f522ec",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
    }
   },
-  "translator_commit": "bf6a41fc97def4ed1795a4734830291f0dac79b3",
+  "translator_commit": "ddbdb66388a59a951b55bbe43b1b39b2f5f522ec",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

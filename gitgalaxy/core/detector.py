@@ -2222,6 +2222,15 @@ IDENTIFIER_CASE_SENSITIVE = "sensitive"
 IDENTIFIER_CASE_INSENSITIVE = "insensitive"
 
 
+def _blank_masked_match(m: "re.Match[str]") -> str:
+    """Blank a `_calls_out_masked_blocks` match, or only its `mask` group, keeping line breaks (#6454)."""
+    text = m.group(0)
+    if "mask" not in m.re.groupindex or m.start("mask") < 0:
+        return re.sub(r"[^\n]", " ", text)
+    lo, hi = m.start("mask") - m.start(), m.end("mask") - m.start()
+    return text[:lo] + re.sub(r"[^\n]", " ", text[lo:hi]) + text[hi:]
+
+
 def _blank_literals_except_callee(text: str, verb: re.Pattern) -> str:
     """`text` with every quoted literal's contents blanked (offsets preserved),
     except a literal whose opening quote directly follows `verb` -- the callee a
@@ -10642,6 +10651,10 @@ class StructuralExtractor:
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
             message_receivers = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_message_receivers"))
             if message_receivers or _is_qualified_calls_out(invocation_pattern):
+                # #6454: the same mask as below; same length, so every position stays valid
+                masked_q = rules.get("_calls_out_masked_blocks")
+                if isinstance(masked_q, re.Pattern):
+                    safe_block = masked_q.sub(_blank_masked_match, safe_block)
                 receiver_text = safe_block
                 # #3360 (C5): note which callees were captured only on a nested
                 # func_start header (`def inner(`). _function_slice drops them
@@ -10745,7 +10758,9 @@ class StructuralExtractor:
                 # hold no call of this language; blanked with their line breaks kept.
                 masked = rules.get("_calls_out_masked_blocks")
                 if isinstance(masked, re.Pattern):
-                    safe_block = masked.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), safe_block)
+                    # #6454: a named group `mask` blanks only that span (rust `matches!(x, PATTERN)`
+                    # keeps the macro name a call); a pattern without one blanks the whole match.
+                    safe_block = masked.sub(_blank_masked_match, safe_block)
                 raw_calls = invocation_pattern.findall(safe_block)
                 if invocation_pattern.groups > 1:
                     # #5639: one group per alternative (Objective-C: C call, message selector)

@@ -8780,7 +8780,7 @@
       "ruby/rails/inbound_emails_controller.rb": "05c5d72146c7",
       "ruby/rails/metal.rb": "a84674b279d0",
       "ruby/rails_http_token_auth/http_token_authentication_test.rb": "ea2aa8d9f6fe",
-      "rust/bevy/bevy_ecs_macros.rs": "72f4e4f2dc9c",
+      "rust/bevy/bevy_ecs_macros.rs": "167f0f1180a1",
       "rust/bevy/bevy_ecs_query.rs": "f9ad6b776e65",
       "rust/bevy/bevy_ecs_table.rs": "25ad761dda9f",
       "rust/bevy/bevy_ecs_world.rs": "39c932334b5a",

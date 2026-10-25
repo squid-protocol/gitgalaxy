@@ -276,32 +276,18 @@
     0,
     0
    ],
-   "carddemo-cobtupdt": {
-    "coverage": [
-     9,
-     9,
-     16,
-     20
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "carddemo-cobtupdt-generated": {
-    "coverage": [
-     9,
-     9,
-     16,
-     20
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
+   "carddemo-cobtupdt": [
+    9,
+    9,
+    16,
+    20
+   ],
+   "carddemo-cobtupdt-generated": [
+    9,
+    9,
+    16,
+    20
+   ],
    "carddemo-codate01": [
     13,
     13,
@@ -311,7 +297,7 @@
    "carddemo-copaua0c": [
     41,
     41,
-    62,
+    63,
     69
    ],
    "carddemo-copaus0c": [
@@ -320,84 +306,42 @@
     88,
     93
    ],
-   "carddemo-copaus1c": {
-    "coverage": [
-     15,
-     15,
-     48,
-     48
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "04a605c41ec1b5f2d599d94ac501398c2138564c"
-   },
-   "carddemo-copaus2c": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "carddemo-copaus2c-generated": {
-    "coverage": [
-     2,
-     2,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "carddemo-cotrtlic": {
-    "coverage": [
-     59,
-     59,
-     196,
-     230
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "a2d7805e5db024a85b0be1f4a9f8e92e9d82685c"
-   },
-   "carddemo-cotrtlic-generated": {
-    "coverage": [
-     53,
-     59,
-     139,
-     230
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "carddemo-cotrtupc": {
-    "coverage": [
-     63,
-     63,
-     139,
-     166
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "92375b0e730d1e600e03e5f14bf43a460e74c938"
-   },
+   "carddemo-copaus1c": [
+    15,
+    15,
+    48,
+    48
+   ],
+   "carddemo-copaus2c": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-copaus2c-generated": [
+    2,
+    2,
+    6,
+    6
+   ],
+   "carddemo-cotrtlic": [
+    59,
+    59,
+    196,
+    230
+   ],
+   "carddemo-cotrtlic-generated": [
+    53,
+    59,
+    139,
+    230
+   ],
+   "carddemo-cotrtupc": [
+    63,
+    63,
+    139,
+    166
+   ],
    "carddemo-dailyval": [
     18,
     18,
@@ -608,233 +552,114 @@
     2,
     2
    ],
-   "cbsa-acctctrl": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-acctctrl-generated": {
-    "coverage": [
-     7,
-     7,
-     2,
-     2
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-bankdata": {
-    "coverage": [
-     24,
-     24,
-     47,
-     48
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-bnk1cac": {
-    "coverage": [
-     25,
-     25,
-     56,
-     97
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-bnk1cac-generated": {
-    "coverage": [
-     25,
-     25,
-     59,
-     97
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-bnk1cca": {
-    "coverage": [
-     25,
-     25,
-     29,
-     41
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-bnk1cca-generated": {
-    "coverage": [
-     25,
-     25,
-     31,
-     41
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-bnk1ccs": {
-    "coverage": [
-     33,
-     33,
-     113,
-     143
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "fdceed6dafb5880bc0ea762eb7c2c083dd8b79cc"
-   },
-   "cbsa-bnk1ccs-generated": {
-    "coverage": [
-     33,
-     33,
-     88,
-     143
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "fdceed6dafb5880bc0ea762eb7c2c083dd8b79cc"
-   },
-   "cbsa-bnk1cra": {
-    "coverage": [
-     28,
-     28,
-     57,
-     67
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "edd87d301b4f9643ed4e67883049b7ef78ba003c"
-   },
-   "cbsa-bnk1cra-generated": {
-    "coverage": [
-     28,
-     28,
-     43,
-     67
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-bnk1dac": {
-    "coverage": [
-     31,
-     31,
-     44,
-     60
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-bnk1dac-generated": {
-    "coverage": [
-     31,
-     31,
-     42,
-     60
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
+   "cbsa-acctctrl": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-acctctrl-generated": [
+    7,
+    7,
+    2,
+    2
+   ],
+   "cbsa-bankdata": [
+    24,
+    24,
+    47,
+    48
+   ],
+   "cbsa-bnk1cac": [
+    25,
+    25,
+    56,
+    97
+   ],
+   "cbsa-bnk1cac-generated": [
+    25,
+    25,
+    59,
+    97
+   ],
+   "cbsa-bnk1cca": [
+    25,
+    25,
+    29,
+    41
+   ],
+   "cbsa-bnk1cca-generated": [
+    25,
+    25,
+    31,
+    41
+   ],
+   "cbsa-bnk1ccs": [
+    33,
+    33,
+    113,
+    143
+   ],
+   "cbsa-bnk1ccs-generated": [
+    33,
+    33,
+    88,
+    143
+   ],
+   "cbsa-bnk1cra": [
+    28,
+    28,
+    57,
+    67
+   ],
+   "cbsa-bnk1cra-generated": [
+    28,
+    28,
+    43,
+    67
+   ],
+   "cbsa-bnk1dac": [
+    31,
+    31,
+    44,
+    60
+   ],
+   "cbsa-bnk1dac-generated": [
+    31,
+    31,
+    42,
+    60
+   ],
    "cbsa-bnk1dcs": [
     46,
     51,
     62,
     102
    ],
-   "cbsa-bnk1tfn": {
-    "coverage": [
-     28,
-     28,
-     53,
-     72
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-bnk1tfn-generated": {
-    "coverage": [
-     28,
-     28,
-     56,
-     72
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-bnk1uac": {
-    "coverage": [
-     31,
-     31,
-     80,
-     88
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "edd87d301b4f9643ed4e67883049b7ef78ba003c"
-   },
-   "cbsa-bnk1uac-generated": {
-    "coverage": [
-     31,
-     31,
-     68,
-     88
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
+   "cbsa-bnk1tfn": [
+    28,
+    28,
+    53,
+    72
+   ],
+   "cbsa-bnk1tfn-generated": [
+    28,
+    28,
+    56,
+    72
+   ],
+   "cbsa-bnk1uac": [
+    31,
+    31,
+    80,
+    88
+   ],
+   "cbsa-bnk1uac-generated": [
+    31,
+    31,
+    68,
+    88
+   ],
    "cbsa-bnkmenu": [
     24,
     25,
@@ -871,149 +696,72 @@
     5,
     6
    ],
-   "cbsa-creacc": {
-    "coverage": [
-     34,
-     34,
-     26,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-creacc-generated": {
-    "coverage": [
-     34,
-     34,
-     25,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-crecust": {
-    "coverage": [
-     37,
-     37,
-     40,
-     74
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "fdceed6dafb5880bc0ea762eb7c2c083dd8b79cc"
-   },
-   "cbsa-crecust-generated": {
-    "coverage": [
-     13,
-     37,
-     23,
-     74
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "fdceed6dafb5880bc0ea762eb7c2c083dd8b79cc"
-   },
-   "cbsa-custctrl": {
-    "coverage": [
-     7,
-     7,
-     4,
-     4
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-dbcrfun": {
-    "coverage": [
-     21,
-     22,
-     33,
-     35
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "edd87d301b4f9643ed4e67883049b7ef78ba003c"
-   },
-   "cbsa-dbcrfun-generated": {
-    "coverage": [
-     16,
-     22,
-     23,
-     35
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "4a2bda9db0804e621ea07b34d87449b70e2fe5b1"
-   },
-   "cbsa-delacc": {
-    "coverage": [
-     19,
-     19,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-delacc-generated": {
-    "coverage": [
-     19,
-     19,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-delcus": {
-    "coverage": [
-     22,
-     22,
-     16,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-delcus-generated": {
-    "coverage": [
-     22,
-     22,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
+   "cbsa-creacc": [
+    34,
+    34,
+    26,
+    38
+   ],
+   "cbsa-creacc-generated": [
+    34,
+    34,
+    25,
+    38
+   ],
+   "cbsa-crecust": [
+    37,
+    37,
+    40,
+    74
+   ],
+   "cbsa-crecust-generated": [
+    13,
+    37,
+    23,
+    74
+   ],
+   "cbsa-custctrl": [
+    7,
+    7,
+    4,
+    4
+   ],
+   "cbsa-dbcrfun": [
+    21,
+    22,
+    33,
+    35
+   ],
+   "cbsa-dbcrfun-generated": [
+    16,
+    22,
+    23,
+    35
+   ],
+   "cbsa-delacc": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-delacc-generated": [
+    19,
+    19,
+    13,
+    14
+   ],
+   "cbsa-delcus": [
+    22,
+    22,
+    16,
+    16
+   ],
+   "cbsa-delcus-generated": [
+    22,
+    22,
+    13,
+    16
+   ],
    "cbsa-getcompy": [
     2,
     2,
@@ -1026,271 +774,138 @@
     0,
     0
    ],
-   "cbsa-inqacc": {
-    "coverage": [
-     22,
-     25,
-     15,
-     25
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-inqacc-generated": {
-    "coverage": [
-     22,
-     25,
-     15,
-     25
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-inqacccu": {
-    "coverage": [
-     21,
-     22,
-     31,
-     33
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "59962b6e04cf90cf7ef5942b62664b7c40adafd3"
-   },
-   "cbsa-inqacccu-generated": {
-    "coverage": [
-     18,
-     22,
-     23,
-     33
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "c9fb46369f6fe3ad76952b926faea951f6991b96"
-   },
+   "cbsa-inqacc": [
+    22,
+    25,
+    15,
+    25
+   ],
+   "cbsa-inqacc-generated": [
+    22,
+    25,
+    15,
+    25
+   ],
+   "cbsa-inqacccu": [
+    21,
+    22,
+    31,
+    33
+   ],
+   "cbsa-inqacccu-generated": [
+    18,
+    22,
+    23,
+    33
+   ],
    "cbsa-inqcust": [
     24,
     25,
     42,
     46
    ],
-   "cbsa-updacc": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "33243d0de4f0d472029e39445d4af859a5636955"
-   },
-   "cbsa-updacc-faults": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "cbsa-updacc-generated": {
-    "coverage": [
-     7,
-     7,
-     6,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
+   "cbsa-updacc": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-faults": [
+    7,
+    7,
+    6,
+    6
+   ],
+   "cbsa-updacc-generated": [
+    7,
+    7,
+    6,
+    6
+   ],
    "cbsa-updcust": [
     7,
     7,
     28,
     28
    ],
-   "cbsa-xfrfun": {
-    "coverage": [
-     27,
-     28,
-     78,
-     81
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "59962b6e04cf90cf7ef5942b62664b7c40adafd3"
-   },
-   "cbsa-xfrfun-generated": {
-    "coverage": [
-     27,
-     28,
-     45,
-     81
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgacdb01": {
-    "coverage": [
-     4,
-     4,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgacdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     13,
-     14
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgacdb02": {
-    "coverage": [
-     3,
-     3,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgacdb02-generated": {
-    "coverage": [
-     3,
-     3,
-     10,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgacus01": {
-    "coverage": [
-     3,
-     3,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgacus01-generated": {
-    "coverage": [
-     3,
-     3,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
+   "cbsa-xfrfun": [
+    27,
+    28,
+    78,
+    81
+   ],
+   "cbsa-xfrfun-generated": [
+    27,
+    28,
+    45,
+    81
+   ],
+   "genapp-lgacdb01": [
+    4,
+    4,
+    13,
+    14
+   ],
+   "genapp-lgacdb01-generated": [
+    4,
+    4,
+    13,
+    14
+   ],
+   "genapp-lgacdb02": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacdb02-generated": [
+    3,
+    3,
+    10,
+    10
+   ],
+   "genapp-lgacus01": [
+    3,
+    3,
+    4,
+    8
+   ],
+   "genapp-lgacus01-generated": [
+    3,
+    3,
+    4,
+    8
+   ],
    "genapp-lgacvs01": [
     3,
     3,
     3,
     4
    ],
-   "genapp-lgapdb01": {
-    "coverage": [
-     7,
-     7,
-     23,
-     31
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgapdb01-generated": {
-    "coverage": [
-     7,
-     7,
-     23,
-     31
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgapol01": {
-    "coverage": [
-     2,
-     2,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgapol01-generated": {
-    "coverage": [
-     2,
-     2,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
+   "genapp-lgapdb01": [
+    7,
+    7,
+    23,
+    31
+   ],
+   "genapp-lgapdb01-generated": [
+    7,
+    7,
+    23,
+    31
+   ],
+   "genapp-lgapol01": [
+    2,
+    2,
+    5,
+    8
+   ],
+   "genapp-lgapol01-generated": [
+    2,
+    2,
+    5,
+    8
+   ],
    "genapp-lgapvs01": [
     3,
     3,
@@ -1303,116 +918,60 @@
     10,
     10
    ],
-   "genapp-lgdpdb01": {
-    "coverage": [
-     3,
-     3,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgdpdb01-generated": {
-    "coverage": [
-     3,
-     3,
-     12,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgdpol01": {
-    "coverage": [
-     3,
-     3,
-     8,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgdpol01-generated": {
-    "coverage": [
-     3,
-     3,
-     8,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
+   "genapp-lgdpdb01": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpdb01-generated": [
+    3,
+    3,
+    12,
+    12
+   ],
+   "genapp-lgdpol01": [
+    3,
+    3,
+    8,
+    12
+   ],
+   "genapp-lgdpol01-generated": [
+    3,
+    3,
+    8,
+    12
+   ],
    "genapp-lgdpvs01": [
     3,
     3,
     0,
     4
    ],
-   "genapp-lgicdb01": {
-    "coverage": [
-     3,
-     4,
-     4,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgicdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     11,
-     12
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgicus01": {
-    "coverage": [
-     4,
-     4,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgicus01-generated": {
-    "coverage": [
-     4,
-     4,
-     4,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
+   "genapp-lgicdb01": [
+    3,
+    4,
+    4,
+    12
+   ],
+   "genapp-lgicdb01-generated": [
+    4,
+    4,
+    11,
+    12
+   ],
+   "genapp-lgicus01": [
+    4,
+    4,
+    4,
+    8
+   ],
+   "genapp-lgicus01-generated": [
+    4,
+    4,
+    4,
+    8
+   ],
    "genapp-lgicvs01": [
     1,
     1,
@@ -1425,58 +984,30 @@
     12,
     12
    ],
-   "genapp-lgipdb01": {
-    "coverage": [
-     12,
-     12,
-     74,
-     74
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgipdb01-generated": {
-    "coverage": [
-     12,
-     12,
-     55,
-     74
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgipol01": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgipol01-generated": {
-    "coverage": [
-     2,
-     2,
-     3,
-     6
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
+   "genapp-lgipdb01": [
+    12,
+    12,
+    74,
+    74
+   ],
+   "genapp-lgipdb01-generated": [
+    12,
+    12,
+    55,
+    74
+   ],
+   "genapp-lgipol01": [
+    2,
+    2,
+    3,
+    6
+   ],
+   "genapp-lgipol01-generated": [
+    2,
+    2,
+    3,
+    6
+   ],
    "genapp-lgipvs01": [
     1,
     1,
@@ -1501,181 +1032,90 @@
     3,
     6
    ],
-   "genapp-lgtestc1": {
-    "coverage": [
-     9,
-     10,
-     16,
-     18
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgtestp1": {
-    "coverage": [
-     7,
-     10,
-     14,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgtestp2": {
-    "coverage": [
-     7,
-     10,
-     14,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgtestp3": {
-    "coverage": [
-     7,
-     10,
-     14,
-     19
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgtestp4": {
-    "coverage": [
-     7,
-     9,
-     18,
-     22
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgucdb01": {
-    "coverage": [
-     4,
-     4,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgucdb01-generated": {
-    "coverage": [
-     4,
-     4,
-     9,
-     10
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgucus01": {
-    "coverage": [
-     4,
-     4,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgucus01-generated": {
-    "coverage": [
-     4,
-     4,
-     5,
-     8
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
+   "genapp-lgtestc1": [
+    9,
+    10,
+    16,
+    18
+   ],
+   "genapp-lgtestp1": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp2": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp3": [
+    7,
+    10,
+    14,
+    19
+   ],
+   "genapp-lgtestp4": [
+    7,
+    9,
+    18,
+    22
+   ],
+   "genapp-lgucdb01": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucdb01-generated": [
+    4,
+    4,
+    9,
+    10
+   ],
+   "genapp-lgucus01": [
+    4,
+    4,
+    5,
+    8
+   ],
+   "genapp-lgucus01-generated": [
+    4,
+    4,
+    5,
+    8
+   ],
    "genapp-lgucvs01": [
     3,
     3,
     3,
     4
    ],
-   "genapp-lgupdb01": {
-    "coverage": [
-     9,
-     9,
-     26,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgupdb01-generated": {
-    "coverage": [
-     9,
-     9,
-     29,
-     38
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgupol01": {
-    "coverage": [
-     4,
-     4,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
-   "genapp-lgupol01-generated": {
-    "coverage": [
-     4,
-     4,
-     13,
-     16
-    ],
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde"
-   },
+   "genapp-lgupdb01": [
+    9,
+    9,
+    26,
+    38
+   ],
+   "genapp-lgupdb01-generated": [
+    9,
+    9,
+    29,
+    38
+   ],
+   "genapp-lgupol01": [
+    4,
+    4,
+    13,
+    16
+   ],
+   "genapp-lgupol01-generated": [
+    4,
+    4,
+    13,
+    16
+   ],
    "genapp-lgupvs01": [
     3,
     3,
@@ -2741,12 +2181,8 @@
     "status": "shown equal, unapproved"
    },
    "carddemo-copaus1c": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "carddemo-dailyval": {
     "stale": [],
@@ -2821,52 +2257,32 @@
     "status": "shown equal, unapproved"
    },
    "cbsa-inqacc": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "cbsa-updacc": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "genapp-lgapdb01": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "genapp-lgapvs01": {
     "stale": [],
     "status": "shown equal, unapproved"
    },
    "genapp-lgicdb01": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "genapp-lgstsq": {
     "stale": [],
     "status": "shown equal, unapproved"
    },
    "genapp-lgupdb01": {
-    "stale": [
-     "harness",
-     "oracle",
-     "generator"
-    ],
-    "status": "stale"
+    "stale": [],
+    "status": "shown equal, unapproved"
    },
    "genapp-lgupvs01": {
     "stale": [],
@@ -2876,10 +2292,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "7407b34dfc35d3d9d0940d2ca0019e308e84dac5",
+   "sha": "7bdf81d93571b645aaed0179a552fd7ea265dec0",
    "translator": {
     "files": 145,
-    "sha256": "0c70a8c95e1df57e2c60b4169f2b1db33d0cf170f0f219652642641da8783374"
+    "sha256": "1ae921bf866731e15d611b5207b71c2b09a2669c2f70469d37d3a9b61de286f0"
    }
   },
   "sweeps": {}
@@ -3117,7 +2533,7 @@
      "covered": 48,
      "total": 48
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -3127,11 +2543,8 @@
      "live": 15
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "04a605c41ec1b5f2d599d94ac501398c2138564c",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -3165,19 +2578,15 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+       "oracle_image": "sha256:db807d3975740b6f10fba470e3017857cbeddda1ff0c97da93b943ffcbd6d94c",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
        "runs": 35,
        "scenarios": 35,
        "scenarios_equal": 35,
-       "stale_inputs": [
-        "harness",
-        "oracle",
-        "generator"
-       ],
-       "status_at_build": "stale",
+       "stale_inputs": [],
+       "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
       },
       "role": "program"
@@ -3211,26 +2620,22 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+      "oracle_image": "sha256:db807d3975740b6f10fba470e3017857cbeddda1ff0c97da93b943ffcbd6d94c",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
       "runs": 35,
       "scenarios": 35,
       "scenarios_equal": 35,
-      "stale_inputs": [
-       "harness",
-       "oracle",
-       "generator"
-      ],
-      "status_at_build": "stale",
+      "stale_inputs": [],
+      "status_at_build": "shown equal, unapproved",
       "verdict": "all equal"
      },
      "role": "program"
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -3646,11 +3051,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "04a605c41ec1b5f2d599d94ac501398c2138564c",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -3695,7 +3097,7 @@
      "covered": 6,
      "total": 6
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -3705,11 +3107,8 @@
      "live": 2
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -3743,19 +3142,15 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+       "oracle_image": "sha256:db807d3975740b6f10fba470e3017857cbeddda1ff0c97da93b943ffcbd6d94c",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
        "runs": 35,
        "scenarios": 35,
        "scenarios_equal": 35,
-       "stale_inputs": [
-        "harness",
-        "oracle",
-        "generator"
-       ],
-       "status_at_build": "stale",
+       "stale_inputs": [],
+       "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
       },
       "role": "linked"
@@ -3796,7 +3191,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -4093,11 +3488,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -4879,7 +4271,7 @@
      "covered": 16,
      "total": 16
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "0001-OPEN-FILES:84:false",
      "10031-INSERT-DB:151:none",
@@ -4931,11 +4323,8 @@
      "live": 9
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -4977,7 +4366,7 @@
     }
    },
    "level": "L4",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -5148,11 +4537,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "28734a013e294b3a60b9d42c48375c826e01abde",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -15506,17 +14892,24 @@
    "level_current": true,
    "mutation": {
     "accounted": 0,
-    "current": true,
-    "det_port": "raw 56% (81/144 caught; 150 of 1484 mutants, seed 0); 63 of 63 survivors unaccounted",
+    "current": false,
+    "det_port": "stale (port moved), last measured: raw 56% (81/144 caught; 150 of 1484 mutants, seed 0); 63 of 63 survivors unaccounted",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
     "killed": 81,
     "l5": false,
     "score": 0.5625,
-    "stale_inputs": [],
+    "stale_inputs": [
+     "port"
+    ],
     "survived": 63,
     "unaccounted": 63
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 56% (81/144 caught; 150 of 1484 mutants, seed 0); 63 of 63 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 56% (81/144 caught; 150 of 1484 mutants, seed 0); 63 of 63 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -17339,17 +16732,24 @@
    "level_current": true,
    "mutation": {
     "accounted": 33,
-    "current": true,
-    "det_port": "raw 64% (91/143 caught; 150 of 1229 mutants, seed 0); 19 of 52 survivors unaccounted",
+    "current": false,
+    "det_port": "stale (port moved), last measured: raw 64% (91/143 caught; 150 of 1229 mutants, seed 0); 19 of 52 survivors unaccounted",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
     "killed": 91,
     "l5": false,
     "score": 0.6364,
-    "stale_inputs": [],
+    "stale_inputs": [
+     "port"
+    ],
     "survived": 52,
     "unaccounted": 19
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 64% (91/143 caught; 150 of 1229 mutants, seed 0); 19 of 52 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 64% (91/143 caught; 150 of 1229 mutants, seed 0); 19 of 52 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -18519,17 +17919,24 @@
    "level_current": true,
    "mutation": {
     "accounted": 49,
-    "current": true,
-    "det_port": "raw 57% (81/143 caught; 150 of 1317 mutants, seed 0); 13 of 62 survivors unaccounted",
+    "current": false,
+    "det_port": "stale (port moved), last measured: raw 57% (81/143 caught; 150 of 1317 mutants, seed 0); 13 of 62 survivors unaccounted",
+    "drifted": [
+     "generator",
+     "harness",
+     "oracle"
+    ],
     "killed": 81,
     "l5": false,
     "score": 0.5664,
-    "stale_inputs": [],
+    "stale_inputs": [
+     "port"
+    ],
     "survived": 62,
     "unaccounted": 13
    },
    "next": [
-    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: raw 57% (81/143 caught; 150 of 1317 mutants, seed 0); 13 of 62 survivors unaccounted)"
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: stale (port moved), last measured: raw 57% (81/143 caught; 150 of 1317 mutants, seed 0); 13 of 62 survivors unaccounted)"
    ],
    "options": {
     "assumed": 6,
@@ -18974,14 +18381,14 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 96.9,
-    "branch_pct": 89.9,
+    "branch_net_pct": 98.4,
+    "branch_pct": 91.3,
     "branches": {
-     "covered": 62,
+     "covered": 63,
      "total": 69
     },
     "branches_net": {
-     "covered": 62,
+     "covered": 63,
      "total": 64
     },
     "current": true,
@@ -19055,7 +18462,7 @@
     "cases": [
      {
       "case": "carddemo-copaua0c",
-      "case_scenarios": 22,
+      "case_scenarios": 25,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -19064,7 +18471,7 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 62,
+         "covered": 63,
          "total": 69
         },
         "paragraphs": {
@@ -19077,25 +18484,24 @@
          "line 700 EVALUATE WHEN@709 (6000-MAKE-DECISION)",
          "line 700 EVALUATE WHEN@711 (6000-MAKE-DECISION)",
          "line 700 EVALUATE WHEN@713 (6000-MAKE-DECISION)",
-         "line 700 EVALUATE OTHER (6000-MAKE-DECISION)",
-         "line 963 IF false (9100-CLOSE-REQUEST-QUEUE)"
+         "line 700 EVALUATE OTHER (6000-MAKE-DECISION)"
         ]
        },
        "db2": false,
        "facade": {
-        "passed": 22,
-        "runs": 22
+        "passed": 25,
+        "runs": 25
        },
        "fault_runs": 7,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+       "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
        "oracle_matches_pin": true,
-       "records_compared": 211,
-       "records_equal": 211,
-       "runs": 22,
-       "scenarios": 22,
-       "scenarios_equal": 22,
+       "records_compared": 236,
+       "records_equal": 236,
+       "runs": 25,
+       "scenarios": 25,
+       "scenarios_equal": 25,
        "stale_inputs": [],
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
@@ -19105,7 +18511,7 @@
     ],
     "chosen": {
      "case": "carddemo-copaua0c",
-     "case_scenarios": 22,
+     "case_scenarios": 25,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -19114,7 +18520,7 @@
      "record": {
       "coverage": {
        "branches": {
-        "covered": 62,
+        "covered": 63,
         "total": 69
        },
        "paragraphs": {
@@ -19127,25 +18533,24 @@
         "line 700 EVALUATE WHEN@709 (6000-MAKE-DECISION)",
         "line 700 EVALUATE WHEN@711 (6000-MAKE-DECISION)",
         "line 700 EVALUATE WHEN@713 (6000-MAKE-DECISION)",
-        "line 700 EVALUATE OTHER (6000-MAKE-DECISION)",
-        "line 963 IF false (9100-CLOSE-REQUEST-QUEUE)"
+        "line 700 EVALUATE OTHER (6000-MAKE-DECISION)"
        ]
       },
       "db2": false,
       "facade": {
-       "passed": 22,
-       "runs": 22
+       "passed": 25,
+       "runs": 25
       },
       "fault_runs": 7,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+      "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
       "oracle_matches_pin": true,
-      "records_compared": 211,
-      "records_equal": 211,
-      "runs": 22,
-      "scenarios": 22,
-      "scenarios_equal": 22,
+      "records_compared": 236,
+      "records_equal": 236,
+      "runs": 25,
+      "scenarios": 25,
+      "scenarios_equal": 25,
       "stale_inputs": [],
       "status_at_build": "shown equal, unapproved",
       "verdict": "all equal"
@@ -19162,7 +18567,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 89.9 raw, 96.9 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 91.3 raw, 98.4 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 6,
@@ -19497,7 +18902,7 @@
      "X27",
      "X46"
     ],
-    "branch_outcomes_unrun": 7,
+    "branch_outcomes_unrun": 6,
     "commands": 7,
     "commands_backed": 2,
     "commands_not_backed": [
@@ -20173,7 +19578,7 @@
      "covered": 196,
      "total": 230
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
@@ -20183,11 +19588,8 @@
      "live": 59
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "a2d7805e5db024a85b0be1f4a9f8e92e9d82685c",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -20229,7 +19631,7 @@
     }
    },
    "level": "L3",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -20694,11 +20096,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "a2d7805e5db024a85b0be1f4a9f8e92e9d82685c",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -20761,7 +20160,7 @@
      "covered": 139,
      "total": 140
     },
-    "current": false,
+    "current": true,
     "infeasible_netted": [
      "0001-CHECK-PFKEYS:605:false",
      "1200-EDIT-MAP-INPUTS:701:true",
@@ -21033,11 +20432,8 @@
      "live": 63
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [
-     "harness",
-     "oracle"
-    ],
-    "stale_since": "92375b0e730d1e600e03e5f14bf43a460e74c938",
+    "stale_inputs": [],
+    "stale_since": null,
     "uncovered_branches": [],
     "uncovered_paragraphs": "not recorded"
    },
@@ -21068,7 +20464,7 @@
     }
    },
    "level": "L3",
-   "level_current": false,
+   "level_current": true,
    "mutation": {
     "current": false,
     "det_port": "not measured (no det_mutation/ entry)",
@@ -21568,11 +20964,8 @@
     "paragraphs_unrun": 0,
     "refused": null
    },
-   "stale_inputs": [
-    "harness",
-    "oracle"
-   ],
-   "stale_since": "92375b0e730d1e600e03e5f14bf43a460e74c938",
+   "stale_inputs": [],
+   "stale_since": null,
    "survey_stale": false,
    "translation": {
     "gap_classes": [],
@@ -24635,8 +24028,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 7407b34dfc35d3d9d0940d2ca0019e308e84dac5",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 7407b34dfc35d3d9d0940d2ca0019e308e84dac5",
+   "python tests/tools/cics_census.py survey --baseline --sha 7bdf81d93571b645aaed0179a552fd7ea265dec0",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 7bdf81d93571b645aaed0179a552fd7ea265dec0",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -24653,7 +24046,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+   "sha256:db807d3975740b6f10fba470e3017857cbeddda1ff0c97da93b943ffcbd6d94c",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
    "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
   ],
@@ -24662,13 +24055,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census)",
-   "sha": "7407b34dfc35d3d9d0940d2ca0019e308e84dac5",
+   "sha": "7bdf81d93571b645aaed0179a552fd7ea265dec0",
    "translator": {
     "files": 145,
-    "sha256": "0c70a8c95e1df57e2c60b4169f2b1db33d0cf170f0f219652642641da8783374"
+    "sha256": "1ae921bf866731e15d611b5207b71c2b09a2669c2f70469d37d3a9b61de286f0"
    }
   },
-  "translator_commit": "7407b34dfc35d3d9d0940d2ca0019e308e84dac5",
+  "translator_commit": "7bdf81d93571b645aaed0179a552fd7ea265dec0",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -24686,8 +24079,8 @@
    "L0": 0,
    "L1": 0,
    "L2": 0,
-   "L3": 2,
-   "L4": 3,
+   "L3": 0,
+   "L4": 0,
    "L5": 0
   },
   "histogram_stale_survey": {
@@ -24699,10 +24092,10 @@
    "L5": 0
   },
   "holes": 10,
-  "levels_stale": 5,
+  "levels_stale": 0,
   "levels_stale_survey": 0,
   "programs": 44,
-  "records_current": 27,
+  "records_current": 28,
   "refused_whole": 0,
   "source_unread": 0,
   "translated_whole": 42,
@@ -24711,6 +24104,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "0c70a8c95e1df57e2c60b4169f2b1db33d0cf170f0f219652642641da8783374"
+  "fingerprint": "1ae921bf866731e15d611b5207b71c2b09a2669c2f70469d37d3a9b61de286f0"
  }
 }

@@ -4725,6 +4725,14 @@ def _link_as_compared(e: dict[str, Any]) -> dict[str, Any]:
     return e
 
 
+_STATE_EVENTS = frozenset({"COMMAREA", "CONTAINERS", "DLI-DBS", "MQ-QUEUES"})  # end-state snapshots, not commands
+
+
+def executed_commands(events: list[dict[str, Any]]) -> list[str]:
+    """#5229: the distinct stub verbs the COBOL task executed (the oracle side, before any judging mask), sorted."""
+    return sorted({e["event"] for e in events if e.get("event") and e["event"] not in _STATE_EVENTS})
+
+
 def linked_result(case: dict[str, Any], events: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """A LINKed program's events (`"linked": true` in the case): its result is the COMMAREA it leaves in its caller's
     storage, compared as a last COMMAREA event -- unless the task abended (no caller sees it then). Any other
@@ -5229,7 +5237,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     ok = True
     for name, res in cobol.items():
         clock = [0]  # the clock fields masked in this scenario (a case's "clock_fields")
-        cev = mask_clock_events(case, linked_result(case, cobol_events(res)), clock)
+        ran = cobol_events(res)
+        cev = mask_clock_events(case, linked_result(case, ran), clock)
         jev = mask_clock_events(case, linked_result(case, java.get(name, [])), clock)
         sc = next(x for x in case["scenarios"] if x["name"] == name)
         if sc.get("prefix_link"):  # #4173: a fault task that LINKs to a program the case does not run -- both
@@ -5241,6 +5250,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                                    "cobol": cev, "java": jev,
                                    **({"not_compared": d["not_compared"]} if d.get("not_compared") else {})}  # fmt: skip
+        if executed_commands(ran):  # #5229: only when non-empty (python-test-traps.md)
+            report["outputs"][name]["commands"] = executed_commands(ran)
         ok &= d["equal"] == d["events"]
         if case.get("sysout", True) and not (sc.get("prefix_link") or x6 or sc.get("prefix_x6")):
             # #4635: the task's DISPLAY output, as batch proofs compare SYSOUT (#4056); a task judged up to a point

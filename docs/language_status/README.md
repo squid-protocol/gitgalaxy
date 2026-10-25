@@ -170,6 +170,7 @@ in `gitgalaxy/standards/language_standards/languages/<lang>.py`, and the test co
 | **[yacc](yacc.md)** | production | standard_block | **written** (§9 via tri-comparison sweep) |
 | yaml | production | line_exclusive | not written |
 | zig | production | line_exclusive | not written |
+| **[zscript](zscript.md)** | production | standard_block | **written** (#5535) |
 
 ## Data formats (out of scope for a full doc)
 

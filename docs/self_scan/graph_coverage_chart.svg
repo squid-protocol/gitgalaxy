@@ -17,7 +17,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="1244" height="1146"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 26, callee names 23, call resolution 8, hubs 25 of 65 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 26, callee names 23, call resolution 8, hubs 26 of 65 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -221,11 +221,11 @@
 <text class="n" x="1240" y="257">repos=1</text>
 </g>
 <text class="lang" x="22" y="297.0">fortran</text>
-<g><title>fortran imports: precision 92.9% of 294, recall 44.4% of 635 (raw 92.9% / 44.4%; 5 shapes without a verdict); corpus fortran-lang/fpm</title>
+<g><title>fortran imports: precision 93.2% of 294, recall 44.4% of 635 (raw 92.9% / 44.4%; 1 shapes without a verdict); corpus fortran-lang/fpm</title>
 <text class="pr" x="120" y="290.5">Precision</text>
 <rect class="track" x="166" y="283" width="110" height="8" rx="2"/>
-<rect x="166" y="283" width="102.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="291">92.9%*</text>
+<rect x="166" y="283" width="102.5" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="291">93.2%</text>
 <text class="pr" x="120" y="302.5">Recall</text>
 <rect class="track" x="166" y="295" width="110" height="8" rx="2"/>
 <rect x="166" y="295" width="48.8" height="8" rx="2" fill="#eda100"/>
@@ -296,15 +296,15 @@
 <text class="n" x="1240" y="325">repos=2</text>
 </g>
 <text class="lang" x="22" y="365.0">groovy</text>
-<g><title>groovy imports: precision 99.3% of 1,071, recall 96.3% of 1,105 (raw 99.3% / 96.3%; 3 shapes without a verdict); corpus spockframework/spock</title>
+<g><title>groovy imports: precision 99.3% of 1,071, recall 96.3% of 1,105; corpus spockframework/spock</title>
 <text class="pr" x="120" y="358.5">Precision</text>
 <rect class="track" x="166" y="351" width="110" height="8" rx="2"/>
 <rect x="166" y="351" width="109.2" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="359">99.3%*</text>
+<text class="val" x="281" y="359">99.3%</text>
 <text class="pr" x="120" y="370.5">Recall</text>
 <rect class="track" x="166" y="363" width="110" height="8" rx="2"/>
 <rect x="166" y="363" width="105.9" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="371">96.3%*</text>
+<text class="val" x="281" y="371">96.3%</text>
 <text class="n" x="324" y="359">n=1,105 imports</text>
 <text class="n" x="324" y="371">repos 1 · files 586</text>
 </g>
@@ -907,15 +907,17 @@
 <text class="n" x="1240" y="869">repos=1</text>
 </g>
 <text class="lang" x="22" y="909.0">swift</text>
-<g><title>swift imports: precision - of 0, recall - of 0; corpus apple/swift-argument-parser; small n</title>
+<g><title>swift imports: precision 85.3% of 348, recall 65.3% of 510 (raw 85.3% / 65.3%; 5 shapes without a verdict); corpus apple/swift-argument-parser, swiftlang/swift-package-manager</title>
 <text class="pr" x="120" y="902.5">Precision</text>
 <rect class="track" x="166" y="895" width="110" height="8" rx="2"/>
-<text class="val" x="281" y="903">-</text>
+<rect x="166" y="895" width="93.8" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="903">85.3%*</text>
 <text class="pr" x="120" y="914.5">Recall</text>
 <rect class="track" x="166" y="907" width="110" height="8" rx="2"/>
-<text class="val" x="281" y="915">-</text>
-<text class="n" x="324" y="903">n=0 imports</text>
-<text class="n" x="324" y="915">repos 1 · files 170</text>
+<rect x="166" y="907" width="71.8" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="915">65.3%*</text>
+<text class="n" x="324" y="903">n=510 imports</text>
+<text class="n" x="324" y="915">repos 2 · files 2,019</text>
 </g>
 <g><title>swift callee names: precision 99.0% of 305, recall 79.7% of 379 (raw 99.0% / 79.7%; 4 shapes without a verdict)</title>
 <text class="pr" x="426" y="902.5">Precision</text>
@@ -930,10 +932,20 @@
 <text class="n" x="630" y="915">functions 132</text>
 </g>
 <text class="none" x="732" y="908.0">not measured</text>
-<text class="none" x="1038" y="908.0">not measured</text>
+<g><title>swift hubs: 50% / -0.25 (repos=1, small n) (overlap@10 / Spearman)</title>
+<text class="pr" x="1038" y="902.5">overlap@10</text>
+<rect class="track" x="1090" y="895" width="110" height="8" rx="2"/>
+<rect x="1090" y="895" width="55.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
+<text class="val" x="1205" y="903">50%</text>
+<text class="pr" x="1038" y="914.5">Spearman</text>
+<rect class="track" x="1090" y="907" width="110" height="8" rx="2"/>
+<rect x="1090" y="907" width="2.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
+<text class="val" x="1205" y="915">-0.25</text>
+<text class="n" x="1240" y="903">repos=1</text>
+</g>
 <rect class="stripe" x="16" y="922" width="1212" height="34"/>
 <text class="lang" x="22" y="943.0">tcl</text>
-<g><title>tcl imports: precision 100.0% of 33, recall 4.4% of 804 (raw 100.0% / 4.4%; 4 shapes without a verdict); corpus tcltk/tcllib</title>
+<g><title>tcl imports: precision 100.0% of 33, recall 4.4% of 804 (raw 100.0% / 4.4%; 1 shapes without a verdict); corpus tcltk/tcllib</title>
 <text class="pr" x="120" y="936.5">Precision</text>
 <rect class="track" x="166" y="929" width="110" height="8" rx="2"/>
 <rect x="166" y="929" width="110.0" height="8" rx="2" fill="#4a3aa7"/>

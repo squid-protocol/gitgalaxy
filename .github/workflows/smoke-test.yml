@@ -436,7 +436,10 @@ jobs:
   full-suite-durations:
     name: store the suite's durations
     needs: [shard-plan, full-suite-part]
-    if: github.event_name == 'schedule' && success()
+    # #5133 slice 8: not a bare success(): that is false when ANY ancestor in the needs chain was skipped, and the push-only
+    # `tested-tree` (an ancestor through full-suite-part) is skipped on a schedule run, so the green nightly of 2026-10-25
+    # (run 40179743618) skipped this job and stored no cache.
+    if: ${{ !cancelled() && github.event_name == 'schedule' && needs.full-suite-part.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

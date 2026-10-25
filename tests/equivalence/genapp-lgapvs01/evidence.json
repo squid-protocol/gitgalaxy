@@ -27,7 +27,7 @@
     "tests/equivalence/genapp-lgapvs01/**"
    ],
    "files": 2,
-   "sha256": "c1aff333d24556ed4107573400b38eb757b8d75707693559ee5f9b92da626ff8"
+   "sha256": "64f0943e1913a306eaedaa9fea3ad601465966ed121c1f3bb7b112b067cda18a"
   },
   "harness": {
    "paths": [
@@ -51,10 +51,10 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "58b1c152306e8656d19fb54f74fc894ec6133acaff623a046dbc41bf715c9e74",
+   "sha256": "2b246f46213acaf7e976e62db8a01965e388c7800e52ab830b90542f7b416206",
    "components": {
     "harness:cics": "8f42c9a8a942481bc0640f1bdf01424c1737345b1aa6f93dc1a7ad80702b2ef4",
-    "harness:core": "f00bb08a7824c25d62122ae00c61891b37e44294e33f7a73dad22eae74961c2f"
+    "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99"
    }
   },
   "oracle": {
@@ -70,11 +70,11 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 45,
-   "sha256": "0514e5278b3ee5c2ecc1bea81310ac2415c67fb097a14dc1f9de2d7f72d04d59",
+   "sha256": "05c4459ba8702d90cd37672c04ef201183236729111d1defdc4729711817071f",
    "components": {
     "oracle:cics-stub": "51cd8ed5f2e11cd4742311993fcc8e5f739cba767936a86d0bce6400523555d0",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
-    "oracle:le": "4fec0fd2411f43c866dc95cbc9e40f5caf30ad88dd1f430b47625c41da044764"
+    "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
    }
   },
   "generator": {
@@ -237,10 +237,10 @@
    },
    "runtime_sha256": "95d95b29ee402f9e60e387bd556e5076af66d0bd4c4f549241f603b4f4c3cc89"
   },
-  "digest": "81402f5a74c46132a1d6f12236ca87a039f284883f5f09b3be68697001a79471"
+  "digest": "ba9e7fc122408b269f5391f0cecb77a6cd3d927a955ef876c287b0589a35f5e5"
  },
  "proof": {
-  "at": "2026-10-25T07:46:52Z",
+  "at": "2026-10-25T08:42:53Z",
   "verdict": "proven",
   "runs": 13,
   "fault_runs": 4,
@@ -348,8 +348,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "1736419084faa8f342d4f60e68ed63dbef62a691+uncommitted",
-  "inputs_digest": "81402f5a74c46132a1d6f12236ca87a039f284883f5f09b3be68697001a79471"
+  "harness_commit": "79afbfacd6b84c63a7d6df6fa9ee7786a0289616+uncommitted",
+  "inputs_digest": "ba9e7fc122408b269f5391f0cecb77a6cd3d927a955ef876c287b0589a35f5e5"
  },
  "coverage": {
   "paragraphs": {
@@ -373,7 +373,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "81402f5a74c46132a1d6f12236ca87a039f284883f5f09b3be68697001a79471"
+  "inputs_digest": "ba9e7fc122408b269f5391f0cecb77a6cd3d927a955ef876c287b0589a35f5e5"
  },
  "reach": {
   "entry_points": [
@@ -639,7 +639,7 @@
    },
    {
     "path": "tests/equivalence/le/le_time.c",
-    "sha256": "073fe9a311428333bc4e3521bf841c1ba8ac1135aa45c3ecef18f810da393d77"
+    "sha256": "5d710d14456328c2f1b3f4e9cbdb4eb08ca210dd0462199fc1be46f1333bfc47"
    },
    {
     "path": "tests/equivalence/le/mvswait.c",

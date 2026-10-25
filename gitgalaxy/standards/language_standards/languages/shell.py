@@ -398,7 +398,7 @@ DEFINITION: dict[str, Any] = {
             # Therefore, we explicitly branch: `source` gets a word boundary `\b`,
             # and `.` gets a positive lookahead for whitespace `(?=[ \t])`.
             # =====================================================================
-            r"(?:^|[;|&(`]|\b(?:then|else|do|if|elif|until|while)[ \t])[ \t]*(?:source[ \t]+|\.[ \t]+)['\"]?([^'\"\s;]+)['\"]?",  # #2875 C5
+            r"(?:^|[;|&(`]|\b(?:then|else|do|if|elif|until|while)[ \t])[ \t]*(?:source[ \t]+|\.[ \t]+)['\"]?(\$[^'\"\s;]*(?:['\"][^'\"\s;]+)?|[^'\"\s;]+)['\"]?",  # #2875 C5; #3798 `"$OSH"/tools/x.sh` keeps its literal tail
             re.M,
         ),
         # 25. ownership (Authorship Metadata)

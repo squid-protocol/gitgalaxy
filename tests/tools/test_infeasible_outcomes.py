@@ -160,7 +160,7 @@ def test_the_planner_proves_the_case_whose_file_changed():
 
 
 def test_genapp_vsam_no_commarea_outcomes_are_stated_where_the_proof_leaves_only_them():
-    """#5252: lgacvs01 / lgdpvs01 / lgucvs01 leave only WRITE-ERROR-MESSAGE's `IF EIBCALEN > 0` false (a COMMAREA-less call, X23)."""
+    """#5252: lgacvs01 / lgdpvs01 / lgucvs01 / lgapvs01 / lgupvs01 leave only WRITE-ERROR-MESSAGE's `IF EIBCALEN > 0` false (a COMMAREA-less call, X23)."""
     ledger = io.load()
     for case, line in (("genapp-lgacvs01", 106), ("genapp-lgdpvs01", 117), ("genapp-lgucvs01", 121)):
         (e,) = ledger[case]
@@ -168,6 +168,12 @@ def test_genapp_vsam_no_commarea_outcomes_are_stated_where_the_proof_leaves_only
         assert "X23" in e["reason"] and "LENGTH(" in e["reason"]
         uncovered = [{"line": line, "outcome": "false"}]
         assert io.adjust(case, (3, 3, 3, 4), uncovered, ledger)[0] == (3, 3, 3, 3)
+    for case, line in (("genapp-lgapvs01", 173), ("genapp-lgupvs01", 191)):
+        (e,) = ledger[case]
+        assert (e["unit"], e["line"], e["kind"], e["outcome"]) == ("WRITE-ERROR-MESSAGE", line, "IF", "false")
+        assert "X23" in e["reason"] and "LENGTH(" in e["reason"]
+        uncovered = [{"line": line, "outcome": "false"}]
+        assert io.adjust(case, (3, 3, 8, 9), uncovered, ledger)[0] == (3, 3, 8, 8)
 
 
 def test_genapp_lgdpvs01_proof_stops_at_the_first_link_of_write_error_message():

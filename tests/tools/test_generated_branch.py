@@ -341,3 +341,34 @@ def test_no_workflow_pushes_generated_with_a_bare_git_push():
         if re.search(r"git push[^\n]*:(refs/heads/)?generated\b", _code(p.name))
     ]
     assert not offenders, f"use generated_branch.py publish / push-head: {offenders}"
+
+
+def _publish_dirs_and_checkouts(name):
+    """(job, directory the publish runs in, that directory's checkout step) for each publish step of a workflow."""
+    code = _code(name)
+    found = []
+    for job in re.split(r"\n(?=  [\w-]+:\n)", code):
+        steps = re.split(r"\n(?=      - )", job)
+        checkouts = {}
+        for step in steps:
+            if "actions/checkout@" in step:
+                m = re.search(r"^\s+path:\s*(\S+)", step, re.M)
+                checkouts[m.group(1) if m else "."] = step
+        for step in steps:
+            if "generated_branch.py publish" in step:
+                cd = re.search(r"^\s*(?:\(\s*)?cd\s+(\S+)", step, re.M)
+                d = cd.group(1) if cd else "."
+                found.append((job.split(":", 1)[0].strip(), d, checkouts.get(d)))
+    return found
+
+
+@pytest.mark.parametrize(
+    "name",
+    sorted(p.name for p in WORKFLOWS.glob("*.yml") if "generated_branch.py publish" in p.read_text(encoding="utf-8")),
+)
+def test_a_publish_step_pushes_from_a_checkout_that_kept_its_credentials(name):
+    """#6555: publish-blockers ran the harness publish from a `persist-credentials: false` checkout; every push
+    failed with 'could not read Username'. The checkout of the directory a publish runs in must persist them."""
+    for job, d, step in _publish_dirs_and_checkouts(name):
+        assert step is not None, f"{name}:{job} publishes from {d!r}, which no checkout step populates"
+        assert re.search(r"persist-credentials:\s*true", step), f"{name}:{job} publishes from {d!r} without credentials"

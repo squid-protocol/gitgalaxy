@@ -90,7 +90,10 @@ RESOLUTION RULES (the language's, never the engine's)
               two hops). `extern crate x` -> x's lib root.
   perl        `use A::B` / `require A::B` -> a file ending in A/B.pm.
   objective-c the C rule (`#import` is `#include` once); `@import Module;` is a
-              framework module, external.
+              framework module, external. `<Fw/X.h>` with no such path in the repo, where Fw is a
+              framework the repo builds (a `Fw.xcodeproj`, a `Fw.podspec`, a podspec's
+              `header_dir` / `module_name`), is the files ending in X.h: the framework's headers
+              are flattened (Objective-C++ `.mm` files included, same rule).
   dart        `package:p/x.dart` -> <p's pubspec.yaml directory>/lib/x.dart for a
               package in the repo, else external; `dart:` is the SDK; any other
               URI (import, export, part, part of) is relative to the file.
@@ -438,10 +441,41 @@ def c_imports(lang: str) -> Callable[[bytes, str, Group], list[set[str]]]:
                     local = group.exact(posixpath.join(posixpath.dirname(rel), spec))
                     out.append(local or group.suffix(spec))
                 elif c.type == "system_lib_string":
-                    out.append(group.suffix(_text(c, src).strip("<> ")))
+                    spec = _text(c, src).strip("<> ")
+                    found = group.suffix(spec)
+                    if not found and lang == "objc":
+                        found = _objc_framework_header(spec, group)
+                    out.append(found)
         return out
 
     return imports
+
+
+def _objc_frameworks(group: Group) -> set[str]:
+    """Framework names the repo itself builds: `Name.xcodeproj`, `Name.podspec`, a podspec's header_dir / module_name."""
+    if "objc_fw" not in group._cache:
+        names: set[str] = set()
+        for f in group.files:
+            stem, ext = posixpath.splitext(posixpath.basename(f))
+            if ext == ".podspec" and group.root is not None:
+                names.add(stem)
+                text = read_source(group.root / f).text
+                names.update(
+                    m.group(1) for m in re.finditer(r"\b(?:header_dir|module_name)\s*=\s*['\"]([^'\"]+)['\"]", text)
+                )
+        for d in group.by_dir:
+            for part in d.split("/"):
+                if part.endswith(".xcodeproj"):
+                    names.add(part[: -len(".xcodeproj")])
+        group._cache["objc_fw"] = names
+    return group._cache["objc_fw"]
+
+
+def _objc_framework_header(spec: str, group: Group) -> set[str]:
+    """`<Fw/X.h>` where Fw is a framework this repo builds: its headers are flattened into the framework, so X.h is
+    found by its own path tail wherever the source tree keeps it (a CocoaPods header_dir or an Xcode header map)."""
+    fw, _, rest = spec.partition("/")
+    return group.suffix(rest) if rest and fw in _objc_frameworks(group) else set()
 
 
 def java_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:

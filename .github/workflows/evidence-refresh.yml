@@ -1464,7 +1464,7 @@ jobs:
         with:
           path: main
           ref: ${{ needs.refresh.outputs.sha }}
-          persist-credentials: false
+          persist-credentials: true  # the harness step pushes to `generated` from this checkout; no PR code runs here
 
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -1574,12 +1574,16 @@ jobs:
         if: github.ref == 'refs/heads/main'
         env:
           SHA: ${{ needs.refresh.outputs.sha }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           src="$RUNNER_TEMP/blockers-survey/harness"
           [ -f "$src/harness_report.md" ] || { echo "::warning title=Harness report::the refresh job built no harness report"; exit 0; }
           mkdir -p main/docs/language_status/harness
           cp "$src/harness_report.md" "$src/harness_report.json" main/docs/language_status/harness/
           cd main
+          # `main` was checked out with persist-credentials: false (the first run on 2026-10-24 died with "could not read
+          # Username", run 40136742662): hand this one step the job token, for the push only (main-only step, no PR code)
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           python tests/tools/generated_branch.py publish --stamp harness-report \
             --message "harness report as of main $SHA" \
             docs/language_status/harness

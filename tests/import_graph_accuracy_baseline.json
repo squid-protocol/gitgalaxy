@@ -155,17 +155,17 @@
     "repos": "luarocks/luarocks"
   },
   "objective-c": {
-    "engine_edges": 682,
-    "files": 263,
-    "fn": 0,
+    "engine_edges": 2756,
+    "files": 1105,
+    "fn": 10,
     "fp": 0,
     "hub_overlap_at_10": 1.0,
-    "hub_repos": 1,
-    "hub_spearman": 0.988,
-    "imports": 683,
+    "hub_repos": 2,
+    "hub_spearman": 0.994,
+    "imports": 2767,
     "precision_pct": 100.0,
-    "recall_pct": 100.0,
-    "repos": "SDWebImage/SDWebImage"
+    "recall_pct": 99.6,
+    "repos": "SDWebImage/SDWebImage, TextureGroup/Texture"
   },
   "perl": {
     "engine_edges": 47,

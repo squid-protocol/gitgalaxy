@@ -392,3 +392,26 @@ def test_write_run_coverage_measures_the_linked_programs_over_the_same_trace(tmp
     assert "error" in s["linked"]["BAD"]  # unmeasurable: recorded as unknown, the run goes on
     assert "linked" not in cov.write_run_coverage(out, source=tmp_path / "MAINP.cbl", original=main, compiled=None,
                                                   traces=[t], compiled_name="MAINP.cbl")  # fmt: skip
+
+
+def test_a_case_run_reads_branches_against_the_staged_text_not_the_original(tmp_path):
+    """#6072: the harness stages a lowered program (the PSA -> TCB -> TIOT walk, A2) with lines added before its IFs;
+    the trace names the staged text's lines, so the line map must be built from that text (CBSTM03A read 0/46)."""
+    import equivalence
+
+    corpus, run = tmp_path / "corpus", tmp_path / "run"
+    (run / "src").mkdir(parents=True)
+    corpus.mkdir()
+    (corpus / "t.cbl").write_text(PROGRAM, encoding="latin-1")
+    lowered = PROGRAM.replace("    IF X = 1\n", '    CALL "GGSTUB"\n    CALL "GGSTUB"\n    IF X = 1\n', 1)
+    (run / "src" / "PROGRAM.cbl").write_text(lowered, encoding="latin-1")
+    shifted = TRACE.decode().replace("Line:      9", "Line:     11").replace("Line:     10", "Line:     12")
+    for n in range(14, 24):  # every later line moves down by the two inserted
+        shifted = shifted.replace(f"Line:     {n}\n", f"Line:     {n + 2}\n")
+    trace = run / "trace.txt"
+    trace.write_text(shifted.replace("Source: 'T.cbl'", "Source: 'src/PROGRAM.cbl'"), encoding="latin-1")
+    out = tmp_path / "coverage.json"
+    got = equivalence.cobol_coverage({"program_source": "t.cbl", "program": "T"}, corpus, [trace], out)
+    assert got is not None
+    unlowered = cov.run_coverage(corpus / "t.cbl", PROGRAM, PROGRAM, [trace], "PROGRAM.cbl", None, "latin-1")
+    assert got["branches"]["covered"] > unlowered["branches"]["covered"] == 0

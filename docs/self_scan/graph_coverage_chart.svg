@@ -559,17 +559,17 @@
 </g>
 <rect class="stripe" x="16" y="582" width="1212" height="34"/>
 <text class="lang" x="22" y="603.0">perl</text>
-<g><title>perl imports: precision 97.9% of 47, recall 100.0% of 49 (raw 97.9% / 100.0%; 1 shapes without a verdict); corpus libwww-perl/HTTP-Message; small n</title>
+<g><title>perl imports: precision 98.7% of 395, recall 99.2% of 397 (raw 98.7% / 99.2%; 2 shapes without a verdict); corpus libwww-perl/HTTP-Message, plack/Plack</title>
 <text class="pr" x="120" y="596.5">Precision</text>
 <rect class="track" x="166" y="589" width="110" height="8" rx="2"/>
-<rect x="166" y="589" width="107.7" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="281" y="597">97.9%*</text>
+<rect x="166" y="589" width="108.6" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="597">98.7%*</text>
 <text class="pr" x="120" y="608.5">Recall</text>
 <rect class="track" x="166" y="601" width="110" height="8" rx="2"/>
-<rect x="166" y="601" width="110.0" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="281" y="609">100.0%</text>
-<text class="n" x="324" y="597">n=49 imports</text>
-<text class="n" x="324" y="609">repos 1 · files 33</text>
+<rect x="166" y="601" width="109.1" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="609">99.2%*</text>
+<text class="n" x="324" y="597">n=397 imports</text>
+<text class="n" x="324" y="609">repos 2 · files 269</text>
 </g>
 <g><title>perl callee names: precision 96.9% of 4,629, recall 96.6% of 4,544 (raw 94.4% / 96.2%; 33 shapes without a verdict)</title>
 <text class="pr" x="426" y="596.5">Precision</text>
@@ -584,16 +584,16 @@
 <text class="n" x="630" y="609">functions 943</text>
 </g>
 <text class="none" x="732" y="602.0">not measured</text>
-<g><title>perl hubs: 100% / 0.97 (repos=1, small n) (overlap@10 / Spearman)</title>
+<g><title>perl hubs: 95% / 0.99 (repos=2) (overlap@10 / Spearman)</title>
 <text class="pr" x="1038" y="596.5">overlap@10</text>
 <rect class="track" x="1090" y="589" width="110" height="8" rx="2"/>
-<rect x="1090" y="589" width="110.0" height="8" rx="2" fill="#4a3aa7" opacity="0.35"/>
-<text class="val" x="1205" y="597">100%</text>
+<rect x="1090" y="589" width="104.5" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="1205" y="597">95%</text>
 <text class="pr" x="1038" y="608.5">Spearman</text>
 <rect class="track" x="1090" y="601" width="110" height="8" rx="2"/>
-<rect x="1090" y="601" width="106.3" height="8" rx="2" fill="#eda100" opacity="0.35"/>
-<text class="val" x="1205" y="609">0.97</text>
-<text class="n" x="1240" y="597">repos=1</text>
+<rect x="1090" y="601" width="109.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="1205" y="609">0.99</text>
+<text class="n" x="1240" y="597">repos=2</text>
 </g>
 <text class="lang" x="22" y="637.0">php</text>
 <g><title>php imports: precision 99.2% of 380, recall 100.0% of 390 (raw 99.2% / 100.0%; 1 shapes without a verdict); corpus guzzle/guzzle</title>

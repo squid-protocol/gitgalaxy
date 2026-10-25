@@ -236,6 +236,29 @@ def test_a_failing_test_main_did_not_touch_or_the_pr_edited_stays_real():
     assert cd.digest(7, edited, lambda i: STALE_LOG)["failed"][0]["triage"] == "real"
 
 
+def _source_stale(pr_files, main_files=("gitgalaxy/core/detector.py",)):
+    api = fake_api([run(1, "full-suite part 1/3", "failure")], main_files=list(main_files), pr_files=list(pr_files))
+    return cd.digest(7, api, lambda i: STALE_LOG)["failed"][0]
+
+
+def test_a_pr_that_cannot_move_the_tests_is_stale_when_main_fixed_source_only():  # #5276
+    for files in (["docs/a.md"], [".github/workflows/x.yml"], ["tests/other/test_o.py"]):
+        f = _source_stale(files)
+        assert f["triage"] == "main" and "engine source" in f["repro"] and "git merge origin/main" in f["repro"]
+
+
+def test_source_stale_stays_real_when_the_pr_could_have_caused_it():  # #5276
+    for files in (["gitgalaxy/z.py"], ["tests/core_engine/test_other.py"], ["tests/conftest.py"],
+                  ["tests/fixtures/a.json"], ["docs/a.md", "gitgalaxy/z.py"]):  # fmt: skip
+        assert _source_stale(files)["triage"] == "real", files
+    assert _source_stale(["docs/a.md"], main_files=["docs/b.md", "tests/x/test_q.py"])["triage"] == "real"
+
+
+def test_source_stale_with_an_unreadable_pr_file_list_stays_real():  # #5276
+    assert cd.stale_by_source(None, {"gitgalaxy/a.py"}, ["tests/x/test_a.py::t"]) is False
+    assert cd.stale_by_source({"docs/a.md"}, {"gitgalaxy/a.py"}, ["tests/x/test_a.py::t"]) is True
+
+
 def test_real_failures_still_triage_real():
     """No change to how real failures are triaged (#5273): a failed test, a det case, a lint error, a big overage."""
     assert cd.triage("failure", PYTEST_LOG, ["tests/x.py::test_y"]) == "real"

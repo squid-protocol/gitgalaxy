@@ -30,8 +30,36 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}  # a later merge must not cancel the run that checks the earlier one
 
 jobs:
+  # #4935 / #5129: a main push run is skipped when the PR run of this same workflow already proved the same tree green
+  # (tests/tools/skip_tested_tree.py); the gate runs on a push only, so a PR starts `plan` without waiting on it. A skipped
+  # gate leaves `skip` empty and `plan` runs.
+  tested-tree:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    outputs:
+      skip: ${{ steps.decide.outputs.skip }}
+    steps:
+      - name: Checkout the gate script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: tests/tools/skip_tested_tree.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Decide
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tests/tools/skip_tested_tree.py equivalence-e2e.yml
+
   plan:
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    needs: tested-tree
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -82,8 +110,8 @@ jobs:
 
   shard:
     name: shard ${{ matrix.group }}/4
-    needs: plan
-    if: ${{ needs.plan.outputs.mode == 'run' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104
+    needs: [tested-tree, plan]
+    if: ${{ needs.plan.outputs.mode == 'run' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.plan.result == 'success') }}  # #5104
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
@@ -203,8 +231,8 @@ jobs:
   # and a pool of three databases, one per xdist worker: the rows file alone is ~34 min serial (50 proofs of ~45 s), so the
   # three run in parallel and Db2's start is paid once, not per shard. The pinned image is restored from det-sweep.yml's cache entry (main saves it).
   db2:
-    needs: plan
-    if: ${{ needs.plan.outputs.mode == 'run' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104
+    needs: [tested-tree, plan]
+    if: ${{ needs.plan.outputs.mode == 'run' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.plan.result == 'success') }}  # #5104
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
@@ -340,7 +368,7 @@ jobs:
 
   # The check to read (and to require, if the owner wants it): a plan of `none` is a pass by plan, never by absence of a shard.
   equivalence-e2e:
-    needs: [plan, shard, db2]
+    needs: [tested-tree, plan, shard, db2]
     if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -352,6 +380,7 @@ jobs:
         env:
           PLAN: ${{ needs.plan.outputs.mode }}
           PLAN_RESULT: ${{ needs.plan.result }}
+          SKIP: ${{ needs.tested-tree.outputs.skip }}
           SHARDS: ${{ needs.shard.result }}
           DB2: ${{ needs.db2.result }}
           GH_TOKEN: ${{ github.token }}
@@ -369,5 +398,7 @@ jobs:
           print("".join(f"| {n} | {float(s):.0f} |\n" for n, s in rows), end="")
           print(f"\n**{total / 60:.1f} runner-minutes** across {len(rows)} job(s)")
           PY
+          # #4935: a tree the PR run of this workflow proved green: the gate skipped the plan and every job after it
+          if [ "$SKIP" = "true" ]; then test "$PLAN_RESULT" = "skipped" && test "$SHARDS" = "skipped" && test "$DB2" = "skipped"; exit; fi
           test "$PLAN_RESULT" = "success"
           if [ "$PLAN" = "none" ]; then test "$SHARDS" = "skipped" && test "$DB2" = "skipped"; else test "$SHARDS" = "success" && test "$DB2" = "success"; fi

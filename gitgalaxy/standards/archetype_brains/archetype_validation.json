@@ -111,6 +111,22 @@
         "file": "UNVALIDATED",
         "function": "VALIDATED"
       }
+    },
+    {
+      "agreement": {
+        "composition_file": 0.9703,
+        "composition_repo": null,
+        "file": null,
+        "function": 0.9803
+      },
+      "date": "2026-10-25",
+      "engine_commit": "553e936d",
+      "state": {
+        "composition_file": "DEGRADED",
+        "composition_repo": "INVALID",
+        "file": "UNVALIDATED",
+        "function": "VALIDATED"
+      }
     }
   ],
   "levels": {
@@ -159,12 +175,17 @@
       "inherits": "composition_file"
     },
     "file": {
-      "agreement": 0.9853,
+      "agreement": 0.985,
       "eroding": {
         "file_cluster_13": {
           "files": 76,
           "mostly_to": "file_cluster_15",
           "retained": 0.9737
+        },
+        "file_cluster_15": {
+          "files": 285,
+          "mostly_to": "file_cluster_10",
+          "retained": 0.9789
         },
         "file_cluster_6": {
           "files": 55,
@@ -206,8 +227,8 @@
   "measured": {
     "corpus": "language-crucible@v1.7.0",
     "coverage": 0.9873,
-    "engine_commit": "c85b4481",
-    "measured_at": "2026-10-24"
+    "engine_commit": "553e936d",
+    "measured_at": "2026-10-25"
   },
   "retrain_issue": 4111,
   "schema": 1,

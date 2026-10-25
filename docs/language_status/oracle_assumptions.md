@@ -4252,6 +4252,10 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   detail the pins cannot show is the MOVE's padding on the Java side (`Cobol.move` into the X(8) field).
 - **So a proof says:** a case's program that reads EIBDS sees the file it last named, on both sides. It does NOT say
   anything about EIBFN / EIBRCODE / the rest, which stay gaps.
+- **Re-checked 2026-10-25 (#5126, origin/main fc4484eb9).** Same result: the guard (`test_eib_fn_rcode_5126.py`) passes,
+  ZECS001 is the only burned reader of the seven fields, it translates with holes and has no case, and IBM's verbatim
+  function-code and condition tables are still not at hand. The `ASSIGN FACILITY` wording above is current (#5346
+  aligned the stub and the det port). Nothing was modelled: EIBFN / EIBRCODE stay `fact:` gaps by name.
 
 ### X65. The EXEC CICS commands refused whole by name, by class, with the reason for each (#4270)
 - **What this entry is.** #4270's last acceptance line: "every still-refused verb listed in the register with a reason". The spec

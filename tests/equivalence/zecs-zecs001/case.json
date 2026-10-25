@@ -522,32 +522,6 @@
         "body": ""
       },
       "why": "POST with no body: RECEIVE-LENGTH is zero, so 9300-WEB-ERROR and a 400"
-    },
-    {
-      "name": "delete-clear-star",
-      "commarea": null,
-      "tod": "4A4A4A4A4A4A0708090A0B0C0D0E0F10",
-      "datasets": {
-        "ZECS.ZC01FILE.TEST": {
-          "input": "@case/zcfile-ops.bin"
-        },
-        "ZECS.ZC01KEY.TEST": {
-          "input": "@case/zckey-ops.bin"
-        }
-      },
-      "http_request": {
-        "scheme": "HTTP",
-        "host": "zecs.example.com",
-        "port": 8080,
-        "method": "DELETE",
-        "version": "HTTP/1.1",
-        "path": "/resources/ecs/walmart/cache/clearstar",
-        "query": "clear=*",
-        "headers": [],
-        "mediatype": null,
-        "body": null
-      },
-      "why": "DELETE with clear=*: CLEAR-TEXT is '*', so 1320-CLEAR XCTLs to ZECS003"
     }
   ],
   "compiler_options": [

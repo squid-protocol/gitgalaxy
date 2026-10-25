@@ -52,9 +52,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "5c6a45c8494ae94210d478a7876ea38fd4acc7ceebf50b60ff58c8e607eb058d",
+   "sha256": "8e3e00f2309ded81b723db7a5f9b6aabc56e5607555d6f86a3241d71131b1ddb",
    "components": {
-    "harness:cics": "c8082a866bea929927c4bbf75c3899a9093156caa484ecaebef7df5c6f63ad5b",
+    "harness:cics": "868a00b4715c47c4349274595075f4c3556edcb9f4a88102b2b09238b05777d3",
     "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99",
     "harness:db2": "df4cefe238f828f2233ef1ae1b7c77c21265c7f5ab3af61e753544d50120cd66"
    }
@@ -241,10 +241,10 @@
    },
    "runtime_sha256": "95d95b29ee402f9e60e387bd556e5076af66d0bd4c4f549241f603b4f4c3cc89"
   },
-  "digest": "505486e0c91f237b48f933710d43d61ea721fe23af74e9167274fde4189d05e3"
+  "digest": "d6d5afbefe9fd63871afc2188fc5badbc261af5c81f9454cbd85081b3b158d9f"
  },
  "proof": {
-  "at": "2026-10-25T18:55:45Z",
+  "at": "2026-10-25T22:13:14Z",
   "verdict": "not-proven",
   "runs": 15,
   "fault_runs": 5,
@@ -252,31 +252,64 @@
   "outputs": {
    "update-endowment": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
    },
    "update-house": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
    },
    "update-motor": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
    },
    "stale-lastchanged": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
    },
    "house-request-for-endowment": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN"
+    ]
    },
    "no-commarea": {
     "equal": 3,
-    "records": 5
+    "records": 5,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ]
    },
    "policy-not-found": {
     "equal": 10,
     "records": 10,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
     "assumes": "X6",
     "x6_padded": [
      "WRITEQ TD",
@@ -288,6 +321,13 @@
    "unknown-request-id": {
     "equal": 10,
     "records": 10,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
     "assumes": "X6",
     "x6_padded": [
      "WRITEQ TD",
@@ -298,11 +338,20 @@
    },
    "endowment-request-for-house": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN"
+    ]
    },
    "motor-request-for-endowment": {
     "equal": 6,
     "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
     "assumes": "X6",
     "x6_padded": [
      "WRITEQ TD",
@@ -311,11 +360,20 @@
    },
    "motor-update-no-row": {
     "equal": 0,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN"
+    ]
    },
    "open-cursor-fails": {
     "equal": 0,
     "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
     "assumes": "X6",
     "x6_padded": [
      "WRITEQ TD",
@@ -324,11 +382,20 @@
    },
    "close-cursor-fails-501": {
     "equal": 0,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN"
+    ]
    },
    "close-cursor-fails-other": {
     "equal": 0,
     "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
     "assumes": "X6",
     "x6_padded": [
      "WRITEQ TD",
@@ -338,6 +405,12 @@
    "short-commarea-open-fails": {
     "equal": 0,
     "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
     "assumes": "X6",
     "x6_padded": [
      "WRITEQ TD",
@@ -388,8 +461,8 @@
    ],
    "error": null
   },
-  "harness_commit": "b81909002975bdc276d13a6e687b22efe93dbead+uncommitted",
-  "inputs_digest": "505486e0c91f237b48f933710d43d61ea721fe23af74e9167274fde4189d05e3"
+  "harness_commit": "0637c27c5228d1139595a4ac9b5420a2fbcc4db9+uncommitted",
+  "inputs_digest": "d6d5afbefe9fd63871afc2188fc5badbc261af5c81f9454cbd85081b3b158d9f"
  },
  "coverage": {
   "paragraphs": {
@@ -437,7 +510,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "505486e0c91f237b48f933710d43d61ea721fe23af74e9167274fde4189d05e3"
+  "inputs_digest": "d6d5afbefe9fd63871afc2188fc5badbc261af5c81f9454cbd85081b3b158d9f"
  },
  "reach": {
   "entry_points": [
@@ -754,7 +827,7 @@
   "provenance_file": {
    "path": "tests/equivalence/genapp-lgupdb01/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "2b1024e7d148b652ae6c4e6ae19e45404b05caa9116f886e3f6da8e68eb5440e"
+   "sha256": "0e863d3c8a4656d4b7016f1215a81afd00b1e46238746c39801ceff1b488832f"
   }
  },
  "approvals": []

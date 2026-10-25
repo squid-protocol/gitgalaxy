@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 91,
+ "scenarios": 94,
  "paragraphs": {
   "covered": 33,
   "live": 33
  },
  "branches": {
-  "covered": 119,
+  "covered": 122,
   "total": 143
  },
  "linked": {
@@ -76,7 +76,7 @@
     "live": 37
    },
    "branches": {
-    "covered": 40,
+    "covered": 41,
     "total": 74
    }
   }
@@ -89,7 +89,6 @@
    "415:true",
    "415:false",
    "604:false",
-   "606:WHEN@616",
    "899:true",
    "905:WHEN@906",
    "905:WHEN@909",
@@ -99,8 +98,6 @@
    "905:WHEN@921",
    "905:WHEN@924",
    "905:none",
-   "984:true",
-   "1060:true",
    "1134:true",
    "1363:true",
    "1373:true",
@@ -110,7 +107,7 @@
   ]
  },
  "inputs": {
-  "case": "5aea9a7d74965bf42ce3341b3fbb369b853a671d3769ef94cb01e3cf29b20306",
+  "case": "1c2323486e960de0a8983fbbc7c69a2a59fb264a583df9dfd99ed248c8b50c10",
   "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
   "harness": "5c6a45c8494ae94210d478a7876ea38fd4acc7ceebf50b60ff58c8e607eb058d",
   "oracle": "7e57488c79c77a09bd66129bc3cc144ac3a66e074a3acc9f05f277b1f41caa82",
@@ -129,5 +126,5 @@
    }
   }
  },
- "measured_at": "45cf55326e65444c67dc70ccc729ab524736b677"
+ "measured_at": "0748108b665b50d39887a7dc994fffa1b18aa896"
 }

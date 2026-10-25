@@ -19,6 +19,22 @@
       "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('ODAC') COMMAREA(WS-COMM-AREA) LENGTH(102)` (294-298): RETURN never comes back on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for it with a 102-byte COMMAREA and an installed TRANSID."
     },
     {
+      "unit": "DAD010",
+      "line": 745,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "DELACC sets fail code '2' on no path: its 'N' returns carry only '1' (not found) and '3' (delete error), so the test of 'N' with fail code '2' is never true."
+    },
+    {
+      "unit": "DAD010",
+      "line": 769,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "The catch-all 'N' test after the fail-code '1' and '3' arms: DELACC sets 'N' only with fail code '1' or '3', both handled by the earlier IFs, so a remaining 'N' never arrives."
+    },
+    {
       "unit": "SM010",
       "line": 900,
       "kind": "IF",

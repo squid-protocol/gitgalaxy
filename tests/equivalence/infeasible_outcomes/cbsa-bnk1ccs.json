@@ -19,6 +19,86 @@
       "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OCCS') COMMAREA(WS-COMM-AREA) LENGTH(248)` (275-279): RETURN never comes back on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for it with a 248-byte COMMAREA and an installed TRANSID."
     },
     {
+      "unit": "ED010",
+      "line": 604,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "CUSTTITL > 0 follows the test at 590, which rejects CUSTTITL < 1 and GO TOs ED999."
+    },
+    {
+      "unit": "ED010",
+      "line": 899,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "Title (590), first name, surname, address line 1, DD, MM and YYYY lengths are each checked and rejected with GO TO ED999 earlier in ED010, so none of the seven length tests can be true here."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@906",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@909",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@912",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@915",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@918",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@921",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@924",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "none",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899)."
+    },
+    {
       "unit": "SM010",
       "line": 1363,
       "kind": "IF",

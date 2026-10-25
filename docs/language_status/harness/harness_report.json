@@ -1,0 +1,2669 @@
+{
+ "schema_version": "1.0",
+ "estate": "burned estates",
+ "scope": "programs with an EXEC CICS command",
+ "coverage": {
+  "programs": 103,
+  "with_case": 103,
+  "with_case_pct": 100.0,
+  "proven": 73,
+  "proven_pct": 70.9,
+  "paragraphs": {
+   "covered": 353,
+   "live": 357,
+   "pct": 98.9
+  },
+  "branches": {
+   "covered": 1070,
+   "total": 1171,
+   "pct": 91.4
+  },
+  "cases_measured": 24,
+  "cases": 97
+ },
+ "status_counts": {
+  "proven": 73,
+  "differs": 0,
+  "ran, coverage open": 28,
+  "couldn't run": 2,
+  "not attempted": 0
+ },
+ "programs": [
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+   "case": "carddemo-copaua0c",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 25
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+   "case": "carddemo-copaus0c",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 37
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+   "case": "carddemo-copaus1c",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 33
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+   "case": "carddemo-copaus2c",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 5
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+   "case": "carddemo-cotrtlic",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 60
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+   "case": "carddemo-cotrtupc",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 50
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/app-vsam-mq/cbl/COACCT01.cbl",
+   "case": "carddemo-coacct01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 10
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/app-vsam-mq/cbl/CODATE01.cbl",
+   "case": "carddemo-codate01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 9
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COACTVWC.cbl",
+   "case": "carddemo-acctview",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 37
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COADM01C.cbl",
+   "case": "carddemo-adminmenu",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 34
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COBIL00C.cbl",
+   "case": "carddemo-billpay",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 35
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COCRDLIC.cbl",
+   "case": "carddemo-cardlist",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 62
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COCRDSLC.cbl",
+   "case": "carddemo-cardview",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 25
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COCRDUPC.cbl",
+   "case": "carddemo-cardupdate",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 45
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COMEN01C.cbl",
+   "case": "carddemo-menu",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 18
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/CORPT00C.cbl",
+   "case": "carddemo-report",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 30
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COSGN00C.cbl",
+   "case": "carddemo-signon",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 22
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COTRN00C.cbl",
+   "case": "carddemo-tranlist",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 36
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COTRN01C.cbl",
+   "case": "carddemo-tranview",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 25
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COTRN02C.cbl",
+   "case": "carddemo-tranadd",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 78
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COUSR00C.cbl",
+   "case": "carddemo-userlist",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 72
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COUSR01C.cbl",
+   "case": "carddemo-useradd",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 25
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COUSR02C.cbl",
+   "case": "carddemo-userupd",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 32
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COUSR03C.cbl",
+   "case": "carddemo-userdel",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 32
+  },
+  {
+   "corpus": "cics-async-api-credit-card-application-example",
+   "program": "src/CRDTCHK.cbl",
+   "case": "asynccc-crdtchk",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 3
+  },
+  {
+   "corpus": "cics-async-api-credit-card-application-example",
+   "program": "src/CSSTATS2.cbl",
+   "case": "asynccc-csstats2",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 3
+  },
+  {
+   "corpus": "cics-async-api-credit-card-application-example",
+   "program": "src/CSSTATUS.cbl",
+   "case": "asynccc-csstatus",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 3
+  },
+  {
+   "corpus": "cics-async-api-credit-card-application-example",
+   "program": "src/GETADDR.cbl",
+   "case": "asynccc-getaddr",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 3
+  },
+  {
+   "corpus": "cics-async-api-credit-card-application-example",
+   "program": "src/GETNAME.cbl",
+   "case": "asynccc-getname",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 3
+  },
+  {
+   "corpus": "cics-async-api-credit-card-application-example",
+   "program": "src/GETPOL.cbl",
+   "case": "asynccc-getpol",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 1
+  },
+  {
+   "corpus": "cics-async-api-credit-card-application-example",
+   "program": "src/GETSPND.cbl",
+   "case": "asynccc-getspnd",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 1
+  },
+  {
+   "corpus": "cics-async-api-credit-card-application-example",
+   "program": "src/SEQPNT.cbl",
+   "case": "asynccc-seqpnt",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 4
+  },
+  {
+   "corpus": "cics-async-api-credit-card-application-example",
+   "program": "src/UPDCSDB.cbl",
+   "case": "asynccc-updcsdb",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 1
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/ABNDPROC.cbl",
+   "case": "cbsa-abndproc",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 8
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/ACCTCTRL.cbl",
+   "case": "cbsa-acctctrl",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 20
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/CRDTAGY1.cbl",
+   "case": "cbsa-crdtagy1",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 8
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/CRDTAGY2.cbl",
+   "case": "cbsa-crdtagy2",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 8
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/CRDTAGY3.cbl",
+   "case": "cbsa-crdtagy3",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 8
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/CRDTAGY4.cbl",
+   "case": "cbsa-crdtagy4",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 8
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/CRDTAGY5.cbl",
+   "case": "cbsa-crdtagy5",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 8
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/CREACC.cbl",
+   "case": "cbsa-bnk1cac",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 23
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/CRECUST.cbl",
+   "case": "cbsa-bnk1ccs",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 85
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/CUSTCTRL.cbl",
+   "case": "cbsa-custctrl",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 7
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/DELACC.cbl",
+   "case": "cbsa-delacc",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 11
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/GETCOMPY.cbl",
+   "case": "cbsa-getcompy",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 10
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/GETSCODE.cbl",
+   "case": "cbsa-getscode",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 11
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/UPDACC.cbl",
+   "case": "cbsa-updacc",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 27
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/UPDCUST.cbl",
+   "case": "cbsa-updcust",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 23
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgacdb01.cbl",
+   "case": "genapp-lgacus01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 5
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgacdb02.cbl",
+   "case": "genapp-lgacdb02",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 10
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgacvs01.cbl",
+   "case": "genapp-lgacvs01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 8
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgapvs01.cbl",
+   "case": "genapp-lgapvs01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 11
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgastat1.cbl",
+   "case": "genapp-lgastat1",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 8
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgdpdb01.cbl",
+   "case": "genapp-lgdpdb01-generated",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 18
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgdpol01.cbl",
+   "case": "genapp-lgdpol01-generated",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 18
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgdpvs01.cbl",
+   "case": "genapp-lgdpvs01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 8
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgicdb01.cbl",
+   "case": "genapp-lgicdb01-generated",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 22
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgicvs01.cbl",
+   "case": "genapp-lgicvs01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 9
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgipdb01.cbl",
+   "case": "genapp-lgipdb01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 47
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgipol01.cbl",
+   "case": "genapp-lgipol01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 10
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgipvs01.cbl",
+   "case": "genapp-lgipvs01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 5
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgsetup.cbl",
+   "case": "genapp-lgsetup",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 2
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgstsq.cbl",
+   "case": "genapp-lgstsq",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 7
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgucdb01.cbl",
+   "case": "genapp-lgucdb01-generated",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 21
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgucus01.cbl",
+   "case": "genapp-lgucus01-generated",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 20
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgucvs01.cbl",
+   "case": "genapp-lgucvs01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 10
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgupdb01.cbl",
+   "case": "genapp-lgupol01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 10
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgupol01.cbl",
+   "case": "genapp-lgupol01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 10
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgupvs01.cbl",
+   "case": "genapp-lgupvs01",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 10
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgwebst5.cbl",
+   "case": "genapp-lgwebst5",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 4
+  },
+  {
+   "corpus": "zecs",
+   "program": "Source/ECS001.cbl",
+   "case": "zecs-ecs001",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 23
+  },
+  {
+   "corpus": "zecs",
+   "program": "Source/ZECS003.cbl",
+   "case": "zecs-zecs003",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 17
+  },
+  {
+   "corpus": "zecs",
+   "program": "Source/ZECSPLT.cbl",
+   "case": "zecs-zecsplt",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 4
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/BNK1CRA.cbl",
+   "case": "cbsa-bnk1cra",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program DBCRFUN has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program DBCRFUN has live paragraphs no scenario runs": "16/22 paragraphs"
+   },
+   "tests": 28,
+   "blocker": "coverage: LINKed program DBCRFUN has live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/BNK1DAC.cbl",
+   "case": "cbsa-bnk1dac",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program INQACC has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program INQACC has live paragraphs no scenario runs": "16/25 paragraphs"
+   },
+   "tests": 17,
+   "blocker": "coverage: LINKed program INQACC has live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/BNK1TFN.cbl",
+   "case": "cbsa-bnk1tfn",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program XFRFUN has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program XFRFUN has live paragraphs no scenario runs": "27/28 paragraphs"
+   },
+   "tests": 40,
+   "blocker": "coverage: LINKed program XFRFUN has live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/BNK1UAC.cbl",
+   "case": "cbsa-bnk1uac",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program INQACC has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program INQACC has live paragraphs no scenario runs": "16/25 paragraphs"
+   },
+   "tests": 75,
+   "blocker": "coverage: LINKed program INQACC has live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/BNKMENU.cbl",
+   "case": "cbsa-bnkmenu",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: live paragraphs no scenario runs": "24/25 paragraphs"
+   },
+   "tests": 31,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/DBCRFUN.cbl",
+   "case": "cbsa-dbcrfun",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: live paragraphs no scenario runs": "21/22 paragraphs"
+   },
+   "tests": 29,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/INQACC.cbl",
+   "case": "cbsa-inqacc",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: live paragraphs no scenario runs": "22/25 paragraphs"
+   },
+   "tests": 14,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/INQACCCU.cbl",
+   "case": "cbsa-bnk1cac",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: live paragraphs no scenario runs": "16/22 paragraphs"
+   },
+   "tests": 23,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/INQCUST.cbl",
+   "case": "cbsa-inqcust",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: live paragraphs no scenario runs": "24/25 paragraphs"
+   },
+   "tests": 29,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/XFRFUN.cbl",
+   "case": "cbsa-xfrfun",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: live paragraphs no scenario runs": "27/28 paragraphs"
+   },
+   "tests": 43,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgacus01.cbl",
+   "case": "genapp-lgacus01",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs": "2/3 paragraphs"
+   },
+   "tests": 5,
+   "blocker": "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgapdb01.cbl",
+   "case": "genapp-lgapdb01",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs": "2/3 paragraphs"
+   },
+   "tests": 6,
+   "blocker": "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgapol01.cbl",
+   "case": "genapp-lgtestp1",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: live paragraphs no scenario runs": "1/2 paragraphs"
+   },
+   "tests": 15,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgicus01.cbl",
+   "case": "genapp-lgicus01",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs": "3/4 paragraphs"
+   },
+   "tests": 5,
+   "blocker": "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "dbb-mortgage-application",
+   "program": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+   "case": "mortgage-cmort",
+   "status": "couldn't run",
+   "gaps": [
+    "known unproven: #4803"
+   ],
+   "reasons": {
+    "known unproven: #4803": "EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, paragraph A300-TRY2, dead code: its PERFORM is commented out), refused by name because IBM does not document the bits of the power or of the result (oracle_assumptions.md C6). The payment's (1 + C) ** N (line 125) is no longer a hole since #5999: it translates through Hfp.power, an ASSUMED routine. The case's 15 scenarios run equal on both sides (runTask and java-facade) and the ENTER / WHEN OTHER scenarios stay on EPSMPMT's validation paths, but a program is not proven while a program it LINKs or CALLs has holes, whichever scenarios were written (owner decision 2026-10-11, mainframe-evidence-policy.md 4): the proof passes, the port stays unproven until that hole is closed, which is owner-held frontier work (#5867: it needs captured z/OS results, #4050)."
+   },
+   "tests": 15,
+   "blocker": "known unproven: #4803"
+  },
+  {
+   "corpus": "dbb-mortgage-application",
+   "program": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+   "case": "mortgage-mlist",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: live paragraphs no scenario runs": "5/6 paragraphs"
+   },
+   "tests": 9,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "zecs",
+   "program": "Source/ZECS000.cbl",
+   "case": "zecs-zecs000",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: live paragraphs no scenario runs": "34/38 paragraphs"
+   },
+   "tests": 13,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COACTUPC.cbl",
+   "case": "carddemo-acctupdate",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program CSUTLDTC has live paragraphs no scenario runs",
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program CSUTLDTC has live paragraphs no scenario runs": "0/2 paragraphs",
+    "coverage: live paragraphs no scenario runs": "90/95 paragraphs"
+   },
+   "tests": 138,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/BNK1CAC.cbl",
+   "case": "cbsa-bnk1cac",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program INQACCCU has live paragraphs no scenario runs",
+    "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program INQACCCU has live paragraphs no scenario runs": "16/22 paragraphs",
+    "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "13/25 paragraphs"
+   },
+   "tests": 23,
+   "blocker": "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/BNK1CCA.cbl",
+   "case": "cbsa-bnk1cca",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program INQACCCU has live paragraphs no scenario runs",
+    "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program INQACCCU has live paragraphs no scenario runs": "16/22 paragraphs",
+    "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "7/25 paragraphs"
+   },
+   "tests": 18,
+   "blocker": "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/BNK1DCS.cbl",
+   "case": "cbsa-bnk1dcs",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program INQCUST has live paragraphs no scenario runs",
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "7/25 paragraphs",
+    "coverage: live paragraphs no scenario runs": "46/51 paragraphs"
+   },
+   "tests": 22,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/DELCUS.cbl",
+   "case": "cbsa-delcus",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program INQACCCU has live paragraphs no scenario runs",
+    "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program INQACCCU has live paragraphs no scenario runs": "16/22 paragraphs",
+    "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "19/25 paragraphs"
+   },
+   "tests": 13,
+   "blocker": "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "zecs",
+   "program": "Source/ZECS001.cbl",
+   "case": "zecs-zecs001",
+   "status": "couldn't run",
+   "gaps": [
+    "coverage: live paragraphs no scenario runs",
+    "fact: EIBRCODE (no harness states it)"
+   ],
+   "reasons": {
+    "coverage: live paragraphs no scenario runs": "37/119 paragraphs",
+    "fact: EIBRCODE (no harness states it)": ""
+   },
+   "tests": 2,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/BNK1CCS.cbl",
+   "case": "cbsa-bnk1ccs",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program CRDTAGY1 has live paragraphs no scenario runs",
+    "coverage: LINKed program CRDTAGY2 has live paragraphs no scenario runs",
+    "coverage: LINKed program CRDTAGY3 has live paragraphs no scenario runs",
+    "coverage: LINKed program CRDTAGY4 has live paragraphs no scenario runs",
+    "coverage: LINKed program CRDTAGY5 has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program CRDTAGY1 has live paragraphs no scenario runs": "0/7 paragraphs",
+    "coverage: LINKed program CRDTAGY2 has live paragraphs no scenario runs": "0/7 paragraphs",
+    "coverage: LINKed program CRDTAGY3 has live paragraphs no scenario runs": "0/7 paragraphs",
+    "coverage: LINKed program CRDTAGY4 has live paragraphs no scenario runs": "0/7 paragraphs",
+    "coverage: LINKed program CRDTAGY5 has live paragraphs no scenario runs": "0/7 paragraphs"
+   },
+   "tests": 85,
+   "blocker": "coverage: LINKed program CRDTAGY1 has live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-async-api-credit-card-application-example",
+   "program": "src/ASYNCPNT.cbl",
+   "case": "asynccc-asyncpnt",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program CRDTCHK has live paragraphs no scenario runs",
+    "coverage: LINKed program CSSTATS2 has live paragraphs no scenario runs",
+    "coverage: LINKed program GETADDR has live paragraphs no scenario runs",
+    "coverage: LINKed program GETNAME has live paragraphs no scenario runs",
+    "coverage: LINKed program GETPOL has live paragraphs no scenario runs",
+    "coverage: LINKed program GETSPND has live paragraphs no scenario runs",
+    "coverage: LINKed program UPDCSDB has live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program CRDTCHK has live paragraphs no scenario runs": "0/1 paragraphs",
+    "coverage: LINKed program CSSTATS2 has live paragraphs no scenario runs": "0/1 paragraphs",
+    "coverage: LINKed program GETADDR has live paragraphs no scenario runs": "0/1 paragraphs",
+    "coverage: LINKed program GETNAME has live paragraphs no scenario runs": "0/1 paragraphs",
+    "coverage: LINKed program GETPOL has live paragraphs no scenario runs": "0/1 paragraphs",
+    "coverage: LINKed program GETSPND has live paragraphs no scenario runs": "0/1 paragraphs",
+    "coverage: LINKed program UPDCSDB has live paragraphs no scenario runs": "0/1 paragraphs"
+   },
+   "tests": 4,
+   "blocker": "coverage: LINKed program CRDTCHK has live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgtestc1.cbl",
+   "case": "genapp-lgtestc1",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program LGACUS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGICUS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUCUS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUCVS01 has live paragraphs no scenario runs",
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program LGACUS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs": "3/4 paragraphs",
+    "coverage: LINKed program LGICUS01 has live paragraphs no scenario runs": "3/4 paragraphs",
+    "coverage: LINKed program LGUCUS01 has live paragraphs no scenario runs": "3/4 paragraphs",
+    "coverage: LINKed program LGUCVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: live paragraphs no scenario runs": "9/10 paragraphs"
+   },
+   "tests": 14,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgtestp1.cbl",
+   "case": "genapp-lgtestp1",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs",
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs": "4/7 paragraphs",
+    "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs": "1/2 paragraphs",
+    "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs": "3/12 paragraphs",
+    "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs": "1/2 paragraphs",
+    "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs": "7/9 paragraphs",
+    "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs": "3/4 paragraphs",
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: live paragraphs no scenario runs": "7/10 paragraphs"
+   },
+   "tests": 15,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgtestp2.cbl",
+   "case": "genapp-lgtestp2",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs",
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs": "4/7 paragraphs",
+    "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs": "1/2 paragraphs",
+    "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs": "3/12 paragraphs",
+    "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs": "1/2 paragraphs",
+    "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs": "7/9 paragraphs",
+    "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs": "3/4 paragraphs",
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: live paragraphs no scenario runs": "7/10 paragraphs"
+   },
+   "tests": 15,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgtestp3.cbl",
+   "case": "genapp-lgtestp3",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs",
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs": "4/7 paragraphs",
+    "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs": "1/2 paragraphs",
+    "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs": "3/12 paragraphs",
+    "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs": "1/2 paragraphs",
+    "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs": "7/9 paragraphs",
+    "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs": "3/4 paragraphs",
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: live paragraphs no scenario runs": "7/10 paragraphs"
+   },
+   "tests": 15,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  },
+  {
+   "corpus": "cics-genapp",
+   "program": "base/src/lgtestp4.cbl",
+   "case": "genapp-lgtestp4",
+   "status": "ran, coverage open",
+   "gaps": [
+    "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs",
+    "coverage: live paragraphs no scenario runs"
+   ],
+   "reasons": {
+    "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs": "4/7 paragraphs",
+    "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs": "1/2 paragraphs",
+    "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs": "2/3 paragraphs",
+    "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs": "9/12 paragraphs",
+    "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs": "1/2 paragraphs",
+    "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs": "0/9 paragraphs",
+    "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs": "0/4 paragraphs",
+    "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs": "0/3 paragraphs",
+    "coverage: live paragraphs no scenario runs": "7/9 paragraphs"
+   },
+   "tests": 16,
+   "blocker": "coverage: live paragraphs no scenario runs"
+  }
+ ],
+ "inputs": {
+  "asynccc-asyncpnt": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 4
+  },
+  "asynccc-crdtchk": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 3
+  },
+  "asynccc-csstats2": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 3
+  },
+  "asynccc-csstatus": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 3
+  },
+  "asynccc-getaddr": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 3
+  },
+  "asynccc-getname": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 3
+  },
+  "asynccc-getpol": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 1
+  },
+  "asynccc-getspnd": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 1
+  },
+  "asynccc-seqpnt": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 4
+  },
+  "asynccc-updcsdb": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 1
+  },
+  "carddemo-acctupdate": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+    "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+    "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 138
+  },
+  "carddemo-acctview": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+    "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+    "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 37
+  },
+  "carddemo-adminmenu": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 34
+  },
+  "carddemo-billpay": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+    "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+    "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 35
+  },
+  "carddemo-cardlist": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 62
+  },
+  "carddemo-cardupdate": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 45
+  },
+  "carddemo-cardview": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 25
+  },
+  "carddemo-coacct01": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 10,
+   "non_vsam": [
+    "mq"
+   ]
+  },
+  "carddemo-codate01": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 9,
+   "non_vsam": [
+    "mq"
+   ]
+  },
+  "carddemo-copaua0c": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+    "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+    "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 25,
+   "non_vsam": [
+    "ims",
+    "mq"
+   ]
+  },
+  "carddemo-copaus0c": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+    "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+    "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 37,
+   "non_vsam": [
+    "ims"
+   ]
+  },
+  "carddemo-copaus1c": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 33,
+   "non_vsam": [
+    "db2",
+    "ims"
+   ]
+  },
+  "carddemo-copaus2c": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 5,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "carddemo-cotrtlic": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 60,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "carddemo-cotrtupc": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 50,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "carddemo-menu": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 18
+  },
+  "carddemo-report": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 30
+  },
+  "carddemo-signon": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 22
+  },
+  "carddemo-tranadd": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+    "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 78
+  },
+  "carddemo-tranlist": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 36
+  },
+  "carddemo-tranview": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 25
+  },
+  "carddemo-useradd": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 25
+  },
+  "carddemo-userdel": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 32
+  },
+  "carddemo-userlist": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 72
+  },
+  "carddemo-userupd": {
+   "generated": [],
+   "shipped": [
+    "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 32
+  },
+  "cbsa-abndproc": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 8
+  },
+  "cbsa-acctctrl": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 20,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-bnk1cac": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE",
+    "CBSA.CICSBSA.CUSTOMER"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 23,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-bnk1cca": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE",
+    "CBSA.CICSBSA.CUSTOMER"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 18,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-bnk1ccs": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE",
+    "CBSA.CICSBSA.CUSTOMER"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 85,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-bnk1cra": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 28,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-bnk1dac": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 17,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-bnk1dcs": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE",
+    "CBSA.CICSBSA.CUSTOMER"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 22
+  },
+  "cbsa-bnk1tfn": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 40,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-bnk1uac": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 75,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-bnkmenu": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 31
+  },
+  "cbsa-crdtagy1": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 8
+  },
+  "cbsa-crdtagy2": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 8
+  },
+  "cbsa-crdtagy3": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 8
+  },
+  "cbsa-crdtagy4": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 8
+  },
+  "cbsa-crdtagy5": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 8
+  },
+  "cbsa-custctrl": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.CUSTOMER"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 7,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-dbcrfun": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 29,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-delacc": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 11,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-delcus": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE",
+    "CBSA.CICSBSA.CUSTOMER"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 13,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-getcompy": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 10
+  },
+  "cbsa-getscode": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 11
+  },
+  "cbsa-inqacc": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 14,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-inqcust": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE",
+    "CBSA.CICSBSA.CUSTOMER"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 29
+  },
+  "cbsa-updacc": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 27,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "cbsa-updcust": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.CUSTOMER"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 23
+  },
+  "cbsa-xfrfun": {
+   "generated": [],
+   "shipped": [
+    "CBSA.CICSBSA.ABNDFILE"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 43,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgacdb02": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 10,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgacus01": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSCUST"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 5,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgacvs01": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSCUST"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 8
+  },
+  "genapp-lgapdb01": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSPOLY"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 6,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgapvs01": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSPOLY"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 11
+  },
+  "genapp-lgastat1": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 8
+  },
+  "genapp-lgdpdb01-generated": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSPOLY"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 18,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgdpol01-generated": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSPOLY"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 18,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgdpvs01": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSPOLY"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 8
+  },
+  "genapp-lgicdb01-generated": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": true,
+   "tests": 22,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgicus01": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 5,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgicvs01": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSCUST"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 9
+  },
+  "genapp-lgipdb01": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 47,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgipol01": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 10,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgipvs01": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSPOLY"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 5
+  },
+  "genapp-lgsetup": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 2
+  },
+  "genapp-lgstsq": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 7
+  },
+  "genapp-lgtestc1": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSCUST"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 14,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgtestp1": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSPOLY"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 15,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgtestp2": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSPOLY"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 15,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgtestp3": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSPOLY"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 15,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgtestp4": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSPOLY"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 16,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgucdb01-generated": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSCUST"
+   ],
+   "skipped": [],
+   "scenarios_generated": true,
+   "tests": 21,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgucus01-generated": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSCUST"
+   ],
+   "skipped": [],
+   "scenarios_generated": true,
+   "tests": 20,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgucvs01": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSCUST"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 10
+  },
+  "genapp-lgupol01": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSPOLY"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 10,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "genapp-lgupvs01": {
+   "generated": [],
+   "shipped": [
+    "<USRHLQ>.GENAPP.KSDSPOLY"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 10
+  },
+  "genapp-lgwebst5": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 4
+  },
+  "mortgage-cmort": {
+   "generated": [],
+   "shipped": [
+    "EPSMORTF"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 15,
+   "non_vsam": [
+    "db2"
+   ]
+  },
+  "mortgage-mlist": {
+   "generated": [],
+   "shipped": [
+    "EPSMORTF"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 9
+  },
+  "zecs-ecs001": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 23
+  },
+  "zecs-zecs000": {
+   "generated": [],
+   "shipped": [
+    "ZECS.ZC01FILE.TEST",
+    "ZECS.ZC01KEY.TEST",
+    "ZECS.ZCEXPIRE.TEST"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 13
+  },
+  "zecs-zecs001": {
+   "generated": [],
+   "shipped": [
+    "ZECS.ZC01FILE.TEST",
+    "ZECS.ZC01KEY.TEST"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 2
+  },
+  "zecs-zecs003": {
+   "generated": [],
+   "shipped": [
+    "ZECS.ZC01FILE.TEST",
+    "ZECS.ZC01KEY.TEST"
+   ],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 17
+  },
+  "zecs-zecsplt": {
+   "generated": [],
+   "shipped": [],
+   "skipped": [],
+   "scenarios_generated": false,
+   "tests": 4
+  }
+ },
+ "blockers": [
+  {
+   "gap": "coverage: live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 17 programs: Source/ZECS000.cbl, Source/ZECS001.cbl, app/cbl/COACTUPC.cbl, base/src/lgapol01.cbl, base/src/lgtestc1.cbl, base/src/lgtestp1.cbl, base/src/lgtestp2.cbl, base/src/lgtestp3.cbl, base/src/lgtestp4.cbl, src/base/cobol_src/BNK1DCS.cbl, src/base/cobol_src/BNKMENU.cbl, src/base/cobol_src/DBCRFUN.cbl, src/base/cobol_src/INQACC.cbl, src/base/cobol_src/INQACCCU.cbl, src/base/cobol_src/INQCUST.cbl, src/base/cobol_src/XFRFUN.cbl, zBuilder/MortgageApplication/cobol/epsmlist.cbl (cases: carddemo-acctupdate, cbsa-bnk1cac, cbsa-bnk1dcs, cbsa-bnkmenu, cbsa-dbcrfun, cbsa-inqacc, cbsa-inqcust, cbsa-xfrfun, genapp-lgtestc1, genapp-lgtestp1, genapp-lgtestp2, genapp-lgtestp3, genapp-lgtestp4, mortgage-mlist, zecs-zecs000, zecs-zecs001).",
+   "programs": [
+    "Source/ZECS000.cbl",
+    "Source/ZECS001.cbl",
+    "app/cbl/COACTUPC.cbl",
+    "base/src/lgapol01.cbl",
+    "base/src/lgtestc1.cbl",
+    "base/src/lgtestp1.cbl",
+    "base/src/lgtestp2.cbl",
+    "base/src/lgtestp3.cbl",
+    "base/src/lgtestp4.cbl",
+    "src/base/cobol_src/BNK1DCS.cbl",
+    "src/base/cobol_src/BNKMENU.cbl",
+    "src/base/cobol_src/DBCRFUN.cbl",
+    "src/base/cobol_src/INQACC.cbl",
+    "src/base/cobol_src/INQACCCU.cbl",
+    "src/base/cobol_src/INQCUST.cbl",
+    "src/base/cobol_src/XFRFUN.cbl",
+    "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+   ],
+   "cases": [
+    "carddemo-acctupdate",
+    "cbsa-bnk1cac",
+    "cbsa-bnk1dcs",
+    "cbsa-bnkmenu",
+    "cbsa-dbcrfun",
+    "cbsa-inqacc",
+    "cbsa-inqcust",
+    "cbsa-xfrfun",
+    "genapp-lgtestc1",
+    "genapp-lgtestp1",
+    "genapp-lgtestp2",
+    "genapp-lgtestp3",
+    "genapp-lgtestp4",
+    "mortgage-mlist",
+    "zecs-zecs000",
+    "zecs-zecs001"
+   ],
+   "programs_unlocked": 9,
+   "tests_unlocked": 206,
+   "programs_also_blocked": [],
+   "then_needs": {
+    "app/cbl/COACTUPC.cbl": [
+     "coverage: LINKed program CSUTLDTC has live paragraphs no scenario runs"
+    ],
+    "src/base/cobol_src/BNK1DCS.cbl": [
+     "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
+    ],
+    "Source/ZECS001.cbl": [
+     "fact: EIBRCODE (no harness states it)"
+    ],
+    "base/src/lgtestc1.cbl": [
+     "coverage: LINKed program LGACUS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGICUS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUCUS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUCVS01 has live paragraphs no scenario runs"
+    ],
+    "base/src/lgtestp1.cbl": [
+     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
+    ],
+    "base/src/lgtestp2.cbl": [
+     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
+    ],
+    "base/src/lgtestp3.cbl": [
+     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
+    ],
+    "base/src/lgtestp4.cbl": [
+     "coverage: LINKed program LGAPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGAPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGDPVS01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGIPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPDB01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPOL01 has live paragraphs no scenario runs",
+     "coverage: LINKed program LGUPVS01 has live paragraphs no scenario runs"
+    ]
+   }
+  },
+  {
+   "gap": "coverage: LINKed program INQACC has live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 2 programs: src/base/cobol_src/BNK1DAC.cbl, src/base/cobol_src/BNK1UAC.cbl (cases: cbsa-bnk1dac, cbsa-bnk1uac).",
+   "programs": [
+    "src/base/cobol_src/BNK1DAC.cbl",
+    "src/base/cobol_src/BNK1UAC.cbl"
+   ],
+   "cases": [
+    "cbsa-bnk1dac",
+    "cbsa-bnk1uac"
+   ],
+   "programs_unlocked": 2,
+   "tests_unlocked": 92,
+   "programs_also_blocked": [],
+   "then_needs": {}
+  },
+  {
+   "gap": "coverage: LINKed program XFRFUN has live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: src/base/cobol_src/BNK1TFN.cbl (cases: cbsa-bnk1tfn).",
+   "programs": [
+    "src/base/cobol_src/BNK1TFN.cbl"
+   ],
+   "cases": [
+    "cbsa-bnk1tfn"
+   ],
+   "programs_unlocked": 1,
+   "tests_unlocked": 40,
+   "programs_also_blocked": [],
+   "then_needs": {}
+  },
+  {
+   "gap": "coverage: LINKed program DBCRFUN has live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: src/base/cobol_src/BNK1CRA.cbl (cases: cbsa-bnk1cra).",
+   "programs": [
+    "src/base/cobol_src/BNK1CRA.cbl"
+   ],
+   "cases": [
+    "cbsa-bnk1cra"
+   ],
+   "programs_unlocked": 1,
+   "tests_unlocked": 28,
+   "programs_also_blocked": [],
+   "then_needs": {}
+  },
+  {
+   "gap": "known unproven: #4803",
+   "fix": "Fix #4803 (EPSCMORT's ENTER path LINKs EPSCSMRT (PROGRAM from a variable), which CALLs EPSMPMT, which has a hole. EPSMPMT's one hole is FUNCTION ANNUITY (line 144, para...) to prove 1 program: zBuilder/MortgageApplication/cobol/epscmort.cbl (cases: mortgage-cmort).",
+   "programs": [
+    "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+   ],
+   "cases": [
+    "mortgage-cmort"
+   ],
+   "programs_unlocked": 1,
+   "tests_unlocked": 15,
+   "programs_also_blocked": [],
+   "then_needs": {}
+  },
+  {
+   "gap": "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: base/src/lgapdb01.cbl (cases: genapp-lgapdb01).",
+   "programs": [
+    "base/src/lgapdb01.cbl"
+   ],
+   "cases": [
+    "genapp-lgapdb01"
+   ],
+   "programs_unlocked": 1,
+   "tests_unlocked": 6,
+   "programs_also_blocked": [
+    "base/src/lgtestp1.cbl",
+    "base/src/lgtestp2.cbl",
+    "base/src/lgtestp3.cbl",
+    "base/src/lgtestp4.cbl"
+   ],
+   "then_needs": {}
+  },
+  {
+   "gap": "coverage: LINKed program LGACVS01 has live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: base/src/lgacus01.cbl (cases: genapp-lgacus01).",
+   "programs": [
+    "base/src/lgacus01.cbl"
+   ],
+   "cases": [
+    "genapp-lgacus01"
+   ],
+   "programs_unlocked": 1,
+   "tests_unlocked": 5,
+   "programs_also_blocked": [
+    "base/src/lgtestc1.cbl"
+   ],
+   "then_needs": {}
+  },
+  {
+   "gap": "coverage: LINKed program LGICDB01 has live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: base/src/lgicus01.cbl (cases: genapp-lgicus01).",
+   "programs": [
+    "base/src/lgicus01.cbl"
+   ],
+   "cases": [
+    "genapp-lgicus01"
+   ],
+   "programs_unlocked": 1,
+   "tests_unlocked": 5,
+   "programs_also_blocked": [
+    "base/src/lgtestc1.cbl"
+   ],
+   "then_needs": {}
+  },
+  {
+   "gap": "coverage: LINKed program INQCUST has live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 3 programs: src/base/cobol_src/BNK1CAC.cbl, src/base/cobol_src/BNK1CCA.cbl, src/base/cobol_src/DELCUS.cbl (cases: cbsa-bnk1cac, cbsa-bnk1cca, cbsa-delcus).",
+   "programs": [
+    "src/base/cobol_src/BNK1CAC.cbl",
+    "src/base/cobol_src/BNK1CCA.cbl",
+    "src/base/cobol_src/DELCUS.cbl"
+   ],
+   "cases": [
+    "cbsa-bnk1cac",
+    "cbsa-bnk1cca",
+    "cbsa-delcus"
+   ],
+   "programs_unlocked": 0,
+   "tests_unlocked": 0,
+   "programs_also_blocked": [
+    "src/base/cobol_src/BNK1DCS.cbl"
+   ],
+   "then_needs": {
+    "src/base/cobol_src/BNK1CAC.cbl": [
+     "coverage: LINKed program INQACCCU has live paragraphs no scenario runs"
+    ],
+    "src/base/cobol_src/BNK1CCA.cbl": [
+     "coverage: LINKed program INQACCCU has live paragraphs no scenario runs"
+    ],
+    "src/base/cobol_src/DELCUS.cbl": [
+     "coverage: LINKed program INQACCCU has live paragraphs no scenario runs"
+    ]
+   }
+  },
+  {
+   "gap": "coverage: LINKed program CRDTAGY1 has live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: src/base/cobol_src/BNK1CCS.cbl (cases: cbsa-bnk1ccs).",
+   "programs": [
+    "src/base/cobol_src/BNK1CCS.cbl"
+   ],
+   "cases": [
+    "cbsa-bnk1ccs"
+   ],
+   "programs_unlocked": 0,
+   "tests_unlocked": 0,
+   "programs_also_blocked": [],
+   "then_needs": {
+    "src/base/cobol_src/BNK1CCS.cbl": [
+     "coverage: LINKed program CRDTAGY2 has live paragraphs no scenario runs",
+     "coverage: LINKed program CRDTAGY3 has live paragraphs no scenario runs",
+     "coverage: LINKed program CRDTAGY4 has live paragraphs no scenario runs",
+     "coverage: LINKed program CRDTAGY5 has live paragraphs no scenario runs"
+    ]
+   }
+  },
+  {
+   "gap": "coverage: LINKed program CRDTCHK has live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: src/ASYNCPNT.cbl (cases: asynccc-asyncpnt).",
+   "programs": [
+    "src/ASYNCPNT.cbl"
+   ],
+   "cases": [
+    "asynccc-asyncpnt"
+   ],
+   "programs_unlocked": 0,
+   "tests_unlocked": 0,
+   "programs_also_blocked": [],
+   "then_needs": {
+    "src/ASYNCPNT.cbl": [
+     "coverage: LINKed program CSSTATS2 has live paragraphs no scenario runs",
+     "coverage: LINKed program GETADDR has live paragraphs no scenario runs",
+     "coverage: LINKed program GETNAME has live paragraphs no scenario runs",
+     "coverage: LINKed program GETPOL has live paragraphs no scenario runs",
+     "coverage: LINKed program GETSPND has live paragraphs no scenario runs",
+     "coverage: LINKed program UPDCSDB has live paragraphs no scenario runs"
+    ]
+   }
+  }
+ ],
+ "not_listed": {
+  "non_burned_programs": 0,
+  "note": "non-burned census programs are counted, never named (mainframe evidence policy)"
+ },
+ "input_blockers": [
+  {
+   "cause": "db2",
+   "fix": "Provide DDL or sample rows for the Db2 tables (generated rows cover only some programs): 37 input(s) in carddemo-copaus1c, carddemo-copaus2c, carddemo-cotrtlic, carddemo-cotrtupc, cbsa-acctctrl, cbsa-bnk1cac, cbsa-bnk1cca, cbsa-bnk1ccs, cbsa-bnk1cra, cbsa-bnk1dac, cbsa-bnk1tfn, cbsa-bnk1uac, cbsa-custctrl, cbsa-dbcrfun, cbsa-delacc, cbsa-delcus, cbsa-inqacc, cbsa-updacc, cbsa-xfrfun, genapp-lgacdb02, genapp-lgacus01, genapp-lgapdb01, genapp-lgdpdb01-generated, genapp-lgdpol01-generated, genapp-lgicdb01-generated, genapp-lgicus01, genapp-lgipdb01, genapp-lgipol01, genapp-lgtestc1, genapp-lgtestp1, genapp-lgtestp2, genapp-lgtestp3, genapp-lgtestp4, genapp-lgucdb01-generated, genapp-lgucus01-generated, genapp-lgupol01, mortgage-cmort.",
+   "items": [
+    "carddemo-copaus1c: case input",
+    "carddemo-copaus2c: case input",
+    "carddemo-cotrtlic: case input",
+    "carddemo-cotrtupc: case input",
+    "cbsa-acctctrl: case input",
+    "cbsa-bnk1cac: case input",
+    "cbsa-bnk1cca: case input",
+    "cbsa-bnk1ccs: case input",
+    "cbsa-bnk1cra: case input",
+    "cbsa-bnk1dac: case input",
+    "cbsa-bnk1tfn: case input",
+    "cbsa-bnk1uac: case input",
+    "cbsa-custctrl: case input",
+    "cbsa-dbcrfun: case input",
+    "cbsa-delacc: case input",
+    "cbsa-delcus: case input",
+    "cbsa-inqacc: case input",
+    "cbsa-updacc: case input",
+    "cbsa-xfrfun: case input",
+    "genapp-lgacdb02: case input",
+    "genapp-lgacus01: case input",
+    "genapp-lgapdb01: case input",
+    "genapp-lgdpdb01-generated: case input",
+    "genapp-lgdpol01-generated: case input",
+    "genapp-lgicdb01-generated: case input",
+    "genapp-lgicus01: case input",
+    "genapp-lgipdb01: case input",
+    "genapp-lgipol01: case input",
+    "genapp-lgtestc1: case input",
+    "genapp-lgtestp1: case input",
+    "genapp-lgtestp2: case input",
+    "genapp-lgtestp3: case input",
+    "genapp-lgtestp4: case input",
+    "genapp-lgucdb01-generated: case input",
+    "genapp-lgucus01-generated: case input",
+    "genapp-lgupol01: case input",
+    "mortgage-cmort: case input"
+   ],
+   "cases": [
+    "carddemo-copaus1c",
+    "carddemo-copaus2c",
+    "carddemo-cotrtlic",
+    "carddemo-cotrtupc",
+    "cbsa-acctctrl",
+    "cbsa-bnk1cac",
+    "cbsa-bnk1cca",
+    "cbsa-bnk1ccs",
+    "cbsa-bnk1cra",
+    "cbsa-bnk1dac",
+    "cbsa-bnk1tfn",
+    "cbsa-bnk1uac",
+    "cbsa-custctrl",
+    "cbsa-dbcrfun",
+    "cbsa-delacc",
+    "cbsa-delcus",
+    "cbsa-inqacc",
+    "cbsa-updacc",
+    "cbsa-xfrfun",
+    "genapp-lgacdb02",
+    "genapp-lgacus01",
+    "genapp-lgapdb01",
+    "genapp-lgdpdb01-generated",
+    "genapp-lgdpol01-generated",
+    "genapp-lgicdb01-generated",
+    "genapp-lgicus01",
+    "genapp-lgipdb01",
+    "genapp-lgipol01",
+    "genapp-lgtestc1",
+    "genapp-lgtestp1",
+    "genapp-lgtestp2",
+    "genapp-lgtestp3",
+    "genapp-lgtestp4",
+    "genapp-lgucdb01-generated",
+    "genapp-lgucus01-generated",
+    "genapp-lgupol01",
+    "mortgage-cmort"
+   ],
+   "programs": [
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+    "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+    "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+    "base/src/lgacdb01.cbl",
+    "base/src/lgacdb02.cbl",
+    "base/src/lgacus01.cbl",
+    "base/src/lgapdb01.cbl",
+    "base/src/lgapol01.cbl",
+    "base/src/lgdpdb01.cbl",
+    "base/src/lgdpol01.cbl",
+    "base/src/lgicdb01.cbl",
+    "base/src/lgicus01.cbl",
+    "base/src/lgipdb01.cbl",
+    "base/src/lgipol01.cbl",
+    "base/src/lgtestc1.cbl",
+    "base/src/lgtestp1.cbl",
+    "base/src/lgtestp2.cbl",
+    "base/src/lgtestp3.cbl",
+    "base/src/lgtestp4.cbl",
+    "base/src/lgucdb01.cbl",
+    "base/src/lgucus01.cbl",
+    "base/src/lgupdb01.cbl",
+    "base/src/lgupol01.cbl",
+    "src/base/cobol_src/ACCTCTRL.cbl",
+    "src/base/cobol_src/BNK1CAC.cbl",
+    "src/base/cobol_src/BNK1CCA.cbl",
+    "src/base/cobol_src/BNK1CCS.cbl",
+    "src/base/cobol_src/BNK1CRA.cbl",
+    "src/base/cobol_src/BNK1DAC.cbl",
+    "src/base/cobol_src/BNK1TFN.cbl",
+    "src/base/cobol_src/BNK1UAC.cbl",
+    "src/base/cobol_src/CREACC.cbl",
+    "src/base/cobol_src/CRECUST.cbl",
+    "src/base/cobol_src/CUSTCTRL.cbl",
+    "src/base/cobol_src/DBCRFUN.cbl",
+    "src/base/cobol_src/DELACC.cbl",
+    "src/base/cobol_src/DELCUS.cbl",
+    "src/base/cobol_src/INQACC.cbl",
+    "src/base/cobol_src/INQACCCU.cbl",
+    "src/base/cobol_src/UPDACC.cbl",
+    "src/base/cobol_src/XFRFUN.cbl",
+    "zBuilder/MortgageApplication/cobol/epscmort.cbl"
+   ],
+   "tests_held": 880
+  },
+  {
+   "cause": "ims",
+   "fix": "Add IMS segment inputs (not generated yet): 3 input(s) in carddemo-copaua0c, carddemo-copaus0c, carddemo-copaus1c.",
+   "items": [
+    "carddemo-copaua0c: case input",
+    "carddemo-copaus0c: case input",
+    "carddemo-copaus1c: case input"
+   ],
+   "cases": [
+    "carddemo-copaua0c",
+    "carddemo-copaus0c",
+    "carddemo-copaus1c"
+   ],
+   "programs": [
+    "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl"
+   ],
+   "tests_held": 95
+  },
+  {
+   "cause": "mq",
+   "fix": "Add an MQ queue model for the input messages (no generated MQ inputs yet): 3 input(s) in carddemo-coacct01, carddemo-codate01, carddemo-copaua0c.",
+   "items": [
+    "carddemo-coacct01: case input",
+    "carddemo-codate01: case input",
+    "carddemo-copaua0c: case input"
+   ],
+   "cases": [
+    "carddemo-coacct01",
+    "carddemo-codate01",
+    "carddemo-copaua0c"
+   ],
+   "programs": [
+    "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+    "app/app-vsam-mq/cbl/COACCT01.cbl",
+    "app/app-vsam-mq/cbl/CODATE01.cbl"
+   ],
+   "tests_held": 44
+  }
+ ],
+ "untranslated": [
+  {
+   "cause": "hole",
+   "fix": "Teach the translator the construct it leaves a hole for: zBuilder/MortgageApplication/cobol/epscsmrd.cbl.",
+   "programs": [
+    "zBuilder/MortgageApplication/cobol/epscsmrd.cbl"
+   ],
+   "items": [
+    "zBuilder/MortgageApplication/cobol/epscsmrd.cbl: <name> ADDRESS OF <name>: not an item of <name> or LINKAGE; CEEHDLR: registering an LE user condition handler is not modelled; CEEHDLU: unregistering an LE user condition handler is not modelled; EPSCSMRI: no service of its own, its translation is refused: epscsmrd.cbl:N: the PICTURE N (\u2026) is not modelled (\u2026): the translator reads one byte a character; EPSCSMRO: no service of its own, its translation is refused: OS/VS COBOL BLL addressing: SERVICE LABEL (\u2026): not modelled; EXEC CICS GETMAIN without INITIMG: IBM gives acquired storage no default contents; EXEC CICS SOAPFAULT CREATE; SET TO ENTRY: procedure / function pointers are not modelled"
+   ]
+  }
+ ]
+}

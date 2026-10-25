@@ -65,6 +65,24 @@ been looked at twice with their hole reasons in hand, so any later scan of them 
 contact. The honest first-contact number for a seventh estate still has to come from an estate nobody has read
 (the blind estate draw). The table in "Numbers" is unchanged and stays the 2026-10-22 baseline.
 
+## Update 2026-10-25 (main `a3f1ac8ca`): burned side re-read, non-burned side still unmeasured
+
+Burned estates only. From the generated progress page (evidence reports of the six burned estates; the oracle is
+GnuCOBOL plus IBM documentation, not z/OS):
+
+| burned estates | programs | translated whole | L2+ (executed equal) | L4+ (every net branch) | L5 |
+|---|---|---|---|---|---|
+| 6 estates | 129 | 123 | 120 (93.0%) | 83 (64.3%) | 0 |
+
+The six programs that are not whole each have a non-translator blocker: two source defects IBM rejects (#5866), two
+CICS Assembler members the COBOL translator refuses (#5859), two held by an owner ruling or by a need for captured
+z/OS results (#5106, #5867). The 123 of 129 matches the 2026-10-22 row, so the burned side did not move in the
+whole-translation count; it moved up the ladder (proof depth), which is depth on six estates, not transfer.
+
+Gap pointers re-checked on 2026-10-25: #6065 closed, #5856 closed, #6066 open (frontier), #6064 open. No burned
+program needs any gap in the table above. The non-burned rate is still the 2026-10-22 peek: the first scheduled census
+run (#6064) has not run, so no newer non-burned number exists and none is claimed here.
+
 ## Going forward
 
 - `dsf` and `zopeneditor-sample`: their next scan is a re-measurement (see the 2026-10-24 update), not a first contact.

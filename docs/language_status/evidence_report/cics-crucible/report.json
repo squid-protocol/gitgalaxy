@@ -2355,7 +2355,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "37f482bd76beb267b699401195b3bf44e9e16a82",
+   "sha": "435cca7d394a0f96f49d0e3397077fb76daaa266",
    "translator": {
     "files": 145,
     "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
@@ -11155,8 +11155,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 37f482bd76beb267b699401195b3bf44e9e16a82",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 37f482bd76beb267b699401195b3bf44e9e16a82",
+   "python tests/tools/cics_census.py survey --baseline --sha 435cca7d394a0f96f49d0e3397077fb76daaa266",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 435cca7d394a0f96f49d0e3397077fb76daaa266",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -11176,13 +11176,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "37f482bd76beb267b699401195b3bf44e9e16a82",
+   "sha": "435cca7d394a0f96f49d0e3397077fb76daaa266",
    "translator": {
     "files": 145,
     "sha256": "5b7f5e7ccb861364ebf6a417f7f6d78301ccf03ab545929a0b511f7dbbed38b1"
    }
   },
-  "translator_commit": "37f482bd76beb267b699401195b3bf44e9e16a82",
+  "translator_commit": "435cca7d394a0f96f49d0e3397077fb76daaa266",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

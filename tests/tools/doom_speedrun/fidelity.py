@@ -9,7 +9,8 @@ README the claim is read from) and ``fidelity_phrase`` (a short phrase quoted fr
 port). ``check`` reads each pinned clone under ``<work>/repos`` and fails when the vocabulary is wrong, a claim has no
 phrase, or the phrase is not in the README (whitespace, case and markdown emphasis ignored), so the column can be
 re-derived from the pinned clone by one command. A port whose clone is absent is listed as unchecked, not passed
-(``--strict`` makes it an error). ``report`` prints the port counts per ``class`` x ``fidelity``.
+(``--strict`` makes it an error). ``report`` prints the port counts per ``class`` x ``fidelity``. A port that says nothing is ``unstated`` and names why
+in ``fidelity_reason`` (``REASONS``), so no port is left without either a statement or a stated reason.
 
 The column records what the README *states*, never a measurement: a port marked ``faithful`` has not been shown to be.
 Lineage (``lineage.py``) and the distributions (``distribution.py``) are the measurements to hold it against.
@@ -37,6 +38,10 @@ VOCAB = {
     "divergent": "README disclaims being a port of, or exact to, the original (a rewrite, a recreation, 'not 100%')",
     "unstated": "no README, or the README says nothing about fidelity to the original",
 }
+REASONS = {
+    "no-readme": "the repository has no README (or any prose) to read a claim from",
+    "readme-silent": "the README (or release notes) never says how the port relates to the original's behaviour",
+}
 COLUMNS = ("fidelity", "fidelity_file", "fidelity_phrase")
 CLAIMED = frozenset(VOCAB) - {"original", "unstated"}  # these need a README phrase
 _MARKUP = re.compile(r"[*_`]")
@@ -59,6 +64,13 @@ def check_rows(rows, repos):
         value, file, phrase = (row.get(c) or "" for c in COLUMNS)
         if value not in VOCAB:
             problems.append(f"{name}: fidelity {value!r} is not one of {', '.join(VOCAB)}")
+            continue
+        reason = row.get("fidelity_reason") or ""
+        if value == "unstated" and reason not in REASONS:
+            problems.append(f"{name}: fidelity unstated needs a fidelity_reason, one of {', '.join(REASONS)}")
+            continue
+        if value != "unstated" and reason:
+            problems.append(f"{name}: fidelity {value} must not carry a fidelity_reason")
             continue
         if value in CLAIMED and not (file and phrase):
             problems.append(f"{name}: fidelity {value} needs fidelity_file and fidelity_phrase")
@@ -84,7 +96,9 @@ def report(rows):
         cells[(row["class"], row.get("fidelity") or "unstated")].append(row["name"])
     lines = ["| class | " + " | ".join(VOCAB) + " |", "|---|" + "---|" * len(VOCAB)]
     for cls in sorted({c for c, _ in cells}):
-        lines.append(f"| {cls} | " + " | ".join(", ".join(sorted(cells.get((cls, v), []))) or "-" for v in VOCAB) + " |")
+        lines.append(
+            f"| {cls} | " + " | ".join(", ".join(sorted(cells.get((cls, v), []))) or "-" for v in VOCAB) + " |"
+        )
     totals = collections.Counter({v: sum(len(n) for (_, f), n in cells.items() if f == v) for v in VOCAB})
     lines.append("| **ports** | " + " | ".join(str(totals[v]) for v in VOCAB) + " |")
     return "\n".join(lines) + "\n"

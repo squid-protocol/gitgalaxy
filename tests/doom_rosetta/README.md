@@ -9,7 +9,7 @@ code nobody wrote for us. Each port is cloned at a pinned SHA, scanned, and its 
 
 | Path | What |
 |---|---|
-| `manifest.csv` | the corpus: `name, upstream, sha, branch, languages, class, license, lineage, expected_fails, fidelity, fidelity_file, fidelity_phrase` |
+| `manifest.csv` | the corpus: `name, upstream, sha, branch, languages, class, license, lineage, expected_fails, fidelity, fidelity_file, fidelity_phrase, fidelity_reason` |
 | `test_doom_rosetta.py` | `pytest -m doom_rosetta` (self-skips unless the marker is selected) |
 | `../golden_doom_rosetta/` | one gzip JSON per port (`*.json` is git-ignored, hence `.json.gz`) |
 | `../tools/doom_rosetta_check.py` | check, bless (`--update --yes`), `--diagnose PORT` |

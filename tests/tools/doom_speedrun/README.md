@@ -35,11 +35,12 @@ To add a port: read its license from the files, pin a SHA, add a row with `class
 `reimplementation` (an independent engine that plays DOOM data), `raycaster` (a DOOM-like raycaster, not the DOOM
 engine), `separate-engine` (a later id engine) or `assets` (a content project).
 
-`fidelity`, `fidelity_file`, `fidelity_phrase` (#5620): what the port's own README says about its fidelity to the
+`fidelity`, `fidelity_file`, `fidelity_phrase` (#5620), `fidelity_reason` (#6097): what the port's own README says about its fidelity to the
 original, read from the pinned clone. `fidelity` is `original` (linuxdoom), `faithful` (aims to reproduce the original,
 bugs included), `compatible` (states demo / data / behaviour compatibility while changing or adding), `enhanced`
 (states added features, no fidelity claim), `divergent` (disclaims being a port of, or exact to, the original) or
-`unstated` (no README, or silent). Anything but `original` / `unstated` names the README and a short quoted phrase.
+`unstated` (no README, or silent). Anything but `original` / `unstated` names the README and a short quoted phrase;
+`unstated` instead names `fidelity_reason`: `no-readme` or `readme-silent`.
 It records a claim, not a measurement. `fidelity.py check --work DIR` re-reads every phrase from the clones (a missing
 clone is reported as unchecked; `--strict` makes it an error) and `fidelity.py report` prints the class x fidelity counts.
 

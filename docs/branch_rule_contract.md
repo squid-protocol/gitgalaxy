@@ -107,6 +107,11 @@ read 2.
   boundaries, so it needed no move. **Still deferred:** the two-keyword loop
   headers (C-family `do…while` counts 2; ada `while … loop` counts 2), which the
   regex slicer cannot collapse with the condition sitting between the keywords.
+- **Two DOOM-study disagreements closed (#6097).** Scheme counts each `case` clause head (`[(1 2) ...]`, a bracketed
+  datum list: a lone symbol, or literals first) as one arm, as C counts each `case X:` (a `cond` clause is still not
+  counted, nor a paren-style `((1 2) ...)` clause: Scheme `cond`/`case` clause arms are an open sibling gap). Dart's
+  `break`/`continue` moved to `structural_boundaries` like the 12 languages above (apex, cpp, csharp, perl, php,
+  powershell, rust, swift and yacc still list them in `branch`).
 - **Non-decision token bleed fixed (#2833):** ruby's bare `?` now excludes
   predicate-method names via `(?<!\w)\?` and drops the `=>` hash-rocket; java's
   bare `:` excludes `::` method references via `(?<!:):(?!:)`; python's `with`

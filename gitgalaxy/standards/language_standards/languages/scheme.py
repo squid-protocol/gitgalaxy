@@ -15,6 +15,10 @@ from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE
 
 from .._shared_patterns import CALLS_OUT_LISP_FAMILY, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
+# #6097: the two datum shapes a `case` clause head `[(d ...) body]` holds (see "branch" below).
+_SYMBOL_DATUM = r"[A-Za-z_*<>/+-][^\s()\[\]?=;]*"
+_LITERAL_DATUM = r"(?:[+-]?[0-9][0-9a-zA-Z.#/+-]*|#\\[^\s()\[\]]+|#[tf]|\"[^\"\n]*\")"
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "R5RS / R6RS / Guile (GnuPG gpgscm)",
@@ -107,7 +111,21 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Lisp control flow branches. Uses custom S-expression boundaries.
-        "branch": re.compile(r"(?<![^ \t\n\r(\[])(if|cond|case|and|or|when|unless)(?![^ \t)\]\n\r])"),
+        # #6097: each `case` clause is one arm (C counts every `case X:`). A clause head is a bracketed datum list,
+        # `[(1 2) ...]` / `[(sym) ...]`: a lone symbol, or literals first. A call test such as `[(null? x) ...]` or
+        # `[(f a b) ...]` (symbol first, then more than one datum) is not matched.
+        "branch": re.compile(
+            r"(?<![^ \t\n\r(\[])(if|cond|case|and|or|when|unless)(?![^ \t)\]\n\r])"
+            + r"|\[\((?:"
+            + _SYMBOL_DATUM
+            + "|"
+            + _LITERAL_DATUM
+            + r"(?:[ \t]+(?:"
+            + _LITERAL_DATUM
+            + "|"
+            + _SYMBOL_DATUM
+            + r"))*)\)"
+        ),
         # 2. args (Parameters / Coupling)
         # Captures the parameter list inside a standard function definition: (define (func arg1 arg2) ...)
         "args": re.compile(

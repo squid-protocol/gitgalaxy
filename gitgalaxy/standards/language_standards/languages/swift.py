@@ -34,6 +34,9 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Supports nested block comments (/* /* */ */), necessitating depth-aware stripping
     # rather than standard C-style early termination.
     "lexical_family": "recursive_block",
+    # #3798: `import struct Mod.Name` names a declaration in SwiftPM target Mod, not a file
+    # (network_risk_sensor.py `_resolve_swift_scoped`).
+    "imports_may_name_declaration": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
@@ -329,6 +332,16 @@ DEFINITION: dict[str, Any] = {
             + r"]["
             + ID_CONTINUE
             + r".]*)",
+            re.M,
+        ),
+        # #3798: the top-level names a file declares, for `import struct Mod.Name`. Unindented
+        # only (a member is indented), attributes and modifiers first -- never `private`.
+        # Group 1 is the name; an `extension X` counts as a declaration of X.
+        "_declaration_capture": re.compile(
+            r"^(?:@[\w.]{1,80}(?:\([^)\n]{0,200}\))?[ \t]+"
+            r"|(?:public|open|internal|package|final|indirect|nonisolated|distributed)[ \t]+){0,8}"
+            r"(?:struct|class|enum|protocol|actor|typealias|extension|func|var|let)[ \t]+"
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"]{0,127})",
             re.M,
         ),
         # 25. ownership (Authorship Metadata)

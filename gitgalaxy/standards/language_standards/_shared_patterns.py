@@ -372,7 +372,9 @@ _PERL_BUILTIN = (
 # upper-case file handle (`print OUT $x`) also opens an argument list.
 _PERL_ARG = (
     rf"(?:[$@\\\"']|%[{ID_START}$]|<<[\"'A-Z_~]|{_PERL_NAME}[ \t]*=>|q[qwx]?[{{(\[<]"
-    r"|\{[^{}\n]{0,200}\}[ \t]*[@$(,]|[A-Z][A-Z0-9_]*[ \t]+[$\"'@])"
+    r"|\{[^{}\n]{0,200}\}[ \t]*[@$(,]|[A-Z][A-Z0-9_]*[ \t]+[$\"'@]"
+    # #6433: `open FH, ...` (a bareword handle then a comma) and `open my $fh, ...`.
+    r"|[A-Z][A-Z0-9_]*[ \t]*,|my[ \t]+[$@%])"
 )
 _PERL_NOT_CALL = rf"(?:map|grep|sort)(?![{ID_CONTINUE}])"
 CALLS_OUT_PERL = re.compile(

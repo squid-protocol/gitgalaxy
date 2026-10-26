@@ -5985,7 +5985,17 @@ class StructuralExtractor:
             # same corpus that no apostrophe-delimited quote-like operator (`q'...'`,
             # `m'...'`, etc., which WOULD be preceded by a word character) is actually used
             # anywhere in it, so this lookbehind has no observed false-negative cost here.
-            combined_pattern = r'"(?:\\.|[^"\\]){0,200}"|' r"(?<![A-Za-z0-9_])'(?:\\.|[^'\\]){0,200}'"
+            # #6433: a string longer than 200 chars (a multi-line SQL/HTML/usage text) matched
+            # neither bound, so its closing quote paired with the next unrelated quote and the
+            # unit ended early. A second alternative takes it up to 4000 chars, but only when
+            # it spans a line and its opening quote is not escaped: a regex literal is one
+            # line, so the #1437 `s/^\"//g` mispair cannot reach it.
+            combined_pattern = (
+                r'"(?:\\.|[^"\\]){0,200}"|'
+                r"(?<![A-Za-z0-9_])'(?:\\.|[^'\\]){0,200}'|"
+                r'(?<!\\)"(?=[^"\\\n]{0,4000}\n)(?:\\.|[^"\\]){201,4000}"|'
+                r"(?<![A-Za-z0-9_\\])'(?=[^'\\\n]{0,4000}\n)(?:\\.|[^'\\]){201,4000}'"
+            )
         else:
             combined_pattern = (
                 r'""".*?"""|' + csharp_verbatim + r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'

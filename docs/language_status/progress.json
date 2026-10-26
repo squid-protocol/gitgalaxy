@@ -1,5 +1,5 @@
 {
- "commit": "633fa6ecf",
+ "commit": "bbff0b9a9",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -139,7 +139,7 @@
   },
   "2": {
    "l2_plus": 69,
-   "l4_plus": 48,
+   "l4_plus": 50,
    "programs": 70
   },
   "3": {
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-26T00:54:10Z",
+  "as_of": "2026-10-26T01:11:56Z",
   "core": {
    "closed": 174,
    "open": 26,
@@ -481,15 +481,15 @@
    "cics-genapp": {
     "l2_plus": 30,
     "l2_plus_pct": 96.8,
-    "l4_plus": 26,
-    "l4_plus_pct": 83.9,
+    "l4_plus": 28,
+    "l4_plus_pct": 90.3,
     "l5": 0,
     "levels": {
      "L0": 0,
      "L1": 1,
      "L2": 0,
-     "L3": 4,
-     "L4": 26,
+     "L3": 2,
+     "L4": 28,
      "L5": 0
     },
     "programs": 31,
@@ -533,15 +533,15 @@
   "total": {
    "l2_plus": 120,
    "l2_plus_pct": 93.0,
-   "l4_plus": 90,
-   "l4_plus_pct": 69.8,
+   "l4_plus": 92,
+   "l4_plus_pct": 71.3,
    "l5": 0,
    "levels": {
     "L0": 6,
     "L1": 3,
     "L2": 12,
-    "L3": 18,
-    "L4": 90,
+    "L3": 16,
+    "L4": 92,
     "L5": 0
    },
    "programs": 129,

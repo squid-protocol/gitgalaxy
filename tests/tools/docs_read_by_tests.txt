@@ -404,7 +404,7 @@ estate4_preregistration.md	tests/tools/estate4_draw.py
 estate_batch_candidates.json	tests/tools/estate4_draw.py
 estate_batch_candidates_requests.json	tests/tools/estate4_draw.py
 estate_intake.md	tests/cobol_mainframe
-evidence.md	tests/tools/bugfix_kit.py
+evidence.md	tests/tools/bugfix_kit.py,tests/tools/det_mutation.py,tests/tools/test_det_mutation.py
 example.com/x.md	tests/extraction
 feed.md	tests/tools/blocker_estate_feed.py
 file.md	tests/extraction

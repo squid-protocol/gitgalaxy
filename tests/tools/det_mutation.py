@@ -574,7 +574,9 @@ def refresh(cases: list[str], work: Path) -> int:
 
 
 def changed_cases(ref: str) -> set[str] | None:
-    """The cases whose directory differs from `ref`'s merge base (what this PR changes), or None when git cannot say."""
+    """The cases whose input files differ from `ref`'s merge base (what this PR changes), or None when git cannot say.
+    Output files inside the case directory (`evidence.json`, `evidence.md`, refreshed by evidence-refresh.yml) are not
+    case inputs (matching `evidence.py` `compute_inputs`), so refreshing a record does not flag the case as changed."""
     base = subprocess.run(["git", "merge-base", ref, "HEAD"], cwd=REPO, capture_output=True, text=True, check=False)
     if base.returncode:
         return None
@@ -582,7 +584,13 @@ def changed_cases(ref: str) -> set[str] | None:
                           capture_output=True, text=True, check=False)  # fmt: skip
     if diff.returncode:
         return None
-    return {parts[2] for f in diff.stdout.split() if len(parts := f.split("/")) > 3 and parts[2] not in LEDGER_DIRS}
+    return {
+        parts[2]
+        for f in diff.stdout.split()
+        if len(parts := f.split("/")) > 3
+        and parts[2] not in LEDGER_DIRS
+        and parts[3] not in ("evidence.json", "evidence.md")
+    }
 
 
 def cases_to_rerun(ref: str) -> list[str]:

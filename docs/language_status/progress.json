@@ -1,5 +1,5 @@
 {
- "commit": "d7a9e65df",
+ "commit": "1900e80f1",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,15 +160,15 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-26T06:41:47Z",
+  "as_of": "2026-10-26T06:55:23Z",
   "core": {
    "closed": 175,
    "open": 25,
    "total": 200
   },
   "core_last_window": {
-   "closed": 45,
-   "net_closed": 9,
+   "closed": 44,
+   "net_closed": 8,
    "opened": 36
   },
   "core_milestone": {
@@ -184,17 +184,17 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "19 days",
+  "eta": "22 days",
   "frontier": {
-   "closed": 110,
+   "closed": 111,
    "found_last_window": 15,
-   "open": 88,
+   "open": 87,
    "total": 198
   },
   "frontier_milestone": {
-   "closed": 1,
+   "closed": 2,
    "number": 30,
-   "open": 47,
+   "open": 46,
    "total": 48
   },
   "infra": {
@@ -394,9 +394,9 @@
     "total": 8
    },
    {
-    "closed": 1,
+    "closed": 2,
     "number": 30,
-    "open": 47,
+    "open": 46,
     "title": "Gap Atlas \ud83d\uddfa\ufe0f \u2014 mapped, not yet built",
     "total": 48
    },

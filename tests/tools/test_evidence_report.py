@@ -414,6 +414,7 @@ def test_det_coverage_keeps_scheduled_staleness_and_drops_blocking(monkeypatch):
     assert got["case"] is None and got["none"] is None
 
 
+@pytest.mark.slow(reason="builds the evidence report live over the Db2 case twice (15-16 s, over the 15 s limit)")
 def test_the_release_gate_fails_while_a_level_is_stale(tmp_path, monkeypatch, capsys):
     stale_fixture(tmp_path, monkeypatch, STALE)
     assert er.main(["--check", "--live"]) == 1  # the files are what the tree makes, yet the gate fails

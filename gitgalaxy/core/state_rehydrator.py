@@ -703,38 +703,6 @@ class StateRehydrator:
                     },
                 )
 
-                # #3496: web-services assistant steps.
-                web_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "web_service_data",
-                    "SELECT fd.file_path AS _fp, ws.assistant, ws.direction, ws.program, ws.uri, ws.request, ws.response, "
-                    'ws.interface, ws.container, ws.binding, ws.document, ws.transaction_id AS "transaction", '
-                    'ws.line_number AS "line" '
-                    "FROM web_service_data ws JOIN file_data fd ON ws.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ws.id",
-                    lambda r: {
-                        **{
-                            k: r[k]
-                            for k in (
-                                "assistant",
-                                "direction",
-                                "program",
-                                "uri",
-                                "request",
-                                "response",
-                                "interface",
-                                "container",
-                                "binding",
-                                "document",
-                                "transaction",
-                            )
-                        },
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
                 # #3820: SPECIAL-NAMES currency strings / decimal point.
                 special_by_file = _restore_child_table(
                     cursor,
@@ -809,7 +777,6 @@ class StateRehydrator:
                     node["entry_points"] = entry_points_by_file.get(rel_path, [])
                     node["dli_calls"] = dli_by_file.get(rel_path, [])
                     node["ims_gen"] = ims_gen_by_file.get(rel_path, [])
-                    node["web_services"] = web_by_file.get(rel_path, [])
                     node["special_names"] = special_by_file.get(rel_path, [])  # #3820
                     node["compiler_options"] = options_by_file.get(rel_path, [])  # #3828
             except sqlite3.Error as fc_err:

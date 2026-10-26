@@ -12,7 +12,7 @@
 /.crucible_venvs	tests/tools/crucible_check.py
 /.galaxyscope.yaml	tests/ast_accuracy_audit.py,tests/tools/self_scan.py,tests/tools/tree_sitter_accuracy_audit.py
 /.git	tests/security_auditing,tests/tools/pr_gates.py
-/.gitignore	tests/cobol_mainframe,tests/tools/test_evidence_report_single_source.py,tests/tools/test_generated_branch.py
+/.gitignore	tests/cobol_mainframe,tests/core_engine,tests/tools/test_evidence_report_single_source.py,tests/tools/test_generated_branch.py
 /.gitlab-ci.yml	tests/core_engine
 /.mainframe_corpora	tests/cobol_mainframe,tests/tools/cics_census.py,tests/tools/era_distribution.py,tests/tools/feature_inventory.py,tests/tools/mainframe_corpus.py,tests/tools/pr_gates.py,tests/tools/preflight.py
 /.test_durations	tests/tools/test_ci_critical_path_split.py,tests/tools/time_ratchet.py
@@ -67,6 +67,7 @@
 /ZZPGMONE.cbl	tests/tools/test_blocker_estate_feed.py
 /__init__.py	tests/tools/import_graph_accuracy.py
 /a	tests/cobol_mainframe
+/a.py	tests/core_engine
 /action.yml	tests/core_engine
 /api_v1	tests/security_auditing
 /api_v2	tests/security_auditing
@@ -81,6 +82,7 @@
 /baseline.json	tests/cobol_mainframe,tests/tools/test_content_keyed_baseline.py
 /bitbucket-pipelines.yml	tests/core_engine
 /bms_src	tests/cobol_mainframe
+/build.log	tests/core_engine
 /case.json	tests/tools/test_det_mutation.py
 /cbl	tests/cobol_mainframe
 /census	tests/tools/census_nightly.py,tests/tools/cics_census.py,tests/tools/equivalence_env.py,tests/tools/test_equivalence_env.py
@@ -123,6 +125,7 @@
 /main.ts	tests/tools/test_callgraph_tools.py
 /missing.json	tests/security_auditing
 /mock_keys	tests/security_auditing
+/new.py	tests/core_engine
 /openapi.json	tests/security_auditing
 /openapi.yaml	tests/security_auditing
 /ord	tests/cobol_mainframe
@@ -401,7 +404,7 @@ estate4_preregistration.md	tests/tools/estate4_draw.py
 estate_batch_candidates.json	tests/tools/estate4_draw.py
 estate_batch_candidates_requests.json	tests/tools/estate4_draw.py
 estate_intake.md	tests/cobol_mainframe
-evidence.md	tests/tools/bugfix_kit.py
+evidence.md	tests/tools/bugfix_kit.py,tests/tools/det_mutation.py,tests/tools/test_det_mutation.py
 example.com/x.md	tests/extraction
 feed.md	tests/tools/blocker_estate_feed.py
 file.md	tests/extraction

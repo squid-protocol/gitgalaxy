@@ -5,9 +5,11 @@
  "kind": "cics",
  "port": {
   "paths": [
-   "tests/equivalence/genapp-lgapdb01/port/service/Lgapdb01Service.java"
+   "tests/equivalence/genapp-lgapdb01/port/service/Lgapdb01Service.java",
+   "tests/equivalence/genapp-lgapdb01/port/service/Lgapvs01Service.java",
+   "tests/equivalence/genapp-lgapdb01/port/service/LgstsqService.java"
   ],
-  "sha256": "eb161a85c3aeafbf87317205f9a350d8a1716aae090fc2c4b6827065d73a27fa",
+  "sha256": "ff484ae6a2a07b816cb3f0dcf2b91bd199fd0dfabe47f199b54fd2c3a007ff47",
   "entry_points": [
    "handleLink",
    "runTask"
@@ -17,17 +19,18 @@
   "port": {
    "paths": [
     "tests/equivalence/genapp-lgapdb01/port/**",
-    "tests/equivalence/genapp-lgapvs01/port/**"
+    "tests/equivalence/genapp-lgapvs01/port/**",
+    "tests/equivalence/genapp-lgstsq/port/**"
    ],
-   "files": 2,
-   "sha256": "8e7bfcd8be0393f9de332a83e3c71710f4b6cd100624cf404c614b9680557e66"
+   "files": 5,
+   "sha256": "fa876e8fc4d18330ccc0a6824526802b7a35cffd161f0fe044dc1ae8a35c461a"
   },
   "case": {
    "paths": [
     "tests/equivalence/genapp-lgapdb01/**"
    ],
    "files": 2,
-   "sha256": "1835609aa17adec69814168b05478968568e4f665e1ef75a366323064cceedaa"
+   "sha256": "da39af16f8d36dcda71e4366fe868480f626d6817738f39bef33a314127e8eb6"
   },
   "harness": {
    "paths": [
@@ -41,6 +44,7 @@
     "tests/tools/equivalence_cics_conditions.py",
     "tests/tools/equivalence_cics_faults.py",
     "tests/tools/equivalence_cics_tempstorage.py",
+    "tests/tools/equivalence_cics_taskcontrol.py",
     "tests/tools/equivalence_call.py",
     "tests/tools/equivalence_cache.py",
     "tests/tools/equivalence_db2.py",
@@ -49,11 +53,11 @@
     "tests/tools/java_target_matrix.py",
     "tests/tools/equivalence_ims.py"
    ],
-   "files": 17,
-   "sha256": "11d0327f04866262b0e223f527aed8cf1083f9ad5e1c5e4c5f393bf02840f681",
+   "files": 18,
+   "sha256": "8e3e00f2309ded81b723db7a5f9b6aabc56e5607555d6f86a3241d71131b1ddb",
    "components": {
-    "harness:cics": "e48890dcaedd6de4793545fa7c02da9398198aa2fa2633799b6df3edf5af8589",
-    "harness:core": "23d30bc5d7ad7ba3ee2afbb9f7e50b29799194790891e835576cf0c949d42dbd",
+    "harness:cics": "868a00b4715c47c4349274595075f4c3556edcb9f4a88102b2b09238b05777d3",
+    "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99",
     "harness:db2": "df4cefe238f828f2233ef1ae1b7c77c21265c7f5ab3af61e753544d50120cd66"
    }
   },
@@ -69,22 +73,22 @@
     "tests/tools/equivalence_sql.py",
     "tests/equivalence/ims/ggdli.c"
    ],
-   "files": 45,
-   "sha256": "0514e5278b3ee5c2ecc1bea81310ac2415c67fb097a14dc1f9de2d7f72d04d59",
+   "files": 46,
+   "sha256": "7e57488c79c77a09bd66129bc3cc144ac3a66e074a3acc9f05f277b1f41caa82",
    "components": {
-    "oracle:cics-stub": "51cd8ed5f2e11cd4742311993fcc8e5f739cba767936a86d0bce6400523555d0",
+    "oracle:cics-stub": "9c1e9f9bd69cc3bd03eb1f52389adb74a64621058b09ecd32f3853eb98cc1698",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
-    "oracle:le": "4fec0fd2411f43c866dc95cbc9e40f5caf30ad88dd1f430b47625c41da044764"
+    "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
    }
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 109,
-   "sha256": "4b417f3caf6b9417c4b3bbfdaaf8059ab8e0f7ccdd7b75660ad7e44a6a8a6463",
+   "files": 112,
+   "sha256": "bc48178c3dfae1c2ca4049a32efab25db207169122fb9727ede5fb6e33209ece",
    "components": {
     "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
     "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
@@ -126,7 +130,7 @@
     "generator:cobolrt/sql/DetSql.java": "6b04507a609ed3fc607fd152de0bff932798865b6657ba34ab1cbc35c4a6cfb0",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "95e268fa1c62caa08d6d10d04f9ca3d678baa0c213464725dba72f41f3d9d57c",
+    "generator:core": "aae8bd6be007ebbfb4c7c2427b7bd4fd033ec36f528cca49600462bbb475d413",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/bll": "51a3de21e2afa9301080d7613bf7ba13c0a053a90c9b4c1b92acfd676b923163",
     "generator:det/cics": "6fd3b3f809e6ca8bfd5d9dac922b1dc2961ae0280dad4172457ecf02c20f2295",
@@ -239,38 +243,173 @@
    },
    "runtime_sha256": "95d95b29ee402f9e60e387bd556e5076af66d0bd4c4f549241f603b4f4c3cc89"
   },
-  "digest": "159ff87b5bb50b3709b533df2ef88796c34289c88b20eeefebb413f028c2d9e6"
+  "digest": "70c38177c7dfcc2dbba57fba9cceeb5f675f5047c72285e911bfa406a60311f3"
  },
  "proof": {
-  "at": "2026-10-25T03:57:03Z",
+  "at": "2026-10-25T22:57:46Z",
   "verdict": "proven",
-  "runs": 6,
-  "fault_runs": 0,
+  "runs": 14,
+  "fault_runs": 7,
   "environments": null,
   "outputs": {
    "add-house": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
    },
    "add-motor": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
    },
    "add-commercial": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
    },
    "add-endowment": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
    },
    "add-endowment-short": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN"
+    ]
    },
    "unknown-request": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN"
+    ]
+   },
+   "no-commarea": {
+    "equal": 5,
+    "records": 5,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ]
+   },
+   "policy-insert-fk-violation": {
+    "equal": 10,
+    "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "add-house--sql-lgapdb01-268": {
+    "equal": 10,
+    "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "add-house--sql-lgapdb01-316": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
+   },
+   "add-house--sql-lgapdb01-409": {
+    "equal": 9,
+    "records": 9,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "add-motor--sql-lgapdb01-449": {
+    "equal": 9,
+    "records": 9,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "add-commercial--sql-lgapdb01-499": {
+    "equal": 9,
+    "records": 9,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "add-endowment--sql-lgapdb01-368": {
+    "equal": 9,
+    "records": 9,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
    }
   },
   "return_code_equal": null,
@@ -279,50 +418,32 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 6,
-   "passed": 6,
+   "runs": 14,
+   "passed": 14,
    "entry_points": [
     "handleLink"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "8c397cd336f0accb12d4941e172611c586e7d1df",
-  "inputs_digest": "159ff87b5bb50b3709b533df2ef88796c34289c88b20eeefebb413f028c2d9e6"
+  "harness_commit": "f003fa2505f18cae975fbe4ce4ee7eb5d761fd2f+uncommitted",
+  "inputs_digest": "70c38177c7dfcc2dbba57fba9cceeb5f675f5047c72285e911bfa406a60311f3"
  },
  "coverage": {
   "paragraphs": {
-   "covered": 6,
+   "covered": 7,
    "live": 7
   },
   "branches": {
-   "covered": 18,
+   "covered": 28,
    "total": 31
   },
   "uncovered_branches": [
-   {
-    "line": 165,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "MAINLINE"
-   },
    {
     "line": 223,
     "kind": "EVALUATE",
     "outcome": "OTHER",
     "unit": "MAINLINE"
-   },
-   {
-    "line": 290,
-    "kind": "EVALUATE",
-    "outcome": "WHEN@295",
-    "unit": "INSERT-POLICY"
-   },
-   {
-    "line": 290,
-    "kind": "EVALUATE",
-    "outcome": "OTHER",
-    "unit": "INSERT-POLICY"
    },
    {
     "line": 342,
@@ -331,51 +452,9 @@
     "unit": "INSERT-ENDOW"
    },
    {
-    "line": 389,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "INSERT-ENDOW"
-   },
-   {
-    "line": 427,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "INSERT-HOUSE"
-   },
-   {
-    "line": 473,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "INSERT-MOTOR"
-   },
-   {
-    "line": 547,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "INSERT-COMMERCIAL"
-   },
-   {
-    "line": 580,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "WRITE-ERROR-MESSAGE"
-   },
-   {
-    "line": 580,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "WRITE-ERROR-MESSAGE"
-   },
-   {
     "line": 581,
     "kind": "IF",
     "outcome": "true",
-    "unit": "WRITE-ERROR-MESSAGE"
-   },
-   {
-    "line": 581,
-    "kind": "IF",
-    "outcome": "false",
     "unit": "WRITE-ERROR-MESSAGE"
    }
   ],
@@ -384,7 +463,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "159ff87b5bb50b3709b533df2ef88796c34289c88b20eeefebb413f028c2d9e6"
+  "inputs_digest": "70c38177c7dfcc2dbba57fba9cceeb5f675f5047c72285e911bfa406a60311f3"
  },
  "reach": {
   "entry_points": [
@@ -394,61 +473,67 @@
   "unproven": [
    {
     "class": "Lgapdb01Service",
+    "method": "out_Lgapdb01Dfhcommarea",
+    "line": 654,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Lgapdb01Service",
+    "method": "runProgram",
+    "line": 791,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Lgapdb01Service",
     "method": "lastLinkBytes",
-    "line": 487,
+    "line": 906,
     "kind": "left_as_generated"
    },
    {
-    "class": "Lgapdb01Service",
-    "method": "remoteLgapvs01L243",
-    "line": 493,
+    "class": "Lgapvs01Service",
+    "method": "out_Lgapvs01Dfhcommarea",
+    "line": 363,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Lgapvs01Service",
+    "method": "runProgram",
+    "line": 408,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Lgapvs01Service",
+    "method": "lastLinkBytes",
+    "line": 522,
     "kind": "left_as_generated"
    },
    {
-    "class": "Lgapdb01Service",
-    "method": "dispatchLgapvs01L243",
-    "line": 509,
-    "kind": "left_as_generated"
+    "class": "LgstsqService",
+    "method": "out_LgstsqDfhcommarea",
+    "line": 270,
+    "kind": "det_helper"
    },
    {
-    "class": "Lgapdb01Service",
-    "method": "abendLgcaL168",
-    "line": 518,
-    "kind": "left_as_generated"
+    "class": "LgstsqService",
+    "method": "runProgram",
+    "line": 307,
+    "kind": "det_helper"
    },
    {
-    "class": "Lgapdb01Service",
-    "method": "abendLgsqL393",
-    "line": 527,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Lgapdb01Service",
-    "method": "abendLgsqL431",
-    "line": 536,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Lgapdb01Service",
-    "method": "abendLgsqL477",
-    "line": 545,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Lgapdb01Service",
-    "method": "abendLgsqL551",
-    "line": 554,
+    "class": "LgstsqService",
+    "method": "lastLinkBytes",
+    "line": 417,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
    "stub": 0,
-   "left_as_generated": 8,
-   "det_helper": 0,
+   "left_as_generated": 3,
+   "det_helper": 6,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "eb161a85c3aeafbf87317205f9a350d8a1716aae090fc2c4b6827065d73a27fa"
+  "port_sha256": "ff484ae6a2a07b816cb3f0dcf2b91bd199fd0dfabe47f199b54fd2c3a007ff47"
  },
  "mutation": {
   "commit": "7a30cd45ca654ad7f7a9fb85f2f8d185e37546b2",
@@ -472,7 +557,7 @@
   "source": "docs/language_status/mutation_scores.json#genapp-lgapdb01/LGAPDB01",
   "inputs": {
    "port": {
-    "sha256": "9cb2d16c85152fe714a6797d29c60d5fc318f99ff0c71e0b652bb6a73e4e0b28"
+    "sha256": "65091d60533f786362c710c5f66be02775c41a22f06d947606b0880ca0ff909e"
    },
    "case": {
     "sha256": "aecc23b4f7c314678ce7199f8545341463d983410250042c3707999ebf57d568"
@@ -532,7 +617,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "741b362eee7da821cbb0d20762e2f7020c047c9e3e05e0ec674249299201a372"
+    "sha256": "bcfd4700f0f4d540d5bb4cfc6442417c8420394d5486992472df6c157a15db92"
    },
    {
     "path": "tests/equivalence/cics/ggcics_conditions.c",
@@ -569,6 +654,10 @@
    {
     "path": "tests/equivalence/cics/ggcics_transientdata.c",
     "sha256": "00961a38063f8fe5179068dee7457d1dc5b5eab7bfd48f1323f637888df5a265"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_web.c",
+    "sha256": "285bd1252683719b3c44191405432493d86a5da25766502252ca21930efd46cf"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -680,7 +769,7 @@
    },
    {
     "path": "tests/equivalence/le/le_time.c",
-    "sha256": "073fe9a311428333bc4e3521bf841c1ba8ac1135aa45c3ecef18f810da393d77"
+    "sha256": "5d710d14456328c2f1b3f4e9cbdb4eb08ca210dd0462199fc1be46f1333bfc47"
    },
    {
     "path": "tests/equivalence/le/mvswait.c",
@@ -702,20 +791,20 @@
   "assumptions": null
  },
  "provenance": {
-  "written_by": "model",
-  "model": "claude-sonnet-5-5",
-  "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
-  "attempt": 1,
-  "attempts": 1,
-  "ticket_sha256": "8edf852d0019a9139d26d4d546ea2086c04fe7067de789f2d16ee7bc22aa2033",
+  "written_by": "det",
+  "model": null,
+  "backend": null,
+  "attempt": null,
+  "attempts": null,
+  "ticket_sha256": null,
   "porting_rules_sha256": null,
-  "proposed_at": "2026-10-20T15:13:21+00:00",
+  "proposed_at": null,
   "generator_version": null,
-  "edited_after": "none: the files are the model's answer as the loop stored it",
+  "edited_after": null,
   "provenance_file": {
    "path": "tests/equivalence/genapp-lgapdb01/port/provenance.json",
-   "format": "porting-loop-provenance/1",
-   "sha256": "95acef9745af4251f372eefe379d2a5121f7d635769b7193b7887e36d92a4eb7"
+   "format": "det-port-provenance/1",
+   "sha256": "f9c15c5bc64fa2bf51f8053255674a8df008c4f3d30080199d53b040d50143af"
   }
  },
  "approvals": []

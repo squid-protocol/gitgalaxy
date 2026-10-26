@@ -608,6 +608,48 @@ def test_a_db2_start_that_never_finishes_is_retried_once_on_a_fresh_container(mo
     assert d._CONTAINER_READY
 
 
+def test_a_failed_docker_run_is_retried_once_on_a_fresh_container(monkeypatch):  # #5604
+    import equivalence_db2 as d
+
+    starts = []
+
+    def start(*, replace=False):
+        starts.append(replace)
+        if not replace:
+            raise RuntimeError("docker run: port is already allocated")
+
+    monkeypatch.setattr(d, "_CONTAINER_READY", False)
+    monkeypatch.setattr(d, "READY_MARK", Path("/nonexistent/db2-ready-mark"))
+    monkeypatch.setattr(d, "_docker", lambda *a, **k: "image-id")
+    monkeypatch.setattr(d, "_container_identity", lambda: "")
+    monkeypatch.setattr(d, "_start_container", start)
+    monkeypatch.setattr(d, "_await_ready", lambda: True)
+    d._ensure_container()
+    assert starts == [False, True]
+
+
+def test_an_image_pull_failure_is_not_retried_here(monkeypatch):  # #5604: pull_image has its own 4 attempts
+    import equivalence_db2 as d
+
+    def start(*, replace=False):
+        raise d.Db2ImagePullError("INFRASTRUCTURE")
+
+    monkeypatch.setattr(d, "_CONTAINER_READY", False)
+    monkeypatch.setattr(d, "READY_MARK", Path("/nonexistent/db2-ready-mark"))
+    monkeypatch.setattr(d, "_docker", lambda *a, **k: "image-id")
+    monkeypatch.setattr(d, "_start_container", start)
+    with pytest.raises(d.Db2ImagePullError):
+        d._ensure_container()
+
+
+def test_a_container_that_exited_ends_the_ready_wait_at_once(monkeypatch):  # #5604
+    import equivalence_db2 as d
+
+    monkeypatch.setattr(d, "_docker", lambda *a, **k: "false" if a[0] == "inspect" else "")
+    monkeypatch.setattr(d.time, "sleep", lambda s: pytest.fail("polled a dead container"))
+    assert d._await_ready() is False
+
+
 def test_a_db2_start_that_fails_twice_raises(monkeypatch):  # #5602
     import equivalence_db2 as d
 

@@ -17,7 +17,7 @@ import re
 import sqlite3
 from pathlib import Path
 
-from gitgalaxy.core.fact_channels import CHANNELS, CHANNELS_BY_NAME, create_channel_table
+from gitgalaxy.core.fact_channels import _WEB_SERVICE_FIELDS, CHANNELS, CHANNELS_BY_NAME, create_channel_table
 from gitgalaxy.core.state_rehydrator import StateRehydrator, _has_column, _has_table, _restore_child_table
 from gitgalaxy.recorders.record_keeper import RecordKeeper, _ensure_columns
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import EngineFile
@@ -294,6 +294,36 @@ def test_the_cics_task_and_data_move_channels_round_trip_every_payload_key(tmp_p
     assert node["data_moves"] == moves
 
 
+def test_the_web_service_channel_round_trips_every_payload_key(tmp_path):
+    services = [
+        {
+            "assistant": "DFHLS2WS",
+            "direction": "provider",
+            "program": "PROG1",
+            "uri": "/svc/prog1",
+            "request": "REQCPY",
+            "response": "RESCPY",
+            "interface": "CHANNEL",
+            "container": "DFHWS-DATA",
+            "binding": "prog1.wsbind",
+            "document": "prog1.wsdl",
+            "transaction": "TRN1",
+            "line": 12,
+        },
+        {key: None for key in _WEB_SERVICE_FIELDS} | {"line": 0},
+    ]
+    files = [{"path": "ws.jcl", "lang_id": "jcl", "raw_imports": [], "web_services": services}]
+    db = _record(tmp_path, files)
+    node = StateRehydrator(str(db)).load_state("RegistryRepo")["ram_cache"]["ws.jcl"]
+    assert node["web_services"] == services
+    conn = sqlite3.connect(db)
+    try:
+        columns = [r[1] for r in conn.execute("PRAGMA table_info(web_service_data)")]
+    finally:
+        conn.close()
+    assert "transaction_id" in columns and "transaction" not in columns
+
+
 def test_a_baseline_without_the_refmod_texts_restores_them_as_null():
     conn = sqlite3.connect(":memory:")
     conn.row_factory = sqlite3.Row
@@ -367,7 +397,6 @@ _GALAXY_IR = Path(__file__).resolve().parents[2] / "gitgalaxy" / "tools" / "cobo
 # slices). A table leaves this set when its channel is migrated; a new channel is never added here.
 _UNMIGRATED_IR_TABLES = frozenset(
     {
-        "web_service_data",
         "copy_statement_data",
         "special_names_data",
         "compiler_options_data",

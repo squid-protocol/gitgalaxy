@@ -55,6 +55,7 @@ LICENSED = callgraph_oracle.LICENSED | frozenset(
 MIN_TOKENS = 20  # trivial bodies (empty stubs, one-line returns) hash-match spuriously
 NEAR, DERIVED = 0.9, 0.6
 MAX_CANDIDATES = 20
+MIN_BARE_NAME = 6  # a prefix-less landmark name must be longer than this to match on its own
 C_STYLE = frozenset(
     "c cpp objective-c c_header cuda rust go java csharp kotlin dart javascript typescript swift".split()
 )
@@ -239,17 +240,24 @@ def file_stems(repo, subdir=None):
 
 
 def canonical(functions, is_vendor):
-    """Complexity / LOC of each landmark function's largest first-party same-name match: {function: row}."""
+    """Complexity / LOC of each landmark function's largest first-party same-name match: {function: row}.
+
+    A port that dropped linuxdoom's ``p_`` / ``r_`` prefix (``UseSpecialLine``, ``draw_column``) is matched on the bare
+    name, but only when no function keeps the full name and the bare name is longer than ``MIN_BARE_NAME`` (``Ticker``
+    is every subsystem's)."""
     want = {norm_name(f): f for f in CANONICAL}
-    best = {}
+    bare = {norm_name(f.split("_", 1)[1]): norm_name(f) for f in CANONICAL}
+    best, best_bare = {}, {}
     for f in functions:
         k = f["nname"]
-        if k in want and not is_vendor(f["file"]) and not OTHER_GAMES.search(f["file"]):
-            if k not in best or f["loc"] > best[k]["loc"]:
-                best[k] = f
+        if is_vendor(f["file"]) or OTHER_GAMES.search(f["file"]):
+            continue
+        for key, pool in ((k, best), (bare.get(k) if len(k) > MIN_BARE_NAME else None, best_bare)):
+            if key in want and (key not in pool or f["loc"] > pool[key]["loc"]):
+                pool[key] = f
     out = {}
     for k, label in want.items():
-        b = best.get(k)
+        b = best.get(k) or best_bare.get(k)
         out[label] = dict(function=label, found_as=b["name"] if b else "", file=b["file"] if b else "",
                           complexity=b["complexity"] if b else "", loc=b["loc"] if b else "")  # fmt: skip
     return out

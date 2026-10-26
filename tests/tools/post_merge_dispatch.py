@@ -43,6 +43,7 @@ TARGETS: dict[str, list[str] | str] = {
     "full-suite-gate.yml": NOT_DOCS,  # #4825/#5136: the OS x Python matrix of the whole suite
     "os-smoke-grid.yml": NOT_DOCS,  # #5130
     "cics-crucible.yml": FROM_PR_FILTER,  # #5131
+    "crucible-path-independence.yml": FROM_PR_FILTER,  # #6670: its job skips on a PR, so main is where it runs
     "estate-crucible.yml": FROM_PR_FILTER,
     "fact-crosscheck.yml": FROM_PR_FILTER,
     "ports-compile.yml": FROM_PR_FILTER,

@@ -153,6 +153,12 @@ RESOLUTION RULES (the language's, never the engine's)
               `include 'f'` / `#include "f"` are the file by path suffix. Comments
               blanked first (`!` to end of line; fixed-form `c`/`*` in column 1).
 
+  matlab      by PACKAGE and NAME, never by path: `+a/+b/C.m` is `a.b.C` (a class or package function),
+              `@C/C.m` is class C. `import a.b.C` is that file (`import C.m` a member: the owner's
+              file); `import a.b.*` names a package: contract C7, no edge, unless a.b is a class (its
+              static members: the class file). Several arguments on one line are each scored.
+              `%` and `%{ %}` comments blanked. matlab.* / java.* / org.* match no file: external.
+
   NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
   error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
   ERROR node spans lines 85-127, taking three COPYs with it) -- it found 64 of
@@ -233,6 +239,7 @@ LANGS = (
     "tcl",
     "groovy",
     "fortran",
+    "matlab",
 )
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
@@ -1812,6 +1819,69 @@ def fortran_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return [t for _, t in sorted(out, key=lambda x: x[0])]
 
 
+_ML_IMPORT = re.compile(r"^[ \t]*import[ \t]+([A-Za-z_][^\n;%]*)", re.MULTILINE)
+
+
+def _ml_mask(text: str) -> str:
+    """`%{ ... %}` block comments and `%` line comments blanked (newlines kept)."""
+    text = re.sub(
+        r"^[ \t]*%\{[ \t]*\n.*?^[ \t]*%\}[ \t]*$", lambda m: re.sub(r"[^\n]", " ", m.group(0)), text, flags=re.M | re.S
+    )
+    return re.sub(r"%[^\n]*", lambda m: " " * len(m.group(0)), text)
+
+
+def _ml_index(group: Group) -> dict[tuple[str, ...], set[str]]:
+    """qualified name -> files: `+a/+b/C.m` is (a, b, C); `@C/C.m` is C's class file (a method file
+    `@C/m.m` and a `private/` helper name nothing importable)."""
+    if "ml" not in group._cache:
+        index: dict[tuple[str, ...], set[str]] = collections.defaultdict(set)
+        for f in sorted(group.files):
+            if not f.endswith(".m"):
+                continue
+            dirs, stem = f.split("/")[:-1], posixpath.basename(f)[:-2]
+            if dirs and dirs[-1] == "private":
+                continue
+            if dirs and dirs[-1].startswith("@"):
+                if dirs[-1][1:] != stem:
+                    continue
+                dirs = dirs[:-1]
+            pkg: list[str] = []
+            for d in reversed(dirs):
+                if not d.startswith("+"):
+                    break
+                pkg.insert(0, d[1:])
+            index[(*pkg, stem)].add(f)
+        group._cache["ml"] = index
+    return group._cache["ml"]
+
+
+def matlab_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _ml_index(group)
+    out = []
+    for m in _ML_IMPORT.finditer(_ml_mask(decode_bytes(src))):
+        for arg in m.group(1).split():
+            if arg == "...":
+                break
+            parts = arg.split(".")
+            wildcard = parts[-1] == "*"
+            if wildcard:
+                parts = parts[:-1]
+            if not parts or not all(parts):
+                continue
+            if wildcard:
+                # `import a.b.*` names a package (contract C7: no file, no edge) unless a.b is a
+                # class, whose static members it imports: the class file
+                out.append(set(index.get(tuple(parts), ())))
+                continue
+            # `import a.b.C` is a class or package function; `import C.m` a member: the owner's file
+            out.append(
+                next(
+                    (set(index[tuple(parts[:k])]) for k in range(len(parts), 0, -1) if tuple(parts[:k]) in index), set()
+                )
+            )
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -1839,6 +1909,7 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "tcl": tcl_imports,
     "groovy": groovy_imports,
     "fortran": fortran_imports,
+    "matlab": matlab_imports,
 }
 
 

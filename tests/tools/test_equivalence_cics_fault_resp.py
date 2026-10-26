@@ -6,6 +6,9 @@ the stub, the Java task and the translator all naming the same hook.
 
 IBM (CICS TS 6.x, the Conditions of SEND MAP, RECEIVE MAP, RETURN, SYNCPOINT, SYNCPOINT ROLLBACK)."""
 
+import json
+import os
+import re
 import sys
 from pathlib import Path
 
@@ -14,6 +17,7 @@ import pytest
 TESTS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TESTS / "tools"))
 import equivalence_cics as ec  # noqa: E402
+from gitgalaxy.core.source_text import read_source  # noqa: E402
 
 REPO = TESTS.parent
 
@@ -189,3 +193,59 @@ def test_the_send_text_stub_and_translator_read_the_same_plan():
     assert "if ({pl}[0] == 0) task.sendText(" in cics
     # CONVERSE writes its data without consulting a SEND TEXT plan
     assert "send_text_event(c, from, fromlen)" in stub
+
+
+# the CBSA terminal programs whose SEND TEXT (STM010, PF12) and plain RETURN TRANSID (A010) failure arms a committed
+# scenario reaches by a planned fault, not a stated "no fault can be injected" (#6271); BNKMENU's plain RETURN was first
+_CBSA_SEND_TEXT = ("bnkmenu", "bnk1cac", "bnk1cca", "bnk1ccs", "bnk1cra", "bnk1dac", "bnk1tfn", "bnk1uac")
+_CBSA_PLAIN_RETURN = ("bnkmenu", *_CBSA_SEND_TEXT[1:])
+
+
+def _case_plans(prog, cmd):
+    case = json.loads((REPO / f"tests/equivalence/cbsa-{prog}/case.json").read_text(encoding="utf-8"))
+    return [s for s in case["scenarios"] if any(f.get("cmd") == cmd for f in s.get("faults", []))]
+
+
+@pytest.mark.parametrize("prog", _CBSA_SEND_TEXT)
+def test_a_committed_scenario_fails_the_termination_send_text(prog):
+    (sc,) = _case_plans(prog, "SEND-TEXT")
+    assert sc["aid"] == "DFHPF12"
+    assert ec.fault_lines({"name": sc["name"], "faults": sc["faults"]}) == ["SEND-TEXT - 1 35 0"]
+
+
+@pytest.mark.parametrize("prog", _CBSA_PLAIN_RETURN[1:])
+def test_a_committed_scenario_fails_the_plain_return_transid(prog):
+    (sc,) = _case_plans(prog, "RETURN")
+    assert ec.fault_lines({"name": sc["name"], "faults": sc["faults"]}) == ["RETURN - 1 16 4"]
+
+
+@pytest.mark.parametrize("prog", _CBSA_SEND_TEXT)
+def test_no_stale_cannot_inject_entry_remains_for_the_reached_arms(prog):
+    path = REPO / f"tests/equivalence/infeasible_outcomes/cbsa-{prog}.json"
+    for e in json.loads(path.read_text(encoding="utf-8"))["entries"]:
+        text = e["reason"]
+        if e["unit"] == "STM010":
+            assert "SEND TEXT" not in text, e
+        if e["unit"] == "A010" and prog != "bnkmenu":
+            # only the arm a successful RETURN would take stays stated infeasible
+            assert e["outcome"] == "false" or "RETURN" not in text, e
+
+
+def test_send_control_is_refused_by_name():
+    with pytest.raises(ec.Unsupported, match="X71"):
+        _lines(cmd="SEND-CONTROL", resp="TSIOERR")
+
+
+def test_no_burned_cbsa_send_control_codes_resp():
+    # the refusal's premise: a failure of a RESP-less SEND CONTROL would abend, which IBM does not describe
+    src = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")
+    cobol = Path(src) / "cics-banking-sample-application-cbsa/src/base/cobol_src" if src else None
+    if cobol is None or not cobol.is_dir():
+        pytest.skip("CBSA corpus not available")
+    found = 0
+    for f in sorted(cobol.glob("*.cbl")):
+        text = read_source(f).text
+        for m in re.finditer(r"EXEC\s+CICS\s+SEND\s+CONTROL(.*?)END-EXEC", text, re.S | re.I):
+            found += 1
+            assert "RESP" not in m.group(1).upper(), f.name
+    assert found

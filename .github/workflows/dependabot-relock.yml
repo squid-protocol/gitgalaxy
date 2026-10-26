@@ -1,0 +1,73 @@
+name: Dependabot relock
+
+# #4918 / #5808: Dependabot compiles flat lockfiles on its own Python (dropping universal python_full_version markers
+# and dropping unsafe packages like setuptools/pip from bootstrap.txt, as in #6300). This workflow repairs any
+# Dependabot push that touches ci/requirements/** or templates/requirements/** using main's tests/tools/dependabot_relock.py.
+#
+# Security model (same as shepherd-event.yml):
+# - Only main's code is checked out and executed; the PR files are read as data.
+# - Gated on user.login == 'dependabot[bot]' && actor == 'dependabot[bot]', so its own push never retriggers it.
+# - No ${{ github.event.* }} expression appears inside a run: block; $GITHUB_EVENT_PATH is parsed as JSON.
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+    paths:
+      - "ci/requirements/**"
+      - "templates/requirements/**"
+
+permissions: {}
+
+concurrency:
+  group: dependabot-relock-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  relock:
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout base repository main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install hash-pinned bootstrap and uv compiler
+        run: |
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/relock.txt
+
+      - name: Relock Dependabot PR branch in isolated worktree
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python3 tests/tools/dependabot_relock.py --event-path "$GITHUB_EVENT_PATH" --workdir relock-pr
+
+      - name: Mint the squid-shepherd App token
+        id: app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.SHEPHERD_APP_ID }}
+          private-key: ${{ secrets.SHEPHERD_APP_KEY }}
+
+      - name: Push relocked lockfiles to Dependabot PR branch
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
+          REPO: ${{ github.repository }}
+        run: |
+          [ -d relock-pr ] || exit 0
+          branch=$(jq -r .pull_request.head.ref "$GITHUB_EVENT_PATH")
+          head=$(jq -r .pull_request.head.sha "$GITHUB_EVENT_PATH")
+          [ "$(git -C relock-pr rev-parse HEAD)" != "$head" ] || exit 0
+          git -C relock-pr push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" "HEAD:refs/heads/${branch}"

@@ -143,10 +143,12 @@ ENGINE_CONSTANTS = {
 # risk term at all. Dialects resolve through LANGUAGE_FAMILY (embedded_python -> python)
 # so a family member can never fall through to a default again.
 #
-# Irc = number of `False` columns (0-4); Ot = 1 + 0.1 * Irc. These weights are
-# provisional -- the magnitude of a language-level term is exactly what no fixture can
-# validate yet (#2720 is the pilot that will). #2655's invariant stays in force in every
-# equation that reads them: Irc corrects measured risk, it never creates it.
+# Irc = gaps * STRICTNESS_IRC_PER_GAP; Ot = 1 + gaps * STRICTNESS_OT_PER_GAP. Both weights
+# are ZERO (owner, 2026-10-23): the #2720 outcome-label pilot found no consistent predictive
+# value at equal measured evidence (pooled rate ratio 0.67, opposite to the table, per-repo
+# signs disagreeing; memo on #2716). The table stays as documentation and as the hook a
+# future measured weight would use. #2655's invariant stays in force in every equation that
+# reads them: Irc corrects measured risk, it never creates it.
 # ------------------------------------------------------------------------------
 
 STRICTNESS_COLUMNS = ("static_types", "enforced_errors", "memory_safe", "no_implicit_globals")
@@ -247,8 +249,8 @@ LANGUAGE_FAMILY: dict[str, str] = {
     "micropython": "python",
 }
 
-STRICTNESS_IRC_PER_GAP = 1  # Irc = gaps * this
-STRICTNESS_OT_PER_GAP = 0.10  # Ot = 1 + gaps * this
+STRICTNESS_IRC_PER_GAP = 0  # Irc = gaps * this; zero since the #2720 pilot (was 1)
+STRICTNESS_OT_PER_GAP = 0.0  # Ot = 1 + gaps * this; zero since the #2720 pilot (was 0.10)
 
 
 def resolve_language_family(lang_id: str) -> str:

@@ -1227,12 +1227,12 @@
       "dart/SOURCES.md": 0.0
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 0.601,
+      "dart/flutter/editable_text.dart": 0.599,
       "dart/flutter/events.dart": 0.642,
-      "dart/flutter/framework.dart": 0.818,
-      "dart/flutter/navigator.dart": 0.712,
-      "dart/flutter/object.dart": 1.205,
-      "dart/flutter/semantics.dart": 1.365,
+      "dart/flutter/framework.dart": 0.816,
+      "dart/flutter/navigator.dart": 0.7,
+      "dart/flutter/object.dart": 1.197,
+      "dart/flutter/semantics.dart": 1.362,
       "dart/flutter/theme_data.dart": 0.897
     },
     "db2_sql": {
@@ -3298,12 +3298,12 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0.0,
-      "scheme/racket/cpnanopass.ss": 0.569,
+      "scheme/racket/cpnanopass.ss": 0.618,
       "scheme/racket/eval.c": 1.452,
       "scheme/racket/fun.c": 1.408,
-      "scheme/racket/io.ss": 0.531,
-      "scheme/racket/schemify.rkt": 0.274,
-      "scheme/racket/thread.rkt": 0.272
+      "scheme/racket/io.ss": 0.568,
+      "scheme/racket/schemify.rkt": 0.276,
+      "scheme/racket/thread.rkt": 0.278
     },
     "shell": {
       "shell/SOURCES.md": 0.0

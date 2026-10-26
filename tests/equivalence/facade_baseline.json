@@ -1,5 +1,20 @@
 {
  "format": "equivalence-facade-baseline/1",
  "about": "#4449: the java-facade scenarios (each CICS scenario entered through the program's deployed entry point) that fail on committed equivalence ports, each case with the issue that owns the defect. tests/cobol_mainframe/test_evidence.py checks it against the evidence records.",
- "cases": {}
+ "cases": {
+  "cbsa-inqacc": {
+   "issue": "#6692",
+   "why": "the java facade does not fire the scenario's declared sql_faults (OPEN and FETCH deadlock to AD2Z, OPEN connection lost, OPEN / cursor CLOSE -501, OPEN -501 with an abend on the ABNDPROC LINK); the det sweep proves all 25",
+   "scenarios": [
+    "cursor-close-fails",
+    "fetch-deadlock-abends-ad2z",
+    "open-connection-lost",
+    "open-deadlock-abends-ad2z",
+    "open-fails-link-abndproc-abends-afcr",
+    "open-fails-link-abndproc-abends-afcs",
+    "open-fails-link-abndproc-abends-afct",
+    "open-fails-link-abndproc-abends-afct-rollback-invreq"
+   ]
+  }
+ }
 }

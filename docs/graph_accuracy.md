@@ -299,6 +299,13 @@ names it (constructors, destructors, operators, `ns::Foo<T>::m` and `template<>`
 with their links, 10 of them wrong (not read in source one by one). Test:
 `tests/extraction/languages/test_cpp_template_member_names_3772.py`.
 
+**One-line namespace members (#3772):** `func_start` is anchored at the start of a line, so a definition written after
+its namespace opener (`namespace n { template<class T> T Box<T>::get() {...} }`) was not extracted at all. `cpp` now
+accepts up to three `namespace [qualified::name] {` openers before the definition. fmt call-graph metrics are unchanged
+(no such line there) and neither crucible golden nor any doom-rosetta port moves. Not covered: the same shape after
+`extern "C" {` (the one-line form is not reached by the cpp rule; the multi-line form works). Test:
+`tests/extraction/languages/test_cpp_namespace_oneline_member_3772.py`.
+
 **C macro-defined functions (#3784):** libuv defines its tests as `TEST_IMPL(kill) {`, which declares `run_test_kill`;
 the engine names the unit `kill`. The adapter now names a def written as a one-argument macro by the argument (the
 same idea as the gtest names above), so those engine ends map. Adapter only, no engine change. Before -> after

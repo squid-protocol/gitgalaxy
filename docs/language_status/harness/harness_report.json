@@ -6,25 +6,25 @@
   "programs": 103,
   "with_case": 103,
   "with_case_pct": 100.0,
-  "proven": 74,
-  "proven_pct": 71.8,
+  "proven": 77,
+  "proven_pct": 74.8,
   "paragraphs": {
-   "covered": 363,
+   "covered": 365,
    "live": 366,
-   "pct": 99.2
+   "pct": 99.7
   },
   "branches": {
-   "covered": 1125,
+   "covered": 1134,
    "total": 1209,
-   "pct": 93.1
+   "pct": 93.8
   },
   "cases_measured": 25,
   "cases": 99
  },
  "status_counts": {
-  "proven": 74,
+  "proven": 77,
   "differs": 0,
-  "ran, coverage open": 26,
+  "ran, coverage open": 23,
   "couldn't run": 3,
   "not attempted": 0
  },
@@ -100,6 +100,15 @@
    "gaps": [],
    "reasons": {},
    "tests": 9
+  },
+  {
+   "corpus": "aws-mainframe-modernization-carddemo",
+   "program": "app/cbl/COACTUPC.cbl",
+   "case": "carddemo-acctupdate",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 140
   },
   {
    "corpus": "aws-mainframe-modernization-carddemo",
@@ -396,7 +405,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 43
+   "tests": 45
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -405,7 +414,7 @@
    "status": "proven",
    "gaps": [],
    "reasons": {},
-   "tests": 93
+   "tests": 95
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -415,6 +424,15 @@
    "gaps": [],
    "reasons": {},
    "tests": 7
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/DBCRFUN.cbl",
+   "case": "cbsa-dbcrfun",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 29
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -442,6 +460,15 @@
    "gaps": [],
    "reasons": {},
    "tests": 11
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/INQACC.cbl",
+   "case": "cbsa-inqacc",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 22
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -706,7 +733,7 @@
    "reasons": {
     "coverage: LINKed program DBCRFUN has live paragraphs no scenario runs": "16/22 paragraphs"
    },
-   "tests": 29,
+   "tests": 31,
    "blocker": "coverage: LINKed program DBCRFUN has live paragraphs no scenario runs"
   },
   {
@@ -720,7 +747,7 @@
    "reasons": {
     "coverage: LINKed program INQACC has live paragraphs no scenario runs": "16/25 paragraphs"
    },
-   "tests": 23,
+   "tests": 25,
    "blocker": "coverage: LINKed program INQACC has live paragraphs no scenario runs"
   },
   {
@@ -734,7 +761,7 @@
    "reasons": {
     "coverage: LINKed program XFRFUN has live paragraphs no scenario runs": "27/28 paragraphs"
    },
-   "tests": 48,
+   "tests": 50,
    "blocker": "coverage: LINKed program XFRFUN has live paragraphs no scenario runs"
   },
   {
@@ -748,7 +775,7 @@
    "reasons": {
     "coverage: LINKed program INQACC has live paragraphs no scenario runs": "16/25 paragraphs"
    },
-   "tests": 75,
+   "tests": 77,
    "blocker": "coverage: LINKed program INQACC has live paragraphs no scenario runs"
   },
   {
@@ -762,35 +789,7 @@
    "reasons": {
     "coverage: live paragraphs no scenario runs": "24/25 paragraphs"
    },
-   "tests": 31,
-   "blocker": "coverage: live paragraphs no scenario runs"
-  },
-  {
-   "corpus": "cics-banking-sample-application-cbsa",
-   "program": "src/base/cobol_src/DBCRFUN.cbl",
-   "case": "cbsa-dbcrfun",
-   "status": "ran, coverage open",
-   "gaps": [
-    "coverage: live paragraphs no scenario runs"
-   ],
-   "reasons": {
-    "coverage: live paragraphs no scenario runs": "21/22 paragraphs"
-   },
-   "tests": 29,
-   "blocker": "coverage: live paragraphs no scenario runs"
-  },
-  {
-   "corpus": "cics-banking-sample-application-cbsa",
-   "program": "src/base/cobol_src/INQACC.cbl",
-   "case": "cbsa-inqacc",
-   "status": "ran, coverage open",
-   "gaps": [
-    "coverage: live paragraphs no scenario runs"
-   ],
-   "reasons": {
-    "coverage: live paragraphs no scenario runs": "22/24 paragraphs"
-   },
-   "tests": 14,
+   "tests": 32,
    "blocker": "coverage: live paragraphs no scenario runs"
   },
   {
@@ -920,22 +919,6 @@
    "blocker": "coverage: live paragraphs no scenario runs"
   },
   {
-   "corpus": "aws-mainframe-modernization-carddemo",
-   "program": "app/cbl/COACTUPC.cbl",
-   "case": "carddemo-acctupdate",
-   "status": "ran, coverage open",
-   "gaps": [
-    "coverage: LINKed program CSUTLDTC has live paragraphs no scenario runs",
-    "coverage: live paragraphs no scenario runs"
-   ],
-   "reasons": {
-    "coverage: LINKed program CSUTLDTC has live paragraphs no scenario runs": "0/2 paragraphs",
-    "coverage: live paragraphs no scenario runs": "90/95 paragraphs"
-   },
-   "tests": 138,
-   "blocker": "coverage: live paragraphs no scenario runs"
-  },
-  {
    "corpus": "cics-banking-sample-application-cbsa",
    "program": "src/base/cobol_src/BNK1CAC.cbl",
    "case": "cbsa-bnk1cac",
@@ -948,7 +931,7 @@
     "coverage: LINKed program INQACCCU has live paragraphs no scenario runs": "16/22 paragraphs",
     "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "13/25 paragraphs"
    },
-   "tests": 43,
+   "tests": 45,
    "blocker": "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
   },
   {
@@ -964,7 +947,7 @@
     "coverage: LINKed program INQACCCU has live paragraphs no scenario runs": "16/22 paragraphs",
     "coverage: LINKed program INQCUST has live paragraphs no scenario runs": "7/25 paragraphs"
    },
-   "tests": 22,
+   "tests": 24,
    "blocker": "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
   },
   {
@@ -1034,7 +1017,7 @@
     "coverage: LINKed program CRDTAGY4 has live paragraphs no scenario runs": "0/7 paragraphs",
     "coverage: LINKed program CRDTAGY5 has live paragraphs no scenario runs": "0/7 paragraphs"
    },
-   "tests": 93,
+   "tests": 95,
    "blocker": "coverage: LINKed program CRDTAGY1 has live paragraphs no scenario runs"
   },
   {
@@ -1296,7 +1279,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 138
+   "tests": 140
   },
   "carddemo-acctview": {
    "generated": [],
@@ -1560,7 +1543,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 43,
+   "tests": 45,
    "non_vsam": [
     "db2"
    ]
@@ -1573,7 +1556,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 22,
+   "tests": 24,
    "non_vsam": [
     "db2"
    ]
@@ -1586,7 +1569,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 93,
+   "tests": 95,
    "non_vsam": [
     "db2"
    ]
@@ -1598,7 +1581,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 29,
+   "tests": 31,
    "non_vsam": [
     "db2"
    ]
@@ -1610,7 +1593,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 23,
+   "tests": 25,
    "non_vsam": [
     "db2"
    ]
@@ -1632,7 +1615,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 48,
+   "tests": 50,
    "non_vsam": [
     "db2"
    ]
@@ -1644,7 +1627,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 75,
+   "tests": 77,
    "non_vsam": [
     "db2"
    ]
@@ -1656,7 +1639,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 31
+   "tests": 32
   },
   "cbsa-crdtagy1": {
    "generated": [],
@@ -1771,7 +1754,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 14,
+   "tests": 22,
    "non_vsam": [
     "db2"
    ]
@@ -2196,46 +2179,6 @@
  },
  "blockers": [
   {
-   "gap": "coverage: live paragraphs no scenario runs",
-   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 9 programs: Source/ZECS000.cbl, Source/ZECS001.cbl, app/cbl/COACTUPC.cbl, base/src/lgapol01.cbl, src/base/cobol_src/BNK1DCS.cbl, src/base/cobol_src/BNKMENU.cbl, src/base/cobol_src/DBCRFUN.cbl, src/base/cobol_src/INQACC.cbl, zBuilder/MortgageApplication/cobol/epsmlist.cbl (cases: carddemo-acctupdate, cbsa-bnk1dcs, cbsa-bnkmenu, cbsa-dbcrfun, cbsa-inqacc, genapp-lgtestp1, mortgage-mlist, zecs-zecs000, zecs-zecs001).",
-   "programs": [
-    "Source/ZECS000.cbl",
-    "Source/ZECS001.cbl",
-    "app/cbl/COACTUPC.cbl",
-    "base/src/lgapol01.cbl",
-    "src/base/cobol_src/BNK1DCS.cbl",
-    "src/base/cobol_src/BNKMENU.cbl",
-    "src/base/cobol_src/DBCRFUN.cbl",
-    "src/base/cobol_src/INQACC.cbl",
-    "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
-   ],
-   "cases": [
-    "carddemo-acctupdate",
-    "cbsa-bnk1dcs",
-    "cbsa-bnkmenu",
-    "cbsa-dbcrfun",
-    "cbsa-inqacc",
-    "genapp-lgtestp1",
-    "mortgage-mlist",
-    "zecs-zecs000",
-    "zecs-zecs001"
-   ],
-   "programs_unlocked": 6,
-   "tests_unlocked": 115,
-   "programs_also_blocked": [],
-   "then_needs": {
-    "app/cbl/COACTUPC.cbl": [
-     "coverage: LINKed program CSUTLDTC has live paragraphs no scenario runs"
-    ],
-    "src/base/cobol_src/BNK1DCS.cbl": [
-     "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
-    ],
-    "Source/ZECS001.cbl": [
-     "fact: EIBRCODE (no harness states it)"
-    ]
-   }
-  },
-  {
    "gap": "coverage: LINKed program INQACC has live paragraphs no scenario runs",
    "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 2 programs: src/base/cobol_src/BNK1DAC.cbl, src/base/cobol_src/BNK1UAC.cbl (cases: cbsa-bnk1dac, cbsa-bnk1uac).",
    "programs": [
@@ -2247,9 +2190,40 @@
     "cbsa-bnk1uac"
    ],
    "programs_unlocked": 2,
-   "tests_unlocked": 98,
+   "tests_unlocked": 102,
    "programs_also_blocked": [],
    "then_needs": {}
+  },
+  {
+   "gap": "coverage: live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 6 programs: Source/ZECS000.cbl, Source/ZECS001.cbl, base/src/lgapol01.cbl, src/base/cobol_src/BNK1DCS.cbl, src/base/cobol_src/BNKMENU.cbl, zBuilder/MortgageApplication/cobol/epsmlist.cbl (cases: cbsa-bnk1dcs, cbsa-bnkmenu, genapp-lgtestp1, mortgage-mlist, zecs-zecs000, zecs-zecs001).",
+   "programs": [
+    "Source/ZECS000.cbl",
+    "Source/ZECS001.cbl",
+    "base/src/lgapol01.cbl",
+    "src/base/cobol_src/BNK1DCS.cbl",
+    "src/base/cobol_src/BNKMENU.cbl",
+    "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+   ],
+   "cases": [
+    "cbsa-bnk1dcs",
+    "cbsa-bnkmenu",
+    "genapp-lgtestp1",
+    "mortgage-mlist",
+    "zecs-zecs000",
+    "zecs-zecs001"
+   ],
+   "programs_unlocked": 4,
+   "tests_unlocked": 73,
+   "programs_also_blocked": [],
+   "then_needs": {
+    "src/base/cobol_src/BNK1DCS.cbl": [
+     "coverage: LINKed program INQCUST has live paragraphs no scenario runs"
+    ],
+    "Source/ZECS001.cbl": [
+     "fact: EIBRCODE (no harness states it)"
+    ]
+   }
   },
   {
    "gap": "coverage: LINKed program XFRFUN has live paragraphs no scenario runs",
@@ -2261,7 +2235,7 @@
     "cbsa-bnk1tfn"
    ],
    "programs_unlocked": 1,
-   "tests_unlocked": 48,
+   "tests_unlocked": 50,
    "programs_also_blocked": [],
    "then_needs": {}
   },
@@ -2275,7 +2249,7 @@
     "cbsa-bnk1cra"
    ],
    "programs_unlocked": 1,
-   "tests_unlocked": 29,
+   "tests_unlocked": 31,
    "programs_also_blocked": [],
    "then_needs": {}
   },
@@ -2626,7 +2600,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 967
+   "tests_held": 989
   },
   {
    "cause": "ims",

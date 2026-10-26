@@ -113,14 +113,6 @@
       "outcome": "false",
       "family": "G",
       "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SMM010 after the first SEND MAP (GO TO SMM999) and '2' is never set (see 1052), so the test is always true."
-    },
-    {
-      "unit": "STM010",
-      "line": 1218,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND TEXT ERASE FREEKB that writes the termination message (1210-1216): IBM raises no condition for it on a terminal that just sent a map, and no fault can be injected on it."
     }
   ]
 }

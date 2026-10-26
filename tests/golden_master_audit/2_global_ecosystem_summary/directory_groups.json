@@ -1566,11 +1566,11 @@
       "avg_exposures": {
         "api_exposure": 3.19,
         "churn": 0.0,
-        "cognitive_load": 30.03,
+        "cognitive_load": 29.88,
         "concurrency": 12.89,
         "dead_code": 6.88,
         "documentation": 44.0,
-        "safety_score": 36.8,
+        "safety_score": 36.79,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -1579,7 +1579,7 @@
         "verification": 24.63
       },
       "file_count": 7,
-      "total_mass": 22960.2
+      "total_mass": 22872.5
     },
     "db2_sql": {
       "avg_exposures": {
@@ -5100,20 +5100,20 @@
       "avg_exposures": {
         "api_exposure": 1.52,
         "churn": 0.0,
-        "cognitive_load": 38.47,
+        "cognitive_load": 39.53,
         "concurrency": 1.95,
         "dead_code": 2.84,
         "documentation": 85.71,
-        "safety_score": 53.82,
+        "safety_score": 53.91,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.86,
-        "state_flux": 51.6,
+        "state_flux": 52.66,
         "tech_debt": 13.34,
         "verification": 68.57
       },
       "file_count": 7,
-      "total_mass": 24244.32
+      "total_mass": 24902.42
     },
     "shell": {
       "avg_exposures": {

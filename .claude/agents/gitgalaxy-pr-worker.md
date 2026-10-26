@@ -72,6 +72,7 @@ Evidence (#5206, #4703; detail in `blocker-slice` / `cics-command-slice`): read 
 - The GitHub API budget is shared by ALL agents: no tight loops or per-file calls; on a rate-limit error wait, don't retry. Churn workers file no issues: list **Sibling gaps** in the report.
 - Venv bin on PATH and the three `*_CRUCIBLE_PATH` variables (`python: command not found`, FileNotFoundError 'mypy', a dropped golden row): `golden-master-guidelines.md` section 4.
 - Check a brief's premise first: `git cat-file -e <sha>` for "already strengthened at <sha>" (#5472), `mutation_scores.json` for a mutation issue (#5541), a rerun on current main for "main is red" (#5503).
+- **A `claim:<host>` label naming the host that launched you is your own lease, not someone else's**: churn claims every issue it queues (`churn claims` prints the host; the owner's box is `nyx`, so `claim:nyx` and a "promoter-bot claim host=nyx" comment are churn's). Work the issue. Only an assignee, or a `claim:` label for a different host, means another party holds it: then stop and report. 2026-10-25: a worker stopped on `claim:nyx` and the tick parked three DOOM-goal issues on that report for 5 h.
 
 ## Never
 Merge (unless told to). Rebase or force-push. Close issues. `--no-verify`, `reset --hard`, rewriting published history. Edit the shepherd's workflows (`shepherd-*.yml`) without the owner's per-PR OK. Route around a denial or classifier block: STOP and report it.

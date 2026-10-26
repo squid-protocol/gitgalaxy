@@ -203,7 +203,7 @@ UI_FAULT_CONDITIONS: dict[str, dict[str, tuple[int, ...]]] = {
     "SEND-MAP": {"INVMPSZ": (), "TSIOERR": (), "INVREQ": (200,)},
     "RECEIVE-MAP": {"INVMPSZ": (), "INVREQ": ()},
     # SEND TEXT (IBM's Conditions of -send-text): TSIOERR; INVREQ RESP2 200 (the other INVREQ causes state no RESP2); LENGERR
-    # (LENGTH out of range) names none. SEND CONTROL (same conditions minus LENGERR) is a sibling gap
+    # (LENGTH out of range) names none. SEND CONTROL (same conditions minus LENGERR) is refused (X71)
     "SEND-TEXT": {"TSIOERR": (), "INVREQ": (200,), "LENGERR": ()},
     "RETURN": {"INVREQ": (1, 2, 4, 200), "LENGERR": (11, 26, 27)},
     "SYNCPOINT": {"INVREQ": (200,)},
@@ -247,6 +247,11 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
         if f.get("resp") == "ABEND":  # #6271 (register X70): the task abends instead of a condition
             out.append(_abend_fault_line(sc, f, cmd))
             continue
+        if cmd == "SEND-CONTROL":  # #6271 (register X71): IBM lists its conditions, no burned program codes RESP on it
+            raise ec.Unsupported(
+                f"scenario {sc['name']}: fault {f}: SEND CONTROL is not planned: every burned caller codes it with no RESP "
+                "and IBM does not describe the abend a failure would take, so no failure arm exists to reach (register X71, refused)"
+            )
         if cmd == "LINK" and f.get("resp") in LINK_REFUSED_CONDITIONS:  # #4986 (register X43)
             raise ec.Unsupported(
                 f"scenario {sc['name']}: fault {f}: LINK {f['resp']} is IBM-documented but the region never raises it "

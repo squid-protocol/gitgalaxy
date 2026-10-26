@@ -65,9 +65,21 @@ def test_a_doc_the_cobol_tests_open_runs():
     assert plan([path])["mode"] == "run"
 
 
-@pytest.mark.parametrize("event", ["push", "schedule", "workflow_dispatch"])
-def test_main_nightly_and_manual_always_run(event):
+@pytest.mark.parametrize("event", ["schedule", "workflow_dispatch"])
+def test_nightly_and_manual_always_run(event):
     assert plan(["README.md"], event)["mode"] == "run"
+
+
+def test_a_main_push_is_planned_from_its_files():
+    assert plan(["README.md"], "push")["mode"] == "none"
+    assert plan(["gitgalaxy/tools/cobol_to_java/x.py"], "push")["mode"] == "run"
+    assert plan([], "push")["mode"] == "run"  # no file list (over 300 files, API failure): fail open
+
+
+def test_the_workflow_runs_after_a_merge_to_main():
+    text = (REPO / ".github" / "workflows" / "equivalence-e2e.yml").read_text(encoding="utf-8")
+    assert "push:\n    branches: [main]" in text
+    assert "cancel-in-progress: ${{ github.event_name == 'pull_request' }}" in text
 
 
 def test_label_empty_diff_and_failure_all_run():
@@ -134,8 +146,8 @@ def test_a_shard_only_change_skips_db2(path):
     assert plan_db2([path]) == "none"
 
 
-@pytest.mark.parametrize("event", ["push", "schedule", "workflow_dispatch"])
-def test_main_nightly_and_manual_always_run_db2(event):
+@pytest.mark.parametrize("event", ["schedule", "workflow_dispatch"])
+def test_nightly_and_manual_always_run_db2(event):
     assert plan_db2(["README.md"], event) == "run"
 
 

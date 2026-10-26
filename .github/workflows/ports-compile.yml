@@ -33,6 +33,7 @@ on:
       - "tests/tools/java_target_matrix.py"
       - "tests/tools/mainframe_corpus.py"
       - "scripts/check_assess_install.py"  # #4726: the clean-install check step below
+      - "tests/tools/assess_install_plan.py"  # #6672: plans that step on a PR
       - ".github/workflows/ports-compile.yml"
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
   # #5131/#5136: no main push trigger. post-merge.yml dispatches this on main (at most once per cadence window, only
@@ -54,6 +55,9 @@ jobs:
     name: committed ports compile
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    permissions:
+      contents: read
+      pull-requests: read  # #6672: the PR's changed files (with their status) plan the clean-install step
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -152,7 +156,33 @@ jobs:
       # because it already has the checkout and the pinned corpora; no new trigger or matrix. The script builds the wheel
       # from the checkout and installs it into a fresh venv with --no-index; the wheelhouse (the translator extra's wheels)
       # is built here, with network, so the translate-only dry run is on.
+      # #6672: on a PR it runs only when a changed file can break the install (tests/tools/assess_install_plan.py:
+      # packaging, the assess command, a file added / removed / renamed under gitgalaxy/, a shipped data file). Main
+      # dispatch and the nightly always run it; an unreadable or short file list, or a failed plan, runs it too.
+      - name: Plan the clean-install check
+        id: assess_plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          cd gitgalaxy
+          args=(--event "$EVENT" --github-output "$GITHUB_OUTPUT")
+          if [ "$EVENT" = "pull_request" ]; then
+            # the PR's files from the API, whole or not at all (as equivalence-e2e.yml's plan): a short list runs the check
+            gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | "\(.status)\t\(.filename)"' > "$RUNNER_TEMP/pr_files.tsv" || : > "$RUNNER_TEMP/pr_files.tsv"
+            count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
+            if [ "$count" -gt 0 ] && [ "$(wc -l < "$RUNNER_TEMP/pr_files.tsv")" -ge "$count" ]; then
+              args+=(--files-tsv "$RUNNER_TEMP/pr_files.tsv")
+            fi
+          fi
+          python3 tests/tools/assess_install_plan.py "${args[@]}" > "$RUNNER_TEMP/assess_plan.json" || echo "run=true" >> "$GITHUB_OUTPUT"
+          { echo "## Clean-install check plan"; echo '```json'; cat "$RUNNER_TEMP/assess_plan.json"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
+
       - name: Assess clean-install check (burned estates, translator from a wheelhouse)
+        if: steps.assess_plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
           pip wheel "./[translator]" -w "$RUNNER_TEMP/wheelhouse"

@@ -407,6 +407,8 @@ def _start_container(*, replace: bool = False) -> None:
 def _await_ready() -> bool:
     """Wait for first-start setup and GGDB (several minutes under load); the container-ready bound is READY_POLLS x 10 s."""
     for _ in range(READY_POLLS):
+        if _docker("inspect", "-f", "{{.State.Running}}", CONTAINER, check=False).strip() == "false":
+            return False  # #5604: the container exited (disk, OOM, bad first start): replace it now
         if "Setup has completed" in _docker("logs", CONTAINER, check=False) and "Database code set" in _db_cfg(
             DATABASE0
         ):
@@ -430,8 +432,13 @@ def _ensure_container() -> None:
             if not _docker("images", "-q", COBOL_IMAGE).strip():
                 fetch_odbc_cli()
                 common.docker_build("-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES))  # #5048: retried
-    _start_container()
-    ready = _await_ready()
+    try:
+        _start_container()
+        ready = _await_ready()
+    except Db2ImagePullError:
+        raise
+    except (RuntimeError, OSError, subprocess.TimeoutExpired):  # #5604: `docker run` itself failed (port, daemon blip)
+        ready = False
     if not ready:  # #5602: a start that never finished is retried once on a fresh container, not left to a CI rerun
         _start_container(replace=True)
         ready = _await_ready()

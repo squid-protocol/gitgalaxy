@@ -5,9 +5,11 @@
  "kind": "cics",
  "port": {
   "paths": [
-   "tests/equivalence/genapp-lgupdb01/port/service/Lgupdb01Service.java"
+   "tests/equivalence/genapp-lgupdb01/port/service/LgstsqService.java",
+   "tests/equivalence/genapp-lgupdb01/port/service/Lgupdb01Service.java",
+   "tests/equivalence/genapp-lgupdb01/port/service/Lgupvs01Service.java"
   ],
-  "sha256": "733341aea138e064cd58f46b736d8866833b9be9a69d2c103963dfab021ef4a1",
+  "sha256": "5b69ffd06b859466095defec4b590e78b98f03e5fb5d5dd9c0832b9c98a2b540",
   "entry_points": [
    "handleLink",
    "runTask"
@@ -20,8 +22,8 @@
     "tests/equivalence/genapp-lgupvs01/port/**",
     "tests/equivalence/genapp-lgstsq/port/**"
    ],
-   "files": 3,
-   "sha256": "b193995e263fae562791efb0195e78a1afb75a8263e0bad42e788a159108e40a"
+   "files": 5,
+   "sha256": "8376c08eada283ac7bc73cb1fd4b469a3b81378bac48c43d574b825d336ad15f"
   },
   "case": {
    "paths": [
@@ -241,13 +243,13 @@
    },
    "runtime_sha256": "95d95b29ee402f9e60e387bd556e5076af66d0bd4c4f549241f603b4f4c3cc89"
   },
-  "digest": "d6d5afbefe9fd63871afc2188fc5badbc261af5c81f9454cbd85081b3b158d9f"
+  "digest": "9161c151656d4fca2f0cd6d54409846aee51634ab678516bca555fb3de491f27"
  },
  "proof": {
-  "at": "2026-10-25T22:13:14Z",
-  "verdict": "not-proven",
-  "runs": 15,
-  "fault_runs": 5,
+  "at": "2026-10-25T22:58:12Z",
+  "verdict": "proven",
+  "runs": 22,
+  "fault_runs": 12,
   "environments": null,
   "outputs": {
    "update-endowment": {
@@ -290,7 +292,7 @@
     ]
    },
    "no-commarea": {
-    "equal": 3,
+    "equal": 5,
     "records": 5,
     "commands": [
      "ABEND",
@@ -344,7 +346,7 @@
     ]
    },
    "motor-request-for-endowment": {
-    "equal": 6,
+    "equal": 10,
     "records": 10,
     "commands": [
      "LINK",
@@ -359,14 +361,14 @@
     ]
    },
    "motor-update-no-row": {
-    "equal": 0,
+    "equal": 2,
     "records": 2,
     "commands": [
      "RETURN"
     ]
    },
    "open-cursor-fails": {
-    "equal": 0,
+    "equal": 10,
     "records": 10,
     "commands": [
      "LINK",
@@ -381,14 +383,14 @@
     ]
    },
    "close-cursor-fails-501": {
-    "equal": 0,
+    "equal": 2,
     "records": 2,
     "commands": [
      "RETURN"
     ]
    },
    "close-cursor-fails-other": {
-    "equal": 0,
+    "equal": 10,
     "records": 10,
     "commands": [
      "LINK",
@@ -403,7 +405,106 @@
     ]
    },
    "short-commarea-open-fails": {
-    "equal": 0,
+    "equal": 10,
+    "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "update-endowment--sql-lgupdb01-255": {
+    "equal": 10,
+    "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "update-endowment--sql-lgupdb01-230": {
+    "equal": 12,
+    "records": 12,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "update-endowment--sql-lgupdb01-394": {
+    "equal": 10,
+    "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "update-endowment--sql-lgupdb01-318": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "LINK",
+     "RETURN"
+    ]
+   },
+   "update-endowment--sql-lgupdb01-329": {
+    "equal": 13,
+    "records": 13,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "SYNCPOINT-ROLLBACK",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "update-house--sql-lgupdb01-431": {
+    "equal": 10,
+    "records": 10,
+    "commands": [
+     "LINK",
+     "RETURN",
+     "WRITEQ-TD",
+     "WRITEQ-TS"
+    ],
+    "assumes": "X6",
+    "x6_padded": [
+     "WRITEQ TD",
+     "WRITEQ TS"
+    ]
+   },
+   "update-motor--sql-lgupdb01-469": {
+    "equal": 10,
     "records": 10,
     "commands": [
      "LINK",
@@ -423,46 +524,17 @@
   "attributes_compared": null,
   "java_failed": false,
   "facade": {
-   "verdict": "not-proven",
-   "runs": 15,
-   "passed": 8,
+   "verdict": "proven",
+   "runs": 22,
+   "passed": 22,
    "entry_points": [
     "handleLink"
    ],
-   "failed": [
-    {
-     "scenario": "close-cursor-fails-501",
-     "why": "differs (0/2 events equal, files differ)"
-    },
-    {
-     "scenario": "close-cursor-fails-other",
-     "why": "differs (0/10 events equal, files differ)"
-    },
-    {
-     "scenario": "motor-request-for-endowment",
-     "why": "differs (6/10 events equal)"
-    },
-    {
-     "scenario": "motor-update-no-row",
-     "why": "differs (0/2 events equal, files differ)"
-    },
-    {
-     "scenario": "no-commarea",
-     "why": "differs (3/5 events equal)"
-    },
-    {
-     "scenario": "open-cursor-fails",
-     "why": "differs (0/10 events equal, files differ)"
-    },
-    {
-     "scenario": "short-commarea-open-fails",
-     "why": "differs (0/10 events equal, files differ)"
-    }
-   ],
+   "failed": [],
    "error": null
   },
-  "harness_commit": "0637c27c5228d1139595a4ac9b5420a2fbcc4db9+uncommitted",
-  "inputs_digest": "d6d5afbefe9fd63871afc2188fc5badbc261af5c81f9454cbd85081b3b158d9f"
+  "harness_commit": "f003fa2505f18cae975fbe4ce4ee7eb5d761fd2f+uncommitted",
+  "inputs_digest": "9161c151656d4fca2f0cd6d54409846aee51634ab678516bca555fb3de491f27"
  },
  "coverage": {
   "paragraphs": {
@@ -470,47 +542,16 @@
    "live": 9
   },
   "branches": {
-   "covered": 33,
+   "covered": 38,
    "total": 38
   },
-  "uncovered_branches": [
-   {
-    "line": 259,
-    "kind": "EVALUATE",
-    "outcome": "WHEN@262",
-    "unit": "UPDATE-POLICY-DB2-INFO"
-   },
-   {
-    "line": 336,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "UPDATE-POLICY-DB2-INFO"
-   },
-   {
-    "line": 351,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "UPDATE-POLICY-DB2-INFO"
-   },
-   {
-    "line": 410,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "UPDATE-ENDOW-DB2-INFO"
-   },
-   {
-    "line": 446,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "UPDATE-HOUSE-DB2-INFO"
-   }
-  ],
+  "uncovered_branches": [],
   "handler_labels": {
    "covered": 0,
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d6d5afbefe9fd63871afc2188fc5badbc261af5c81f9454cbd85081b3b158d9f"
+  "inputs_digest": "9161c151656d4fca2f0cd6d54409846aee51634ab678516bca555fb3de491f27"
  },
  "reach": {
   "entry_points": [
@@ -519,44 +560,68 @@
   ],
   "unproven": [
    {
+    "class": "LgstsqService",
+    "method": "out_LgstsqDfhcommarea",
+    "line": 270,
+    "kind": "det_helper"
+   },
+   {
+    "class": "LgstsqService",
+    "method": "runProgram",
+    "line": 307,
+    "kind": "det_helper"
+   },
+   {
+    "class": "LgstsqService",
+    "method": "lastLinkBytes",
+    "line": 417,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "Lgupdb01Service",
+    "method": "out_Lgupdb01Dfhcommarea",
+    "line": 635,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Lgupdb01Service",
+    "method": "runProgram",
+    "line": 765,
+    "kind": "det_helper"
+   },
+   {
     "class": "Lgupdb01Service",
     "method": "lastLinkBytes",
-    "line": 93,
+    "line": 880,
     "kind": "left_as_generated"
    },
    {
-    "class": "Lgupdb01Service",
-    "method": "remoteLgupvs01L209",
-    "line": 493,
-    "kind": "left_as_generated"
+    "class": "Lgupvs01Service",
+    "method": "out_Lgupvs01Dfhcommarea",
+    "line": 370,
+    "kind": "det_helper"
    },
    {
-    "class": "Lgupdb01Service",
-    "method": "linkLgstsq",
-    "line": 500,
-    "kind": "left_as_generated"
+    "class": "Lgupvs01Service",
+    "method": "runProgram",
+    "line": 417,
+    "kind": "det_helper"
    },
    {
-    "class": "Lgupdb01Service",
-    "method": "rollbackL338",
-    "line": 517,
-    "kind": "left_as_generated"
-   },
-   {
-    "class": "Lgupdb01Service",
-    "method": "abendLgcaL186",
-    "line": 526,
+    "class": "Lgupvs01Service",
+    "method": "lastLinkBytes",
+    "line": 531,
     "kind": "left_as_generated"
    }
   ],
   "counts": {
    "stub": 0,
-   "left_as_generated": 5,
-   "det_helper": 0,
+   "left_as_generated": 3,
+   "det_helper": 6,
    "ported_unproven": 0
   },
   "generated_compared": true,
-  "port_sha256": "733341aea138e064cd58f46b736d8866833b9be9a69d2c103963dfab021ef4a1"
+  "port_sha256": "5b69ffd06b859466095defec4b590e78b98f03e5fb5d5dd9c0832b9c98a2b540"
  },
  "mutation": {
   "commit": "cacb629caac85834ee75b1a6ddb2514c3ed930bd",
@@ -814,20 +879,20 @@
   "assumptions": null
  },
  "provenance": {
-  "written_by": "model",
-  "model": "claude-sonnet-5-5",
-  "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
-  "attempt": 1,
-  "attempts": 4,
-  "ticket_sha256": "4876c514393f3e61b082c4f0b633d600829b1683c1fd220b3a2b7f288cf1a15a",
+  "written_by": "det",
+  "model": null,
+  "backend": null,
+  "attempt": null,
+  "attempts": null,
+  "ticket_sha256": null,
   "porting_rules_sha256": null,
-  "proposed_at": "2026-10-02T20:44:45+00:00",
+  "proposed_at": null,
   "generator_version": null,
-  "edited_after": "the deployed entry points (facades) were brought to the generator's by tests/tools/port_surface.py (#4343; see history 'resurfaced'); runTask and the logic it runs are the model's answer",
+  "edited_after": null,
   "provenance_file": {
    "path": "tests/equivalence/genapp-lgupdb01/port/provenance.json",
-   "format": "porting-loop-provenance/1",
-   "sha256": "0e863d3c8a4656d4b7016f1215a81afd00b1e46238746c39801ceff1b488832f"
+   "format": "det-port-provenance/1",
+   "sha256": "81d67b1acad33316fe962d645f7ce6f8bd98a755e5fcddd431d58a0f768a9844"
   }
  },
  "approvals": []

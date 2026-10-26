@@ -11,14 +11,6 @@
       "reason": "Same test (256): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
     },
     {
-      "unit": "A010",
-      "line": 256,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after `RETURN TRANSID('OCAC') COMMAREA(WS-COMM-AREA) LENGTH(32)` (247-251): RETURN never comes back on success, so the test runs only when RETURN itself fails, and IBM documents no RESP for it with a 32-byte COMMAREA and an installed TRANSID."
-    },
-    {
       "unit": "ED010",
       "line": 472,
       "kind": "IF",
@@ -121,14 +113,6 @@
       "outcome": "false",
       "family": "G",
       "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SM010 after the first SEND MAP and '2' is never set (see 1039), so the test is always true."
-    },
-    {
-      "unit": "STM010",
-      "line": 1205,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "R",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` after the SEND TEXT ERASE FREEKB that writes the termination message (1200-1206): IBM raises no condition for it on a terminal that just sent a map, and no fault can be injected on it."
     }
   ]
 }

@@ -522,6 +522,9 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
     if net is not None:
         out["branches_net"] = {"covered": net[2], "total": net[3]}
         out["branch_net_pct"] = pct(net[2], net[3]) if net[3] else 100.0
+        if net[1] != line[1]:  # only when a reviewed infeasible paragraph was taken out of the live count
+            out["paragraphs_net"] = {"covered": net[0], "live": net[1]}
+            out["paragraph_net_pct"] = pct(net[0], net[1]) if net[1] else 100.0
     out["infeasible_netted"], out["infeasible_refuted"] = netted, refuted
     return out
 
@@ -574,8 +577,9 @@ def level_of(p: dict[str, Any], bars: dict[str, float]) -> tuple[str, list[str]]
     if cov["paragraph_pct"] is None:
         why = "coverage not measured: no fresh det-sweep ledger entry and no local sweep"
         return "L2", [f"paragraph coverage >= {bars['paragraphs']} ({why})"]
-    if cov["paragraph_pct"] < bars["paragraphs"]:
-        return "L2", [f"paragraph coverage >= {bars['paragraphs']} (now {cov['paragraph_pct']})"]
+    para_pct = cov.get("paragraph_net_pct", cov["paragraph_pct"])  # net of reviewed infeasible paragraphs
+    if para_pct < bars["paragraphs"]:
+        return "L2", [f"paragraph coverage >= {bars['paragraphs']} (now {para_pct})"]
     if cov["infeasible_refuted"]:
         return "L3", [f"no refuted infeasible-outcome claim (reached: {', '.join(cov['infeasible_refuted'])})"]
     if cov["branch_net_pct"] is None or cov["branch_net_pct"] < bars["branches"]:

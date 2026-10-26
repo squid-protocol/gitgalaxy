@@ -4466,7 +4466,14 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   item as that slack (a NUL byte inside a picture is not COBOL text). A non-blank byte INSIDE the item is still refused.
   The feedback token `FC` is 12 bytes (L4), so nothing overruns there.
 - **BNK1CCS (#5089).** Its create-customer and born-in-the-future ENTERs reach CRECUST's CEEDAYS call and run on the slack ruling: they live in cbsa-bnk1ccs and cbsa-bnk1ccs-generated (the separate `cbsa-bnk1ccs-create` case is gone), proven with cbsa-crecust (det port equal to the oracle; X18 stays ASSUMED). The generated ENTERs still draw dates before 1601 only.
-- COACTUPC's cursor placement after its date fields is unreached until z/OS settles the month-range case.
+- **COACTUPC (#6271).** `EDIT-DATE-LE` passes the 8-byte `WS-EDIT-DATE-CCYYMMDD` and the 8-byte `WS-DATE-FORMAT` to
+  CSUTLDTC, whose LINKAGE items are 10 bytes. Unlike CRECUST's slack this is not unspecified storage: the two bytes
+  after the picture are the first two of `WS-DATE-VALIDATION-RESULT`, which `EDIT-DATE-LE` INITIALIZEs (blanks) just
+  before the call, so the blank-tail assumption above covers them with real blanks and no new ruling; the date's two
+  extra bytes lie past its span, which IBM ignores. Cases `edit-dates-valid` and `edit-dob-in-the-future` reach the
+  call. The program's own `WS-VALID-MONTH` check refuses a month outside 1-12 before CEEDAYS, so the 2508-vs-2517
+  refusal is never hit there; a date the program accepts but CEEDAYS refuses (2508, 2513) is unreachable: the program
+  checks the century (19 or 20), the day of month and the leap year itself.
 
 ### L2. CEE3ABD — MATCHED
 - `ggabend.c` records `ABEND Unnnn`, and the Java side's CobolAbend gives the same.

@@ -402,7 +402,9 @@ def test_the_if_after_an_expanded_exec_maps_to_its_own_line_not_the_exec_whateve
 
 def test_a_line_inside_an_exec_is_never_the_same_line_as_a_compiled_one() -> None:
     """#6072: `LENGTH (LENGTH OF X)` inside a DLI / SQL call and the compiled `BY VALUE LENGTH OF X` are not one line."""
-    original = _cbl("A.", "    EXEC DLI GU", "      LENGTH (LENGTH OF REC)", "      INTO (REC)", "    END-EXEC", "    GOBACK.")
+    original = _cbl(
+        "A.", "    EXEC DLI GU", "      LENGTH (LENGTH OF REC)", "      INTO (REC)", "    END-EXEC", "    GOBACK."
+    )
     compiled = _cbl("A.", "    MOVE 'GU' TO GG-FUNC", "    CALL 'GGCDLI' USING GG-CICS", "        BY VALUE LENGTH OF REC",
                     "        BY REFERENCE REC", "    GOBACK.")  # fmt: skip
     lines = cov.LineMap(original, compiled)

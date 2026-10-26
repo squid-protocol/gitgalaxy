@@ -2708,7 +2708,7 @@
       "powershell/core/nanoserver.tests.ps1": "Declarative / Non-Code",
       "powershell/core/package-validation.tests.ps1": "Declarative / Non-Code",
       "powershell/core/packaging.psd1": "Declarative / Non-Code",
-      "powershell/core/packaging.psm1": "Large Core Modules (3)",
+      "powershell/core/packaging.psm1": "Many-Argument Workhorses Files",
       "powershell/core/packaging.tests.ps1": "Declarative / Non-Code",
       "powershell/core/powershell-native__Install-PowerShellRemoting.ps1": "Many-Argument Workhorses Files",
       "powershell/core/process-pester-results.ps1": "Declarative / Non-Code",

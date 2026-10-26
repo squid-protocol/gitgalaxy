@@ -875,7 +875,7 @@
       "cobol/cics-banking-sample-application-cbsa/DELACC.cpy": -0.533,
       "cobol/cics-banking-sample-application-cbsa/DELACCZ.cpy": -0.615,
       "cobol/cics-banking-sample-application-cbsa/DELCUS.cbl": 1.102,
-      "cobol/cics-banking-sample-application-cbsa/DELCUS.cpy": -0.368,
+      "cobol/cics-banking-sample-application-cbsa/DELCUS.cpy": -0.332,
       "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cbl": -0.627,
       "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cpy": 0.0,
       "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl": 3.144,
@@ -1059,10 +1059,10 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0.0,
-      "cobol/gnucobol_internals/codegen.c": 0.47,
+      "cobol/gnucobol_internals/codegen.c": 0.446,
       "cobol/gnucobol_internals/fileio.c": 1.075,
       "cobol/gnucobol_internals/numeric.c": -0.125,
-      "cobol/gnucobol_internals/parser.y": 2.853,
+      "cobol/gnucobol_internals/parser.y": 2.834,
       "cobol/gnucobol_internals/scanner.l": 2.331,
       "cobol/gnucobol_internals/syn_misc.at": 0.464
     },
@@ -2501,7 +2501,7 @@
       "objective-c/SOURCES.md": 0.0
     },
     "objective-c/worldwideweb": {
-      "objective-c/worldwideweb/Anchor.m": 0.954,
+      "objective-c/worldwideweb/Anchor.m": 0.933,
       "objective-c/worldwideweb/HText.c": 1.092,
       "objective-c/worldwideweb/HyperManager.m": 0.694,
       "objective-c/worldwideweb/HyperText.h": 1.184,

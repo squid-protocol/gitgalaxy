@@ -1084,10 +1084,6 @@
       "cpp/NVDA/readme.md": [
         "import:cpp/NVDA/CODE_OF_CONDUCT.md",
         "import:cpp/NVDA/copying.txt"
-      ],
-      "cpp/NVDA/storage.cpp": [
-        "fcall:cobol/gnucobol_internals/parser.y",
-        "fcall:objective-c/worldwideweb/Anchor.m"
       ]
     },
     "cpp/godot": {

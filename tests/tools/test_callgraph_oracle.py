@@ -323,7 +323,8 @@ def test_a_base_class_initializer_is_a_constructor_call_and_a_member_entry_is_no
         ("m.cpp", "mode", 4, []),
     ]
     repo, scan = make_port(tmp_path, "doom3-bfg", {"m.cpp": CTOR_SRC}, funcs)
-    assert {"Base", "Mid", "Wrap"} <= co.class_names(repo)
+    bases = co.class_names(repo)  # class -> the base classes its head lists
+    assert bases["Mid"] == {"Base"} and bases["Wrap"] == {"Base"}
     port = co.Port("doom3-bfg", repo, co.load_port(repo, co.find_db(scan)))
     mid = next(f for f in port.functions if f[1] == "Mid")
     assert mid[4].calls["Base"] == "ctor-init" and "mode" not in mid[4].calls

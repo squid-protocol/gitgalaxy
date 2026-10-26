@@ -360,3 +360,21 @@ def test_the_ts_oracle_loader_drops_vendored_code_too(tmp_path):
     con.close()
     assert len(ts.load_port(repo, db)) == 2
     assert [r[2] for r in ts.load_port(repo, db, co.doom_scorer._engine_vendor_test(repo))] == ["top"]
+
+
+@pytest.mark.parametrize(
+    "method",
+    [
+        "Hash &hashFor(int s) { return lookup(s); }",
+        "Item *find(int s) const { return lookup(s); }",
+        "Item **findAll(int s) { return lookup(s); }",
+        "const Item &get(int s) const { return lookup(s); }",
+        "void plain(int s) { lookup(s); }",
+        "~Impl() { lookup(0); }",
+    ],
+)
+def test_a_macro_class_method_with_a_pointer_or_reference_return_is_its_own_unit(method):
+    """`DE_PIMPL(X) { ... };` reads as one definition; its methods own their calls whatever they return (#6266)."""
+    body = body_of(f"DE_PIMPL(X)\n{{\n    {method}\n    int field = direct();\n}};\n", "cpp")
+    assert set(body.calls) == {"direct"}
+    assert len(body.nested) == 1

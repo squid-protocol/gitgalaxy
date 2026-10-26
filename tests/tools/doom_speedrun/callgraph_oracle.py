@@ -313,6 +313,10 @@ def _is_real_nested_function(node):
     ``#ifdef`` splitting makes tree-sitter read as one: its type or declarator name is a keyword."""
     kind = node.child_by_field_name("type")
     decl = node.child_by_field_name("declarator")
+    while decl is not None and decl.type in ("pointer_declarator", "reference_declarator"):
+        # `Hash &hashFor(int)` / `Item *find()`: the function_declarator sits under the `&` / `*` (a DE_PIMPL method
+        # returning one was read as no function, so its calls were credited to the class, 1085 doomsday misses, #6266)
+        decl = decl.child_by_field_name("declarator") or next(iter(decl.named_children), None)
     name = callee_node(decl.child_by_field_name("declarator")) if decl is not None else None
     if name is None or decode_bytes(name.text) in KEYWORDS:
         return False

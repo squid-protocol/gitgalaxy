@@ -58,7 +58,11 @@ to vary. Its SQLCODE branches are run by the automatic SQL-fault task; +100 cann
   name the engine does not resolve (`CALL WS-CALLED-PROGRAM`, its value from a REDEFINES table), and EPSMPMT's
   payment is computed in floating point (C6). Its `NUMPROC(MIG)` is no longer the obstacle (C5, #4271).
 - A company EPSMLIST lists LINKs EPSCSMRT for its payment (the same reasons), so no scenario lists one: EPSMLIST's
-  A600 and the branch into it are not reached, and no record's contents reach an output. The RBA browse is judged by
+  A600 and the branch into it are not reached, and no record's contents reach an output. Measured 2026-10-26 (#6072):
+  a tenth scenario (principal 200000.00, rate 5.000: two of the four records pass A150) with EPSCSMRT and EPSMPMT
+  listed in the case runs equal on both sides (10 scenarios, 6/6 paragraphs, 15/15 branches), but the sweep then counts
+  EPSMPMT's hole (`called_holes` 1), so EPSMLIST is NOT PROVEN (L1) while it LINKs a program with a hole (owner decision
+  2026-10-11, #4803). The case therefore stays at 9 scenarios, L2, until the FUNCTION ANNUITY hole is settled (#5867). The RBA browse is judged by
   its outcomes there, and pinned rule by rule on both sides by `tests/cics_crucible/test_cics_runtimes.py`
   (oracle_assumptions.md X13).
 - EPSCSMRD has no case: nine programs in one source, LE condition handlers, channels and containers.

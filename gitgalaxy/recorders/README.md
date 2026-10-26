@@ -111,6 +111,10 @@ One row per (statement, table) of every `EXEC SQL` in a COBOL/PL/I source: `stmt
 
 One row per RUN/START/FETCH/RETRIEVE/CANCEL/DELAY/POST/WAIT/ENQ/DEQ command (`verb`), with its `target_kind` (TRANSID or RESOURCE), `target_operand` as written, `target_name` (the literal, VALUE or single MOVEd literal, NULL otherwise), `target_resolution` (`literal`/`value`/`move`/`string`/`pattern`/`ambiguous`/`unresolved`/`expression`) and `target_candidates`, the `channel_operand`/`channel_name`, the CHILD/ANY/REQID `token` joining a spawn to its FETCH/FREE/CANCEL, `record_clause` (FROM/INTO/SET) and `record_name`, `timing` as written, the other kept options in `attributes`, and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
 
+### `web_service_data` — CICS web / API services (#3496)
+
+One row per DFHLS2WS / DFHLS2JS (provider) or DFHWS2LS / DFHJS2LS (requester) step of a web-services assistant JCL: `assistant`, `direction`, `program`, `uri`, the `request` / `response` copybook members, `interface` (PGMINT), `container`, `binding` (WSBIND), `document` (WSDL or JSON schema), `transaction_id` (the `transaction` payload key; TRANSACTION is an SQL keyword) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
 ### `data_move_data` — field-level data movement (#3452)
 
 One row per source -> target pair of a MOVE/COMPUTE/ADD/SUBTRACT/MULTIPLY/DIVIDE/STRING/UNSTRING/INITIALIZE: `verb`, `source` and `target` as written (qualifiers kept, subscripts dropped), `source_kind` (`item`/`literal`/`figurative`/`function`/`length`/`address`, NULL on INITIALIZE), `corresponding`, `source_refmod`/`target_refmod` and, since #3655, their texts `source_refmod_text`/`target_refmod_text`, and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.

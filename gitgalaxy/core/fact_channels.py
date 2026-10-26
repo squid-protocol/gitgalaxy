@@ -317,6 +317,46 @@ _CICS_TASK_DDL = """
         """
 
 
+# #3496: web_service_data's payload keys, in column order (`transaction` is stored as transaction_id).
+_WEB_SERVICE_FIELDS = (
+    "assistant",
+    "direction",
+    "program",
+    "uri",
+    "request",
+    "response",
+    "interface",
+    "container",
+    "binding",
+    "document",
+    "transaction",
+)
+
+
+# #3496: CICS web / API services from the web-services assistant JCL, per-file.
+_WEB_SERVICE_DDL = """
+            CREATE TABLE IF NOT EXISTS web_service_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                assistant TEXT,
+                direction TEXT,
+                program TEXT,
+                uri TEXT,
+                request TEXT,
+                response TEXT,
+                interface TEXT,
+                container TEXT,
+                binding TEXT,
+                document TEXT,
+                transaction_id TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """
+
+
 # #3452: field-level data movement, per-file.
 _DATA_MOVE_DDL = """
             CREATE TABLE IF NOT EXISTS data_move_data (
@@ -967,6 +1007,32 @@ CHANNELS = (
             "line": int(r["line"] or 0),
             "source_refmod_text": r["source_refmod_text"],
             "target_refmod_text": r["target_refmod_text"],
+        },
+    ),
+    # #3496: web-services assistant steps -- per-file. `transaction` is stored as transaction_id
+    # (TRANSACTION is an SQL keyword). A pre-#3496 baseline has no table and restores nothing.
+    FactChannel(
+        name="web_service",
+        ir_field="web_services",
+        table="web_service_data",
+        ddl=_WEB_SERVICE_DDL,
+        indexes=(
+            "CREATE INDEX IF NOT EXISTS idx_web_service_file_id ON web_service_data(file_id);",
+            "CREATE INDEX IF NOT EXISTS idx_web_service_snapshot ON web_service_data(repo_name, commit_hash);",
+        ),
+        payload_key="web_services",
+        columns=(*_WEB_SERVICE_FIELDS[:-1], "transaction_id", "line_number"),
+        to_row=lambda w: (*(w.get(c) for c in _WEB_SERVICE_FIELDS), int(w.get("line", 0) or 0)),
+        restore_select=(
+            "SELECT fd.file_path AS _fp, ws.assistant, ws.direction, ws.program, ws.uri, ws.request, ws.response, "
+            'ws.interface, ws.container, ws.binding, ws.document, ws.transaction_id AS "transaction", '
+            'ws.line_number AS "line" '
+            "FROM web_service_data ws JOIN file_data fd ON ws.file_id = fd.id "
+            "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ws.id"
+        ),
+        to_payload=lambda r: {
+            **{k: r[k] for k in _WEB_SERVICE_FIELDS},
+            "line": int(r["line"] or 0),
         },
     ),
     # #3356: CSD resource definitions -- per-file, like sql_table_data.

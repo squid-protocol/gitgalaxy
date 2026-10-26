@@ -367,6 +367,68 @@ def test_a_condition_rewritten_in_place_stays_exact_in_an_equal_size_block() -> 
     assert lines.get(2) == (2, True) and 2 in lines.exact
 
 
+def _seq(*lines: str) -> str:
+    """Fixed format with a 6-digit sequence number and columns 73-80 numbered, as CardDemo's app-vsam-mq is."""
+    return "\n".join(f"{n * 100 + 100:06d} " + x.ljust(65) + f"{n + 1:08d}" for n, x in enumerate(lines)) + "\n"
+
+
+def _expanded(original: str, expansion: list[str], first: int, last: int) -> str:
+    """The harness's output: original lines first..last (1-based) replaced by `expansion` (unnumbered), the rest kept."""
+    rows = original.split("\n")
+    return "\n".join(rows[: first - 1] + ["           " + x for x in expansion] + rows[last:])
+
+
+RETRIEVE = [
+    "MOVE 'INTO' TO GG-FLAGS", "MOVE LENGTH OF MQTM TO GG-LEN", "CALL 'GGCRTRV' USING GG-CICS",
+    "    BY REFERENCE MQTM", "MOVE GG-RESP TO EIBRESP", "MOVE GG-RESP2 TO EIBRESP2",
+]  # fmt: skip
+
+
+def test_the_if_after_an_expanded_exec_maps_to_its_own_line_not_the_exec_whatever_the_sequence_area() -> None:
+    """#6072: the sequence numbers and the padding made `EXEC CICS RETRIEVE` and the IF after it look alike (CODATE01
+    145 -> 140); a condition rewritten (DFHRESP(NORMAL) -> 0) in a block of unequal size paired with nothing (COPAUA0C 237)."""
+    body = [
+        "A.", "    EXEC CICS RETRIEVE", "      INTO(MQTM)", "      NOHANDLE", "    END-EXEC",
+        "    IF EIBRESP = DFHRESP(NORMAL)", "       MOVE 1 TO X", "    END-IF", "    GOBACK.",
+    ]  # fmt: skip
+    for original in (_seq(*body), _cbl(*body)):  # numbered and plain
+        compiled = _expanded(original, RETRIEVE, 2, 5).replace("DFHRESP(NORMAL)", "0")
+        lines = cov.LineMap(original, compiled)
+        n = len(RETRIEVE)
+        assert [lines.get(2 + k) for k in range(n)] == [(2, False)] * n  # the expansion stands for the EXEC
+        assert lines.get(2 + n) == (6, True) and lines.get(3 + n) == (7, True)
+        assert lines.exact == {1, 6, 7, 8, 9, 10}  # (10: the closing blank)
+
+
+def test_a_line_inside_an_exec_is_never_the_same_line_as_a_compiled_one() -> None:
+    """#6072: `LENGTH (LENGTH OF X)` inside a DLI / SQL call and the compiled `BY VALUE LENGTH OF X` are not one line."""
+    original = _cbl("A.", "    EXEC DLI GU", "      LENGTH (LENGTH OF REC)", "      INTO (REC)", "    END-EXEC", "    GOBACK.")
+    compiled = _cbl("A.", "    MOVE 'GU' TO GG-FUNC", "    CALL 'GGCDLI' USING GG-CICS", "        BY VALUE LENGTH OF REC",
+                    "        BY REFERENCE REC", "    GOBACK.")  # fmt: skip
+    lines = cov.LineMap(original, compiled)
+    assert lines.exact == {1, 6, 7}  # (7: the closing blank)
+    assert all(lines.get(n) == (2, False) for n in (2, 3, 4, 5))
+
+
+def test_evaluate_when_rewrites_pair_in_equal_and_unequal_blocks() -> None:
+    for extra in ([], ["MOVE 0 TO GG-X"]):  # the compiled block as long as the original, and longer
+        original = _cbl("A.", "    EVALUATE EIBRESP", "       WHEN DFHRESP(NORMAL)", "          MOVE 1 TO X",
+                        "       WHEN DFHRESP(NOTFND)", "          MOVE 2 TO X", "    END-EVALUATE", "    GOBACK.")  # fmt: skip
+        compiled = _cbl("A.", *extra, "    EVALUATE EIBRESP", "       WHEN 0", "          MOVE 1 TO X",
+                        "       WHEN 13", "          MOVE 2 TO X", "    END-EVALUATE", "    GOBACK.")  # fmt: skip
+        k = len(extra)
+        lines = cov.LineMap(original, compiled)
+        assert {lines.get(n + k) for n in (2, 3, 5)} == {(2, True), (3, True), (5, True)}
+
+
+def test_a_free_format_or_identical_program_maps_as_before() -> None:
+    free = "A.\n  IF X = 1\n    DISPLAY 'A'\n  END-IF.\n"
+    assert cov.LineMap(free, free).map == {n: (n, True) for n in range(1, 6)}
+    lines = cov.LineMap(free, "A.\n  MOVE 0 TO GG\n  IF X = 1\n    DISPLAY 'A'\n  END-IF.\n")
+    assert lines.get(2) is None or lines.get(2)[1] is False
+    assert lines.get(3) == (2, True) and lines.get(4) == (3, True)
+
+
 # ---- #5084: the programs a case LINKs / CALLs ---------------------------------------------------------------------
 def test_write_run_coverage_measures_the_linked_programs_over_the_same_trace(tmp_path: Path) -> None:
     main = _cbl("PROGRAM-ID. MAINP.", "PROCEDURE DIVISION.", "A.", "    GOBACK.")

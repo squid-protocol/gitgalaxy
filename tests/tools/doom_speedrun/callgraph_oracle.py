@@ -355,9 +355,14 @@ def class_names(repo):
     return bases_of
 
 
+# doomsday's macro statements that take a body, like `for` (`DE_FOR_EACH_CONST(T, i, c) { ... }`, `DE_NOTIFY_PUBLIC(N, i) ...`):
+# tree-sitter reads one as a nested definition, the engine as a statement of its function (#5630).
+MACRO_STATEMENT = re.compile(r"DE_(?:FOR_(?:EACH|OBSERVERS)|NOTIFY)[A-Z_]*")
+
+
 def _is_real_nested_function(node):
     """A nested ``function_definition`` that is a function (a GNU C nested function), not the ``else if (...) {`` that
-    ``#ifdef`` splitting makes tree-sitter read as one: its type or declarator name is a keyword."""
+    ``#ifdef`` splitting makes tree-sitter read as one (its type or declarator name is a keyword) nor a macro statement."""
     kind = node.child_by_field_name("type")
     decl = node.child_by_field_name("declarator")
     while decl is not None and decl.type in ("pointer_declarator", "reference_declarator"):
@@ -365,7 +370,7 @@ def _is_real_nested_function(node):
         # returning one was read as no function, so its calls were credited to the class, 1085 doomsday misses, #6266)
         decl = decl.child_by_field_name("declarator") or next(iter(decl.named_children), None)
     name = callee_node(decl.child_by_field_name("declarator")) if decl is not None else None
-    if name is None or decode_bytes(name.text) in KEYWORDS:
+    if name is None or decode_bytes(name.text) in KEYWORDS or MACRO_STATEMENT.fullmatch(decode_bytes(name.text)):
         return False
     return kind is None or decode_bytes(kind.text) not in KEYWORDS
 

@@ -463,3 +463,18 @@ def test_a_macro_class_owns_only_its_member_initializer_calls():
 def test_a_macro_statement_with_a_brace_body_keeps_every_call():
     src = "DE_FOR_EACH(i, list)\n{\n    stmt();\n    other(1);\n}\n"
     assert set(co.TextBody(src.encode(), 1).calls) == {"stmt", "other"}
+
+
+@pytest.mark.parametrize(
+    "stmt",
+    [
+        "DE_FOR_EACH_CONST(Map::Elements, i, dict.elements())\n    {\n        inner(i);\n    }",
+        "DE_NOTIFY_PUBLIC(Swap, i) { inner(i); }",
+        "DE_FOR_OBSERVERS(i, audience())\n        inner(i);",
+    ],
+)
+def test_a_macro_statement_loop_is_part_of_its_function_not_a_nested_one(stmt):
+    """The engine reads `DE_FOR_EACH*` / `DE_NOTIFY*` as a statement of the enclosing function; so does the oracle."""
+    body = body_of(f"void run(Dict &d)\n{{\n    {stmt}\n}}\n", "cpp")
+    assert "inner" in body.calls
+    assert body.nested == []

@@ -24,7 +24,7 @@
   },
   "quorum": 0.75
  },
- "engine_sha": "e4063a391",
+ "engine_sha": "a2b6c416c",
  "ports": {
   "chocolate-doom": {
    "agree": 12132,
@@ -130,31 +130,31 @@
    "unmatched_functions": 1
   },
   "doomsday": {
-   "agree": 69035,
-   "engine_calls": 71541,
+   "agree": 68874,
+   "engine_calls": 71351,
    "engine_only_by_kind": {
-    "absent": 256,
+    "absent": 231,
     "comment/string": 3,
-    "function-pointer": 239,
+    "function-pointer": 223,
     "macro": 7,
-    "type": 2001
+    "type": 2013
    },
-   "functions": 25733,
+   "functions": 25449,
    "misses_by_shape": {
-    "after-operator": 39,
-    "assignment-rhs": 25,
-    "condition/return": 10,
+    "after-operator": 14,
+    "assignment-rhs": 6,
+    "condition/return": 7,
     "ctor-init": 5,
-    "nested-argument": 48,
-    "other": 74,
-    "statement": 103,
-    "subscript": 21,
-    "unparsed": 37
+    "nested-argument": 10,
+    "other": 53,
+    "statement": 14,
+    "subscript": 19,
+    "unparsed": 16
    },
-   "oracle_calls": 69397,
-   "precision": 0.965,
-   "recall": 0.9948,
-   "text_fallback_functions": 825,
+   "oracle_calls": 69018,
+   "precision": 0.9653,
+   "recall": 0.9979,
+   "text_fallback_functions": 754,
    "unmatched_functions": 1
   },
   "dsda-doom": {

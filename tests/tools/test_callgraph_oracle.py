@@ -430,3 +430,36 @@ def test_a_nested_qualified_constructor_belongs_to_its_innermost_scope(head, own
     assert co._owner(node) == owner
     classes = {owner: {"Base", "ActionItem"}, "Dialog": {"Other"}}
     assert set(co.Body(node, classes).calls) >= {"ActionItem" if "ui::" in head else "Base"}
+
+
+MACRO_CLASS = """DE_PIMPL(Surface),
+DE_OBSERVES(Variable, Deletion)
+{
+    Mat3f tangent = makeTangent();
+    bool isValid() const;
+    void update() override;
+    int slot = 0;
+
+    Impl(Public *i)
+        : Base(i)
+        , var(&variable)
+    {
+        nestedCall();
+    }
+
+    void other()
+    {
+        moreCalls();
+    }
+};
+"""
+
+
+def test_a_macro_class_owns_only_its_member_initializer_calls():
+    body = co.TextBody(MACRO_CLASS.encode(), 1)
+    assert set(body.calls) == {"makeTangent"}  # not the declarations, the ctor head, or the methods' calls
+
+
+def test_a_macro_statement_with_a_brace_body_keeps_every_call():
+    src = "DE_FOR_EACH(i, list)\n{\n    stmt();\n    other(1);\n}\n"
+    assert set(co.TextBody(src.encode(), 1).calls) == {"stmt", "other"}

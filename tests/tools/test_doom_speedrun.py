@@ -329,3 +329,27 @@ def test_score_port_scores_by_design_exclusions_with_a_reason(tmp_path, monkeypa
 )
 def test_functions_agreement_names_the_oracle_that_passes(gg, ct, ts, who):
     assert doom_scorer.functions_agreement(gg, ct, ts) == who
+
+
+# Manifest languages check 1 does not score: data/markup/build files, and SQL and JCL (own extension policy).
+_SRC_EXT_EXEMPT = {
+    "sql": "data-like .sql files", "jcl": "job streams, mainframe estate checks", "makefile": "no extension",
+    "m4": "build glue", "css": "markup", "json": "data", "yaml": "data", "markdown": "docs", "plaintext": "docs",
+}  # fmt: skip
+
+
+def test_src_ext_covers_every_code_language_the_ports_use():
+    # #6097: check 1 only walks SRC_EXT files, so a language missing from it (Fortran, Crystal, F#, COBOL) made
+    # the coverage check vacuous for that port. Derived from the manifest, not a hand list.
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    langs = {lang for r in doom_speedrun.read_manifest() for lang in r["languages"].split()}
+    code = {lang for lang in langs if lang in LANGUAGE_DEFINITIONS and lang not in _SRC_EXT_EXEMPT}
+    for must in ("fortran", "crystal", "fsharp", "cobol", "dart", "scheme"):
+        assert must in code
+    uncovered = {
+        lang for lang in code if not set(LANGUAGE_DEFINITIONS[lang].get("extensions") or ()) & doom_scorer.SRC_EXT
+    }
+    assert not uncovered, f"no SRC_EXT extension for {sorted(uncovered)}"
+    for ext in (".f90", ".cr", ".fs", ".cbl", ".cob", ".cpy", ".dart", ".scm", ".rb"):
+        assert ext in doom_scorer.SRC_EXT

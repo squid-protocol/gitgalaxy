@@ -119,7 +119,7 @@ Blind spots of this oracle:
 - **ctags and tree-sitter share blind spots on C macros.** Both can miss a function a macro generates (`DEFINE_*(...)`),
   and tree-sitter may count a mis-parsed macro use as a function; the delta can cancel real misses and extras.
 - **Languages ctags/tree-sitter lack** (assembly, makefile, ...) are in no oracle: checks 3 and the oracle skip them.
-- **Check 1 only sees `SRC_EXT` files**; a first-party file with another extension is invisible to it.
+- **Check 1 only sees `SRC_EXT` files**; a first-party file with another extension is invisible to it. `SRC_EXT` covers every code language in the manifest (a test pins it); SQL and JCL are not in it.
 - **Vendoring is the engine's call**: a vendored tree the detector misses leaks into check 1/2/3 as first-party.
 - **Check 6 reads the log text**, so a new log wording needs `log_problems` updated.
 - **Check 7 does not score the edge convention (open owner question, #5874):** a C++ constructor (`new T(...)`,

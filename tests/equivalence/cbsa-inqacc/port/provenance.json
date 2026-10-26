@@ -34,7 +34,7 @@
   "against": "the java-facade side (#4449)",
   "at": "2026-10-25T23:30:00+00:00",
   "reason": "re-proof through the deployed entry points failed on the #6072 scenarios: four declare sql_faults the facade does not fire; the det sweep proves all of them",
-  "needs": "#6271: the java facade does not fire a scenario's declared sql_faults; then evidence.py prove cbsa-inqacc"
+  "needs": "#6692: the java facade does not fire a scenario's declared sql_faults; then evidence.py prove cbsa-inqacc"
  },
  "history": [
   {

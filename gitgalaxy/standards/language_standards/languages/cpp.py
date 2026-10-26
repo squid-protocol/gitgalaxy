@@ -464,6 +464,9 @@ DEFINITION: dict[str, Any] = {
             # a specialization written with its qualifier (`struct fmt::formatter<T>`) is the unit `formatter<T>`,
             # not the namespace `fmt`: step over each `Name::` and capture the last segment
             r"(?:[" + ID_START + r"][" + ID_CONTINUE + r"]*[ \t]*::[ \t]*)*"
+            # #6266: an export macro between the keyword and the name (`class LIBGUI_PUBLIC ImageItem : Item`) is not
+            # the class: step over an ALL-CAPS word that a second identifier (not `final`) follows
+            r"(?:[A-Z][A-Z0-9_]+[ \t\n]+(?=[" + ID_START + r"])(?!final\b))?"
             r"([" + ID_START + r"][" + ID_CONTINUE + r"]*(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?)",
             re.M,
         ),

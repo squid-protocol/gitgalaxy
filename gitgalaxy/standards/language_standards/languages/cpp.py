@@ -432,7 +432,10 @@ DEFINITION: dict[str, Any] = {
             # [IRON WALL - CATASTROPHIC BACKTRACKING FIX]:
             # We enforce strict numeric bounds (`{0,500}` and `{0,100}`) instead of `+` or `*`.
             # This caps the permutation tree instantly.
-            r"(?:[ \t\n]*(?![ \t]*#):[^{;]{0,2000}|(?:[ \t\n]+(?![ \t]*#)[" + ID_START + r"][^(){};]{0,100};){1,20})?"
+            # #5630: an entry whose argument holds a flat brace-init (`hiddenTags({"a", "b"})`, `ids{1, 2}`) is
+            # consumed whole (a lambda argument's body too, to three brace levels), so its `{` is not taken for the
+            # body's; an entry that does not balance falls back to the plain run below.
+            r"(?:[ \t\n]*(?![ \t]*#):(?:(?:[^{;(]|\((?:[^(){}]|\([^()]*\)|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\)|(?<=[" + ID_CONTINUE + r">])\{[^(){};]*\}){0,2000}(?=[ \t\n]*\{)|[^{;]{0,2000})|(?:[ \t\n]+(?![ \t]*#)[" + ID_START + r"][^(){};]{0,100};){1,20})?"
             # 10. THE IGNITION (The opening brace confirming it is a definition, not a declaration)
             r"[ \t\n]*\{" + "|" + C_MACRO_FUNC_START_SOURCE + ")",
             re.M,

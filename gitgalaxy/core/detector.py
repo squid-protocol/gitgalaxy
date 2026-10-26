@@ -7590,6 +7590,11 @@ class StructuralExtractor:
                 brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx == -1:
                     continue
+                # #5630: a cpp constructor whose initializer list holds a flat brace-init (`hiddenTags({"a"})`,
+                # `ids{1, 2}`) is matched through to its body brace; the first `{` from the start is the
+                # brace-init, which would end the unit three lines in.
+                if lang_id == "cpp" and brace_idx < match.end() - 1 and safe_code[match.end() - 1] == opener:
+                    brace_idx = match.end() - 1
                 end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
                 # #1836: cpp shares c's Mode-B fallback here but was left out of this
                 # bound, so args_sig_end stayed None and args_search_text fell back to

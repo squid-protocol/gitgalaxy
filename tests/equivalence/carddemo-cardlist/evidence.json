@@ -38,7 +38,9 @@
     "tests/tools/equivalence_cics_containers.py",
     "tests/tools/equivalence_cics_filecontrol.py",
     "tests/tools/equivalence_cics_conditions.py",
+    "tests/tools/equivalence_cics_faults.py",
     "tests/tools/equivalence_cics_tempstorage.py",
+    "tests/tools/equivalence_cics_taskcontrol.py",
     "tests/tools/equivalence_call.py",
     "tests/tools/equivalence_cache.py",
     "tests/tools/equivalence_db2.py",
@@ -47,11 +49,11 @@
     "tests/tools/java_target_matrix.py",
     "tests/tools/equivalence_ims.py"
    ],
-   "files": 16,
-   "sha256": "259df7f985d135ac49ddae6d49a0435ca9e4d0f704234edab8a8d39817888fcc",
+   "files": 18,
+   "sha256": "93e40b9bbb2b1d6c1d0e3c27d815a85062312c011fb8eb0db48af9e45a7df173",
    "components": {
-    "harness:cics": "9f28217e5768f0929c0b3ce903aa4c3989842c3706a91faf3d92bc6e2a53b2c9",
-    "harness:core": "808b8ac9e553c3caffe3e5b89d7b7a1d8a04cd0b273490c8f2fb0e16aeb53e77"
+    "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
+    "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99"
    }
   },
   "oracle": {
@@ -66,34 +68,35 @@
     "tests/tools/equivalence_sql.py",
     "tests/equivalence/ims/ggdli.c"
    ],
-   "files": 44,
-   "sha256": "8d9945df7f991efa2df357de2feaa197b8cde7cbff3400d675cb55d576bb78a3",
+   "files": 46,
+   "sha256": "7e57488c79c77a09bd66129bc3cc144ac3a66e074a3acc9f05f277b1f41caa82",
    "components": {
-    "oracle:cics-stub": "4a680e7eea0c9d936dc18bed719b87bae7dd0483156c03044a18c84f6e2aceea",
+    "oracle:cics-stub": "9c1e9f9bd69cc3bd03eb1f52389adb74a64621058b09ecd32f3853eb98cc1698",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
-    "oracle:le": "d3ad2b23aac02cd604a06ef216dc42a338c6584b5c475c9fddeaf1cf551bc668"
+    "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
    }
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 106,
-   "sha256": "965cf3140f061530c02c2ed585ff5f9b4a80c04f1c235408b2324fd98268ad55",
+   "files": 112,
+   "sha256": "bc48178c3dfae1c2ca4049a32efab25db207169122fb9727ede5fb6e33209ece",
    "components": {
-    "generator:core": "f2290cedc900bd1415d76e1d371eb1c266c9e7dca987d4bab252e4f58a1d03c1",
+    "generator:core": "aae8bd6be007ebbfb4c7c2427b7bd4fd033ec36f528cca49600462bbb475d413",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "27c8cff96865da031d48438cbd839d963ba52f0a8941b5babc90dfac10dfe0d1",
+    "generator:det/cics": "6fd3b3f809e6ca8bfd5d9dac922b1dc2961ae0280dad4172457ecf02c20f2295",
     "generator:det/cics_conditions": "c5bfb6ed32df1a582cf010bf59f1f16dd7440e4caa075a0458f62ca9b85f6219",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
+    "generator:det/cics_faults": "022b25e0d5807e27992c2e0598d06fff3258412b4333821efc748dd7be728b4c",
     "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
-    "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
+    "generator:det/cics_taskcontrol": "a28940b9fd127e798b6c4c69b178d93d010c8695eba388ac78d6dca2839e594a",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dli": "8a81045734ca0b53157f70ed0a4708159a20472e80fa51c334c50fde312133e6",
+    "generator:det/dli": "6c94b183b7f40bbce09c623fe2001c3c594534daada2a363417a61a0a3c9f41d",
     "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "24111ce4612574da5ff8d7be3fcec4de195f532ef4b20347bb1dd988c7b9d426",
+    "generator:det/gen": "ecd3abfa6639c3c666279138c25ef6c3a6493105f163716dea9b3040f649f7fe",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
@@ -183,10 +186,10 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "da2ef1e25904cb7447e195c55d8fc467e4598250a8d0c62c11754aac2b24e7f4"
+  "digest": "da3bfc5b9f1582730901d2108a6628899edb8740cb1c0a564e7383d747e6ca66"
  },
  "proof": {
-  "at": "2026-10-23T21:17:49Z",
+  "at": "2026-10-26T03:21:10Z",
   "verdict": "proven",
   "runs": 46,
   "fault_runs": 9,
@@ -194,187 +197,405 @@
   "outputs": {
    "select-invalid-code-on-a-page-ending-at-the-last-card": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "account-filter-not-numeric": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "account-filter-short": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "card-filter-not-numeric": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "both-filters-not-numeric": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf8-next-page": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf8-to-the-last-page": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf8-at-the-last-page": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf8-at-the-last-page-after-enter": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf20-acts-as-pf8": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf7-previous-page": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf7-back-to-the-first-page": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf7-at-the-first-page": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf7-with-account-filter-runs-off-the-top": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "select-view": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "select-update": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "select-lowercase-is-invalid": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "select-invalid-code-on-page-2": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "select-two-and-an-invalid-code": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "account-filter-with-an-invalid-code": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "select-two-rows": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf3-to-menu": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "pf3-xctl-fails": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "ABEND",
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "pf15-acts-as-pf3": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "pf3-on-first-entry-lists": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "reenter-context-from-another-program": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf10-with-a-selection-views": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "readnext-io-error-on-the-look-ahead": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "readprev-io-error-first": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "readprev-io-error-mid-page": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf8-at-the-last-page-flag-neither-shown-nor-not": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf8-next-page-carries-return-flag": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf3-from-menu-stale-first-card-faulting-carddat": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "full-commarea-length": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "select-view-xctl-fails": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "ABEND",
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "select-update-xctl-fails": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "ABEND",
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "pf8-with-card-filter-skips-to-the-matching-card": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf8-with-all-zeros-account-filter": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf8-with-all-zeros-card-filter": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf8-endbr-invreq": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "ABEND",
+     "RECEIVE-MAP"
+    ]
    },
    "pf7-endbr-invreq": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "ABEND",
+     "RECEIVE-MAP"
+    ]
    },
    "pf8-page-ends-exactly-on-the-last-card": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf8-page-number-zero-no-next-page": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf7-at-the-first-page-account-filter-matches-nothing": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "no-commarea-pf7": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf8-back-from-card-view-keeps-the-selected-ids": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN",
+     "SEND-MAP"
+    ]
    }
   },
   "return_code_equal": null,
@@ -391,8 +612,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "6d3d283347618d109842b3e8a7bd55709b974e45+uncommitted",
-  "inputs_digest": "da2ef1e25904cb7447e195c55d8fc467e4598250a8d0c62c11754aac2b24e7f4"
+  "harness_commit": "6a4e6f1fa09473777464f5ff60db3e66147bbd03",
+  "inputs_digest": "da3bfc5b9f1582730901d2108a6628899edb8740cb1c0a564e7383d747e6ca66"
  },
  "coverage": {
   "paragraphs": {
@@ -422,7 +643,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "da2ef1e25904cb7447e195c55d8fc467e4598250a8d0c62c11754aac2b24e7f4"
+  "inputs_digest": "da3bfc5b9f1582730901d2108a6628899edb8740cb1c0a564e7383d747e6ca66"
  },
  "reach": {
   "entry_points": [
@@ -523,7 +744,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+   "id": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -543,7 +764,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "1abd6585c69ea722a5f0e16dbff09d35f7c2113a2259139440adf2ac885b0d55"
+    "sha256": "bcfd4700f0f4d540d5bb4cfc6442417c8420394d5486992472df6c157a15db92"
    },
    {
     "path": "tests/equivalence/cics/ggcics_conditions.c",
@@ -551,15 +772,19 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics_containers.c",
-    "sha256": "ef11cda70e87cf14758ca327a1e5f28bf4e7813aba11a33ab5260dd55c1a76af"
+    "sha256": "6e2f3c038ababccdd4b4e5873a73cb4c9f627e708cd7461edbfebe323e1988a5"
    },
    {
     "path": "tests/equivalence/cics/ggcics_enq.c",
     "sha256": "75523dd5c5e2abf68908cef40594903efea7e03c784fcfe6d7accf4d068bab59"
    },
    {
+    "path": "tests/equivalence/cics/ggcics_faults.c",
+    "sha256": "971acc374c4845c192ff5c51b8614aff8d9e040fa08e238731e8e9cd7df3c0f7"
+   },
+   {
     "path": "tests/equivalence/cics/ggcics_filecontrol.c",
-    "sha256": "2cabac65cae1caaa2947da91505a3133cda73c4f6af87c8df8d6aa6eb6b11d50"
+    "sha256": "07375343f42fd4467ba1727b1cb8005e89e20e822ced8b3e6a3c80d401d14c43"
    },
    {
     "path": "tests/equivalence/cics/ggcics_spec.h",
@@ -567,7 +792,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics_taskcontrol.c",
-    "sha256": "e92dee972be23182429995c63703e216563968c41728b9eee9c50061fa178c2b"
+    "sha256": "3b3d0446e4d6d290019609d64e680b0f62eead5cf47691919ba50021df55bfc9"
    },
    {
     "path": "tests/equivalence/cics/ggcics_tempstorage.c",
@@ -576,6 +801,10 @@
    {
     "path": "tests/equivalence/cics/ggcics_transientdata.c",
     "sha256": "00961a38063f8fe5179068dee7457d1dc5b5eab7bfd48f1323f637888df5a265"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_web.c",
+    "sha256": "285bd1252683719b3c44191405432493d86a5da25766502252ca21930efd46cf"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -663,11 +892,11 @@
    },
    {
     "path": "tests/equivalence/ims/ggdli.c",
-    "sha256": "63660b767c2f0daa4c05f3a3ef857fc26df3607f295be8ac21b3253db9df76bb"
+    "sha256": "7a3010fdca8a18bd8bb76b6ff75bd6f284382aac395ae90ff2e704c8ab938dbc"
    },
    {
     "path": "tests/equivalence/le/ceedays.c",
-    "sha256": "7b924457953ecad2c75ba6d4062b71bd5424b3b0314dc922d911abb419e77828"
+    "sha256": "09df0023b04d6bbf5e6e92bb50c394532ddf1c54c516c6e87324ede2d6bc6b2c"
    },
    {
     "path": "tests/equivalence/le/ceeloct.c",
@@ -687,7 +916,7 @@
    },
    {
     "path": "tests/equivalence/le/le_time.c",
-    "sha256": "073fe9a311428333bc4e3521bf841c1ba8ac1135aa45c3ecef18f810da393d77"
+    "sha256": "5d710d14456328c2f1b3f4e9cbdb4eb08ca210dd0462199fc1be46f1333bfc47"
    },
    {
     "path": "tests/equivalence/le/mvswait.c",

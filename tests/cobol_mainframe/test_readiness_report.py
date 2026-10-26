@@ -276,3 +276,28 @@ def test_blocker_result_is_proof_blockers_shaped():
     assert res["whole"] == 3 and res["proven"] == 1
     assert {g["gap"] for g in res["gaps"]} == {"EXEC CICS FORMATTIME RESP", "no case"}
     assert [p["gaps"] for p in res["programs"]] == [["EXEC CICS FORMATTIME RESP"], ["no case"], []]
+
+
+def _stub_materialize(monkeypatch, tmp_path, calls):
+    import evidence_report as er
+    import support_matrix as sm
+
+    monkeypatch.setattr(rr, "REPORTS", None)
+    monkeypatch.setattr(sm, "REPORTS", tmp_path)
+
+    def fake():
+        calls.append(1)
+        (tmp_path / "est").mkdir()
+        (tmp_path / "est" / "report.json").write_text("{}", encoding="utf-8")
+
+    monkeypatch.setattr(er, "materialize", fake)
+
+
+def test_reports_materializes_the_published_report_when_none_is_on_disk(monkeypatch, tmp_path):
+    """#6722: write_blockers for an estate without an inventory skips estates(), the only other materializer."""
+    calls = []
+    _stub_materialize(monkeypatch, tmp_path, calls)
+    assert rr._reports() == tmp_path
+    assert calls == [1]
+    assert rr._reports() == tmp_path  # a report is on disk now: nothing more is fetched
+    assert calls == [1]

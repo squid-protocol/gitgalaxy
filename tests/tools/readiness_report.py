@@ -79,7 +79,13 @@ def _load(path: Path) -> Any:
 def _reports() -> Path:
     import support_matrix
 
-    return REPORTS if REPORTS is not None else support_matrix.REPORTS
+    if REPORTS is not None:
+        return REPORTS
+    if not any(support_matrix.REPORTS.glob("*/report.json")):  # #6722: a fresh checkout has none; `generated` does
+        import evidence_report
+
+        evidence_report.materialize()
+    return support_matrix.REPORTS
 
 
 def estates() -> list[str]:

@@ -1870,16 +1870,30 @@ int GGCWTO(gg_cics *c, char *from) {
  * A document is the bytes the task built, named by a 16-byte DOCTOKEN ("GGDOC" and eleven digits); it lasts as long as
  * the task (one process here). The installed DOCTEMPLATEs are a fact the runner states: the file $GGCICS_DOCTEMPLATES
  * names, one `NAME TEXT-IN-HEX` per line (the text, hex, because it can hold line ends; '-' for an empty text); unstated, refused. */
-#define GG_MAXDOCS 64
-static unsigned char *docs[GG_MAXDOCS];
-static int doc_len[GG_MAXDOCS];
-static int doc_dead[GG_MAXDOCS]; /* #4941: deleted by a WEB SEND DOCSTATUS(DOCDELETE) */
-static int ndocs = 0;
+static unsigned char **docs;
+static int *doc_len;
+static int *doc_dead; /* #4941: deleted by a WEB SEND DOCSTATUS(DOCDELETE) */
+static int ndocs = 0, doc_cap = 0;
+/* #6072: IBM sets no count of documents a task may create (storage alone limits it), so the tables grow; ZECS000 holds 501. */
 
 static int doc_new(const unsigned char *data, int len, char *tok, int toklen) {
     char t[17];
     int i;
-    if (ndocs >= GG_MAXDOCS) refuse("DOCUMENT CREATE of more than 64 documents");
+    if (ndocs >= doc_cap) {
+        int cap = doc_cap ? doc_cap * 2 : 64;
+        unsigned char **nd = realloc(docs, (size_t)cap * sizeof *docs);
+        int *nl, *nx;
+        if (!nd) refuse("DOCUMENT CREATE: out of storage");
+        docs = nd;
+        nl = realloc(doc_len, (size_t)cap * sizeof *doc_len);
+        if (!nl) refuse("DOCUMENT CREATE: out of storage");
+        doc_len = nl;
+        nx = realloc(doc_dead, (size_t)cap * sizeof *doc_dead);
+        if (!nx) refuse("DOCUMENT CREATE: out of storage");
+        doc_dead = nx;
+        memset(doc_dead + doc_cap, 0, (size_t)(cap - doc_cap) * sizeof *doc_dead);
+        doc_cap = cap;
+    }
     docs[ndocs] = malloc(len > 0 ? (size_t)len : 1);
     memcpy(docs[ndocs], data, (size_t)(len > 0 ? len : 0));
     doc_len[ndocs] = len;

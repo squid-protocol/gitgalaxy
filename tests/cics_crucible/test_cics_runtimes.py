@@ -3094,6 +3094,22 @@ def test_the_stub_document_create_and_retrieve(tmp_path):
     assert unstated.returncode == 98 and "document templates are not stated" in unstated.stdout
 
 
+def test_the_stub_creates_more_than_64_documents_in_one_task(tmp_path):
+    """#6072: IBM sets no count of documents a task may create (ZECS000 holds 501), so the stub's tables grow past 64:
+    every token is the next number and the first and the last documents still retrieve their own bytes."""
+    exe = _stub(tmp_path, _X33_MAIN)
+    n = 600
+    args = [a for i in range(n) for a in ("data", f"D{i:03d}", "4")]
+    args += ["get", "4", "4", "GGDOC00000000001", "get", "4", "4", "-", "get", "4", "4", "GGDOC00000000065"]
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    (tmp_path / "out").mkdir(exist_ok=True)
+    out = subprocess.run([str(exe), *args], env=env, capture_output=True, text=True, check=True).stdout.splitlines()  # noqa: S603
+    assert out[64] == "data 0/0 [GGDOC00000000065]" and out[n - 1] == f"data 0/0 [GGDOC{n:011d}]"
+    assert out[n] == "get 0/0 len=4 [D000]"
+    assert out[n + 1] == "get 0/0 len=4 [D599]"
+    assert out[n + 2] == "get 0/0 len=4 [D064]"
+
+
 @needs_javac
 def test_cics_task_document_create_and_retrieve_as_the_stub_does(tmp_path):
     """#4769 (X33): CicsTask answers as the stub does (above): the same tokens, LENGERR RESP2 1 / 2, NOTFND RESP2 1 / 3,

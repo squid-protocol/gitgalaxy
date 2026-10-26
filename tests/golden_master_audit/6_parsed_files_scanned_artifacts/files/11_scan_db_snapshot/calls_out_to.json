@@ -65112,7 +65112,19 @@
           "DefWindowProc"
         ],
         "FancyZones@72": [
-          "void"
+          "void",
+          "m_hinstance",
+          "m_draggingState",
+          "PostMessageW",
+          "SetThreadPriority",
+          "GetCurrentThread",
+          "warn",
+          "move",
+          "instance",
+          "LoadSettings",
+          "FancyZonesDataInstance",
+          "ReplaceZoneSettingsFileFromOlderVersions",
+          "LoadData"
         ],
         "HandleWinHookEvent@105": [
           "reinterpret_cast",

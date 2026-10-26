@@ -1129,7 +1129,7 @@
       "cpp/mlir/tf_tfl_translate.cc": 4.146
     },
     "cpp/powertoys": {
-      "cpp/powertoys/FancyZones.cpp": 6.511,
+      "cpp/powertoys/FancyZones.cpp": 6.509,
       "cpp/powertoys/FancyZones.h": 3.247,
       "cpp/powertoys/ImageResizerExt.cpp": 4.762,
       "cpp/powertoys/centralized_kb_hook.cpp": 6.299,

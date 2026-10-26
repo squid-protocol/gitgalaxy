@@ -1129,13 +1129,13 @@
       "cpp/mlir/tf_tfl_translate.cc": -9593.09
     },
     "cpp/powertoys": {
-      "cpp/powertoys/FancyZones.cpp": -6766.92,
-      "cpp/powertoys/FancyZones.h": -6296.4,
-      "cpp/powertoys/ImageResizerExt.cpp": -7310.03,
-      "cpp/powertoys/centralized_kb_hook.cpp": -6752.56,
-      "cpp/powertoys/logger.cpp": -6477.01,
-      "cpp/powertoys/main.cpp": -7022.46,
-      "cpp/powertoys/powertoy_module.h": -6878.77
+      "cpp/powertoys/FancyZones.cpp": -6766.96,
+      "cpp/powertoys/FancyZones.h": -6296.38,
+      "cpp/powertoys/ImageResizerExt.cpp": -7310.14,
+      "cpp/powertoys/centralized_kb_hook.cpp": -6752.59,
+      "cpp/powertoys/logger.cpp": -6477.02,
+      "cpp/powertoys/main.cpp": -7022.54,
+      "cpp/powertoys/powertoy_module.h": -6878.82
     },
     "cpp/serenity_ak_siphash_cpu": {
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": 5389.12,
@@ -1251,7 +1251,7 @@
       "db2_sql/db2unit/PROVENANCE.md": -9860.39
     },
     "dockerfile": {
-      "dockerfile/SOURCES.md": -7425.71
+      "dockerfile/SOURCES.md": -7425.81
     },
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": -2893.21,
@@ -1974,9 +1974,9 @@
       "jcl/SOURCES.md": 9769.1
     },
     "jcl/cash-account-cobol": {
-      "jcl/cash-account-cobol/DB2BIND.jcl": -7116.41,
-      "jcl/cash-account-cobol/DB2DDL.jcl": -6890.74,
-      "jcl/cash-account-cobol/DEFKSDS.jcl": -6884.94
+      "jcl/cash-account-cobol/DB2BIND.jcl": -7116.51,
+      "jcl/cash-account-cobol/DB2DDL.jcl": -6890.84,
+      "jcl/cash-account-cobol/DEFKSDS.jcl": -6885.05
     },
     "jcl/cics-banking-sample-application-cbsa": {
       "jcl/cics-banking-sample-application-cbsa/ABNDPROC.jcl": 1686.88,
@@ -2609,8 +2609,8 @@
       "plaintext/SOURCES.md": -10953.16
     },
     "plaintext/ansible": {
-      "plaintext/ansible/COPYING": -7534.79,
-      "plaintext/ansible/requirements.txt": -7729.97
+      "plaintext/ansible/COPYING": -7534.88,
+      "plaintext/ansible/requirements.txt": -7730.06
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
       "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": -9654.58
@@ -3776,7 +3776,7 @@
       "tabular/tsv_genomics/B.cell_eQTL.tsv": 9462.45
     },
     "tcl": {
-      "tcl/SOURCES.md": -7974.96
+      "tcl/SOURCES.md": -7975.06
     },
     "tcl/macports_port_api": {
       "tcl/macports_port_api/fetch_common.tcl": 2924.7,

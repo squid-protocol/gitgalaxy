@@ -13,11 +13,11 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 ## All reported estates
 
 - Programs: 57; at E0 0, E1 5, E2 30, E3 22, E4 0; executed equivalent or above (E2+): 52/57 (91.2%).
-- Coverage over the programs with a record: paragraphs 569/574 (99.1%), branch outcomes 1696/1807 (93.9%).
+- Coverage over the programs with a record: paragraphs 571/574 (99.5%), branch outcomes 1705/1807 (94.4%).
 - Mutation: 52 program(s) measured, killed 2874/4212 (68.2%) raw (adjusted for equivalent / unreachable survivors: 2874/3340 (86.0%)); survivors case_gap 274, harness_gap 191, equivalent 516, unreachable 356, untriaged 0; open survivors 465.
 - Holes (stub / ported_unproven methods): 4. Declared differences: 13.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 52).
-- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 57 of 57 programs measured): 11945 (15542 code lines in all); in programs at E2+ 10057/11945 (84.2%), E3+ 1099/11945 (9.2%), E4 0/11945 (0.0%); paragraph coverage weighted by lines 11848/11945 (99.2%).
+- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 57 of 57 programs measured): 11945 (15542 code lines in all); in programs at E2+ 10057/11945 (84.2%), E3+ 1099/11945 (9.2%), E4 0/11945 (0.0%); paragraph coverage weighted by lines 11890/11945 (99.5%).
 
 ## aws-mainframe-modernization-carddemo
 
@@ -62,15 +62,15 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 ## cics-banking-sample-application-cbsa
 
 - Programs: 2; at E0 0, E1 1, E2 1, E3 0, E4 0; executed equivalent or above (E2+): 1/2 (50.0%).
-- Coverage over the programs with a record: paragraphs 29/32 (90.6%), branch outcomes 18/31 (58.1%).
+- Coverage over the programs with a record: paragraphs 31/32 (96.9%), branch outcomes 27/31 (87.1%).
 - Mutation: 2 program(s) measured, killed 166/270 (61.5%) raw (adjusted for equivalent / unreachable survivors: 166/216 (76.9%)); survivors case_gap 43, harness_gap 7, equivalent 28, unreachable 26, untriaged 0; open survivors 50.
 - Holes (stub / ported_unproven methods): 1. Declared differences: 1.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 2).
-- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 2 of 2 programs measured): 642 (872 code lines in all); in programs at E2+ 118/642 (18.4%), E3+ 0/642 (0.0%), E4 0/642 (0.0%); paragraph coverage weighted by lines 579/642 (90.2%).
+- Lines (PROCEDURE DIVISION code lines, copybooks not expanded; 2 of 2 programs measured): 642 (872 code lines in all); in programs at E2+ 118/642 (18.4%), E3+ 0/642 (0.0%), E4 0/642 (0.0%); paragraph coverage weighted by lines 621/642 (96.7%).
 
 | program | case | lines | level | proof | oracle | coverage (para / branch) | mutation | differences | approval | what stops the next level |
 |---|---|---|---|---|---|---|---|---|---|---|
-| INQACC | cbsa-inqacc | 524 | E1 | 14 runs / 0 fault | gnucobol-models | 22/25 / 13/25 | 63/131, open 43 | 1 | - | 1 hole(s) in the port itself (stub or ported_unproven method) |
+| INQACC | cbsa-inqacc | 524 | E1 | 22 runs / 8 fault | gnucobol-models | 24/25 / 22/25 | 63/131, open 43 | 1 | - | the proof did not compare equal on every scenario |
 | UPDACC | cbsa-updacc | 118 | E2 | 27 runs / 0 fault | gnucobol-models | 7/7 / 5/6 | 103/139, open 7 | 0 | - | coverage short: 7/7 paragraphs, 5/6 branch outcomes |
 
 ## cics-crucible

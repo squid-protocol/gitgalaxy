@@ -6,6 +6,7 @@ lint rule, a secret-scanner hit or a golden-master drift from CI, one push at a 
     python tests/tools/pr_gates.py --fast           # skip the golden masters and the full suite
                                                     # (gen-docs: the uncommitted aggregate pages render, #5057;
                                                     # workflows: actionlint over .github/workflows)
+    python tests/tools/pr_gates.py --only affected      # the tests this branch can break (its importers too), #6733
     python tests/tools/pr_gates.py --only lint audits gauntlet
     python tests/tools/pr_gates.py --lower-baseline # also rewrite the gauntlet baseline when cells now pass
     python tests/tools/pr_gates.py --e2e            # add the equivalence proofs (Docker GnuCOBOL + JDK 17)
@@ -472,6 +473,8 @@ def gates(args: argparse.Namespace, env: dict[str, str]) -> dict[str, list[list[
             ]
         ],
         "gauntlet": [gauntlet] + ([[*gauntlet[:2], "--update-baseline", *gauntlet[3:]]] if args.lower_baseline else []),
+        # #6733: the test files whose imports (or names) reach what the branch changed, nearest first, ~5 min budget
+        "affected": [[PY, "tests/tools/affected_tests.py"]],
         "golden": [[PY, "tests/tools/crucible_check.py"]],
         "suite": [suite],
     }

@@ -1314,6 +1314,7 @@
    "stale": [
     "harness"
    ]
-  }
+  },
+  "port_moved": true
  }
 }

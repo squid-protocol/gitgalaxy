@@ -1733,6 +1733,20 @@
       "refused_by_name": false,
       "new_class": false,
       "summary": "In an estate with no application JCL job the batch forge emitted no batch package (CobolFiles), so every OPEN / READ / WRITE / CLOSE was a hole (~50 statements), and WRITE ... ADVANCING phrases were holes too (33); about two-thirds of the holes in two non-burned survey corpora. Batch file runtime now generated for file-owning estates; unmodelled WRITE phrases are named."
+    },
+    {
+      "id": "P117",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "harness",
+      "class": "vsam",
+      "programs": [
+        "zecs001"
+      ],
+      "issue": 6271,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A GET that hits a stored ZECS001 record cannot be proven: the harness serves every VSAM record at the dataset's fixed reclen, so READ ... LENGTH(ZF-LENGTH) returns the area length (32700) where IBM returns the record's own length, and 3400-STAGE's ZF-DATA(1:ZF-LENGTH) / WEB SEND FROMLENGTH run past 32000 bytes (libcob out of bounds, WEB SEND length beyond its area). The text/* WEB RECEIVE second pass is also not modelled. Also, on the det side, ZECS001 DELETE of a stored key and POST / PUT over an existing key diverge from GnuCOBOL (204 Record not found; SYNCPOINT rollback); cause not diagnosed, so those scenarios were not committed."
     }
   ]
 }

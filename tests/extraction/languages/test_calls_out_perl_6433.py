@@ -193,3 +193,16 @@ def test_escaped_quotes_in_one_line_regexes_still_do_not_pair():
     by_name = {f["name"]: f["calls_out_to"] for f in res["functions"]}
     assert "keep" in by_name["a"]
     assert by_name["b"] == ["other"]
+
+
+def test_stray_quote_in_a_comment_does_not_pair_with_a_far_quote():
+    """#6433 guard: a quote in a comment line must not open the long-string alternative."""
+    code = (
+        'sub a {\n    # the "default" is empty; see below\n    foo(1);\n}\n'
+        'sub b {\n    bar(2);\n    my $m = "' + _LONG + "\\n" + _LONG + '";\n}\n'
+    )
+    perl = LANGUAGE_DEFINITIONS["perl"]
+    res = StructuralExtractor("perl", {"perl": perl}).splice(code, "")
+    by_name = {f["name"]: f["calls_out_to"] for f in res["functions"]}
+    assert by_name["a"] == ["foo"]
+    assert by_name["b"] == ["bar"]

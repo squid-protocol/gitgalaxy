@@ -8361,7 +8361,7 @@
       "perl/bugzilla/Requirements.pm": "36afe201bde7",
       "perl/exiftool/ExifTool.pm": "0a2fba958415",
       "perl/exiftool/RandomAccess.pm": "e5847f5591cd",
-      "perl/exiftool/exiftool": "30fac06b2bf3",
+      "perl/exiftool/exiftool": "29d0d73393ca",
       "perl/mojo/IOLoop.pm": "a6af1911d163",
       "perl/mojo/Promise.pm": "fc8ac0f3e290",
       "perl/mojo/Template.pm": "0488488a9c1e",

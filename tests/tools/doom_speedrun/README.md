@@ -252,6 +252,24 @@ Blind spots:
   library. This reads the clone (`<work>/repos/<port>`, as `lineage.py` does); a port with a scan but no clone is skipped.
 - **The majority language names the port** (`lang`); a polyglot port's functions of other code languages stay in.
 
+## Per-subsystem complexity (`subsystem_distribution.py`, #6097)
+
+Slice 1 of the per-subsystem distributions: ONE metric family (cyclomatic complexity) split by linuxdoom subsystem
+(`lineage.subsystem`: file directory and file-name prefix). Per port and subsystem: functions, median, 90th percentile,
+the share with complexity >= 10, and the port's median over linuxdoom's median in the same subsystem (blank under
+`--min-subsystem` functions on either side). Reads the same scans as `distribution.py`; licensed ports only.
+
+```bash
+python tests/tools/doom_speedrun/subsystem_distribution.py [--only gore,room4doom] [--sha SHA] [--min-subsystem N]
+```
+
+Results in `<work>/results/<sha>/distribution/`: `subsystem_distribution.csv`, `subsystem_distribution.md`.
+
+Blind spots:
+- **The split is by file name**: a port that renamed its files has those functions under `other` (its `other %`
+  column says how many), so its subsystem rows describe only the files that kept linuxdoom's prefixes.
+- **Complexity only**: LOC, fan-out, token mass and the plots are later slices (#6097).
+
 ## Study write-up tables (`study_report.py`, #5620)
 
 One command regenerates every table of `docs/research/doom-port-study.md` (clean-scan before/after, fidelity, lineage,

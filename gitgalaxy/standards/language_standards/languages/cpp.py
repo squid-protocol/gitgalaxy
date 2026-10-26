@@ -321,6 +321,9 @@ DEFINITION: dict[str, Any] = {
             # 5. THE "NOT A FUNCTION" SHIELD
             # Prevents control flow (if, while) and primitive types from being captured as function names.
             r"(?!(?:if|for|while|switch|return|catch|else|elif|sizeof|alignas|new|delete|ARGS\d+|NOARGS|int|float|double|char|void|long|short|unsigned|signed|bool|INTEGER|LOGICAL|real|__attribute__|__declspec|__asm__)\b)"
+            # #5630: a macro-statement loop or observer dispatch is a statement, not a definition: doomsday's
+            # `DE_FOR_EACH_CONST(T, i, c)\n{`, `DE_FOR_OBSERVERS(i, a)`, `DE_NOTIFY_PUBLIC(Swap, i) {`, `DE_NOTIFY_VAR(`.
+            r"(?!DE_(?:FOR_(?:EACH|OBSERVERS)|NOTIFY)(?![" + ID_CONTINUE + r"]*[a-z]))"
             # 6. THE IDENTIFIER CAPTURE (FUNCTION IDENTIFIER - GROUP 1)
             # [IRON WALL]: Ensures the actual function/operator name isn't hijacked by a macro definition.
             # OUT-OF-LINE OPERATOR FIX (epic #813/#821): the operator alternatives had no

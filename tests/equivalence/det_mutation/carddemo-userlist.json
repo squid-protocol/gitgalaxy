@@ -526,6 +526,7 @@
    "stale": [
     "case"
    ]
-  }
+  },
+  "port_moved": true
  }
 }

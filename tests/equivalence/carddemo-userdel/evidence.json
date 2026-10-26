@@ -38,7 +38,9 @@
     "tests/tools/equivalence_cics_containers.py",
     "tests/tools/equivalence_cics_filecontrol.py",
     "tests/tools/equivalence_cics_conditions.py",
+    "tests/tools/equivalence_cics_faults.py",
     "tests/tools/equivalence_cics_tempstorage.py",
+    "tests/tools/equivalence_cics_taskcontrol.py",
     "tests/tools/equivalence_call.py",
     "tests/tools/equivalence_cache.py",
     "tests/tools/equivalence_db2.py",
@@ -47,11 +49,11 @@
     "tests/tools/java_target_matrix.py",
     "tests/tools/equivalence_ims.py"
    ],
-   "files": 16,
-   "sha256": "877630edcfb380cace0b9911eeaba6067f2a8b6881eb269b7743e8ccc5ba9ecf",
+   "files": 18,
+   "sha256": "93e40b9bbb2b1d6c1d0e3c27d815a85062312c011fb8eb0db48af9e45a7df173",
    "components": {
-    "harness:cics": "c44c22f4df9f66d70bf87faa864e9cffac15771e682bf42a7e36d3e5bf997687",
-    "harness:core": "808b8ac9e553c3caffe3e5b89d7b7a1d8a04cd0b273490c8f2fb0e16aeb53e77"
+    "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
+    "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99"
    }
   },
   "oracle": {
@@ -66,27 +68,28 @@
     "tests/tools/equivalence_sql.py",
     "tests/equivalence/ims/ggdli.c"
    ],
-   "files": 44,
-   "sha256": "0718a6bbb0847e15fd4f9a674b9bae5fba26928aae4a18dd15ac75841d660a63",
+   "files": 46,
+   "sha256": "7e57488c79c77a09bd66129bc3cc144ac3a66e074a3acc9f05f277b1f41caa82",
    "components": {
-    "oracle:cics-stub": "b09f953ea194130aa0d5ead1b5a21a017db6c98999c64b860ff85d61082a95d7",
+    "oracle:cics-stub": "9c1e9f9bd69cc3bd03eb1f52389adb74a64621058b09ecd32f3853eb98cc1698",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
-    "oracle:le": "4fec0fd2411f43c866dc95cbc9e40f5caf30ad88dd1f430b47625c41da044764"
+    "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
    }
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 108,
-   "sha256": "886537dc2ad54237765f7e368967fbedb43fd7d254ce2f7b4cf9356ff44bbbf9",
+   "files": 112,
+   "sha256": "bc48178c3dfae1c2ca4049a32efab25db207169122fb9727ede5fb6e33209ece",
    "components": {
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "e066013d7f4dbf8cd9f786819eeb862bc2f0e9e245e173ded15c29bd33c0621c",
+    "generator:core": "aae8bd6be007ebbfb4c7c2427b7bd4fd033ec36f528cca49600462bbb475d413",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "6fc5c3a22791c883bbd6269d509cc9a36855e915e08542edc06963fc54cbd29b",
+    "generator:det/cics": "6fd3b3f809e6ca8bfd5d9dac922b1dc2961ae0280dad4172457ecf02c20f2295",
     "generator:det/cics_conditions": "c5bfb6ed32df1a582cf010bf59f1f16dd7440e4caa075a0458f62ca9b85f6219",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
+    "generator:det/cics_faults": "022b25e0d5807e27992c2e0598d06fff3258412b4333821efc748dd7be728b4c",
     "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
     "generator:det/cics_taskcontrol": "a28940b9fd127e798b6c4c69b178d93d010c8695eba388ac78d6dca2839e594a",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
@@ -184,10 +187,10 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "d7cca7994c78026b99097d9b2de397bdd553e779517790d690e38d0cdd896c27"
+  "digest": "5906e92ca67b59be964643cd229628208b8236f37127291a8e043ea8a741992b"
  },
  "proof": {
-  "at": "2026-10-24T06:09:56Z",
+  "at": "2026-10-26T03:24:14Z",
   "verdict": "proven",
   "runs": 32,
   "fault_runs": 6,
@@ -195,131 +198,277 @@
   "outputs": {
    "first-entry": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "first-entry-with-selected-user": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "first-entry-selected-user-missing": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "no-commarea": {
     "equal": 1,
-    "records": 1
+    "records": 1,
+    "commands": [
+     "XCTL"
+    ]
    },
    "enter-looks-up-user": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "enter-empty-user-id": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "enter-user-not-found": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf5-deletes-user": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf5-deletes-an-admin": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf5-empty-user-id": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf5-user-not-found": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf5-delete-not-open": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "lookup-io-error": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf3-back-to-caller": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "pf3-back-to-admin-menu": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "pf4-clear": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf12-admin-menu": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "invalid-key": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf3-xctl-fails": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "ABEND",
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "pf3-xctl-not-authorised": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "ABEND",
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "no-commarea-enter": {
     "equal": 1,
-    "records": 1
+    "records": 1,
+    "commands": [
+     "XCTL"
+    ]
    },
    "low-values-selected-user": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "selected-user-first-entry": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "input-lname-echoed": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "pf3-blank-to-program": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
    },
    "pf5-delete-not-found": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "carried-status-selection-and-name": {
     "equal": 4,
-    "records": 4
+    "records": 4,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "invalid-key-after-lookup": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "enter-not-found-after-lookup": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "full-commarea-carried": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "header-fields-sent-back": {
     "equal": 3,
-    "records": 3
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
    },
    "no-commarea-xctl-fails": {
     "equal": 2,
-    "records": 2
+    "records": 2,
+    "commands": [
+     "ABEND",
+     "XCTL"
+    ]
    }
   },
   "return_code_equal": null,
@@ -336,8 +485,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "84dd824b94b98f47c8c7c80386ab5530b1c7f2d6+uncommitted",
-  "inputs_digest": "d7cca7994c78026b99097d9b2de397bdd553e779517790d690e38d0cdd896c27"
+  "harness_commit": "6a4e6f1fa09473777464f5ff60db3e66147bbd03+uncommitted",
+  "inputs_digest": "5906e92ca67b59be964643cd229628208b8236f37127291a8e043ea8a741992b"
  },
  "coverage": {
   "paragraphs": {
@@ -361,7 +510,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d7cca7994c78026b99097d9b2de397bdd553e779517790d690e38d0cdd896c27"
+  "inputs_digest": "5906e92ca67b59be964643cd229628208b8236f37127291a8e043ea8a741992b"
  },
  "reach": {
   "entry_points": [
@@ -450,7 +599,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:1d0daa382d761317d77d8172eb5cd712547cf15dd8d61ecc193c6cbe36afe171",
+   "id": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -470,7 +619,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "da865cdb70ef6daec92976561dd67b848904b033ee7850541ec53b1a2e2b4035"
+    "sha256": "bcfd4700f0f4d540d5bb4cfc6442417c8420394d5486992472df6c157a15db92"
    },
    {
     "path": "tests/equivalence/cics/ggcics_conditions.c",
@@ -483,6 +632,10 @@
    {
     "path": "tests/equivalence/cics/ggcics_enq.c",
     "sha256": "75523dd5c5e2abf68908cef40594903efea7e03c784fcfe6d7accf4d068bab59"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_faults.c",
+    "sha256": "971acc374c4845c192ff5c51b8614aff8d9e040fa08e238731e8e9cd7df3c0f7"
    },
    {
     "path": "tests/equivalence/cics/ggcics_filecontrol.c",
@@ -503,6 +656,10 @@
    {
     "path": "tests/equivalence/cics/ggcics_transientdata.c",
     "sha256": "00961a38063f8fe5179068dee7457d1dc5b5eab7bfd48f1323f637888df5a265"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_web.c",
+    "sha256": "285bd1252683719b3c44191405432493d86a5da25766502252ca21930efd46cf"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -614,7 +771,7 @@
    },
    {
     "path": "tests/equivalence/le/le_time.c",
-    "sha256": "073fe9a311428333bc4e3521bf841c1ba8ac1135aa45c3ecef18f810da393d77"
+    "sha256": "5d710d14456328c2f1b3f4e9cbdb4eb08ca210dd0462199fc1be46f1333bfc47"
    },
    {
     "path": "tests/equivalence/le/mvswait.c",

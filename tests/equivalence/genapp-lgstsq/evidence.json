@@ -50,9 +50,9 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "8e3e00f2309ded81b723db7a5f9b6aabc56e5607555d6f86a3241d71131b1ddb",
+   "sha256": "93e40b9bbb2b1d6c1d0e3c27d815a85062312c011fb8eb0db48af9e45a7df173",
    "components": {
-    "harness:cics": "868a00b4715c47c4349274595075f4c3556edcb9f4a88102b2b09238b05777d3",
+    "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
     "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99"
    }
   },
@@ -191,10 +191,10 @@
    },
    "runtime_sha256": "95d95b29ee402f9e60e387bd556e5076af66d0bd4c4f549241f603b4f4c3cc89"
   },
-  "digest": "791a93003f53645826444c8c47c360a85306885ed290c5cf4948cdc18a6e8d94"
+  "digest": "dcbd06c6b1a41fd8f68f4583c70dff2cf57529f2d75f820b1754359aca8b067d"
  },
  "proof": {
-  "at": "2026-10-25T22:12:24Z",
+  "at": "2026-10-26T03:27:18Z",
   "verdict": "proven",
   "runs": 8,
   "fault_runs": 0,
@@ -303,8 +303,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "0637c27c5228d1139595a4ac9b5420a2fbcc4db9+uncommitted",
-  "inputs_digest": "791a93003f53645826444c8c47c360a85306885ed290c5cf4948cdc18a6e8d94"
+  "harness_commit": "6a4e6f1fa09473777464f5ff60db3e66147bbd03+uncommitted",
+  "inputs_digest": "dcbd06c6b1a41fd8f68f4583c70dff2cf57529f2d75f820b1754359aca8b067d"
  },
  "coverage": {
   "paragraphs": {
@@ -334,7 +334,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "791a93003f53645826444c8c47c360a85306885ed290c5cf4948cdc18a6e8d94"
+  "inputs_digest": "dcbd06c6b1a41fd8f68f4583c70dff2cf57529f2d75f820b1754359aca8b067d"
  },
  "reach": {
   "entry_points": [
@@ -432,7 +432,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol:3",
-   "id": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
+   "id": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []

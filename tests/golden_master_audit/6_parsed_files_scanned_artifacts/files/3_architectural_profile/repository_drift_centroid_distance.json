@@ -1099,7 +1099,7 @@
       "cpp/NVDA/inProcess.cpp": 4.988,
       "cpp/NVDA/nvdaControllerInternal.cpp": 7.691,
       "cpp/NVDA/readme.md": 0.0,
-      "cpp/NVDA/storage.cpp": 5.212
+      "cpp/NVDA/storage.cpp": 5.22
     },
     "cpp/godot": {
       "cpp/godot/AUTHORS.md": 0.0,

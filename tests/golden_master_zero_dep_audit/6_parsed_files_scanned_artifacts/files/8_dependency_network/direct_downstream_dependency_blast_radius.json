@@ -1062,7 +1062,7 @@
       "cobol/gnucobol_internals/codegen.c": 1,
       "cobol/gnucobol_internals/fileio.c": 0,
       "cobol/gnucobol_internals/numeric.c": 1,
-      "cobol/gnucobol_internals/parser.y": 3,
+      "cobol/gnucobol_internals/parser.y": 2,
       "cobol/gnucobol_internals/scanner.l": 0,
       "cobol/gnucobol_internals/syn_misc.at": 0
     },
@@ -2501,7 +2501,7 @@
       "objective-c/SOURCES.md": 0
     },
     "objective-c/worldwideweb": {
-      "objective-c/worldwideweb/Anchor.m": 6,
+      "objective-c/worldwideweb/Anchor.m": 5,
       "objective-c/worldwideweb/HText.c": 0,
       "objective-c/worldwideweb/HyperManager.m": 3,
       "objective-c/worldwideweb/HyperText.h": 5,

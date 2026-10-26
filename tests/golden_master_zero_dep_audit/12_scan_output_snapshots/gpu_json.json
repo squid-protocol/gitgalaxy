@@ -5,7 +5,7 @@
   ],
   "value": {
     "Galaxy Column Digests": {
-      "a_dists": "cdcabe006dbc",
+      "a_dists": "20206367c2ca",
       "a_ids": "bd9bd9342100",
       "ai_threats": "702f60aa030f",
       "author_distribution": "702f60aa030f",
@@ -29,7 +29,7 @@
       "tel_cfr": "80a0c077f9a2",
       "tel_lt": "a5110b875769",
       "tel_pid": "729eb627fcbc",
-      "tel_pop": "a45fa10aa379",
+      "tel_pop": "27ea980a732a",
       "tel_purp": "64d3ca5df8c8"
     },
     "Galaxy Files": {
@@ -982,7 +982,7 @@
       "cobol/gnucobol_internals/codegen.c": "f159e42a7d8b",
       "cobol/gnucobol_internals/fileio.c": "2911d2885ec8",
       "cobol/gnucobol_internals/numeric.c": "b7095402c803",
-      "cobol/gnucobol_internals/parser.y": "6343c8b0a83c",
+      "cobol/gnucobol_internals/parser.y": "ae3055da8a63",
       "cobol/gnucobol_internals/scanner.l": "08ba4895efb6",
       "cobol/gnucobol_internals/syn_misc.at": "04ed69c63cd8",
       "cobol/zECS/ECS001.cbl": "7cbeb63a19b7",
@@ -1010,7 +1010,7 @@
       "cpp/NVDA/inProcess.cpp": "0e21fd91fea2",
       "cpp/NVDA/nvdaControllerInternal.cpp": "eeb03d38b16a",
       "cpp/NVDA/readme.md": "adcda8dbe0cf",
-      "cpp/NVDA/storage.cpp": "d323c4f33bb8",
+      "cpp/NVDA/storage.cpp": "0626cd7ac50b",
       "cpp/SOURCES.md": "19ed797ad7e9",
       "cpp/godot/AUTHORS.md": "7b18a59bd6de",
       "cpp/godot/DONORS.md": "4372634c90e4",
@@ -2147,7 +2147,7 @@
       "nix/ghostty/flake.nix": "53f5e8ce8444",
       "nix/ghostty/shell.nix": "8a8748effed2",
       "objective-c/SOURCES.md": "72964823549c",
-      "objective-c/worldwideweb/Anchor.m": "969d9fb8d49c",
+      "objective-c/worldwideweb/Anchor.m": "d0e69b94e97b",
       "objective-c/worldwideweb/HText.c": "e222318287c4",
       "objective-c/worldwideweb/HyperManager.m": "b668cace3626",
       "objective-c/worldwideweb/HyperText.h": "88cee2ee2e2d",
@@ -3412,7 +3412,7 @@
       "ecosystem_audits": "8cd74d065301",
       "ecosystem_fingerprint": "4350181b84f3",
       "health": "9a86f5e4c9a0",
-      "network_macro": "c2ff761d3ef9",
+      "network_macro": "b1fbcc761b79",
       "repo_macro_species": "2bd4f962ad9c",
       "summary": "bbe85aa5375c",
       "typosquat_hits": "5feceb66ffc8",

@@ -21,6 +21,14 @@ import sqlite3
 import sys
 from pathlib import Path
 
+HERE = Path(__file__).resolve().parent
+sys.path.insert(
+    0, str(HERE.parents[2])
+)  # before any gitgalaxy import: a shared venv may editable-install another checkout
+sys.path.insert(0, str(HERE))
+
+import doom_scorer  # noqa: E402
+
 LICENSED = frozenset("chocolate-doom prboom-plus eternity gzdoom".split())
 UNIT_NODES = {"method_definition", "function_definition"}
 STRIP = re.compile(r"/\*.*?\*/|//[^\n]*|@?\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)
@@ -81,13 +89,18 @@ def unit_index(tree):
     return idx
 
 
-def score(root, db, port=""):
+def score(root, db, port="", vendored=None):
+    """Recall/precision of ``calls_out_to`` on Objective-C units; ``vendored`` (a relpath -> bool test) drops vendored code (#6097)."""
     root = Path(root)
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
     rows = con.execute(
         "select f.file_path, fn.func_name, fn.start_line, fn.loc, fn.calls_out_to from function_data fn "
         "join file_data f on f.id = fn.file_id where f.language = 'objective-c' order by f.file_path, fn.start_line"
     ).fetchall()
+    if vendored:
+        rows = [
+            r for r in rows if not vendored(r[0][len(str(root)) + 1 :] if r[0].startswith(str(root) + "/") else r[0])
+        ]
     defined = {r[1].split(".")[-1] for r in rows}
     files = {}
     tot_o = tot_hit = tot_e = tot_x = 0
@@ -141,7 +154,7 @@ def main(argv=None):
     if port not in LICENSED:
         print(f"refusing {port}: not a licensed port", file=sys.stderr)
         return 2
-    res = score(args.root, args.db, port)
+    res = score(args.root, args.db, port, doom_scorer._engine_vendor_test(args.root))
     print({k: v for k, v in res.items() if k != "misses"})
     for m in res["misses"][: args.misses]:
         print("  miss", *m)

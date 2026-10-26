@@ -26,7 +26,7 @@
     "tests/equivalence/cbsa-inqacc/**"
    ],
    "files": 3,
-   "sha256": "c859c77dc0a7a69a167c3ced30ead9bfe930b0f7e46054e5771fef772bc16ac1"
+   "sha256": "975631d3661347bcee365cfb2f23a4f226e150792fd9d80ce6f9dca08649c7c5"
   },
   "harness": {
    "paths": [
@@ -50,11 +50,11 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "8e3e00f2309ded81b723db7a5f9b6aabc56e5607555d6f86a3241d71131b1ddb",
+   "sha256": "ffe6854aae9b26707f6a4a7446514fd32fb44154c4956ded6b35e61bf66e3d5d",
    "components": {
     "harness:cics": "868a00b4715c47c4349274595075f4c3556edcb9f4a88102b2b09238b05777d3",
     "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99",
-    "harness:db2": "df4cefe238f828f2233ef1ae1b7c77c21265c7f5ab3af61e753544d50120cd66"
+    "harness:db2": "389a27466f489f7499560289b5ceaeabaac2feaeb5b38eabc35b4227ffe604e1"
    }
   },
   "oracle": {
@@ -249,13 +249,13 @@
    },
    "runtime_sha256": "150386a124b56e8e6ad08d343f24f609a4c82d7b467d0a0df37eec8f8e49933d"
   },
-  "digest": "8a9bb3b8be4fb680682cedf5b2d517d64f82068bc1fc8d223aceea43f5815345"
+  "digest": "79e35819dea2725d5d710cb0d9686c9a85cd03ad44373d55e0698f9a669e507c"
  },
  "proof": {
-  "at": "2026-10-25T23:29:03Z",
+  "at": "2026-10-26T01:05:19Z",
   "verdict": "not-proven",
-  "runs": 18,
-  "fault_runs": 4,
+  "runs": 22,
+  "fault_runs": 8,
   "environments": null,
   "outputs": {
    "current-found": {
@@ -393,6 +393,45 @@
      "LINK",
      "RETURN"
     ]
+   },
+   "open-fails-link-abndproc-abends-afcr": {
+    "equal": 0,
+    "records": 4,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "SYNCPOINT-ROLLBACK"
+    ]
+   },
+   "open-fails-link-abndproc-abends-afcs": {
+    "equal": 0,
+    "records": 4,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "SYNCPOINT-ROLLBACK"
+    ]
+   },
+   "open-fails-link-abndproc-abends-afct": {
+    "equal": 0,
+    "records": 4,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN",
+     "SYNCPOINT-ROLLBACK"
+    ]
+   },
+   "open-fails-link-abndproc-abends-afct-rollback-invreq": {
+    "equal": 0,
+    "records": 5,
+    "commands": [
+     "ABEND",
+     "LINK",
+     "RETURN"
+    ]
    }
   },
   "return_code_equal": null,
@@ -401,7 +440,7 @@
   "java_failed": false,
   "facade": {
    "verdict": "not-proven",
-   "runs": 18,
+   "runs": 22,
    "passed": 14,
    "entry_points": [
     "handleLink"
@@ -422,12 +461,28 @@
     {
      "scenario": "open-deadlock-abends-ad2z",
      "why": "differs (0/4 events equal, files differ)"
+    },
+    {
+     "scenario": "open-fails-link-abndproc-abends-afcr",
+     "why": "differs (0/4 events equal, files differ)"
+    },
+    {
+     "scenario": "open-fails-link-abndproc-abends-afcs",
+     "why": "differs (0/4 events equal, files differ)"
+    },
+    {
+     "scenario": "open-fails-link-abndproc-abends-afct",
+     "why": "differs (0/4 events equal, files differ)"
+    },
+    {
+     "scenario": "open-fails-link-abndproc-abends-afct-rollback-invreq",
+     "why": "differs (0/5 events equal, files differ)"
     }
    ],
    "error": null
   },
-  "harness_commit": "2f84eef1dfe732a29eb5a326e783e7c41977c545+uncommitted",
-  "inputs_digest": "8a9bb3b8be4fb680682cedf5b2d517d64f82068bc1fc8d223aceea43f5815345"
+  "harness_commit": "633fa6ecfa4faa398da8ef13e109d54d6080704f+uncommitted",
+  "inputs_digest": "79e35819dea2725d5d710cb0d9686c9a85cd03ad44373d55e0698f9a669e507c"
  },
  "coverage": {
   "paragraphs": {
@@ -435,32 +490,14 @@
    "live": 25
   },
   "branches": {
-   "covered": 19,
+   "covered": 22,
    "total": 25
   },
   "uncovered_branches": [
    {
     "line": 646,
     "kind": "EVALUATE",
-    "outcome": "WHEN@672",
-    "unit": "AH010"
-   },
-   {
-    "line": 646,
-    "kind": "EVALUATE",
     "outcome": "none",
-    "unit": "AH010"
-   },
-   {
-    "line": 687,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "AH010"
-   },
-   {
-    "line": 687,
-    "kind": "IF",
-    "outcome": "false",
     "unit": "AH010"
    },
    {
@@ -481,7 +518,7 @@
    "total": 1
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "8a9bb3b8be4fb680682cedf5b2d517d64f82068bc1fc8d223aceea43f5815345"
+  "inputs_digest": "79e35819dea2725d5d710cb0d9686c9a85cd03ad44373d55e0698f9a669e507c"
  },
  "reach": {
   "entry_points": [
@@ -815,7 +852,7 @@
   "provenance_file": {
    "path": "tests/equivalence/cbsa-inqacc/port/provenance.json",
    "format": "porting-loop-provenance/1",
-   "sha256": "9aa75b8c5934363cee13dd9283d08b23e529b00cc55b2d91943bd6d6ec0b1d66"
+   "sha256": "a531377e42c87db33e048f8a6192c2eca730c2e33c64fefe1678d6b402dcc633"
   }
  },
  "approvals": []

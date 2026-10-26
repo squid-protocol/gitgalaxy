@@ -359,3 +359,23 @@ def test_the_ts_oracle_loader_drops_vendored_code_too(tmp_path):
     con.close()
     assert len(ts.load_port(repo, db)) == 2
     assert [r[2] for r in ts.load_port(repo, db, co.doom_scorer._engine_vendor_test(repo))] == ["top"]
+
+
+def test_the_objc_oracle_drops_vendored_code_too(tmp_path):
+    import objc_callgraph_oracle as oc
+
+    repo = tmp_path / "repo"
+    (repo / "zlib").mkdir(parents=True)  # the vendor detector reads the directory on disk
+    db = tmp_path / "scan.db"
+    con = sqlite3.connect(db)
+    con.execute("create table file_data (id integer primary key, file_path text, language text)")
+    con.execute(
+        "create table function_data (file_id integer, func_name text, start_line integer, loc integer, calls_out_to text)"
+    )
+    for fid, rel in enumerate(["Game.m", "zlib/z.m"], 1):
+        con.execute("insert into file_data values (?, ?, 'objective-c')", (fid, f"{repo}/{rel}"))
+        con.execute("insert into function_data values (?, 'f', 1, 1, '[]')", (fid,))
+    con.commit()
+    con.close()
+    assert oc.score(repo, db)["units"] == 2  # no test: nothing dropped
+    assert oc.score(repo, db, vendored=co.doom_scorer._engine_vendor_test(repo))["units"] == 1

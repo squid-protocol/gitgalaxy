@@ -155,6 +155,7 @@
 /templates	tests/core_engine,tests/tools/stamp_template_pins.py
 /tests	tests/cobol_mainframe,tests/core_engine,tests/security_auditing,tests/test_golden_store.py,tests/test_signal_contract_sheet.py,tests/test_source_reads.py,tests/tools/audit_check.py,tests/tools/cics_crucible.py,tests/tools/crucible_path_check.py,tests/tools/crucible_port_provenance.py,tests/tools/equivalence_env.py,tests/tools/estate_crucible.py,tests/tools/evidence.py,tests/tools/evidence_report.py,tests/tools/graph_coverage_chart.py,tests/tools/ladder_refresh.py,tests/tools/test_env_gated_tests_run_in_ci_5954.py,tests/tools/test_posix_only_imports_4934.py,tests/tools/test_timeouts_4904.py,tests/tools/tree_sitter_accuracy_audit.py
 /unreadable.dat	tests/security_auditing
+/zlib	tests/tools/test_callgraph_oracle.py
 08-03-transforming-regex-counts.md	tests/tools/fidelity_table.py
 AGENTS.md	tests/tools/crucible_case.py
 ARCHITECTURE.md	gitgalaxy

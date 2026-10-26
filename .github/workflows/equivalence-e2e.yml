@@ -18,6 +18,8 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
+  push:
+    branches: [main]  # #5954 slice 4: post-merge, planned from the pushed files like a PR (a docs-only merge starts no shard)
   schedule:
     - cron: "17 6 * * *"  # nightly: Maven Central and the pinned GnuCOBOL package drift (as cics-crucible.yml)
   workflow_dispatch:
@@ -27,11 +29,39 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}  # a later merge must not cancel the run that checks the earlier one
 
 jobs:
+  # #4935 / #5129: a main push run is skipped when the PR run of this same workflow already proved the same tree green
+  # (tests/tools/skip_tested_tree.py); the gate runs on a push only, so a PR starts `plan` without waiting on it. A skipped
+  # gate leaves `skip` empty and `plan` runs.
+  tested-tree:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    outputs:
+      skip: ${{ steps.decide.outputs.skip }}
+    steps:
+      - name: Checkout the gate script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: tests/tools/skip_tested_tree.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Decide
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tests/tools/skip_tested_tree.py equivalence-e2e.yml
+
   plan:
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    needs: tested-tree
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -55,6 +85,8 @@ jobs:
           PR: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
           EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
         run: |
           args=(--event "$EVENT" --github-output "$GITHUB_OUTPUT")
           if [ "$EVENT" = "pull_request" ]; then
@@ -64,6 +96,12 @@ jobs:
             count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
             args+=(--labels "$labels" --files)
             if [ "${#files[@]}" -ge "$count" ]; then args+=("${files[@]}"); fi
+          fi
+          if [ "$EVENT" = "push" ]; then
+            # the files this push brought in, whole or not at all (the compare API lists at most 300): a short list is `run`
+            # an empty list (API failure, too many files) is `run`: the planner fails open
+            mapfile -t files < <(gh api "repos/$REPO/compare/$BEFORE...$AFTER" --jq 'if (.files | length) < 300 then .files[] | .filename, (.previous_filename // empty) else empty end' || true)
+            args+=(--files "${files[@]}")
           fi
           python3 tests/tools/equivalence_e2e_plan.py "${args[@]}" > e2e-plan.json || { printf 'mode=run\ndb2=run\n' >> "$GITHUB_OUTPUT"; echo '{"mode": "run", "db2": "run", "reason": "the planner failed"}' > e2e-plan.json; }
           {
@@ -75,8 +113,8 @@ jobs:
 
   shard:
     name: shard ${{ matrix.group }}/3
-    needs: plan
-    if: ${{ needs.plan.outputs.mode == 'run' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104
+    needs: [tested-tree, plan]
+    if: ${{ needs.plan.outputs.mode == 'run' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.plan.result == 'success') }}  # #5104
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
@@ -239,10 +277,10 @@ jobs:
   # and a pool of three databases, one per xdist worker: the rows file alone is ~34 min serial (50 proofs of ~45 s), so the
   # three run in parallel and Db2's start is paid once, not per shard. The pinned image is restored from det-sweep.yml's cache entry (main saves it).
   db2:
-    needs: plan
+    needs: [tested-tree, plan]
     # #6664: on a PR only when a changed file is an input of the five Db2 files (equivalence_e2e_plan.db2_input); push,
     # nightly and manual runs always run it. A plan without the output (an older planner) runs it.
-    if: ${{ needs.plan.outputs.mode == 'run' && needs.plan.outputs.db2 != 'none' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104
+    if: ${{ needs.plan.outputs.mode == 'run' && needs.plan.outputs.db2 != 'none' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.plan.result == 'success') }}  # #5104
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
@@ -417,7 +455,7 @@ jobs:
 
   # The check to read (and to require, if the owner wants it): a plan of `none` is a pass by plan, never by absence of a shard.
   equivalence-e2e:
-    needs: [plan, shard, db2]
+    needs: [tested-tree, plan, shard, db2]
     if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -430,6 +468,7 @@ jobs:
           PLAN: ${{ needs.plan.outputs.mode }}
           DB2_PLAN: ${{ needs.plan.outputs.db2 }}
           PLAN_RESULT: ${{ needs.plan.result }}
+          SKIP: ${{ needs.tested-tree.outputs.skip }}
           SHARDS: ${{ needs.shard.result }}
           DB2: ${{ needs.db2.result }}
           GH_TOKEN: ${{ github.token }}
@@ -447,6 +486,8 @@ jobs:
           print("".join(f"| {n} | {float(s):.0f} |\n" for n, s in rows), end="")
           print(f"\n**{total / 60:.1f} runner-minutes** across {len(rows)} job(s)")
           PY
+          # #4935: a tree the PR run of this workflow proved green: the gate skipped the plan and every job after it
+          if [ "$SKIP" = "true" ]; then test "$PLAN_RESULT" = "skipped" && test "$SHARDS" = "skipped" && test "$DB2" = "skipped"; exit; fi
           test "$PLAN_RESULT" = "success"
           if [ "$PLAN" = "none" ]; then test "$SHARDS" = "skipped" && test "$DB2" = "skipped"; exit; fi
           test "$SHARDS" = "success"

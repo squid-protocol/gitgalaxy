@@ -10,11 +10,11 @@ reads each shard's `--ignore` flags, so a file the shards ignore must be named b
 listed file's needs from its skip reasons; this page carries one row per listed file with those needs.
 
 `equivalence-e2e.yml` runs on a PR only when `tests/tools/equivalence_e2e_plan.py` (the #6278 change classifier) finds a
-COBOL / mainframe / equivalence path in the diff; the nightly and a manual run always run it. Its `equivalence-e2e` check
+COBOL / mainframe / equivalence path in the diff; a push to main (post-merge) is planned the same way from the pushed files; the nightly and a manual run always run it. Its `equivalence-e2e` check
 sums the run's job seconds into runner-minutes in the step summary. The `db2` job has its own, narrower gate (#6664): on a
 PR it runs only when a changed file is an input of the five Db2 files (`equivalence_e2e_plan.db2_input`: their import
 closure, the equivalence cases they name, shared harness data, a non-Python file under `gitgalaxy/`, or the job's own
-files). Push, nightly and manual runs always run it, and Main Watch watches the workflow on main.
+files). Nightly and manual runs always run it, and a push is planned from the pushed files, and Main Watch watches the workflow on main.
 
 ## Which files the shards run (#6664)
 

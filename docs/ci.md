@@ -169,7 +169,7 @@ Net: one fewer serial wait for the 77% of PRs that run, bought with 4 runner req
 
 ## Heavy jobs on the PR and again on the push (tested-tree, #4935)
 
-`mainframe-ground-truth.yml`, `smoke-test.yml` (its `full-suite` parts) and `java-compile.yml` run on the PR and again
+`mainframe-ground-truth.yml`, `smoke-test.yml` (its `full-suite` parts), `java-compile.yml` and `equivalence-e2e.yml` (#5954 slice 4) run on the PR and again
 when it merges, because the push run does something a later dispatch cannot: ground truth appends and publishes its history
 per push, the full suite is the per-merge regression net, and java-compile's push run builds main's tree. Their `tested-tree` job
 (`tests/tools/skip_tested_tree.py`, rule and tests in `tests/tools/test_skip_tested_tree.py`) skips the push run when

@@ -276,6 +276,15 @@ def _owner(node):
     while decl is not None and decl.type != "qualified_identifier":
         decl = decl.child_by_field_name("declarator")
     scope = decl.child_by_field_name("scope") if decl is not None else None
+    while (
+        decl is not None
+        and (inner := decl.child_by_field_name("name")) is not None
+        and inner.type == "qualified_identifier"
+    ):
+        decl, scope = (
+            inner,
+            inner.child_by_field_name("scope") or scope,
+        )  # `A::B::B` nests: the class is the innermost scope
     return bare(decode_bytes(scope.text)) if scope is not None else None
 
 

@@ -74,9 +74,9 @@
     "tests/equivalence/ims/ggdli.c"
    ],
    "files": 46,
-   "sha256": "7e57488c79c77a09bd66129bc3cc144ac3a66e074a3acc9f05f277b1f41caa82",
+   "sha256": "a418f297bd99ed4a024547bfc12e6f8bd71eb56219a8ce773991e5ab957a651e",
    "components": {
-    "oracle:cics-stub": "9c1e9f9bd69cc3bd03eb1f52389adb74a64621058b09ecd32f3853eb98cc1698",
+    "oracle:cics-stub": "21b065d20e73c886dc6e7ea175f4ab9ed3e987e2343f67873a29d3327f88037a",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
@@ -243,10 +243,10 @@
    },
    "runtime_sha256": "95d95b29ee402f9e60e387bd556e5076af66d0bd4c4f549241f603b4f4c3cc89"
   },
-  "digest": "d21ac6bcdee7a261a6828230944dce3c5860ced33c9f025ca08b4061e7ff14c1"
+  "digest": "21e3079faa4460ab896f59c86a76c9728690f281fe289b5c0643ab4a7376bd54"
  },
  "proof": {
-  "at": "2026-10-26T03:36:11Z",
+  "at": "2026-10-26T04:56:54Z",
   "verdict": "proven",
   "runs": 14,
   "fault_runs": 7,
@@ -426,8 +426,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "6a4e6f1fa09473777464f5ff60db3e66147bbd03+uncommitted",
-  "inputs_digest": "d21ac6bcdee7a261a6828230944dce3c5860ced33c9f025ca08b4061e7ff14c1"
+  "harness_commit": "7171aa8bf864ffd4e96e9d6afeb2bfdff2c7181c+uncommitted",
+  "inputs_digest": "21e3079faa4460ab896f59c86a76c9728690f281fe289b5c0643ab4a7376bd54"
  },
  "coverage": {
   "paragraphs": {
@@ -463,7 +463,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d21ac6bcdee7a261a6828230944dce3c5860ced33c9f025ca08b4061e7ff14c1"
+  "inputs_digest": "21e3079faa4460ab896f59c86a76c9728690f281fe289b5c0643ab4a7376bd54"
  },
  "reach": {
   "entry_points": [
@@ -597,7 +597,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol-db2:3",
-   "id": "sha256:a937ea778c0dd33e179fa180762060cfe36a7d2bb079ad51f13f82162fae47bf",
+   "id": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []
@@ -657,7 +657,7 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics_web.c",
-    "sha256": "285bd1252683719b3c44191405432493d86a5da25766502252ca21930efd46cf"
+    "sha256": "9607c893198e4fc637821e02820ee5db0a16988ed2b6d8363595888e54d6dbe3"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",

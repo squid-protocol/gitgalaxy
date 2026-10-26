@@ -12,6 +12,10 @@
 #define WEB_MAXX 256
 #define WEB_MAXP 32
 #define WEB_TXT 4096
+/* #6072: the stated request and connection files (webreq_load, tcpip_load) take a line of WEBIN_LINE bytes and each token of
+ * WEBIN_TOK: a body of 32000 bytes or more is 64000 hex characters, which a 33000-byte token split into several. */
+#define WEBIN_LINE 270000
+#define WEBIN_TOK_FMT "%269999s"
 typedef struct { char scheme[8], host[WEB_TXT], urimap[9], path[WEB_TXT]; int port, haspath; } web_peer;
 typedef struct { int peer, status; char method[8], path[WEB_TXT], query[WEB_TXT], stext[WEB_TXT], media[WEB_TXT];
                  char *body; int bodylen; } web_x;
@@ -559,12 +563,15 @@ static int web_received = 0;
 
 static void webreq_load(void) {
     const char *env = getenv("GGCICS_WEBREQ");
-    static char line[70000], a[8][33000];
+    static char line[WEBIN_LINE], a[8][WEBIN_LINE];
     FILE *f;
     if (webreq.loaded) return;
     if (!env || !(f = fopen(env, "r"))) refuse("the HTTP request is not stated for this task");
     while (fgets(line, sizeof line, f)) {
-        int k = sscanf(line, "%32999s %32999s %32999s %32999s %32999s %32999s %32999s", a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
+        int k;
+        if (!strchr(line, '\n') && !feof(f)) refuse("the HTTP request has a line longer than the stub reads");
+        k = sscanf(line, WEBIN_TOK_FMT " " WEBIN_TOK_FMT " " WEBIN_TOK_FMT " " WEBIN_TOK_FMT " " WEBIN_TOK_FMT " "
+                         WEBIN_TOK_FMT " " WEBIN_TOK_FMT, a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
         if (k == 7 && strcmp(a[0], "R") == 0) {
             snprintf(webreq.scheme, sizeof webreq.scheme, "%s", a[1]);
             web_unhex(a[2], webreq.host, WEB_TXT);
@@ -638,12 +645,15 @@ static struct { int loaded, port, hascname, hassname; char caddr[64], saddr[64],
 
 static void tcpip_load(void) {
     const char *env = getenv("GGCICS_TCPIP");
-    static char line[70000], a[8][33000];
+    static char line[WEBIN_LINE], a[8][WEBIN_LINE];
     FILE *f;
     if (tcpipc.loaded) return;
     if (!env || !(f = fopen(env, "r"))) refuse("the TCP/IP connection is not stated for this task");
     while (fgets(line, sizeof line, f)) {
-        int k = sscanf(line, "%32999s %32999s %32999s %32999s %32999s %32999s %32999s", a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
+        int k;
+        if (!strchr(line, '\n') && !feof(f)) refuse("the TCP/IP connection has a line longer than the stub reads");
+        k = sscanf(line, WEBIN_TOK_FMT " " WEBIN_TOK_FMT " " WEBIN_TOK_FMT " " WEBIN_TOK_FMT " " WEBIN_TOK_FMT " "
+                         WEBIN_TOK_FMT " " WEBIN_TOK_FMT, a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
         if (k == 7 && strcmp(a[0], "T") == 0) {
             snprintf(tcpipc.caddr, sizeof tcpipc.caddr, "%s", a[1]);
             tcpipc.hascname = strcmp(a[2], "-") != 0;

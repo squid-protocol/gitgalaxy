@@ -4376,6 +4376,65 @@ _X38_RECEIVES = [  # (steps, the events: (media type, body, resp, resp2))
 ]
 
 
+_X38_BIG_MAIN = r"""
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap);
+static gg_cics c;
+int main(int argc, char **argv) {
+    static char into[200000];
+    char media[56];
+    long sum = 0;
+    int maxl = argc > 1 ? atoi(argv[1]) : 150000;
+    memset(into, 0, sizeof into);
+    memset(c.flags, ' ', 40);
+    c.num = maxl;
+    GGCWRCV(&c, into, (int)sizeof into, media, 56);
+    for (int i = 0; i < c.len; i++) sum += (unsigned char)into[i];
+    printf("rcv %d/%d len=%d sum=%ld\n", c.resp, c.resp2, c.len, sum);
+    return 0;
+}
+"""
+
+
+def _big_receive(tmp_path: Path, exe: Path, cfg: str, *args: str) -> subprocess.CompletedProcess[str]:
+    req = tmp_path / "bigreq.cfg"
+    req.write_text(cfg, encoding="ascii")
+    out = tmp_path / "bigout"
+    out.mkdir(exist_ok=True)
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+    return subprocess.run([str(exe), *args], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+
+
+@needs_cc
+@pytest.mark.parametrize("size", [1, 15999, 16499, 16500, 31999, 32000, 32001, 40000, 100000])
+def test_the_stub_web_receive_loads_a_request_body_of_any_size(tmp_path, size):
+    """#6072: a stated body of 32000 bytes or more (64000 hex characters) was split by the 33000-byte token buffer, so the B
+    line was dropped and WEB RECEIVE saw no body. Every size now loads whole; MAXLENGTH still cuts it (LENGERR 57)."""
+    exe = _stub(tmp_path, _X38_BIG_MAIN)
+    body = bytes((i * 7 + 3) % 251 for i in range(size))
+    cfg = f"R HTTP 7A656373 80 PUT 2F6B -\nB 746578742F706C61696E {body.hex().upper()}\n"
+    run = _big_receive(tmp_path, exe, cfg)
+    assert run.returncode == 0, run.stdout
+    assert run.stdout.splitlines() == [f"rcv 0/0 len={size} sum={sum(body)}"]
+    if size > 10:
+        cut = _big_receive(tmp_path, exe, cfg, "10")
+        assert cut.stdout.splitlines() == [f"rcv 22/57 len=10 sum={sum(body[:10])}"]
+
+
+@needs_cc
+def test_the_stub_refuses_a_stated_line_longer_than_it_reads(tmp_path):
+    """#6072: a line past the stub's buffer is refused by name, never split into extra tokens (which dropped the body)."""
+    exe = _stub(tmp_path, _X38_BIG_MAIN)
+    cfg = f"R HTTP 7A656373 80 PUT 2F6B -\nB 74 {'41' * 140000}\n"
+    run = _big_receive(tmp_path, exe, cfg)
+    assert run.returncode == 98 and "line longer than the stub reads" in run.stdout, run.stdout
+
+
 @needs_cc
 def test_the_stub_records_web_receive(tmp_path):
     """#4767 (X38): the stub logs a WEB-RECEIVE event for each WEB RECEIVE that ended NORMAL or in a LENGERR."""

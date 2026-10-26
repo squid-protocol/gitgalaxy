@@ -620,7 +620,7 @@
    "cbsa-creacc": [
     34,
     34,
-    26,
+    35,
     38
    ],
    "cbsa-creacc-generated": [
@@ -2355,7 +2355,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6e9ebec37f9a807cb82b54a288cc9590fa0167a9",
+   "sha": "6a4e6f1fa09473777464f5ff60db3e66147bbd03",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
@@ -11155,8 +11155,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 6e9ebec37f9a807cb82b54a288cc9590fa0167a9",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 6e9ebec37f9a807cb82b54a288cc9590fa0167a9",
+   "python tests/tools/cics_census.py survey --baseline --sha 6a4e6f1fa09473777464f5ff60db3e66147bbd03",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 6a4e6f1fa09473777464f5ff60db3e66147bbd03",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -11176,13 +11176,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6e9ebec37f9a807cb82b54a288cc9590fa0167a9",
+   "sha": "6a4e6f1fa09473777464f5ff60db3e66147bbd03",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
    }
   },
-  "translator_commit": "6e9ebec37f9a807cb82b54a288cc9590fa0167a9",
+  "translator_commit": "6a4e6f1fa09473777464f5ff60db3e66147bbd03",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

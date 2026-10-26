@@ -62,7 +62,6 @@ accepts. Sample precision of `state_mutation`, `branch` and the builtin-name sen
 
 - `identifier_case` is not declared: ACS identifiers are case-insensitive, but declaring it also needs the
   `test_exactly_the_declared_languages_carry_a_lexicon` literal widened (a sixth hand-written file in this slice).
-- No keyword-rosetta control folder or ledger entries; no `tri_comparison_chart.py` `_GG_ONLY_LANGS` entry.
-- No `docs/language_status/README.md` index row.
+- No `tri_comparison_chart.py` `_GG_ONLY_LANGS` entry.
 - A one-line `script "x" (int t) CLIENTSIDE { ... }` is detected by `func_start` but sliced together with a neighbour
   (the slicer needs the brace on its own line); unverified beyond a synthetic sample.

@@ -45,69 +45,76 @@ The tables the engine actually reads are rendered below from the data files, nev
 <!-- generated:strictness -->
 | language | static types | enforced errors | memory safe | no implicit globals | Irc | Ot |
 |---|---|---|---|---|---|---|
-| `abap` | yes | **no** | yes | yes | 1 | 1.10 |
-| `ada` | yes | **no** | yes | yes | 1 | 1.10 |
-| `agc_assembly` | **no** | **no** | **no** | **no** | 4 | 1.40 |
-| `apex` | yes | **no** | yes | yes | 1 | 1.10 |
-| `assembly` | **no** | **no** | **no** | **no** | 4 | 1.40 |
-| `batch` | **no** | **no** | yes | **no** | 3 | 1.30 |
+| `abap` | yes | **no** | yes | yes | 0 | 1.00 |
+| `acs` | **no** | **no** | yes | yes | 0 | 1.00 |
+| `ada` | yes | **no** | yes | yes | 0 | 1.00 |
+| `agc_assembly` | **no** | **no** | **no** | **no** | 0 | 1.00 |
+| `apex` | yes | **no** | yes | yes | 0 | 1.00 |
+| `assembly` | **no** | **no** | **no** | **no** | 0 | 1.00 |
+| `batch` | **no** | **no** | yes | **no** | 0 | 1.00 |
 | `blp` *(no runtime)* | — | — | — | — | 0 | 1.00 |
 | `bms` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `c` | yes | **no** | **no** | yes | 2 | 1.20 |
-| `cobol` | yes | **no** | yes | **no** | 2 | 1.20 |
-| `cpp` | yes | **no** | **no** | yes | 2 | 1.20 |
-| `csharp` | yes | **no** | yes | yes | 1 | 1.10 |
+| `c` | yes | **no** | **no** | yes | 0 | 1.00 |
+| `cobol` | yes | **no** | yes | **no** | 0 | 1.00 |
+| `cpp` | yes | **no** | **no** | yes | 0 | 1.00 |
+| `crystal` | yes | yes | yes | yes | 0 | 1.00 |
+| `csd` *(no runtime)* | — | — | — | — | 0 | 1.00 |
+| `csharp` | yes | **no** | yes | yes | 0 | 1.00 |
 | `css` *(no runtime)* | — | — | — | — | 0 | 1.00 |
 | `csv` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `dart` | yes | **no** | yes | yes | 1 | 1.10 |
-| `db2_sql` | yes | **no** | yes | yes | 1 | 1.10 |
-| `dockerfile` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `fortran` | yes | **no** | **no** | **no** | 3 | 1.30 |
-| `glsl` | yes | **no** | yes | yes | 1 | 1.10 |
-| `go` | yes | **no** | yes | yes | 1 | 1.10 |
-| `groovy` | **no** | **no** | yes | **no** | 3 | 1.30 |
+| `dart` | yes | **no** | yes | yes | 0 | 1.00 |
+| `db2_sql` | yes | **no** | yes | yes | 0 | 1.00 |
+| `dockerfile` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `easytrieve` | yes | **no** | yes | **no** | 0 | 1.00 |
+| `fortran` | yes | **no** | **no** | **no** | 0 | 1.00 |
+| `fsharp` | yes | **no** | yes | yes | 0 | 1.00 |
+| `glsl` | yes | **no** | yes | yes | 0 | 1.00 |
+| `go` | yes | **no** | yes | yes | 0 | 1.00 |
+| `groovy` | **no** | **no** | yes | **no** | 0 | 1.00 |
 | `haskell` | yes | yes | yes | yes | 0 | 1.00 |
-| `hlasm` | **no** | **no** | **no** | **no** | 4 | 1.40 |
+| `hlasm` | **no** | **no** | **no** | **no** | 0 | 1.00 |
 | `hlo` *(no runtime)* | — | — | — | — | 0 | 1.00 |
 | `html` *(no runtime)* | — | — | — | — | 0 | 1.00 |
 | `java` | yes | yes | yes | yes | 0 | 1.00 |
-| `javascript` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `jcl` | **no** | **no** | yes | **no** | 3 | 1.30 |
+| `javascript` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `jcl` | **no** | **no** | yes | **no** | 0 | 1.00 |
 | `json` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `kotlin` | yes | **no** | yes | yes | 1 | 1.10 |
-| `livecode` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `lua` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `m4` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `makefile` | **no** | **no** | yes | **no** | 3 | 1.30 |
+| `kotlin` | yes | **no** | yes | yes | 0 | 1.00 |
+| `livecode` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `lua` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `m4` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `makefile` | **no** | **no** | yes | **no** | 0 | 1.00 |
 | `markdown` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `matlab` | **no** | **no** | yes | yes | 2 | 1.20 |
+| `matlab` | **no** | **no** | yes | yes | 0 | 1.00 |
 | `mlir` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `nix` | **no** | **no** | yes | yes | 2 | 1.20 |
-| `objective-c` | yes | **no** | **no** | yes | 2 | 1.20 |
+| `nix` | **no** | **no** | yes | yes | 0 | 1.00 |
+| `objective-c` | yes | **no** | **no** | yes | 0 | 1.00 |
 | `pbtxt` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `perl` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `php` | **no** | **no** | yes | yes | 2 | 1.20 |
+| `perl` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `php` | **no** | **no** | yes | yes | 0 | 1.00 |
 | `plaintext` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `pli` | yes | **no** | **no** | **no** | 3 | 1.30 |
-| `powershell` | **no** | **no** | yes | yes | 2 | 1.20 |
+| `pli` | yes | **no** | **no** | **no** | 0 | 1.00 |
+| `postgresql` | yes | **no** | yes | yes | 0 | 1.00 |
+| `powershell` | **no** | **no** | yes | yes | 0 | 1.00 |
 | `proto` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `python` | **no** | **no** | yes | yes | 2 | 1.20 |
-| `rexx` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `ruby` | **no** | **no** | yes | yes | 2 | 1.20 |
+| `python` | **no** | **no** | yes | yes | 0 | 1.00 |
+| `rexx` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `ruby` | **no** | **no** | yes | yes | 0 | 1.00 |
 | `rust` | yes | yes | yes | yes | 0 | 1.00 |
-| `scala` | yes | **no** | yes | yes | 1 | 1.10 |
-| `scheme` | **no** | **no** | yes | yes | 2 | 1.20 |
-| `shell` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `solidity` | yes | **no** | yes | yes | 1 | 1.10 |
-| `sqlite` | **no** | **no** | yes | yes | 2 | 1.20 |
+| `scala` | yes | **no** | yes | yes | 0 | 1.00 |
+| `scheme` | **no** | **no** | yes | yes | 0 | 1.00 |
+| `shell` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `solidity` | yes | **no** | yes | yes | 0 | 1.00 |
+| `sqlite` | **no** | **no** | yes | yes | 0 | 1.00 |
 | `swift` | yes | yes | yes | yes | 0 | 1.00 |
-| `tcl` | **no** | **no** | yes | yes | 2 | 1.20 |
+| `tcl` | **no** | **no** | yes | yes | 0 | 1.00 |
 | `td` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `typescript` | yes | **no** | yes | yes | 1 | 1.10 |
+| `typescript` | yes | **no** | yes | yes | 0 | 1.00 |
 | `xml` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `yacc` | **no** | **no** | **no** | **no** | 4 | 1.40 |
+| `yacc` | **no** | **no** | **no** | **no** | 0 | 1.00 |
 | `yaml` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `zig` | yes | yes | **no** | yes | 1 | 1.10 |
+| `zig` | yes | yes | **no** | yes | 0 | 1.00 |
+| `zscript` | yes | **no** | yes | yes | 0 | 1.00 |
 
 Dialects read their family's row: `embedded_python` → `python`, `micropython` → `python`.
 <!-- /generated:strictness -->
@@ -118,7 +125,7 @@ Dialects read their family's row: `embedded_python` → `python`, `micropython` 
 | language | `safety` | `test` | `doc` | `ownership` |
 |---|---|---|---|---|
 
-Every language and signal not listed reads 1.00. Source: keyword-rosetta `83fd3487` (51 languages), regenerated by `tests/tools/fidelity_table.py`.
+Every language and signal not listed reads 1.00. Source: keyword-rosetta `c45713c0` (56 languages), regenerated by `tests/tools/fidelity_table.py`.
 <!-- /generated:fidelity -->
 
 ## Pipeline Integration

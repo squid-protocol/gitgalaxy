@@ -2533,6 +2533,10 @@ def _compiled_rules(lang_config: dict[str, Any]) -> dict[str, Any]:
     return rules
 
 
+# #5897: a Go `package main` clause (column 0, the only place a package clause can sit).
+_GO_PACKAGE_MAIN_RE = re.compile(r"^package[ \t]+main\b", re.M)
+
+
 # #1720 / #2814: C-family preprocessor directive line, applied to ONE line at a
 # time with `.match`. `#`, optional blanks, then the directive keyword as a whole
 # word (`\w*` is greedy and never backtracks into the keyword, so `#ifdef` can't
@@ -9302,6 +9306,12 @@ class StructuralExtractor:
                 if not indented_candidate or start in keep:
                     kept.append(m)
             return kept
+        if filter_name == "go_package_main":
+            # #5897: in a `package main` file nothing can be imported, so a lowercase
+            # name carries no visibility decision -- `encapsulation` counted 950 of
+            # gore's 1,025 funcs. A library package keeps every match. The clause is
+            # the file's first declaration, so a segment holding it decides for all.
+            return [] if _GO_PACKAGE_MAIN_RE.search(code) else matches
         if filter_name == "yaml_parameter_block":
             if filter_name not in cache:
                 cache[filter_name] = self._yaml_parameter_child_offsets(code)

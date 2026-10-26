@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 39,
+ "scenarios": 51,
  "paragraphs": {
   "covered": 51,
   "live": 51
  },
  "branches": {
-  "covered": 77,
+  "covered": 90,
   "total": 102
  },
  "linked": {
@@ -16,7 +16,7 @@
     "live": 4
    },
    "branches": {
-    "covered": 1,
+    "covered": 2,
     "total": 2
    }
   },
@@ -52,11 +52,11 @@
   },
   "INQCUST": {
    "paragraphs": {
-    "covered": 10,
+    "covered": 16,
     "live": 25
    },
    "branches": {
-    "covered": 13,
+    "covered": 24,
     "total": 46
    }
   },
@@ -66,42 +66,29 @@
     "live": 7
    },
    "branches": {
-    "covered": 19,
+    "covered": 21,
     "total": 28
    }
   }
  },
  "uncovered": {
   "branches": [
-   "334:true",
    "334:false",
    "520:true",
    "532:true",
    "532:false",
-   "694:true",
-   "841:true",
-   "947:true",
-   "977:true",
    "1055:true",
    "1067:true",
-   "1079:true",
-   "1163:true",
-   "1232:WHEN@1244",
-   "1232:WHEN@1255",
    "1232:OTHER",
-   "1419:true",
    "1486:true",
    "1496:true",
    "1496:false",
    "1563:false",
-   "1574:true",
-   "1676:true",
-   "1760:true",
-   "1841:true"
+   "1676:true"
   ]
  },
  "inputs": {
-  "case": "d3f889b823f1a8b136d1fe85bde0fc4746c76ff5a0a3eeda3a369e412b03318f",
+  "case": "5f2c670e2a51e87e54a986d0bbac1754128536274de21eaa4a00742c24631271",
   "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
   "harness": "93e40b9bbb2b1d6c1d0e3c27d815a85062312c011fb8eb0db48af9e45a7df173",
   "oracle": "a418f297bd99ed4a024547bfc12e6f8bd71eb56219a8ce773991e5ab957a651e",
@@ -120,5 +107,5 @@
    }
   }
  },
- "measured_at": "c2adb2dfbb6440e0b0b4f20df2ed7480c2d29d82"
+ "measured_at": "84dbfe76fcdba7a65a5c5511407ccc17059c19ef"
 }

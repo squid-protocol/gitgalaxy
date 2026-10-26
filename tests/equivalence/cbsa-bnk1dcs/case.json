@@ -697,7 +697,7 @@
    "commarea": {
     "WS-COMM-TERM": 451
    },
-   "why": "INQCUST's READ of CUSTOMER inside DELCUS fails with IOERR: INQCUST's failure code reaches DELCUS and BNK1DCS shows the error message",
+   "why": "PF5 delete of customer 2 while INQCUST's READ fails IOERR: INQCUST's any-other-condition arm LINKs ABNDPROC and ABENDs CVR1 CANCEL (no 'N' / '2' answer reaches BNK1DCS)",
    "receive": {
     "BNK1DC": {
      "CUSTNOI": "0000000002",
@@ -712,6 +712,301 @@
      "resp": "IOERR",
      "nth": 1,
      "why": "17 on the first READ of CUSTOMER in the task (INQCUST linked by DELCUS)"
+    }
+   ]
+  },
+  {
+   "name": "link-inqcust-pgmiderr",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "ENTER inquire of customer 1 while LINK INQCUST fails PGMIDERR: the non-NORMAL arm after the LINK (GCD010 841) takes the abend routine",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000001",
+     "SORTCI": "987654"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQCUST",
+     "resp": "PGMIDERR",
+     "nth": 1,
+     "why": "LINK INQCUST refused"
+    }
+   ]
+  },
+  {
+   "name": "link-delcus-pgmiderr",
+   "aid": "DFHPF5",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "PF5 delete of customer 1 while LINK DELCUS fails PGMIDERR: the non-NORMAL arm after the LINK (DCD010 977) takes the abend routine",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000001",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000001"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "DELCUS",
+     "resp": "PGMIDERR",
+     "nth": 1,
+     "why": "LINK DELCUS refused"
+    }
+   ]
+  },
+  {
+   "name": "link-updcust-pgmiderr",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "ENTER update of customer 2 while LINK UPDCUST fails PGMIDERR: the non-NORMAL arm after the LINK (UPDCD010 1163) takes the abend routine",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Mrs Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "UPDCUST",
+     "resp": "PGMIDERR",
+     "nth": 1,
+     "why": "LINK UPDCUST refused"
+    }
+   ]
+  },
+  {
+   "name": "update-datastore-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "ENTER update of customer 2 while UPDCUST's READ UPDATE fails IOERR: UPDCUST answers 'N' / '2' and BNK1DCS takes EVALUATE WHEN '2' (1244), 'a datastore error occurred'",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Mrs Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "nth": 1,
+     "why": "UPDCUST READ UPDATE fails"
+    }
+   ]
+  },
+  {
+   "name": "update-rewrite-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "ENTER update of customer 2 while UPDCUST's REWRITE fails IOERR: UPDCUST answers 'N' / '3' and BNK1DCS takes EVALUATE WHEN '3' (1255), 'an update error occurred'",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Mrs Carol D Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "REWRITE",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "nth": 1,
+     "why": "UPDCUST REWRITE fails"
+    }
+   ]
+  },
+  {
+   "name": "delete-last-customer-startbr-ioerr",
+   "aid": "DFHPF5",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "PF5 delete of customer 9999999999 while INQCUST's backwards browse (STARTBR) fails IOERR: INQCUST answers 'N' / '9', DELCUS passes it on and BNK1DCS takes the generic error arm (DCD010 1079)",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000001",
+     "SORTCI": "987654",
+     "CUSTNO2I": "9999999999"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "STARTBR",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "nth": 1,
+     "why": "INQCUST backwards browse fails"
+    }
+   ]
+  },
+  {
+   "name": "inquire-last-customer",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "ENTER inquire of customer 9999999999: INQCUST looks up the file's last customer, GCD010 reports the plain 'Customer lookup successful.' (947 true)",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "9999999999",
+     "SORTCI": "987654"
+    }
+   }
+  },
+  {
+   "name": "inquire-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "ENTER inquire with a customer number of letters: DEEDIT leaves a non-numeric field (ED010 694)",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "ABCDEFGHIJ",
+     "SORTCI": "987654"
+    }
+   }
+  },
+  {
+   "name": "first-entry-plain-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: the closing RETURN TRANSID('ODCS') RESP (A010 334) fails INVREQ RESP2 4 (planned, register X71): the program goes on to its abend routine",
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ]
+  },
+  {
+   "name": "first-entry-send-map-invmpsz",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: the SEND MAP ERASE of the empty map fails INVMPSZ (planned, X71): the non-NORMAL arm (SM010 1419) takes the abend routine",
+   "faults": [
+    {
+     "cmd": "SEND-MAP",
+     "map": "BNK1DC",
+     "nth": 1,
+     "resp": "INVMPSZ"
+    }
+   ]
+  },
+  {
+   "name": "bad-title-send-map-tsioerr",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 451,
+    "WS-COMM-EYE": "CUST",
+    "WS-COMM-SCODE": "987654",
+    "WS-COMM-CUSTNO": "0000000002",
+    "WS-COMM-UPDATE": "Y"
+   },
+   "why": "ENTER update with an invalid title sends the message with SEND MAP DATAONLY ALARM, which fails TSIOERR (planned, X71): the non-NORMAL arm (SM010 1574) takes the abend routine",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000002",
+     "SORTCI": "987654",
+     "CUSTNO2I": "0000000002",
+     "CUSTNAMI": "Captain Carol Jones",
+     "CUSTAD1I": "42 High Street",
+     "CUSTAD2I": "Romsey",
+     "CUSTAD3I": "SO51 8AA",
+     "DOBDDI": "05",
+     "DOBMMI": "06",
+     "DOBYYI": "1960",
+     "CREDSCI": "699",
+     "SCRDTDDI": "15",
+     "SCRDTMMI": "10",
+     "SCRDTYYI": "2026"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "SEND-MAP",
+     "map": "BNK1DC",
+     "nth": 1,
+     "resp": "TSIOERR"
+    }
+   ]
+  },
+  {
+   "name": "pf12-send-text-tsioerr",
+   "aid": "DFHPF12",
+   "commarea": {
+    "WS-COMM-TERM": 451
+   },
+   "why": "PF12: SEND-TERMINATION-MSG's SEND TEXT ERASE FREEKB (STM010 1841) fails TSIOERR (planned, X71): nothing is sent and the non-NORMAL arm takes the abend routine",
+   "faults": [
+    {
+     "cmd": "SEND-TEXT",
+     "resp": "TSIOERR"
     }
    ]
   }

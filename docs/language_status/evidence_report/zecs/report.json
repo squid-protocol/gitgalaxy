@@ -241,9 +241,9 @@
     0
    ],
    "carddemo-acctupdate": [
-    90,
     95,
-    311,
+    95,
+    315,
     397
    ],
    "carddemo-acctview": [
@@ -633,7 +633,7 @@
    "cbsa-bnk1cac": [
     25,
     25,
-    74,
+    76,
     97
    ],
    "cbsa-bnk1cac-generated": [
@@ -645,7 +645,7 @@
    "cbsa-bnk1cca": [
     25,
     25,
-    33,
+    35,
     41
    ],
    "cbsa-bnk1cca-generated": [
@@ -657,7 +657,7 @@
    "cbsa-bnk1ccs": [
     33,
     33,
-    122,
+    124,
     143
    ],
    "cbsa-bnk1ccs-generated": [
@@ -669,7 +669,7 @@
    "cbsa-bnk1cra": [
     28,
     28,
-    58,
+    60,
     67
    ],
    "cbsa-bnk1cra-generated": [
@@ -681,7 +681,7 @@
    "cbsa-bnk1dac": [
     31,
     31,
-    49,
+    51,
     60
    ],
    "cbsa-bnk1dac-generated": [
@@ -699,7 +699,7 @@
    "cbsa-bnk1tfn": [
     28,
     28,
-    59,
+    61,
     72
    ],
    "cbsa-bnk1tfn-generated": [
@@ -711,7 +711,7 @@
    "cbsa-bnk1uac": [
     31,
     31,
-    80,
+    82,
     88
    ],
    "cbsa-bnk1uac-generated": [
@@ -723,7 +723,7 @@
    "cbsa-bnkmenu": [
     24,
     25,
-    47,
+    48,
     62
    ],
    "cbsa-crdtagy1": [
@@ -835,9 +835,9 @@
     0
    ],
    "cbsa-inqacc": [
-    22,
+    24,
     25,
-    15,
+    23,
     25
    ],
    "cbsa-inqacc-generated": [
@@ -1587,7 +1587,7 @@
    },
    "cbsa-inqacc": {
     "stale": [],
-    "status": "shown equal, unapproved"
+    "status": "not-shown equal"
    },
    "cbsa-updacc": {
     "stale": [],
@@ -1621,7 +1621,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
+   "sha": "6e9ebec37f9a807cb82b54a288cc9590fa0167a9",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
@@ -5092,8 +5092,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
-   "python tests/tools/evidence_report.py zecs --baseline --sha cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
+   "python tests/tools/cics_census.py survey --baseline --sha 6e9ebec37f9a807cb82b54a288cc9590fa0167a9",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 6e9ebec37f9a807cb82b54a288cc9590fa0167a9",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -5114,13 +5114,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
+   "sha": "6e9ebec37f9a807cb82b54a288cc9590fa0167a9",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
    }
   },
-  "translator_commit": "cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
+  "translator_commit": "6e9ebec37f9a807cb82b54a288cc9590fa0167a9",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

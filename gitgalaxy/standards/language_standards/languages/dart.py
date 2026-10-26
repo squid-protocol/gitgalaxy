@@ -76,8 +76,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes modern pattern guards (when) and null-coalescing.
+        # #6097: `break`/`continue` are unconditional transfers, so they sit in structural_boundaries beside
+        # `return` (branch_rule_contract.md, #2832), as in C.
         "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|break|continue|when)\b|&&|\|\||\?\?|\?",
+            r"\b(if|else|switch|case|default|for|while|do|when)\b|&&|\|\||\?\?|\?",
             re.I,
         ),
         # 2. args (Parameters / Coupling)
@@ -120,7 +122,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and const/final.
         "structural_boundaries": re.compile(
-            r"\b(var|late|return|yield|await|class|mixin|extension|enum|typedef|import|export|part|library|base|sealed|interface|macro)\b|=>",
+            r"\b(var|late|return|break|continue|yield|await|class|mixin|extension|enum|typedef|import|export|part|library|base|sealed|interface|macro)\b|=>",
             re.I,
         ),
         # 4. func_start (Executable Logic Anchors)

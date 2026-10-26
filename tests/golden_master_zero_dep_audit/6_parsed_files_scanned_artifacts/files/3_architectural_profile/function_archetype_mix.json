@@ -3834,10 +3834,10 @@
         "Annotated & Test Methods": 14,
         "Callbacks & Closures": 25,
         "Compute Cores": 1,
-        "Defensive Guards": 97,
+        "Defensive Guards": 98,
         "Encapsulated Accessors": 55,
         "Generic / Templated Code": 7,
-        "I/O & Config Routines": 19,
+        "I/O & Config Routines": 18,
         "Interface Declarations": 3,
         "Many-Argument Workhorses": 9,
         "Parameter Forwarders": 7,
@@ -10353,8 +10353,8 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": {},
       "scheme/racket/cpnanopass.ss": {
-        "Callbacks & Closures": 51,
-        "Compute Cores": 11,
+        "Callbacks & Closures": 49,
+        "Compute Cores": 13,
         "I/O & Config Routines": 64,
         "Many-Argument Workhorses": 12,
         "State Mutators": 1

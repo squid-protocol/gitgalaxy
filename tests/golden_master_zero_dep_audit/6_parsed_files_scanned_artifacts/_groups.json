@@ -3186,11 +3186,11 @@
     "dart/flutter": {
       "Average Risk Exposures": {
         "API Exposure": "3.19%",
-        "Cognitive Load Exposure": "30.03%",
+        "Cognitive Load Exposure": "29.88%",
         "Commented Logic Exposure": "6.88%",
         "Concurrency Exposure": "12.89%",
         "Documentation Exposure": "44.0%",
-        "Error & Exception Exposure": "36.8%",
+        "Error & Exception Exposure": "36.79%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
@@ -3199,7 +3199,7 @@
         "Testing Exposure": "24.63%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 22960.2,
+      "Directory Group Magnitude": 22872.5,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_12": "28.6%",
         "file_cluster_4": "42.9%",
@@ -9731,20 +9731,20 @@
     "scheme/racket": {
       "Average Risk Exposures": {
         "API Exposure": "1.52%",
-        "Cognitive Load Exposure": "38.47%",
+        "Cognitive Load Exposure": "39.53%",
         "Commented Logic Exposure": "2.84%",
         "Concurrency Exposure": "1.95%",
         "Documentation Exposure": "85.71%",
-        "Error & Exception Exposure": "53.82%",
+        "Error & Exception Exposure": "53.91%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "42.86%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "51.6%",
+        "State Flux Exposure": "52.66%",
         "Tech Debt Exposure": "13.34%",
         "Testing Exposure": "68.57%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 24244.32,
+      "Directory Group Magnitude": 24902.42,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "14.3%",
         "file_cluster_10": "14.3%",

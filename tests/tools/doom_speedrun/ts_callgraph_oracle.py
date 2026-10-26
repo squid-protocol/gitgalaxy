@@ -21,6 +21,14 @@ import sqlite3
 import sys
 from pathlib import Path
 
+HERE = Path(__file__).resolve().parent
+sys.path.insert(
+    0, str(HERE.parents[2])
+)  # before any gitgalaxy import: a shared venv may editable-install another checkout
+sys.path.insert(0, str(HERE))
+
+import doom_scorer  # noqa: E402
+
 EXAMPLES = 3
 QUOTING = ("quote", "quote_spanned", "stringify")
 NAME_NODES = {
@@ -235,8 +243,10 @@ def definition_at(nodes, line):
     return best
 
 
-def load_port(repo, db):
-    """Engine functions of a scan in a language of ``SPECS``: [(relpath, language, name, start_line, callees)]."""
+def load_port(repo, db, vendored=None):
+    """Engine functions of a scan in a language of ``SPECS``: [(relpath, language, name, start_line, callees)].
+
+    ``vendored`` (a relpath -> bool test) drops vendored code (#6097)."""
     repo = str(repo).replace("\\", "/").rstrip("/")
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
     try:
@@ -253,6 +263,8 @@ def load_port(repo, db):
         rel = path.replace("\\", "/")
         if rel.startswith(repo + "/"):
             rel = rel[len(repo) + 1 :]
+        if vendored and vendored(rel):
+            continue
         try:
             callees = json.loads(calls) if calls else []
         except ValueError:
@@ -313,7 +325,7 @@ def main(argv=None):
     ap.add_argument("--db", type=Path, required=True, help="the scan's *_master.db")
     ap.add_argument("--json", type=Path, help="write the result here")
     args = ap.parse_args(argv)
-    rows = load_port(args.root, args.db)
+    rows = load_port(args.root, args.db, doom_scorer._engine_vendor_test(args.root))
     if not rows:
         print("n/a: no function in a language with a tree-sitter call oracle")
         return 0

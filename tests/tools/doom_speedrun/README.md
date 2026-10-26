@@ -35,11 +35,12 @@ To add a port: read its license from the files, pin a SHA, add a row with `class
 `reimplementation` (an independent engine that plays DOOM data), `raycaster` (a DOOM-like raycaster, not the DOOM
 engine), `separate-engine` (a later id engine) or `assets` (a content project).
 
-`fidelity`, `fidelity_file`, `fidelity_phrase` (#5620): what the port's own README says about its fidelity to the
+`fidelity`, `fidelity_file`, `fidelity_phrase` (#5620), `fidelity_reason` (#6097): what the port's own README says about its fidelity to the
 original, read from the pinned clone. `fidelity` is `original` (linuxdoom), `faithful` (aims to reproduce the original,
 bugs included), `compatible` (states demo / data / behaviour compatibility while changing or adding), `enhanced`
 (states added features, no fidelity claim), `divergent` (disclaims being a port of, or exact to, the original) or
-`unstated` (no README, or silent). Anything but `original` / `unstated` names the README and a short quoted phrase.
+`unstated` (no README, or silent). Anything but `original` / `unstated` names the README and a short quoted phrase;
+`unstated` instead names `fidelity_reason`: `no-readme` or `readme-silent`.
 It records a claim, not a measurement. `fidelity.py check --work DIR` re-reads every phrase from the clones (a missing
 clone is reported as unchecked; `--strict` makes it an error) and `fidelity.py report` prints the class x fidelity counts.
 
@@ -246,9 +247,32 @@ On the 0e2bf4ade scans it reproduces the study script's numbers for all 30 share
 Blind spots:
 - **A distance is a shape comparison, not a correctness claim.** A port in another language moves every metric by how
   the engine counts that language (what the cross-language slice is for); a large `dist` says "different", not "wrong".
-- **Vendored code is not excluded** (the study script did not either): a port that bundles a library carries its
-  functions in its own distribution. `lineage.py` is the tool that applies the engine's vendor test.
+- **Vendored code is excluded** (#6097; the round-1 script did not): functions under a directory the engine's
+  `VendorDirectoryDetector` calls vendored are dropped, so the numbers differ from round 1 for a port that bundles a
+  library. This reads the clone (`<work>/repos/<port>`, as `lineage.py` does); a port with a scan but no clone is skipped.
+  Measured over the 31 ports with a scan at each of three engine SHAs (2026-10-26): at two recent engine SHAs (`0e2bf4ade`, `b81b19f78`) the filter
+  drops nothing, because the scan already skips vendored directories (function counts identical with and without it);
+  at the older engine `aa8919dea`, which still scanned them, it dropped 11.2% of one port's functions, 3.1% and 2.0%
+  of two others, and 0 on the other 28. It is a guard for a scan that predates the engine's vendor skip.
 - **The majority language names the port** (`lang`); a polyglot port's functions of other code languages stay in.
+
+## Per-subsystem complexity (`subsystem_distribution.py`, #6097)
+
+Slice 1 of the per-subsystem distributions: ONE metric family (cyclomatic complexity) split by linuxdoom subsystem
+(`lineage.subsystem`: file directory and file-name prefix). Per port and subsystem: functions, median, 90th percentile,
+the share with complexity >= 10, and the port's median over linuxdoom's median in the same subsystem (blank under
+`--min-subsystem` functions on either side). Reads the same scans as `distribution.py`; licensed ports only.
+
+```bash
+python tests/tools/doom_speedrun/subsystem_distribution.py [--only gore,room4doom] [--sha SHA] [--min-subsystem N]
+```
+
+Results in `<work>/results/<sha>/distribution/`: `subsystem_distribution.csv`, `subsystem_distribution.md`.
+
+Blind spots:
+- **The split is by file name**: a port that renamed its files has those functions under `other` (its `other %`
+  column says how many), so its subsystem rows describe only the files that kept linuxdoom's prefixes.
+- **Complexity only**: LOC, fan-out, token mass and the plots are later slices (#6097).
 
 ## Study write-up tables (`study_report.py`, #5620)
 

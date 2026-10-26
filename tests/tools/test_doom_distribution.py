@@ -19,19 +19,23 @@ import distribution  # noqa: E402
 SHA = "abc123def"
 
 
-def make_scan(work, name, funcs, class_=None):
-    """funcs: [(language, complexity, loc, fan_out, token_mass, args)]."""
+def make_scan(work, name, funcs, vendor_dir=None, vendor_lang=None):
+    """funcs: [(language, complexity, loc, fan_out, token_mass, args)]; ``vendor_lang`` files live under ``vendor_dir``."""
     scan = work / "scans" / SHA / name
     scan.mkdir(parents=True)
     con = sqlite3.connect(scan / f"{name}_galaxy_master.db")
-    con.execute("create table file_data (id integer primary key, language text)")
+    con.execute("create table file_data (id integer primary key, language text, file_path text)")
     con.execute(
         "create table function_data (file_id integer, complexity integer, loc integer, func_fan_out integer, "
         "token_mass integer, args)"
     )
     langs = {}
+    (work / "repos" / name).mkdir(parents=True, exist_ok=True)
     for lang, *rest in funcs:
-        fid = langs.setdefault(lang, con.execute("insert into file_data (language) values (?)", (lang,)).lastrowid)
+        path = f"{vendor_dir}/x.{lang}" if vendor_dir and lang == vendor_lang else f"src/x.{lang}"
+        fid = langs.setdefault(
+            lang, con.execute("insert into file_data (language, file_path) values (?, ?)", (lang, path)).lastrowid
+        )
         con.execute("insert into function_data values (?, ?, ?, ?, ?, ?)", (fid, *rest))
     con.commit()
     con.close()
@@ -81,6 +85,20 @@ def test_load_metrics_keeps_code_languages_and_names_the_majority(work):
     assert lang == "go"
     assert len(values["complexity"]) == 40 and 999.0 not in values["complexity"]  # markdown dropped
     assert set(values) == set(distribution.FIELDS)
+
+
+@pytest.mark.parametrize(
+    "vendor_dir", ["third_party_sdl", "3rdparty-png", "zlib", "jpeg-6", "src/lzma", "src/nlohmann"]
+)
+def test_vendored_code_is_dropped_from_a_distribution(tmp_path, vendor_dir):
+    """Every vendor rule of the engine detector (third-party prefix, known library name, versioned name), the whole input class, not one name."""
+    (tmp_path / "repos" / "gore" / vendor_dir).mkdir(parents=True, exist_ok=True)
+    make_scan(tmp_path, "gore", ramp(40, lang="go") + ramp(60, scale=50, lang="c"), vendor_dir, "c")
+    db = next((tmp_path / "scans" / SHA / "gore").glob("*_master.db"))
+    vendored = distribution.doom_scorer._engine_vendor_test(tmp_path / "repos" / "gore")
+    assert len(distribution.load_metrics(db)[1]["complexity"]) == 100  # no test: nothing dropped
+    lang, values = distribution.load_metrics(db, vendored)
+    assert lang == "go" and len(values["complexity"]) == 40
 
 
 def test_run_profiles_ports_against_the_baseline_and_skips_the_rest(work):

@@ -330,3 +330,32 @@ def test_a_base_class_initializer_is_a_constructor_call_and_a_member_entry_is_no
     r = co.body_oracle(port)
     assert r["engine_only_by_kind"] == {"absent": 1}  # `mode(v)`, the member
     assert "ctor-init" not in r["misses_by_shape"] and r["recall"] == 1.0
+
+
+@pytest.mark.parametrize("vendor_dir", ["third_party_sdl", "3rdparty-png", "zlib", "jpeg-6"])
+def test_vendored_functions_are_neither_callers_nor_defined_names(tmp_path, vendor_dir):
+    """Every engine vendor rule, whole input class (#6097): a library's function is not an oracle edge target or source."""
+    files = {"m.c": "void top(void) { inflate(); }\n", f"{vendor_dir}/z.c": "void inflate(void) {}\n"}
+    funcs = [("m.c", "top", 1, ["inflate"]), (f"{vendor_dir}/z.c", "inflate", 1, [])]
+    repo, scan = make_port(tmp_path, "linuxdoom", files, funcs)
+    db = co.find_db(scan)
+    assert {r[2] for r in co.load_port(repo, db)} == {"top", "inflate"}  # no test: nothing dropped
+    rows = co.load_port(repo, db, co.doom_scorer._engine_vendor_test(repo))
+    assert [r[2] for r in rows] == ["top"]
+    r = co.body_oracle(co.Port("linuxdoom", repo, rows))
+    assert (r["oracle_calls"], r["engine_calls"]) == (0, 0)  # inflate is no longer a name the port defines
+
+
+def test_the_ts_oracle_loader_drops_vendored_code_too(tmp_path):
+    import ts_callgraph_oracle as ts
+
+    files = {"m.c": "void top(void) {}\n", "zlib/z.c": "void inflate(void) {}\n"}
+    funcs = [("m.c", "top", 1, []), ("zlib/z.c", "inflate", 1, [])]
+    repo, scan = make_port(tmp_path, "linuxdoom", files, funcs)
+    db = co.find_db(scan)
+    con = sqlite3.connect(db)
+    con.execute("update file_data set language = 'go'")
+    con.commit()
+    con.close()
+    assert len(ts.load_port(repo, db)) == 2
+    assert [r[2] for r in ts.load_port(repo, db, co.doom_scorer._engine_vendor_test(repo))] == ["top"]

@@ -37,6 +37,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
+sys.path.insert(0, str(REPO_ROOT))  # before any gitgalaxy import: a shared venv may editable-install another checkout
+sys.path.insert(0, str(HERE))
+
+import doom_scorer  # noqa: E402
+
 DEFAULT_WORK = Path(os.environ.get("DOOM_SPEEDRUN_WORK", "/tmp/gitgalaxy-scratch/doom-speedrun"))
 DEFAULT_BASELINE = HERE / "callgraph_baseline.json"
 
@@ -363,8 +368,11 @@ def find_db(scan_dir):
     return hits[0] if hits else None
 
 
-def load_port(repo, db):
-    """Engine functions of a scan: [(relpath, language, name, start_line, calls_out_to list)] for C and C++ files."""
+def load_port(repo, db, vendored=None):
+    """Engine functions of a scan: [(relpath, language, name, start_line, calls_out_to list)] for C and C++ files.
+
+    ``vendored`` (a relpath -> bool test, ``doom_scorer._engine_vendor_test``) drops vendored code: a library's functions
+    are neither oracle callers nor defined names (#6097)."""
     repo = str(repo).replace("\\", "/").rstrip("/")
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
     try:
@@ -381,6 +389,8 @@ def load_port(repo, db):
         rel = path.replace("\\", "/")
         if rel.startswith(repo + "/"):
             rel = rel[len(repo) + 1 :]
+        if vendored and vendored(rel):
+            continue
         try:
             callees = json.loads(calls) if calls else []
         except ValueError:
@@ -610,7 +620,7 @@ def run(only, family, work, sha):
         if db is None or not repo.is_dir():
             skipped.append(name)
             continue
-        loaded[name] = Port(name, repo, load_port(repo, db))
+        loaded[name] = Port(name, repo, load_port(repo, db, doom_scorer._engine_vendor_test(repo)))
     result = {"engine_sha": sha, "ports": {n: body_oracle(loaded[n]) for n in only if n in loaded}}
     fam = [loaded[n] for n in family if n in loaded]
     result["consensus"] = consensus(fam) if len(fam) > MIN_HOLDERS else None

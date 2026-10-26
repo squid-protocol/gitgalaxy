@@ -72,8 +72,8 @@
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 112,
-   "sha256": "bc48178c3dfae1c2ca4049a32efab25db207169122fb9727ede5fb6e33209ece",
+   "files": 113,
+   "sha256": "aa03dfbf49d4b3b2904ea2d0520f0020e8923b9247d9f8d51f6707321a897cff",
    "components": {
     "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
     "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
@@ -115,7 +115,7 @@
     "generator:cobolrt/sql/DetSql.java": "6b04507a609ed3fc607fd152de0bff932798865b6657ba34ab1cbc35c4a6cfb0",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "aae8bd6be007ebbfb4c7c2427b7bd4fd033ec36f528cca49600462bbb475d413",
+    "generator:core": "1ac9c6427102b5346f29a2a36cafb29a6189425423168c3a16a8e473bafb3fae",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/bll": "51a3de21e2afa9301080d7613bf7ba13c0a053a90c9b4c1b92acfd676b923163",
     "generator:det/cics": "6fd3b3f809e6ca8bfd5d9dac922b1dc2961ae0280dad4172457ecf02c20f2295",
@@ -177,10 +177,10 @@
    },
    "runtime_sha256": "7c2b870db10a743ccc413269481a8a87b2a85fb6515efcad194d907b8ef94764"
   },
-  "digest": "803e5f052ea35d55615d0ab603faadb676f6935aca27fd35821a64a1e87d173a"
+  "digest": "aa65e6a74856bc54112da5fb33b96076039fcd31d761116c47fa044351fc2cf6"
  },
  "proof": {
-  "at": "2026-10-26T03:26:05Z",
+  "at": "2026-10-26T09:13:05Z",
   "verdict": "proven",
   "runs": 2,
   "fault_runs": 0,
@@ -202,8 +202,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "6a4e6f1fa09473777464f5ff60db3e66147bbd03+uncommitted",
-  "inputs_digest": "803e5f052ea35d55615d0ab603faadb676f6935aca27fd35821a64a1e87d173a"
+  "harness_commit": "4aa4de078f6003045f656399c83c80cbdac89e87+uncommitted",
+  "inputs_digest": "aa65e6a74856bc54112da5fb33b96076039fcd31d761116c47fa044351fc2cf6"
  },
  "coverage": {
   "paragraphs": {
@@ -218,7 +218,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/pc-return-immediate/PCIMML",
   "ledger_sha256": "481927dae7485f429d3c14cfac816003c59f0baf2d51e434f5a63d04961bb79f",
-  "inputs_digest": "803e5f052ea35d55615d0ab603faadb676f6935aca27fd35821a64a1e87d173a"
+  "inputs_digest": "aa65e6a74856bc54112da5fb33b96076039fcd31d761116c47fa044351fc2cf6"
  },
  "reach": {
   "entry_points": [

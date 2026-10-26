@@ -1,12 +1,12 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 21,
+ "scenarios": 22,
  "paragraphs": {
-  "covered": 66,
+  "covered": 71,
   "live": 119
  },
  "branches": {
-  "covered": 86,
+  "covered": 89,
   "total": 200
  },
  "uncovered": {
@@ -17,7 +17,6 @@
    "1610-SCAN-ZCXXSD:836",
    "1610-EXIT:859",
    "3000-EXIT:897",
-   "3310-CHECK-TTL:1064",
    "3310-EXIT:1083",
    "3400-STAGE:1092",
    "3400-EXIT:1126",
@@ -38,10 +37,6 @@
    "4700-DELETE:1570",
    "4700-EXIT:1577",
    "5000-EXIT:1605",
-   "5100-DELETE-KEY:1612",
-   "5100-EXIT:1619",
-   "5200-DELETE-FILE:1626",
-   "5200-EXIT:1636",
    "5300-SEND-RESPONSE:1648",
    "5300-EXIT:1674",
    "5400-REPLICATE:1681",
@@ -108,10 +103,7 @@
    "999:false",
    "1002:true",
    "1010:true",
-   "1037:false",
    "1042:false",
-   "1055:true",
-   "1072:true",
    "1072:false",
    "1093:true",
    "1093:false",
@@ -186,7 +178,6 @@
    "paragraph:1610-SCAN-ZCXXSD",
    "paragraph:1610-EXIT",
    "paragraph:3000-EXIT",
-   "paragraph:3310-CHECK-TTL",
    "paragraph:3310-EXIT",
    "paragraph:3400-STAGE",
    "paragraph:3400-EXIT",
@@ -207,10 +198,6 @@
    "paragraph:4700-DELETE",
    "paragraph:4700-EXIT",
    "paragraph:5000-EXIT",
-   "paragraph:5100-DELETE-KEY",
-   "paragraph:5100-EXIT",
-   "paragraph:5200-DELETE-FILE",
-   "paragraph:5200-EXIT",
    "paragraph:5300-SEND-RESPONSE",
    "paragraph:5300-EXIT",
    "paragraph:5400-REPLICATE",
@@ -236,21 +223,21 @@
   ]
  },
  "inputs": {
-  "case": "b85580a679f2267ff6609ebf8505e93ae0818f2015a7ef55e544002addde8079",
+  "case": "af7c7a1d70154c29632e8d9a788849d432cb6075335a5812cb91218fa482f4e9",
   "corpus": "09feecf8028c77a136bbff56380f9babddf0b2e28fbb6a7ad7ba456273989ff6",
   "harness": "93e40b9bbb2b1d6c1d0e3c27d815a85062312c011fb8eb0db48af9e45a7df173",
-  "oracle": "7e57488c79c77a09bd66129bc3cc144ac3a66e074a3acc9f05f277b1f41caa82",
+  "oracle": "a418f297bd99ed4a024547bfc12e6f8bd71eb56219a8ce773991e5ab957a651e",
   "components": {
    "harness": {
     "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
     "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99"
    },
    "oracle": {
-    "oracle:cics-stub": "9c1e9f9bd69cc3bd03eb1f52389adb74a64621058b09ecd32f3853eb98cc1698",
+    "oracle:cics-stub": "21b065d20e73c886dc6e7ea175f4ab9ed3e987e2343f67873a29d3327f88037a",
     "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
    }
   }
  },
- "measured_at": "6a4e6f1fa09473777464f5ff60db3e66147bbd03"
+ "measured_at": "8f2b5a47b81eaa9bcb373dac325bc2bdc2336ef5"
 }

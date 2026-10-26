@@ -169,6 +169,11 @@ examples each). `--write-baseline FILE` writes the numbers-only view; `--baselin
 when a port's recall or precision drops by more than `--tolerance` (0.001), a baseline port is missing, or the
 consensus engine-miss or false-edge count grows. That is the hook for the DOOM-rosetta nightly (#5619, #5630): the `callgraph` job of `.github/workflows/doom-rosetta.yml` (schedule and manual dispatch only, never a PR check) runs `fetch` and `scan` on the baseline's ports, then the `--only all --baseline` command, and writes `callgraph.md` to the job summary; regenerate the baseline only with an explained engine change.
 
+Vendored code is dropped from the oracle's functions (#6097, `load_port(..., vendored=)`). Measured at engine `77542d045`
+over the baseline's 23 ports (fresh clones at the manifest SHAs, a fresh scan): `--write-baseline` differs from the
+committed `callgraph_baseline.json` in `engine_sha` only, every recall, precision, hole and consensus count identical,
+so the baseline needed no refresh (the scan already skips vendored directories).
+
 Attribution convention (owner ruling nyx-o8, 2026-10-21): a call inside a nested function is credited to the nested
 function, never to the enclosing one, matching the engine (a C++ local class's method and a GNU C nested function are
 each their own unit). The `else if` that `#ifdef` splitting makes tree-sitter read as a nested definition is not a

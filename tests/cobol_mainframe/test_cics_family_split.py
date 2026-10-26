@@ -24,6 +24,7 @@ from gitgalaxy.tools.cobol_to_java import cics_task_faults as tfl  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_filecontrol as tf  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_taskcontrol as tt  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_tdqueues as tq  # noqa: E402
+from gitgalaxy.tools.cobol_to_java import cics_task_time as tim  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_tsqueues as tsq  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cics_task_web as tw  # noqa: E402
 from gitgalaxy.tools.cobol_to_java import cobol_to_java_transaction_forge as forge  # noqa: E402
@@ -188,11 +189,24 @@ def test_cicstask_holds_the_td_queue_java_once_where_it_sat():
     assert java.count(tq.TDQUEUES_JAVA) == 1
     a = java.index(tq.TDQUEUES_JAVA)
     assert java[:a].endswith(tw.WEB_REQUEST_JAVA)
-    assert java[a + len(tq.TDQUEUES_JAVA) :].startswith("    /** EXEC CICS FORMATTIME's condition")
+    assert java[a + len(tq.TDQUEUES_JAVA) :].startswith(tim.TIME_JAVA)
     for method in ("withTdQueues", "withTdQueueTypes", "withTdQueueAttributes", "setTdQueueOpenStatus", "inquireTdQueue",
                    "setTdQueueTriggerLevel", "setTdQueueEnableStatus", "writeqTd", "readqTd", "deleteqTd"):  # fmt: skip
         assert re.search(rf"public \S+(?: \S+)? {method}\(", tq.TDQUEUES_JAVA), method
     assert "public record TdResult(" in tq.TDQUEUES_JAVA
+
+
+def test_cicstask_holds_the_time_java_once_where_it_sat():
+    """#5274: the ASKTIME / FORMATTIME code is spliced between the TD queue family and withTermid."""
+    java = forge.CICS_TASK_JAVA
+    assert java.count(tim.TIME_JAVA) == 1
+    a = java.index(tim.TIME_JAVA)
+    assert java[:a].endswith(tq.TDQUEUES_JAVA)
+    assert java[a + len(tim.TIME_JAVA) :].startswith("    /** The terminal the task is attached to (#3989)")
+    for method in ("formattimeCheck", "asktime", "formatDate", "formatNumber", "formatTime"):
+        assert re.search(rf"public \S+(?: \S+)? {method}\(", tim.TIME_JAVA), method
+    assert "private static void refuseNegativeAbstime(" in tim.TIME_JAVA
+    assert "ABSTIME_EPOCH = " in tim.TIME_JAVA
 
 
 def test_cicstask_holds_the_web_java_once_per_part_where_it_sat():

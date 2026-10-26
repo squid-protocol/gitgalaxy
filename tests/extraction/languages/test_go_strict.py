@@ -401,7 +401,32 @@ def test_go_globals_anchor_bug_regression():
 
 
 def test_go_scope_filter_is_declared_for_globals():
-    assert GO_RULES["_scope_filters"] == {"globals": "go_declaration_group", "branch": "outside_literals"}
+    assert GO_RULES["_scope_filters"] == {
+        "globals": "go_declaration_group",
+        "branch": "outside_literals",
+        "encapsulation": "go_package_main",
+    }
+
+
+def _go_encapsulation(code: str) -> int:
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    return StructuralExtractor("go", LANGUAGE_DEFINITIONS).splice(code, "")["equations"]["encapsulation"]
+
+
+_ENCAP_BODY = "func renderColumn(x int) int {\n\treturn x * 2\n}\n\ntype wad struct{}\n\nvar cache = 1\n\nfunc (w wad) load() {}\n\nfunc Exported() {}\n"
+
+
+def test_go_encapsulation_counts_nothing_in_package_main():
+    """#5897: lowercase names in `package main` cannot be imported, so they are no visibility decision."""
+    for clause in ("package main", "package   main", "// c\n\npackage main"):
+        assert _go_encapsulation(f"{clause}\n\n{_ENCAP_BODY}") == 0, clause
+
+
+def test_go_encapsulation_still_counts_unexported_names_in_a_library_package():
+    """func, type, var and method alike: four unexported declarations, the exported func not counted."""
+    for clause in ("package render", "package maintenance", "package main_test"):
+        assert _go_encapsulation(f"{clause}\n\n{_ENCAP_BODY}") == 4, clause
 
 
 def test_go_declaration_group_walk_is_linear_on_pathological_input():

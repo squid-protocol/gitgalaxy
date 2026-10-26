@@ -236,6 +236,17 @@ DEFINITION: dict[str, Any] = {
             # the identifier position, which the shield doesn't reject).
             # Rejects any line starting with one of these keywords
             # outright, before the loop even starts.
+            # #3772: a definition after a namespace opener on the same line
+            # (`namespace n { T Box<T>::get() {...} }`).
+            r"(?:namespace(?:[ \t]+["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:::["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*){0,5})?[ \t]*\{[ \t]*){0,3}"
             r"(?!(?:if|for|while|switch|catch|else)\b)"
             r"(?:template[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>[ \t\n]*)?"
             # 2. LINKAGE & STORAGE MODIFIERS (Now supports vertical formatting)

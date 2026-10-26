@@ -8,8 +8,8 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 
 | | |
 |---|---|
-| proof | proven at 2026-10-26T03:35:07Z, harness `6a4e6f1fa09473777464f5ff60db3e66147bbd03+uncommitted` |
-| inputs digest | `6be737a3f42e8aeed2b984473c03e28dde51b9160496eb2677548e601666d71a` |
+| proof | proven at 2026-10-26T09:14:04Z, harness `4aa4de078f6003045f656399c83c80cbdac89e87+uncommitted` |
+| inputs digest | `4b41ca8f488aa5f7bdfda24148ffd751a1c707f11844f7b8f15371475cbdc52d` |
 | port | 1 files `24b6d4456a62d826` |
 | case | 2 files `008f3455b236c9ab` |
 | corpus | cics-banking-sample-application-cbsa @ `417334533178ab6e753cc64b0e0e5cf0b4952704` `7a4c86e6d6688f15` |
@@ -18,9 +18,9 @@ The status above judges the record alone (policy: ported_unproven = block). Whet
 | runtime options | `150386a124b56e8e` (cics 5, db2 8, le 3): cics.program_definition.CONCURRENCY=THREADSAFE, cics.program_definition.EXECKEY=USER, cics.region.DB2CONN=YES, cics.region.LOCALCCSID=037, cics.translator.options=CICS('SP,EDF') via the program's CBL card, db2.bind.ACTION=REPLACE, db2.bind.ISOLATION=UR, db2.ccsid.SQLCCSID=NO, db2.format.DATE=ISO, db2.format.DEC=15, db2.format.DECPT=., db2.format.TIME=ISO, db2.precompile.coprocessor=integrated (CICS + SQL on the compile PARM / CBL cards), le.runtime_options.ABTERMENC=ABEND, le.runtime_options.STORAGE=NONE,NONE,NONE,0K, le.runtime_options.TRAP=ON,SPIE |
 | compiler options | `3fb9a52d3da63e71` (4): ARITH=COMPAT, INTDATE=ANSI, NUMPROC=NOPFD, TRUNC=OPT |
 | harness | 18 files `93e40b9bbb2b1d6c` |
-| oracle | 46 files `7e57488c79c77a09` |
-| generator | 112 files `bc48178c3dfae1c2` |
-| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:a937ea778c0d` (matches pin: True) |
+| oracle | 46 files `848c34c7d886f87f` |
+| generator | 113 files `aa03dfbf49d4b3b2` |
+| oracle run | gnucobol-models: cobc (GnuCOBOL) 3.1.2.0, image `sha256:5130ea614eb8` (matches pin: True) |
 | written by | model `claude-sonnet-5-5`, attempt 1 |
 
 ## Proof outputs

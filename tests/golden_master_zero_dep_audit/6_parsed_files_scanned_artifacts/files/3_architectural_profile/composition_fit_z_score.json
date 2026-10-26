@@ -1254,65 +1254,65 @@
       "dockerfile/SOURCES.md": 0.0
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": -0.183,
+      "dockerfile/moby/builder/dockerfile/buildargs.go": 0.1,
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": 2.439,
-      "dockerfile/moby/builder/dockerfile/builder.go": 1.423,
+      "dockerfile/moby/builder/dockerfile/builder.go": 0.188,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0.0,
-      "dockerfile/moby/builder/dockerfile/builder_windows.go": -0.454,
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": 0.651,
-      "dockerfile/moby/builder/dockerfile/copy.go": 1.4,
+      "dockerfile/moby/builder/dockerfile/builder_windows.go": 1.451,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 0.68,
+      "dockerfile/moby/builder/dockerfile/copy.go": -0.565,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 3.037,
-      "dockerfile/moby/builder/dockerfile/copy_unix.go": -0.556,
+      "dockerfile/moby/builder/dockerfile/copy_unix.go": -0.485,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 1.371,
-      "dockerfile/moby/builder/dockerfile/dispatchers.go": 0.876,
-      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 0.625,
-      "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": -0.118,
+      "dockerfile/moby/builder/dockerfile/dispatchers.go": 0.234,
+      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 0.711,
+      "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 1.362,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": -0.731,
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": -0.856,
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 0.179,
       "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 3.239,
-      "dockerfile/moby/builder/dockerfile/evaluator.go": -0.599,
+      "dockerfile/moby/builder/dockerfile/evaluator.go": 0.691,
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": 2.63,
-      "dockerfile/moby/builder/dockerfile/imagecontext.go": 0.082,
-      "dockerfile/moby/builder/dockerfile/imagecontext_test.go": -0.075,
-      "dockerfile/moby/builder/dockerfile/imageprobe.go": 0.346,
-      "dockerfile/moby/builder/dockerfile/internals.go": 0.633,
-      "dockerfile/moby/builder/dockerfile/internals_linux.go": -1.054,
+      "dockerfile/moby/builder/dockerfile/imagecontext.go": 0.303,
+      "dockerfile/moby/builder/dockerfile/imagecontext_test.go": -0.502,
+      "dockerfile/moby/builder/dockerfile/imageprobe.go": -0.25,
+      "dockerfile/moby/builder/dockerfile/internals.go": 0.763,
+      "dockerfile/moby/builder/dockerfile/internals_linux.go": -0.293,
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 3.019,
-      "dockerfile/moby/builder/dockerfile/internals_test.go": 0.945,
+      "dockerfile/moby/builder/dockerfile/internals_test.go": 1.152,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": -0.02,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 3.076,
-      "dockerfile/moby/builder/dockerfile/metrics.go": 0.874,
+      "dockerfile/moby/builder/dockerfile/metrics.go": 2.903,
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 1.473,
-      "dockerfile/moby/builder/dockerfile/utils_test.go": -0.423
+      "dockerfile/moby/builder/dockerfile/utils_test.go": 1.415
     },
     "dockerfile/moby/builder/remotecontext": {
-      "dockerfile/moby/builder/remotecontext/archive.go": -0.339,
-      "dockerfile/moby/builder/remotecontext/detect.go": 0.375,
-      "dockerfile/moby/builder/remotecontext/detect_test.go": 1.652,
+      "dockerfile/moby/builder/remotecontext/archive.go": -0.815,
+      "dockerfile/moby/builder/remotecontext/detect.go": 0.134,
+      "dockerfile/moby/builder/remotecontext/detect_test.go": 1.708,
       "dockerfile/moby/builder/remotecontext/filehash.go": 0.411,
       "dockerfile/moby/builder/remotecontext/git.go": 1.841,
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": 0.438,
-      "dockerfile/moby/builder/remotecontext/mimetype.go": 0.956,
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": -0.2,
+      "dockerfile/moby/builder/remotecontext/mimetype.go": 2.55,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0.126,
-      "dockerfile/moby/builder/remotecontext/remote.go": 1.593,
-      "dockerfile/moby/builder/remotecontext/remote_test.go": 0.175,
-      "dockerfile/moby/builder/remotecontext/tarsum_test.go": 0.078,
-      "dockerfile/moby/builder/remotecontext/utils_test.go": -0.476
+      "dockerfile/moby/builder/remotecontext/remote.go": 0.078,
+      "dockerfile/moby/builder/remotecontext/remote_test.go": 0.121,
+      "dockerfile/moby/builder/remotecontext/tarsum_test.go": 0.012,
+      "dockerfile/moby/builder/remotecontext/utils_test.go": 1.921
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 0.496,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 0.92
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": -0.65,
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 1.078
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0.542,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 1.595,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": -0.022,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 1.649,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 1.018,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 1.931,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 0.592,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0.0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 1.196,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 0.091,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0.189,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 0.1,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": -0.169,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0.103,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 0.473
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
@@ -1369,28 +1369,28 @@
     },
     "go/core": {
       "go/core/PATENTS": 0.0,
-      "go/core/main.go": 2.5,
-      "go/core/mgc.go": 2.599,
+      "go/core/main.go": -0.012,
+      "go/core/mgc.go": 1.838,
       "go/core/mutex.go": 0.303,
-      "go/core/proc.go": 1.491,
-      "go/core/server.go": 0.941,
-      "go/core/syscall_linux.go": 0.703,
-      "go/core/value.go": 1.398
+      "go/core/proc.go": 0.493,
+      "go/core/server.go": 0.974,
+      "go/core/syscall_linux.go": 0.728,
+      "go/core/value.go": 0.31
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": 0.587
+      "go/go_runtime_rand/rand.go": 1.058
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": -0.738,
-      "go/kubernetes/generic.go": 1.465,
-      "go/kubernetes/kubelet.go": -0.23,
+      "go/kubernetes/csi_plugin.go": -0.964,
+      "go/kubernetes/generic.go": 1.252,
+      "go/kubernetes/kubelet.go": 0.382,
       "go/kubernetes/options.go": 1.292,
-      "go/kubernetes/proxier.go": 1.011,
-      "go/kubernetes/replica_set.go": 1.576,
-      "go/kubernetes/scheduler.go": 0.285
+      "go/kubernetes/proxier.go": 0.68,
+      "go/kubernetes/replica_set.go": 0.096,
+      "go/kubernetes/scheduler.go": 0.205
     },
     "go/kubernetes_kubectl_tls": {
-      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 2.496
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 1.569
     },
     "groovy": {
       "groovy/SOURCES.md": 0.0

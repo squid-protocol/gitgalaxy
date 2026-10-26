@@ -11,6 +11,14 @@
       "reason": "Same test (233): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
     },
     {
+      "unit": "GCD010",
+      "line": 534,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "COMM-SUCCESS = 'N' with accounts to show is never returned by INQACCCU: every path that sets COMM-SUCCESS 'N' (INQACCCU 196, 216, 261, 364, 502) also sets CUSTOMER-FOUND 'N' (the 'Unable to find customer' exit at 507 leaves GCD010 before 534) or, for the open and fetch failures, zeroes NUMBER-OF-ACCOUNTS (264, 504), which takes the 'No accounts found' arm at 532; the 'Y' paths set COMM-SUCCESS 'Y'."
+    },
+    {
       "unit": "SM010",
       "line": 695,
       "kind": "IF",

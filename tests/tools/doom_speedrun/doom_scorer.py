@@ -31,6 +31,8 @@ from pathlib import Path
 SRC_EXT = {
     ".c", ".h", ".cc", ".cpp", ".cxx", ".c++", ".hpp", ".hh", ".hxx", ".inl", ".m", ".mm", ".rs", ".go", ".cs",
     ".java", ".js", ".mjs", ".ts", ".py", ".lua", ".asm", ".s", ".S", ".zig", ".ino", ".pas", ".kt", ".swift",
+    ".f", ".f77", ".f90", ".f95", ".f03", ".f08", ".for", ".cr", ".fs", ".fsi", ".fsx", ".cbl", ".cob", ".cpy",
+    ".cobol", ".dart", ".scm", ".ss", ".rkt", ".zs", ".rb",
 }  # fmt: skip
 # Hand-kept vendor names of the round-2 study. Off by default: the engine's own VendorDirectoryDetector decides
 # (#4545, #5464). ``legacy_vendor=True`` adds them so round 2's table can be reproduced at its engine.

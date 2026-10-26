@@ -347,6 +347,97 @@
     }
    ],
    "why": "UPDATE of ACCOUNT-COUNT fails: ABNDPROC, ABEND HNCS"
+  },
+  {
+   "name": "inqacccu-link-pgmiderr",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "0",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "INQACCCU",
+     "resp": "PGMIDERR",
+     "nth": 1
+    }
+   ],
+   "why": "LINK to INQACCCU fails PGMIDERR: the account-count arm (CUSTOMER-ACCOUNT-COUNT) sets 'N' / '9'"
+  },
+  {
+   "name": "clock-september",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "500",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "clock": "2026/09/15 10:30:15.00",
+   "why": "a September date: CALCULATE-DATES takes the 30-day WHEN 9 group"
+  },
+  {
+   "name": "clock-feb-common-year",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "500",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "clock": "2027/02/10 10:30:15.00",
+   "why": "February 2027, not divisible by 4: +28 days, the LEAP-YEAR = ZERO test is false"
+  },
+  {
+   "name": "clock-feb-leap-year",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "500",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "clock": "2028/02/10 10:30:15.00",
+   "why": "February 2028, divisible by 4 and not by 100: +28 then the century test is positive, ADD 1"
+  },
+  {
+   "name": "clock-feb-century",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "500",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "clock": "2100/02/10 10:30:15.00",
+   "why": "February 2100, divisible by 100 but not 400: the 400 test is non-zero, no extra day"
+  },
+  {
+   "name": "clock-feb-400",
+   "commarea": {
+    "SUBPGM-EYECATCHER": "ACCT",
+    "SUBPGM-CUSTNO": "0000000001",
+    "SUBPGM-ACC-TYPE": "CURRENT",
+    "SUBPGM-INT-RT": "0",
+    "SUBPGM-OVERDR-LIM": "500",
+    "SUBPGM-AVAIL-BAL": "0",
+    "SUBPGM-ACT-BAL": "0"
+   },
+   "clock": "2000/02/10 10:30:15.00",
+   "why": "February 2000, divisible by 400: the 400 test is zero, ADD 1"
   }
  ],
  "notes": "CBSA's create-account service (CREACC, LINKed by BNK1CAC -- transaction OCAC -- with its SUBPGM-PARMS, the CREACC copybook's layout; BNK1CAC.cbl names the record because CREACC.cbl's own COPY ... REPLACING is not laid out by the harness). It LINKs INQCUST for the customer (on the program's own sort code, 987654) and INQACCCU to count the customer's accounts (both run in the task), refuses more than nine accounts and an account type that does not start ISA / MORTGAGE / SAVING / CURRENT / LOAN, then ENQs the account counter resource (CBSAACCT987654), takes the next number from Db2's CONTROL row 987654-ACCOUNT-LAST and bumps 987654-ACCOUNT-COUNT, INSERTs the ACCOUNT row (opened and last statement today, next statement 30 days on, FUNCTION INTEGER-OF-DATE / DATE-OF-INTEGER) and a PROCTRAN 'OCA' row (reference EIBTASKN: the stated task number 4242, oracle_assumptions.md X21), DEQs and returns the new key and dates. A failed CONTROL SELECT / UPDATE or PROCTRAN INSERT LINKs ABNDPROC (an ABNDFILE record) and ABENDs (HNCS / HWPT); a failed ACCOUNT INSERT returns 'N' / '7'. ACCOUNT, PROCTRAN, CONTROL, CUSTOMER and ABNDFILE are compared after every scenario. The enumerated SQL faults (#4173) include INQACCCU's cursor failing after its SYNCPOINT ROLLBACK: CREACC goes on and its INSERTs are a new unit of work, committed at the task's end. Not reached: ENQ / DEQ failures and a LINK failure (no fault can be injected on them) and the leap-year arithmetic of CALCULATE-DATES' February branch (the clock is 1 October). Data: seed.sql is SYNTHETIC; customer.txt is cbsa-updcust's. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

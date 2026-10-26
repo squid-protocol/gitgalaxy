@@ -1737,6 +1737,12 @@ FUNCTION_ARCHETYPE_DEFINITIONS = {
 # clip raw densities by CAP_VALUES, log1p, RobustScale by MEDIANS/IQRS, multiply by
 # FEATURE_WEIGHTS, then nearest centroid -> cluster_names[idx]. signal_processor.py
 # builds this vector from each function's hit_vector via DNA_SOURCES.
+# #5897: languages whose encapsulation rule counts spelling (lowercase = unexported), so the
+# signal is hot on every function and decides the archetype instead of describing it. The
+# function classifier multiplies the encapsulation feature of these languages' functions by
+# the factor, after scaling (a feature weight, applied on top of FEATURE_WEIGHTS).
+FUNCTION_ENCAPSULATION_LANG_WEIGHT = {"go": 0.3}
+
 GENERAL_FUNCTION_INFERENCE_MODEL = {
     "SCALER_MEDIANS": [
         2.303,

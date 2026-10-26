@@ -2183,6 +2183,32 @@ def test_a_padded_writeq_is_named_on_the_task_and_kept_out_of_its_display_log(tm
     assert "x6_padded" not in ec.outputs(out, {"name": "x"}, tmp_path, [])  # no padded WRITEQ, no key
 
 
+def test_a_writeq_past_from_runs_on_padded_for_ts_and_td_and_a_huge_length_is_refused_x6():
+    """X6 (ASSUMED): WRITEQ TS and WRITEQ TD alike write FROM then spaces when LENGTH runs past the item, and the task
+    runs on (no judged-up-to stop); only a LENGTH over the pad record's 32767 bytes is still refused by name, and a
+    literal FROM is left alone."""
+    for what, stub in (("WRITEQ TS", "GGCWRTQ"), ("WRITEQ TD", "GGCWRTD")):
+        call = ec._call(stub, ["BY REFERENCE WS-MSG"])
+        got = "\n".join(ec._write_from("GG-LEN", "WS-MSG", what, call))
+        assert f"DISPLAY '{ec.X6_PADDED_SAID}{what}'" in got and "BY REFERENCE GG-PADQ" in got
+        assert got.count(f"DISPLAY '{what} LENGTH > FROM: not modelled'") == 1  # the over-32767 refusal, by name
+        assert ec.x6_writeq_refusal(f"{what} LENGTH > FROM: not modelled")
+        assert ec._write_from(None, "WS-MSG", what, call) == call  # no LENGTH: nothing past FROM
+        assert ec._write_from("23", "'LITERAL'", what, call) == call
+
+
+def test_the_lgtest_front_end_cases_no_longer_say_lgstsq_s_writeq_is_refused():
+    """#6271: since #6573 LGSTSQ's WRITEQ is written padded (X6) and the LGTESTP1-4 error paths run on, so NO-ADD and
+    NO-DELETE are reached; a case note that still says the task is judged up to a refused WRITEQ misstates that."""
+    import json
+
+    root = Path(__file__).resolve().parents[1] / "equivalence"
+    for n in ("lgtestp1", "lgtestp2", "lgtestp3", "lgtestp4"):
+        case = json.loads((root / f"genapp-{n}" / "case.json").read_text(encoding="utf-8"))
+        text = json.dumps([case.get("notes"), [sc.get("why") for sc in case["scenarios"]]])
+        assert "refused WRITEQ" not in text and "padded" in text, n
+
+
 def test_a_reference_past_a_stated_eibcalen_is_judged_up_to_it_x22(tmp_path):
     """#4270 (X23): the stub's guard-page stop is judged up to, as X6's WRITEQ is; the report says which assumption."""
     said = "COMMAREA past EIBCALEN: not modelled\n"

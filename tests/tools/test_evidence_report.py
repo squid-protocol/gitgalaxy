@@ -170,6 +170,7 @@ def program(
     record=True,
     stale=(),
     para=(10, 10),
+    para_net=None,
     branch=(10, 10),
     net=None,
     refuted=(),
@@ -180,6 +181,7 @@ def program(
     net = branch if net is None else net
     cov = {
         "paragraph_pct": er.pct(*para) if para else None,
+        **({"paragraph_net_pct": er.pct(*para_net)} if para_net else {}),
         "branch_pct": er.pct(*branch) if branch else None,
         "branch_net_pct": er.pct(*net) if net else None,
         "infeasible_refuted": list(refuted),
@@ -206,6 +208,8 @@ BARS = er.DEFAULT_BARS
         ({"record": False}, "L4"),  # the evidence record is reported, not a gate (#4601 owner decision)
         ({"stale": ("harness",)}, "L4"),
         ({"para": (9, 10)}, "L2"),  # strict bars: 100%
+        ({"para": (9, 10), "para_net": (9, 9)}, "L4"),  # net of a reviewed infeasible paragraph
+        ({"para": (9, 10), "para_net": (8, 9)}, "L2"),  # still under the bar after netting
         ({"para": None}, "L2"),  # coverage not measured: not above any bar
         ({"branch": (9, 10)}, "L3"),
         ({"branch": (9, 10), "net": (9, 9)}, "L4"),  # 100% net of the reviewed infeasible outcomes (#4602)
@@ -875,3 +879,23 @@ def test_options_list_the_runtime_values_with_the_tables_verdict(tmp_path, monke
     assert "le.runtime_options.STORAGE=NONE [declared; assumed" in "\n".join(er.options_lines(o))
     # a corpus with no estate file has no runtime values, and the key is absent (older reports stay valid)
     assert "runtime" not in er.program_options(None, "nofile", "P.cbl", [])
+
+
+def test_a_reviewed_infeasible_paragraph_is_netted_from_the_paragraph_count_only_when_unreached(monkeypatch):
+    import infeasible_outcomes as io
+
+    ledger = {"c": [{"unit": "6000-EXIT", "kind": "PARAGRAPH", "outcome": "entered", "family": "R", "reason": "r"}]}
+    monkeypatch.setattr(io, "stated", lambda case, *a, **k: ledger.get(case, []))
+    real = io.adjust
+    monkeypatch.setattr(io, "adjust", lambda case, cov, unc, led=None: real(case, cov, unc, ledger))
+    case = {"case": "c", "record": None}
+    got = er.coverage_of(case, {}, {"c": [15, 16, 38, 40]})  # counts only: every entry taken as uncovered
+    assert (got["paragraph_pct"], got["paragraph_net_pct"]) == (93.8, 100.0)
+    assert got["paragraphs_net"] == {"covered": 15, "live": 15}
+    assert er.level_of(program(para=(15, 16), para_net=(15, 15), branch=(38, 40), net=(38, 38)), BARS)[0] == "L4"
+    # a sweep that reached the paragraph refutes the claim: nothing netted, raw percent stays
+    row = {"c": {"coverage": "proven on 2 scenarios, covering 16/16 paragraphs and 38/40 branches", "uncovered": []}}
+    reached = er.coverage_of(case, row, {})
+    assert "paragraph_net_pct" not in reached and reached["infeasible_refuted"] == ["6000-EXIT:paragraph"]
+    # no paragraph entry: no optional key
+    assert "paragraph_net_pct" not in er.coverage_of({"case": "d", "record": None}, {}, {"d": [15, 16, 38, 40]})

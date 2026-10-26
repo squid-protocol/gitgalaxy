@@ -57,6 +57,9 @@ import re
 from collections import Counter
 from typing import Any
 
+# #6266: the qualifier the detector gives a C++ constructor's bare initializer-list entry (`: Base(a)`, `: type(t)`)
+INIT_LIST_QUALIFIER = "<init>"
+
 # #5699: languages where a bare `f(` inside a method `f` is never the method (it needs `self.f` /
 # `this.f` / `$this->f`), so it may reach a free `f`. The detector keeps such a call for a unit
 # inside a class and this resolver prunes it when only the unit itself resolves. Not here:
@@ -1619,6 +1622,9 @@ def resolve_calls(
                 bucket = index.get((group, _key(str(callee), lang)))
                 quals = {"call": qualifier_map, "decorator": decorator_map, "reference": reference_map}.get(kind, {})
                 options: list[str | None] = list(quals.get(callee) or []) or [None]
+                # #6266: a C++ constructor's bare initializer-list entry is a call only to a base class
+                init_only = kind == "call" and bool(options) and all(q == INIT_LIST_QUALIFIER for q in options)
+                options = list(dict.fromkeys(None if q == INIT_LIST_QUALIFIER else q for q in options))
                 step, dst = _resolve_one(bucket, caller, lineage, options[0], cache, typed)
                 used = options[0]
                 for q in options[1:]:
@@ -1672,6 +1678,13 @@ def resolve_calls(
                     free_step, free_dst = _ladder(bucket.free, caller, False, cache)
                     if free_dst is not None:
                         step, dst = free_step, free_dst
+                if (
+                    init_only
+                    and not (bucket is not None and any(d.kind == "class" for d in bucket.defs))
+                    and (dst is None or (dst.kind != "class" and dst.owner_key != _key(str(callee), lang)))
+                ):
+                    recursive.append(callee)  # a data member `: type(t)`, not a call, whatever function shares its name
+                    continue
                 cls = None
                 if dst is not None and dst.kind == "class":
                     # A constructor call reaches the class's constructor method.
@@ -1748,6 +1761,10 @@ def resolve_calls(
                 for gone in recursive:
                     qualifier_map.pop(gone, None)
                     (func.get("calls_out_arities") or {}).pop(gone, None)
+            # the marker is for this pass only: a kept base-class entry reads as the plain call it is
+            for callee_quals in qualifier_map.values():
+                if INIT_LIST_QUALIFIER in callee_quals:
+                    callee_quals[:] = list(dict.fromkeys("" if q == INIT_LIST_QUALIFIER else q for q in callee_quals))
 
     by_resolution: Counter[str] = Counter()
     for step, n in by_step.items():

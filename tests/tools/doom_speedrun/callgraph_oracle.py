@@ -91,6 +91,9 @@ STRIP = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])
 TEXT_CALL = re.compile(r"\b([A-Za-z_]\w*)\s*\(")
 # A class or struct definition head: the last word before its `:` base list or `{` is the class name.
 CLASS_HEAD = re.compile(r"\b(?:class|struct)\b[^;{}()<>]*?\b([A-Za-z_]\w*)\s*(?:final\s*)?[:{]")
+# A class head with a base list: `class A : public B, virtual C<T> {` (the entries after the lone `:`).
+BASE_LIST = re.compile(r"\b(?:class|struct)\b[^;{}()]*?[^:]:(?!:)([^;{}]*)\{")
+BASE_NAME = re.compile(r"([A-Za-z_]\w*)\s*(?:<[^<>]*>)?\s*$")
 CPP_EXTS = frozenset(".h .hh .hpp .hxx .inl .cc .cpp .cxx".split())
 KEYWORDS = frozenset(
     "if else while for do switch return sizeof alignof _Alignof defined case goto typeof decltype".split()
@@ -143,7 +146,7 @@ class Body:
     """One function body: its calls (name -> shape of the first call), other identifier references, preprocessor and
     comment/literal text."""
 
-    def __init__(self, node, classes=frozenset()):
+    def __init__(self, node, classes=None):
         self.node = node
         self.calls, self.refs, self.preproc, self.text_only, self.types = {}, set(), [], [], set()
         self.broken = False  # an ERROR node inside: tree-sitter may have closed the body early
@@ -151,7 +154,7 @@ class Body:
         callees = set()
         for init in _initializers(node):  # `: Base(x), member(y)`: a base class entry is a constructor call
             name = callee_node(init.children[0]) if init.children else None
-            if name is not None and decode_bytes(name.text) in classes:
+            if name is not None and decode_bytes(name.text) in _bases(classes or {}, node):
                 self.calls.setdefault(decode_bytes(name.text), "ctor-init")
         body = node.child_by_field_name("body") or node
         stack = [body]
@@ -254,9 +257,33 @@ def _initializers(node):
     return []
 
 
+def _owner(node):
+    """The class a constructor definition belongs to: the class body it sits in, else the scope of ``Cls::Cls``."""
+    up = node.parent
+    while up is not None:
+        if up.type in ("class_specifier", "struct_specifier"):
+            name = up.child_by_field_name("name")
+            return decode_bytes(name.text) if name is not None else None
+        up = up.parent
+    decl = node.child_by_field_name("declarator")
+    while decl is not None and decl.type != "qualified_identifier":
+        decl = decl.child_by_field_name("declarator")
+    scope = decl.child_by_field_name("scope") if decl is not None else None
+    return bare(decode_bytes(scope.text)) if scope is not None else None
+
+
+def _bases(classes, node):
+    """The base classes its owner lists (every listed base when the owner is not found)."""
+    owner = _owner(node)
+    if owner in classes:
+        return classes[owner]
+    return set().union(*classes.values()) if owner is None else set()
+
+
 def class_names(repo):
-    """Every class / struct name defined in a repo's C++ files: what a base-class initializer entry names."""
-    names = set()
+    """class -> the base classes its head lists, over a repo's C++ files: what a base-class initializer entry names (a
+    data member `: type(t)` is no call, even when a vendored class elsewhere shares its name)."""
+    bases_of: dict[str, set[str]] = {}
     for root, dirs, files in os.walk(repo):
         dirs[:] = [d for d in dirs if d != ".git"]
         for f in files:
@@ -265,8 +292,15 @@ def class_names(repo):
                     text = (Path(root) / f).read_bytes()
                 except OSError:
                     continue
-                names.update(CLASS_HEAD.findall(STRIP.sub(" ", decode_bytes(text))))
-    return names
+                clean = STRIP.sub(" ", decode_bytes(text))
+                for head in BASE_LIST.finditer(clean):
+                    owner = CLASS_HEAD.search(head.group(0))
+                    if owner is None:
+                        continue
+                    bases_of.setdefault(owner.group(1), set()).update(
+                        m.group(1) for b in head.group(1).split(",") if (m := BASE_NAME.search(b))
+                    )
+    return bases_of
 
 
 def _is_real_nested_function(node):
@@ -364,7 +398,7 @@ class Port:
         self.functions = []  # (rel, name, start, engine callee set, Body / TextBody or None)
         self.edges = set()
         trees = {}
-        classes = class_names(self.repo) if any(r[1] == "cpp" for r in rows) else frozenset()
+        classes = class_names(self.repo) if any(r[1] == "cpp" for r in rows) else {}
         for rel, lang, fname, start, callees in rows:
             key = (rel, lang)
             if key not in trees:

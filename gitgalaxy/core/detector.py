@@ -22,7 +22,7 @@ import re
 import time
 from typing import Any, ClassVar, TypedDict, cast
 
-from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS
+from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, INIT_LIST_QUALIFIER
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.fortran_calls import fortran_call_names
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
@@ -1973,6 +1973,49 @@ def _mark_scope_qualifier(lang_id: str, text: str, callee_pos: int, qualifier: s
         # nothing before the `::`: the global scope; a template or call result stays unmarked
         return _SCOPE_QUALIFIER_PREFIX if k == 0 or not (text[k - 1].isalnum() or text[k - 1] in "_>)]") else qualifier
     return _SCOPE_QUALIFIER_PREFIX + qualifier
+
+
+# #6266: a C++ constructor's initializer list names a base class (`: Base(a)`) or a data member (`: type(t)`).
+# The detector cannot tell which, so a bare entry at the list's top level carries this qualifier; the resolver keeps
+# the edge only when the name resolves to a class and drops it otherwise (a member is no call, even when a free
+# function of the same name exists).
+
+
+def _ctor_init_span(text: str) -> tuple[int, int] | None:
+    """The `(start, end)` of a constructor's colon-initializer list in a unit's text, else None.
+
+    The list is the text after a lone `:` that follows the parameter list's `)` and precedes the body's first `{`
+    (a brace-initialised member ends the span early, so entries after it keep today's behaviour).
+    """
+    end = text.find("{")
+    head = text if end < 0 else text[:end]
+    depth = 0
+    closed = False
+    i = 0
+    while i < len(head):
+        ch = head[i]
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            closed = closed or depth == 0
+        elif ch == ":" and depth == 0 and closed:
+            if head.startswith("::", i):
+                i += 2
+                continue
+            return i + 1, len(head)
+        elif ch == ";" and depth == 0:
+            return None
+        i += 1
+    return None
+
+
+def _in_init_list_head(text: str, span: tuple[int, int] | None, pos: int) -> bool:
+    """True when `pos` is an initializer-list entry's own name: inside the span and outside any parenthesis."""
+    if span is None or not span[0] <= pos < span[1]:
+        return False
+    chunk = text[span[0] : pos]
+    return chunk.count("(") == chunk.count(")")
 
 
 _CALLS_OUT_GLOBAL_IGNORE = frozenset(
@@ -10725,6 +10768,7 @@ class StructuralExtractor:
                     if self.languages.get(self.primary_lang_id, {}).get("calls_out_header_macros_are_not_calls")
                     else 0
                 )
+                init_span: tuple[int, int] | None = None
                 for m in invocation_pattern.finditer(safe_block):
                     # #5639: a message send's groups are (receiver, selector); a C call's is group 1
                     # group 4 is a keyword send to a call receiver (`[f(x) a:1]`)
@@ -10791,6 +10835,11 @@ class StructuralExtractor:
                     raw_calls.append(callee)
                     seen = qualifiers_seen.setdefault(callee, [])
                     marked = _mark_scope_qualifier(self.primary_lang_id, safe_block, callee_pos, qualifier)
+                    if self.primary_lang_id == "cpp" and not qualifier and callee_pos == m.start(1):
+                        if init_span is None:
+                            init_span = _ctor_init_span(safe_block) or (0, 0)
+                        if _in_init_list_head(safe_block, init_span, callee_pos):
+                            marked = INIT_LIST_QUALIFIER
                     if marked not in seen:
                         seen.append(marked)
                     if track_arities and not own_header_call:

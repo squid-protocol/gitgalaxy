@@ -249,6 +249,10 @@ Blind spots:
 - **Vendored code is excluded** (#6097; the round-1 script did not): functions under a directory the engine's
   `VendorDirectoryDetector` calls vendored are dropped, so the numbers differ from round 1 for a port that bundles a
   library. This reads the clone (`<work>/repos/<port>`, as `lineage.py` does); a port with a scan but no clone is skipped.
+  Measured over the 31 ports with a scan at each of three engine SHAs (2026-10-26): at two recent engine SHAs (`0e2bf4ade`, `b81b19f78`) the filter
+  drops nothing, because the scan already skips vendored directories (function counts identical with and without it);
+  at the older engine `aa8919dea`, which still scanned them, it dropped 11.2% of one port's functions, 3.1% and 2.0%
+  of two others, and 0 on the other 28. It is a guard for a scan that predates the engine's vendor skip.
 - **The majority language names the port** (`lang`); a polyglot port's functions of other code languages stay in.
 
 ## Study write-up tables (`study_report.py`, #5620)

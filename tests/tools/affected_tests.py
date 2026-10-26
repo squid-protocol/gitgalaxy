@@ -35,6 +35,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO))
+from gitgalaxy.core.source_text import read_source  # noqa: E402 -- #3813: no lossy decode
 SCAN_ROOTS = ("tests", "gitgalaxy")
 DURATIONS = REPO / ".test_durations"
 UNKNOWN_SECONDS = 2.0  # a test file .test_durations has never timed (a new one)
@@ -143,7 +145,7 @@ def graph(root: Path = REPO) -> dict[str, set[str]]:
     """file -> the repo files it imports or names."""
     files = py_files(root)
     res = Resolver(files)
-    return {f: imports_of(f, (root / f).read_text(encoding="utf-8", errors="replace"), res) for f in files}
+    return {f: imports_of(f, read_source(root / f).text, res) for f in files}
 
 
 def importers(g: dict[str, set[str]]) -> dict[str, set[str]]:

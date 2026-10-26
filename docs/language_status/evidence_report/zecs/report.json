@@ -691,9 +691,15 @@
     60
    ],
    "cbsa-bnk1dcs": [
-    46,
     51,
-    70,
+    51,
+    90,
+    102
+   ],
+   "cbsa-bnk1dcs-generated": [
+    33,
+    51,
+    37,
     102
    ],
    "cbsa-bnk1tfn": [
@@ -1211,15 +1217,15 @@
     18
    ],
    "zecs-zecs000": [
-    36,
     38,
-    44,
+    38,
+    45,
     46
    ],
    "zecs-zecs001": [
-    66,
+    71,
     119,
-    86,
+    89,
     200
    ],
    "zecs-zecs003": [
@@ -1621,10 +1627,10 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6a4e6f1fa09473777464f5ff60db3e66147bbd03",
+   "sha": "4aa4de078f6003045f656399c83c80cbdac89e87",
    "translator": {
-    "files": 148,
-    "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
+    "files": 149,
+    "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
    }
   },
   "sweeps": {}
@@ -3358,23 +3364,23 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 95.7,
-    "branch_pct": 95.7,
+    "branch_net_pct": 97.8,
+    "branch_pct": 97.8,
     "branches": {
-     "covered": 44,
+     "covered": 45,
      "total": 46
     },
     "branches_net": {
-     "covered": 44,
+     "covered": 45,
      "total": 46
     },
     "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": 94.7,
+    "paragraph_pct": 100.0,
     "paragraphs": {
-     "covered": 36,
+     "covered": 38,
      "live": 38
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
@@ -3387,7 +3393,7 @@
     "cases": [
      {
       "case": "zecs-zecs000",
-      "case_scenarios": 17,
+      "case_scenarios": 18,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -3399,7 +3405,7 @@
     ],
     "chosen": {
      "case": "zecs-zecs000",
-     "case_scenarios": 17,
+     "case_scenarios": 18,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -3409,7 +3415,7 @@
      "role": "program"
     }
    },
-   "level": "L2",
+   "level": "L3",
    "level_current": true,
    "mutation": {
     "current": false,
@@ -3418,7 +3424,7 @@
     "score": null
    },
    "next": [
-    "paragraph coverage >= 100.0 (now 94.7)"
+    "branch coverage >= 100.0 net (now 97.8 raw, 97.8 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 6,
@@ -3924,7 +3930,7 @@
      "X52",
      "X60"
     ],
-    "branch_outcomes_unrun": 2,
+    "branch_outcomes_unrun": 1,
     "commands": 22,
     "commands_backed": 5,
     "commands_not_backed": [
@@ -3948,7 +3954,7 @@
     ],
     "facts_unstated": 1,
     "holes": 0,
-    "paragraphs_unrun": 2,
+    "paragraphs_unrun": 0,
     "refused": null
    },
    "stale_inputs": [],
@@ -4078,23 +4084,23 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 43.0,
-    "branch_pct": 43.0,
+    "branch_net_pct": 44.5,
+    "branch_pct": 44.5,
     "branches": {
-     "covered": 86,
+     "covered": 89,
      "total": 200
     },
     "branches_net": {
-     "covered": 86,
+     "covered": 89,
      "total": 200
     },
     "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": 55.5,
+    "paragraph_pct": 59.7,
     "paragraphs": {
-     "covered": 66,
+     "covered": 71,
      "live": 119
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
@@ -4107,7 +4113,7 @@
     "cases": [
      {
       "case": "zecs-zecs001",
-      "case_scenarios": 21,
+      "case_scenarios": 22,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -4119,7 +4125,7 @@
     ],
     "chosen": {
      "case": "zecs-zecs001",
-     "case_scenarios": 21,
+     "case_scenarios": 22,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -4138,7 +4144,7 @@
     "score": null
    },
    "next": [
-    "paragraph coverage >= 100.0 (now 55.5)"
+    "paragraph coverage >= 100.0 (now 59.7)"
    ],
    "options": {
     "assumed": 6,
@@ -4679,7 +4685,7 @@
      "X52",
      "X53"
     ],
-    "branch_outcomes_unrun": 114,
+    "branch_outcomes_unrun": 111,
     "commands": 27,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -4710,7 +4716,7 @@
     ],
     "facts_unstated": 2,
     "holes": 0,
-    "paragraphs_unrun": 53,
+    "paragraphs_unrun": 48,
     "refused": null
    },
    "stale_inputs": [],
@@ -5092,8 +5098,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 6a4e6f1fa09473777464f5ff60db3e66147bbd03",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 6a4e6f1fa09473777464f5ff60db3e66147bbd03",
+   "python tests/tools/cics_census.py survey --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -5114,13 +5120,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "6a4e6f1fa09473777464f5ff60db3e66147bbd03",
+   "sha": "4aa4de078f6003045f656399c83c80cbdac89e87",
    "translator": {
-    "files": 148,
-    "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
+    "files": 149,
+    "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
    }
   },
-  "translator_commit": "6a4e6f1fa09473777464f5ff60db3e66147bbd03",
+  "translator_commit": "4aa4de078f6003045f656399c83c80cbdac89e87",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -5129,8 +5135,8 @@
   "histogram": {
    "L0": 2,
    "L1": 0,
-   "L2": 2,
-   "L3": 0,
+   "L2": 1,
+   "L3": 1,
    "L4": 3,
    "L5": 0
   },
@@ -5163,6 +5169,6 @@
  },
  "survey_translator": {
   "current": true,
-  "fingerprint": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
+  "fingerprint": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
  }
 }

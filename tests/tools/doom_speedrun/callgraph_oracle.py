@@ -163,6 +163,8 @@ class Body:
                 self.calls.setdefault(decode_bytes(name.text), "ctor-init")
         body = node.child_by_field_name("body") or node
         stack = [body]
+        for init in _initializers(node):  # `d(new Impl(this))`, `base(f(x))`: the arguments are part of the constructor
+            stack.extend(init.children[1:])
         while stack:
             n = stack.pop()
             if n.type in PREPROC:

@@ -398,3 +398,19 @@ def test_a_macro_class_method_with_a_pointer_or_reference_return_is_its_own_unit
     body = body_of(f"DE_PIMPL(X)\n{{\n    {method}\n    int field = direct();\n}};\n", "cpp")
     assert set(body.calls) == {"direct"}
     assert len(body.nested) == 1
+
+
+@pytest.mark.parametrize(
+    ("init", "calls", "types"),
+    [
+        (": d(new Impl(this))", set(), {"Impl"}),  # doomsday's PIMPL idiom: a construction, not a named call
+        (": size(count(v))", {"count"}, set()),  # a call in the argument list is a call; the member `size` is not
+        (": Base(v), d(make(v), new Impl(this))", {"make"}, {"Impl"}),
+        (": a{helper(v)}", {"helper"}, set()),  # brace initialisation
+    ],
+)
+def test_the_arguments_of_a_member_initializer_are_part_of_the_constructor(init, calls, types):
+    """`: d(new Impl(this))` sits outside the body tree-sitter walks; its arguments still belong to the constructor (#6266)."""
+    body = body_of(f"Widget::Widget(int v) {init}\n{{\n}}\n", "cpp")
+    assert set(body.calls) == calls
+    assert body.types == types

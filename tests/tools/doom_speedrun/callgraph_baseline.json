@@ -24,7 +24,7 @@
   },
   "quorum": 0.75
  },
- "engine_sha": "f958d5a64",
+ "engine_sha": "4a37723b3",
  "ports": {
   "chocolate-doom": {
    "agree": 12132,
@@ -75,10 +75,10 @@
    "unmatched_functions": 0
   },
   "doom3-bfg": {
-   "agree": 47967,
-   "engine_calls": 48766,
+   "agree": 47966,
+   "engine_calls": 48748,
    "engine_only_by_kind": {
-    "absent": 22,
+    "absent": 5,
     "function-pointer": 21,
     "macro": 4,
     "type": 752
@@ -87,8 +87,8 @@
    "misses_by_shape": {
     "unparsed": 3
    },
-   "oracle_calls": 47970,
-   "precision": 0.9836,
+   "oracle_calls": 47969,
+   "precision": 0.984,
    "recall": 0.9999,
    "text_fallback_functions": 595,
    "unmatched_functions": 3
@@ -130,31 +130,31 @@
    "unmatched_functions": 1
   },
   "doomsday": {
-   "agree": 68588,
+   "agree": 68793,
    "engine_calls": 71270,
    "engine_only_by_kind": {
-    "absent": 970,
-    "comment/string": 9,
-    "function-pointer": 188,
+    "absent": 283,
+    "comment/string": 5,
+    "function-pointer": 187,
     "macro": 7,
-    "type": 1508
+    "type": 1995
    },
    "functions": 25604,
    "misses_by_shape": {
-    "after-operator": 64,
+    "after-operator": 58,
     "assignment-rhs": 39,
     "condition/return": 14,
     "ctor-init": 92,
-    "nested-argument": 63,
-    "other": 101,
+    "nested-argument": 67,
+    "other": 98,
     "statement": 155,
     "subscript": 22,
     "unparsed": 243
    },
-   "oracle_calls": 69381,
-   "precision": 0.9624,
-   "recall": 0.9886,
-   "text_fallback_functions": 693,
+   "oracle_calls": 69581,
+   "precision": 0.9652,
+   "recall": 0.9887,
+   "text_fallback_functions": 696,
    "unmatched_functions": 1
   },
   "dsda-doom": {
@@ -173,10 +173,10 @@
    "unmatched_functions": 0
   },
   "edge-classic": {
-   "agree": 10532,
+   "agree": 10534,
    "engine_calls": 10672,
    "engine_only_by_kind": {
-    "absent": 10,
+    "absent": 8,
     "function-pointer": 3,
     "type": 127
    },
@@ -184,17 +184,17 @@
    "misses_by_shape": {
     "statement": 2
    },
-   "oracle_calls": 10534,
-   "precision": 0.9869,
+   "oracle_calls": 10536,
+   "precision": 0.9871,
    "recall": 0.9998,
    "text_fallback_functions": 37,
    "unmatched_functions": 0
   },
   "eternity": {
-   "agree": 15840,
+   "agree": 15841,
    "engine_calls": 16051,
    "engine_only_by_kind": {
-    "absent": 14,
+    "absent": 13,
     "function-pointer": 63,
     "type": 134
    },
@@ -203,7 +203,7 @@
     "statement": 10,
     "unparsed": 12
    },
-   "oracle_calls": 15862,
+   "oracle_calls": 15863,
    "precision": 0.9869,
    "recall": 0.9986,
    "text_fallback_functions": 487,
@@ -224,12 +224,12 @@
    "unmatched_functions": 2
   },
   "gzdoom": {
-   "agree": 43083,
+   "agree": 43110,
    "engine_calls": 44632,
    "engine_only_by_kind": {
-    "absent": 50,
+    "absent": 17,
     "function-pointer": 228,
-    "type": 1271
+    "type": 1277
    },
    "functions": 18279,
    "misses_by_shape": {
@@ -239,8 +239,8 @@
     "statement": 84,
     "unparsed": 7
    },
-   "oracle_calls": 43203,
-   "precision": 0.9653,
+   "oracle_calls": 43230,
+   "precision": 0.9659,
    "recall": 0.9972,
    "text_fallback_functions": 589,
    "unmatched_functions": 0
@@ -284,11 +284,11 @@
    "unmatched_functions": 0
   },
   "odamex": {
-   "agree": 20199,
-   "engine_calls": 20662,
+   "agree": 20183,
+   "engine_calls": 20596,
    "engine_only_by_kind": {
-    "absent": 99,
-    "function-pointer": 57,
+    "absent": 53,
+    "function-pointer": 53,
     "macro": 7,
     "type": 300
    },
@@ -300,8 +300,8 @@
     "other": 2,
     "statement": 10
    },
-   "oracle_calls": 20237,
-   "precision": 0.9776,
+   "oracle_calls": 20221,
+   "precision": 0.9799,
    "recall": 0.9981,
    "text_fallback_functions": 292,
    "unmatched_functions": 1

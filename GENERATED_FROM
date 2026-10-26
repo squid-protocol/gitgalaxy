@@ -1,3 +1,4 @@
 Generated output only -- never edit by hand. Source: main @ ef574bd2a38aa516b27f7b061a620d47e3c67502
 docs/language_status/evidence/: evidence pages rendered from main's records by
 .github/workflows/evidence-pages.yml (#4825).
+docs/language_status/blockers/: the nightly blockers ranking and history, from the evidence refresh's survey (#4863).

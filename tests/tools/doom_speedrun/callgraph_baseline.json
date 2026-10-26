@@ -24,7 +24,7 @@
   },
   "quorum": 0.75
  },
- "engine_sha": "4a37723b3",
+ "engine_sha": "dcabf584f",
  "ports": {
   "chocolate-doom": {
    "agree": 12132,
@@ -130,12 +130,12 @@
    "unmatched_functions": 1
   },
   "doomsday": {
-   "agree": 68793,
-   "engine_calls": 71270,
+   "agree": 68903,
+   "engine_calls": 71380,
    "engine_only_by_kind": {
-    "absent": 283,
+    "absent": 282,
     "comment/string": 5,
-    "function-pointer": 187,
+    "function-pointer": 188,
     "macro": 7,
     "type": 1995
    },
@@ -144,16 +144,16 @@
     "after-operator": 58,
     "assignment-rhs": 39,
     "condition/return": 14,
-    "ctor-init": 92,
+    "ctor-init": 5,
     "nested-argument": 67,
     "other": 98,
     "statement": 155,
     "subscript": 22,
     "unparsed": 243
    },
-   "oracle_calls": 69581,
-   "precision": 0.9652,
-   "recall": 0.9887,
+   "oracle_calls": 69604,
+   "precision": 0.9653,
+   "recall": 0.9899,
    "text_fallback_functions": 696,
    "unmatched_functions": 1
   },

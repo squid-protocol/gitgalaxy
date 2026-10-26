@@ -414,3 +414,19 @@ def test_the_arguments_of_a_member_initializer_are_part_of_the_constructor(init,
     body = body_of(f"Widget::Widget(int v) {init}\n{{\n}}\n", "cpp")
     assert set(body.calls) == calls
     assert body.types == types
+
+
+@pytest.mark.parametrize(
+    ("head", "owner"),
+    [
+        ("Widget::Widget(int v) : Base(v) {}", "Widget"),
+        ("Dialog::ButtonItem::ButtonItem(int v) : ui::ActionItem(v) {}", "ButtonItem"),  # doomsday: `A::B::B` nests
+        ("a::b::C::C(int v) : Base(v) {}", "C"),
+    ],
+)
+def test_a_nested_qualified_constructor_belongs_to_its_innermost_scope(head, owner):
+    """The class a base-class entry is checked against is the one named last before the constructor (#6266)."""
+    node = co.definition_at(co.function_nodes(co._parser("cpp").parse(head.encode())), 1)
+    assert co._owner(node) == owner
+    classes = {owner: {"Base", "ActionItem"}, "Dialog": {"Other"}}
+    assert set(co.Body(node, classes).calls) >= {"ActionItem" if "ui::" in head else "Base"}

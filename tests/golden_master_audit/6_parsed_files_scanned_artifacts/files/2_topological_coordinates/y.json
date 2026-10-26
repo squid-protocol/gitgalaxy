@@ -1130,12 +1130,12 @@
     },
     "cpp/powertoys": {
       "cpp/powertoys/FancyZones.cpp": -38.82,
-      "cpp/powertoys/FancyZones.h": 29.53,
+      "cpp/powertoys/FancyZones.h": 29.54,
       "cpp/powertoys/ImageResizerExt.cpp": -77.98,
-      "cpp/powertoys/centralized_kb_hook.cpp": 10.49,
-      "cpp/powertoys/logger.cpp": -137.93,
-      "cpp/powertoys/main.cpp": -170.76,
-      "cpp/powertoys/powertoy_module.h": -219.97
+      "cpp/powertoys/centralized_kb_hook.cpp": 10.5,
+      "cpp/powertoys/logger.cpp": -137.94,
+      "cpp/powertoys/main.cpp": -170.77,
+      "cpp/powertoys/powertoy_module.h": -219.98
     },
     "cpp/serenity_ak_siphash_cpu": {
       "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": -143.62,

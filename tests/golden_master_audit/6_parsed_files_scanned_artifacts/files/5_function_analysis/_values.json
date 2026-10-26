@@ -243658,6 +243658,19 @@
         },
         {
           "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 96,
+          "Function Name": "FancyZones",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 25,
+          "Reflection Hits": 0,
+          "Start Line": 72,
+          "Structural Impact": 4.7
+        },
+        {
+          "Control Flow Branches": 1,
           "Control Flow Ratio": "25.0%",
           "End Line": 994,
           "Function Name": "FancyZones::CycleWindows",
@@ -243720,19 +243733,6 @@
           "Reflection Hits": 0,
           "Start Line": 1190,
           "Structural Impact": 1.9
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 73,
-          "Function Name": "FancyZones",
-          "Input Parameters": 2,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 72,
-          "Structural Impact": 1.8
         },
         {
           "Control Flow Branches": 0,

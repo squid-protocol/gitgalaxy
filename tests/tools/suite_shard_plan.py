@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -39,6 +40,17 @@ GATE_TARGET_S = 20 * 60
 GATE_MAX_PARTS = 4
 GATE_TIMEOUT_FLOOR, GATE_TIMEOUT_CEILING = 20, 35
 STEP_MARGIN_MIN = 3  # step_timeout = leg timeout - 3 (#5764): expressions have no arithmetic
+# #5764: the slowest minutes seen per (os, python) part on the Gate's runs of 2026-10-14..20 (windows 3.11 was 25 min as 2
+# parts; as 3 parts it is an estimate: re-measure). A leg's cap keeps SEEN_HEADROOM over it whatever the durations say: a
+# cache on another basis than the committed file (2026-10-26: the wall-calibrated nightly planned every leg at the floor)
+# must not plan a cap below a time a leg has actually taken.
+SLOWEST_SEEN_MIN = {
+    ("windows-latest", "3.11"): 18,
+    ("windows-latest", "3.12"): 19,
+    ("macos-latest", "3.11"): 16,
+    ("macos-latest", "3.12"): 17,
+}
+SEEN_HEADROOM = 1.3
 LEGS = (
     ("ubuntu-latest", "3.11", 1.0), ("ubuntu-latest", "3.12", 1.0),
     ("windows-latest", "3.11", 1.6), ("windows-latest", "3.12", 1.3),
@@ -77,6 +89,7 @@ def gate_plan(durations: dict[str, float], waiting: int | None = None) -> dict:
         weight = {k: (mean if even else v) * speed for k, v in durations.items()}
         n = max(1, sp.shards_for(weight, GATE_SETUP_S, JOBS, GATE_TARGET_S, cap))
         t = sp.timeout_minutes(weight, n, GATE_SETUP_S, JOBS, GATE_TIMEOUT_FLOOR, GATE_TIMEOUT_CEILING)
+        t = min(GATE_TIMEOUT_CEILING, max(t, math.ceil(SLOWEST_SEEN_MIN.get((os_name, py), 0) * SEEN_HEADROOM)))
         for part in range(1, n + 1):
             leg = {"os": os_name, "python-version": py, "part": part, "splits": n}
             if even:

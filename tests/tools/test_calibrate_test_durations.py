@@ -36,8 +36,8 @@ def test_main_reads_both_file_shapes_and_the_output_merges(tmp_path):
     plain, times, out1, out2 = (tmp_path / n for n in ("p.json", "t.json", "o1.json", "o2.json"))
     plain.write_text(json.dumps({"a::t": 2.0, "b::t": 2.0}), encoding="utf-8")
     times.write_text(json.dumps({"seconds": {"c::t": 9.0}, "slow": {}}), encoding="utf-8")
-    assert ctd.main([str(plain), str(out1), "--wall", "8"]) == 0
-    assert ctd.main([str(times), str(out2), "--wall", "3"]) == 0
+    assert ctd.main([str(plain), str(out1), "--wall", "8", "--jobs", "1"]) == 0
+    assert ctd.main([str(times), str(out2), "--wall", "3", "--jobs", "1"]) == 0
     merged = mtd.merge([json.loads(out1.read_text()), json.loads(out2.read_text())])
     assert merged == {"a::t": 4.0, "b::t": 4.0, "c::t": 3.0}
 
@@ -63,3 +63,14 @@ def test_the_nightly_workflow_calibrates_after_pytest_with_the_wall_it_wrote():
     assert "pytest-wall-part-${{ matrix.group }}.txt" in cal["run"]
     assert "pytest-wall-part-$GROUP.txt" in steps[at_pytest]["run"]
     assert "durations-part-${{ matrix.group }}.json" in cal["run"]  # the name the upload step and the merge job read
+
+
+def test_jobs_scale_the_sum_to_serial_seconds_and_main_defaults_to_the_planners_jobs(tmp_path):
+    # 2026-10-26: scaled to the bare wall, the cache was a third of the serial seconds suite_shard_plan divides by JOBS
+    import suite_shard_plan
+
+    assert ctd.calibrate({"a::t": 30.0, "b::t": 10.0}, 20.0, jobs=3) == {"a::t": 45.0, "b::t": 15.0}
+    src, out = tmp_path / "p.json", tmp_path / "o.json"
+    src.write_text(json.dumps({"a::t": 1.0, "b::t": 3.0}), encoding="utf-8")
+    assert ctd.main([str(src), str(out), "--wall", "10"]) == 0
+    assert sum(json.loads(out.read_text()).values()) == pytest.approx(10.0 * suite_shard_plan.JOBS)

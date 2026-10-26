@@ -175,3 +175,13 @@ def test_cli_prints_the_outputs_and_fails_loudly(tmp_path, capsys):
     d.write_text("{}", encoding="utf-8")
     assert plan.main(["--smoke", "--durations", str(d)]) == 1
     assert "::error::" in capsys.readouterr().err
+
+
+def test_a_leg_cap_never_drops_below_its_slowest_seen_time(durations):
+    # 2026-10-26: the first stored nightly cache was wall-calibrated (~1/4 of the committed seconds) and planned every leg
+    # as 1 part at the 20-22 min floor, under the 25 min a Windows part has taken (#5764 headroom)
+    small = {k: v / 4 for k, v in durations.items()}
+    for leg in plan.gate_plan(small)["matrix"]:
+        seen = plan.SLOWEST_SEEN_MIN.get((leg["os"], leg["python-version"]), 0)
+        assert leg["timeout"] >= seen * plan.SEEN_HEADROOM, leg
+        assert leg["step_timeout"] == leg["timeout"] - plan.STEP_MARGIN_MIN

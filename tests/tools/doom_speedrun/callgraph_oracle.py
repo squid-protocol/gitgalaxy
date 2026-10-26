@@ -89,6 +89,9 @@ TEXT_NODES = {"comment", "string_literal", "raw_string_literal", "char_literal",
 # nested function definition): comments and literals blanked, then every ``name (`` that is not a keyword.
 STRIP = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)
 TEXT_CALL = re.compile(r"\b([A-Za-z_]\w*)\s*\(")
+# A class or struct definition head: the last word before its `:` base list or `{` is the class name.
+CLASS_HEAD = re.compile(r"\b(?:class|struct)\b[^;{}()<>]*?\b([A-Za-z_]\w*)\s*(?:final\s*)?[:{]")
+CPP_EXTS = frozenset(".h .hh .hpp .hxx .inl .cc .cpp .cxx".split())
 KEYWORDS = frozenset(
     "if else while for do switch return sizeof alignof _Alignof defined case goto typeof decltype".split()
 )
@@ -140,12 +143,16 @@ class Body:
     """One function body: its calls (name -> shape of the first call), other identifier references, preprocessor and
     comment/literal text."""
 
-    def __init__(self, node):
+    def __init__(self, node, classes=frozenset()):
         self.node = node
         self.calls, self.refs, self.preproc, self.text_only, self.types = {}, set(), [], [], set()
         self.broken = False  # an ERROR node inside: tree-sitter may have closed the body early
         self.nested = []  # 1-based last lines of real nested definitions (methods, or functions a misparse ran over)
         callees = set()
+        for init in _initializers(node):  # `: Base(x), member(y)`: a base class entry is a constructor call
+            name = callee_node(init.children[0]) if init.children else None
+            if name is not None and decode_bytes(name.text) in classes:
+                self.calls.setdefault(decode_bytes(name.text), "ctor-init")
         body = node.child_by_field_name("body") or node
         stack = [body]
         while stack:
@@ -237,6 +244,29 @@ class TextBody(Body):
         self._text_calls(body.encode())
         self.refs = set(re.findall(r"\b[A-Za-z_]\w*\b", body)) - set(self.calls)
         self.text_only = [m.group(0) for m in STRIP.finditer(raw[open_at : end + 1])]
+
+
+def _initializers(node):
+    """The ``field_initializer`` entries of a constructor's initializer list (a child of the definition, not of its body)."""
+    for child in node.children:
+        if child.type == "field_initializer_list":
+            return [c for c in child.children if c.type == "field_initializer"]
+    return []
+
+
+def class_names(repo):
+    """Every class / struct name defined in a repo's C++ files: what a base-class initializer entry names."""
+    names = set()
+    for root, dirs, files in os.walk(repo):
+        dirs[:] = [d for d in dirs if d != ".git"]
+        for f in files:
+            if os.path.splitext(f)[1].lower() in CPP_EXTS:
+                try:
+                    text = (Path(root) / f).read_bytes()
+                except OSError:
+                    continue
+                names.update(CLASS_HEAD.findall(STRIP.sub(" ", decode_bytes(text))))
+    return names
 
 
 def _is_real_nested_function(node):
@@ -334,6 +364,7 @@ class Port:
         self.functions = []  # (rel, name, start, engine callee set, Body / TextBody or None)
         self.edges = set()
         trees = {}
+        classes = class_names(self.repo) if any(r[1] == "cpp" for r in rows) else frozenset()
         for rel, lang, fname, start, callees in rows:
             key = (rel, lang)
             if key not in trees:
@@ -344,7 +375,7 @@ class Port:
                     trees[key] = (b"", [])
             src, nodes = trees[key]
             node = definition_at(nodes, start)
-            body = Body(node) if node is not None else TextBody(src, start)
+            body = Body(node, classes) if node is not None else TextBody(src, start)
             if node is not None and body.broken:
                 braces = TextBody(src, start)
                 # end_point[0], never .row: .row on the temporary Point read freed memory (tree-sitter 0.26, #5630).

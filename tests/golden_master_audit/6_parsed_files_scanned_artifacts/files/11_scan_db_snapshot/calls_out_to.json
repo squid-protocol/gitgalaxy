@@ -115998,6 +115998,7 @@
         "Image::ExifTool::EndDir@329": [],
         "Infile@4109": [
           "Seek",
+          "open",
           "new",
           "BinMode"
         ],

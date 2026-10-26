@@ -5985,7 +5985,33 @@ class StructuralExtractor:
             # same corpus that no apostrophe-delimited quote-like operator (`q'...'`,
             # `m'...'`, etc., which WOULD be preceded by a word character) is actually used
             # anywhere in it, so this lookbehind has no observed false-negative cost here.
-            combined_pattern = r'"(?:\\.|[^"\\]){0,200}"|' r"(?<![A-Za-z0-9_])'(?:\\.|[^'\\]){0,200}'"
+            # #6433: a string longer than 200 chars (a multi-line SQL/HTML/usage text) matched
+            # neither bound, so its closing quote paired with the next unrelated quote and the
+            # unit ended early. A second alternative takes it up to 4000 chars, but only when
+            # it is written like a value (opened after `=`, `(`, `,` or `.`, closed before
+            # `;`, `,`, `)` or `.`), runs across a line, and holds no `sub` or POD line: a
+            # stray quote in a comment or POD prose (#1606) then cannot pair far ahead.
+            long_body = r"(?:\\.|[^{q}\\]){{201,4000}}"
+            long_guard = r"(?!(?:\\.|[^{q}\\]){{0,4000}}?\n(?:sub\b|=[a-z]))"
+            long_open = r"(?:(?<=[=(,.])|(?<=[=(,.][ \t]))"
+            long_close = r"(?=[ \t]*[;,).])"
+            combined_pattern = (
+                r'"(?:\\.|[^"\\]){0,200}"|'
+                r"(?<![A-Za-z0-9_])'(?:\\.|[^'\\]){0,200}'|"
+                + long_open
+                + '"'
+                + long_guard.format(q='"')
+                + long_body.format(q='"')
+                + '"'
+                + long_close
+                + "|"
+                + long_open
+                + "'"
+                + long_guard.format(q="'")
+                + long_body.format(q="'")
+                + "'"
+                + long_close
+            )
         else:
             combined_pattern = (
                 r'""".*?"""|' + csharp_verbatim + r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'

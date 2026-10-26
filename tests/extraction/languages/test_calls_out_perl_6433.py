@@ -64,6 +64,13 @@ def _callees(line: str) -> list[str]:
         ("tie %q, 'Pkg';", ["tie"]),
         ("system qq{title $t};", ["system"]),
         ('die "bad";', ["die"]),
+        # slice 3: no-arg built-ins and open file-handle forms
+        ("my $n = int rand;", ["int", "rand"]),
+        ("rand;", ["rand"]),
+        ("my $i = int rand * 5;", ["int", "rand"]),
+        ("open FH, '<', $f;", ["open"]),
+        ("open my $fh, '<', $f;", ["open"]),
+        ("opendir DH, $d;", ["opendir"]),
         ("sub o { return sprintf '%o', shift }", ["sprintf", "shift"]),
     ],
 )
@@ -98,6 +105,8 @@ def test_callees(line, expected):
         "$o->{or} die",
         "my $r = $a % 3;",
         "$x = foo {a} + 1;",
+        "-e $file",
+        "my $r = rand_name;",
     ],
 )
 def test_not_calls(line):
@@ -154,3 +163,46 @@ def test_die_is_a_call():
     code = "sub run {\n    open(my $f, '<', $p) or die \"no $p\";\n    die 'x' unless $f;\n}\n"
     res = StructuralExtractor("perl", {"perl": perl}).splice(code, "")
     assert "die" in res["functions"][0]["calls_out_to"]
+
+
+_LONG = "x" * 120
+
+
+@pytest.mark.parametrize("quote", ['"', "'"])
+def test_long_multiline_string_does_not_end_the_unit_early(quote):
+    """#6433: a >200-char multi-line string with a `}` inside kept the first sub's calls."""
+    code = (
+        f"sub one {{\n    my $s = {quote}{_LONG}\n{_LONG}\n{_LONG} }} end{quote};\n"
+        "    foo($s);\n    my $n = int rand;\n}\n\nsub two {\n    bar(1);\n}\n"
+    )
+    perl = LANGUAGE_DEFINITIONS["perl"]
+    res = StructuralExtractor("perl", {"perl": perl}).splice(code, "")
+    by_name = {f["name"]: f["calls_out_to"] for f in res["functions"]}
+    assert {"foo", "int", "rand"} <= set(by_name["one"])
+    assert by_name["two"] == ["bar"]
+
+
+def test_escaped_quotes_in_one_line_regexes_still_do_not_pair():
+    """#1437 guard: `s/^\\"//g` twice, far apart, must not form a string."""
+    code = (
+        'sub a {\n    $x =~ s/^\\"//g;\n' + "    # pad\n" * 60 + '    $y =~ s/\\"$//g;\n    keep(1);\n}\n'
+        "sub b {\n    other(2);\n}\n"
+    )
+    perl = LANGUAGE_DEFINITIONS["perl"]
+    res = StructuralExtractor("perl", {"perl": perl}).splice(code, "")
+    by_name = {f["name"]: f["calls_out_to"] for f in res["functions"]}
+    assert "keep" in by_name["a"]
+    assert by_name["b"] == ["other"]
+
+
+def test_stray_quote_in_a_comment_does_not_pair_with_a_far_quote():
+    """#6433 guard: a quote in a comment line must not open the long-string alternative."""
+    code = (
+        'sub a {\n    # the "default" is empty; see below\n    foo(1);\n}\n'
+        'sub b {\n    bar(2);\n    my $m = "' + _LONG + "\\n" + _LONG + '";\n}\n'
+    )
+    perl = LANGUAGE_DEFINITIONS["perl"]
+    res = StructuralExtractor("perl", {"perl": perl}).splice(code, "")
+    by_name = {f["name"]: f["calls_out_to"] for f in res["functions"]}
+    assert by_name["a"] == ["foo"]
+    assert by_name["b"] == ["bar"]

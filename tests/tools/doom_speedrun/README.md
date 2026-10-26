@@ -246,8 +246,9 @@ On the 0e2bf4ade scans it reproduces the study script's numbers for all 30 share
 Blind spots:
 - **A distance is a shape comparison, not a correctness claim.** A port in another language moves every metric by how
   the engine counts that language (what the cross-language slice is for); a large `dist` says "different", not "wrong".
-- **Vendored code is not excluded** (the study script did not either): a port that bundles a library carries its
-  functions in its own distribution. `lineage.py` is the tool that applies the engine's vendor test.
+- **Vendored code is excluded** (#6097; the round-1 script did not): functions under a directory the engine's
+  `VendorDirectoryDetector` calls vendored are dropped, so the numbers differ from round 1 for a port that bundles a
+  library. This reads the clone (`<work>/repos/<port>`, as `lineage.py` does); a port with a scan but no clone is skipped.
 - **The majority language names the port** (`lang`); a polyglot port's functions of other code languages stay in.
 
 ## Study write-up tables (`study_report.py`, #5620)

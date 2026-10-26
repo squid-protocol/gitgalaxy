@@ -220,6 +220,39 @@ class Body:
         return None
 
 
+# A macro class (`DE_PIMPL(X) { ... }`, `DE_GUI_PIMPL(X),\nDE_OBSERVES(A, B)\n{ ... }`) is a class: its members are declarations
+# and nested definitions, which own their calls (#5630).
+MACRO_CLASS_HEAD = re.compile(r"[ \t]*[A-Z0-9_]*PIMPL[A-Z0-9_]*[ \t]*\(")
+
+
+def _member_initializers(body):
+    """A macro class's own code: the right-hand side of each member initializer (``Mat3f m = f();``) at the class's top
+    level. A declaration or a definition head (``bool isValid() const;``, ``Impl(Public *i) : Base(i)``) names a member,
+    it calls nothing, and a nested ``{...}`` is a method whose calls are its own."""
+    own, chunk, depth, parens = [], [], 0, 0
+    for ch in body:
+        if ch == "{":
+            depth += 1
+            if depth == 1:
+                continue
+        elif ch == "}":
+            depth -= 1
+            if depth == 1:  # a nested method or aggregate closed: the chunk before it was its head
+                chunk = []
+            continue
+        if depth != 1:
+            continue
+        parens += (ch == "(") - (ch == ")")
+        if ch == ";" and parens <= 0:
+            text = "".join(chunk)
+            chunk = []
+            if m := re.search(r"(?<![=!<>])=(?!=)", re.sub(r"\([^()]*\)", lambda x: " " * len(x.group(0)), text)):
+                own.append(text[m.end() :])
+        else:
+            chunk.append(ch)
+    return "\n".join(own)
+
+
 class TextBody(Body):
     """Fallback for a function tree-sitter folds into a neighbour (a macro table above it with no semicolon): the
     brace-matched body from its start line, comments and literals blanked, preprocessor lines dropped; every call is
@@ -251,7 +284,10 @@ class TextBody(Body):
         body = text[open_at : end + 1]
         self.preproc = re.findall(r"^[ \t]*#.*$", body, flags=re.M)
         body = re.sub(r"^[ \t]*#.*$", " ", body, flags=re.M)
-        self._text_calls(body.encode())
+        if MACRO_CLASS_HEAD.match(lines[line - 1]):
+            self._text_calls(_member_initializers(body).encode())
+        else:
+            self._text_calls(body.encode())
         self.refs = set(re.findall(r"\b[A-Za-z_]\w*\b", body)) - set(self.calls)
         self.text_only = [m.group(0) for m in STRIP.finditer(raw[open_at : end + 1])]
 

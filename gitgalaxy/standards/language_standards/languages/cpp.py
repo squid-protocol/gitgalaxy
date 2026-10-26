@@ -212,6 +212,9 @@ DEFINITION: dict[str, Any] = {
             r"\b(namespace|using|class|struct|enum|union|template|typename|concept|requires|auto|return|void|inline|virtual|explicit|friend|module|export|import|typedef|goto)\b"
         ),
         "func_start": re.compile(
+            # #5630: a line that follows a line ending in `,` is a base-class-list entry
+            # (`class RefValue : public Value,\n    DE_OBSERVES(Variable, Deletion)\n{`), never a definition.
+            r"(?<!,\n)(?<!,\r\n)(?<!,[ \t]\n)(?<!,[ \t]\r\n)"
             "(?:(?!" + C_MACRO_FUNC_START_GUARD + ")"
             # =====================================================================
             # [ CONTEXT: C++ FUNCTION AST EXTRACTOR & REDOS SHIELD]
@@ -427,6 +430,9 @@ DEFINITION: dict[str, Any] = {
             + r"){0,10})(?:[ \t]*[*&]{1,3})?)?"
             r"(?:[ \t\n]+requires[ \t\n(][^{};#]{0,300})?"
             r"(?:[ \t\n]+try)?"
+            # #5630: a macro class head is a chain, `DE_PIMPL(X),\nDE_OBSERVES(A, B)\n{`: the unit starts at the first
+            # macro, not at the last one before the `{`.
+            r"(?:[ \t\n]*,[ \t\n]*[A-Z][A-Z0-9_]{2,}[ \t]*\((?:[^()]|\([^()]*\))*\)){0,8}"
             # 9. THE K&R C AND C++ CONSTRUCTOR GAP (ReDoS mitigated via Strict Bounding)
             # Handles C++ initializer lists (e.g., `MyClass() : a(1) {`) and legacy K&R declarations.
             # [IRON WALL - CATASTROPHIC BACKTRACKING FIX]:

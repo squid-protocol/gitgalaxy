@@ -7,6 +7,8 @@ the stub, the Java task and the translator all naming the same hook.
 IBM (CICS TS 6.x, the Conditions of SEND MAP, RECEIVE MAP, RETURN, SYNCPOINT, SYNCPOINT ROLLBACK)."""
 
 import json
+import os
+import re
 import sys
 from pathlib import Path
 
@@ -15,6 +17,7 @@ import pytest
 TESTS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TESTS / "tools"))
 import equivalence_cics as ec  # noqa: E402
+from gitgalaxy.core.source_text import read_source  # noqa: E402
 
 REPO = TESTS.parent
 
@@ -226,3 +229,23 @@ def test_no_stale_cannot_inject_entry_remains_for_the_reached_arms(prog):
         if e["unit"] == "A010" and prog != "bnkmenu":
             # only the arm a successful RETURN would take stays stated infeasible
             assert e["outcome"] == "false" or "RETURN" not in text, e
+
+
+def test_send_control_is_refused_by_name():
+    with pytest.raises(ec.Unsupported, match="X71"):
+        _lines(cmd="SEND-CONTROL", resp="TSIOERR")
+
+
+def test_no_burned_cbsa_send_control_codes_resp():
+    # the refusal's premise: a failure of a RESP-less SEND CONTROL would abend, which IBM does not describe
+    src = os.environ.get("GITGALAXY_MAINFRAME_CORPORA")
+    cobol = Path(src) / "cics-banking-sample-application-cbsa/src/base/cobol_src" if src else None
+    if cobol is None or not cobol.is_dir():
+        pytest.skip("CBSA corpus not available")
+    found = 0
+    for f in sorted(cobol.glob("*.cbl")):
+        text = read_source(f).text
+        for m in re.finditer(r"EXEC\s+CICS\s+SEND\s+CONTROL(.*?)END-EXEC", text, re.S | re.I):
+            found += 1
+            assert "RESP" not in m.group(1).upper(), f.name
+    assert found

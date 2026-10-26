@@ -8125,8 +8125,8 @@
         "Compute Cores": 6,
         "Defensive Guards": 3,
         "Generic / Templated Code": 3,
-        "I/O & Config Routines": 5,
-        "Many-Argument Workhorses": 19,
+        "I/O & Config Routines": 4,
+        "Many-Argument Workhorses": 20,
         "Type Conversions": 8
       },
       "powershell/core/RegisterManifest.ps1": {
@@ -8158,8 +8158,8 @@
         "Compute Cores": 6,
         "Defensive Guards": 3,
         "Generic / Templated Code": 3,
-        "I/O & Config Routines": 5,
-        "Many-Argument Workhorses": 19,
+        "I/O & Config Routines": 4,
+        "Many-Argument Workhorses": 20,
         "Type Conversions": 8
       },
       "powershell/core/ci.psm1": {
@@ -8178,13 +8178,13 @@
       "powershell/core/package-validation.tests.ps1": {},
       "powershell/core/packaging.psd1": {},
       "powershell/core/packaging.psm1": {
-        "Callbacks & Closures": 12,
+        "Callbacks & Closures": 11,
         "Compute Cores": 7,
         "Defensive Guards": 2,
         "Generic / Templated Code": 1,
-        "I/O & Config Routines": 5,
+        "I/O & Config Routines": 3,
         "Interface Declarations": 1,
-        "Many-Argument Workhorses": 36,
+        "Many-Argument Workhorses": 39,
         "Type Conversions": 11
       },
       "powershell/core/packaging.tests.ps1": {},

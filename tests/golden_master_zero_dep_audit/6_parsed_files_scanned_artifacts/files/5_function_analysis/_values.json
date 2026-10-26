@@ -405197,17 +405197,30 @@
       ],
       "powershell/core/PowerShell__build.psm1": [
         {
+          "Control Flow Branches": 134,
+          "Control Flow Ratio": "93.1%",
+          "End Line": 763,
+          "Function Name": "Start-PSBuild",
+          "Input Parameters": 20,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 481,
+          "Reflection Hits": 1,
+          "Start Line": 283,
+          "Structural Impact": 642.7
+        },
+        {
           "Control Flow Branches": 99,
           "Control Flow Ratio": "94.3%",
           "End Line": 1743,
           "Function Name": "Start-PSPester",
-          "Input Parameters": 3,
+          "Input Parameters": 21,
           "Is Documented": 0,
           "Is Public": 1,
           "Lines of Code (LOC)": 363,
           "Reflection Hits": 3,
           "Start Line": 1381,
-          "Structural Impact": 218.2
+          "Structural Impact": 487.2
         },
         {
           "Control Flow Branches": 70,
@@ -405221,19 +405234,6 @@
           "Reflection Hits": 6,
           "Start Line": 2315,
           "Structural Impact": 201.0
-        },
-        {
-          "Control Flow Branches": 134,
-          "Control Flow Ratio": "93.1%",
-          "End Line": 763,
-          "Function Name": "Start-PSBuild",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 481,
-          "Reflection Hits": 1,
-          "Start Line": 283,
-          "Structural Impact": 159.1
         },
         {
           "Control Flow Branches": 32,
@@ -405769,6 +405769,19 @@
           "Structural Impact": 6.0
         },
         {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 3475,
+          "Function Name": "Save-PSOptions",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 3462,
+          "Structural Impact": 5.9
+        },
+        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "66.7%",
           "End Line": 3937,
@@ -405896,19 +405909,6 @@
           "Lines of Code (LOC)": 14,
           "Reflection Hits": 0,
           "Start Line": 3305,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 3475,
-          "Function Name": "Save-PSOptions",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 14,
-          "Reflection Hits": 0,
-          "Start Line": 3462,
           "Structural Impact": 3.7
         },
         {
@@ -406588,17 +406588,30 @@
       ],
       "powershell/core/build.psm1": [
         {
+          "Control Flow Branches": 134,
+          "Control Flow Ratio": "93.1%",
+          "End Line": 763,
+          "Function Name": "Start-PSBuild",
+          "Input Parameters": 20,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 481,
+          "Reflection Hits": 1,
+          "Start Line": 283,
+          "Structural Impact": 642.7
+        },
+        {
           "Control Flow Branches": 99,
           "Control Flow Ratio": "94.3%",
           "End Line": 1743,
           "Function Name": "Start-PSPester",
-          "Input Parameters": 3,
+          "Input Parameters": 21,
           "Is Documented": 0,
           "Is Public": 1,
           "Lines of Code (LOC)": 363,
           "Reflection Hits": 3,
           "Start Line": 1381,
-          "Structural Impact": 218.2
+          "Structural Impact": 487.2
         },
         {
           "Control Flow Branches": 70,
@@ -406612,19 +406625,6 @@
           "Reflection Hits": 6,
           "Start Line": 2315,
           "Structural Impact": 201.0
-        },
-        {
-          "Control Flow Branches": 134,
-          "Control Flow Ratio": "93.1%",
-          "End Line": 763,
-          "Function Name": "Start-PSBuild",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 481,
-          "Reflection Hits": 1,
-          "Start Line": 283,
-          "Structural Impact": 159.1
         },
         {
           "Control Flow Branches": 32,
@@ -407160,6 +407160,19 @@
           "Structural Impact": 6.0
         },
         {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 3475,
+          "Function Name": "Save-PSOptions",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 14,
+          "Reflection Hits": 0,
+          "Start Line": 3462,
+          "Structural Impact": 5.9
+        },
+        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "66.7%",
           "End Line": 3937,
@@ -407287,19 +407300,6 @@
           "Lines of Code (LOC)": 14,
           "Reflection Hits": 0,
           "Start Line": 3305,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 3475,
-          "Function Name": "Save-PSOptions",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 14,
-          "Reflection Hits": 0,
-          "Start Line": 3462,
           "Structural Impact": 3.7
         },
         {
@@ -408028,6 +408028,19 @@
       "powershell/core/packaging.psd1": [],
       "powershell/core/packaging.psm1": [
         {
+          "Control Flow Branches": 158,
+          "Control Flow Ratio": "95.8%",
+          "End Line": 748,
+          "Function Name": "Start-PSPackage",
+          "Input Parameters": 12,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 711,
+          "Reflection Hits": 0,
+          "Start Line": 38,
+          "Structural Impact": 608.8
+        },
+        {
           "Control Flow Branches": 61,
           "Control Flow Ratio": "80.3%",
           "End Line": 1438,
@@ -408039,19 +408052,6 @@
           "Reflection Hits": 0,
           "Start Line": 1041,
           "Structural Impact": 225.5
-        },
-        {
-          "Control Flow Branches": 158,
-          "Control Flow Ratio": "95.8%",
-          "End Line": 748,
-          "Function Name": "Start-PSPackage",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 711,
-          "Reflection Hits": 0,
-          "Start Line": 38,
-          "Structural Impact": 194.6
         },
         {
           "Control Flow Branches": 25,
@@ -408249,6 +408249,19 @@
           "Structural Impact": 32.7
         },
         {
+          "Control Flow Branches": 14,
+          "Control Flow Ratio": "82.4%",
+          "End Line": 5253,
+          "Function Name": "Invoke-AzDevOpsLinuxPackageBuild",
+          "Input Parameters": 2,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 135,
+          "Reflection Hits": 0,
+          "Start Line": 5119,
+          "Structural Impact": 32.7
+        },
+        {
           "Control Flow Branches": 12,
           "Control Flow Ratio": "92.3%",
           "End Line": 5602,
@@ -408327,16 +408340,16 @@
           "Structural Impact": 22.2
         },
         {
-          "Control Flow Branches": 14,
-          "Control Flow Ratio": "82.4%",
-          "End Line": 5253,
-          "Function Name": "Invoke-AzDevOpsLinuxPackageBuild",
-          "Input Parameters": 0,
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "70.0%",
+          "End Line": 5114,
+          "Function Name": "Invoke-AzDevOpsLinuxPackageCreation",
+          "Input Parameters": 3,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 135,
+          "Lines of Code (LOC)": 115,
           "Reflection Hits": 0,
-          "Start Line": 5119,
+          "Start Line": 5000,
           "Structural Impact": 21.8
         },
         {
@@ -408548,19 +408561,6 @@
           "Structural Impact": 13.5
         },
         {
-          "Control Flow Branches": 7,
-          "Control Flow Ratio": "70.0%",
-          "End Line": 5114,
-          "Function Name": "Invoke-AzDevOpsLinuxPackageCreation",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 115,
-          "Reflection Hits": 0,
-          "Start Line": 5000,
-          "Structural Impact": 13.5
-        },
-        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "50.0%",
           "End Line": 4987,
@@ -408769,6 +408769,19 @@
           "Structural Impact": 7.2
         },
         {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "75.0%",
+          "End Line": 3712,
+          "Function Name": "Get-LinuxPackageSemanticVersion",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 24,
+          "Reflection Hits": 0,
+          "Start Line": 3689,
+          "Structural Impact": 6.9
+        },
+        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "66.7%",
           "End Line": 2732,
@@ -408806,19 +408819,6 @@
           "Reflection Hits": 0,
           "Start Line": 3522,
           "Structural Impact": 5.5
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
-          "End Line": 3712,
-          "Function Name": "Get-LinuxPackageSemanticVersion",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 24,
-          "Reflection Hits": 0,
-          "Start Line": 3689,
-          "Structural Impact": 5.2
         },
         {
           "Control Flow Branches": 1,

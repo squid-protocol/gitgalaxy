@@ -92,14 +92,14 @@
       "apex/SOURCES.md": -2604.54
     },
     "apex/apex-recipes": {
-      "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": 8523.01,
-      "apex/apex-recipes/LICENSE.md": 8411.01,
-      "apex/apex-recipes/QueueableRecipes.cls": 8697.26,
-      "apex/apex-recipes/SOQLRecipes.cls": 8480.74,
-      "apex/apex-recipes/SOQLRecipes.cls-meta.xml": 9098.84,
-      "apex/apex-recipes/SOQLRecipes_Tests.cls": 8718.84,
-      "apex/apex-recipes/project-scratch-def.json": 8181.94,
-      "apex/apex-recipes/sfdx-project.json": 8918.67
+      "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": 8526.85,
+      "apex/apex-recipes/LICENSE.md": 8414.84,
+      "apex/apex-recipes/QueueableRecipes.cls": 8701.1,
+      "apex/apex-recipes/SOQLRecipes.cls": 8484.57,
+      "apex/apex-recipes/SOQLRecipes.cls-meta.xml": 9102.67,
+      "apex/apex-recipes/SOQLRecipes_Tests.cls": 8722.68,
+      "apex/apex-recipes/project-scratch-def.json": 8185.78,
+      "apex/apex-recipes/sfdx-project.json": 8922.51
     },
     "assembly": {
       "assembly/SOURCES.md": -11635.79
@@ -239,26 +239,26 @@
       "assembly/hellosilicon/matrixmultneon.s": 3194.62
     },
     "assembly/hellosilicon_aarch64": {
-      "assembly/hellosilicon_aarch64/Chapter_01_HelloWorld.s": 7951.88,
-      "assembly/hellosilicon_aarch64/Chapter_02_addexamp1.s": 7365.47,
-      "assembly/hellosilicon_aarch64/Chapter_02_addexamp2.s": 7275.97,
-      "assembly/hellosilicon_aarch64/Chapter_02_addexamps.s": 7956.21,
-      "assembly/hellosilicon_aarch64/Chapter_02_codesnippets.s": 7803.33,
-      "assembly/hellosilicon_aarch64/Chapter_02_movexamps.s": 6840.69,
-      "assembly/hellosilicon_aarch64/Chapter_03_HelloWorld.s": 6624.76,
-      "assembly/hellosilicon_aarch64/Chapter_04_case.s": 6918.96,
-      "assembly/hellosilicon_aarch64/Chapter_04_codesnippets.s": 7356.59,
-      "assembly/hellosilicon_aarch64/Chapter_04_printdword.s": 7632.61,
-      "assembly/hellosilicon_aarch64/Chapter_05_codesnippets.s": 7362.05,
-      "assembly/hellosilicon_aarch64/Chapter_05_upper.s": 7277.37,
-      "assembly/hellosilicon_aarch64/Chapter_06_codesnippets.s": 7125.54,
-      "assembly/hellosilicon_aarch64/Chapter_06_main.s": 6939.54,
-      "assembly/hellosilicon_aarch64/Chapter_06_mainmacro.s": 7571.46,
-      "assembly/hellosilicon_aarch64/Chapter_06_upper.s": 6807.86,
-      "assembly/hellosilicon_aarch64/Chapter_06_uppermacro.s": 7619.05,
-      "assembly/hellosilicon_aarch64/Chapter_07_upper.s": 7893.84,
-      "assembly/hellosilicon_aarch64/Chapter_09_addexamp2.s": 8024.23,
-      "assembly/hellosilicon_aarch64/Chapter_09_debug.s": 7073.42
+      "assembly/hellosilicon_aarch64/Chapter_01_HelloWorld.s": 7955.7,
+      "assembly/hellosilicon_aarch64/Chapter_02_addexamp1.s": 7369.29,
+      "assembly/hellosilicon_aarch64/Chapter_02_addexamp2.s": 7279.78,
+      "assembly/hellosilicon_aarch64/Chapter_02_addexamps.s": 7960.02,
+      "assembly/hellosilicon_aarch64/Chapter_02_codesnippets.s": 7807.15,
+      "assembly/hellosilicon_aarch64/Chapter_02_movexamps.s": 6844.51,
+      "assembly/hellosilicon_aarch64/Chapter_03_HelloWorld.s": 6628.58,
+      "assembly/hellosilicon_aarch64/Chapter_04_case.s": 6922.77,
+      "assembly/hellosilicon_aarch64/Chapter_04_codesnippets.s": 7360.4,
+      "assembly/hellosilicon_aarch64/Chapter_04_printdword.s": 7636.43,
+      "assembly/hellosilicon_aarch64/Chapter_05_codesnippets.s": 7365.87,
+      "assembly/hellosilicon_aarch64/Chapter_05_upper.s": 7281.19,
+      "assembly/hellosilicon_aarch64/Chapter_06_codesnippets.s": 7129.36,
+      "assembly/hellosilicon_aarch64/Chapter_06_main.s": 6943.36,
+      "assembly/hellosilicon_aarch64/Chapter_06_mainmacro.s": 7575.27,
+      "assembly/hellosilicon_aarch64/Chapter_06_upper.s": 6811.67,
+      "assembly/hellosilicon_aarch64/Chapter_06_uppermacro.s": 7622.87,
+      "assembly/hellosilicon_aarch64/Chapter_07_upper.s": 7897.66,
+      "assembly/hellosilicon_aarch64/Chapter_09_addexamp2.s": 8028.05,
+      "assembly/hellosilicon_aarch64/Chapter_09_debug.s": 7077.24
     },
     "assembly/linux_1_0_kernel": {
       "assembly/linux_1_0_kernel/COPYING": -9375.38,
@@ -385,11 +385,11 @@
       "blueprint/SOURCES.md": 12552.65
     },
     "blueprint/ghostty": {
-      "blueprint/ghostty/command-palette.blp": 8846.38,
-      "blueprint/ghostty/imgui-widget.blp": 9116.08,
-      "blueprint/ghostty/split-tree-split.blp": 8583.91,
-      "blueprint/ghostty/split-tree.blp": 9327.25,
-      "blueprint/ghostty/window.blp": 9015.61
+      "blueprint/ghostty/command-palette.blp": 8849.82,
+      "blueprint/ghostty/imgui-widget.blp": 9119.52,
+      "blueprint/ghostty/split-tree-split.blp": 8587.35,
+      "blueprint/ghostty/split-tree.blp": 9330.69,
+      "blueprint/ghostty/window.blp": 9019.05
     },
     "bms": {
       "bms/SOURCES.md": -4673.11
@@ -519,10 +519,10 @@
       "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": 1220.07
     },
     "cobol/Z-SMS-Gateway": {
-      "cobol/Z-SMS-Gateway/BALANCE.cbl": 7765.32,
-      "cobol/Z-SMS-Gateway/HISTORY.cbl": 8069.72,
-      "cobol/Z-SMS-Gateway/MESSAGES.cbl": 8037.37,
-      "cobol/Z-SMS-Gateway/SENDSMS.cbl": 8319.65
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": 7768.59,
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": 8072.99,
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": 8040.64,
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": 8322.91
     },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": 5970.43,
@@ -1157,8 +1157,8 @@
       "csd/cbsa/PROVENANCE.md": 4072.7
     },
     "csd/z_sms_gateway": {
-      "csd/z_sms_gateway/PROVENANCE.md": 8444.4,
-      "csd/z_sms_gateway/ZSMSCSD.csd": 8691.86
+      "csd/z_sms_gateway/PROVENANCE.md": 8446.97,
+      "csd/z_sms_gateway/ZSMSCSD.csd": 8694.43
     },
     "csharp": {
       "csharp/SOURCES.md": -6640.71
@@ -1236,7 +1236,7 @@
       "dart/flutter/theme_data.dart": -1712.97
     },
     "db2_sql": {
-      "db2_sql/SOURCES.md": 9293.47
+      "db2_sql/SOURCES.md": 9295.98
     },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": -9259.54,
@@ -1365,7 +1365,7 @@
       "fortran/wrf/wrf_timeseries.F": 5933.29
     },
     "go": {
-      "go/SOURCES.md": 7971.28
+      "go/SOURCES.md": 7973.34
     },
     "go/core": {
       "go/core/PATENTS": -7315.2,
@@ -1684,36 +1684,36 @@
       "groovy/spock_smoke_specs/SharedFieldsInSuperclass.groovy": 987.85
     },
     "groovy/spock_specs": {
-      "groovy/spock_specs/org_spockframework_builder_PojoBuilderSpec.groovy": 5792.43,
-      "groovy/spock_specs/org_spockframework_buildsupport_SpecClassFileFinderSpec.groovy": 5306.63,
-      "groovy/spock_specs/org_spockframework_datapipes_DataPipesIteratorSpec.groovy": 5517.33,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": 5693.74,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v1_MathSpec.groovy": 6600.85,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v2_MathSpec.groovy": 4911.02,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": 5331.79,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v4_MathSpec.groovy": 6196.43,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v5_MathSpec.groovy": 6527.58,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v6_MathSpec.groovy": 5400.5,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_v7_MathSpec.groovy": 5885.15,
-      "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": 6400.09,
-      "groovy/spock_specs/org_spockframework_docs_extension_ExtensionStoreSpec.groovy": 6181.81,
-      "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 4857.43,
-      "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": 5417.19,
-      "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": 6263.52,
-      "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": 5662.48,
-      "groovy/spock_specs/org_spockframework_docs_extension_MockMakerConfigurationDocSpec.groovy": 4981.21,
-      "groovy/spock_specs/org_spockframework_docs_extension_ParameterInjectionSpec.groovy": 5260.02,
-      "groovy/spock_specs/org_spockframework_docs_extension_PendingFeatureIfDocSpec.groovy": 5117.95,
-      "groovy/spock_specs/org_spockframework_docs_extension_RequiresDocSpec.groovy": 6507.23,
-      "groovy/spock_specs/org_spockframework_docs_extension_RetryDocSpec.groovy": 6006.65,
-      "groovy/spock_specs/org_spockframework_docs_extension_SeeDocSpec.groovy": 6269.97,
-      "groovy/spock_specs/org_spockframework_docs_extension_SnapshotDocSpec.groovy": 5169.68,
-      "groovy/spock_specs/org_spockframework_docs_extension_StepwiseDocSpec.groovy": 5987.83,
-      "groovy/spock_specs/org_spockframework_docs_extension_SubjectDocSpec.groovy": 5540.07,
-      "groovy/spock_specs/org_spockframework_docs_extension_TagDocSpec.groovy": 5651.52,
-      "groovy/spock_specs/org_spockframework_docs_extension_TempDirDocSpec.groovy": 5936.03,
-      "groovy/spock_specs/org_spockframework_docs_extension_UseDocSpec.groovy": 6300.13,
-      "groovy/spock_specs/org_spockframework_docs_interaction_BuilderExampleSpec.groovy": 5220.78
+      "groovy/spock_specs/org_spockframework_builder_PojoBuilderSpec.groovy": 5796.43,
+      "groovy/spock_specs/org_spockframework_buildsupport_SpecClassFileFinderSpec.groovy": 5310.63,
+      "groovy/spock_specs/org_spockframework_datapipes_DataPipesIteratorSpec.groovy": 5521.34,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": 5697.74,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v1_MathSpec.groovy": 6604.86,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v2_MathSpec.groovy": 4915.03,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": 5335.8,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v4_MathSpec.groovy": 6200.43,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v5_MathSpec.groovy": 6531.58,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v6_MathSpec.groovy": 5404.51,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v7_MathSpec.groovy": 5889.15,
+      "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": 6404.1,
+      "groovy/spock_specs/org_spockframework_docs_extension_ExtensionStoreSpec.groovy": 6185.81,
+      "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 4861.44,
+      "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": 5421.19,
+      "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": 6267.52,
+      "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": 5666.49,
+      "groovy/spock_specs/org_spockframework_docs_extension_MockMakerConfigurationDocSpec.groovy": 4985.22,
+      "groovy/spock_specs/org_spockframework_docs_extension_ParameterInjectionSpec.groovy": 5264.03,
+      "groovy/spock_specs/org_spockframework_docs_extension_PendingFeatureIfDocSpec.groovy": 5121.96,
+      "groovy/spock_specs/org_spockframework_docs_extension_RequiresDocSpec.groovy": 6511.23,
+      "groovy/spock_specs/org_spockframework_docs_extension_RetryDocSpec.groovy": 6010.66,
+      "groovy/spock_specs/org_spockframework_docs_extension_SeeDocSpec.groovy": 6273.98,
+      "groovy/spock_specs/org_spockframework_docs_extension_SnapshotDocSpec.groovy": 5173.68,
+      "groovy/spock_specs/org_spockframework_docs_extension_StepwiseDocSpec.groovy": 5991.84,
+      "groovy/spock_specs/org_spockframework_docs_extension_SubjectDocSpec.groovy": 5544.08,
+      "groovy/spock_specs/org_spockframework_docs_extension_TagDocSpec.groovy": 5655.52,
+      "groovy/spock_specs/org_spockframework_docs_extension_TempDirDocSpec.groovy": 5940.04,
+      "groovy/spock_specs/org_spockframework_docs_extension_UseDocSpec.groovy": 6304.14,
+      "groovy/spock_specs/org_spockframework_docs_interaction_BuilderExampleSpec.groovy": 5224.79
     },
     "groovy/spring_boot_gradle": {
       "groovy/spring_boot_gradle/LICENSE.txt": 2754.26,
@@ -1951,12 +1951,12 @@
       "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": -4341.72
     },
     "javascript/react": {
-      "javascript/react/BabelPlugin.ts": 7669.98,
-      "javascript/react/ReactFiberBeginWork.js": 8217.1,
-      "javascript/react/ReactFiberWorkLoop.js": 7857.91,
-      "javascript/react/ReactFlightServer.js": 8188.09,
-      "javascript/react/ReactSymbols.js": 8654.32,
-      "javascript/react/build.js": 8483.65
+      "javascript/react/BabelPlugin.ts": 7672.62,
+      "javascript/react/ReactFiberBeginWork.js": 8219.74,
+      "javascript/react/ReactFiberWorkLoop.js": 7860.55,
+      "javascript/react/ReactFlightServer.js": 8190.73,
+      "javascript/react/ReactSymbols.js": 8656.96,
+      "javascript/react/build.js": 8486.29
     },
     "javascript/react_error_codes": {
       "javascript/react_error_codes/extract-errors.js": -1672.55
@@ -2448,8 +2448,8 @@
       "makefile/SOURCES.md": -10776.48
     },
     "makefile/freebsd": {
-      "makefile/freebsd/COPYRIGHT": 7135.48,
-      "makefile/freebsd/Makefile": 7354.91
+      "makefile/freebsd/COPYRIGHT": 7137.57,
+      "makefile/freebsd/Makefile": 7357.0
     },
     "markdown": {
       "markdown/SOURCES.md": -1567.64
@@ -2477,8 +2477,8 @@
       "mlir/SOURCES.md": 716.64
     },
     "mlir/tensorflow/compiler/mlir/tfrt/tests": {
-      "mlir/tensorflow/compiler/mlir/tfrt/tests/runtime_lowering_gpu.mlir": 9464.18,
-      "mlir/tensorflow/compiler/mlir/tfrt/tests/xla_rewrite.mlir": 9653.55
+      "mlir/tensorflow/compiler/mlir/tfrt/tests/runtime_lowering_gpu.mlir": 9467.2,
+      "mlir/tensorflow/compiler/mlir/tfrt/tests/xla_rewrite.mlir": 9656.57
     },
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
       "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": -5958.06
@@ -2678,42 +2678,42 @@
       "powershell/PowerToys/generateMonacoWxs.ps1": -1276.53
     },
     "powershell/core": {
-      "powershell/core/CimCmdlets.psd1": 4727.05,
-      "powershell/core/GHWorkflowHelper.psm1": 5957.29,
-      "powershell/core/Install-PowerShellRemoting.ps1": 5356.34,
-      "powershell/core/InstallPSCorePolicyDefinitions.ps1": 4969.88,
-      "powershell/core/LICENSE.txt": 4256.99,
-      "powershell/core/Microsoft.PowerShell.Diagnostics.psd1": 5958.72,
-      "powershell/core/Microsoft.PowerShell.Host.psd1": 5216.67,
-      "powershell/core/Microsoft.PowerShell.Management.psd1": 4134.72,
-      "powershell/core/Microsoft.PowerShell.Management__Microsoft.PowerShell.Management.psd1": 5520.82,
-      "powershell/core/Microsoft.PowerShell.Security.psd1": 4207.79,
-      "powershell/core/Microsoft.PowerShell.Security__Microsoft.PowerShell.Security.psd1": 4058.69,
-      "powershell/core/Microsoft.PowerShell.Utility.psd1": 4302.31,
-      "powershell/core/Microsoft.PowerShell.Utility__Microsoft.PowerShell.Utility.psd1": 5258.55,
-      "powershell/core/Microsoft.WSMan.Management.psd1": 5639.6,
-      "powershell/core/PSDiagnostics.psd1": 6162.07,
-      "powershell/core/Parse-MarkdownLink.ps1": 4373.24,
-      "powershell/core/PowerShell__build.psm1": 5092.11,
-      "powershell/core/RegisterManifest.ps1": 5654.28,
-      "powershell/core/RegisterMicrosoftUpdate.ps1": 4907.04,
-      "powershell/core/Run-AttackSurfaceAnalyzer.ps1": 4835.56,
-      "powershell/core/Run.ps1": 5489.92,
-      "powershell/core/SSHRemoting.Basic.Tests.ps1": 4747.56,
-      "powershell/core/analyze-pr-test-failures.ps1": 5698.21,
-      "powershell/core/build.psm1": 4692.03,
-      "powershell/core/ci.psm1": 5348.92,
-      "powershell/core/ciModule.Tests.ps1": 4546.98,
-      "powershell/core/install-powershell.ps1": 4479.41,
-      "powershell/core/nanoserver.tests.ps1": 4434.98,
-      "powershell/core/package-validation.tests.ps1": 4189.29,
-      "powershell/core/packaging.psd1": 4606.35,
-      "powershell/core/packaging.psm1": 4992.96,
-      "powershell/core/packaging.tests.ps1": 5944.99,
-      "powershell/core/powershell-native__Install-PowerShellRemoting.ps1": 5262.65,
-      "powershell/core/process-pester-results.ps1": 5802.9,
-      "powershell/core/pwsh.profile.resource.ps1": 4422.39,
-      "powershell/core/runFuzzer.ps1": 5673.37
+      "powershell/core/CimCmdlets.psd1": 4728.09,
+      "powershell/core/GHWorkflowHelper.psm1": 5960.7,
+      "powershell/core/Install-PowerShellRemoting.ps1": 5358.83,
+      "powershell/core/InstallPSCorePolicyDefinitions.ps1": 4971.45,
+      "powershell/core/LICENSE.txt": 4257.36,
+      "powershell/core/Microsoft.PowerShell.Diagnostics.psd1": 5962.07,
+      "powershell/core/Microsoft.PowerShell.Host.psd1": 5218.65,
+      "powershell/core/Microsoft.PowerShell.Management.psd1": 4134.58,
+      "powershell/core/Microsoft.PowerShell.Management__Microsoft.PowerShell.Management.psd1": 5523.43,
+      "powershell/core/Microsoft.PowerShell.Security.psd1": 4207.97,
+      "powershell/core/Microsoft.PowerShell.Security__Microsoft.PowerShell.Security.psd1": 4058.52,
+      "powershell/core/Microsoft.PowerShell.Utility.psd1": 4302.41,
+      "powershell/core/Microsoft.PowerShell.Utility__Microsoft.PowerShell.Utility.psd1": 5260.65,
+      "powershell/core/Microsoft.WSMan.Management.psd1": 5642.31,
+      "powershell/core/PSDiagnostics.psd1": 6165.64,
+      "powershell/core/Parse-MarkdownLink.ps1": 4373.27,
+      "powershell/core/PowerShell__build.psm1": 5094.29,
+      "powershell/core/RegisterManifest.ps1": 5657.4,
+      "powershell/core/RegisterMicrosoftUpdate.ps1": 4908.48,
+      "powershell/core/Run-AttackSurfaceAnalyzer.ps1": 4836.72,
+      "powershell/core/Run.ps1": 5493.2,
+      "powershell/core/SSHRemoting.Basic.Tests.ps1": 4748.37,
+      "powershell/core/analyze-pr-test-failures.ps1": 5701.67,
+      "powershell/core/build.psm1": 4689.75,
+      "powershell/core/ci.psm1": 5351.74,
+      "powershell/core/ciModule.Tests.ps1": 4547.55,
+      "powershell/core/install-powershell.ps1": 4479.21,
+      "powershell/core/nanoserver.tests.ps1": 4435.44,
+      "powershell/core/package-validation.tests.ps1": 4189.06,
+      "powershell/core/packaging.psd1": 4607.27,
+      "powershell/core/packaging.psm1": 4994.63,
+      "powershell/core/packaging.tests.ps1": 5948.55,
+      "powershell/core/powershell-native__Install-PowerShellRemoting.ps1": 5264.88,
+      "powershell/core/process-pester-results.ps1": 5806.43,
+      "powershell/core/pwsh.profile.resource.ps1": 4422.3,
+      "powershell/core/runFuzzer.ps1": 5676.4
     },
     "powershell/nvda": {
       "powershell/nvda/beforeTests.ps1": 3538.35,
@@ -3236,15 +3236,15 @@
       "rust/holylang/transpiler.rs": -6921.77
     },
     "rust/serde": {
-      "rust/serde/LICENSE-APACHE": 7749.02,
-      "rust/serde/LICENSE-MIT": 8582.81,
-      "rust/serde/serde_core_de_impls.rs": 7771.65,
-      "rust/serde/serde_core_de_mod.rs": 7552.14,
-      "rust/serde/serde_core_macros.rs": 7899.23,
-      "rust/serde/serde_derive_de.rs": 8098.48,
-      "rust/serde/serde_internals_ast.rs": 8560.07,
-      "rust/serde/serde_internals_attr.rs": 8046.15,
-      "rust/serde/test_annotations.rs": 8316.91
+      "rust/serde/LICENSE-APACHE": 7752.48,
+      "rust/serde/LICENSE-MIT": 8586.28,
+      "rust/serde/serde_core_de_impls.rs": 7775.11,
+      "rust/serde/serde_core_de_mod.rs": 7555.6,
+      "rust/serde/serde_core_macros.rs": 7902.69,
+      "rust/serde/serde_derive_de.rs": 8101.94,
+      "rust/serde/serde_internals_ast.rs": 8563.53,
+      "rust/serde/serde_internals_attr.rs": 8049.61,
+      "rust/serde/test_annotations.rs": 8320.37
     },
     "rust/syn": {
       "rust/syn/LICENSE-APACHE": 2838.13,
@@ -3420,8 +3420,8 @@
       "shell/freebsd-src/ztest.sh": 5534.94
     },
     "shell/freebsd_sysbuild": {
-      "shell/freebsd_sysbuild/COPYRIGHT": 7559.6,
-      "shell/freebsd_sysbuild/sysbuild.sh": 7819.66
+      "shell/freebsd_sysbuild/COPYRIGHT": 7561.75,
+      "shell/freebsd_sysbuild/sysbuild.sh": 7821.81
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": 9084.32,
@@ -3607,7 +3607,7 @@
       "shell/sqlite/warnings-clang.sh": -1732.59
     },
     "solidity": {
-      "solidity/SOURCES.md": 9893.5
+      "solidity/SOURCES.md": 9896.42
     },
     "solidity/openzeppelin": {
       "solidity/openzeppelin/AccessControl.sol": -8007.4,
@@ -3658,25 +3658,25 @@
       "sqlite/flask_tutorial_sqlite/schema.sql": -7820.82
     },
     "sqlite/mediawiki_sqlite_alterpatches": {
-      "sqlite/mediawiki_sqlite_alterpatches/COPYING": 7180.17,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-archive-drop-ar_sha1.sql": 6422.86,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-categorylinks-cl_timestamp_id.sql": 7045.54,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-categorylinks-drop-cl_to-cl_collation.sql": 6040.68,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-categorylinks-pk.sql": 6562.01,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-categorylinks-target_id.sql": 6885.1,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-change_tag-ct_rc_id.sql": 6127.44,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-drop-cl_collation_ext.sql": 7290.26,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-externallinks-drop-el_to.sql": 6238.62,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-externallinks-el_to_default.sql": 6930.42,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-externallinks-el_to_path.sql": 6196.21,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-filearchive-fa_size_to_bigint.sql": 6629.79,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-image-img_size_to_bigint.sql": 6723.68,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-imagelinks-add-il_target_id.sql": 6915.34,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-imagelinks-pk.sql": 7213.43,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-iwlinks-drop-iwl_prefix_from_title.sql": 7213.79,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-objectcache-drop-modtoken.sql": 5876.1,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-oldimage-oi_size_to_bigint.sql": 6419.59,
-      "sqlite/mediawiki_sqlite_alterpatches/patch-pagelinks-drop-pl_title.sql": 6604.49
+      "sqlite/mediawiki_sqlite_alterpatches/COPYING": 7183.84,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-archive-drop-ar_sha1.sql": 6426.54,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-categorylinks-cl_timestamp_id.sql": 7049.22,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-categorylinks-drop-cl_to-cl_collation.sql": 6044.36,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-categorylinks-pk.sql": 6565.68,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-categorylinks-target_id.sql": 6888.77,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-change_tag-ct_rc_id.sql": 6131.11,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-drop-cl_collation_ext.sql": 7293.94,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-externallinks-drop-el_to.sql": 6242.3,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-externallinks-el_to_default.sql": 6934.1,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-externallinks-el_to_path.sql": 6199.89,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-filearchive-fa_size_to_bigint.sql": 6633.47,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-image-img_size_to_bigint.sql": 6727.36,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-imagelinks-add-il_target_id.sql": 6919.02,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-imagelinks-pk.sql": 7217.1,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-iwlinks-drop-iwl_prefix_from_title.sql": 7217.47,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-objectcache-drop-modtoken.sql": 5879.78,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-oldimage-oi_size_to_bigint.sql": 6423.26,
+      "sqlite/mediawiki_sqlite_alterpatches/patch-pagelinks-drop-pl_title.sql": 6608.17
     },
     "sqlite/mediawiki_sqlite_tables": {
       "sqlite/mediawiki_sqlite_tables/COPYING": -4185.28,
@@ -3758,7 +3758,7 @@
       "swift/alamofire/Session.swift": -5041.64
     },
     "tabular": {
-      "tabular/SOURCES.md": 8849.15
+      "tabular/SOURCES.md": 8851.62
     },
     "tabular/baseline": {
       "tabular/baseline/control_standard.csv": -7677.3,
@@ -3773,7 +3773,7 @@
       "tabular/devsecops_payloads/weaponized_export.csv": 8301.14
     },
     "tabular/tsv_genomics": {
-      "tabular/tsv_genomics/B.cell_eQTL.tsv": 9459.1
+      "tabular/tsv_genomics/B.cell_eQTL.tsv": 9462.45
     },
     "tcl": {
       "tcl/SOURCES.md": -7974.96
@@ -3811,12 +3811,12 @@
       "tcl/macports_registry/registry_util.tcl": -5343.35
     },
     "tcl/sqlite": {
-      "tcl/sqlite/LICENSE.md": 7450.15,
-      "tcl/sqlite/README.md": 6571.75,
-      "tcl/sqlite/malloc_common.tcl": 7079.97,
-      "tcl/sqlite/speedtest.tcl": 7283.65,
-      "tcl/sqlite/tester.tcl": 6998.87,
-      "tcl/sqlite/testrunner.tcl": 6695.03
+      "tcl/sqlite/LICENSE.md": 7452.31,
+      "tcl/sqlite/README.md": 6573.91,
+      "tcl/sqlite/malloc_common.tcl": 7082.13,
+      "tcl/sqlite/speedtest.tcl": 7285.81,
+      "tcl/sqlite/tester.tcl": 7001.03,
+      "tcl/sqlite/testrunner.tcl": 6697.19
     },
     "tcl/sqlite_core_dml": {
       "tcl/sqlite_core_dml/LICENSE.md": -10315.12
@@ -3854,7 +3854,7 @@
       "text/baseline/control-readme.md": 4770.56
     },
     "typescript": {
-      "typescript/SOURCES.md": 7442.84
+      "typescript/SOURCES.md": 7444.83
     },
     "typescript/angular_zonejs_mocha": {
       "typescript/angular_zonejs_mocha/mocha.ts": -10486.56
@@ -3953,9 +3953,9 @@
       "xml/odoo/__manifest__.py": -10668.47
     },
     "xml/odoo/views": {
-      "xml/odoo/views/menu.xml": 9072.57,
-      "xml/odoo/views/test_orm_views.xml": 8799.5,
-      "xml/odoo/views/views.xml": 9040.73
+      "xml/odoo/views/menu.xml": 9075.17,
+      "xml/odoo/views/test_orm_views.xml": 8802.09,
+      "xml/odoo/views/views.xml": 9043.33
     },
     "xml/powertoys": {
       "xml/powertoys/App.xaml.cs": 9739.82,
@@ -3996,7 +3996,7 @@
       "yaml/ansible/include_import_tasks/tasks/test_recursion.yml": 7127.31
     },
     "yaml/ansible/yaml_parsing": {
-      "yaml/ansible/yaml_parsing/playbook.yml": 8300.62
+      "yaml/ansible/yaml_parsing/playbook.yml": 8303.79
     },
     "yaml/ansible/yaml_parsing/tasks": {
       "yaml/ansible/yaml_parsing/tasks/main.yml": -5243.5,
@@ -4093,14 +4093,14 @@
       "zig/zig_std_linux_mips/mips.zig": 12088.03
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": 7580.81,
-      "zig/zls/DocumentStore.zig": 7379.13,
-      "zig/zls/Server.zig": 6815.42,
-      "zig/zls/analysis.zig": 7106.05,
-      "zig/zls/ast.zig": 7129.45,
-      "zig/zls/config_gen.zig": 6534.14,
-      "zig/zls/langref.html.in": 6783.26,
-      "zig/zls/print_ast.zig": 6892.91
+      "zig/zls/DocumentScope.zig": 7584.07,
+      "zig/zls/DocumentStore.zig": 7382.39,
+      "zig/zls/Server.zig": 6818.68,
+      "zig/zls/analysis.zig": 7109.31,
+      "zig/zls/ast.zig": 7132.71,
+      "zig/zls/config_gen.zig": 6537.4,
+      "zig/zls/langref.html.in": 6786.52,
+      "zig/zls/print_ast.zig": 6896.16
     }
   },
   "path": [

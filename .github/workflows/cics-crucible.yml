@@ -317,7 +317,7 @@ jobs:
           GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-cics-crucible-checkout.json  # #5257
         run: |
           cd gitgalaxy
-          python -m pytest -q -p no:cacheprovider -m "not e2e" tests/cics_crucible/test_cics_crucible_runner.py tests/tools/test_blocker_report.py tests/tools/test_crucible_case.py
+          python -m pytest -q -p no:cacheprovider -m "not e2e" tests/cics_crucible/test_cics_crucible_runner.py tests/tools/test_blocker_report.py tests/tools/test_crucible_case.py tests/cobol_mainframe/test_blocker_leak.py
 
       # #5257 (sibling of #5166): the e2e tests run only here, so this is the one run that times them
       - name: Per-test time ratchet (#5257)

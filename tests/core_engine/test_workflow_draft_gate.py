@@ -23,6 +23,7 @@ NOT_ON_PR = {  # jobs that cannot start on a pull_request event (their own `if` 
     ("smoke-test.yml", "tested-tree"),
     ("mainframe-ground-truth.yml", "tested-tree"),
     ("java-compile.yml", "tested-tree"),
+    ("equivalence-e2e.yml", "tested-tree"),
     ("doom-rosetta.yml", "callgraph"),  # #5630: nightly / manual only
     # #6670: post-merge dispatch + nightly only; the pull_request trigger stays for its `paths` (the dispatch filter)
     ("fact-crosscheck.yml", "crosscheck"),

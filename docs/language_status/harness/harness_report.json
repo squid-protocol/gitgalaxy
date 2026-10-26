@@ -14,9 +14,9 @@
    "pct": 99.2
   },
   "branches": {
-   "covered": 1115,
+   "covered": 1125,
    "total": 1209,
-   "pct": 92.2
+   "pct": 93.1
   },
   "cases_measured": 25,
   "cases": 99
@@ -1009,10 +1009,10 @@
     "fact: EIBRCODE (no harness states it)"
    ],
    "reasons": {
-    "coverage: live paragraphs no scenario runs": "62/119 paragraphs",
+    "coverage: live paragraphs no scenario runs": "66/119 paragraphs",
     "fact: EIBRCODE (no harness states it)": ""
    },
-   "tests": 20,
+   "tests": 21,
    "blocker": "coverage: live paragraphs no scenario runs"
   },
   {
@@ -2174,7 +2174,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 20
+   "tests": 21
   },
   "zecs-zecs003": {
    "generated": [],

@@ -1115,9 +1115,9 @@
     46
    ],
    "zecs-zecs001": [
-    62,
+    66,
     119,
-    85,
+    86,
     200
    ],
    "zecs-zecs003": [
@@ -1732,7 +1732,7 @@
    },
    "genapp-lgapdb01": {
     "stale": [],
-    "status": "not-shown equal"
+    "status": "shown equal, unapproved"
    },
    "genapp-lgapvs01": {
     "stale": [],
@@ -1748,7 +1748,7 @@
    },
    "genapp-lgupdb01": {
     "stale": [],
-    "status": "not-shown equal"
+    "status": "shown equal, unapproved"
    },
    "genapp-lgupvs01": {
     "stale": [],
@@ -1758,7 +1758,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0637c27c5228d1139595a4ac9b5420a2fbcc4db9",
+   "sha": "cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
@@ -6568,8 +6568,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0637c27c5228d1139595a4ac9b5420a2fbcc4db9",
-   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha 0637c27c5228d1139595a4ac9b5420a2fbcc4db9",
+   "python tests/tools/cics_census.py survey --baseline --sha cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
+   "python tests/tools/evidence_report.py cics-async-api-credit-card-application-example --baseline --sha cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases asynccc-asyncpnt,asynccc-crdtchk,asynccc-csstats2,asynccc-csstatus,asynccc-getaddr,asynccc-getname,asynccc-getpol,asynccc-getspnd,asynccc-seqpnt,asynccc-updcsdb",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -6590,13 +6590,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0637c27c5228d1139595a4ac9b5420a2fbcc4db9",
+   "sha": "cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
    }
   },
-  "translator_commit": "0637c27c5228d1139595a4ac9b5420a2fbcc4db9",
+  "translator_commit": "cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

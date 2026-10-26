@@ -1217,9 +1217,9 @@
     46
    ],
    "zecs-zecs001": [
-    62,
+    66,
     119,
-    85,
+    86,
     200
    ],
    "zecs-zecs003": [
@@ -1595,7 +1595,7 @@
    },
    "genapp-lgapdb01": {
     "stale": [],
-    "status": "not-shown equal"
+    "status": "shown equal, unapproved"
    },
    "genapp-lgapvs01": {
     "stale": [],
@@ -1611,7 +1611,7 @@
    },
    "genapp-lgupdb01": {
     "stale": [],
-    "status": "not-shown equal"
+    "status": "shown equal, unapproved"
    },
    "genapp-lgupvs01": {
     "stale": [],
@@ -1621,7 +1621,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0637c27c5228d1139595a4ac9b5420a2fbcc4db9",
+   "sha": "cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
@@ -4078,23 +4078,23 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 42.5,
-    "branch_pct": 42.5,
+    "branch_net_pct": 43.0,
+    "branch_pct": 43.0,
     "branches": {
-     "covered": 85,
+     "covered": 86,
      "total": 200
     },
     "branches_net": {
-     "covered": 85,
+     "covered": 86,
      "total": 200
     },
     "current": true,
     "infeasible_netted": [],
     "infeasible_refuted": [],
     "infeasible_stated": [],
-    "paragraph_pct": 52.1,
+    "paragraph_pct": 55.5,
     "paragraphs": {
-     "covered": 62,
+     "covered": 66,
      "live": 119
     },
     "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
@@ -4107,7 +4107,7 @@
     "cases": [
      {
       "case": "zecs-zecs001",
-      "case_scenarios": 20,
+      "case_scenarios": 21,
       "db2": false,
       "det": {
        "source": "CI det-sweep ratchet on main",
@@ -4119,7 +4119,7 @@
     ],
     "chosen": {
      "case": "zecs-zecs001",
-     "case_scenarios": 20,
+     "case_scenarios": 21,
      "db2": false,
      "det": {
       "source": "CI det-sweep ratchet on main",
@@ -4138,7 +4138,7 @@
     "score": null
    },
    "next": [
-    "paragraph coverage >= 100.0 (now 52.1)"
+    "paragraph coverage >= 100.0 (now 55.5)"
    ],
    "options": {
     "assumed": 6,
@@ -4679,7 +4679,7 @@
      "X52",
      "X53"
     ],
-    "branch_outcomes_unrun": 115,
+    "branch_outcomes_unrun": 114,
     "commands": 27,
     "commands_backed": 3,
     "commands_not_backed": [
@@ -4710,7 +4710,7 @@
     ],
     "facts_unstated": 2,
     "holes": 0,
-    "paragraphs_unrun": 57,
+    "paragraphs_unrun": 53,
     "refused": null
    },
    "stale_inputs": [],
@@ -5092,8 +5092,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 0637c27c5228d1139595a4ac9b5420a2fbcc4db9",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 0637c27c5228d1139595a4ac9b5420a2fbcc4db9",
+   "python tests/tools/cics_census.py survey --baseline --sha cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
+   "python tests/tools/evidence_report.py zecs --baseline --sha cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -5114,13 +5114,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "0637c27c5228d1139595a4ac9b5420a2fbcc4db9",
+   "sha": "cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
    "translator": {
     "files": 148,
     "sha256": "5830644a0fbdf85f957a0162a31958ecea34a0426d2c50598c1a52b3d0ac5915"
    }
   },
-  "translator_commit": "0637c27c5228d1139595a4ac9b5420a2fbcc4db9",
+  "translator_commit": "cd8ea95694b0e5fa5e1bd63a37dd531ce7372ac9",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

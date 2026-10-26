@@ -305,3 +305,28 @@ def test_a_bare_macro_statement_misparsed_as_a_definition_named_if_neither_swall
     repo, scan = make_port(tmp_path, "linuxdoom", {"m.c": EARLY_CLOSE_SRC}, funcs)
     r = co.body_oracle(co.Port("linuxdoom", repo, co.load_port(repo, co.find_db(scan))))
     assert (r["recall"], r["precision"]) == (1.0, 1.0)
+
+
+CTOR_SRC = """struct Base { Base(int v); virtual ~Base(); };
+struct Mid : public Base { Mid(int v) : Base(v), mode(v) { setup(); } int mode; void setup(); };
+template <class T> class Wrap final : Base { Wrap() : Base(1), T(2) {} };
+int mode(int x) { return x; }
+"""
+
+
+def test_a_base_class_initializer_is_a_constructor_call_and_a_member_entry_is_not(tmp_path):
+    # doom3-bfg / gzdoom / doomsday (#6266): `: Base(v)` is a field_initializer, outside the body tree-sitter walks, so
+    # the engine's real constructor edge read as engine-only. A member entry naming a function stays engine-only.
+    funcs = [
+        ("m.cpp", "Base", 1, []),
+        ("m.cpp", "Mid", 2, ["Base", "mode", "setup"]),
+        ("m.cpp", "mode", 4, []),
+    ]
+    repo, scan = make_port(tmp_path, "doom3-bfg", {"m.cpp": CTOR_SRC}, funcs)
+    assert {"Base", "Mid", "Wrap"} <= co.class_names(repo)
+    port = co.Port("doom3-bfg", repo, co.load_port(repo, co.find_db(scan)))
+    mid = next(f for f in port.functions if f[1] == "Mid")
+    assert mid[4].calls["Base"] == "ctor-init" and "mode" not in mid[4].calls
+    r = co.body_oracle(port)
+    assert r["engine_only_by_kind"] == {"absent": 1}  # `mode(v)`, the member
+    assert "ctor-init" not in r["misses_by_shape"] and r["recall"] == 1.0

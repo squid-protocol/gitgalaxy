@@ -54516,11 +54516,6 @@
       },
       "cpp/NVDA/storage.cpp": {
         "VBufStorage_buffer_t::VBufStorage_buffer_t@539": [
-          "rootNode",
-          "nodes",
-          "controlFieldNodesByIdentifier",
-          "selectionStart",
-          "selectionLength",
           "LOG_DEBUG"
         ],
         "VBufStorage_buffer_t::addControlFieldNode@548": [
@@ -54734,16 +54729,12 @@
           "LOG_DEBUG",
           "clearBuffer"
         ],
-        "VBufStorage_controlFieldNodeIdentifier_t::VBufStorage_controlFieldNodeIdentifier_t@36": [
-          "docHandle",
-          "ID"
-        ],
+        "VBufStorage_controlFieldNodeIdentifier_t::VBufStorage_controlFieldNodeIdentifier_t@36": [],
         "VBufStorage_controlFieldNodeIdentifier_t::operator!=@47": [],
         "VBufStorage_controlFieldNodeIdentifier_t::operator<@39": [],
         "VBufStorage_controlFieldNodeIdentifier_t::operator==@51": [],
         "VBufStorage_controlFieldNode_t::VBufStorage_controlFieldNode_t@373": [
           "VBufStorage_fieldNode_t",
-          "identifier",
           "LOG_DEBUG"
         ],
         "VBufStorage_controlFieldNode_t::disassociateFromBuffer@366": [
@@ -54763,15 +54754,6 @@
         ],
         "VBufStorage_controlFieldNode_t::getIdentifier@377": [],
         "VBufStorage_fieldNode_t::VBufStorage_fieldNode_t@313": [
-          "parent",
-          "previous",
-          "next",
-          "firstChild",
-          "lastChild",
-          "length",
-          "isBlock",
-          "isHidden",
-          "attributes",
           "LOG_DEBUG"
         ],
         "VBufStorage_fieldNode_t::addAttribute@321": [
@@ -54852,7 +54834,6 @@
           "VBufStorage_fieldNode_t",
           "static_cast",
           "length",
-          "text",
           "LOG_DEBUG"
         ],
         "VBufStorage_textFieldNode_t::generateMarkupTagName@398": [],
@@ -62270,242 +62251,180 @@
           "memdelete",
           "ObjData"
         ],
-        "Variant::Variant@2305": [
-          "type"
-        ],
-        "Variant::Variant@2310": [
-          "type"
-        ],
-        "Variant::Variant@2315": [
-          "type"
-        ],
-        "Variant::Variant@2320": [
-          "type"
-        ],
-        "Variant::Variant@2325": [
-          "type"
-        ],
-        "Variant::Variant@2330": [
-          "type"
-        ],
+        "Variant::Variant@2305": [],
+        "Variant::Variant@2310": [],
+        "Variant::Variant@2315": [],
+        "Variant::Variant@2320": [],
+        "Variant::Variant@2325": [],
+        "Variant::Variant@2330": [],
         "Variant::Variant@2335": [
-          "type",
           "int64_t"
         ],
         "Variant::Variant@2340": [
-          "type",
           "int64_t"
         ],
         "Variant::Variant@2345": [
-          "type",
           "int64_t"
         ],
         "Variant::Variant@2350": [
-          "type",
           "int64_t"
         ],
-        "Variant::Variant@2355": [
-          "type"
-        ],
-        "Variant::Variant@2360": [
-          "type"
-        ],
-        "Variant::Variant@2365": [
-          "type"
-        ],
+        "Variant::Variant@2355": [],
+        "Variant::Variant@2360": [],
+        "Variant::Variant@2365": [],
         "Variant::Variant@2370": [
-          "type",
           "int64_t"
         ],
         "Variant::Variant@2375": [
-          "type",
           "memnew_placement",
           "StringName"
         ],
         "Variant::Variant@2381": [
-          "type",
           "memnew_placement",
           "String"
         ],
         "Variant::Variant@2387": [
-          "type",
           "memnew_placement",
           "String"
         ],
         "Variant::Variant@2393": [
-          "type",
           "memnew_placement",
           "String"
         ],
         "Variant::Variant@2399": [
-          "type",
           "memnew_placement",
           "Vector3"
         ],
         "Variant::Variant@2405": [
-          "type",
           "memnew_placement",
           "Vector3i"
         ],
         "Variant::Variant@2411": [
-          "type",
           "memnew_placement",
           "Vector4"
         ],
         "Variant::Variant@2417": [
-          "type",
           "memnew_placement",
           "Vector4i"
         ],
         "Variant::Variant@2423": [
-          "type",
           "memnew_placement",
           "Vector2"
         ],
         "Variant::Variant@2429": [
-          "type",
           "memnew_placement",
           "Vector2i"
         ],
         "Variant::Variant@2435": [
-          "type",
           "memnew_placement",
           "Rect2"
         ],
         "Variant::Variant@2441": [
-          "type",
           "memnew_placement",
           "Rect2i"
         ],
         "Variant::Variant@2447": [
-          "type",
           "memnew_placement",
           "Plane"
         ],
         "Variant::Variant@2453": [
-          "type",
           "alloc",
           "memnew_placement",
           "AABB"
         ],
         "Variant::Variant@2459": [
-          "type",
           "alloc",
           "memnew_placement",
           "Basis"
         ],
         "Variant::Variant@2465": [
-          "type",
           "memnew_placement",
           "Quaternion"
         ],
         "Variant::Variant@2471": [
-          "type",
           "alloc",
           "memnew_placement",
           "Transform3D"
         ],
         "Variant::Variant@2477": [
-          "type",
           "alloc",
           "memnew_placement",
           "Projection"
         ],
         "Variant::Variant@2483": [
-          "type",
           "alloc",
           "memnew_placement",
           "Transform2D"
         ],
         "Variant::Variant@2489": [
-          "type",
           "memnew_placement",
           "Color"
         ],
         "Variant::Variant@2495": [
-          "type",
           "memnew_placement",
           "NodePath"
         ],
         "Variant::Variant@2501": [
-          "type",
           "memnew_placement",
           "RID"
         ],
         "Variant::Variant@2507": [
-          "type",
           "_get_obj",
           "ObjData",
           "ref_pointer",
           "const_cast"
         ],
         "Variant::Variant@2513": [
-          "type",
           "memnew_placement",
           "Callable"
         ],
         "Variant::Variant@2519": [
-          "type",
           "memnew_placement",
           "Signal"
         ],
         "Variant::Variant@2525": [
-          "type",
           "memnew_placement",
           "Dictionary"
         ],
         "Variant::Variant@2531": [
-          "type",
           "memnew_placement",
           "Array"
         ],
         "Variant::Variant@2536": [
-          "type",
           "memnew_placement",
           "Array"
         ],
         "Variant::Variant@2542": [
-          "type",
           "create"
         ],
         "Variant::Variant@2547": [
-          "type",
           "create"
         ],
         "Variant::Variant@2552": [
-          "type",
           "create"
         ],
         "Variant::Variant@2557": [
-          "type",
           "create"
         ],
         "Variant::Variant@2562": [
-          "type",
           "create"
         ],
         "Variant::Variant@2567": [
-          "type",
           "create"
         ],
         "Variant::Variant@2572": [
-          "type",
           "create"
         ],
         "Variant::Variant@2577": [
-          "type",
           "create"
         ],
         "Variant::Variant@2582": [
-          "type",
           "create"
         ],
         "Variant::Variant@2587": [
-          "type",
           "create"
         ],
         "Variant::Variant@2593": [
-          "type",
           "memnew_placement",
           "resize",
           "size",
@@ -62513,7 +62432,6 @@
           "Variant"
         ],
         "Variant::Variant@2604": [
-          "type",
           "memnew_placement",
           "resize",
           "size",
@@ -62535,7 +62453,6 @@
           "set"
         ],
         "Variant::Variant@2796": [
-          "type",
           "memnew_placement",
           "String"
         ],
@@ -63384,11 +63301,7 @@
           "CreateLocation"
         ],
         "ExportBuffer@580": [
-          "item_",
-          "move",
-          "apply_",
-          "hash_",
-          "byte_size_hint_"
+          "move"
         ],
         "GetData@592": [
           "reserve",
@@ -64640,27 +64553,13 @@
           "mutate_large_custom_options_size"
         ],
         "Translator@654": [
-          "module_",
-          "name_mapper_",
-          "builder_",
-          "saved_model_tags_",
-          "allow_all_select_tf_ops_",
           "allow_all_select_tf_ops",
-          "select_user_tf_ops_",
           "select_user_tf_ops",
           "begin",
           "end",
-          "metadata_",
-          "supported_backends_",
           "supported_backends",
-          "serialize_debug_metadata_",
           "serialize_debug_metadata",
-          "use_buffer_offset_",
           "use_buffer_offset",
-          "custom_option_alignment_",
-          "disable_buffer_deduping_",
-          "export_stream_",
-          "attribute_buffer_applier_factories_",
           "CreateBuffer",
           "push_back",
           "force_select_tf_ops",
@@ -65213,8 +65112,7 @@
           "DefWindowProc"
         ],
         "FancyZones@72": [
-          "void",
-          "SettingsObserver"
+          "void"
         ],
         "HandleWinHookEvent@105": [
           "reinterpret_cast",

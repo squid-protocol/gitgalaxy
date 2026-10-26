@@ -1843,6 +1843,37 @@ def test_function_archetype_matching_dimensions_uses_plain_cluster_name(processo
     assert [f["archetype"] for f in meta["functions"]] == ["Tiny Helper", "Huge Router"]
 
 
+@pytest.mark.parametrize(
+    "lang_id,expected",
+    [("go", "Plain"), ("Go", "Plain"), ("python", "Encapsulated"), ("c", "Encapsulated")],
+)
+def test_function_archetype_down_weights_encapsulation_for_spelling_languages(
+    processor, monkeypatch, lang_id, expected
+):
+    """#5897: Go's encapsulation counts lowercase spelling, so its density must not decide the
+    archetype; the same hit density still does for a language whose rule is a real visibility marker."""
+    from gitgalaxy.metrics import signal_processor as sp_mod
+
+    model = {
+        "FEATURE_NAMES": ["log_density_def_encapsulation"],
+        "FEATURE_WEIGHTS": [1.0],
+        "CAP_VALUES": {},
+        "DNA_SOURCES": {},
+        "SCALER_MEDIANS": [0.0],
+        "SCALER_IQRS": [1.0],
+        "cluster_names": ["Plain", "Encapsulated"],
+        "ARCHETYPES_K2": {"0: Plain": [0.0], "1: Encapsulated": [3.43]},
+    }
+    monkeypatch.setattr(sp_mod.analysis_lens, "GENERAL_FUNCTION_INFERENCE_MODEL", model)
+    functions = [{"name": "f", "loc": 10, "branch": 1, "args": 0, "hit_vector": {"def_encapsulation": 3}}]
+    meta, sig = create_synthetic_star(processor, "enc", 10, functions=functions)
+    meta["lang_id"] = lang_id
+
+    processor.calculate_risk_vector(meta, sig)
+
+    assert meta["functions"][0]["archetype"] == expected
+
+
 def test_file_archetype_is_unclassified_placeholder(processor):
     """File-level archetypes are classified later in record_keeper; the signal
     processor only emits the Unclassified placeholder."""

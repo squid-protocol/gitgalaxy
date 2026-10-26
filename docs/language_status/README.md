@@ -118,6 +118,7 @@ in `gitgalaxy/standards/language_standards/languages/<lang>.py`, and the test co
 | Language | Status | Lexical family | Status doc |
 |---|---|---|---|
 | **[abap](abap.md)** | production | positional_abap | **written** |
+| **[acs](acs.md)** | production | standard_block | **written** (#5465) |
 | ada | production | line_exclusive_dash | not written |
 | **[agc_assembly](agc_assembly.md)** | production | line_exclusive | **written** |
 | **[apex](apex.md)** | production | standard_block | **written** |
@@ -154,6 +155,7 @@ in `gitgalaxy/standards/language_standards/languages/<lang>.py`, and the test co
 | perl | production | line_exclusive | not written |
 | php | production | standard_block | not written |
 | **[pli](pli.md)** | production | standard_block | **written** (#2502) |
+| postgresql | production | multi_style_dash | not written |
 | powershell | production | embedded_syntax | not written |
 | **[python](python.md)** | production | line_exclusive | **written** |
 | **[rexx](rexx.md)** | production | recursive_block_rexx | **written** (#2504) |

@@ -32,9 +32,9 @@
  "proven_after": "#4188: the loop's own verdicts were 'not proven' because a port's proof ran the LINKed program as its stub; with #4188 the stored attempt proves unedited (re-proven with --faults all)",
  "stale": {
   "against": "the java-facade side (#4449)",
-  "at": "2026-10-05T15:00:50+00:00",
-  "reason": "re-proof through the deployed entry points failed: java-facade 13/14 scenarios pass (null-statement-date); runTask 14/14 pass",
-  "needs": "#4465: the LINK target ABNDPROC (a det port) has a stub handleLink that throws UnsupportedOperationException instead of running its level; then evidence.py prove cbsa-inqacc"
+  "at": "2026-10-25T23:30:00+00:00",
+  "reason": "re-proof through the deployed entry points failed on the #6072 scenarios: four declare sql_faults the facade does not fire; the det sweep proves all of them",
+  "needs": "#6692: the java facade does not fire a scenario's declared sql_faults; then evidence.py prove cbsa-inqacc"
  },
  "history": [
   {

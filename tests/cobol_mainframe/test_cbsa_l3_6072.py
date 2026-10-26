@@ -52,4 +52,13 @@ def test_bnkmenu_states_its_unreachable_arms():
     assert ("IOT010", 394, "true") not in menu
     assert ("A010", 178, "true") not in menu
     assert all(e["reason"] for e in entries)
-    assert not (EQUIV / "infeasible_outcomes" / "cbsa-dbcrfun.json").exists()
+
+
+def test_dbcrfun_states_only_the_storm_drain_tail():
+    path = EQUIV / "infeasible_outcomes" / "cbsa-dbcrfun.json"
+    entries = json.loads(path.read_text(encoding="utf-8"))["entries"]
+    assert {(e["unit"], e["kind"], e["outcome"]) for e in entries} == {
+        ("AH999", "PARAGRAPH", "entered"),
+        ("AH010", "IF", "false"),
+    }
+    assert all(e["reason"] for e in entries)

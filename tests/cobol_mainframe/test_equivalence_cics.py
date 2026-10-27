@@ -2197,16 +2197,25 @@ def test_a_writeq_past_from_runs_on_padded_for_ts_and_td_and_a_huge_length_is_re
         assert ec._write_from("23", "'LITERAL'", what, call) == call
 
 
-def test_the_lgtest_front_end_cases_no_longer_say_lgstsq_s_writeq_is_refused():
-    """#6271: since #6573 LGSTSQ's WRITEQ is written padded (X6) and the LGTESTP1-4 error paths run on, so NO-ADD and
-    NO-DELETE are reached; a case note that still says the task is judged up to a refused WRITEQ misstates that."""
+def test_no_case_says_a_writeq_past_from_is_refused():
+    """#6271: since #6573 a WRITEQ whose LENGTH runs past FROM is written padded (X6) and the task is compared whole;
+    only a LENGTH over 32767 is still refused. A case note or scenario `why` that says a task is judged up to a
+    "refused WRITEQ" misstates that, in any case (LGSTSQ's error logger, LGICVS01's LOW / HIGH CUSTOMER items, ...)."""
     import json
 
     root = Path(__file__).resolve().parents[1] / "equivalence"
-    for n in ("lgtestp1", "lgtestp2", "lgtestp3", "lgtestp4"):
+    cases = sorted(root.glob("*/case.json"))
+    assert len(cases) > 100  # the glob found the corpus, not an empty directory
+    stale = []
+    for path in cases:
+        case = json.loads(path.read_text(encoding="utf-8"))
+        text = json.dumps([case.get("notes"), [sc.get("why") for sc in case.get("scenarios", [])]])
+        if "refused WRITEQ" in text:
+            stale.append(path.parent.name)
+    assert stale == [], stale
+    for n in ("lgtestp1", "lgtestp2", "lgtestp3", "lgtestp4", "lgtestc1"):
         case = json.loads((root / f"genapp-{n}" / "case.json").read_text(encoding="utf-8"))
-        text = json.dumps([case.get("notes"), [sc.get("why") for sc in case["scenarios"]]])
-        assert "refused WRITEQ" not in text and "padded" in text, n
+        assert "padded" in json.dumps([case.get("notes"), [sc.get("why") for sc in case["scenarios"]]]), n
 
 
 def test_a_reference_past_a_stated_eibcalen_is_judged_up_to_it_x22(tmp_path):

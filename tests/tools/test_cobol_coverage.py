@@ -431,6 +431,86 @@ def test_a_free_format_or_identical_program_maps_as_before() -> None:
     assert lines.get(3) == (2, True) and lines.get(4) == (3, True)
 
 
+
+# #6072: GnuCOBOL 3 (cobc -std=ibm -ftraceall) does not count the newlines between a sentence's period and a redundant
+# one ("warning: ignoring redundant ."), so every traced line after it reads that many lines early, until a COPY
+# resyncs the count. Each shape below was compiled and run in gitgalaxy-gnucobol:3; the pairs are (compiled line, the
+# line the trace gave it).
+_HEAD = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. T.", "       PROCEDURE DIVISION.", "       MAIN-PARA."]
+_REDUNDANT = {
+    "blank lines": (["PERFORM P1.", "", "    .", "", "DISPLAY 'A'", "DISPLAY 'B'", "GOBACK.", "P1.", "DISPLAY 'P'."],
+                    [(5, 5), (9, 7), (10, 8), (11, 9), (13, 11)]),
+    "an adjacent line": (["PERFORM P1.", "    .", "DISPLAY 'A'", "DISPLAY 'B'", "GOBACK."], [(7, 6), (8, 7), (9, 8)]),
+    "an inline comment": (["PERFORM P1.", "*> c", "    .", "DISPLAY 'A'", "GOBACK."], [(8, 6), (9, 7)]),
+    "a fixed-format comment": (["PERFORM P1.", "      * c", "    .", "DISPLAY 'A'", "GOBACK."], [(8, 6), (9, 7)]),
+    "the same line": (["PERFORM P1. .", "", "DISPLAY 'A'", "GOBACK."], [(7, 7), (8, 8)]),
+    "a chain of periods": (["PERFORM P1.", "", "    .", "", "    .", "DISPLAY 'A'", "GOBACK."], [(10, 6), (11, 7)]),
+    "two, the second ending a sentence": (["PERFORM P1.", "", "", "    .", "DISPLAY 'A'", "DISPLAY 'B'", "",
+                                           "    .", "", "DISPLAY 'C'", "GOBACK."], [(9, 6), (10, 7), (14, 11)]),
+    "a period inside a literal": (["DISPLAY 'Z'.", "    .", "DISPLAY 'Q'.", "", "   . DISPLAY 'A'",
+                                   "MOVE 'X. .' TO RETURN-CODE", "DISPLAY 'B'", "GOBACK."],
+                                  [(5, 5), (7, 6), (10, 7), (11, 8), (12, 9)]),
+    "a COPY after it": (["DISPLAY 'Z'.", "", "    .", "DISPLAY 'Q'", "COPY CPY.", "DISPLAY 'B'", "GOBACK."],
+                        [(8, 6), (10, 10), (11, 11)]),
+}  # fmt: skip
+
+
+def _redundant(body: list[str]) -> str:
+    return "\n".join(_HEAD + [x if not x or x.startswith("      *") else "           " + x for x in body]) + "\n"
+
+
+def test_a_redundant_period_shifts_the_traced_lines_as_gnucobol_counts_them() -> None:
+    for shape, (body, pairs) in _REDUNDANT.items():
+        text = _redundant(body)
+        for lines in (cov.LineMap(text), cov.LineMap(text, text), cov.LineMap(text.replace("PROGRAM-ID. T.", "PROGRAM-ID. U."), text)):
+            for compiled, traced in pairs:
+                assert lines.get(traced) == (compiled, True), (shape, compiled, traced)
+
+
+def test_a_redundant_period_in_the_data_division_or_free_format_shifts_the_trace_too() -> None:
+    data = _HEAD[:2] + ["       DATA DIVISION.", "       WORKING-STORAGE SECTION.", "       01 X PIC X.", "",
+                        "           .", "       PROCEDURE DIVISION.", "       MAIN-PARA.", "           DISPLAY 'A'",
+                        "           GOBACK."]  # fmt: skip
+    assert cov.LineMap("\n".join(data) + "\n").get(8) == (10, True)
+    free = 'IDENTIFICATION DIVISION.\nPROGRAM-ID. T.\nPROCEDURE DIVISION.\nMAIN-PARA.\nDISPLAY "Z".\n\n*> c\n.\nDISPLAY "A"\nGOBACK.\n'
+    lines = cov.LineMap(free)
+    assert (lines.get(5), lines.get(6), lines.get(7)) == ((5, True), (9, True), (10, True))
+
+
+def test_a_program_with_no_redundant_period_keeps_the_traced_lines() -> None:
+    """Decimal points, periods in literals, a period ending an unterminated sentence; a `.` in the sequence area of a
+    short fixed line (CBSA BNK1DCS: no token); a lone `.` after a COPY ... REPLACING's period (CardDemo COACTUPC, whose
+    traces show no shift: the COPY's end resyncs the count)."""
+    for body in (["MOVE 1.5 TO X.", "DISPLAY 'A. B'.", "", "DISPLAY 'C'", "    .", "GOBACK."],
+                 ["MOVE 1 TO X.", "", "", "DISPLAY 'C'", "GOBACK."],
+                 ["COPY CPY REPLACING ==A== BY ==B== .", "    .", "DISPLAY 'C'", "GOBACK."]):  # fmt: skip
+        text = _redundant(body)
+        if not body[1]:
+            text = text.replace("\n\n\n", "\n.\n\n", 1)
+        lines = cov.LineMap(text)
+        assert all(lines.get(n) == (n, True) for n in range(1, len(body) + 5)), body
+
+
+def test_an_evaluate_after_a_redundant_period_gets_its_arm(tmp_path: Path) -> None:
+    """COACCT01's shape: `PERFORM 8000-TERMINATION.`, a blank line, a lone `.`; the EVALUATE after it is traced two
+    lines early, so its WHEN arm was read as a run of nothing (6/33)."""
+    text = _cbl("PROGRAM-ID. T.", "DATA DIVISION.", "WORKING-STORAGE SECTION.", "01 X PIC 9 VALUE 1.",
+                "PROCEDURE DIVISION.", "MAIN-PARA.", "    PERFORM P1.", "", "         .", "    EVALUATE X",
+                "      WHEN 1", "        DISPLAY 'ONE'", "      WHEN OTHER", "        DISPLAY 'OTHER'",
+                "    END-EVALUATE", "    GOBACK.", "P1.", "    CONTINUE.")  # fmt: skip
+    trace = (b"Source: 'T.cbl'\nProgram-Id:  T\n"
+             b"Program-Id:  T                    Entry: T                               Line:      5\n"
+             b"Program-Id:  T                Paragraph: MAIN-PARA                       Line:      6\n"
+             b"Program-Id:  T                           PERFORM                         Line:      7\n"
+             b"Program-Id:  T                Paragraph: P1                              Line:     15\n"
+             b"Program-Id:  T                           CONTINUE                        Line:     16\n"
+             b"Program-Id:  T                           EVALUATE                        Line:      8\n"
+             b"Program-Id:  T                           DISPLAY                         Line:     10\n"
+             b"Program-Id:  T                           GOBACK                          Line:     14\n")  # fmt: skip
+    b = _measure(tmp_path, text, trace)["branches"]
+    assert (b["covered"], b["total"]) == (1, 2)
+    assert [(u["line"], u["outcome"]) for u in b["uncovered"]] == [(10, "OTHER")]
+
 # ---- #5084: the programs a case LINKs / CALLs ---------------------------------------------------------------------
 def test_write_run_coverage_measures_the_linked_programs_over_the_same_trace(tmp_path: Path) -> None:
     main = _cbl("PROGRAM-ID. MAINP.", "PROCEDURE DIVISION.", "A.", "    GOBACK.")

@@ -61,7 +61,7 @@
 <text class="n" x="324" y="155">n=873 imports</text>
 <text class="n" x="324" y="167">repos 2 · files 384</text>
 </g>
-<g><title>c callee names: precision 99.6% of 13,060, recall 99.3% of 13,064 (raw 99.3% / 99.3%; 19 shapes without a verdict)</title>
+<g><title>c callee names: precision 99.6% of 13,060, recall 99.3% of 13,064 (raw 99.3% / 99.3%; 16 shapes without a verdict)</title>
 <text class="pr" x="426" y="154.5">Precision</text>
 <rect class="track" x="472" y="147" width="110" height="8" rx="2"/>
 <rect x="472" y="147" width="109.6" height="8" rx="2" fill="#4a3aa7"/>

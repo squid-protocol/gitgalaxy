@@ -167,6 +167,20 @@ def decode_bytes(raw):
     return raw.decode("utf-8", errors="surrogateescape")
 
 
+def _macro_prefixed_call(n):
+    """A bare macro statement (no semicolon) fused with the call after it: tree-sitter reads `MACRO f(x);` inside a
+    function body as a declaration of a function `f` returning type `MACRO` (srb2's `HUDONLY`, #6266)."""
+    if n.type != "declaration" or n.parent is None or n.parent.type != "compound_statement":
+        return False
+    return (
+        len(n.children) >= 2
+        and n.children[0].type == "type_identifier"
+        and re.fullmatch(r"[A-Z][A-Z0-9_]+", decode_bytes(n.children[0].text))
+        is not None  # a macro, not `OString s(x)`
+        and n.children[1].type == "function_declarator"
+    )
+
+
 class Body:
     """One function body: its calls (name -> shape of the first call), other identifier references, preprocessor and
     comment/literal text."""
@@ -204,6 +218,8 @@ class Body:
                 inner = n.child_by_field_name("body")  # C has no nested functions: a misparsed statement
                 end = inner.start_byte if inner is not None else n.end_byte
                 self._text_calls(n.text[: end - n.start_byte])
+            elif _macro_prefixed_call(n):  # `HUDONLY\n lua_getfield(L, 1);` reads as a declaration of that name
+                self._text_calls(n.text)
             elif n.type == "ERROR":
                 self.broken = True
                 self._text_calls(n.text)
@@ -276,6 +292,29 @@ def _member_initializers(body):
     return "\n".join(own)
 
 
+# A preprocessor directive with its `\`-continued lines: a macro defined inside a function is not that function's calls
+# (the engine blanks it too, #6793; the tree-sitter walk skips the node).
+DIRECTIVE = r"^[ \t]*#(?:[^\n]*\\\n)*[^\n]*$"
+
+
+def _head_has_statement(head):
+    """A `;` inside braces before the body's own brace: the head swallowed the body's statements (a default argument
+    `= {}` in the parameter list is balanced and holds none)."""
+    paren = brace = 0
+    for ch in STRIP.sub(" ", head):
+        paren += (ch == "(") - (ch == ")")
+        brace += (ch == "{") - (ch == "}")
+        if ch == ";" and paren <= 0 and brace > 0:
+            return True
+    return False
+
+
+def _ends_in_continued_line(lines, end_line):
+    """True when the tree-sitter node's last line continues a backslash: a `#define` body closed the function early (srb2's
+    `SETUP3DVERT` inside `HWR_RenderPlane`: the macro's own `}` ended the node, #6266)."""
+    return end_line >= 2 and lines[end_line - 2].rstrip().endswith("\\")
+
+
 class TextBody(Body):
     """Fallback for a function tree-sitter folds into a neighbour (a macro table above it with no semicolon): the
     brace-matched body from its start line, comments and literals blanked, preprocessor lines dropped; every call is
@@ -284,6 +323,8 @@ class TextBody(Body):
 
     def __init__(self, src, line, classes=None):
         self.node, self.calls, self.refs, self.preproc, self.text_only, self.types = None, {}, set(), [], [], set()
+        self.broken = False
+        self.open_line = line
         self.end_line = line
         lines = decode_bytes(src).split("\n")
         raw = "\n".join(lines[max(0, line - 1) :])
@@ -304,9 +345,10 @@ class TextBody(Body):
             self.calls = None
             return
         self.end_line = line + text.count("\n", 0, end)
+        self.open_line = line + text.count("\n", 0, open_at)
         body = text[open_at : end + 1]
-        self.preproc = re.findall(r"^[ \t]*#.*$", body, flags=re.M)
-        body = re.sub(r"^[ \t]*#.*$", " ", body, flags=re.M)
+        self.preproc = re.findall(DIRECTIVE, body, flags=re.M)
+        body = re.sub(DIRECTIVE, " ", body, flags=re.M)
         if MACRO_CLASS_HEAD.match(lines[line - 1]):
             self._text_calls(_member_initializers(body).encode())
         else:
@@ -595,6 +637,7 @@ class Port:
             if any(r[1] == "cpp" for r in rows)
             else {}
         )
+        split_lines = {}
         for rel, lang, fname, start, callees in rows:
             key = (rel, lang)
             if key not in trees:
@@ -606,6 +649,18 @@ class Port:
             src, nodes = trees[key]
             node = definition_at(nodes, start)
             body = Body(node, classes) if node is not None else TextBody(src, start, classes)
+            if node is not None and not body.broken:
+                # tree-sitter closed the node inside a `#define` body (srb2's `SETUP3DVERT`), or opened its body at a
+                # later brace than the function's own (`HUDONLY\n f(x);` fused into the head, #6266): the braces win
+                lines = split_lines.setdefault(key, decode_bytes(src).split("\n"))
+                ends, opens = node.end_point[0] + 1, node.child_by_field_name("body")
+                late = opens is not None and _head_has_statement("\n".join(lines[start - 1 : opens.start_point[0]]))
+                if late or _ends_in_continued_line(lines, ends):
+                    braces = TextBody(src, start, classes)
+                    if braces.calls is not None and (
+                        braces.open_line < opens.start_point[0] + 1 if late else braces.end_line > ends
+                    ):
+                        body = braces
             if node is not None and body.broken:
                 braces = TextBody(src, start, classes)
                 # end_point[0], never .row: .row on the temporary Point read freed memory (tree-sitter 0.26, #5630).

@@ -105,14 +105,14 @@ Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/
 | `gt-start-options` | GTRTRN | 3 | 1/1 | 2/2 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/2 branches |
 | `gt-start-retrieve` | GTSTART | 6 | 1/1 | 6/6 | 0/0 | 0 | proven on 6 scenarios, covering 1/1 paragraphs and 6/6 branches |
 | `gt-start-retrieve` | GTWORK | 5 | 1/1 | 2/2 | 0/0 | 0 | proven on 5 scenarios, covering 1/1 paragraphs and 2/2 branches |
-| `gt-terminal-coalesce` | GTSHOW | 3 | 1/1 | 2/2 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 2/2 branches |
+| `gt-terminal-coalesce` | GTSHOW | 3 | 1/1 | 4/4 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 4/4 branches |
 | `gt-terminal-coalesce` | GTTERM | 4 | 1/1 | 4/4 | 0/0 | 0 | proven on 4 scenarios, covering 1/1 paragraphs and 4/4 branches |
-| `gt-urimap-browse` | GTUBROW | 2 | 2/2 | 6/6 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/6 branches |
+| `gt-urimap-browse` | GTUBROW | 2 | 2/2 | 8/8 | 0/0 | 0 | proven on 0 scenarios, covering 0/2 paragraphs and 0/8 branches |
 | `gt-urimap-browse` | GTUNEXT | 2 | 1/1 | 0/0 | 0/0 | 0 | proven on 0 scenarios, covering 0/1 paragraphs and 0/0 branches |
-| `gt-web-client` | GTWCLI | 2 | 1/1 | 2/2 | 0/0 | 0 | proven on 2 scenarios, covering 1/1 paragraphs and 2/2 branches |
+| `gt-web-client` | GTWCLI | 2 | 1/1 | 3/4 | 0/0 | 0 | proven on 2 scenarios, covering 1/1 paragraphs and 3/4 branches |
 | `gt-web-parse-url` | GTWPARS | 3 | 5/5 | 7/10 | 0/0 | 0 | proven on 3 scenarios, covering 5/5 paragraphs and 7/10 branches |
 | `hc-abend-link` | HCMAIN | 5 | 4/4 | 4/4 | 2/2 | 0 | proven on 5 scenarios, covering 4/4 paragraphs and 4/4 branches |
-| `hc-abend-link` | HCSUB | 3 | 2/2 | 3/3 | 1/1 | 0 | proven on 3 scenarios, covering 2/2 paragraphs and 3/3 branches |
+| `hc-abend-link` | HCSUB | 3 | 2/2 | 4/5 | 1/1 | 0 | proven on 3 scenarios, covering 2/2 paragraphs and 4/5 branches |
 | `hc-counter-increment-wrap` | HCCWRP | 1 | 7/10 | 3/8 | 0/0 | 0 | proven on 0 scenarios, covering 0/10 paragraphs and 0/8 branches |
 | `hc-counter-shared-namespace` | HCCNSP | 3 | 16/16 | 7/8 | 0/0 | 0 | proven on 0 scenarios, covering 0/16 paragraphs and 0/8 branches |
 | `hc-dcounters` | HCDCNT | 2 | 7/7 | 6/7 | 0/0 | 0 | proven on 0 scenarios, covering 0/7 paragraphs and 0/7 branches |
@@ -171,11 +171,19 @@ Each item is a scenario to propose: a crucible PR adds it with a hand-written, d
 
 - EVALUATE at line 40 in `MAIN-PARA`: no WHEN arm matched: never
 
+#### `gt-web-client` GTWCLI
+
+- IF at line 62 in `MAIN-PARA`: never false
+
 #### `gt-web-parse-url` GTWPARS
 
 - EVALUATE at line 61 in `MAIN-PARA`: no WHEN arm matched: never
 - IF at line 139 in `DO-PARSE`: never false
 - IF at line 144 in `DO-PARSE`: never true
+
+#### `hc-abend-link` HCSUB
+
+- IF at line 40 in `SUB-MAIN`: never false
 
 #### `hc-counter-increment-wrap` HCCWRP
 

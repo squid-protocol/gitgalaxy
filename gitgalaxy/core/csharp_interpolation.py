@@ -162,3 +162,40 @@ def expose_holes(text: str) -> str:
             out.append(ch)
             i += 1
     return "".join(out)
+
+
+def blank_interpolated(text: str) -> str:
+    """`text` with every interpolated string (holes included) blanked to spaces, newlines kept, so offsets and line
+    numbers are unchanged. The brace shield's plain string pattern mis-pairs a `\\"` nested in a hole (#6266)."""
+    if "$" not in text:
+        return text
+    out: list[str] = []
+    i, n = 0, len(text)
+    while i < n:
+        ch = text[i]
+        if text.startswith("//", i):
+            end = text.find("\n", i)
+            end = n if end < 0 else end
+            out.append(text[i:end])
+            i = end
+        elif text.startswith("/*", i):
+            end = text.find("*/", i + 2)
+            end = n if end < 0 else end + 2
+            out.append(text[i:end])
+            i = end
+        elif ch == "'":
+            end = _skip_char(text, i)
+            out.append(text[i:end])
+            i = end
+        elif ch in ('"', "$", "@") and (pre := (_prefix(text, i) if ch != '"' else (i, 0, False))):
+            q, dollars, verbatim = pre
+            end = _string_end(text, q, dollars, verbatim)
+            if not dollars:
+                out.append(text[i:end])
+            else:
+                out.append("".join(c if c == "\n" else " " for c in text[i:end]))
+            i = end
+        else:
+            out.append(ch)
+            i += 1
+    return "".join(out)

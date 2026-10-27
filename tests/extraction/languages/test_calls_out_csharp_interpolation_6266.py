@@ -97,3 +97,24 @@ def test_a_method_named_like_a_neighbour_of_fixed_still_matches():
         "class C\n{\n    void Fixer()\n    {\n        Go();\n    }\n    void Checked2()\n    {\n        Go2();\n    }\n}\n"
     )
     assert list(units) == ["Fixer", "Checked2"]
+
+
+@pytest.mark.parametrize(
+    "hole",
+    [
+        '$"[{xs.Select(c => $"\\"{c}\\"").Join(", ")}]"',  # helion FileConfig.Write: escaped quotes, then a plain string
+        '$"{Wrap($"a\\"b")}"',
+        '$@"{Wrap($@""x"")}"',
+        '$"""{Wrap($"q")}"""',
+    ],
+)
+def test_nested_interpolated_string_does_not_swallow_the_next_method(hole):
+    code = (
+        "class C\n{\n    void Write()\n    {\n        Log(" + hole + ");\n    }\n\n"
+        '    void Read(string path)\n    {\n        Log($"Reading {path}");\n        Other();\n    }\n}\n'
+    )
+    functions = StructuralExtractor("csharp", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+    by_name = {f["name"]: f for f in functions}
+    assert {"Write", "Read"} <= set(by_name)
+    assert "Other" not in by_name["Write"]["calls_out_to"]
+    assert "Other" in by_name["Read"]["calls_out_to"]

@@ -1,5 +1,5 @@
 {
- "commit": "c4d5b6325",
+ "commit": "b7151a864",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,21 +160,21 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-27T14:29:08Z",
+  "as_of": "2026-10-27T15:27:23Z",
   "core": {
-   "closed": 184,
-   "open": 17,
+   "closed": 183,
+   "open": 18,
    "total": 201
   },
   "core_last_window": {
-   "closed": 35,
-   "net_closed": 14,
+   "closed": 34,
+   "net_closed": 13,
    "opened": 21
   },
   "core_milestone": {
-   "closed": 98,
+   "closed": 97,
    "number": 28,
-   "open": 5,
+   "open": 6,
    "total": 103
   },
   "epics": {
@@ -184,7 +184,7 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "8 days",
+  "eta": "10 days",
   "frontier": {
    "closed": 112,
    "found_last_window": 9,
@@ -380,9 +380,9 @@
     "total": 22
    },
    {
-    "closed": 259,
+    "closed": 258,
     "number": 28,
-    "open": 6,
+    "open": 7,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
     "total": 265
    },
@@ -401,9 +401,9 @@
     "total": 48
    },
    {
-    "closed": 42,
+    "closed": 43,
     "number": 31,
-    "open": 4,
+    "open": 3,
     "title": "DOOM Port Speedrun",
     "total": 46
    }

@@ -20,6 +20,12 @@ LS, and ISRT; it takes `"gsam": {"<DBD>": {"copybook": ..., "record": ...}}` to 
 its copybook (`segments`) into the case's data page (text through CCSID 037, COMP / COMP-3 bytes as they are), its
 trailer's segment counts checked.
 
+A CICS scenario may state its own `"ims_seed": {"<DBD>": {"insert": [{"after": N, "segment": S, "fields": {F: v}}]}}`
+(#6072): a segment of the DBD's unload seed inserted after its Nth record (the record numbers of the unload), a copy of
+the `like` record (default: the one it follows) with the fields stated encoded by their PIC / USAGE. The sequence key
+must stay unique and ascending among its neighbours; everything else is refused by name. The Java side then stages
+that scenario's database in its own directory (`dli-<scenario>`).
+
 Written for both sides into one directory (`stage`): dbd.cfg, psb.cfg and seed.<DBD> (tests/equivalence/ims/ggdli.c
 documents the format); each side writes <DBD>.out, the database as the step left it, compared segment by segment
 (`diff_db`) with every field of its segment's layout; a GSAM database's .out is its records, compared record by record.
@@ -39,6 +45,7 @@ if str(REPO) not in sys.path:
 from gitgalaxy.core.ims_gen import ims_gen_macros  # noqa: E402
 
 import equivalence_common as common  # noqa: E402
+import equivalence_inputs  # noqa: E402
 
 STUB = Path(__file__).resolve().parents[1] / "equivalence" / "ims" / "ggdli.c"
 MASK = 36  # the DB PCB mask before its key feedback area (IMS Application Programming, "DB PCB mask")
@@ -245,10 +252,60 @@ def unload(path: Path) -> list[tuple[str, bytes]]:
     return segs
 
 
-def seed(case: dict[str, Any], corpus: Path, name: str, db: dict[str, Any]) -> bytes:
-    """One database's seed, in the format both sides read (8-byte segment name, then its data)."""
+def _insert(
+    entries: list[tuple[int, str, bytes]],
+    ins: dict[str, Any],
+    case: dict[str, Any],
+    corpus: Path,
+    db: dict[str, Any],
+    sizes: dict[str, int],
+    enc: str,
+) -> None:
+    """#6072: one scenario-stated segment, placed in `entries` ((unload record number, segment, data)) after record
+    `after`. It is the record `like` (default `after`) with the `fields` stated, each written as its PICTURE says
+    (a digit field wants a number, a text field text). Refused by name when the place or a field is not there, or
+    when its sequence key would not stay unique and ascending among the neighbours of its own type."""
+    seg = ins["segment"]
+    if seg not in sizes:
+        raise Unsupported(f"ims_seed: segment {seg} is not in DBD {db['name']}")
+    at = next((i for i, e in enumerate(entries) if e[0] == ins["after"]), None)
+    if at is None:
+        raise Unsupported(f"ims_seed: no unload record {ins['after']} to insert after (a skipped record has none)")
+    src = next((e for e in entries if e[0] == ins.get("like", ins["after"])), None)
+    if src is None or src[1] != seg:
+        raise Unsupported(f"ims_seed: the record to copy ({ins.get('like', ins['after'])}) is not a {seg} segment")
+    layout = {f["name"]: f for f in (_layout(case, corpus, seg) or [])}
+    data = bytearray(src[2])
+    for fname, value in ins.get("fields", {}).items():
+        f = layout.get(fname)
+        if f is None:
+            raise Unsupported(f"ims_seed: segment {seg} has no field {fname} in its copybook")
+        data[f["offset"] : f["offset"] + f["bytes"]] = equivalence_inputs.encode_field(
+            value, f["pic"], f["usage"], f["bytes"], common.sign_page(enc), enc)  # fmt: skip
+    key = next((f for f in next(s for s in db["segments"] if s["name"] == seg)["fields"] if f["seq"]), None)
+    if key is not None:
+
+        def k(b: bytes) -> bytes:
+            return b[key["start"] - 1 : key["start"] - 1 + key["bytes"]]
+
+        before = entries[at][2] if entries[at][1] == seg else None
+        after = entries[at + 1][2] if at + 1 < len(entries) and entries[at + 1][1] == seg else None
+        if (before is not None and k(bytes(data)) <= k(before)) or (after is not None and k(bytes(data)) >= k(after)):
+            raise Unsupported(f"ims_seed: the {seg} sequence key {key['name']} would not stay unique and ascending "
+                              f"after record {ins['after']}")  # fmt: skip
+    entries.insert(at + 1, (-1 - len(entries), seg, bytes(data)))
+
+
+def seed(case: dict[str, Any], corpus: Path, name: str, db: dict[str, Any],
+         scenario: dict[str, Any] | None = None) -> bytes:  # fmt: skip
+    """One database's seed, in the format both sides read (8-byte segment name, then its data). #6072: a scenario's
+    `"ims_seed": {"<DBD>": {"insert": [{"after": N, "segment": S, "like": M, "fields": {...}}]}}` adds segments to an
+    unload seed (N, M: unload record numbers, as `skip` counts them), for the task of that scenario only."""
     spec = case["ims"].get("seed", {}).get(name)
+    over = ((scenario or {}).get("ims_seed") or {}).get(name)
     if not spec:
+        if over:
+            raise Unsupported(f"ims_seed: DBD {name} has no seed to add to")
         return b""
     enc = common.data_encoding(case)
     sizes = {s["name"]: s["bytes"] for s in db["segments"]}
@@ -256,6 +313,7 @@ def seed(case: dict[str, Any], corpus: Path, name: str, db: dict[str, Any]) -> b
     if "unload" in spec:
         layouts: dict[str, list[dict[str, Any]]] = {}
         skip = set(spec.get("skip", []))  # record numbers left out (a root whose packed key is blank: GU would refuse)
+        entries: list[tuple[int, str, bytes]] = []
         for n, (seg, data) in enumerate(unload(corpus / spec["unload"])):
             if n in skip:
                 continue
@@ -266,9 +324,14 @@ def seed(case: dict[str, Any], corpus: Path, name: str, db: dict[str, Any]) -> b
                 if lay is None:
                     raise Unsupported(f"segment {seg}: no copybook to lay its EBCDIC bytes out by (ims.segments)")
                 layouts[seg] = lay
-            out += seg.ljust(8).encode("ascii") + from_ebcdic(data[: sizes[seg]].ljust(sizes[seg], b"\x40"),
-                                                              layouts[seg], enc)  # fmt: skip
+            entries.append((n, seg, from_ebcdic(data[: sizes[seg]].ljust(sizes[seg], b"\x40"), layouts[seg], enc)))
+        for ins in (over or {}).get("insert", []):
+            _insert(entries, ins, case, corpus, {**db, "name": name}, sizes, enc)
+        for _, seg, data in entries:
+            out += seg.ljust(8).encode("ascii") + data
         return bytes(out)
+    if over:
+        raise Unsupported(f"ims_seed: DBD {name}'s seed is stated segments, not an unload: nothing to insert into")
     for s in spec["segments"]:
         size = sizes[s["segment"]]
         data = bytes.fromhex(s["hex"]) if "hex" in s else common.text_bytes(s["text"], size, enc)

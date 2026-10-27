@@ -30,7 +30,20 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from gitgalaxy.core.hlasm_cics import _continues, _is_comment
+
+# The statement rules of gitgalaxy/core/hlasm_cics.py, mirrored as cics_macro_level does: the translator fingerprint
+# (tests/tools/evidence_report.TRANSLATOR_INPUTS) reads det/, not that scanner module.
+def _is_comment(line: str) -> bool:
+    return line.startswith("*") or line.startswith(".*")
+
+
+def _continues(line: str) -> bool:
+    """Column 72 is non-blank, or a lone mark drifted into column 73 (zECS's `EXEC CICS WRITEQ TD ... X` lines)."""
+    body = line.rstrip("\r")
+    if len(body) > 71 and body[71] != " ":
+        return True
+    return len(body.rstrip()) == 73 and body[71] == " "
+
 
 SUBSET = frozenset({"B", "BC", "BCR", "BAS", "L", "LA", "ST", "STH", "CH", "CLC", "CLI", "MVC", "OC"})
 _IGNORED = frozenset({"AMODE", "RMODE", "PRINT", "LTORG", "END", "EJECT", "SPACE", "TITLE"})

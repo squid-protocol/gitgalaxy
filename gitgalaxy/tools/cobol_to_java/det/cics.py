@@ -1249,7 +1249,16 @@ class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlComma
                 raise CicsError(_msg("WRITE OPERATOR", "required", "TEXT"))
             r = g.tmpname("wto")
             f = self.read_field(_arg(opts["TEXT"]))
-            return [f"{ind}int {r} = task.writeOperator(Cobol.text({f}, CS));", *self.outcome(opts, r, "0", ind)]
+            if ("ROUTECODES" in opts) != ("NUMROUTES" in opts):  # (the rule goes both ways)
+                raise CicsError(_requires("WRITE OPERATOR", "ROUTECODES", "NUMROUTES"))
+            if not any(o in opts for o in ("TEXTLENGTH", "ROUTECODES")):
+                return [f"{ind}int {r} = task.writeOperator(Cobol.text({f}, CS));", *self.outcome(opts, r, "0", ind)]
+            # #5859: TEXTLENGTH (a fullword value), ROUTECODES with NUMROUTES; EVENTUAL changes nothing observable
+            n = f"Integer.valueOf({self.int_(_arg(opts['TEXTLENGTH']))})" if opts.get("TEXTLENGTH") else "null"
+            rc = f"Cobol.text({self.read_field(_arg(opts['ROUTECODES']))}, CS)" if opts.get("ROUTECODES") else "null"
+            nr = f"Integer.valueOf({self.int_(_arg(opts['NUMROUTES']))})" if opts.get("NUMROUTES") else "null"
+            return [f"{ind}int[] {r} = task.writeOperator(Cobol.text({f}, CS), {n}, {rc}, {nr});",
+                    *self.outcome(opts, f"{r}[0]", f"{r}[1]", ind)]  # fmt: skip
         if key in ("INQUIRE TERMINAL", "SET TERMINAL"):  # #4415 slice 1: the terminal's UCTRANST CVDA (register X26)
             if "UCTRANST" not in opts:
                 raise CicsError(f"{key} without UCTRANST")

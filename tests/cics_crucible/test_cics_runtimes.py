@@ -2857,6 +2857,24 @@ def test_cics_task_inquire_urimap_browse_and_write_operator_as_the_stub_does(tmp
         }
         System.out.println(t.writeOperator("DFHx plain") + " " + t.writeOperator("zECS start ZXAA"));
         System.out.println(t.events().stream().filter(e -> "WRITE-OPERATOR".equals(e.get("event"))).map(e -> e.get("text"))
+                .collect(java.util.stream.Collectors.toList()));
+        // #5859: TEXTLENGTH (0-690, else INVREQ RESP2 1), ROUTECODES / NUMROUTES (codes 1-28, else INVREQ RESP2 3)
+        String rc = "\u0001\u0011\u001d";
+        for (Object[] w : new Object[][] {{"hello world", 5, rc, 2}, {"hi", 691, null, null}, {"hi", -1, null, null},
+                {"hi", 2, rc, 3}, {"hi", 2, "\u0000", 1}, {"hi", 0, rc, 1}, {"hi", null, "\u001c", 1}}) {
+            System.out.println(java.util.Arrays.toString(t.writeOperator((String) w[0], (Integer) w[1], (String) w[2], (Integer) w[3])));
+        }
+        for (Runnable bad : new Runnable[] {() -> t.writeOperator("abc", 4, null, null),
+                () -> t.writeOperator("abc", null, rc, 0), () -> t.writeOperator("abc", null, rc, 4),
+                () -> t.writeOperator("DFH1234 x", 3, null, null)}) {
+            try {
+                bad.run();
+                System.out.println("accepted");
+            } catch (UnsupportedOperationException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        System.out.println(t.events().stream().filter(e -> "WRITE-OPERATOR".equals(e.get("event"))).map(e -> e.get("text"))
                 .collect(java.util.stream.Collectors.toList()));""",
     )
     assert out.splitlines() == [
@@ -2865,7 +2883,13 @@ def test_cics_task_inquire_urimap_browse_and_write_operator_as_the_stub_does(tmp
         "INQUIRE URIMAP NEXT or END with no browse started: not modelled",
         "the installed URIMAP definitions are not stated (withUrimaps): not modelled",
         "WRITE OPERATOR text IBM reformats: not modelled", "WRITE OPERATOR text IBM reformats: not modelled",
-        "0 0", "[DFHx plain, zECS start ZXAA]"]  # fmt: skip
+        "0 0", "[DFHx plain, zECS start ZXAA]",
+        "[0, 0]", "[16, 1]", "[16, 1]", "[16, 3]", "[16, 3]", "[0, 0]", "[0, 0]",
+        "WRITE OPERATOR TEXTLENGTH past the text area: not modelled",
+        "WRITE OPERATOR NUMROUTES IBM leaves open: not modelled",
+        "WRITE OPERATOR NUMROUTES IBM leaves open: not modelled",
+        "accepted",  # (TEXTLENGTH 3 cuts "DFH1234 x" to "DFH": not a CICS message)
+        "[DFHx plain, zECS start ZXAA, hello, , hi, DFH]"]  # fmt: skip
 
 
 _X34_MAIN = r"""

@@ -1414,6 +1414,10 @@ def test_inquire_urimap_browse_and_write_operator_become_stub_calls():
         ec.translate_command("WRITE OPERATOR TEXT('HELLO')")
     with pytest.raises(ec.Unsupported, match="only the plain message"):
         ec.translate_command("WRITE OPERATOR TEXT(WS-MSG) CRITICAL")
+    # #5859: the det port models these, the stub not yet
+    for opt in ("TEXTLENGTH(WS-N)", "ROUTECODES(WS-RC) NUMROUTES(WS-N)"):
+        with pytest.raises(ec.Unsupported, match="not modelled by the stub runtime"):
+            ec.translate_command(f"WRITE OPERATOR TEXT(WS-MSG) {opt} EVENTUAL")
 
 
 def test_web_open_converse_close_become_stub_calls():

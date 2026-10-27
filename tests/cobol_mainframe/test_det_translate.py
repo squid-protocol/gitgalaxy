@@ -628,7 +628,7 @@ _IBM_OPTIONS = {
     "ASSIGN": "ABCODE APPLID INVOKINGPROG PROGRAM SYSID USERID NETNAME OPID TERMCODE STARTCODE TWALENG CWALENG "
     "CHANNEL FACILITY FCI SCRNHT SCRNWD DEFSCRNHT DEFSCRNWD ALTSCRNHT ALTSCRNWD TCTUALENG TASKPRIORITY RETURNPROG "
     "PRINSYSID OPCLASS OPSECURITY USERNAME QNAME OPERKEYS",
-    "ABEND": "ABCODE CANCEL NODUMP",
+    "ABEND": "ABCODE CANCEL NODUMP NOHANDLE",
     "FORMATTIME": "ABSTIME DATE FULLDATE DATEFORM DATESEP DAYCOUNT DAYOFMONTH DAYOFWEEK DDMMYY DDMMYYYY MILLISECONDS "
     "MMDDYY MMDDYYYY MONTHOFYEAR STRINGFORMAT TIME TIMESEP YEAR YYDDD YYDDMM YYMMDD YYYYDDD YYYYDDMM YYYYMMDD",
     "SEND MAP": "MAP MAPSET FROM DATAONLY MAPONLY LENGTH CURSOR FORMFIELD ERASE ERASEAUP PRINT FREEKB ALARM FRSET "
@@ -685,7 +685,7 @@ def test_options_honoured_without_code_say_why():
         code += Path(family.__file__).read_text(encoding="utf-8")
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
               "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",
-              "TERMINAL", "BELOW", "EXECUTABLE", "NAME"}  # (#5079 X63: WAIT EVENT NAME only labels the task)  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
+              "TERMINAL", "BELOW", "EXECUTABLE", "NAME", "EVENTUAL"}  # (#5079 X63: WAIT EVENT NAME only labels the task)  # (#5859 X32: WRITE OPERATOR EVENTUAL only says when the operator acts)  # (#4771 X47: GETMAIN's placement flags change no byte the program sees)  # fmt: skip
     flags = {*C.MAP_OPTIONS, *C.TEXT_OPTIONS, *C._FORMS}
     for key, allowed in C.OPTIONS.items():
         for opt in allowed or ():
@@ -1615,10 +1615,29 @@ def test_inquire_urimap_browse_and_write_operator():
                      ("INQUIRE URIMAP START PATH(REC)", "returns no definition"),
                      ("INQUIRE URIMAP(REC) HOST(REC) NEXT", "only the URIMAP's name, PATH and TRANSACTION"),
                      ("WRITE OPERATOR", "without TEXT"),
-                     ("WRITE OPERATOR TEXT(REC) ROUTECODES(REC)", "only the plain message to the console"),
+                     ("WRITE OPERATOR TEXT(REC) ROUTECODES(REC)", "ROUTECODES and NUMROUTES go together"),
+                     ("WRITE OPERATOR TEXT(REC) NUMROUTES(N)", "ROUTECODES and NUMROUTES go together"),
+                     ("WRITE OPERATOR TEXT(REC) CONSNAME(REC)", "only the plain message to the console"),
                      ("WRITE OPERATOR TEXT(REC) REPLY(REC)", "only the plain message to the console")):  # fmt: skip
         with pytest.raises(C.CicsError, match=why):
             c.command(bad, "")
+    # #5859 (ZECSNC): TEXTLENGTH, ROUTECODES + NUMROUTES, EVENTUAL answer through RESP / RESP2 like the plain form
+    r = c.command("WRITE OPERATOR TEXT(REC) TEXTLENGTH(N) ROUTECODES(REC) NUMROUTES(N) EVENTUAL NOHANDLE", "")
+    assert r[0].startswith("int[] wto") and ".writeOperator(Cobol.text(" in r[0] and "Integer.valueOf(" in r[0]
+    assert r[0].count("Integer.valueOf(") == 2 and "null" not in r[0]
+    t = c.command("WRITE OPERATOR TEXT(REC) TEXTLENGTH(7) EVENTUAL", "")[0]
+    assert t.endswith("Integer.valueOf(INT(7)), null, null);")  # (a length alone: no routes)
+    assert c.command("WRITE OPERATOR TEXT(REC) EVENTUAL", "")[0].startswith(
+        "int wto"
+    )  # (EVENTUAL alone: the plain form)
+
+
+def test_abend_nohandle_is_the_plain_abend():
+    """#5859 (ZECSNC): IBM's ABEND page lists no condition, so NOHANDLE suppresses nothing: the same lines as without."""
+    assert _HandleCics().command("ABEND ABCODE('HCX1') NOHANDLE", "") == _HandleCics().command(
+        "ABEND ABCODE('HCX1')", ""
+    )
+    assert _HandleCics().command("ABEND NOHANDLE", "") == _HandleCics().command("ABEND", "")
 
 
 def test_web_send_is_the_response_to_the_stated_request():

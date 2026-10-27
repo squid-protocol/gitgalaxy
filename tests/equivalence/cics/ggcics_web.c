@@ -9,7 +9,6 @@
  * `X METHOD PATHHEX QUERYHEX|- STATUS STATUSTEXTHEX|- MEDIATYPEHEX|- BODYHEX|-` (hex: the bytes in the program's page; '-':
  * none). The exchange is in the program's characters: conversion changes nothing within the model. As CicsTask (the Java
  * side) answers. */
-#define WEB_MAXX 256
 #define WEB_MAXP 32
 #define WEB_TXT 4096
 /* #6072: the stated request and connection files (webreq_load, tcpip_load) take a line of WEBIN_LINE bytes and each token of
@@ -20,10 +19,24 @@ typedef struct { char scheme[8], host[WEB_TXT], urimap[9], path[WEB_TXT]; int po
 typedef struct { int peer, status; char method[8], path[WEB_TXT], query[WEB_TXT], stext[WEB_TXT], media[WEB_TXT];
                  char *body; int bodylen; } web_x;
 static web_peer web_peers[WEB_MAXP];
-static web_x web_xs[WEB_MAXX];
-static int web_npeers = -1, web_nxs = 0, web_answered[WEB_MAXX], web_seq = 0;
-static struct { char token[9]; int peer, byurimap, open; } web_sess[64];
-static int web_nsess = 0;
+/* #6072: IBM sets no count of sessions a task may open or of responses a peer may give (ZECS000 opens one per record and
+ * never closes: 501), so these tables grow; only the token's four digits (GGWSnnnn, 8 bytes) bound the sessions. */
+#define WEB_MAXSESS 9999
+static web_x *web_xs;
+static int *web_answered;
+static struct { char token[9]; int peer, byurimap, open; } *web_sess;
+static int web_npeers = -1, web_nxs = 0, web_xcap = 0, web_seq = 0, web_nsess = 0, web_scap = 0;
+
+static void *web_grow(void *tab, int *cap, size_t each, int need) {
+    int ncap = *cap ? *cap : 64;
+    void *t;
+    while (ncap < need) ncap *= 2;
+    t = realloc(tab, (size_t)ncap * each);
+    if (!t) refuse("WEB: out of storage");
+    memset((char *)t + (size_t)*cap * each, 0, (size_t)(ncap - *cap) * each);
+    *cap = ncap;
+    return t;
+}
 
 static int web_hexval(int ch) {
     if (ch >= '0' && ch <= '9') return ch - '0';
@@ -55,7 +68,8 @@ static void web_load(void) {
         if (strlen(line) > 32000) refuse("WEB: a stated response longer than 16000 bytes");
         int k = sscanf(line, "%32999s %32999s %32999s %32999s %32999s %32999s %32999s %32999s",
                        a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]);
-        if (k == 6 && strcmp(a[0], "P") == 0 && web_npeers < WEB_MAXP) {
+        if (k == 6 && strcmp(a[0], "P") == 0) {
+            if (web_npeers >= WEB_MAXP) refuse("WEB: more than 32 HTTP peers stated");
             web_peer *p = &web_peers[web_npeers++];
             snprintf(p->scheme, sizeof p->scheme, "%s", a[1]);
             web_unhex(a[2], p->host, WEB_TXT);
@@ -63,8 +77,15 @@ static void web_load(void) {
             snprintf(p->urimap, sizeof p->urimap, "%s", strcmp(a[4], "-") == 0 ? "" : a[4]);
             p->haspath = strcmp(a[5], "-") != 0;
             web_unhex(a[5], p->path, WEB_TXT);
-        } else if (k == 8 && strcmp(a[0], "X") == 0 && web_npeers > 0 && web_nxs < WEB_MAXX) {
-            web_x *x = &web_xs[web_nxs++];
+        } else if (k == 8 && strcmp(a[0], "X") == 0 && web_npeers > 0) {
+            web_x *x;
+            if (web_nxs >= web_xcap) {
+                int old = web_xcap;
+                web_xs = web_grow(web_xs, &web_xcap, sizeof *web_xs, web_nxs + 1);
+                web_xcap = old;
+                web_answered = web_grow(web_answered, &web_xcap, sizeof *web_answered, web_nxs + 1);
+            }
+            x = &web_xs[web_nxs++];
             x->peer = web_npeers - 1;
             snprintf(x->method, sizeof x->method, "%s", a[1]);
             web_unhex(a[2], x->path, WEB_TXT);
@@ -97,7 +118,8 @@ static int web_session(const char *token) {
 }
 
 static void web_opened(gg_cics *c, char *token, int peer, int byurimap) {
-    if (web_nsess >= 64) refuse("WEB OPEN: more than 64 sessions in one task");
+    if (web_nsess >= WEB_MAXSESS) refuse("WEB OPEN: more than 9999 sessions in one task");
+    if (web_nsess >= web_scap) web_sess = web_grow(web_sess, &web_scap, sizeof *web_sess, web_nsess + 1);
     snprintf(web_sess[web_nsess].token, 9, "GGWS%04d", ++web_seq);
     web_sess[web_nsess].peer = peer;
     web_sess[web_nsess].byurimap = byurimap;

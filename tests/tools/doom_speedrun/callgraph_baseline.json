@@ -24,7 +24,7 @@
   },
   "quorum": 0.75
  },
- "engine_sha": "a2b6c416c",
+ "engine_sha": "5a0e49753",
  "ports": {
   "chocolate-doom": {
    "agree": 12132,
@@ -75,22 +75,22 @@
    "unmatched_functions": 0
   },
   "doom3-bfg": {
-   "agree": 47966,
+   "agree": 47968,
    "engine_calls": 48748,
    "engine_only_by_kind": {
     "absent": 5,
     "function-pointer": 21,
     "macro": 4,
-    "type": 752
+    "type": 750
    },
    "functions": 16380,
    "misses_by_shape": {
     "unparsed": 3
    },
-   "oracle_calls": 47969,
+   "oracle_calls": 47971,
    "precision": 0.984,
    "recall": 0.9999,
-   "text_fallback_functions": 595,
+   "text_fallback_functions": 623,
    "unmatched_functions": 3
   },
   "doom3do": {
@@ -130,14 +130,14 @@
    "unmatched_functions": 1
   },
   "doomsday": {
-   "agree": 68874,
+   "agree": 68876,
    "engine_calls": 71351,
    "engine_only_by_kind": {
-    "absent": 231,
+    "absent": 230,
     "comment/string": 3,
     "function-pointer": 223,
     "macro": 7,
-    "type": 2013
+    "type": 2012
    },
    "functions": 25449,
    "misses_by_shape": {
@@ -151,10 +151,10 @@
     "subscript": 19,
     "unparsed": 16
    },
-   "oracle_calls": 69018,
+   "oracle_calls": 69020,
    "precision": 0.9653,
    "recall": 0.9979,
-   "text_fallback_functions": 754,
+   "text_fallback_functions": 756,
    "unmatched_functions": 1
   },
   "dsda-doom": {
@@ -224,10 +224,10 @@
    "unmatched_functions": 2
   },
   "gzdoom": {
-   "agree": 43111,
+   "agree": 43113,
    "engine_calls": 44637,
    "engine_only_by_kind": {
-    "absent": 21,
+    "absent": 19,
     "function-pointer": 228,
     "type": 1277
    },
@@ -237,12 +237,12 @@
     "assignment-rhs": 25,
     "nested-argument": 2,
     "statement": 84,
-    "unparsed": 7
+    "unparsed": 8
    },
-   "oracle_calls": 43230,
-   "precision": 0.9658,
+   "oracle_calls": 43233,
+   "precision": 0.9659,
    "recall": 0.9972,
-   "text_fallback_functions": 589,
+   "text_fallback_functions": 592,
    "unmatched_functions": 1
   },
   "inter-doom": {
@@ -284,10 +284,10 @@
    "unmatched_functions": 0
   },
   "odamex": {
-   "agree": 20199,
+   "agree": 20222,
    "engine_calls": 20612,
    "engine_only_by_kind": {
-    "absent": 53,
+    "absent": 30,
     "function-pointer": 53,
     "macro": 7,
     "type": 300
@@ -299,10 +299,10 @@
     "other": 2,
     "statement": 3
    },
-   "oracle_calls": 20221,
-   "precision": 0.98,
+   "oracle_calls": 20244,
+   "precision": 0.9811,
    "recall": 0.9989,
-   "text_fallback_functions": 292,
+   "text_fallback_functions": 293,
    "unmatched_functions": 1
   },
   "prboom-plus": {

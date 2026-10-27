@@ -1807,6 +1807,34 @@ def _header_macro_span(text: str) -> int:
     return 0
 
 
+_FUNCTION_TYPE_OPEN_RE = re.compile(r"<[ \t]*(?:const[ \t]+)?$")
+_FUNCTION_TYPE_CLOSE_RE = re.compile(r"[ \t]*(?:const|noexcept|&&?)?[ \t]*>")
+_FUNCTION_TYPE_MAX_SCAN = 400
+
+
+def _is_function_type_arg(text: str, pos: int, end: int) -> bool:
+    """#6266: is the `Name (args)` spanning `pos`..`end` a function type in a template argument?
+
+    `std::function<LoopResult (Item &)>` names the return type before the parameter list; no call to `LoopResult`
+    happens. The name must follow `<` directly and its parenthesis must close straight into `>`, so a call written
+    in a comparison or a default argument stays a call.
+    """
+    if not _FUNCTION_TYPE_OPEN_RE.search(text[max(pos - 16, 0) : pos]):
+        return False
+    depth = 0
+    for i in range(end, min(len(text), end + _FUNCTION_TYPE_MAX_SCAN)):
+        ch = text[i]
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                return _FUNCTION_TYPE_CLOSE_RE.match(text, i + 1) is not None
+        elif ch in ";{}" and depth <= 1:
+            return False
+    return False
+
+
 def _declarator_type_callee(text: str, pos: int) -> tuple[str, int] | None:
     """#3644 (contract C3): is the `name(` at `pos` a C++ `Type var(args)` declaration?
 
@@ -10787,6 +10815,8 @@ class StructuralExtractor:
                     callee_pos = m.start(send_group) if is_send else m.start(1)
                     # #5629: a macro in the unit's header (its defining macro, a parameter-list macro).
                     if callee_pos < header_end and _HEADER_MACRO_NAME.match(callee):
+                        continue
+                    if self.primary_lang_id == "cpp" and _is_function_type_arg(safe_block, callee_pos, m.end(1)):
                         continue
                     if 0 <= body_start < callee_pos:
                         declared = _declarator_type_callee(safe_block, callee_pos)

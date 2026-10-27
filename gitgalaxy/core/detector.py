@@ -6149,6 +6149,10 @@ class StructuralExtractor:
                 r'"(?:\\.|[^"\\])*"|' + single_quote + r"|" + backtick + r"|//[^\n]*|/\*.*?\*/"
             )
 
+        if lang_id == "csharp":
+            # #6266: `$"[{x.Select(c => $"\"{c}\"")}]"` -- the plain-string pattern pairs the hole's nested quotes
+            # wrongly and absorbs the next method; blank interpolated strings whole first (same length).
+            code = csharp_interpolation.blank_interpolated(code)
         safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL) if lang_id != "perl" else code
 
         # #1517: an escaped `\{`/`\}` inside a bare `/regex/` literal (never shielded at

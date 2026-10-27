@@ -338,9 +338,7 @@ def test_every_survivor_in_code_no_proof_runs_was_triaged_as_out_of_the_proofs_r
     # #5252 re-proved the LGSTSQ, LGAPVS01 and LGUPVS01 ports (X6 padding, the WRITE-ERROR-MESSAGE fixes): their committed
     # mutation runs, and the LGAPDB01 / LGUPDB01 ones whose proofs LINK them, judge the older code, so their 40 flagged
     # survivors (all unreachable) are skipped until those five are re-run. 114 -> 74.
-    # #6072 added fault and short-COMMAREA scenarios to genapp-lgicdb01 (LGSTSQ linked) and re-proved it: its recorded
-    # mutation run judges the older case, so its 6 flagged survivors are skipped until it is re-run. 74 -> 68.
-    assert len(flagged) == 68 and verdicts.count("unreachable") == 65 and verdicts.count("equivalent") == 3
+    assert len(flagged) == 74 and verdicts.count("unreachable") == 71 and verdicts.count("equivalent") == 3
     assert not {prog for prog, _ in flagged} & {"CSUTLDTC"}
     assert {prog for prog, _ in flagged} & {"COACTVWC", "COMEN01C"} == {"COACTVWC", "COMEN01C"}
 

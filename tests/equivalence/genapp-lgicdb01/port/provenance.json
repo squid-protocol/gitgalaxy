@@ -40,11 +40,5 @@
     "lastLinkBytes()"
    ]
   }
- ],
- "stale": {
-  "against": "the java-facade side (#4449)",
-  "at": "2026-10-27T16:30:00+00:00",
-  "reason": "re-proof through the deployed entry points failed on the #6072 scenarios: two declare sql_faults the facade does not fire and one starts without a COMMAREA; the det sweep proves all 17",
-  "needs": "#6692: the java facade does not fire a scenario's declared sql_faults (same class: this port is model-written); then evidence.py prove genapp-lgicdb01"
- }
+ ]
 }

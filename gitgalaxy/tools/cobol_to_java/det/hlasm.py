@@ -326,7 +326,7 @@ class _Lowering:
         prev: Stmt | None = None
         k = 0
         loaded: dict[int, int] = {}  # register -> line of `L Rn,DFHEICAP`
-        for idx, s in enumerate(code):
+        for s in code:
             if s.label:
                 _close(body)
                 body.append(f"       {_cobol(s.label)}.")
@@ -334,7 +334,7 @@ class _Lowering:
                 prev = None
                 continue
             body.append(f"      *    {self.file.rsplit('/', 1)[-1]}:{s.line}: {s.op} {s.operands}"[:72].rstrip())
-            ops = [o for o in s.operands.split(",")] if s.op != "EXEC" else []
+            ops = s.operands.split(",") if s.op != "EXEC" else []
             if s.op == "USING":
                 dsect, reg = (o.strip().upper() for o in ops) if len(ops) == 2 else ("", "")
                 if dsect not in self.sections or self._reg(s, reg) not in loaded or self.commarea:
@@ -394,7 +394,7 @@ class _Lowering:
             + [f"               DEPENDING ON {reg}"]
         )
         # A return id no BAS stored: a branch to an address the program never took, a program check (ASRA)
-        return out + ["           EXEC CICS ABEND ABCODE('ASRA') NODUMP END-EXEC"]
+        return [*out, "           EXEC CICS ABEND ABCODE('ASRA') NODUMP END-EXEC"]
 
     def _simple(self, s: Stmt, ops: list[str]) -> list[str]:
         op = s.op
@@ -514,20 +514,17 @@ class _Lowering:
         text = re.sub(r"\s+\(", "(", s.operands.strip())
         if not re.match(r"CICS\b", text, re.I):
             raise self.refuse(s, f"EXEC {text.split()[0] if text else ''}")
-        words: list[str] = []
         tok = re.compile(r"([A-Z0-9]+)(?:\(((?:'[^']*'|[^()'])*)\))?", re.I)
         rest = text[4:]
-        for m in tok.finditer(rest):
-            words.append(
-                f"{m.group(1).upper()}({self._cics_arg(s, m.group(2).strip())})"
-                if m.group(2) is not None
-                else m.group(1).upper()
-            )
+        words = [
+            f"{m.group(1).upper()}({self._cics_arg(s, m.group(2).strip())})"
+            if m.group(2) is not None
+            else m.group(1).upper()
+            for m in tok.finditer(rest)
+        ]
         if tok.sub("", rest).strip():
             raise self.refuse(s, f"EXEC CICS operand syntax {text}")
-        out = ["           EXEC CICS"]
-        for w in words:
-            out.append(f"               {w}")
+        out = ["           EXEC CICS", *(f"               {w}" for w in words)]
         out[-1] += " END-EXEC"
         return out
 
@@ -555,7 +552,7 @@ class _Lowering:
         for sec in ("DFHEISTG", "*CSECT"):
             for it in self.sections.get(sec, []):
                 out += self._item(it, 1)
-        for sec, items in self.sections.items():
+        for sec in self.sections:
             if sec not in ("DFHEISTG", "*CSECT") and sec != self.commarea:
                 raise Refused(f"DSECT {sec}, which no USING addresses")
         if self.commarea:

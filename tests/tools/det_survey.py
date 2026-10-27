@@ -72,7 +72,7 @@ def estate(corpus: Path, work: Path) -> tuple[Path, bool]:
     log = work / "mvn.log"
     with log.open("wb") as fh:
         try:
-            rc = subprocess.run([mvn_executable(env), "-q", "-o", "compile", "-DskipTests"], cwd=project, env=env, stdout=fh,
+            rc = subprocess.run([mvn_executable(env), "-q", "-o", "compile", "-DskipTests"], cwd=project, env=env, stdout=fh,  # noqa: S607
                                 stderr=subprocess.STDOUT, check=False,
                                 timeout=MVN_COMPILE_TIMEOUT).returncode  # fmt: skip
         except subprocess.TimeoutExpired:
@@ -99,7 +99,7 @@ def classpath(project: Path) -> str:
         goal = "org.apache.maven.plugins:maven-dependency-plugin:3.6.1:build-classpath"
         argv = [mvn_executable(env), "-q", goal, "-Dmdep.includeScope=compile", f"-Dmdep.outputFile={out}"]
         try:
-            res = subprocess.run([argv[0], "-o", *argv[1:]], cwd=project, env=env, capture_output=True, text=True, encoding="utf-8",  # noqa: S603
+            res = subprocess.run([argv[0], "-o", *argv[1:]], cwd=project, env=env, capture_output=True, text=True, encoding="utf-8",  # noqa: S603, S607
                                  check=False, timeout=MVN_CLASSPATH_TIMEOUT)  # fmt: skip
         except subprocess.TimeoutExpired as exc:
             raise RuntimeError(
@@ -116,7 +116,7 @@ def classpath(project: Path) -> str:
                     encoding="utf-8",
                     check=False,
                     timeout=MVN_CLASSPATH_TIMEOUT,
-                )
+                )  # noqa: S603, S607
             except subprocess.TimeoutExpired as exc:
                 raise RuntimeError(
                     f"{project}: mvn dependency:build-classpath timed out after {MVN_CLASSPATH_TIMEOUT}s"
@@ -142,10 +142,12 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
     import equivalence_java as ej
     from equivalence_common import engine_layouts  # #5649: the engine's record layouts, shared with det_port
 
+    from gitgalaxy.tools.cobol_to_java.det import source as S
+
+    from gitgalaxy.core.cobol_source_format import ispf_screens
     from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES
     from gitgalaxy.tools.cobol_to_java.det import hlasm
     from gitgalaxy.tools.cobol_to_java.det import program as P
-    from gitgalaxy.tools.cobol_to_java.det import source as S
 
     row: dict[str, Any] = {"program": str(program.relative_to(corpus))}
     if unmask:
@@ -174,9 +176,7 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
                 "kind": "cics" if "runTask(CicsTask" in stub else "call" if "handleCall(" in stub else
                 "batch" if "runBatch(" in stub else "other"})  # fmt: skip
     if r.stats.get("engine_layouts"):
-        row["engine_layouts"] = r.stats[
-            "engine_layouts"
-        ]  # {"engine": records laid by the engine, "own": by the translator}
+        row["engine_layouts"] = r.stats["engine_layouts"]  # {"engine": records laid by the engine, "own": by the translator}
     return row
 
 
@@ -339,24 +339,15 @@ def main() -> int:
         if args.program:
             wanted = {Path(p).as_posix() for p in args.program}
             progs = [p for p in progs if p.relative_to(corpus).as_posix() in wanted]
-        rows = [
-            survey_program(p, corpus, project, dirs, work, args.unmask, None if args.layouts == "off" else args.layouts)
-            for p in progs
-        ]
+        rows = [survey_program(p, corpus, project, dirs, work, args.unmask,
+                                None if args.layouts == "off" else args.layouts) for p in progs]
         if args.unmask != "cics-macro-level":  # that what-if reads them as COBOL: they are no COBOL
             rows += assembler_rows(
                 corpus,
                 {Path(p).as_posix() for p in args.program} if args.program else None,
-                partial(
-                    survey_program,
-                    corpus=corpus,
-                    project=project,
-                    dirs=dirs,
-                    work=work,
-                    unmask=args.unmask,
-                    layouts=None if args.layouts == "off" else args.layouts,
-                ),  # fmt: skip
-            )
+                partial(survey_program, corpus=corpus, project=project, dirs=dirs, work=work, unmask=args.unmask,
+                        layouts=None if args.layouts == "off" else args.layouts),
+            )  # fmt: skip
         if built and not args.no_compile:
             cp = classpath(project)
             todo = [r for r in rows if "statements" in r]

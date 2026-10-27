@@ -487,6 +487,22 @@ def class_names(repo, vendored=None):
     return class_names_of_text(*texts)
 
 
+def _alias_owner(text, heads, pos):
+    """The class an alias declared at `pos` is a member of (the nearest class head before it that opens the same line
+    or sits at a lesser indent), None for a namespace-scope alias at column 0."""
+    line_start = text.rfind("\n", 0, pos) + 1
+    indent = pos - line_start
+    if indent == 0:
+        return None
+    for at, name in reversed(heads):
+        if at >= pos:
+            continue
+        head_start = text.rfind("\n", 0, at) + 1
+        if head_start == line_start or len(text[head_start:at]) - len(text[head_start:at].lstrip()) < indent:
+            return name
+    return None
+
+
 def _split_bases(listing):
     """A base list's entries: split at top-level commas only (`TArray<T, TT>` is one entry)."""
     parts, depth, start = [], 0, 0
@@ -509,7 +525,11 @@ def class_names_of_text(*texts):
     for text in texts:
         clean = STRIP.sub(" ", text)
         declared.update(CLASS_DECL.findall(clean))
-        aliases.extend((m.group(2) or m.group(3), m.group(1) or m.group(4)) for m in ALIAS_DECL.finditer(clean))
+        heads = [(m.start(), m.group(1)) for m in CLASS_DECL.finditer(clean)]
+        aliases.extend(
+            (m.group(2) or m.group(3), m.group(1) or m.group(4), _alias_owner(clean, heads, m.start()))
+            for m in ALIAS_DECL.finditer(clean)
+        )
         for head in BASE_LIST.finditer(clean):
             owner = CLASS_HEAD.search(head.group(0))
             if owner is None:
@@ -517,7 +537,12 @@ def class_names_of_text(*texts):
             bases_of.setdefault(owner.group(1), set()).update(
                 m.group(1) for b in _split_bases(head.group(1)) if (m := BASE_NAME.search(b))
             )
-    bases_of[ALIASES] = {name for name, target in aliases if target.rsplit("::", 1)[-1] in declared}
+    for name, target, owner in aliases:  # a member alias is the base name only inside its own class
+        if owner is not None and target.rsplit("::", 1)[-1] in declared:
+            bases_of.setdefault(owner, set()).add(name)
+    bases_of[ALIASES] = {
+        name for name, target, owner in aliases if owner is None and target.rsplit("::", 1)[-1] in declared
+    }
     return bases_of
 
 

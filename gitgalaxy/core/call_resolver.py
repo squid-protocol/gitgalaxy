@@ -1700,12 +1700,15 @@ def resolve_calls(
                 ) or (
                     init_only
                     and bucket is not None
-                    and not any(
-                        d.path == src_path
-                        or _dirname(d.path) == caller.dir
-                        or d.path in _include_closure(imports, src_path, closures)
-                        for d in bucket.defs
-                        if d.kind == "class" or d.owner_key == _key(str(callee), lang)
+                    and (
+                        step == "tie"  # several classes of that name in scope: a nested `Node`, not a base to pin
+                        or not any(
+                            d.path == src_path
+                            or _dirname(d.path) == caller.dir
+                            or d.path in _include_closure(imports, src_path, closures)
+                            for d in bucket.defs
+                            if d.kind == "class" or d.owner_key == _key(str(callee), lang)
+                        )
                     )
                 ):
                     recursive.append(callee)  # a data member `: type(t)`, not a call, whatever function shares its name

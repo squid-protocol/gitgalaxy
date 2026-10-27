@@ -13,7 +13,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 ## All reported estates
 
 - Programs: 57; at E0 0, E1 5, E2 30, E3 22, E4 0; executed equivalent or above (E2+): 52/57 (91.2%).
-- Coverage over the programs with a record: paragraphs 571/574 (99.5%), branch outcomes 1705/1807 (94.4%).
+- Coverage over the programs with a record: paragraphs 571/574 (99.5%), branch outcomes 1715/1817 (94.4%).
 - Mutation: 52 program(s) measured, killed 2874/4212 (68.2%) raw (adjusted for equivalent / unreachable survivors: 2874/3340 (86.0%)); survivors case_gap 274, harness_gap 191, equivalent 516, unreachable 356, untriaged 0; open survivors 465.
 - Holes (stub / ported_unproven methods): 4. Declared differences: 13.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 52).
@@ -22,7 +22,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 ## aws-mainframe-modernization-carddemo
 
 - Programs: 28; at E0 0, E1 4, E2 23, E3 1, E4 0; executed equivalent or above (E2+): 24/28 (85.7%).
-- Coverage over the programs with a record: paragraphs 460/461 (99.8%), branch outcomes 1495/1577 (94.8%).
+- Coverage over the programs with a record: paragraphs 460/461 (99.8%), branch outcomes 1499/1581 (94.8%).
 - Mutation: 23 program(s) measured, killed 2049/2737 (74.9%) raw (adjusted for equivalent / unreachable survivors: 2049/2132 (96.1%)); survivors case_gap 75, harness_gap 7, equivalent 380, unreachable 225, untriaged 0; open survivors 82.
 - Holes (stub / ported_unproven methods): 3. Declared differences: 0.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 23).
@@ -37,9 +37,9 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 | COCRDSLC | carddemo-cardview | 442 | E2 | 25 runs / 3 fault | gnucobol-models | 30/30 / 69/75 | 60/91, open 5 | 0 | - | coverage short: 30/30 paragraphs, 69/75 branch outcomes |
 | CBPAUP0C | carddemo-cbpaup0c | 180 | E2 | 13 runs / 12 fault | gnucobol-models | 15/16 / 38/40 | - | 0 | - | coverage short: 15/16 paragraphs, 38/40 branch outcomes |
 | CBSTM03A | carddemo-cbstm03a | 566 | E2 | 14 runs / 13 fault | gnucobol-models | 25/25 / 43/46 | - | 0 | - | coverage short: 25/25 paragraphs, 43/46 branch outcomes |
-| COPAUA0C | carddemo-copaua0c | 607 | E2 | 25 runs / 7 fault | gnucobol-models | 41/41 / 63/69 | - | 0 | - | coverage short: 41/41 paragraphs, 63/69 branch outcomes |
+| COPAUA0C | carddemo-copaua0c | 607 | E2 | 25 runs / 7 fault | gnucobol-models | 41/41 / 65/71 | - | 0 | - | coverage short: 41/41 paragraphs, 65/71 branch outcomes |
 | COPAUS0C | carddemo-copaus0c | 665 | E2 | 37 runs / 12 fault | gnucobol-models | 20/20 / 88/93 | - | 0 | - | coverage short: 20/20 paragraphs, 88/93 branch outcomes |
-| COPAUS1C | carddemo-copaus1c | 343 | E1 | 35 runs / 14 fault | gnucobol-models | 15/15 / 48/48 | - | 0 | - | a program it LINKs or CALLs has holes or no executed-equivalent record: program:COPAUS2C |
+| COPAUS1C | carddemo-copaus1c | 343 | E1 | 35 runs / 14 fault | gnucobol-models | 15/15 / 50/50 | - | 0 | - | a program it LINKs or CALLs has holes or no executed-equivalent record: program:COPAUS2C |
 | CBTRN01C | carddemo-dailyval | 309 | E2 | 21 runs / 20 fault | gnucobol-models | 18/18 / 65/66 | 63/96, open 8 | 0 | - | coverage short: 18/18 paragraphs, 65/66 branch outcomes |
 | CSUTLDTC | carddemo-dateutil | 51 | E2 | 1 runs / 0 fault | gnucobol-models | 2/2 / 4/10 | 197/260, open 0 | 0 | - | coverage short: 2/2 paragraphs, 4/10 branch outcomes |
 | CBACT04C | carddemo-intcalc | 417 | E2 | 20 runs / 19 fault | gnucobol-models | 22/22 / 85/86 | 70/86, open 7 | 0 | - | coverage short: 22/22 paragraphs, 85/86 branch outcomes |
@@ -109,7 +109,7 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 ## cics-genapp
 
 - Programs: 6; at E0 0, E1 0, E2 5, E3 1, E4 0; executed equivalent or above (E2+): 6/6 (100.0%).
-- Coverage over the programs with a record: paragraphs 26/27 (96.3%), branch outcomes 90/105 (85.7%).
+- Coverage over the programs with a record: paragraphs 26/27 (96.3%), branch outcomes 96/111 (86.5%).
 - Mutation: 6 program(s) measured, killed 340/729 (46.6%) raw (adjusted for equivalent / unreachable survivors: 340/638 (53.3%)); survivors case_gap 121, harness_gap 177, equivalent 20, unreachable 71, untriaged 0; open survivors 298.
 - Holes (stub / ported_unproven methods): 0. Declared differences: 12.
 - Approved and current: 0. Stale records: 0 (stale mutation scores: 6).
@@ -118,8 +118,8 @@ Rolled up from the per-program evidence records (#4048, #4054). A level is evide
 | program | case | lines | level | proof | oracle | coverage (para / branch) | mutation | differences | approval | what stops the next level |
 |---|---|---|---|---|---|---|---|---|---|---|
 | LGAPDB01 | genapp-lgapdb01 | 326 | E2 | 14 runs / 7 fault | gnucobol-models | 7/7 / 28/31 | 58/137, open 71 | 2 | - | coverage short: 7/7 paragraphs, 28/31 branch outcomes |
-| LGAPVS01 | genapp-lgapvs01 | 79 | E2 | 13 runs / 4 fault | gnucobol-models | 3/3 / 8/9 | 72/125, open 41 | 2 | - | coverage short: 3/3 paragraphs, 8/9 branch outcomes |
+| LGAPVS01 | genapp-lgapvs01 | 79 | E2 | 13 runs / 4 fault | gnucobol-models | 3/3 / 10/11 | 72/125, open 41 | 2 | - | coverage short: 3/3 paragraphs, 10/11 branch outcomes |
 | LGICDB01 | genapp-lgicdb01 | 93 | E2 | 12 runs / 0 fault | gnucobol-models | 3/4 / 4/12 | 51/130, open 56 | 2 | - | coverage short: 3/4 paragraphs, 4/12 branch outcomes |
 | LGSTSQ | genapp-lgstsq | 53 | E2 | 8 runs / 0 fault | gnucobol-models | 1/1 / 4/6 | 25/78, open 44 | 2 | - | coverage short: 1/1 paragraphs, 4/6 branch outcomes |
 | LGUPDB01 | genapp-lgupdb01 | 237 | E3 | 22 runs / 12 fault | gnucobol-models | 9/9 / 38/38 | 68/140, open 52 | 2 | - | mutation score stale: port, case, harness, oracle changed since it was judged (cacb629caac85834ee75b1a6ddb2514c3ed930bd) |
-| LGUPVS01 | genapp-lgupvs01 | 93 | E2 | 12 runs / 5 fault | gnucobol-models | 3/3 / 8/9 | 66/119, open 34 | 2 | - | coverage short: 3/3 paragraphs, 8/9 branch outcomes |
+| LGUPVS01 | genapp-lgupvs01 | 93 | E2 | 12 runs / 5 fault | gnucobol-models | 3/3 / 12/13 | 66/119, open 34 | 2 | - | coverage short: 3/3 paragraphs, 12/13 branch outcomes |

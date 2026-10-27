@@ -5063,7 +5063,7 @@ def _to_link(events: list[dict[str, Any]], program: str) -> list[dict[str, Any]]
     return events
 
 
-X6_JUDGED = ("the refused WRITEQ (X6: its LENGTH runs past FROM; not settled on z/OS, #4050) -- what the task did "
+X6_JUDGED = ("the refused WRITEQ (X6: its LENGTH is over 32767, past the pad record; a LENGTH past FROM alone is written padded, #6573; not settled on z/OS, #4050) -- what the task did "
              "before it is compared, its end state (files, tables, the COMMAREA it leaves) is not")  # fmt: skip
 X23_JUDGED = ("the refused reference past EIBCALEN (X23: a COMMAREA of a stated length; z/OS shows whatever storage "
               "follows it) -- what the task did before it is compared, its end state (files, tables, the COMMAREA it "

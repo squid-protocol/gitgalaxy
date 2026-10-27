@@ -45,7 +45,7 @@ def test_call_in_an_interpolation_hole_is_a_call(body, callee):
         ('Log("{Fake()}");', "Fake"),  # a plain string has no holes
         ('Log($"{Real("Fake(x)")}");', "Fake"),  # a string inside a hole stays blanked
         ('Log(@"{Fake()}");', "Fake"),
-        ("// $\"{Fake()}\"\n        Log(1);", "Fake"),  # a comment
+        ('// $"{Fake()}"\n        Log(1);', "Fake"),  # a comment
         ('Log($"a" + "{Fake()}");', "Fake"),
     ],
 )
@@ -66,3 +66,34 @@ def test_expose_holes_keeps_the_newline_count():
 def test_unterminated_string_does_not_hang():
     assert "f" in expose_holes('$"abc {f(')
     assert expose_holes('$"abc').startswith('""')
+
+
+# `fixed (...) {` is a statement. It was read as a function named `fixed`, so every call after it (and the ones in its
+# head) moved off the real method (helion: 14 misses, `Parse`, `UploadImage`, `GetWallVertices`).
+def _units(code: str) -> dict[str, list[str]]:
+    functions = StructuralExtractor("csharp", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+    return {f["name"]: f["calls_out_to"] for f in functions}
+
+
+@pytest.mark.parametrize(
+    "stmt", ["fixed (uint* p = image.Pixels(1))", "fixed (byte* b = &a[0], c = &d[0])", "checked", "unchecked"]
+)
+def test_a_fixed_style_statement_is_no_function(stmt):
+    body = f"        Before();\n        {stmt}\n        {{\n            Inside();\n        }}\n        After();\n"
+    units = _units("class C\n{\n    public unsafe void Up(Image image)\n    {\n" + body + "    }\n}\n")
+    assert list(units) == ["Up"]
+    assert {"Before", "Inside", "After"} <= set(units["Up"])
+
+
+def test_a_call_in_the_fixed_head_belongs_to_the_method():
+    units = _units(
+        "class C\n{\n    unsafe void Up()\n    {\n        fixed (uint* p = Pixels(1))\n        {\n        }\n    }\n}\n"
+    )
+    assert units == {"Up": ["Pixels"]}
+
+
+def test_a_method_named_like_a_neighbour_of_fixed_still_matches():
+    units = _units(
+        "class C\n{\n    void Fixer()\n    {\n        Go();\n    }\n    void Checked2()\n    {\n        Go2();\n    }\n}\n"
+    )
+    assert list(units) == ["Fixer", "Checked2"]

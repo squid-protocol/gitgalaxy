@@ -57,7 +57,7 @@ def _hole_end(text: str, i: int) -> tuple[int, int]:
         if ch in ('"', "$", "@"):
             pre = _prefix(text, i) if ch != '"' else (i, 0, False)
             if pre:
-                i = _string_end(text, i, *pre)
+                i = _string_end(text, *pre)
                 continue
         if ch == "'":
             i = _skip_char(text, i)
@@ -81,8 +81,8 @@ def _skip_char(text: str, i: int) -> int:
     return j + 1
 
 
-def _string_end(text: str, start: int, q: int, dollars: int, verbatim: bool) -> int:
-    """Index after the string whose prefix starts at `start` and opening quote at `q` (holes included)."""
+def _string_end(text: str, q: int, dollars: int, verbatim: bool) -> int:
+    """Index after the string whose opening quote is at `q` (holes included)."""
     return _interpolated(text, q, dollars, verbatim, [])[0] if dollars else _skip_plain_string(text, q, verbatim)
 
 

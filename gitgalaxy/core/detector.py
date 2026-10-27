@@ -1976,6 +1976,8 @@ _CALLS_OUT_GLOBAL_IGNORE_NOT_KEYWORDS: dict[str, frozenset[str]] = {
     ),
     # #6266: java has no `sizeof`; `filelump_t.sizeof()` is a static method call (mochadoom)
     "java": frozenset({"def", "function", "using", "sizeof", "alignof", "decltype", "include", "require", "typeof"}),
+    # #6266: kotlin has no `sizeof` either; `filelump_t.sizeof()` is a companion-object call (kocoa)
+    "kotlin": frozenset({"def", "function", "using", "sizeof", "alignof", "decltype", "include", "require", "typeof"}),
     # #6454: `return` (Monad), `try`, `catch` and `finally` (Control.Exception) are ordinary functions in haskell
     "haskell": frozenset({"return", "try", "catch", "finally"}),
     # #6266: `def`, `function`, `include`, `require` ... are keywords of python / js / php / ruby, not of C or C++:

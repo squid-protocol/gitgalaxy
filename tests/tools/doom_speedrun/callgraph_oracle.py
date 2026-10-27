@@ -236,6 +236,8 @@ class Body:
                     # `p->~T<A>()`: the destructor's unit is `~T`, template arguments dropped
                     self.calls.setdefault(decode_bytes(name.text).split("<", 1)[0], shape(n))
                     callees.add(name.id)
+            elif n.type == "destructor_name" and n.id not in callees and _templated_dtor(n):
+                self.calls.setdefault(decode_bytes(n.text), "statement")  # `p->~T<A>()` parses as `p->~T < A > ()`
             elif n.type == "identifier" and n.id not in callees:  # a struct field is never a function reference
                 self.refs.add(decode_bytes(n.text))
             elif n.type == "type_identifier":  # C++ `new T(...)` / `T v(...)`: a constructor, not a named call
@@ -419,6 +421,13 @@ def _head_initializer_arguments(head):
     return "".join(out)
 
 
+def _templated_dtor(name):
+    """True for the `~T` of `p->~T<A>()`, which tree-sitter reads as the comparison `p->~T < A > ()`."""
+    field = name.parent
+    after = field.next_sibling if field is not None and field.type == "field_expression" else None
+    return after is not None and after.type == "<"
+
+
 def _initializers(node):
     """The ``field_initializer`` entries of a constructor's initializer list (a child of the definition, not of its body)."""
     for child in node.children:
@@ -478,6 +487,21 @@ def class_names(repo, vendored=None):
     return class_names_of_text(*texts)
 
 
+def _split_bases(listing):
+    """A base list's entries: split at top-level commas only (`TArray<T, TT>` is one entry)."""
+    parts, depth, start = [], 0, 0
+    for i, ch in enumerate(listing):
+        if ch == "<":
+            depth += 1
+        elif ch == ">":
+            depth -= 1
+        elif ch == "," and depth == 0:
+            parts.append(listing[start:i])
+            start = i + 1
+    parts.append(listing[start:])
+    return parts
+
+
 def class_names_of_text(*texts):
     """``class_names`` over source texts."""
     bases_of: dict[str, set[str]] = {}
@@ -491,7 +515,7 @@ def class_names_of_text(*texts):
             if owner is None:
                 continue
             bases_of.setdefault(owner.group(1), set()).update(
-                m.group(1) for b in head.group(1).split(",") if (m := BASE_NAME.search(b))
+                m.group(1) for b in _split_bases(head.group(1)) if (m := BASE_NAME.search(b))
             )
     bases_of[ALIASES] = {name for name, target in aliases if target.rsplit("::", 1)[-1] in declared}
     return bases_of

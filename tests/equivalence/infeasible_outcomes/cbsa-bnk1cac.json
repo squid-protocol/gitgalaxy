@@ -28,14 +28,6 @@
     },
     {
       "unit": "ED010",
-      "line": 637,
-      "kind": "IF",
-      "outcome": "true",
-      "family": "G",
-      "reason": "The re-count starts at INTRTI(WS-NUM-COUNT-POINT:INTRTL) with WS-NUM-COUNT-POINT = characters before the point + 2, i.e. past the only point (the point count is exactly 1 here), so INSPECT ... AFTER '.' finds no point and tallies 0; a count above 2 is never reached."
-    },
-    {
-      "unit": "ED010",
       "line": 724,
       "kind": "IF",
       "outcome": "true",

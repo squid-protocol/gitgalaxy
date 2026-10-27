@@ -1761,7 +1761,7 @@
       "issue": 6072,
       "refused_by_name": false,
       "new_class": false,
-      "summary": "CBSA BNK1CRA / BNK1TFN VALIDATE-AMOUNT cannot be proven for an amount with a 9 after the point (AMTI 1.900): the COMP-1 amount is stored truncated by GnuCOBOL (1.89) and rounded by the Java runtime (1.90), so the two outputs differ (COBOL 1001.89, Java 1001.90); no exactly-binary amount reaches the arm. Left open (CRA 1114:false, TFN 1171:false). Other L3->L4 gaps in the slice are oracle or harness limits, not scenario gaps: X8 bounds refusals, BIF DEEDIT of an empty field, SET TERMINAL UCTRANST then RECEIVE MAP, X54 (an all-blank amount arrives with length 0), and abend injection (#6271, cited by P117)."
+      "summary": "CBSA BNK1CRA / BNK1TFN VALIDATE-AMOUNT cannot be proven for an amount with a 9 after the point (AMTI 1.900): the COMP-1 amount is stored truncated by GnuCOBOL (1.89) and rounded by the Java runtime (1.90), so the two outputs differ (COBOL 1001.89, Java 1001.90); no exactly-binary amount reaches the arm. A 4-decimal amount whose third and fourth digits are both below 5 (AMTI 1.9944) is stored the same by both and does reach it: scenario amount-four-places-nines closes CRA 1114:false and TFN 1171:false. Other L3->L4 gaps in the slice are oracle or harness limits, not scenario gaps: X8 bounds refusals, BIF DEEDIT of an empty field, SET TERMINAL UCTRANST then RECEIVE MAP, X54 (an all-blank amount arrives with length 0), and abend injection (#6271, cited by P117)."
     }
   ]
 }

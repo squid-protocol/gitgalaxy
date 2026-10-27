@@ -522,6 +522,19 @@
       }
     },
     {
+      "name": "amount-four-places-nines",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "'1.9944': four decimals, but the re-count (start = characters before the point + 2) tallies only the 0-8 digits -- the 9s are counted only after a point, and the start is past it -- so it reaches 2, not more than 2: the second 'more than two' test is false and the amount goes on to be credited",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "1.9944"
+        }
+      }
+    },
+    {
       "name": "amount-missing",
       "aid": "DFHENTER",
       "commarea": {},

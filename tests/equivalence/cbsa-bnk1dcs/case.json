@@ -149,6 +149,21 @@
    }
   },
   {
+   "name": "inquire-uctran",
+   "aid": "DFHENTER",
+   "commarea": {
+    "WS-COMM-TERM": 450
+   },
+   "uctranst": "UCTRAN",
+   "why": "returning ENTER at a terminal translating to upper case (UCTRAN, 450): RM010 INQUIREs UCTRANST, finds UCTRAN and SETs NOUCTRAN before RECEIVE MAP, then the inquiry runs as in 'inquire'",
+   "receive": {
+    "BNK1DC": {
+     "CUSTNOI": "0000000001",
+     "SORTCI": "987654"
+    }
+   }
+  },
+  {
    "name": "inquire-professor",
    "aid": "DFHENTER",
    "commarea": {

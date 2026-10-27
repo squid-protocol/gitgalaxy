@@ -1684,11 +1684,12 @@ def resolve_calls(
                     and (dst is None or (dst.kind != "class" and dst.owner_key != _key(str(callee), lang)))
                 ) or (
                     init_only
-                    and dst is not None
-                    and (dst.kind == "class" or dst.owner_key == _key(str(callee), lang))
-                    and dst.path != src_path
-                    and dst.path not in caller.imported
-                    and _dirname(dst.path) != caller.dir
+                    and bucket is not None
+                    and not any(
+                        d.path == src_path or d.path in caller.imported or _dirname(d.path) == caller.dir
+                        for d in bucket.defs
+                        if d.kind == "class" or d.owner_key == _key(str(callee), lang)
+                    )
                 ):
                     recursive.append(callee)  # a data member `: type(t)`, not a call, whatever function shares its name
                     continue

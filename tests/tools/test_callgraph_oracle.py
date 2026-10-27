@@ -587,3 +587,33 @@ def test_text_fallback_names_a_template_destructor_call_by_its_unit():
     body = co.TextBody(b"void f() { p->~TArray<FString>(); q.~Map<int, TArray<int>> (); a = b < c; }", 1)
     assert {"~TArray", "~Map"} <= set(body.calls)
     assert "TArray" not in body.calls and "Map" not in body.calls
+
+
+MACRO_HEAD_SRC = """void Seq::Build(size_t n)
+{
+    a_.clear();
+    CLEAR_MEMORY(m_disable, bool, 16);
+    solo_ = ~(size_t)0;
+    loop_.Reset();
+}
+
+void Seq::Next()
+{
+    b();
+}
+"""
+
+
+def test_statements_a_macro_call_turned_into_a_definition_head_stay_part_of_their_function():
+    """edge-classic (#6266): `CLEAR_MEMORY(.., bool, ..);` with the next definition's head reads as a definition whose
+    head holds the statements between: a `;` in a head is no nested function, so those calls stay the caller's."""
+    calls = set(body_of(MACRO_HEAD_SRC, "cpp", 1).calls)
+    assert {"clear", "CLEAR_MEMORY", "Reset"} <= calls
+    assert set(body_of(MACRO_HEAD_SRC, "cpp", 10).calls) == {"b"}
+
+
+def test_a_lambda_in_a_constructor_initializer_does_not_make_the_constructor_a_misparse():
+    src = "DE_PIMPL(X)\n{\n    Impl(P *i, C c)\n        : Base(i)\n        , m(c ? c : [] () { return new T; })\n    {}\n};\n"
+    ctors = [n for n in co.function_nodes(co._parser("cpp").parse(src.encode())) if n.text.startswith(b"Impl(")]
+    assert ctors
+    assert all(co._is_real_nested_function(n) for n in ctors)

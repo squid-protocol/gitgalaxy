@@ -190,7 +190,8 @@ DEFINITION: dict[str, Any] = {
             # [ MACRO SHIELD ]: Support macros between return type and function name (e.g. PyAPI_FUNC(int) or _Py_HOT_FUNCTION)
             r"(?:[" + ID_START + r"][" + ID_CONTINUE + r"]+(?:\s*\([^)]*\))?\s+){0,5}"
             # 5. The "Not a Function" Shield
-            r"(?!(?:if|for|while|switch|return|sizeof)\b)"
+            # #6266: an MSVC SEH `__except (filter) {` / `__finally {` handler is a clause of the enclosing function, never a definition.
+            r"(?!(?:if|for|while|switch|return|sizeof|__except|__finally)\b)"
             # 6. The Identifier Capture (Satellite Name - Group 1)
             r"([" + ID_START + r"][" + ID_CONTINUE + r"]*)"
             # [NESTED PARENTHESIS FIX]: Uses 1-Level Nesting Trick to swallow function pointers and macros without ReDoS.

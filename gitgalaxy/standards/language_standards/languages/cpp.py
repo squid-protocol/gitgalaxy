@@ -251,7 +251,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*){0,5})?[ \t]*\{[ \t]*){0,3}"
             # #6266: `case T(x):` before a block is a label, not a definition named `T`.
-            r"(?!(?:if|for|while|switch|catch|else|case)\b)"
+            r"(?!(?:if|for|while|switch|catch|else|case|__except|__finally)\b)"
             r"(?:template[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>[ \t\n]*)?"
             # 2. LINKAGE & STORAGE MODIFIERS (Now supports vertical formatting)
             r"(?:(?:static|inline|extern|virtual|_Noreturn|constexpr|consteval|constinit|__inline__|__forceinline)[ \t\n]+){0,5}"
@@ -321,7 +321,7 @@ DEFINITION: dict[str, Any] = {
             r"(?:[ \t]{0,20}[*&]{1,5}[ \t\n]{0,200}|[ \t\n]{1,200})){0,5}"
             # 5. THE "NOT A FUNCTION" SHIELD
             # Prevents control flow (if, while) and primitive types from being captured as function names.
-            r"(?!(?:if|for|while|switch|return|catch|else|elif|sizeof|alignas|new|delete|ARGS\d+|NOARGS|int|float|double|char|void|long|short|unsigned|signed|bool|INTEGER|LOGICAL|real|__attribute__|__declspec|__asm__)\b)"
+            r"(?!(?:if|for|while|switch|return|catch|__except|__finally|else|elif|sizeof|alignas|new|delete|ARGS\d+|NOARGS|int|float|double|char|void|long|short|unsigned|signed|bool|INTEGER|LOGICAL|real|__attribute__|__declspec|__asm__)\b)"
             # #5630: a macro-statement loop or observer dispatch is a statement, not a definition: doomsday's
             # `DE_FOR_EACH_CONST(T, i, c)\n{`, `DE_FOR_OBSERVERS(i, a)`, `DE_NOTIFY_PUBLIC(Swap, i) {`, `DE_NOTIFY_VAR(`.
             r"(?!DE_(?:FOR_(?:EACH|OBSERVERS)|NOTIFY)(?![" + ID_CONTINUE + r"]*[a-z]))"

@@ -52,11 +52,11 @@
     "tests/tools/cics_crucible_compare.py"
    ],
    "files": 20,
-   "sha256": "3b50fce2685f35bce1194d5d19477de11b5af3e63dcd3a8683df7dc2bc807716",
+   "sha256": "90bd43828415b14603471fcd12aa098fca794b78a78a4a606bac307ce9ac4899",
    "components": {
     "harness:call": "ad0a0be475fedc958efdb0cba1bf3bcce0d369541d89bcd822ea85eacff4e8e9",
     "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
-    "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99",
+    "harness:core": "44d38a01abc69857283e736186feda6396e1cf6e297c12e07a097730aee7f15f",
     "harness:crucible": "35a01d0e383c918f6926561df7ac02c171c13139f9f9109971bc7020f9d8e0ed",
     "harness:db2": "389a27466f489f7499560289b5ceaeabaac2feaeb5b38eabc35b4227ffe604e1",
     "harness:ims": "788b0fe6a7e9624935a9cefaea81ef0813293eda1404c5f3030db620538f842f"
@@ -177,10 +177,10 @@
    },
    "runtime_sha256": "7c2b870db10a743ccc413269481a8a87b2a85fb6515efcad194d907b8ef94764"
   },
-  "digest": "e6df81e6fa102cb3664c26ef9301d90c4add8acfe40473c6f40d7c7a1cf6049f"
+  "digest": "57f77bb188033f288f8f3b16daed8209bab07ed8dabc11ca38b20328b4669d10"
  },
  "proof": {
-  "at": "2026-10-26T09:12:34Z",
+  "at": "2026-10-27T11:04:57Z",
   "verdict": "proven",
   "runs": 4,
   "fault_runs": 0,
@@ -210,8 +210,8 @@
   "sysout_compared": null,
   "attributes_compared": null,
   "java_failed": false,
-  "harness_commit": "4aa4de078f6003045f656399c83c80cbdac89e87+uncommitted",
-  "inputs_digest": "e6df81e6fa102cb3664c26ef9301d90c4add8acfe40473c6f40d7c7a1cf6049f"
+  "harness_commit": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2+uncommitted",
+  "inputs_digest": "57f77bb188033f288f8f3b16daed8209bab07ed8dabc11ca38b20328b4669d10"
  },
  "coverage": {
   "paragraphs": {
@@ -226,7 +226,7 @@
   "handler_labels": null,
   "source": "tests/cics_crucible/coverage.json#programs/gt-terminal-coalesce/GTTERM",
   "ledger_sha256": "f1c77405f9536bee3ff2964d900d1f5e4410a045ba015346554068107f5b466a",
-  "inputs_digest": "e6df81e6fa102cb3664c26ef9301d90c4add8acfe40473c6f40d7c7a1cf6049f"
+  "inputs_digest": "57f77bb188033f288f8f3b16daed8209bab07ed8dabc11ca38b20328b4669d10"
  },
  "reach": {
   "entry_points": [

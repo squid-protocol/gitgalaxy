@@ -51,10 +51,10 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "93e40b9bbb2b1d6c1d0e3c27d815a85062312c011fb8eb0db48af9e45a7df173",
+   "sha256": "4aa149fdf2da2f1e0c37127b8d173d337335275f3ceab77281cdc9cb6aba7f87",
    "components": {
     "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
-    "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99"
+    "harness:core": "44d38a01abc69857283e736186feda6396e1cf6e297c12e07a097730aee7f15f"
    }
   },
   "oracle": {
@@ -237,10 +237,10 @@
    },
    "runtime_sha256": "95d95b29ee402f9e60e387bd556e5076af66d0bd4c4f549241f603b4f4c3cc89"
   },
-  "digest": "d33440f8f7831595d6e402899d3ae4f3baf665c028dbe65b6fb5c3ff866d78df"
+  "digest": "e51da325d8761117fa691394846a763b621d8f4b27f5deb139be5217bef89605"
  },
  "proof": {
-  "at": "2026-10-26T09:12:02Z",
+  "at": "2026-10-27T11:04:24Z",
   "verdict": "proven",
   "runs": 13,
   "fault_runs": 4,
@@ -402,8 +402,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "4aa4de078f6003045f656399c83c80cbdac89e87+uncommitted",
-  "inputs_digest": "d33440f8f7831595d6e402899d3ae4f3baf665c028dbe65b6fb5c3ff866d78df"
+  "harness_commit": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2+uncommitted",
+  "inputs_digest": "e51da325d8761117fa691394846a763b621d8f4b27f5deb139be5217bef89605"
  },
  "coverage": {
   "paragraphs": {
@@ -411,8 +411,8 @@
    "live": 3
   },
   "branches": {
-   "covered": 8,
-   "total": 9
+   "covered": 10,
+   "total": 11
   },
   "uncovered_branches": [
    {
@@ -427,7 +427,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "d33440f8f7831595d6e402899d3ae4f3baf665c028dbe65b6fb5c3ff866d78df"
+  "inputs_digest": "e51da325d8761117fa691394846a763b621d8f4b27f5deb139be5217bef89605"
  },
  "reach": {
   "entry_points": [

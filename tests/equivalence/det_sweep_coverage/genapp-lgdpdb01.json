@@ -16,8 +16,8 @@
     "live": 3
    },
    "branches": {
-    "covered": 0,
-    "total": 4
+    "covered": 1,
+    "total": 6
    }
   },
   "LGSTSQ": {
@@ -34,12 +34,12 @@
  "inputs": {
   "case": "551cd3e514845511da462dd0e64d6542d64ae2b98d2756cd8d31e2f4c9f0c373",
   "corpus": "c5e4d52071fad96bed24e9ba06f30417340bfc5e998e7c1cd5f2383be73d6ff6",
-  "harness": "93e40b9bbb2b1d6c1d0e3c27d815a85062312c011fb8eb0db48af9e45a7df173",
+  "harness": "4aa149fdf2da2f1e0c37127b8d173d337335275f3ceab77281cdc9cb6aba7f87",
   "oracle": "848c34c7d886f87f4b8bb59ab004960e50725b88325d6300d051c33665533f82",
   "components": {
    "harness": {
     "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
-    "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99",
+    "harness:core": "44d38a01abc69857283e736186feda6396e1cf6e297c12e07a097730aee7f15f",
     "harness:db2": "389a27466f489f7499560289b5ceaeabaac2feaeb5b38eabc35b4227ffe604e1"
    },
    "oracle": {
@@ -51,5 +51,5 @@
    }
   }
  },
- "measured_at": "4aa4de078f6003045f656399c83c80cbdac89e87"
+ "measured_at": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2"
 }

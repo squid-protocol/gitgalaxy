@@ -16,6 +16,9 @@ def test_the_callers_left_the_baseline_once_epsmpmt_had_no_hole():
         assert case not in DET, case
 
 
-def test_epsmpmt_left_the_baseline_once_the_oracle_stated_binary64():
-    """The oracle stand-in (equivalence_binary64.py, #5867 slice 2) proves it on 11 of 11 calls."""
-    assert "mortgage-mpmt" not in DET
+def test_epsmpmt_is_listed_for_the_oracle_side_not_for_a_hole():
+    why = DET["mortgage-mpmt"]["why"]
+    assert "#5867" in why
+    assert "binary32" in why  # the COMP-1 C on GnuCOBOL's side
+    assert "599550.79" in why  # the differing call, measured
+    assert "hole" not in why.replace("no hole", "")

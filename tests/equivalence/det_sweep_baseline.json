@@ -2,6 +2,10 @@
  "format": "det-sweep-baseline/1",
  "about": "#4463: the det ports `proof_sweep.py --det-only` does not prove, each with the issue that owns it. A two-way ratchet: CI fails on a port not listed here that is not proven, and on a listed port that is now proven. When a fix lands, run `python tests/tools/proof_sweep.py --det-only --skip-db2 --work DIR --update-baseline` and commit the shortened file; a new entry is only ever added by hand, with its true cause.",
  "det": {
+  "mortgage-mpmt": {
+   "issue": "#5867",
+   "why": "IBM DBB EPSMPMT's payment formula: since #5867 its (1 + C) ** N (line 125) and the dead-code FUNCTION ANNUITY (line 144) translate as IEEE 754 binary64 by owner decision (2026-10-27, register C6), so the port has no hole. The oracle is not binary64 there: GnuCOBOL 3.1.2 holds the COMP-1 C as IEEE binary32 (det: short HFP, #4702) and loses about 1e-6 relative inside the larger expression (measured: C * ((1 + C) ** N) = 0.030112764... where the exact product of the same operands is 0.030112874...). Two of 11 calls differ by cents: maximum-principal (GnuCOBOL 599550.79, det 599550.44) and high-rate (16666.50, 16666.49). It waits on an oracle stand-in that states the ruling's binary64 on the GnuCOBOL side, and on the owner's word on C's binary32 vs HFP (#5867)."
+  },
   "genapp-lgsetup": {
    "issue": "#5252",
    "why": "LGSETUP's SEND TEXT FROM(WRITE-MSG-H) LENGTH(24) sends WRITE-MSG-H and the item after it, WRITE-MSG-HIGH PIC 9(10). The det port holds that numeric as a typed BigDecimal that never reaches the record's bytes (DetCics.withinRecord reads the bytes), so Java sends 0000000000 where GnuCOBOL sends the customer number. Unmasked on 2026-10-21 when X6 became ASSUMED: the run used to stop at the WRITEQ TS past FROM (98) before this SEND TEXT. Fix: pack the enclosing record's typed items before a past-FROM read (the pack_ methods are emitted only under --groups)."

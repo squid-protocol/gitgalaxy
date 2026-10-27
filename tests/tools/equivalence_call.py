@@ -53,7 +53,6 @@ from pathlib import Path
 from typing import Any
 
 import cobol_coverage as cov
-import equivalence_binary64
 import equivalence_common as common
 import equivalence_oracle
 
@@ -283,18 +282,11 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> bytes:
     src.mkdir(exist_ok=True)
     source, staged = common.read_program(case, corpus / case["program_source"])
     program, option_flags = common.compile_options(case, source)
-    try:  # #5867 (C6): EPSMPMT's payment formula, binary64 by the owner's ruling, computed by ggb64.c
-        lowered = equivalence_binary64.lower(program)
-    except equivalence_binary64.Unsupported as e:
-        raise RuntimeError(f"not runnable faithfully: {e}") from e
-    plain, program = program, lowered
     (src / "PROGRAM.cbl").write_text(program, encoding=staged)
     common.stage_copybooks(case, corpus, src)
     common.comp5_layout_guard(src)  # #4751: a 1- or 2-digit COMP-5 is one byte in GnuCOBOL, a halfword on z/OS (C16)
     (src / "EQCALLDR.cbl").write_text(cobol_driver(case, corpus), encoding="ascii")
     stubs = [p for p in [*LE.glob("*.c"), FAULTS / "ggabend.c"] if p.is_file()]
-    if program != plain:
-        stubs.append(FAULTS / equivalence_binary64.STUB)
     for p in stubs:
         shutil.copy(p, src / p.name)
     flags = " ".join(["-std=ibm -fsign=EBCDIC", *option_flags, cov.TRACE_FLAG, "-I /work/src"])

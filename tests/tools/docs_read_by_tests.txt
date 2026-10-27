@@ -118,6 +118,7 @@
 /lib	tests/core_engine
 /locked.dat	tests/security_auditing
 /logo.png	tests/security_auditing
+/m.c	tests/tools/test_callgraph_oracle.py
 /main.c	tests/core_engine
 /main.go	tests/security_auditing
 /main.py	tests/core_engine,tests/security_auditing

@@ -138,6 +138,23 @@ static void *Start(int c)
     assert body.presence("skipped") == "macro"
 
 
+def test_the_brace_fallback_reads_a_declared_local_as_a_declaration_not_a_call():
+    src = """void Dlg::build()
+{
+    SequentialLayout layout(a.left(), a.top());
+    std::unique_ptr<Rec> map(new Rec);
+    Reader from(block);
+    layout.add(x);
+    emit self().changed();
+    HUDONLY checked(c);
+    return real(c);
+}
+"""
+    body = co.TextBody(src.encode(), 1)
+    assert set(body.calls) == {"left", "top", "add", "self", "changed", "checked", "real"}
+    assert "layout" not in body.calls and "map" not in body.calls and "from" not in body.calls
+
+
 def make_port(work, name, files, funcs):
     """files: {rel: source}; funcs: [(rel, name, start_line, [callees])]."""
     repo = work / "repos" / name
@@ -762,8 +779,9 @@ static int draw(int x)
         (FUSED_HEAD_SRC, 4, 14, 11, {"checked", "helper"}),
     ],
 )
+@pytest.mark.parametrize("crlf", [False, True], ids=["lf", "crlf"])
 def test_a_node_tree_sitter_closed_inside_a_macro_or_fused_into_the_head_takes_the_brace_body(
-    tmp_path, monkeypatch, src, start, closes, body_row, want
+    tmp_path, monkeypatch, src, start, closes, body_row, want, crlf
 ):
     from types import SimpleNamespace
 
@@ -777,6 +795,8 @@ def test_a_node_tree_sitter_closed_inside_a_macro_or_fused_into_the_head_takes_t
     name = "render" if start == 3 else "draw"
     funcs = [("m.c", "helper", 1, []), ("m.c", "slope", 2, []), ("m.c", name, start, sorted(want))]
     repo, scan = make_port(tmp_path, "linuxdoom", {"m.c": src}, funcs)
+    # Bytes, not write_text: Windows would turn every case CRLF, and the LF case must stay LF there too.
+    (repo / "m.c").write_bytes((src.replace("\n", "\r\n") if crlf else src).encode())
     port = co.Port("linuxdoom", repo, co.load_port(repo, co.find_db(scan)))
     body = next(f for f in port.functions if f[1] == name)[4]
     assert isinstance(body, co.TextBody)

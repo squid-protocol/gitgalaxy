@@ -105,6 +105,13 @@ STRIP = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])
 TEXT_CALL = re.compile(
     r"(?:(?<=->)|(?<=\.)|(?<=::))\s*~\s*([A-Za-z_]\w*)\s*(?:<[^;{}()]*>\s*)?\(|\b([A-Za-z_]\w*)\s*\("
 )
+# `Type name(args)` in a text-fallback body declares a local (tree-sitter's declaration, never a call to `name`): the
+# name follows a type word (optionally `<...>`) and a blank. These words before a name are keywords or Qt statement
+# macros, so the name after them is a real call (`return f(x)`, `emit self().changed()`); so is one after an ALL-CAPS word.
+DECL_TAIL = re.compile(r"([A-Za-z_]\w*)(?:[ \t]*<[^;{}()]{0,120}>)?[ \t]+\Z")
+NOT_A_TYPE = frozenset(
+    "return else new delete throw case goto co_return co_await co_yield emit typeid not and or xor".split()
+)
 # A class or struct definition head: the last word before its `:` base list or `{` is the class name.
 CLASS_HEAD = re.compile(r"\b(?:class|struct)\b[^;{}()<>]*?\b([A-Za-z_]\w*)\s*(?:final\s*)?[:{]")
 # A class head with a base list: `class A : public B, virtual C<T> {` (the entries after the lone `:`).
@@ -121,8 +128,8 @@ CLASS_DECL = re.compile(r"\b(?:class|struct)\s+(?:[A-Z_]+\s+)?([A-Za-z_]\w*)\s*[
 ALIASES = ""  # the key of `class_names` that holds the alias names (no class is named "")
 CPP_EXTS = frozenset(".h .hh .hpp .hxx .inl .cc .cpp .cxx".split())
 KEYWORDS = frozenset(
-    "if else while for do switch return sizeof alignof _Alignof defined case goto typeof decltype".split()
-)
+    "if else while for do switch return sizeof alignof _Alignof defined case goto typeof decltype foreach Q_FOREACH".split()
+)  # foreach / Q_FOREACH: Qt loop statements, which tree-sitter reads as a definition of that name
 
 
 def bare(name):
@@ -242,6 +249,8 @@ class Body:
         text = STRIP.sub(" ", decode_bytes(raw))
         for m in TEXT_CALL.finditer(text):
             name = "~" + m.group(1) if m.group(1) else m.group(2)
+            if m.group(2) and _declares_local(text, m.start(2)):
+                continue
             if name not in KEYWORDS:
                 self.calls.setdefault(name, "unparsed")
 
@@ -295,8 +304,8 @@ def _member_initializers(body):
 
 
 # A preprocessor directive with its `\`-continued lines: a macro defined inside a function is not that function's calls
-# (the engine blanks it too, #6793; the tree-sitter walk skips the node).
-DIRECTIVE = r"^[ \t]*#(?:[^\n]*\\\n)*[^\n]*$"
+# (the engine blanks it too, #6793; the tree-sitter walk skips the node). A CRLF source continues with CR LF.
+DIRECTIVE = r"^[ \t]*#(?:[^\n]*\\\r?\n)*[^\n]*$"
 
 
 def _head_has_statement(head):
@@ -309,6 +318,12 @@ def _head_has_statement(head):
         if ch == ";" and paren <= 0 and brace > 0:
             return True
     return False
+
+
+def _declares_local(text, pos):
+    """True when the name at ``pos`` follows a type word, so ``Type name(args)`` declares a local, not a call."""
+    tail = DECL_TAIL.search(text[max(0, pos - 160) : pos])
+    return tail is not None and tail.group(1) not in NOT_A_TYPE and not tail.group(1).isupper()  # HUDONLY f(x): a macro
 
 
 def _ends_in_continued_line(lines, end_line):

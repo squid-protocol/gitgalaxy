@@ -212,22 +212,18 @@
    "unmatched_functions": 0
   },
   "doom3-bfg": {
-   "agree": 47968,
-   "engine_calls": 48748,
+   "agree": 47973,
+   "engine_calls": 48744,
    "engine_only_by_kind": {
-    "absent": 5,
     "function-pointer": 21,
-    "macro": 4,
     "type": 750
    },
-   "functions": 16380,
-   "misses_by_shape": {
-    "unparsed": 3
-   },
-   "oracle_calls": 47971,
-   "precision": 0.984,
-   "recall": 0.9999,
-   "text_fallback_functions": 623,
+   "functions": 16379,
+   "misses_by_shape": {},
+   "oracle_calls": 47973,
+   "precision": 0.9842,
+   "recall": 1.0,
+   "text_fallback_functions": 622,
    "unmatched_functions": 3
   },
   "doom3do": {

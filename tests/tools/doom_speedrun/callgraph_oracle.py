@@ -204,6 +204,14 @@ class Body:
             name = callee_node(init.children[0]) if init.children else None
             if name is not None and decode_bytes(name.text) in _bases(classes or {}, node):
                 self.calls.setdefault(decode_bytes(name.text), "ctor-init")
+        for (
+            err
+        ) in node.children:  # `ID_INLINE Cls(x) : Base() {`: an unknown macro before the name makes the list an ERROR
+            if err.type == "ERROR" and decode_bytes(err.text).lstrip().startswith(":"):
+                head = decode_bytes(err.text)
+                for name in _head_initializer_names(head):
+                    if name in _bases(classes or {}, node):
+                        self.calls.setdefault(name, "ctor-init")
         body = node.child_by_field_name("body") or node
         stack = [body]
         for init in _initializers(node):  # `d(new Impl(this))`, `base(f(x))`: the arguments are part of the constructor
@@ -332,6 +340,23 @@ def _ends_in_continued_line(lines, end_line):
     return end_line >= 2 and lines[end_line - 2].rstrip().endswith("\\")
 
 
+LOCAL_CLASS_OPEN = re.compile(r"\b(?:class|struct)\s+[A-Za-z_]\w*[^;{}()]*\{")
+
+
+def _blank_local_classes(body):
+    """``body`` with the braces of each local ``class X : Base { ... }`` blanked (newlines kept): its methods own their
+    calls (a CONSOLE_COMMAND macro body that declares `class idSWFScriptFunction_Continue`, doom3-bfg, #6266)."""
+    out, pos = [], 0
+    while (m := LOCAL_CLASS_OPEN.search(body, pos)) is not None:
+        depth, i = 1, m.end()
+        while i < len(body) and depth:
+            depth += (body[i] == "{") - (body[i] == "}")
+            i += 1
+        out.append(body[pos : m.end()] + re.sub(r"[^\n]", " ", body[m.end() : i]))
+        pos = i
+    return "".join(out) + body[pos:]
+
+
 class TextBody(Body):
     """Fallback for a function tree-sitter folds into a neighbour (a macro table above it with no semicolon): the
     brace-matched body from its start line, comments and literals blanked, preprocessor lines dropped; every call is
@@ -366,6 +391,7 @@ class TextBody(Body):
         body = text[open_at : end + 1]
         self.preproc = re.findall(DIRECTIVE, body, flags=re.M)
         body = re.sub(DIRECTIVE, " ", body, flags=re.M)
+        body = _blank_local_classes(body)  # a local class's methods are their own units (as in Body)
         if MACRO_CLASS_HEAD.match(lines[line - 1]):
             self._text_calls(_member_initializers(body).encode())
         else:

@@ -526,6 +526,24 @@
         "rc=1"
       ],
       "note": "Plain cobc has no CEELOCT (module not found, rc=1). ASSUMED shape of register L5 (3): the model writes only the 17 documented characters. Expected z/OS if the assumption holds: HEAD=DIGITS TAIL=UNTOUCHED. TAIL=WRITTEN settles L5 (3) as a declared difference; record the bytes written."
+    },
+    "c20-recursive-perform-returns": {
+      "entries": [
+        "C20"
+      ],
+      "compile_options": "default",
+      "question": "TERM-PARA PERFORMs CLOSE-PARA, whose first entry PERFORMs TERM-PARA again while it is active (a recursive PERFORM, CardDemo COACCT01 / CODATE01's shape): does control return to each PERFORM in turn?",
+      "source": "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. P20.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n       01 N PIC 9 VALUE 0.\n       PROCEDURE DIVISION.\n       MAIN-PARA.\n           PERFORM TERM-PARA\n           GO TO FIN-PARA.\n       TERM-PARA.\n           DISPLAY \"TERM-IN=\" N\n           PERFORM CLOSE-PARA\n           DISPLAY \"TERM-OUT=\" N.\n       CLOSE-PARA.\n           ADD 1 TO N\n           IF N = 1\n               PERFORM TERM-PARA\n           END-IF\n           DISPLAY \"CLOSE=\" N.\n       FIN-PARA.\n           DISPLAY \"MAIN=\" N\n           STOP RUN.\n",
+      "oracle_expected": [
+        "TERM-IN=0",
+        "TERM-IN=1",
+        "CLOSE=2",
+        "TERM-OUT=2",
+        "CLOSE=2",
+        "TERM-OUT=2",
+        "MAIN=2"
+      ],
+      "note": "IBM (6.4 LR, SC27-8713-03, Basic PERFORM statement) says a recursive PERFORM can cause unpredictable results, so there is no expected z/OS answer to state. A z/OS run that prints the oracle's lines in order MATCHES register C20; any other output, a loop or an abend DIFFERS. The recursion here ends (N is 2 on the nested entry); CardDemo's endless one (a failed close of the reply or error queue) is not probed."
     }
   }
 }

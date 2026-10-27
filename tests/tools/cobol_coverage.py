@@ -67,6 +67,7 @@ from collections.abc import Iterable
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
+from gitgalaxy.core.cobol_source_format import line_formats  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol import cobol_graveyard_finder as gy  # noqa: E402
 
 FORMAT = "cobol-coverage/1"
@@ -585,6 +586,53 @@ def _exec_lines(lines: list[str]) -> set[int]:
     return out
 
 
+_COPY = re.compile(r"(?i)(?:^|\s)COPY\s")
+
+
+def _traced_lines(lines: list[str]) -> dict[int, int]:
+    """{the line GnuCOBOL's trace gives a statement: its line in `lines`} when the two differ (#6072). cobc does not count
+    the newlines between a period and a redundant one after it (`PERFORM X.`, a blank line, a lone `.`: "ignoring
+    redundant ."), so every line after reads that many early, in any division and either format, until a COPY
+    statement's end resyncs the count. Measured in gitgalaxy-gnucobol:3 (the _REDUNDANT shapes of its tests). A line
+    the trace number fits twice (statements on both sides of the period pair) goes to the first."""
+    out: dict[int, int] = {}
+    lost = 0  # newlines not counted so far
+    period = 0  # the line of the last token when it was a separator period, else 0
+    copying = False
+    for n, (fmt, raw) in enumerate(zip(line_formats("\n".join(lines)), lines), 1):
+        fixed = fmt != "free"  # a short fixed line too: a `.` in the sequence area is no token (CBSA BNK1DCS)
+        code = (raw[6:] if fmt == "variable" else raw[6:72]) if fixed else raw
+        if code[:1] in ("*", "/") and fixed or code.lstrip().startswith(">>"):
+            continue
+        if fixed and code[:1] in ("-", "D", "d"):
+            code = code[1:]
+        quote, i, ended_copy = "", 0, False
+        while i < len(code):
+            c = code[i]
+            if quote:
+                quote = "" if c == quote else quote
+            elif c in "'\"":
+                quote, period = c, 0
+            elif code.startswith("*>", i):
+                break
+            elif c == "." and code[i + 1 : i + 2] in ("", " ", "\t"):
+                if period and not copying:
+                    lost += n - period
+                period = n
+                if copying:
+                    copying, ended_copy = False, True
+            elif not c.isspace():
+                period = 0
+                if _COPY.match(code, i - 1 if i else 0) and (i == 0 or code[i - 1].isspace()):
+                    copying = True
+            i += 1
+        if ended_copy:
+            lost, period = 0, 0
+        elif lost and code.replace(".", "").strip():  # a statement on the line (after a period on it, too) reads early
+            out.setdefault(n - lost, n)
+    return {t: n for t, n in out.items() if t != n}
+
+
 class LineMap:
     """Compiled line -> (original line, exact). Unchanged lines map exactly, and so does a line the harness
     rewrote in place (`IF WS-RESP NOT = DFHRESP(NORMAL)` -> `... NOT = 0`: paired by similarity inside the
@@ -600,6 +648,7 @@ class LineMap:
         self.map: dict[int, tuple[int, bool]] = {}
         self.exact: set[int] = set()
         self.exec_lines = _exec_lines(a)
+        self.traced = _traced_lines(b)
         if a == b:
             self.map = {i + 1: (i + 1, True) for i in range(len(a))}
             self.exact = set(self.map)
@@ -659,7 +708,8 @@ class LineMap:
         return r
 
     def get(self, line: int) -> tuple[int, bool] | None:
-        return self.map.get(line)
+        """The original line (and whether exactly) of the statement a trace names at compiled `line`."""
+        return self.map.get(self.traced.get(line, line))
 
 
 @dataclasses.dataclass

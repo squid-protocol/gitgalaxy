@@ -89,6 +89,11 @@ SHAPE_OF_PARENT = {
     "expression_statement": "statement",
 }
 PREPROC = {"preproc_def", "preproc_function_def", "preproc_call", "preproc_arg"}
+# Statements that cannot sit at file scope: one right after a function means tree-sitter closed that function early
+STATEMENT_NODES = {
+    "for_statement", "while_statement", "do_statement", "if_statement", "switch_statement", "return_statement",
+    "for_range_loop", "try_statement", "expression_statement",
+}  # fmt: skip
 TEXT_NODES = {"comment", "string_literal", "raw_string_literal", "char_literal", "concatenated_string"}
 # Text fallback for a region tree-sitter misparsed (an ERROR node, or an ``else if`` split by ``#ifdef`` read as a
 # nested function definition): comments and literals blanked, then every ``name (`` that is not a keyword.
@@ -197,6 +202,8 @@ class Body:
             elif n.type == "type_identifier":  # C++ `new T(...)` / `T v(...)`: a constructor, not a named call
                 self.types.add(decode_bytes(n.text))
             stack.extend(reversed(n.children))
+        if _runs_into_statements(node):  # `QRYNEWINFO(7) {..} else {..}` (an `if` macro) ends the node with no ERROR
+            self.broken = True
 
     def _text_calls(self, raw):
         text = STRIP.sub(" ", decode_bytes(raw))
@@ -373,6 +380,20 @@ def _is_real_nested_function(node):
     if name is None or decode_bytes(name.text) in KEYWORDS or MACRO_STATEMENT.fullmatch(decode_bytes(name.text)):
         return False
     return kind is None or decode_bytes(kind.text) not in KEYWORDS
+
+
+def _runs_into_statements(node):
+    """True when the next non-comment sibling of a file-scope function is a statement: the code below it is the rest of
+    this function, which tree-sitter closed early (an `if`-like macro before a braced block, #5630)."""
+    nxt = node.next_sibling
+    while nxt is not None and nxt.type == "comment":
+        nxt = nxt.next_sibling
+    return (
+        node.parent is not None
+        and node.parent.type == "translation_unit"
+        and nxt is not None
+        and nxt.type in STATEMENT_NODES
+    )
 
 
 def _word_in(word, text):

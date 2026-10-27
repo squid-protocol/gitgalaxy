@@ -478,3 +478,35 @@ def test_a_macro_statement_loop_is_part_of_its_function_not_a_nested_one(stmt):
     body = body_of(f"void run(Dict &d)\n{{\n    {stmt}\n}}\n", "cpp")
     assert "inner" in body.calls
     assert body.nested == []
+
+
+GATED = """void build(int ver)
+{
+    first();
+    GATE(7)
+    {
+        gated();
+    }
+    else
+    {
+        other();
+    }
+    for (int i = 0; i < 3; i++)
+    {
+        late(i);
+    }
+}
+"""
+
+
+def test_an_if_macro_that_closes_the_node_early_is_flagged_and_the_braces_reach_the_real_end():
+    """`GATE(7) {..} else {..}` ends the tree-sitter node with no ERROR; the loop below it parses as file-scope code."""
+    body = body_of(GATED, "cpp")
+    assert body.broken  # the oracle then reads the brace-matched text, which reaches the closing line
+    text = co.TextBody(GATED.encode(), 1)
+    assert text.end_line == GATED.count("\n")
+    assert {"first", "gated", "other", "late"} <= set(text.calls)
+
+
+def test_a_function_followed_by_a_declaration_is_not_flagged():
+    assert not body_of("void f()\n{\n    g();\n}\n\nint x = 1;\n", "cpp").broken

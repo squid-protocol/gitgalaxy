@@ -139,6 +139,15 @@
     "CA-REQUEST-SPECIFIC": "XXXXXXXXXXYYYYYYYYYYYYYYYYYYYY1999-99-99ZZZZZZZZZZZZZZZZZZZZ9999QQ99QQQ 123MMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeePOLICYDATA"
    },
    "why": "+100 with a filled COMMAREA: '01' and every customer byte unchanged"
+  },
+  {
+   "name": "short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 3
+   },
+   "commarea_length": 60,
+   "why": "EIBCALEN 60 < 90 (WS-CUSTOMER-LEN + the header and trailer): CA-RETURN-CODE '98' and RETURN, no SELECT"
   }
  ],
  "notes": "GenApp's Db2 'inquire customer' (LGICDB01, LINKed by LGICUS01 with the 32500-byte LGCMAREA COMMAREA; the COMMAREA is described by the record the caller passes, LGICUS01's DFHCOMMAREA (COPY LGCMAREA), since LGICDB01 includes the same copybook with EXEC SQL INCLUDE: the generated DTO is the caller's): EIBCALEN is checked against 72+18 bytes, CA-CUSTOMER-NUM is moved to an S9(9) COMP host variable, and a SELECT INTO from CUSTOMER (unqualified: the bind's QUALIFIER, GENASA1) fills the nine customer fields of CA-CUSTOMER-REQUEST directly. SQLCODE 0 gives CA-RETURN-CODE '00', +100 (or -913) '01', anything else '90' and WRITE-ERROR-MESSAGE. The table is GenApp's own (base/cntl/db2cre.jcl: DDL and its ten customer INSERTs, <DB2DBID> = GENASA1) and is compared after every scenario. Not reachable here: EIBCALEN 0 (ABEND LGCA, l.119-123) and EIBCALEN < 90 ('98', l.140-143) -- the harness passes the whole 32500-byte COMMAREA, with no per-scenario length; SQLCODE -913 (l.197) and any other negative SQLCODE (l.199-202) -- no data in GenApp's seed causes one (every CUSTOMER column is nullable and read without an indicator, but no seeded value is NULL; Db2 errors are not injectable, M2), and the '90' path LINKs to LGSTSQ, GenApp's TS/TD logger, which the harness does not run. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2021), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."

@@ -340,6 +340,17 @@
         "ZC01DC": "type: AS\r%"
       },
       "why": "#6072: the ZC01DC template holds only the 10-byte type line, so 7000-GET-URL's DOCUMENT RETRIEVE is NORMAL but DC-LENGTH is not greater than TEN (line 323 false, no WEB PARSE) and the third test of line 338 (DC-LENGTH EQUAL TEN) sets ACTIVE-SINGLE"
+    },
+    {
+      "name": "sdr-resources-template-not-installed",
+      "commarea": {
+        "CA-TYPE": "SDR",
+        "CA-URI-FIELD-01": "/resources"
+      },
+      "doctemplates": {
+        "OTHER": "type: AS\r%http://zecs-b.example.com:8080\r%"
+      },
+      "why": "#6072: the region installs no ZC01DC template (only an unrelated one), so 7000-GET-URL's DOCUMENT CREATE answers NOTFND (RESP2 3, IBM: the TEMPLATE was not found); line 314 is false, no RETRIEVE or WEB PARSE runs, and line 338's first test (EIBRESP NOT NORMAL) sets DC-TYPE to ACTIVE-SINGLE"
     }
   ],
   "notes": "zECS's expiration clean-up task for one instance (ZECS003, started by the ZX## transaction, here ZC01: EIBTRNID(3:2) names the instance's files ZC01FILE and ZC01KEY, its URIMAP ZC01R and its document template ZC01DC). Its COMMAREA is CA-TYPE ('ADR' or 'SDR') and CA-URI-FIELD-01 ('/resources' or '/replicate'). The region's facts are stated on both sides: the document template ZC01DC as the document holds it (\"doctemplates\", oracle_assumptions.md X33, APPENDCRLF applied: 'type: <AA|AS|A1>' CR LF, the other region's URL, CR LF; zECS's own template is ZC##DC.txt), the URIMAP definitions (\"urimaps\", X32), the other region's HTTP server (\"http_peers\", X35) and the inbound request the WEB SEND answers (\"http_request\", X37). The files ZC01FILE / ZC01KEY are named by the program at run time and defined by zECS's IDCAMS jobs (ZECSFILE.idcams, ZECSKEY.idcams) with install placeholders in their names: \"install_symbols\" states the instance (ID 01) and each dataset's \"runtime_file\" states its IDCAMS key and record size (the seed files are written for this case: zcempty.bin, zcfile-expired.bin, zcfile-fresh.bin, zckey.bin hold fixed 32700- / 512-byte records, ZF-ABS counted from the case's clock). The twelve first scenarios browse an empty ZC01FILE (READ GTEQ NOTFND); three more state records, so 3100-DELETE (DELETE GENERIC of ZC01FILE, DELETE of ZC01KEY) runs. Not reached (refused by name): a template with no URL (type A1: WEB PARSE with URLLENGTH 0, X36, IBM leaves the condition open). EIBFN is not read on a path a scenario takes (the FILE-ERROR text only names it). Derived from zECS (github.com/walmartlabs/zECS, Apache-2.0): LICENSE here is the corpus's own, NOTICE names the source and what was derived.",

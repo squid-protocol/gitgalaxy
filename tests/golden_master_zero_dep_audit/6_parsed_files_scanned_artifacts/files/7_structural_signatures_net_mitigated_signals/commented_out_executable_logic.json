@@ -1316,7 +1316,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 0
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 2,
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 1,
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 0
     },
     "dockerfile/moby/test_targets": {
@@ -1700,13 +1700,13 @@
       "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": 0,
-      "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": 2,
+      "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_MockMakerConfigurationDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_ParameterInjectionSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_PendingFeatureIfDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_RequiresDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_RetryDocSpec.groovy": 0,
-      "groovy/spock_specs/org_spockframework_docs_extension_SeeDocSpec.groovy": 2,
+      "groovy/spock_specs/org_spockframework_docs_extension_SeeDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_SnapshotDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_StepwiseDocSpec.groovy": 0,
       "groovy/spock_specs/org_spockframework_docs_extension_SubjectDocSpec.groovy": 0,
@@ -1873,7 +1873,7 @@
       "html/revealjs_decks/500-slides.html": 0,
       "html/revealjs_decks/auto-animate.html": 0,
       "html/revealjs_decks/barebones.html": 0,
-      "html/revealjs_decks/demo.html": 1,
+      "html/revealjs_decks/demo.html": 0,
       "html/revealjs_decks/math.html": 0
     },
     "html/threejs_shader_examples": {
@@ -1942,7 +1942,7 @@
       "javascript/jquery/tokenize.js": 0
     },
     "javascript/node_tls_security_tests": {
-      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 1,
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": 0,
       "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 0,
       "javascript/node_tls_security_tests/test-fs-lchown.js": 0,
       "javascript/node_tls_security_tests/test-https-host-headers.js": 0,
@@ -2545,7 +2545,7 @@
       "perl/spamassassin/Message.pm": 0,
       "perl/spamassassin/Parser.pm": 0,
       "perl/spamassassin/PerMsgStatus.pm": 1,
-      "perl/spamassassin/SpamAssassin.pm": 1
+      "perl/spamassassin/SpamAssassin.pm": 0
     },
     "php": {
       "php/SOURCES.md": 0
@@ -2598,11 +2598,11 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
       "php/wordpress/class-wp-query.php": 0,
-      "php/wordpress/formatting.php": 1,
+      "php/wordpress/formatting.php": 0,
       "php/wordpress/functions.php": 0,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
-      "php/wordpress/wp-login.php": 1,
+      "php/wordpress/wp-login.php": 0,
       "php/wordpress/wp-settings.php": 0
     },
     "plaintext": {
@@ -3337,7 +3337,7 @@
       "shell/brew/brew": 1,
       "shell/brew/brew.rb": 0,
       "shell/brew/cask.rb": 0,
-      "shell/brew/download_strategy.rb": 2,
+      "shell/brew/download_strategy.rb": 1,
       "shell/brew/formula.rb": 0,
       "shell/brew/formula_installer.rb": 0,
       "shell/brew/sandbox.rb": 0
@@ -3908,7 +3908,7 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0,
       "typescript/typescript_compiler/binder.ts": 0,
-      "typescript/typescript_compiler/checker.ts": 2,
+      "typescript/typescript_compiler/checker.ts": 0,
       "typescript/typescript_compiler/emitter.ts": 0,
       "typescript/typescript_compiler/package.json": 0,
       "typescript/typescript_compiler/parser.ts": 1,
@@ -3971,7 +3971,7 @@
       "xml/springboot/getting-started/pom.xml": 0
     },
     "xml/springboot/resources": {
-      "xml/springboot/resources/pom.xml": 1
+      "xml/springboot/resources/pom.xml": 0
     },
     "yacc": {
       "yacc/SOURCES.md": 0
@@ -4038,7 +4038,7 @@
       "yaml/vscode_workflows/monaco-editor.yml": 0,
       "yaml/vscode_workflows/no-engineering-system-changes.yml": 0,
       "yaml/vscode_workflows/pr-darwin-test.yml": 0,
-      "yaml/vscode_workflows/pr-linux-cli-test.yml": 1,
+      "yaml/vscode_workflows/pr-linux-cli-test.yml": 0,
       "yaml/vscode_workflows/pr-linux-test.yml": 0,
       "yaml/vscode_workflows/pr-node-modules.yml": 0,
       "yaml/vscode_workflows/pr-win32-test.yml": 0,

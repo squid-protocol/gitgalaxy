@@ -666,8 +666,8 @@ def test_lgipdb01_det_port_holds_on_generated_multi_table_rows_with_fk(tmp_path)
     """GenApp's inquire-policy service (LGIPDB01, LINKing LGSTSQ) on generated CUSTOMER, POLICY and type-table rows
     joined by foreign keys: 32 generated requests (endowment / house / motor / commercial by policy, the customer and
     postcode cursors, unknown ids) name policies the generated rows hold or miss, every statement and SQLCODE
-    answered alike on both sides. The policy-10 endowment (empty PADDINGDATA, X8) and the -904 and short-COMMAREA
-    paths are not generated."""
+    answered alike on both sides. The policy-10 endowment (empty PADDINGDATA, X8) is not generated; the fault and
+    short-COMMAREA paths (#6072) are hand scenarios, and their NULL-indicator rows add 2 ENDOWMENT and 1 HOUSE row."""
     import json
     import shutil
     import subprocess
@@ -683,8 +683,8 @@ def test_lgipdb01_det_port_holds_on_generated_multi_table_rows_with_fk(tmp_path)
     assert report["db2_generated"] == {
         "GENASA1.CUSTOMER": 10,
         "GENASA1.POLICY": 12,
-        "GENASA1.ENDOWMENT": 3,
-        "GENASA1.HOUSE": 4,
+        "GENASA1.ENDOWMENT": 5,
+        "GENASA1.HOUSE": 5,
         "GENASA1.MOTOR": 4,
         "GENASA1.COMMERCIAL": 3,
     }
@@ -701,8 +701,9 @@ def test_lgupdb01_det_port_holds_on_generated_multi_table_rows_with_fk(tmp_path)
     joined by foreign keys: 19 requests name generated policies (the three types, the lowest and highest timestamps, a
     NULL BROKERID and BROKERSREF read through their indicators), a stale LASTCHANGED, a type the policy does not hold,
     a wrong customer and an unknown policy; every statement and SQLCODE answered alike on both sides, and the Db2 and
-    VSAM state after each task compared. Policies 4 and 5 (NULL ISSUEDATE / EXPIRYDATE: -305, then LGSTSQ, X6) are
-    not generated."""
+    VSAM state after each task compared. The #6072 scenarios add 2 SQL records: no-commarea (no statement) and
+    unknown-request-id; the injected-fault ones record none. Policies 4 and 5 (NULL ISSUEDATE / EXPIRYDATE: -305, then
+    LGSTSQ, X6) are not generated."""
     import json
     import shutil
     import subprocess
@@ -724,7 +725,7 @@ def test_lgupdb01_det_port_holds_on_generated_multi_table_rows_with_fk(tmp_path)
         "GENASA1.COMMERCIAL": 3,
     }
     sql = [o["sql"] for o in report["outputs"].values() if "sql" in o]
-    assert len(sql) == 19 and all(q["equal"] == q["statements"] for q in sql)
+    assert len(sql) == 21 and all(q["equal"] == q["statements"] for q in sql)
     assert {x["sqlcode"] for q in sql for x in q["cobol"]} == {0, 100}
 
 

@@ -292,7 +292,7 @@
      "sqlcode": -904
     }
    ],
-   "why": "LGDPDB01's DELETE fails (SQLCODE -904): it sets CA-RETURN-CODE '90' and LINKs LGSTSQ, whose WRITEQ is refused (X6): the task is judged up to it, so LGDPOL01's If CA-RETURN-CODE > 0 (line 127) is not reached"
+   "why": "LGDPDB01's DELETE fails (SQLCODE -904): it sets CA-RETURN-CODE '90' and LINKs LGSTSQ, whose WRITEQ runs past its FROM item and is written padded (X6, ASSUMED): the whole task is compared, so LGDPOL01's If CA-RETURN-CODE > 0 (line 127) is reached"
   }
  ],
  "notes": "Generated-row sibling (#4507) of genapp-lgdpol01: the Db2 tables are generated from base/cntl/db2cre.jcl (the generate block of genapp-lgdpdb01-generated: FKs, NULLs and boundary values, seed 4507), not GenApp's INSERTs. The scenarios are genapp-lgdpdb01-generated's, written against those rows and run through LGDPOL01, which LINKs LGDPDB01, plus the front end's own row-independent paths. Not carried over: genapp-lgdpdb01-generated's short-commarea-delete-fails (a COMMAREA past EIBCALEN with an injected DELETE fault): through the front end the error logger's reference past EIBCALEN is the refused X23 case, which the harness does not model on either side; the front end's own delete-fails covers the fault. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."

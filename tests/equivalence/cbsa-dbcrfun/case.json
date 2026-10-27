@@ -544,6 +544,50 @@
      "resp2": 200
     }
    ]
+  },
+  {
+   "name": "update-attach-abends-ad2x",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000001",
+    "SUBPGM-AMT": "-100.50",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "0"
+   },
+   "sql_faults": [
+    {
+     "program": "DBCRFUN",
+     "line": 392,
+     "sqlcode": -911,
+     "abend": "AD2X"
+    }
+   ],
+   "why": "#6271 (X73): the ACCOUNT UPDATE is issued and the CICS-Db2 attach's TCB fails (AD2X): the task abends AD2X, so ABEND-HANDLING takes its none arm (an abend code that is neither AD2Z nor a storm-drain AFC code) and ABENDs it afterwards"
+  },
+  {
+   "name": "update-attach-abends-ad2r",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000001",
+    "SUBPGM-AMT": "-100.50",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "0"
+   },
+   "sql_faults": [
+    {
+     "program": "DBCRFUN",
+     "line": 392,
+     "sqlcode": -911,
+     "abend": "AD2R"
+    }
+   ],
+   "why": "#6271 (X73): the ACCOUNT UPDATE is issued and the CICS-Db2 attach's TCB fails (AD2R): the task abends AD2R, so ABEND-HANDLING takes its none arm (an abend code that is neither AD2Z nor a storm-drain AFC code) and ABENDs it afterwards"
   }
  ],
  "notes": "CBSA's debit/credit service (DBCRFUN, LINKed with the PAYDBCR copybook's COMMAREA): COMM-SORTC is overwritten with the program's own sort code (987654) and the account is read by it and COMM-ACCNO with a SELECT INTO from Db2 table ACCOUNT (unqualified: the bind's QUALIFIER, IBMUSER); a failed SELECT gives COMM-SUCCESS 'N' with COMM-FAIL-CODE '1' (+100) or '2' (any other SQLCODE, e.g. -305). COMM-FACILTYPE 496 marks a payment, anything else a teller transaction. A payment debit (COMM-AMT < 0) to a MORTGAGE or LOAN fails '4', and one that would take the available balance below zero fails '3' (the overdraft limit is never consulted); a payment credit to a MORTGAGE or LOAN fails '4'; teller transactions have no checks. Otherwise both balances are adjusted by COMM-AMT (COMPUTE, no ON SIZE ERROR), the row is UPDATEd, COMM-AV-BAL/COMM-ACT-BAL are returned, and a PROCTRAN row is INSERTed: type DEB/CRE with 'COUNTER WTHDRW'/'COUNTER RECVED', or PDR/PCR with COMM-ORIGIN(1:14) for a payment, dated DD.MM.YYYY and timed HHMMSS from the case clock (ASKTIME/FORMATTIME), ref EIBTASKN; then 'Y' '0'. Both tables are compared after every scenario. A failed PROCTRAN INSERT (-911) followed by a planned SYNCPOINT ROLLBACK INVREQ (X71, #6271) drives the rollback-failure path into ABNDPROC. The COMMAREA is described by the record its caller BNK1CRA passes (SUBPGM-PARMS), the layout of DBCRFUN's PAYDBCR copybook under the caller's names: the generated DTO is the caller's.",

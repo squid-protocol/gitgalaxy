@@ -27,7 +27,9 @@ import subprocess
 import sys
 import traceback
 from collections import Counter
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -143,6 +145,8 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
     from gitgalaxy.tools.cobol_to_java.det import source as S
 
     from gitgalaxy.core.cobol_source_format import ispf_screens
+    from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES
+    from gitgalaxy.tools.cobol_to_java.det import hlasm
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     row: dict[str, Any] = {"program": str(program.relative_to(corpus))}
@@ -152,6 +156,8 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
     stub_file = project / "src/main/java" / PKG_DIR / "service" / f"{svc}.java"
     stub = stub_file.read_text(encoding="utf-8") if stub_file.is_file() else f"public class {svc} {{\n}}\n"
     row["stub"] = stub_file.is_file()
+    if not row["stub"] and program.suffix.lower() in ASSEMBLER_SUFFIXES:
+        stub = hlasm.service_stub(program.stem, PKG)  # #5859: the forge makes none for an HLASM program
     own = [program.parent, *[d for d in dirs if d != program.parent]]
     what_if = S.survey_unmask(unmask) if unmask else contextlib.nullcontext()
     try:
@@ -174,11 +180,15 @@ def survey_program(program: Path, corpus: Path, project: Path, dirs: list[Path],
     return row
 
 
-def assembler_rows(corpus: Path, only: set[str] | None = None) -> list[dict[str, Any]]:
+def assembler_rows(
+    corpus: Path, only: set[str] | None = None, translate: Callable[[Path], dict[str, Any]] | None = None
+) -> list[dict[str, Any]]:
     """#5158: one row per CICS Assembler / macro-level assembler member of `corpus` (.asm / .mac ..., the suffixes of
     gitgalaxy.core.cics_macro_level), refused by name exactly as det refuses the same text (source.assembler_refusal),
     so the census counts them with the COBOL programs. A member with no evidence (a macro table, a BMS map source, a plain
-    assembler program, a non-CICS .mac) has no row. `only`: corpus-relative paths."""
+    assembler program, a non-CICS .mac) has no row. `only`: corpus-relative paths. #5859: a CICS Assembler member inside
+    the HLASM subset (det/hlasm.py) is lowered to COBOL and is no refusal: its row is `translate(member)` (the survey
+    row of the lowered program), or a name-only row when no `translate` is given."""
     from gitgalaxy.core.cics_macro_level import ASSEMBLER_SUFFIXES
     from gitgalaxy.core.source_text import read_source
     from gitgalaxy.tools.cobol_to_java.det import source as S
@@ -194,10 +204,19 @@ def assembler_rows(corpus: Path, only: set[str] | None = None) -> list[dict[str,
         if only is not None and rel not in only:
             continue
         try:
-            why = S.assembler_refusal(read_source(member).text.splitlines(), str(member))
+            raw = read_source(member).text.splitlines()
         except OSError:
             continue
-        if why:
+        why = S.assembler_refusal(raw, str(member))
+        if not why:
+            continue
+        try:
+            lowered = S.assembler_lowered(raw, str(member)) is not raw
+        except S.MacroLevelCics as e:
+            why, lowered = str(e), False
+        if lowered:
+            rows.append(translate(member) if translate else {"program": rel, "kind": "cics"})
+        else:
             rows.append({"program": rel, "error": f"{S.MacroLevelCics.__name__}: {why}", "kind": "assembler"})
     return rows
 
@@ -323,7 +342,12 @@ def main() -> int:
         rows = [survey_program(p, corpus, project, dirs, work, args.unmask,
                                 None if args.layouts == "off" else args.layouts) for p in progs]
         if args.unmask != "cics-macro-level":  # that what-if reads them as COBOL: they are no COBOL
-            rows += assembler_rows(corpus, {Path(p).as_posix() for p in args.program} if args.program else None)
+            rows += assembler_rows(
+                corpus,
+                {Path(p).as_posix() for p in args.program} if args.program else None,
+                partial(survey_program, corpus=corpus, project=project, dirs=dirs, work=work, unmask=args.unmask,
+                        layouts=None if args.layouts == "off" else args.layouts),
+            )  # fmt: skip
         if built and not args.no_compile:
             cp = classpath(project)
             todo = [r for r in rows if "statements" in r]

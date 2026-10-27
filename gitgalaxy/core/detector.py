@@ -4785,7 +4785,7 @@ class StructuralExtractor:
             # m.group() on a group name absent from the ORIGINATING pattern
             # raises IndexError rather than returning None.
             if m.groupdict().get("comment") is not None:
-                return ""
+                return "\n" * m.group(0).count("\n")  # only a C-family `\`-continued directive spans lines
             if m.groupdict().get("heredoc") is not None:
                 # A real heredoc opener (`cat << 'EOF'`, `sed ... <<-EOT`) --
                 # return it verbatim so the quote pass does NOT rewrite the
@@ -4860,6 +4860,11 @@ class StructuralExtractor:
             # never see the EXEC operand. `#` is an ordinary name character
             # (`//STEP#1`) and `--` has no meaning either.
             comment_markers = r"//\*"
+        # #6266: a C directive or `//` comment ends at the first newline NOT escaped by `\`: a multi-line
+        # `#define` body is the macro's, not the enclosing function's (its single-line twin was already blanked).
+        comment_tail = r"[^\n]*"
+        if lang_id in ("c", "cpp", "objective-c"):
+            comment_tail = r"(?:[^\n\\]|\\\r?\n|\\(?!\r?\n))*"
         # Standard strings can span multiple lines natively in some languages.
         # In others (C/Java/JS), an unclosed quote on one line is an error, so we bound it
         # by newline to prevent an unclosed quote from swallowing the rest of the file.
@@ -4964,7 +4969,7 @@ class StructuralExtractor:
             # (guards against e.g. shell's "$#" positional-arg-count being
             # mistaken for a comment). Same marker set previously stripped
             # by `_slice_by_keywords`'s own post-hoc pass.
-            + rf"(?:^|(?<=[ \t]))(?P<comment>{comment_markers})[^\n]*"
+            + rf"(?:^|(?<=[ \t]))(?P<comment>{comment_markers}){comment_tail}"
         )
         if lang_id == "lua":
             # tri-comparison-ledger-sweep (lua, 2026-08-29): Lua long-bracket

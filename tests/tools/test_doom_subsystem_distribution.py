@@ -1,4 +1,4 @@
-"""DOOM per-subsystem complexity distributions (#6097): grouping by file prefix, ratios, skips and outputs.
+"""DOOM per-subsystem metric distributions (#6097): grouping by file prefix, every metric, vendored drop, skips and outputs.
 
 Synthetic scan DBs only (no DOOM code); the tool dir goes on sys.path and the module is imported as a bare name
 (tests/ has no __init__.py).
@@ -19,18 +19,22 @@ SHA = "abc123def"
 
 
 def make_scan(work, name, funcs):
-    """funcs: [(file_path, language, complexity)]."""
+    """funcs: [(file_path, language, complexity)] or with (loc, fan_out, token_mass, args) appended."""
     scan = work / "scans" / SHA / name
     scan.mkdir(parents=True)
+    (work / "repos" / name).mkdir(parents=True)
     con = sqlite3.connect(scan / f"{name}_galaxy_master.db")
     con.execute("create table file_data (id integer primary key, file_path text, language text)")
-    con.execute("create table function_data (file_id integer, complexity integer)")
+    con.execute(
+        "create table function_data (file_id integer, complexity integer, loc integer, func_fan_out integer, "
+        "token_mass integer, args integer)"
+    )
     ids = {}
-    for path, lang, cx in funcs:
+    for path, lang, cx, *rest in funcs:
         fid = ids.setdefault(
             path, con.execute("insert into file_data (file_path, language) values (?, ?)", (path, lang)).lastrowid
         )
-        con.execute("insert into function_data values (?, ?)", (fid, cx))
+        con.execute("insert into function_data values (?, ?, ?, ?, ?, ?)", (fid, cx, *(rest or (cx, 0, 0, 0))))
     con.commit()
     con.close()
 
@@ -65,7 +69,7 @@ ROWS = [{"name": n, "class": "engine-port"} for n in ("linuxdoom", "gore", "tiny
 def test_load_groups_code_functions_by_subsystem_and_drops_other_languages(work):
     got = sd.load_by_subsystem(next((work / "scans" / SHA / "gore").glob("*_master.db")))
     assert set(got) == {"renderer", "other"}  # README.md (markdown) dropped
-    assert len(got["renderer"]) == 20 and got["other"] == [1.0] * 20
+    assert len(got["renderer"]["complexity"]) == 20 and got["other"]["complexity"] == [1.0] * 20
 
 
 def test_summarise_gives_ratio_to_linuxdoom_and_the_other_share(work):
@@ -74,10 +78,31 @@ def test_summarise_gives_ratio_to_linuxdoom_and_the_other_share(work):
     rows, other = result["gore"]
     by = {r["subsystem"]: r for r in rows}
     assert other == 50 and by["other"]["share"] == 50
-    assert by["renderer"]["med_vs_linuxdoom"] == pytest.approx(2.0)
-    assert "med_vs_linuxdoom" not in by["other"]  # linuxdoom has no 'other' functions here
-    assert all("med_vs_linuxdoom" not in r for r in result["linuxdoom"][0])  # the baseline is not compared to itself
+    assert by["renderer"]["complexity_vs_linuxdoom"] == pytest.approx(2.0)
+    assert "complexity_vs_linuxdoom" not in by["other"]  # linuxdoom has no 'other' functions here
+    assert all(
+        "complexity_vs_linuxdoom" not in r for r in result["linuxdoom"][0]
+    )  # the baseline is not compared to itself
     assert by["renderer"]["cx10"] == 100 * 16 / 20
+
+
+def test_every_metric_is_summarised_per_subsystem(tmp_path):
+    make_scan(tmp_path, "linuxdoom", [("p_map.c", "c", 1, 10, 1, 100, 2)] * 30)
+    make_scan(tmp_path, "gore", [("p_map.go", "go", 1, 30, 3, 50, "a, b, c")] * 30)  # args as old-style text
+    rows, _ = sd.run(ROWS, tmp_path, SHA)[0]["gore"]
+    (row,) = rows
+    assert row["loc_med"] == 30 and row["func_fan_out_med"] == 3 and row["args_med"] == 3
+    assert row["loc_vs_linuxdoom"] == pytest.approx(3.0)
+    assert row["token_mass_vs_linuxdoom"] == pytest.approx(0.5)
+    assert row["func_fan_out_vs_linuxdoom"] == pytest.approx(3.0) and row["args_vs_linuxdoom"] == pytest.approx(1.5)
+
+
+def test_vendored_code_is_dropped(tmp_path):
+    make_scan(tmp_path, "linuxdoom", many("r_main.c", "c", range(1, 31)))
+    make_scan(tmp_path, "gore", many("r_main.go", "go", range(1, 31)) + many("zlib/r_inflate.c", "c", [99] * 40))
+    (tmp_path / "repos" / "gore" / "zlib").mkdir()  # the engine detector reads the clone's directories
+    rows, _ = sd.run(ROWS, tmp_path, SHA)[0]["gore"]
+    assert [(r["subsystem"], r["n"]) for r in rows] == [("renderer", 30)]
 
 
 def test_a_run_needs_the_baseline(tmp_path):

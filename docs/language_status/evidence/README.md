@@ -15,7 +15,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [CBSTM03A](carddemo-cbstm03a.md) | carddemo-cbstm03a | batch | proven, unapproved |  | 14 | 25/25 / 43/46 | - | 0 | - |
 | [COPAUA0C](carddemo-copaua0c.md) | carddemo-copaua0c | cics | proven, unapproved |  | 25 | 41/41 / 65/71 | - | 0 | - |
 | [COPAUS0C](carddemo-copaus0c.md) | carddemo-copaus0c | cics | proven, unapproved |  | 37 | 20/20 / 88/93 | - | 0 | - |
-| [COPAUS1C](carddemo-copaus1c.md) | carddemo-copaus1c | cics | proven, unapproved |  | 35 | 15/15 / 48/48 | - | 0 | - |
+| [COPAUS1C](carddemo-copaus1c.md) | carddemo-copaus1c | cics | proven, unapproved |  | 35 | 15/15 / 50/50 | - | 0 | - |
 | [CBTRN01C](carddemo-dailyval.md) | carddemo-dailyval | batch | proven, unapproved |  | 21 | 18/18 / 65/66 | 63/96 / 63/71 | 0 | - |
 | [CSUTLDTC](carddemo-dateutil.md) | carddemo-dateutil | call | proven, unapproved |  | 1 | 2/2 / 4/10 | 197/260 / 197/197 | 0 | - |
 | [CBACT04C](carddemo-intcalc.md) | carddemo-intcalc | batch | proven, unapproved |  | 20 | 22/22 / 85/86 | 70/86 / 70/77 | 0 | - |
@@ -37,11 +37,11 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | not-proven | the proof failed through its deployed entry points (java-facade: 14/22 scenarios pass) | 22 | 24/25 / 22/25 | 63/131 / 63/106 | 0 | - |
 | [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 27 | 7/7 / 5/6 | 103/139 / 103/110 | 0 | - |
 | [LGAPDB01](genapp-lgapdb01.md) | genapp-lgapdb01 | cics | proven, unapproved |  | 16 | 7/7 / 29/31 | 58/137 / 58/129 | 0 | - |
-| [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 13 | 3/3 / 8/9 | 72/125 / 72/113 | 0 | - |
+| [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 13 | 3/3 / 10/11 | 72/125 / 72/113 | 0 | - |
 | [LGICDB01](genapp-lgicdb01.md) | genapp-lgicdb01 | cics | proven, unapproved |  | 12 | 3/4 / 4/12 | 51/130 / 51/107 | 0 | - |
 | [LGSTSQ](genapp-lgstsq.md) | genapp-lgstsq | cics | proven, unapproved |  | 8 | 1/1 / 4/6 | 25/78 / 25/69 | 0 | - |
 | [LGUPDB01](genapp-lgupdb01.md) | genapp-lgupdb01 | cics | proven, unapproved |  | 22 | 9/9 / 38/38 | 68/140 / 68/120 | 0 | - |
-| [LGUPVS01](genapp-lgupvs01.md) | genapp-lgupvs01 | cics | proven, unapproved |  | 12 | 3/3 / 8/9 | 66/119 / 66/100 | 0 | - |
+| [LGUPVS01](genapp-lgupvs01.md) | genapp-lgupvs01 | cics | proven, unapproved |  | 12 | 3/3 / 12/13 | 66/119 / 66/100 | 0 | - |
 | [CALINK](crucible-ca-link-lengths-CALINK.md) | crucible:ca-link-lengths/CALINK | crucible | proven, unapproved |  | 4 | 1/1 / 4/4 | 15/22 / 15/15 | 0 | - |
 | [CASUB](crucible-ca-link-lengths-CASUB.md) | crucible:ca-link-lengths/CASUB | crucible | proven, unapproved |  | 3 | 1/1 / 4/4 | 16/24 / 16/16 | 0 | - |
 | [CAXA](crucible-ca-xctl-versions-CAXA.md) | crucible:ca-xctl-versions/CAXA | crucible | proven, unapproved |  | 3 | 1/1 / 3/3 | 16/21 / 16/16 | 0 | - |

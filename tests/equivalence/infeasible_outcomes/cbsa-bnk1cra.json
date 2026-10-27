@@ -41,6 +41,14 @@
       "outcome": "false",
       "family": "G",
       "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SM010 after the first SEND MAP and '2' is never set (see 722), so the test is always true."
+    },
+    {
+      "unit": "VA010",
+      "line": 988,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "Unreachable under X54 (the harness gives a field of typed blanks length 0, IBM silent on <f>L): the \"entirely spaces\" tally arm needs AMTL above 0 with every byte a leading space, but a blank amount arrives with AMTL = 0 and is rejected earlier by the AMTL = ZERO guard (VA010). A real 3270 may send typed blanks with a length; not modelled."
     }
   ]
 }

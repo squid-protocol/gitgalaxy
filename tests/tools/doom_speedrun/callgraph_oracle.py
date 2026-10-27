@@ -225,7 +225,7 @@ class Body:
                 self._text_calls(n.text)
             elif n.type == "call_expression":
                 name = callee_node(n.child_by_field_name("function"))
-                if name is not None:
+                if name is not None and decode_bytes(name.text) not in KEYWORDS:  # `SERVER_ONLY(\n if (x) {..})`
                     self.calls.setdefault(decode_bytes(name.text), shape(n))
                     callees.add(name.id)
             elif n.type == "identifier" and n.id not in callees:  # a struct field is never a function reference

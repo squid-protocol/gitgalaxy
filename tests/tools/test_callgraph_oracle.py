@@ -525,3 +525,12 @@ def test_a_vm_call_macro_block_is_part_of_its_function_not_a_nested_one(stmt):
     body = body_of(f"bool run(AActor *act)\n{{\n    {stmt}\n    return true;\n}}\n", "cpp")
     assert "inner" in body.calls
     assert body.nested == []
+
+
+def test_text_fallback_names_an_explicit_destructor_call_by_its_unit():
+    # a `<` in `->~TArray<T>()` makes tree-sitter misparse the body; the text view must still name `~T`, not `T`
+    body = body_of("void f(Node *p, int a)\n{\n    p->~Node();\n    a = ~g(a);\n}\n", "cpp")
+    assert body.calls["~Node"] == "statement" and body.calls["g"] != "statement"
+    body = co.TextBody(b"void f() { p->~Node(); q.~Item (); a = ~g(a); }", 1)
+    assert {"~Node", "~Item", "g"} <= set(body.calls)
+    assert "Node" not in body.calls and "Item" not in body.calls

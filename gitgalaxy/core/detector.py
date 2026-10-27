@@ -1422,6 +1422,8 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
 # #5699: a Go unit whose header names a receiver is a method (`func (s *S) f(`); a generic function is `func f[T]`
 _GO_RECEIVER_HEADER = re.compile(r"\s*func\s*\(")
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
+# #5630: `p->~T()` / `x.~T()` / `T::~T()` calls the destructor unit `~T`; a bare `~f(x)` is a bitwise not
+_EXPLICIT_DTOR_RE = re.compile(r"(?:->|\.|::)\s*~\s*$")
 
 # References (Python): a function name used as a value -- `Depends(get_db)`,
 # `key=sort_key`, `callback=self.on_done`, `return wrapper`, `h = on_event`.
@@ -10798,6 +10800,14 @@ class StructuralExtractor:
                             "operator"
                         ):
                             continue
+                    if (
+                        not is_send
+                        and self.primary_lang_id == "cpp"
+                        and callee != own_dtor
+                        and _EXPLICIT_DTOR_RE.search(safe_block, max(0, callee_pos - 16), callee_pos)
+                    ):
+                        tilde = safe_block.rindex("~", 0, callee_pos)
+                        callee, callee_pos = "~" + callee, tilde
                     if is_send:
                         qualifier = _message_receiver(m.group(2))
                     else:

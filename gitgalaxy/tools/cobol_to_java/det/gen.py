@@ -234,7 +234,9 @@ class Gen:
         self.numval_store = (
             False  # the statement is float only through FUNCTION NUMVAL: its fixed-point stores are checked (#4741)
         )
-        self.fmode: str | None = None  # "LONG" / "SHORT" while num() generates a floating-point expression
+        self.fmode: str | None = (
+            None  # "LONG" / "SHORT" / "IEEE" (binary64, #5867) while num() generates a floating-point expression
+        )
         # ARITH(EXTEND) in effect (program.arith_extend): extended-precision floating point, not modelled
         self.arith_extend = False
         self.float_extents: dict[int, list] = {}  # storage root id -> [(item, first extent, full extent, tables)]
@@ -746,9 +748,69 @@ class Gen:
         finally:
             self.fmode = outer
 
+    def ieee_statement(self, e) -> bool:
+        """A COMPUTE expression of an IEEE_BINARY64_PROGRAMS program that holds `**` or FUNCTION ANNUITY."""
+        if self.p.name not in IEEE_BINARY64_PROGRAMS:
+            return False
+
+        def walk(x) -> bool:
+            if isinstance(x, E.Bin):
+                return x.op == "**" or walk(x.left) or walk(x.right)
+            if isinstance(x, E.Neg):
+                return walk(x.operand)
+            if isinstance(x, E.Func):
+                return x.name == "ANNUITY" or any(not isinstance(a, tuple) and walk(a) for a in x.args)
+            return False
+
+        return walk(e)
+
+    def ieee_targets(self, targets: list) -> None:
+        """The ruling covers a binary64 value stored in a fixed-point receiver (truncated, or ROUNDED, as any
+        arithmetic result): a floating-point receiver would need the double -> HFP conversion nobody ruled on."""
+        for t, _ in targets:
+            if self.float_item(t) is not None:
+                raise Untranslatable(f"a binary64 COMPUTE (owner decision, #5867) into {t.name}, a floating-point item "
+                                     f"({FLOAT_BYTES})")  # fmt: skip
+
+    def ieee_num(self, e) -> str:
+        """An IEEE_BINARY64_PROGRAMS expression in Java double (IEEE 754 binary64, round to nearest even): each operand
+        converted to the nearest double, each operation one double operation, `**` StrictMath.pow (fdlibm, the same
+        bits on every JVM). The value is the double as an exact BigDecimal; a NaN or an infinity fails at run time
+        (new BigDecimal refuses it)."""
+        if isinstance(e, E.Lit) and isinstance(e.value, Decimal):
+            return f"{self.const(e.value)}.doubleValue()"
+        if isinstance(e, E.Fig) and e.kind == "ZEROS":
+            return "0.0"
+        if isinstance(e, E.Ref):
+            if self.float_item(e) is not None:
+                return f"Cobol.num({self.value_field(e)}, CS).doubleValue()"
+            with self.floating(None):
+                return f"{self.num(e)}.doubleValue()"
+        if isinstance(e, E.Neg):
+            return f"(-{self.ieee_num(e.operand)})"
+        if isinstance(e, E.Bin):
+            left, right = self.ieee_num(e.left), self.ieee_num(e.right)
+            if e.op == "**":
+                return f"StrictMath.pow({left}, {right})"
+            return f"({left} {e.op} {right})"
+        if (
+            isinstance(e, E.Func)
+            and e.name == "ANNUITY"
+            and len(e.args) == 2
+            and not any(isinstance(a, tuple) for a in e.args)
+        ):
+            # IBM (6.4 Language Reference, ANNUITY): arg-1 / (1 - (1 + arg-1) ** -arg-2), or 1 / arg-2 when arg-1 is 0
+            rate, periods = (self.ieee_num(a) for a in e.args)
+            return (f"((java.util.function.DoubleBinaryOperator) (r, n) -> r == 0 ? 1 / n "
+                    f": r / (1 - StrictMath.pow(1 + r, -n))).applyAsDouble({rate}, {periods})")  # fmt: skip
+        raise Untranslatable(f"{type(e).__name__} in a binary64 COMPUTE (owner decision, #5867: `**`, ANNUITY and the "
+                             "four operations only)")  # fmt: skip
+
     def fnum(self, e) -> str:
         """A floating-point expression (self.fmode): HFP values as exact BigDecimals (cobolrt/Hfp) -- a float item
         as it is, any other operand converted to long, each operation HFP's own (truncating, one guard digit)."""
+        if self.fmode == "IEEE":
+            return f"new BigDecimal({self.ieee_num(e)})"
         if self.arith_extend:
             # IBM: under ARITH(EXTEND) a floating-point expression with a multiplication, an exponentiation or any
             # operand but a COMP-1 / COMP-2 item is computed in extended precision, and NUMVAL returns a 128-bit
@@ -2192,6 +2254,9 @@ class Gen:
             if view is not None:
                 return [c, *view]
             mode = self.float_mode([s.data["expr"]], [t for t, _ in s.data["targets"]])
+            if self.ieee_statement(s.data["expr"]):
+                mode = "IEEE"
+                self.ieee_targets(s.data["targets"])
             try:
                 if mode is not None:
                     self.float_statement(s.data["targets"])
@@ -3516,6 +3581,10 @@ METHODS_TAKEN = {"initialState", "perform", "run", "runTask", "runBatch", "runPr
 
 COMP5_BYTES = "COMP-5 is little-endian on the oracle, big-endian on z/OS: oracle_assumptions.md C7"
 FLOAT_BYTES = "IBM hexadecimal floating point on z/OS, IEEE on the oracle: oracle_assumptions.md C6"
+# Owner decision 2026-10-27 (#5867, register C6): in these programs a COMPUTE whose expression holds `**` or FUNCTION
+# ANNUITY is IEEE 754 binary64 throughout (DBB EPSMPMT's payment formula). IBM documents neither routine bit for bit; the
+# ASSUMED HFP power (#4702) still governs every other program.
+IEEE_BINARY64_PROGRAMS = frozenset({"EPSMPMT"})
 
 
 def _extents(it: L.Item) -> tuple[tuple[int, int], tuple[int, int], list[int]]:

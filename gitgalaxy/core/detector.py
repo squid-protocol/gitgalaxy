@@ -22,6 +22,7 @@ import re
 import time
 from typing import Any, ClassVar, TypedDict, cast
 
+from gitgalaxy.core import csharp_interpolation
 from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, INIT_LIST_QUALIFIER
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.fortran_calls import fortran_call_names
@@ -4784,7 +4785,7 @@ class StructuralExtractor:
             # m.group() on a group name absent from the ORIGINATING pattern
             # raises IndexError rather than returning None.
             if m.groupdict().get("comment") is not None:
-                return ""
+                return "\n" * m.group(0).count("\n")  # only a C-family `\`-continued directive spans lines
             if m.groupdict().get("heredoc") is not None:
                 # A real heredoc opener (`cat << 'EOF'`, `sed ... <<-EOT`) --
                 # return it verbatim so the quote pass does NOT rewrite the
@@ -4859,6 +4860,11 @@ class StructuralExtractor:
             # never see the EXEC operand. `#` is an ordinary name character
             # (`//STEP#1`) and `--` has no meaning either.
             comment_markers = r"//\*"
+        # #6266: a C directive or `//` comment ends at the first newline NOT escaped by `\`: a multi-line
+        # `#define` body is the macro's, not the enclosing function's (its single-line twin was already blanked).
+        comment_tail = r"[^\n]*"
+        if lang_id in ("c", "cpp", "objective-c"):
+            comment_tail = r"(?:[^\n\\]|\\\r?\n|\\(?!\r?\n))*"
         # Standard strings can span multiple lines natively in some languages.
         # In others (C/Java/JS), an unclosed quote on one line is an error, so we bound it
         # by newline to prevent an unclosed quote from swallowing the rest of the file.
@@ -4963,7 +4969,7 @@ class StructuralExtractor:
             # (guards against e.g. shell's "$#" positional-arg-count being
             # mistaken for a comment). Same marker set previously stripped
             # by `_slice_by_keywords`'s own post-hoc pass.
-            + rf"(?:^|(?<=[ \t]))(?P<comment>{comment_markers})[^\n]*"
+            + rf"(?:^|(?<=[ \t]))(?P<comment>{comment_markers}){comment_tail}"
         )
         if lang_id == "lua":
             # tri-comparison-ledger-sweep (lua, 2026-08-29): Lua long-bracket
@@ -6148,6 +6154,10 @@ class StructuralExtractor:
                 r'"(?:\\.|[^"\\])*"|' + single_quote + r"|" + backtick + r"|//[^\n]*|/\*.*?\*/"
             )
 
+        if lang_id == "csharp":
+            # #6266: `$"[{x.Select(c => $"\"{c}\"")}]"` -- the plain-string pattern pairs the hole's nested quotes
+            # wrongly and absorbs the next method; blank interpolated strings whole first (same length).
+            code = csharp_interpolation.blank_interpolated(code)
         safe_code = re.sub(combined_pattern, fast_shield, code, flags=re.DOTALL) if lang_id != "perl" else code
 
         # #1517: an escaped `\{`/`\}` inside a bare `/regex/` literal (never shielded at
@@ -10403,6 +10413,13 @@ class StructuralExtractor:
             i += 1
         return count
 
+    def _call_scan_shield(self, text: str) -> str:
+        """The literal shield for the `calls_out` scan. #6266: a C# interpolated string's holes are code, so they are
+        exposed first (`csharp_interpolation`); every other language shields as before."""
+        if self.primary_lang_id == "csharp":
+            text = csharp_interpolation.expose_holes(text)
+        return self._apply_literal_shield(text, self.primary_lang_id)
+
     def _drop_nested_unit_calls(
         self, sats: list[FunctionNode], code: str, scans: list[tuple[FunctionNode, str, dict[str, Any]]]
     ) -> None:
@@ -10422,7 +10439,7 @@ class StructuralExtractor:
             pattern = rules.get("calls_out")
             if blanked is None or not isinstance(pattern, re.Pattern):
                 continue
-            safe = self._apply_literal_shield(blanked, self.primary_lang_id)
+            safe = self._call_scan_shield(blanked)
             kept: dict[str, list[str]] = {}
             for m in pattern.finditer(safe):
                 seen = kept.setdefault(m.group(1), [])
@@ -10828,7 +10845,7 @@ class StructuralExtractor:
         own_header_seen = self.primary_lang_id == "objective-c" and block.lstrip()[:1] in ("-", "+")
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
-            safe_block = self._apply_literal_shield(block, self.primary_lang_id)
+            safe_block = self._call_scan_shield(block)
             message_receivers = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_message_receivers"))
             if message_receivers or _is_qualified_calls_out(invocation_pattern):
                 # #6454: the same mask as below; same length, so every position stays valid

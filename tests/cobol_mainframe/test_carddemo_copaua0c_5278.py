@@ -32,7 +32,7 @@ SCENARIOS = [
     "same-account-twice", "amount-without-decimals", "amount-with-sign", "three-requests-mixed",
     "read-xref-io-error", "read-acct-io-error", "read-cust-io-error", "no-trigger-data", "no-reply-queue",
     "gu-summary-bad-status", "repl-summary-fails", "request-longer-than-buffer", "schd-held-after-term",
-    "open-request-queue-fails", "get-request-fails", "close-request-queue-fails",
+    "open-request-queue-fails", "get-request-fails", "close-request-queue-fails", "five-hundred-one-requests",
 ]  # fmt: skip
 
 
@@ -137,11 +137,15 @@ def test_the_committed_det_port_has_a_recorded_proof():
     assert rec["coverage"]["branches"]["total"] == 71
 
 
-def test_the_request_limit_exit_is_stated_as_unprovable_not_left_silent():
-    """Line 339 (true): the reply pointer is never reset, so a fourth reply in one task reads past the 200-byte buffer
-    (undefined in IBM): the case says so by name instead of carrying a scenario no proof can pass."""
-    notes = _case()["notes"]
-    assert "Not provable, by name" in notes and "WS-RESP-LENGTH" in notes and "line 339" in notes
+def test_the_request_limit_exit_is_taken_by_a_501_request_scenario():
+    """Line 339 (true): 501 requests in one task end the loop; the reply pointer is never reset, so every reply after the
+    third puts a 201-byte length over the 200-byte buffer (undefined in IBM): the case states that assumption."""
+    case = _case()
+    sc = {s["name"]: s for s in case["scenarios"]}["five-hundred-one-requests"]
+    msgs = sc["mq_messages"]["CARDDEMO.REQUEST.QUEUE"]
+    assert len(msgs) == 501 and len({m["data"] for m in msgs}) == 501
+    notes = case["notes"]
+    assert "WS-RESP-LENGTH" in notes and "line 339" in notes and "assumption" in notes
     corpus = _corpus()
     if corpus is None:
         pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")

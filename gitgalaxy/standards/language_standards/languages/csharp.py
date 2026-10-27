@@ -270,7 +270,7 @@ DEFINITION: dict[str, Any] = {
             # captured whole as a phantom function literally named "static"/"var"/"when"/"or"
             # etc. when no preceding modifier/type tokens were consumed. Confirmed via the
             # same Roslyn corpus files as item 3's fix above.
-            r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
+            r"(?!(?:if|for|foreach|while|switch|catch|using|lock|fixed|checked|unchecked|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
             # 5. THE IDENTIFIER CAPTURE (GROUP 1) & GENERIC STEPPER
             # Captures the actual satellite name:
             # - `[@A-Za-z_$]` supports C# verbatim identifiers (e.g., `@class`).
@@ -290,7 +290,7 @@ DEFINITION: dict[str, Any] = {
             # full rationale (bare comma let call-argument lists be absorbed as return-type
             # tokens; `(?!\?)` closes a ternary `?` being consumed as a nullable-type marker).
             r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?!\?|[<>][ \t\n]|\[(?![ \t,]*\]))(?:[a-zA-Z0-9_>\]?.*]|(?!<[^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100}){0,5}>)<|\([^()]{0,80}\)|<[^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100}){0,5}>|\[[^\]]{0,80}\])+[ \t\n]{1,200}){1,10}"
-            r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
+            r"(?!(?:if|for|foreach|while|switch|catch|using|lock|fixed|checked|unchecked|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
             r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@"
             + ID_START
             + r"$]["
@@ -316,7 +316,7 @@ DEFINITION: dict[str, Any] = {
             # Identical match set by construction; linear per attempt.
             # #5631: `base`/`this` are excluded here only: a constructor initializer on a continuation
             # line (`Ctor(args) :\n    base(...)\n{`) is a call the signature owns, not a function.
-            r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static|base|this)\b)"
+            r"(?!(?:if|for|foreach|while|switch|catch|using|lock|fixed|checked|unchecked|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static|base|this)\b)"
             r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@"
             + ID_START
             + r"$]["

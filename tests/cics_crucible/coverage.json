@@ -646,13 +646,15 @@
   },
   "gt-terminal-coalesce/GTSHOW": {
    "live": 1,
-   "outcomes": 2,
+   "outcomes": 4,
    "scenarios": {
     "three-in-one": {
      "units": [
       "MAIN-PARA"
      ],
      "outcomes": [
+      "26:false",
+      "26:true",
       "27:false",
       "27:true"
      ]
@@ -662,6 +664,8 @@
       "MAIN-PARA"
      ],
      "outcomes": [
+      "26:false",
+      "26:true",
       "27:false"
      ]
     },
@@ -670,6 +674,8 @@
       "MAIN-PARA"
      ],
      "outcomes": [
+      "26:false",
+      "26:true",
       "27:false"
      ]
     }
@@ -717,7 +723,7 @@
   },
   "gt-urimap-browse/GTUBROW": {
    "live": 2,
-   "outcomes": 6,
+   "outcomes": 8,
    "scenarios": {
     "browse": {
      "units": [
@@ -725,6 +731,8 @@
       "MAIN-PARA"
      ],
      "outcomes": [
+      "87:false",
+      "87:true",
       "119:false",
       "119:true",
       "122:false",
@@ -739,6 +747,8 @@
       "MAIN-PARA"
      ],
      "outcomes": [
+      "87:false",
+      "87:true",
       "119:false",
       "119:true",
       "122:false",
@@ -769,14 +779,15 @@
   },
   "gt-web-client/GTWCLI": {
    "live": 1,
-   "outcomes": 2,
+   "outcomes": 4,
    "scenarios": {
     "ok": {
      "units": [
       "MAIN-PARA"
      ],
      "outcomes": [
-      "44:false"
+      "44:false",
+      "62:true"
      ]
     },
     "notfound": {
@@ -784,7 +795,8 @@
       "MAIN-PARA"
      ],
      "outcomes": [
-      "44:true"
+      "44:true",
+      "62:true"
      ]
     }
    }
@@ -888,14 +900,15 @@
   },
   "hc-abend-link/HCSUB": {
    "live": 2,
-   "outcomes": 3,
+   "outcomes": 5,
    "scenarios": {
     "sub-resp": {
      "units": [
       "SUB-MAIN"
      ],
      "outcomes": [
-      "25:OTHER"
+      "25:OTHER",
+      "40:true"
      ]
     },
     "sub-unhandled": {

@@ -17,6 +17,7 @@ import argparse
 import collections
 import functools
 import json
+import re
 import sqlite3
 import sys
 from pathlib import Path
@@ -182,6 +183,9 @@ class Body:
                 self.refs.update(text_of(k) for k in kids if not k.children and text_of(k).isidentifier())
             if n.type in TEXT_NODES:
                 self.text_only.append(text_of(n))
+                if spec.parser == "csharp" and n.type == "string_content":
+                    # tree-sitter-c-sharp reads `$"{{{F()}}}"` (`{{`, hole `{F()}`, `}}`) as one literal; the hole is code
+                    self.calls.update(re.findall(r"\{\{\{[^{}]*?\b(\w+)\s*\(", text_of(n)))
                 continue
             if spec.is_unit(n):
                 continue  # a nested function is its own unit

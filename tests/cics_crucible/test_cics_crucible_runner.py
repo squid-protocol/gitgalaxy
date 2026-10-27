@@ -729,6 +729,19 @@ def _coverage(**scenarios):
     }
 
 
+def test_the_committed_coverage_ledger_is_self_consistent():
+    """#6783: no scenario executes more branch outcomes or paragraphs than its program's recorded inventory, so an
+    inventory left behind by a measurement change (a LineMap fix, #6772) is caught without a crucible run."""
+    ledger = runner.read_coverage()
+    assert ledger["programs"]
+    for key, rec in ledger["programs"].items():
+        for sid, sc in rec["scenarios"].items():
+            assert len(set(sc["outcomes"])) <= rec["outcomes"], (
+                f"{key} scenario {sid}: more outcomes than the inventory"
+            )
+            assert len(set(sc["units"])) <= rec["live"], f"{key} scenario {sid}: more units than live paragraphs"
+
+
 def test_the_coverage_ratchet_catches_lost_and_gained_paths(tmp_path):
     """#4023: per scenario, the paragraphs and branch outcomes it executes -- sets, so a swap is caught."""
     runner.write_coverage(_coverage(s=(["A", "B"], ["9:true"]), t=(["A"], [])), tmp_path / "cov.json")

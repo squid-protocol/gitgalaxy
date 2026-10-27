@@ -2051,7 +2051,53 @@
         }
       ],
       "why": "EIBCALEN 0: the closing RETURN TRANSID .. COMMAREA RESP (A010) fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its A010 abend routine"
+    },
+    {
+      "name": "returning-enter-uctran",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 450
+      },
+      "why": "returning ENTER, terminal UCTRAN: RM010 INQUIREs UCTRAN (450), SETs NOUCTRAN, then RECEIVE MAP takes the typed input as typed (ASSUMED, X26); the born-1500 date ends the task at CRECUST ('O')",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      },
+      "uctranst": "UCTRAN"
+    },
+    {
+      "name": "returning-enter-tranidonly",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 452
+      },
+      "why": "returning ENTER, terminal TRANIDONLY: RM010 INQUIREs TRANIDONLY (452), SETs NOUCTRAN, then RECEIVE MAP takes the typed input as typed (ASSUMED, X26); the born-1500 date ends the task at CRECUST ('O')",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      },
+      "uctranst": "TRANIDONLY"
     }
   ],
-  "notes": "CBSA's create-customer screen (BNK1CCS, transaction OCCS, BMS map BNK1CC of mapset BNK1CCM: the symbolic map is generated from src/base/bms_src/BNK1CCM.bms). Pseudo-conversational: Its terminal is a stated fact of the run: T001 (EIBTRMID), UCTRANST NOUCTRAN unless a scenario says UCTRAN or TRANIDONLY (INQUIRE / SET TERMINAL UCTRANST, oracle_assumptions.md X26), the stored setting in WS-COMM-TERM (451 in every returning scenario). A first task stores the terminal's UCTRAN setting (INQUIRE / SET TERMINAL UCTRANST) and sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 and PF12 restore the setting (PF3 RETURN TRANSID('OMEN') IMMEDIATE), CLEAR, ENTER (EDIT-DATA of title, names, address and date of birth, then LINK CRECUST with SUBPGM-PARMS), any other key 'Invalid key pressed.'. Every title spelling EDIT-DATA's EVALUATE lists is a scenario. CRECUST, its five credit-agency children and ABNDPROC run in the task, as in cbsa-crecust (header, data and notes: the async credit check is X18, ASSUMED). #4952, #5089 -- ASSUMED (register): create-customer (born 12/07/1985) and born-in-the-future (01/01/2099) reach CRECUST's CEEDAYS call, whose picture is declared 10 bytes over 8 (oracle_assumptions.md L1): the 2 slack bytes are ruled blank by the owner (2026-10-23, ASSUMED), so the call is modelled and a customer is created (CUSTOMER record, PROCTRAN 'OCC' row). born-before-1601 ends before CEEDAYS ('O'). Also open: X18 (the child credit schedule is ASSUMED); L4 is settled. Data: seed.sql and customer.txt are cbsa-crecust's, SYNTHETIC. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+  "notes": "CBSA's create-customer screen (BNK1CCS, transaction OCCS, BMS map BNK1CC of mapset BNK1CCM: the symbolic map is generated from src/base/bms_src/BNK1CCM.bms). Pseudo-conversational: Its terminal is a stated fact of the run: T001 (EIBTRMID), UCTRANST NOUCTRAN unless a scenario says UCTRAN or TRANIDONLY (INQUIRE / SET TERMINAL UCTRANST, oracle_assumptions.md X26), the stored setting in WS-COMM-TERM (451 in every returning scenario). A first task stores the terminal's UCTRAN setting (INQUIRE / SET TERMINAL UCTRANST) and sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 and PF12 restore the setting (PF3 RETURN TRANSID('OMEN') IMMEDIATE), CLEAR, ENTER (EDIT-DATA of title, names, address and date of birth, then LINK CRECUST with SUBPGM-PARMS), any other key 'Invalid key pressed.'. Every title spelling EDIT-DATA's EVALUATE lists is a scenario. CRECUST, its five credit-agency children and ABNDPROC run in the task, as in cbsa-crecust (header, data and notes: the async credit check is X18, ASSUMED). #4952, #5089 -- ASSUMED (register): create-customer (born 12/07/1985) and born-in-the-future (01/01/2099) reach CRECUST's CEEDAYS call, whose picture is declared 10 bytes over 8 (oracle_assumptions.md L1): the 2 slack bytes are ruled blank by the owner (2026-10-23, ASSUMED), so the call is modelled and a customer is created (CUSTOMER record, PROCTRAN 'OCC' row). born-before-1601 ends before CEEDAYS ('O'). returning-enter-uctran and -tranidonly (#6271): the terminal is UCTRAN / TRANIDONLY, RM010 SETs NOUCTRAN, and the RECEIVE MAP is no longer refused after that SET (X26, ASSUMED): 404 true and 415 false are reached; 415 true needs a SET TERMINAL fault (a separate slice). Also open: X18 (the child credit schedule is ASSUMED); L4 is settled. Data: seed.sql and customer.txt are cbsa-crecust's, SYNTHETIC. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
 }

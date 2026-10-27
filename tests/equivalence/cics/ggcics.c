@@ -177,6 +177,7 @@ int GGCLOAD(char *area, int maxlen) {
  * the same reference (DetCics.PastFrom). Any other COMMAREA stays in the driver's own area (*area unchanged). */
 static void refuse(const char *what);
 static int uctranst_set = 0; /* #4415: a SET TERMINAL UCTRANST changed the task's terminal (X26) */
+static int uctranst_cvda = -1; /* the task's terminal's UCTRANST CVDA (450, 451, 452): stated by the run, or SET */
 #ifndef _WIN32
 static char *guard_page;
 static size_t guard_size;
@@ -558,7 +559,10 @@ int GGCSYNC(gg_cics *c) {
 /* RECEIVE MAP(name1) MAPSET(name2) INTO: the scenario's recorded map input. */
 int GGCRECV(gg_cics *c, char *into, int intolen) {
     char map[9], mapset[9], path[4096], ev[128];
-    if (uctranst_set) refuse("a terminal RECEIVE after SET TERMINAL UCTRANST");
+    /* #6271 (X26): after a SET the input arrives under the terminal's new UCTRANST. NOUCTRAN and TRANIDONLY (only the
+     * transaction id is translated) leave the typed data as recorded; UCTRAN would upper-case it, which is not modelled. */
+    if (uctranst_set && uctranst_cvda == 450)
+        refuse("RECEIVE MAP after SET TERMINAL UCTRANST(UCTRAN): the upper-case translation of typed input is not modelled");
     trim(c->name1, 8, map);
     trim(c->name2, 8, mapset);
     if (map_not_found(c, map, mapset)) return 0;
@@ -1142,10 +1146,8 @@ int GGCDEED(gg_cics *c, char *field, int flen) {
  * The CVDAs UCTRAN 450, NOUCTRAN 451, TRANIDONLY 452. The task's terminal ($GGCICS_FACILITY) has the UCTRANST the runner
  * states ($GGCICS_UCTRANST: UCTRAN, NOUCTRAN or TRANIDONLY, from the TYPETERM's UCTRAN); unstated, or the UCTRANST of a
  * terminal other than the task's, refused. A terminal terminals.cfg does not list is TERMIDERR (INQUIRE RESP2 1, SET
- * RESP2 23); an invalid CVDA is INVREQ RESP2 43. A SET is the task's view of its terminal from then on, and a terminal
- * RECEIVE after it is refused (IBM does not say when the change takes effect). c->num is the CVDA. */
-static int uctranst_cvda = -1;
-
+ * RESP2 23); an invalid CVDA is INVREQ RESP2 43. A SET is the task's view of its terminal from then on: a RECEIVE MAP after it reads the input under the new
+ * value (#6271), an unformatted terminal RECEIVE after it is refused (IBM does not say when the change takes effect). c->num is the CVDA. */
 static int uctranst_terminal(gg_cics *c, int resp2) {
     char term[9];
     const char *own = getenv("GGCICS_FACILITY");

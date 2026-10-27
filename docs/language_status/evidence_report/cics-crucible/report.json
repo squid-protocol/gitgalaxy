@@ -188,8 +188,8 @@
    "carddemo-coacct01": [
     13,
     13,
-    4,
-    31
+    6,
+    33
    ],
    "carddemo-cobswait": [
     1,
@@ -212,14 +212,14 @@
    "carddemo-codate01": [
     13,
     13,
-    4,
-    26
+    6,
+    28
    ],
    "carddemo-copaua0c": [
     41,
     41,
-    63,
-    69
+    65,
+    71
    ],
    "carddemo-copaus0c": [
     20,
@@ -230,8 +230,8 @@
    "carddemo-copaus1c": [
     15,
     15,
-    48,
-    48
+    50,
+    50
    ],
    "carddemo-copaus2c": [
     2,
@@ -638,14 +638,14 @@
    "cbsa-crecust": [
     37,
     37,
-    40,
-    74
+    38,
+    70
    ],
    "cbsa-crecust-generated": [
     13,
     37,
-    23,
-    74
+    21,
+    70
    ],
    "cbsa-custctrl": [
     7,
@@ -770,14 +770,14 @@
    "genapp-lgacdb01": [
     4,
     4,
-    13,
-    14
+    15,
+    16
    ],
    "genapp-lgacdb01-generated": [
     4,
     4,
-    13,
-    14
+    15,
+    16
    ],
    "genapp-lgacdb02": [
     3,
@@ -806,8 +806,8 @@
    "genapp-lgacvs01": [
     3,
     3,
-    3,
-    4
+    5,
+    6
    ],
    "genapp-lgapdb01": [
     7,
@@ -836,14 +836,14 @@
    "genapp-lgapvs01": [
     3,
     3,
-    8,
-    9
+    10,
+    11
    ],
    "genapp-lgastat1": [
     1,
     1,
-    10,
-    10
+    12,
+    12
    ],
    "genapp-lgdpdb01": [
     3,
@@ -872,8 +872,8 @@
    "genapp-lgdpvs01": [
     3,
     3,
-    3,
-    4
+    5,
+    6
    ],
    "genapp-lgicdb01": [
     3,
@@ -902,14 +902,14 @@
    "genapp-lgicvs01": [
     1,
     1,
-    12,
-    12
+    18,
+    18
    ],
    "genapp-lgicvs01-linked": [
     1,
     1,
-    12,
-    12
+    18,
+    18
    ],
    "genapp-lgipdb01": [
     12,
@@ -957,8 +957,8 @@
    "genapp-lgtestc1": [
     10,
     10,
-    18,
-    18
+    20,
+    20
    ],
    "genapp-lgtestp1": [
     10,
@@ -1011,8 +1011,8 @@
    "genapp-lgucvs01": [
     3,
     3,
-    3,
-    4
+    7,
+    8
    ],
    "genapp-lgupdb01": [
     9,
@@ -1041,14 +1041,14 @@
    "genapp-lgupvs01": [
     3,
     3,
-    8,
-    9
+    12,
+    13
    ],
    "genapp-lgwebst5": [
     3,
     3,
-    0,
-    0
+    2,
+    2
    ],
    "mortgage-cmort": null,
    "mortgage-csmrt": null,
@@ -1074,26 +1074,26 @@
    "zecs-ecs001": [
     15,
     15,
-    16,
-    18
+    18,
+    20
    ],
    "zecs-zecs000": [
     38,
     38,
-    45,
-    46
+    47,
+    48
    ],
    "zecs-zecs001": [
     71,
     119,
-    89,
-    200
+    91,
+    208
    ],
    "zecs-zecs003": [
     21,
     21,
-    28,
-    28
+    29,
+    30
    ],
    "zecs-zecsplt": [
     11,
@@ -2361,7 +2361,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4aa4de078f6003045f656399c83c80cbdac89e87",
+   "sha": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
    "translator": {
     "files": 149,
     "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
@@ -11161,8 +11161,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87",
-   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87",
+   "python tests/tools/cics_census.py survey --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
+   "python tests/tools/evidence_report.py cics-crucible --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
   ],
@@ -11182,13 +11182,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4aa4de078f6003045f656399c83c80cbdac89e87",
+   "sha": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
    "translator": {
     "files": 149,
     "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
    }
   },
-  "translator_commit": "4aa4de078f6003045f656399c83c80cbdac89e87",
+  "translator_commit": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

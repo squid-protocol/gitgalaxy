@@ -285,8 +285,8 @@
    "carddemo-coacct01": [
     13,
     13,
-    4,
-    31
+    6,
+    33
    ],
    "carddemo-cobswait": [
     1,
@@ -309,14 +309,14 @@
    "carddemo-codate01": [
     13,
     13,
-    4,
-    26
+    6,
+    28
    ],
    "carddemo-copaua0c": [
     41,
     41,
-    63,
-    69
+    65,
+    71
    ],
    "carddemo-copaus0c": [
     20,
@@ -327,8 +327,8 @@
    "carddemo-copaus1c": [
     15,
     15,
-    48,
-    48
+    50,
+    50
    ],
    "carddemo-copaus2c": [
     2,
@@ -735,14 +735,14 @@
    "cbsa-crecust": [
     37,
     37,
-    40,
-    74
+    38,
+    70
    ],
    "cbsa-crecust-generated": [
     13,
     37,
-    23,
-    74
+    21,
+    70
    ],
    "cbsa-custctrl": [
     7,
@@ -867,14 +867,14 @@
    "genapp-lgacdb01": [
     4,
     4,
-    13,
-    14
+    15,
+    16
    ],
    "genapp-lgacdb01-generated": [
     4,
     4,
-    13,
-    14
+    15,
+    16
    ],
    "genapp-lgacdb02": [
     3,
@@ -903,8 +903,8 @@
    "genapp-lgacvs01": [
     3,
     3,
-    3,
-    4
+    5,
+    6
    ],
    "genapp-lgapdb01": [
     7,
@@ -933,14 +933,14 @@
    "genapp-lgapvs01": [
     3,
     3,
-    8,
-    9
+    10,
+    11
    ],
    "genapp-lgastat1": [
     1,
     1,
-    10,
-    10
+    12,
+    12
    ],
    "genapp-lgdpdb01": [
     3,
@@ -969,8 +969,8 @@
    "genapp-lgdpvs01": [
     3,
     3,
-    3,
-    4
+    5,
+    6
    ],
    "genapp-lgicdb01": [
     3,
@@ -999,14 +999,14 @@
    "genapp-lgicvs01": [
     1,
     1,
-    12,
-    12
+    18,
+    18
    ],
    "genapp-lgicvs01-linked": [
     1,
     1,
-    12,
-    12
+    18,
+    18
    ],
    "genapp-lgipdb01": [
     12,
@@ -1054,8 +1054,8 @@
    "genapp-lgtestc1": [
     10,
     10,
-    18,
-    18
+    20,
+    20
    ],
    "genapp-lgtestp1": [
     10,
@@ -1108,8 +1108,8 @@
    "genapp-lgucvs01": [
     3,
     3,
-    3,
-    4
+    7,
+    8
    ],
    "genapp-lgupdb01": [
     9,
@@ -1138,14 +1138,14 @@
    "genapp-lgupvs01": [
     3,
     3,
-    8,
-    9
+    12,
+    13
    ],
    "genapp-lgwebst5": [
     3,
     3,
-    0,
-    0
+    2,
+    2
    ],
    "mortgage-cmort": null,
    "mortgage-csmrt": null,
@@ -1171,26 +1171,26 @@
    "zecs-ecs001": [
     15,
     15,
-    16,
-    18
+    18,
+    20
    ],
    "zecs-zecs000": [
     38,
     38,
-    45,
-    46
+    47,
+    48
    ],
    "zecs-zecs001": [
     71,
     119,
-    89,
-    200
+    91,
+    208
    ],
    "zecs-zecs003": [
     21,
     21,
-    28,
-    28
+    29,
+    30
    ],
    "zecs-zecsplt": [
     11,
@@ -2868,7 +2868,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4aa4de078f6003045f656399c83c80cbdac89e87",
+   "sha": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
    "translator": {
     "files": 149,
     "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
@@ -3514,7 +3514,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
        "oracle_matches_pin": true,
        "records_compared": 60,
        "records_equal": 29,
@@ -6200,6 +6200,1597 @@
     "source_defects": [],
     "statements": 345,
     "translated": 345,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [
+     "facility",
+     "screen",
+     "startcode",
+     "userid"
+    ],
+    "facts_unstated": [
+     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
+    ],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL",
+      "id": "X15",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+      "id": "X19",
+      "status": "ASSUMED (REFUSED where the harness cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+      "id": "X20",
+      "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 93.2,
+    "branches": {
+     "covered": 82,
+     "total": 88
+    },
+    "branches_net": {
+     "covered": 82,
+     "total": 82
+    },
+    "current": true,
+    "infeasible_netted": [
+     "A010:303:false",
+     "VD010:625:false",
+     "SM010:1149:true",
+     "SM010:1159:false",
+     "SM010:1159:true",
+     "SM010:1224:false"
+    ],
+    "infeasible_refuted": [],
+    "infeasible_stated": [
+     {
+      "family": "R",
+      "key": "A010:303:false",
+      "kind": "IF",
+      "line": 303,
+      "outcome": "false",
+      "reason": "Same test (303): a RETURN that succeeds ends the task, so the fall-through arm where RESP is NORMAL is never executed.",
+      "unit": "A010"
+     },
+     {
+      "family": "G",
+      "key": "VD010:625:false",
+      "kind": "IF",
+      "line": 625,
+      "outcome": "false",
+      "reason": "The re-count (l.610) is reached only when the first count (l.596, CHARACTERS AFTER '.') exceeded 2 at l.598, so at least three characters follow the only point. It tallies INTRTI(WS-NUM-COUNT-POINT:INTRTL) with WS-NUM-COUNT-POINT = characters before the point + 2, which starts at the first of those characters. AFTER '.' binds only to the last item (FOR ALL '+'); the items for 0-9 and '-' count wherever they sit, and every character after the point is a digit (the checks above reject anything else). So the tally is at least 3 and l.625 > 2 is always true.",
+      "unit": "VD010"
+     },
+     {
+      "family": "C",
+      "key": "SM010:1149:true",
+      "kind": "IF",
+      "line": 1149,
+      "outcome": "true",
+      "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 51), which is set only by `SET SEND-ERASE` (208) and `SET SEND-DATAONLY-ALARM` (270, 404); no statement sets SEND-DATAONLY, so the flag is never '2'.",
+      "unit": "SM010"
+     },
+     {
+      "family": "C",
+      "key": "SM010:1159:false",
+      "kind": "IF",
+      "line": 1159,
+      "outcome": "false",
+      "reason": "Same nested test inside the `IF SEND-DATAONLY` block (1149), never entered.",
+      "unit": "SM010"
+     },
+     {
+      "family": "C",
+      "key": "SM010:1159:true",
+      "kind": "IF",
+      "line": 1159,
+      "outcome": "true",
+      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` lies inside the `IF SEND-DATAONLY` block (1149), which is never entered (see 1149 true).",
+      "unit": "SM010"
+     },
+     {
+      "family": "G",
+      "key": "SM010:1224:false",
+      "kind": "IF",
+      "line": 1224,
+      "outcome": "false",
+      "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) takes the SEND-MAP-ERASE branch ahead of it and ends at SM999, and '2' is never set (see 1149), so the test is always true.",
+      "unit": "SM010"
+     }
+    ],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 31,
+     "live": 31
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "cbsa-bnk1uac",
+      "case_scenarios": 77,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     },
+     {
+      "case": "cbsa-bnk1uac-generated",
+      "case_scenarios": 7,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "cbsa-bnk1uac",
+     "case_scenarios": 77,
+     "db2": true,
+     "det": {
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+   ],
+   "options": {
+    "assumed": 4,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 2,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ACTION",
+      "provenance": "found",
+      "source": "etc/install/base/db2jcl/DB2BIND.jcl:96",
+      "value": "REPLACE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "etc/install/base/db2jcl/DB2BIND.jcl:115",
+      "value": "UR"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "integrated (CICS + SQL on the compile PARM / CBL cards)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.program_definition.CONCURRENCY",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/BANK.csd:80",
+      "value": "THREADSAFE"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.program_definition.EXECKEY",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/BANK.csd:80",
+      "value": "USER"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/DFH$SIP1.jcl:12",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "src/base/cobol_src/ACCTCTRL.cbl:1",
+      "value": "CICS('SP,EDF') via the program's CBL card"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "program card",
+      "provenance": "found",
+      "source": "src/base/cobol_src/BNK1UAC.cbl:1",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "program card",
+      "provenance": "found",
+      "source": "src/base/cobol_src/BNK1UAC.cbl:1",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "ABEND",
+     "crucible_cases": [
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "ASSIGN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [
+      "startcode",
+      "userid",
+      "facility",
+      "screen"
+     ],
+     "registers": [
+      "X19"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X46"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "LINK",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RECEIVE MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "SEND CONTROL",
+     "crucible_cases": [
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X15"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND TEXT",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X20"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "src/base/cobol_src/BNK1UAC.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X15",
+     "X19",
+     "X27",
+     "X31",
+     "X46"
+    ],
+    "branch_outcomes_unrun": 6,
+    "commands": 10,
+    "commands_backed": 7,
+    "commands_not_backed": [
+     "ASKTIME",
+     "FORMATTIME",
+     "SEND CONTROL"
+    ],
+    "facts_unstated": 1,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 441,
+    "translated": 441,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [
+     "facility",
+     "screen",
+     "startcode",
+     "userid"
+    ],
+    "facts_unstated": [
+     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
+    ],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL",
+      "id": "X15",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
+      "id": "X19",
+      "status": "ASSUMED (REFUSED where the harness cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
+      "id": "X20",
+      "status": "MATCHED (REFUSED where the region cannot decide)"
+     },
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
+      "id": "X31",
+      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
+    "branch_pct": 77.4,
+    "branches": {
+     "covered": 48,
+     "total": 62
+    },
+    "branches_net": {
+     "covered": 48,
+     "total": 48
+    },
+    "current": true,
+    "infeasible_netted": [
+     "IOT999:paragraph",
+     "A010:178:false",
+     "IOT010:394:false",
+     "IOT010:466:false",
+     "IOT010:539:false",
+     "IOT010:612:false",
+     "IOT010:685:false",
+     "IOT010:758:false",
+     "IOT010:831:false",
+     "IOT010:897:false",
+     "IOT010:905:false",
+     "SMM010:1052:true",
+     "SMM010:1061:false",
+     "SMM010:1061:true",
+     "SMM010:1128:false"
+    ],
+    "infeasible_refuted": [],
+    "infeasible_stated": [
+     {
+      "family": "G",
+      "key": "IOT999:paragraph",
+      "kind": "PARAGRAPH",
+      "outcome": "entered",
+      "reason": "IOT999 (l.968, EXIT) is entered only by falling out of INVOKE-OTHER-TXNS (l.377), and every path out of it ends the task. PMM010 (l.254) performs the section only when VALID-DATA, and EDIT-MENU-DATA (l.363) leaves VALID-DATA-SW 'Y' only for ACTIONI 1-7 or A, each of which has an IF at l.386-897 whose EXEC CICS RETURN TRANSID IMMEDIATE does not return when it succeeds and whose RESP NOT = NORMAL arm ends in PERFORM ABEND-THIS-TASK. Nothing PERFORMs or GO TOs IOT999.",
+      "unit": "IOT999"
+     },
+     {
+      "family": "R",
+      "key": "A010:178:false",
+      "kind": "IF",
+      "line": 178,
+      "outcome": "false",
+      "reason": "Same test (178): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
+      "unit": "A010"
+     },
+     {
+      "family": "R",
+      "key": "IOT010:394:false",
+      "kind": "IF",
+      "line": 394,
+      "outcome": "false",
+      "reason": "Same test (394): a RETURN TRANSID('ODCS') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
+      "unit": "IOT010"
+     },
+     {
+      "family": "R",
+      "key": "IOT010:466:false",
+      "kind": "IF",
+      "line": 466,
+      "outcome": "false",
+      "reason": "Same test (466): a RETURN TRANSID('ODAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
+      "unit": "IOT010"
+     },
+     {
+      "family": "R",
+      "key": "IOT010:539:false",
+      "kind": "IF",
+      "line": 539,
+      "outcome": "false",
+      "reason": "Same test (539): a RETURN TRANSID('OCCS') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
+      "unit": "IOT010"
+     },
+     {
+      "family": "R",
+      "key": "IOT010:612:false",
+      "kind": "IF",
+      "line": 612,
+      "outcome": "false",
+      "reason": "Same test (612): a RETURN TRANSID('OCAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
+      "unit": "IOT010"
+     },
+     {
+      "family": "R",
+      "key": "IOT010:685:false",
+      "kind": "IF",
+      "line": 685,
+      "outcome": "false",
+      "reason": "Same test (685): a RETURN TRANSID('OUAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
+      "unit": "IOT010"
+     },
+     {
+      "family": "R",
+      "key": "IOT010:758:false",
+      "kind": "IF",
+      "line": 758,
+      "outcome": "false",
+      "reason": "Same test (758): a RETURN TRANSID('OCRA') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
+      "unit": "IOT010"
+     },
+     {
+      "family": "R",
+      "key": "IOT010:831:false",
+      "kind": "IF",
+      "line": 831,
+      "outcome": "false",
+      "reason": "Same test (831): a RETURN TRANSID('OTFN') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
+      "unit": "IOT010"
+     },
+     {
+      "family": "G",
+      "key": "IOT010:897:false",
+      "kind": "IF",
+      "line": 897,
+      "outcome": "false",
+      "reason": "`IF ACTIONI = 'A'` (897) is the last of the eight menu tests: EDIT-MENU-DATA (357-370) lets only '1'-'7' and 'A' through to INVOKE-OTHER-TXNS, and each of the tests for '1' to '7' ends in RETURN TRANSID(...) IMMEDIATE, which does not come back on success (see the RETURN entries above), so 897 is reached only with ACTIONI = 'A' and its false arm has no input.",
+      "unit": "IOT010"
+     },
+     {
+      "family": "R",
+      "key": "IOT010:905:false",
+      "kind": "IF",
+      "line": 905,
+      "outcome": "false",
+      "reason": "Same test (905): a RETURN TRANSID('OCCA') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
+      "unit": "IOT010"
+     },
+     {
+      "family": "C",
+      "key": "SMM010:1052:true",
+      "kind": "IF",
+      "line": 1052,
+      "outcome": "true",
+      "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 53), set by no statement: only `SET SEND-ERASE` (119, 287) and `SET SEND-DATAONLY-ALARM` (162, 258) write the flag.",
+      "unit": "SMM010"
+     },
+     {
+      "family": "C",
+      "key": "SMM010:1061:false",
+      "kind": "IF",
+      "line": 1061,
+      "outcome": "false",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1052), which is never entered.",
+      "unit": "SMM010"
+     },
+     {
+      "family": "C",
+      "key": "SMM010:1061:true",
+      "kind": "IF",
+      "line": 1061,
+      "outcome": "true",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1052), which is never entered.",
+      "unit": "SMM010"
+     },
+     {
+      "family": "G",
+      "key": "SMM010:1128:false",
+      "kind": "IF",
+      "line": 1128,
+      "outcome": "false",
+      "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SMM010 after the first SEND MAP (GO TO SMM999) and '2' is never set (see 1052), so the test is always true.",
+      "unit": "SMM010"
+     }
+    ],
+    "paragraph_net_pct": 100.0,
+    "paragraph_pct": 96.0,
+    "paragraphs": {
+     "covered": 24,
+     "live": 25
+    },
+    "paragraphs_net": {
+     "covered": 24,
+     "live": 24
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "cbsa-bnkmenu",
+      "case_scenarios": 32,
+      "db2": false,
+      "det": {
+       "source": "CI det-sweep ratchet on main",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     }
+    ],
+    "chosen": {
+     "case": "cbsa-bnkmenu",
+     "case_scenarios": 32,
+     "db2": false,
+     "det": {
+      "source": "CI det-sweep ratchet on main",
+      "state": "equal"
+     },
+     "record": null,
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+   ],
+   "options": {
+    "assumed": 4,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 2,
+    "record_differences": [],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ACTION",
+      "provenance": "found",
+      "source": "etc/install/base/db2jcl/DB2BIND.jcl:96",
+      "value": "REPLACE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "etc/install/base/db2jcl/DB2BIND.jcl:115",
+      "value": "UR"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.ccsid.SQLCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "etc/install/base/buildjcl/CICS.jcl:7",
+      "value": "integrated (CICS + SQL on the compile PARM / CBL cards)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.program_definition.CONCURRENCY",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/BANK.csd:80",
+      "value": "THREADSAFE"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.program_definition.EXECKEY",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/BANK.csd:80",
+      "value": "USER"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "etc/install/base/installjcl/DFH$SIP1.jcl:12",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "src/base/cobol_src/ACCTCTRL.cbl:1",
+      "value": "CICS('SP,EDF') via the program's CBL card"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "program card",
+      "provenance": "found",
+      "source": "src/base/cobol_src/BNKMENU.cbl:1",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "1140"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "program card",
+      "provenance": "found",
+      "source": "src/base/cobol_src/BNKMENU.cbl:1",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "ABEND",
+     "crucible_cases": [
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "ASSIGN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [
+      "startcode",
+      "userid",
+      "facility",
+      "screen"
+     ],
+     "registers": [
+      "X19"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X46"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "LINK",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RECEIVE MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "SEND CONTROL",
+     "crucible_cases": [
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X15"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND MAP",
+     "crucible_cases": [
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X31"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "SEND TEXT",
+     "crucible_cases": [
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X20"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "src/base/cobol_src/BNKMENU.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X15",
+     "X19",
+     "X27",
+     "X31",
+     "X46"
+    ],
+    "branch_outcomes_unrun": 14,
+    "commands": 10,
+    "commands_backed": 7,
+    "commands_not_backed": [
+     "ASKTIME",
+     "FORMATTIME",
+     "SEND CONTROL"
+    ],
+    "facts_unstated": 1,
+    "holes": 0,
+    "paragraphs_unrun": 1,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 366,
+    "translated": 366,
     "whole": true
    }
   },
@@ -12245,7 +13836,7 @@
        "fault_runs": 0,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
        "oracle_matches_pin": true,
        "records_compared": 54,
        "records_equal": 54,
@@ -12343,7 +13934,7 @@
       "fault_runs": 0,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+      "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
       "oracle_matches_pin": true,
       "records_compared": 54,
       "records_equal": 54,
@@ -18002,750 +19593,6 @@
     "named_by_commands": [
      {
       "area": "CICS",
-      "entry": "Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL",
-      "id": "X15",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
-      "id": "X19",
-      "status": "ASSUMED (REFUSED where the harness cannot decide)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
-      "id": "X20",
-      "status": "MATCHED (REFUSED where the region cannot decide)"
-     },
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
-      "id": "X31",
-      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
-     },
-     {
-      "area": "CICS",
-      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
-      "id": "X46",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 98.8,
-    "branch_pct": 93.2,
-    "branches": {
-     "covered": 82,
-     "total": 88
-    },
-    "branches_net": {
-     "covered": 82,
-     "total": 83
-    },
-    "current": true,
-    "infeasible_netted": [
-     "A010:303:false",
-     "SM010:1149:true",
-     "SM010:1159:false",
-     "SM010:1159:true",
-     "SM010:1224:false"
-    ],
-    "infeasible_refuted": [],
-    "infeasible_stated": [
-     {
-      "family": "R",
-      "key": "A010:303:false",
-      "kind": "IF",
-      "line": 303,
-      "outcome": "false",
-      "reason": "Same test (303): a RETURN that succeeds ends the task, so the fall-through arm where RESP is NORMAL is never executed.",
-      "unit": "A010"
-     },
-     {
-      "family": "C",
-      "key": "SM010:1149:true",
-      "kind": "IF",
-      "line": 1149,
-      "outcome": "true",
-      "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 51), which is set only by `SET SEND-ERASE` (208) and `SET SEND-DATAONLY-ALARM` (270, 404); no statement sets SEND-DATAONLY, so the flag is never '2'.",
-      "unit": "SM010"
-     },
-     {
-      "family": "C",
-      "key": "SM010:1159:false",
-      "kind": "IF",
-      "line": 1159,
-      "outcome": "false",
-      "reason": "Same nested test inside the `IF SEND-DATAONLY` block (1149), never entered.",
-      "unit": "SM010"
-     },
-     {
-      "family": "C",
-      "key": "SM010:1159:true",
-      "kind": "IF",
-      "line": 1159,
-      "outcome": "true",
-      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` lies inside the `IF SEND-DATAONLY` block (1149), which is never entered (see 1149 true).",
-      "unit": "SM010"
-     },
-     {
-      "family": "G",
-      "key": "SM010:1224:false",
-      "kind": "IF",
-      "line": 1224,
-      "outcome": "false",
-      "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) takes the SEND-MAP-ERASE branch ahead of it and ends at SM999, and '2' is never set (see 1149), so the test is always true.",
-      "unit": "SM010"
-     }
-    ],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 31,
-     "live": 31
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "cbsa-bnk1uac",
-      "case_scenarios": 77,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     },
-     {
-      "case": "cbsa-bnk1uac-generated",
-      "case_scenarios": 7,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "cbsa-bnk1uac",
-     "case_scenarios": 77,
-     "db2": true,
-     "det": {
-      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L3",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "branch coverage >= 100.0 net (now 93.2 raw, 98.8 net of the reviewed infeasible outcomes)"
-   ],
-   "options": {
-    "assumed": 4,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 2,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ACTION",
-      "provenance": "found",
-      "source": "etc/install/base/db2jcl/DB2BIND.jcl:96",
-      "value": "REPLACE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ISOLATION",
-      "provenance": "found",
-      "source": "etc/install/base/db2jcl/DB2BIND.jcl:115",
-      "value": "UR"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.coprocessor",
-      "provenance": "found",
-      "source": "etc/install/base/buildjcl/CICS.jcl:7",
-      "value": "integrated (CICS + SQL on the compile PARM / CBL cards)"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.program_definition.CONCURRENCY",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/BANK.csd:80",
-      "value": "THREADSAFE"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.program_definition.EXECKEY",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/BANK.csd:80",
-      "value": "USER"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.region.DB2CONN",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/DFH$SIP1.jcl:12",
-      "value": "YES"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "src/base/cobol_src/ACCTCTRL.cbl:1",
-      "value": "CICS('SP,EDF') via the program's CBL card"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "program card",
-      "provenance": "found",
-      "source": "src/base/cobol_src/BNK1UAC.cbl:1",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "program card",
-      "provenance": "found",
-      "source": "src/base/cobol_src/BNK1UAC.cbl:1",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": true,
-     "command": "ABEND",
-     "crucible_cases": [
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "ASKTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "ASSIGN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [
-      "startcode",
-      "userid",
-      "facility",
-      "screen"
-     ],
-     "registers": [
-      "X19"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "FORMATTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X46"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "LINK",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RECEIVE MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "SEND CONTROL",
-     "crucible_cases": [
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X15"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND TEXT",
-     "crucible_cases": [
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X20"
-     ],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "src/base/cobol_src/BNK1UAC.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X15",
-     "X19",
-     "X27",
-     "X31",
-     "X46"
-    ],
-    "branch_outcomes_unrun": 6,
-    "commands": 10,
-    "commands_backed": 7,
-    "commands_not_backed": [
-     "ASKTIME",
-     "FORMATTIME",
-     "SEND CONTROL"
-    ],
-    "facts_unstated": 1,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 441,
-    "translated": 441,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [
-     "facility",
-     "screen",
-     "startcode",
-     "userid"
-    ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
-    "named_by_commands": [
-     {
-      "area": "CICS",
       "entry": "READ ... INTO LENGTH: in-out, truncation and LENGERR; a VSAM file's LENGTH need not equal its record length; LENGERR on READ UPDATE refused",
       "id": "X14",
       "status": "ASSUMED (REFUSED where IBM is silent)"
@@ -18803,15 +19650,15 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 54.1,
-    "branch_pct": 54.1,
+    "branch_net_pct": 54.3,
+    "branch_pct": 54.3,
     "branches": {
-     "covered": 40,
-     "total": 74
+     "covered": 38,
+     "total": 70
     },
     "branches_net": {
-     "covered": 40,
-     "total": 74
+     "covered": 38,
+     "total": 70
     },
     "current": true,
     "infeasible_netted": [],
@@ -18896,7 +19743,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 54.1 raw, 54.1 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 54.3 raw, 54.3 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 5,
@@ -19384,7 +20231,7 @@
      "X52",
      "X60"
     ],
-    "branch_outcomes_unrun": 34,
+    "branch_outcomes_unrun": 32,
     "commands": 16,
     "commands_backed": 4,
     "commands_not_backed": [
@@ -20198,7 +21045,7 @@
          "option": "TRUNC"
         }
        ],
-       "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
        "oracle_matches_pin": true,
        "records_compared": 60,
        "records_equal": 29,
@@ -20263,7 +21110,7 @@
         "option": "TRUNC"
        }
       ],
-      "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+      "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
       "oracle_matches_pin": true,
       "records_compared": 60,
       "records_equal": 29,
@@ -22185,835 +23032,12 @@
     "translated": 162,
     "whole": true
    }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [
-     "facility",
-     "screen",
-     "startcode",
-     "userid"
-    ],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "Terminal RECEIVE (INTO / SET, LENGTH, MAXLENGTH, NOTRUNCATE; LENGERR, EOC on an LUTYPE2 terminal) and SEND CONTROL",
-      "id": "X15",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "ASSIGN on the det port: STARTCODE (TD / S / SD / D), USERID (the default user), FACILITY / SCRNHT / SCRNWD (INVREQ RESP2 5 without a terminal) from facts the harness states; no data area written when ASSIGN raises INVREQ; OPID, NETNAME, TERMCODE, FCI, the other screen sizes, work-area lengths and the rest refused",
-      "id": "X19",
-      "status": "ASSUMED (REFUSED where the harness cannot decide)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND TEXT on the det port and the stub: TERMINAL accepted as the default output disposition (the principal facility; the event is that of SEND TEXT without it); ACCUM, PAGING, SET, REQID, HEADER, TRAILER, JUSTIFY / JUSFIRST / JUSLAST, the printer, partition and LDC options, MSR, FMHPARM, DEFAULT / ALTERNATE refused",
-      "id": "X20",
-      "status": "MATCHED (REFUSED where the region cannot decide)"
-     },
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "SEND MAP / RECEIVE MAP for a map its mapset does not hold (MAPSET omitted: IBM defaults it to the MAP name, so `SEND MAP('BNK1CCM')` looks for map BNK1CCM in mapset BNK1CCM): abend ABM0, the transaction terminated, no condition raised (RESP / RESP2 / HANDLE CONDITION do not see it; a HANDLE ABEND exit does), recorded as an ABEND event with cause `system`",
-      "id": "X31",
-      "status": "ASSUMED (REFUSED where IBM is silent: the mapset itself undefined, a non-constant name)"
-     },
-     {
-      "area": "CICS",
-      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
-      "id": "X46",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 100.0,
-    "branch_pct": 77.4,
-    "branches": {
-     "covered": 48,
-     "total": 62
-    },
-    "branches_net": {
-     "covered": 48,
-     "total": 48
-    },
-    "current": true,
-    "infeasible_netted": [
-     "A010:178:false",
-     "IOT010:394:false",
-     "IOT010:466:false",
-     "IOT010:539:false",
-     "IOT010:612:false",
-     "IOT010:685:false",
-     "IOT010:758:false",
-     "IOT010:831:false",
-     "IOT010:897:false",
-     "IOT010:905:false",
-     "SMM010:1052:true",
-     "SMM010:1061:false",
-     "SMM010:1061:true",
-     "SMM010:1128:false"
-    ],
-    "infeasible_refuted": [],
-    "infeasible_stated": [
-     {
-      "family": "R",
-      "key": "A010:178:false",
-      "kind": "IF",
-      "line": 178,
-      "outcome": "false",
-      "reason": "Same test (178): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
-      "unit": "A010"
-     },
-     {
-      "family": "R",
-      "key": "IOT010:394:false",
-      "kind": "IF",
-      "line": 394,
-      "outcome": "false",
-      "reason": "Same test (394): a RETURN TRANSID('ODCS') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
-      "unit": "IOT010"
-     },
-     {
-      "family": "R",
-      "key": "IOT010:466:false",
-      "kind": "IF",
-      "line": 466,
-      "outcome": "false",
-      "reason": "Same test (466): a RETURN TRANSID('ODAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
-      "unit": "IOT010"
-     },
-     {
-      "family": "R",
-      "key": "IOT010:539:false",
-      "kind": "IF",
-      "line": 539,
-      "outcome": "false",
-      "reason": "Same test (539): a RETURN TRANSID('OCCS') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
-      "unit": "IOT010"
-     },
-     {
-      "family": "R",
-      "key": "IOT010:612:false",
-      "kind": "IF",
-      "line": 612,
-      "outcome": "false",
-      "reason": "Same test (612): a RETURN TRANSID('OCAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
-      "unit": "IOT010"
-     },
-     {
-      "family": "R",
-      "key": "IOT010:685:false",
-      "kind": "IF",
-      "line": 685,
-      "outcome": "false",
-      "reason": "Same test (685): a RETURN TRANSID('OUAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
-      "unit": "IOT010"
-     },
-     {
-      "family": "R",
-      "key": "IOT010:758:false",
-      "kind": "IF",
-      "line": 758,
-      "outcome": "false",
-      "reason": "Same test (758): a RETURN TRANSID('OCRA') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
-      "unit": "IOT010"
-     },
-     {
-      "family": "R",
-      "key": "IOT010:831:false",
-      "kind": "IF",
-      "line": 831,
-      "outcome": "false",
-      "reason": "Same test (831): a RETURN TRANSID('OTFN') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
-      "unit": "IOT010"
-     },
-     {
-      "family": "G",
-      "key": "IOT010:897:false",
-      "kind": "IF",
-      "line": 897,
-      "outcome": "false",
-      "reason": "`IF ACTIONI = 'A'` (897) is the last of the eight menu tests: EDIT-MENU-DATA (357-370) lets only '1'-'7' and 'A' through to INVOKE-OTHER-TXNS, and each of the tests for '1' to '7' ends in RETURN TRANSID(...) IMMEDIATE, which does not come back on success (see the RETURN entries above), so 897 is reached only with ACTIONI = 'A' and its false arm has no input.",
-      "unit": "IOT010"
-     },
-     {
-      "family": "R",
-      "key": "IOT010:905:false",
-      "kind": "IF",
-      "line": 905,
-      "outcome": "false",
-      "reason": "Same test (905): a RETURN TRANSID('OCCA') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed.",
-      "unit": "IOT010"
-     },
-     {
-      "family": "C",
-      "key": "SMM010:1052:true",
-      "kind": "IF",
-      "line": 1052,
-      "outcome": "true",
-      "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 53), set by no statement: only `SET SEND-ERASE` (119, 287) and `SET SEND-DATAONLY-ALARM` (162, 258) write the flag.",
-      "unit": "SMM010"
-     },
-     {
-      "family": "C",
-      "key": "SMM010:1061:false",
-      "kind": "IF",
-      "line": 1061,
-      "outcome": "false",
-      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1052), which is never entered.",
-      "unit": "SMM010"
-     },
-     {
-      "family": "C",
-      "key": "SMM010:1061:true",
-      "kind": "IF",
-      "line": 1061,
-      "outcome": "true",
-      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1052), which is never entered.",
-      "unit": "SMM010"
-     },
-     {
-      "family": "G",
-      "key": "SMM010:1128:false",
-      "kind": "IF",
-      "line": 1128,
-      "outcome": "false",
-      "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SMM010 after the first SEND MAP (GO TO SMM999) and '2' is never set (see 1052), so the test is always true.",
-      "unit": "SMM010"
-     }
-    ],
-    "paragraph_pct": 96.0,
-    "paragraphs": {
-     "covered": 24,
-     "live": 25
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "cbsa-bnkmenu",
-      "case_scenarios": 32,
-      "db2": false,
-      "det": {
-       "source": "CI det-sweep ratchet on main",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     }
-    ],
-    "chosen": {
-     "case": "cbsa-bnkmenu",
-     "case_scenarios": 32,
-     "db2": false,
-     "det": {
-      "source": "CI det-sweep ratchet on main",
-      "state": "equal"
-     },
-     "record": null,
-     "role": "program"
-    }
-   },
-   "level": "L2",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "paragraph coverage >= 100.0 (now 96.0)"
-   ],
-   "options": {
-    "assumed": 4,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.3"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 2,
-    "record_differences": [],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ACTION",
-      "provenance": "found",
-      "source": "etc/install/base/db2jcl/DB2BIND.jcl:96",
-      "value": "REPLACE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ISOLATION",
-      "provenance": "found",
-      "source": "etc/install/base/db2jcl/DB2BIND.jcl:115",
-      "value": "UR"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.ccsid.SQLCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.coprocessor",
-      "provenance": "found",
-      "source": "etc/install/base/buildjcl/CICS.jcl:7",
-      "value": "integrated (CICS + SQL on the compile PARM / CBL cards)"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.program_definition.CONCURRENCY",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/BANK.csd:80",
-      "value": "THREADSAFE"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.program_definition.EXECKEY",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/BANK.csd:80",
-      "value": "USER"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.region.DB2CONN",
-      "provenance": "found",
-      "source": "etc/install/base/installjcl/DFH$SIP1.jcl:12",
-      "value": "YES"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "src/base/cobol_src/ACCTCTRL.cbl:1",
-      "value": "CICS('SP,EDF') via the program's CBL card"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "program card",
-      "provenance": "found",
-      "source": "src/base/cobol_src/BNKMENU.cbl:1",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "1140"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "program card",
-      "provenance": "found",
-      "source": "src/base/cobol_src/BNKMENU.cbl:1",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": true,
-     "command": "ABEND",
-     "crucible_cases": [
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "ASKTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "ASSIGN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [
-      "startcode",
-      "userid",
-      "facility",
-      "screen"
-     ],
-     "registers": [
-      "X19"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "FORMATTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X46"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "LINK",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RECEIVE MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "SEND CONTROL",
-     "crucible_cases": [
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X15"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND MAP",
-     "crucible_cases": [
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X31"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "SEND TEXT",
-     "crucible_cases": [
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X20"
-     ],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "src/base/cobol_src/BNKMENU.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X15",
-     "X19",
-     "X27",
-     "X31",
-     "X46"
-    ],
-    "branch_outcomes_unrun": 14,
-    "commands": 10,
-    "commands_backed": 7,
-    "commands_not_backed": [
-     "ASKTIME",
-     "FORMATTIME",
-     "SEND CONTROL"
-    ],
-    "facts_unstated": 1,
-    "holes": 0,
-    "paragraphs_unrun": 1,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 366,
-    "translated": 366,
-    "whole": true
-   }
   }
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87",
-   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87",
+   "python tests/tools/cics_census.py survey --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
+   "python tests/tools/evidence_report.py cics-banking-sample-application-cbsa --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases cbsa-abndproc,cbsa-acctctrl,cbsa-acctctrl-generated,cbsa-bankdata,cbsa-bnk1cac,cbsa-bnk1cac-generated,cbsa-bnk1cca,cbsa-bnk1cca-generated,cbsa-bnk1ccs,cbsa-bnk1ccs-generated,cbsa-bnk1cra,cbsa-bnk1cra-generated,cbsa-bnk1dac,cbsa-bnk1dac-generated,cbsa-bnk1dcs,cbsa-bnk1dcs-generated,cbsa-bnk1tfn,cbsa-bnk1tfn-generated,cbsa-bnk1uac,cbsa-bnk1uac-generated,cbsa-bnkmenu,cbsa-crdtagy1,cbsa-crdtagy2,cbsa-crdtagy3,cbsa-crdtagy4,cbsa-crdtagy5,cbsa-creacc,cbsa-creacc-generated,cbsa-crecust,cbsa-crecust-generated,cbsa-custctrl,cbsa-dbcrfun,cbsa-dbcrfun-generated,cbsa-delacc,cbsa-delacc-generated,cbsa-delcus,cbsa-delcus-generated,cbsa-getcompy,cbsa-getscode,cbsa-inqacc,cbsa-inqacc-generated,cbsa-inqacccu,cbsa-inqacccu-generated,cbsa-inqcust,cbsa-updacc,cbsa-updacc-faults,cbsa-updacc-generated,cbsa-updcust,cbsa-xfrfun,cbsa-xfrfun-generated  # Db2 cases (39) need the Db2 container",
    "python tests/tools/evidence.py prove cbsa-inqacc cbsa-updacc cbsa-updacc-generated",
@@ -23031,20 +23055,20 @@
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
    "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
-   "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec"
+   "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4aa4de078f6003045f656399c83c80cbdac89e87",
+   "sha": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
    "translator": {
     "files": 149,
     "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
    }
   },
-  "translator_commit": "4aa4de078f6003045f656399c83c80cbdac89e87",
+  "translator_commit": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -23053,9 +23077,9 @@
   "histogram": {
    "L0": 0,
    "L1": 0,
-   "L2": 1,
-   "L3": 11,
-   "L4": 19,
+   "L2": 0,
+   "L3": 10,
+   "L4": 21,
    "L5": 0
   },
   "histogram_stale": {

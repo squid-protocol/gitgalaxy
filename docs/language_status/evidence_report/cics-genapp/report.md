@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `4aa4de078f6003045f656399c83c80cbdac89e87` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `1d6f3cf38af5b208fd6bc7067434705b4713c1ce` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `64effbe34081`).
 
@@ -88,35 +88,35 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| base/src/lgacdb01.cbl | L4 | 61/61 | 0 | genapp-lgacdb01 | equal | 6 | none | 4/4 (100.0%) | 13/14 (92.9%) | 13/13 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
+| base/src/lgacdb01.cbl | L4 | 61/61 | 0 | genapp-lgacdb01 | equal | 6 | none | 4/4 (100.0%) | 15/16 (93.8%) | 15/15 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
 | base/src/lgacdb02.cbl | L4 | 39/39 | 0 | genapp-lgacdb02 | equal | 10 | none | 3/3 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgacus01.cbl | L4 | 34/34 | 0 | genapp-lgacus01 | equal | 5 | none | 3/3 (100.0%) | 4/8 (50.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgacvs01.cbl | L4 | 25/25 | 0 | genapp-lgacvs01 | equal | 8 | none | 3/3 (100.0%) | 3/4 (75.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
+| base/src/lgacvs01.cbl | L4 | 25/25 | 0 | genapp-lgacvs01 | equal | 8 | none | 3/3 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
 | base/src/lgapol01.cbl | L4 | 30/30 | 0 | genapp-lgapol01 | equal | 6 | none | 2/2 (100.0%) | 5/8 (62.5%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgapvs01.cbl | L4 | 47/47 | 0 | genapp-lgapvs01 | equal | 13 | shown equal, unapproved | 3/3 (100.0%) | 8/9 (88.9%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | 2/5 |
-| base/src/lgastat1.cbl | L4 | 30/30 | 0 | genapp-lgastat1 | equal | 8 | none | 1/1 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
+| base/src/lgapvs01.cbl | L4 | 47/47 | 0 | genapp-lgapvs01 | equal | 13 | shown equal, unapproved | 3/3 (100.0%) | 10/11 (90.9%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | 2/5 |
+| base/src/lgastat1.cbl | L4 | 30/30 | 0 | genapp-lgastat1 | equal | 8 | none | 1/1 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
 | base/src/lgdpdb01.cbl | L4 | 45/45 | 0 | genapp-lgdpdb01 | equal | 11 | none | 3/3 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgdpol01.cbl | L4 | 36/36 | 0 | genapp-lgdpol01 | equal | 11 | none | 3/3 (100.0%) | 9/12 (75.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgdpvs01.cbl | L4 | 28/28 | 0 | genapp-lgdpvs01 | equal | 8 | none | 3/3 (100.0%) | 3/4 (75.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | 2/5 |
+| base/src/lgdpvs01.cbl | L4 | 28/28 | 0 | genapp-lgdpvs01 | equal | 8 | none | 3/3 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 2/5 |
 | base/src/lgicdb01.cbl | L4 | 44/44 | 0 | genapp-lgicdb01-generated | equal | 6 | none | 4/4 (100.0%) | 11/12 (91.7%) | 11/11 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgicus01.cbl | L4 | 34/34 | 0 | genapp-lgicus01 | equal | 5 | none | 4/4 (100.0%) | 4/8 (50.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgicvs01.cbl | L4 | 51/51 | 0 | genapp-lgicvs01 | equal | 9 | none | 1/1 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 6/9 |
+| base/src/lgicvs01.cbl | L4 | 51/51 | 0 | genapp-lgicvs01 | equal | 9 | none | 1/1 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | 6/9 |
 | base/src/lgipdb01.cbl | L4 | 238/238 | 0 | genapp-lgipdb01 | equal | 47 | none | 12/12 (100.0%) | 74/74 (100.0%) | 74/74 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgipol01.cbl | L4 | 26/26 | 0 | genapp-lgipol01 | equal | 10 | none | 2/2 (100.0%) | 3/6 (50.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgipvs01.cbl | L4 | 31/31 | 0 | genapp-lgipvs01 | equal | 7 | none | 1/1 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 4/5 |
 | base/src/lgstsq.cbl | L4 | 26/26 | 0 | genapp-lgstsq | equal | 8 | shown equal, unapproved | 1/1 (100.0%) | 4/6 (66.7%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 5/6 |
-| base/src/lgtestc1.cbl | L4 | 130/130 | 0 | genapp-lgtestc1 | equal | 14 | none | 10/10 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | 9/12 |
+| base/src/lgtestc1.cbl | L4 | 130/130 | 0 | genapp-lgtestc1 | equal | 14 | none | 10/10 (100.0%) | 20/20 (100.0%) | 20/20 (100.0%) | — | not measured (no det_mutation/ entry) | 9/12 |
 | base/src/lgtestp1.cbl | L4 | 152/152 | 0 | genapp-lgtestp1 | equal | 15 | none | 10/10 (100.0%) | 19/19 (100.0%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
 | base/src/lgtestp2.cbl | L4 | 140/140 | 0 | genapp-lgtestp2 | equal | 15 | none | 10/10 (100.0%) | 19/19 (100.0%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
 | base/src/lgtestp3.cbl | L4 | 137/137 | 0 | genapp-lgtestp3 | equal | 15 | none | 10/10 (100.0%) | 19/19 (100.0%) | 19/19 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
 | base/src/lgtestp4.cbl | L4 | 144/144 | 0 | genapp-lgtestp4 | equal | 16 | none | 9/9 (100.0%) | 22/22 (100.0%) | 22/22 (100.0%) | — | not measured (no det_mutation/ entry) | 7/8 |
 | base/src/lgucdb01.cbl | L4 | 39/39 | 0 | genapp-lgucdb01 | equal | 6 | none | 4/4 (100.0%) | 9/10 (90.0%) | 9/9 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgucus01.cbl | L4 | 32/32 | 0 | genapp-lgucus01 | equal | 5 | none | 4/4 (100.0%) | 5/8 (62.5%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgucvs01.cbl | L4 | 32/32 | 0 | genapp-lgucvs01 | equal | 10 | none | 3/3 (100.0%) | 3/4 (75.0%) | 3/3 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
+| base/src/lgucvs01.cbl | L4 | 32/32 | 0 | genapp-lgucvs01 | equal | 10 | none | 3/3 (100.0%) | 7/8 (87.5%) | 7/7 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
 | base/src/lgupdb01.cbl | L4 | 116/116 | 0 | genapp-lgupdb01 | equal | 22 | shown equal, unapproved | 9/9 (100.0%) | 38/38 (100.0%) | 38/38 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
 | base/src/lgupol01.cbl | L4 | 45/45 | 0 | genapp-lgupol01 | equal | 10 | none | 4/4 (100.0%) | 13/16 (81.2%) | 13/13 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
-| base/src/lgupvs01.cbl | L4 | 55/55 | 0 | genapp-lgupvs01 | equal | 12 | shown equal, unapproved | 3/3 (100.0%) | 8/9 (88.9%) | 8/8 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
-| base/src/lgwebst5.cbl | L4 | 278/278 | 0 | genapp-lgwebst5 | equal | 4 | none | 3/3 (100.0%) | 0/0 (—%) | 0/0 (100.0%) | — | not measured (no det_mutation/ entry) | 5/9 |
+| base/src/lgupvs01.cbl | L4 | 55/55 | 0 | genapp-lgupvs01 | equal | 12 | shown equal, unapproved | 3/3 (100.0%) | 12/13 (92.3%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
+| base/src/lgwebst5.cbl | L4 | 278/278 | 0 | genapp-lgwebst5 | equal | 4 | none | 3/3 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | 5/9 |
 | base/src/lgapdb01.cbl | L3 | 124/124 | 0 | genapp-lgapdb01 | equal | 14 | shown equal, unapproved | 7/7 (100.0%) | 28/31 (90.3%) | 28/29 (96.6%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgsetup.cbl | L1 | 91/91 | 0 | genapp-lgsetup | not equal | 2 | none | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 4/7 |
 
@@ -139,7 +139,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestc1, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (14 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 13/14 (92.9%) raw, 13/13 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 4/4 (100.0%), branch outcomes 15/16 (93.8%) raw, 15/15 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -249,7 +249,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - evidence record: none (8 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestc1, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (14 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 3/4 (75.0%) raw, 3/3 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 5/6 (83.3%) raw, 5/5 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -333,7 +333,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (16 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 8/9 (88.9%) raw, 8/8 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 10/11 (90.9%) raw, 10/10 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -359,7 +359,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=NO [no effect; found at base/cntl/db2bind.jcl:16]; db2.bind.DYNAMICRULES=BIND [no effect; found at base/cntl/db2bind.jcl:19]; db2.bind.ISOLATION=CS [no effect; found at base/cntl/db2bind.jcl:15]; db2.bind.VALIDATE=BIND [no effect; found at base/cntl/db2bind.jcl:26]; db2.ccsid.EBCDIC_CCSID=285 [declared; found at base/Installation.md:92]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (SQL via the program's PROCESS SQL card) [no effect; found at base/src/lgacdb01.cbl:1]; cics.region.DB2CONN=YES [no effect; found at base/Building.md:58]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS via the compile OPTFILE [no effect; found at base/cntl/cobol.jcl:48]
 - **Executed equivalence** (genapp-lgastat1, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (8 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 10/10 (100.0%) raw, 10/10 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 12/12 (100.0%) raw, 12/12 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -482,7 +482,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - evidence record: none (15 scenarios in case.json)
 - **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (16 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 3/4 (75.0%) raw, 3/3 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 5/6 (83.3%) raw, 5/5 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -579,7 +579,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - evidence record: none (9 scenarios in case.json)
 - **Executed equivalence** (genapp-lgicvs01-linked, program): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (9 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 12/12 (100.0%) raw, 12/12 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 1/1 (100.0%), branch outcomes 18/18 (100.0%) raw, 18/18 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -824,7 +824,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=NO [no effect; found at base/cntl/db2bind.jcl:16]; db2.bind.DYNAMICRULES=BIND [no effect; found at base/cntl/db2bind.jcl:19]; db2.bind.ISOLATION=CS [no effect; found at base/cntl/db2bind.jcl:15]; db2.bind.VALIDATE=BIND [no effect; found at base/cntl/db2bind.jcl:26]; db2.ccsid.EBCDIC_CCSID=285 [declared; found at base/Installation.md:92]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (SQL via the program's PROCESS SQL card) [no effect; found at base/src/lgacdb01.cbl:1]; cics.region.DB2CONN=YES [no effect; found at base/Building.md:58]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS via the compile OPTFILE [no effect; found at base/cntl/cobol.jcl:48]
 - **Executed equivalence** (genapp-lgtestc1, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (14 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 10/10 (100.0%), branch outcomes 18/18 (100.0%) raw, 18/18 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 10/10 (100.0%), branch outcomes 20/20 (100.0%) raw, 20/20 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1046,7 +1046,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - evidence record: none (4 scenarios in case.json)
 - **Executed equivalence** (genapp-lgucvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (10 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 3/4 (75.0%) raw, 3/3 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 7/8 (87.5%) raw, 7/7 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1174,7 +1174,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - evidence record: none (24 scenarios in case.json)
 - **Executed equivalence** (genapp-lgupvs01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 12/12 scenarios equal, 66/66 records equal, 12 runs (5 fault runs); through its deployed entry points 12/12
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 8/9 (88.9%) raw, 8/8 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 12/13 (92.3%) raw, 12/12 (100.0%) net of 1 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1202,7 +1202,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=NO [no effect; found at base/cntl/db2bind.jcl:16]; db2.bind.DYNAMICRULES=BIND [no effect; found at base/cntl/db2bind.jcl:19]; db2.bind.ISOLATION=CS [no effect; found at base/cntl/db2bind.jcl:15]; db2.bind.VALIDATE=BIND [no effect; found at base/cntl/db2bind.jcl:26]; db2.ccsid.EBCDIC_CCSID=285 [declared; found at base/Installation.md:92]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (SQL via the program's PROCESS SQL card) [no effect; found at base/src/lgacdb01.cbl:1]; cics.region.DB2CONN=YES [no effect; found at base/Building.md:58]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS via the compile OPTFILE [no effect; found at base/cntl/cobol.jcl:48]
 - **Executed equivalence** (genapp-lgwebst5, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (4 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 0/0 (—%) raw, 0/0 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 3/3 (100.0%), branch outcomes 2/2 (100.0%) raw, 2/2 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1324,18 +1324,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `4aa4de078f6003045f656399c83c80cbdac89e87`
+- translator commit (the survey's): `1d6f3cf38af5b208fd6bc7067434705b4713c1ce`
 - corpus pin: `cics-genapp` at `f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
+- oracle images the evidence records ran on: `sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87
-python tests/tools/evidence_report.py cics-genapp --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87
+python tests/tools/cics_census.py survey --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce
+python tests/tools/evidence_report.py cics-genapp --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container
 python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01

@@ -267,8 +267,8 @@
    "carddemo-coacct01": [
     13,
     13,
-    4,
-    31
+    6,
+    33
    ],
    "carddemo-cobswait": [
     1,
@@ -291,14 +291,14 @@
    "carddemo-codate01": [
     13,
     13,
-    4,
-    26
+    6,
+    28
    ],
    "carddemo-copaua0c": [
     41,
     41,
-    63,
-    69
+    65,
+    71
    ],
    "carddemo-copaus0c": [
     20,
@@ -309,8 +309,8 @@
    "carddemo-copaus1c": [
     15,
     15,
-    48,
-    48
+    50,
+    50
    ],
    "carddemo-copaus2c": [
     2,
@@ -717,14 +717,14 @@
    "cbsa-crecust": [
     37,
     37,
-    40,
-    74
+    38,
+    70
    ],
    "cbsa-crecust-generated": [
     13,
     37,
-    23,
-    74
+    21,
+    70
    ],
    "cbsa-custctrl": [
     7,
@@ -849,14 +849,14 @@
    "genapp-lgacdb01": [
     4,
     4,
-    13,
-    14
+    15,
+    16
    ],
    "genapp-lgacdb01-generated": [
     4,
     4,
-    13,
-    14
+    15,
+    16
    ],
    "genapp-lgacdb02": [
     3,
@@ -885,8 +885,8 @@
    "genapp-lgacvs01": [
     3,
     3,
-    3,
-    4
+    5,
+    6
    ],
    "genapp-lgapdb01": [
     7,
@@ -915,14 +915,14 @@
    "genapp-lgapvs01": [
     3,
     3,
-    8,
-    9
+    10,
+    11
    ],
    "genapp-lgastat1": [
     1,
     1,
-    10,
-    10
+    12,
+    12
    ],
    "genapp-lgdpdb01": [
     3,
@@ -951,8 +951,8 @@
    "genapp-lgdpvs01": [
     3,
     3,
-    3,
-    4
+    5,
+    6
    ],
    "genapp-lgicdb01": [
     3,
@@ -981,14 +981,14 @@
    "genapp-lgicvs01": [
     1,
     1,
-    12,
-    12
+    18,
+    18
    ],
    "genapp-lgicvs01-linked": [
     1,
     1,
-    12,
-    12
+    18,
+    18
    ],
    "genapp-lgipdb01": [
     12,
@@ -1036,8 +1036,8 @@
    "genapp-lgtestc1": [
     10,
     10,
-    18,
-    18
+    20,
+    20
    ],
    "genapp-lgtestp1": [
     10,
@@ -1090,8 +1090,8 @@
    "genapp-lgucvs01": [
     3,
     3,
-    3,
-    4
+    7,
+    8
    ],
    "genapp-lgupdb01": [
     9,
@@ -1120,14 +1120,14 @@
    "genapp-lgupvs01": [
     3,
     3,
-    8,
-    9
+    12,
+    13
    ],
    "genapp-lgwebst5": [
     3,
     3,
-    0,
-    0
+    2,
+    2
    ],
    "mortgage-cmort": null,
    "mortgage-csmrt": null,
@@ -1153,26 +1153,26 @@
    "zecs-ecs001": [
     15,
     15,
-    16,
-    18
+    18,
+    20
    ],
    "zecs-zecs000": [
     38,
     38,
-    45,
-    46
+    47,
+    48
    ],
    "zecs-zecs001": [
     71,
     119,
-    89,
-    200
+    91,
+    208
    ],
    "zecs-zecs003": [
     21,
     21,
-    28,
-    28
+    29,
+    30
    ],
    "zecs-zecsplt": [
     11,
@@ -2293,7 +2293,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4aa4de078f6003045f656399c83c80cbdac89e87",
+   "sha": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
    "translator": {
     "files": 149,
     "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
@@ -2527,12 +2527,12 @@
     "branch_net_pct": 100.0,
     "branch_pct": 100.0,
     "branches": {
-     "covered": 48,
-     "total": 48
+     "covered": 50,
+     "total": 50
     },
     "branches_net": {
-     "covered": 48,
-     "total": 48
+     "covered": 50,
+     "total": 50
     },
     "current": true,
     "infeasible_netted": [],
@@ -2562,8 +2562,8 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 48,
-         "total": 48
+         "covered": 50,
+         "total": 50
         },
         "paragraphs": {
          "covered": 15,
@@ -2579,7 +2579,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -2604,8 +2604,8 @@
      "record": {
       "coverage": {
        "branches": {
-        "covered": 48,
-        "total": 48
+        "covered": 50,
+        "total": 50
        },
        "paragraphs": {
         "covered": 15,
@@ -2621,7 +2621,7 @@
       "fault_runs": 14,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+      "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
       "oracle_matches_pin": true,
       "records_compared": 175,
       "records_equal": 175,
@@ -3126,8 +3126,8 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 48,
-         "total": 48
+         "covered": 50,
+         "total": 50
         },
         "paragraphs": {
          "covered": 15,
@@ -3143,7 +3143,7 @@
        "fault_runs": 14,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
        "oracle_matches_pin": true,
        "records_compared": 175,
        "records_equal": 175,
@@ -20287,15 +20287,15 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 98.4,
-    "branch_pct": 91.3,
+    "branch_net_pct": 98.5,
+    "branch_pct": 91.5,
     "branches": {
-     "covered": 63,
-     "total": 69
+     "covered": 65,
+     "total": 71
     },
     "branches_net": {
-     "covered": 63,
-     "total": 64
+     "covered": 65,
+     "total": 66
     },
     "current": true,
     "infeasible_netted": [
@@ -20377,8 +20377,8 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 63,
-         "total": 69
+         "covered": 65,
+         "total": 71
         },
         "paragraphs": {
          "covered": 41,
@@ -20401,7 +20401,7 @@
        "fault_runs": 7,
        "java_failed": false,
        "option_differences": [],
-       "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+       "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
        "oracle_matches_pin": true,
        "records_compared": 236,
        "records_equal": 236,
@@ -20426,8 +20426,8 @@
      "record": {
       "coverage": {
        "branches": {
-        "covered": 63,
-        "total": 69
+        "covered": 65,
+        "total": 71
        },
        "paragraphs": {
         "covered": 41,
@@ -20450,7 +20450,7 @@
       "fault_runs": 7,
       "java_failed": false,
       "option_differences": [],
-      "oracle_image": "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+      "oracle_image": "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005",
       "oracle_matches_pin": true,
       "records_compared": 236,
       "records_equal": 236,
@@ -20473,7 +20473,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 91.3 raw, 98.4 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 91.5 raw, 98.5 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 6,
@@ -21480,15 +21480,15 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 12.9,
-    "branch_pct": 12.9,
+    "branch_net_pct": 18.2,
+    "branch_pct": 18.2,
     "branches": {
-     "covered": 4,
-     "total": 31
+     "covered": 6,
+     "total": 33
     },
     "branches_net": {
-     "covered": 4,
-     "total": 31
+     "covered": 6,
+     "total": 33
     },
     "current": true,
     "infeasible_netted": [],
@@ -21540,7 +21540,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 12.9 raw, 12.9 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 18.2 raw, 18.2 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 6,
@@ -21908,15 +21908,15 @@
     "source_read": true
    },
    "coverage": {
-    "branch_net_pct": 15.4,
-    "branch_pct": 15.4,
+    "branch_net_pct": 21.4,
+    "branch_pct": 21.4,
     "branches": {
-     "covered": 4,
-     "total": 26
+     "covered": 6,
+     "total": 28
     },
     "branches_net": {
-     "covered": 4,
-     "total": 26
+     "covered": 6,
+     "total": 28
     },
     "current": true,
     "infeasible_netted": [],
@@ -21968,7 +21968,7 @@
     "score": null
    },
    "next": [
-    "branch coverage >= 100.0 net (now 15.4 raw, 15.4 net of the reviewed infeasible outcomes)"
+    "branch coverage >= 100.0 net (now 21.4 raw, 21.4 net of the reviewed infeasible outcomes)"
    ],
    "options": {
     "assumed": 6,
@@ -24092,8 +24092,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87",
-   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87",
+   "python tests/tools/cics_census.py survey --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
+   "python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container",
    "python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd",
@@ -24110,7 +24110,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+   "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
    "sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005"
   ],
@@ -24119,13 +24119,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4aa4de078f6003045f656399c83c80cbdac89e87",
+   "sha": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
    "translator": {
     "files": 149,
     "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
    }
   },
-  "translator_commit": "4aa4de078f6003045f656399c83c80cbdac89e87",
+  "translator_commit": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

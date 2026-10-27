@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `4aa4de078f6003045f656399c83c80cbdac89e87` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `1d6f3cf38af5b208fd6bc7067434705b4713c1ce` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `64effbe34081`).
 
@@ -88,7 +88,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | L4 | 193/193 | 0 | carddemo-copaus1c | equal | 35 | shown equal, unapproved | 15/15 (100.0%) | 48/48 (100.0%) | 48/48 (100.0%) | — | not measured (no det_mutation/ entry) | 5/7 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | L4 | 193/193 | 0 | carddemo-copaus1c | equal | 35 | shown equal, unapproved | 15/15 (100.0%) | 50/50 (100.0%) | 50/50 (100.0%) | — | not measured (no det_mutation/ entry) | 5/7 |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | L4 | 56/56 | 0 | carddemo-copaus2c | equal | 5 | none | 2/2 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 1/3 |
 | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | L4 | 67/67 | 0 | carddemo-dbunldgs | equal | None | none | 14/14 (100.0%) | 18/18 (100.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | — |
 | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | L4 | 88/88 | 0 | carddemo-paudblod | equal | None | none | 16/16 (100.0%) | 33/34 (97.1%) | 33/33 (100.0%) | — | not measured (no det_mutation/ entry) | — |
@@ -123,10 +123,10 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 | app/cbl/COUSR02C.cbl | L4 | 148/148 | 0 | carddemo-userupd | equal | 32 | shown equal, unapproved | 11/11 (100.0%) | 44/46 (95.7%) | 44/44 (100.0%) | 67% (stale) | stale (port moved), last measured: raw 67% (96/144 caught; 150 of 1404 mutants, seed 0); every survivor accounted for (48) | 4/6 |
 | app/cbl/COUSR03C.cbl | L4 | 115/115 | 0 | carddemo-userdel | equal | 32 | shown equal, unapproved | 11/11 (100.0%) | 31/32 (96.9%) | 31/31 (100.0%) | 57% (stale) | stale (port moved), last measured: raw 57% (81/143 caught; 150 of 1317 mutants, seed 0); 13 of 62 survivors unaccounted | 4/6 |
 | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | L3 | 110/110 | 0 | carddemo-cbpaup0c | equal | 1 | shown equal, unapproved | 15/16 (93.8%) | 38/40 (95.0%) | 38/39 (97.4%) | — | not measured (no det_mutation/ entry) | — |
-| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | L3 | 344/344 | 0 | carddemo-copaua0c | equal | 25 | shown equal, unapproved | 41/41 (100.0%) | 63/69 (91.3%) | 63/64 (98.4%) | — | not measured (no det_mutation/ entry) | 2/7 |
+| app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | L3 | 344/344 | 0 | carddemo-copaua0c | equal | 25 | shown equal, unapproved | 41/41 (100.0%) | 65/71 (91.5%) | 65/66 (98.5%) | — | not measured (no det_mutation/ entry) | 2/7 |
 | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | L3 | 370/370 | 0 | carddemo-copaus0c | equal | 37 | shown equal, unapproved | 20/20 (100.0%) | 88/93 (94.6%) | 88/90 (97.8%) | — | not measured (no det_mutation/ entry) | 4/6 |
-| app/app-vsam-mq/cbl/COACCT01.cbl | L3 | 205/205 | 0 | carddemo-coacct01 | equal | 14 | none | 13/13 (100.0%) | 4/31 (12.9%) | 4/31 (12.9%) | — | not measured (no det_mutation/ entry) | 2/4 |
-| app/app-vsam-mq/cbl/CODATE01.cbl | L3 | 182/182 | 0 | carddemo-codate01 | equal | 13 | none | 13/13 (100.0%) | 4/26 (15.4%) | 4/26 (15.4%) | — | not measured (no det_mutation/ entry) | 2/5 |
+| app/app-vsam-mq/cbl/COACCT01.cbl | L3 | 205/205 | 0 | carddemo-coacct01 | equal | 14 | none | 13/13 (100.0%) | 6/33 (18.2%) | 6/33 (18.2%) | — | not measured (no det_mutation/ entry) | 2/4 |
+| app/app-vsam-mq/cbl/CODATE01.cbl | L3 | 182/182 | 0 | carddemo-codate01 | equal | 13 | none | 13/13 (100.0%) | 6/28 (21.4%) | 6/28 (21.4%) | — | not measured (no det_mutation/ entry) | 2/5 |
 | app/cbl/CBSTM03A.CBL | L3 | 424/424 | 0 | carddemo-cbstm03a | equal | 2 | shown equal, unapproved | 25/25 (100.0%) | 43/46 (93.5%) | 43/44 (97.7%) | 67% | raw 67% (98/146 caught; 150 of 3181 mutants, seed 0); 48 of 48 survivors unaccounted | — |
 | app/cbl/COACTUPC.cbl | L3 | 1415/1415 | 0 | carddemo-acctupdate | equal | 140 | none | 95/95 (100.0%) | 315/397 (79.3%) | 315/396 (79.5%) | — | not measured (no det_mutation/ entry) | 7/11 |
 | app/cbl/CSUTLDTC.cbl | L3 | 27/27 | 0 | carddemo-dateutil | equal | 1 | shown equal, unapproved | 2/2 (100.0%) | 4/10 (40.0%) | 4/10 (40.0%) | — | not measured (no det_mutation/ entry) | — |
@@ -144,7 +144,7 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
 - **Executed equivalence** (carddemo-copaus1c, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 35/35 scenarios equal, 175/175 records equal, 35 runs (14 fault runs); through its deployed entry points 35/35
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 15/15 (100.0%), branch outcomes 48/48 (100.0%) raw, 48/48 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 15/15 (100.0%), branch outcomes 50/50 (100.0%) raw, 50/50 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1079,13 +1079,13 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 ### app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl -- L3
 
 - **Executed equivalent** on the 25 scenarios of carddemo-copaua0c against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 91.3 raw, 98.4 net of the reviewed infeasible outcomes)
+- **Next level needs:** branch coverage >= 100.0 net (now 91.5 raw, 98.5 net of the reviewed infeasible outcomes)
 - **Translation:** 344/344 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
 - **Executed equivalence** (carddemo-copaua0c, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 25/25 scenarios equal, 236/236 records equal, 25 runs (7 fault runs); through its deployed entry points 25/25
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 41/41 (100.0%), branch outcomes 63/69 (91.3%) raw, 63/64 (98.4%) net of 5 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 41/41 (100.0%), branch outcomes 65/71 (91.5%) raw, 65/66 (98.5%) net of 5 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1140,13 +1140,13 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 ### app/app-vsam-mq/cbl/COACCT01.cbl -- L3
 
 - **Executed equivalent** on the 14 scenarios of carddemo-coacct01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 12.9 raw, 12.9 net of the reviewed infeasible outcomes)
+- **Next level needs:** branch coverage >= 100.0 net (now 18.2 raw, 18.2 net of the reviewed infeasible outcomes)
 - **Translation:** 205/205 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
 - **Executed equivalence** (carddemo-coacct01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (14 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 13/13 (100.0%), branch outcomes 4/31 (12.9%) raw, 4/31 (12.9%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 13/13 (100.0%), branch outcomes 6/33 (18.2%) raw, 6/33 (18.2%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1164,13 +1164,13 @@ From `tests/equivalence/estate_options/aws-mainframe-modernization-carddemo.json
 ### app/app-vsam-mq/cbl/CODATE01.cbl -- L3
 
 - **Executed equivalent** on the 13 scenarios of carddemo-codate01 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 15.4 raw, 15.4 net of the reviewed infeasible outcomes)
+- **Next level needs:** branch coverage >= 100.0 net (now 21.4 raw, 21.4 net of the reviewed infeasible outcomes)
 - **Translation:** 182/182 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 6.3; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=YES [no effect; found at samples/proc/BLDCIDB2.prc:149]; db2.bind.ISOLATION=CS [no effect; found at samples/proc/BLDCIDB2.prc:148]; db2.ccsid.SQLCCSID=NO [honoured; assumed: IBM default]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.PARM=HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST [no effect; found at samples/proc/BLDCIDB2.prc:47]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; found at samples/proc/BUILDONL.prc:40]
 - **Executed equivalence** (carddemo-codate01, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (13 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 13/13 (100.0%), branch outcomes 4/26 (15.4%) raw, 4/26 (15.4%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 13/13 (100.0%), branch outcomes 6/28 (21.4%) raw, 6/28 (21.4%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -1314,18 +1314,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `4aa4de078f6003045f656399c83c80cbdac89e87`
+- translator commit (the survey's): `1d6f3cf38af5b208fd6bc7067434705b4713c1ce`
 - corpus pin: `aws-mainframe-modernization-carddemo` at `59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`, `sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005`
+- oracle images the evidence records ran on: `sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`, `sha256:eae1ab4fb27bc61f089c6749e8c3bee3bfc1bf205323df7ce9d118d5e0193005`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87
-python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87
+python tests/tools/cics_census.py survey --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce
+python tests/tools/evidence_report.py aws-mainframe-modernization-carddemo --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases carddemo-acctupdate,carddemo-acctview,carddemo-acctview-generated,carddemo-adminmenu,carddemo-adminmenu-generated,carddemo-billpay,carddemo-billpay-generated,carddemo-cardlist,carddemo-cardupdate,carddemo-cardview,carddemo-cardview-generated,carddemo-cbpaup0c,carddemo-cbstm03a,carddemo-cbstm03b,carddemo-coacct01,carddemo-cobswait,carddemo-cobtupdt,carddemo-cobtupdt-generated,carddemo-codate01,carddemo-copaua0c,carddemo-copaus0c,carddemo-copaus1c,carddemo-copaus2c,carddemo-copaus2c-generated,carddemo-cotrtlic,carddemo-cotrtlic-generated,carddemo-cotrtupc,carddemo-dailyval,carddemo-dateutil,carddemo-dbunldgs,carddemo-intcalc,carddemo-intcalc-generated,carddemo-menu,carddemo-menu-generated,carddemo-paudblod,carddemo-paudbunl,carddemo-posttran,carddemo-posttran-generated,carddemo-readacct,carddemo-readcard,carddemo-readcard-generated,carddemo-readcust,carddemo-readcust-generated,carddemo-readxref,carddemo-readxref-generated,carddemo-report,carddemo-report-generated,carddemo-signon,carddemo-signon-generated,carddemo-tranadd,carddemo-tranlist,carddemo-tranview,carddemo-tranview-generated,carddemo-trnrpt,carddemo-useradd,carddemo-useradd-generated,carddemo-userdel,carddemo-userdel-generated,carddemo-userlist,carddemo-userupd,carddemo-userupd-generated  # Db2 cases (8) need the Db2 container
 python tests/tools/evidence.py prove carddemo-acctview carddemo-acctview-generated carddemo-adminmenu carddemo-adminmenu-generated carddemo-billpay carddemo-billpay-generated carddemo-cardlist carddemo-cardview carddemo-cbpaup0c carddemo-cbstm03a carddemo-copaua0c carddemo-copaus0c carddemo-copaus1c carddemo-dailyval carddemo-dateutil carddemo-intcalc carddemo-menu carddemo-menu-generated carddemo-posttran carddemo-readcard carddemo-readcust carddemo-readxref carddemo-report carddemo-signon carddemo-signon-generated carddemo-tranadd carddemo-tranlist carddemo-tranview carddemo-tranview-generated carddemo-trnrpt carddemo-useradd carddemo-userdel carddemo-userlist carddemo-userupd

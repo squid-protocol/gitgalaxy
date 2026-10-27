@@ -303,8 +303,8 @@
    "carddemo-coacct01": [
     13,
     13,
-    4,
-    31
+    6,
+    33
    ],
    "carddemo-cobswait": [
     1,
@@ -327,14 +327,14 @@
    "carddemo-codate01": [
     13,
     13,
-    4,
-    26
+    6,
+    28
    ],
    "carddemo-copaua0c": [
     41,
     41,
-    63,
-    69
+    65,
+    71
    ],
    "carddemo-copaus0c": [
     20,
@@ -345,8 +345,8 @@
    "carddemo-copaus1c": [
     15,
     15,
-    48,
-    48
+    50,
+    50
    ],
    "carddemo-copaus2c": [
     2,
@@ -753,14 +753,14 @@
    "cbsa-crecust": [
     37,
     37,
-    40,
-    74
+    38,
+    70
    ],
    "cbsa-crecust-generated": [
     13,
     37,
-    23,
-    74
+    21,
+    70
    ],
    "cbsa-custctrl": [
     7,
@@ -885,14 +885,14 @@
    "genapp-lgacdb01": [
     4,
     4,
-    13,
-    14
+    15,
+    16
    ],
    "genapp-lgacdb01-generated": [
     4,
     4,
-    13,
-    14
+    15,
+    16
    ],
    "genapp-lgacdb02": [
     3,
@@ -921,8 +921,8 @@
    "genapp-lgacvs01": [
     3,
     3,
-    3,
-    4
+    5,
+    6
    ],
    "genapp-lgapdb01": [
     7,
@@ -951,14 +951,14 @@
    "genapp-lgapvs01": [
     3,
     3,
-    8,
-    9
+    10,
+    11
    ],
    "genapp-lgastat1": [
     1,
     1,
-    10,
-    10
+    12,
+    12
    ],
    "genapp-lgdpdb01": [
     3,
@@ -987,8 +987,8 @@
    "genapp-lgdpvs01": [
     3,
     3,
-    3,
-    4
+    5,
+    6
    ],
    "genapp-lgicdb01": [
     3,
@@ -1017,14 +1017,14 @@
    "genapp-lgicvs01": [
     1,
     1,
-    12,
-    12
+    18,
+    18
    ],
    "genapp-lgicvs01-linked": [
     1,
     1,
-    12,
-    12
+    18,
+    18
    ],
    "genapp-lgipdb01": [
     12,
@@ -1072,8 +1072,8 @@
    "genapp-lgtestc1": [
     10,
     10,
-    18,
-    18
+    20,
+    20
    ],
    "genapp-lgtestp1": [
     10,
@@ -1126,8 +1126,8 @@
    "genapp-lgucvs01": [
     3,
     3,
-    3,
-    4
+    7,
+    8
    ],
    "genapp-lgupdb01": [
     9,
@@ -1156,14 +1156,14 @@
    "genapp-lgupvs01": [
     3,
     3,
-    8,
-    9
+    12,
+    13
    ],
    "genapp-lgwebst5": [
     3,
     3,
-    0,
-    0
+    2,
+    2
    ],
    "mortgage-cmort": null,
    "mortgage-csmrt": null,
@@ -1189,26 +1189,26 @@
    "zecs-ecs001": [
     15,
     15,
-    16,
-    18
+    18,
+    20
    ],
    "zecs-zecs000": [
     38,
     38,
-    45,
-    46
+    47,
+    48
    ],
    "zecs-zecs001": [
     71,
     119,
-    89,
-    200
+    91,
+    208
    ],
    "zecs-zecs003": [
     21,
     21,
-    28,
-    28
+    29,
+    30
    ],
    "zecs-zecsplt": [
     11,
@@ -2224,7 +2224,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4aa4de078f6003045f656399c83c80cbdac89e87",
+   "sha": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
    "translator": {
     "files": 149,
     "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
@@ -2465,14 +2465,14 @@
    },
    "coverage": {
     "branch_net_pct": 100.0,
-    "branch_pct": 92.9,
+    "branch_pct": 93.8,
     "branches": {
-     "covered": 13,
-     "total": 14
+     "covered": 15,
+     "total": 16
     },
     "branches_net": {
-     "covered": 13,
-     "total": 13
+     "covered": 15,
+     "total": 15
     },
     "current": true,
     "infeasible_netted": [
@@ -4024,14 +4024,14 @@
    },
    "coverage": {
     "branch_net_pct": 100.0,
-    "branch_pct": 75.0,
+    "branch_pct": 83.3,
     "branches": {
-     "covered": 3,
-     "total": 4
+     "covered": 5,
+     "total": 6
     },
     "branches_net": {
-     "covered": 3,
-     "total": 3
+     "covered": 5,
+     "total": 5
     },
     "current": true,
     "infeasible_netted": [
@@ -5091,14 +5091,14 @@
    },
    "coverage": {
     "branch_net_pct": 100.0,
-    "branch_pct": 88.9,
+    "branch_pct": 90.9,
     "branches": {
-     "covered": 8,
-     "total": 9
+     "covered": 10,
+     "total": 11
     },
     "branches_net": {
-     "covered": 8,
-     "total": 8
+     "covered": 10,
+     "total": 10
     },
     "current": true,
     "infeasible_netted": [
@@ -5176,7 +5176,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
        "oracle_matches_pin": true,
        "records_compared": 85,
        "records_equal": 85,
@@ -5233,8 +5233,8 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 8,
-         "total": 9
+         "covered": 10,
+         "total": 11
         },
         "paragraphs": {
          "covered": 3,
@@ -5336,8 +5336,8 @@
      "record": {
       "coverage": {
        "branches": {
-        "covered": 8,
-        "total": 9
+        "covered": 10,
+        "total": 11
        },
        "paragraphs": {
         "covered": 3,
@@ -5816,12 +5816,12 @@
     "branch_net_pct": 100.0,
     "branch_pct": 100.0,
     "branches": {
-     "covered": 10,
-     "total": 10
+     "covered": 12,
+     "total": 12
     },
     "branches_net": {
-     "covered": 10,
-     "total": 10
+     "covered": 12,
+     "total": 12
     },
     "current": true,
     "infeasible_netted": [],
@@ -7393,14 +7393,14 @@
    },
    "coverage": {
     "branch_net_pct": 100.0,
-    "branch_pct": 75.0,
+    "branch_pct": 83.3,
     "branches": {
-     "covered": 3,
-     "total": 4
+     "covered": 5,
+     "total": 6
     },
     "branches_net": {
-     "covered": 3,
-     "total": 3
+     "covered": 5,
+     "total": 5
     },
     "current": true,
     "infeasible_netted": [
@@ -8029,7 +8029,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
        "oracle_matches_pin": true,
        "records_compared": 24,
        "records_equal": 24,
@@ -9057,12 +9057,12 @@
     "branch_net_pct": 100.0,
     "branch_pct": 100.0,
     "branches": {
-     "covered": 12,
-     "total": 12
+     "covered": 18,
+     "total": 18
     },
     "branches_net": {
-     "covered": 12,
-     "total": 12
+     "covered": 18,
+     "total": 18
     },
     "current": true,
     "infeasible_netted": [],
@@ -11619,7 +11619,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
        "oracle_matches_pin": true,
        "records_compared": 85,
        "records_equal": 85,
@@ -11665,8 +11665,8 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 8,
-         "total": 9
+         "covered": 10,
+         "total": 11
         },
         "paragraphs": {
          "covered": 3,
@@ -12056,7 +12056,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -12102,8 +12102,8 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 8,
-         "total": 9
+         "covered": 12,
+         "total": 13
         },
         "paragraphs": {
          "covered": 3,
@@ -12822,12 +12822,12 @@
     "branch_net_pct": 100.0,
     "branch_pct": 100.0,
     "branches": {
-     "covered": 18,
-     "total": 18
+     "covered": 20,
+     "total": 20
     },
     "branches_net": {
-     "covered": 18,
-     "total": 18
+     "covered": 20,
+     "total": 20
     },
     "current": true,
     "infeasible_netted": [],
@@ -17200,14 +17200,14 @@
    },
    "coverage": {
     "branch_net_pct": 100.0,
-    "branch_pct": 75.0,
+    "branch_pct": 87.5,
     "branches": {
-     "covered": 3,
-     "total": 4
+     "covered": 7,
+     "total": 8
     },
     "branches_net": {
-     "covered": 3,
-     "total": 3
+     "covered": 7,
+     "total": 7
     },
     "current": true,
     "infeasible_netted": [
@@ -17865,7 +17865,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -17955,7 +17955,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+      "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
       "oracle_matches_pin": true,
       "records_compared": 158,
       "records_equal": 158,
@@ -18952,14 +18952,14 @@
    },
    "coverage": {
     "branch_net_pct": 100.0,
-    "branch_pct": 88.9,
+    "branch_pct": 92.3,
     "branches": {
-     "covered": 8,
-     "total": 9
+     "covered": 12,
+     "total": 13
     },
     "branches_net": {
-     "covered": 8,
-     "total": 8
+     "covered": 12,
+     "total": 12
     },
     "current": true,
     "infeasible_netted": [
@@ -19077,7 +19077,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -19134,8 +19134,8 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 8,
-         "total": 9
+         "covered": 12,
+         "total": 13
         },
         "paragraphs": {
          "covered": 3,
@@ -19193,8 +19193,8 @@
      "record": {
       "coverage": {
        "branches": {
-        "covered": 8,
-        "total": 9
+        "covered": 12,
+        "total": 13
        },
        "paragraphs": {
         "covered": 3,
@@ -19724,14 +19724,14 @@
    },
    "coverage": {
     "branch_net_pct": 100.0,
-    "branch_pct": null,
+    "branch_pct": 100.0,
     "branches": {
-     "covered": 0,
-     "total": 0
+     "covered": 2,
+     "total": 2
     },
     "branches_net": {
-     "covered": 0,
-     "total": 0
+     "covered": 2,
+     "total": 2
     },
     "current": true,
     "infeasible_netted": [],
@@ -20383,7 +20383,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
        "oracle_matches_pin": true,
        "records_compared": 85,
        "records_equal": 85,
@@ -20521,7 +20521,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+      "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
       "oracle_matches_pin": true,
       "records_compared": 85,
       "records_equal": 85,
@@ -21559,8 +21559,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87",
-   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87",
+   "python tests/tools/cics_census.py survey --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
+   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01",
@@ -21577,7 +21577,7 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+   "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
    "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
@@ -21585,13 +21585,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "4aa4de078f6003045f656399c83c80cbdac89e87",
+   "sha": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
    "translator": {
     "files": 149,
     "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
    }
   },
-  "translator_commit": "4aa4de078f6003045f656399c83c80cbdac89e87",
+  "translator_commit": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `4aa4de078f6003045f656399c83c80cbdac89e87` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `1d6f3cf38af5b208fd6bc7067434705b4713c1ce` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `64effbe34081`).
 
@@ -43,12 +43,12 @@ The translation survey matches the translator in the tree (translator fingerprin
 | L0 | 2 | 0 |
 | L1 | 0 | 0 |
 | L2 | 1 | 0 |
-| L3 | 1 | 0 |
-| L4 | 3 | 0 |
+| L3 | 2 | 0 |
+| L4 | 2 | 0 |
 | L5 | 0 | 0 |
 
 - stale (`*`, last measured): 0 of 7 programs; the rest are current
-- L2+: 5 (0 awaiting re-check); L3+: 4 (0 awaiting re-check); L4+: 3 (0 awaiting re-check)
+- L2+: 5 (0 awaiting re-check); L3+: 4 (0 awaiting re-check); L4+: 2 (0 awaiting re-check)
 
 - programs: 7 (with an EXEC CICS command: 5; source not read: 0)
 - translated whole: 5; refused whole: 2; holes left: 0
@@ -83,11 +83,11 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 
 | program | level | translated / statements | holes | case | det port | scenarios | record | paragraphs | branches (raw) | branches (net of infeasible) | det-port mutation (raw) | det-port mutation | CICS commands oracle-backed |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Source/ECS001.cbl | L4 | 105/105 | 0 | zecs-ecs001 | equal | 23 | none | 15/15 (100.0%) | 16/18 (88.9%) | 16/16 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
-| Source/ZECS003.cbl | L4 | 73/73 | 0 | zecs-zecs003 | equal | 17 | none | 21/21 (100.0%) | 28/28 (100.0%) | 28/28 (100.0%) | — | not measured (no det_mutation/ entry) | 1/12 |
+| Source/ECS001.cbl | L4 | 105/105 | 0 | zecs-ecs001 | equal | 23 | none | 15/15 (100.0%) | 18/20 (90.0%) | 18/18 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
 | Source/ZECSPLT.cbl | L4 | 27/27 | 0 | zecs-zecsplt | equal | 4 | none | 11/11 (100.0%) | 6/6 (100.0%) | 6/6 (100.0%) | — | not measured (no det_mutation/ entry) | 2/5 |
-| Source/ZECS000.cbl | L3 | 173/173 | 0 | zecs-zecs000 | equal | 18 | none | 38/38 (100.0%) | 45/46 (97.8%) | 45/46 (97.8%) | — | not measured (no det_mutation/ entry) | 5/22 |
-| Source/ZECS001.cbl | L2 | 561/561 | 0 | zecs-zecs001 | equal | 22 | none | 71/119 (59.7%) | 89/200 (44.5%) | 89/200 (44.5%) | — | not measured (no det_mutation/ entry) | 3/27 |
+| Source/ZECS000.cbl | L3 | 173/173 | 0 | zecs-zecs000 | equal | 18 | none | 38/38 (100.0%) | 47/48 (97.9%) | 47/48 (97.9%) | — | not measured (no det_mutation/ entry) | 5/22 |
+| Source/ZECS003.cbl | L3 | 73/73 | 0 | zecs-zecs003 | equal | 17 | none | 21/21 (100.0%) | 29/30 (96.7%) | 29/30 (96.7%) | — | not measured (no det_mutation/ entry) | 1/12 |
+| Source/ZECS001.cbl | L2 | 561/561 | 0 | zecs-zecs001 | equal | 22 | none | 71/119 (59.7%) | 91/208 (43.8%) | 91/208 (43.8%) | — | not measured (no det_mutation/ entry) | 3/27 |
 | Source/ZECS002.asm | L0 | refused | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 | Source/ZECSNC.asm | L0 | refused | 0 | — | — | — | — | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | — |
 
@@ -102,7 +102,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (zecs-ecs001, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (23 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 15/15 (100.0%), branch outcomes 16/18 (88.9%) raw, 16/16 (100.0%) net of 2 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 15/15 (100.0%), branch outcomes 18/20 (90.0%) raw, 18/18 (100.0%) net of 2 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -122,39 +122,6 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   - stated infeasible branch outcome (reviewed claim, family R): A5000-CLOSE-CONNECTION:353:false (IF) -- `IF EIBRESP = DFHRESP(NORMAL)` after `WEB CLOSE SESSTOKEN(SESSION-TOKEN)` (A5000): the only condition the region raises for WEB CLOSE is NOTOPEN (GGCWCLS, register X35), for a token no open session holds; A5000 runs only after A3000 left through line 197's NORMAL arm with SESSION-TOKEN written by the WEB OPEN, A4000 never closes it, and ECS001 closes it once, so the session is open. IBM's other WEB CLOSE conditions are not raised by the model (assumption X35): owner review.
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 2 branch outcomes unrun; ASSUMED / DIFFERS entries named: X15, X27, X32, X35; commands without oracle backing: INQUIRE URIMAP, WEB CLOSE, WEB CONVERSE, WEB OPEN; assumption reach and the migration dimensions above: not measured
-
-### Source/ZECS003.cbl -- L4
-
-- **Executed equivalent** on the 17 scenarios of zecs-zecs003 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
-- **Translation:** 73/73 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(BIN) [assumed: owner decision (the case's compiler_options)]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
-- **Executed equivalence** (zecs-zecs003, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
-  - evidence record: none (17 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 21/21 (100.0%), branch outcomes 28/28 (100.0%) raw, 28/28 (100.0%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ASKTIME | full | none | no |
-  | DELETE | full | none | no |
-  | DOCUMENT CREATE | full | none | no |
-  | DOCUMENT RETRIEVE | full | none | no |
-  | INQUIRE URIMAP | full | none | no |
-  | READ | full | none | no |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-  | WEB CLOSE | full | none | no |
-  | WEB CONVERSE | full | none | no |
-  | WEB OPEN | full | none | no |
-  | WEB PARSE URL | full | none | no |
-  | WEB SEND | full | none | no |
-
-- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X36 (ASSUMED (REFUSED where IBM is silent)), X37 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 8 named assumptions (none measured on z/OS)
-  - runtime facts the harness states for its commands: doctemplates, http_peers, http_request, urimaps
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** ASSUMED / DIFFERS entries named: X14, X22, X27, X32, X33, X35, X36, X37; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, INQUIRE URIMAP, READ, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WEB SEND; assumption reach and the migration dimensions above: not measured
 
 ### Source/ZECSPLT.cbl -- L4
 
@@ -185,13 +152,13 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 ### Source/ZECS000.cbl -- L3
 
 - **Executed equivalent** on the 18 scenarios of zecs-zecs000 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 97.8 raw, 97.8 net of the reviewed infeasible outcomes)
+- **Next level needs:** branch coverage >= 100.0 net (now 97.9 raw, 97.9 net of the reviewed infeasible outcomes)
 - **Translation:** 173/173 statements, 0 holes; whole: yes
 - **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(BIN) [assumed: owner decision (the case's compiler_options)]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (zecs-zecs000, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (18 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 38/38 (100.0%), branch outcomes 45/46 (97.8%) raw, 45/46 (97.8%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 38/38 (100.0%), branch outcomes 47/48 (97.9%) raw, 47/48 (97.9%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -226,6 +193,39 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X18, X19, X22, X27, X32, X33, X35, X36, X46, X52, X60; commands without oracle backing: ASKTIME, DELAY, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, ENQ, FORMATTIME, INQUIRE URIMAP, READ, REWRITE, SYNCPOINT, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
+### Source/ZECS003.cbl -- L3
+
+- **Executed equivalent** on the 17 scenarios of zecs-zecs003 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
+- **Next level needs:** branch coverage >= 100.0 net (now 96.7 raw, 96.7 net of the reviewed infeasible outcomes)
+- **Translation:** 73/73 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 4.2; 0 found, 6 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(BIN) [assumed: owner decision (the case's compiler_options)]; CODEPAGE(1140) [assumed: IBM default]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
+- **Executed equivalence** (zecs-zecs003, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
+  - evidence record: none (17 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 21/21 (100.0%), branch outcomes 29/30 (96.7%) raw, 29/30 (96.7%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ASKTIME | full | none | no |
+  | DELETE | full | none | no |
+  | DOCUMENT CREATE | full | none | no |
+  | DOCUMENT RETRIEVE | full | none | no |
+  | INQUIRE URIMAP | full | none | no |
+  | READ | full | none | no |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+  | WEB CLOSE | full | none | no |
+  | WEB CONVERSE | full | none | no |
+  | WEB OPEN | full | none | no |
+  | WEB PARSE URL | full | none | no |
+  | WEB SEND | full | none | no |
+
+- **Assumptions relied on:** named by its commands' spec entries: X14 (ASSUMED (REFUSED where IBM is silent)), X22 (ASSUMED (REFUSED where IBM is silent or the layout decides)), X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X32 (ASSUMED (REFUSED where IBM is silent)), X33 (ASSUMED (REFUSED where IBM is silent)), X35 (ASSUMED (REFUSED where IBM is silent)), X36 (ASSUMED (REFUSED where IBM is silent)), X37 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 8 named assumptions (none measured on z/OS)
+  - runtime facts the harness states for its commands: doctemplates, http_peers, http_request, urimaps
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X14, X22, X27, X32, X33, X35, X36, X37; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, INQUIRE URIMAP, READ, WEB CLOSE, WEB CONVERSE, WEB OPEN, WEB PARSE URL, WEB SEND; assumption reach and the migration dimensions above: not measured
+
 ### Source/ZECS001.cbl -- L2
 
 - **Executed equivalent** on the 22 scenarios of zecs-zecs001 against GnuCOBOL + the gitgalaxy CICS stub (det port: CI det-sweep ratchet on main), given the assumptions below
@@ -235,7 +235,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.packages=none [no effect; assumed: IBM default]; cics.region.CICS_TS=4.2 [no effect; found at System Requirements and Considerations.md:13]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS [no effect; assumed: IBM default]
 - **Executed equivalence** (zecs-zecs001, program, the case this report judges): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (22 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 71/119 (59.7%), branch outcomes 89/200 (44.5%) raw, 89/200 (44.5%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 71/119 (59.7%), branch outcomes 91/208 (43.8%) raw, 91/208 (43.8%) net of 0 stated infeasible; unrun paragraphs by name: not recorded
 - **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
 
   | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
@@ -274,7 +274,7 @@ From `tests/equivalence/estate_options/zecs.json`: 3 values found in the corpus,
   - runtime fact no harness states: EIB field EIBDS (both runtimes read zero; z/OS does not)
   - runtime fact no harness states: EIB field EIBRCODE (both runtimes read zero; z/OS does not)
 - **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 48 live paragraphs unrun; 111 branch outcomes unrun; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X22, X27, X30, X33, X34, X35, X36, X37, X38, X45, X46, X47, X52, X53; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GET COUNTER, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
+- **Residual risk:** 48 live paragraphs unrun; 117 branch outcomes unrun; 2 unstated runtime facts; ASSUMED / DIFFERS entries named: X14, X22, X27, X30, X33, X34, X35, X36, X37, X38, X45, X46, X47, X52, X53; commands without oracle backing: ASKTIME, DELETE, DOCUMENT CREATE, DOCUMENT RETRIEVE, FORMATTIME, FREEMAIN, GET COUNTER, GETMAIN, INQUIRE PROGRAM, READ, REWRITE, SYNCPOINT, SYNCPOINT ROLLBACK, WEB CLOSE, WEB CONVERSE, WEB EXTRACT, WEB OPEN, WEB PARSE URL, WEB READ HTTPHEADER, WEB RECEIVE, WEB SEND, WEB WRITE HTTPHEADER, WRITE, WRITEQ TD; assumption reach and the migration dimensions above: not measured
 
 ### Source/ZECS002.asm -- L0
 
@@ -340,7 +340,7 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `4aa4de078f6003045f656399c83c80cbdac89e87`
+- translator commit (the survey's): `1d6f3cf38af5b208fd6bc7067434705b4713c1ce`
 - corpus pin: `zecs` at `6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
@@ -350,8 +350,8 @@ From the spec entries of the commands the programs use, with the register's stat
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87
-python tests/tools/evidence_report.py zecs --baseline --sha 4aa4de078f6003045f656399c83c80cbdac89e87
+python tests/tools/cics_census.py survey --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce
+python tests/tools/evidence_report.py zecs --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsplt
 python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin

@@ -1809,7 +1809,12 @@ def _header_macro_span(text: str) -> int:
     return 0
 
 
-_FUNCTION_TYPE_OPEN_RE = re.compile(r"<[ \t]*(?:const[ \t]+)?$")
+_FUNCTION_TYPE_OPEN_RE = re.compile(r"<[ \t]*(?:const[ \t]+)?(?:\w+[ \t]*::[ \t]*)*$")
+# #6266: `operator String () const` names the target type, it does not call it; the walk back from the callee crosses
+# only a qualifier (`operator Value::Number ()`). An explicit `x.operator bool()` is a real call (#6454).
+_CONVERSION_OPERATOR_RE = re.compile(
+    r"(?<![.>])\boperator[ \t\r\n]+(?:const[ \t\r\n]+)?(?:\w+[ \t\r\n]*::[ \t\r\n]*)*$"
+)
 _FUNCTION_TYPE_CLOSE_RE = re.compile(r"[ \t]*(?:const|noexcept|&&?)?[ \t]*>")
 _FUNCTION_TYPE_MAX_SCAN = 400
 
@@ -1821,7 +1826,7 @@ def _is_function_type_arg(text: str, pos: int, end: int) -> bool:
     happens. The name must follow `<` directly and its parenthesis must close straight into `>`, so a call written
     in a comparison or a default argument stays a call.
     """
-    if not _FUNCTION_TYPE_OPEN_RE.search(text[max(pos - 16, 0) : pos]):
+    if not _FUNCTION_TYPE_OPEN_RE.search(text[max(pos - 48, 0) : pos]):
         return False
     depth = 0
     for i in range(end, min(len(text), end + _FUNCTION_TYPE_MAX_SCAN)):
@@ -10872,6 +10877,10 @@ class StructuralExtractor:
                     if callee_pos < header_end and _HEADER_MACRO_NAME.match(callee):
                         continue
                     if self.primary_lang_id == "cpp" and _is_function_type_arg(safe_block, callee_pos, m.end(1)):
+                        continue
+                    if self.primary_lang_id == "cpp" and _CONVERSION_OPERATOR_RE.search(
+                        safe_block, max(0, callee_pos - 64), callee_pos
+                    ):
                         continue
                     if self.primary_lang_id == "cpp":
                         if default_spans is None:

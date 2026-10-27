@@ -75,6 +75,16 @@ Both shepherd workflows restore the file from the Actions cache (`flake-history-
 `shepherd-reconcile.yml` also runs `flake_history.py --refresh-only` when it is over 6 hours old (best effort, 12 minute cap)
 and saves the cache even when the pass failed (#5398).
 
+## Shepherd conditional reads across passes (#6534)
+
+With `SHEPHERD_API_CACHE=<dir>` set, `shepherd_gh.py` reads through `pr_check.conditional_api`: each GET sends the kept
+ETag as `If-None-Match`, and a 304 (no REST quota) returns the body kept in `<dir>`. Entries are written atomically
+(temp file, rename), a corrupt or etag-less entry is a plain read, and every pass ends with `pr_check.prune_api_store`
+(entries older than 7 days, and beyond 2000, are dropped). Unset, reads are plain. The directory is meant to be
+restored and saved by `actions/cache` between passes; that wiring lives in `shepherd-*.yml` (owner OK per PR) and is not
+applied yet. A `workflow_run` pass has a read-only cache token (see `shepherd-reconcile.yml`), so it can restore but
+not save: the save has to come from a workflow that may write the cache.
+
 ## Fallback
 
 The box shepherd (`tests/tools/box/ci_shepherd.py`) is retired as the live shepherd (#5398) but still works from a
@@ -292,6 +302,8 @@ Main run 38835555699: part 1 took 11.9 min, part 2 4.8, part 3 3.5. Cause: pytes
 **Re-measuring (#5133 slice 9), 2026-10-25.** Still unmeasured. At 12:33 UTC the newest durations cache is still `test-durations-38247246921` (2026-10-12), and the only completed nightly (run 40179743618, 09:13 UTC) ran before the slice 8 fix and stored nothing. The first nightly that can store `test-durations-<run id>` is 2026-10-26 (~09:13 UTC); main push runs can restore it only after that. `ci_part_balance.py --latest 8` was therefore not run (it would read the old cache) and `calibrate_test_durations.py` is unchanged. Next step: after that nightly stores its cache and 3 or more main push runs restore it, run `python tests/tools/ci_part_balance.py --latest 8` and retune only if max/min is above 1.2.
 
 **Re-measuring (#5133 slice 10), 2026-10-26.** Still unmeasured. At 05:46 UTC the 2026-10-26 nightly had not started (it runs ~09:13 UTC); the newest schedule run is still 40179743618 (2026-10-25, pre-slice-8 fix, stored nothing) and the only durations cache is still `test-durations-38247246921` (2026-10-12), so no main push run can have restored a calibrated cache. `ci_part_balance.py --latest 8` was not run (it would read the old cache) and `calibrate_test_durations.py` is unchanged. Next step: once a nightly stores `test-durations-<run id>` and 3 or more main push runs started after it restore it, run `python tests/tools/ci_part_balance.py --latest 8`, compare with the 8 runs above (max/min 1.24-1.77, median 1.4) and retune only if max/min is above 1.2.
+
+**Measured after the first stored nightly cache (#5133 slice 11), 2026-10-27.** The 2026-10-27 nightly (run 40484179495) stored `test-durations-40484179495` at 10:13 UTC, and every main push smoke run after it ran the restore and balance steps successfully (the log does not say hit or miss). `ci_part_balance.py --latest 8 --event push` read 6 usable runs (40588784432 and 40568489319 unfinished or unsuccessful): max/min 1.75, 1.01, 1.11, 1.04, 1.35, 1.00, median 1.07, 4 of 6 within 1.2, slowest part mean 5.1 min. Before the cache the 8 recorded runs were 1.24-1.77, median 1.4. The suite is now 2 parts (`shard-plan`), not 3, so the figures are for `full-suite part 1/2` and `2/2`. The "about 20%" acceptance is met on the median; two of six runs (1.75, 1.35) stay above 1.2, which one sample cannot tell from runner or queue noise. `calibrate_test_durations.py` is unchanged: retune only if a larger sample keeps the tail above 1.2.
 
 ## Test-time ratchet (#5166)
 `tests/tools/time_ratchet.py`, baseline `tests/test_time_baseline.json` (the tests over 10 s with their seconds, and `suite_budget_s`). Each full-suite part of `smoke-test.yml` runs with `GITGALAXY_TEST_TIMES` set (`tests/conftest.py` writes every test's seconds plus the reasons of `slow`-marked ones) and then runs `time_ratchet.py check` on it. One timing on a shared runner is +-20-30%, so a hard 10 s edge gave false reds (owner decision 2026-10-15): an unmarked, unbaselined test **fails only over 15 s** (fix it, or `@pytest.mark.slow(reason=...)`, or baseline it), a test between 10 s and 15 s is a **warning** in the job summary, and a baselined test fails over **2.5x** its recorded seconds. Do not add a slow mark to a test that is only near 10 s on a noisy runner. The step is inside the required part, so it always reports. The `suite-time` job (not required) sums the three parts' own seconds and prints the total and its delta against the budget in the job summary; on the nightly it fails over +10%, lists every test over 10 s that has no slow mark or baseline entry (`time_ratchet.py over`), and files or refreshes one issue ("Suite time over budget (nightly)") for both. The only workflow permission added is `issues: write` on that job. `update` only lowers; `pr_gates.py --ratchets` has a `time` entry that checks the committed `.test_durations`.

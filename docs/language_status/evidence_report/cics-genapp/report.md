@@ -4,7 +4,7 @@
 
 > **Burned estate.** Its ports and the translator were developed against this estate, so its numbers describe a development estate, not a blind one.
 
-Translation measured by `cics_census.py survey` at translator commit `1d6f3cf38af5b208fd6bc7067434705b4713c1ce` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
+Translation measured by `cics_census.py survey` at translator commit `051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2` (burned + local corpora (no census) + cics-crucible); evidence record status: evidence.py status at build time; coverage: det-sweep coverage ledger, freshness at build time.
 
 The translation survey matches the translator in the tree (translator fingerprint `64effbe34081`).
 
@@ -43,12 +43,12 @@ The translation survey matches the translator in the tree (translator fingerprin
 | L0 | 0 | 0 |
 | L1 | 1 | 0 |
 | L2 | 0 | 0 |
-| L3 | 1 | 0 |
-| L4 | 29 | 0 |
+| L3 | 0 | 0 |
+| L4 | 30 | 0 |
 | L5 | 0 | 0 |
 
 - stale (`*`, last measured): 0 of 31 programs; the rest are current
-- L2+: 30 (0 awaiting re-check); L3+: 30 (0 awaiting re-check); L4+: 29 (0 awaiting re-check)
+- L2+: 30 (0 awaiting re-check); L3+: 30 (0 awaiting re-check); L4+: 30 (0 awaiting re-check)
 
 - programs: 31 (with an EXEC CICS command: 31; source not read: 0)
 - translated whole: 31; refused whole: 0; holes left: 0
@@ -92,6 +92,7 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 | base/src/lgacdb02.cbl | L4 | 39/39 | 0 | genapp-lgacdb02 | equal | 10 | none | 3/3 (100.0%) | 10/10 (100.0%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgacus01.cbl | L4 | 34/34 | 0 | genapp-lgacus01 | equal | 5 | none | 3/3 (100.0%) | 4/8 (50.0%) | 4/4 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgacvs01.cbl | L4 | 25/25 | 0 | genapp-lgacvs01 | equal | 8 | none | 3/3 (100.0%) | 5/6 (83.3%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 3/6 |
+| base/src/lgapdb01.cbl | L4 | 124/124 | 0 | genapp-lgapdb01 | equal | 16 | shown equal, unapproved | 7/7 (100.0%) | 29/31 (93.5%) | 29/29 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgapol01.cbl | L4 | 30/30 | 0 | genapp-lgapol01 | equal | 6 | none | 2/2 (100.0%) | 5/8 (62.5%) | 5/5 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgapvs01.cbl | L4 | 47/47 | 0 | genapp-lgapvs01 | equal | 13 | shown equal, unapproved | 3/3 (100.0%) | 10/11 (90.9%) | 10/10 (100.0%) | — | not measured (no det_mutation/ entry) | 2/5 |
 | base/src/lgastat1.cbl | L4 | 30/30 | 0 | genapp-lgastat1 | equal | 8 | none | 1/1 (100.0%) | 12/12 (100.0%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
@@ -117,7 +118,6 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 | base/src/lgupol01.cbl | L4 | 45/45 | 0 | genapp-lgupol01 | equal | 10 | none | 4/4 (100.0%) | 13/16 (81.2%) | 13/13 (100.0%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgupvs01.cbl | L4 | 55/55 | 0 | genapp-lgupvs01 | equal | 12 | shown equal, unapproved | 3/3 (100.0%) | 12/13 (92.3%) | 12/12 (100.0%) | — | not measured (no det_mutation/ entry) | 3/7 |
 | base/src/lgwebst5.cbl | L4 | 278/278 | 0 | genapp-lgwebst5 | equal | 4 | none | 3/3 (100.0%) | 2/2 (100.0%) | 2/2 (100.0%) | — | not measured (no det_mutation/ entry) | 5/9 |
-| base/src/lgapdb01.cbl | L3 | 124/124 | 0 | genapp-lgapdb01 | equal | 14 | shown equal, unapproved | 7/7 (100.0%) | 28/31 (90.3%) | 28/29 (96.6%) | — | not measured (no det_mutation/ entry) | 3/5 |
 | base/src/lgsetup.cbl | L1 | 91/91 | 0 | genapp-lgsetup | not equal | 2 | none | not measured | not measured | not measured | — | not measured (no det_mutation/ entry) | 4/7 |
 
 ## Per program
@@ -267,6 +267,50 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 branch outcomes unrun; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME, WRITE; assumption reach and the migration dimensions above: not measured
 
+### base/src/lgapdb01.cbl -- L4
+
+- **Executed equivalent** on the 9 scenarios of genapp-lgapdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
+- **Next level needs:** every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))
+- **Translation:** 124/124 statements, 0 holes; whole: yes
+- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
+  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=NO [no effect; found at base/cntl/db2bind.jcl:16]; db2.bind.DYNAMICRULES=BIND [no effect; found at base/cntl/db2bind.jcl:19]; db2.bind.ISOLATION=CS [no effect; found at base/cntl/db2bind.jcl:15]; db2.bind.VALIDATE=BIND [no effect; found at base/cntl/db2bind.jcl:26]; db2.ccsid.EBCDIC_CCSID=285 [declared; found at base/Installation.md:92]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (SQL via the program's PROCESS SQL card) [no effect; found at base/src/lgacdb01.cbl:1]; cics.region.DB2CONN=YES [no effect; found at base/Building.md:58]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS via the compile OPTFILE [no effect; found at base/cntl/cobol.jcl:48]
+  - **Declared option difference (evidence record):** CODEPAGE 285 applied as data in the case's data_encoding (no CCSID page): CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding
+  - **Declared option difference (evidence record):** db2.ccsid.EBCDIC_CCSID 285 applied as data in the case's data_encoding: db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding
+- **Executed equivalence** (genapp-lgapdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 16/16 scenarios equal, 98/98 records equal, 16 runs (8 fault runs); through its deployed entry points 16/16
+- **Executed equivalence** (genapp-lgapdb01-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (9 scenarios in case.json)
+- **Executed equivalence** (genapp-lgapol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (6 scenarios in case.json)
+- **Executed equivalence** (genapp-lgapol01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (6 scenarios in case.json)
+- **Executed equivalence** (genapp-lgtestp1, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (15 scenarios in case.json)
+- **Executed equivalence** (genapp-lgtestp2, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (15 scenarios in case.json)
+- **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (15 scenarios in case.json)
+- **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (16 scenarios in case.json)
+- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 7/7 (100.0%), branch outcomes 29/31 (93.5%) raw, 29/29 (100.0%) net of 2 stated infeasible; unrun paragraphs by name: not recorded
+- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
+
+  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
+  |---|---|---|---|
+  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
+  | ASKTIME | full | none | no |
+  | FORMATTIME | full | none | no |
+  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
+  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
+
+- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
+  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
+  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
+  - stated infeasible branch outcome (reviewed claim, family G): MAINLINE:223:OTHER (EVALUATE) -- The second `EVALUATE CA-REQUEST-ID` (the INSERT dispatch) is reached only after the first one (line 184), which has the same four WHEN values ('01AEND', '01AHOU', '01AMOT', '01ACOM') and answers every other request id with '99' and EXEC CICS RETURN. Between the two, nothing assigns CA-REQUEST-ID: the length check only reads EIBCALEN, and INSERT-POLICY moves only DB2-* host fields, EM-SQLREQ and CA-RETURN-CODE. So a task that reaches line 223 holds one of the four ids and its WHEN OTHER cannot run.
+  - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:581:true (IF) -- `IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for a call whose COMMAREA is 1 to 90 bytes. WRITE-ERROR-MESSAGE has two kinds of caller: the no-COMMAREA arm (line 165, EIBCALEN 0, so the outer `IF EIBCALEN > 0` is false) and the failing-SQL arms, which run after `IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` (line 210) has passed. WS-REQUIRED-CA-LEN is 28 plus the request's full length (lgpolicy.cpy: endowment 124, house 130, motor 137, commercial 1174), so at least 152, and a call with EIBCALEN of 1 to 151 returns '98' before any SQL runs (the add-endowment-short scenario). EIBCALEN is therefore 0 or at least 152 on every path that PERFORMs WRITE-ERROR-MESSAGE.
+- **Det-port mutation:** not measured (no det_mutation/ entry)
+- **Residual risk:** 2 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
+
 ### base/src/lgapol01.cbl -- L4
 
 - **Executed equivalent** on the 6 scenarios of genapp-lgapol01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
@@ -316,9 +360,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
   - **Declared option difference (evidence record):** CODEPAGE 285 applied as data in the case's data_encoding (no CCSID page): CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding
   - **Declared option difference (evidence record):** db2.ccsid.EBCDIC_CCSID 285 applied as data in the case's data_encoding: db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding
 - **Executed equivalence** (genapp-lgapdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 14/14 scenarios equal, 85/85 records equal, 14 runs (7 fault runs); through its deployed entry points 14/14
+  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 16/16 scenarios equal, 98/98 records equal, 16 runs (8 fault runs); through its deployed entry points 16/16
 - **Executed equivalence** (genapp-lgapdb01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (6 scenarios in case.json)
+  - evidence record: none (9 scenarios in case.json)
 - **Executed equivalence** (genapp-lgapol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgapol01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -734,7 +778,9 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Executed equivalence** (genapp-lgacvs01, linked): det port equal (CI det-sweep ratchet on main)
   - evidence record: none (8 scenarios in case.json)
 - **Executed equivalence** (genapp-lgapdb01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 14/14 scenarios equal, 85/85 records equal, 14 runs (7 fault runs); through its deployed entry points 14/14
+  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 16/16 scenarios equal, 98/98 records equal, 16 runs (8 fault runs); through its deployed entry points 16/16
+- **Executed equivalence** (genapp-lgapdb01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
+  - evidence record: none (9 scenarios in case.json)
 - **Executed equivalence** (genapp-lgapol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
   - evidence record: none (6 scenarios in case.json)
 - **Executed equivalence** (genapp-lgapol01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
@@ -1224,50 +1270,6 @@ From `tests/equivalence/estate_options/cics-genapp.json`: 15 values found in the
 - **Det-port mutation:** not measured (no det_mutation/ entry)
 - **Residual risk:** 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X18, X19, X27, X29, X30, X45, X46, X50; commands without oracle backing: ASKTIME, DELETEQ TS, FORMATTIME, QUERY COUNTER; assumption reach and the migration dimensions above: not measured
 
-### base/src/lgapdb01.cbl -- L3
-
-- **Executed equivalent** on the 8 scenarios of genapp-lgapdb01 against GnuCOBOL + the gitgalaxy CICS stub (det port: Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)), given the assumptions below
-- **Next level needs:** branch coverage >= 100.0 net (now 90.3 raw, 96.6 net of the reviewed infeasible outcomes)
-- **Translation:** 124/124 statements, 0 holes; whole: yes
-- **Options in force** (compile options that change results; Enterprise COBOL 6.1; 1 found, 5 assumed): ARITH(COMPAT) [assumed: IBM default]; INTDATE(ANSI) [assumed: IBM default]; NUMPROC(NOPFD) [assumed: IBM default]; TRUNC(STD) [assumed: IBM default]; CODEPAGE(285) [found at base/cntl/cobol.jcl:49]; NSYMBOL(NATIONAL) [assumed: IBM default]
-  - **Runtime options (LE, Db2, CICS; judged by the runtime option table):** le.runtime_options.ABTERMENC=ABEND [honoured; assumed: IBM default]; le.runtime_options.STORAGE=NONE,NONE,NONE,0K [honoured; assumed: IBM default]; le.runtime_options.TRAP=ON,SPIE [honoured; assumed: IBM default]; db2.bind.CURRENTDATA=NO [no effect; found at base/cntl/db2bind.jcl:16]; db2.bind.DYNAMICRULES=BIND [no effect; found at base/cntl/db2bind.jcl:19]; db2.bind.ISOLATION=CS [no effect; found at base/cntl/db2bind.jcl:15]; db2.bind.VALIDATE=BIND [no effect; found at base/cntl/db2bind.jcl:26]; db2.ccsid.EBCDIC_CCSID=285 [declared; found at base/Installation.md:92]; db2.format.DATE=ISO [honoured; assumed: IBM default]; db2.format.DEC=15 [honoured; assumed: IBM default]; db2.format.DECPT=. [honoured; assumed: IBM default]; db2.format.TIME=ISO [honoured; assumed: IBM default]; db2.precompile.coprocessor=integrated (SQL via the program's PROCESS SQL card) [no effect; found at base/src/lgacdb01.cbl:1]; cics.region.DB2CONN=YES [no effect; found at base/Building.md:58]; cics.region.LOCALCCSID=037 [honoured; assumed: IBM default]; cics.translator.options=CICS via the compile OPTFILE [no effect; found at base/cntl/cobol.jcl:48]
-  - **Declared option difference (evidence record):** CODEPAGE 285 applied as data in the case's data_encoding (no CCSID page): CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding
-  - **Declared option difference (evidence record):** db2.ccsid.EBCDIC_CCSID 285 applied as data in the case's data_encoding: db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding
-- **Executed equivalence** (genapp-lgapdb01, program, Db2, the case this report judges): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record (the case's committed port): shown equal, unapproved; its proof: all equal, 14/14 scenarios equal, 85/85 records equal, 14 runs (7 fault runs); through its deployed entry points 14/14
-- **Executed equivalence** (genapp-lgapdb01-generated, program, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (6 scenarios in case.json)
-- **Executed equivalence** (genapp-lgapol01, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (6 scenarios in case.json)
-- **Executed equivalence** (genapp-lgapol01-generated, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (6 scenarios in case.json)
-- **Executed equivalence** (genapp-lgtestp1, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (15 scenarios in case.json)
-- **Executed equivalence** (genapp-lgtestp2, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (15 scenarios in case.json)
-- **Executed equivalence** (genapp-lgtestp3, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (15 scenarios in case.json)
-- **Executed equivalence** (genapp-lgtestp4, linked, Db2): det port equal (Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/))
-  - evidence record: none (16 scenarios in case.json)
-- **Coverage** (det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)): paragraphs 7/7 (100.0%), branch outcomes 28/31 (90.3%) raw, 28/29 (96.6%) net of 2 stated infeasible; unrun paragraphs by name: not recorded
-- **Oracle backing** (a column, not a level; per CICS command; DIFFERS assumptions reached: not measured):
-
-  | command | spec entry | hand-traced crucible cases (stub / Java runtime agree) | backed |
-  |---|---|---|---|
-  | ABEND | full | gt-start-retrieve (yes / yes), hc-abend-link (yes / yes) | yes |
-  | ASKTIME | full | none | no |
-  | FORMATTIME | full | none | no |
-  | LINK | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), hc-abend-link (yes / yes) | yes |
-  | RETURN | full | ca-channel-containers (yes / no), ca-link-lengths (yes / yes), ca-xctl-versions (yes / yes), gt-assign-startcode (yes / no), gt-start-options (yes / no), gt-start-retrieve (yes / yes), gt-terminal-coalesce (yes / yes), hc-abend-link (yes / yes), hc-eoc-error (yes / no), hc-handle-aid (yes / no), hc-ignore-error (yes / no), hc-perform-range (yes / yes), hc-terminal-eoc (yes / no), hc-terminal-receive (yes / no), hx-attr-bytes (yes / yes), hx-extended-cursor (yes / yes), pc-aid-menu (yes / yes), pc-wizard (yes / yes) | yes |
-
-- **Assumptions relied on:** named by its commands' spec entries: X27 (ASSUMED (the STARTCODE; REFUSED where IBM is silent)), X46 (ASSUMED (REFUSED where IBM is silent)); reach: not measured
-  - z/OS-calibrated: 0 of 2 named assumptions (none measured on z/OS)
-  - runtime fact no harness states: EIB field EIBTASKN (both runtimes read zero; z/OS does not)
-  - stated infeasible branch outcome (reviewed claim, family G): MAINLINE:223:OTHER (EVALUATE) -- The second `EVALUATE CA-REQUEST-ID` (the INSERT dispatch) is reached only after the first one (line 184), which has the same four WHEN values ('01AEND', '01AHOU', '01AMOT', '01ACOM') and answers every other request id with '99' and EXEC CICS RETURN. Between the two, nothing assigns CA-REQUEST-ID: the length check only reads EIBCALEN, and INSERT-POLICY moves only DB2-* host fields, EM-SQLREQ and CA-RETURN-CODE. So a task that reaches line 223 holds one of the four ids and its WHEN OTHER cannot run.
-  - stated infeasible branch outcome (reviewed claim, family G): WRITE-ERROR-MESSAGE:581:true (IF) -- `IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for a call whose COMMAREA is 1 to 90 bytes. WRITE-ERROR-MESSAGE has two kinds of caller: the no-COMMAREA arm (line 165, EIBCALEN 0, so the outer `IF EIBCALEN > 0` is false) and the failing-SQL arms, which run after `IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` (line 210) has passed. WS-REQUIRED-CA-LEN is 28 plus the request's full length (lgpolicy.cpy: endowment 124, house 130, motor 137, commercial 1174), so at least 152, and a call with EIBCALEN of 1 to 151 returns '98' before any SQL runs (the add-endowment-short scenario). EIBCALEN is therefore 0 or at least 152 on every path that PERFORMs WRITE-ERROR-MESSAGE.
-- **Det-port mutation:** not measured (no det_mutation/ entry)
-- **Residual risk:** 3 branch outcomes unrun; 1 unstated runtime facts; ASSUMED / DIFFERS entries named: X27, X46; commands without oracle backing: ASKTIME, FORMATTIME; assumption reach and the migration dimensions above: not measured
-
 ### base/src/lgsetup.cbl -- L1
 
 - **Next level needs:** its det port equal on every scenario of genapp-lgsetup: ledgered as differing in det_sweep_baseline.json (#5252): LGSETUP's SEND TEXT FROM(WRITE-MSG-H) LENGTH(24) sends WRITE-MSG-H and the item after it, WRITE-MSG-HIGH PIC 9(10). The det port holds that numeric as a typed BigDecimal that never reaches the record's bytes (DetCics.withinRecord reads the bytes), so Java sends 0000000000 where GnuCOBOL sends the customer number. Unmasked on 2026-10-21 when X6 became ASSUMED: the run used to stop at the WRITEQ TS past FROM (98) before this SEND TEXT. Fix: pack the enclosing record's typed items before a past-FROM read (the pack_ methods are emitted only under --groups).
@@ -1324,18 +1326,18 @@ From the spec entries of the commands the programs use, with the register's stat
 
 ## Reproducibility
 
-- translator commit (the survey's): `1d6f3cf38af5b208fd6bc7067434705b4713c1ce`
+- translator commit (the survey's): `051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2`
 - corpus pin: `cics-genapp` at `f6f3f4b2580d31b7d8dcc31ce3e3676f4cceaaaa`
 - crucible pins: cics `v0.10.0`, estate `v0.4.0`, language `v1.7.0`; cics crucible baseline measured at `v0.10.0 (01e11fe6)`; crucible cases per command measured at `v0.5.0`
 - crucible pin manifest: tests/crucible_pins.toml
 - oracle base image: `debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251`
-- oracle images the evidence records ran on: `sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`
+- oracle images the evidence records ran on: `sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc`, `sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f`, `sha256:ec6700c84dabf72e2db919f1f6fc8a9b22a6b435527935374d970be021754989`
 
 Regenerate this report and re-run its proofs:
 
 ```sh
-python tests/tools/cics_census.py survey --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce
-python tests/tools/evidence_report.py cics-genapp --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce
+python tests/tools/cics_census.py survey --baseline --sha 051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2
+python tests/tools/evidence_report.py cics-genapp --baseline --sha 051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2
 python tests/tools/evidence_report.py --refresh
 python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container
 python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01

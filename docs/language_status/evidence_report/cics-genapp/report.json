@@ -927,13 +927,13 @@
    "genapp-lgapdb01": [
     7,
     7,
-    28,
+    29,
     31
    ],
    "genapp-lgapdb01-generated": [
     7,
     7,
-    23,
+    29,
     31
    ],
    "genapp-lgapol01": [
@@ -2224,7 +2224,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
+   "sha": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
    "translator": {
     "files": 149,
     "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
@@ -4553,6 +4553,667 @@
    },
    "coverage": {
     "branch_net_pct": 100.0,
+    "branch_pct": 93.5,
+    "branches": {
+     "covered": 29,
+     "total": 31
+    },
+    "branches_net": {
+     "covered": 29,
+     "total": 29
+    },
+    "current": true,
+    "infeasible_netted": [
+     "MAINLINE:223:OTHER",
+     "WRITE-ERROR-MESSAGE:581:true"
+    ],
+    "infeasible_refuted": [],
+    "infeasible_stated": [
+     {
+      "family": "G",
+      "key": "MAINLINE:223:OTHER",
+      "kind": "EVALUATE",
+      "line": 223,
+      "outcome": "OTHER",
+      "reason": "The second `EVALUATE CA-REQUEST-ID` (the INSERT dispatch) is reached only after the first one (line 184), which has the same four WHEN values ('01AEND', '01AHOU', '01AMOT', '01ACOM') and answers every other request id with '99' and EXEC CICS RETURN. Between the two, nothing assigns CA-REQUEST-ID: the length check only reads EIBCALEN, and INSERT-POLICY moves only DB2-* host fields, EM-SQLREQ and CA-RETURN-CODE. So a task that reaches line 223 holds one of the four ids and its WHEN OTHER cannot run.",
+      "unit": "MAINLINE"
+     },
+     {
+      "family": "G",
+      "key": "WRITE-ERROR-MESSAGE:581:true",
+      "kind": "IF",
+      "line": 581,
+      "outcome": "true",
+      "reason": "`IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for a call whose COMMAREA is 1 to 90 bytes. WRITE-ERROR-MESSAGE has two kinds of caller: the no-COMMAREA arm (line 165, EIBCALEN 0, so the outer `IF EIBCALEN > 0` is false) and the failing-SQL arms, which run after `IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` (line 210) has passed. WS-REQUIRED-CA-LEN is 28 plus the request's full length (lgpolicy.cpy: endowment 124, house 130, motor 137, commercial 1174), so at least 152, and a call with EIBCALEN of 1 to 151 returns '98' before any SQL runs (the add-endowment-short scenario). EIBCALEN is therefore 0 or at least 152 on every path that PERFORMs WRITE-ERROR-MESSAGE.",
+      "unit": "WRITE-ERROR-MESSAGE"
+     }
+    ],
+    "paragraph_pct": 100.0,
+    "paragraphs": {
+     "covered": 7,
+     "live": 7
+    },
+    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
+    "stale_inputs": [],
+    "stale_since": null,
+    "uncovered_branches": [],
+    "uncovered_paragraphs": "not recorded"
+   },
+   "equivalence": {
+    "cases": [
+     {
+      "case": "genapp-lgapdb01",
+      "case_scenarios": 9,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": {
+       "coverage": {
+        "branches": {
+         "covered": 29,
+         "total": 31
+        },
+        "paragraphs": {
+         "covered": 7,
+         "live": 7
+        },
+        "uncovered_branches": [
+         "line 223 EVALUATE OTHER (MAINLINE)",
+         "line 581 IF true (WRITE-ERROR-MESSAGE)"
+        ]
+       },
+       "db2": true,
+       "facade": {
+        "passed": 16,
+        "runs": 16
+       },
+       "fault_runs": 8,
+       "java_failed": false,
+       "option_differences": [
+        {
+         "applied": "data in the case's data_encoding (no CCSID page)",
+         "declared": "285",
+         "kind": "option",
+         "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
+         "option": "CODEPAGE"
+        },
+        {
+         "applied": "data in the case's data_encoding",
+         "declared": "285",
+         "kind": "option",
+         "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+         "option": "db2.ccsid.EBCDIC_CCSID"
+        }
+       ],
+       "oracle_image": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+       "oracle_matches_pin": true,
+       "records_compared": 98,
+       "records_equal": 98,
+       "runs": 16,
+       "scenarios": 16,
+       "scenarios_equal": 16,
+       "stale_inputs": [],
+       "status_at_build": "shown equal, unapproved",
+       "verdict": "all equal"
+      },
+      "role": "program"
+     },
+     {
+      "case": "genapp-lgapdb01-generated",
+      "case_scenarios": 9,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "program"
+     },
+     {
+      "case": "genapp-lgapol01",
+      "case_scenarios": 6,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgapol01-generated",
+      "case_scenarios": 6,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp1",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp2",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp3",
+      "case_scenarios": 15,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgtestp4",
+      "case_scenarios": 16,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
+      "role": "linked"
+     }
+    ],
+    "chosen": {
+     "case": "genapp-lgapdb01",
+     "case_scenarios": 9,
+     "db2": true,
+     "det": {
+      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+      "state": "equal"
+     },
+     "record": {
+      "coverage": {
+       "branches": {
+        "covered": 29,
+        "total": 31
+       },
+       "paragraphs": {
+        "covered": 7,
+        "live": 7
+       },
+       "uncovered_branches": [
+        "line 223 EVALUATE OTHER (MAINLINE)",
+        "line 581 IF true (WRITE-ERROR-MESSAGE)"
+       ]
+      },
+      "db2": true,
+      "facade": {
+       "passed": 16,
+       "runs": 16
+      },
+      "fault_runs": 8,
+      "java_failed": false,
+      "option_differences": [
+       {
+        "applied": "data in the case's data_encoding (no CCSID page)",
+        "declared": "285",
+        "kind": "option",
+        "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
+        "option": "CODEPAGE"
+       },
+       {
+        "applied": "data in the case's data_encoding",
+        "declared": "285",
+        "kind": "option",
+        "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+        "option": "db2.ccsid.EBCDIC_CCSID"
+       }
+      ],
+      "oracle_image": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+      "oracle_matches_pin": true,
+      "records_compared": 98,
+      "records_equal": 98,
+      "runs": 16,
+      "scenarios": 16,
+      "scenarios_equal": 16,
+      "stale_inputs": [],
+      "status_at_build": "shown equal, unapproved",
+      "verdict": "all equal"
+     },
+     "role": "program"
+    }
+   },
+   "level": "L4",
+   "level_current": true,
+   "mutation": {
+    "current": false,
+    "det_port": "not measured (no det_mutation/ entry)",
+    "l5": false,
+    "score": null
+   },
+   "next": [
+    "every surviving mutant of the det port accounted for (#4628, det_mutation.py: not measured (no det_mutation/ entry))"
+   ],
+   "options": {
+    "assumed": 5,
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.1"
+    },
+    "deviations": [],
+    "estate_file": true,
+    "found": 1,
+    "record_differences": [
+     {
+      "applied": "data in the case's data_encoding (no CCSID page)",
+      "declared": "285",
+      "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
+      "option": "CODEPAGE"
+     },
+     {
+      "applied": "data in the case's data_encoding",
+      "declared": "285",
+      "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
+      "option": "db2.ccsid.EBCDIC_CCSID"
+     }
+    ],
+    "runtime": [
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.ABTERMENC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ABEND"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.STORAGE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NONE,NONE,NONE,0K"
+     },
+     {
+      "effect": "honoured",
+      "option": "le.runtime_options.TRAP",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ON,SPIE"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.CURRENTDATA",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:16",
+      "value": "NO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.DYNAMICRULES",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:19",
+      "value": "BIND"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.ISOLATION",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:15",
+      "value": "CS"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.bind.VALIDATE",
+      "provenance": "found",
+      "source": "base/cntl/db2bind.jcl:26",
+      "value": "BIND"
+     },
+     {
+      "effect": "declared",
+      "option": "db2.ccsid.EBCDIC_CCSID",
+      "provenance": "found",
+      "source": "base/Installation.md:92",
+      "value": "285"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DATE",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DEC",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "15"
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.DECPT",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "."
+     },
+     {
+      "effect": "honoured",
+      "option": "db2.format.TIME",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ISO"
+     },
+     {
+      "effect": "no effect",
+      "option": "db2.precompile.coprocessor",
+      "provenance": "found",
+      "source": "base/src/lgacdb01.cbl:1",
+      "value": "integrated (SQL via the program's PROCESS SQL card)"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.region.DB2CONN",
+      "provenance": "found",
+      "source": "base/Building.md:58",
+      "value": "YES"
+     },
+     {
+      "effect": "honoured",
+      "option": "cics.region.LOCALCCSID",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "037"
+     },
+     {
+      "effect": "no effect",
+      "option": "cics.translator.options",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:48",
+      "value": "CICS via the compile OPTFILE"
+     }
+    ],
+    "values": [
+     {
+      "option": "ARITH",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "COMPAT"
+     },
+     {
+      "option": "INTDATE",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "ANSI"
+     },
+     {
+      "option": "NUMPROC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NOPFD"
+     },
+     {
+      "option": "TRUNC",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "STD"
+     },
+     {
+      "option": "CODEPAGE",
+      "origin": "estate options file",
+      "provenance": "found",
+      "source": "base/cntl/cobol.jcl:49",
+      "value": "285"
+     },
+     {
+      "option": "NSYMBOL",
+      "origin": "estate options file",
+      "provenance": "assumed",
+      "source": "assumed: IBM default",
+      "value": "NATIONAL"
+     }
+    ]
+   },
+   "oracle_backing": [
+    {
+     "backed": true,
+     "command": "ABEND",
+     "crucible_cases": [
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "ASKTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [],
+     "spec_entry": "full"
+    },
+    {
+     "backed": false,
+     "command": "FORMATTIME",
+     "crucible_cases": [],
+     "facts_stated": [],
+     "registers": [
+      "X46"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "LINK",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    },
+    {
+     "backed": true,
+     "command": "RETURN",
+     "crucible_cases": [
+      {
+       "case": "ca-channel-containers",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-link-lengths",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "ca-xctl-versions",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-assign-startcode",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-options",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-start-retrieve",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "gt-terminal-coalesce",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-abend-link",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-eoc-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-handle-aid",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-ignore-error",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-perform-range",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-eoc",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hc-terminal-receive",
+       "java_agrees": false,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-attr-bytes",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "hx-extended-cursor",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-aid-menu",
+       "java_agrees": true,
+       "stub_agrees": true
+      },
+      {
+       "case": "pc-wizard",
+       "java_agrees": true,
+       "stub_agrees": true
+      }
+     ],
+     "facts_stated": [],
+     "registers": [
+      "X27"
+     ],
+     "spec_entry": "full"
+    }
+   ],
+   "program": "base/src/lgapdb01.cbl",
+   "residual": {
+    "assumed_or_differs_named": [
+     "X27",
+     "X46"
+    ],
+    "branch_outcomes_unrun": 2,
+    "commands": 5,
+    "commands_backed": 3,
+    "commands_not_backed": [
+     "ASKTIME",
+     "FORMATTIME"
+    ],
+    "facts_unstated": 1,
+    "holes": 0,
+    "paragraphs_unrun": 0,
+    "refused": null
+   },
+   "stale_inputs": [],
+   "stale_since": null,
+   "survey_stale": false,
+   "translation": {
+    "gap_classes": [],
+    "hole_count": 0,
+    "holes": [],
+    "refused": null,
+    "source_defects": [],
+    "statements": 124,
+    "translated": 124,
+    "whole": true
+   }
+  },
+  {
+   "assumptions": {
+    "facts_stated": [],
+    "facts_unstated": [
+     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
+    ],
+    "named_by_commands": [
+     {
+      "area": "CICS",
+      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
+      "id": "X27",
+      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
+     },
+     {
+      "area": "CICS",
+      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
+      "id": "X46",
+      "status": "ASSUMED (REFUSED where IBM is silent)"
+     }
+    ],
+    "reach": "not measured",
+    "source_read": true
+   },
+   "coverage": {
+    "branch_net_pct": 100.0,
     "branch_pct": 62.5,
     "branches": {
      "covered": 5,
@@ -5131,7 +5792,7 @@
     "cases": [
      {
       "case": "genapp-lgapdb01",
-      "case_scenarios": 8,
+      "case_scenarios": 9,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -5140,7 +5801,7 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 28,
+         "covered": 29,
          "total": 31
         },
         "paragraphs": {
@@ -5149,16 +5810,15 @@
         },
         "uncovered_branches": [
          "line 223 EVALUATE OTHER (MAINLINE)",
-         "line 342 IF true (INSERT-ENDOW)",
          "line 581 IF true (WRITE-ERROR-MESSAGE)"
         ]
        },
        "db2": true,
        "facade": {
-        "passed": 14,
-        "runs": 14
+        "passed": 16,
+        "runs": 16
        },
-       "fault_runs": 7,
+       "fault_runs": 8,
        "java_failed": false,
        "option_differences": [
         {
@@ -5176,13 +5836,13 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
+       "oracle_image": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
        "oracle_matches_pin": true,
-       "records_compared": 85,
-       "records_equal": 85,
-       "runs": 14,
-       "scenarios": 14,
-       "scenarios_equal": 14,
+       "records_compared": 98,
+       "records_equal": 98,
+       "runs": 16,
+       "scenarios": 16,
+       "scenarios_equal": 16,
        "stale_inputs": [],
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
@@ -5191,7 +5851,7 @@
      },
      {
       "case": "genapp-lgapdb01-generated",
-      "case_scenarios": 6,
+      "case_scenarios": 9,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -8029,7 +8689,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
+       "oracle_image": "sha256:ec6700c84dabf72e2db919f1f6fc8a9b22a6b435527935374d970be021754989",
        "oracle_matches_pin": true,
        "records_compared": 24,
        "records_equal": 24,
@@ -11574,7 +12234,7 @@
      },
      {
       "case": "genapp-lgapdb01",
-      "case_scenarios": 8,
+      "case_scenarios": 9,
       "db2": true,
       "det": {
        "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
@@ -11583,7 +12243,7 @@
       "record": {
        "coverage": {
         "branches": {
-         "covered": 28,
+         "covered": 29,
          "total": 31
         },
         "paragraphs": {
@@ -11592,16 +12252,15 @@
         },
         "uncovered_branches": [
          "line 223 EVALUATE OTHER (MAINLINE)",
-         "line 342 IF true (INSERT-ENDOW)",
          "line 581 IF true (WRITE-ERROR-MESSAGE)"
         ]
        },
        "db2": true,
        "facade": {
-        "passed": 14,
-        "runs": 14
+        "passed": 16,
+        "runs": 16
        },
-       "fault_runs": 7,
+       "fault_runs": 8,
        "java_failed": false,
        "option_differences": [
         {
@@ -11619,17 +12278,28 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
+       "oracle_image": "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
        "oracle_matches_pin": true,
-       "records_compared": 85,
-       "records_equal": 85,
-       "runs": 14,
-       "scenarios": 14,
-       "scenarios_equal": 14,
+       "records_compared": 98,
+       "records_equal": 98,
+       "runs": 16,
+       "scenarios": 16,
+       "scenarios_equal": 16,
        "stale_inputs": [],
        "status_at_build": "shown equal, unapproved",
        "verdict": "all equal"
       },
+      "role": "linked"
+     },
+     {
+      "case": "genapp-lgapdb01-generated",
+      "case_scenarios": 9,
+      "db2": true,
+      "det": {
+       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
+       "state": "equal"
+      },
+      "record": null,
       "role": "linked"
      },
      {
@@ -12056,7 +12726,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
+       "oracle_image": "sha256:ec6700c84dabf72e2db919f1f6fc8a9b22a6b435527935374d970be021754989",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -17865,7 +18535,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
+       "oracle_image": "sha256:ec6700c84dabf72e2db919f1f6fc8a9b22a6b435527935374d970be021754989",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -17955,7 +18625,7 @@
         "option": "db2.ccsid.EBCDIC_CCSID"
        }
       ],
-      "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
+      "oracle_image": "sha256:ec6700c84dabf72e2db919f1f6fc8a9b22a6b435527935374d970be021754989",
       "oracle_matches_pin": true,
       "records_compared": 158,
       "records_equal": 158,
@@ -19077,7 +19747,7 @@
          "option": "db2.ccsid.EBCDIC_CCSID"
         }
        ],
-       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
+       "oracle_image": "sha256:ec6700c84dabf72e2db919f1f6fc8a9b22a6b435527935374d970be021754989",
        "oracle_matches_pin": true,
        "records_compared": 158,
        "records_equal": 158,
@@ -20266,669 +20936,6 @@
   {
    "assumptions": {
     "facts_stated": [],
-    "facts_unstated": [
-     "EIB field EIBTASKN (both runtimes read zero; z/OS does not)"
-    ],
-    "named_by_commands": [
-     {
-      "area": "CICS",
-      "entry": "RETURN TRANSID ... IMMEDIATE: the task of TRANSID attached at once with the COMMAREA, ahead of any terminal input and any START request, the terminal's next operator step left alone; its EIBAID is not stated by IBM (the crucible runner gives none and a case never reads it), its STARTCODE TD; INVREQ RESP2 1 (no terminal), INVREQ RESP2 2 (below the highest level), LENGERR RESP2 11 return to the program; LINK ... SYNCONRETURN accepted and ignored (IBM: \"ignored if the link is local\"); IMMEDIATE without TRANSID, and both INVREQs at once (no terminal below level 1), refused",
-      "id": "X27",
-      "status": "ASSUMED (the STARTCODE; REFUSED where IBM is silent)"
-     },
-     {
-      "area": "CICS",
-      "entry": "FORMATTIME YYDDD / YYYYDDD / YYDDMM / YYYYDDMM (the date's parts in IBM's order, the day of the year three digits) and DAYCOUNT (1 January 1900 is day 1) / DAYOFMONTH / DAYOFWEEK (Sunday=0) / MONTHOFYEAR / YEAR / MILLISECONDS (binary integers, written by the receiving area's declared usage); DATE / DATEFORM / FULLDATE (the installation's DATFORM), DATESTRING / STRINGFORMAT / STRINGZONE (the zone) refused by name; DUMP TRANSACTION and the bare DUMP form refused by name (the outcome is the region's dump setup)",
-      "id": "X46",
-      "status": "ASSUMED (REFUSED where IBM is silent)"
-     }
-    ],
-    "reach": "not measured",
-    "source_read": true
-   },
-   "coverage": {
-    "branch_net_pct": 96.6,
-    "branch_pct": 90.3,
-    "branches": {
-     "covered": 28,
-     "total": 31
-    },
-    "branches_net": {
-     "covered": 28,
-     "total": 29
-    },
-    "current": true,
-    "infeasible_netted": [
-     "MAINLINE:223:OTHER",
-     "WRITE-ERROR-MESSAGE:581:true"
-    ],
-    "infeasible_refuted": [],
-    "infeasible_stated": [
-     {
-      "family": "G",
-      "key": "MAINLINE:223:OTHER",
-      "kind": "EVALUATE",
-      "line": 223,
-      "outcome": "OTHER",
-      "reason": "The second `EVALUATE CA-REQUEST-ID` (the INSERT dispatch) is reached only after the first one (line 184), which has the same four WHEN values ('01AEND', '01AHOU', '01AMOT', '01ACOM') and answers every other request id with '99' and EXEC CICS RETURN. Between the two, nothing assigns CA-REQUEST-ID: the length check only reads EIBCALEN, and INSERT-POLICY moves only DB2-* host fields, EM-SQLREQ and CA-RETURN-CODE. So a task that reaches line 223 holds one of the four ids and its WHEN OTHER cannot run.",
-      "unit": "MAINLINE"
-     },
-     {
-      "family": "G",
-      "key": "WRITE-ERROR-MESSAGE:581:true",
-      "kind": "IF",
-      "line": 581,
-      "outcome": "true",
-      "reason": "`IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for a call whose COMMAREA is 1 to 90 bytes. WRITE-ERROR-MESSAGE has two kinds of caller: the no-COMMAREA arm (line 165, EIBCALEN 0, so the outer `IF EIBCALEN > 0` is false) and the failing-SQL arms, which run after `IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` (line 210) has passed. WS-REQUIRED-CA-LEN is 28 plus the request's full length (lgpolicy.cpy: endowment 124, house 130, motor 137, commercial 1174), so at least 152, and a call with EIBCALEN of 1 to 151 returns '98' before any SQL runs (the add-endowment-short scenario). EIBCALEN is therefore 0 or at least 152 on every path that PERFORMs WRITE-ERROR-MESSAGE.",
-      "unit": "WRITE-ERROR-MESSAGE"
-     }
-    ],
-    "paragraph_pct": 100.0,
-    "paragraphs": {
-     "covered": 7,
-     "live": 7
-    },
-    "source": "det-sweep coverage ledger (tests/equivalence/det_sweep_coverage/)",
-    "stale_inputs": [],
-    "stale_since": null,
-    "uncovered_branches": [],
-    "uncovered_paragraphs": "not recorded"
-   },
-   "equivalence": {
-    "cases": [
-     {
-      "case": "genapp-lgapdb01",
-      "case_scenarios": 8,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": {
-       "coverage": {
-        "branches": {
-         "covered": 28,
-         "total": 31
-        },
-        "paragraphs": {
-         "covered": 7,
-         "live": 7
-        },
-        "uncovered_branches": [
-         "line 223 EVALUATE OTHER (MAINLINE)",
-         "line 342 IF true (INSERT-ENDOW)",
-         "line 581 IF true (WRITE-ERROR-MESSAGE)"
-        ]
-       },
-       "db2": true,
-       "facade": {
-        "passed": 14,
-        "runs": 14
-       },
-       "fault_runs": 7,
-       "java_failed": false,
-       "option_differences": [
-        {
-         "applied": "data in the case's data_encoding (no CCSID page)",
-         "declared": "285",
-         "kind": "option",
-         "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
-         "option": "CODEPAGE"
-        },
-        {
-         "applied": "data in the case's data_encoding",
-         "declared": "285",
-         "kind": "option",
-         "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
-         "option": "db2.ccsid.EBCDIC_CCSID"
-        }
-       ],
-       "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
-       "oracle_matches_pin": true,
-       "records_compared": 85,
-       "records_equal": 85,
-       "runs": 14,
-       "scenarios": 14,
-       "scenarios_equal": 14,
-       "stale_inputs": [],
-       "status_at_build": "shown equal, unapproved",
-       "verdict": "all equal"
-      },
-      "role": "program"
-     },
-     {
-      "case": "genapp-lgapdb01-generated",
-      "case_scenarios": 6,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "program"
-     },
-     {
-      "case": "genapp-lgapol01",
-      "case_scenarios": 6,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgapol01-generated",
-      "case_scenarios": 6,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgtestp1",
-      "case_scenarios": 15,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgtestp2",
-      "case_scenarios": 15,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgtestp3",
-      "case_scenarios": 15,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     },
-     {
-      "case": "genapp-lgtestp4",
-      "case_scenarios": 16,
-      "db2": true,
-      "det": {
-       "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-       "state": "equal"
-      },
-      "record": null,
-      "role": "linked"
-     }
-    ],
-    "chosen": {
-     "case": "genapp-lgapdb01",
-     "case_scenarios": 8,
-     "db2": true,
-     "det": {
-      "source": "Db2 det sweep, as the det-sweep coverage ledger last recorded it (tests/equivalence/det_sweep_coverage/)",
-      "state": "equal"
-     },
-     "record": {
-      "coverage": {
-       "branches": {
-        "covered": 28,
-        "total": 31
-       },
-       "paragraphs": {
-        "covered": 7,
-        "live": 7
-       },
-       "uncovered_branches": [
-        "line 223 EVALUATE OTHER (MAINLINE)",
-        "line 342 IF true (INSERT-ENDOW)",
-        "line 581 IF true (WRITE-ERROR-MESSAGE)"
-       ]
-      },
-      "db2": true,
-      "facade": {
-       "passed": 14,
-       "runs": 14
-      },
-      "fault_runs": 7,
-      "java_failed": false,
-      "option_differences": [
-       {
-        "applied": "data in the case's data_encoding (no CCSID page)",
-        "declared": "285",
-        "kind": "option",
-        "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
-        "option": "CODEPAGE"
-       },
-       {
-        "applied": "data in the case's data_encoding",
-        "declared": "285",
-        "kind": "option",
-        "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
-        "option": "db2.ccsid.EBCDIC_CCSID"
-       }
-      ],
-      "oracle_image": "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
-      "oracle_matches_pin": true,
-      "records_compared": 85,
-      "records_equal": 85,
-      "runs": 14,
-      "scenarios": 14,
-      "scenarios_equal": 14,
-      "stale_inputs": [],
-      "status_at_build": "shown equal, unapproved",
-      "verdict": "all equal"
-     },
-     "role": "program"
-    }
-   },
-   "level": "L3",
-   "level_current": true,
-   "mutation": {
-    "current": false,
-    "det_port": "not measured (no det_mutation/ entry)",
-    "l5": false,
-    "score": null
-   },
-   "next": [
-    "branch coverage >= 100.0 net (now 90.3 raw, 96.6 net of the reviewed infeasible outcomes)"
-   ],
-   "options": {
-    "assumed": 5,
-    "compiler": {
-     "product": "Enterprise COBOL",
-     "version": "6.1"
-    },
-    "deviations": [],
-    "estate_file": true,
-    "found": 1,
-    "record_differences": [
-     {
-      "applied": "data in the case's data_encoding (no CCSID page)",
-      "declared": "285",
-      "note": "CODEPAGE(285): CODEPAGE(ccsid) sets the CCSID of compile-time and runtime character conversion (literals, collating, national <-> alphanumeric); the proof runs data in the case's data_encoding",
-      "option": "CODEPAGE"
-     },
-     {
-      "applied": "data in the case's data_encoding",
-      "declared": "285",
-      "note": "db2.ccsid.EBCDIC_CCSID=285: the Db2 subsystem's EBCDIC CCSID is the code page of character columns; the proof runs the case's data in its data_encoding",
-      "option": "db2.ccsid.EBCDIC_CCSID"
-     }
-    ],
-    "runtime": [
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.ABTERMENC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ABEND"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.STORAGE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NONE,NONE,NONE,0K"
-     },
-     {
-      "effect": "honoured",
-      "option": "le.runtime_options.TRAP",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ON,SPIE"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.CURRENTDATA",
-      "provenance": "found",
-      "source": "base/cntl/db2bind.jcl:16",
-      "value": "NO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.DYNAMICRULES",
-      "provenance": "found",
-      "source": "base/cntl/db2bind.jcl:19",
-      "value": "BIND"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.ISOLATION",
-      "provenance": "found",
-      "source": "base/cntl/db2bind.jcl:15",
-      "value": "CS"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.bind.VALIDATE",
-      "provenance": "found",
-      "source": "base/cntl/db2bind.jcl:26",
-      "value": "BIND"
-     },
-     {
-      "effect": "declared",
-      "option": "db2.ccsid.EBCDIC_CCSID",
-      "provenance": "found",
-      "source": "base/Installation.md:92",
-      "value": "285"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DATE",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DEC",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "15"
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.DECPT",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "."
-     },
-     {
-      "effect": "honoured",
-      "option": "db2.format.TIME",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ISO"
-     },
-     {
-      "effect": "no effect",
-      "option": "db2.precompile.coprocessor",
-      "provenance": "found",
-      "source": "base/src/lgacdb01.cbl:1",
-      "value": "integrated (SQL via the program's PROCESS SQL card)"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.region.DB2CONN",
-      "provenance": "found",
-      "source": "base/Building.md:58",
-      "value": "YES"
-     },
-     {
-      "effect": "honoured",
-      "option": "cics.region.LOCALCCSID",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "037"
-     },
-     {
-      "effect": "no effect",
-      "option": "cics.translator.options",
-      "provenance": "found",
-      "source": "base/cntl/cobol.jcl:48",
-      "value": "CICS via the compile OPTFILE"
-     }
-    ],
-    "values": [
-     {
-      "option": "ARITH",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "COMPAT"
-     },
-     {
-      "option": "INTDATE",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "ANSI"
-     },
-     {
-      "option": "NUMPROC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NOPFD"
-     },
-     {
-      "option": "TRUNC",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "STD"
-     },
-     {
-      "option": "CODEPAGE",
-      "origin": "estate options file",
-      "provenance": "found",
-      "source": "base/cntl/cobol.jcl:49",
-      "value": "285"
-     },
-     {
-      "option": "NSYMBOL",
-      "origin": "estate options file",
-      "provenance": "assumed",
-      "source": "assumed: IBM default",
-      "value": "NATIONAL"
-     }
-    ]
-   },
-   "oracle_backing": [
-    {
-     "backed": true,
-     "command": "ABEND",
-     "crucible_cases": [
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "ASKTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [],
-     "spec_entry": "full"
-    },
-    {
-     "backed": false,
-     "command": "FORMATTIME",
-     "crucible_cases": [],
-     "facts_stated": [],
-     "registers": [
-      "X46"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "LINK",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    },
-    {
-     "backed": true,
-     "command": "RETURN",
-     "crucible_cases": [
-      {
-       "case": "ca-channel-containers",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-link-lengths",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "ca-xctl-versions",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-assign-startcode",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-options",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-start-retrieve",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "gt-terminal-coalesce",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-abend-link",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-eoc-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-handle-aid",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-ignore-error",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-perform-range",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-eoc",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hc-terminal-receive",
-       "java_agrees": false,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-attr-bytes",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "hx-extended-cursor",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-aid-menu",
-       "java_agrees": true,
-       "stub_agrees": true
-      },
-      {
-       "case": "pc-wizard",
-       "java_agrees": true,
-       "stub_agrees": true
-      }
-     ],
-     "facts_stated": [],
-     "registers": [
-      "X27"
-     ],
-     "spec_entry": "full"
-    }
-   ],
-   "program": "base/src/lgapdb01.cbl",
-   "residual": {
-    "assumed_or_differs_named": [
-     "X27",
-     "X46"
-    ],
-    "branch_outcomes_unrun": 3,
-    "commands": 5,
-    "commands_backed": 3,
-    "commands_not_backed": [
-     "ASKTIME",
-     "FORMATTIME"
-    ],
-    "facts_unstated": 1,
-    "holes": 0,
-    "paragraphs_unrun": 0,
-    "refused": null
-   },
-   "stale_inputs": [],
-   "stale_since": null,
-   "survey_stale": false,
-   "translation": {
-    "gap_classes": [],
-    "hole_count": 0,
-    "holes": [],
-    "refused": null,
-    "source_defects": [],
-    "statements": 124,
-    "translated": 124,
-    "whole": true
-   }
-  },
-  {
-   "assumptions": {
-    "facts_stated": [],
     "facts_unstated": [],
     "named_by_commands": [
      {
@@ -21559,8 +21566,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
-   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
+   "python tests/tools/cics_census.py survey --baseline --sha 051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
+   "python tests/tools/evidence_report.py cics-genapp --baseline --sha 051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases genapp-lgacdb01,genapp-lgacdb01-generated,genapp-lgacdb02,genapp-lgacdb02-generated,genapp-lgacus01,genapp-lgacus01-generated,genapp-lgacvs01,genapp-lgapdb01,genapp-lgapdb01-generated,genapp-lgapol01,genapp-lgapol01-generated,genapp-lgapvs01,genapp-lgastat1,genapp-lgdpdb01,genapp-lgdpdb01-generated,genapp-lgdpol01,genapp-lgdpol01-generated,genapp-lgdpvs01,genapp-lgicdb01,genapp-lgicdb01-generated,genapp-lgicus01,genapp-lgicus01-generated,genapp-lgicvs01,genapp-lgicvs01-linked,genapp-lgipdb01,genapp-lgipdb01-generated,genapp-lgipol01,genapp-lgipol01-generated,genapp-lgipvs01,genapp-lgipvs01-linked,genapp-lgsetup,genapp-lgstsq,genapp-lgtestc1,genapp-lgtestp1,genapp-lgtestp2,genapp-lgtestp3,genapp-lgtestp4,genapp-lgucdb01,genapp-lgucdb01-generated,genapp-lgucus01,genapp-lgucus01-generated,genapp-lgucvs01,genapp-lgupdb01,genapp-lgupdb01-generated,genapp-lgupol01,genapp-lgupol01-generated,genapp-lgupvs01,genapp-lgwebst5  # Db2 cases (35) need the Db2 container",
    "python tests/tools/evidence.py prove genapp-lgapdb01 genapp-lgapvs01 genapp-lgicdb01 genapp-lgstsq genapp-lgupdb01 genapp-lgupvs01",
@@ -21577,21 +21584,22 @@
   },
   "oracle_base_image": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
   "oracle_images_of_records": [
-   "sha256:b1207b8af109ed2f544d0ec9ab2880cb8f1d05cabecbde75e6a23e515ca44594",
-   "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f"
+   "sha256:3d1d5e13c632545d0e1bc4d215c3fb8dd1d68d0ff8647b56880f1593353bc7dc",
+   "sha256:ea49b2f90e87e7e7f9696c7951331be9f090cbf0217741d2b7bdea7324461f7f",
+   "sha256:ec6700c84dabf72e2db919f1f6fc8a9b22a6b435527935374d970be021754989"
   ],
   "pin_manifest": "tests/crucible_pins.toml",
   "record_status_from": "evidence.py status at build time",
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
+   "sha": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
    "translator": {
     "files": 149,
     "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
    }
   },
-  "translator_commit": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
+  "translator_commit": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {
@@ -21601,8 +21609,8 @@
    "L0": 0,
    "L1": 1,
    "L2": 0,
-   "L3": 1,
-   "L4": 29,
+   "L3": 0,
+   "L4": 30,
    "L5": 0
   },
   "histogram_stale": {

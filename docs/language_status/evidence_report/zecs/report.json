@@ -951,13 +951,13 @@
    "genapp-lgapdb01": [
     7,
     7,
-    28,
+    29,
     31
    ],
    "genapp-lgapdb01-generated": [
     7,
     7,
-    23,
+    29,
     31
    ],
    "genapp-lgapol01": [
@@ -1627,7 +1627,7 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
+   "sha": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
    "translator": {
     "files": 149,
     "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
@@ -5098,8 +5098,8 @@
  ],
  "reproducibility": {
   "commands": [
-   "python tests/tools/cics_census.py survey --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
-   "python tests/tools/evidence_report.py zecs --baseline --sha 1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
+   "python tests/tools/cics_census.py survey --baseline --sha 051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
+   "python tests/tools/evidence_report.py zecs --baseline --sha 051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
    "python tests/tools/evidence_report.py --refresh",
    "python tests/tools/proof_sweep.py --det-only --work DIR --cases zecs-ecs001,zecs-zecs000,zecs-zecs001,zecs-zecs003,zecs-zecsplt",
    "python tests/tools/cics_crucible.py  # the hand-traced CICS cases, at the crucible pin"
@@ -5120,13 +5120,13 @@
   "survey": {
    "label": "before",
    "scope": "burned + local corpora (no census) + cics-crucible",
-   "sha": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
+   "sha": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
    "translator": {
     "files": 149,
     "sha256": "64effbe3408195c4352889c0c57b0d59b721746a1448bc6f984499d00280d2f1"
    }
   },
-  "translator_commit": "1d6f3cf38af5b208fd6bc7067434705b4713c1ce",
+  "translator_commit": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
   "translator_from": "translator fingerprint as stored with the survey"
  },
  "summary": {

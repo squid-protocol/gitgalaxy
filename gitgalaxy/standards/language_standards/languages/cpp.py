@@ -148,6 +148,8 @@ DEFINITION: dict[str, Any] = {
                 "co_await",
                 "co_yield",
                 "co_return",
+                "foreach",  # #6266: a Qt loop statement `foreach (T x, c)`, as Q_FOREACH
+                "Q_FOREACH",
             }
         ),
         # 1. branch (Control Flow / Branching)
@@ -250,8 +252,8 @@ DEFINITION: dict[str, Any] = {
             + r"]["
             + ID_CONTINUE
             + r"]*){0,5})?[ \t]*\{[ \t]*){0,3}"
-            # #6266: `case T(x):` before a block is a label, not a definition named `T`.
-            r"(?!(?:if|for|while|switch|catch|else|case|__except|__finally)\b)"
+            # #6266: `case T(x):` before a block is a label, not a definition named `T`; a Qt `foreach (..) {` is a loop.
+            r"(?!(?:if|for|while|switch|catch|else|case|__except|__finally|foreach|Q_FOREACH|forever)\b)"
             r"(?:template[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>[ \t\n]*)?"
             # 2. LINKAGE & STORAGE MODIFIERS (Now supports vertical formatting)
             r"(?:(?:static|inline|extern|virtual|_Noreturn|constexpr|consteval|constinit|__inline__|__forceinline)[ \t\n]+){0,5}"

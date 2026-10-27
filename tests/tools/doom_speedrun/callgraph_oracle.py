@@ -128,8 +128,8 @@ CLASS_DECL = re.compile(r"\b(?:class|struct)\s+(?:[A-Z_]+\s+)?([A-Za-z_]\w*)\s*[
 ALIASES = ""  # the key of `class_names` that holds the alias names (no class is named "")
 CPP_EXTS = frozenset(".h .hh .hpp .hxx .inl .cc .cpp .cxx".split())
 KEYWORDS = frozenset(
-    "if else while for do switch return sizeof alignof _Alignof defined case goto typeof decltype".split()
-)
+    "if else while for do switch return sizeof alignof _Alignof defined case goto typeof decltype foreach Q_FOREACH".split()
+)  # foreach / Q_FOREACH: Qt loop statements, which tree-sitter reads as a definition of that name
 
 
 def bare(name):

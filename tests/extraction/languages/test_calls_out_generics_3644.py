@@ -120,6 +120,14 @@ def test_a_qt_emit_statement_keeps_the_call_it_prefixes():
     assert "Foo" in calls and "v" not in calls
 
 
+@pytest.mark.parametrize("loop", ["foreach (int x, list)", "Q_FOREACH (int x, list)"])
+def test_a_qt_foreach_loop_is_no_unit_and_no_call(loop):
+    """#6266: the loop's body calls belong to the enclosing function, and `foreach` is no callee."""
+    funcs = _functions("cpp", "void A::f()\n{\n    " + loop + "\n    {\n        g(x);\n    }\n}\n")
+    assert list(funcs) == ["A::f"]
+    assert funcs["A::f"]["calls_out_to"] == ["g"]
+
+
 @pytest.mark.parametrize("text", ["f<(*)(", "g<a (*)(" + "x" * 300 + ")>(1)", "h<(" + "*" * 50 + ")>(1)"])
 def test_function_pointer_alternative_is_bounded(text):
     assert_redos_immune(CALLS_OUT_C_STYLE_GENERIC, text * 2000, timeout_sec=3.0)

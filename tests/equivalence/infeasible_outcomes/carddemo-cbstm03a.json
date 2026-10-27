@@ -4,6 +4,14 @@
   "entries": [
     {
       "unit": "0000-START",
+      "line": 287,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "`IF NOT NULL-UCB` after `PERFORM UNTIL END-OF-TIOT` (276) tests the last TIOT entry the loop reached before the terminator (the loop stops on the zero length byte, so TIOT-ENTRY still addresses the last real DD). Its false arm needs that entry to carry a zero UCB token. The case states its step in `mvs_step` (CREASTMT STEP040, the DDs in CREASTMT.JCL order), and the last DD is HTMLFILE:UCB: ggtiot.c (and DetMvs.java) lay a non-zero token at entry +17..19 for every :UCB DD, so the arm is not taken for this step. A step ending in a :NOUCB DD (as test_tiot_walk_5856.py does for a one-DD step) would take it, but that is a different job step than the one this case proves, so it is stated here, not a loosened proof."
+    },
+    {
+      "unit": "0000-START",
       "line": 298,
       "kind": "EVALUATE",
       "outcome": "OTHER",

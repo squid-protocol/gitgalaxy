@@ -396,6 +396,23 @@
     }
    ],
    "why": "#6271 (storm drain): the second FETCH (l.466) answers 923: CHECK-FOR-STORM-DRAIN-DB2 (l.500) takes WHEN 923, then fail code '3'"
+  },
+  {
+   "name": "open-attach-abends-ad2x",
+   "commarea": {
+    "NUMBER-OF-ACCOUNTS": "20",
+    "CUSTOMER-NUMBER": "1",
+    "COMM-PCB-POINTER": "NULL"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 246,
+     "sqlcode": -911,
+     "abend": "AD2X"
+    }
+   ],
+   "why": "#6271 (X73): OPEN ACC-CURSOR is issued and the CICS-Db2 attach's TCB fails (AD2X): the task abends AD2X, so ABEND-HANDLING takes its none arm (an abend code that is neither AD2Z nor a storm-drain AFC code) and ABENDs it afterwards"
   }
  ],
  "notes": "CBSA's inquire-accounts-for-customer service (INQACCCU, LINKed with the INQACCCU copybook's COMMAREA by BNK1CCA, CREACC and DELCUS). Its COMMAREA carries data after a POINTER (COMM-PCB-POINTER, then ACCOUNT-DETAILS OCCURS 1 TO 20 DEPENDING ON NUMBER-OF-ACCOUNTS): a POINTER is 4 bytes on z/OS and 8 under the oracle (oracle_assumptions.md C9), so each side's COMMAREA is read by its own layout and compared by name, the POINTER only as NULL. CUSTOMER-NUMBER zero or 9999999999 is not looked up; otherwise INQCUST is LINKed (run in the same task: READ FILE('CUSTOMER') by the program's own sort code, 987654) and, when it finds the customer, ACC-CURSOR is OPENed on the customer number and the program's own sort code (no ORDER BY: the order is Db2's, the same Db2 on both sides) and FETCHed into ACCOUNT-DETAILS until +100 or 20 accounts. A FETCH error (-305: a NULL date with no indicator) takes the program's failure path. The COMMAREA is compared whole (#4765): every account up to NUMBER-OF-ACCOUNTS, by name and subscript (COMM-ACC-TYPE(3)), each side's by its own count -- the det port's from the bytes it was LINKed with; ACCOUNT, CUSTOMER and ABNDFILE are compared after every scenario. Data: seed.sql and customer.txt are SYNTHETIC (customer.txt is cbsa-updcust's). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

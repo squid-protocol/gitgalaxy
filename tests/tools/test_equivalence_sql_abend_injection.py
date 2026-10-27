@@ -28,6 +28,23 @@ def test_an_ad2z_abend_is_planned_beside_its_sql_fault():
     assert ec.fault_lines(sc) == ["SQL DBCRFUN:391 1 -1 0 AD2Z"]
 
 
+@pytest.mark.parametrize("code", ["AD2R", "AD2X"])
+@pytest.mark.parametrize("sqlcode", [-911, -913, 100])
+def test_the_attach_task_abends_are_planned_on_any_sqlcode(code, sqlcode):
+    sc = _scenario(abend=code, sqlcode=sqlcode)
+    assert len(ec.sql_fault_plan(CASE, sc, TABLE)) == 1
+    assert ec.fault_lines(sc) == [f"SQL DBCRFUN:391 1 -1 0 {code}"]
+
+
+@pytest.mark.parametrize("code", ["AD2R", "AD2X"])
+def test_the_attach_task_abends_still_name_their_statement_by_line(code):
+    sc = {"name": "s", "sql_faults": [{"table": "ACCOUNT", "verb": "UPDATE", "sqlcode": -911, "abend": code}]}
+    with pytest.raises(ec.Unsupported):
+        ec.sql_fault_plan(CASE, sc, TABLE)
+    with pytest.raises(ec.Unsupported):
+        ec.sql_fault_plan(CASE, _scenario(abend=code, line=999), TABLE)
+
+
 def test_nth_follows_the_sql_fault():
     sc = _scenario(nth=2)
     assert ec.sql_fault_plan(CASE, sc, TABLE) == ["DBCRFUN 391 2 -911 40001"]
@@ -44,8 +61,9 @@ def test_a_plan_with_no_abend_adds_no_cics_line():
     "bad",
     [
         {"abend": "ASRA"},  # no source ties another code to a Db2 statement
+        {"abend": "AD2V"},
         {"abend": "ad2z"},
-        {"sqlcode": -913},  # only the deadlock's rollback path is sourced
+        {"sqlcode": -913},  # only the deadlock's rollback path is sourced for AD2Z
         {"sqlcode": 100},
         {"line": 999},  # names no statement
     ],
@@ -110,7 +128,10 @@ CURSOR_TABLE = (
 
 @pytest.mark.parametrize("line", [246, 466, 348])  # OPEN, FETCH, CLOSE: every cursor statement kind
 def test_an_ad2z_abend_is_planned_on_each_cursor_statement_kind(line):
-    sc = {"name": "s", "sql_faults": [{"program": "INQACCCU", "line": line, "nth": 2, "sqlcode": -911, "abend": "AD2Z"}]}
+    sc = {
+        "name": "s",
+        "sql_faults": [{"program": "INQACCCU", "line": line, "nth": 2, "sqlcode": -911, "abend": "AD2Z"}],
+    }
     case = {"program": "INQACCCU", "scenarios": []}
     assert ec.sql_fault_plan(case, sc, CURSOR_TABLE) == [f"INQACCCU {line} 2 -911 40001"]
     assert ec.fault_lines(sc) == [f"SQL INQACCCU:{line} 2 -1 0 AD2Z"]
@@ -129,5 +150,9 @@ def test_the_inqacccu_cases_abend_on_the_cursor_open_and_fetch(case_name):
     assert {n: f["line"] for n, f in planned.items()} == {
         "open-deadlock-abends-ad2z": 246,
         "fetch-deadlock-abends-ad2z": 466,
+        "open-attach-abends-ad2x": 246,
     }
-    assert all(f["sqlcode"] == -911 and f["abend"] == "AD2Z" and f["sqlerrmc"] for f in planned.values())
+    assert all(
+        f["sqlcode"] == -911 and f["abend"] == "AD2Z" and f["sqlerrmc"] for n, f in planned.items() if "ad2z" in n
+    )
+    assert planned["open-attach-abends-ad2x"]["abend"] == "AD2X"

@@ -333,6 +333,22 @@
      "resp2": 200
     }
    ]
+  },
+  {
+   "name": "open-attach-abends-ad2x",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "4"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACC",
+     "line": 270,
+     "sqlcode": -911,
+     "abend": "AD2X"
+    }
+   ],
+   "why": "#6271 (X73): OPEN ACC-CURSOR is issued and the CICS-Db2 attach's TCB fails (AD2X): the task abends AD2X, so ABEND-HANDLING takes its none arm (an abend code that is neither AD2Z nor a storm-drain AFC code) and ABENDs it afterwards"
   }
  ],
  "notes": "CBSA's inquire-account service (INQACC, LINKed by BNK1DAC / BNK1UAC with the INQACC copybook's COMMAREA). INQACC-ACCNO 99999999 reads the highest account of the program's own sort code (987654) with SELECT ... ORDER BY ACCOUNT_NUMBER DESC FETCH FIRST 1 ROW; any other number OPENs cursor ACC-CURSOR on the program's SORTCODE (not INQACC-SCODE) and INQACC-ACCNO, FETCHes once and CLOSEs. FETCH +100 initializes the output; any other non-zero SQLCODE (e.g. -305, a NULL date with no indicator) fills ABNDINFO from the clock and EIB, LINKs ABNDPROC (run in the same task: an ABNDFILE record) and ABENDs HRAC CANCEL. An ACCOUNT-TYPE of spaces or low-values gives INQACC-SUCCESS 'N', else the COMMAREA is filled (dates reformatted from Db2's ISO text to DDMMYYYY) and 'Y'. ACCOUNT has a unique index on (sort code, number), so the cursor never has more than one row. Both ACCOUNT and ABNDFILE are compared after every scenario. abndfile.bin is empty (the file starts with no records)."

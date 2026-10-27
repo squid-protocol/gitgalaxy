@@ -1,5 +1,5 @@
 {
- "commit": "b0dc76cfa",
+ "commit": "a810d4b54",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -139,7 +139,7 @@
   },
   "2": {
    "l2_plus": 69,
-   "l4_plus": 54,
+   "l4_plus": 56,
    "programs": 70
   },
   "3": {
@@ -149,7 +149,7 @@
   },
   "4": {
    "l2_plus": 19,
-   "l4_plus": 16,
+   "l4_plus": 15,
    "programs": 21
   },
   "none": {
@@ -160,7 +160,7 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-27T09:34:05Z",
+  "as_of": "2026-10-27T10:16:17Z",
   "core": {
    "closed": 184,
    "open": 17,
@@ -464,15 +464,15 @@
    "cics-banking-sample-application-cbsa": {
     "l2_plus": 31,
     "l2_plus_pct": 100.0,
-    "l4_plus": 19,
-    "l4_plus_pct": 61.3,
+    "l4_plus": 21,
+    "l4_plus_pct": 67.7,
     "l5": 0,
     "levels": {
      "L0": 0,
      "L1": 0,
-     "L2": 1,
-     "L3": 11,
-     "L4": 19,
+     "L2": 0,
+     "L3": 10,
+     "L4": 21,
      "L5": 0
     },
     "programs": 31,
@@ -515,15 +515,15 @@
    "zecs": {
     "l2_plus": 5,
     "l2_plus_pct": 71.4,
-    "l4_plus": 3,
-    "l4_plus_pct": 42.9,
+    "l4_plus": 2,
+    "l4_plus_pct": 28.6,
     "l5": 0,
     "levels": {
      "L0": 2,
      "L1": 0,
      "L2": 1,
-     "L3": 1,
-     "L4": 3,
+     "L3": 2,
+     "L4": 2,
      "L5": 0
     },
     "programs": 7,
@@ -533,15 +533,15 @@
   "total": {
    "l2_plus": 120,
    "l2_plus_pct": 93.0,
-   "l4_plus": 96,
-   "l4_plus_pct": 74.4,
+   "l4_plus": 97,
+   "l4_plus_pct": 75.2,
    "l5": 0,
    "levels": {
     "L0": 6,
     "L1": 3,
-    "L2": 3,
+    "L2": 2,
     "L3": 21,
-    "L4": 96,
+    "L4": 97,
     "L5": 0
    },
    "programs": 129,

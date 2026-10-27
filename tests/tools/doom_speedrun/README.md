@@ -134,6 +134,13 @@ Blind spots of this oracle:
   initializer counts, a shell or Tcl command word naming a function the port defines is a call (a Lua call is an ordinary call; the three were added for #5640's shapes, measured at 0 misses on edge-classic, sqldoom and odamex), a Kotlin trailing-lambda-only call of a stdlib scope function (`run`, `map`, ...) is no call, and a Dart/Scheme/... port is `n/a`. Crystal is not covered: its grammar swallows ~46% of doo-cr's functions in ERROR nodes. It has no baseline file and no `LICENSED` gate (it
   reads only the scan DB and clone the scorer already has); a mixed port in `LICENSED` (a C port with a Python tool)
   is scored by the C/C++ oracle only.
+- **`doom_clang_calls.py` is a second, compiler-resolved reference for check 7 (C ports, #5630 step 4), reported, never
+  scored.** It runs `tests/tools/clang_callgraph.py` (libclang, preprocessor first) on a clone and compares its edges
+  with `calls_out_to` by (file, caller). The ports have no build, so nearly every file hits a fatal include error
+  (`config.h`, `SDL.h`): clang then guesses types and can lose a call to a function of the same file, so the output
+  counts `disagreements_in_clean_files` apart and most of the delta is that artefact. What survives is a lead, e.g. a
+  call made only through a function-like macro (`FTOM(x)` expanding to `FixedMul(...)`, am_map.c in chocolate-doom
+  and puredoom): the compiler sees it, the engine does not.
 - **Pinned SHAs are the ports' HEAD at study time** (2026-10-18); a force-pushed upstream makes `fetch` fail loudly.
 - **Round 2's CSV was produced at engine `585c243e9`**; the current engine will differ, which is the point.
 - **`#ifdef`/`#else` alternate definitions are both counted.** A static scan cannot know the build configuration, so both branches are real source (owner ruling nyx-o9, 2026-10-21, #5462).

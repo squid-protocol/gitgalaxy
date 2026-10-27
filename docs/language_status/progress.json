@@ -1,5 +1,5 @@
 {
- "commit": "5a0e49753",
+ "commit": "d9decba42",
  "components": {
   "cics": {
    "burned_commands": 68,
@@ -160,21 +160,21 @@
  },
  "format": "gitgalaxy-progress/1",
  "issues": {
-  "as_of": "2026-10-26T23:42:43Z",
+  "as_of": "2026-10-27T00:04:59Z",
   "core": {
-   "closed": 177,
-   "open": 23,
+   "closed": 183,
+   "open": 17,
    "total": 200
   },
   "core_last_window": {
-   "closed": 35,
-   "net_closed": 15,
+   "closed": 41,
+   "net_closed": 21,
    "opened": 20
   },
   "core_milestone": {
-   "closed": 97,
+   "closed": 98,
    "number": 28,
-   "open": 6,
+   "open": 5,
    "total": 103
   },
   "epics": {
@@ -184,11 +184,11 @@
    "4893": "open",
    "4894": "open"
   },
-  "eta": "11 days",
+  "eta": "6 days",
   "frontier": {
-   "closed": 111,
+   "closed": 112,
    "found_last_window": 9,
-   "open": 87,
+   "open": 86,
    "total": 198
   },
   "frontier_milestone": {
@@ -198,8 +198,8 @@
    "total": 48
   },
   "infra": {
-   "closed": 218,
-   "open": 38,
+   "closed": 224,
+   "open": 32,
    "total": 256
   },
   "measured": true,
@@ -268,9 +268,9 @@
     "total": 206
    },
    {
-    "closed": 43,
+    "closed": 45,
     "number": 12,
-    "open": 4,
+    "open": 2,
     "title": "Yes, but can it go faster...?",
     "total": 47
    },
@@ -282,9 +282,9 @@
     "total": 57
    },
    {
-    "closed": 83,
+    "closed": 84,
     "number": 14,
-    "open": 9,
+    "open": 8,
     "title": "Compiler call-graph comparison",
     "total": 92
    },
@@ -380,9 +380,9 @@
     "total": 22
    },
    {
-    "closed": 258,
+    "closed": 259,
     "number": 28,
-    "open": 7,
+    "open": 6,
     "title": "Training Montage \ud83c\udfcb\ufe0f \u2014 Prepping to one-shot our 4th CICS to Java translation attempt",
     "total": 265
    },
@@ -401,9 +401,9 @@
     "total": 48
    },
    {
-    "closed": 36,
+    "closed": 41,
     "number": 31,
-    "open": 9,
+    "open": 4,
     "title": "DOOM Port Speedrun",
     "total": 45
    }

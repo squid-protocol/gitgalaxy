@@ -534,3 +534,10 @@ def test_text_fallback_names_an_explicit_destructor_call_by_its_unit():
     body = co.TextBody(b"void f() { p->~Node(); q.~Item (); a = ~g(a); }", 1)
     assert {"~Node", "~Item", "g"} <= set(body.calls)
     assert "Node" not in body.calls and "Item" not in body.calls
+
+
+def test_text_fallback_names_a_template_destructor_call_by_its_unit():
+    # gzdoom `p->~TArray<FString>()`: template arguments sit between the unit name and its `(`
+    body = co.TextBody(b"void f() { p->~TArray<FString>(); q.~Map<int, TArray<int>> (); a = b < c; }", 1)
+    assert {"~TArray", "~Map"} <= set(body.calls)
+    assert "TArray" not in body.calls and "Map" not in body.calls

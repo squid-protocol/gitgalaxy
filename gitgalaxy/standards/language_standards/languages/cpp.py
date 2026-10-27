@@ -326,6 +326,8 @@ DEFINITION: dict[str, Any] = {
             r"(?!DE_(?:FOR_(?:EACH|OBSERVERS)|NOTIFY)(?![" + ID_CONTINUE + r"]*[a-z]))"
             # #5630: gzdoom's scripting-call macros open a block like `if` (`IFVIRTUALPTRNAME(act, "Cls", Fn)\n{ VMCall(..); }`).
             r"(?!IF(?:VM|(?:OVERRIDEN)?VIRTUAL(?:PTR)?(?:NAME)?)(?![" + ID_CONTINUE + r"]))"
+            # #5630: moodycamel's `MOODYCAMEL_CONSTEXPR_IF (c) {..}` (`if constexpr`) and `MOODYCAMEL_CATCH(...) {..}` open a block.
+            r"(?!MOODYCAMEL_(?:CONSTEXPR_IF|CATCH)(?![" + ID_CONTINUE + r"]))"
             # 6. THE IDENTIFIER CAPTURE (FUNCTION IDENTIFIER - GROUP 1)
             # [IRON WALL]: Ensures the actual function/operator name isn't hijacked by a macro definition.
             # OUT-OF-LINE OPERATOR FIX (epic #813/#821): the operator alternatives had no

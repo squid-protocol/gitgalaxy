@@ -34,3 +34,17 @@ def test_a_vm_call_macro_is_not_a_function_and_its_body_stays_in_the_caller(stmt
 def test_a_function_named_like_a_vm_call_macro_prefix_is_still_a_function():
     functions = _functions("void IFVMx(int x)\n{\n    go(x);\n}\nvoid IFVIRTUALS(int x)\n{\n    go(x);\n}\n")
     assert {"IFVMx", "IFVIRTUALS"} <= set(functions)
+
+
+@pytest.mark.parametrize(
+    "stmt",
+    [
+        "MOODYCAMEL_CONSTEXPR_IF (N != 0) {\n        hit(1);\n    }",
+        "MOODYCAMEL_CONSTEXPR_IF (N == 0) return hit(1);",
+        "MOODYCAMEL_TRY {\n        a();\n    } MOODYCAMEL_CATCH (...) {\n        hit(1);\n    }",
+    ],
+)
+def test_a_moodycamel_if_macro_is_not_a_function_and_its_body_stays_in_the_caller(stmt):
+    functions = _functions(f"bool run(int x)\n{{\n    {stmt}\n    return false;\n}}\n")
+    assert list(functions) == ["run"]
+    assert "hit" in functions["run"]["calls_out_to"]

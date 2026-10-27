@@ -56846,6 +56846,7 @@
           "set_debug_collisions_color",
           "set_debug_collision_contact_color",
           "check_changed_settings_in_group",
+          "bool",
           "get_instance",
           "push_back",
           "erase",
@@ -57141,6 +57142,7 @@
         ],
         "EditorNode::adjust_scene_name_casing@3949": [
           "GLOBAL_GET",
+          "int",
           "to_pascal_case",
           "to_snake_case",
           "to_kebab_case",
@@ -58605,6 +58607,7 @@
           "is_valid",
           "is_empty",
           "StringName",
+          "String",
           "_err_print_error",
           "utf8",
           "get_data",
@@ -58682,7 +58685,6 @@
           "get",
           "getter",
           "set_named",
-          "String",
           "get_named",
           "set_property",
           "get_property",
@@ -58721,6 +58723,7 @@
           "is_valid",
           "debug_get_script_name",
           "StringName",
+          "String",
           "get_type_name"
         ],
         "_get_var_type@62": [
@@ -58939,6 +58942,7 @@
           "clear",
           "String",
           "parse_tag_assign_eof",
+          "int",
           "get_environment",
           "is_self_contained",
           "get_resource_path",
@@ -58965,6 +58969,7 @@
           "get_create_function_name",
           "GLOBAL_DEF_BASIC",
           "set_early_window_clear_color_override",
+          "int64_t",
           "WARN_VERBOSE",
           "vformat",
           "set_mode",
@@ -59421,6 +59426,7 @@
           "set_default_canvas_item_texture_repeat",
           "DefaultCanvasItemTextureRepeat",
           "EDITOR_GET",
+          "int",
           "replace_char",
           "size",
           "is_using_datapack",
@@ -59601,8 +59607,8 @@
         "Node::_acquire_unique_name_in_owner@2233": [
           "ERR_FAIL_NULL",
           "StringName",
-          "getptr",
           "String",
+          "getptr",
           "is_inside_tree",
           "get_path",
           "get_path_to",
@@ -59824,7 +59830,8 @@
           "push_back"
         ],
         "Node::_get_name_num_separator@4070": [
-          "GLOBAL_GET"
+          "GLOBAL_GET",
+          "int"
         ],
         "Node::_get_node_and_resource@3295": [
           "get_node_and_resource",
@@ -60010,6 +60017,7 @@
         "Node::_release_unique_name_in_owner@2223": [
           "ERR_FAIL_NULL",
           "StringName",
+          "String",
           "getptr",
           "erase"
         ],
@@ -60043,11 +60051,13 @@
         ],
         "Node::_rpc_bind@825": [
           "is_string",
+          "StringName",
           "rpcp"
         ],
         "Node::_rpc_id_bind@846": [
           "get_type",
           "is_string",
+          "StringName",
           "rpcp"
         ],
         "Node::_set_name_nocheck@1437": [],
@@ -60082,11 +60092,11 @@
           "ref",
           "get",
           "get_class_name",
+          "String",
           "ptr",
           "length",
           "num_characters",
-          "alloca",
-          "String"
+          "alloca"
         ],
         "Node::_validate_property@3605": [],
         "Node::add_child@1710": [
@@ -60124,6 +60134,7 @@
         ],
         "Node::adjust_name_casing@1512": [
           "GLOBAL_GET",
+          "int",
           "to_pascal_case",
           "to_camel_case",
           "to_snake_case",
@@ -60203,6 +60214,7 @@
           "_update_children_cache",
           "ptr",
           "size",
+          "String",
           "match"
         ],
         "Node::find_children@2017": [
@@ -60213,6 +60225,7 @@
           "_update_children_cache",
           "ptr",
           "size",
+          "String",
           "match",
           "is_class",
           "append",
@@ -60232,6 +60245,7 @@
         ],
         "Node::find_parent@2103": [
           "ERR_THREAD_GUARD_V",
+          "String",
           "match"
         ],
         "Node::get_accessibility_configuration_warnings@3511": [
@@ -60261,6 +60275,7 @@
           "get_singleton",
           "get_global_groups_list",
           "push_back",
+          "String",
           "quote",
           "get_argument_options"
         ],
@@ -61544,6 +61559,7 @@
           "is_class",
           "get_class_static",
           "get_type",
+          "String",
           "cast_to"
         ],
         "Object::get_script@995": [
@@ -61686,6 +61702,7 @@
           "CoreStringName",
           "set_script",
           "getptr",
+          "String",
           "begins_with",
           "set_meta",
           "replace_first",
@@ -61724,6 +61741,7 @@
           "notify_property_list_changed",
           "find",
           "ERR_FAIL_COND_MSG",
+          "String",
           "is_valid_ascii_identifier",
           "vformat",
           "insert"
@@ -62943,6 +62961,17 @@
         "_convert_array_from_variant@2087": [
           "get_type",
           "_convert_array",
+          "Array",
+          "PackedByteArray",
+          "PackedInt32Array",
+          "PackedInt64Array",
+          "PackedFloat32Array",
+          "PackedFloat64Array",
+          "PackedStringArray",
+          "PackedVector2Array",
+          "PackedVector3Array",
+          "PackedColorArray",
+          "PackedVector4Array",
           "DA"
         ],
         "_init_type_name_map@174": [

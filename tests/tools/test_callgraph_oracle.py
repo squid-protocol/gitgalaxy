@@ -720,3 +720,76 @@ def test_a_macro_class_the_node_runs_past_is_read_by_its_braces_whatever_methods
     repo, scan = make_port(tmp_path, "doomsday", {"m.cpp": NOREF_CLASS_SRC}, funcs)
     r = co.body_oracle(co.Port("doomsday", repo, co.load_port(repo, co.find_db(scan))))
     assert (r["recall"], r["precision"], r["misses_by_shape"]) == (1.0, 1.0, {})
+
+
+MACRO_IN_FUNCTION_SRC = """void helper(void);
+void slope(void);
+static void render(int n)
+{
+	int i;
+#define SETUP(v) {\\
+	slope();\\
+	v = 1;\\
+}
+
+	for (i = 0; i < n; i++)
+		SETUP(i);
+	helper();
+}
+"""
+FUSED_HEAD_SRC = """void helper(void);
+void checked(int);
+static int draw(int x)
+{
+	int y = 1;
+
+	HUDONLY
+
+	checked(x);
+	if (x)
+		helper();
+	return 0;
+}
+"""
+
+
+@pytest.mark.parametrize(
+    ("src", "start", "closes", "body_row", "want"),
+    [
+        # srb2 HWR_RenderPlane (#6266): the macro's own `}` (line 9) ended the tree-sitter node; the macro body is no call
+        (MACRO_IN_FUNCTION_SRC, 3, 9, 3, {"helper"}),
+        # srb2 libd_drawString: `HUDONLY\n f(x);` fused into the head, so the node's body is a later brace block
+        (FUSED_HEAD_SRC, 4, 14, 11, {"checked", "helper"}),
+    ],
+)
+def test_a_node_tree_sitter_closed_inside_a_macro_or_fused_into_the_head_takes_the_brace_body(
+    tmp_path, monkeypatch, src, start, closes, body_row, want
+):
+    from types import SimpleNamespace
+
+    fake = SimpleNamespace(
+        end_point=(closes - 1, 1),
+        child_by_field_name=lambda _name: SimpleNamespace(start_point=(body_row, 0)),
+    )
+    stub = SimpleNamespace(broken=False, calls={}, nested=[])
+    monkeypatch.setattr(co, "definition_at", lambda nodes, line: fake if line == start else None)
+    monkeypatch.setattr(co, "Body", lambda node, classes=None: stub)
+    name = "render" if start == 3 else "draw"
+    funcs = [("m.c", "helper", 1, []), ("m.c", "slope", 2, []), ("m.c", name, start, sorted(want))]
+    repo, scan = make_port(tmp_path, "linuxdoom", {"m.c": src}, funcs)
+    port = co.Port("linuxdoom", repo, co.load_port(repo, co.find_db(scan)))
+    body = next(f for f in port.functions if f[1] == name)[4]
+    assert isinstance(body, co.TextBody)
+    assert set(body.calls) & {"helper", "slope", "checked"} == want
+
+
+def test_a_default_argument_brace_in_the_head_is_not_a_swallowed_statement():
+    assert co._head_has_statement("void f(int a)\n{\n int x;\n  HUDONLY\n")
+    assert not co._head_has_statement("void f(cond_t c = {}, cond_t d = {1, 2}, bool b = false)\n")
+    assert not co._head_has_statement("void f(void)\n")
+
+
+def test_a_macro_defined_in_a_function_is_not_that_functions_calls():
+    body = co.TextBody(MACRO_IN_FUNCTION_SRC.encode(), 3, {})
+    assert "slope" not in body.calls and "helper" in body.calls
+    assert len(body.preproc) == 1 and body.preproc[0].startswith("#define SETUP")

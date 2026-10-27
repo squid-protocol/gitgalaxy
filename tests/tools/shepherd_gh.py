@@ -1006,6 +1006,8 @@ def main(
                 n, api, run, None, args.dry_run, on_main=on_main, flaky=flaky, main=main_state, graphql=graphql,
                 prefetched=prefetched,
             )  # fmt: skip
+    if os.environ.get(API_CACHE_ENV):
+        pr_check.prune_api_store(Path(os.environ[API_CACHE_ENV]))  # #6534: the saved store stays small
     for line in lines:
         print(line)
     return 1 if any("FAILED" in x for x in lines) else 0

@@ -75,6 +75,16 @@ Both shepherd workflows restore the file from the Actions cache (`flake-history-
 `shepherd-reconcile.yml` also runs `flake_history.py --refresh-only` when it is over 6 hours old (best effort, 12 minute cap)
 and saves the cache even when the pass failed (#5398).
 
+## Shepherd conditional reads across passes (#6534)
+
+With `SHEPHERD_API_CACHE=<dir>` set, `shepherd_gh.py` reads through `pr_check.conditional_api`: each GET sends the kept
+ETag as `If-None-Match`, and a 304 (no REST quota) returns the body kept in `<dir>`. Entries are written atomically
+(temp file, rename), a corrupt or etag-less entry is a plain read, and every pass ends with `pr_check.prune_api_store`
+(entries older than 7 days, and beyond 2000, are dropped). Unset, reads are plain. The directory is meant to be
+restored and saved by `actions/cache` between passes; that wiring lives in `shepherd-*.yml` (owner OK per PR) and is not
+applied yet. A `workflow_run` pass has a read-only cache token (see `shepherd-reconcile.yml`), so it can restore but
+not save: the save has to come from a workflow that may write the cache.
+
 ## Fallback
 
 The box shepherd (`tests/tools/box/ci_shepherd.py`) is retired as the live shepherd (#5398) but still works from a

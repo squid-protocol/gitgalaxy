@@ -2028,15 +2028,17 @@ def _ctor_init_span(text: str) -> tuple[int, int] | None:
     """The `(start, end)` of a constructor's colon-initializer list in a unit's text, else None.
 
     The list is the text after a lone `:` that follows the parameter list's `)` and precedes the body's first `{`
-    (a brace-initialised member ends the span early, so entries after it keep today's behaviour).
+    outside parentheses (a brace-initialised member ends the span early, so entries after it keep today's behaviour).
     """
-    end = text.find("{")
-    head = text if end < 0 else text[:end]
+    head = text
     depth = 0
     closed = False
     i = 0
     while i < len(head):
         ch = head[i]
+        if ch == "{" and depth == 0:
+            head = head[:i]  # the body; a `{` inside the parameter list (`= {}` default) is not it
+            break
         if ch == "(":
             depth += 1
         elif ch == ")":

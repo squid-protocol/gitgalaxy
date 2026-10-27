@@ -1678,10 +1678,18 @@ def resolve_calls(
                     free_step, free_dst = _ladder(bucket.free, caller, False, cache)
                     if free_dst is not None:
                         step, dst = free_step, free_dst
-                if (
+                not_a_base = (
                     init_only
-                    and not (bucket is not None and any(d.kind == "class" for d in bucket.defs))
-                    and (dst is None or (dst.kind != "class" and dst.owner_key != _key(str(callee), lang)))
+                    and bool(lineage)
+                    and (group, lineage[0]) in parents
+                    and _key(str(callee), lang) not in lineage
+                )  # a data member named like a class (`Node(node)`) is no base-class call
+                if init_only and (
+                    not_a_base
+                    or (
+                        not (bucket is not None and any(d.kind == "class" for d in bucket.defs))
+                        and (dst is None or (dst.kind != "class" and dst.owner_key != _key(str(callee), lang)))
+                    )
                 ):
                     recursive.append(callee)  # a data member `: type(t)`, not a call, whatever function shares its name
                     continue

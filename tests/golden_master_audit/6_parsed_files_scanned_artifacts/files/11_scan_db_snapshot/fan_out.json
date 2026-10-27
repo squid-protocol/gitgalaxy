@@ -19411,7 +19411,7 @@
       },
       "cpp/godot/object.cpp": {
         "Object::Connection::Connection@144": 0,
-        "Object::Connection::operator Variant@108": 1,
+        "Object::Connection::operator Variant@108": 0,
         "Object::Connection::operator<@136": 0,
         "Object::Object@2296": 1,
         "Object::Object@2300": 1,

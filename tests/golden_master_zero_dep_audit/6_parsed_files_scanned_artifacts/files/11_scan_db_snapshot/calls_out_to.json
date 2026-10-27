@@ -56846,7 +56846,6 @@
           "set_debug_collisions_color",
           "set_debug_collision_contact_color",
           "check_changed_settings_in_group",
-          "bool",
           "get_instance",
           "push_back",
           "erase",
@@ -57142,7 +57141,6 @@
         ],
         "EditorNode::adjust_scene_name_casing@3949": [
           "GLOBAL_GET",
-          "int",
           "to_pascal_case",
           "to_snake_case",
           "to_kebab_case",
@@ -58607,7 +58605,6 @@
           "is_valid",
           "is_empty",
           "StringName",
-          "String",
           "_err_print_error",
           "utf8",
           "get_data",
@@ -58685,6 +58682,7 @@
           "get",
           "getter",
           "set_named",
+          "String",
           "get_named",
           "set_property",
           "get_property",
@@ -58723,7 +58721,6 @@
           "is_valid",
           "debug_get_script_name",
           "StringName",
-          "String",
           "get_type_name"
         ],
         "_get_var_type@62": [
@@ -58942,7 +58939,6 @@
           "clear",
           "String",
           "parse_tag_assign_eof",
-          "int",
           "get_environment",
           "is_self_contained",
           "get_resource_path",
@@ -58969,7 +58965,6 @@
           "get_create_function_name",
           "GLOBAL_DEF_BASIC",
           "set_early_window_clear_color_override",
-          "int64_t",
           "WARN_VERBOSE",
           "vformat",
           "set_mode",
@@ -59426,7 +59421,6 @@
           "set_default_canvas_item_texture_repeat",
           "DefaultCanvasItemTextureRepeat",
           "EDITOR_GET",
-          "int",
           "replace_char",
           "size",
           "is_using_datapack",
@@ -59607,8 +59601,8 @@
         "Node::_acquire_unique_name_in_owner@2233": [
           "ERR_FAIL_NULL",
           "StringName",
-          "String",
           "getptr",
+          "String",
           "is_inside_tree",
           "get_path",
           "get_path_to",
@@ -59830,8 +59824,7 @@
           "push_back"
         ],
         "Node::_get_name_num_separator@4070": [
-          "GLOBAL_GET",
-          "int"
+          "GLOBAL_GET"
         ],
         "Node::_get_node_and_resource@3295": [
           "get_node_and_resource",
@@ -60017,7 +60010,6 @@
         "Node::_release_unique_name_in_owner@2223": [
           "ERR_FAIL_NULL",
           "StringName",
-          "String",
           "getptr",
           "erase"
         ],
@@ -60051,13 +60043,11 @@
         ],
         "Node::_rpc_bind@825": [
           "is_string",
-          "StringName",
           "rpcp"
         ],
         "Node::_rpc_id_bind@846": [
           "get_type",
           "is_string",
-          "StringName",
           "rpcp"
         ],
         "Node::_set_name_nocheck@1437": [],
@@ -60092,11 +60082,11 @@
           "ref",
           "get",
           "get_class_name",
-          "String",
           "ptr",
           "length",
           "num_characters",
-          "alloca"
+          "alloca",
+          "String"
         ],
         "Node::_validate_property@3605": [],
         "Node::add_child@1710": [
@@ -60134,7 +60124,6 @@
         ],
         "Node::adjust_name_casing@1512": [
           "GLOBAL_GET",
-          "int",
           "to_pascal_case",
           "to_camel_case",
           "to_snake_case",
@@ -60214,7 +60203,6 @@
           "_update_children_cache",
           "ptr",
           "size",
-          "String",
           "match"
         ],
         "Node::find_children@2017": [
@@ -60225,7 +60213,6 @@
           "_update_children_cache",
           "ptr",
           "size",
-          "String",
           "match",
           "is_class",
           "append",
@@ -60245,7 +60232,6 @@
         ],
         "Node::find_parent@2103": [
           "ERR_THREAD_GUARD_V",
-          "String",
           "match"
         ],
         "Node::get_accessibility_configuration_warnings@3511": [
@@ -60275,7 +60261,6 @@
           "get_singleton",
           "get_global_groups_list",
           "push_back",
-          "String",
           "quote",
           "get_argument_options"
         ],
@@ -61117,9 +61102,7 @@
         "Object::Connection::Connection@144": [
           "has"
         ],
-        "Object::Connection::operator Variant@108": [
-          "Variant"
-        ],
+        "Object::Connection::operator Variant@108": [],
         "Object::Connection::operator<@136": [],
         "Object::Object@2296": [
           "_construct_object"
@@ -61561,7 +61544,6 @@
           "is_class",
           "get_class_static",
           "get_type",
-          "String",
           "cast_to"
         ],
         "Object::get_script@995": [
@@ -61704,7 +61686,6 @@
           "CoreStringName",
           "set_script",
           "getptr",
-          "String",
           "begins_with",
           "set_meta",
           "replace_first",
@@ -61743,7 +61724,6 @@
           "notify_property_list_changed",
           "find",
           "ERR_FAIL_COND_MSG",
-          "String",
           "is_valid_ascii_identifier",
           "vformat",
           "insert"
@@ -62627,48 +62607,40 @@
           "get_type"
         ],
         "Variant::operator Array@2129": [
-          "Array",
           "reinterpret_cast",
           "_convert_array_from_variant"
         ],
         "Variant::operator Basis@1890": [
-          "Basis",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "Basis"
         ],
         "Variant::operator Callable@2059": [
-          "Callable",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "Callable"
         ],
         "Variant::operator Color@1980": [
-          "Color",
           "reinterpret_cast",
-          "String",
-          "hex",
-          "int"
+          "Color",
+          "hex"
         ],
         "Variant::operator Dictionary@2051": [
-          "Dictionary",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "Dictionary"
         ],
         "Variant::operator IPAddress@2294": [
-          "IPAddress",
-          "Vector",
           "size",
-          "get",
-          "String"
+          "IPAddress",
+          "get"
         ],
         "Variant::operator Math::int_alt_t@1493": [
-          "int_alt_t",
           "_to_int"
         ],
         "Variant::operator Math::uint_alt_t@1513": [
-          "uint_alt_t",
           "_to_int"
         ],
         "Variant::operator NodePath@1992": [
-          "NodePath",
           "reinterpret_cast",
-          "String"
+          "NodePath"
         ],
         "Variant::operator Object *@2024": [
           "_get_obj"
@@ -62678,89 +62650,78 @@
           "_get_obj"
         ],
         "Variant::operator PackedByteArray@2137": [
-          "PackedByteArray",
           "static_cast",
           "_convert_array_from_variant"
         ],
         "Variant::operator PackedColorArray@2201": [
-          "PackedColorArray",
           "static_cast",
           "_convert_array_from_variant"
         ],
         "Variant::operator PackedFloat32Array@2161": [
-          "PackedFloat32Array",
           "static_cast",
           "_convert_array_from_variant"
         ],
         "Variant::operator PackedFloat64Array@2169": [
-          "PackedFloat64Array",
           "static_cast",
           "_convert_array_from_variant"
         ],
         "Variant::operator PackedInt32Array@2145": [
-          "PackedInt32Array",
           "static_cast",
           "_convert_array_from_variant"
         ],
         "Variant::operator PackedInt64Array@2153": [
-          "PackedInt64Array",
           "static_cast",
           "_convert_array_from_variant"
         ],
         "Variant::operator PackedStringArray@2177": [
-          "PackedStringArray",
           "static_cast",
           "_convert_array_from_variant"
         ],
         "Variant::operator PackedVector2Array@2185": [
-          "PackedVector2Array",
           "static_cast",
           "_convert_array_from_variant"
         ],
         "Variant::operator PackedVector3Array@2193": [
-          "PackedVector3Array",
           "static_cast",
           "_convert_array_from_variant"
         ],
         "Variant::operator PackedVector4Array@2209": [
-          "PackedVector4Array",
           "static_cast",
           "_convert_array_from_variant"
         ],
         "Variant::operator Plane@1874": [
-          "Plane",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "Plane"
         ],
         "Variant::operator Projection@1938": [
-          "Projection",
           "Transform3D",
           "Vector3",
           "Basis",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "Projection"
         ],
         "Variant::operator Quaternion@1902": [
-          "Quaternion",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "Quaternion"
         ],
         "Variant::operator Rect2@1781": [
-          "Rect2",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "Rect2"
         ],
         "Variant::operator Rect2i@1791": [
-          "Rect2i",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "Rect2i"
         ],
         "Variant::operator Signal@2067": [
-          "Signal",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "Signal"
         ],
         "Variant::operator String@1558": [
-          "String",
           "stringify"
         ],
         "Variant::operator StringName@1539": [
-          "StringName",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "StringName"
         ],
         "Variant::operator Transform2D@1962": [
           "Transform2D"
@@ -62772,106 +62733,83 @@
           "reinterpret_cast"
         ],
         "Variant::operator Vector2@1745": [
-          "Vector2",
-          "reinterpret_cast"
-        ],
-        "Variant::operator Vector2i@1763": [
-          "Vector2i",
           "reinterpret_cast",
           "Vector2"
         ],
+        "Variant::operator Vector2i@1763": [
+          "reinterpret_cast",
+          "Vector2",
+          "Vector2i"
+        ],
         "Variant::operator Vector3@1801": [
-          "Vector3",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "Vector3"
         ],
         "Variant::operator Vector3i@1819": [
-          "Vector3i",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "Vector3i"
         ],
         "Variant::operator Vector4@1837": [
-          "Vector4",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "Vector4"
         ],
         "Variant::operator Vector4i@1855": [
-          "Vector4i",
-          "reinterpret_cast"
+          "reinterpret_cast",
+          "Vector4i"
         ],
         "Variant::operator Vector@2219": [
-          "Vector",
-          "Array",
           "resize",
           "size"
         ],
         "Variant::operator Vector@2229": [
-          "Vector",
-          "Array",
           "size",
           "resize",
           "ptrw"
         ],
         "Variant::operator Vector@2247": [
-          "Vector",
-          "PackedVector3Array",
           "size",
           "resize",
           "ptrw",
           "ptr"
         ],
         "Variant::operator Vector@2266": [
-          "Vector",
-          "Array",
           "size",
           "resize",
           "ptrw"
         ],
         "Variant::operator Vector@2283": [
-          "Vector",
-          "PackedStringArray",
           "size",
           "resize"
         ],
-        "Variant::operator char32_t@1527": [
-          "char32_t",
-          "uint32_t"
-        ],
+        "Variant::operator char32_t@1527": [],
         "Variant::operator double@1535": [
-          "double",
           "_to_float"
         ],
         "Variant::operator float@1531": [
-          "float",
           "_to_float"
         ],
         "Variant::operator int16_t@1485": [
-          "int16_t",
           "_to_int"
         ],
         "Variant::operator int32_t@1481": [
-          "int32_t",
           "_to_int"
         ],
         "Variant::operator int64_t@1477": [
-          "int64_t",
           "_to_int"
         ],
         "Variant::operator int8_t@1489": [
-          "int8_t",
           "_to_int"
         ],
         "Variant::operator uint16_t@1505": [
-          "uint16_t",
           "_to_int"
         ],
         "Variant::operator uint32_t@1501": [
-          "uint32_t",
           "_to_int"
         ],
         "Variant::operator uint64_t@1497": [
-          "uint64_t",
           "_to_int"
         ],
         "Variant::operator uint8_t@1509": [
-          "uint8_t",
           "_to_int"
         ],
         "Variant::operator<@868": [
@@ -62956,40 +62894,12 @@
           "num_real",
           "reinterpret_cast",
           "String",
-          "Vector2",
-          "Vector2i",
-          "Rect2",
-          "Rect2i",
-          "Transform2D",
-          "Vector3",
-          "Vector3i",
-          "Vector4",
-          "Vector4i",
-          "Plane",
           "AABB",
-          "Quaternion",
-          "Basis",
-          "Transform3D",
-          "Projection",
-          "StringName",
-          "NodePath",
-          "Color",
           "ERR_FAIL_COND_V_MSG",
           "stringify_variant_clean",
           "push_back",
           "size",
           "stringify_vector",
-          "PackedVector2Array",
-          "PackedVector3Array",
-          "PackedColorArray",
-          "PackedVector4Array",
-          "PackedStringArray",
-          "PackedByteArray",
-          "PackedInt32Array",
-          "PackedInt64Array",
-          "PackedFloat32Array",
-          "PackedFloat64Array",
-          "Array",
           "_get_obj",
           "is_ref_counted",
           "get_instance",
@@ -63033,17 +62943,6 @@
         "_convert_array_from_variant@2087": [
           "get_type",
           "_convert_array",
-          "Array",
-          "PackedByteArray",
-          "PackedInt32Array",
-          "PackedInt64Array",
-          "PackedFloat32Array",
-          "PackedFloat64Array",
-          "PackedStringArray",
-          "PackedVector2Array",
-          "PackedVector3Array",
-          "PackedColorArray",
-          "PackedVector4Array",
           "DA"
         ],
         "_init_type_name_map@174": [
@@ -63159,22 +63058,13 @@
         "is_num@391": [],
         "is_string@394": [],
         "operator BitField@478": [
-          "BitField",
-          "static_cast",
-          "uint64_t"
+          "static_cast"
         ],
         "operator T@476": [
-          "static_cast",
-          "int64_t"
+          "static_cast"
         ],
-        "operator TypedArray@480": [
-          "TypedArray",
-          "Array"
-        ],
-        "operator TypedDictionary@482": [
-          "TypedDictionary",
-          "Dictionary"
-        ],
+        "operator TypedArray@480": [],
+        "operator TypedDictionary@482": [],
         "operator!=@820": [],
         "operator()@897": [
           "compare"

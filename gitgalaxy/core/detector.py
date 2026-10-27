@@ -2048,7 +2048,10 @@ def _ctor_init_span(text: str) -> tuple[int, int] | None:
             if head.startswith("::", i):
                 i += 2
                 continue
-            return i + 1, len(head)
+            end = i + 1
+            while end < len(head) and head[end] != "{":
+                end += 1
+            return i + 1, end
         elif ch == ";" and depth == 0:
             return None
         i += 1

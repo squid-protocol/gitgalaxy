@@ -1,6 +1,7 @@
 """affected_tests (#6733): which test files a change reaches, and the budget that picks the ones run locally. The
 graph is built from strings here; no git needed except where noted."""
 
+import os
 import sys
 from collections import Counter
 from pathlib import Path
@@ -28,7 +29,10 @@ def test_gitgalaxy_imports_resolve_to_modules_and_relative_ones_inside_the_packa
 
 def test_bare_imports_find_an_ancestor_harness_then_tests_tools():
     src = "import _harness\nimport evidence\n"
-    assert _imports("tests/extraction/languages/test_c.py", src) == {"tests/extraction/_harness.py", "tests/tools/evidence.py"}
+    assert _imports("tests/extraction/languages/test_c.py", src) == {
+        "tests/extraction/_harness.py",
+        "tests/tools/evidence.py",
+    }
 
 
 def test_a_string_naming_a_tool_is_a_read():
@@ -78,3 +82,19 @@ def test_select_always_runs_the_nearest_file_even_over_the_budget():
 def test_the_repo_graph_reaches_this_tests_module_from_the_tool():
     g = at.graph()  # the real tree: the scan must at least see this file import the tool
     assert "tests/tools/affected_tests.py" in g["tests/tools/test_affected_tests.py"]
+
+
+def test_pytest_runs_under_this_interpreter_when_it_has_pytest():
+    assert at.pytest_command(has_pytest=True, which=lambda _: "/elsewhere/pytest") == (
+        [sys.executable, "-m", "pytest"], None)  # fmt: skip
+
+
+def test_an_interpreter_without_pytest_uses_the_one_on_path_with_this_checkout_first():
+    """PR #6799: churn's precheck runs the gates under /usr/bin/python3, which has no pytest."""
+    cmd, env = at.pytest_command(has_pytest=False, which=lambda _: "/venv/bin/pytest")
+    assert cmd == ["/venv/bin/pytest"]
+    assert env["PYTHONPATH"].split(os.pathsep)[0] == str(at.REPO)
+
+
+def test_no_pytest_anywhere_keeps_the_module_form_so_the_error_names_it():
+    assert at.pytest_command(has_pytest=False, which=lambda _: None)[0] == [sys.executable, "-m", "pytest"]

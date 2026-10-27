@@ -14,9 +14,9 @@
    "pct": 99.7
   },
   "branches": {
-   "covered": 1136,
+   "covered": 1137,
    "total": 1211,
-   "pct": 93.8
+   "pct": 93.9
   },
   "cases_measured": 25,
   "cases": 98
@@ -844,7 +844,7 @@
    "reasons": {
     "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs": "2/3 paragraphs"
    },
-   "tests": 8,
+   "tests": 9,
    "blocker": "coverage: LINKed program LGAPVS01 has live paragraphs no scenario runs"
   },
   {
@@ -1824,7 +1824,7 @@
    ],
    "skipped": [],
    "scenarios_generated": false,
-   "tests": 8,
+   "tests": 9,
    "non_vsam": [
     "db2"
    ]
@@ -2279,7 +2279,7 @@
     "genapp-lgtestp4"
    ],
    "programs_unlocked": 1,
-   "tests_unlocked": 8,
+   "tests_unlocked": 9,
    "programs_also_blocked": [],
    "then_needs": {
     "base/src/lgtestp1.cbl": [
@@ -2563,7 +2563,7 @@
     "src/base/cobol_src/XFRFUN.cbl",
     "zBuilder/MortgageApplication/cobol/epscmort.cbl"
    ],
-   "tests_held": 1021
+   "tests_held": 1022
   },
   {
    "cause": "ims",

@@ -265,10 +265,15 @@ CALLS_OUT_C_STYLE_NO_ANNOTATION = re.compile(rf"(?<!@)\b([{ID_START}][{ID_CONTIN
 # one line, holds no `( ) ; { } = | ! ?` or quote, and ends in `>` then `(`.
 # Every quantifier is bounded and the two alternatives start on disjoint
 # characters (Rules 1-3). detector.py treats it exactly like CALLS_OUT_C_STYLE.
+#
+# #6266: a function-pointer type argument is a third element of the list, `function_cast<int (*)(Node &, void *)>(cb)`,
+# `reinterpret_cast<void (Foo::*)(int)>(p)`: `(`, a declarator holding `*` or `&`, `)`, then the parameter list.
+# It starts on `(`, which the other two alternatives exclude, and its two runs are bounded.
 _GENERIC_ARG_CHAR = r"[^<>()\n;{}=|!?\"']"
+_GENERIC_FNPTR = r"\([ \t]*[^<>()\n;{}=|!?\"'*&]{0,100}[*&][ \t]*\)[ \t]*\(" + _GENERIC_ARG_CHAR + r"{0,200}\)"
 CALLS_OUT_C_STYLE_GENERIC = re.compile(
     rf"\b([{ID_START}][{ID_CONTINUE}]*)"
-    r"(?:<(?:" + _GENERIC_ARG_CHAR + r"|<" + _GENERIC_ARG_CHAR + r"{0,200}>){1,200}>[ \t]*)?"
+    r"(?:<(?:" + _GENERIC_ARG_CHAR + r"|<" + _GENERIC_ARG_CHAR + r"{0,200}>|" + _GENERIC_FNPTR + r"){1,200}>[ \t]*)?"
     r"\s*\("
 )
 

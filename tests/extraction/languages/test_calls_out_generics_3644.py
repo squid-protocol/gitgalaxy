@@ -87,6 +87,36 @@ def test_comparison_shapes_are_not_generic_calls(text):
     assert not any(name in {"a", "x", "f", "g"} for name in _callees(text))
 
 
+@pytest.mark.parametrize(
+    "text, callee",
+    [
+        ("function_cast<int (*)(PathTree::Node &, void *)>(callback)", "function_cast"),  # #6266 doomsday
+        ("function_cast<void (*)(mobj_t *)>(item->action)(mo)", "function_cast"),
+        ("reinterpret_cast<void (Foo::*)(int)>(p)", "reinterpret_cast"),
+        ("pair<int (&)(int), char>(f, c)", "pair"),
+        ("function_cast<void *>(sym)", "function_cast"),
+    ],
+)
+def test_function_pointer_type_argument_is_captured(text, callee):
+    """#6266: a `T (*)(args)` element does not end the type-argument list early."""
+    assert _callees(text)[0] == callee
+
+
+def test_function_pointer_type_argument_reaches_calls_out():
+    cpp = (
+        "void run1(void *cb) {\n    sink(function_cast<int (*)(const void *)>(cb), 0);\n}\n"
+        "void run2(void *cb) {\n    auto f = function_cast<void (*)(int)>(cb);\n}\n"
+    )
+    calls = _calls("cpp", cpp)
+    assert calls["run1"] == ["sink", "function_cast"]
+    assert calls["run2"] == ["function_cast"]
+
+
+@pytest.mark.parametrize("text", ["f<(*)(", "g<a (*)(" + "x" * 300 + ")>(1)", "h<(" + "*" * 50 + ")>(1)"])
+def test_function_pointer_alternative_is_bounded(text):
+    assert_redos_immune(CALLS_OUT_C_STYLE_GENERIC, text * 2000, timeout_sec=3.0)
+
+
 def test_two_level_nested_type_arguments_are_a_known_gap():
     # One nesting level keeps the pattern bounded; `make<vector<vector<int>>>(` is missed.
     assert _callees("make<vector<vector<int>>>(n)") == []

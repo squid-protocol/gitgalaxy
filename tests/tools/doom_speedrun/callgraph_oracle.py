@@ -105,6 +105,11 @@ STRIP = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])
 TEXT_CALL = re.compile(
     r"(?:(?<=->)|(?<=\.)|(?<=::))\s*~\s*([A-Za-z_]\w*)\s*(?:<[^;{}()]*>\s*)?\(|\b([A-Za-z_]\w*)\s*\("
 )
+# `Type name(`: the word before a declared name is a type, not a keyword that precedes an expression.
+DECLARATOR_BEFORE = re.compile(
+    r"(?<![\w.>:])(?!(?:return|else|case|new|delete|throw|do|sizeof|goto|typeof|co_return|co_await|co_yield)\b)"
+    r"[A-Za-z_]\w*[ \t]+$"
+)
 # A class or struct definition head: the last word before its `:` base list or `{` is the class name.
 CLASS_HEAD = re.compile(r"\b(?:class|struct)\b[^;{}()<>]*?\b([A-Za-z_]\w*)\s*(?:final\s*)?[:{]")
 # A class head with a base list: `class A : public B, virtual C<T> {` (the entries after the lone `:`).
@@ -193,6 +198,8 @@ class Body:
         callees = set()
         for init in _initializers(node):  # `: Base(x), member(y)`: a base class entry is a constructor call
             name = callee_node(init.children[0]) if init.children else None
+            if name is None and init.children and init.children[0].type == "template_type":
+                name = init.children[0].child_by_field_name("name")  # `: TMap<K, V>(), info(x)`: a templated base
             if name is not None and decode_bytes(name.text) in _bases(classes or {}, node):
                 self.calls.setdefault(decode_bytes(name.text), "ctor-init")
         body = node.child_by_field_name("body") or node
@@ -226,7 +233,8 @@ class Body:
             elif n.type == "call_expression":
                 name = callee_node(n.child_by_field_name("function"))
                 if name is not None and decode_bytes(name.text) not in KEYWORDS:  # `SERVER_ONLY(\n if (x) {..})`
-                    self.calls.setdefault(decode_bytes(name.text), shape(n))
+                    # `p->~T<A>()`: the destructor's unit is `~T`, template arguments dropped
+                    self.calls.setdefault(decode_bytes(name.text).split("<", 1)[0], shape(n))
                     callees.add(name.id)
             elif n.type == "identifier" and n.id not in callees:  # a struct field is never a function reference
                 self.refs.add(decode_bytes(n.text))
@@ -240,6 +248,8 @@ class Body:
         text = STRIP.sub(" ", decode_bytes(raw))
         for m in TEXT_CALL.finditer(text):
             name = "~" + m.group(1) if m.group(1) else m.group(2)
+            if m.group(2) and DECLARATOR_BEFORE.search(text[: m.start()]):
+                continue  # `FString s(k);`: a local variable declaration, not a call of `s`
             if name not in KEYWORDS:
                 self.calls.setdefault(name, "unparsed")
 

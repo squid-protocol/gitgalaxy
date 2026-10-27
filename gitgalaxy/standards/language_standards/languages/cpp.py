@@ -453,7 +453,10 @@ DEFINITION: dict[str, Any] = {
             # #5630: an entry whose argument holds a flat brace-init (`hiddenTags({"a", "b"})`, `ids{1, 2}`) is
             # consumed whole (a lambda argument's body too, to three brace levels), so its `{` is not taken for the
             # body's; an entry that does not balance falls back to the plain run below.
-            r"(?:[ \t\n]*(?![ \t]*#):(?:(?:[^{;(]|\((?:[^(){}]|\([^()]*\)|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\)|(?<=["
+            # #6266: a computed-goto label macro (`OP(CLSS):\n{`, `OP(RET):\n if (..) {`, `OP(X):\n#if 0`) is no
+            # initializer list: its colon is followed at once by a brace, a directive or a statement keyword.
+            r"(?:[ \t\n]*(?![ \t]*#):(?![ \t\n]*(?:[{#]|(?:if|for|while|switch|return|do|else|goto|case|break|continue)\b))"
+            r"(?:(?:[^{;(]|\((?:[^(){}]|\([^()]*\)|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\)|(?<=["
             + ID_CONTINUE
             + r">])\{[^(){};]*\}){0,2000}(?=[ \t\n]*\{)|[^{;]{0,2000})|(?:[ \t\n]+(?![ \t]*#)["
             + ID_START

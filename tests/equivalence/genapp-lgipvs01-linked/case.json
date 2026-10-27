@@ -66,6 +66,13 @@
     "COMMA-DATA-TEXT": "M0000000011"
    },
    "why": "no key at or after M0000000011: NOTFND: 'Policy Bad=' and 13 / 13"
+  },
+  {
+   "name": "terminal-key-on-file",
+   "startcode": "TD",
+   "terminal": "LGPF M0000000002",
+   "commarea": null,
+   "why": "the case's STARTCODE 'D' overridden to 'TD' (a terminal task) with the operator's input 'LGPF M0000000002': IF WS-STARTCODE(1:1) = 'D' is false and INVOKINGPROG is blank, so the RECEIVE arm runs, WS-FLAG 'R', then SEND TEXT (the false side of l.90 and the true side of l.130)"
   }
  ],
  "notes": "GenApp's VSAM policy key inquiry LGIPVS01 as a distributed program link (the COMMAREA sibling of genapp-lgipvs01, which covers the terminal path). No GenApp program LINKs LGIPVS01, so the program's own test for a called run -- IF WS-STARTCODE(1:1) = 'D' or WS-Invokeprog Not = Spaces -- is reached by STARTCODE 'D' (IBM: a task started for a distributed program link; X19), the one fact a harness can state without a calling program in the corpus. The key then comes from COMMA-DATA (policy type + 10 customer digits in COMMA-DATA-TEXT), WS-RECV-LEN = 10, no RECEIVE; the same READ FILE('KSDSPOLY') GENERIC GTEQ; the answer goes back into COMMA-DATA (text 'Policy Key=' / 'Policy Bad=' and the 21-byte key) and the task RETURNs with no SEND TEXT. Not exercised: the non-blank INVOKINGPROG arm of that test (it needs a calling program, and no corpus program LINKs LGIPVS01; the STARTCODE arm takes the same statements). Data: ksdspoly.txt is the genapp-lgupdb01 case's ten GenApp sample policies. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."

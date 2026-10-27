@@ -3,6 +3,158 @@
   "case": "carddemo-acctupdate",
   "entries": [
     {
+      "unit": "1210-EDIT-ACCOUNT",
+      "line": 1791,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF` after the blank-account test: 1210 is performed only from 1200 (1435) as the first edit of a task, so nothing has written WS-RETURN-MSG since 0000-MAIN:876 cleared it. The message is always off here."
+    },
+    {
+      "unit": "1210-EDIT-ACCOUNT",
+      "line": 1805,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF` after the not-numeric/zero test: 1210 is the first edit of the task (1200:1435) and the 1791 arm that sets a message leaves through GO TO 1210-EDIT-ACCOUNT-EXIT, so the message is always off here (0000-MAIN:876 clears it)."
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 2563,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@2625",
+      "family": "G",
+      "reason": "`WHEN ACUP-CHANGES-OKAYED-AND-DONE`: 0000-MAIN (979) sends a task that arrives with ACUP-CHANGE-ACTION 'C' (or 'L'/'F') back to a fresh search before it performs 2000; 2614 sets 'C' only inside this same EVALUATE, after the WHEN list was chosen. The state is never 'C' when the EVALUATE is entered."
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 2586,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF INPUT-ERROR OR NO-CHANGES-DETECTED` under `WHEN ACUP-SHOW-DETAILS`: the state stays 'S' through 1200 only on the 1463 early exit, which follows 1205 finding NO-CHANGES-FOUND; 1205 sets NO-CHANGES-DETECTED (1769) in the same pass (an edit that finds a change sets 'E', 1470, then 'N' at 1674). So 'S' here always has NO-CHANGES-DETECTED set."
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 2627,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "inside `WHEN ACUP-CHANGES-OKAYED-AND-DONE` (2625), which no task reaches (see the 2563 WHEN@2625 entry)."
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 2627,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "inside `WHEN ACUP-CHANGES-OKAYED-AND-DONE` (2625), which no task reaches (see the 2563 WHEN@2625 entry)."
+    },
+    {
+      "unit": "3200-SETUP-SCREEN-VARS",
+      "line": 2710,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "`WHEN OTHER` after NOT-FETCHED, SHOW-DETAILS and CHANGES-MADE: with ACUP-CHANGE-ACTION a single byte, those 88s (LOW-VALUES, SPACES, 'S', 'E', 'N', 'C', 'L', 'F') cover every value that reaches 3200; any other byte abends in 2000 (2637) before the map is built."
+    },
+    {
+      "unit": "3202-SHOW-ORIGINAL-VALUES",
+      "line": 2793,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF FOUND-ACCT-IN-MASTER OR FOUND-CUST-IN-MASTER`: 3202 is performed for a fetched-details state, and every such task ran 1200, which sets both found flags (1455-1458) before it can leave; 3202 does not reset them (2788 clears only WS-NON-KEY-FLAGS)."
+    },
+    {
+      "unit": "3202-SHOW-ORIGINAL-VALUES",
+      "line": 2827,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF FOUND-CUST-IN-MASTER`: set together with FOUND-ACCT-IN-MASTER at 1455-1458 on every task that reaches 3202 (see 2793)."
+    },
+    {
+      "unit": "3250-SETUP-INFOMSG",
+      "line": 2957,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@2975",
+      "family": "G",
+      "reason": "`WHEN WS-NO-INFO-MESSAGE`: the earlier WHENs cover every ACUP-CHANGE-ACTION value a task can reach 3250 with (LOW-VALUES, SPACES, 'S', 'E', 'N', 'C', 'L', 'F'; any other byte abends in 2000); this arm is entered only for a state none of them names."
+    },
+    {
+      "unit": "3250-SETUP-INFOMSG",
+      "line": 2957,
+      "kind": "EVALUATE",
+      "outcome": "none",
+      "family": "G",
+      "reason": "no WHEN matches: the WHENs name every ACUP-CHANGE-ACTION value that reaches 3250 (see the WHEN@2975 entry)."
+    },
+    {
+      "unit": "3390-SETUP-INFOMSG-ATTRS",
+      "line": 3567,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF WS-NO-INFO-MESSAGE`: 3250 runs before 3390 in 3000-SEND-MAP (2654, 2658) and sets WS-INFO-MSG to a non-blank prompt in every reachable WHEN (see 3250), so the message is never blank here."
+    },
+    {
+      "unit": "9000-READ-ACCT",
+      "line": 3627,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF DID-NOT-FIND-ACCT-IN-ACCTDAT` is an 88 on WS-RETURN-MSG with the value 'Did not find this account in account master file'; the only SET of it is commented out (3719), and 9300 writes 'Account:... not found in Acct Master file.Resp:...' instead. The message never has that value."
+    },
+    {
+      "unit": "9000-READ-ACCT",
+      "line": 3636,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF DID-NOT-FIND-CUST-IN-CUSTDAT` is an 88 on WS-RETURN-MSG with the value 'Did not find associated customer in master file'; the only SET of it is commented out (3769), and 9400 writes 'CustId:... not found in...'. The message never has that value."
+    },
+    {
+      "unit": "9200-GETCARDXREF-BYACCT",
+      "line": 3671,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF` in the xref NOTFND arm: 9200 is the first read of 9000 (3617) and 9000 is performed with the message off (2574 sets it off for PF12; on the not-fetched path 1210 ran and a message there sets FLG-ACCTFILTER-NOT-OK, which 2573 tests first)."
+    },
+    {
+      "unit": "9300-GETACCTDATA-BYACCT",
+      "line": 3720,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF` in the account NOTFND arm: 9300 runs after a NORMAL xref read (3617-3624; a NOTFND/other there sets FLG-ACCTFILTER-NOT-OK and 9000 leaves at 3620), and a NORMAL read writes no message."
+    },
+    {
+      "unit": "9600-WRITE-PROCESSING",
+      "line": 3911,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF` after a failed account lock: PF5 is acted on only in state 'N' (2601), where 1200 left through its 1463 early exit before any edit, so no message was written; 0000-MAIN:876 cleared it."
+    },
+    {
+      "unit": "9600-WRITE-PROCESSING",
+      "line": 3938,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF` after a failed customer lock: same as 3911, and the account READ UPDATE that preceded it (NORMAL) writes no message."
+    },
+    {
+      "unit": "9600-WRITE-PROCESSING",
+      "line": 3950,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF DATA-WAS-CHANGED-BEFORE-UPDATE` is an 88 on WS-RETURN-MSG, set only at 4143 and 4189 in 9700, each followed at once by GO TO 9600-WRITE-PROCESSING-EXIT: control leaves 9600 for 2000 without returning to 3950, so the test never sees the message set."
+    },
+    {
       "unit": "ABEND-ROUTINE",
       "line": 4205,
       "kind": "IF",

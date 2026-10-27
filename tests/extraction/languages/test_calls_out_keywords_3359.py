@@ -17,6 +17,7 @@ from gitgalaxy.standards.language_standards._shared_patterns import (
     CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
     CALLS_OUT_C_STYLE_NO_ANNOTATION,
     CALLS_OUT_DART,
+    CALLS_OUT_KOTLIN,
 )
 
 
@@ -190,8 +191,10 @@ def test_annotation_languages_use_the_no_annotation_pattern():
     # #6454: dart's variant takes generic and nullable type arguments, same annotation guard.
     assert LANGUAGE_DEFINITIONS["dart"]["rules"]["calls_out"] is CALLS_OUT_DART
     # #4124: the JVM languages' generic-aware variant keeps the same annotation guard.
-    for lang in ("java", "kotlin", "groovy"):
+    for lang in ("java", "groovy"):
         assert LANGUAGE_DEFINITIONS[lang]["rules"]["calls_out"] is CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION
+    # #6266: kotlin's adds the trailing-lambda call `x.f { .. }`
+    assert LANGUAGE_DEFINITIONS["kotlin"]["rules"]["calls_out"] is CALLS_OUT_KOTLIN
     # Python/TypeScript/JavaScript decorator factories ARE invocations (C1) -- the plain pattern.
     # #3644: typescript's generic-aware variant has no annotation guard either.
     for lang in ("python", "javascript"):

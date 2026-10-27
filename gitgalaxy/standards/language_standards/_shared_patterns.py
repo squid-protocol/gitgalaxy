@@ -283,6 +283,20 @@ CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION = re.compile(
     r"\s*\("
 )
 
+# #6266: Kotlin's form of the #4124 pattern. A call may omit its parentheses when its last argument is a lambda
+# (`ev.withKey { sc -> .. }`, `pool.submit { .. }`): the name follows a receiver dot and the `{` follows the name.
+# Only the dotted form is read (a bare `name {` is `else {`, `class C {`, `init {`), and not the stdlib
+# scope and iteration functions (`x.let { }`, `xs.map { }`, `x.apply { }`): by name they collide with a port's own
+# `run()` or `map()`, and the engine cannot resolve a receiver's type. Their parenthesised form `x.let(f)` stays a call.
+# Group 1 is the callee (the optional group 2, a zero-width "a dot comes before" mark, sits inside it), so detector.py
+# reads it like the C-style family.
+_KOTLIN_STDLIB_LAMBDA = "run|with|apply|let|also|takeIf|takeUnless|repeat|times|map|filter|forEach"
+CALLS_OUT_KOTLIN = re.compile(
+    rf"(?<!@)\b((?P<lambda_ok>(?<=\.)(?!(?:{_KOTLIN_STDLIB_LAMBDA})\b))?[{ID_START}][{ID_CONTINUE}]*)"
+    r"(?:<(?:" + _GENERIC_ARG_CHAR + r"|<" + _GENERIC_ARG_CHAR + r"{0,200}>){0,200}>[ \t]*)?"
+    r"(?:\s*\(|(?(lambda_ok)[ \t]*\{|(?!)))"
+)
+
 # #6454: Dart's form of the C3 generic pattern. A Dart type argument may be nullable
 # (`ValueNotifier<String?>(null)`, `Completer<T?>()`), so `?` is allowed inside the list; `:` is
 # not (no Dart type-argument list holds one), which keeps a ternary `a<b ? c : d>(e)` out.
@@ -484,6 +498,7 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_C_STYLE_GENERIC,
     CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
     CALLS_OUT_DART,
+    CALLS_OUT_KOTLIN,
     CALLS_OUT_RUBY,
     CALLS_OUT_PERL,
     CALLS_OUT_RUST,

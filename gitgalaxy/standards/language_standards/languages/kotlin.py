@@ -13,7 +13,7 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_KOTLIN, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # An extension function's receiver type and its dot, shared by `args` and
 # `func_start`. #3608: the receiver can be generic (`Collection<CodeBlock>.`,
@@ -62,7 +62,7 @@ DEFINITION: dict[str, Any] = {
         # decision. See branch_rule_contract.md, "Literals".
         "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,  # #3359 C1 annotation guard; #4124 `X<T>(`
+        "calls_out": CALLS_OUT_KOTLIN,  # #3359 C1 annotation guard; #4124 `X<T>(`; #6266 `x.f { .. }`
         # #3359 (contract C2): keywords and special forms, never calls
         "_calls_out_ignore": frozenset(
             {

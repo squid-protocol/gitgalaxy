@@ -2055,6 +2055,51 @@ def _in_init_list_head(text: str, span: tuple[int, int] | None, pos: int) -> boo
     return chunk.count("(") == chunk.count(")")
 
 
+def _default_arg_spans(text: str) -> list[tuple[int, int]]:
+    """#6266: the `(start, end)` of each default-argument expression in a C++ unit's parameter list.
+
+    `ActionItem(const String &label = "", RefArg<Action> action = RefArg<Action>())` evaluates `RefArg<Action>()` at
+    the caller, not in the unit, so the unit makes no such call. The list is the first `(...)` that does not follow
+    `operator`; a default runs from its top-level `=` to the next top-level `,` or the closing `)`.
+    """
+    open_at = text.find("(")
+    while open_at > 0 and text[:open_at].rstrip().endswith("operator"):
+        open_at = text.find("(", text.find(")", open_at) + 1)
+    if open_at < 0:
+        return []
+    spans: list[tuple[int, int]] = []
+    depth = 0
+    angle = 0
+    start = -1
+    for i in range(open_at, min(len(text), open_at + _HEADER_SCAN_MAX)):
+        ch = text[i]
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            depth -= 1
+            if depth == 0:
+                if start >= 0:
+                    spans.append((start, i))
+                return spans
+        elif depth == 1 and start < 0:
+            if ch == "<":
+                angle += 1
+            elif ch == ">" and text[i - 1] != "-":
+                angle = max(angle - 1, 0)
+            elif ch == "=" and not angle and text[i - 1] not in "=!<>" and text[i + 1 : i + 2] != "=":
+                start = i
+        elif depth == 1 and ch == "," and start >= 0 and not angle:
+            spans.append((start, i))
+            start = -1
+        elif depth == 1 and start >= 0 and ch == "<":
+            angle += 1
+        elif depth == 1 and start >= 0 and ch == ">" and angle:
+            angle -= 1
+        elif ch == ";" and depth == 0:
+            return spans
+    return spans
+
+
 _CALLS_OUT_GLOBAL_IGNORE = frozenset(
     {
         "if",
@@ -10815,6 +10860,7 @@ class StructuralExtractor:
                     else 0
                 )
                 init_span: tuple[int, int] | None = None
+                default_spans: list[tuple[int, int]] | None = None
                 for m in invocation_pattern.finditer(safe_block):
                     # #5639: a message send's groups are (receiver, selector); a C call's is group 1
                     # group 4 is a keyword send to a call receiver (`[f(x) a:1]`)
@@ -10827,6 +10873,11 @@ class StructuralExtractor:
                         continue
                     if self.primary_lang_id == "cpp" and _is_function_type_arg(safe_block, callee_pos, m.end(1)):
                         continue
+                    if self.primary_lang_id == "cpp":
+                        if default_spans is None:
+                            default_spans = _default_arg_spans(safe_block)
+                        if any(lo <= callee_pos < hi for lo, hi in default_spans):
+                            continue
                     if 0 <= body_start < callee_pos:
                         declared = _declarator_type_callee(safe_block, callee_pos)
                         if declared is not None:

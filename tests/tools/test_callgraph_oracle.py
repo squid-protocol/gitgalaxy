@@ -580,3 +580,10 @@ def test_a_misparsed_ctor_with_a_qualified_base_still_gets_the_ctor_call():
     src = b"AlertItem(const String &msg)\n    : ui::ActionItem(ShownAsLabel, msg)\n    , _level(1)\n{}\n"
     body = co.TextBody(src, 1, {"AlertItem": {"ActionItem"}})
     assert body.calls["ActionItem"] == "ctor-init" and "_level" not in body.calls
+
+
+def test_text_fallback_names_a_template_destructor_call_by_its_unit():
+    # gzdoom `p->~TArray<FString>()`: template arguments sit between the unit name and its `(`
+    body = co.TextBody(b"void f() { p->~TArray<FString>(); q.~Map<int, TArray<int>> (); a = b < c; }", 1)
+    assert {"~TArray", "~Map"} <= set(body.calls)
+    assert "TArray" not in body.calls and "Map" not in body.calls

@@ -99,7 +99,7 @@ TEXT_NODES = {"comment", "string_literal", "raw_string_literal", "char_literal",
 # nested function definition): comments and literals blanked, then every ``name (`` that is not a keyword.
 STRIP = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)
 # An explicit destructor call (`p->~T(`, `x.~T(`, `T::~T(`) names the unit `~T`, as tree-sitter's destructor_name does.
-TEXT_CALL = re.compile(r"(?:(?<=->)|(?<=\.)|(?<=::))\s*~\s*([A-Za-z_]\w*)\s*\(|\b([A-Za-z_]\w*)\s*\(")
+TEXT_CALL = re.compile(r"(?:(?<=->)|(?<=\.)|(?<=::))\s*~\s*([A-Za-z_]\w*)\s*(?:<[^;{}()]*>\s*)?\(|\b([A-Za-z_]\w*)\s*\(")
 # A class or struct definition head: the last word before its `:` base list or `{` is the class name.
 CLASS_HEAD = re.compile(r"\b(?:class|struct)\b[^;{}()<>]*?\b([A-Za-z_]\w*)\s*(?:final\s*)?[:{]")
 # A class head with a base list: `class A : public B, virtual C<T> {` (the entries after the lone `:`).

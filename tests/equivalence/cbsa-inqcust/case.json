@@ -493,6 +493,24 @@
     }
    ],
    "why": "#6271 (X70, X71): RLS abend AFCR on the READ and the SYNCPOINT ROLLBACK then fails INVREQ: ABEND-HANDLING fills ABNDINFO ('HROL'), LINKs ABNDPROC (an ABNDFILE record) and ABENDs HROL CANCEL"
+  },
+  {
+   "name": "read-abends-afcc",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000001"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "nth": 1,
+     "resp": "ABEND",
+     "abcode": "AFCC"
+    }
+   ],
+   "why": "#6271 (X70): abend AFCC (an internal logic error in the file control request module) on the customer READ: the HANDLE ABEND exit takes ABEND-HANDLING's none arm (not a storm-drain code), so WS-STORM-DRAIN stays 'N' and the task ABENDs AFCC"
   }
  ]
 }

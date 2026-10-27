@@ -4,10 +4,11 @@
  "cases": {
   "cbsa-inqacc": {
    "issue": "#6692",
-   "why": "the java facade does not fire the scenario's declared sql_faults (OPEN and FETCH deadlock to AD2Z, OPEN connection lost, OPEN / cursor CLOSE -501, OPEN -501 with an abend on the ABNDPROC LINK); the det sweep proves all 25",
+   "why": "the java facade does not fire the scenario's declared sql_faults (OPEN and FETCH deadlock to AD2Z, OPEN attach abend AD2X, OPEN connection lost, OPEN / cursor CLOSE -501, OPEN -501 with an abend on the ABNDPROC LINK); the det sweep proves all 25",
    "scenarios": [
     "cursor-close-fails",
     "fetch-deadlock-abends-ad2z",
+    "open-attach-abends-ad2x",
     "open-connection-lost",
     "open-deadlock-abends-ad2z",
     "open-fails-link-abndproc-abends-afcr",

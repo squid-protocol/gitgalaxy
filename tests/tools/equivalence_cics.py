@@ -2687,15 +2687,23 @@ def sql_fault_plan(case: dict[str, Any], sc: dict[str, Any], table: str) -> list
 # #6271 (register X73): IBM's AD2Z -- a Db2 deadlock or timeout the CICS-Db2 attach answers with a failed syncpoint rollback
 # (DFHDB2070), then the task abends AD2Z. A scenario's sql_fault may add `"abend": "AD2Z"` to a -911 fault on a statement it
 # names by `line`; the statement fails as planned and a `SQL PROGRAM:LINE NTH -1 0 AD2Z` line (faults.cfg) abends the task.
-SQL_ABEND_CODES = ("AD2Z",)
+# AD2R (the attached TCB that processes the Db2 request abended) and AD2X (the task and thread TCB in an invalid state) are
+# the attach's other task abends, outside AD2Z's rollback arm: the statement fails as planned (any SQLCODE, ASSUMED).
+SQL_ABEND_CODES = ("AD2Z", "AD2R", "AD2X")
 
 
 def _sql_abend_line(case: dict[str, Any], sc: dict[str, Any], f: dict[str, Any], code: int, table: str) -> str:
     where = f"scenario {sc['name']}: SQL fault {f}"
-    if f["abend"] not in SQL_ABEND_CODES or code != -911 or "line" not in f or f.get("table") or f.get("verb"):
+    if (
+        f["abend"] not in SQL_ABEND_CODES
+        or (f["abend"] == "AD2Z" and code != -911)
+        or "line" not in f
+        or f.get("table")
+        or f.get("verb")
+    ):
         raise Unsupported(
-            f"{where}: an abend is planned as 'AD2Z' on a -911 fault naming its statement by line (register X73: no other "
-            "SQLCODE, code or table/verb selection is sourced)"
+            f"{where}: an abend is planned as {'/'.join(SQL_ABEND_CODES)} on a fault naming its statement by line, AD2Z "
+            "on a -911 one (register X73: no other SQLCODE, code or table/verb selection is sourced)"
         )
     program = str(f.get("program") or case["program"]).upper()
     if not any(x["program"] == program and x["line"] == int(f["line"]) for x in sql_statements(table)):

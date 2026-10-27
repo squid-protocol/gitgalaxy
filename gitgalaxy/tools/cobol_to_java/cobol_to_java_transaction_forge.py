@@ -805,41 +805,12 @@ public class CicsTask {
      *  A text IBM reformats (DFHnnnn / DFHaannnn: a CICS message) or splits into lines (over 113 characters) is refused.
      *  Returns the RESP (always NORMAL here: the WTO cannot fail in this region). */
     public int writeOperator(String text) {
-        return writeOperator(text, null, null, null)[0];
-    }
-
-    /** The same with TEXTLENGTH (the first n bytes of the area are the text; IBM: 0-690 without REPLY, else INVREQ RESP2 1)
-     *  and ROUTECODES / NUMROUTES (each of the first numRoutes bytes a code of 1-28, else INVREQ RESP2 3). A null argument
-     *  is an option not given. IBM leaves a NUMROUTES below 1 open (refused); the routes are no observable here (the
-     *  console is not modelled, the event is the text), and EVENTUAL changes only when the operator acts. Returns
-     *  {RESP, RESP2}. */
-    public int[] writeOperator(String text, Integer textLength, String routes, Integer numRoutes) {
-        if (textLength != null && (textLength < 0 || textLength > 690)) {
-            return new int[] {16, 1};
-        }
-        if (textLength != null) {
-            if (textLength > text.length()) {
-                throw refused("WRITE OPERATOR TEXTLENGTH past the text area");
-            }
-            text = text.substring(0, textLength);
-        }
-        if (routes != null) {
-            if (numRoutes < 1 || numRoutes > routes.length()) {
-                throw refused("WRITE OPERATOR NUMROUTES IBM leaves open");
-            }
-            for (int i = 0; i < numRoutes; i++) {
-                int code = routes.charAt(i) & 0xFF;
-                if (code < 1 || code > 28) {
-                    return new int[] {16, 3};
-                }
-            }
-        }
         String t = text.stripTrailing();
         if (text.length() > 113 || t.matches("(?s)DFH([A-Za-z]{2})?[0-9]{4}.*")) {
             throw refused("WRITE OPERATOR text IBM reformats");
         }
         event("WRITE-OPERATOR", "text", text, "resp", "NORMAL");
-        return new int[] {0, 0};
+        return 0;
     }
 
     // #4769 zECS (register X33): the document handler's DOCUMENT CREATE and DOCUMENT RETRIEVE (IBM CICS TS, EXEC CICS

@@ -877,10 +877,6 @@ def _translate_command(body: str, labels: list[str] | None = None, handle_aid: b
             raise Unsupported(_rule("WRITE OPERATOR", "required", "TEXT"), ["WRITE OPERATOR"])
         if _literal(text):  # (IBM's COBOL form takes a data area)
             raise Unsupported("WRITE OPERATOR TEXT as a literal: a data area is the COBOL form", ["WRITE OPERATOR"])
-        # #5859: the det port and CicsTask model these, the stub not yet
-        for o in ("TEXTLENGTH", "ROUTECODES", "NUMROUTES"):
-            if o in opts:
-                raise _stub_only(f"WRITE OPERATOR {o}")
         return ([f"MOVE LENGTH OF {text} TO GG-LEN"] + _call("GGCWTO", [f"BY REFERENCE {text}"])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb in ("INQUIRE", "SET") and "TDQUEUE" in opts:  # #5168 round 3 (X61): an extrapartition queue's open state

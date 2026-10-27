@@ -101,22 +101,24 @@ operand.
 
 ## Status
 
-- ZECSNC lowers whole and, since slice 2a, translates with no holes left (L1 pending the measured report):
-  `ABEND ... NOHANDLE` and `WRITE OPERATOR ... TEXTLENGTH ROUTECODES NUMROUTES EVENTUAL` are modelled in `det/cics.py`
-  and `CicsTask` (register X32). The stub (`ggcics.c` `GGCWTO`) does not model the routing options yet.
+- ZECSNC lowers whole. Since slice 2a it has 1 hole left, in `det/cics.py` option modelling:
+  - `WRITE OPERATOR ... TEXTLENGTH ROUTECODES NUMROUTES EVENTUAL`.
+
+  `ABEND ... NOHANDLE` is modelled (IBM lists no ABEND condition, so it suppresses nothing). ZECSNC is still L0.
 - ZECS002 is refused at its first construct outside the subset: `DC 08XL01'40'`.
 
 ## Remaining slices
 
-1. **2b:** an equivalence case `tests/equivalence/zecs-zecsnc/`. It needs:
-   - stub support: `GGCWTO` in `ggcics.c` takes TEXTLENGTH, ROUTECODES, NUMROUTES, and `equivalence_cics.py` drops its stub-only refusal;
+1. **2a-2:** `WRITE OPERATOR` `TEXTLENGTH`, `ROUTECODES` + `NUMROUTES`, `EVENTUAL`: the registry, `det/cics.py`, `CicsTask`, the stub
+   (`ggcics.c` `GGCWTO`) and a register X32 entry. This takes ZECSNC to L1.
+2. **2b:** an equivalence case `tests/equivalence/zecs-zecsnc/`. It needs:
    - a lowering hook in `tests/tools/equivalence_cics.py`, beside `bll.lower_text`;
    - an X register entry for assumption 1.
 
    This takes ZECSNC to L2.
-2. **3:** ZECS002. It needs:
+3. **3:** ZECS002. It needs:
    - base-displacement addressing;
    - `IC`, `SR`, `BCT`, `SLL`, `SLDL`, `STCM`, `TR`, `XC`;
    - duplicated `X'40'` data (the EBCDIC storage question);
    - `EXEC CICS VERIFY`.
-3. **4:** an independent S/390-subset interpreter that cross-checks the lowering instruction by instruction.
+4. **4:** an independent S/390-subset interpreter that cross-checks the lowering instruction by instruction.

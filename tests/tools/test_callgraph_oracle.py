@@ -655,3 +655,46 @@ def test_a_lambda_in_a_constructor_initializer_does_not_make_the_constructor_a_m
     ctors = [n for n in co.function_nodes(co._parser("cpp").parse(src.encode())) if n.text.startswith(b"Impl(")]
     assert ctors
     assert all(co._is_real_nested_function(n) for n in ctors)
+
+
+NOREF_CLASS_SRC = """int makeName(void) { return 1; }
+int tail(void) { return 3; }
+int AUDIENCE_METHOD(int a, int b) { return a; }
+
+DE_PIMPL_NOREF(Variable)
+{
+    int name = makeName();
+
+    ~Impl()
+    {
+        tail();
+    }
+
+    DE_PIMPL_AUDIENCE(Deletion)
+};
+
+AUDIENCE_METHOD(Variable, Deletion)
+
+Variable::Variable(const String &name) : d(new Impl)
+{
+    tail();
+}
+
+double Variable::asNumber() const
+{
+    return tail();
+}
+"""
+
+
+def test_a_macro_class_the_node_runs_past_is_read_by_its_braces_whatever_methods_it_holds(tmp_path):
+    """doomsday variable.cpp (#6266): the `DE_PIMPL_NOREF(X) { ~Impl() {..} };` node runs to the end of the file, and its
+    own methods inside the braces used to veto the brace reading, so file-scope code below was credited to the class."""
+    nodes = co.function_nodes(co._parser("cpp").parse(NOREF_CLASS_SRC.encode()))
+    assert co.definition_at(nodes, 5).end_point[0] + 1 > 16  # the premise: tree-sitter ran over the `};`
+    funcs = [("m.cpp", "makeName", 1, []), ("m.cpp", "tail", 2, []), ("m.cpp", "AUDIENCE_METHOD", 3, []),
+             ("m.cpp", "DE_PIMPL_NOREF", 5, ["makeName"]), ("m.cpp", "~Impl", 9, ["tail"]),
+             ("m.cpp", "Variable", 19, ["tail"]), ("m.cpp", "asNumber", 24, ["tail"])]  # fmt: skip
+    repo, scan = make_port(tmp_path, "doomsday", {"m.cpp": NOREF_CLASS_SRC}, funcs)
+    r = co.body_oracle(co.Port("doomsday", repo, co.load_port(repo, co.find_db(scan))))
+    assert (r["recall"], r["precision"], r["misses_by_shape"]) == (1.0, 1.0, {})

@@ -762,8 +762,9 @@ static int draw(int x)
         (FUSED_HEAD_SRC, 4, 14, 11, {"checked", "helper"}),
     ],
 )
+@pytest.mark.parametrize("crlf", [False, True], ids=["lf", "crlf"])
 def test_a_node_tree_sitter_closed_inside_a_macro_or_fused_into_the_head_takes_the_brace_body(
-    tmp_path, monkeypatch, src, start, closes, body_row, want
+    tmp_path, monkeypatch, src, start, closes, body_row, want, crlf
 ):
     from types import SimpleNamespace
 
@@ -777,6 +778,8 @@ def test_a_node_tree_sitter_closed_inside_a_macro_or_fused_into_the_head_takes_t
     name = "render" if start == 3 else "draw"
     funcs = [("m.c", "helper", 1, []), ("m.c", "slope", 2, []), ("m.c", name, start, sorted(want))]
     repo, scan = make_port(tmp_path, "linuxdoom", {"m.c": src}, funcs)
+    # Bytes, not write_text: Windows would turn every case CRLF, and the LF case must stay LF there too.
+    (repo / "m.c").write_bytes((src.replace("\n", "\r\n") if crlf else src).encode())
     port = co.Port("linuxdoom", repo, co.load_port(repo, co.find_db(scan)))
     body = next(f for f in port.functions if f[1] == name)[4]
     assert isinstance(body, co.TextBody)

@@ -320,6 +320,10 @@ class TextBody(Body):
         for name in _head_initializer_names(head):
             if name in known:
                 self.calls.setdefault(name, "ctor-init")
+        args = _head_initializer_arguments(head)  # `_n(std::move(v))`: part of the constructor
+        news = re.compile(r"\bnew\s+(?:[A-Za-z_]\w*\s*::\s*)*([A-Za-z_]\w*)")  # `d(new Impl(this))`: a type, as in Body
+        self.types |= set(news.findall(args))
+        self._text_calls(news.sub(" ", args).encode())
         self.refs = set(re.findall(r"\b[A-Za-z_]\w*\b", body)) - set(self.calls)
         self.text_only = [m.group(0) for m in STRIP.finditer(raw[open_at : end + 1])]
 
@@ -338,6 +342,29 @@ def _head_initializer_names(head):
         elif tok == ":" and depth == 0:
             listed = True
     return names
+
+
+def _head_initializer_arguments(head):
+    """The text inside each entry of a constructor head's initializer list (`: Base(f(x)), m(g(y))` -> `f(x) g(y)`): the
+    arguments are calls of the constructor, the entry names are not (a base class is read by `_head_initializer_names`)."""
+    depth, listed, out = 0, False, []
+    for m in re.finditer(r"::|[:()]|[^:()]+", head):
+        tok = m.group(0)
+        if tok == "(":
+            depth += 1
+            if depth > 1 and listed:
+                out.append(tok)
+        elif tok == ")":
+            depth -= 1
+            if depth >= 1 and listed:
+                out.append(tok)
+            elif depth == 0 and listed:
+                out.append(" ; ")  # entries apart: `a` then `(x)` of the next must not read as a call `a(x)`
+        elif tok == ":" and depth == 0:
+            listed = True
+        elif listed and depth >= 1:
+            out.append(tok)
+    return "".join(out)
 
 
 def _initializers(node):

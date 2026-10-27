@@ -1685,7 +1685,7 @@ def resolve_calls(
                 ) or (
                     init_only
                     and dst is not None
-                    and dst.kind == "class"
+                    and (dst.kind == "class" or dst.owner_key == _key(str(callee), lang))
                     and dst.path != src_path
                     and dst.path not in caller.imported
                     and _dirname(dst.path) != caller.dir

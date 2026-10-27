@@ -1,17 +1,16 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 25,
+ "scenarios": 26,
  "paragraphs": {
   "covered": 41,
   "live": 41
  },
  "branches": {
-  "covered": 65,
+  "covered": 66,
   "total": 71
  },
  "uncovered": {
   "branches": [
-   "339:true",
    "700:WHEN@707",
    "700:WHEN@709",
    "700:WHEN@711",
@@ -20,7 +19,7 @@
   ]
  },
  "inputs": {
-  "case": "c9b388806f0afaeace6150915f2084a74a76a65c0eaa4a371eaf136a9ced712d",
+  "case": "1f96377670f603b881680e2deb921646eda8ba322e3088000cc850e6a7e1802b",
   "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
   "harness": "4aa149fdf2da2f1e0c37127b8d173d337335275f3ceab77281cdc9cb6aba7f87",
   "oracle": "848c34c7d886f87f4b8bb59ab004960e50725b88325d6300d051c33665533f82",
@@ -38,5 +37,5 @@
    }
   }
  },
- "measured_at": "715ffaec9217c6d859f7169d3fc74950e6e909ea"
+ "measured_at": "536d6acf7d0c558da9ecb9152601b94665791e9a"
 }

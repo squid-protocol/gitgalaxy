@@ -24,7 +24,7 @@
   },
   "quorum": 0.75
  },
- "engine_sha": "71ec559e1",
+ "engine_sha": "55f749131",
  "ports": {
   "chocolate-doom": {
    "agree": 12132,
@@ -173,26 +173,26 @@
    "unmatched_functions": 0
   },
   "edge-classic": {
-   "agree": 10534,
+   "agree": 10535,
    "engine_calls": 10672,
    "engine_only_by_kind": {
     "absent": 8,
-    "function-pointer": 3,
+    "function-pointer": 2,
     "type": 127
    },
    "functions": 4964,
    "misses_by_shape": {
-    "statement": 2
+    "statement": 1
    },
    "oracle_calls": 10536,
-   "precision": 0.9871,
-   "recall": 0.9998,
+   "precision": 0.9872,
+   "recall": 0.9999,
    "text_fallback_functions": 37,
    "unmatched_functions": 0
   },
   "eternity": {
-   "agree": 15843,
-   "engine_calls": 16053,
+   "agree": 15842,
+   "engine_calls": 16052,
    "engine_only_by_kind": {
     "absent": 13,
     "function-pointer": 63,
@@ -203,7 +203,7 @@
     "statement": 8,
     "unparsed": 12
    },
-   "oracle_calls": 15863,
+   "oracle_calls": 15862,
    "precision": 0.9869,
    "recall": 0.9987,
    "text_fallback_functions": 487,
@@ -224,11 +224,11 @@
    "unmatched_functions": 2
   },
   "gzdoom": {
-   "agree": 43058,
+   "agree": 43073,
    "engine_calls": 44592,
    "engine_only_by_kind": {
-    "absent": 19,
-    "function-pointer": 212,
+    "absent": 20,
+    "function-pointer": 196,
     "type": 1303
    },
    "functions": 18070,
@@ -236,12 +236,12 @@
     "after-operator": 1,
     "assignment-rhs": 2,
     "nested-argument": 2,
-    "statement": 16,
+    "statement": 1,
     "unparsed": 5
    },
    "oracle_calls": 43084,
-   "precision": 0.9656,
-   "recall": 0.9994,
+   "precision": 0.9659,
+   "recall": 0.9997,
    "text_fallback_functions": 552,
    "unmatched_functions": 1
   },
@@ -284,11 +284,11 @@
    "unmatched_functions": 0
   },
   "odamex": {
-   "agree": 20222,
+   "agree": 20223,
    "engine_calls": 20612,
    "engine_only_by_kind": {
     "absent": 30,
-    "function-pointer": 53,
+    "function-pointer": 52,
     "macro": 7,
     "type": 300
    },
@@ -297,11 +297,11 @@
     "after-operator": 11,
     "nested-argument": 6,
     "other": 2,
-    "statement": 3
+    "statement": 2
    },
    "oracle_calls": 20244,
    "precision": 0.9811,
-   "recall": 0.9989,
+   "recall": 0.999,
    "text_fallback_functions": 293,
    "unmatched_functions": 1
   },

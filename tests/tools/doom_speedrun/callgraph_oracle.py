@@ -98,7 +98,8 @@ TEXT_NODES = {"comment", "string_literal", "raw_string_literal", "char_literal",
 # Text fallback for a region tree-sitter misparsed (an ERROR node, or an ``else if`` split by ``#ifdef`` read as a
 # nested function definition): comments and literals blanked, then every ``name (`` that is not a keyword.
 STRIP = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)
-TEXT_CALL = re.compile(r"\b([A-Za-z_]\w*)\s*\(")
+# An explicit destructor call (`p->~T(`, `x.~T(`, `T::~T(`) names the unit `~T`, as tree-sitter's destructor_name does.
+TEXT_CALL = re.compile(r"(?:(?<=->)|(?<=\.)|(?<=::))\s*~\s*([A-Za-z_]\w*)\s*\(|\b([A-Za-z_]\w*)\s*\(")
 # A class or struct definition head: the last word before its `:` base list or `{` is the class name.
 CLASS_HEAD = re.compile(r"\b(?:class|struct)\b[^;{}()<>]*?\b([A-Za-z_]\w*)\s*(?:final\s*)?[:{]")
 # A class head with a base list: `class A : public B, virtual C<T> {` (the entries after the lone `:`).
@@ -208,8 +209,9 @@ class Body:
     def _text_calls(self, raw):
         text = STRIP.sub(" ", decode_bytes(raw))
         for m in TEXT_CALL.finditer(text):
-            if m.group(1) not in KEYWORDS:
-                self.calls.setdefault(m.group(1), "unparsed")
+            name = "~" + m.group(1) if m.group(1) else m.group(2)
+            if name not in KEYWORDS:
+                self.calls.setdefault(name, "unparsed")
 
     def presence(self, name):
         """How ``name`` appears in the body: ``call:<shape>``, ``function-pointer``, ``type`` (a C++ constructor),

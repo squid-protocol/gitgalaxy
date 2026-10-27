@@ -15,8 +15,15 @@ package inside a NESTED module found no edge at all. Go resolves an import path 
   `doc.go`, else the first by name (stable across scans). Every file of the directory is a
   correct target, so the choice never invents a dependency.
 
-`go.mod` is not a scanned source file, so it is read from disk, only in directories that
-hold a scanned `.go` file or sit above one, and with a small line reader (`module` line only).
+* `replace X => ../local` (in `go.mod`, or in `go.work`, which applies workspace-wide) maps
+  the import path `X` to the local directory, relative to the file that declares it. A
+  replacement outside the scan, or to another module version (`=> Y v1.2`), names no file.
+  `go.work` `use ./dir` needs no reading: the module in `dir` is found through its own
+  `go.mod` like any other.
+
+`go.mod` / `go.work` are not scanned source files, so they are read from disk, only in
+directories that hold a scanned `.go` file or sit above one, with a small line reader
+(`module` and `replace` lines only).
 `vendor/` and `testdata/` modules are skipped.
 """
 
@@ -33,6 +40,11 @@ _MAX_MANIFEST_BYTES = 1_000_000
 _MODULE_LINE = re.compile(
     r"^[ \t]{0,16}module[ \t]{1,16}(?:\"([^\"\n]{1,512})\"|`([^`\n]{1,512})`|([^\s/][^\s]{0,511}))", re.M
 )
+_REPLACE_LINE = re.compile(
+    r"^[ \t]{0,16}(?:replace[ \t]{1,16})?(\S{1,512})(?:[ \t]{1,16}v\S{1,128})?[ \t]{0,16}=>[ \t]{0,16}(\S{1,512})", re.M
+)
+_REPLACE_BLOCK = re.compile(r"^[ \t]{0,16}replace[ \t]{0,16}\(([^)]{0,200000})\)", re.M)
+_REPLACE_ONE = re.compile(r"^[ \t]{0,16}replace[ \t]{1,16}(?!\()[^\n]{1,1200}", re.M)
 _SKIPPED_DIRS = frozenset({"vendor", "testdata"})
 
 
@@ -40,6 +52,18 @@ def parse_go_module(text: str) -> str | None:
     """The module path a go.mod declares, or None."""
     m = _MODULE_LINE.search(text)
     return (m.group(1) or m.group(2) or m.group(3)) if m else None
+
+
+def parse_go_replaces(text: str) -> list[tuple[str, str]]:
+    """(module path, local directory as written) for each `replace X => ./dir` / `../dir`."""
+    bodies = [m.group(1) for m in _REPLACE_BLOCK.finditer(text)] + [m.group(0) for m in _REPLACE_ONE.finditer(text)]
+    out = []
+    for body in bodies:
+        for m in _REPLACE_LINE.finditer(body):
+            old, new = m.group(1).strip('"`'), m.group(2).strip('"`')
+            if new.split("/")[0] in (".", "..") and old:
+                out.append((old, new))
+    return out
 
 
 class GoModules:
@@ -70,16 +94,28 @@ class GoModules:
         for d in sorted(dirs):
             if _SKIPPED_DIRS & set(d.split("/")):
                 continue
-            path = os.path.join(root, d, "go.mod")
-            try:
-                if not os.path.isfile(path) or os.path.getsize(path) > _MAX_MANIFEST_BYTES:
+            for name in ("go.mod", "go.work"):
+                text = self._read_manifest(os.path.join(root, d, name))
+                if text is None:
                     continue
-                module = parse_go_module(read_source(path).text)
-            except (OSError, UnicodeError, ValueError):
-                continue
-            if module:
-                found.append((module, d))
-        return sorted(found, key=lambda m: -len(m[0]))
+                module = parse_go_module(text) if name == "go.mod" else None
+                if module:
+                    found.append((module, d))
+                for old, new in parse_go_replaces(text):
+                    target = posixpath.normpath(posixpath.join(d, new))
+                    if target == ".." or target.startswith("../"):
+                        continue  # outside the scan: names no file
+                    found.append((old, "" if target == "." else target))
+        return sorted(set(found), key=lambda m: (-len(m[0]), m[1]))
+
+    @staticmethod
+    def _read_manifest(path: str) -> str | None:
+        try:
+            if not os.path.isfile(path) or os.path.getsize(path) > _MAX_MANIFEST_BYTES:
+                return None
+            return read_source(path).text
+        except (OSError, UnicodeError, ValueError):
+            return None
 
     def resolve(self, import_path: str) -> str | None:
         """The file of the package `import_path` names, or None."""

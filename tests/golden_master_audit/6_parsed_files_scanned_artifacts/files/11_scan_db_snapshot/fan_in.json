@@ -4405,7 +4405,7 @@
         "PyDict_SetDefault@4760": 0,
         "PyDict_SetDefaultRef@4749": 5,
         "PyDict_SetItem@2768": 35,
-        "PyDict_SetItemString@5390": 2,
+        "PyDict_SetItemString@5390": 1,
         "PyDict_Size@4483": 4,
         "PyDict_Unwatch@8017": 0,
         "PyDict_Update@4268": 7,
@@ -19559,7 +19559,7 @@
         "editor_clear_section_folding@821": 0,
         "emit_signal@762": 23,
         "get_class_ptr_static@622": 0,
-        "get_class_static@666": 2,
+        "get_class_static@666": 1,
         "get_gdtype_static@662": 1,
         "get_gdtype_static_mutable@454": 2,
         "get_instance@903": 0,
@@ -42376,7 +42376,7 @@
         "scheme_temp_dec_mark_depth@843": 0,
         "scheme_temp_inc_mark_depth@848": 0,
         "set_execute@1782": 1,
-        "unbound_global@998": 1,
+        "unbound_global@998": 0,
         "use_jit@4012": 0
       },
       "scheme/racket/fun.c": {

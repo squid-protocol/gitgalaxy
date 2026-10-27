@@ -15,6 +15,15 @@
     "open-fails-link-abndproc-abends-afct",
     "open-fails-link-abndproc-abends-afct-rollback-invreq"
    ]
+  },
+  "genapp-lgicdb01": {
+   "issue": "#6692",
+   "why": "same class as cbsa-inqacc: genapp-lgicdb01 is still the model-written port (written_by: model), so the java facade does not fire the declared sql_faults (select-fails-deadlock, select-fails-other) and differs on the no-COMMAREA start (3/5 events equal); the det sweep proves all 17 scenarios",
+   "scenarios": [
+    "no-commarea",
+    "select-fails-deadlock",
+    "select-fails-other"
+   ]
   }
  }
 }

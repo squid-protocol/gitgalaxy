@@ -187,6 +187,17 @@ def test_shell_one_line_keyword_block_is_not_a_function():
     assert "if" not in _functions("shell", "if() { x; }\nwhile() { y; }\nreal() { z; }\n")
 
 
+@pytest.mark.parametrize(
+    "block",
+    ["if ! up; then\n  sleep 1\nfi\n", "while up; do\n  sleep 1\ndone\n", "case $x in\n  a) up ;;\nesac\n"],
+)
+def test_shell_nameless_block_after_a_one_line_function_does_not_borrow_its_name(block):
+    """#6266: `if ! up; then` below `up() { psql; }` was a second `up` that ran to the `fi` (sqldoom run_with_server.sh)."""
+    code = "#!/bin/bash\nup() { psql; }\n" + block
+    units = StructuralExtractor("shell", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+    assert [(f["start_line"], f["loc"]) for f in units if f["name"] == "up"] == [(2, 1)]
+
+
 # --- scheme --------------------------------------------------------------------------------------
 
 

@@ -22,6 +22,7 @@ import re
 import time
 from typing import Any, ClassVar, TypedDict, cast
 
+from gitgalaxy.core import csharp_interpolation
 from gitgalaxy.core.call_resolver import BARE_CALL_SKIPS_METHODS, INIT_LIST_QUALIFIER
 from gitgalaxy.core.cobol_source_format import FIXED, line_formats
 from gitgalaxy.core.fortran_calls import fortran_call_names
@@ -10403,6 +10404,13 @@ class StructuralExtractor:
             i += 1
         return count
 
+    def _call_scan_shield(self, text: str) -> str:
+        """The literal shield for the `calls_out` scan. #6266: a C# interpolated string's holes are code, so they are
+        exposed first (`csharp_interpolation`); every other language shields as before."""
+        if self.primary_lang_id == "csharp":
+            text = csharp_interpolation.expose_holes(text)
+        return self._apply_literal_shield(text, self.primary_lang_id)
+
     def _drop_nested_unit_calls(
         self, sats: list[FunctionNode], code: str, scans: list[tuple[FunctionNode, str, dict[str, Any]]]
     ) -> None:
@@ -10422,7 +10430,7 @@ class StructuralExtractor:
             pattern = rules.get("calls_out")
             if blanked is None or not isinstance(pattern, re.Pattern):
                 continue
-            safe = self._apply_literal_shield(blanked, self.primary_lang_id)
+            safe = self._call_scan_shield(blanked)
             kept: dict[str, list[str]] = {}
             for m in pattern.finditer(safe):
                 seen = kept.setdefault(m.group(1), [])
@@ -10828,7 +10836,7 @@ class StructuralExtractor:
         own_header_seen = self.primary_lang_id == "objective-c" and block.lstrip()[:1] in ("-", "+")
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
-            safe_block = self._apply_literal_shield(block, self.primary_lang_id)
+            safe_block = self._call_scan_shield(block)
             message_receivers = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_message_receivers"))
             if message_receivers or _is_qualified_calls_out(invocation_pattern):
                 # #6454: the same mask as below; same length, so every position stays valid

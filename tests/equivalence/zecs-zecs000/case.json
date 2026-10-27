@@ -495,6 +495,4548 @@
         "ZC01DC": "type: A1\r%"
       },
       "why": "#6072: 501 expired records (E00001..E00501, two segments each, the same key path) and a single-data-center template (type: A1): every record goes through 3200-DELETE. DELETE-COUNT passes FIVE-HUNDRED on the 501st delete (line 535 true), so 8100-RESTART (START TRANSID INTERVAL(2) with the 20-byte ZC-PARM) and 9000-RETURN end the task with the browse unfinished; RECORD-COUNT passes TEN every 11th delete and 3220-SYNCPOINT runs 45 times"
+    },
+    {
+      "name": "expired-501-peer-201",
+      "commarea": null,
+      "startcode": "S",
+      "start_data": [
+        {
+          "text": "ZC01AAAAAAAA\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000"
+        }
+      ],
+      "datasets": {
+        "ZECS.ZC01FILE.TEST": {
+          "input": "@case/zcfile-expired-501.bin"
+        },
+        "ZECS.ZC01KEY.TEST": {
+          "input": "@case/zckey.bin"
+        }
+      },
+      "doctemplates": {
+        "ZC01DC": "type: AS\r%http://zecs-b.example.com:8080\r%"
+      },
+      "http_peers": [
+        {
+          "scheme": "HTTP",
+          "host": "zecs-b.example.com",
+          "port": 8080,
+          "urimap": null,
+          "path": null,
+          "exchanges": [
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            },
+            {
+              "method": "DELETE",
+              "path": "/deplicate/ecs/walmart/cache//resources/ecs/walmart/zecs/expired",
+              "query": "",
+              "status": 201,
+              "statustext": "003999000000000",
+              "mediatype": "text/plain",
+              "body": ""
+            }
+          ]
+        }
+      ],
+      "why": "#6072: 501 expired records (E00001..E00501, two segments each) and an active-standby template (type: AS) whose partner answers every DELETE 201 with a numeric ABSTIME: each record goes through 3100-UPDATE-ABS and 3110-REWRITE keeps it with the partner's ABSTIME. RESET-COUNT passes FIVE-HUNDRED on the 501st rewrite (line 508 true), so 8100-RESTART (START TRANSID INTERVAL with the 20-byte ZC-PARM) and 9000-RETURN end the task with the browse unfinished; 501 WEB OPEN / CONVERSE / CLOSE rounds, past the stub's former 64-session and 256-response caps (#6777)"
     }
   ],
   "notes": "zECS's expiration task for one instance (ZECS000, started by the ZX## transaction, here ZX01: EIBTRNID names the instance's files ZC01FILE and ZC01KEY, and the control file ZCEXPIRE). #5089: the CICS file ZCEXPIRE is defined with install symbols (CSD DEFINE FILE DSNAME @ecs_hlq@.ZCEXPIRE.@environment@) and zECS's IDCAMS job is Source/ZCEXPIRE.idcams, which the engine does not read as a define. The case states the substitution (\"install_symbols\": ECS_HLQ ZECS, ENVIRONMENT TEST -- never guessed) and the file's KEYS(4 0) from that job (\"vsam\" under the resolved name). RECORDSIZE(80 2048) and RECORDFORMAT(V) make ZCEXPIRE a variable-length KSDS; the stub keeps fixed-length records, so the case states reclen 70 -- every record the program writes and reads is its ZX-RECORD (LENGTH OF ZX-RECORD) -- and \"variable\": true says so; a record of another length would be a different case. The control record in zcexpire.bin is the one written 600 s before the task. The task is started with no start data (RETRIEVE answers ENDDATA: ZC-KEY stays LOW-VALUES) at the harness's STARTCODE 'S'. HOLES, named: ZC##FILE and ZC##KEY are named at run time from the RETRIEVEd transaction id (#4771) and defined by zECS's own IDCAMS jobs with install placeholders, so the Java side refuses the READ of the instance's file by name (Hole 'CICS file FILE: no store in the generated project') where GnuCOBOL answers FILENOTFOUND; every path that goes on to the expiration browse (2000-READ-FILE and everything after: the DOCUMENT / WEB replication, 3100-3220 deletes, 8100-RESTART) is therefore not in the case, and its paragraphs are uncovered and unproven (coverage 9/38 paragraphs). The two scenarios end before it: the control record is too young (1400-UPDATE restarts and returns) and a WRITE of the control record that answers DUPREC (1300-WRITE). ENQ BUSY, the control file's other conditions are not reached; the HANDLE ABEND label 9100-ABEND is reached by an AFCR / AFCS / AFCT abend planned on the control READ (#6271, X70) (the harness plans no fault for ENQ). Derived from zECS (github.com/walmartlabs/zECS, Apache-2.0): LICENSE here is the corpus's own, NOTICE names the source and what was derived. #5089 (#4771): two scenarios start the task with start data naming the instance (ZC01), so ZC##FILE / ZC##KEY resolve to the stated datasets ZECS.ZC01FILE.TEST / ZECS.ZC01KEY.TEST (the same stores and seeds as zecs-zecs003) and 2000-READ-FILE runs. The expired-record path (3000-DEPLICATE: DOCUMENT / WEB replication, the 3100-3220 deletes) is still not in the case.",

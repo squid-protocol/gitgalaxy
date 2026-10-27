@@ -12,6 +12,10 @@
   {
    "program": "LGUPVS01",
    "program_source": "base/src/lgupvs01.cbl"
+  },
+  {
+   "program": "LGSTSQ",
+   "program_source": "base/src/lgstsq.cbl"
   }
  ],
  "datasets": {
@@ -102,7 +106,7 @@
    }
   }
  },
- "notes": "Generated-row sibling (#4507) of genapp-lgupdb01: CUSTOMER, POLICY and the ENDOWMENT / HOUSE / MOTOR / COMMERCIAL tables are generated from base/cntl/db2cre.jcl (the same generate block as genapp-lgipdb01-generated: identity policy numbers 1000001..1000012 (the requests carry them), FKs POLICY->CUSTOMER and type->POLICY, NULLs and boundary values), not GenApp's INSERTs. The scenarios are written against those seed 4507 rows: each names a customer, a policy and the row's LASTCHANGED (the optimistic lock) as the generated POLICY row holds it; LGUPVS01's KSDSPOLY (ksdspoly.txt) holds a record for each policy that reaches it. Covered: the three types on generated policies, the lowest and highest timestamps, a NULL BROKERID and a NULL BROKERSREFERENCE read through their indicators, a stale LASTCHANGED ('02'), a request for a type the policy does not hold (+100 '01'), a wrong customer and an unknown policy (FETCH +100). Not generated: policies 4 and 5, whose ISSUEDATE / EXPIRYDATE are NULL (the FETCH has no indicator for them: -305, '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ, oracle_assumptions.md X6), and the paths on which LGUPVS01 fails. A change to the generator's draw moves the rows: the E2E test in tests/cobol_mainframe/test_equivalence_db2_rows.py fails the case then. Program, LINKed LGUPVS01 and the LGCMAREA COMMAREA as in genapp-lgupdb01.",
+ "notes": "Generated-row sibling (#4507) of genapp-lgupdb01: CUSTOMER, POLICY and the ENDOWMENT / HOUSE / MOTOR / COMMERCIAL tables are generated from base/cntl/db2cre.jcl (the same generate block as genapp-lgipdb01-generated: identity policy numbers 1000001..1000012 (the requests carry them), FKs POLICY->CUSTOMER and type->POLICY, NULLs and boundary values), not GenApp's INSERTs. The scenarios are written against those seed 4507 rows: each names a customer, a policy and the row's LASTCHANGED (the optimistic lock) as the generated POLICY row holds it; LGUPVS01's KSDSPOLY (ksdspoly.txt) holds a record for each policy that reaches it. Covered: the three types on generated policies, the lowest and highest timestamps, a NULL BROKERID and a NULL BROKERSREFERENCE read through their indicators, a stale LASTCHANGED ('02'), a request for a type the policy does not hold (+100 '01'), a wrong customer and an unknown policy (FETCH +100). Not generated: policies 4 and 5, whose ISSUEDATE / EXPIRYDATE are NULL (the FETCH has no indicator for them: -305, '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ, oracle_assumptions.md X6), and the paths on which LGUPVS01 fails. Fault and length paths (#6072): no COMMAREA and a short one (`commarea_length`), a failing OPEN (-913 and a hard SQLCODE), a failing CLOSE (+501 and a hard SQLCODE) and an unknown request id, each injected through `sql_faults` where it is a Db2 outcome; WRITE-ERROR-MESSAGE LINKs LGSTSQ (`programs` and `region`). With those, every branch outcome of LGUPDB01 is taken (38/38). A change to the generator's draw moves the rows: the E2E test in tests/cobol_mainframe/test_equivalence_db2_rows.py fails the case then. Program, LINKed LGUPVS01 and the LGCMAREA COMMAREA as in genapp-lgupdb01.",
  "scenarios": [
   {
    "name": "end-p10",
@@ -274,6 +278,94 @@
     "CA-REQUEST-SPECIFIC": "00000009992026-01-012027-01-012024-02-29-12.00.00.0000000000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
    },
    "why": "no policy 999: FETCH +100"
+  },
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: the no-commarea arm of the entry check, WRITE-ERROR-MESSAGE with no COMMAREA copy (IF EIBCALEN > 0 false), then ABEND LGCA"
+  },
+  {
+   "name": "open-cursor-fails",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232080000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "sql_faults": [
+    {
+     "line": 255,
+     "nth": 1,
+     "sqlcode": -904,
+     "sqlstate": "57011"
+    }
+   ],
+   "why": "OPEN POLICY_CURSOR answers -904 (resource unavailable): the OTHER arm, '90', WRITE-ERROR-MESSAGE with a full COMMAREA, RETURN (on generated policy 1000010)"
+  },
+  {
+   "name": "close-cursor-fails-501",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232080000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "sql_faults": [
+    {
+     "line": 365,
+     "nth": 1,
+     "sqlcode": -501,
+     "sqlstate": "24501"
+    }
+   ],
+   "why": "CLOSE POLICY_CURSOR answers -501 (cursor not open): '00', RETURN without the final LINK of LGUPVS01 (on generated policy 1000010)"
+  },
+  {
+   "name": "close-cursor-fails-other",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232080000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "sql_faults": [
+    {
+     "line": 365,
+     "nth": 1,
+     "sqlcode": -904,
+     "sqlstate": "57011"
+    }
+   ],
+   "why": "CLOSE POLICY_CURSOR answers -904: the OTHER arm, '90', WRITE-ERROR-MESSAGE, RETURN (on generated policy 1000010)"
+  },
+  {
+   "name": "short-commarea-open-fails",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232080000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "commarea_length": 40,
+   "sql_faults": [
+    {
+     "line": 255,
+     "nth": 1,
+     "sqlcode": -904,
+     "sqlstate": "57011"
+    }
+   ],
+   "why": "a 40-byte COMMAREA (header and the customer and policy numbers): the entry reads nothing past byte 28 before OPEN fails, so WRITE-ERROR-MESSAGE copies the whole 40 bytes (IF EIBCALEN < 91 true) (on generated policy 1000010)"
+  },
+  {
+   "name": "unknown-request-id",
+   "commarea": {
+    "CA-REQUEST-ID": "01UXXX",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00010000102026-01-012027-01-012007-12-14-05.54.32.4232080000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "LASTCHANGED matches on generated policy 1000010 but the request id names no policy type: the EVALUATE (line 283) has no WHEN OTHER, so no type table is updated and the POLICY row still is"
   }
- ]
+ ],
+ "region": {
+  "applid": "GENAPP",
+  "sysid": "CICA",
+  "why": "a deployment fact: LGSTSQ (the error logger WRITE-ERROR-MESSAGE LINKs) ASSIGNs SYSID into the message it writes; GenApp names no region in the corpus"
+ }
 }

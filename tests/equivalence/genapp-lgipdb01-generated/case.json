@@ -51,13 +51,72 @@
      "rows": 12
     },
     "GENASA1.ENDOWMENT": {
-     "rows": 3
+     "rows": 5,
+     "columns": {
+      "POLICYNUMBER": {
+       "values": [
+        1000010,
+        1000008,
+        1000007,
+        1000009,
+        1000011
+       ]
+      },
+      "PADDINGDATA": {
+       "values": [
+        "",
+        "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "EXTRA PADDING",
+        null
+       ]
+      },
+      "EQUITIES": {
+       "values": [
+        "",
+        "A",
+        "Z",
+        "Q",
+        "L"
+       ]
+      },
+      "WITHPROFITS": {
+       "values": [
+        "A",
+        "Z",
+        "",
+        "9",
+        "Y"
+       ]
+      }
+     }
     },
     "GENASA1.HOUSE": {
-     "rows": 4
+     "rows": 5,
+     "columns": {
+      "POLICYNUMBER": {
+       "values": [
+        1000012,
+        1000011,
+        1000008,
+        1000002,
+        1000009
+       ]
+      }
+     }
     },
     "GENASA1.MOTOR": {
-     "rows": 4
+     "rows": 4,
+     "columns": {
+      "MAKE": {
+       "values": [
+        "",
+        "AAAAAAA",
+        "ZZZZZZZZZZZZZZZ",
+        "FORD"
+       ]
+      }
+     }
     },
     "GENASA1.COMMERCIAL": {
      "rows": 3
@@ -85,8 +144,212 @@
   "applid": "GENAREGN",
   "sysid": "CICA"
  },
- "scenarios": [],
- "notes": "Generated-row sibling (#4507) of genapp-lgipdb01: CUSTOMER, POLICY and the ENDOWMENT / HOUSE / MOTOR / COMMERCIAL type tables are generated from base/cntl/db2cre.jcl (the same generate block as genapp-lgapdb01-generated: identity policy numbers 1000001..1000012, FKs POLICY->CUSTOMER and type->POLICY, NULLs and boundary values), not GenApp's INSERTs. The 32 generated requests are written against those rows (a request names a customer and a policy that the seed 4507 rows hold, or one they do not): 01IEND / 01IHOU / 01IMOT / 01ICOM found, wrong customer (+100 '01'), policy of another type (+100); 02ICOM by policy; 03ICOM Cust_Cursor (customer 1 holds two commercial policies, which the hand-seeded case never reached: the cursor loop runs twice), a customer with one and one with none; 05ICOM Zip_Cursor (a postcode held, one it does not, one in the wrong case); 04ICOM and 99XXXX are unknown request ids ('99'). A change to the generator's draw moves which policies exist: the E2E test in tests/cobol_mainframe/test_equivalence_db2_rows.py fails the case then (the SQLCODE mix and row counts it asserts move). Not generated: an endowment inquiry on policy 1000010, whose generated PADDINGDATA is empty (not NULL): CA-E-PADDING-DATA(1:0) is a zero-length reference modification (oracle_assumptions.md X8, libcob 'length out of bounds: 0'), the endowment path lgapdb01-generated leaves out too. The error paths (a negative SQLCODE on a SELECT, an OPEN or a CLOSE, the short COMMAREA '98') are genapp-lgipdb01's. Program, LINKed LGSTSQ and the LGCMAREA COMMAREA as in genapp-lgipdb01.",
+ "scenarios": [
+  {
+   "name": "no-commarea",
+   "commarea": null,
+   "why": "EIBCALEN 0: IF EIBCALEN IS EQUAL TO ZERO -- ' NO COMMAREA RECEIVED', WRITE-ERROR-MESSAGE LINKs LGSTSQ (ERROR-MSG to TD CSMT and TS GENAERRS: #4607), IF EIBCALEN > 0 is false, then ABEND LGCA"
+  },
+  {
+   "name": "endowment-select-fails",
+   "commarea": {
+    "CA-REQUEST-ID": "01IEND",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000008                                                                      "
+   },
+   "sql_faults": [
+    {
+     "line": 330,
+     "sqlcode": -904
+    }
+   ],
+   "why": "a generated 01IEND request with its SELECT (line 330) failing SQLCODE -904: not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+  },
+  {
+   "name": "house-select-fails",
+   "commarea": {
+    "CA-REQUEST-ID": "01IHOU",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000008                                                                      "
+   },
+   "sql_faults": [
+    {
+     "line": 444,
+     "sqlcode": -904
+    }
+   ],
+   "why": "a generated 01IHOU request with its SELECT (line 444) failing SQLCODE -904: not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+  },
+  {
+   "name": "motor-select-fails",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMOT",
+    "CA-CUSTOMER-NUM": 2,
+    "CA-REQUEST-SPECIFIC": "0001000003                                                                      "
+   },
+   "sql_faults": [
+    {
+     "line": 532,
+     "sqlcode": -904
+    }
+   ],
+   "why": "a generated 01IMOT request with its SELECT (line 532) failing SQLCODE -904: not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+  },
+  {
+   "name": "commercial-select-fails",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICOM",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000001                                                                      "
+   },
+   "sql_faults": [
+    {
+     "line": 631,
+     "sqlcode": -904
+    }
+   ],
+   "why": "a generated 01ICOM request with its SELECT (line 631) failing SQLCODE -904: not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+  },
+  {
+   "name": "commercial-by-policy-select-fails",
+   "commarea": {
+    "CA-REQUEST-ID": "02ICOM",
+    "CA-CUSTOMER-NUM": 0,
+    "CA-REQUEST-SPECIFIC": "0001000001                                                                      "
+   },
+   "sql_faults": [
+    {
+     "line": 734,
+     "sqlcode": -904
+    }
+   ],
+   "why": "02ICOM on generated policy 1000001 with its SELECT (line 734) failing SQLCODE -904: '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+  },
+  {
+   "name": "endowment-short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01IEND",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000008                                                                      "
+   },
+   "commarea_length": 40,
+   "why": "#4270 (X23): a generated 01IEND request with a 40-byte COMMAREA (header and policy number passed): the SELECT is +0, then IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN (line 390) is true -- '98', RETURN, nothing moved. The COMMAREA it leaves is compared over its 40 bytes"
+  },
+  {
+   "name": "house-short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01IHOU",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000008                                                                      "
+   },
+   "commarea_length": 40,
+   "why": "#4270 (X23): a generated 01IHOU request with a 40-byte COMMAREA (header and policy number passed): the SELECT is +0, then IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN (line 487) is true -- '98', RETURN, nothing moved. The COMMAREA it leaves is compared over its 40 bytes"
+  },
+  {
+   "name": "motor-short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMOT",
+    "CA-CUSTOMER-NUM": 2,
+    "CA-REQUEST-SPECIFIC": "0001000003                                                                      "
+   },
+   "commarea_length": 40,
+   "why": "#4270 (X23): a generated 01IMOT request with a 40-byte COMMAREA (header and policy number passed): the SELECT is +0, then IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN (line 581) is true -- '98', RETURN, nothing moved. The COMMAREA it leaves is compared over its 40 bytes"
+  },
+  {
+   "name": "commercial-short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICOM",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000001                                                                      "
+   },
+   "commarea_length": 40,
+   "why": "#4270 (X23): a generated 01ICOM request with a 40-byte COMMAREA (header and policy number passed): the SELECT is +0, then IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN (line 689) is true -- '98', RETURN, nothing moved. The COMMAREA it leaves is compared over its 40 bytes"
+  },
+  {
+   "name": "commercial-by-policy-short-commarea",
+   "commarea": {
+    "CA-REQUEST-ID": "02ICOM",
+    "CA-CUSTOMER-NUM": 0,
+    "CA-REQUEST-SPECIFIC": "0001000001                                                                      "
+   },
+   "commarea_length": 40,
+   "why": "#4270 (X23): 02ICOM on generated policy 1000001 with a 40-byte COMMAREA: the SELECT is +0, then IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN (line 793) is true -- '98', RETURN"
+  },
+  {
+   "name": "customer-cursor-close-fails",
+   "commarea": {
+    "CA-REQUEST-ID": "03ICOM",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0000000000                                                                      "
+   },
+   "sql_faults": [
+    {
+     "line": 852,
+     "sqlcode": -904
+    }
+   ],
+   "why": "03ICOM for customer 1 (two commercial policies) with CLOSE Cust_Cursor (line 852) failing SQLCODE -904: IF SQLCODE NOT EQUAL 0 -- '88', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+  },
+  {
+   "name": "zip-cursor-close-fails",
+   "commarea": {
+    "CA-REQUEST-ID": "05ICOM",
+    "CA-CUSTOMER-NUM": 0,
+    "CA-REQUEST-SPECIFIC": "0001000000                                                                                                                                                                                                                                                                                                                                       AAAA                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               "
+   },
+   "sql_faults": [
+    {
+     "line": 935,
+     "sqlcode": -904
+    }
+   ],
+   "why": "05ICOM on a postcode the generated rows hold, with CLOSE Zip_Cursor (line 935) failing SQLCODE -904: '88', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+  },
+  {
+   "name": "endowment-short-commarea-select-fails",
+   "commarea": {
+    "CA-REQUEST-ID": "01IEND",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0001000008                                                                      "
+   },
+   "sql_faults": [
+    {
+     "line": 330,
+     "sqlcode": -904
+    }
+   ],
+   "commarea_length": 40,
+   "why": "#4270 (X23): endowment-select-fails with a 40-byte COMMAREA: the SELECT fails -904: '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG, then IF EIBCALEN < 91 is true -- DFHCOMMAREA(1:40) into CA-DATA and the second LINK, whose 104-byte WRITEQ is refused (X6): judged up to it"
+  },
+  {
+   "name": "endowment-null-broker",
+   "commarea": {
+    "CA-REQUEST-ID": "01IEND",
+    "CA-CUSTOMER-NUM": 7,
+    "CA-REQUEST-SPECIFIC": "0001000009                                                                      "
+   },
+   "why": "the added endowment row of policy 1000009, whose BROKERID is NULL (indicator -1: the false side of l.397, DB2-BROKERID not moved) with a short padding"
+  },
+  {
+   "name": "endowment-null-payment-padding",
+   "commarea": {
+    "CA-REQUEST-ID": "01IEND",
+    "CA-CUSTOMER-NUM": 6,
+    "CA-REQUEST-SPECIFIC": "0001000011                                                                      "
+   },
+   "why": "the added endowment row of policy 1000011: PAYMENT NULL (false side of l.400) and PADDINGDATA NULL (false sides of l.383 and l.410: no length added, no padding moved)"
+  },
+  {
+   "name": "house-null-broker",
+   "commarea": {
+    "CA-REQUEST-ID": "01IHOU",
+    "CA-CUSTOMER-NUM": 7,
+    "CA-REQUEST-SPECIFIC": "0001000009                                                                      "
+   },
+   "why": "the added house row of policy 1000009, whose BROKERID is NULL: the false side of l.494"
+  }
+ ],
+ "notes": "Generated-row sibling (#4507) of genapp-lgipdb01: CUSTOMER, POLICY and the ENDOWMENT / HOUSE / MOTOR / COMMERCIAL type tables are generated from base/cntl/db2cre.jcl (the same generate block as genapp-lgapdb01-generated: identity policy numbers 1000001..1000012, FKs POLICY->CUSTOMER and type->POLICY, NULLs and boundary values), not GenApp's INSERTs. The 32 generated requests are written against those rows (a request names a customer and a policy that the seed 4507 rows hold, or one they do not): 01IEND / 01IHOU / 01IMOT / 01ICOM found, wrong customer (+100 '01'), policy of another type (+100); 02ICOM by policy; 03ICOM Cust_Cursor (customer 1 holds two commercial policies, which the hand-seeded case never reached: the cursor loop runs twice), a customer with one and one with none; 05ICOM Zip_Cursor (a postcode held, one it does not, one in the wrong case); 04ICOM and 99XXXX are unknown request ids ('99'). A change to the generator's draw moves which policies exist: the E2E test in tests/cobol_mainframe/test_equivalence_db2_rows.py fails the case then (the SQLCODE mix and row counts it asserts move). Not generated: an endowment inquiry on policy 1000010, whose generated PADDINGDATA is empty (not NULL): CA-E-PADDING-DATA(1:0) is a zero-length reference modification (oracle_assumptions.md X8, libcob 'length out of bounds: 0'), the endowment path lgapdb01-generated leaves out too. The error paths (a negative SQLCODE on a SELECT, an OPEN or a CLOSE, the short COMMAREA '98') are genapp-lgipdb01's. Program, LINKed LGSTSQ and the LGCMAREA COMMAREA as in genapp-lgipdb01. Seed additions (#6072): two more ENDOWMENT rows (policy 1000009, whose BROKERID is NULL, with a short padding; policy 1000011, whose PAYMENT is NULL, with NULL PADDINGDATA), a HOUSE row on policy 1000009 (NULL BROKERID) and a non-NULL MAKE on the MOTOR row of policy 1000011 and a non-NULL EQUITIES / WITHPROFITS on the two added ENDOWMENT rows (the generated NULL in those columns has no indicator, so such a row only ever answered -305 and never reached the NULL BROKERID / PAYMENT tests): they take the NULL-indicator outcomes at l.383, 397, 400, 410, 494 and 591 that the first draw never reached.",
  "scenario_generate": {
   "seed": 4507,
   "count": 32,

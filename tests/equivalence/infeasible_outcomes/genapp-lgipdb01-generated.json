@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "genapp-lgipdb01-generated",
+  "entries": [
+    {
+      "unit": "GET-COMMERCIAL-DB2-INFO-3",
+      "line": 907,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`If ICOM-Record-Count > 20` (GET-Commercial-DB2-INFO-3-Cur, line 907) is true only when Cust_Cursor returns a 21st row for one customer: the count restarts at 0 on every OPEN (line 838) and the loop runs until SQLCODE > 0. The generated seed holds 3 COMMERCIAL rows in all (`rows: 3`, 10 customers), so no customer has more than 3 and the count tops out at 3. A fault cannot stand in: an injected SQLCODE on the FETCH ends the loop on the first row. Reaching the true side takes 21 or more COMMERCIAL rows for a single customer, which re-rolls every COMMERCIAL row the other scenarios read (each table has its own rng), so the seed is left as is."
+    }
+  ]
+}

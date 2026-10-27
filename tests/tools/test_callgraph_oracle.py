@@ -561,7 +561,10 @@ def test_a_typedef_or_using_alias_names_a_base_class_ctor_call():
 @pytest.mark.parametrize(
     ("head", "names"),
     [
-        ("AlertItem(const String &msg, Level level)\n    : ui::ActionItem(ShownAsLabel, msg)\n    , _level(level)\n", ["ActionItem", "_level"]),
+        (
+            "AlertItem(const String &msg, Level level)\n    : ui::ActionItem(ShownAsLabel, msg)\n    , _level(level)\n",
+            ["ActionItem", "_level"],
+        ),
         ("Impl(Public *i) : Base(i)\n", ["Base"]),
         ("Cls(int a = f(1)) : Base<int>(a)\n", ["Base"]),
         ("void f(int a = g(1))\n", []),  # no initializer list: a default argument is not one

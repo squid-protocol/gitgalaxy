@@ -307,7 +307,9 @@ class TextBody(Body):
         else:
             self._text_calls(body.encode())
         head = text[:open_at]
-        ctor = re.match(r"\s*(?:[\w:<>~*&\s]*?[\s*&:])?([A-Za-z_]\w*)\s*\(", head)  # a constructor is named for its class
+        ctor = re.match(
+            r"\s*(?:[\w:<>~*&\s]*?[\s*&:])?([A-Za-z_]\w*)\s*\(", head
+        )  # a constructor is named for its class
         classes = classes or {}
         known = classes.get(ctor.group(1), set()) | classes.get(ALIASES, set()) if ctor else set()
         for name in _head_initializer_names(head):
@@ -537,7 +539,11 @@ class Port:
         self.functions = []  # (rel, name, start, engine callee set, Body / TextBody or None)
         self.edges = set()
         trees = {}
-        classes = class_names(self.repo, doom_scorer._engine_vendor_test(self.repo)) if any(r[1] == "cpp" for r in rows) else {}
+        classes = (
+            class_names(self.repo, doom_scorer._engine_vendor_test(self.repo))
+            if any(r[1] == "cpp" for r in rows)
+            else {}
+        )
         for rel, lang, fname, start, callees in rows:
             key = (rel, lang)
             if key not in trees:

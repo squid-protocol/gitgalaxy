@@ -75,10 +75,10 @@ Evidence (#5206, #4703; detail in `blocker-slice` / `cics-command-slice`): read 
 - **A `claim:<host>` label naming the host that launched you is your own lease, not someone else's**: churn claims every issue it queues (`churn claims` prints the host; the owner's box is `nyx`, so `claim:nyx` and a "promoter-bot claim host=nyx" comment are churn's). Work the issue. Only an assignee, or a `claim:` label for a different host, means another party holds it: then stop and report. 2026-10-25: a worker stopped on `claim:nyx` and the tick parked three DOOM-goal issues on that report for 5 h.
 
 ## Never
-Merge (unless told to). Rebase or force-push. Close issues. `--no-verify`, `reset --hard`, rewriting published history. Edit the shepherd's workflows (`shepherd-*.yml`) without the owner's per-PR OK. Route around a denial or classifier block: STOP and report it.
+Merge (unless told to). Rebase or force-push. Close issues. `--no-verify`, `reset --hard`, rewriting published history. Hand-write a shepherd marker comment. Edit the shepherd's workflows (`shepherd-*.yml`) without the owner's per-PR OK. Route around a denial or classifier block: STOP and report it.
 
 ## After pushing
-To queue a green PR for merge, label it `shepherd:merge` (docs/ci.md); fallback `python tests/tools/box/ci_shepherd.py add N`.
+To queue a green PR for merge, label it `shepherd:merge` (docs/ci.md); fallback `python tests/tools/box/ci_shepherd.py add N`. Add the label ONLY: never write a `shepherd:approved` / `shepherd-update` marker comment by hand (the shepherd writes them; `.claude/rules/shepherd-markers.md`).
 
 **Before the final report**, and before any later push: `git fetch -q origin; git merge-tree --write-tree origin/main HEAD >/dev/null || echo CONFLICT`. On CONFLICT merge main now (generated files: take main's, regenerate) and push: a conflicting PR runs no checks, and 7 of this week's 25 send-backs were exactly that.
 

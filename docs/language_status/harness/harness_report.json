@@ -6,25 +6,25 @@
   "programs": 103,
   "with_case": 103,
   "with_case_pct": 100.0,
-  "proven": 79,
-  "proven_pct": 76.7,
+  "proven": 80,
+  "proven_pct": 77.7,
   "paragraphs": {
    "covered": 365,
    "live": 366,
    "pct": 99.7
   },
   "branches": {
-   "covered": 1134,
-   "total": 1209,
+   "covered": 1136,
+   "total": 1211,
    "pct": 93.8
   },
   "cases_measured": 25,
   "cases": 98
  },
  "status_counts": {
-  "proven": 79,
+  "proven": 80,
   "differs": 0,
-  "ran, coverage open": 21,
+  "ran, coverage open": 20,
   "couldn't run": 3,
   "not attempted": 0
  },
@@ -352,6 +352,15 @@
    "gaps": [],
    "reasons": {},
    "tests": 20
+  },
+  {
+   "corpus": "cics-banking-sample-application-cbsa",
+   "program": "src/base/cobol_src/BNKMENU.cbl",
+   "case": "cbsa-bnkmenu",
+   "status": "proven",
+   "gaps": [],
+   "reasons": {},
+   "tests": 32
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -795,20 +804,6 @@
    },
    "tests": 77,
    "blocker": "coverage: LINKed program INQACC has live paragraphs no scenario runs"
-  },
-  {
-   "corpus": "cics-banking-sample-application-cbsa",
-   "program": "src/base/cobol_src/BNKMENU.cbl",
-   "case": "cbsa-bnkmenu",
-   "status": "ran, coverage open",
-   "gaps": [
-    "coverage: live paragraphs no scenario runs"
-   ],
-   "reasons": {
-    "coverage: live paragraphs no scenario runs": "24/25 paragraphs"
-   },
-   "tests": 32,
-   "blocker": "coverage: live paragraphs no scenario runs"
   },
   {
    "corpus": "cics-banking-sample-application-cbsa",
@@ -2173,30 +2168,6 @@
    "then_needs": {}
   },
   {
-   "gap": "coverage: live paragraphs no scenario runs",
-   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 4 programs: Source/ZECS001.cbl, base/src/lgapol01.cbl, src/base/cobol_src/BNKMENU.cbl, zBuilder/MortgageApplication/cobol/epsmlist.cbl (cases: cbsa-bnkmenu, genapp-lgtestp1, mortgage-mlist, zecs-zecs001).",
-   "programs": [
-    "Source/ZECS001.cbl",
-    "base/src/lgapol01.cbl",
-    "src/base/cobol_src/BNKMENU.cbl",
-    "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
-   ],
-   "cases": [
-    "cbsa-bnkmenu",
-    "genapp-lgtestp1",
-    "mortgage-mlist",
-    "zecs-zecs001"
-   ],
-   "programs_unlocked": 3,
-   "tests_unlocked": 56,
-   "programs_also_blocked": [],
-   "then_needs": {
-    "Source/ZECS001.cbl": [
-     "fact: EIBRCODE (no harness states it)"
-    ]
-   }
-  },
-  {
    "gap": "coverage: LINKed program XFRFUN has live paragraphs no scenario runs",
    "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 1 program: src/base/cobol_src/BNK1TFN.cbl (cases: cbsa-bnk1tfn).",
    "programs": [
@@ -2223,6 +2194,28 @@
    "tests_unlocked": 31,
    "programs_also_blocked": [],
    "then_needs": {}
+  },
+  {
+   "gap": "coverage: live paragraphs no scenario runs",
+   "fix": "Add scenarios that reach the paragraphs / branches nothing runs in 3 programs: Source/ZECS001.cbl, base/src/lgapol01.cbl, zBuilder/MortgageApplication/cobol/epsmlist.cbl (cases: genapp-lgtestp1, mortgage-mlist, zecs-zecs001).",
+   "programs": [
+    "Source/ZECS001.cbl",
+    "base/src/lgapol01.cbl",
+    "zBuilder/MortgageApplication/cobol/epsmlist.cbl"
+   ],
+   "cases": [
+    "genapp-lgtestp1",
+    "mortgage-mlist",
+    "zecs-zecs001"
+   ],
+   "programs_unlocked": 2,
+   "tests_unlocked": 24,
+   "programs_also_blocked": [],
+   "then_needs": {
+    "Source/ZECS001.cbl": [
+     "fact: EIBRCODE (no harness states it)"
+    ]
+   }
   },
   {
    "gap": "coverage: LINKed program INQCUST has live paragraphs no scenario runs",

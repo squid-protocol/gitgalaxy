@@ -267,29 +267,29 @@
    "unmatched_functions": 1
   },
   "doomsday": {
-   "agree": 69027,
+   "agree": 69033,
    "engine_calls": 71315,
    "engine_only_by_kind": {
-    "absent": 47,
+    "absent": 28,
     "comment/string": 3,
-    "function-pointer": 222,
+    "function-pointer": 231,
     "macro": 7,
-    "type": 2009
+    "type": 2013
    },
    "functions": 25449,
    "misses_by_shape": {
-    "after-operator": 8,
-    "assignment-rhs": 5,
-    "condition/return": 7,
-    "nested-argument": 8,
-    "other": 6,
-    "statement": 10,
-    "unparsed": 15
+    "after-operator": 4,
+    "assignment-rhs": 3,
+    "condition/return": 3,
+    "nested-argument": 4,
+    "other": 3,
+    "statement": 4,
+    "unparsed": 14
    },
-   "oracle_calls": 69086,
-   "precision": 0.9679,
-   "recall": 0.9991,
-   "text_fallback_functions": 756,
+   "oracle_calls": 69068,
+   "precision": 0.968,
+   "recall": 0.9995,
+   "text_fallback_functions": 834,
    "unmatched_functions": 1
   },
   "dsda-doom": {
@@ -323,10 +323,10 @@
    "unmatched_functions": 0
   },
   "eternity": {
-   "agree": 15828,
+   "agree": 15830,
    "engine_calls": 16031,
    "engine_only_by_kind": {
-    "absent": 6,
+    "absent": 4,
     "function-pointer": 63,
     "type": 134
    },
@@ -335,8 +335,8 @@
     "statement": 5,
     "unparsed": 3
    },
-   "oracle_calls": 15836,
-   "precision": 0.9873,
+   "oracle_calls": 15838,
+   "precision": 0.9875,
    "recall": 0.9995,
    "text_fallback_functions": 475,
    "unmatched_functions": 0
@@ -413,10 +413,10 @@
    "unmatched_functions": 0
   },
   "odamex": {
-   "agree": 20223,
+   "agree": 20225,
    "engine_calls": 20611,
    "engine_only_by_kind": {
-    "absent": 29,
+    "absent": 27,
     "function-pointer": 52,
     "macro": 7,
     "type": 300
@@ -428,8 +428,8 @@
     "other": 2,
     "statement": 2
    },
-   "oracle_calls": 20244,
-   "precision": 0.9812,
+   "oracle_calls": 20246,
+   "precision": 0.9813,
    "recall": 0.999,
    "text_fallback_functions": 293,
    "unmatched_functions": 1
@@ -473,10 +473,10 @@
    "unmatched_functions": 0
   },
   "srb2": {
-   "agree": 19186,
+   "agree": 19191,
    "engine_calls": 19260,
    "engine_only_by_kind": {
-    "absent": 19,
+    "absent": 14,
     "function-pointer": 17,
     "macro": 28,
     "type": 10
@@ -485,10 +485,10 @@
    "misses_by_shape": {
     "unparsed": 2
    },
-   "oracle_calls": 19188,
-   "precision": 0.9962,
+   "oracle_calls": 19193,
+   "precision": 0.9964,
    "recall": 0.9999,
-   "text_fallback_functions": 282,
+   "text_fallback_functions": 283,
    "unmatched_functions": 8
   },
   "woof": {

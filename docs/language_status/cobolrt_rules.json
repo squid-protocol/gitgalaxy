@@ -288,6 +288,7 @@
     "be32",
     "put32",
     "bytesAre",
+    "bytesAt",
     "zero",
     "fill",
     "pad",

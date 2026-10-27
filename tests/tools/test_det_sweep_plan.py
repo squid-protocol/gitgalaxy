@@ -138,3 +138,20 @@ def test_a_db2_shard_creates_only_the_databases_its_share_of_cases_uses(tmp_path
 @needs_linux_bash
 def test_a_full_sweep_shard_keeps_the_whole_pool(tmp_path):
     assert _pool_for(tmp_path, "all", "3/6") == 4
+
+
+def test_every_harness_path_and_the_modules_it_imports_for_numbers_is_a_det_input():
+    """#6782: cobol_coverage.py changed branch counts for every case but planned 'none', so main went red."""
+    import evidence
+
+    missing = sorted(
+        p
+        for p in (*evidence.HARNESS, "tests/tools/le_out_size.py")
+        if (TOOLS.parents[1] / p).is_file() and not dsp.det_input(p)
+    )
+    assert not missing, f"not in det_sweep_plan.DET_INPUTS: {missing}"
+
+
+def test_a_cobol_coverage_edit_plans_a_sweep_not_none():
+    p = dsp.plan(["tests/tools/cobol_coverage.py"], "pull_request", CASES)
+    assert p["mode"] != "none"

@@ -50,10 +50,10 @@
     "tests/tools/equivalence_ims.py"
    ],
    "files": 18,
-   "sha256": "93e40b9bbb2b1d6c1d0e3c27d815a85062312c011fb8eb0db48af9e45a7df173",
+   "sha256": "4aa149fdf2da2f1e0c37127b8d173d337335275f3ceab77281cdc9cb6aba7f87",
    "components": {
     "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
-    "harness:core": "7b994d3dcdb03f604ab6bb31bf3d859039409b67409bdd1d79d9f989a31bad99",
+    "harness:core": "44d38a01abc69857283e736186feda6396e1cf6e297c12e07a097730aee7f15f",
     "harness:db2": "389a27466f489f7499560289b5ceaeabaac2feaeb5b38eabc35b4227ffe604e1"
    }
   },
@@ -205,10 +205,10 @@
    },
    "runtime_sha256": "150386a124b56e8e6ad08d343f24f609a4c82d7b467d0a0df37eec8f8e49933d"
   },
-  "digest": "4b41ca8f488aa5f7bdfda24148ffd751a1c707f11844f7b8f15371475cbdc52d"
+  "digest": "8bd51a666a0955044c5c1fe580b843ae4e4ee5a2c2f27b2e9a8c36b03f69f22d"
  },
  "proof": {
-  "at": "2026-10-26T09:14:04Z",
+  "at": "2026-10-27T11:05:24Z",
   "verdict": "proven",
   "runs": 27,
   "fault_runs": 0,
@@ -418,8 +418,8 @@
    "failed": [],
    "error": null
   },
-  "harness_commit": "4aa4de078f6003045f656399c83c80cbdac89e87+uncommitted",
-  "inputs_digest": "4b41ca8f488aa5f7bdfda24148ffd751a1c707f11844f7b8f15371475cbdc52d"
+  "harness_commit": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2+uncommitted",
+  "inputs_digest": "8bd51a666a0955044c5c1fe580b843ae4e4ee5a2c2f27b2e9a8c36b03f69f22d"
  },
  "coverage": {
   "paragraphs": {
@@ -443,7 +443,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "4b41ca8f488aa5f7bdfda24148ffd751a1c707f11844f7b8f15371475cbdc52d"
+  "inputs_digest": "8bd51a666a0955044c5c1fe580b843ae4e4ee5a2c2f27b2e9a8c36b03f69f22d"
  },
  "reach": {
   "entry_points": [
@@ -514,7 +514,7 @@
   "compiler_options": null,
   "image": {
    "name": "gitgalaxy-gnucobol-db2:3",
-   "id": "sha256:5130ea614eb826d35a07f5ad1b0f45ee1cf738c5d15451f58cedaa7275b0f8ec",
+   "id": "sha256:ec6700c84dabf72e2db919f1f6fc8a9b22a6b435527935374d970be021754989",
    "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
    "matches_pin": true,
    "mismatches": []

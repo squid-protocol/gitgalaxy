@@ -89,6 +89,9 @@ WEB_SESSION_JAVA = """\
 
     private WebOpened webSession(HttpPeer peer, boolean byUrimap) {
         CicsTask r = root();
+        if (r.webSeq >= 9999) {
+            throw refused("WEB OPEN: more than 9999 sessions in one task");
+        }
         String token = String.format(java.util.Locale.ROOT, "GGWS%04d", ++r.webSeq);
         r.webSessions.put(token, new WebSession(peer, byUrimap));
         return new WebOpened(0, 0, token);

@@ -27,7 +27,7 @@
     "tests/equivalence/carddemo-copaua0c/**"
    ],
    "files": 2,
-   "sha256": "c9b388806f0afaeace6150915f2084a74a76a65c0eaa4a371eaf136a9ced712d"
+   "sha256": "1f96377670f603b881680e2deb921646eda8ba322e3088000cc850e6a7e1802b"
   },
   "harness": {
    "paths": [
@@ -84,7 +84,7 @@
     "gitgalaxy/tools/cobol_to_java/**"
    ],
    "files": 113,
-   "sha256": "aa03dfbf49d4b3b2904ea2d0520f0020e8923b9247d9f8d51f6707321a897cff",
+   "sha256": "7b7b0a83144033535093b58e7dfaac32078b888a3607cfe2f2ec0e107ca902f5",
    "components": {
     "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
     "generator:cobolrt/Codec.java": "8f64df479294b444eba647528c55b25615d5a4fa962e7447757d0d48d5c342ab",
@@ -102,7 +102,7 @@
     "generator:cobolrt/cics/DetCics.java": "3ac8d4ca4c7a9b524beed9e846fc1bcae354b2eebb6cd7e72bcbc04df79d0727",
     "generator:cobolrt/cics/DetMq.java": "40204edf5e82cd78739db956e424860a0121cb3ec44e0a9c1e508ed41fcf3187",
     "generator:cobolrt/dli/DetDli.java": "56e263bc5b387bd987e6a86ee14ec69a1f72f489bdd2aa921b3e8ae4c96c8902",
-    "generator:cobolrt/mq/QueueManager.java": "6c04ae9207b4375362dd3ec1dd7558c330dfa14f785a9e76e4ee3293e7074308",
+    "generator:cobolrt/mq/QueueManager.java": "30bc5f1cae55df5b40a609f31ebeb402b7c0f3c74f53dbcc66b82e0e6e0af04c",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
     "generator:core": "1ac9c6427102b5346f29a2a36cafb29a6189425423168c3a16a8e473bafb3fae",
@@ -208,12 +208,12 @@
    },
    "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "ae8bd84995d468e616db78d443197db246f53a0a93ac1c1d39bc6306544d9782"
+  "digest": "e049143a11e851d623a2bd15699e4e8ceab29f30fc1d20f288c55f7626fc906c"
  },
  "proof": {
-  "at": "2026-10-27T07:45:43Z",
+  "at": "2026-10-27T11:43:57Z",
   "verdict": "proven",
-  "runs": 25,
+  "runs": 26,
   "fault_runs": 7,
   "environments": null,
   "outputs": {
@@ -532,6 +532,20 @@
      "SYNCPOINT",
      "WRITEQ-TD"
     ]
+   },
+   "five-hundred-one-requests": {
+    "equal": 2010,
+    "records": 2010,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT",
+     "WRITEQ-TD"
+    ]
    }
   },
   "return_code_equal": null,
@@ -540,16 +554,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 25,
-   "passed": 25,
+   "runs": 26,
+   "passed": 26,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "715ffaec9217c6d859f7169d3fc74950e6e909ea+uncommitted",
-  "inputs_digest": "ae8bd84995d468e616db78d443197db246f53a0a93ac1c1d39bc6306544d9782"
+  "harness_commit": "536d6acf7d0c558da9ecb9152601b94665791e9a+uncommitted",
+  "inputs_digest": "e049143a11e851d623a2bd15699e4e8ceab29f30fc1d20f288c55f7626fc906c"
  },
  "coverage": {
   "paragraphs": {
@@ -557,16 +571,10 @@
    "live": 41
   },
   "branches": {
-   "covered": 65,
+   "covered": 66,
    "total": 71
   },
   "uncovered_branches": [
-   {
-    "line": 339,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "2000-MAIN-PROCESS"
-   },
    {
     "line": 700,
     "kind": "EVALUATE",
@@ -603,7 +611,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "ae8bd84995d468e616db78d443197db246f53a0a93ac1c1d39bc6306544d9782"
+  "inputs_digest": "e049143a11e851d623a2bd15699e4e8ceab29f30fc1d20f288c55f7626fc906c"
  },
  "reach": {
   "entry_points": [

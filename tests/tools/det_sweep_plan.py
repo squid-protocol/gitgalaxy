@@ -130,6 +130,11 @@ DET_INPUTS = (
     "tests/tools/proof_sweep.py",
     "tests/tools/det_sweep_plan.py",
     "tests/tools/equivalence*.py",
+    # #6782: the coverage counter and a module equivalence.py imports move proof numbers like the harness does; a PR
+    # touching them planned "none" (#6772), so the ledgers it moved were never re-swept
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/le_out_size.py",
+    "tests/tools/java_target_matrix.py",
     "tests/tools/mainframe_corpus.py",
     "tests/equivalence/*",
     "tests/cobol_mainframe/corpora.json",

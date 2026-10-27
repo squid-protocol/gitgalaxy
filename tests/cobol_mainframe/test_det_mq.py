@@ -33,6 +33,7 @@ sys.path.insert(0, str(ROOT / "tests" / "tools"))
 import equivalence_mq as EQ  # noqa: E402
 
 from gitgalaxy.standards import mq as SPEC  # noqa: E402
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
@@ -590,6 +591,81 @@ def test_the_runtime_is_the_oracle_model_byte_for_byte(c_driver, tmp_path):
         if java != c:
             bad.append(f"{name}\n  java {java}\n  c    {c}")
     assert not bad, "\n".join(bad)
+
+
+SHORT_PROBE = r"""
+import p.cobolrt.mq.QueueManager;
+import p.cobolrt.mq.QueueManager.Ref;
+import java.nio.file.Path;
+import java.util.HexFormat;
+
+public class Short {
+    static final HexFormat H = HexFormat.of().withUpperCase();
+    static byte[] l(int v) { return new byte[] {(byte) (v >>> 24), (byte) (v >>> 16), (byte) (v >>> 8), (byte) v}; }
+    static int g(byte[] b) { return (b[0] & 0xFF) << 24 | (b[1] & 0xFF) << 16 | (b[2] & 0xFF) << 8 | (b[3] & 0xFF); }
+    static Ref r(byte[] b) { return new Ref(b, 0); }
+    public static void main(String[] a) throws Exception {
+        QueueManager qm = new QueueManager(Path.of(a[0]), (kind, kv) -> {
+            for (int i = 0; i < kv.length; i += 2) {
+                if (kv[i].equals("data")) System.out.println("EV " + kind + " data=" + kv[i + 1]);
+            }
+        }, "20220718", "10301525");
+        byte[] od = H.parseHex(a[1]), hobj = l(0), cc = l(-9), rc = l(-9), hconn = l(0);
+        qm.mqopen(r(hconn), r(od), r(l(16)), r(hobj), r(cc), r(rc));
+        for (int bl : new int[] {-1, 0, 5, 6, 7, 400}) {  // a 5-byte field; BufferLength less than, equal and past it
+            byte[] data = {0x41, 0x42, 0x43, 0x44, 0x45};
+            qm.mqput(r(hconn), r(hobj), r(H.parseHex(a[2])), r(H.parseHex(a[3])), r(l(bl)), r(data), r(cc), r(rc));
+            System.out.println("PUT " + bl + " " + g(cc) + "/" + g(rc));
+        }
+        byte[] data = {0x41, 0x42, 0x43, 0x44, 0x45};
+        qm.mqput1(r(hconn), r(od), r(H.parseHex(a[2])), r(H.parseHex(a[3])), r(l(8)), r(data), r(cc), r(rc));
+        System.out.println("PUT1 8 " + g(cc) + "/" + g(rc));
+        for (var e : qm.end().entrySet()) {
+            e.getValue().forEach(m -> System.out.println("M " + m));
+        }
+    }
+}
+"""
+
+
+@pytest.mark.slow(reason="javac-compiles the MQ runtime and starts one JVM (a few s on CI)")
+@pytest.mark.skipif(_jdk() is None, reason="needs a JDK 17 (JAVA_HOME / JDK_17)")
+def test_a_put_longer_than_the_callers_field_stores_and_reports_the_same_bytes(tmp_path):
+    """The 501-request COPAUA0C scenario: BufferLength past the 200-byte field threw IndexOutOfBounds in the put event
+    while the stored message was zero-padded. Every length class: negative, 0, short, equal, +1, far past; MQPUT and MQPUT1."""
+    src = tmp_path / "src"
+    (src / "p/cobolrt/mq").mkdir(parents=True)
+    (src / "p/cobolrt/mq/QueueManager.java").write_text(
+        (RT / "mq/QueueManager.java").read_text(encoding="utf-8").replace("__PACKAGE__", "p"), encoding="utf-8"
+    )
+    (src / "Short.java").write_text(SHORT_PROBE, encoding="utf-8")  # fmt: skip
+    jdk = _jdk()
+    javac_run([str(jdk / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(tmp_path / "classes"), *map(str, src.rglob("*.java"))],
+              check=True)  # fmt: skip
+    cfg = tmp_path / "short.cfg"
+    cfg.write_text(EQ.cfg(state(q("OUT")), "latin-1"), encoding="ascii")
+    out = subprocess.run(  # noqa: S603
+        [str(jdk / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(tmp_path / "classes"), "Short", str(cfg),
+         od("OUT").hex(), md().hex(), pmo().hex()],
+        capture_output=True, text=True, encoding="utf-8", check=True,
+    ).stdout.splitlines()  # fmt: skip
+
+    def data(n: int) -> str:
+        return (b"ABCDE" + bytes(max(n - 5, 0))).hex().upper()[: 2 * n]
+
+    assert "PUT -1 2/2005" in out
+    assert [ln.split("data=")[1] for ln in out if ln.startswith("EV MQPUT ")] == [
+        "",
+        "",
+        data(5),
+        data(6),
+        data(7),
+        data(400),
+    ]
+    assert [ln.split("data=")[1] for ln in out if ln.startswith("EV MQPUT1 ")] == [data(8)]
+    assert "PUT1 8 0/0" in out
+    stored = [ln.split()[-1] for ln in out if ln.startswith("M ")]
+    assert [m.upper() for m in stored if m != "-"] == [data(n) for n in (0, 5, 6, 7, 400, 8) if n]  # event == stored
 
 
 def test_every_reason_code_and_refusal_is_reached_by_a_script():

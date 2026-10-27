@@ -137,6 +137,14 @@ public final class QueueManager {
         return Arrays.equals(r.b(), r.at() + off, r.at() + off + want.length, want, 0, want.length);
     }
 
+    /** `len` bytes from the caller's bytes; a BufferLength past the end of the field reads zeros there (the Java
+     *  runtime cannot see the storage that follows the field), the same bytes in the stored message and the event. */
+    private static byte[] bytesAt(Ref r, int len) {
+        byte[] out = new byte[len];
+        System.arraycopy(r.b(), r.at(), out, 0, Math.max(0, Math.min(len, r.b().length - r.at())));
+        return out;
+    }
+
     private static boolean zero(Ref r, int off, int n) {
         for (int i = 0; i < n; i++) {
             if (r.b()[r.at() + off + i] != 0) {
@@ -490,7 +498,7 @@ public final class QueueManager {
             put32(s, 28, qmgrCcsid);  // MQCCSI_Q_MGR
         }
         put32(s, 96, 0);  // BackoutCount
-        add(q, stored, Arrays.copyOfRange(buffer.b(), buffer.at(), buffer.at() + bl),
+        add(q, stored, bytesAt(buffer, bl),
                 (o & PMO_NOSYNC) != 0 ? AVAIL : PUT_PENDING);  // z/OS: in the unit of work by default
         pad(pmo, 32, qnames.get(q), 48);  // ResolvedQName, ResolvedQMgrName
         pad(pmo, 80, qmgr, 48);
@@ -500,7 +508,7 @@ public final class QueueManager {
     private void putEvent(String call, String queue, int r, Ref md, Ref buffer, int bl) {
         sink.event(call, "queue", queue, "cc", comp(r), "rc", r,
                 "msgid", r != 0 ? "-" : HEX.formatHex(md.b(), md.at() + 48, md.at() + 72),
-                "data", r != 0 ? "" : HEX.formatHex(buffer.b(), buffer.at(), buffer.at() + Math.max(bl, 0)));
+                "data", r != 0 ? "" : HEX.formatHex(bytesAt(buffer, Math.max(bl, 0))));
     }
 
     /** MQPUT (Hconn, Hobj, MsgDesc, PutMsgOpts, BufferLength, Buffer, CompCode, Reason) */

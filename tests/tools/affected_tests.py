@@ -28,7 +28,10 @@ from __future__ import annotations
 import argparse
 import ast
 import functools
+import importlib.util
 import json
+import os
+import shutil
 import subprocess
 import sys
 from collections import Counter, defaultdict
@@ -37,6 +40,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 from gitgalaxy.core.source_text import read_source  # noqa: E402 -- #3813: no lossy decode
+
 SCAN_ROOTS = ("tests", "gitgalaxy")
 DURATIONS = REPO / ".test_durations"
 UNKNOWN_SECONDS = 2.0  # a test file .test_durations has never timed (a new one)
@@ -176,7 +180,18 @@ def doc_readers(path: str, files: set[str]) -> set[str]:
     return {s for s in scopes if s in files}
 
 
-GENERIC_DIRS = {"tests", "tools", "docs", "workflows", "fixtures", "languages", "standards", "gitgalaxy", "core", "data"}
+GENERIC_DIRS = {
+    "tests",
+    "tools",
+    "docs",
+    "workflows",
+    "fixtures",
+    "languages",
+    "standards",
+    "gitgalaxy",
+    "core",
+    "data",
+}
 
 
 def name_keys(path: str, files: Counter, dirs: Counter) -> list[str]:
@@ -261,6 +276,21 @@ def select(hits: dict[str, int], seconds: dict[str, float], budget: float) -> tu
     return run, left, total
 
 
+def pytest_command(has_pytest: bool | None = None, which=shutil.which) -> tuple[list[str], dict[str, str] | None]:
+    """How to run pytest. This interpreter when it has pytest; else the `pytest` on PATH, with this checkout first on
+    PYTHONPATH so a shared venv's editable install of another checkout is not what runs. Churn's precheck runs
+    pr_gates under /usr/bin/python3, which has no pytest: `-m pytest` failed the gate in 6 s on every branch whose
+    change reached a test (PR #6799), the same trap pr_gates' `_tool_bin_dir` closes for ruff."""
+    if has_pytest is None:
+        has_pytest = importlib.util.find_spec("pytest") is not None
+    found = None if has_pytest else which("pytest")
+    if not found:
+        return [sys.executable, "-m", "pytest"], None
+    env = dict(os.environ)
+    env["PYTHONPATH"] = os.pathsep.join(p for p in (str(REPO), env.get("PYTHONPATH", "")) if p)
+    return [found], env
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--base", default="origin/main", help="what the branch is compared with (its merge base)")
@@ -283,7 +313,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if left:
         print("  left to CI: " + " ".join(left[:20]) + (" ..." if len(left) > 20 else ""))
-    proc = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", *run], cwd=REPO, check=False)  # noqa: S603
+    cmd, env = pytest_command()
+    proc = subprocess.run([*cmd, "-q", "-p", "no:cacheprovider", *run], cwd=REPO, env=env, check=False)  # noqa: S603
     return 0 if proc.returncode == 5 else proc.returncode  # 5: every selected test deselected / skipped
 
 

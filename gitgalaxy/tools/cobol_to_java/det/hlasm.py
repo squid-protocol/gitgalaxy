@@ -595,8 +595,8 @@ class _Lowering:
             return [f"{ind}{lvl}  {name} PIC X({it.length})", f"{ind}        VALUE {_quote(it.value)}."]
         out = [f"{ind}{lvl}  {name}."]
         sub = f"{level + 5 if level > 1 else 5:02d}"
-        for c in chunks:
-            out += [f"{ind}    {sub}  FILLER PIC X({len(c)})", f"{ind}        VALUE {_quote(c)}."]
+        for chunk in chunks:
+            out += [f"{ind}    {sub}  FILLER PIC X({len(chunk)})", f"{ind}        VALUE {_quote(chunk)}."]
         return out
 
 

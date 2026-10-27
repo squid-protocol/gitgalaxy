@@ -455,6 +455,28 @@ def test_the_arguments_of_a_member_initializer_are_part_of_the_constructor(init,
 
 
 @pytest.mark.parametrize(
+    ("init", "calls", "types"),
+    [
+        (": d(new Impl(this))", set(), {"Impl"}),
+        (": _v(std::move(v)), _n(count(v))", {"move", "count"}, set()),
+        (
+            ": Base(v), _r(Rangei(0, p.segmentCount())), _t(Time::invalidTime())",
+            {"Rangei", "segmentCount", "invalidTime"},
+            set(),
+        ),
+        (": name(n), d(new Impl(this))", set(), {"Impl"}),  # `n` then `(this)` of the next entry is no call `n(this)`
+        (": Base(v), _flags(f)", set(), set()),  # the entry names are not calls
+    ],
+)
+def test_a_text_fallback_constructor_reads_the_arguments_of_its_initializer_list(init, calls, types):
+    """A constructor tree-sitter does not parse (a bare macro line, a `#if` head) is read by its braces and head; the
+    initializer arguments are its calls, as on the tree-sitter path above (#6266, doomsday `Impl(...) : _n(std::move(v))`)."""
+    body = co.TextBody(f"Widget::Widget(int v = dflt())\n    {init}\n{{\n}}\n".encode(), 1)
+    assert set(body.calls) == calls
+    assert body.types == types
+
+
+@pytest.mark.parametrize(
     ("head", "owner"),
     [
         ("Widget::Widget(int v) : Base(v) {}", "Widget"),

@@ -510,3 +510,18 @@ def test_an_if_macro_that_closes_the_node_early_is_flagged_and_the_braces_reach_
 
 def test_a_function_followed_by_a_declaration_is_not_flagged():
     assert not body_of("void f()\n{\n    g();\n}\n\nint x = 1;\n", "cpp").broken
+
+
+@pytest.mark.parametrize(
+    "stmt",
+    [
+        "IFVM(Runner, CanWipe)\n    {\n        inner(1);\n    }",
+        'IFVIRTUALPTRNAME(act, "SectorAction", TriggerAction)\n        {\n            inner(act);\n        }',
+        "IFVIRTUAL(DObject, Tick) { inner(); }",
+    ],
+)
+def test_a_vm_call_macro_block_is_part_of_its_function_not_a_nested_one(stmt):
+    """The engine reads gzdoom's `IFVM` / `IFVIRTUAL*` blocks as a statement of the enclosing function; so does the oracle."""
+    body = body_of(f"bool run(AActor *act)\n{{\n    {stmt}\n    return true;\n}}\n", "cpp")
+    assert "inner" in body.calls
+    assert body.nested == []

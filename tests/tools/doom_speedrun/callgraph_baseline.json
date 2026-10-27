@@ -24,7 +24,7 @@
   },
   "quorum": 0.75
  },
- "engine_sha": "5a0e49753",
+ "engine_sha": "71ec559e1",
  "ports": {
   "chocolate-doom": {
    "agree": 12132,
@@ -224,25 +224,25 @@
    "unmatched_functions": 2
   },
   "gzdoom": {
-   "agree": 43113,
-   "engine_calls": 44637,
+   "agree": 43058,
+   "engine_calls": 44592,
    "engine_only_by_kind": {
     "absent": 19,
-    "function-pointer": 228,
-    "type": 1277
+    "function-pointer": 212,
+    "type": 1303
    },
-   "functions": 18280,
+   "functions": 18070,
    "misses_by_shape": {
     "after-operator": 1,
-    "assignment-rhs": 25,
+    "assignment-rhs": 2,
     "nested-argument": 2,
-    "statement": 84,
-    "unparsed": 8
+    "statement": 16,
+    "unparsed": 5
    },
-   "oracle_calls": 43233,
-   "precision": 0.9659,
-   "recall": 0.9972,
-   "text_fallback_functions": 592,
+   "oracle_calls": 43084,
+   "precision": 0.9656,
+   "recall": 0.9994,
+   "text_fallback_functions": 552,
    "unmatched_functions": 1
   },
   "inter-doom": {

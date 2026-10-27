@@ -534,3 +534,46 @@ def test_text_fallback_names_an_explicit_destructor_call_by_its_unit():
     body = co.TextBody(b"void f() { p->~Node(); q.~Item (); a = ~g(a); }", 1)
     assert {"~Node", "~Item", "g"} <= set(body.calls)
     assert "Node" not in body.calls and "Item" not in body.calls
+
+
+ALIAS_SRC = """\
+template <typename P> struct Private { typedef P Public; };
+template <typename P> struct Widget : public Private<P> {
+    typedef Private<P> Base;
+    Widget(P *i) : Base(i), _n(0) {}
+    int _n;
+};
+using Core = Private<int>;
+using type = int;
+typedef long count;
+typedef int Bool;
+typedef Plain Alias;
+struct Plain : Core { Plain() : Core(1), Base_x(2) {} int Base_x; };
+"""
+
+
+def test_a_typedef_or_using_alias_names_a_base_class_ctor_call():
+    """`typedef Private<P> Base;` then `: Base(i)` calls the aliased base's constructor (doomsday DE_PIMPL, #6266)."""
+    aliases = co.class_names_of_text(ALIAS_SRC)[co.ALIASES]
+    assert {"Base", "Core", "Alias"} <= aliases and not {"type", "count", "Bool", "Plain"} & aliases
+
+
+@pytest.mark.parametrize(
+    ("head", "names"),
+    [
+        ("AlertItem(const String &msg, Level level)\n    : ui::ActionItem(ShownAsLabel, msg)\n    , _level(level)\n", ["ActionItem", "_level"]),
+        ("Impl(Public *i) : Base(i)\n", ["Base"]),
+        ("Cls(int a = f(1)) : Base<int>(a)\n", ["Base"]),
+        ("void f(int a = g(1))\n", []),  # no initializer list: a default argument is not one
+        ("int f(bool b) { return b ? 1 : 2; }", []),
+    ],
+)
+def test_the_text_view_reads_a_ctor_initializer_list_with_qualified_and_templated_bases(head, names):
+    assert co._head_initializer_names(head) == names
+
+
+def test_a_misparsed_ctor_with_a_qualified_base_still_gets_the_ctor_call():
+    """tree-sitter loses the class around a macro-heavy head; the brace fallback must still see `: ui::ActionItem(...)`."""
+    src = b"AlertItem(const String &msg)\n    : ui::ActionItem(ShownAsLabel, msg)\n    , _level(1)\n{}\n"
+    body = co.TextBody(src, 1, {"AlertItem": {"ActionItem"}})
+    assert body.calls["ActionItem"] == "ctor-init" and "_level" not in body.calls

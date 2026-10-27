@@ -769,8 +769,8 @@ class Gen:
         arithmetic result): a floating-point receiver would need the double -> HFP conversion nobody ruled on."""
         for t, _ in targets:
             if self.float_item(t) is not None:
-                raise Untranslatable(f"a binary64 COMPUTE (owner decision, #5867) into {t.name}, a floating-point item "
-                                     f"({FLOAT_BYTES})")  # fmt: skip
+                raise Untranslatable(f"a binary64 COMPUTE (owner decision, #5867, register C6) into {t.name}, a "
+                                     f"floating-point item ({FLOAT_BYTES})")  # fmt: skip
 
     def ieee_num(self, e) -> str:
         """An IEEE_BINARY64_PROGRAMS expression in Java double (IEEE 754 binary64, round to nearest even): each operand

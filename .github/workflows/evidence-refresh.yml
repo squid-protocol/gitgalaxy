@@ -79,6 +79,10 @@ on:
         description: "also sweep and re-prove the Db2 cases (starts IBM's Db2 container; the nightly run always does)"
         type: boolean
         default: true
+      force:
+        description: "run even while the open full-lane bot PR's required checks are still running (this run force-pushes that PR and restarts its CI: use only when its head is known bad)"
+        type: boolean
+        default: false
       keys:
         description: "only these records (space-separated keys, e.g. carddemo-dateutil crucible:pc-wizard/PCWIZ)"
         type: string
@@ -102,7 +106,7 @@ jobs:
     permissions:
       actions: read
     outputs:
-      defer: ${{ steps.push_gate.outputs.defer }}
+      defer: ${{ steps.push_gate.outputs.defer || steps.full_gate.outputs.defer }}
       sha: ${{ steps.pin.outputs.sha }}  # #4744: the one commit every job of this run works from
       db2_parts: ${{ steps.db2parts.outputs.db2_parts }}  # #5882: det-sweep's full-sweep Db2 shard count, plus the records part
       db2_timeout: ${{ steps.db2parts.outputs.db2_timeout }}  # #5919: every matrix and timeout below is planned, not typed
@@ -142,6 +146,30 @@ jobs:
       - name: Plan the shards and timeouts (#5919)
         id: db2parts
         run: python3 tests/tools/det_sweep_plan.py --evidence-plan --github-output "$GITHUB_OUTPUT"
+
+      # #6693: every full run force-pushes the full-lane bot PR (#6428) and restarts its ~1 h of CI. ~25 hourly dispatches
+      # did that before any head's required checks finished, so the PR never merged. Stand down (push nothing, run nothing)
+      # while the open PR's current head still has a check running; `force` overrides. A PR with no check run on its head
+      # (conflicting, or checks not registered yet) does not hold the run back: nothing is being protected.
+      - name: Full lane - stand down while the open bot PR's checks are running (#6693)
+        id: full_gate
+        if: github.event_name != 'push' && !inputs.force
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          head=$(gh api "repos/$REPO/pulls?state=open&head=${REPO%%/*}:auto/evidence-refresh-full&per_page=1" --jq '.[0].head.sha // ""')
+          if [ -z "$head" ]; then
+            echo "defer=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          running=$(gh api "repos/$REPO/commits/$head/check-runs?per_page=100" \
+            --jq '[.check_runs[] | select(.status != "completed")] | length')
+          if [ "$running" -gt 0 ]; then
+            echo "defer=true" >> "$GITHUB_OUTPUT"
+            echo "The open full-lane bot PR's head ${head:0:12} still has $running check run(s) in progress: this run pushes nothing and starts no proof. Dispatch again after they finish (or with force, to restart that PR's CI on purpose) (#6693)." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "defer=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Push lane - stand down while a full run is queued or running
         id: push_gate
@@ -192,7 +220,7 @@ jobs:
   db2-part:
     name: db2 ${{ matrix.part }}
     needs: lane
-    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.db2)
+    if: needs.lane.outputs.defer != 'true' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.db2))
     runs-on: ubuntu-latest
     timeout-minutes: ${{ fromJSON(needs.lane.outputs.db2_timeout || '90') }}  # #5919: planned (tests/tools/ci_shard_plan.py)
     strategy:
@@ -1401,17 +1429,11 @@ jobs:
         if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && needs.records.result == 'success' && needs.det-mutation.result == 'success' && needs.sweep.result == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
-          PAT_TOKEN: ${{ secrets.AUTOMATION_PAT }}
           PR: ${{ steps.cpr.outputs.pull-request-number }}
-          HEAD_SHA: ${{ steps.cpr.outputs.pull-request-head-sha }}
           REPO: ${{ github.repository }}
-        # Label and approve for CI shepherd (using AUTOMATION_PAT so the label actor has write permission) so shepherd
-        # manages flake reruns and status digests, and also enable squash auto-merge directly once checks register.
+        # #6693: the bot PR merges through its own GitHub auto-merge and never gets `shepherd:merge` (an approval is bound
+        # to its head, so every force-push dropped the label and turned auto-merge off again): enable it once checks register.
         run: |
-          if [ -n "$PAT_TOKEN" ] && [ -n "$HEAD_SHA" ]; then
-            GH_TOKEN="$PAT_TOKEN" gh api -X POST "repos/$REPO/issues/$PR/labels" -f "labels[]=shepherd:merge" >/dev/null 2>&1 || true
-            GH_TOKEN="$PAT_TOKEN" gh api "repos/$REPO/issues/$PR/comments" -f "body=<!-- shepherd:approved sha=$HEAD_SHA by=squid-protocol -->" >/dev/null 2>&1 || true
-          fi
           for i in $(seq 1 20); do
             if out=$(gh pr merge "$PR" --repo "$REPO" --auto --squash 2>&1); then echo "$out"; exit 0; fi
             echo "$out"

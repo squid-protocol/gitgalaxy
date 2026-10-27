@@ -53,7 +53,7 @@ def test_a_failed_ledger_job_blocks_auto_merge(jobs):
     steps = jobs["refresh"]["steps"]
     auto = next(s for s in steps if s.get("name", "").startswith("Enable squash auto-merge"))
     assert "needs.det-mutation.result == 'success'" in auto["if"]
-    assert "labels[]=shepherd:merge" in auto["run"] and "shepherd:approved" in auto["run"]
+    assert "--auto --squash" in auto["run"] and "shepherd:" not in auto["run"]  # #6693: own auto-merge, no label
     rehome = next(s for s in steps if s.get("name", "").startswith("Advance gitgalaxy to latest origin/main"))
     cpr = next(s for s in steps if s.get("id") == "cpr")
     assert steps.index(rehome) < steps.index(cpr) < steps.index(auto)
@@ -82,3 +82,17 @@ def test_the_survey_includes_the_cics_crucible_clone(jobs):
     assert '--crucible "$GITHUB_WORKSPACE/cics-crucible"' in survey["run"]
     feed = next(s for s in steps if s.get("id") == "feed")
     assert '--extra-root "$GITHUB_WORKSPACE/cics-crucible"' in feed["run"]
+
+
+def test_a_full_dispatch_stands_down_while_the_bot_pr_checks_run(jobs):
+    """#6693: a dispatch must not force-push the full-lane bot PR while its head's checks are running."""
+    lane = jobs["lane"]
+    gate = next(s for s in lane["steps"] if s.get("id") == "full_gate")
+    assert "!inputs.force" in gate["if"] and "auto/evidence-refresh-full" in gate["run"]
+    assert 'select(.status != "completed")' in gate["run"]
+    assert "full_gate.outputs.defer" in lane["outputs"]["defer"]
+    assert "defer != 'true'" in jobs["db2-part"]["if"]
+    for name in ("sweep", "records", "det-mutation", "refresh"):
+        assert "defer != 'true'" in jobs[name]["if"], name
+    on = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    assert "force" in on[True]["workflow_dispatch"]["inputs"]  # PyYAML reads the key `on` as True

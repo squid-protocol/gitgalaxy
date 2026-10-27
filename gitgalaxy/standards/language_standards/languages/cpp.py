@@ -148,6 +148,8 @@ DEFINITION: dict[str, Any] = {
                 "co_await",
                 "co_yield",
                 "co_return",
+                "foreach",  # #6266: a Qt loop statement `foreach (T x, c)`, as Q_FOREACH
+                "Q_FOREACH",
             }
         ),
         # 1. branch (Control Flow / Branching)
@@ -250,8 +252,8 @@ DEFINITION: dict[str, Any] = {
             + r"]["
             + ID_CONTINUE
             + r"]*){0,5})?[ \t]*\{[ \t]*){0,3}"
-            # #6266: `case T(x):` before a block is a label, not a definition named `T`.
-            r"(?!(?:if|for|while|switch|catch|else|case|__except|__finally)\b)"
+            # #6266: `case T(x):` before a block is a label, not a definition named `T`; a Qt `foreach (..) {` is a loop.
+            r"(?!(?:if|for|while|switch|catch|else|case|__except|__finally|foreach|Q_FOREACH|forever)\b)"
             # #6266: an indented `SERVER_ONLY(\n if (x) {..})` (the body starts on the next line) or `AGOBJECT_FOREACH_CHILD(d,
             # &list, t) {` (an address-of argument) is a statement macro inside a body, not a definition. Plain-identifier
             # arguments (`DEFINE_THING(a, b) {`) stay a definition; column 0 is the function-macro branch's, below.

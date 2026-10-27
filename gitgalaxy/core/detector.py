@@ -1811,8 +1811,10 @@ def _header_macro_span(text: str) -> int:
 
 _FUNCTION_TYPE_OPEN_RE = re.compile(r"<[ \t]*(?:const[ \t]+)?(?:\w+[ \t]*::[ \t]*)*$")
 # #6266: `operator String () const` names the target type, it does not call it; the walk back from the callee crosses
-# only a qualifier (`operator Value::Number ()`).
-_CONVERSION_OPERATOR_RE = re.compile(r"\boperator[ \t\r\n]+(?:const[ \t\r\n]+)?(?:\w+[ \t\r\n]*::[ \t\r\n]*)*$")
+# only a qualifier (`operator Value::Number ()`). An explicit `x.operator bool()` is a real call (#6454).
+_CONVERSION_OPERATOR_RE = re.compile(
+    r"(?<![.>])\boperator[ \t\r\n]+(?:const[ \t\r\n]+)?(?:\w+[ \t\r\n]*::[ \t\r\n]*)*$"
+)
 _FUNCTION_TYPE_CLOSE_RE = re.compile(r"[ \t]*(?:const|noexcept|&&?)?[ \t]*>")
 _FUNCTION_TYPE_MAX_SCAN = 400
 

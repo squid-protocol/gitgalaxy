@@ -43,3 +43,9 @@ def test_a_qualified_function_type_argument_is_not_a_call(qualifier):
     )
     calls = _calls(code, "all")
     assert "LoopResult" not in calls
+
+
+@pytest.mark.parametrize("access", [".", "->"])
+def test_an_explicit_conversion_operator_call_stays_a_call(access):
+    code = "void run(Path *p)\n{\n  auto s = p" + access + "operator String();\n}\n"
+    assert "String" in _calls(code, "run")

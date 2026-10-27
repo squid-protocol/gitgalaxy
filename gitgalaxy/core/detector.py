@@ -1749,7 +1749,7 @@ _DECLARATOR_NON_TYPES = frozenset(
     {
         "return", "else", "new", "delete", "throw", "case", "goto", "co_return", "co_await", "co_yield",
         "sizeof", "alignof", "typedef", "using", "operator", "do", "not", "and", "or", "xor", "template",
-        "namespace", "public", "private", "protected", "friend", "virtual", "explicit", "default",
+        "namespace", "public", "private", "protected", "friend", "virtual", "explicit", "default", "emit",
     }
 )  # fmt: skip
 # Decl-specifiers that may precede the type (`static Foo foo(1)`).

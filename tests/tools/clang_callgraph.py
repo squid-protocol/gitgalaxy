@@ -126,6 +126,9 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
     static_edges: dict[tuple[tuple, tuple], int] = {}
     linkage: dict[tuple[str, str, int], bool] = {}  # key -> has external linkage
     seen_callers: set[tuple[tuple[str, str, int], str]] = set()
+    fatal: set[str] = (
+        set()
+    )  # sources whose parse hit a fatal error (a missing generated header): types after it are guesses
 
     source_lines: dict[str, list[str]] = {}
 
@@ -155,6 +158,8 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
                 parses.append((group, [*args, *macros, *msvc]))
         for group, parse_args in parses:
             tu = index.parse(str(src), args=parse_args)
+            if any(d.severity >= cindex.Diagnostic.Fatal for d in tu.diagnostics) and (rel := _rel(repo, str(src))):
+                fatal.add(rel)
             for top in tu.cursor.get_children():
                 if top.kind != kinds.FUNCTION_DECL or not top.is_definition():
                     continue
@@ -210,12 +215,15 @@ def build(repo: Path, lang: str = "c") -> dict[str, Any]:
             external.add((caller, name))
         for t in targets:
             edges.setdefault((caller, t), line)
-    return {
+    out: dict[str, Any] = {
         "defs": sorted([list(k) for k in defs]),
         "edges": sorted([list(a), list(b), line] for (a, b), line in edges.items()),
         "external": sorted([list(c), n] for c, n in external),
         "files": len(sources),
     }
+    if fatal:  # only when non-empty: the contract's other readers compare it exactly
+        out["fatal"] = sorted(fatal)
+    return out
 
 
 def _system_includes() -> list[str]:

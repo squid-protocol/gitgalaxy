@@ -2501,6 +2501,10 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   Reference's table); a name that is no CVDA is refused by name. The det port already took it in expressions.
 - **Status:** ASSUMED where listed, REFUSED where IBM is silent. Proven through cics-crucible hc-deedit-uctranst (3) on
   the cobol-stub side and the det port.
+- **DEEDIT of an empty field (#6271).** An unmodified field (X'00') or an FSET field left empty (blanks) has no digit, so BNK1CAC
+  437 (`CUSTNOL < 1`) and 717 (`OVERDRL < 1`) after their DEEDIT are refused by name ("no digit left"); IBM's page says nothing
+  of it (re-read 2026-10-27), so no scenario types one. BNK1CAC 611/637 run only through a reference modification past
+  `INTRTI` (X8, `rate-three-places` in `bounds_refused`).
 
 ### X27. RETURN ... IMMEDIATE, LINK ... SYNCONRETURN — ASSUMED, REFUSED where IBM is silent (#4270 slice)
 - **RETURN IMMEDIATE** (CICS TS 6.x, EXEC CICS RETURN, https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-return).
@@ -3738,6 +3742,14 @@ Sources: https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-extract-web ("a s
   `tests/cobol_mainframe/test_output_map_compare.py`. Not claimed: a subfield of X'00' (LOW-VALUES, "the map's own") or X'40' (DFHBMUNP, which
   the port's side cannot tell from a cleared byte; COPAUS0C hits it), and bytes a program never set (GnuCOBOL spaces where IBM leaves them
   undefined). Sibling, not folded in: #5116 (PICIN/PICOUT, SEND MAP JUSTIFY, NUM default); no burned program was found to need it.
+- **A field of typed blanks arrives with length 0 (#6271, assumption 5).** The oracle (`map_input`, `justified`) and the port
+  (`DetCics.typed`, `DetJustify.place`) take `<f>L` as the length of the text typed without its trailing blanks, so a blank
+  amount is `AMTL` 0. IBM's DFHMDF / RECEIVE MAP pages do not say whether blanks typed count in `<f>L` (re-read 2026-10-27), and a
+  real 3270 may send them. Consequence: BNK1CRA 988 and BNK1TFN 1026 ("entirely spaces", `AMTL` above 0) are not reached; the
+  `AMTL = ZERO` guard (BNK1CRA 970, BNK1TFN 991) takes every blank amount. Both outcomes are stated in
+  `tests/equivalence/infeasible_outcomes/cbsa-bnk1cra.json` / `cbsa-bnk1tfn.json` as unreachable under this assumption, not as
+  impossible on a terminal. A length independent of the text would need a new input channel (oracle, DetCics, DetJustify,
+  translator): not modelled.
 
 ### X55. Macro-level CICS and CICS Assembler programs: refused by name, not translated (#5121)
 - **IBM.** The macro-level interface is the pre-command-level CICS API (the "era 0" of #5121: DFHxx macro calls, no

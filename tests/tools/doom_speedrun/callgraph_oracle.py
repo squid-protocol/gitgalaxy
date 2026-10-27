@@ -2,7 +2,7 @@
 """C/C++ call-graph validation for the DOOM Port Speedrun corpus (#5630): a tree-sitter body oracle and family consensus.
 
     python tests/tools/doom_speedrun/callgraph_oracle.py [--only a,b] [--family a,b] [--work DIR] [--sha SHA]
-           [--baseline FILE --fail-on-regression] [--write-baseline FILE]
+           [--clang] [--baseline FILE --fail-on-regression] [--write-baseline FILE]
 
 Reads the scans ``doom_speedrun.py scan`` leaves under ``<work>/scans/<sha>/<port>`` and the clones under
 ``<work>/repos/<port>``; it never fetches or scans itself.
@@ -19,7 +19,10 @@ Reads the scans ``doom_speedrun.py scan`` leaves under ``<work>/scans/<sha>/<por
 
 Results go to ``<work>/results/<sha>/callgraph.{json,md}``. ``--baseline`` compares with a committed baseline and
 ``--fail-on-regression`` exits 1 when a port's recall or precision drops, or a consensus count grows (the hook for the
-DOOM-rosetta nightly, #5619). Licensed ports only: the tool refuses any port outside ``LICENSED``.
+DOOM-rosetta nightly, #5619). ``--clang`` adds the libclang reference of ``doom_clang_calls.py`` for the C ports
+(its recall, precision and the disagreement count in files clang parsed without a fatal error, apart from the files
+it could not) and gates the same way against the baseline's ``clang`` section. Licensed ports only: the tool refuses
+any port outside ``LICENSED``.
 Needs ``tree_sitter_language_pack`` (the selfscan venv has it).
 """
 
@@ -679,7 +682,58 @@ def regressions(current, baseline, tol=TOLERANCE):
                 out.append(f"consensus: {key} {bc[key]} -> {cc[key]}")
     elif bc:
         out.append("consensus: family differs from the baseline's (or was not run)")
+    if current.get("clang") is not None:  # compared only when this run asked for it (--clang)
+        out += clang_regressions(current["clang"], baseline.get("clang", {}), tol)
     return out
+
+
+def clang_regressions(current, baseline, tol=TOLERANCE):
+    """Regressions of the libclang reference: recall / precision drops, and more disagreements in clean files.
+
+    The count of disagreements in files with a fatal parse error is left out on purpose: it moves with the clone's
+    missing headers, not with the engine."""
+    out = []
+    for name, base in sorted(baseline.items()):
+        cur = current.get(name)
+        if cur is None:
+            out.append(f"clang {name}: in the baseline, not in this run")
+            continue
+        for key in ("recall", "precision"):
+            if cur[key] < base[key] - tol:
+                out.append(f"clang {name}: {key} {base[key]:.4f} -> {cur[key]:.4f}")
+        if cur["disagreements_in_clean_files"] > base["disagreements_in_clean_files"]:
+            out.append(f"clang {name}: disagreements in clean files {base['disagreements_in_clean_files']}"
+                       f" -> {cur['disagreements_in_clean_files']}")  # fmt: skip
+    return out
+
+
+CLANG_KEYS = (
+    "clang_edges",
+    "engine_edges",
+    "agree",
+    "recall",
+    "precision",
+    "files_fatal",
+    "disagreements_in_clean_files",
+)
+
+
+def clang_view(clang):
+    """Numbers only (no example lists) of ``doom_clang_calls.run_port`` results, for the baseline."""
+    return {n: {k: r[k] for k in CLANG_KEYS} for n, r in clang.items()}
+
+
+def run_clang(ports, work, sha):
+    """The libclang reference over the C ports among ``ports`` that have a scan: ({port: result}, why-not or None)."""
+    import doom_clang_calls  # lazy: it imports this module, and libclang is optional
+
+    if doom_clang_calls.clang_callgraph.libclang_version() is None:
+        return {}, "libclang is not installed"
+    out = {}
+    for name in ports:
+        if name in doom_clang_calls.C_PORTS and (res := doom_clang_calls.run_port(name, work, sha)) is not None:
+            out[name] = res
+    return out, None
 
 
 def baseline_view(result):
@@ -703,6 +757,8 @@ def baseline_view(result):
         for n, r in result["ports"].items()
     }
     out = {"engine_sha": result["engine_sha"], "ports": ports}
+    if result.get("clang"):
+        out["clang"] = clang_view(result["clang"])
     if result.get("consensus"):
         c = result["consensus"]
         out["consensus"] = {k: c[k] for k in ("family", "quorum", "holes", "engine_missed", "divergent",
@@ -771,6 +827,9 @@ def main(argv=None):
     ap.add_argument("--baseline", type=Path, help=f"compare with a baseline JSON (e.g. {DEFAULT_BASELINE.name})")
     ap.add_argument("--fail-on-regression", action="store_true", help="with --baseline: exit 1 on any regression")
     ap.add_argument("--tolerance", type=float, default=TOLERANCE, help="allowed recall/precision drop")
+    ap.add_argument(
+        "--clang", action="store_true", help="also run the libclang reference on the C ports (needs libclang)"
+    )
     ap.add_argument("--write-baseline", type=Path, help="write the numbers-only baseline JSON here")
     args = ap.parse_args(argv)
     work, sha = args.work.resolve(), args.sha or engine_sha()
@@ -780,6 +839,11 @@ def main(argv=None):
     else:
         only = _names(args.only, family)
     result, skipped = run(only, family, work, sha)
+    no_clang = None
+    if args.clang:
+        result["clang"], no_clang = run_clang(only, work, sha)
+        if no_clang:
+            print(f"callgraph_oracle: --clang skipped: {no_clang}")
     for name in skipped:
         print(f"callgraph_oracle: no scan or clone for {name} under {work} at {sha} (run doom_speedrun.py scan)")
     dest = work / "results" / sha
@@ -791,15 +855,22 @@ def main(argv=None):
     if c := result["consensus"]:
         print(f"consensus: holes {c['holes']}, engine missed {c['engine_missed']}, suspects {c['false_edge_suspects']}")
     print(f"wrote {dest / 'callgraph.md'}")
+    for n, r in result.get("clang", {}).items():
+        print(f"{n:16} clang recall {r['recall']:.4f} precision {r['precision']:.4f} over {r['clang_edges']} edges, "
+              f"{r['disagreements_in_clean_files']} disagreements in clean files ({r['files_fatal']} fatal-error files)")  # fmt: skip
     if args.write_baseline:
-        args.write_baseline.write_text(json.dumps(baseline_view(result), indent=1, sort_keys=True) + "\n")
+        view = baseline_view(result)
+        if not args.clang and args.write_baseline.is_file():  # a run without --clang keeps the committed clang numbers
+            if old := json.loads(args.write_baseline.read_text()).get("clang"):
+                view["clang"] = old
+        args.write_baseline.write_text(json.dumps(view, indent=1, sort_keys=True) + "\n")
     if args.baseline:
         regs = regressions(result, json.loads(args.baseline.read_text()), args.tolerance)
         for line in regs:
             print(f"REGRESSION {line}")
         if regs and args.fail_on_regression:
             return 1
-    return 1 if skipped and args.fail_on_regression else 0
+    return 1 if (skipped or no_clang) and args.fail_on_regression else 0
 
 
 if __name__ == "__main__":

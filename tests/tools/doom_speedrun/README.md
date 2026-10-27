@@ -176,6 +176,8 @@ examples each). `--write-baseline FILE` writes the numbers-only view; `--baselin
 when a port's recall or precision drops by more than `--tolerance` (0.001), a baseline port is missing, or the
 consensus engine-miss or false-edge count grows. That is the hook for the DOOM-rosetta nightly (#5619, #5630): the `callgraph` job of `.github/workflows/doom-rosetta.yml` (schedule and manual dispatch only, never a PR check) runs `fetch` and `scan` on the baseline's ports, then the `--only all --baseline` command, and writes `callgraph.md` to the job summary; regenerate the baseline only with an explained engine change.
 
+`--clang` adds the libclang reference of `doom_clang_calls.py` to the same run (C ports among the scanned ports; needs `libclang`, otherwise it is skipped, and fails `--fail-on-regression`). `--write-baseline` then stores a `clang` section per port (`clang_edges`, `agree`, `recall`, `precision`, `files_fatal`, `disagreements_in_clean_files`) and a plain run keeps the committed one; `--baseline` fails when a port's clang recall or precision drops past `--tolerance`, or its `disagreements_in_clean_files` grows. Files with a fatal parse error (no build, so no `config.h`) are counted apart and never gated: that number moves with the missing headers, not the engine. No include stub is added: the clean-file count already separates the artefact.
+
 Vendored code is dropped from the oracle's functions (#6097, `load_port(..., vendored=)`). Measured at engine `77542d045`
 over the baseline's 23 ports (fresh clones at the manifest SHAs, a fresh scan): `--write-baseline` differs from the
 committed `callgraph_baseline.json` in `engine_sha` only, every recall, precision, hole and consensus count identical,

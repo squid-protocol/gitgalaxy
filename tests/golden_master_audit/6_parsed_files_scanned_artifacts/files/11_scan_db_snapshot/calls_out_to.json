@@ -65112,7 +65112,6 @@
           "DefWindowProc"
         ],
         "FancyZones@72": [
-          "void",
           "m_hinstance",
           "m_draggingState",
           "PostMessageW",
@@ -65131,7 +65130,6 @@
           "PostMessageW"
         ],
         "MakeFancyZones@1190": [
-          "void",
           "make_self"
         ]
       },
@@ -65153,7 +65151,6 @@
       },
       "cpp/powertoys/centralized_kb_hook.cpp": {
         "AddPressedKeyAction@197": [
-          "bool",
           "insert",
           "move"
         ],
@@ -65183,7 +65180,6 @@
         ],
         "RegisterWindow@272": [],
         "SetHotkeyAction@190": [
-          "bool",
           "trace",
           "insert",
           "move"

@@ -66182,6 +66182,7 @@
         "GetOrCreateNullableType@1781": [
           "isSupportedType",
           "Fail",
+          "ToDisplayString",
           "TryGetValue",
           "GetSpecialType",
           "Construct",
@@ -66638,7 +66639,8 @@
           "isAllowedPointerArithmeticIntegralType",
           "isReadOnlySpanOfByteType",
           "ArgumentException",
-          "Format"
+          "Format",
+          "ToDisplayString"
         ],
         "validateSignature@4689": [
           "SyntaxKindToUnaryOperatorKind",
@@ -66649,7 +66651,8 @@
           "Equals",
           "IsPointerType",
           "ArgumentException",
-          "Format"
+          "Format",
+          "ToDisplayString"
         ],
         "writeValue@5003": [
           "WriteUTF8",

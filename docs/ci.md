@@ -33,6 +33,8 @@ clears it; so does removing it by hand.
 
 A label added by someone without write access is removed too, on any pass (the timeline names the labeler).
 
+**Bot PRs never get `shepherd:merge` (#6693).** The evidence-refresh bot PR (`auto/evidence-refresh-full`, `auto/evidence-refresh`) merges through its own GitHub auto-merge, which the workflow enables once its checks register. Do not label it: an approval is bound to its head, so each refresh force-push dropped the label and turned auto-merge off again. `evidence-refresh.yml` force-pushes that PR and restarts about an hour of CI, so a dispatch (`gh workflow run evidence-refresh.yml`) while the open PR's head still has checks running stands down and pushes nothing. A manual dispatch is right only after those checks finished, when something merged since that the nightly (03:17 UTC) should not wait for; `-f force=true` overrides the guard and is for a head known to be bad. The hourly dispatches of 2026-10-24..26 ran as `squid-protocol` (the owner's token); nothing in the repo, and nothing in promoter-bot's call-site log (`gh-calls.log`, from 2026-10-24T19:42Z) or `churn-log.md`, dispatches it, so the guard is the fix, not stopping a known caller.
+
 ## Status labels (the bot sets and clears these)
 
 | Label | Meaning | What you do |

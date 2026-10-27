@@ -146,6 +146,8 @@ def callee_node(fn):
             fn = fn.child_by_field_name("field")
         elif fn.type in ("qualified_identifier", "template_function", "template_method"):
             fn = fn.child_by_field_name("name")
+        elif fn.type == "dependent_name":  # `q::template f<T>(x)`: the `template` keyword wraps the template method (#6266)
+            fn = fn.named_children[0] if fn.named_children else None
         else:
             return None
     return None

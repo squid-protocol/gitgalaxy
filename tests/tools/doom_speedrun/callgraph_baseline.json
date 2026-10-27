@@ -323,22 +323,18 @@
    "unmatched_functions": 0
   },
   "eternity": {
-   "agree": 15830,
+   "agree": 15834,
    "engine_calls": 16031,
    "engine_only_by_kind": {
-    "absent": 4,
     "function-pointer": 63,
     "type": 134
    },
-   "functions": 7172,
-   "misses_by_shape": {
-    "statement": 5,
-    "unparsed": 3
-   },
-   "oracle_calls": 15838,
-   "precision": 0.9875,
-   "recall": 0.9995,
-   "text_fallback_functions": 475,
+   "functions": 7161,
+   "misses_by_shape": {},
+   "oracle_calls": 15834,
+   "precision": 0.9877,
+   "recall": 1.0,
+   "text_fallback_functions": 464,
    "unmatched_functions": 0
   },
   "fastdoom": {

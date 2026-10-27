@@ -251,7 +251,7 @@ DEFINITION: dict[str, Any] = {
             + ID_CONTINUE
             + r"]*){0,5})?[ \t]*\{[ \t]*){0,3}"
             # #6266: `case T(x):` before a block is a label, not a definition named `T`.
-            r"(?!(?:if|for|while|switch|catch|else|case|__except|__finally)\b)"
+            r"(?!(?:if|for|while|switch|catch|else|case|__except|__finally|RpcExcept|RpcFinally)\b)"
             # #6266: an indented `SERVER_ONLY(\n if (x) {..})` (the body starts on the next line) or `AGOBJECT_FOREACH_CHILD(d,
             # &list, t) {` (an address-of argument) is a statement macro inside a body, not a definition. Plain-identifier
             # arguments (`DEFINE_THING(a, b) {`) stay a definition; column 0 is the function-macro branch's, below.
@@ -325,7 +325,7 @@ DEFINITION: dict[str, Any] = {
             r"(?:[ \t]{0,20}[*&]{1,5}[ \t\n]{0,200}|[ \t\n]{1,200})){0,5}"
             # 5. THE "NOT A FUNCTION" SHIELD
             # Prevents control flow (if, while) and primitive types from being captured as function names.
-            r"(?!(?:if|for|while|switch|return|catch|__except|__finally|else|elif|sizeof|alignas|new|delete|ARGS\d+|NOARGS|int|float|double|char|void|long|short|unsigned|signed|bool|INTEGER|LOGICAL|real|__attribute__|__declspec|__asm__)\b)"
+            r"(?!(?:if|for|while|switch|return|catch|__except|__finally|RpcExcept|RpcFinally|else|elif|sizeof|alignas|new|delete|ARGS\d+|NOARGS|int|float|double|char|void|long|short|unsigned|signed|bool|INTEGER|LOGICAL|real|__attribute__|__declspec|__asm__)\b)"
             # #5630: a macro-statement loop or observer dispatch is a statement, not a definition: doomsday's
             # `DE_FOR_EACH_CONST(T, i, c)\n{`, `DE_FOR_OBSERVERS(i, a)`, `DE_NOTIFY_PUBLIC(Swap, i) {`, `DE_NOTIFY_VAR(`.
             r"(?!DE_(?:FOR_(?:EACH|OBSERVERS)|NOTIFY)(?![" + ID_CONTINUE + r"]*[a-z]))"

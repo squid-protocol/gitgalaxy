@@ -1016,6 +1016,20 @@ def _constructor_of(index: dict[tuple[str, str], "_Bucket"], cls: _Definition, l
     return None
 
 
+def _include_closure(imports: dict[str, set[str]], path: str, memo: dict[str, set[str]]) -> set[str]:
+    """#6266: every file `path` reaches through imports, transitively (a C++ include's own includes are visible too)."""
+    if path not in memo:
+        seen: set[str] = set()
+        todo = list(imports.get(path, ()))
+        while todo:
+            nxt = todo.pop()
+            if nxt not in seen:
+                seen.add(nxt)
+                todo.extend(imports.get(nxt, ()))
+        memo[path] = seen
+    return memo[path]
+
+
 def _imports_by_file(dependency_edges: list[dict[str, Any]] | None) -> dict[str, set[str]]:
     out: dict[str, set[str]] = {}
     for e in dependency_edges or []:
@@ -1553,6 +1567,7 @@ def resolve_calls(
     # a candidate set is shared by every caller in that directory
     cache: _Cache = {}
     imports = _with_reexports(_imports_by_file(dependency_edges), star_exports)
+    closures: dict[str, set[str]] = {}
     sites: list[dict[str, Any]] = []
     by_step: Counter[str] = Counter()
     by_lang: dict[str, Counter[str]] = {}
@@ -1686,7 +1701,9 @@ def resolve_calls(
                     init_only
                     and bucket is not None
                     and not any(
-                        d.path == src_path or d.path in caller.imported or _dirname(d.path) == caller.dir
+                        d.path == src_path
+                        or _dirname(d.path) == caller.dir
+                        or d.path in _include_closure(imports, src_path, closures)
                         for d in bucket.defs
                         if d.kind == "class" or d.owner_key == _key(str(callee), lang)
                     )

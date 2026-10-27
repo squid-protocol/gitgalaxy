@@ -586,7 +586,6 @@ def _exec_lines(lines: list[str]) -> set[int]:
     return out
 
 
-
 _COPY = re.compile(r"(?i)(?:^|\s)COPY\s")
 
 

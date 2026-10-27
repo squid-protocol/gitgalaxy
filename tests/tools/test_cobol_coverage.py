@@ -431,7 +431,6 @@ def test_a_free_format_or_identical_program_maps_as_before() -> None:
     assert lines.get(3) == (2, True) and lines.get(4) == (3, True)
 
 
-
 # #6072: GnuCOBOL 3 (cobc -std=ibm -ftraceall) does not count the newlines between a sentence's period and a redundant
 # one ("warning: ignoring redundant ."), so every traced line after it reads that many lines early, until a COPY
 # resyncs the count. Each shape below was compiled and run in gitgalaxy-gnucobol:3; the pairs are (compiled line, the
@@ -462,7 +461,11 @@ def _redundant(body: list[str]) -> str:
 def test_a_redundant_period_shifts_the_traced_lines_as_gnucobol_counts_them() -> None:
     for shape, (body, pairs) in _REDUNDANT.items():
         text = _redundant(body)
-        for lines in (cov.LineMap(text), cov.LineMap(text, text), cov.LineMap(text.replace("PROGRAM-ID. T.", "PROGRAM-ID. U."), text)):
+        for lines in (
+            cov.LineMap(text),
+            cov.LineMap(text, text),
+            cov.LineMap(text.replace("PROGRAM-ID. T.", "PROGRAM-ID. U."), text),
+        ):
             for compiled, traced in pairs:
                 assert lines.get(traced) == (compiled, True), (shape, compiled, traced)
 
@@ -510,6 +513,7 @@ def test_an_evaluate_after_a_redundant_period_gets_its_arm(tmp_path: Path) -> No
     b = _measure(tmp_path, text, trace)["branches"]
     assert (b["covered"], b["total"]) == (1, 2)
     assert [(u["line"], u["outcome"]) for u in b["uncovered"]] == [(10, "OTHER")]
+
 
 # ---- #5084: the programs a case LINKs / CALLs ---------------------------------------------------------------------
 def test_write_run_coverage_measures_the_linked_programs_over_the_same_trace(tmp_path: Path) -> None:

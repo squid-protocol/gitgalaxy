@@ -34,7 +34,7 @@ One record per ported program (#4048): docs/language_status/evidence_records.md 
 | [COUSR03C](carddemo-userdel.md) | carddemo-userdel | cics | proven, unapproved |  | 32 | 11/11 / 31/32 | 67/87 / 67/67 | 0 | - |
 | [COUSR00C](carddemo-userlist.md) | carddemo-userlist | cics | proven, unapproved |  | 72 | 16/16 / 95/100 | 381/507 / 381/381 | 0 | - |
 | [COUSR02C](carddemo-userupd.md) | carddemo-userupd | cics | proven, unapproved |  | 32 | 11/11 / 44/46 | 57/82 / 57/59 | 0 | - |
-| [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | not-proven | the proof failed through its deployed entry points (java-facade: 14/22 scenarios pass) | 22 | 24/25 / 22/25 | 63/131 / 63/106 | 0 | - |
+| [INQACC](cbsa-inqacc.md) | cbsa-inqacc | cics | not-proven | the proof failed through its deployed entry points (java-facade: 14/23 scenarios pass) | 23 | 24/25 / 23/25 | 63/131 / 63/106 | 0 | - |
 | [UPDACC](cbsa-updacc.md) | cbsa-updacc | cics | proven, unapproved |  | 27 | 7/7 / 5/6 | 103/139 / 103/110 | 0 | - |
 | [LGAPDB01](genapp-lgapdb01.md) | genapp-lgapdb01 | cics | proven, unapproved |  | 16 | 7/7 / 29/31 | 58/137 / 58/129 | 0 | - |
 | [LGAPVS01](genapp-lgapvs01.md) | genapp-lgapvs01 | cics | proven, unapproved |  | 13 | 3/3 / 10/11 | 72/125 / 72/113 | 0 | - |

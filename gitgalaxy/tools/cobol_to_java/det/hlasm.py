@@ -174,7 +174,10 @@ class _Lowering:
             if not ln and typ == "X" and val is not None:
                 length = (len(val) + 1) // 2
             if typ in _ALIGN:
-                loc = -(-loc // _ALIGN[typ]) * _ALIGN[typ]
+                aligned = -(-loc // _ALIGN[typ]) * _ALIGN[typ]
+                if aligned > loc:  # the boundary's skipped bytes keep every later offset in a group or the COMMAREA
+                    self._place(s, Item("", section, loc, aligned - loc, "C"), groups)
+                loc = aligned
             if dup == "0":
                 if typ in _ALIGN and not s.label:
                     continue  # DS 0F / 0H: alignment only

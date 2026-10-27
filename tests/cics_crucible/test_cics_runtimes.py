@@ -3639,6 +3639,128 @@ def test_cics_task_web_open_converse_close_as_the_stub_does(tmp_path):
     assert refusals[-1] == "the HTTP peers are not stated (withHttpPeers): not modelled"
 
 
+_X35_MANY_MAIN = r"""
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCWOPN(gg_cics *c, char *token, char *host, int hostcap);
+int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int querycap, char *from, int fromcap,
+            char *media, int mediacap, char *into, int intocap, char *stext, int stextcap);
+int GGCWCLS(gg_cics *c, char *token);
+static gg_cics c;
+static void put(char *dst, int n, const char *what) { memset(dst, ' ', n); memcpy(dst, what, strlen(what)); }
+/* args: N sessions opened by URIMAP and never closed, then M conversations GET /k<i> on session i % N */
+int main(int argc, char **argv) {
+    int n = atoi(argv[1]), m = argc > 2 ? atoi(argv[2]) : 0, ok = 0;
+    char (*tok)[8] = malloc((size_t)n * 8), host[12] = {0};
+    for (int i = 0; i < n; i++) {
+        put(c.name1, 8, "ZCCLIENT");
+        put(c.flags, 40, "URIMAP");
+        GGCWOPN(&c, tok[i], host, 0);
+    }
+    printf("opened %d first %.8s last %.8s\n", n, tok[0], tok[n - 1]);
+    for (int i = 0; i < m; i++) {
+        char path[64] = {0}, query[64], from[64], media[56], into[40], stext[15], want[16];
+        snprintf(path, sizeof path, "/k%d", i);
+        snprintf(want, sizeof want, "b%d", i);
+        put(c.flags, 40, "PATH");
+        c.num = 748; c.len = 40; c.item = 15; c.hours = (int)strlen(path); c.mins = 0; c.secs = 0;
+        GGCWCNV(&c, tok[i % n], path, 64, query, 64, from, 64, media, 56, into, 40, stext, 15);
+        if (c.resp == 0 && c.num == 200 && c.len == (int)strlen(want) && memcmp(into, want, strlen(want)) == 0) ok++;
+    }
+    printf("answered %d of %d\n", ok, m);
+    if (n > 64) {
+        GGCWCLS(&c, tok[64]);
+        printf("close %d/%d\n", c.resp, c.resp2);
+        GGCWCLS(&c, tok[64]);
+        printf("close again %d/%d\n", c.resp, c.resp2);
+    }
+    return 0;
+}
+"""
+
+
+def _x35_many_cfg(path: Path, exchanges: int, peers: int = 1) -> None:
+    hx = lambda t: t.encode("latin-1").hex().upper()  # noqa: E731
+    lines = [f"P HTTP {hx('zecs.example')} 80 ZCCLIENT {hx('/')}"]
+    lines += [f"X GET {hx(f'/k{i}')} - 200 {hx('OK')} {hx('text/plain')} {hx(f'b{i}')}" for i in range(exchanges)]
+    lines += [f"P HTTP {hx(f'h{p}.example')} 80 U{p:07d} {hx('/')}" for p in range(1, peers)]
+    path.write_text("".join(f"{ln}\n" for ln in lines), encoding="ascii")
+
+
+@needs_cc
+def test_the_stub_web_sessions_and_responses_are_not_capped_at_64_and_256(tmp_path):
+    """#6072: IBM sets no count of sessions a task may open (ZECS000 never closes and opens 501) nor of responses a peer
+    gives, so the stub's tables grow: tokens run on, every stated response is answered (255 / 256 / 257 / 501 of them),
+    and a session past the 64th still closes. The token's four digits are the one bound (9999)."""
+    exe = _stub(tmp_path, _X35_MANY_MAIN)
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    (tmp_path / "out").mkdir()
+
+    def run(n: int, m: int, cfg: Path) -> subprocess.CompletedProcess[str]:
+        return subprocess.run([str(exe), str(n), str(m)], env={**env, "GGCICS_HTTP": str(cfg)},  # noqa: S603
+                              capture_output=True, text=True, check=False)  # fmt: skip
+
+    for n, m in ((65, 65), (300, 255), (300, 256), (300, 257), (600, 501)):
+        cfg = tmp_path / f"many-{m}.cfg"
+        _x35_many_cfg(cfg, m)
+        out = run(n, m, cfg)
+        assert out.returncode == 0, out.stdout
+        assert out.stdout.splitlines() == [f"opened {n} first GGWS0001 last GGWS{n:04d}", f"answered {m} of {m}",
+                                           "close 0/0", "close again 19/27"], (n, m, out.stdout)  # fmt: skip
+    cfg = tmp_path / "one.cfg"
+    _x35_many_cfg(cfg, 1)
+    assert run(9999, 0, cfg).stdout.splitlines()[0] == "opened 9999 first GGWS0001 last GGWS9999"
+    over = run(10000, 0, cfg)
+    assert over.returncode == 98 and "WEB OPEN: more than 9999 sessions in one task" in over.stdout
+    many_peers = tmp_path / "peers.cfg"
+    _x35_many_cfg(many_peers, 1, peers=33)
+    stated = run(1, 0, many_peers)
+    assert stated.returncode == 98 and "more than 32 HTTP peers stated" in stated.stdout
+
+
+@needs_javac
+def test_cics_task_web_sessions_and_responses_are_not_capped_either(tmp_path):
+    """#6072: CicsTask answers 501 stated responses over 501 unclosed sessions as the stub does, and refuses the 10000th
+    open with the stub's words."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.nio.charset.Charset cs = java.nio.charset.StandardCharsets.ISO_8859_1;
+        java.util.List<CicsTask.HttpExchange> xs = new java.util.ArrayList<>();
+        for (int i = 0; i < 501; i++) xs.add(new CicsTask.HttpExchange("GET", "/k" + i, "", 200, "OK", "text/plain", "b" + i));
+        CicsTask t = new CicsTask("ZC01", "ENTER", null, null).withHttpPeers(
+                java.util.List.of(new CicsTask.HttpPeer("HTTP", "zecs.example", 80, "ZCCLIENT", "/", xs)));
+        java.util.List<String> tokens = new java.util.ArrayList<>();
+        int ok = 0;
+        for (int i = 0; i < 501; i++) tokens.add(t.webOpenUrimap("ZCCLIENT").sesstoken());
+        for (int i = 0; i < 501; i++) {
+            String p = "/k" + i;
+            CicsTask.WebResponse r = t.webConverse(tokens.get(i), 748, String.format("%-64.64s", p), p.length(), null, 0,
+                    null, 0, null, 40, 15, cs);
+            if (r.resp() == 0 && r.status() == 200 && new String(r.body(), cs).equals("b" + i)) ok++;
+        }
+        System.out.println("answered " + ok + " of 501 first " + tokens.get(0) + " last " + tokens.get(500));
+        CicsTask u = new CicsTask("ZC01", "ENTER", null, null).withHttpPeers(
+                java.util.List.of(new CicsTask.HttpPeer("HTTP", "zecs.example", 80, "ZCCLIENT", "/", xs)));
+        String last = "";
+        for (int i = 0; i < 9999; i++) last = u.webOpenUrimap("ZCCLIENT").sesstoken();
+        System.out.println("opened 9999 last " + last);
+        try {
+            u.webOpenUrimap("ZCCLIENT");
+            System.out.println("not refused");
+        } catch (UnsupportedOperationException e) {
+            System.out.println(e.getMessage());
+        }
+        """,
+    )
+    assert out.splitlines() == ["answered 501 of 501 first GGWS0001 last GGWS0501", "opened 9999 last GGWS9999",
+                                "WEB OPEN: more than 9999 sessions in one task: not modelled"]  # fmt: skip
+
+
 # ---- #4767 zECS (register X36): WEB PARSE URL ------------------------------------------------------------------------
 # one step a line: parse URL URLLENGTH|= HOSTLENGTH|- PATHLENGTH|- QUERYSTRLEN|- ("=": the URL's own length; "-": the option
 # not given). Areas: URL 64, SCHEMENAME 16, HOST / PATH / QUERYSTRING 40 bytes.

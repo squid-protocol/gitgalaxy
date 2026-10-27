@@ -413,9 +413,9 @@ def _region_page() -> str:
 
 
 def _past_from(length: str | None, area: str | None, what: str) -> list[str]:
-    """A write whose LENGTH runs past its FROM item (GenApp's LGSTSQ): CICS takes the bytes that follow the item in
-    storage, which GnuCOBOL lays out unlike IBM's compiler -- the run stops (98, "not modelled", oracle_assumptions.md
-    X6) rather than write bytes no oracle here can vouch for."""
+    """A PUT / GET CONTAINER whose LENGTH runs past its item: CICS takes the bytes that follow the item in storage,
+    which GnuCOBOL lays out unlike IBM's compiler -- the run stops (98, "not modelled") rather than write bytes no
+    oracle here can vouch for. (A WRITEQ past FROM is padded instead, `_write_from`, X6.)"""
     if not length or not area or _literal(area):
         return []
     return [f"IF GG-LEN > LENGTH OF {area}",
@@ -2600,7 +2600,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             continue
         if rc.is_file() and rc.read_text().strip() == "98" and said.is_file():
             x6 = judged_refusal(said.read_text(encoding="latin-1"))
-            if x6:  # owner decision on #4607 (X6): judged up to the refused WRITEQ, derived or not -- what ran before
+            if x6:  # owner decision on #4607 (X6): judged up to the refused WRITEQ (LENGTH > 32767 only since #6573), derived or not -- what ran before
                 sc["prefix_x6"] = x6  # it counts (its coverage too); its end state is not compared
                 continue
             why = next((ln for ln in said.read_text(encoding="latin-1").splitlines() if "not modelled" in ln), None)
@@ -2799,8 +2799,8 @@ X23_PAST = re.compile(r"COMMAREA past EIBCALEN: not modelled")
 
 
 def x6_writeq_refusal(said: str) -> str | None:
-    """Owner decision on #4607 (X6): the stub's stop at a WRITEQ TS / TD whose LENGTH runs past FROM (`_past_from`),
-    the one "not modelled" stop a task is judged up to -- its line, or None for any other (START / PUT CONTAINER past
+    """Owner decision on #4607 (X6): the stub's stop at a WRITEQ TS / TD whose LENGTH is over the pad record's 32767
+    bytes (`_write_from`; a LENGTH past FROM alone is padded), the one "not modelled" stop a task is judged up to -- its line, or None for any other (START / PUT CONTAINER past
     FROM, an LE model: those still refuse the task)."""
     m = X6_WRITEQ.search(said)
     return m.group(0) if m else None
@@ -4032,7 +4032,7 @@ class EquivalenceRunTest {{
                 }} catch (RuntimeException e) {{
                     // #4173: a derived SQL-fault task that reaches a det port's named hole (an untranslated
                     // statement) is not judged -- recorded, never passed; any other failure stays a failure.
-                    // #4607 x X6: a WRITEQ whose LENGTH runs past FROM (DetCics.PastFrom) ends the task there,
+                    // #4607 x X6: a WRITEQ whose LENGTH is over 32767 (DetCics.PastFrom) ends the task there,
                     // as the stub stops it: judged up to it (equivalence_cics.x6_judged)
                     boolean x6 = "PastFrom".equals(e.getClass().getSimpleName());
                     if (!x6 && (!sc.path("derived").asBoolean() || !"Hole".equals(e.getClass().getSimpleName()))) {{
@@ -5077,7 +5077,7 @@ def judged_to(x6: dict[str, Any]) -> str:
 
 def x6_judged(sc: dict[str, Any], java_out: Path, cev: list[dict[str, Any]],
               jev: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any] | None]:  # fmt: skip
-    """Owner decision on #4607 (X6): a task either side stopped at a WRITEQ whose LENGTH runs past FROM -- the stub
+    """Owner decision on #4607 (X6): a task either side stopped at a WRITEQ whose LENGTH is over 32767 (X6; padded below that) -- the stub
     (`prefix_x6`, run_cobol_cics) or the Java side (`<scenario>.x6`: DetCics.PastFrom) -- is judged up to that
     WRITEQ, as #4173 judges a task up to a LINK not run: both sides' events without the COMMAREA left, and `ok` only
     when BOTH sides refused there. None for a task neither side stopped."""

@@ -66,7 +66,7 @@ Known traps: `ladder_gaps.py` crashes on a paragraph entry from a copybook (`NAM
   unreachable. Known workarounds: restate a refused ENTER input under PF7/PF8 (COCRDLIC line 518); set
   `commarea_length` for short-COMMAREA arms; invalid COMP-3 bytes via the `hex` input rule (`equivalence_inputs.py`).
 - **Harness limits** (#6271 -- don't rediscover, cite it): abend injection, failing SEND MAP / RECEIVE MAP / RETURN /
-  SYNCPOINT, DELAY faults, CEEDAYS, judging past the X6 WRITEQ. Leave those outcomes open, cite #6271, move on.
+  SYNCPOINT, DELAY faults, CEEDAYS. (A WRITEQ past FROM is padded, X6, #6573: no task is judged up to it.) Leave those outcomes open, cite #6271, move on.
 - **Infeasible outcomes**: only when no input can reach it (data-flow fact), each with its reason. WRITE THE ENTRY
   INTO THE FILE AS SOON AS YOU HAVE THE REASON -- reasons kept only in context were lost to a summary (0448Z). A
   scenario that reaches a stated outcome refutes it. Paragraph-level entries wait on PR #6279 (one file per

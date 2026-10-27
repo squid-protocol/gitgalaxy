@@ -2945,3 +2945,29 @@ def test_a_clock_value_inside_a_writeq_record_is_masked_like_a_commarea_clock():
     assert out[0]["text"] == "CICA COMMAREA=01A<clock>   "
     assert out[1]["data"] == "2001-01-01-00.00.00.000000"
     assert counter == [1]
+
+
+def test_no_recorded_proof_judges_a_task_up_to_the_x6_writeq_refusal():
+    """#6271: since #6573 only a WRITEQ LENGTH over 32767 is refused, and no burned program has one. So no committed
+    evidence record holds a task `judged_to` the X6 refusal (a task judged up to a LINK or X23 may still appear); one
+    that does means a burned program now needs a model for it, not a note."""
+    import json
+
+    root = Path(__file__).resolve().parents[1] / "equivalence"
+    files = sorted(root.glob("*/evidence.json"))
+    assert len(files) > 20  # the glob found the corpus, not an empty directory
+    judged = []
+
+    def walk(node, where):
+        if isinstance(node, dict):
+            if node.get("judged_to") and node.get("assumes") == "X6":
+                judged.append(where)
+            for k, v in node.items():
+                walk(v, f"{where}/{k}")
+        elif isinstance(node, list):
+            for i, v in enumerate(node):
+                walk(v, f"{where}[{i}]")
+
+    for path in files:
+        walk(json.loads(path.read_text(encoding="utf-8")), path.parent.name)
+    assert judged == [], judged

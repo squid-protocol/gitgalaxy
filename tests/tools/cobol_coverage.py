@@ -593,7 +593,7 @@ def _traced_lines(lines: list[str]) -> dict[int, int]:
     """{the line GnuCOBOL's trace gives a statement: its line in `lines`} when the two differ (#6072). cobc does not count
     the newlines between a period and a redundant one after it (`PERFORM X.`, a blank line, a lone `.`: "ignoring
     redundant ."), so every line after reads that many early, in any division and either format, until a COPY
-    statement's end resyncs the count. Measured in gitgalaxy-gnucobol:3 (test_cobol_coverage.py, _REDUNDANT). A line
+    statement's end resyncs the count. Measured in gitgalaxy-gnucobol:3 (the _REDUNDANT shapes of its tests). A line
     the trace number fits twice (statements on both sides of the period pair) goes to the first."""
     out: dict[int, int] = {}
     lost = 0  # newlines not counted so far

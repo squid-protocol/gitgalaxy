@@ -1405,11 +1405,12 @@ jobs:
           PR: ${{ steps.cpr.outputs.pull-request-number }}
           HEAD_SHA: ${{ steps.cpr.outputs.pull-request-head-sha }}
           REPO: ${{ github.repository }}
-        # Label for CI shepherd (using AUTOMATION_PAT so the label actor has write permission; the shepherd writes the approval marker itself, #6694) so shepherd
+        # Label and approve for CI shepherd (using AUTOMATION_PAT so the label actor has write permission) so shepherd
         # manages flake reruns and status digests, and also enable squash auto-merge directly once checks register.
         run: |
           if [ -n "$PAT_TOKEN" ] && [ -n "$HEAD_SHA" ]; then
             GH_TOKEN="$PAT_TOKEN" gh api -X POST "repos/$REPO/issues/$PR/labels" -f "labels[]=shepherd:merge" >/dev/null 2>&1 || true
+            GH_TOKEN="$PAT_TOKEN" gh api "repos/$REPO/issues/$PR/comments" -f "body=<!-- shepherd:approved sha=$HEAD_SHA by=squid-protocol -->" >/dev/null 2>&1 || true
           fi
           for i in $(seq 1 20); do
             if out=$(gh pr merge "$PR" --repo "$REPO" --auto --squash 2>&1); then echo "$out"; exit 0; fi

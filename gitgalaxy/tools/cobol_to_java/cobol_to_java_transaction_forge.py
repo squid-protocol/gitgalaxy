@@ -651,6 +651,15 @@ public class CicsTask {
         return new int[] {0, 0};
     }
 
+    /** #6271 (X26): a RECEIVE MAP after a SET reads the input under the terminal's new UCTRANST. NOUCTRAN and TRANIDONLY
+     *  (only the transaction id is translated) leave the typed data as recorded; UCTRAN would upper-case it, which is
+     *  not modelled (refused). */
+    private void mapInputAfterUctranstSet() {
+        if (root().uctranstSet && "UCTRAN".equals(root().uctranst)) {
+            throw refused("RECEIVE MAP after SET TERMINAL UCTRANST(UCTRAN): the upper-case translation of typed input is not modelled");
+        }
+    }
+
     private void inputAfterUctranstSet() {
         if (root().uctranstSet) {
             throw refused("a terminal RECEIVE after SET TERMINAL UCTRANST (IBM does not say when the change takes effect)");
@@ -1641,7 +1650,7 @@ CICS_TASK_JAVA += """\
 
     /** RECEIVE MAP(map) MAPSET(mapset), recorded as an event with its RESP (NORMAL, or MAPFAIL when empty). */
     public <T> Optional<T> receive(String map, String mapset, Class<T> type) {
-        inputAfterUctranstSet();
+        mapInputAfterUctranstSet();
         Optional<T> screen = Optional.ofNullable(received.get(map)).map(type::cast);
         event("RECEIVE-MAP", "map", map, "mapset", mapset, "resp", screen.isPresent() ? "NORMAL" : "MAPFAIL");
         return screen;

@@ -655,6 +655,12 @@ SET_TERMINAL = Command(
             java="a terminal RECEIVE after SET TERMINAL UCTRANST",
             c="a terminal RECEIVE after SET TERMINAL UCTRANST",
         ),
+        RuntimeRefusal(
+            "RECEIVE MAP after SET TERMINAL UCTRANST(UCTRAN): IBM translates the typed input to upper case; not modelled",
+            "X26",
+            java="RECEIVE MAP after SET TERMINAL UCTRANST(UCTRAN)",
+            c="RECEIVE MAP after SET TERMINAL UCTRANST(UCTRAN)",
+        ),
     ),
     state=("terminal", "handle_table"),
 )

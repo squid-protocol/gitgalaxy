@@ -134,7 +134,7 @@ def test_the_committed_det_port_has_a_recorded_proof():
     rec = json.loads((CASE / "evidence.json").read_text(encoding="utf-8"))
     assert rec["proof"]["verdict"] == "proven" and not rec["proof"]["java_failed"]
     assert rec["proof"]["runs"] == len(SCENARIOS) and rec["provenance"]["written_by"] == "det"
-    assert rec["coverage"]["branches"]["total"] == 69
+    assert rec["coverage"]["branches"]["total"] == 71
 
 
 def test_the_request_limit_exit_is_stated_as_unprovable_not_left_silent():

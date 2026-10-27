@@ -1,0 +1,495 @@
+name: Equivalence E2E
+
+# #5954 slice 2: the tests in tests/cobol_mainframe that skip unless EQUIVALENCE_E2E=1 (they need the GnuCOBOL oracle image,
+# JDK 17 and Maven) proved nothing in CI: only cics-crucible.yml `runner-tests` set the variable, for tests/cics_crucible.
+# This job runs tests/cobol_mainframe (plus tests/tools/test_zos_probes.py) with EQUIVALENCE_E2E=1, cut into shards by
+# pytest-split least_duration over the committed tests/equivalence_e2e_durations.json (one commit, so every shard cuts the
+# same slices, #5114). #6664: only the files whose result can differ from mainframe-ground-truth.yml's run of the same
+# directory (tests/tools/equivalence_e2e_select.py): 7126 of the 7822 tests the shards ran also passed there.
+#
+# Owner condition (2026-10-24): it must not cost a runner on every PR. The `plan` job asks tests/tools/equivalence_e2e_plan.py
+# (the #6278 change classifier) whether the PR touches the COBOL / mainframe / equivalence area; a PR that does not starts
+# no shard and the check reports success. The nightly and a manual run always run the shards. The `report` job sums the
+# run's job seconds into runner-minutes (the step summary), the number to quote per PR.
+# The five Db2-needing files (docs/ci_env_gated_tests.md) are `--ignore`d by the shards and run by the `db2` job: one runner,
+# the pinned Db2 image from the cache det-sweep.yml's Db2 jobs fill (same key), a pool of three databases, one per xdist worker, #5954 slice 3.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
+    branches: [main]
+  push:
+    branches: [main]  # #5954 slice 4: post-merge, planned from the pushed files like a PR (a docs-only merge starts no shard)
+  schedule:
+    - cron: "17 6 * * *"  # nightly: Maven Central and the pinned GnuCOBOL package drift (as cics-crucible.yml)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}  # a later merge must not cancel the run that checks the earlier one
+
+jobs:
+  # #4935 / #5129: a main push run is skipped when the PR run of this same workflow already proved the same tree green
+  # (tests/tools/skip_tested_tree.py); the gate runs on a push only, so a PR starts `plan` without waiting on it. A skipped
+  # gate leaves `skip` empty and `plan` runs.
+  tested-tree:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    outputs:
+      skip: ${{ steps.decide.outputs.skip }}
+    steps:
+      - name: Checkout the gate script
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: tests/tools/skip_tested_tree.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Decide
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tests/tools/skip_tested_tree.py equivalence-e2e.yml
+
+  plan:
+    needs: tested-tree
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    outputs:
+      mode: ${{ steps.plan.outputs.mode }}
+      db2: ${{ steps.plan.outputs.db2 }}
+    steps:
+      - name: Check out the planner
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Plan the shards
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          args=(--event "$EVENT" --github-output "$GITHUB_OUTPUT")
+          if [ "$EVENT" = "pull_request" ]; then
+            # the PR's files from the API, whole or not at all (as suite-plan in smoke-test.yml): a short list is `run`
+            labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
+            mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
+            count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
+            args+=(--labels "$labels" --files)
+            if [ "${#files[@]}" -ge "$count" ]; then args+=("${files[@]}"); fi
+          fi
+          if [ "$EVENT" = "push" ]; then
+            # the files this push brought in, whole or not at all (the compare API lists at most 300): a short list is `run`
+            # an empty list (API failure, too many files) is `run`: the planner fails open
+            mapfile -t files < <(gh api "repos/$REPO/compare/$BEFORE...$AFTER" --jq 'if (.files | length) < 300 then .files[] | .filename, (.previous_filename // empty) else empty end' || true)
+            args+=(--files "${files[@]}")
+          fi
+          python3 tests/tools/equivalence_e2e_plan.py "${args[@]}" > e2e-plan.json || { printf 'mode=run\ndb2=run\n' >> "$GITHUB_OUTPUT"; echo '{"mode": "run", "db2": "run", "reason": "the planner failed"}' > e2e-plan.json; }
+          {
+            echo "## Equivalence E2E plan"
+            echo '```json'
+            cat e2e-plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  shard:
+    name: shard ${{ matrix.group }}/3
+    needs: [tested-tree, plan]
+    if: ${{ needs.plan.outputs.mode == 'run' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.plan.result == 'success') }}  # #5104
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false  # every shard reports its own failures
+      matrix:
+        group: [1, 2, 3]
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+      OMP_NUM_THREADS: "1"
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            ci/requirements/*.txt
+
+      - name: Install dependencies
+        run: |
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
+          # the det translator's parser: without it every det test importorskips and "passes"
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt
+          pip install --no-build-isolation -e .
+
+      - name: Cache tree-sitter language pack
+        id: tree_sitter_language_pack
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/tree-sitter-language-pack
+          key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
+          restore-keys: |
+            tree-sitter-${{ runner.os }}-
+
+      # the carddemo / CBSA ... cases read their sources from the pinned mainframe corpora (as mainframe-ground-truth.yml)
+      - name: Cache the pinned mainframe corpora
+        id: corpora
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned mainframe corpora
+        run: python tests/tools/mainframe_corpus.py fetch
+
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # test_cobolrt, test_key_collation, batch_test_harness ... hard-code the Debian JDK path; the temurin JDK lives elsewhere
+      - name: Link the Debian JDK 17 path to the temurin JDK
+        run: |
+          sudo mkdir -p /usr/lib/jvm
+          sudo rm -rf /usr/lib/jvm/java-17-openjdk-amd64
+          sudo ln -s "$JAVA_HOME" /usr/lib/jvm/java-17-openjdk-amd64
+          /usr/lib/jvm/java-17-openjdk-amd64/bin/javac -version
+
+      - name: Cache Maven dependencies
+        id: maven_dependencies
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: cics-crucible-m2-${{ hashFiles('gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+          restore-keys: |
+            cics-crucible-m2-
+            java-compile-m2-
+
+      # Same image cache as cics-crucible.yml runner-tests (one entry per Dockerfile hash); the fingerprint check is the pin (#4309).
+      - name: Cache the GnuCOBOL oracle image
+        id: image
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('tests/equivalence/gnucobol.Dockerfile') }}
+
+      - name: Load or build the oracle image, and check it against its pin (#4309)
+        run: |
+          if [ "${{ steps.image.outputs.cache-hit }}" = "true" ]; then
+            docker load -i "$RUNNER_TEMP/gnucobol-image.tar"
+          else
+            docker build -q -t gitgalaxy-gnucobol:3 -f tests/equivalence/gnucobol.Dockerfile tests/equivalence
+            docker save -o "$RUNNER_TEMP/gnucobol-image.tar" gitgalaxy-gnucobol:3
+          fi
+          python tests/tools/equivalence_oracle.py --strict
+          echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"  # the harness need not rebuild it per proof
+
+      # the four --deselect ids failed on their first CI run (never run before #5954): docs/ci_env_gated_tests.md lists them
+      # one pytest line: tests/test_env_gated_tests_run_in_ci_5954.py reads the paths and --ignore flags off it, and expands
+      # the selector (#6664: only the files whose result can differ from ground-truth's, tests/tools/equivalence_e2e_select.py).
+      # The split weighs tests by tests/equivalence_e2e_durations.json: .test_durations is recorded by ground-truth, where
+      # these tests skip, so it weighs them ~0 s (refresh: docs/ci_env_gated_tests.md).
+      - name: tests/cobol_mainframe under EQUIVALENCE_E2E, shard ${{ matrix.group }}/3
+        env:
+          EQUIVALENCE_E2E: "1"
+          GITGALAXY_ORACLE_STRICT: "1"
+          GROUP: ${{ matrix.group }}
+          GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-shard-${{ matrix.group }}.json
+        run: |
+          mapfile -t selected < <(python tests/tools/equivalence_e2e_select.py)
+          test "${#selected[@]}" -gt 1
+          pytest "${selected[@]}" --splits 3 --splitting-algorithm least_duration --durations-path tests/equivalence_e2e_durations.json --group "$GROUP" -n 2 -q -ra --durations=25 --timeout=1200 -p no:cacheprovider --ignore=tests/cobol_mainframe/test_evidence_components.py --ignore=tests/cobol_mainframe/test_equivalence_db2_rows.py --ignore=tests/cobol_mainframe/test_regional_options.py --ignore=tests/cobol_mainframe/test_sql_dynamic.py --ignore=tests/cobol_mainframe/test_sql_unit_of_work.py --ignore=tests/cobol_mainframe/test_sql_whenever.py --deselect='tests/cobol_mainframe/test_det_layout.py::test_the_initial_image_is_gnucobols[carddemo-cbstm03a]' --deselect=tests/cobol_mainframe/test_equivalence_inputs.py::test_the_intcalc_port_holds_on_generated_inputs --deselect='tests/cobol_mainframe/test_equivalence_inputs.py::test_the_hand_written_ports_hold_on_generated_inputs[carddemo-acctview-generated-None]' --deselect=tests/cobol_mainframe/test_equivalence_cics.py::test_a_facade_that_builds_its_own_task_fails_the_java_facade_side
+
+      - name: Upload this shard's test seconds (to refresh tests/equivalence_e2e_durations.json)
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-times-equivalence-e2e-shard-${{ matrix.group }}
+          path: ${{ runner.temp }}/times-shard-${{ matrix.group }}.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the tree-sitter language pack to the cache
+        if: success() && github.event_name != 'pull_request' && steps.tree_sitter_language_pack.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/tree-sitter-language-pack
+          key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the Maven dependencies to the cache
+        if: success() && github.event_name != 'pull_request' && steps.maven_dependencies.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: cics-crucible-m2-${{ hashFiles('gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the GnuCOBOL oracle image to the cache
+        if: success() && github.event_name != 'pull_request' && steps.image.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('tests/equivalence/gnucobol.Dockerfile') }}
+
+  # #5954 slice 3: the five test files that also need a Db2 container, in one job (the shards `--ignore` them). One runner
+  # and a pool of three databases, one per xdist worker: the rows file alone is ~34 min serial (50 proofs of ~45 s), so the
+  # three run in parallel and Db2's start is paid once, not per shard. The pinned image is restored from det-sweep.yml's cache entry (main saves it).
+  db2:
+    needs: [tested-tree, plan]
+    # #6664: on a PR only when a changed file is an input of the five Db2 files (equivalence_e2e_plan.db2_input); push,
+    # nightly and manual runs always run it. A plan without the output (an older planner) runs it.
+    if: ${{ needs.plan.outputs.mode == 'run' && needs.plan.outputs.db2 != 'none' && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.plan.result == 'success') }}  # #5104
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+      OMP_NUM_THREADS: "1"
+      GITGALAXY_DB2_POOL: "3"
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora  # #6563: the rows cases read carddemo / CBSA / genapp sources
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Name the Db2 image cache entry (#5262)
+        id: db2key
+        run: echo "key=$(python3 tests/tools/db2_image_cache.py key)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the pinned Db2 image from the cache (#5262)
+        id: db2image
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/db2-image-cache
+          key: ${{ steps.db2key.outputs.key }}
+
+      # the pull (or the load) overlaps the installs below, as in det-sweep.yml; a final failure is only logged, the harness pulls again
+      - name: Load or pull the pinned Db2 image in the background
+        run: |
+          image=$(grep -oE 'icr\.io/db2_community/db2@sha256:[0-9a-f]{64}' tests/tools/equivalence_db2.py | head -1)
+          echo "Db2 image: \`$image\` (cache: ${{ steps.db2image.outputs.cache-hit == 'true' && 'hit' || 'miss' }})" >> "$GITHUB_STEP_SUMMARY"
+          setsid nohup bash -c "python3 tests/tools/db2_image_cache.py load '$RUNNER_TEMP/db2-image-cache' || tests/tools/ci_retry.sh 4 15 -- docker pull -q '$image'; date +%s > '$RUNNER_TEMP/pull-done'" > "$RUNNER_TEMP/pull.log" 2>&1 &
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            ci/requirements/*.txt
+
+      - name: Install dependencies
+        run: |
+          tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/test.txt
+          tests/tools/ci_retry.sh 4 10 -- pip install --require-hashes -r ci/requirements/treesitter.txt
+          pip install --no-build-isolation -e .
+
+      - name: Cache tree-sitter language pack
+        id: tree_sitter_language_pack
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/tree-sitter-language-pack
+          key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
+          restore-keys: |
+            tree-sitter-${{ runner.os }}-
+
+      # the carddemo / CBSA ... cases read their sources from the pinned mainframe corpora (as mainframe-ground-truth.yml)
+      - name: Cache the pinned mainframe corpora
+        id: corpora
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned mainframe corpora
+        run: python tests/tools/mainframe_corpus.py fetch
+
+      - name: Save the pinned corpora (main)
+        if: github.event_name != 'pull_request' && steps.corpora.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a miss only costs the next run a clone
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('tests/cobol_mainframe/corpora.json') }}
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Link the Debian JDK 17 path to the temurin JDK
+        run: |
+          sudo mkdir -p /usr/lib/jvm
+          sudo rm -rf /usr/lib/jvm/java-17-openjdk-amd64
+          sudo ln -s "$JAVA_HOME" /usr/lib/jvm/java-17-openjdk-amd64
+
+      - name: Cache Maven dependencies
+        id: maven_dependencies
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: cics-crucible-m2-${{ hashFiles('gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+          restore-keys: |
+            cics-crucible-m2-
+            det-sweep-m2-
+            java-compile-m2-
+
+      - name: Cache the GnuCOBOL oracle image
+        id: image
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('tests/equivalence/gnucobol.Dockerfile') }}
+
+      - name: Load or build the oracle image, and check it against its pin (#4309)
+        run: |
+          if [ "${{ steps.image.outputs.cache-hit }}" = "true" ]; then
+            docker load -i "$RUNNER_TEMP/gnucobol-image.tar"
+          else
+            docker build -q -t gitgalaxy-gnucobol:3 -f tests/equivalence/gnucobol.Dockerfile tests/equivalence
+            docker save -o "$RUNNER_TEMP/gnucobol-image.tar" gitgalaxy-gnucobol:3
+          fi
+          python tests/tools/equivalence_oracle.py --strict
+          echo "GITGALAXY_ORACLE_PREBUILT=1" >> "$GITHUB_ENV"
+
+      # IBM's ODBC driver, the Db2 image's one download (#4980): cached on its pin as det-sweep.yml does
+      - name: Cache the Db2 ODBC CLI driver (#4980)
+        id: db2_odbc_cli_driver
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tests/equivalence/linuxx64_odbc_cli.tar.gz
+          key: db2-odbc-cli-${{ hashFiles('tests/equivalence/odbc_cli.pin') }}
+
+      # the two --deselect ids failed on their first run (never run before #5954 slice 3): docs/ci_env_gated_tests.md lists it
+      # one pytest line: tests/tools/test_env_gated_tests_run_in_ci_5954.py reads the paths off it
+      - name: The Db2 e2e tests of tests/cobol_mainframe under EQUIVALENCE_E2E
+        env:
+          EQUIVALENCE_E2E: "1"
+          GITGALAXY_ORACLE_STRICT: "1"
+          GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-db2.json
+        run: |
+          pytest tests/cobol_mainframe/test_equivalence_db2_rows.py tests/cobol_mainframe/test_regional_options.py tests/cobol_mainframe/test_sql_dynamic.py tests/cobol_mainframe/test_sql_unit_of_work.py tests/cobol_mainframe/test_sql_whenever.py -n 3 -q -ra --durations=25 --timeout=1800 -p no:cacheprovider --deselect=tests/cobol_mainframe/test_sql_unit_of_work.py::test_uowdemo_det_port_proves_on_db2_against_the_hand_trace --deselect=tests/cobol_mainframe/test_equivalence_db2_rows.py::test_the_inqacccu_det_port_holds_on_generated_db2_rows
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the tree-sitter language pack to the cache
+        if: success() && github.event_name != 'pull_request' && steps.tree_sitter_language_pack.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/tree-sitter-language-pack
+          key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the Maven dependencies to the cache
+        if: success() && github.event_name != 'pull_request' && steps.maven_dependencies.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: cics-crucible-m2-${{ hashFiles('gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the GnuCOBOL oracle image to the cache
+        if: success() && github.event_name != 'pull_request' && steps.image.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('tests/equivalence/gnucobol.Dockerfile') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the Db2 ODBC CLI driver to the cache
+        if: success() && github.event_name != 'pull_request' && steps.db2_odbc_cli_driver.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: tests/equivalence/linuxx64_odbc_cli.tar.gz
+          key: db2-odbc-cli-${{ hashFiles('tests/equivalence/odbc_cli.pin') }}
+
+  # The check to read (and to require, if the owner wants it): a plan of `none` is a pass by plan, never by absence of a shard.
+  equivalence-e2e:
+    needs: [tested-tree, plan, shard, db2]
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Every shard passed, or the plan proved none was needed
+        env:
+          PLAN: ${{ needs.plan.outputs.mode }}
+          DB2_PLAN: ${{ needs.plan.outputs.db2 }}
+          PLAN_RESULT: ${{ needs.plan.result }}
+          SKIP: ${{ needs.tested-tree.outputs.skip }}
+          SHARDS: ${{ needs.shard.result }}
+          DB2: ${{ needs.db2.result }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          echo "plan: $PLAN, db2 $DB2_PLAN ($PLAN_RESULT), shards: $SHARDS, db2: $DB2"
+          # runner-minutes of this run so far (every finished job but this one), for the PR body / the nightly trend
+          gh api --paginate "repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100" --jq '.jobs[] | select(.name != "equivalence-e2e" and .completed_at != null) | [.name, ((.completed_at | fromdateiso8601) - (.started_at | fromdateiso8601))] | @tsv' > jobs.tsv || : > jobs.tsv
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          rows = [ln.rstrip("\n").split("\t") for ln in open("jobs.tsv", encoding="utf-8") if ln.strip()]
+          total = sum(float(s) for _, s in rows)
+          print("## Equivalence E2E runner time")
+          print("| job | seconds |\n|---|---|")
+          print("".join(f"| {n} | {float(s):.0f} |\n" for n, s in rows), end="")
+          print(f"\n**{total / 60:.1f} runner-minutes** across {len(rows)} job(s)")
+          PY
+          # #4935: a tree the PR run of this workflow proved green: the gate skipped the plan and every job after it
+          if [ "$SKIP" = "true" ]; then test "$PLAN_RESULT" = "skipped" && test "$SHARDS" = "skipped" && test "$DB2" = "skipped"; exit; fi
+          test "$PLAN_RESULT" = "success"
+          if [ "$PLAN" = "none" ]; then test "$SHARDS" = "skipped" && test "$DB2" = "skipped"; exit; fi
+          test "$SHARDS" = "success"
+          # #6664: a skipped db2 is green only when the plan said none (no input of the Db2 files changed)
+          if [ "$DB2_PLAN" = "none" ]; then test "$DB2" = "skipped"; else test "$DB2" = "success"; fi

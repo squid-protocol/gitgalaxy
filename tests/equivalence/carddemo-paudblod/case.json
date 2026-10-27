@@ -1,0 +1,212 @@
+{
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "PAUDBLOD",
+ "program_source": "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+ "copy_dirs": [
+  "app/app-authorization-ims-db2-mq/cpy"
+ ],
+ "job": "LOADPADB",
+ "step": "STEP01",
+ "parm": null,
+ "clock": "2022/10/07 10:30:15.00",
+ "datasets": {
+  "INFILE1": {
+   "input": "@generate",
+   "reclen": 100,
+   "copybook": "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+   "record": "INFIL1-REC",
+   "generate": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+    "record": "PENDING-AUTH-SUMMARY",
+    "records": 11,
+    "seed": 5233,
+    "fields": {
+     "PA-ACCT-ID": {
+      "values": [
+       10000000001,
+       10000000008,
+       10000000015,
+       10000000022,
+       10000000029,
+       10000000036,
+       10000000043,
+       10000000050,
+       10000000057,
+       10000000064,
+       10000000001
+      ]
+     }
+    }
+   }
+  },
+  "INFILE2": {
+   "input": "@generate",
+   "reclen": 206,
+   "copybook": "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+   "record": "INFIL2-REC",
+   "generate": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+    "record": "INFIL2-REC",
+    "records": 30,
+    "seed": 5233,
+    "fields": {
+     "ROOT-SEG-KEY": {
+      "hex": [
+       "10000000001C",
+       "10000000008C",
+       "10000000015C",
+       "10000000022C",
+       "10000000029C",
+       "10000000036C",
+       "1000000000AC",
+       "90000000001C"
+      ],
+      "every": 4
+     }
+    }
+   }
+  }
+ },
+ "ims": {
+  "dbd": [
+   "app/app-authorization-ims-db2-mq/ims/DBPAUTP0.dbd"
+  ],
+  "psb": "app/app-authorization-ims-db2-mq/ims/PSBPAUTB.psb",
+  "segments": {
+   "PAUTSUM0": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+    "record": "PENDING-AUTH-SUMMARY"
+   },
+   "PAUTDTL1": {
+    "copybook": "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+    "record": "PENDING-AUTH-DETAILS"
+   }
+  },
+  "compare": [
+   "DBPAUTP0"
+  ]
+ },
+ "notes": "Job LOADPADB step STEP01 (DFSRRC00 PARM='BMP,PAUDBLOD,PSBPAUTB'): a BMP. PROCEDURE DIVISION USING IO-PCB-MASK PAUTBPCB, then ENTRY 'DLITCBL' USING PAUTBPCB lists only the DB PCB -- IMS passes the I/O PCB first (PSB PSBPAUTB, CMPAT=YES), so the ENTRY list is the division's list minus its first (#5233). It loads the empty pending-authorization database DBPAUTP0 (HIDAM: root PAUTSUM0, child PAUTDTL1) with CALL 'CBLTDLI' ISRT from INFILE1 (the roots) and INFILE2 (each child behind its root's key: GU the root, then ISRT the child). INFILE1 / INFILE2 are not in the corpus: generated from the program's own record layouts, INFILE1's last PA-ACCT-ID repeats the first (ISRT root -> II) and INFILE2's ROOT-SEG-KEY cycles over INFILE1's keys plus one with no root (GU miss); keys are positive because the CBLTDLI model refuses a P-field qualification whose operands are not both valid with one positive sign. The I/O PCB mask is PIC X(1) here and the program never reads it (the same ASSUMPTION as CBPAUP0C). The DL/I model is register family I (tests/equivalence/ims/ggdli.c, cobolrt/dli/DetDli.java), #4893. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "faults": [
+  {
+   "name": "infile1-open",
+   "plan": [
+    {
+     "dd": "INFILE1",
+     "op": "OPEN",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "30: a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): OPEN INPUT INFILE1 fails: 'ERROR IN OPENING INFILE1' and 9999-ABEND before any DL/I call"
+  },
+  {
+   "name": "infile2-open",
+   "plan": [
+    {
+     "dd": "INFILE2",
+     "op": "OPEN",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "30: a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): OPEN INPUT INFILE2 fails after INFILE1 opened: 'ERROR IN OPENING INFILE2' and 9999-ABEND"
+  },
+  {
+   "name": "infile1-read-error",
+   "plan": [
+    {
+     "dd": "INFILE1",
+     "op": "READ",
+     "nth": 3,
+     "status": "30"
+    }
+   ],
+   "why": "30: a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the third root READ: neither blank/00 nor 10, so 'ERROR READING ROOT SEG INFILE' and the loop goes on to the next record (the program's defect: no abend)"
+  },
+  {
+   "name": "infile2-read-error",
+   "plan": [
+    {
+     "dd": "INFILE2",
+     "op": "READ",
+     "nth": 3,
+     "status": "30"
+    }
+   ],
+   "why": "30: a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the third child READ: 'ERROR READING CHILD SEG INFILE' and the loop goes on"
+  },
+  {
+   "name": "infile1-close",
+   "plan": [
+    {
+     "dd": "INFILE1",
+     "op": "CLOSE",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "30: a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing INFILE1 after the load: 'ERROR IN CLOSING 1ST FILE' and the step goes on to close INFILE2"
+  },
+  {
+   "name": "infile2-close",
+   "plan": [
+    {
+     "dd": "INFILE2",
+     "op": "CLOSE",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "30: a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing INFILE2: 'ERROR IN CLOSING 2ND FILE'"
+  },
+  {
+   "name": "root-isrt-fail",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "ISRT",
+     "nth": 1,
+     "status": "AM"
+    }
+   ],
+   "why": "#5233: the first root ISRT answers AM (neither blank nor II): ROOT INSERT FAILED and 9999-ABEND (RC 16) with nothing loaded"
+  },
+  {
+   "name": "child-gu-fail",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "GU",
+     "nth": 1,
+     "status": "AM"
+    }
+   ],
+   "why": "#5233: the first root GU (qualified by the child's root key) answers AM instead of blank / GE: the child ISRT is not tried and the load goes on to the next child record"
+  },
+  {
+   "name": "child-isrt-dup",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "ISRT",
+     "nth": 12,
+     "status": "II"
+    }
+   ],
+   "why": "#5233: the first child ISRT (the 12th ISRT of the run, after the 11 root inserts) answers II: CHILD SEGMENT ALREADY IN DB and the load goes on"
+  },
+  {
+   "name": "child-isrt-fail",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "ISRT",
+     "nth": 12,
+     "status": "AM"
+    }
+   ],
+   "why": "#5233: the first child ISRT answers AM (neither blank nor II): INSERT CALL FAIL FOR CHILD and 9999-ABEND (RC 16) with the 11 roots loaded and no child"
+  }
+ ]
+}

@@ -22,8 +22,10 @@ and writes the report without the `translation` fields (the same as `--no-transl
 it into a fresh virtual environment with no extras and runs the installed command
 (`tests/cobol_mainframe/test_assess_clean_install.py`). The same check runs standalone, stdlib only, as
 `python scripts/check_assess_install.py` (builds the wheel, installs it into a fresh venv with `--no-index`, assesses a planted
-estate with the network cut, and asserts the report; `--wheelhouse DIR` installs the translator extra from local wheels). The package is not published to PyPI for this yet; a post-publish
-install check is a follow-up of #4726. On an offline site, build the wheels on a connected machine
+estate with the network cut, and asserts the report; `--wheelhouse DIR` installs the translator extra from local wheels; `--estates CORPORA` also assesses each of the six
+burned estates, plain and redacted, with the installed command). CI runs it with the wheelhouse and `--estates` as a step of `ports-compile.yml` (the job that already fetches the corpora). After each release `publish-assess-check.yml` runs the same script with `--from-pypi VERSION`: it installs
+`gitgalaxy[translator]==VERSION` from PyPI on a clean runner (the only networked step), then assesses the planted estate
+with the network cut and checks `tool_version`. Run it by hand from Actions with a version. On an offline site, build the wheels on a connected machine
 (`pip wheel "gitgalaxy[translator]" -w wheels/`), copy them across, and install with
 `pip install --no-index --find-links wheels/ "gitgalaxy[translator]"`.
 
@@ -145,7 +147,3 @@ digits. The label is an HMAC-SHA256 of the name.
   site.
 
 Counts are the same as in the plain report.
-
-## Follow-ups (#4726)
-
-- A post-publish check that installs the PyPI package on a clean runner.

@@ -253,18 +253,16 @@ def test_powershell_args_constructor_no_control_flow_collision_regression():
         assert not args.search(stmt), f"control-flow statement incorrectly matched as constructor args: {stmt!r}"
 
 
-def test_powershell_args_known_limitation_two_level_paren_nesting_not_supported():
+def test_powershell_args_known_limitation_four_level_paren_nesting_not_supported():
     """
-    Documents a known, deliberately-NOT-fixed limitation consistent with the
-    doc's established "one-level-nesting" standard (recurring class 1): a
-    default-value expression with TWO levels of nested parens (`param($Config
-    = (Join-Path (Get-Location) 'x.json'))`) does not match. This mirrors
-    every other language's Rule-11 fix in this codebase -- only one level of
-    real nesting is checked/supported, not arbitrary depth.
+    Documents a known, deliberately-NOT-fixed limitation: the parameter list is
+    matched through three paren levels (`param(` + two nested, #3303; was one
+    nested level before), so a default-value expression nested one level deeper
+    (`param($C = (A (B (C))))`) does not match. Arbitrary depth is not regular.
     """
     args = POWERSHELL_RULES["args"]
-    two_level = "param($Config = (Join-Path (Get-Location) 'x.json'))"
-    assert not args.search(two_level), "documents current (expected, one-level-nesting-only) regex behavior"
+    assert args.search("param($Config = (Join-Path (Get-Location) 'x.json'))"), "two nested levels now match"
+    assert not args.search("param($C = (A (B (C))))"), "documents current (three-level) regex behavior"
 
 
 def test_powershell_args_redos_immunity():

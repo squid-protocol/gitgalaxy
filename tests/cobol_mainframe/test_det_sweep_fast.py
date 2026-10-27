@@ -328,6 +328,15 @@ def test_db2_runner_count_and_full_sweeps():
     assert plan.db2_shards_for(full, 24) == ["1/2", "2/2"]
     assert len(plan.db2_shards_for(full, 25)) == 3
     assert len(plan.db2_shards_for(full, 1000)) == plan.DB2_MAX_SHARDS
+    # the whole input class: the per-runner boundary, the 70-case sweep that timed out (#5882), 100+ cases, the cap
+    for n_cases in range(1, 151):
+        want = max(1, min(plan.DB2_MAX_SHARDS, -(-n_cases // plan.DB2_FULL_PER_SHARD)))
+        got = plan.db2_shards_for(full, n_cases)
+        assert got == [f"{i}/{want}" for i in range(1, want + 1)], n_cases
+    assert len(plan.db2_shards_for(full, plan.DB2_FULL_PER_SHARD)) == 1
+    assert len(plan.db2_shards_for(full, plan.DB2_FULL_PER_SHARD + 1)) == 2
+    assert len(plan.db2_shards_for(full, 70)) == 6 and len(plan.db2_shards_for(full, 100)) == 6
+    assert len(plan.db2_shards_for(full, plan.DB2_MAX_SHARDS * plan.DB2_FULL_PER_SHARD + 1)) == plan.DB2_MAX_SHARDS
     on_disk = sum(plan.is_db2(c) for c in plan.case_dirs().values())
     assert plan.db2_shards_for(full) == plan.db2_shards_for(full, on_disk)
     # every full sweep proves the Db2 cases, except the nightly: Evidence Refresh's Db2 job does that
@@ -582,3 +591,114 @@ def test_every_cics_task_module_the_transaction_forge_splices_in_is_a_generator_
         f"gitgalaxy/tools/cobol_to_java/{m}.py" for m in re.findall(r"cobol_to_java\.(cics_task_\w+) import", forge)
     }
     assert split and split <= set(plan.GENERATOR), split - set(plan.GENERATOR)
+
+
+def test_a_db2_start_that_never_finishes_is_retried_once_on_a_fresh_container(monkeypatch):  # #5602
+    import equivalence_db2 as d
+
+    starts, waits = [], iter([False, True])
+    monkeypatch.setattr(d, "_CONTAINER_READY", False)
+    monkeypatch.setattr(d, "READY_MARK", Path("/nonexistent/db2-ready-mark"))
+    monkeypatch.setattr(d, "_docker", lambda *a, **k: "image-id")
+    monkeypatch.setattr(d, "_container_identity", lambda: "")
+    monkeypatch.setattr(d, "_start_container", lambda *, replace=False: starts.append(replace))
+    monkeypatch.setattr(d, "_await_ready", lambda: next(waits))
+    d._ensure_container()
+    assert starts == [False, True]
+    assert d._CONTAINER_READY
+
+
+def test_a_failed_docker_run_is_retried_once_on_a_fresh_container(monkeypatch):  # #5604
+    import equivalence_db2 as d
+
+    starts = []
+
+    def start(*, replace=False):
+        starts.append(replace)
+        if not replace:
+            raise RuntimeError("docker run: port is already allocated")
+
+    monkeypatch.setattr(d, "_CONTAINER_READY", False)
+    monkeypatch.setattr(d, "READY_MARK", Path("/nonexistent/db2-ready-mark"))
+    monkeypatch.setattr(d, "_docker", lambda *a, **k: "image-id")
+    monkeypatch.setattr(d, "_container_identity", lambda: "")
+    monkeypatch.setattr(d, "_start_container", start)
+    monkeypatch.setattr(d, "_await_ready", lambda: True)
+    d._ensure_container()
+    assert starts == [False, True]
+
+
+def test_an_image_pull_failure_is_not_retried_here(monkeypatch):  # #5604: pull_image has its own 4 attempts
+    import equivalence_db2 as d
+
+    def start(*, replace=False):
+        raise d.Db2ImagePullError("INFRASTRUCTURE")
+
+    monkeypatch.setattr(d, "_CONTAINER_READY", False)
+    monkeypatch.setattr(d, "READY_MARK", Path("/nonexistent/db2-ready-mark"))
+    monkeypatch.setattr(d, "_docker", lambda *a, **k: "image-id")
+    monkeypatch.setattr(d, "_start_container", start)
+    with pytest.raises(d.Db2ImagePullError):
+        d._ensure_container()
+
+
+def test_a_container_that_exited_ends_the_ready_wait_at_once(monkeypatch):  # #5604
+    import equivalence_db2 as d
+
+    monkeypatch.setattr(d, "_docker", lambda *a, **k: "false" if a[0] == "inspect" else "")
+    monkeypatch.setattr(d.time, "sleep", lambda s: pytest.fail("polled a dead container"))
+    assert d._await_ready() is False
+
+
+def test_a_db2_start_that_fails_twice_raises(monkeypatch):  # #5602
+    import equivalence_db2 as d
+
+    monkeypatch.setattr(d, "_CONTAINER_READY", False)
+    monkeypatch.setattr(d, "READY_MARK", Path("/nonexistent/db2-ready-mark"))
+    monkeypatch.setattr(d, "_docker", lambda *a, **k: "image-id")
+    monkeypatch.setattr(d, "_start_container", lambda *, replace=False: None)
+    monkeypatch.setattr(d, "_await_ready", lambda: False)
+    with pytest.raises(RuntimeError, match="did not come up"):
+        d._ensure_container()
+    assert not d._CONTAINER_READY
+
+
+# ---- #5862: the PR-time det_mutation stale-check ------------------------------------------------------------
+
+
+def _det_sweep_jobs() -> dict:
+    yaml = pytest.importorskip("yaml")
+    return yaml.safe_load((ROOT / ".github" / "workflows" / "det-sweep.yml").read_text(encoding="utf-8"))["jobs"]
+
+
+def _runs(job: dict) -> str:
+    return "\n".join(s.get("run", "") for s in job["steps"])
+
+
+def test_detmut_job_runs_the_stale_check_against_main_on_ready_prs_only():
+    job = _det_sweep_jobs()["detmut"]
+    assert "det_mutation.py stale-check --vs origin/main" in _runs(job)
+    for part in ("github.event_name == 'pull_request'", "draft == false"):
+        assert part in job["if"]
+    checkout = next(s for s in job["steps"] if str(s.get("uses", "")).startswith("actions/checkout"))
+    assert checkout["with"]["fetch-depth"] == 0  # the merge base the --vs scope diffs against
+
+
+def test_detmut_job_fetches_its_own_corpora_before_the_check():
+    job = _det_sweep_jobs()["detmut"]
+    runs = [s.get("run", "") for s in job["steps"]]
+    fetch = next(i for i, r in enumerate(runs) if "mainframe_corpus.py fetch" in r)
+    check = next(i for i, r in enumerate(runs) if "stale-check" in r)
+    assert fetch < check
+    assert "GITGALAXY_MAINFRAME_CORPORA" in job["env"]
+    assert "plan" not in job.get("needs", [])  # no diff-plan dependency: it only fingerprints
+
+
+def test_the_required_det_check_waits_for_detmut_and_fails_on_its_failure_only():
+    jobs = _det_sweep_jobs()
+    det = jobs["det"]
+    assert "detmut" in det["needs"]
+    assert "always()" in det["if"]  # a skipped detmut (draft, nightly, dispatch) must not skip `det`
+    gate = next(s for s in det["steps"] if "detmut.result" in str(s.get("if", "")))
+    assert gate["if"].strip() == "needs.detmut.result == 'failure'"
+    assert "exit 1" in gate["run"]

@@ -3,8 +3,8 @@
 
     python tests/tools/doom_speedrun/distribution.py [--only a,b] [--work DIR] [--sha SHA] [--min-functions N]
 
-Reads only the scans ``doom_speedrun.py`` leaves (``<work>/scans/<sha>/<port>``, ``function_data`` joined to
-``file_data``), so it needs no clone. For each port it takes the functions of code languages and summarises four
+Reads the scans ``doom_speedrun.py`` leaves (``<work>/scans/<sha>/<port>``, ``function_data`` joined to
+``file_data``) and the port clone only to tell vendored code (dropped, #6097). For each port it takes the functions of code languages and summarises four
 engine metrics plus the argument count: median and 90th percentile, the share of functions with complexity >= 10, and
 a distance to linuxdoom: the 1-D Wasserstein distance between the two quantile curves (201 points), divided by
 linuxdoom's standard deviation for that metric, averaged over the metrics. It is a shape comparison, not a claim that
@@ -30,6 +30,7 @@ sys.path.insert(0, str(REPO_ROOT))  # before any gitgalaxy import: a shared venv
 sys.path.insert(0, str(HERE))
 
 import callgraph_oracle  # noqa: E402
+import doom_scorer  # noqa: E402
 import doom_speedrun  # noqa: E402
 import lineage  # noqa: E402
 
@@ -66,17 +67,20 @@ def _count(args):
     return float(args or 0)
 
 
-def load_metrics(db):
-    """Per-function metrics of one scan, code languages only: (majority language, {field: [values]}) or None."""
+def load_metrics(db, vendored=None):
+    """Per-function metrics of one scan, code languages only: (majority language, {field: [values]}) or None.
+
+    ``vendored`` (a path -> bool test, see ``doom_scorer._engine_vendor_test``) drops functions of vendored code, so a
+    port's distribution is its own first-party code (#6097)."""
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
     try:
         rows = con.execute(
-            "select f.language, fn.complexity, fn.loc, fn.func_fan_out, fn.token_mass, fn.args "
+            "select f.language, fn.complexity, fn.loc, fn.func_fan_out, fn.token_mass, fn.args, f.file_path "
             "from function_data fn join file_data f on f.id = fn.file_id"
         ).fetchall()
     finally:
         con.close()
-    rows = [r for r in rows if r[0] in CODE_LANGUAGES]
+    rows = [r for r in rows if r[0] in CODE_LANGUAGES and not (vendored and vendored(r[6]))]
     if not rows:
         return None
     counts = {}
@@ -149,7 +153,8 @@ def run(rows, work, sha, min_functions=MIN_FUNCTIONS):
         if row.get("class") == "assets":
             continue
         db = callgraph_oracle.find_db(work / "scans" / sha / name)
-        got = load_metrics(db) if db else None
+        repo = work / "repos" / name
+        got = load_metrics(db, doom_scorer._engine_vendor_test(repo)) if db and repo.is_dir() else None
         if got is None or len(got[1]["complexity"]) < min_functions:
             skipped.append(name)
             continue

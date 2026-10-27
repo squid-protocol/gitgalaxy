@@ -164,6 +164,26 @@ def test_shell_dependency_capture_extracts_sourced_path():
     assert m3 and m3.group(1) == ".env"
 
 
+def test_shell_dependency_capture_keeps_literal_tail_after_a_closed_variable_quote():
+    """#3798: `source "$OSH"/tools/x.sh` closes the quote before the literal tail; the
+    capture keeps the tail so the variable-path resolver can match it. Every spelling
+    of a variable prefix, and the shapes that must not change."""
+    pattern = SHELL_RULES["_dependency_capture"]
+    for line, want in [
+        ('source "$OSH"/tools/upgrade.sh', '$OSH"/tools/upgrade.sh'),
+        ('. "${OSH}"/tools/upgrade.sh', '${OSH}"/tools/upgrade.sh'),
+        ("source '$OSH'/tools/upgrade.sh", "$OSH'/tools/upgrade.sh"),
+        ('source "$OSH/tools/upgrade.sh"', "$OSH/tools/upgrade.sh"),
+        ("source $OSH/tools/upgrade.sh", "$OSH/tools/upgrade.sh"),
+        ('if [ -f x ]; then source "$OSH"/a.sh; fi', '$OSH"/a.sh'),
+        ('source "$f"', "$f"),
+        ('source "lib/a.sh"', "lib/a.sh"),
+        ('source "lib/a.sh" "b"', "lib/a.sh"),
+    ]:
+        m = pattern.search(line)
+        assert m and m.group(1) == want, line
+
+
 def test_shell_dead_code_single_comment_style_confirmed_no_second_style():
     """
     Comment-style audit (Rule 12): shell's lexical_family is `line_exclusive`

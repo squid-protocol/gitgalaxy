@@ -1,20 +1,8 @@
 {
- "format": "porting-loop-provenance/1",
+ "format": "det-port-provenance/1",
  "program": "LGAPDB01",
- "written_by": "model (the #4023 follow-up porting loop), not a person",
- "model": "claude-sonnet-5-5",
- "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
- "proposed": "2026-10-20T15:13:21+00:00",
- "attempt": 1,
- "attempts": [
-  {
-   "n": 1,
-   "verdict": "proven"
-  }
- ],
- "ticket_sha256": "8edf852d0019a9139d26d4d546ea2086c04fe7067de789f2d16ee7bc22aa2033",
- "prompt_tokens": 127168,
- "proof": "tests/tools/equivalence.py run genapp-lgapdb01",
- "edited_after": "none: the files are the model's answer as the loop stored it",
- "licence": "derived from the CICS General Insurance Application (EPL-2.0; Copyright IBM Corp.) -- see LICENSE and NOTICE in this case's directory"
+ "translator": "det",
+ "written_by": "the deterministic translator (gitgalaxy/tools/cobol_to_java/det), no model and no person",
+ "command": "python tests/tools/det_port.py run genapp-lgapdb01 --faults none --work DIR",
+ "files": "service/ only; the cobolrt runtime is laid from this checkout at proof time (equivalence_java.det_runtime)"
 }

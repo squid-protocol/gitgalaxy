@@ -81,7 +81,7 @@ MEMBER_NAMED_PROGRAM_LANGUAGES = ("pli",)
 
 # #5736: a SQL `CALL name` names a routine another SQL file creates, never a COBOL
 # program: sites from these languages resolve against a SQL-only index.
-SQL_ROUTINE_LANGUAGES = ("db2_sql",)
+SQL_ROUTINE_LANGUAGES = ("db2_sql", "postgresql")
 
 # `CALL`/`LINK`/`XCTL` are COBOL-side invocations; `EXEC PGM` is JCL's.
 _EXEC_VERBS = ("EXEC PGM",)
@@ -120,16 +120,17 @@ def _program_index(parsed_files: list[dict[str, Any]]) -> dict[str, list[str]]:
     return index
 
 
-def _sql_routine_index(parsed_files: list[dict[str, Any]]) -> dict[str, list[str]]:
-    """#5736: routine name (upper-cased, NFC, unquoted) -> the SQL files creating it."""
-    index: dict[str, list[str]] = {}
+def _sql_routine_index(parsed_files: list[dict[str, Any]]) -> dict[str, dict[str, list[str]]]:
+    """#5736: dialect -> routine name (upper-cased, NFC, unquoted) -> the SQL files of that dialect creating it."""
+    index: dict[str, dict[str, list[str]]] = {}
     for f in parsed_files:
-        if str(f.get("lang_id", "")).lower() not in SQL_ROUTINE_LANGUAGES:
+        lang = str(f.get("lang_id", "")).lower()
+        if lang not in SQL_ROUTINE_LANGUAGES:
             continue
         for fn in f.get("functions", []) or []:
             name = str(fn.get("name", "")).strip().strip('"').upper()
             if name:
-                index.setdefault(nfc(name), []).append(f.get("path", ""))
+                index.setdefault(lang, {}).setdefault(nfc(name), []).append(f.get("path", ""))
     return index
 
 
@@ -219,7 +220,8 @@ def resolve_invocations(
     for f in parsed_files:
         src_path = f.get("path", "")
         is_pli = str(f.get("lang_id", "")).lower() in MEMBER_NAMED_PROGRAM_LANGUAGES
-        site_index = sql_index if str(f.get("lang_id", "")).lower() in SQL_ROUTINE_LANGUAGES else index
+        lang = str(f.get("lang_id", "")).lower()
+        site_index = sql_index.get(lang, {}) if lang in SQL_ROUTINE_LANGUAGES else index
         for site in f.get("call_sites", []) or []:
             target = site.get("target")
             if is_pli and site.get("verb") == "CALL" and str(target or "").upper() in included:

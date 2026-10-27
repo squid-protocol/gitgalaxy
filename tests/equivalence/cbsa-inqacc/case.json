@@ -161,6 +161,178 @@
     "INQACC-ACCNO": "4"
    },
    "why": "ACCOUNT_LAST_STATEMENT NULL with no indicator: FETCH -305; CHECK-FOR-STORM-DRAIN-DB2 (WHEN OTHER), ABNDINFO filled from the clock and EIB, LINK ABNDPROC (an ABNDFILE record), then ABEND HRAC CANCEL"
+  },
+  {
+   "name": "open-deadlock-abends-ad2z",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "4"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACC",
+     "line": 270,
+     "sqlcode": -911,
+     "sqlerrmc": "00C90088",
+     "abend": "AD2Z"
+    }
+   ],
+   "why": "#6271 (X73): OPEN ACC-CURSOR deadlocks (-911) and the CICS-Db2 attach's syncpoint rollback fails: the task abends AD2Z, so ABEND-HANDLING takes its AD2Z arm (SQLERRMC the deadlock reason code 00C90088) and ABENDs"
+  },
+  {
+   "name": "fetch-deadlock-abends-ad2z",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "4"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACC",
+     "line": 431,
+     "sqlcode": -911,
+     "sqlerrmc": "00C90088",
+     "abend": "AD2Z"
+    }
+   ],
+   "why": "#6271 (X73): the FETCH of ACC-CURSOR deadlocks (-911) and the attach's rollback fails: AD2Z, so ABEND-HANDLING takes its AD2Z arm"
+  },
+  {
+   "name": "open-connection-lost",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "4"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACC",
+     "line": 270,
+     "nth": 1,
+     "sqlcode": 923,
+     "sqlstate": "57015"
+    }
+   ],
+   "why": "DB2 connection lost (SQLCODE 923) on OPEN: CHECK-FOR-STORM-DRAIN-DB2 sees WHEN 923 (Storm Drain condition met), ABNDINFO filled, LINK ABNDPROC, ABEND HRAC CANCEL"
+  },
+  {
+   "name": "cursor-close-fails",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "1"
+   },
+   "sql_faults": [
+    {
+     "program": "INQACC",
+     "line": 350,
+     "sqlcode": -501
+    }
+   ],
+   "why": "CLOSE ACC-CURSOR refused (-501, cursor not open) after a good FETCH: the failure path after the CLOSE (CHECK-FOR-STORM-DRAIN-DB2 WHEN OTHER, ABNDINFO, LINK ABNDPROC, ABEND HRAC CANCEL)"
+  },
+  {
+   "name": "open-fails-link-abndproc-abends-afcr",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "4"
+   },
+   "why": "#6271 (X70): OPEN ACC-CURSOR (l.270) is refused -501, so the failure path LINKs ABNDPROC (l.321) and that LINK abends AFCR (an RLS file control abend seen at the caller): INQACC's own HANDLE ABEND exit takes the AFCR arm of ABEND-HANDLING (l.672-677, storm drain 'Y') and the SYNCPOINT ROLLBACK is NORMAL: the l.687 success arm, 'N' and RETURN",
+   "sql_faults": [
+    {
+     "program": "INQACC",
+     "line": 270,
+     "nth": 1,
+     "sqlcode": -501,
+     "why": "refused (cursor state)"
+    }
+   ],
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "ABNDPROC",
+     "resp": "ABEND",
+     "abcode": "AFCR"
+    }
+   ]
+  },
+  {
+   "name": "open-fails-link-abndproc-abends-afcs",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "4"
+   },
+   "why": "#6271 (X70): OPEN ACC-CURSOR (l.270) is refused -501, so the failure path LINKs ABNDPROC (l.321) and that LINK abends AFCS (an RLS file control abend seen at the caller): INQACC's own HANDLE ABEND exit takes the AFCS arm of ABEND-HANDLING (l.672-677, storm drain 'Y') and the SYNCPOINT ROLLBACK is NORMAL: the l.687 success arm, 'N' and RETURN",
+   "sql_faults": [
+    {
+     "program": "INQACC",
+     "line": 270,
+     "nth": 1,
+     "sqlcode": -501,
+     "why": "refused (cursor state)"
+    }
+   ],
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "ABNDPROC",
+     "resp": "ABEND",
+     "abcode": "AFCS"
+    }
+   ]
+  },
+  {
+   "name": "open-fails-link-abndproc-abends-afct",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "4"
+   },
+   "why": "#6271 (X70): OPEN ACC-CURSOR (l.270) is refused -501, so the failure path LINKs ABNDPROC (l.321) and that LINK abends AFCT (an RLS file control abend seen at the caller): INQACC's own HANDLE ABEND exit takes the AFCT arm of ABEND-HANDLING (l.672-677, storm drain 'Y') and the SYNCPOINT ROLLBACK is NORMAL: the l.687 success arm, 'N' and RETURN",
+   "sql_faults": [
+    {
+     "program": "INQACC",
+     "line": 270,
+     "nth": 1,
+     "sqlcode": -501,
+     "why": "refused (cursor state)"
+    }
+   ],
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "ABNDPROC",
+     "resp": "ABEND",
+     "abcode": "AFCT"
+    }
+   ]
+  },
+  {
+   "name": "open-fails-link-abndproc-abends-afct-rollback-invreq",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "4"
+   },
+   "why": "#6271 (X70, X71): OPEN ACC-CURSOR (l.270) is refused -501, so the failure path LINKs ABNDPROC (l.321) and that LINK abends AFCT (an RLS file control abend seen at the caller): INQACC's own HANDLE ABEND exit takes the AFCT arm of ABEND-HANDLING (l.672-677, storm drain 'Y') and its SYNCPOINT ROLLBACK (l.682) answers INVREQ (RESP2 200): the l.687 failure arm",
+   "sql_faults": [
+    {
+     "program": "INQACC",
+     "line": 270,
+     "nth": 1,
+     "sqlcode": -501,
+     "why": "refused (cursor state)"
+    }
+   ],
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "ABNDPROC",
+     "resp": "ABEND",
+     "abcode": "AFCT"
+    },
+    {
+     "cmd": "ROLLBACK",
+     "nth": 1,
+     "resp": "INVREQ",
+     "resp2": 200
+    }
+   ]
   }
  ],
  "notes": "CBSA's inquire-account service (INQACC, LINKed by BNK1DAC / BNK1UAC with the INQACC copybook's COMMAREA). INQACC-ACCNO 99999999 reads the highest account of the program's own sort code (987654) with SELECT ... ORDER BY ACCOUNT_NUMBER DESC FETCH FIRST 1 ROW; any other number OPENs cursor ACC-CURSOR on the program's SORTCODE (not INQACC-SCODE) and INQACC-ACCNO, FETCHes once and CLOSEs. FETCH +100 initializes the output; any other non-zero SQLCODE (e.g. -305, a NULL date with no indicator) fills ABNDINFO from the clock and EIB, LINKs ABNDPROC (run in the same task: an ABNDFILE record) and ABENDs HRAC CANCEL. An ACCOUNT-TYPE of spaces or low-values gives INQACC-SUCCESS 'N', else the COMMAREA is filled (dates reformatted from Db2's ISO text to DDMMYYYY) and 'Y'. ACCOUNT has a unique index on (sort code, number), so the cursor never has more than one row. Both ACCOUNT and ABNDFILE are compared after every scenario. abndfile.bin is empty (the file starts with no records)."

@@ -88,7 +88,7 @@ def test_a_link_runs_a_new_level_on_the_callers_own_commarea():
     got = ec.translate_command("LINK PROGRAM('CASUB') COMMAREA(WS-CA100) LENGTH(100)", ["MAIN-ABEND"])
     assert got[:5] == ["MOVE 'CASUB' TO GG-NAME1", "MOVE 100 TO GG-LEN", "MOVE 1 TO GG-ITEM",
                        "MOVE SPACES TO GG-FLAGS", "CALL 'GGCLINK' USING GG-CICS"]  # fmt: skip
-    assert got[6:13] == ["IF GG-RESP = 0", "    CALL 'GGCRUN' USING WS-CA100", "    CALL 'GGCLRET' USING GG-CICS",
+    assert got[12:19] == ["IF GG-RESP = 0", "    CALL 'GGCRUN' USING WS-CA100", "    CALL 'GGCLRET' USING GG-CICS",
                          "    GO TO", "        MAIN-ABEND", "        DEPENDING ON GG-GOTO", "    IF GG-GOTO < 0"]  # fmt: skip
     assert "    CALL 'GGCCOND' USING GG-CICS" in got  # PGMIDERR without RESP: the default action
     bare = ec.translate_command("LINK PROGRAM(WS-PGM) RESP(WS-R)")
@@ -218,7 +218,8 @@ def test_channels_and_containers_become_stub_calls():
     """#4270: PUT / GET / DELETE CONTAINER -> GGCPUTC / GGCGETC / GGCDELC with the container in GG-QNAME, the channel
     in GG-CHAN (GG-FLAGS CHANNEL; none: the current channel), the data type / APPEND / NODATA in GG-FLAGS and FLENGTH
     in GG-LEN -- set back on NORMAL / LENGERR only (IBM, GET CONTAINER (CHANNEL)); LINK / XCTL CHANNEL pass the
-    channel; ASSIGN CHANNEL reads it back. The CCSID options, SET and RETURN CHANNEL are refused by name."""
+    channel; ASSIGN CHANNEL reads it back. The CCSID options and SET are refused by name; RETURN CHANNEL: see
+    test_return_channel_becomes_a_stub_call."""
     put = ec.translate_command("PUT CONTAINER('REQ') CHANNEL(WS-CH) FROM(WS-A) FLENGTH(WS-N) CHAR APPEND RESP(R)")
     assert put[:5] == ["MOVE 'REQ' TO GG-QNAME", "MOVE WS-CH TO GG-CHAN", "MOVE 'CHANNEL CHAR APPEND' TO GG-FLAGS",
                        "MOVE WS-N TO GG-LEN", "IF GG-LEN > LENGTH OF WS-A"]  # fmt: skip
@@ -249,7 +250,9 @@ def test_channels_and_containers_become_stub_calls():
         "GET CONTAINER(C) INTO(A) INTOCCSID(1140) CONVERTST(DFHVALUE(NOCONVERT))",
         "GET CONTAINER(C) INTO(A) CCSID(N)",
         "GET CONTAINER(C) FLENGTH(L)",
-        "RETURN TRANSID('T') CHANNEL(C)",
+        "RETURN CHANNEL(C)",
+        "RETURN TRANSID('T') CHANNEL(C) COMMAREA(A)",
+        "RETURN TRANSID('T') CHANNEL(C) IMMEDIATE",
         "LINK PROGRAM('P') CHANNEL(C) COMMAREA(A)",
         "MOVE CONTAINER(A)",
         "MOVE CONTAINER(A) AS(B) CONTAINERTYPE(X)",
@@ -259,6 +262,18 @@ def test_channels_and_containers_become_stub_calls():
         "PUT CONTAINER(C) FROM(A) BIT CHAR",
     ):
         with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+
+
+def test_return_channel_becomes_a_stub_call():
+    """#5005 (X17): RETURN TRANSID CHANNEL -> GGCRETC with the transid in GG-NAME1 and the channel in GG-CHAN. It
+    returns to the program (GOBACK only on success) when the RETURN fails below level 1 (INVREQ RESP2 2); CHANNEL
+    without TRANSID, or beside COMMAREA / LENGTH / IMMEDIATE, is refused by name."""
+    ret = ec.translate_command("RETURN TRANSID('PC62') CHANNEL(WS-CUR) RESP(R)")
+    assert ret[:3] == ["MOVE 'PC62' TO GG-NAME1", "MOVE WS-CUR TO GG-CHAN", "CALL 'GGCRETC' USING GG-CICS"]
+    assert ret[5:8] == ["IF GG-RESP = 0", "    GOBACK", "END-IF"] and "MOVE GG-RESP TO R" in ret
+    for bad in ("RETURN CHANNEL(C)", "RETURN TRANSID('T') CHANNEL(C) LENGTH(4)"):
+        with pytest.raises(ec.Unsupported, match="RETURN CHANNEL"):
             ec.translate_command(bad)
 
 
@@ -296,6 +311,54 @@ def test_container_byteoffset_and_prepend_become_stub_arguments():
     ):
         with pytest.raises(ec.Unsupported):
             ec.translate_command(bad)
+
+
+@pytest.mark.parametrize(
+    "base",
+    [
+        "PUT CONTAINER('REQ') CHANNEL(WS-CH) FROM(WS-A) FLENGTH(WS-N) CHAR APPEND RESP(R)",
+        "PUT CONTAINER(C) FROM(WS-A) DATATYPE(DFHVALUE(BIT)) PREPEND",
+        "PUT CONTAINER(C) FROM(WS-A) FROMCCSID(1140)",
+        "GET CONTAINER(C) INTO(WS-A) FLENGTH(WS-N) RESP(R) RESP2(R2)",
+        "GET CONTAINER(C) CHANNEL('CH') INTO(WS-A) BYTEOFFSET(WS-OFF)",
+        "GET CONTAINER(C) NODATA FLENGTH(WS-N)",
+        "GET CONTAINER(C) INTO(WS-A) INTOCCSID(500) FLENGTH(WS-N)",
+    ],
+)
+def test_get64_and_put64_container_become_the_base_commands_stub_calls(base):
+    """#5005 (X17): GET64 / PUT64 CONTAINER take the same options and answer with the same conditions as GET / PUT
+    CONTAINER (INTO / FROM an ordinary item, ASSUMED), so the stub gets the very same calls; SET (a 64-bit pointer)
+    is refused by name."""
+    sixty_four = base.replace("GET ", "GET64 ", 1).replace("PUT ", "PUT64 ", 1)
+    assert ec.translate_command(sixty_four) == ec.translate_command(base)
+
+
+def test_get64_container_set_is_refused_by_name():
+    for bad in (
+        "GET64 CONTAINER(C) SET(PTR) FLENGTH(WS-N)",
+        "GET64 CONTAINER(C) SET(PTR) FLENGTH(WS-N) INTOCCSID(1140)",
+    ):
+        with pytest.raises(ec.Unsupported, match="64-bit pointer"):
+            ec.translate_command(bad)
+
+
+@pytest.mark.parametrize(
+    "base",
+    [
+        "GET CONTAINER(C) FLENGTH(WS-N)",
+        "GET CONTAINER(C) INTO(A) INTOCODEPAGE('UTF-8')",
+        "PUT CONTAINER(C) FROM(A) FROMCODEPAGE('IBM037')",
+        "PUT CONTAINER(C) FROM(A) APPEND PREPEND",
+        "PUT CONTAINER(C) FROM(A) BIT CHAR",
+    ],
+)
+def test_get64_and_put64_container_refuse_what_the_base_command_refuses(base):
+    sixty_four = base.replace("GET ", "GET64 ", 1).replace("PUT ", "PUT64 ", 1)
+    with pytest.raises(ec.Unsupported) as want:
+        ec.translate_command(base)
+    with pytest.raises(ec.Unsupported) as got:
+        ec.translate_command(sixty_four)
+    assert str(got.value) == str(want.value)
 
 
 def test_move_container_and_the_container_browse_call_the_stub():
@@ -381,10 +444,15 @@ def test_ts_commands_pass_length_item_and_numitems_in_and_out():
     assert ec.translate_command("READQ TS QNAME(Q) INTO(X) RESP(R)")[1] == "MOVE LENGTH OF X TO GG-LEN"
     w = ec.translate_command("WRITEQ TS QUEUE('Q') FROM(WS-ONE) LENGTH(1) ITEM(WS-I)")
     assert w[:4] == ["MOVE 'Q' TO GG-QNAME", "MOVE 1 TO GG-LEN", "MOVE 0 TO GG-ITEM", "MOVE SPACES TO GG-FLAGS"]
-    # a LENGTH past the FROM item stops the run, refused by name (oracle_assumptions.md X6)
-    assert w[4:9] == ["IF GG-LEN > LENGTH OF WS-ONE", "    DISPLAY 'WRITEQ TS LENGTH > FROM: not modelled'",
-                      "    MOVE 98 TO RETURN-CODE", "    STOP RUN", "END-IF"]  # fmt: skip
-    assert ["IF GG-RESP = 0", "    MOVE GG-ITEM TO WS-I", "END-IF"] == w[11:14]
+    # X6 (ASSUMED): a LENGTH past the FROM item writes FROM's bytes then spaces (GG-PADQ); a record over 32767 is refused
+    assert w[4:17] == ["IF GG-LEN > LENGTH OF WS-ONE", "    IF GG-LEN > LENGTH OF GG-PADQ",
+                       "        DISPLAY 'WRITEQ TS LENGTH > FROM: not modelled'", "        MOVE 98 TO RETURN-CODE",
+                       "        STOP RUN", "    END-IF", "    DISPLAY 'GG-X6 PADDED WRITEQ TS'", "    MOVE SPACES TO GG-PADQ",
+                       "    MOVE WS-ONE TO GG-PADQ(1:LENGTH OF WS-ONE)", "    CALL 'GGCWRTQ' USING GG-CICS",
+                       "        BY REFERENCE GG-PADQ", "ELSE", "    CALL 'GGCWRTQ' USING GG-CICS"]  # fmt: skip
+    assert (
+        w[17:20] == ["        BY REFERENCE WS-ONE", "END-IF", "IF GG-RESP = 0"] and "    MOVE GG-ITEM TO WS-I" == w[20]
+    )
     r = ec.translate_command("WRITEQ TS QUEUE('Q') FROM(A) ITEM(WS-I) REWRITE")
     assert r[2:4] == ["MOVE WS-I TO GG-ITEM", "MOVE 'REWRITE' TO GG-FLAGS"] and "    MOVE GG-ITEM TO WS-I" not in r
 
@@ -907,6 +975,13 @@ def test_assign_applid_sysid_and_writeq_td_translate():
     td = ec.translate_command("WRITEQ TD QUEUE('JOBS') FROM(REC) RESP(R)")
     assert td[:4] == ["MOVE 'JOBS' TO GG-QNAME", "MOVE LENGTH OF REC TO GG-LEN", "CALL 'GGCWRTD' USING GG-CICS",
                       "    BY REFERENCE REC"]  # fmt: skip
+    # X6 (ASSUMED): TD with a LENGTH past FROM pads through GG-PADQ as TS does; LENGTH within FROM or a literal FROM does not
+    pad = ec.translate_command("WRITEQ TD QUEUE('JOBS') FROM(REC) LENGTH(WS-L) RESP(R)")
+    assert pad[1:3] == ["MOVE WS-L TO GG-LEN", "IF GG-LEN > LENGTH OF REC"]
+    assert "    MOVE REC TO GG-PADQ(1:LENGTH OF REC)" in pad and "        BY REFERENCE GG-PADQ" in pad
+    assert pad.count("    CALL 'GGCWRTD' USING GG-CICS") == 2 and "        BY REFERENCE REC" in pad
+    assert "GG-PADQ" not in " ".join(ec.translate_command("WRITEQ TD QUEUE('JOBS') FROM('X') LENGTH(1) RESP(R)"))
+    assert "GG-PADQ" in ec._PADQ
     with pytest.raises(ec.Unsupported):
         ec.translate_command("ASSIGN OPID(U)")
 
@@ -1774,6 +1849,27 @@ def test_http_peers_are_stated_alike_on_both_sides_and_requests_compared():
     assert differs["diffs"] and differs["diffs"][0]["fields"][0]["field"] == "body"
 
 
+def test_web_open_and_close_events_read_back_as_cicstask_records_them():
+    """#4767 zECS (X35): a WEB-OPEN line (host in hex, '-' none; the scheme as named, '-' none) and a WEB-CLOSE line read back
+    as CicsTask records them, a connection refused with a condition included; the host, scheme and RESP2 are compared."""
+    host = b"zecs.example".hex().upper()
+    cases = [({"host": host, "scheme": "HTTP", "resp": "0", "resp2": "0"}, "zecs.example", "HTTP"),
+             ({"host": "-", "scheme": "HTTPS", "resp": "22", "resp2": "21"}, "", "HTTPS"),
+             ({"host": host, "scheme": "-", "resp": "16", "resp2": "40"}, "zecs.example", None)]  # fmt: skip
+    for kv, want_host, want_scheme in cases:
+        got = ec._cobol_web_open(kv, "latin-1")
+        assert got == {"host": want_host, "scheme": want_scheme, "resp": int(kv["resp"]), "resp2": int(kv["resp2"])}
+        java = {"event": "WEB-OPEN", **got}
+        assert ec.compare_events([java], [dict(java)])["equal"] == 1
+        for field, value in (("host", "other"), ("scheme", "HTTP" if want_scheme != "HTTP" else None), ("resp2", 99)):
+            differs = ec.compare_events([java], [{**java, field: value}])
+            assert differs["diffs"] and differs["diffs"][0]["fields"][0]["field"] == field
+    close = {"event": "WEB-CLOSE", "resp": 19, "resp2": 27}
+    assert ec.compare_events([close], [dict(close)])["equal"] == 1
+    differs = ec.compare_events([close], [{**close, "resp2": 0}])
+    assert differs["diffs"] and differs["diffs"][0]["fields"][0]["field"] == "resp2"
+
+
 def test_inquire_urimap_direct_and_program_status_become_stub_calls():
     """#4768 zECS (register X34): INQUIRE URIMAP(name) with no browse option -> the name in GG-NAME1, GGCURIB with GG-FLAGS
     'DIRECT' (NOTFND RESP2 3), then one GGCURIP per output option on NORMAL; INQUIRE PROGRAM STATUS -> GGCINQP, the CVDA
@@ -2072,6 +2168,45 @@ def test_the_driver_runs_the_program_on_the_area_the_stub_chose():
     assert "CALL 'PROG' USING LK-CA" in drv and "CALL 'GGCAOUT' USING LK-CA BY VALUE WS-LEN" in drv
     assert "CALL 'PROG'\n" in ec.cics_driver("PROG", False)
     assert all(len(ln) <= 72 for ln in drv.splitlines())
+
+
+def test_a_padded_writeq_is_named_on_the_task_and_kept_out_of_its_display_log(tmp_path):
+    """X6 (ASSUMED, owner 2026-10-21): the stub's line on the padded path names the WRITEQ on the task (so a proof
+    states X6 for it) and is not part of the task's DISPLAY output, which the Java side never prints."""
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "events.txt").write_text("001 RETURN level=1\n", encoding="ascii")
+    (tmp_path / "stdout.txt").write_bytes(b"BEFORE\n" + ec.X6_PADDED_SAID.encode("ascii") + b"WRITEQ TD\nAFTER\n")
+    res = ec.outputs(out, {"name": "x"}, tmp_path, [])
+    assert res["x6_padded"] == ["WRITEQ TD"] and res["sysout"] == b"BEFORE\nAFTER\n"
+    (tmp_path / "stdout.txt").write_bytes(b"BEFORE\n")
+    assert "x6_padded" not in ec.outputs(out, {"name": "x"}, tmp_path, [])  # no padded WRITEQ, no key
+
+
+def test_a_writeq_past_from_runs_on_padded_for_ts_and_td_and_a_huge_length_is_refused_x6():
+    """X6 (ASSUMED): WRITEQ TS and WRITEQ TD alike write FROM then spaces when LENGTH runs past the item, and the task
+    runs on (no judged-up-to stop); only a LENGTH over the pad record's 32767 bytes is still refused by name, and a
+    literal FROM is left alone."""
+    for what, stub in (("WRITEQ TS", "GGCWRTQ"), ("WRITEQ TD", "GGCWRTD")):
+        call = ec._call(stub, ["BY REFERENCE WS-MSG"])
+        got = "\n".join(ec._write_from("GG-LEN", "WS-MSG", what, call))
+        assert f"DISPLAY '{ec.X6_PADDED_SAID}{what}'" in got and "BY REFERENCE GG-PADQ" in got
+        assert got.count(f"DISPLAY '{what} LENGTH > FROM: not modelled'") == 1  # the over-32767 refusal, by name
+        assert ec.x6_writeq_refusal(f"{what} LENGTH > FROM: not modelled")
+        assert ec._write_from(None, "WS-MSG", what, call) == call  # no LENGTH: nothing past FROM
+        assert ec._write_from("23", "'LITERAL'", what, call) == call
+
+
+def test_the_lgtest_front_end_cases_no_longer_say_lgstsq_s_writeq_is_refused():
+    """#6271: since #6573 LGSTSQ's WRITEQ is written padded (X6) and the LGTESTP1-4 error paths run on, so NO-ADD and
+    NO-DELETE are reached; a case note that still says the task is judged up to a refused WRITEQ misstates that."""
+    import json
+
+    root = Path(__file__).resolve().parents[1] / "equivalence"
+    for n in ("lgtestp1", "lgtestp2", "lgtestp3", "lgtestp4"):
+        case = json.loads((root / f"genapp-{n}" / "case.json").read_text(encoding="utf-8"))
+        text = json.dumps([case.get("notes"), [sc.get("why") for sc in case["scenarios"]]])
+        assert "refused WRITEQ" not in text and "padded" in text, n
 
 
 def test_a_reference_past_a_stated_eibcalen_is_judged_up_to_it_x22(tmp_path):
@@ -2482,7 +2617,9 @@ def test_extract_tcpip_becomes_a_stub_call():
                  "MOVE GG-NUM TO WS-P", "MOVE GG-NUM TO WS-T", "MOVE 300 TO WS-CF", "MOVE 300 TO WS-SF"):  # fmt: skip
         assert back in tail, back
     # the stub reads exactly the flag words this emits (ggcics.c GGCTCPX / GGCTCPN)
-    stub = (Path(ec.__file__).resolve().parents[1] / "equivalence" / "cics" / "ggcics.c").read_text(encoding="utf-8")
+    stub = (Path(ec.__file__).resolve().parents[1] / "equivalence" / "cics" / "ggcics_web.c").read_text(
+        encoding="utf-8"
+    )
     for word in ("A1", "N1", "A2", "N2", "U1", "U2", "F1", "F2"):
         assert f'strstr(flags, "{word}")' in stub, word
     for word in ("CNU", "SNU", "PORT"):
@@ -2781,3 +2918,21 @@ def test_a_case_states_a_file_the_program_names_at_run_time():
             ec.stub_files(_NoFilesIR(), "p.cbl", {"ZC01FILE": {"runtime_file": wrong}})
     with pytest.raises(ec.Unsupported):  # a CICS file name is at most 8 upper-case characters
         ec.stub_files(_NoFilesIR(), "p.cbl", {"zc01file": {"runtime_file": _RUNTIME_FILE}})
+
+
+def test_a_clock_value_inside_a_writeq_record_is_masked_like_a_commarea_clock():
+    """X6 (past FROM): a WRITEQ record that carries the run's clock (LGAPDB01's CICA line) differs between the two runs
+    only by the moment; a stale or scenario-written timestamp is still compared exactly."""
+    import datetime
+
+    now = datetime.datetime.now().strftime("%Y-%m-%d-%H.%M.%S.%f")
+    case = {"clock_fields": {"commarea": ["CA-REQUEST-SPECIFIC(31:26)"]}}
+    counter = [0]
+    events = [
+        {"verb": "WRITEQ-TD", "text": f"CICA COMMAREA=01A{now}   "},
+        {"verb": "WRITEQ-TS", "data": "2001-01-01-00.00.00.000000"},
+    ]
+    out = ec.mask_clock_events(case, events, counter)
+    assert out[0]["text"] == "CICA COMMAREA=01A<clock>   "
+    assert out[1]["data"] == "2001-01-01-00.00.00.000000"
+    assert counter == [1]

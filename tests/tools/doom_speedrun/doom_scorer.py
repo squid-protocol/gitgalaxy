@@ -31,6 +31,8 @@ from pathlib import Path
 SRC_EXT = {
     ".c", ".h", ".cc", ".cpp", ".cxx", ".c++", ".hpp", ".hh", ".hxx", ".inl", ".m", ".mm", ".rs", ".go", ".cs",
     ".java", ".js", ".mjs", ".ts", ".py", ".lua", ".asm", ".s", ".S", ".zig", ".ino", ".pas", ".kt", ".swift",
+    ".f", ".f77", ".f90", ".f95", ".f03", ".f08", ".for", ".cr", ".fs", ".fsi", ".fsx", ".cbl", ".cob", ".cpy",
+    ".cobol", ".dart", ".scm", ".ss", ".rkt", ".zs", ".rb",
 }  # fmt: skip
 # Hand-kept vendor names of the round-2 study. Off by default: the engine's own VendorDirectoryDetector decides
 # (#4545, #5464). ``legacy_vendor=True`` adds them so round 2's table can be reproduced at its engine.
@@ -257,7 +259,7 @@ def callgraph_columns(oracle):
 
 def callgraph_check(name, repo, dbp):
     """Check 7 for one scanned port: the C/C++ body oracle for a licensed C/C++ port, else the tree-sitter oracle
-    over the port's go/java/csharp/rust/javascript/python functions (ts_callgraph_oracle); ``n/a`` columns when the
+    over the port's go/java/csharp/rust/javascript/python/kotlin/lua/shell/tcl functions (ts_callgraph_oracle); ``n/a`` columns when the
     port has no function an oracle covers. Returns (columns, passed)."""
     import callgraph_oracle
     import ts_callgraph_oracle

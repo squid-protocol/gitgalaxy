@@ -15,8 +15,15 @@ import doom_speedrun  # noqa: E402
 import fidelity  # noqa: E402
 
 
-def row(name, value, file="README.md", phrase="", cls="engine-port"):
-    return {"name": name, "class": cls, "fidelity": value, "fidelity_file": file, "fidelity_phrase": phrase}
+def row(name, value, file="README.md", phrase="", cls="engine-port", reason=""):
+    return {
+        "name": name,
+        "class": cls,
+        "fidelity": value,
+        "fidelity_file": file,
+        "fidelity_phrase": phrase,
+        "fidelity_reason": reason,
+    }
 
 
 def clone(repos, name, text, file="README.md"):
@@ -46,7 +53,7 @@ def test_check_passes_every_value_and_lists_missing_clones_as_unchecked(tmp_path
     rows = [
         row("a", "faithful", phrase="faithful to the 1997 release"),
         row("b", "compatible", phrase="demo compatible"),  # no clone: unchecked, not passed
-        row("c", "unstated", file=""),
+        row("c", "unstated", file="", reason="readme-silent"),
         row("d", "original", file=""),
     ]
     problems, unchecked = fidelity.check_rows(rows, tmp_path)
@@ -66,7 +73,10 @@ def test_check_flags_a_phrase_that_left_the_readme(tmp_path):
         (row("a", "", file=""), "is not one of"),  # an empty cell is not a value
         (row("a", "faithful", phrase=""), "needs fidelity_file and fidelity_phrase"),
         (row("a", "divergent", file="", phrase="x"), "needs fidelity_file and fidelity_phrase"),
-        (row("a", "unstated", phrase="x"), "must not carry"),
+        (row("a", "unstated", phrase="x", reason="readme-silent"), "must not carry"),
+        (row("a", "unstated", file=""), "needs a fidelity_reason"),
+        (row("a", "unstated", file="", reason="because"), "needs a fidelity_reason"),
+        (row("a", "faithful", phrase="x", reason="readme-silent"), "must not carry a fidelity_reason"),
         (row("a", "original", file="README.md"), "must not carry"),
     ],
 )
@@ -79,7 +89,7 @@ def test_report_counts_per_class_and_value():
     rows = [
         row("a", "faithful", phrase="x"),
         row("b", "faithful", phrase="x"),
-        row("c", "unstated", file="", cls="raycaster"),
+        row("c", "unstated", file="", cls="raycaster", reason="no-readme"),
     ]
     table = fidelity.report(rows)
     assert "| engine-port | - | a, b |" in table
@@ -104,3 +114,5 @@ def test_committed_manifest_is_well_formed():
     assert problems == []
     assert {r["fidelity"] for r in rows} <= set(fidelity.VOCAB)
     assert [r["name"] for r in rows if r["fidelity"] == "original"] == ["linuxdoom"]
+    # every port carries a statement (a README phrase) or a named reason it has none (#6097)
+    assert [r["name"] for r in rows if r["fidelity"] == "unstated" and not r["fidelity_reason"]] == []

@@ -746,5 +746,10 @@
    "why": "#5401 (EIBCALEN, mutation survivors): the caller passed the 160-byte general COMMAREA and not the 58 bytes of paging state, which stay as initialised (the tail of the COMMAREA is blanked)"
   }
  ],
+ "maps": {
+  "COTRN0A": {
+   "mapset": "COTRN00"
+  }
+ },
  "notes": "CardDemo's transaction list (transaction CT00, program COTRN00C): ten transactions a page browsed from TRANSACT (STARTBR / READNEXT / READPREV / ENDBR, the amount through an edited picture, the date cut from the timestamp), PF8 / PF7 page forward and back, an 'S' beside one XCTLs to the view screen, a search id must be numeric. TRANSACT is loaded from CardDemo's own dailytran.txt (300 transactions, the 350-byte layout POSTTRAN posts into it). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
 }

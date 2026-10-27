@@ -54,3 +54,12 @@ def test_registry_rules_have_no_missed_candidates_on_keyword_samples():
         finder = cap.CandidateFinder(rules)
         missed, _w, _c = cap.check_text(rules, finder, text)
         assert not missed, (lang, missed)
+
+
+def test_time_rules_reports_every_stage_and_splits_the_residual():
+    rules = {f"r{i}": re.compile(f"tok{i}x?") for i in range(8)}
+    finder = cap.CandidateFinder(rules)
+    t = cap.time_rules(rules, finder, ["tok1 tok2 tok3", "nothing"])
+    assert set(t) == {"gate_s", "finder_s", "sweep_s", "top5_s", "residual_s"}
+    assert all(v >= 0.0 for v in t.values())
+    assert abs(t["top5_s"] + t["residual_s"] - t["sweep_s"]) < 1e-9

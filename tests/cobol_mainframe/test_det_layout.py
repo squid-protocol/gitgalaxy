@@ -18,7 +18,9 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests/tools"))
 sys.path.insert(0, str(ROOT))
 
+import equivalence_common as ecm  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import layout as L  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.det.source import CopyNotFound  # noqa: E402
 
 CASES = ROOT / "tests/equivalence"
 CICS_COPY = CASES / "cics"
@@ -55,7 +57,12 @@ def test_the_initial_image_is_gnucobols(name, tmp_path):
     case = json.loads((CASES / name / "case.json").read_text())
     corpus = _corpus()
     program = corpus / case["program_source"]
-    records = [r for r in L.records(program, _dirs(case, corpus)) if r.section == "WORKING-STORAGE"]
+    try:
+        records = [r for r in L.records(program, _dirs(case, corpus)) if r.section == "WORKING-STORAGE"]
+    except (
+        CopyNotFound
+    ) as e:  # an IBM system copybook (MQ's CMQODV): never shipped, no stand-in until an MQ model (#4514)
+        pytest.skip(f"a system copybook the corpus does not ship: {e}")
     named = [r for r in records if r.name != "FILLER"]
     # the program up to its PROCEDURE DIVISION, then one CALL per named record
     text = program.read_text(encoding="latin-1")
@@ -72,8 +79,9 @@ def test_the_initial_image_is_gnucobols(name, tmp_path):
     for d in _dirs(case, corpus):
         for f in d.glob("*"):
             if f.is_file():
-                shutil.copy(f, tmp_path / f.name)
-                shutil.copy(f, tmp_path / (f.stem.upper() + ".cpy"))
+                data = ecm._tab_stops(f.read_bytes(), f.name)  # the harness's staging: CUSTREC.cpy's tabs (#5856)
+                (tmp_path / f.name).write_bytes(data)
+                (tmp_path / (f.stem.upper() + ".cpy")).write_bytes(data)
     proc = subprocess.run(["docker", "run", "--rm", "-v", f"{tmp_path}:/w", "-w", "/w", "gitgalaxy-gnucobol:3",  # noqa: S603, S607
                            "bash", "-c", "cobc -x -std=ibm -fsign=EBCDIC -I . -o p P.cbl ggdump.c && ./p"],
                           capture_output=True, text=True, check=False)  # fmt: skip

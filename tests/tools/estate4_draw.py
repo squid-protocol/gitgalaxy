@@ -553,6 +553,9 @@ def cmd_draw(args: argparse.Namespace) -> int:
         return 2
     data = kind_paths(args.kind)[0].read_bytes()
     cands = json.loads(data)["candidates"]
+    # Successive rounds draw without replacement: earlier winners leave the list, the seed still hashes the full file.
+    excluded = {x.lower() for x in args.exclude}
+    cands = [c for c in cands if c["full_name"].lower() not in excluded]
     seed = compute_seed(randomness, data)
     idx, total, win = select(cands, seed)
     print(f"drand chain hash   : {CHAIN_HASH}")
@@ -950,6 +953,7 @@ def main() -> int:
     p = sub.add_parser("draw")
     p.add_argument("--round", type=int, required=True)
     p.add_argument("--kind", choices=KINDS, default="cics")
+    p.add_argument("--exclude", action="append", default=[], metavar="OWNER/NAME", help="earlier winner (repeatable)")
     p.set_defaults(fn=cmd_draw)
     args = ap.parse_args()
     return int(args.fn(args))

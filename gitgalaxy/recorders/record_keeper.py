@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, TypedDict, cast
 
 from gitgalaxy.core.call_resolver import encode_qualifiers, resolution_rates
-from gitgalaxy.core.fact_channels import CHANNELS
+from gitgalaxy.core.fact_channels import CALL_SITE_CHANNEL, CHANNELS, TRANSACTION_CHANNEL, create_channel_table
 from gitgalaxy.core.function_population import population_functions
 from gitgalaxy.metrics import archetype_classifier
 from gitgalaxy.metrics.archetype_parity import WITHHELD_LABEL
@@ -144,6 +144,35 @@ def _insert_per_file_child(
     )
 
 
+def _insert_resolved_channel(
+    cursor: sqlite3.Cursor,
+    channel: Any,
+    sites: list,
+    path_to_file_id: dict,
+    repo_name: str,
+    commit_hash: str,
+) -> None:
+    """Insert a resolved channel's rows (#3383): the engine's repo-wide list, not a per-file payload.
+
+    `channel.to_row(site, path_to_file_id)` builds the X. A site whose source file has no file_data row (the statistical auditor can
+    relegate one after extraction) is skipped; one with no destination is kept.
+    """
+    rows = []
+    for site in sites:
+        src_id = path_to_file_id.get(site.get("src_path", ""))
+        if src_id is None:
+            continue
+        rows.append((repo_name, commit_hash, src_id, *channel.to_row(site, path_to_file_id)))
+    if not rows:
+        return
+    all_columns = ("repo_name", "commit_hash", channel.src_column, *channel.columns)
+    placeholders = ", ".join(["?"] * len(all_columns))
+    cursor.executemany(
+        f"INSERT INTO {channel.table} ({', '.join(all_columns)}) VALUES ({placeholders})",  # noqa: S608 -- identifiers are registry constants
+        rows,
+    )
+
+
 class FolderStats(TypedDict):
     """Accumulator shape for the folder-level rollup below -- without this,
     the mixed int/float/list values collapse to "object" under mypy, which
@@ -206,12 +235,6 @@ def _aligned_json(func: dict, names_key: str, quals_key: str) -> str | None:
 def _decorators_json(func: dict) -> str | None:
     """function_data.decorated_by_qualifiers -- aligned with decorated_by, NULL when none."""
     return _aligned_json(func, "decorated_by", "decorated_by_qualifiers")
-
-
-# #3496: web_service_data's row fields, in column order (`transaction` is stored
-# as transaction_id: TRANSACTION is an SQL keyword).
-_WEB_SERVICE_FIELDS = ("assistant", "direction", "program", "uri", "request", "response", "interface", "container",
-                       "binding", "document", "transaction")  # fmt: skip
 
 
 class RecordKeeper:
@@ -952,65 +975,8 @@ class RecordKeeper:
         # `COPY X IN LIB` of one member can reach different files). NULL otherwise.
         _ensure_columns(cursor, "edge_data", ["copy_libraries TEXT"])
 
-        # #3200: one row per mainframe INVOCATION SITE -- COBOL `CALL`, CICS
-        # `LINK`/`XCTL PROGRAM(...)`, JCL `EXEC PGM=`. edge_data carries the
-        # resolved program-to-program edges aggregated from these, but it
-        # structurally cannot carry the rest: its src/dst are file_data FKs, and
-        # the majority of real call sites do not resolve to a file in the
-        # repository at all. `CALL 'CEEGMT'` is a Language Environment service,
-        # `EXEC PGM=IEFBR14` is a system utility, and a `CALL WS-PGM` whose
-        # VALUE clause lives in a copybook has no readable target name. Those
-        # were #3200's "unresolved targets are recorded nowhere"; they are rows
-        # here, with the level of failure distinguishable:
-        #   target IS NULL             -- the name itself could not be read
-        #   target NOT NULL, dst NULL  -- named, but not a program in this repo
-        #   dst_file_id NOT NULL       -- resolved; also an edge_data row
-        # `form` ('literal' | 'identifier' | 'unknown') keeps the architectural
-        # distinction the old pipeline's `unresolved_calls` was really about: a
-        # literal CALL is a static, link-edited dependency, an identifier CALL
-        # is dynamic dispatch that a compile-time DAG cannot see.
-        # No FK to repo_data, for the same cascade-delete reason as edge_data.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS call_site_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                src_file_id INTEGER,
-                verb TEXT,
-                form TEXT,
-                operand TEXT,
-                target TEXT,
-                dst_file_id INTEGER,
-                line_number INTEGER,
-                commarea TEXT,
-                commarea_length TEXT,
-                commarea_datalength TEXT,
-                using_args TEXT,
-                sysid TEXT,
-                FOREIGN KEY(src_file_id) REFERENCES file_data(id) ON DELETE CASCADE,
-                FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        # #3355: the COMMAREA contract of a CICS LINK/XCTL/RETURN TRANSID site --
-        # the record it passes (`COMMAREA(x)`) and its `LENGTH(...)` /
-        # `DATALENGTH(...)` operands, each as written (whitespace-collapsed,
-        # upper-cased). NULL when the site carries no such operand (every CALL and
-        # EXEC PGM row). Per-file, so restored on delta scans like `operand`.
-        # Joining x to the callee's LINKAGE DFHCOMMAREA is galaxy_ir's job
-        # (GalaxyIR.commarea_contracts). Healed onto a table created before #3355.
-        _ensure_columns(cursor, "call_site_data", ["commarea TEXT", "commarea_length TEXT", "commarea_datalength TEXT"])
-        # #3454: a batch CALL's USING list (call_using.py), comma-joined by position,
-        # NULL for a CALL without USING and every non-CALL row. Paired with the
-        # callee's entry_point_data params by GalaxyIR.call_contracts.
-        _ensure_columns(cursor, "call_site_data", ["using_args TEXT"])
-        # #3494: a CICS LINK / START's SYSID(...) as written (the remote region it
-        # ships to), NULL otherwise. Joined with the CSD's REMOTESYSTEM definitions
-        # by GalaxyIR.remote_calls.
-        _ensure_columns(cursor, "call_site_data", ["sysid TEXT"])
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_src_file_id ON call_site_data(src_file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_dst_file_id ON call_site_data(dst_file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_target ON call_site_data(target);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_snapshot ON call_site_data(repo_name, commit_hash);")
+        # #3200: one row per mainframe invocation site; schema and its comments: fact_channels.py.
+        create_channel_table(cursor, "call_site", _ensure_columns)
 
         # #3201: the dataset boundary, from both ends of the same ddname.
         #   COBOL row: internal_name + assign_name + dd_name + access_modes
@@ -1023,38 +989,7 @@ class RecordKeeper:
         # repository, so neither end could be a file_data FK.
         # access_modes is a comma-joined sorted list rather than a row per mode,
         # because "INPUT and OUTPUT" is one fact about one file, not two.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS dataset_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                step_name TEXT,
-                internal_name TEXT,
-                assign_name TEXT,
-                dd_name TEXT,
-                access_modes TEXT,
-                dsn TEXT,
-                line_number INTEGER,
-                dsn_resolved TEXT,
-                dsn_resolution TEXT,
-                open_sites TEXT,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        # #3345: a JCL DSN with its symbolic parameters (SET / PROC defaults /
-        # EXEC overrides) resolved where the file alone determines it. `dsn` stays
-        # the DSN as written; `dsn_resolved` is NULL unless every symbol resolved,
-        # and `dsn_resolution` says how (literal / resolved / proc_default /
-        # ambiguous / unresolved -- see mainframe_boundary._jcl_resolve_datasets).
-        # Both NULL on a COBOL row. Healed onto a table created before #3345.
-        _ensure_columns(cursor, "dataset_data", ["dsn_resolved TEXT", "dsn_resolution TEXT"])
-        # #3348: a COBOL row's OPEN sites, a JSON list of [mode, line] in line order, so
-        # the refractor can drop the OPENs in dead paragraphs. NULL on a JCL row.
-        _ensure_columns(cursor, "dataset_data", ["open_sites TEXT"])
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_file_id ON dataset_data(file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_dd_name ON dataset_data(dd_name);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_snapshot ON dataset_data(repo_name, commit_hash);")
+        create_channel_table(cursor, "dataset", _ensure_columns)
 
         # #3246: the DATA DIVISION item tree and FD record layouts -- the last
         # structural datum the forge parsers owned and the DB did not carry. One
@@ -1071,67 +1006,7 @@ class RecordKeeper:
         # INIT -> value_literal); `attributes` carries the item's full attribute
         # text for everything else (BASED(p), UNALIGNED, LIKE, POS, ...). NULL for
         # COBOL, whose clauses all have a column.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS record_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                section TEXT,
-                fd_name TEXT,
-                ordinal INTEGER,
-                parent_ordinal INTEGER,
-                level_number INTEGER,
-                item_name TEXT,
-                pic TEXT,
-                usage TEXT,
-                occurs_min INTEGER,
-                occurs_max INTEGER,
-                occurs_depending_on TEXT,
-                redefines TEXT,
-                value_literal TEXT,
-                line_number INTEGER,
-                attributes TEXT,
-                copy_members TEXT,
-                sign_separate INTEGER,
-                copy_libraries TEXT,
-                copy_replacing TEXT,
-                sync TEXT,
-                justified INTEGER,
-                blank_when_zero INTEGER,
-                renames TEXT,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        # #3250: heal a record_data table created before `attributes` existed.
-        _ensure_columns(cursor, "record_data", ["attributes TEXT"])
-        # #3355: `copy_members` -- the COPY member(s) that expand right after this
-        # entry (`01 DFHCOMMAREA.` + `COPY INQCUST.` -> 'INQCUST'), comma-separated
-        # in source order; NULL for an entry no COPY follows. Only the position is
-        # recorded: expanding the member is the reader's job (galaxy_ir), so a
-        # COMMAREA record and a callee's DFHCOMMAREA can be compared field by field.
-        _ensure_columns(cursor, "record_data", ["copy_members TEXT"])
-        # #3694: `sign_separate` -- 1 when a COBOL item codes SIGN [TRAILING] SEPARATE (its sign
-        # takes a byte of its own, after the digits), 2 for SIGN LEADING SEPARATE (before them),
-        # NULL otherwise; widths are the reader's job (galaxy_ir).
-        _ensure_columns(cursor, "record_data", ["sign_separate INTEGER"])
-        # #4265: `copy_libraries` -- the library-name each `copy_members` COPY names (`COPY X IN LIB`),
-        # comma-separated in the same order, "" for an unqualified COPY; NULL when none names one.
-        _ensure_columns(cursor, "record_data", ["copy_libraries TEXT"])
-        # #4265: `copy_replacing` -- each `copy_members` COPY's REPLACING operands, a JSON list in the same
-        # order: null for a COPY that replaces nothing, else [[from, to(, LEADING|TRAILING)], ...] with
-        # pseudo-text as written minus its `==` delimiters. NULL when no COPY on the entry replaces
-        # anything. The copybook keeps its own (tagged) names; the reader applies the REPLACING.
-        _ensure_columns(cursor, "record_data", ["copy_replacing TEXT"])
-        # #4266: `sync` -- 'SYNC' / 'SYNC LEFT' / 'SYNC RIGHT' when a COBOL item codes SYNCHRONIZED (slack
-        # bytes before it are the reader's job, galaxy_ir); `justified` / `blank_when_zero` -- 1 when it codes
-        # JUSTIFIED / BLANK WHEN ZERO; `renames` -- a 66 entry's `A [THRU B]` (qualifiers as `X OF Y`).
-        # All NULL otherwise.
-        _ensure_columns(
-            cursor, "record_data", ["sync TEXT", "justified INTEGER", "blank_when_zero INTEGER", "renames TEXT"]
-        )
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_file_id ON record_data(file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_snapshot ON record_data(repo_name, commit_hash);")
+        create_channel_table(cursor, "record", _ensure_columns)
 
         # #3347: BMS screen-field layouts -- one row per DFHMSD (mapset) / DFHMDI
         # (map) / DFHMDF (field) macro, in source order, the tree carried as
@@ -1143,33 +1018,7 @@ class RecordKeeper:
         # reaches the symbolic map). `attributes` keeps every other operand as
         # written (COLOR=, HILIGHT=, a map's SIZE=, a mapset's MODE=/LANG= ...).
         # Per-file, so it hangs off file_data with the usual cascade-delete.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS screen_field_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                kind TEXT,
-                ordinal INTEGER,
-                parent_ordinal INTEGER,
-                field_name TEXT,
-                pos_line INTEGER,
-                pos_column INTEGER,
-                length INTEGER,
-                attrb TEXT,
-                picin TEXT,
-                picout TEXT,
-                initial_value TEXT,
-                occurs INTEGER,
-                attributes TEXT,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_screen_field_file_id ON screen_field_data(file_id);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_screen_field_snapshot ON screen_field_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, "screen_field", _ensure_columns)
 
         # #3351-#3354: CICS resource operations -- one row per EXEC CICS command
         # that names a resource: a FILE (READ/WRITE/REWRITE/DELETE/browse), a BMS
@@ -1192,35 +1041,7 @@ class RecordKeeper:
         #                        the queue type, TS or TD
         #   record_clause     -- INTO | FROM | SET, and record_name its operand
         #   attributes        -- every other option as written (RIDFLD, UPDATE, ...)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS cics_resource_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                verb TEXT,
-                resource_kind TEXT,
-                access TEXT,
-                name_operand TEXT,
-                resource_name TEXT,
-                name_resolution TEXT,
-                name_candidates TEXT,
-                qualifier_operand TEXT,
-                qualifier TEXT,
-                record_clause TEXT,
-                record_name TEXT,
-                attributes TEXT,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_resource_file_id ON cics_resource_data(file_id);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_cics_resource_name ON cics_resource_data(resource_kind, resource_name);"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_cics_resource_snapshot ON cics_resource_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, "cics_resource", _ensure_columns)
 
         # #3449: CICS task control (core/cics_tasks.py) -- how tasks relate: a
         # parent RUNs / STARTs a child transaction, FETCHes or FREEs a child,
@@ -1245,32 +1066,7 @@ class RecordKeeper:
         #   timing            -- INTERVAL / TIME / AFTER / FOR / UNTIL + units, as written
         #   attributes        -- every other kept option (COMPSTATUS, ABCODE, LENGTH,
         #                        NOSUSPEND, ...)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS cics_task_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                verb TEXT,
-                target_kind TEXT,
-                target_operand TEXT,
-                target_name TEXT,
-                target_resolution TEXT,
-                target_candidates TEXT,
-                channel_operand TEXT,
-                channel_name TEXT,
-                token TEXT,
-                record_clause TEXT,
-                record_name TEXT,
-                timing TEXT,
-                attributes TEXT,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_task_file_id ON cics_task_data(file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_task_target ON cics_task_data(verb, target_name);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_task_snapshot ON cics_task_data(repo_name, commit_hash);")
+        create_channel_table(cursor, "cics_task", _ensure_columns)
 
         # #3448: job submission through the internal reader (core/job_submits.py).
         #   kind         -- JOB (a COBOL literal `//NAME JOB` card) | EXEC (a COBOL
@@ -1562,31 +1358,7 @@ class RecordKeeper:
         # (core/web_services.py): one row per DFHLS2WS / DFHLS2JS (provider) or
         # DFHWS2LS / DFHJS2LS (requester) step -- the program, its URI, the request /
         # response copybook members, PGMINT, the WSBIND and WSDL / JSON schema.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS web_service_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                assistant TEXT,
-                direction TEXT,
-                program TEXT,
-                uri TEXT,
-                request TEXT,
-                response TEXT,
-                interface TEXT,
-                container TEXT,
-                binding TEXT,
-                document TEXT,
-                transaction_id TEXT,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_web_service_file_id ON web_service_data(file_id);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_web_service_snapshot ON web_service_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, "web_service", _ensure_columns)
 
         # #4457: the COPY ... REPLACING statements no record_data entry carries (a COPY after a section
         # header / FD, or before a section's first entry): one row per statement, `replacing` the JSON
@@ -1663,26 +1435,7 @@ class RecordKeeper:
         # subscripts dropped); source_kind item | literal | figurative | function |
         # length | address, source NULL for INITIALIZE; *_refmod flag a reference
         # modification; corresponding flags MOVE CORRESPONDING.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS data_move_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                verb TEXT,
-                source TEXT,
-                source_kind TEXT,
-                target TEXT,
-                corresponding INTEGER,
-                source_refmod INTEGER,
-                target_refmod INTEGER,
-                line_number INTEGER,
-                source_refmod_text TEXT,
-                target_refmod_text TEXT,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_data_move_file_id ON data_move_data(file_id);")
+        create_channel_table(cursor, "data_move", _ensure_columns)
         # The slicer's synthetic top-level buckets (`__global_context__`: a Python
         # module's import-time code, Mode D's loose code). They have no
         # function_data row (#2691), but they are callers: their calls are kept
@@ -1705,11 +1458,8 @@ class RecordKeeper:
             )
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_synthetic_unit_file_id ON synthetic_unit_data(file_id);")
-        # #3655: the reference modifications as written, added to a pre-#3655 DB in place.
-        _ensure_columns(cursor, "data_move_data", ["source_refmod_text TEXT", "target_refmod_text TEXT"])
         # #3835: a pre-#3835 DB gains the synthetic units' call-site argument counts
         _ensure_columns(cursor, "synthetic_unit_data", ["calls_out_arities TEXT"])
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_data_move_snapshot ON data_move_data(repo_name, commit_hash);")
 
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
         # user submits and which program CICS routes it to. Extracted from the CSD
@@ -1726,27 +1476,7 @@ class RecordKeeper:
         # transaction id is not a file, so it cannot be a file_data FK. The COBOL
         # in-source routing (EXEC CICS RETURN/START/RUN TRANSID) rides in
         # call_site_data; galaxy_ir.transaction_map joins the two.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS transaction_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                transid TEXT,
-                program TEXT,
-                group_name TEXT,
-                profile TEXT,
-                dst_file_id INTEGER,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE,
-                FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_transaction_file_id ON transaction_data(file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_transaction_transid ON transaction_data(transid);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_transaction_snapshot ON transaction_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, "transaction", _ensure_columns)
 
         # #3356: the CICS resource inventory -- one row per CSD `DEFINE
         # <type>(<name>)` record of ANY resource type (FILE, MAPSET, TDQUEUE,
@@ -1770,42 +1500,7 @@ class RecordKeeper:
         #   attributes     the record's full operand text, whitespace-folded
         # Per-file (every fact is in the deck itself), cascade-deleted with
         # file_data and restored on delta scans; nothing here is resolved.
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS csd_resource_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                resource_type TEXT,
-                resource_name TEXT,
-                group_name TEXT,
-                dsname TEXT,
-                ddname TEXT,
-                record_format TEXT,
-                key_length INTEGER,
-                record_size INTEGER,
-                queue_type TEXT,
-                plan TEXT,
-                db2_entry TEXT,
-                transid TEXT,
-                program TEXT,
-                attributes TEXT,
-                line_number INTEGER,
-                source TEXT,
-                macro_table TEXT,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        # #5120: provenance -- CSD or an assembled macro table (DFHFCT ...). A
-        # pre-#5120 database gets the columns healed in; its rows read as CSD.
-        _ensure_columns(cursor, "csd_resource_data", ["source TEXT", "macro_table TEXT"])
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_csd_resource_file_id ON csd_resource_data(file_id);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_csd_resource_name ON csd_resource_data(resource_type, resource_name);"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_csd_resource_snapshot ON csd_resource_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, "csd_resource", _ensure_columns)
 
         # #3344: the DB2 table shape a program binds to -- one row per column of
         # an `EXEC SQL DECLARE <table> TABLE (...)` (inline in a COBOL/PL/I
@@ -1823,28 +1518,7 @@ class RecordKeeper:
         #                  source writes none (DB2 defaults are not invented)
         #   nullable    -- 0 exactly when the column says NOT NULL
         #   attributes  -- every column option after the type, as written
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS sql_table_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                table_name TEXT,
-                table_line INTEGER,
-                colno INTEGER,
-                column_name TEXT,
-                sql_type TEXT,
-                length INTEGER,
-                scale INTEGER,
-                nullable INTEGER,
-                attributes TEXT,
-                line_number INTEGER,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_table_file_id ON sql_table_data(file_id);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_table_name ON sql_table_data(table_name);")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_table_snapshot ON sql_table_data(repo_name, commit_hash);")
+        create_channel_table(cursor, "sql_table", _ensure_columns)
 
         # #3446: embedded SQL statements -- which tables each program reads and
         # writes (db2_sql_statements). One row per (statement, table); a
@@ -1856,30 +1530,7 @@ class RecordKeeper:
         #   access         -- read / insert / update / delete / merge / lock
         #   cursor_name    -- declared, used, or `WHERE CURRENT OF`
         #   host_variables -- distinct `:NAME`s in order, comma-joined
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS sql_statement_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                repo_name TEXT,
-                commit_hash TEXT,
-                file_id INTEGER,
-                stmt_ordinal INTEGER,
-                verb TEXT,
-                table_name TEXT,
-                access TEXT,
-                cursor_name TEXT,
-                host_variables TEXT,
-                line_number INTEGER,
-                statement_text TEXT,
-                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
-            )
-        """)
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_statement_file_id ON sql_statement_data(file_id);")
-        # #3618: the statement text, added to a pre-#3618 DB in place.
-        _ensure_columns(cursor, "sql_statement_data", ["statement_text TEXT"])
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_statement_table ON sql_statement_data(table_name);")
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_sql_statement_snapshot ON sql_statement_data(repo_name, commit_hash);"
-        )
+        create_channel_table(cursor, "sql_statement", _ensure_columns)
 
         # #3313 step 3: project-local idiom wrappers -- a short function or a
         # function-like `#define` alias that hides a literal-vocabulary rule
@@ -2970,44 +2621,13 @@ class RecordKeeper:
         # file that has no file_data row at all (the statistical auditor can
         # relegate one after extraction, the same gap edge_data has).
         if call_sites:
-            call_rows = []
-            for site in call_sites:
-                src_id = path_to_file_id.get(site.get("src_path", ""))
-                if src_id is None:
-                    continue
-                call_rows.append(
-                    (
-                        repo_name,
-                        commit_hash,
-                        src_id,
-                        site.get("verb"),
-                        site.get("form"),
-                        site.get("operand"),
-                        site.get("target"),
-                        path_to_file_id.get(site.get("resolved_path") or ""),
-                        int(site.get("line", 0) or 0),
-                        site.get("commarea"),  # #3355
-                        site.get("commarea_length"),
-                        site.get("commarea_datalength"),
-                        site.get("using_args"),  # #3454
-                        site.get("sysid"),  # #3494
-                    )
-                )
-            if call_rows:
-                cursor.executemany(
-                    """
-                    INSERT INTO call_site_data (
-                        repo_name, commit_hash, src_file_id, verb, form,
-                        operand, target, dst_file_id, line_number,
-                        commarea, commarea_length, commarea_datalength, using_args, sysid
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    call_rows,
-                )
+            _insert_resolved_channel(cursor, CALL_SITE_CHANNEL, call_sites, path_to_file_id, repo_name, commit_hash)
 
         # #3383: the registered per-file fact channels (dataset, record, sql_table, csd_resource,
         # screen_field, cics_resource) -- declared in gitgalaxy/core/fact_channels.py.
         for channel in CHANNELS:
+            if channel.resolved:
+                continue
             _insert_per_file_child(
                 cursor,
                 parsed_files,
@@ -3019,49 +2639,6 @@ class RecordKeeper:
                 channel.payload_key,
                 channel.to_row,
             )
-
-        # #3449: CICS task control -- per-file, like cics_resource_data.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "cics_task_data",
-            (
-                "verb",
-                "target_kind",
-                "target_operand",
-                "target_name",
-                "target_resolution",
-                "target_candidates",
-                "channel_operand",
-                "channel_name",
-                "token",
-                "record_clause",
-                "record_name",
-                "timing",
-                "attributes",
-                "line_number",
-            ),
-            "cics_tasks",
-            lambda t: (
-                t.get("verb"),
-                t.get("target_kind"),
-                t.get("operand"),
-                t.get("name"),
-                t.get("resolution"),
-                t.get("candidates"),
-                t.get("channel_operand"),
-                t.get("channel"),
-                t.get("token"),
-                t.get("record_clause"),
-                t.get("record"),
-                t.get("timing"),
-                t.get("attributes"),
-                int(t.get("line", 0) or 0),
-            ),
-        )
 
         # #3448: job-submission evidence -- per-file, like cics_task_data.
         _insert_per_file_child(
@@ -3415,35 +2992,6 @@ class RecordKeeper:
             lambda o: (o.get("option"), o.get("value"), o.get("written"), int(o.get("line", 0) or 0)),
         )
 
-        # #3496: web-services assistant steps -- per-file.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "web_service_data",
-            (
-                "assistant",
-                "direction",
-                "program",
-                "uri",
-                "request",
-                "response",
-                "interface",
-                "container",
-                "binding",
-                "document",
-                "transaction_id",
-                "line_number",
-            ),
-            "web_services",
-            lambda w: (
-                *(w.get(c) for c in _WEB_SERVICE_FIELDS),
-                int(w.get("line", 0) or 0),
-            ),
-        )
-
         # Synthetic top-level buckets' calls (no function_data row) -- per-file.
         _insert_per_file_child(
             cursor,
@@ -3483,105 +3031,13 @@ class RecordKeeper:
             ),
         )
 
-        # #3452: field-level data movement -- per-file.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "data_move_data",
-            (
-                "verb",
-                "source",
-                "source_kind",
-                "target",
-                "corresponding",
-                "source_refmod",
-                "target_refmod",
-                "line_number",
-                "source_refmod_text",
-                "target_refmod_text",
-            ),
-            "data_moves",
-            lambda m: (
-                m.get("verb"),
-                m.get("source"),
-                m.get("source_kind"),
-                m.get("target"),
-                int(bool(m.get("corresponding"))),
-                int(bool(m.get("source_refmod"))),
-                int(bool(m.get("target_refmod"))),
-                int(m.get("line", 0) or 0),
-                m.get("source_refmod_text"),
-                m.get("target_refmod_text"),
-            ),
-        )
-
         # #3211-followup: the transaction map, resolved cross-file (transid ->
         # program -> the program's file) like call_sites, so it is passed in
         # rather than read per-file. A definition whose deck has no file_data row
         # is skipped (the same extraction gap edge_data/call_site_data tolerate);
         # a program the repository does not contain keeps dst_file_id NULL.
-        if transactions:
-            txn_rows = []
-            for txn in transactions:
-                deck_file_id = path_to_file_id.get(txn.get("src_path", ""))
-                if deck_file_id is None:
-                    continue
-                txn_rows.append(
-                    (
-                        repo_name,
-                        commit_hash,
-                        deck_file_id,
-                        txn.get("transid"),
-                        txn.get("program"),
-                        txn.get("group"),
-                        txn.get("profile"),
-                        path_to_file_id.get(txn.get("resolved_path") or ""),
-                        int(txn.get("line", 0) or 0),
-                    )
-                )
-            if txn_rows:
-                cursor.executemany(
-                    """
-                    INSERT INTO transaction_data (
-                        repo_name, commit_hash, file_id, transid, program,
-                        group_name, profile, dst_file_id, line_number
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                    txn_rows,
-                )
-
-        # #3446: embedded SQL statements -- per-file, like sql_table_data.
-        _insert_per_file_child(
-            cursor,
-            parsed_files,
-            path_to_file_id,
-            repo_name,
-            commit_hash,
-            "sql_statement_data",
-            (
-                "stmt_ordinal",
-                "verb",
-                "table_name",
-                "access",
-                "cursor_name",
-                "host_variables",
-                "line_number",
-                "statement_text",
-            ),
-            "sql_statements",
-            lambda s: (
-                int(s.get("ordinal", 0) or 0),
-                s.get("verb"),
-                s.get("table"),
-                s.get("access"),
-                s.get("cursor"),
-                s.get("host_variables"),
-                int(s.get("line", 0) or 0),
-                s.get("statement"),
-            ),
+        _insert_resolved_channel(
+            cursor, TRANSACTION_CHANNEL, transactions or [], path_to_file_id, repo_name, commit_hash
         )
 
         # #3313 step 3: the resolved idiom wrappers, like transactions passed in

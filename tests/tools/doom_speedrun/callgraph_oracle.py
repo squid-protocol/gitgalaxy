@@ -2,7 +2,7 @@
 """C/C++ call-graph validation for the DOOM Port Speedrun corpus (#5630): a tree-sitter body oracle and family consensus.
 
     python tests/tools/doom_speedrun/callgraph_oracle.py [--only a,b] [--family a,b] [--work DIR] [--sha SHA]
-           [--baseline FILE --fail-on-regression] [--write-baseline FILE]
+           [--clang] [--baseline FILE --fail-on-regression] [--write-baseline FILE]
 
 Reads the scans ``doom_speedrun.py scan`` leaves under ``<work>/scans/<sha>/<port>`` and the clones under
 ``<work>/repos/<port>``; it never fetches or scans itself.
@@ -19,7 +19,10 @@ Reads the scans ``doom_speedrun.py scan`` leaves under ``<work>/scans/<sha>/<por
 
 Results go to ``<work>/results/<sha>/callgraph.{json,md}``. ``--baseline`` compares with a committed baseline and
 ``--fail-on-regression`` exits 1 when a port's recall or precision drops, or a consensus count grows (the hook for the
-DOOM-rosetta nightly, #5619). Licensed ports only: the tool refuses any port outside ``LICENSED``.
+DOOM-rosetta nightly, #5619). ``--clang`` adds the libclang reference of ``doom_clang_calls.py`` for the C ports
+(its recall, precision and the disagreement count in files clang parsed without a fatal error, apart from the files
+it could not) and gates the same way against the baseline's ``clang`` section. Licensed ports only: the tool refuses
+any port outside ``LICENSED``.
 Needs ``tree_sitter_language_pack`` (the selfscan venv has it).
 """
 
@@ -37,6 +40,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
+sys.path.insert(0, str(REPO_ROOT))  # before any gitgalaxy import: a shared venv may editable-install another checkout
+sys.path.insert(0, str(HERE))
+
+import doom_scorer  # noqa: E402
+
 DEFAULT_WORK = Path(os.environ.get("DOOM_SPEEDRUN_WORK", "/tmp/gitgalaxy-scratch/doom-speedrun"))
 DEFAULT_BASELINE = HERE / "callgraph_baseline.json"
 
@@ -84,11 +92,34 @@ SHAPE_OF_PARENT = {
     "expression_statement": "statement",
 }
 PREPROC = {"preproc_def", "preproc_function_def", "preproc_call", "preproc_arg"}
+# Statements that cannot sit at file scope: one right after a function means tree-sitter closed that function early
+STATEMENT_NODES = {
+    "for_statement", "while_statement", "do_statement", "if_statement", "switch_statement", "return_statement",
+    "for_range_loop", "try_statement", "expression_statement",
+}  # fmt: skip
 TEXT_NODES = {"comment", "string_literal", "raw_string_literal", "char_literal", "concatenated_string"}
 # Text fallback for a region tree-sitter misparsed (an ERROR node, or an ``else if`` split by ``#ifdef`` read as a
 # nested function definition): comments and literals blanked, then every ``name (`` that is not a keyword.
 STRIP = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S)
-TEXT_CALL = re.compile(r"\b([A-Za-z_]\w*)\s*\(")
+# An explicit destructor call (`p->~T(`, `x.~T(`, `T::~T(`) names the unit `~T`, as tree-sitter's destructor_name does.
+TEXT_CALL = re.compile(
+    r"(?:(?<=->)|(?<=\.)|(?<=::))\s*~\s*([A-Za-z_]\w*)\s*(?:<[^;{}()]*>\s*)?\(|\b([A-Za-z_]\w*)\s*\("
+)
+# A class or struct definition head: the last word before its `:` base list or `{` is the class name.
+CLASS_HEAD = re.compile(r"\b(?:class|struct)\b[^;{}()<>]*?\b([A-Za-z_]\w*)\s*(?:final\s*)?[:{]")
+# A class head with a base list: `class A : public B, virtual C<T> {` (the entries after the lone `:`).
+BASE_LIST = re.compile(r"\b(?:class|struct)\b[^;{}()]*?[^:]:(?!:)([^;{}]*)\{")
+BASE_NAME = re.compile(r"([A-Za-z_]\w*)\s*(?:<[^<>]*>)?\s*$")
+# A type alias of a class: `typedef Private<PublicType> Base;` / `using Base = Private<P>;`. A constructor initializer
+# naming one (`Impl(Public *i) : Base(i)`) calls the aliased base's constructor. Capitalised names only, and only when the
+# target is a class the repo declares: `typedef int Bool;` (or `using type = T`) shares its name with a data member `: Bool(v)`.
+ALIAS_DECL = re.compile(
+    r"\btypedef\b\s*(?:typename\s+)?([A-Za-z_][\w:]*)\s*(?:<[^;{}()]*>)?[\s*&]*([A-Z]\w*)\s*;"
+    r"|\busing\s+([A-Z]\w*)\s*=\s*(?:typename\s+)?([A-Za-z_][\w:]*)"
+)
+CLASS_DECL = re.compile(r"\b(?:class|struct)\s+(?:[A-Z_]+\s+)?([A-Za-z_]\w*)\s*[:{<;]")
+ALIASES = ""  # the key of `class_names` that holds the alias names (no class is named "")
+CPP_EXTS = frozenset(".h .hh .hpp .hxx .inl .cc .cpp .cxx".split())
 KEYWORDS = frozenset(
     "if else while for do switch return sizeof alignof _Alignof defined case goto typeof decltype".split()
 )
@@ -140,13 +171,20 @@ class Body:
     """One function body: its calls (name -> shape of the first call), other identifier references, preprocessor and
     comment/literal text."""
 
-    def __init__(self, node):
+    def __init__(self, node, classes=None):
         self.node = node
         self.calls, self.refs, self.preproc, self.text_only, self.types = {}, set(), [], [], set()
         self.broken = False  # an ERROR node inside: tree-sitter may have closed the body early
+        self.nested = []  # 1-based last lines of real nested definitions (methods, or functions a misparse ran over)
         callees = set()
+        for init in _initializers(node):  # `: Base(x), member(y)`: a base class entry is a constructor call
+            name = callee_node(init.children[0]) if init.children else None
+            if name is not None and decode_bytes(name.text) in _bases(classes or {}, node):
+                self.calls.setdefault(decode_bytes(name.text), "ctor-init")
         body = node.child_by_field_name("body") or node
         stack = [body]
+        for init in _initializers(node):  # `d(new Impl(this))`, `base(f(x))`: the arguments are part of the constructor
+            stack.extend(init.children[1:])
         while stack:
             n = stack.pop()
             if n.type in PREPROC:
@@ -159,7 +197,10 @@ class Body:
                 if n.parent is not None and n.parent.type == "field_declaration_list":
                     continue  # a local class's method is its own unit
                 if _is_real_nested_function(n):
+                    self.nested.append(n.end_point[0] + 1)
                     continue  # nyx-o8: a nested function's calls are credited to it, not to the outer (as the engine does)
+                if _keyword_named(n):  # `MACRO\n if (x)` reads as a definition named `if`
+                    self.broken = True
                 inner = n.child_by_field_name("body")  # C has no nested functions: a misparsed statement
                 end = inner.start_byte if inner is not None else n.end_byte
                 self._text_calls(n.text[: end - n.start_byte])
@@ -176,12 +217,15 @@ class Body:
             elif n.type == "type_identifier":  # C++ `new T(...)` / `T v(...)`: a constructor, not a named call
                 self.types.add(decode_bytes(n.text))
             stack.extend(reversed(n.children))
+        if _runs_into_statements(node):  # `QRYNEWINFO(7) {..} else {..}` (an `if` macro) ends the node with no ERROR
+            self.broken = True
 
     def _text_calls(self, raw):
         text = STRIP.sub(" ", decode_bytes(raw))
         for m in TEXT_CALL.finditer(text):
-            if m.group(1) not in KEYWORDS:
-                self.calls.setdefault(m.group(1), "unparsed")
+            name = "~" + m.group(1) if m.group(1) else m.group(2)
+            if name not in KEYWORDS:
+                self.calls.setdefault(name, "unparsed")
 
     def presence(self, name):
         """How ``name`` appears in the body: ``call:<shape>``, ``function-pointer``, ``type`` (a C++ constructor),
@@ -199,13 +243,46 @@ class Body:
         return None
 
 
+# A macro class (`DE_PIMPL(X) { ... }`, `DE_GUI_PIMPL(X),\nDE_OBSERVES(A, B)\n{ ... }`) is a class: its members are declarations
+# and nested definitions, which own their calls (#5630).
+MACRO_CLASS_HEAD = re.compile(r"[ \t]*[A-Z0-9_]*PIMPL[A-Z0-9_]*[ \t]*\(")
+
+
+def _member_initializers(body):
+    """A macro class's own code: the right-hand side of each member initializer (``Mat3f m = f();``) at the class's top
+    level. A declaration or a definition head (``bool isValid() const;``, ``Impl(Public *i) : Base(i)``) names a member,
+    it calls nothing, and a nested ``{...}`` is a method whose calls are its own."""
+    own, chunk, depth, parens = [], [], 0, 0
+    for ch in body:
+        if ch == "{":
+            depth += 1
+            if depth == 1:
+                continue
+        elif ch == "}":
+            depth -= 1
+            if depth == 1:  # a nested method or aggregate closed: the chunk before it was its head
+                chunk = []
+            continue
+        if depth != 1:
+            continue
+        parens += (ch == "(") - (ch == ")")
+        if ch == ";" and parens <= 0:
+            text = "".join(chunk)
+            chunk = []
+            if m := re.search(r"(?<![=!<>])=(?!=)", re.sub(r"\([^()]*\)", lambda x: " " * len(x.group(0)), text)):
+                own.append(text[m.end() :])
+        else:
+            chunk.append(ch)
+    return "\n".join(own)
+
+
 class TextBody(Body):
     """Fallback for a function tree-sitter folds into a neighbour (a macro table above it with no semicolon): the
     brace-matched body from its start line, comments and literals blanked, preprocessor lines dropped; every call is
     shape ``unparsed``. Also used when a bare macro statement (``ADD_FILE_COUNTER`` with no semicolon) makes tree-sitter
     close the body early: ``end_line`` says whether the braces reach further."""
 
-    def __init__(self, src, line):
+    def __init__(self, src, line, classes=None):
         self.node, self.calls, self.refs, self.preproc, self.text_only, self.types = None, {}, set(), [], [], set()
         self.end_line = line
         lines = decode_bytes(src).split("\n")
@@ -230,20 +307,198 @@ class TextBody(Body):
         body = text[open_at : end + 1]
         self.preproc = re.findall(r"^[ \t]*#.*$", body, flags=re.M)
         body = re.sub(r"^[ \t]*#.*$", " ", body, flags=re.M)
-        self._text_calls(body.encode())
+        if MACRO_CLASS_HEAD.match(lines[line - 1]):
+            self._text_calls(_member_initializers(body).encode())
+        else:
+            self._text_calls(body.encode())
+        head = text[:open_at]
+        ctor = re.match(
+            r"\s*(?:[\w:<>~*&\s]*?[\s*&:])?([A-Za-z_]\w*)\s*\(", head
+        )  # a constructor is named for its class
+        classes = classes or {}
+        known = classes.get(ctor.group(1), set()) | classes.get(ALIASES, set()) if ctor else set()
+        for name in _head_initializer_names(head):
+            if name in known:
+                self.calls.setdefault(name, "ctor-init")
+        args = _head_initializer_arguments(head)  # `_n(std::move(v))`: part of the constructor
+        news = re.compile(r"\bnew\s+(?:[A-Za-z_]\w*\s*::\s*)*([A-Za-z_]\w*)")  # `d(new Impl(this))`: a type, as in Body
+        self.types |= set(news.findall(args))
+        self._text_calls(news.sub(" ", args).encode())
         self.refs = set(re.findall(r"\b[A-Za-z_]\w*\b", body)) - set(self.calls)
         self.text_only = [m.group(0) for m in STRIP.finditer(raw[open_at : end + 1])]
 
 
+def _head_initializer_names(head):
+    """The names a constructor head's initializer list calls (`A(i) : ui::Base(i), m(x)` -> Base, m), qualifiers dropped."""
+    depth, names, listed = 0, [], False
+    for m in re.finditer(r"::|[:()]|[A-Za-z_]\w*", head):
+        tok = m.group(0)
+        if tok == "(":
+            depth += 1
+            if depth == 1 and listed and (prev := head[: m.start()].rstrip()[-1:]) and (prev.isalnum() or prev in "_>"):
+                names.append(re.search(r"([A-Za-z_]\w*)\s*(?:<[^<>]*>)?\s*$", head[: m.start()]).group(1))
+        elif tok == ")":
+            depth -= 1
+        elif tok == ":" and depth == 0:
+            listed = True
+    return names
+
+
+def _head_initializer_arguments(head):
+    """The text inside each entry of a constructor head's initializer list (`: Base(f(x)), m(g(y))` -> `f(x) g(y)`): the
+    arguments are calls of the constructor, the entry names are not (a base class is read by `_head_initializer_names`)."""
+    depth, listed, out = 0, False, []
+    for m in re.finditer(r"::|[:()]|[^:()]+", head):
+        tok = m.group(0)
+        if tok == "(":
+            depth += 1
+            if depth > 1 and listed:
+                out.append(tok)
+        elif tok == ")":
+            depth -= 1
+            if depth >= 1 and listed:
+                out.append(tok)
+            elif depth == 0 and listed:
+                out.append(" ; ")  # entries apart: `a` then `(x)` of the next must not read as a call `a(x)`
+        elif tok == ":" and depth == 0:
+            listed = True
+        elif listed and depth >= 1:
+            out.append(tok)
+    return "".join(out)
+
+
+def _initializers(node):
+    """The ``field_initializer`` entries of a constructor's initializer list (a child of the definition, not of its body)."""
+    for child in node.children:
+        if child.type == "field_initializer_list":
+            return [c for c in child.children if c.type == "field_initializer"]
+    return []
+
+
+def _owner(node):
+    """The class a constructor definition belongs to: the class body it sits in, else the scope of ``Cls::Cls``."""
+    up = node.parent
+    while up is not None:
+        if up.type in ("class_specifier", "struct_specifier"):
+            name = up.child_by_field_name("name")
+            return decode_bytes(name.text) if name is not None else None
+        up = up.parent
+    decl = node.child_by_field_name("declarator")
+    while decl is not None and decl.type != "qualified_identifier":
+        decl = decl.child_by_field_name("declarator")
+    scope = decl.child_by_field_name("scope") if decl is not None else None
+    while (
+        decl is not None
+        and (inner := decl.child_by_field_name("name")) is not None
+        and inner.type == "qualified_identifier"
+    ):
+        decl, scope = (
+            inner,
+            inner.child_by_field_name("scope") or scope,
+        )  # `A::B::B` nests: the class is the innermost scope
+    return bare(decode_bytes(scope.text)) if scope is not None else None
+
+
+def _bases(classes, node):
+    """The base classes its owner lists (every listed base when the owner is not found)."""
+    owner = _owner(node)
+    if owner in classes:
+        return classes[owner] | classes.get(ALIASES, set())
+    return set().union(*classes.values()) if owner is None else classes.get(ALIASES, set())
+
+
+def class_names(repo, vendored=None):
+    """class -> the base classes its head lists, over a repo's C++ files: what a base-class initializer entry names (a
+    data member `: type(t)` is no call, even when a vendored class elsewhere shares its name). Key ``ALIASES`` holds the
+    repo's class-typedef names (`Base`). ``vendored`` (a relpath -> bool test) drops a bundled library's files: its
+    `typedef GenericValue<..> Value;` must not make every first-party member `: Value(v)` a base call."""
+    texts = []
+    for root, dirs, files in os.walk(repo):
+        dirs[:] = [d for d in dirs if d != ".git"]
+        for f in files:
+            if os.path.splitext(f)[1].lower() in CPP_EXTS:
+                if vendored and vendored(os.path.relpath(Path(root) / f, repo).replace("\\", "/")):
+                    continue
+                try:
+                    texts.append(decode_bytes((Path(root) / f).read_bytes()))
+                except OSError:
+                    continue
+    return class_names_of_text(*texts)
+
+
+def class_names_of_text(*texts):
+    """``class_names`` over source texts."""
+    bases_of: dict[str, set[str]] = {}
+    declared, aliases = set(), []
+    for text in texts:
+        clean = STRIP.sub(" ", text)
+        declared.update(CLASS_DECL.findall(clean))
+        aliases.extend((m.group(2) or m.group(3), m.group(1) or m.group(4)) for m in ALIAS_DECL.finditer(clean))
+        for head in BASE_LIST.finditer(clean):
+            owner = CLASS_HEAD.search(head.group(0))
+            if owner is None:
+                continue
+            bases_of.setdefault(owner.group(1), set()).update(
+                m.group(1) for b in head.group(1).split(",") if (m := BASE_NAME.search(b))
+            )
+    bases_of[ALIASES] = {name for name, target in aliases if target.rsplit("::", 1)[-1] in declared}
+    return bases_of
+
+
+# Macro statements that take a body, like `for` (doomsday's `DE_FOR_EACH_CONST(T, i, c) { ... }`, `DE_NOTIFY_PUBLIC(N, i) ...`,
+# gzdoom's `IFVIRTUALPTRNAME(o, "C", F) { ... }`): tree-sitter reads one as a nested definition, the engine as a statement
+# of its function (#5630).
+MACRO_STATEMENT = re.compile(
+    r"DE_(?:FOR_(?:EACH|OBSERVERS)|NOTIFY)[A-Z_]*|IF(?:VM|(?:OVERRIDEN)?VIRTUAL(?:PTR)?(?:NAME)?)"
+)
+
+
+def _has_toplevel_semicolon(head):
+    """A `;` outside every bracket pair: a lambda in a constructor initializer (`c ? c : [] { return x; }`) has its own."""
+    depth = 0
+    for ch in head:  # bytes: ints
+        if ch in b"({[":
+            depth += 1
+        elif ch in b")}]":
+            depth -= 1
+        elif ch == 59 and depth <= 0:
+            return True
+    return False
+
+
 def _is_real_nested_function(node):
     """A nested ``function_definition`` that is a function (a GNU C nested function), not the ``else if (...) {`` that
-    ``#ifdef`` splitting makes tree-sitter read as one: its type or declarator name is a keyword."""
+    ``#ifdef`` splitting makes tree-sitter read as one (its type or declarator name is a keyword) nor a macro statement."""
     kind = node.child_by_field_name("type")
     decl = node.child_by_field_name("declarator")
+    body = node.child_by_field_name("body")
+    head = node.text[: body.start_byte - node.start_byte] if body is not None else node.text
+    if _has_toplevel_semicolon(
+        head
+    ):  # `CLEAR_MEMORY(a, bool, 16);\n stmt;\n ...`: statements read as a head (edge-classic)
+        return False
+    while decl is not None and decl.type in ("pointer_declarator", "reference_declarator"):
+        # `Hash &hashFor(int)` / `Item *find()`: the function_declarator sits under the `&` / `*` (a DE_PIMPL method
+        # returning one was read as no function, so its calls were credited to the class, 1085 doomsday misses, #6266)
+        decl = decl.child_by_field_name("declarator") or next(iter(decl.named_children), None)
     name = callee_node(decl.child_by_field_name("declarator")) if decl is not None else None
-    if name is None or decode_bytes(name.text) in KEYWORDS:
+    if name is None or decode_bytes(name.text) in KEYWORDS or MACRO_STATEMENT.fullmatch(decode_bytes(name.text)):
         return False
     return kind is None or decode_bytes(kind.text) not in KEYWORDS
+
+
+def _runs_into_statements(node):
+    """True when the next non-comment sibling of a file-scope function is a statement: the code below it is the rest of
+    this function, which tree-sitter closed early (an `if`-like macro before a braced block, #5630)."""
+    nxt = node.next_sibling
+    while nxt is not None and nxt.type == "comment":
+        nxt = nxt.next_sibling
+    return (
+        node.parent is not None
+        and node.parent.type == "translation_unit"
+        and nxt is not None
+        and nxt.type in STATEMENT_NODES
+    )
 
 
 def _word_in(word, text):
@@ -268,13 +523,22 @@ def function_nodes(tree):
     return out
 
 
+def _keyword_named(node):
+    """A ``function_definition`` tree-sitter made of a statement: ``INLEVEL\n if (x) ...`` (a bare macro statement, no
+    semicolon) reads as a K&R definition named ``if`` whose head can run to the end of the file (srb2, #6266)."""
+    decl = node.child_by_field_name("declarator")
+    name = callee_node(decl.child_by_field_name("declarator")) if decl is not None else None
+    return name is not None and decode_bytes(name.text) in KEYWORDS
+
+
 def definition_at(nodes, line):
-    """The function_definition whose head spans 1-based ``line`` (start row <= line <= body's first row)."""
+    """The function_definition whose head spans 1-based ``line`` (start row <= line <= body's first row); never a
+    keyword-named misparse, whose head would swallow every function below it."""
     row = line - 1
     best = None
     for n in nodes:
         body = n.child_by_field_name("body")
-        if body is None:
+        if body is None or _keyword_named(n):
             continue
         if n.start_point[0] <= row <= body.start_point[0] and (best is None or n.start_point[0] >= best.start_point[0]):
             best = n
@@ -286,8 +550,11 @@ def find_db(scan_dir):
     return hits[0] if hits else None
 
 
-def load_port(repo, db):
-    """Engine functions of a scan: [(relpath, language, name, start_line, calls_out_to list)] for C and C++ files."""
+def load_port(repo, db, vendored=None):
+    """Engine functions of a scan: [(relpath, language, name, start_line, calls_out_to list)] for C and C++ files.
+
+    ``vendored`` (a relpath -> bool test, ``doom_scorer._engine_vendor_test``) drops vendored code: a library's functions
+    are neither oracle callers nor defined names (#6097)."""
     repo = str(repo).replace("\\", "/").rstrip("/")
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
     try:
@@ -304,6 +571,8 @@ def load_port(repo, db):
         rel = path.replace("\\", "/")
         if rel.startswith(repo + "/"):
             rel = rel[len(repo) + 1 :]
+        if vendored and vendored(rel):
+            continue
         try:
             callees = json.loads(calls) if calls else []
         except ValueError:
@@ -321,6 +590,11 @@ class Port:
         self.functions = []  # (rel, name, start, engine callee set, Body / TextBody or None)
         self.edges = set()
         trees = {}
+        classes = (
+            class_names(self.repo, doom_scorer._engine_vendor_test(self.repo))
+            if any(r[1] == "cpp" for r in rows)
+            else {}
+        )
         for rel, lang, fname, start, callees in rows:
             key = (rel, lang)
             if key not in trees:
@@ -331,11 +605,17 @@ class Port:
                     trees[key] = (b"", [])
             src, nodes = trees[key]
             node = definition_at(nodes, start)
-            body = Body(node) if node is not None else TextBody(src, start)
+            body = Body(node, classes) if node is not None else TextBody(src, start, classes)
             if node is not None and body.broken:
-                braces = TextBody(src, start)
-                # end_point[0], never .row: .row on the temporary Point read freed memory (tree-sitter 0.26, #5630)
-                if braces.calls is not None and braces.end_line > node.end_point[0] + 1:
+                braces = TextBody(src, start, classes)
+                # end_point[0], never .row: .row on the temporary Point read freed memory (tree-sitter 0.26, #5630).
+                # Braces ending earlier: the node ran over the code below (srb2's bare macro statements, MSVC __asm,
+                # #6266), unless the braces hold whole methods (a broken DE_PIMPL class: their calls are theirs)
+                ends = node.end_point[0] + 1
+                # A macro class is read by its braces anyway: TextBody keeps only its member initializers.
+                macro_class = bool(MACRO_CLASS_HEAD.match(src.split(b"\n")[start - 1].decode("latin-1")))
+                earlier = braces.end_line < ends and (macro_class or all(row > braces.end_line for row in body.nested))
+                if braces.calls is not None and (braces.end_line > ends or earlier):
                     body = braces
             caller = bare(fname)
             eng = {bare(c) for c in callees} & self.defined
@@ -452,7 +732,58 @@ def regressions(current, baseline, tol=TOLERANCE):
                 out.append(f"consensus: {key} {bc[key]} -> {cc[key]}")
     elif bc:
         out.append("consensus: family differs from the baseline's (or was not run)")
+    if current.get("clang") is not None:  # compared only when this run asked for it (--clang)
+        out += clang_regressions(current["clang"], baseline.get("clang", {}), tol)
     return out
+
+
+def clang_regressions(current, baseline, tol=TOLERANCE):
+    """Regressions of the libclang reference: recall / precision drops, and more disagreements in clean files.
+
+    The count of disagreements in files with a fatal parse error is left out on purpose: it moves with the clone's
+    missing headers, not with the engine."""
+    out = []
+    for name, base in sorted(baseline.items()):
+        cur = current.get(name)
+        if cur is None:
+            out.append(f"clang {name}: in the baseline, not in this run")
+            continue
+        for key in ("recall", "precision"):
+            if cur[key] < base[key] - tol:
+                out.append(f"clang {name}: {key} {base[key]:.4f} -> {cur[key]:.4f}")
+        if cur["disagreements_in_clean_files"] > base["disagreements_in_clean_files"]:
+            out.append(f"clang {name}: disagreements in clean files {base['disagreements_in_clean_files']}"
+                       f" -> {cur['disagreements_in_clean_files']}")  # fmt: skip
+    return out
+
+
+CLANG_KEYS = (
+    "clang_edges",
+    "engine_edges",
+    "agree",
+    "recall",
+    "precision",
+    "files_fatal",
+    "disagreements_in_clean_files",
+)
+
+
+def clang_view(clang):
+    """Numbers only (no example lists) of ``doom_clang_calls.run_port`` results, for the baseline."""
+    return {n: {k: r[k] for k in CLANG_KEYS} for n, r in clang.items()}
+
+
+def run_clang(ports, work, sha):
+    """The libclang reference over the C ports among ``ports`` that have a scan: ({port: result}, why-not or None)."""
+    import doom_clang_calls  # lazy: it imports this module, and libclang is optional
+
+    if doom_clang_calls.clang_callgraph.libclang_version() is None:
+        return {}, "libclang is not installed"
+    out = {}
+    for name in ports:
+        if name in doom_clang_calls.C_PORTS and (res := doom_clang_calls.run_port(name, work, sha)) is not None:
+            out[name] = res
+    return out, None
 
 
 def baseline_view(result):
@@ -476,6 +807,8 @@ def baseline_view(result):
         for n, r in result["ports"].items()
     }
     out = {"engine_sha": result["engine_sha"], "ports": ports}
+    if result.get("clang"):
+        out["clang"] = clang_view(result["clang"])
     if result.get("consensus"):
         c = result["consensus"]
         out["consensus"] = {k: c[k] for k in ("family", "quorum", "holes", "engine_missed", "divergent",
@@ -528,7 +861,7 @@ def run(only, family, work, sha):
         if db is None or not repo.is_dir():
             skipped.append(name)
             continue
-        loaded[name] = Port(name, repo, load_port(repo, db))
+        loaded[name] = Port(name, repo, load_port(repo, db, doom_scorer._engine_vendor_test(repo)))
     result = {"engine_sha": sha, "ports": {n: body_oracle(loaded[n]) for n in only if n in loaded}}
     fam = [loaded[n] for n in family if n in loaded]
     result["consensus"] = consensus(fam) if len(fam) > MIN_HOLDERS else None
@@ -544,6 +877,9 @@ def main(argv=None):
     ap.add_argument("--baseline", type=Path, help=f"compare with a baseline JSON (e.g. {DEFAULT_BASELINE.name})")
     ap.add_argument("--fail-on-regression", action="store_true", help="with --baseline: exit 1 on any regression")
     ap.add_argument("--tolerance", type=float, default=TOLERANCE, help="allowed recall/precision drop")
+    ap.add_argument(
+        "--clang", action="store_true", help="also run the libclang reference on the C ports (needs libclang)"
+    )
     ap.add_argument("--write-baseline", type=Path, help="write the numbers-only baseline JSON here")
     args = ap.parse_args(argv)
     work, sha = args.work.resolve(), args.sha or engine_sha()
@@ -553,6 +889,11 @@ def main(argv=None):
     else:
         only = _names(args.only, family)
     result, skipped = run(only, family, work, sha)
+    no_clang = None
+    if args.clang:
+        result["clang"], no_clang = run_clang(only, work, sha)
+        if no_clang:
+            print(f"callgraph_oracle: --clang skipped: {no_clang}")
     for name in skipped:
         print(f"callgraph_oracle: no scan or clone for {name} under {work} at {sha} (run doom_speedrun.py scan)")
     dest = work / "results" / sha
@@ -564,15 +905,22 @@ def main(argv=None):
     if c := result["consensus"]:
         print(f"consensus: holes {c['holes']}, engine missed {c['engine_missed']}, suspects {c['false_edge_suspects']}")
     print(f"wrote {dest / 'callgraph.md'}")
+    for n, r in result.get("clang", {}).items():
+        print(f"{n:16} clang recall {r['recall']:.4f} precision {r['precision']:.4f} over {r['clang_edges']} edges, "
+              f"{r['disagreements_in_clean_files']} disagreements in clean files ({r['files_fatal']} fatal-error files)")  # fmt: skip
     if args.write_baseline:
-        args.write_baseline.write_text(json.dumps(baseline_view(result), indent=1, sort_keys=True) + "\n")
+        view = baseline_view(result)
+        if not args.clang and args.write_baseline.is_file():  # a run without --clang keeps the committed clang numbers
+            if old := json.loads(args.write_baseline.read_text()).get("clang"):
+                view["clang"] = old
+        args.write_baseline.write_text(json.dumps(view, indent=1, sort_keys=True) + "\n")
     if args.baseline:
         regs = regressions(result, json.loads(args.baseline.read_text()), args.tolerance)
         for line in regs:
             print(f"REGRESSION {line}")
         if regs and args.fail_on_regression:
             return 1
-    return 1 if skipped and args.fail_on_regression else 0
+    return 1 if (skipped or no_clang) and args.fail_on_regression else 0
 
 
 if __name__ == "__main__":

@@ -1,0 +1,126 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-bnk1ccs",
+  "entries": [
+    {
+      "unit": "A010",
+      "line": 284,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (284): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "ED010",
+      "line": 604,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "CUSTTITL > 0 follows the test at 590, which rejects CUSTTITL < 1 and GO TOs ED999."
+    },
+    {
+      "unit": "ED010",
+      "line": 899,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "Title (590), first name, surname, address line 1, DD, MM and YYYY lengths are each checked and rejected with GO TO ED999 earlier in ED010, so none of the seven length tests can be true here."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@906",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@909",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@912",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@915",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@918",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@921",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@924",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899): the field-length test for this WHEN was already rejected earlier in ED010."
+    },
+    {
+      "unit": "ED010",
+      "line": 905,
+      "kind": "EVALUATE",
+      "outcome": "none",
+      "family": "G",
+      "reason": "Inside the IF at 899, which is never true (see 899)."
+    },
+    {
+      "unit": "SM010",
+      "line": 1363,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 51), set by no statement: only `SET SEND-ERASE` and `SET SEND-DATAONLY-ALARM` (181, 267, 370) write the flag."
+    },
+    {
+      "unit": "SM010",
+      "line": 1373,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1363), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 1373,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1363), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 1440,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SM010 after the first SEND MAP and '2' is never set (see 1363), so the test is always true."
+    }
+  ]
+}

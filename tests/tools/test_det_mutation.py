@@ -78,8 +78,33 @@ def test_status_is_none_when_stale(monkeypatch):
     assert s is not None and s["l5"] and s["killed"] == 3 and s["accounted"] == 2
     assert dm.status(CASE, "OTHER") is None
     assert dm.status("carddemo-signon") is None  # no entry
-    monkeypatch.setattr(dm, "fingerprints", lambda case: {**FP, "generator": "moved"})
-    assert dm.status(CASE) is None
+    for n in dm.BLOCKING:  # an input that decides the score: stale (a "survivors" never recorded is not counted)
+        if n in FP:
+            monkeypatch.setattr(dm, "fingerprints", lambda case, n=n: {**FP, n: "moved"})
+            assert dm.status(CASE) is None, n
+    monkeypatch.setattr(dm, "fingerprints", lambda case: {**FP, "survivors": "moved"})
+    assert dm.status(CASE) is not None  # (the entry predates the survivors fingerprint)
+    monkeypatch.setattr(dm, "load", lambda path=dm.LEDGER: {CASE: entry(inputs={"port": "p", **FP, "survivors": "s"})})
+    monkeypatch.setattr(dm, "fingerprints", lambda case: {**FP, "survivors": "s2"})
+    assert dm.status(CASE) is None  # the reviewed list was edited since the entry was cut
+    monkeypatch.setattr(dm, "load", lambda path=dm.LEDGER: {CASE: entry(port_moved=True)})
+    monkeypatch.setattr(dm, "fingerprints", lambda case: dict(FP))
+    assert dm.measured(CASE)["stale_inputs"] == ["port"]  # `refresh` found the det port's bytes moved
+
+
+def test_generator_harness_oracle_drift_alone_does_not_stale(monkeypatch):
+    """#5862 (owner 2026-10-23): the whole-tree generator / harness / oracle hashes are information, not staleness."""
+    monkeypatch.setattr(dm, "load", lambda path=dm.LEDGER: {CASE: entry()})
+    monkeypatch.setattr(dm, "load_survivors", lambda path=dm.SURVIVORS: {CASE: [claim(S1), claim(S2)]})
+    for n in dm.INFO:
+        monkeypatch.setattr(dm, "fingerprints", lambda case, n=n: {**FP, n: "moved"})
+        s = dm.status(CASE)
+        assert s is not None and s["l5"] and s["drifted"] == [n], n
+        assert dm.stale(entry(), {**FP, n: "moved"}) == [] and dm.drifted(entry(), {**FP, n: "moved"}) == [n]
+        assert f"{n} differ from the tree" in dm.describe(s)
+    monkeypatch.setattr(dm, "fingerprints", lambda case: dict(FP))
+    assert "drifted" not in dm.status(CASE)  # added only when non-empty
+    assert set(dm.BLOCKING) | set(dm.INFO) | {"port"} == set(dm.INPUTS)
 
 
 def test_member_spans_and_scope():
@@ -125,10 +150,14 @@ def test_component_staleness_as_evidence_records():
     """#4731's rule: a stored-components input is stale only when a component the target uses moved."""
     e = entry(components={"harness": {"cics": "x", "db2": "y"}})
     now = {**{k: {"sha256": v} for k, v in FP.items()}, "harness": {"sha256": "c2", "components": {"cics": "x"}}}
-    assert dm.stale(e, now) == []  # the harness moved, but only in a component (db2) this case does not use
+    assert dm.drifted(e, now) == []  # the harness moved, but only in a component (db2) this case does not use
     now["harness"]["components"] = {"cics": "x2"}
-    assert dm.stale(e, now) == ["harness"]
-    assert dm.stale(entry(), {**FP, "harness": "c2"}) == ["harness"]  # no components stored: the whole input decides
+    assert dm.drifted(e, now) == ["harness"]
+    assert dm.drifted(entry(), {**FP, "harness": "c2"}) == ["harness"]  # no components stored: the whole input decides
+    e = entry(components={"case": {"k": "x"}})
+    assert dm.stale(
+        e, {**{k: {"sha256": v} for k, v in FP.items()}, "case": {"sha256": "a2", "components": {"k": "y"}}}
+    ) == ["case"]
 
 
 def rr(s, verdict):
@@ -188,21 +217,46 @@ def test_refresh_carries_verdicts_across_case_drift(monkeypatch, tmp_path):
 
 
 def test_refresh_flags_a_killed_stated_claim(monkeypatch, tmp_path):
-    written, _ = refresh_env(monkeypatch, tmp_path, True, {**FP, "harness": "c2"}, ("survived", "killed"))
+    written, _ = refresh_env(monkeypatch, tmp_path, True, {**FP, "case": "a2"}, ("survived", "killed"))
     assert dm.refresh([CASE], tmp_path) == 1
     assert written[CASE]["survived"] == [S1]
 
 
-def test_refresh_generator_only_does_not_rerun(monkeypatch, tmp_path):
-    written, calls = refresh_env(monkeypatch, tmp_path, True, {**FP, "generator": "g2"}, ("killed", "killed"))
+def test_refresh_info_drift_only_does_not_rerun(monkeypatch, tmp_path):
+    drift = {**FP, "generator": "g2", "harness": "c2", "oracle": "d2"}
+    written, calls = refresh_env(monkeypatch, tmp_path, True, drift, ("killed", "killed"))
     assert dm.refresh([CASE], tmp_path) == 0
     assert calls == [] and "refreshed" not in written[CASE] and written[CASE]["inputs"]["generator"] == "g2"
+    assert written[CASE]["inputs"]["harness"] == "c2" and written[CASE]["inputs"]["oracle"] == "d2"
+
+
+def test_refresh_leaves_a_current_entry_alone(monkeypatch, tmp_path, capsys):
+    written, calls = refresh_env(monkeypatch, tmp_path, True, dict(FP), ("killed", "killed"))
+    assert dm.refresh([CASE], tmp_path) == 0 and written == {} and calls == []
+    assert "nothing stale" in capsys.readouterr().out
 
 
 def test_refresh_refuses_when_the_port_moved(monkeypatch, tmp_path):
     written, calls = refresh_env(monkeypatch, tmp_path, False, {**FP, "case": "a2"}, ("survived", "survived"))
     assert dm.refresh([CASE], tmp_path) == 2
-    assert written == {} and calls == []
+    assert calls == [] and written[CASE]["port_moved"] is True  # stale until `run` records the new port
+    assert dm.stale(written[CASE], {k: {"sha256": v} for k, v in FP.items()}) == ["port"]
+
+
+def test_refresh_finds_a_port_move_behind_info_drift(monkeypatch, tmp_path):
+    """Generator drift alone no longer stales, but refresh still translates and compares the port's bytes."""
+    written, calls = refresh_env(monkeypatch, tmp_path, False, {**FP, "generator": "g2"}, ("survived", "survived"))
+    assert dm.refresh([CASE], tmp_path) == 2
+    assert calls == [] and written[CASE]["port_moved"] is True
+
+
+def test_stale_check_reports_info_drift_without_failing(monkeypatch, capsys):
+    monkeypatch.setattr(dm, "load", lambda: {CASE: entry()})
+    monkeypatch.setattr(dm, "fingerprints", lambda c: {**{k: {"sha256": v} for k, v in FP.items()},
+                                                       "oracle": {"sha256": "d2"}})  # fmt: skip
+    assert dm.stale_check() == 0
+    out = capsys.readouterr().out
+    assert "1 current ledger(s) with generator / harness / oracle drift" in out and "no stale ledger" in out
 
 
 def test_stale_check_flags_a_moved_case_and_scopes_to_the_branch(monkeypatch, capsys):
@@ -236,9 +290,16 @@ def test_changed_cases_reads_real_git_and_cases_to_rerun_keeps_the_ledgered(monk
     _git(tmp_path, "checkout", "-q", "-b", "pr")
     for d in ("a", "b", "det_mutation"):
         (eq / d / "case.json").write_text('{"x": 1}', encoding="utf-8")
+    (eq / "c").mkdir(parents=True)
+    (eq / "c" / "evidence.json").write_text('{"refreshed": 1}', encoding="utf-8")
+    (eq / "c" / "evidence.md").write_text("report", encoding="utf-8")
+    _git(tmp_path, "add", ".")
     _git(tmp_path, "commit", "-qam", "change")
     monkeypatch.setattr(dm, "REPO", tmp_path)
-    assert dm.changed_cases("main") == {"a", "b"}  # the ledger directory is not a case
+    assert dm.changed_cases("main") == {
+        "a",
+        "b",
+    }  # the ledger directory and refreshed evidence.json/md are not case inputs
     monkeypatch.setattr(dm, "load", lambda: {"a": entry()})
     assert dm.cases_to_rerun("main") == ["a"]
     assert dm.cases_to_rerun("no-such-ref") == []
@@ -269,3 +330,36 @@ def test_a_case_touch_in_a_real_branch_fails_the_ratchet_and_an_untouched_one_do
     out = capsys.readouterr().out
     assert "a: stale (case)" in out and "b: stale" not in out and "refresh a --work DIR" in out
     assert dm.stale_check() == 1  # no ref: every ledger; "b" is in step, "a" is not
+
+
+def test_updacc_typed_dto_entry_scenarios_and_no_open_case_gap():
+    """#4049: UPDACC's typed-DTO entry is driven by dto_entry scenarios (the link-area bytes hide an in_ defect), the
+    failing run carries every caller field, and no survivor of the case is left a case-gap."""
+    import json
+
+    root = dm.CASES / "cbsa-updacc"
+    scenarios = {s["name"]: s for s in json.loads((root / "case.json").read_text())["scenarios"]}
+    dto = [n for n, s in scenarios.items() if s.get("dto_entry")]
+    assert len(dto) >= 6 and all(n.startswith("dto-entry-") for n in dto)
+    kept = scenarios["dto-entry-caller-fields-kept-on-failure"]["commarea"]
+    for field in (
+        "COMM-CUSTNO",
+        "COMM-OPENED",
+        "COMM-LAST-STMT-DT",
+        "COMM-NEXT-STMT-DT",
+        "COMM-AVAIL-BAL",
+        "COMM-ACTUAL-BAL",
+    ):
+        assert kept[field] not in ("", "0")
+    survivors = json.loads((dm.CASES / "det_mutation_survivors" / "cbsa-updacc.json").read_text())["survivors"]
+    assert "case-gap" not in {s["verdict"] for s in survivors}
+
+
+def test_tranadd_survivors_are_all_stated_and_none_is_a_gap():
+    """#5862: COTRN02C's committed survivors are all stated `equivalent` / `unreachable` with a reason, so the case is L5."""
+    import json
+
+    survivors = json.loads((dm.CASES / "det_mutation_survivors" / "carddemo-tranadd.json").read_text())["survivors"]
+    assert len(survivors) >= 37
+    assert {s["verdict"] for s in survivors} <= set(dm.ACCOUNTED)
+    assert all(s["reason"].strip() for s in survivors)

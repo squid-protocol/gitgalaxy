@@ -52,14 +52,47 @@ other category. Fixed boilerplate (`PROGRAM-ID. REPRO1`, `WS-OUT`), CICS vocabul
 
 ## Checks
 
-`tests/tools/test_blocker_report.py`: parity of categories and counts with the full report; the leak test over every
+`tests/tools/test_blocker_report.py` and `test_blocker_ingest.py`: parity of categories and counts with the full report; the leak test over every
 identifier of a synthetic estate and the real names in the burned estates (CardDemo, GenApp, CBSA, zECS, cics-crucible; `CICS_CRUCIBLE_PATH`, else `../cics-crucible`) when checked
 out, over the repro text too; the repro holds only vocabulary, boilerplate and hashes; hash stability per salt; the manifest equals the emitted fields.
 
+## Construct key (schema 1.2, #5865)
+
+Each blocker carries `construct`: its key in `docs/language_status/gap_prevalence.md` (`gap_prevalence.scrub_key`, a closed
+vocabulary: CICS command and spec options, SQL keywords, IBM routines, refusal classes, copybook family such as `missing
+copybook: estate-owned`). A customer scan and our ranking therefore speak one vocabulary and join on it; no name survives
+in it (a CICS option outside the command spec ends the key; `--redact-more subclass` drops it). Ingest (1.1 and 1.2 both accepted) refuses a construct that
+holds a hash and copies it to the ledger row.
+
+## Ingestion on our side
+
+`python tests/tools/blocker_ingest.py blocker_report.anon.json --ledger FILE` turns each blocker into a row of a
+customer-side ledger (`estate: customer:EST_xxxxxx`, `side`, `class` in the #5051 vocabulary, the signature, the counts,
+`seen_in` engine versions). The rows never go into the committed `port_blockers.json`, which is burned estates only.
+
+- The report is checked first: kind `anonymized`, a supported schema version, no field outside the manifest, every
+  signature word in the allow-list or a `KIND_xxxxxx` hash. Anything else is refused with the reasons.
+- A signature is matched to an issue by `tests/cobol_mainframe/blocker_signatures.json` (category plus a word prefix,
+  hashes replaced by `KIND_*`, so the customer's salt does not matter); `known unproven: #N` links to #N. A blocker
+  with no match gets `issue: null` and a drafted issue body on stdout, for the tick to file.
+- **Opening a new issue.** `blocker_estate_feed.py queue --feed FILE --filed FILED.json` lists one item per distinct
+  construct (category plus the salt-free signature), however many estates or customers report it, and leaves out any
+  construct already in `FILED.json`. With `--open-issues` it opens one issue per item (REST `gh api`, never in CI) and
+  records `{category|signature: issue}` in `FILED.json`; `blocker_ingest.py ... --filed FILED.json` then links every later
+  report of that construct to the issue (the catalogue still wins), so it is neither re-queued nor re-opened.
+- Re-ingesting a report changes nothing; a later engine version appends to `seen_in` ("still open after 3 releases").
+- A row carries the #5051 shape (`summary`, `programs: []`, `refused_by_name: false`; a customer's program names never
+  reach us) and a `status`. A blocker of the same estate that a newer engine version's report no longer lists becomes
+  `closed` with that version in `absent_in`, and reopens if a later report lists it again. Reports are ingested in
+  engine-version order; another estate's rows are never touched. `blocker_ingest.py X --ledger FILE --check` validates
+  a ledger against the #5051 sides and classes.
+
 ## Not yet (Part of #5054)
 
-Ingestion into the #5051 ledger (`estate: customer:<hash>`; the ledger does not exist yet) and matching a signature to
-an issue, feeding `cics_census` blockers into the report, and a run with the readiness scanner (#4725).
+A run with the readiness scanner (#4725). The census feed and the CI ingest over each burned estate's report
+(`blocker_estate_feed.py`, nightly in `evidence-refresh.yml`) are in place. The leak scan over the real names of
+CardDemo, GenApp, CBSA and zECS runs on every PR that reaches the ground-truth job
+(`tests/cobol_mainframe/test_blocker_leak_burned_5054.py`); the cics-crucible leg runs in `cics-crucible.yml`.
 
 ## The harness report (#4493)
 
@@ -70,3 +103,5 @@ layout, shipped data, skipped), and the blockers stated as fixes. Each non-prove
 highest-ranked gap). `tests_unlocked` counts the scenarios of the cases of programs for which the blocker is the only gap
 left; `then_needs` lists what a program still needs after it. Non-burned programs are counted, never named. The page is
 generated output and is not committed.
+
+A fresh-estate trial's page (`trial.py report --write`, `docs/language_status/trials/<estate>.md`) uses the same vocabulary (proven / differs / couldn't run / not attempted) but is built from `trials.json` alone: its blockers are the failure causes (ticket, generator, engine, harness, model), and it has no paragraph or branch coverage (#4493).

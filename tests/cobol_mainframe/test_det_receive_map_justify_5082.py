@@ -238,3 +238,49 @@ def test_x54_records_send_map_justify_not_applicable_5116():
     assert _IBM_JUSTIFY_SENTENCE in text
     assert "JUSTIFY on SEND MAP: not applicable" in text
     assert "test_det_send_map_never_justifies_5116" in text
+
+
+# #5116: PICIN / PICOUT are compile-time pictures on the symbolic map; IBM gives BMS no run-time conversion.
+_IBM_PICIN_SENTENCE = (
+    "the validity of the input data is not checked by BMS or the high-level language when the map is used"
+)
+_IBM_PICOUT_SENTENCE = (
+    "is like PICIN, except that a picture to be applied to an output field in the OUT or INOUT map is generated."
+)
+
+
+def test_det_receive_and_send_map_never_read_a_picture_5116():
+    import inspect
+
+    for fn in (C.Cics.receive_map, C.Cics.send_map):
+        src = inspect.getsource(fn).lower()
+        assert "picin" not in src
+        assert "picout" not in src
+
+
+def test_x54_records_picin_picout_no_runtime_conversion_5116():
+    text = " ".join(_X54.read_text(encoding="utf-8").split())
+    assert _IBM_PICIN_SENTENCE in text
+    assert _IBM_PICOUT_SENTENCE in text
+    assert "PICIN / PICOUT: out of scope, by name" in text
+    assert "test_det_receive_and_send_map_never_read_a_picture_5116" in text
+
+
+# #5116 (c:9d9ee016): the register's citations were re-read against the live DFHMDF page and the result recorded.
+def test_x54_records_the_live_page_reread_5116():
+    text = " ".join(_X54.read_text(encoding="utf-8").split())
+    assert "Re-read 2026-10-23 (#5116, c:9d9ee016" in text
+    assert "If JUSTIFY is omitted, but the NUM attribute is specified, RIGHT and ZERO are assumed." in text
+    assert "If JUSTIFY is omitted, but attributes other than NUM are specified, LEFT and BLANK are assumed." in text
+    assert (
+        "The ATTRB operand specified on the first field of the group applies to all of the fields within the group."
+        in text
+    )
+    assert "per-occurrence JUSTIFY stays frontier" in text
+
+
+def test_x54_does_not_attribute_per_occurrence_justify_to_ibm_5116():
+    text = " ".join(_X54.read_text(encoding="utf-8").split())
+    assert "IBM gives every occurrence" not in text
+    assert "no sentence joins JUSTIFY with OCCURS, GRPNAME" in text
+    assert "test_bms_occurs_grpname_census_5116.py" in text

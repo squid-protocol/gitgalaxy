@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.9.0 (3ca75ae0)",
+ "crucible_ref": "v0.10.0 (01e11fe6)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-channel-containers/CACHAN": {
@@ -90,6 +90,20 @@
    }
   },
   "ca-container-ccsid/CACCBIT": {
+   "live": 3,
+   "outcomes": 0,
+   "scenarios": {
+    "bit-container": {
+     "units": [
+      "LOG-GET",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
+    }
+   }
+  },
+  "ca-container-ccsid/CACCSID": {
    "live": 3,
    "outcomes": 0,
    "scenarios": {}
@@ -310,6 +324,59 @@
      "outcomes": [
       "44:false",
       "44:true"
+     ]
+    }
+   }
+  },
+  "gt-post-wait-event/GTPOST": {
+   "live": 5,
+   "outcomes": 9,
+   "scenarios": {
+    "post-wait-cancel": {
+     "units": [
+      "MAIN-PARA",
+      "POST-WAIT-CANCEL"
+     ],
+     "outcomes": [
+      "45:WHEN@46",
+      "70:true",
+      "76:true"
+     ]
+    },
+    "wait-null": {
+     "units": [
+      "MAIN-PARA",
+      "WAIT-NULL"
+     ],
+     "outcomes": [
+      "45:WHEN@48"
+     ]
+    },
+    "post-expired": {
+     "units": [
+      "MAIN-PARA",
+      "POST-PAST"
+     ],
+     "outcomes": [
+      "45:WHEN@50"
+     ]
+    },
+    "converse-fits": {
+     "units": [
+      "CONVERSE-REPLY",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "45:WHEN@52"
+     ]
+    },
+    "converse-cut": {
+     "units": [
+      "CONVERSE-REPLY",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "45:OTHER"
      ]
     }
    }
@@ -579,13 +646,15 @@
   },
   "gt-terminal-coalesce/GTSHOW": {
    "live": 1,
-   "outcomes": 2,
+   "outcomes": 4,
    "scenarios": {
     "three-in-one": {
      "units": [
       "MAIN-PARA"
      ],
      "outcomes": [
+      "26:false",
+      "26:true",
       "27:false",
       "27:true"
      ]
@@ -595,6 +664,8 @@
       "MAIN-PARA"
      ],
      "outcomes": [
+      "26:false",
+      "26:true",
       "27:false"
      ]
     },
@@ -603,6 +674,8 @@
       "MAIN-PARA"
      ],
      "outcomes": [
+      "26:false",
+      "26:true",
       "27:false"
      ]
     }
@@ -650,7 +723,7 @@
   },
   "gt-urimap-browse/GTUBROW": {
    "live": 2,
-   "outcomes": 6,
+   "outcomes": 8,
    "scenarios": {
     "browse": {
      "units": [
@@ -658,6 +731,8 @@
       "MAIN-PARA"
      ],
      "outcomes": [
+      "87:false",
+      "87:true",
       "119:false",
       "119:true",
       "122:false",
@@ -672,6 +747,8 @@
       "MAIN-PARA"
      ],
      "outcomes": [
+      "87:false",
+      "87:true",
       "119:false",
       "119:true",
       "122:false",
@@ -700,10 +777,47 @@
     }
    }
   },
+  "gt-web-client/GTWCLI": {
+   "live": 1,
+   "outcomes": 4,
+   "scenarios": {
+    "ok": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "44:false",
+      "62:true"
+     ]
+    },
+    "notfound": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "44:true",
+      "62:true"
+     ]
+    }
+   }
+  },
   "gt-web-parse-url/GTWPARS": {
    "live": 5,
    "outcomes": 10,
    "scenarios": {
+    "parse": {
+     "units": [
+      "DO-PARSE",
+      "MAIN-PARA",
+      "PARSE-PARA"
+     ],
+     "outcomes": [
+      "61:WHEN@62",
+      "134:true",
+      "139:true",
+      "144:false"
+     ]
+    },
     "errors": {
      "units": [
       "DO-PARSE",
@@ -712,6 +826,17 @@
      ],
      "outcomes": [
       "61:WHEN@64",
+      "134:false"
+     ]
+    },
+    "lengerr": {
+     "units": [
+      "DO-PARSE",
+      "LENGTH-PARA",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "61:WHEN@66",
       "134:false"
      ]
     }
@@ -775,14 +900,15 @@
   },
   "hc-abend-link/HCSUB": {
    "live": 2,
-   "outcomes": 3,
+   "outcomes": 5,
    "scenarios": {
     "sub-resp": {
      "units": [
       "SUB-MAIN"
      ],
      "outcomes": [
-      "25:OTHER"
+      "25:OTHER",
+      "40:true"
      ]
     },
     "sub-unhandled": {
@@ -997,9 +1123,71 @@
    }
   },
   "hc-file-unlock/HCUNLK": {
-   "live": 8,
-   "outcomes": 8,
-   "scenarios": {}
+   "live": 9,
+   "outcomes": 9,
+   "scenarios": {
+    "update-rewrite": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "REWRITE-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@42",
+      "137:true",
+      "147:false"
+     ]
+    },
+    "unlock-rewrite": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "UNLOCK-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@44",
+      "137:true",
+      "147:false",
+      "147:true"
+     ]
+    },
+    "unlock-nothing": {
+     "units": [
+      "LOG-D",
+      "LOG-R",
+      "LOG-W",
+      "MAIN-PARA",
+      "NOTHING-PARA",
+      "READ-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@46",
+      "137:true",
+      "147:false",
+      "147:true"
+     ]
+    },
+    "read-short": {
+     "units": [
+      "LOG-D",
+      "LOG-W",
+      "MAIN-PARA",
+      "READ-PARA",
+      "SHORT-PARA"
+     ],
+     "outcomes": [
+      "41:WHEN@48",
+      "137:true",
+      "147:false"
+     ]
+    }
+   }
   },
   "hc-handle-aid/HCAID": {
    "live": 6,
@@ -1708,6 +1896,89 @@
       "42:false",
       "46:OTHER"
      ]
+    }
+   }
+  },
+  "pc-return-channel/PCRCA": {
+   "live": 5,
+   "outcomes": 4,
+   "scenarios": {
+    "carry": {
+     "units": [
+      "CARRY-PARA",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "29:WHEN@30"
+     ]
+    },
+    "modify": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA",
+      "MODIFY-PARA"
+     ],
+     "outcomes": [
+      "29:WHEN@32"
+     ]
+    },
+    "link-level2": {
+     "units": [
+      "LINK-PARA",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "29:WHEN@34"
+     ]
+    }
+   }
+  },
+  "pc-return-channel/PCRCB": {
+   "live": 7,
+   "outcomes": 6,
+   "scenarios": {
+    "carry": {
+     "units": [
+      "LOG-ENTRY",
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "42:none"
+     ]
+    },
+    "modify": {
+     "units": [
+      "GET-EXTRA",
+      "LOG-ENTRY",
+      "LOG-RESP",
+      "MAIN-PARA",
+      "STAGE-1",
+      "STAGE-2",
+      "STAGE-3"
+     ],
+     "outcomes": [
+      "42:WHEN@43",
+      "42:WHEN@45",
+      "42:WHEN@47",
+      "87:false",
+      "87:true"
+     ]
+    }
+   }
+  },
+  "pc-return-channel/PCRCL": {
+   "live": 2,
+   "outcomes": 0,
+   "scenarios": {
+    "link-level2": {
+     "units": [
+      "LOG-RESP",
+      "MAIN-PARA"
+     ],
+     "outcomes": []
     }
    }
   },

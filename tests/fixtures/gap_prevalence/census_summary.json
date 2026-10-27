@@ -1,0 +1,533 @@
+{
+ "by_era_programs": {
+  "0": 0,
+  "1": 1,
+  "2": 22,
+  "3": 0,
+  "4": 9,
+  "none": 8
+ },
+ "coverage_if_closed": [
+  {
+   "share": 0.425,
+   "top": 1,
+   "upper_bound": true,
+   "whole": 17
+  },
+  {
+   "share": 0.5,
+   "top": 3,
+   "upper_bound": true,
+   "whole": 20
+  },
+  {
+   "share": 0.725,
+   "top": 5,
+   "upper_bound": true,
+   "whole": 29
+  },
+  {
+   "share": 0.8,
+   "top": 10,
+   "upper_bound": true,
+   "whole": 32
+  }
+ ],
+ "estates": [
+  "census-032982",
+  "census-37151f",
+  "census-4ae3ed",
+  "census-50d903",
+  "census-8b1e76",
+  "census-beeb9c",
+  "census-d7f710",
+  "census-dbb62f",
+  "census-debd0e"
+ ],
+ "format": "gap-prevalence/1",
+ "gaps": [
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 8,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 2,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 2,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "missing copybook: estate-owned",
+   "owner": "none (the estate's own copybook is not in the clone)",
+   "programs": 9,
+   "refuses_program": true,
+   "status": "unknown"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 3,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "estates": 2,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 2,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "<name>: undeclared item",
+   "owner": "unowned",
+   "programs": 4,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 2
+   },
+   "estates": 2,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 2
+   },
+   "gap": "refused: generation",
+   "owner": "unowned",
+   "programs": 2,
+   "refuses_program": true,
+   "status": "refused by name"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 9,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "refused: LayoutError",
+   "owner": "unowned",
+   "programs": 9,
+   "refuses_program": true,
+   "status": "refused by name"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 3,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "<name>: no such item",
+   "owner": "unowned",
+   "programs": 3,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 2,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "<name>: bytes overlap another item",
+   "owner": "unowned",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 2,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "EXEC CICS map: no <name> field",
+   "owner": "#4270 (cics-command-slice)",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 2,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "JSON GENERATE: not modelled",
+   "owner": "unowned",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 2,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "JSON PARSE: not modelled",
+   "owner": "unowned",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 2,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "MOVE: literal beyond the single-byte code page",
+   "owner": "unowned",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 2,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "STRING: numeric sender with P or a decimal place",
+   "owner": "unowned",
+   "programs": 2,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "EXEC CICS WEB CONVERSE URIMAP POST",
+   "owner": "#4270 (cics-command-slice)",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "EXEC CICS WEB RECEIVE NOTRUNCATE",
+   "owner": "#4270 (cics-command-slice)",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "EXEC CICS WEB WRITE HTTPHEADER SESSTOKEN",
+   "owner": "#4270 (cics-command-slice)",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "EXEC SQL: other",
+   "owner": "#4098 (Db2 det-port)",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "PERFORM: undeclared paragraph",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 1,
+    "3": 0,
+    "4": 0,
+    "none": 0
+   },
+   "gap": "STRING: literal beyond the single-byte code page",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": false,
+   "status": "not modelled"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "refused: ExprError",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": true,
+   "status": "refused by name"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "none": 0
+   },
+   "gap": "refused: LayoutDisagrees",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": true,
+   "status": "refused by name"
+  },
+  {
+   "by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "estates": 1,
+   "estates_by_era": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "none": 1
+   },
+   "gap": "refused: UnitRefused",
+   "owner": "unowned",
+   "programs": 1,
+   "refuses_program": true,
+   "status": "refused by name"
+  }
+ ],
+ "programs": 40,
+ "scope": "census estates (aggregate, opaque labels)",
+ "whole_now": 8
+}

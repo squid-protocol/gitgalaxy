@@ -1,0 +1,22 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-cardlist",
+  "entries": [
+    {
+      "unit": "1250-SETUP-ARRAY-ATTRIBS",
+      "line": 757,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF WS-EDIT-SELECT(1) = SPACE OR LOW-VALUES` is only reached when WS-ROW-CRDSELECT-ERROR(1) = '1' (line 755). That flag is INITIALIZEd to spaces with WS-MISC-STORAGE (line 300) and set to '1' only in 2250-EDIT-ARRAY: at line 1104 when SELECT-OK(1) ('S' or 'U'), at line 1110 in WHEN OTHER after SELECT-BLANK(1) (' ' or LOW-VALUES, lines 80-82) failed, and by the INSPECT at lines 1090-1093, which turns only 'S' / 'U' into '1'. WS-EDIT-SELECT(1) is written only at line 972 (2100-RECEIVE-SCREEN, performed before 2200-EDIT-INPUTS at lines 952-956), so it is never blank when its error flag is '1'."
+    },
+    {
+      "unit": "1400-SETUP-MESSAGE",
+      "line": 897,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "1400-SETUP-MESSAGE is only PERFORMed by 1000-SEND-MAP (line 633), right after 1100-SCREEN-INIT (line 625), which ends with `SET WS-NO-INFO-MESSAGE TO TRUE` (line 669); nothing in 1200 / 1250 / 1300 writes WS-INFO-MSG. So when no earlier WHEN matches, `WHEN WS-NO-INFO-MESSAGE` (line 917) always does, and WHEN OTHER (line 920) cannot be taken."
+    }
+  ]
+}

@@ -13,6 +13,7 @@ before writing anything:
 | channel | issue | extractor | table | IR accessor |
 |---|---|---|---|---|
 | invocation (call graph) | #3200 | `core/mainframe_boundary.py` + `core/invocation_resolver.py` | `call_site_data` | `EngineFile.calls` |
+| CICS transaction map (transid -> program -> file, resolved cross-file) | #3211-followup | `core/mainframe_boundary.py` + `core/invocation_resolver.py` (`resolve_transactions`) | `transaction_data` | `EngineFile.transactions` (`GalaxyIR.transaction_map`) |
 | dataset boundary/lineage | #3201 | `core/mainframe_boundary.py` | `dataset_data` | `EngineFile.datasets` |
 | JCL PROC/SET symbol resolution (resolved columns beside a raw one) | #3345 | `core/mainframe_boundary.py` (`_jcl_resolve_datasets`) | `dataset_data` (+ `dsn_resolved`, `dsn_resolution`) | `EngineFile.datasets` (`dataset_name`; `GalaxyIR.shared_datasets`/`dataset_flows`) |
 | CICS COMMAREA contract (operand columns on an existing global table + a reader-side join) | #3355 | `core/mainframe_boundary.py` (`_cics_contract_operands`, `copy_members` on records) | `call_site_data` (+ `commarea`, `commarea_length`, `commarea_datalength`), `record_data` (+ `copy_members`) | `EngineCall.commarea*`; `GalaxyIR.commarea_contracts`/`record_layout` |
@@ -122,31 +123,37 @@ dialect that predates the channel is not a missing-key error. It then propagates
 
 ### 4. Persist a per-file child table (`record_keeper.py`)
 
-- `CREATE TABLE IF NOT EXISTS <name>_data (…, file_id INTEGER, …, FOREIGN KEY(file_id) REFERENCES
-  file_data(id) ON DELETE CASCADE)` next to `dataset_data`, plus `idx_<name>_file_id` and
-  `idx_<name>_snapshot`. The FK cascade is load-bearing: the idempotent per-snapshot wipe deletes
+- **Schema: the `FactChannel` entry's `ddl` (`CREATE TABLE IF NOT EXISTS <name>_data (…, file_id INTEGER, …,
+  FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE)`), `extra_columns` (one
+  `_ensure_columns` group per tuple, for a column added after the table first shipped) and `indexes`
+  (`idx_<name>_file_id`, `idx_<name>_snapshot`).** Then add one
+  `create_channel_table(cursor, "<name>", _ensure_columns)` line in `record_keeper`
+  beside the other channels (the call order is the `sqlite_master` order, so it stays explicit). The FK cascade is load-bearing: the idempotent per-snapshot wipe deletes
   `file_data` rows and your children go with them — no explicit DELETE needed.
 - **Insert: add one `FactChannel` entry to `CHANNELS` in `gitgalaxy/core/fact_channels.py` (#3383).**
   It names the `table`, the `payload_key`, the `columns` *after* the standard
   `(repo_name, commit_hash, file_id)`, and a `to_row(item)` mapping each payload dict to those
-  columns; `record_keeper` loops over the registry and calls `_insert_per_file_child`. The
-  `CREATE TABLE` stays in `record_keeper` for now. (This is for **per-file** facts. The call graph is
-  different — see "Per-file vs global" below. A channel needing a custom insert is still hand-wired
-  in `record_keeper` until the registry grows a hook for it.)
+  columns; `record_keeper` loops over the registry and calls `_insert_per_file_child`. (This is for **per-file** facts. The call graph is
+  different — see "Per-file vs global" below. A channel inserted from a resolved repo-wide list
+  sets `resolved=True` and a `to_row(site, path_to_file_id)` that also fills its destination
+  (`call_site` and `transaction`; `src_column` names the owning-file column; `record_keeper._insert_resolved_channel`). Any other custom
+  insert is still hand-wired in `record_keeper` until the registry grows a hook for it.)
 
 ### 4b. Report it in the two output surfaces (both optional/presence-keyed)
 
 The master DB is the machine-readable store; two human/LLM-facing reports also carry the fact,
 each rendering **nothing** for a file that has none (so a non-mainframe scan is unchanged):
 
-- **Full audit report (`audit_recorder.py`)** — the VERBOSE forensic JSON. Add a
-  `_<name>_facts_block(file_data)` returning the FULL detail (every item/edge, mirroring the DB
-  table) and attach it as a numbered per-file key only when non-empty. **This is the golden-master
+- **Full audit report (`audit_recorder.py`)** — the VERBOSE forensic JSON. Add one `AuditSection`
+  to `AUDIT_SECTIONS` (payload key, report label, columns as `(label, key)` pairs, `_when(...)` for
+  keys a row carries only when set; `_mainframe_facts_block` iterates the table, #3383) with the FULL
+  detail (every item/edge, mirroring the DB table); it is attached only when non-empty. **This is the golden-master
   source (`data_galaxy_audit.json`)** — see invariant #2: adding it here DOES move the golden
   master for any mainframe file in the crucible corpus, so re-bless (`crucible_check.py --update`).
-- **LLM brief (`llm_recorder.py`)** — the TOKEN-OPTIMIZED markdown. Add a presence-keyed
-  `_<name>_facts_lines(parsed_files)` that returns `[]` unless a file carries the fact, and
-  SUMMARISE (e.g. record *roots* with a field count, not the whole tree). Not golden-mastered.
+- **LLM brief (`llm_recorder.py`)** — the TOKEN-OPTIMIZED markdown. Add one `FactLine(key, render)` to
+  `FACT_LINES` (`render(file) -> list[str]`, `[]` unless the file carries the fact; SUMMARISE, e.g. record
+  *roots* with a field count, not the whole tree; `volume=False` for a key that renders but must not make a
+  file a carrier) and, for a repo-wide count bullet, a `FactSummary` in `FACT_SUMMARIES` (#3383). Not golden-mastered.
 
 ### 5. Restore on delta scans (`state_rehydrator.py`) — NOT optional
 
@@ -162,6 +169,10 @@ every scan). Prove it: a full scan and an incremental scan must produce byte-ide
 (excluding the autoincrement `id`, which legitimately drifts on delete+reinsert).
 `tests/core_engine/test_fact_channels.py` checks every registry entry's columns and restore query
 against the real schema.
+
+The same test file also checks the docs against the registry: the channel table above, the `galaxy_ir`
+SCOPE comment and loader, and `gitgalaxy/recorders/README.md` (the DB schema doc, which must mention every
+registered table) -- a new `FactChannel` without its row and its README paragraph fails there.
 
 ### 6. Expose it in the IR reader (`tools/cobol_to_cobol/galaxy_ir.py`)
 
@@ -190,7 +201,14 @@ identical in a diff, so say which one this is.
 
 ### 7. Make it a compared datum (`tests/tools/refraction_differential.py`)
 
-Add the fact to `compare()` with **both** a forge source and the engine source
+A channel compared as `{old, db}` value sets (one row per file; the key's reader as `old` when there
+is no forge) is one `SetChannel` entry in `SET_CHANNELS`: write its `compare_<x>()`, then declare the
+row language, delta field, row key, answer-key section / sign-off flag / items key / values reader,
+and the summary metric names. `compare()`, `summarize()`, `flatten()`, `_key_verdict()` and
+`INDEPENDENT_FIELDS` iterate the table; do not edit them (#3383). A channel that is not a set
+difference (a per-program datum like paragraphs or records) still goes through `compare()` by hand.
+
+Add the fact with **both** a forge source and the engine source
 (`ef.<facts>`), flatten per-element deltas, and give it a real `cause` in `_classify_cause()`. A
 fact the DB now carries is **never** `stated_absence` — that classification is only for datums with
 no DB equivalent. A field the engine has that the forge's lossy reader drops is an explained
@@ -204,8 +222,11 @@ a real engine gap and stays `unexplained` until a validated key adjudicates it. 
 Add candidate generation to `draft_program()` (using the key's **own** independent reader —
 never import the engine or the forge, or the key stops being an oracle), a field to the `fields`
 list, and an `add(...)` row in `score()`. Populate the committed keys with the `draft` command; new
-fields are committed **drafted** and validated incrementally. If the field is an independent oracle,
-add it to `INDEPENDENT_FIELDS` and `_key_verdict()`, and gate the verdict behind an explicit
+fields are committed **drafted** and validated incrementally. A per-file section drafted by an
+`add-<x>` command ("refresh drafts, keep signed-off entries") is one `DraftSection` entry in
+`DRAFT_SECTIONS` (the subcommand and handler are built from it; `drop_stale=True` also drops an
+unsigned entry the draft no longer yields). If the field is an independent oracle, its `SetChannel`
+entry already feeds `INDEPENDENT_FIELDS` and `_key_verdict()`; gate the verdict behind an explicit
 per-program flag (record layouts use `records_validated`) so drafted truth never adjudicates.
 
 ### 9. Tests — mirror the reference trio
@@ -249,7 +270,7 @@ seams — this doc's channel table, `galaxy_ir.py`'s SCOPE comment and accessors
 PR on exactly those seams (tracked as the shared-seam problem in #3383, the golden-master/ruff-
 baseline layout problem in #3384). That cost roughly 8 rebase cycles of 15–40 minutes each in that
 round, and one answer-key merge had to be redone by hand. The #3383 registry now removes the
-persist and restore seams (steps 4-5); the rest are still shared, so rebase like this:
+schema, persist and restore seams (steps 4-5); the rest are still shared, so rebase like this:
 
 1. `git fetch origin` and rebase onto `origin/main` — take **main's side** of any golden-master or
    ruff-baseline conflict wholesale, never hand-merge JSON/baseline entries.

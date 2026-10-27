@@ -12,10 +12,11 @@ language. Built entirely from primary sources (the `gitgalaxy/standards/language
 `language-status` skill (`.claude/skills/language-status/SKILL.md`) for the exact process and
 commands used to produce each one.
 
-**These are snapshots, not a live view.** The "at a glance" numbers below were generated
-2026-08-09 against `main`. `language_standards.py`, the test suite, and issue history all keep
-moving — re-run the skill's data-gathering commands rather than trusting a stale table if the
-answer matters.
+**These are snapshots, not a live view.** The per-language docs record what was measured when they
+were written. `language_standards.py`, the test suite, and issue history all keep moving — re-run
+the skill's data-gathering commands rather than trusting a stale page if the answer matters. This
+page keeps no counts; current estate and proof numbers are on the generated
+[`progress.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md).
 
 **`python.md` also has a "Measured accuracy" section (§9)** — a real-corpus diff of GitGalaxy's
 own extraction against Python's `ast` module as ground truth, not just the isolated-snippet unit
@@ -75,11 +76,11 @@ runtime, and the generated Java. It also lists the harness work each unsupported
 
 **Definition of done (#4722): [`definition_of_done.md`](definition_of_done.md).** What "done" means for a COBOL / CICS / Db2 migration: scope, the acceptable outcomes per program (a stated evidence level, or a refusal by name), what an estate needs to be done, and what "supported" means for the readiness scanner.
 
-**CICS command specification (#4270): [`cics_command_spec.md`](cics_command_spec.md) and [`gitgalaxy/standards/cics/README.md`](../../gitgalaxy/standards/cics/README.md).** One declarative specification for 257 `EXEC CICS` commands (100 full on both runtimes, 2 engine-only, 155 name-only refusals), generating both `CicsSpec.java` and `tests/equivalence/cics/ggcics_spec.h`. The live per-command status table (with census counts and crucible coverage) is published on the `generated` branch at [`cics_spec_status.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/cics_spec_status.md).
+**CICS command specification (#4270): [`cics_command_spec.md`](cics_command_spec.md) and [`gitgalaxy/standards/cics/README.md`](../../gitgalaxy/standards/cics/README.md).** One declarative specification for the `EXEC CICS` commands, each marked full on both runtimes, engine-only or a name-only refusal, generating both `CicsSpec.java` and `tests/equivalence/cics/ggcics_spec.h`. The live per-command status table and its counts (with census counts and crucible coverage) is published on the `generated` branch at [`cics_spec_status.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/cics_spec_status.md).
 
-**Offline readiness scanner & CICS era tagging (#4724, #4725, #4726, #5117): [`feature_inventory.md`](feature_inventory.md) and [`gitgalaxy/tools/readiness/README.md`](../../gitgalaxy/tools/readiness/README.md).** `gitgalaxy assess` inventories a customer estate offline and read-only, tags each program and copybook across `Era 0` (CICS macro level) through `Era 4` (Enterprise COBOL channels, containers, web, and async) from 22 concrete source tells (`era_tags.py`), and projects the output through a closed-vocabulary schema with zero source text leakage. `tests/tools/support_matrix.py` and `tests/tools/era_distribution.py` render the burned-estate support matrices and non-burned era distributions.
+**Offline readiness scanner & CICS era tagging (#4724, #4725, #4726, #5117): [`feature_inventory.md`](feature_inventory.md) and [`gitgalaxy/tools/readiness/README.md`](../../gitgalaxy/tools/readiness/README.md).** `gitgalaxy assess` inventories a customer estate offline and read-only, tags each program and copybook across `Era 0` (CICS macro level) through `Era 4` (Enterprise COBOL channels, containers, web, and async) from concrete source tells (`era_tags.py`), and projects the output through a closed-vocabulary schema with zero source text leakage. `tests/tools/support_matrix.py` and `tests/tools/era_distribution.py` render the burned-estate support matrices and non-burned era distributions.
 
-**Evidence reports & per-program records (#4048, #4054, #5206): [`evidence_records.md`](evidence_records.md) and [`evidence_report/README.md`](evidence_report/README.md).** `tests/tools/evidence_report.py` measures the `L0–L5` deterministic translation ladder across the 6 burned estates (129 programs), regenerated on every push to `main` onto the `generated` branch. `tests/tools/estate_evidence.py` rolls up the 49 committed `evidence.json` records onto the `E0–E4` ladder (coverage and mutation scores, lines), published nightly on `generated` (`estate_evidence/`).
+**Evidence reports & per-program records (#4048, #4054, #5206): [`evidence_records.md`](evidence_records.md) and [`evidence_report/README.md`](evidence_report/README.md).** `tests/tools/evidence_report.py` measures the `L0–L5` deterministic translation ladder across the burned estates, regenerated on every push to `main` onto the `generated` branch. `tests/tools/estate_evidence.py` rolls up the committed `evidence.json` records onto the `E0–E4` ladder (coverage and mutation scores, lines), published nightly on `generated` (`estate_evidence/`).
 
 **COBOL-to-Java proofs: [`oracle_assumptions.md`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/oracle_assumptions.md)** (added 2026-10-02). A proof compares the
 Java port with the COBOL program run by GnuCOBOL plus our CICS, Db2 and LE models, not by IBM z/OS. That page lists
@@ -104,83 +105,76 @@ The other COBOL-to-Java pages here: [`gitgalaxy/tools/cobol_to_java/README.md`](
 runtime contract and every proven result), [`det_survey.md`](det_survey.md) (how much of six estates it translates),
 [`statement_inventory.md`](statement_inventory.md) (what a deterministic translator could take over, by statement
 kind), [`porting_loop.md`](porting_loop.md) (model-written ports), [`mutation_testing.md`](mutation_testing.md) and
-[`cics_crucible.md`](cics_crucible.md). [`estate4_dbb_mortgage.md`](estate4_dbb_mortgage.md): the fourth estate (IBM DBB MortgageApplication), what was proven and what onboarding it needed. [`estate4_async_creditcard.md`](estate4_async_creditcard.md): the cicsdev async credit-card example, pinned as a development (burned) estate (#4270). The wiki's summary is `docs/wiki/05-19-proven-cobol-to-java-ports.md`.
+[`cics_crucible.md`](cics_crucible.md). [`estate4_dbb_mortgage.md`](estate4_dbb_mortgage.md): the fourth estate (IBM DBB MortgageApplication), what was proven and what onboarding it needed. [`estate4_async_creditcard.md`](estate4_async_creditcard.md): the cicsdev async credit-card example, pinned as a development (burned) estate (#4270). [`transferability.md`](transferability.md): a dated record of how far burned-estate translation carried over to non-burned code (#6069). The wiki's summary is `docs/wiki/05-19-proven-cobol-to-java-ports.md`.
 
-## Signature-bearing languages (47)
+## Signature-bearing languages
 
-`LANGUAGE_DEFINITIONS` recognizes 61 languages/formats; these 48 have at least one non-`None`
-structural-signature rule (`func_start`/`branch`/`io`/etc.) — the ones a per-language status doc
-in this folder is actually for. "Rules" is wired-keys/total-keys in that language's `rules` dict.
-"Extraction tests" / "Strict tests" are live `pytest --collect-only` counts for
-`tests/extraction/languages/test_<lang>.py` / `test_<lang>_strict.py` — a blank extraction count
-means that language's four extraction-gauntlet cases (`func_start`/`args`/`class_start`/
-`_dependency_capture`) haven't been migrated out of the old monolithic gauntlet files yet (see
-epic #813), not that no cases exist.
+These languages have at least one non-`None` structural-signature rule
+(`func_start`/`branch`/`io`/etc.), the ones a per-language status doc in this folder is actually
+for. No counts are kept here (they drifted): read the rule counts from the language's `rules` dict
+in `gitgalaxy/standards/language_standards/languages/<lang>.py`, and the test counts live with
+`pytest --collect-only tests/extraction/languages/test_<lang>.py` / `test_<lang>_strict.py`.
 
-| Language | Status | Lexical family | Rules wired/total | Extraction tests | Strict tests | Status doc |
-|---|---|---|---|---|---|---|
-| **[abap](abap.md)** | production | positional_abap | 46/48 | 42 | 87 | **written** |
-| ada | production | line_exclusive_dash | 49/53 | 48 | 73 | not written |
-| **[agc_assembly](agc_assembly.md)** | production | line_exclusive | 39/48 | 155 | 76 | **written** |
-| **[apex](apex.md)** | production | standard_block | 43/48 | 4 | 93 | **written** |
-| **[assembly](assembly.md)** | production | line_exclusive | 42/52 | 148 | 83 | **written** |
-| **[c](c.md)** | production | standard_block | 50/52 | 42 | 86 | **written** |
-| **[cobol](cobol.md)** | production | positional_anchored | 48/52 | 62 | 82 | **written** |
-| **[cpp](cpp.md)** | production | standard_block | 52/52 | 46 | 76 | **written** |
-| **[crystal](crystal.md)** | production | line_exclusive | 54/54 | | 13 | **written** (#5623) |
-| **[csharp](csharp.md)** | production | standard_block | 51/52 | 61 | 106 | **written** |
-| **[css](css.md)** | production | standard_block | 30/48 | 18 | 74 | **written** |
-| dart | production | standard_block | 51/52 | 91 | 86 | not written |
-| **[db2_sql](db2_sql.md)** | production | multi_style_dash | 43/53 | | 141 | **written** (#2511) |
-| dockerfile | production | line_exclusive | 43/52 | 34 | 86 | [dockerfile.md](dockerfile.md) |
-| easytrieve | production | line_exclusive | 11/35 | | | not written |
-| embedded_python | production | line_exclusive | 51/52 | 64 | 107 | [embedded_python.md](embedded_python.md) |
-| **[fortran](fortran.md)** | production | positional_anchored | 45/52 | 35 | 101 | **written** |
-| **[fsharp](fsharp.md)** | production | recursive_block | 54/54 | | 16 | **written** (#5623) |
-| go | production | standard_block | 51/52 | 47 | 84 | not written |
-| **[groovy](groovy.md)** | production | standard_block | 44/48 | 53 | 91 | **written** |
-| haskell | production | recursive_block_haskell | 52/52 | 48 | 97 | not written |
-| **[hlasm](hlasm.md)** | production | positional_anchored | 44/54 | | 145 | **written** (#2503) |
-| html | production | block_exclusive | 39/48 | 91 | 123 | [html.md](html.md) |
-| **[java](java.md)** | production | standard_block | 50/52 | 70 | 91 | **written** |
-| **[javascript](javascript.md)** | production | standard_block | 61/64 | 53 | 73 | **written** |
-| **[jcl](jcl.md)** | production | line_exclusive | 11/24 | 41 | 51 | **written** |
-| **[kotlin](kotlin.md)** | production | standard_block | 51/52 | 43 | 90 | **written** |
-| **[livecode](livecode.md)** | production | multi_style_live | 47/52 | 4* | 109 | **written** |
-| **[lua](lua.md)** | production | multi_style_dash | 50/52 | 41 | 78 | **written** (§9 via tri-comparison sweep) |
-| m4 | production | line_exclusive | 31/47 | 21 | 73 | not written |
-| makefile | production | line_exclusive | 39/52 | 55 | 73 | not written |
-| markdown | production | line_exclusive | 4/4 | — | 11 | [markdown.md](markdown.md) |
-| matlab | production | line_exclusive | 48/52 | 45 | 70 | not written |
-| objective-c | production | standard_block | 52/52 | 95 | 83 | not written |
-| perl | production | line_exclusive | 52/52 | 32 | 69 | not written |
-| php | production | standard_block | 51/52 | 4* | 84 | not written |
-| **[pli](pli.md)** | production | standard_block | 46/54 | 54 | 158 | **written** (#2502) |
-| powershell | production | embedded_syntax | 50/52 | 68 | 85 | not written |
-| **[python](python.md)** | production | line_exclusive | 61/64 | 60 | 92 | **written** |
-| **[rexx](rexx.md)** | production | recursive_block_rexx | 35/53 | | 97 | **written** (#2504) |
-| ruby | production | line_exclusive | 51/52 | 4* | 66 | not written |
-| rust | production | recursive_block | 52/52 | 51 | 68 | not written |
-| scala | production | recursive_block | 51/52 | 63 | 90 | not written |
-| scheme | production | recursive_block_lisp | 40/47 | 33 | 75 | not written |
-| shell | production | line_exclusive | 44/52 | 72 | 82 | not written |
-| solidity | production | standard_block | 40/53 | 42 | 72 | not written |
-| sqlite | production | multi_style_dash | 47/52 | 63 | 96 | not written |
-| swift | production | recursive_block | 51/52 | 36 | 91 | not written |
-| **[tcl](tcl.md)** | production | line_exclusive | 39/47 | 43 | 65 | **written** (§9 via tri-comparison sweep) |
-| typescript | production | standard_block | 59/62 | 76 | 101 | not written |
-| **[yacc](yacc.md)** | production | standard_block | 31/47 | 21 | 48 | **written** (§9 via tri-comparison sweep) |
-| yaml | production | line_exclusive | 31/49 | 45 | 65 | not written |
-| zig | production | line_exclusive | 46/52 | 49 | 61 | not written |
+| Language | Status | Lexical family | Status doc |
+|---|---|---|---|
+| **[abap](abap.md)** | production | positional_abap | **written** |
+| **[acs](acs.md)** | production | standard_block | **written** (#5465) |
+| ada | production | line_exclusive_dash | not written |
+| **[agc_assembly](agc_assembly.md)** | production | line_exclusive | **written** |
+| **[apex](apex.md)** | production | standard_block | **written** |
+| **[assembly](assembly.md)** | production | line_exclusive | **written** |
+| **[c](c.md)** | production | standard_block | **written** |
+| **[cobol](cobol.md)** | production | positional_anchored | **written** |
+| **[cpp](cpp.md)** | production | standard_block | **written** |
+| **[crystal](crystal.md)** | production | line_exclusive | **written** (#5623) |
+| **[csharp](csharp.md)** | production | standard_block | **written** |
+| **[css](css.md)** | production | standard_block | **written** |
+| dart | production | standard_block | not written |
+| **[db2_sql](db2_sql.md)** | production | multi_style_dash | **written** (#2511) |
+| dockerfile | production | line_exclusive | [dockerfile.md](dockerfile.md) |
+| easytrieve | production | line_exclusive | not written |
+| embedded_python | production | line_exclusive | [embedded_python.md](embedded_python.md) |
+| **[fortran](fortran.md)** | production | positional_anchored | **written** |
+| **[fsharp](fsharp.md)** | production | recursive_block | **written** (#5623) |
+| go | production | standard_block | not written |
+| **[groovy](groovy.md)** | production | standard_block | **written** |
+| haskell | production | recursive_block_haskell | not written |
+| **[hlasm](hlasm.md)** | production | positional_anchored | **written** (#2503) |
+| html | production | block_exclusive | [html.md](html.md) |
+| **[java](java.md)** | production | standard_block | **written** |
+| **[javascript](javascript.md)** | production | standard_block | **written** |
+| **[jcl](jcl.md)** | production | line_exclusive | **written** |
+| **[kotlin](kotlin.md)** | production | standard_block | **written** |
+| **[livecode](livecode.md)** | production | multi_style_live | **written** |
+| **[lua](lua.md)** | production | multi_style_dash | **written** (§9 via tri-comparison sweep) |
+| m4 | production | line_exclusive | not written |
+| makefile | production | line_exclusive | not written |
+| markdown | production | line_exclusive | [markdown.md](markdown.md) |
+| matlab | production | line_exclusive | not written |
+| objective-c | production | standard_block | not written |
+| perl | production | line_exclusive | not written |
+| php | production | standard_block | not written |
+| **[pli](pli.md)** | production | standard_block | **written** (#2502) |
+| postgresql | production | multi_style_dash | not written |
+| powershell | production | embedded_syntax | not written |
+| **[python](python.md)** | production | line_exclusive | **written** |
+| **[rexx](rexx.md)** | production | recursive_block_rexx | **written** (#2504) |
+| ruby | production | line_exclusive | not written |
+| rust | production | recursive_block | not written |
+| scala | production | recursive_block | not written |
+| scheme | production | recursive_block_lisp | not written |
+| shell | production | line_exclusive | not written |
+| solidity | production | standard_block | not written |
+| sqlite | production | multi_style_dash | not written |
+| swift | production | recursive_block | not written |
+| **[tcl](tcl.md)** | production | line_exclusive | **written** (§9 via tri-comparison sweep) |
+| typescript | production | standard_block | not written |
+| **[yacc](yacc.md)** | production | standard_block | **written** (§9 via tri-comparison sweep) |
+| yaml | production | line_exclusive | not written |
+| zig | production | line_exclusive | not written |
+| **[zscript](zscript.md)** | production | standard_block | **written** (#5535) |
 
-\* `livecode`, `php`, `ruby` show only 4 migrated extraction tests each — their real
-extraction-gauntlet coverage is still in the old monolithic `test_function_extraction.py` /
-`test_args_extraction.py` / `test_class_extraction.py` / `test_dependency_extraction.py` files,
-not yet split out to a per-language file. Check those before assuming thin coverage. (`apex` also
-shows 4, but is confirmed fully migrated — its 4 test functions each cover multiple inline
-valid/invalid/pathological cases rather than being thin; see `apex.md` §6.)
-
-## Data formats (13, out of scope for a full doc)
+## Data formats (out of scope for a full doc)
 
 `batch`, `blp`, `csv`, `glsl`, `hlo`, `json`, `mlir`, `nix`, `pbtxt`, `plaintext`, `proto`, `td`,
 `xml` — recognized by the engine for identification/routing purposes but carry no structural
@@ -189,6 +183,6 @@ logic to structurally signature-match. These don't get a per-language prose doc.
 
 ## Writing the next one
 
-See `.claude/skills/language-status/SKILL.md`. Full rollout across all 46 is tracked as follow-on
+See `.claude/skills/language-status/SKILL.md`. Full rollout across all of them is tracked as follow-on
 work (one sub-issue per language, same shape as epic #813/#1069) rather than attempted in one
 pass — `python.md` is the worked template.

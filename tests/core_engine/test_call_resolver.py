@@ -7,7 +7,9 @@ and classes (name, inheritance) -- plus the import edges, and pins one rung of t
 ladder or one qualifier rule.
 """
 
-from gitgalaxy.core.call_resolver import CONFIDENT_RESOLUTIONS, resolve_calls
+import pytest
+
+from gitgalaxy.core.call_resolver import CONFIDENT_RESOLUTIONS, _package_dir, resolve_calls
 
 
 def _fn(name, line=1, owner=None, calls=(), quals=None, synthetic=False):
@@ -1151,7 +1153,165 @@ def test_global_namespace_static_is_no_repo_edge_3756():
 
 
 def test_other_languages_keep_the_untyped_receiver_rule_3756():
-    # the built-in list is JS/TS/Java only (Python/Ruby/... unmeasured): `get` on a ruby file stays `file`
-    files = _builtin_universe("ruby", "get", "d", "rb")
+    # the built-in list is JS/TS/Java/Python/Kotlin/C#/Ruby only (PHP/Go/... unmeasured): `get` on a php file stays `file`
+    files = _builtin_universe("php", "get", "d", "php")
     row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
     assert row["step"] == "file"
+
+
+def test_python_builtin_method_on_untyped_receiver_is_ambiguous_4991():
+    # one case per built-in family: str, list, set, dict, file object
+    for lang in ("python", "embedded_python"):
+        for callee in ("strip", "join", "startswith", "append", "extend", "add", "update", "get", "items", "read"):
+            files = _builtin_universe(lang, callee, "items", "py")
+            row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+            assert row["step"] == "receiver", (lang, callee)
+            assert row["resolution"] not in CONFIDENT_RESOLUTIONS
+
+
+def test_python_non_builtin_method_and_known_receivers_stay_confident_4991():
+    files = _builtin_universe("python", "save", "repo", "py")
+    assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "file"
+    # `self.get()` is the caller's own method, built-in name or not
+    files = _builtin_universe("python", "get", "self", "py", run_owner="Box")
+    row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+    assert row["step"] != "receiver"
+    assert row["resolution"] in CONFIDENT_RESOLUTIONS
+
+
+def test_kotlin_builtin_method_on_untyped_receiver_is_ambiguous_4991():
+    # one case per built-in family: String, List, Map, scope function
+    for callee in ("trim", "split", "add", "map", "filter", "getOrPut", "containsKey", "let", "apply"):
+        files = _builtin_universe("kotlin", callee, "items", "kt")
+        row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+        assert row["step"] == "receiver", callee
+        assert row["resolution"] not in CONFIDENT_RESOLUTIONS
+
+
+def test_kotlin_non_builtin_method_and_known_receivers_stay_confident_4991():
+    files = _builtin_universe("kotlin", "save", "repo", "kt")
+    assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "file"
+    files = _builtin_universe("kotlin", "get", "this", "kt", run_owner="Box")
+    row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+    assert row["step"] != "receiver"
+    assert row["resolution"] in CONFIDENT_RESOLUTIONS
+
+
+def test_csharp_and_ruby_builtin_method_on_untyped_receiver_is_ambiguous_4991():
+    cases = {
+        "csharp": ("cs", ("Trim", "Add", "TryGetValue", "Select", "ToString", "Contains")),
+        "ruby": ("rb", ("strip", "each", "map", "include?", "fetch", "nil?")),
+    }
+    for lang, (ext, callees) in cases.items():
+        for callee in callees:
+            files = _builtin_universe(lang, callee, "items", ext)
+            row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+            assert row["step"] == "receiver", (lang, callee)
+            assert row["resolution"] not in CONFIDENT_RESOLUTIONS
+
+
+def test_csharp_and_ruby_non_builtin_method_and_known_receivers_stay_confident_4991():
+    for lang, ext, callee, own in (("csharp", "cs", "Save", "Get"), ("ruby", "rb", "save", "get")):
+        files = _builtin_universe(lang, callee, "repo", ext)
+        assert [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]["step"] == "file", lang
+        files = _builtin_universe(lang, own, "this", ext, run_owner="Box")
+        row = [s for s in resolve_calls(files)[0] if s["src_name"] == "run"][0]
+        assert row["step"] != "receiver", lang
+        assert row["resolution"] in CONFIDENT_RESOLUTIONS, lang
+
+
+# --- a package split over a module's source sets (Maven / Gradle layout) -------
+
+_SOURCE_SETS = [
+    ("java", "java", "src/main/java", "src/test/java", "B"),
+    ("kotlin", "kt", "src/main/kotlin", "src/test/kotlin", "B"),
+    ("scala", "scala", "src/main/scala", "src/test/scala", "B"),
+    ("groovy", "groovy", "src/main/groovy", "src/test/groovy", "B"),
+]
+
+
+def _split_package(lang, ext, main, test, call_path_main=None, call_path_test=None):
+    """A test-source-set caller of a bare helper and a constructor in the main source set."""
+    caller = call_path_test or f"m/{test}/p/q/CallerTest.{ext}"
+    target = call_path_main or f"m/{main}/p/q/Svc.{ext}"
+    files = [
+        _file(
+            caller,
+            lang,
+            [_fn("check", 1, calls=["Svc", "helper"], quals={"Svc": [""], "helper": [""]})],
+        ),
+        _file(target, lang, [_fn("helper", 3)], [{"name": "Svc", "inheritance": []}]),
+    ]
+    sites, _ = resolve_calls(files)
+    return _site(sites, "Svc"), _site(sites, "helper")
+
+
+@pytest.mark.parametrize(("lang", "ext", "main", "test", "_x"), _SOURCE_SETS)
+def test_package_split_over_source_sets_is_visible_without_an_import(lang, ext, main, test, _x):
+    ctor, helper = _split_package(lang, ext, main, test)
+    assert ctor["step"] != "unseen" and ctor["resolution"] in CONFIDENT_RESOLUTIONS
+    assert (ctor["dst_kind"], ctor["dst_path"]) == ("class", f"m/{main}/p/q/Svc.{ext}")
+    assert helper["step"] != "unseen" and helper["resolution"] in CONFIDENT_RESOLUTIONS
+
+
+@pytest.mark.parametrize(("lang", "ext", "main", "test", "_x"), _SOURCE_SETS)
+def test_package_split_stays_unseen_for_another_module_or_package(lang, ext, main, test, _x):
+    other_module = _split_package(lang, ext, main, test, call_path_main=f"n/{main}/p/q/Svc.{ext}")
+    other_package = _split_package(lang, ext, main, test, call_path_main=f"m/{main}/p/z/Svc.{ext}")
+    for ctor, helper in (other_module, other_package):
+        assert ctor["step"] == "unseen"
+        assert helper["step"] == "unseen"
+
+
+def test_package_dir_leaves_other_layouts_and_languages_alone():
+    assert _package_dir("m/src/test/java/p/q", "java") == _package_dir("m/src/main/java/p/q", "java")
+    assert _package_dir("src/test/java/p", "java") != _package_dir("src/main/java/p/q", "java")
+    assert _package_dir("lib/p/q", "java") == "lib/p/q"  # no source root: the directory
+    assert _package_dir("m/src/main/java/p", "go") == "m/src/main/java/p"
+    assert _package_dir("m/src/main/java/p", "csharp") == "m/src/main/java/p"
+    assert _package_dir("m/src/main/java", "java") == "m/|"  # the default package
+
+
+def test_go_source_set_directories_are_still_separate_packages():
+    files = [
+        _file("m/src/test/java/a.go", "go", [_fn("run", 1, calls=["helper"], quals={"helper": [""]})]),
+        _file("m/src/main/java/b.go", "go", [_fn("helper", 3)]),
+    ]
+    assert _site(resolve_calls(files)[0], "helper")["step"] == "unseen"
+
+
+def _impl_universe(lang, ext, receiver):
+    """An `impl`-style universe: no method carries an owner, as the extractor leaves them."""
+    return [
+        _file(
+            f"src/de.{ext}",
+            lang,
+            [
+                _fn("eat_char", 3),
+                _fn("run", 9, calls=["eat_char", "len"], quals={"eat_char": [receiver], "len": [receiver]}),
+            ],
+        ),
+        _file(f"src/other.{ext}", lang, [_fn("len", 1)]),
+    ]
+
+
+def test_rust_self_receiver_reaches_an_impl_method_of_the_same_file():
+    sites, _ = resolve_calls(_impl_universe("rust", "rs", "self"))
+    row = _site(sites, "eat_char")
+    assert (row["step"], row["dst_path"], row["dst_line"]) == ("file", "src/de.rs", 3)
+    # an unseen file's method is only the ambiguous guess, never an edge
+    assert _site(sites, "len")["step"] == "receiver"
+
+
+def test_rust_other_receiver_stays_unresolved_without_an_owner():
+    # `x.eat_char()` on an untyped receiver cannot be told from a std method: only `self` is widened
+    sites, _ = resolve_calls(_impl_universe("rust", "rs", "x"))
+    assert _site(sites, "eat_char")["step"] == "none"
+    assert _site(sites, "len")["step"] == "none"
+
+
+@pytest.mark.parametrize(("lang", "ext"), [("python", "py"), ("java", "java"), ("javascript", "js")])
+def test_impl_self_widening_is_rust_only(lang, ext):
+    # an ownerless `self.m()` in a language with real class owners keeps resolving through methods only
+    sites, _ = resolve_calls(_impl_universe(lang, ext, "self"))
+    assert _site(sites, "eat_char")["step"] == "none"

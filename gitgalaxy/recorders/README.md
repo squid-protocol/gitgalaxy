@@ -103,6 +103,22 @@ Scope, from measurement (`core/wrapper_resolver.py`'s header): `debug_prints`/`p
 
 One row per column of an `EXEC SQL DECLARE <table> TABLE (...)`, inline in a COBOL/PL/I program or DCLGEN-generated into a copybook/include member: `table_name` (as declared, `owner.table` whole), `table_line`, `colno` (1-based, SYSCOLUMNS.COLNO), `column_name`, `sql_type` as written (`DECIMAL`, `VARCHAR`, `TIMESTAMP WITH TIME ZONE`), `length` (length/precision, LOB K/M/G applied) and `scale` -- both NULL when the source writes none -- `nullable` (0 exactly on NOT NULL), `attributes` (the option text after the type) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans. Same-file only: a program reaches its DCLGEN member through the `EXEC SQL INCLUDE` edge.
 
+### `sql_statement_data` — embedded SQL statements (#3446)
+
+One row per (statement, table) of every `EXEC SQL` in a COBOL/PL/I source: `stmt_ordinal` (1-based position in the file), `verb` (`SELECT`/`INSERT`/`UPDATE`/`DELETE`/`MERGE`/`LOCK`/`DECLARE CURSOR`/`OPEN`/`FETCH`/`CLOSE`/`COMMIT`/`CALL`/...), `table_name`, `access` (`read`/`insert`/`update`/`delete`/`merge`/`lock`), `cursor_name` (declared, used, or `WHERE CURRENT OF`), `host_variables` (distinct `:NAME`s in order, comma-joined), `line_number`, `statement_text` (#3618) and `routine_name` (#5736, the `schema.proc` a `CALL` names, NULL on every other verb). A statement naming no table (cursor OPEN/FETCH/CLOSE, COMMIT, CALL) has one row with `table_name` NULL. Per-file, cascade-deleted with `file_data`, restored on delta scans; `galaxy_ir` joins it into `sql_table_access`.
+
+### `cics_task_data` — CICS task control (#3449)
+
+One row per RUN/START/FETCH/RETRIEVE/CANCEL/DELAY/POST/WAIT/ENQ/DEQ command (`verb`), with its `target_kind` (TRANSID or RESOURCE), `target_operand` as written, `target_name` (the literal, VALUE or single MOVEd literal, NULL otherwise), `target_resolution` (`literal`/`value`/`move`/`string`/`pattern`/`ambiguous`/`unresolved`/`expression`) and `target_candidates`, the `channel_operand`/`channel_name`, the CHILD/ANY/REQID `token` joining a spawn to its FETCH/FREE/CANCEL, `record_clause` (FROM/INTO/SET) and `record_name`, `timing` as written, the other kept options in `attributes`, and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `web_service_data` — CICS web / API services (#3496)
+
+One row per DFHLS2WS / DFHLS2JS (provider) or DFHWS2LS / DFHJS2LS (requester) step of a web-services assistant JCL: `assistant`, `direction`, `program`, `uri`, the `request` / `response` copybook members, `interface` (PGMINT), `container`, `binding` (WSBIND), `document` (WSDL or JSON schema), `transaction_id` (the `transaction` payload key; TRANSACTION is an SQL keyword) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
+### `data_move_data` — field-level data movement (#3452)
+
+One row per source -> target pair of a MOVE/COMPUTE/ADD/SUBTRACT/MULTIPLY/DIVIDE/STRING/UNSTRING/INITIALIZE: `verb`, `source` and `target` as written (qualifiers kept, subscripts dropped), `source_kind` (`item`/`literal`/`figurative`/`function`/`length`/`address`, NULL on INITIALIZE), `corresponding`, `source_refmod`/`target_refmod` and, since #3655, their texts `source_refmod_text`/`target_refmod_text`, and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans.
+
 ### `screen_field_data` — BMS screen-field layouts (#3347)
 
 One row per `DFHMSD` (`kind` 'mapset'), `DFHMDI` ('map') and `DFHMDF` ('field') of a BMS map source, the tree in `ordinal`/`parent_ordinal`. A field has its geometry in `pos_line`/`pos_column`/`length`, its `attrb` list, `picin`/`picout`, `initial_value` (the INITIAL literal, continuations rejoined) and `occurs`; `field_name` is NULL for a screen literal (an unnamed field, which never reaches the symbolic map). Every other operand stays as written in `attributes` (`COLOR=`, `HILIGHT=`, a map's `SIZE=`, a mapset's `MODE=`/`LANG=`). A dedicated table rather than a `record_data` dialect: screen geometry and 3270 attributes have no record column, and a map is not storage.

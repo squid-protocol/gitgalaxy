@@ -4094,7 +4094,7 @@
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 4,
-      "zig/zls/DocumentStore.zig": 2,
+      "zig/zls/DocumentStore.zig": 0,
       "zig/zls/Server.zig": 0,
       "zig/zls/analysis.zig": 0,
       "zig/zls/ast.zig": 0,

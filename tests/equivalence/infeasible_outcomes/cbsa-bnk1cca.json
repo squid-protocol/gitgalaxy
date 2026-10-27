@@ -1,0 +1,54 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-bnk1cca",
+  "entries": [
+    {
+      "unit": "A010",
+      "line": 233,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (233): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "GCD010",
+      "line": 534,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "COMM-SUCCESS = 'N' with accounts to show is never returned by INQACCCU: every path that sets COMM-SUCCESS 'N' (INQACCCU 196, 216, 261, 364, 502) also sets CUSTOMER-FOUND 'N' (the 'Unable to find customer' exit at 507 leaves GCD010 before 534) or, for the open and fetch failures, zeroes NUMBER-OF-ACCOUNTS (264, 504), which takes the 'No accounts found' arm at 532; the 'Y' paths set COMM-SUCCESS 'Y'."
+    },
+    {
+      "unit": "SM010",
+      "line": 695,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 49), set by no statement: only `SET SEND-ERASE` and `SET SEND-DATAONLY-ALARM` (165, 220, 316) write the flag."
+    },
+    {
+      "unit": "SM010",
+      "line": 704,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (695), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 704,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (695), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 771,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SM010 after the first SEND MAP and '2' is never set (see 695), so the test is always true."
+    }
+  ]
+}

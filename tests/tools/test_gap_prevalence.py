@@ -1,6 +1,7 @@
 """gap_prevalence (#5865): per-gap estate / program counts by era over synthetic survey rows and inventories."""
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -93,3 +94,248 @@ def test_missing_inventory_and_deterministic_render(rows_and_inv):
     assert first == second
     assert "| `EXEC CICS GETMAIN` | 2 | 3 |" in first
     assert gp.eras_of("no-such-corpus", d) == {}
+
+
+@pytest.mark.parametrize("service", ["CEEHDLR", "CEEHDLU", "CEEMGET", "CEESGL", "CEENCOD", "CEEMRCE", "CEE3SRP"])
+def test_every_le_condition_service_gap_is_owned_by_5106(service):
+    assert gp.owner_of(f"{service}: an LE condition service is not modelled") == "#5106 (le-condition-handling)"
+    assert gp.owner_of("CEEIGZCT: x") == "unowned"  # the stand-in copybook is not a condition service
+
+
+# ---- census half: aggregates under opaque labels, no names -------------------------------------------------------
+CENSUS = ("some-census-repo", "other-census-repo")
+
+
+@pytest.mark.parametrize(
+    ("gap", "kept"),
+    [
+        ("EXEC CICS GETMAIN", "EXEC CICS GETMAIN"),
+        ("EXEC CICS ASSIGN APPLID", "EXEC CICS ASSIGN APPLID"),
+        ("EXEC SQL: DECLARE CURSOR WITH HOLD", "EXEC SQL: DECLARE CURSOR WITH HOLD"),
+        ("EXEC SQL: SELECT FROM PAYROLL", "EXEC SQL: other"),  # a table name could name the repo
+        ("EXEC SQL: <name> host variable", "EXEC SQL: other"),
+        ("EXEC DLI: GU SEGMENT PAYSEG", "EXEC DLI"),
+        ("missing copybook PAYREC (ambiguous)", "missing copybook: estate-owned"),
+        ("missing copybook PAYREC", "missing copybook: estate-owned"),
+        ("missing copybook DFHAID", "missing copybook: CICS system"),
+        ("missing copybook SQLCA", "missing copybook: Db2 system"),
+        ("missing copybook CMQV", "missing copybook: MQ system"),
+        ("missing copybook AIBLK", "missing copybook: IMS system"),
+        ("missing copybook CEEIGZCT", "missing copybook: LE system"),
+        ("missing copybook MYDFHREC", "missing copybook: estate-owned"),  # a prefix inside the name is not a prefix
+        ("refused: CICS Assembler", "refused: CICS Assembler"),
+        ("refused: ExprError: PAYROLL thing", "refused: ExprError"),
+        ("grammar: does not parse", "grammar: does not parse"),
+        ("<name>: no such item", "<name>: no such item"),
+        ("CALL CEEHDLR", "CALL CEEHDLR"),
+        ("CALL MQPUT1", "CALL MQPUT1"),
+        ("CALL PAYCALC", "CALL other"),
+        ("SET TO ENTRY: procedure pointers are not modelled", "SET TO ENTRY: procedure pointers are not modelled"),
+        (
+            "COMPUTE exponentiation in a floating-point expression",
+            "COMPUTE exponentiation in a floating-point expression",
+        ),
+        ("ZUIDSTCK: an assembler wrapper", "other"),
+        ("SET PAYFLAG-X TO ENTRY", "SET: other"),
+    ],
+)
+def test_scrub_key_keeps_the_vocabulary_and_collapses_names(gap, kept):
+    assert gp.scrub_key(gap) == kept
+
+
+def test_census_counts_carry_no_corpus_or_program_name():
+    a, b = CENSUS
+    rows = {
+        (a, "payroll01.cbl"): row(
+            "line 3: EXEC CICS: GETMAIN not modelled", "line 4: EXEC EXEC SQL: SELECT FROM PAYROLL"
+        ),
+        (a, "payroll02.cbl"): row("line 3: EXEC CICS: GETMAIN not modelled"),
+        (b, "inv01.cbl"): row("line 3: EXEC CICS: GETMAIN not modelled"),
+        (b, "inv02.cbl"): row(),
+    }
+    eras = {a: {"payroll01.cbl": "1", "payroll02.cbl": "2"}, b: {"inv01.cbl": "2"}}
+    res = gp.measure_census(rows, eras, top=(1,))
+    blob = json.dumps(res)
+    for leak in (*CENSUS, "payroll", "inv01", "PAYROLL"):
+        assert leak not in blob
+    assert res["estates"] == sorted(gp.census_label(c) for c in CENSUS)
+    g = res["gaps"][0]
+    assert (g["gap"], g["estates"], g["programs"]) == ("EXEC CICS GETMAIN", 2, 3)
+    assert g["by_era"] == {"0": 0, "1": 1, "2": 2, "3": 0, "4": 0, "none": 0}
+    assert res["programs"] == 4 and res["whole_now"] == 1
+    assert res["coverage_if_closed"][0]["whole"] == 3  # inv02 and payroll02 and inv01; payroll01 keeps its SQL gap
+    assert res["gaps"][1]["gap"] == "EXEC SQL: other"
+
+
+def test_census_and_burned_entry_points_refuse_each_other(tmp_path):
+    with pytest.raises(ValueError, match="burned"):
+        gp.measure_census({(A, "x.cbl"): row()}, {})
+    with pytest.raises(ValueError, match="not burned"):
+        gp.measure({(CENSUS[0], "x.cbl"): row()}, tmp_path)
+
+
+def test_census_program_without_an_era_counts_under_none():
+    res = gp.measure_census({(CENSUS[0], "p.cbl"): row("line 1: EXEC CICS: SYNCPOINT not modelled")}, {})
+    assert res["gaps"][0]["by_era"]["none"] == 1
+
+
+def test_render_adds_the_census_section(rows_and_inv):
+    rows, d = rows_and_inv
+    census = gp.measure_census({(CENSUS[0], "p.cbl"): row("line 1: EXEC CICS: SYNCPOINT not modelled")}, {})
+    page = gp.render(gp.measure(rows, d), census)
+    assert "## Census estates (1 estates, 1 programs, 0 translate whole today)" in page
+    assert CENSUS[0] not in page
+    assert "## Census estates" not in gp.render(gp.measure(rows, d))
+
+
+@pytest.mark.parametrize(
+    ("gap", "key"),
+    [
+        ("WRITE AFTER without ADVANCING", "WRITE: AFTER without ADVANCING"),
+        (
+            "WRITE AFTER ADVANCING identifier / mnemonic-name: carriage control is not modelled",
+            "WRITE: carriage control (mnemonic-name) not modelled",
+        ),
+        (
+            "PAYFILE: variable-length records without RECORD VARYING ... DEPENDING ON",
+            "FD: variable-length records without RECORD VARYING",
+        ),
+        (
+            "PAYSUB: no program of that name with a CALL entry in the estate",
+            "CALL: target without a CALL entry in the estate",
+        ),
+        ("CALL <name>", "CALL: other non-IBM target"),
+        ("JSON PARSE (…): not modelled", "JSON PARSE: not modelled"),
+        ("JSON GENERATE (…): not modelled", "JSON GENERATE: not modelled"),
+        (
+            "MOVE an alphanumeric literal holds a character beyond the single-byte code page (…)",
+            "MOVE: literal beyond the single-byte code page",
+        ),
+        (
+            "STRING an alphanumeric literal holds a character beyond the single-byte code page (…)",
+            "STRING: literal beyond the single-byte code page",
+        ),
+        (
+            "STRING sender <name>, PIC <name>(…)<name>: a numeric item with a P or a decimal place is a compile error",
+            "STRING: numeric sender with P or a decimal place",
+        ),
+        ("<name>: its bytes hold <name> <name>", "<name>: bytes overlap another item"),
+        ("ACCEPT from SYSIN / console", "ACCEPT: from SYSIN / console"),
+        ("PERFORM <name>: undeclared paragraph", "PERFORM: undeclared paragraph"),
+        ("SQLCA: undeclared item", "<name>: undeclared item"),
+        ("PAYMAPI: undeclared item", "<name>: undeclared item"),
+        ("PAYIN: no FD record", "FD: no record description"),
+        ("EXEC CICS map <name>: no PAYFLDA", "EXEC CICS map: no <name> field"),
+        ("STOP literal", "STOP: literal"),
+        ("EXHIBIT NAMED of <name> IN <name>: only plain names", "EXHIBIT NAMED: only plain names and literals"),
+        ("MOVE CORRESPONDING", "MOVE CORRESPONDING"),
+    ],
+)
+def test_scrub_key_itemises_the_other_buckets_without_names(gap, key):
+    assert gp.scrub_key(gap) == key
+    assert not re.search(r"PAY[A-Z]*", key)  # the key is the table's string, never a slice of the source
+
+
+def test_copybook_family_owner_and_status():
+    assert gp.owner_of("missing copybook: MQ system") == "#4892"
+    assert gp.owner_of("missing copybook: IMS system") == "#4893"
+    assert gp.owner_of("missing copybook: CICS system") == "#4270 (cics-command-slice)"
+    assert gp.owner_of("missing copybook: estate-owned").startswith("none (the estate's own")
+    assert gp.owner_of("missing copybook: LE system") == "unowned (copybook family)"
+    assert gp.status_of("missing copybook: LE system") == "unknown"
+
+
+def test_copybook_family_keys_never_carry_the_member_name():
+    for member in ("PAYREC", "DFHPAYX", "SQLCAPAY", "CMQPAY", "AIBPAY", "CEEPAY"):
+        key = gp.scrub_key(f"missing copybook {member} (ambiguous)")
+        assert "PAY" not in key and key.startswith("missing copybook: ")
+
+
+@pytest.mark.parametrize(
+    ("gap", "key"),
+    [
+        ("refused: LayoutError: VALUE (…) not modelled", "refused: LayoutError: VALUE not modelled"),
+        ("refused: LayoutError: <name> COMP-3 VALUE 'x': not a number", "refused: LayoutError: VALUE not a number"),
+        (
+            "refused: LayoutError: 01 <name> REDEFINES <name>, no 01 of that name before it",
+            "refused: LayoutError: REDEFINES target not found",
+        ),
+        (
+            "refused: LayoutError: <name> REDEFINES <name>, not a sibling before it",
+            "refused: LayoutError: REDEFINES target not a sibling",
+        ),
+        (
+            "refused: LayoutError: level N <name> has no 01 above it",
+            "refused: LayoutError: level without an 01 above it",
+        ),
+        (
+            "refused: LayoutError: DATA DIVISION does not parse near expanded line(s) (…)",
+            "refused: LayoutError: DATA DIVISION does not parse",
+        ),
+        (
+            "refused: LayoutDisagrees: PAYREC: the engine's layout differs from the translator's: (…)",
+            "refused: LayoutDisagrees: layout differs from the engine's",
+        ),
+        (
+            "refused: LayoutDisagrees: PAYREC: the engine's fields (N) do not pair with the record's (N)",
+            "refused: LayoutDisagrees: fields do not pair with the record's",
+        ),
+        (
+            "refused: LayoutDisagrees: PAYREC: the engine does not know the record's width",
+            "refused: LayoutDisagrees: record width unknown to the engine",
+        ),
+        (
+            "refused: UnitRefused: text after END PROGRAM <name>, outside (…)",
+            "refused: UnitRefused: text after END PROGRAM",
+        ),
+        (
+            "refused: UnitRefused: END PROGRAM <name> closes no open program of (…)",
+            "refused: UnitRefused: END PROGRAM closes no open program",
+        ),
+        (
+            "refused: UnitRefused: p.cbl: no PROGRAM-ID: a member to be copied, not a program",
+            "refused: UnitRefused: no PROGRAM-ID (a member to be copied)",
+        ),
+        (
+            "refused: UnitRefused: <name> is nested in <name>, which declares (…)",
+            "refused: UnitRefused: nested program",
+        ),
+        (
+            "refused: UnitRefused: no program <name> in the source (…)",
+            "refused: UnitRefused: requested program not in the source",
+        ),
+        ("refused: ExprError: reference modification not closed", "refused: ExprError: reference modification form"),
+        (
+            "refused: ExprError: NULL: only compared (…) with a pointer",
+            "refused: ExprError: NULL compared with a non-pointer",
+        ),
+        ("refused: ExprError: ADDRESS OF", "refused: ExprError: ADDRESS OF"),
+        (
+            "refused: ExprError: DFHRESP(…) is not a documented condition",
+            "refused: ExprError: DFHRESP condition not documented",
+        ),
+        (
+            "refused: ExprError: DFHVALUE(…) is not a documented CVDA",
+            "refused: ExprError: DFHVALUE CVDA not documented",
+        ),
+        ("refused: ExprError: unbalanced parenthesis in condition", "refused: ExprError: unbalanced parenthesis"),
+        ("refused: ExprError: left over in condition: <name> X", "refused: ExprError: expression does not parse"),
+        ("refused: ExprError: not a relation: '…'", "refused: ExprError: not a condition / relation"),
+        ("refused: ExprError: not a data name: <name>", "refused: ExprError: not a data name"),
+        ("refused: ExprError: ALL '…'", "refused: ExprError: ALL form"),
+        ("refused: LayoutError: something new", "refused: LayoutError"),  # unknown message: the bare class
+    ],
+)
+def test_scrub_key_itemises_the_translator_refusals(gap, key):
+    assert gp.scrub_key(gap) == key
+    assert not re.search(r"PAY[A-Z]*", key)
+
+
+def test_every_refusal_pattern_anchors_on_a_text_the_translator_raises():
+    root = Path(gp.REPO) / "gitgalaxy" / "tools" / "cobol_to_java" / "det"
+    src = "".join(p.read_text(encoding="utf-8") for p in root.glob("*.py"))
+    for anchor in ("has no 01 above it", "DATA DIVISION does not parse", "do not pair with the record", "no PROGRAM-ID",
+                   "is nested in", "reference modification not closed", "is not a documented CVDA", "unbalanced parenthesis",
+                   "left over in condition", "not a relation", "not a data name", "closes no open program", "not a sibling before it",
+                   "not a number", "no 01 of that name", "does not know the record's width", "layout differs"):  # fmt: skip
+        assert anchor in src, anchor

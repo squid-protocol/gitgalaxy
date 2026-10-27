@@ -15,13 +15,13 @@ strict allowlist schema that rejects any leaked source text or unredacted identi
 <tr>
 <td align="center" width="190"><h2>0 bytes</h2></td>
 <td align="center" width="190"><h2>5 eras</h2></td>
-<td align="center" width="190"><h2>22 tells</h2></td>
+<td align="center" width="190"><h2>24 tells</h2></td>
 <td align="center" width="190"><h2>100%</h2></td>
 </tr>
 <tr>
 <td align="center" valign="top"><sub><strong>network &amp; source text exfiltration</strong><br />socket guard + allowlist schema projection<br /><em><a href="#privacy-and-the-zero-leakage-contract">offline guard</a> · exit 3 on schema violation</em></sub></td>
 <td align="center" valign="top"><sub><strong>CICS &amp; COBOL eras classified</strong><br />Era 0 macro level through Era 4 Enterprise COBOL<br /><em><a href="#cics-era-tagging-era_tagspy">era model</a> · detects mixed-era code</em></sub></td>
-<td align="center" valign="top"><sub><strong>source &amp; copybook tells tracked</strong><br />each backed by an IBM manual or release citation<br /><em><a href="#cics-era-tagging-era_tagspy">the 22 tells</a> · copy-expanded pass</em></sub></td>
+<td align="center" valign="top"><sub><strong>source &amp; copybook tells tracked</strong><br />each backed by an IBM manual or release citation<br /><em><a href="#cics-era-tagging-era_tagspy">the 24 tells</a> · copy-expanded pass</em></sub></td>
 <td align="center" valign="top"><sub><strong>local, air-gapped execution</strong><br />no Docker, no Db2 container, no JDK required<br /><em><a href="#quickstart">quickstart</a> · uses the Python det parser</em></sub></td>
 </tr>
 </table>
@@ -70,7 +70,7 @@ and `EXEC CICS` directly in Python (`pip install "gitgalaxy[translator]"`).
 | *Will it write `.sqlite` or temp files into our source tree?* | Never. All intermediate scan databases and generated BMS copybooks live in a temporary directory outside the estate and are deleted on exit; passing `--out` inside the estate directory is rejected with exit code `2`. |
 | *Could a parser error or refusal message accidentally include a line of our COBOL source or a customer literal?* | No. [`schema.py`](schema.py) projects the raw inventory through a closed vocabulary allowlist (COBOL verbs, [`gitgalaxy/standards/cics`](../../standards/cics/README.md) command/option names, SQL clauses, and compiler options) and validates the result before writing a single byte to disk. |
 | *What if even our 8-character program and copybook names are confidential?* | `--redact` hashes every member and copybook name with a 32-byte key (`--redact-key-file` for repeatable labels across runs, or a fresh random key per run for unlinkable labels). |
-| *What eras of COBOL and CICS are in our repository, including hidden inside copybooks?* | [`era_tags.py`](era_tags.py) scans both the program text and its resolved copybooks across 22 constructs (`Era 0` macro level through `Era 4` Enterprise COBOL), flagging `mixed`-era layered code and `via_copybook` tells. |
+| *What eras of COBOL and CICS are in our repository, including hidden inside copybooks?* | [`era_tags.py`](era_tags.py) scans both the program text and its resolved copybooks across 24 constructs (`Era 0` macro level through `Era 4` Enterprise COBOL), flagging `mixed`-era layered code and `via_copybook` tells. |
 
 ---
 
@@ -94,7 +94,7 @@ be reviewed by security teams and shared safely:
 ## CICS era tagging (`era_tags.py`)
 
 Mainframe dates in file headers lie; constructs in the code do not. [`era_tags.py`](era_tags.py)
-determines a program's era from **22 syntactic tells** across five scopes (`asm`, `raw`, `code`,
+determines a program's era from **24 syntactic tells** across five scopes (`asm`, `raw`, `code`,
 `cics`, and `cbl` option cards), checking both the program text and the copybooks its `COPY`
 statements resolve:
 
@@ -133,7 +133,7 @@ statements resolve:
 ## Limits
 
 - **Readiness is static inventory, not runtime proof.** `gitgalaxy assess` tells you which programs translate whole (`L1`) and which rules block the rest (`L0`); reaching `L2–L4` requires running the equivalence harness ([`cobol-to-java`](../cobol_to_java/README.md)) against test scenarios.
-- **`--jcl` option extraction is a follow-up:** Pass site compiler/runtime options via `--options FILE` (`estate_options.json`, `#4704`); automatic extraction of compile `PARM`s from JCL in `gitgalaxy assess --jcl` is tracked as a follow-up to `#4726`.
+- **`--jcl` reads only what the JCL states:** `gitgalaxy assess --jcl` takes the compile `PARM`s from your JCL (#5710); where compile steps disagree it keeps only the options all of them agree on and names the rest on standard error. It cannot be combined with `--options FILE` (`estate_options.json`, #4704); see [`docs/assess.md`](../../../docs/assess.md).
 - **Non-burned estates report counts only in committed fixtures:** To keep unburned estates blind for first-contact trials, [`tests/tools/era_distribution.py`](../../../tests/tools/era_distribution.py) commits only aggregate era and tell counts (`tests/fixtures/era_distribution/summary.json`), never per-program rows.
 
 ---

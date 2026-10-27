@@ -246,6 +246,40 @@
    "why": "WHEN CCARD-AID-PFK07 AND NOT CA-FIRST-PAGE: the page number drops to 1 and 8100-READ-BACKWARDS fetches C-TR-TYPE-BACKWARD (TR_TYPE < 08, descending) into rows 7..1; since the page is now 1, 2500 also says 'No previous pages to display'"
   },
   {
+   "name": "pf7-back-to-page-2",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 3,
+    "WS-CA-LAST-PAGE-DISPLAYED": 0,
+    "WS-CA-NEXT-PAGE-IND": "\u0000"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE"
+    }
+   },
+   "why": "WHEN CCARD-AID-PFK07 AND NOT CA-FIRST-PAGE with the page staying above 1 (3 -> 2): 8100-READ-BACKWARDS opens C-TR-TYPE-BACKWARD (9500), fetches TR_TYPE < 08 descending into rows 7..1 (07..01), sets CA-NEXT-PAGE-EXISTS and closes the cursor (9550); WS-INFORM-REC-ACTIONS is set, so the info message is not blank (the page-1 PF7 leaves it blank and is bounds-refused). The commarea is a hand-set previous screen: page 3 of seven-row pages needs 15+ types, the seed has 12, so its first key 08 is not what paging alone would leave"
+  },
+  {
    "name": "type-filter",
    "aid": "DFHENTER",
    "commarea": {
@@ -1013,15 +1047,1515 @@
     }
    },
    "why": "the COMMAREA pf10-deletes-row returns (INITIALIZEd, page 1); ENTER on the screen it left: no action, the first key blank -> page 1 read from the start (the seed is reset, so type 08 is back but on page 2)"
+  },
+  {
+   "name": "pf3-back-to-caller",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "PF3 with a caller that is not this program: 592 and 600 take the caller's transaction and program (CM00 / COMEN01C), not the admin defaults"
+  },
+  {
+   "name": "reentered-from-another-program",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "ENTER re-entered (context 1) from a program that is not this one: the WHEN at 738 starts the list over (INITIALIZE, first page)"
+  },
+  {
+   "name": "type-filter-zeros",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTYPEI": "00"
+    }
+   },
+   "why": "type filter 00: 1220 treats ZEROS as blank, but WS-IN-TYPE-CD = 0 so 2400's WHEN at 1454 clears the field"
+  },
+  {
+   "name": "two-updates-blank-descriptions",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-CA-ROW-SELECTED": 6,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U",
+     "TRTSEL5I": "U"
+    }
+   },
+   "why": "U on rows 5 and 6, both descriptions cleared: row 6 sets 'must be supplied', row 5 finds the message already set (1195 false)"
+  },
+  {
+   "name": "two-updates-bad-descriptions",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-CA-ROW-SELECTED": 6,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND-X",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERSAL-FRAUD",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U",
+     "TRTSEL5I": "U"
+    }
+   },
+   "why": "U on rows 5 and 6, both descriptions with a '-': row 6 sets the message, row 5 finds it already set (1222 false)"
+  },
+  {
+   "name": "filter-count-fails-after-edit-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTYPEI": "05",
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "an edit error already in the message (U on row 6 with the description cleared), then the type filter 05's COUNT fails (-913): 9100's OTHER arm finds the message set (1825 false)",
+   "sql_faults": [
+    {
+     "line": 1803,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "filter-count-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTYPEI": "05",
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "type filter 05: 9100's COUNT fails (-913): INPUT-ERROR and the Db2 message (1819 OTHER, 1825 true)",
+   "sql_faults": [
+    {
+     "line": 1803,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "delete-refused-by-category-rows",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 2,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "\u0000",
+    "WS-CA-ROW-SELECTED": 1,
+    "WS-CA-DELETE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE",
+     "TRTSEL1I": "D"
+    }
+   },
+   "why": "PF10 delete of type 08 refused by the category foreign key (-532): CA-DELETE-REQUESTED stays, the Db2 message is shown (1914 arm)",
+   "sql_faults": [
+    {
+     "line": 1900,
+     "nth": 1,
+     "sqlcode": -532
+    }
+   ]
+  },
+  {
+   "name": "delete-fails-other",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 2,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "\u0000",
+    "WS-CA-ROW-SELECTED": 1,
+    "WS-CA-DELETE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE",
+     "TRTSEL1I": "D"
+    }
+   },
+   "why": "PF10 delete fails with -904: 9300's OTHER arm formats the message (1927 true), nothing is deleted",
+   "sql_faults": [
+    {
+     "line": 1900,
+     "nth": 1,
+     "sqlcode": -904
+    }
+   ]
+  },
+  {
+   "name": "update-row-gone",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-CA-ROW-SELECTED": 6,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERSAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "PF10 update finds no row (+100, deleted by others): CA-UPDATE-REQUESTED stays and the Db2 message is shown (1861 arm)",
+   "sql_faults": [
+    {
+     "line": 1846,
+     "nth": 1,
+     "sqlcode": 100
+    }
+   ]
+  },
+  {
+   "name": "update-deadlock",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-CA-ROW-SELECTED": 6,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERSAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "PF10 update deadlocks (-911): INPUT-ERROR and the Db2 message (1870 arm), the page is read again and 882 sends the error",
+   "sql_faults": [
+    {
+     "line": 1846,
+     "nth": 1,
+     "sqlcode": -911
+    }
+   ]
+  },
+  {
+   "name": "update-fails-other",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-CA-ROW-SELECTED": 6,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERSAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "PF10 update fails with -904: the negative arm at 1880 formats the message",
+   "sql_faults": [
+    {
+     "line": 1846,
+     "nth": 1,
+     "sqlcode": -904
+    }
+   ]
+  },
+  {
+   "name": "open-forward-fails-after-edit-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL2I": "X"
+    }
+   },
+   "why": "invalid action code (message set), the forward cursor's OPEN fails (-913): 9400 finds the message set (1956 false)",
+   "sql_faults": [
+    {
+     "line": 1943,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "fetch-forward-fails-after-edit-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL2I": "X"
+    }
+   },
+   "why": "invalid action code (message set), the first FETCH fails: 8000's OTHER arm finds the message set (1711 false)",
+   "sql_faults": [
+    {
+     "line": 1626,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "lookahead-fetch-fails-after-edit-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL2I": "X"
+    }
+   },
+   "why": "invalid action code (message set), the seventh row read, the look-ahead FETCH fails: 1685 false",
+   "sql_faults": [
+    {
+     "line": 1661,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "lookahead-no-row-after-edit-error",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL2I": "X"
+    }
+   },
+   "why": "PF8 with an invalid action code (message set), the look-ahead FETCH finds no row (+100): no 'no more records' (1677 false)",
+   "sql_faults": [
+    {
+     "line": 1661,
+     "nth": 1,
+     "sqlcode": 100
+    }
+   ]
+  },
+  {
+   "name": "first-fetch-no-row",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "the first FETCH finds no row (+100) on screen 1: 'No records found' (1702 true), no info message shown (1575 false); 2500 reaches its OTHER arm",
+   "sql_faults": [
+    {
+     "line": 1626,
+     "nth": 1,
+     "sqlcode": 100
+    }
+   ]
+  },
+  {
+   "name": "close-forward-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "the forward cursor's CLOSE fails (-913): 9450's OTHER arm formats the message (1984 true)",
+   "sql_faults": [
+    {
+     "line": 1971,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "close-forward-fails-after-edit-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL2I": "X"
+    }
+   },
+   "why": "invalid action code (message set), the forward cursor's CLOSE fails: 9450 finds the message set (1984 false)",
+   "sql_faults": [
+    {
+     "line": 1971,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "backward-fetch-fails",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 3,
+    "WS-CA-LAST-PAGE-DISPLAYED": 0,
+    "WS-CA-NEXT-PAGE-IND": "\u0000"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE"
+    }
+   },
+   "why": "PF7, the backward FETCH fails (-913): 8100's OTHER arm formats the message (1761 OTHER, 1783 true)",
+   "sql_faults": [
+    {
+     "line": 1753,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "backward-open-fails",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 3,
+    "WS-CA-LAST-PAGE-DISPLAYED": 0,
+    "WS-CA-NEXT-PAGE-IND": "\u0000"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE"
+    }
+   },
+   "why": "PF7, the backward cursor's OPEN fails (-913): 9500's OTHER arm formats the message (2004 OTHER, 2011 true)",
+   "sql_faults": [
+    {
+     "line": 1998,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "backward-close-fails",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 3,
+    "WS-CA-LAST-PAGE-DISPLAYED": 0,
+    "WS-CA-NEXT-PAGE-IND": "\u0000"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE"
+    }
+   },
+   "why": "PF7, the backward cursor's CLOSE fails (-913): 9550's OTHER arm formats the message (2033 OTHER, 2040 true)",
+   "sql_faults": [
+    {
+     "line": 2027,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "backward-open-and-fetch-and-close-fail",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 3,
+    "WS-CA-LAST-PAGE-DISPLAYED": 0,
+    "WS-CA-NEXT-PAGE-IND": "\u0000"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE"
+    }
+   },
+   "why": "PF7, the backward OPEN, FETCH and CLOSE all fail: 8100 (1783) and 9550 (2040) find the message already set",
+   "sql_faults": [
+    {
+     "line": 1998,
+     "nth": 1,
+     "sqlcode": -913
+    },
+    {
+     "line": 1753,
+     "nth": 1,
+     "sqlcode": -913
+    },
+    {
+     "line": 2027,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "delete-selected-first-fetch-no-row",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 2,
+    "WS-CA-LAST-PAGE-DISPLAYED": 0,
+    "WS-CA-NEXT-PAGE-IND": "\u0000"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE",
+     "TRTSEL1I": "D"
+    }
+   },
+   "why": "D on a row and ENTER, but the first FETCH of the re-read finds no row (+100): 'No records found' is the info message, so 2500's delete-asks arm finds it set (1518 false)",
+   "sql_faults": [
+    {
+     "line": 1626,
+     "nth": 1,
+     "sqlcode": 100
+    }
+   ]
+  },
+  {
+   "name": "update-selected-first-fetch-no-row",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "U on a row and ENTER, but the first FETCH of the re-read finds no row (+100): the info message is set, so 2500's update-asks arm finds it set (1527 false)",
+   "sql_faults": [
+    {
+     "line": 1626,
+     "nth": 1,
+     "sqlcode": 100
+    }
+   ]
+  },
+  {
+   "name": "lookahead-fetch-fails",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "01",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "PF8 from last key 01 (a full page 02-08, so the look-ahead runs), the look-ahead FETCH fails (-913): 1681 OTHER formats the message (1685 true)",
+   "sql_faults": [
+    {
+     "line": 1661,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "lookahead-no-row-on-pf8",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "01",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT"
+    }
+   },
+   "why": "PF8 from last key 01 (a full page 02-08, so the look-ahead runs), the look-ahead FETCH finds no row (+100): CA-NEXT-PAGE-NOT-EXISTS and 'no more records' (1677 true), and 2500's PF8 arm at 1541 finds the info message set (1543 false)",
+   "sql_faults": [
+    {
+     "line": 1661,
+     "nth": 1,
+     "sqlcode": 100
+    }
+   ]
+  },
+  {
+   "name": "update-positive-sqlcode",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-CA-ROW-SELECTED": 6,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERSAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "the UPDATE returns a positive SQLCODE other than +100 (+304): 9200's EVALUATE has no WHEN for it and falls through (1854 none)",
+   "sql_faults": [
+    {
+     "line": 1846,
+     "nth": 1,
+     "sqlcode": 304,
+     "sqlstate": "01504"
+    }
+   ]
+  },
+  {
+   "name": "update-row-gone-message-already-set",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-CA-ROW-SELECTED": 6,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "PF10 with an unchanged 'U' row, the UPDATE finds no row (+100): 9200's +100 arm skips the Db2 message (1863 false arm). The row's description is unchanged, so 1211-EDIT-ARRAY-DESC left 'No change detected with respect to database values.' in WS-RETURN-MSG (not an input error) and the UPDATE still runs: the message is already set, so WS-RETURN-MSG-OFF is false and the Db2 message is not formatted.",
+   "sql_faults": [
+    {
+     "line": 1846,
+     "nth": 1,
+     "sqlcode": 100
+    }
+   ]
+  },
+  {
+   "name": "update-deadlock-message-already-set",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-CA-ROW-SELECTED": 6,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "PF10 with an unchanged 'U' row, the UPDATE deadlocks (-911): INPUT-ERROR, the Db2 message is skipped (1873 false arm). The row's description is unchanged, so 1211-EDIT-ARRAY-DESC left 'No change detected with respect to database values.' in WS-RETURN-MSG (not an input error) and the UPDATE still runs: the message is already set, so WS-RETURN-MSG-OFF is false and the Db2 message is not formatted.",
+   "sql_faults": [
+    {
+     "line": 1846,
+     "nth": 1,
+     "sqlcode": -911
+    }
+   ]
+  },
+  {
+   "name": "update-fails-other-message-already-set",
+   "aid": "DFHPF10",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y",
+    "WS-CA-ROW-SELECTED": 6,
+    "WS-CA-UPDATE-FLAG": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U"
+    }
+   },
+   "why": "PF10 with an unchanged 'U' row, the UPDATE fails with -904: the negative arm skips the Db2 message (1882 false arm). The row's description is unchanged, so 1211-EDIT-ARRAY-DESC left 'No change detected with respect to database values.' in WS-RETURN-MSG (not an input error) and the UPDATE still runs: the message is already set, so WS-RETURN-MSG-OFF is false and the Db2 message is not formatted.",
+   "sql_faults": [
+    {
+     "line": 1846,
+     "nth": 1,
+     "sqlcode": -904
+    }
+   ]
+  },
+  {
+   "name": "backward-open-fails-message-already-set",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 3,
+    "WS-CA-LAST-PAGE-DISPLAYED": 0,
+    "WS-CA-NEXT-PAGE-IND": "\u0000"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE",
+     "TRTSEL1I": "U"
+    }
+   },
+   "why": "PF7 with an unchanged 'U' on row 1 (FEE): 1211-EDIT-ARRAY-DESC leaves 'No change detected with respect to database values.' in WS-RETURN-MSG (not an input error), the page-up still runs, and the backward cursor OPEN fails: WS-RETURN-MSG-OFF is false at 2011, so the Db2 message is not formatted.",
+   "sql_faults": [
+    {
+     "line": 1998,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "delete-selected-with-type-filter-changed",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "08FEE                                               09INTEREST                                          10CASH ADVANCE                                      11BALANCE TRANSFER                                  12OVERLIMIT FEE                                     \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "WS-CA-LAST-TR-CODE": "  ",
+    "WS-CA-FIRST-TR-CODE": "08",
+    "WS-CA-SCREEN-NUM": 2,
+    "WS-CA-LAST-PAGE-DISPLAYED": 0,
+    "WS-CA-NEXT-PAGE-IND": "\u0000"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "08",
+     "TRTYPD1I": "FEE",
+     "TRTTYP2I": "09",
+     "TRTYPD2I": "INTEREST",
+     "TRTTYP3I": "10",
+     "TRTYPD3I": "CASH ADVANCE",
+     "TRTTYP4I": "11",
+     "TRTYPD4I": "BALANCE TRANSFER",
+     "TRTTYP5I": "12",
+     "TRTYPD5I": "OVERLIMIT FEE",
+     "TRTSEL1I": "D",
+     "TRTYPEI": "08"
+    }
+   },
+   "why": "'D' on row 1 and a new type filter 08 on the same ENTER: 1210-EDIT-ARRAY counts the delete before 1220-EDIT-TYPECD sets FLG-TYPEFILTER-CHANGED-YES (the flag is unset at 1210), 9100-CHECK-FILTERS finds the row, no input error; 2500-SETUP-MESSAGE takes the delete WHEN with the message blank but the filter changed, so the IF at 1518 takes its false arm and no confirmation text is set"
+  },
+  {
+   "name": "update-selected-with-desc-filter-changed",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI",
+    "WS-CA-ALL-ROWS-OUT": "01PURCHASE                                          02PAYMENT                                           03CREDIT                                            04AUTHORIZATION                                     05REFUND                                            06REVERAL                                           07ADJUSTMENT                                        ",
+    "WS-CA-LAST-TR-CODE": "08",
+    "WS-CA-FIRST-TR-CODE": "01",
+    "WS-CA-SCREEN-NUM": 1,
+    "WS-CA-LAST-PAGE-DISPLAYED": 9,
+    "WS-CA-NEXT-PAGE-IND": "Y"
+   },
+   "receive": {
+    "CTRTLIA": {
+     "TRTTYP1I": "01",
+     "TRTYPD1I": "PURCHASE",
+     "TRTTYP2I": "02",
+     "TRTYPD2I": "PAYMENT",
+     "TRTTYP3I": "03",
+     "TRTYPD3I": "CREDIT",
+     "TRTTYP4I": "04",
+     "TRTYPD4I": "AUTHORIZATION",
+     "TRTTYP5I": "05",
+     "TRTYPD5I": "REFUND",
+     "TRTTYP6I": "06",
+     "TRTYPD6I": "REVERAL",
+     "TRTTYP7I": "07",
+     "TRTYPD7I": "ADJUSTMENT",
+     "TRTSEL6I": "U",
+     "TRDESCI": "A"
+    }
+   },
+   "why": "'U' on row 6 (REVERAL, unchanged) and a new description filter A on the same ENTER: 1210 counts the update before 1230-EDIT-DESC sets FLG-DESCFILTER-CHANGED-YES; the pattern %A% matches rows, no input error; 2500-SETUP-MESSAGE takes the update WHEN with the message blank but the filter changed, so the IF at 1527 takes its false arm"
   }
  ],
- "notes": "CardDemo's Db2 transaction-type list (transaction CTLI, program COTRTLIC, admin menu option 5): seven types a page from CARDDEMO.TRANSACTION_TYPE through two Db2 cursors (C-TR-TYPE-FORWARD, and C-TR-TYPE-BACKWARD for PF7), optionally filtered by type code and by a description LIKE pattern; 'D' or 'U' on a row and ENTER asks for confirmation, PF10 DELETEs or UPDATEs it; PF2 goes to COTRTUPC, PF3 back to the admin menu. The paging state, the rows shown and the pending action live in the program's COMMAREA area after CARDDEMO-COMMAREA (rows never fetched are LOW-VALUES); each scenario gives the state the previous screen returned. Both sides run their SQL on one real Db2 (tests/tools/equivalence_db2.py): TRANSACTION_TYPE and TRANSACTION_TYPE_CATEGORY are created from the corpus DDL, seeded before each scenario and both compared after it. The seed is the corpus's DB2LTTYP.ctl and DB2LTCAT.ctl INSERTs unchanged, plus five types (08-12) without category rows in a separate INSERT, written for this case (and carddemo-cotrtupc): the corpus's seven types fill exactly one page, so paging needs more, and a type without category rows can be deleted. Not covered: every path through 9999-FORMAT-DB2-MESSAGE, which CALLs Db2's DSNTIAC (not modelled) -- a delete refused by the category foreign key (-532), an update or delete of a row gone meanwhile (+100), cursor and priming-query errors; and the PF3-from-COTRTUPC / re-entered-from-another-program resets, which no CardDemo caller produces (COTRTUPC clears its CARDDEMO-COMMAREA on entry, so its PF3 always returns to the admin menu). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
- "bounds_refused": {
-  "pf8-on-last-page": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "pf7-on-first-page": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "pf7-back-to-first-page": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "type-filter-not-numeric": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "type-filter-no-match": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "desc-filter-no-match": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout"
- }
+ "notes": "CardDemo's Db2 transaction-type list (transaction CTLI, program COTRTLIC, admin menu option 5): seven types a page from CARDDEMO.TRANSACTION_TYPE through two Db2 cursors (C-TR-TYPE-FORWARD, and C-TR-TYPE-BACKWARD for PF7), optionally filtered by type code and by a description LIKE pattern; 'D' or 'U' on a row and ENTER asks for confirmation, PF10 DELETEs or UPDATEs it; PF2 goes to COTRTUPC, PF3 back to the admin menu. The paging state, the rows shown and the pending action live in the program's COMMAREA area after CARDDEMO-COMMAREA (rows never fetched are LOW-VALUES); each scenario gives the state the previous screen returned. Both sides run their SQL on one real Db2 (tests/tools/equivalence_db2.py): TRANSACTION_TYPE and TRANSACTION_TYPE_CATEGORY are created from the corpus DDL, seeded before each scenario and both compared after it. The seed is the corpus's DB2LTTYP.ctl and DB2LTCAT.ctl INSERTs unchanged, plus five types (08-12) without category rows in a separate INSERT, written for this case (and carddemo-cotrtupc): the corpus's seven types fill exactly one page, so paging needs more, and a type without category rows can be deleted. The 9999-FORMAT-DB2-MESSAGE paths (DSNTIAC is modelled for the SQLCODEs the faults use) run as sql_faults scenarios: a delete refused by the category foreign key (-532), an update or delete of a row gone meanwhile (+100), cursor and priming-query errors. Not covered: the outcomes reachable only with a blank WS-STRING-OUT (the bounds_refused scenarios, which the bounds-checked oracle cannot run), and the PF3-from-COTRTUPC resets, which no CardDemo caller produces (COTRTUPC clears its CARDDEMO-COMMAREA on entry, so its PF3 always returns to the admin menu). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "zero_length_refmod": "COTRTLIC builds WS-STRING-OUT in 2500-SETUP-MESSAGE by reference modification with length 0 on the paths with no info message; IBM (no SSRANGE) moves an empty item, so the MOVE changes nothing (X8)"
 }

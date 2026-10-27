@@ -139,6 +139,16 @@ def test_digits_fills_a_text_field_with_digits_only():
     assert len(cards) == 15 and all(c.isdigit() for c in cards)
 
 
+def test_hex_writes_raw_bytes_cycling_like_values_and_refuses_a_wrong_width():
+    """#6072: a COMP-3 field that is not NUMERIC (a digit nibble A) cannot be written as a number: `hex` is the field's bytes."""
+    hexes = ["0000012C", "000001AC"]
+    data, _ = ei.generate_dataset("ACCT", _spec(6, {"ACCT-LIMIT": {"hex": hexes, "every": 2}}), ACCOUNT, {})
+    limits = [r[12:16] for r in _rows(data, 25)]
+    assert sorted(limits) == sorted(bytes.fromhex(hexes[(i // 2) % 2]) for i in range(6))  # rows load in key order
+    with pytest.raises(ValueError, match="not the field's 4 bytes"):
+        ei.generate_dataset("ACCT", _spec(3, {"ACCT-LIMIT": {"hex": ["0C"]}}), ACCOUNT, {})
+
+
 def test_a_dataset_name_with_dots_is_a_join_source():
     """CICS datasets are named by their dsname (AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS): the field is after the last dot."""
     dd = "AWS.M2.ACCTDATA.KSDS"

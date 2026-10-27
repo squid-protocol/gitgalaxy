@@ -2519,7 +2519,7 @@
       "perl/bugzilla/Auth.pm": 1,
       "perl/bugzilla/Bug.pm": 2,
       "perl/bugzilla/CGI.pm": 2,
-      "perl/bugzilla/DB.pm": 2,
+      "perl/bugzilla/DB.pm": 0,
       "perl/bugzilla/Requirements.pm": 2
     },
     "perl/exiftool": {
@@ -2528,10 +2528,10 @@
       "perl/exiftool/Makefile.PL": 0,
       "perl/exiftool/README": 0,
       "perl/exiftool/RandomAccess.pm": 1,
-      "perl/exiftool/exiftool": 3
+      "perl/exiftool/exiftool": 1
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": 1,
+      "perl/mojo/IOLoop.pm": 0,
       "perl/mojo/Makefile.PL": 1,
       "perl/mojo/Promise.pm": 0,
       "perl/mojo/Template.pm": 0,
@@ -2544,8 +2544,8 @@
       "perl/spamassassin/Makefile.PL": 2,
       "perl/spamassassin/Message.pm": 1,
       "perl/spamassassin/Parser.pm": 2,
-      "perl/spamassassin/PerMsgStatus.pm": 2,
-      "perl/spamassassin/SpamAssassin.pm": 2
+      "perl/spamassassin/PerMsgStatus.pm": 1,
+      "perl/spamassassin/SpamAssassin.pm": 1
     },
     "php": {
       "php/SOURCES.md": 0

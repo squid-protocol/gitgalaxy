@@ -1,0 +1,22 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-billpay",
+  "entries": [
+    {
+      "unit": "RETURN-TO-PREV-SCREEN",
+      "line": 275,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 108 moves 'COSGN00C', line 130 'COMEN01C', and line 133 moves CDEMO-FROM-PROGRAM only after line 129 tested it is neither SPACES nor LOW-VALUES; both fields PIC X(08), COCOM01Y). COBIL00C never moves SPACES or LOW-VALUES into it in between."
+    },
+    {
+      "unit": "UPDATE-ACCTDAT-FILE",
+      "line": 387,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@390",
+      "family": "R",
+      "reason": "`WHEN DFHRESP(NOTFND)` after `EXEC CICS REWRITE DATASET(WS-ACCTDAT-FILE)` (line 379): REWRITE updates the record the READ ... UPDATE at line 345 holds; IBM's REWRITE conditions do not include NOTFND (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-rewrite; our spec, gitgalaxy/standards/cics/commands/files.py, lists NORMAL and INVREQ)."
+    }
+  ]
+}

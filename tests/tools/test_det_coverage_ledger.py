@@ -309,3 +309,32 @@ def test_a_rechecked_sweep_makes_a_stale_harness_fingerprint_a_problem(monkeypat
     assert "stale (harness changed)" in problems[0] and "det_coverage_ledger.py update" in problems[0]
     built = dcl.build(det, old)
     assert dcl.check(det, built, recheck=True) == ([], [])
+
+
+def test_build_records_the_uncovered_lists_only_when_there_are_some(monkeypatch):
+    """#6072: ladder_gaps.py reads them; an empty list leaves no key (an always-present empty key breaks equality)."""
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: dict(FP))
+    row = {"proved": True, "coverage": LINE, "uncovered": ["8:false"], "uncovered_paragraphs": ["RARE:20"]}
+    got = dcl.build({CASE: row}, {})[CASE]
+    assert got["uncovered"] == {"paragraphs": ["RARE:20"], "branches": ["8:false"]}
+    only = dcl.build({CASE: {**row, "uncovered_paragraphs": []}}, {})[CASE]
+    assert only["uncovered"] == {"branches": ["8:false"]}
+    assert "uncovered" not in dcl.build({CASE: {"proved": True, "coverage": LINE, "uncovered": []}}, {})[CASE]
+
+
+def test_an_unchanged_sweep_keeps_the_entry_and_a_moved_list_rewrites_it(monkeypatch):
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: dict(FP))
+    row = {"proved": True, "coverage": LINE, "uncovered": ["8:false"]}
+    first = dcl.build({CASE: row}, {})
+    assert dcl.build({CASE: row}, first) == first
+    moved = dcl.build({CASE: {**row, "uncovered": ["9:true"]}}, first)
+    assert moved[CASE]["uncovered"] == {"branches": ["9:true"]}
+
+
+def test_check_only_warns_when_the_uncovered_lists_differ(monkeypatch):
+    monkeypatch.setattr(dcl, "fingerprints", lambda case: dict(FP))
+    row = {"proved": True, "coverage": LINE, "uncovered": ["8:false"]}
+    assert dcl.check({CASE: row}, {CASE: entry(uncovered={"branches": ["8:false"]})}) == ([], [])
+    problems, warnings = dcl.check({CASE: row}, {CASE: entry()})  # an entry from before #6072
+    assert not problems and "uncovered lists differ" in warnings[0]
+    assert dcl.check({CASE: {"proved": True, "coverage": LINE}}, {CASE: entry()}) == ([], [])  # a row without the key

@@ -2598,7 +2598,7 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
       "php/wordpress/class-wp-query.php": 12,
-      "php/wordpress/formatting.php": 0,
+      "php/wordpress/formatting.php": 66,
       "php/wordpress/functions.php": 113,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 15,
@@ -2694,7 +2694,7 @@
       "powershell/core/Microsoft.WSMan.Management.psd1": 0,
       "powershell/core/PSDiagnostics.psd1": 0,
       "powershell/core/Parse-MarkdownLink.ps1": 0,
-      "powershell/core/PowerShell__build.psm1": 22,
+      "powershell/core/PowerShell__build.psm1": 23,
       "powershell/core/RegisterManifest.ps1": 0,
       "powershell/core/RegisterMicrosoftUpdate.ps1": 0,
       "powershell/core/Run-AttackSurfaceAnalyzer.ps1": 0,
@@ -4063,7 +4063,7 @@
       "zig/mach/collision.zig": 0,
       "zig/mach/graph.zig": 0,
       "zig/mach/main.zig": 0,
-      "zig/mach/module.zig": 0,
+      "zig/mach/module.zig": 21,
       "zig/mach/testing.zig": 0,
       "zig/mach/win32.zig": 72
     },

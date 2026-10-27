@@ -18,8 +18,9 @@ import logging
 import sqlite3
 import statistics
 from collections import Counter
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 from gitgalaxy.core.call_resolver import RATE_CAVEAT, resolution_rates
 from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS
@@ -38,6 +39,458 @@ _MIXED_GAP = float(config.ENGINE_CONSTANTS["MIXED_RESPONSIBILITY_GAP"])
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+
+
+# ==============================================================================
+# Named System Facts brief (section 13): one FactLine per payload key. The file
+# volume that orders the carriers, and the per-file bullets, both come from this
+# table, so a new fact channel adds a row here instead of a branch in
+# `_mainframe_facts_lines` (#3383). `volume=False` keys render but do not count.
+# ==============================================================================
+class FactLine(NamedTuple):
+    key: str
+    render: Callable[[dict[str, Any]], list[str]]
+    volume: bool = True
+
+
+class FactSummary(NamedTuple):
+    key: str
+    render: Callable[[list[dict[str, Any]]], str | None]
+
+
+def _more(shown: list, cap: int, suffix: str = "") -> str:
+    return f" … (+{len(shown) - cap}{suffix})" if len(shown) > cap else ""
+
+
+def _ticks(items: list, cap: int) -> str:
+    return ", ".join(f"`{x}`" for x in items[:cap])
+
+
+def _count_by(rows: list[dict[str, Any]], key: str) -> dict[str, int]:
+    out: dict[str, int] = {}
+    for r in rows:
+        out[r.get(key) or "?"] = out.get(r.get(key) or "?", 0) + 1
+    return out
+
+
+def _summary_sql_tables(carriers: list[dict[str, Any]]) -> str | None:
+    total = sum(len(f.get("sql_tables") or []) for f in carriers)
+    if not total:
+        return None
+    return (
+        f"- **DB2 schemas:** `{total}` columns of `EXEC SQL DECLARE ... TABLE` "
+        "(inline or DCLGEN members), full shape in `sql_table_data`.\n"
+    )
+
+
+def _summary_sql_statements(carriers: list[dict[str, Any]]) -> str | None:
+    sql_stmts = [s for f in carriers for s in (f.get("sql_statements") or [])]
+    if not sql_stmts:
+        return None
+    n_stmts = len({(id(f), s.get("ordinal")) for f in carriers for s in (f.get("sql_statements") or [])})
+    n_tables = len({s.get("table") for s in sql_stmts if s.get("table")})
+    return (
+        f"- **DB2 table access:** `{n_stmts}` embedded SQL statements touching `{n_tables}` tables "
+        "(SELECT/INSERT/UPDATE/DELETE, cursors, host variables) in `sql_statement_data`; "
+        "the program x table read/write matrix is `GalaxyIR.sql_table_access()`.\n"
+    )
+
+
+def _summary_csd(carriers: list[dict[str, Any]]) -> str | None:
+    total = sum(len(f.get("csd_resources") or []) for f in carriers)
+    if not total:
+        return None
+    return (
+        f"- **CICS resources:** `{total}` CSD `DEFINE` records (FILE→DSNAME, TDQUEUE, "
+        "DB2TRAN→DB2ENTRY→PLAN, MAPSET, LIBRARY, ...), full attributes in `csd_resource_data`.\n"
+    )
+
+
+def _summary_cics(carriers: list[dict[str, Any]]) -> str | None:
+    cics_ops = [op for f in carriers for op in (f.get("cics_resources") or [])]
+    if not cics_ops:
+        return None
+    kinds = ", ".join(f"`{n}` {k}" for k, n in sorted(_count_by(cics_ops, "kind").items()))
+    return (
+        f"- **CICS operations:** `{len(cics_ops)}` EXEC CICS operations naming a resource ({kinds}); "
+        "verb, direction, VALUE-resolved name and INTO/FROM record in `cics_resource_data`.\n"
+    )
+
+
+def _summary_tasks(carriers: list[dict[str, Any]]) -> str | None:
+    task_ops = [t for f in carriers for t in (f.get("cics_tasks") or [])]
+    if not task_ops:
+        return None
+    verbs = ", ".join(f"`{n}` {v}" for v, n in sorted(_count_by(task_ops, "verb").items()))
+    return (
+        f"- **CICS task control:** `{len(task_ops)}` commands ({verbs}); child transid (or its "
+        "STRING-built pattern), channel, CHILD/REQID token and timing in `cics_task_data`.\n"
+    )
+
+
+def _line_calls(f: dict[str, Any]) -> list[str]:
+    calls = f.get("call_sites") or []
+    if not calls:
+        return []
+    seen: list[str] = []
+    for c in calls:
+        label = f"{c.get('verb', 'CALL')} {c.get('operand') or c.get('target') or '?'}".strip()
+        if label not in seen:
+            seen.append(label)
+    out = [f"- **Calls:** {_ticks(seen, 12)}{_more(seen, 12)}"]
+    # #3355: the record each CICS transfer passes (`COMMAREA(x)`), with a
+    # declared LENGTH when the site states one. Distinct pairs only; the
+    # contract join to the callee's DFHCOMMAREA is galaxy_ir's.
+    passed: list[str] = []
+    for c in calls:
+        if not c.get("commarea"):
+            continue
+        length = f" LENGTH({c['commarea_length']})" if c.get("commarea_length") else ""
+        label = f"{c.get('verb')} {c.get('target') or c.get('operand') or '?'} ← {c['commarea']}{length}"
+        if label not in passed:
+            passed.append(label)
+    if passed:
+        out.append(f"- **COMMAREA passed:** {_ticks(passed, 12)}{_more(passed, 12)}")
+    return out
+
+
+def _line_datasets(f: dict[str, Any]) -> list[str]:
+    parts = []
+    for d in f.get("dataset_bindings") or []:
+        dd = d.get("dd_name") or d.get("internal_name") or "?"
+        if d.get("dsn"):  # a JCL DD -> dataset binding
+            # #3345: the symbol-resolved DSN where the file determines
+            # it, else the DSN as written (`&HLQ..X`).
+            parts.append(f"{dd}→{d.get('dsn_resolved') or d['dsn']}")
+        else:  # a COBOL SELECT with its OPEN modes
+            modes = "/".join(d.get("modes") or []) or "declared"
+            parts.append(f"{dd}({modes})")
+    return [f"- **Datasets:** {_ticks(parts, 12)}{_more(parts, 12)}"] if parts else []
+
+
+def _line_records(f: dict[str, Any]) -> list[str]:
+    items = f.get("record_layouts") or []
+    if not items:
+        return []
+    # Field counts per top-level record (01/77 or FD-bound), by
+    # walking parent_ordinal to the root -- roots are the schema, the
+    # full item tree is in record_data for anything that needs it.
+    by_ord = {it.get("ordinal"): it for it in items}
+
+    def _root(it: dict[str, Any]) -> dict[str, Any]:
+        guard = 0
+        while it.get("parent_ordinal") is not None and it["parent_ordinal"] in by_ord and guard < 1000:
+            it = by_ord[it["parent_ordinal"]]
+            guard += 1
+        return it
+
+    # Keyed by ordinal, which is Any off a payload dict -- dict[Any, int]
+    # so the ordinal key type does not fight mypy.
+    counts: dict[Any, int] = {}
+    for it in items:
+        root = _root(it)
+        counts[root.get("ordinal")] = counts.get(root.get("ordinal"), 0) + 1
+    roots = sorted((by_ord[o] for o in counts), key=lambda r: counts[r.get("ordinal")], reverse=True)
+    labels = []
+    for r in roots[:12]:
+        fd = f"⟵{r['fd_name']}" if r.get("fd_name") else ""
+        labels.append(f"{r.get('name', '?')}{fd} ({counts[r.get('ordinal')]})")
+    return [f"- **Record layouts ({len(items)} items):** {_ticks(labels, 12)}{_more(roots, 12, ' more')}"]
+
+
+def _line_sql_tables(f: dict[str, Any]) -> list[str]:
+    # #3344: DB2 DECLARE TABLE schemas -- table name + column count only.
+    sql_cols = f.get("sql_tables") or []
+    if not sql_cols:
+        return []
+    labels = [f"`{t} ({n} cols)`" for t, n in _count_by(sql_cols, "table").items()]
+    return [f"- **DB2 tables declared:** {', '.join(labels[:12])}"]
+
+
+def _line_sql_statements(f: dict[str, Any]) -> list[str]:
+    # #3446: table access -- per table, the distinct accesses (read/insert/...).
+    access: dict[str, list[str]] = {}
+    for st in f.get("sql_statements") or []:
+        if st.get("table"):
+            seen_access = access.setdefault(st["table"], [])
+            if st.get("access") and st["access"] not in seen_access:
+                seen_access.append(st["access"])
+    if not access:
+        return []
+    labels = [f"`{t} ({'/'.join(a)})`" for t, a in access.items()]
+    return [f"- **DB2 table access:** {', '.join(labels[:12])}"]
+
+
+def _line_screens(f: dict[str, Any]) -> list[str]:
+    # #3347: BMS screen layouts -- per map, its named (symbolic-map) fields
+    # out of all its fields; the geometry is in screen_field_data.
+    screen = f.get("screen_fields") or []
+    if not screen:
+        return []
+    maps = [sf for sf in screen if sf.get("kind") == "map"]
+    labels = []
+    for m in maps[:12]:
+        own = [sf for sf in screen if sf.get("kind") == "field" and sf.get("parent_ordinal") == m.get("ordinal")]
+        named = sum(1 for sf in own if sf.get("name"))
+        labels.append(f"{m.get('name') or '?'} ({named} named / {len(own)} fields)")
+    return [f"- **Screen maps:** {_ticks(labels, 12)}{_more(maps, 12, ' more')}"]
+
+
+def _line_csd(f: dict[str, Any]) -> list[str]:
+    # #3356: CSD resources -- a count per type, then the join-carrying
+    # definitions (a FILE's dataset, a TDQUEUE's DD/dataset, a DB2 plan).
+    csd = f.get("csd_resources") or []
+    if not csd:
+        return []
+    out = [
+        "- **CSD resources:** " + ", ".join(f"`{t} x{n}`" for t, n in sorted(_count_by(csd, "resource_type").items()))
+    ]
+    joins = []
+    for r in csd:
+        target = r.get("dsname") or r.get("ddname") or r.get("plan") or r.get("db2_entry")
+        if target and r.get("resource_type") in ("FILE", "TDQUEUE", "DB2ENTRY", "DB2TRAN", "DB2CONN"):
+            joins.append(f"{r.get('resource_type')} {r.get('name')}→{target}")
+    if joins:
+        out.append(f"- **CICS bindings:** {_ticks(joins, 12)}{_more(joins, 12)}")
+    return out
+
+
+def _line_cics(f: dict[str, Any]) -> list[str]:
+    # #3351-#3354: CICS resources -- each distinct KIND name (access set);
+    # the per-command rows are in cics_resource_data.
+    cics = f.get("cics_resources") or []
+    if not cics:
+        return []
+    touched: dict[str, set] = {}
+    for op in cics:
+        name = op.get("name") or (f"{op.get('operand')}?" if op.get("operand") else "?")
+        touched.setdefault(f"{op.get('kind')} {name}", set()).add(op.get("access") or "?")
+    labels = [f"{k} ({'/'.join(sorted(v))})" for k, v in touched.items()]
+    return [f"- **CICS operations:** {_ticks(labels, 12)}{_more(labels, 12, ' more')}"]
+
+
+def _line_tasks(f: dict[str, Any]) -> list[str]:
+    # #3449: CICS task control -- each distinct verb and target.
+    tasks = f.get("cics_tasks") or []
+    if not tasks:
+        return []
+    task_labels: list[str] = []
+    for t in tasks:
+        target = t.get("name") or t.get("candidates") or t.get("operand")
+        label = f"{t.get('verb')} {target}" if target else str(t.get("verb"))
+        if label not in task_labels:
+            task_labels.append(label)
+    return [f"- **CICS task control:** {_ticks(task_labels, 12)}{_more(task_labels, 12, ' more')}"]
+
+
+def _line_submits(f: dict[str, Any]) -> list[str]:
+    # #3448: what this file submits to the internal reader.
+    parts = []
+    for j in f.get("job_submits") or []:
+        if j.get("kind") == "JOB":
+            parts.append(f"JOB {j.get('name') or '?'}")
+        elif j.get("kind") == "EXEC":
+            parts.append(f"EXEC {j.get('target_kind')}={j.get('target')}")
+        else:
+            parts.append(f"INTRDR {j.get('name')}<-{j.get('target') or '?'}")
+    return [f"- **Job submission:** {_ticks(parts, 12)}"] if parts else []
+
+
+def _line_mq(f: dict[str, Any]) -> list[str]:
+    # #3447: each queue this file puts to / gets from.
+    queues: dict[str, set] = {}
+    for q in f.get("mq_calls") or []:
+        if q.get("direction") not in ("get", "put", "browse"):
+            continue
+        name = q.get("queue") or f"<{q.get('resolution') or '?'}>"
+        queues.setdefault(name, set()).add(q["direction"])
+    if not queues:
+        return []
+    labels = [f"{k} ({'/'.join(sorted(v))})" for k, v in queues.items()]
+    return [f"- **MQ queues:** {_ticks(labels, 12)}"]
+
+
+def _line_special_names(f: dict[str, Any]) -> list[str]:
+    # #3820: SPECIAL-NAMES that change what the PICs mean.
+    special = f.get("special_names") or []
+    if not special:
+        return []
+    labels = [
+        f"CURRENCY '{n.get('value')}'" + (f" as '{n.get('symbol')}'" if n.get("symbol") != n.get("value") else "")
+        if n.get("clause") == "CURRENCY"
+        else f"{n.get('clause')} IS {n.get('value')}"
+        for n in special
+    ]
+    return [f"- **Special names:** {_ticks(labels, 8)}"]
+
+
+def _line_compiler_options(f: dict[str, Any]) -> list[str]:
+    # #3828: the compiler options that change what the program computes (INTDATE, TRUNC ...).
+    semantic = [o.get("written") for o in f.get("compiler_options") or [] if o.get("option") in SEMANTIC_OPTIONS]
+    return [f"- **Compiler options:** {_ticks(semantic, 8)}"] if semantic else []
+
+
+def _line_keyed_files(f: dict[str, Any]) -> list[str]:
+    # #3455: keyed files.
+    keyed = [x for x in (f.get("file_control") or []) if x.get("record_key") or x.get("relative_key")]
+    if not keyed:
+        return []
+    labels = [
+        f"{x.get('select_name')} {x.get('organization') or '?'}/{x.get('access_mode') or '?'} key {x.get('record_key') or x.get('relative_key')}"
+        for x in keyed
+    ]
+    return [f"- **Keyed files:** {_ticks(labels, 8)}"]
+
+
+def _line_vsam(f: dict[str, Any]) -> list[str]:
+    # #3455: the VSAM clusters defined here.
+    defs = f.get("vsam_defines") or []
+    if not defs:
+        return []
+    labels = [
+        f"{d.get('kind')} {d.get('name')}"
+        + (f" KEYS({d.get('key_length')} {d.get('key_offset')})" if d.get("key_length") is not None else "")
+        for d in defs
+    ]
+    return [f"- **VSAM defines:** {_ticks(labels, 8)}"]
+
+
+def _line_job_flow(f: dict[str, Any]) -> list[str]:
+    # #3451: the job's step sequence and what it creates.
+    flow = f.get("job_flow") or []
+    steps = [x for x in flow if x.get("kind") == "STEP" and not x.get("in_proc")]
+    if not steps:
+        return []
+    seq = [
+        f"{x.get('step_name') or '?'}={x.get('program') or ('PROC ' + str(x.get('proc')))}"
+        + (" (cond)" if x.get("cond") or x.get("if_cond") else "")
+        for x in steps
+    ]
+    made = sorted(
+        {
+            x["dsn"]
+            for x in flow
+            if x.get("kind") == "DD" and (x.get("disp") in ("NEW", "MOD") or x.get("generation") == "+1")
+        }
+    )
+    return [
+        f"- **Job flow:** {' -> '.join(f'`{s_}`' for s_ in seq[:10])}"
+        + (f"; creates {', '.join(f'`{d}`' for d in made[:6])}" if made else "")
+    ]
+
+
+def _line_web(f: dict[str, Any]) -> list[str]:
+    # #3496: web / API services -- which program each URI exposes.
+    web = f.get("web_services") or []
+    if not web:
+        return []
+    return [
+        "- **Web services:** "
+        + ", ".join(f"`{w.get('uri') or '?'}` -> `{w.get('program') or '?'}` ({w.get('direction')})" for w in web[:8])
+    ]
+
+
+def _line_moves(f: dict[str, Any]) -> list[str]:
+    # #3452: field-level data movement -- volume per verb, busiest targets.
+    moves = f.get("data_moves") or []
+    if not moves:
+        return []
+    move_verbs: dict = {}
+    move_targets: dict = {}
+    for m in moves:
+        move_verbs[m.get("verb")] = move_verbs.get(m.get("verb"), 0) + 1
+        if m.get("source_kind") == "item":
+            move_targets[m.get("target")] = move_targets.get(m.get("target"), 0) + 1
+    top = sorted(move_targets.items(), key=lambda kv: (-kv[1], kv[0]))[:6]
+    return [
+        f"- **Data moves:** {len(moves)} ("
+        + ", ".join(f"{v} {n}" for v, n in sorted(move_verbs.items()))
+        + ")"
+        + (f"; most-fed items {', '.join(f'`{t}`' for t, _ in top)}" if top else "")
+    ]
+
+
+def _line_ims_gen(f: dict[str, Any]) -> list[str]:
+    # #3477: IMS definitions -- PSB PCBs, DBD segments, region steps.
+    labels = []
+    for g in f.get("ims_gen") or []:
+        if g.get("kind") == "PCB":
+            labels.append(f"PCB {g.get('name')}->{g.get('dbd_name')} ({g.get('procopt')})")
+        elif g.get("kind") in ("DBD", "SEGM"):
+            labels.append(f"{g.get('kind')} {g.get('name')}")
+        elif g.get("kind") == "REGION":
+            labels.append(f"{g.get('access')} {g.get('program')} PSB={g.get('psb_name')}")
+    return [f"- **IMS definitions:** {_ticks(labels, 10)}"] if labels else []
+
+
+def _line_dli(f: dict[str, Any]) -> list[str]:
+    # #3450: IMS DL/I calls -- each command / function and what it names.
+    dli = f.get("dli_calls") or []
+    if not dli:
+        return []
+    labels = []
+    for d in dli:
+        what = d.get("segments") or d.get("ssas") or d.get("psb") or ""
+        labels.append(f"{d.get('function') or d.get('function_operand') or '?'} {what}".strip())
+    return [f"- **IMS DL/I:** {', '.join(f'`{x}`' for x in dict.fromkeys(labels))}"]
+
+
+def _line_uow(f: dict[str, Any]) -> list[str]:
+    # #3453: where the unit of work ends and what handles errors.
+    uow = f.get("uow_handlers") or []
+    if not uow:
+        return []
+    commits = sum(1 for u in uow if u.get("kind") == "COMMIT")
+    rollbacks = sum(1 for u in uow if u.get("kind") == "ROLLBACK")
+    handlers = [
+        f"{u.get('condition') or 'ABEND'}->{u.get('target') or u.get('target_kind')}"
+        for u in uow
+        if u.get("kind") in ("HANDLE_CONDITION", "HANDLE_ABEND")
+    ]
+    resp = [u for u in uow if u.get("kind") == "RESP_CHECK"]
+    untested = sum(1 for u in resp if not u.get("condition"))
+    return [
+        (
+            f"- **Unit of work:** `{commits}` commit / `{rollbacks}` rollback points; "
+            f"handlers {', '.join(f'`{h}`' for h in handlers[:6]) or 'none'}; "
+            f"`{len(resp) - untested}/{len(resp)}` RESP results tested"
+        )
+    ]
+
+
+# Order is the order of the section's summary bullets.
+FACT_SUMMARIES: tuple[FactSummary, ...] = (
+    FactSummary("sql_tables", _summary_sql_tables),  # #3344
+    FactSummary("sql_statements", _summary_sql_statements),  # #3446
+    FactSummary("csd_resources", _summary_csd),  # #3356
+    FactSummary("cics_resources", _summary_cics),  # #3351-#3354
+    FactSummary("cics_tasks", _summary_tasks),  # #3449
+)
+
+# Order is the order of each file's bullets.
+FACT_LINES: tuple[FactLine, ...] = (
+    FactLine("call_sites", _line_calls),
+    FactLine("dataset_bindings", _line_datasets),
+    FactLine("record_layouts", _line_records),
+    FactLine("sql_tables", _line_sql_tables),  # #3344
+    FactLine("sql_statements", _line_sql_statements),  # #3446
+    FactLine("screen_fields", _line_screens),  # #3347
+    FactLine("csd_resources", _line_csd),  # #3356
+    FactLine("cics_resources", _line_cics),  # #3351-#3354
+    FactLine("cics_tasks", _line_tasks),  # #3449
+    FactLine("job_submits", _line_submits),  # #3448
+    FactLine("mq_calls", _line_mq),  # #3447
+    FactLine("special_names", _line_special_names, volume=False),  # #3820
+    FactLine("compiler_options", _line_compiler_options, volume=False),  # #3828
+    FactLine("file_control", _line_keyed_files),  # #3455
+    FactLine("vsam_defines", _line_vsam),  # #3455
+    FactLine("job_flow", _line_job_flow),  # #3451
+    FactLine("web_services", _line_web),  # #3496
+    FactLine("data_moves", _line_moves),  # #3452
+    FactLine("ims_gen", _line_ims_gen),  # #3477
+    FactLine("dli_calls", _line_dli),  # #3450
+    FactLine("uow_handlers", _line_uow),  # #3453
+)
 
 
 class LLMRecorder:
@@ -624,31 +1077,13 @@ class LLMRecorder:
         distinct call targets, the DD/dataset bindings, and the record layout
         ROOTS with a field count -- never the full item tree (a single COBOL
         program can carry hundreds of items). Files are capped and ordered by
-        fact volume, the same top-N discipline sections 7-11 use.
+        fact volume, the same top-N discipline sections 7-11 use. The bullets
+        come from `FACT_LINES` / `FACT_SUMMARIES` (#3383).
         """
+        volume_keys = [c.key for c in FACT_LINES if c.volume]
 
         def _volume(f: dict[str, Any]) -> int:
-            return (
-                len(f.get("call_sites") or [])
-                + len(f.get("dataset_bindings") or [])
-                + len(f.get("record_layouts") or [])
-                + len(f.get("sql_tables") or [])  # #3344
-                + len(f.get("sql_statements") or [])  # #3446
-                + len(f.get("screen_fields") or [])  # #3347
-                + len(f.get("csd_resources") or [])  # #3356
-                + len(f.get("cics_resources") or [])  # #3351-#3354
-                + len(f.get("cics_tasks") or [])  # #3449
-                + len(f.get("job_submits") or [])  # #3448
-                + len(f.get("mq_calls") or [])  # #3447
-                + len(f.get("uow_handlers") or [])  # #3453
-                + len(f.get("file_control") or [])  # #3455
-                + len(f.get("vsam_defines") or [])  # #3455
-                + len(f.get("job_flow") or [])  # #3451
-                + len(f.get("dli_calls") or [])  # #3450
-                + len(f.get("ims_gen") or [])  # #3477
-                + len(f.get("data_moves") or [])  # #3452
-                + len(f.get("web_services") or [])  # #3496
-            )
+            return sum(len(f.get(k) or []) for k in volume_keys)
 
         carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
         if not carriers:
@@ -676,352 +1111,12 @@ class LLMRecorder:
             f"`{total_calls}` call sites, `{total_ds}` dataset bindings, `{total_items}` record items.\n"
         )
 
-        # #3344: named only when present, so a scan without DB2 declarations is unchanged.
-        total_sql = sum(len(f.get("sql_tables") or []) for f in carriers)
-        if total_sql:
-            lines.append(
-                f"- **DB2 schemas:** `{total_sql}` columns of `EXEC SQL DECLARE ... TABLE` "
-                "(inline or DCLGEN members), full shape in `sql_table_data`.\n"
-            )
-
-        # #3446: named only when present, so a scan without embedded SQL is unchanged.
-        sql_stmts = [s for f in carriers for s in (f.get("sql_statements") or [])]
-        if sql_stmts:
-            n_stmts = len({(id(f), s.get("ordinal")) for f in carriers for s in (f.get("sql_statements") or [])})
-            n_tables = len({s.get("table") for s in sql_stmts if s.get("table")})
-            lines.append(
-                f"- **DB2 table access:** `{n_stmts}` embedded SQL statements touching `{n_tables}` tables "
-                "(SELECT/INSERT/UPDATE/DELETE, cursors, host variables) in `sql_statement_data`; "
-                "the program x table read/write matrix is `GalaxyIR.sql_table_access()`.\n"
-            )
-
-        # #3356: named only when present, so a scan without CSD decks is unchanged.
-        total_csd = sum(len(f.get("csd_resources") or []) for f in carriers)
-        if total_csd:
-            lines.append(
-                f"- **CICS resources:** `{total_csd}` CSD `DEFINE` records (FILE→DSNAME, TDQUEUE, "
-                "DB2TRAN→DB2ENTRY→PLAN, MAPSET, LIBRARY, ...), full attributes in `csd_resource_data`.\n"
-            )
-
-        # #3351-#3354: named only when present, so a scan without CICS is unchanged.
-        cics_ops = [op for f in carriers for op in (f.get("cics_resources") or [])]
-        if cics_ops:
-            by_kind: dict[str, int] = {}
-            for op in cics_ops:
-                by_kind[op.get("kind") or "?"] = by_kind.get(op.get("kind") or "?", 0) + 1
-            kinds = ", ".join(f"`{n}` {k}" for k, n in sorted(by_kind.items()))
-            lines.append(
-                f"- **CICS operations:** `{len(cics_ops)}` EXEC CICS operations naming a resource ({kinds}); "
-                "verb, direction, VALUE-resolved name and INTO/FROM record in `cics_resource_data`.\n"
-            )
-
-        # #3449: named only when present, so a scan without task control is unchanged.
-        task_ops = [t for f in carriers for t in (f.get("cics_tasks") or [])]
-        if task_ops:
-            by_verb: dict[str, int] = {}
-            for t in task_ops:
-                by_verb[t.get("verb") or "?"] = by_verb.get(t.get("verb") or "?", 0) + 1
-            verbs = ", ".join(f"`{n}` {v}" for v, n in sorted(by_verb.items()))
-            lines.append(
-                f"- **CICS task control:** `{len(task_ops)}` commands ({verbs}); child transid (or its "
-                "STRING-built pattern), channel, CHILD/REQID token and timing in `cics_task_data`.\n"
-            )
+        lines.extend(s for s in (c.render(carriers) for c in FACT_SUMMARIES) if s)
 
         for f in carriers[:20]:
-            path = f.get("path", "UNK")
-            lang = f.get("lang_id", "UNK").upper()
-            lines.append(f"### `{path}` ({lang})")
-
-            calls = f.get("call_sites") or []
-            if calls:
-                seen: list[str] = []
-                for c in calls:
-                    label = f"{c.get('verb', 'CALL')} {c.get('operand') or c.get('target') or '?'}".strip()
-                    if label not in seen:
-                        seen.append(label)
-                more = f" … (+{len(seen) - 12})" if len(seen) > 12 else ""
-                lines.append(f"- **Calls:** {', '.join(f'`{s}`' for s in seen[:12])}{more}")
-                # #3355: the record each CICS transfer passes (`COMMAREA(x)`), with a
-                # declared LENGTH when the site states one. Distinct pairs only; the
-                # contract join to the callee's DFHCOMMAREA is galaxy_ir's.
-                passed: list[str] = []
-                for c in calls:
-                    if not c.get("commarea"):
-                        continue
-                    length = f" LENGTH({c['commarea_length']})" if c.get("commarea_length") else ""
-                    label = f"{c.get('verb')} {c.get('target') or c.get('operand') or '?'} ← {c['commarea']}{length}"
-                    if label not in passed:
-                        passed.append(label)
-                if passed:
-                    more = f" … (+{len(passed) - 12})" if len(passed) > 12 else ""
-                    lines.append(f"- **COMMAREA passed:** {', '.join(f'`{s}`' for s in passed[:12])}{more}")
-
-            datasets = f.get("dataset_bindings") or []
-            if datasets:
-                parts = []
-                for d in datasets:
-                    dd = d.get("dd_name") or d.get("internal_name") or "?"
-                    if d.get("dsn"):  # a JCL DD -> dataset binding
-                        # #3345: the symbol-resolved DSN where the file determines
-                        # it, else the DSN as written (`&HLQ..X`).
-                        parts.append(f"{dd}→{d.get('dsn_resolved') or d['dsn']}")
-                    else:  # a COBOL SELECT with its OPEN modes
-                        modes = "/".join(d.get("modes") or []) or "declared"
-                        parts.append(f"{dd}({modes})")
-                more = f" … (+{len(parts) - 12})" if len(parts) > 12 else ""
-                lines.append(f"- **Datasets:** {', '.join(f'`{p}`' for p in parts[:12])}{more}")
-
-            items = f.get("record_layouts") or []
-            if items:
-                # Field counts per top-level record (01/77 or FD-bound), by
-                # walking parent_ordinal to the root -- roots are the schema, the
-                # full item tree is in record_data for anything that needs it.
-                by_ord = {it.get("ordinal"): it for it in items}
-
-                # `_by` is bound as a default arg (not captured) so the closure is
-                # tied to THIS file's item map, not the loop variable (ruff B023).
-                def _root(it: dict[str, Any], _by: dict = by_ord) -> dict[str, Any]:
-                    guard = 0
-                    while it.get("parent_ordinal") is not None and it["parent_ordinal"] in _by and guard < 1000:
-                        it = _by[it["parent_ordinal"]]
-                        guard += 1
-                    return it
-
-                # Keyed by ordinal, which is Any off a payload dict -- dict[Any, int]
-                # so the ordinal key type does not fight mypy.
-                counts: dict[Any, int] = {}
-                for it in items:
-                    root = _root(it)
-                    counts[root.get("ordinal")] = counts.get(root.get("ordinal"), 0) + 1
-                roots = sorted(
-                    (by_ord[o] for o in counts),
-                    key=lambda r: counts[r.get("ordinal")],
-                    reverse=True,
-                )
-                labels = []
-                for r in roots[:12]:
-                    name = r.get("name", "?")
-                    fd = f"⟵{r['fd_name']}" if r.get("fd_name") else ""
-                    labels.append(f"{name}{fd} ({counts[r.get('ordinal')]})")
-                more = f" … (+{len(roots) - 12} more)" if len(roots) > 12 else ""
-                lines.append(
-                    f"- **Record layouts ({len(items)} items):** {', '.join(f'`{lbl}`' for lbl in labels)}{more}"
-                )
-            # #3344: DB2 DECLARE TABLE schemas -- table name + column count only.
-            sql_cols = f.get("sql_tables") or []
-            if sql_cols:
-                per_table: dict[str, int] = {}
-                for c in sql_cols:
-                    per_table[c.get("table") or "?"] = per_table.get(c.get("table") or "?", 0) + 1
-                sql_labels = [f"`{t} ({n} cols)`" for t, n in per_table.items()]
-                lines.append(f"- **DB2 tables declared:** {', '.join(sql_labels[:12])}")
-            # #3446: table access -- per table, the distinct accesses (read/insert/...).
-            stmts = f.get("sql_statements") or []
-            if stmts:
-                access: dict[str, list[str]] = {}
-                for st in stmts:
-                    if st.get("table"):
-                        seen_access = access.setdefault(st["table"], [])
-                        if st.get("access") and st["access"] not in seen_access:
-                            seen_access.append(st["access"])
-                if access:
-                    labels = [f"`{t} ({'/'.join(a)})`" for t, a in access.items()]
-                    lines.append(f"- **DB2 table access:** {', '.join(labels[:12])}")
-            # #3347: BMS screen layouts -- per map, its named (symbolic-map) fields
-            # out of all its fields; the geometry is in screen_field_data.
-            screen = f.get("screen_fields") or []
-            if screen:
-                maps = [sf for sf in screen if sf.get("kind") == "map"]
-                labels = []
-                for m in maps[:12]:
-                    own = [
-                        sf
-                        for sf in screen
-                        if sf.get("kind") == "field" and sf.get("parent_ordinal") == m.get("ordinal")
-                    ]
-                    named = sum(1 for sf in own if sf.get("name"))
-                    labels.append(f"{m.get('name') or '?'} ({named} named / {len(own)} fields)")
-                more = f" … (+{len(maps) - 12} more)" if len(maps) > 12 else ""
-                lines.append(f"- **Screen maps:** {', '.join(f'`{lbl}`' for lbl in labels)}{more}")
-            # #3356: CSD resources -- a count per type, then the join-carrying
-            # definitions (a FILE's dataset, a TDQUEUE's DD/dataset, a DB2 plan).
-            csd = f.get("csd_resources") or []
-            if csd:
-                per_type: dict[str, int] = {}
-                for r in csd:
-                    per_type[r.get("resource_type") or "?"] = per_type.get(r.get("resource_type") or "?", 0) + 1
-                lines.append("- **CSD resources:** " + ", ".join(f"`{t} x{n}`" for t, n in sorted(per_type.items())))
-                joins = []
-                for r in csd:
-                    target = r.get("dsname") or r.get("ddname") or r.get("plan") or r.get("db2_entry")
-                    if target and r.get("resource_type") in ("FILE", "TDQUEUE", "DB2ENTRY", "DB2TRAN", "DB2CONN"):
-                        joins.append(f"{r.get('resource_type')} {r.get('name')}→{target}")
-                if joins:
-                    more = f" … (+{len(joins) - 12})" if len(joins) > 12 else ""
-                    lines.append(f"- **CICS bindings:** {', '.join(f'`{j}`' for j in joins[:12])}{more}")
-            # #3351-#3354: CICS resources -- each distinct KIND name (access set);
-            # the per-command rows are in cics_resource_data.
-            cics = f.get("cics_resources") or []
-            if cics:
-                touched: dict[str, set] = {}
-                for op in cics:
-                    name = op.get("name") or (f"{op.get('operand')}?" if op.get("operand") else "?")
-                    touched.setdefault(f"{op.get('kind')} {name}", set()).add(op.get("access") or "?")
-                labels = [f"{k} ({'/'.join(sorted(v))})" for k, v in touched.items()]
-                more = f" … (+{len(labels) - 12} more)" if len(labels) > 12 else ""
-                lines.append(f"- **CICS operations:** {', '.join(f'`{lbl}`' for lbl in labels[:12])}{more}")
-            # #3449: CICS task control -- each distinct verb and target.
-            tasks = f.get("cics_tasks") or []
-            if tasks:
-                task_labels: list[str] = []
-                for t in tasks:
-                    target = t.get("name") or t.get("candidates") or t.get("operand")
-                    label = f"{t.get('verb')} {target}" if target else str(t.get("verb"))
-                    if label not in task_labels:
-                        task_labels.append(label)
-                more = f" … (+{len(task_labels) - 12} more)" if len(task_labels) > 12 else ""
-                lines.append(f"- **CICS task control:** {', '.join(f'`{x}`' for x in task_labels[:12])}{more}")
-            # #3448: what this file submits to the internal reader.
-            submits = f.get("job_submits") or []
-            if submits:
-                parts = []
-                for j in submits:
-                    if j.get("kind") == "JOB":
-                        parts.append(f"JOB {j.get('name') or '?'}")
-                    elif j.get("kind") == "EXEC":
-                        parts.append(f"EXEC {j.get('target_kind')}={j.get('target')}")
-                    else:
-                        parts.append(f"INTRDR {j.get('name')}<-{j.get('target') or '?'}")
-                lines.append(f"- **Job submission:** {', '.join(f'`{x}`' for x in parts[:12])}")
-            # #3447: each queue this file puts to / gets from.
-            mq = f.get("mq_calls") or []
-            if mq:
-                queues: dict[str, set] = {}
-                for q in mq:
-                    if q.get("direction") not in ("get", "put", "browse"):
-                        continue
-                    name = q.get("queue") or f"<{q.get('resolution') or '?'}>"
-                    queues.setdefault(name, set()).add(q["direction"])
-                if queues:
-                    labels = [f"{k} ({'/'.join(sorted(v))})" for k, v in queues.items()]
-                    lines.append(f"- **MQ queues:** {', '.join(f'`{x}`' for x in labels[:12])}")
-            # #3820: SPECIAL-NAMES that change what the PICs mean.
-            special = f.get("special_names") or []
-            if special:
-                labels = [
-                    f"CURRENCY '{n.get('value')}'"
-                    + (f" as '{n.get('symbol')}'" if n.get("symbol") != n.get("value") else "")
-                    if n.get("clause") == "CURRENCY"
-                    else f"{n.get('clause')} IS {n.get('value')}"
-                    for n in special
-                ]
-                lines.append(f"- **Special names:** {', '.join(f'`{lbl}`' for lbl in labels[:8])}")
-            # #3828: the compiler options that change what the program computes (INTDATE, TRUNC ...).
-            semantic = [
-                o.get("written") for o in f.get("compiler_options") or [] if o.get("option") in SEMANTIC_OPTIONS
-            ]
-            if semantic:
-                lines.append(f"- **Compiler options:** {', '.join(f'`{w}`' for w in semantic[:8])}")
-            # #3455: keyed files and the VSAM clusters defined here.
-            keyed = [x for x in (f.get("file_control") or []) if x.get("record_key") or x.get("relative_key")]
-            if keyed:
-                labels = [
-                    f"{x.get('select_name')} {x.get('organization') or '?'}/{x.get('access_mode') or '?'} key {x.get('record_key') or x.get('relative_key')}"
-                    for x in keyed
-                ]
-                lines.append(f"- **Keyed files:** {', '.join(f'`{lbl}`' for lbl in labels[:8])}")
-            defs = f.get("vsam_defines") or []
-            if defs:
-                labels = [
-                    f"{d.get('kind')} {d.get('name')}"
-                    + (f" KEYS({d.get('key_length')} {d.get('key_offset')})" if d.get("key_length") is not None else "")
-                    for d in defs
-                ]
-                lines.append(f"- **VSAM defines:** {', '.join(f'`{lbl}`' for lbl in labels[:8])}")
-            # #3451: the job's step sequence and what it creates.
-            flow = f.get("job_flow") or []
-            steps = [x for x in flow if x.get("kind") == "STEP" and not x.get("in_proc")]
-            if steps:
-                seq = [
-                    f"{x.get('step_name') or '?'}={x.get('program') or ('PROC ' + str(x.get('proc')))}"
-                    + (" (cond)" if x.get("cond") or x.get("if_cond") else "")
-                    for x in steps
-                ]
-                made = sorted(
-                    {
-                        x["dsn"]
-                        for x in flow
-                        if x.get("kind") == "DD" and (x.get("disp") in ("NEW", "MOD") or x.get("generation") == "+1")
-                    }
-                )
-                lines.append(
-                    f"- **Job flow:** {' -> '.join(f'`{s_}`' for s_ in seq[:10])}"
-                    + (f"; creates {', '.join(f'`{d}`' for d in made[:6])}" if made else "")
-                )
-            # #3496: web / API services -- which program each URI exposes.
-            web = f.get("web_services") or []
-            if web:
-                lines.append(
-                    "- **Web services:** "
-                    + ", ".join(
-                        f"`{w.get('uri') or '?'}` -> `{w.get('program') or '?'}` ({w.get('direction')})"
-                        for w in web[:8]
-                    )
-                )
-            # #3452: field-level data movement -- volume per verb, busiest targets.
-            moves = f.get("data_moves") or []
-            if moves:
-                move_verbs: dict = {}
-                move_targets: dict = {}
-                for m in moves:
-                    move_verbs[m.get("verb")] = move_verbs.get(m.get("verb"), 0) + 1
-                    if m.get("source_kind") == "item":
-                        move_targets[m.get("target")] = move_targets.get(m.get("target"), 0) + 1
-                top = sorted(move_targets.items(), key=lambda kv: (-kv[1], kv[0]))[:6]
-                lines.append(
-                    f"- **Data moves:** {len(moves)} ("
-                    + ", ".join(f"{v} {n}" for v, n in sorted(move_verbs.items()))
-                    + ")"
-                    + (f"; most-fed items {', '.join(f'`{t}`' for t, _ in top)}" if top else "")
-                )
-            # #3477: IMS definitions -- PSB PCBs, DBD segments, region steps.
-            gen = f.get("ims_gen") or []
-            if gen:
-                labels = []
-                for g in gen:
-                    if g.get("kind") == "PCB":
-                        labels.append(f"PCB {g.get('name')}->{g.get('dbd_name')} ({g.get('procopt')})")
-                    elif g.get("kind") in ("DBD", "SEGM"):
-                        labels.append(f"{g.get('kind')} {g.get('name')}")
-                    elif g.get("kind") == "REGION":
-                        labels.append(f"{g.get('access')} {g.get('program')} PSB={g.get('psb_name')}")
-                if labels:
-                    lines.append(f"- **IMS definitions:** {', '.join(f'`{x}`' for x in labels[:10])}")
-            # #3450: IMS DL/I calls -- each command / function and what it names.
-            dli = f.get("dli_calls") or []
-            if dli:
-                labels = []
-                for d in dli:
-                    what = d.get("segments") or d.get("ssas") or d.get("psb") or ""
-                    labels.append(f"{d.get('function') or d.get('function_operand') or '?'} {what}".strip())
-                lines.append(f"- **IMS DL/I:** {', '.join(f'`{x}`' for x in dict.fromkeys(labels))}")
-            # #3453: where the unit of work ends and what handles errors.
-            uow = f.get("uow_handlers") or []
-            if uow:
-                commits = sum(1 for u in uow if u.get("kind") == "COMMIT")
-                rollbacks = sum(1 for u in uow if u.get("kind") == "ROLLBACK")
-                handlers = [
-                    f"{u.get('condition') or 'ABEND'}->{u.get('target') or u.get('target_kind')}"
-                    for u in uow
-                    if u.get("kind") in ("HANDLE_CONDITION", "HANDLE_ABEND")
-                ]
-                resp = [u for u in uow if u.get("kind") == "RESP_CHECK"]
-                untested = sum(1 for u in resp if not u.get("condition"))
-                lines.append(
-                    f"- **Unit of work:** `{commits}` commit / `{rollbacks}` rollback points; "
-                    f"handlers {', '.join(f'`{h}`' for h in handlers[:6]) or 'none'}; "
-                    f"`{len(resp) - untested}/{len(resp)}` RESP results tested"
-                )
+            lines.append(f"### `{f.get('path', 'UNK')}` ({f.get('lang_id', 'UNK').upper()})")
+            for fact in FACT_LINES:
+                lines.extend(fact.render(f))
             lines.append("")
 
         if len(carriers) > 20:

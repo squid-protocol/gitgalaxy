@@ -123,7 +123,8 @@ public class Lgupvs01Service {
     /** WRITE-ERROR-MESSAGE paragraph. */
     private void writeErrorMessage(CicsTask task, Lgupvs01Dfhcommarea ca, int resp, int resp2, Charset cs) {
         // EXEC CICS ASKTIME / FORMATTIME MMDDYYYY(WS-DATE) TIME(WS-TIME)
-        long abstime = task.asktime();
+        // WS-ABSTIME is PIC S9(8) COMP, so only the low 8 digits are kept
+        long abstime = task.asktime() % 100_000_000L;
         String date = CicsTask.formatDate(abstime, "MMDDYYYY", "");   // 8 chars; EM-DATE is X(8)
         String time = CicsTask.formatTime(abstime, "");               // 6 chars; EM-TIME is X(6)
 
@@ -166,10 +167,10 @@ public class Lgupvs01Service {
         }
     }
 
-    /** One LINK to LGSTSQ with the caller's bytes (passed by address); the DTO views them as CA-ERROR-MSG (CA-DATA at offset 9). */
+    /** One LINK to LGSTSQ with the caller's bytes (passed by address); LGSTSQ's COMMA-DATA is their first 90 bytes. */
     private void linkLgstsqArea(CicsTask task, byte[] area, Charset cs) {
         LgstsqDfhcommarea dto = new LgstsqDfhcommarea();
-        dto.setCaData(CobolRecords.text(area, 9, 90, cs));
+        dto.setCaData(CobolRecords.text(area, 0, Math.min(90, area.length), cs));
         task.link("LGSTSQ", dto, area.length, area);
     }
 

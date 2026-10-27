@@ -146,6 +146,20 @@
     "COMMA-DATA-H": "",
     "COMMA-DATA-HIGH": 0
    }
+  },
+  {
+   "name": "terminal-start-on-linked-case",
+   "startcode": "TD",
+   "terminal": "LGCF",
+   "ts": {
+    "GENACNTL": [
+     "**** GENAPP CNTL",
+     "LOW CUSTOMER=0000000003",
+     "HIGH CUSTOMER=0000000003"
+    ]
+   },
+   "why": "STARTCODE TD with no COMMAREA and no invoking program: WS-FLAG is 'R', the RECEIVE runs and SEND TEXT shows HIGH CUSTOMER=0000000003; the other arm of the STARTCODE test than the LINKed scenarios take",
+   "commarea": null
   }
  ],
  "linked": true,

@@ -117,14 +117,31 @@ def test_a_cics_proposal_may_set_any_commarea_field_of_the_layout_and_plan_a_fau
 
 
 _FAULT_KEY = {"XCTL": "program", "LINK": "program", "WRITEQ-TS": "queue", "START": "transid", "CANCEL": "reqid",
-              "ENQ": "resource"}  # fmt: skip
-_FAULT_RESP = {"ENQ": ("ENQBUSY", 0)}  # #5089 (X60): the one condition IBM lists for ENQ that a plan raises; no RESP2
+              "ENQ": "resource", "SEND-MAP": "map", "RECEIVE-MAP": "map"}  # fmt: skip
+_FAULT_RESP = {
+    "ENQ": ("ENQBUSY", 0),
+    "SEND-MAP": ("TSIOERR", 0),
+    "RECEIVE-MAP": ("INVMPSZ", 0),
+    "RETURN": ("INVREQ", 1),
+    "SYNCPOINT": ("INVREQ", 200),
+    "ROLLBACK": ("INVREQ", 200),
+    "DELAY": ("INVREQ", 6),
+    "SEND-TEXT": ("TSIOERR", 0),
+}  # #6271 (X71, X72)
+_NAMELESS = (
+    "RETRIEVE",
+    "RETURN",
+    "SYNCPOINT",
+    "ROLLBACK",
+    "DELAY",
+    "SEND-TEXT",
+)  # fault_lines names them "-"  # #5089 (X60): the one condition IBM lists for ENQ that a plan raises; no RESP2
 
 
 def _fault_member_scenario(cmd):
     resp, resp2 = _FAULT_RESP.get(cmd, ("NOTAUTH", 101))
     plan = {"cmd": cmd, "resp": resp, **({"resp2": resp2} if resp2 else {})}
-    if cmd != "RETRIEVE":
+    if cmd not in _NAMELESS:
         plan[_FAULT_KEY.get(cmd, "file")] = "TARGET1"
     return {"name": "x", "faults": [plan]}
 
@@ -135,7 +152,7 @@ def test_the_strengthen_loop_plans_a_fault_for_every_fault_command(cmd):
     sc = _fault_member_scenario(cmd)
     ec = st.eq_cics()
     assert st.validate(CICS, sc, set(), set()) is None
-    name = "-" if cmd == "RETRIEVE" else "TARGET1"
+    name = "-" if cmd in _NAMELESS else "TARGET1"
     resp, resp2 = _FAULT_RESP.get(cmd, ("NOTAUTH", 101))
     assert ec.fault_lines(sc) == [f"{cmd} {name} 1 {ec.CICS_RESP[resp]} {resp2}"]
 
@@ -327,3 +344,31 @@ def test_the_userlist_case_takes_the_short_commarea_and_endbr_fault_scenarios():
         s = scs[name]
         assert [(f["cmd"], f["file"], f["resp"]) for f in s["faults"]] == [("ENDBR", "USRSEC", resp)]
         assert s["why"].startswith("#4049") and "expected" not in s
+
+
+def test_the_updacc_case_judges_each_nullable_column_of_the_select_alone():
+    # #4049: UPDACC's SELECT INTO has no indicator variables, so any NULL column is SQLCODE -305. The old seed's only
+    # NULL was ACCOUNT_LAST_STATEMENT, which hid every && / || mix-up among the other columns of the null test: one
+    # seed row per column, each with exactly one NULL, and a scenario that LINKs it (inputs only, no expected result)
+    case_dir = Path(__file__).resolve().parents[1] / "equivalence" / "cbsa-updacc"
+    scs = _scenarios("cbsa-updacc")
+    rows = {}
+    for line in (case_dir / "seed.sql").read_text().splitlines():
+        cells = line.strip().lstrip("(").rstrip(",;)").split(",")
+        if len(cells) == 12:
+            rows[int(cells[3].strip("'"))] = [i for i, c in enumerate(cells) if c.strip() == "NULL"]
+    # seed column order: eyecatcher, customer, sortcode, accno, type, rate, opened, overdraft, last, next, avail, actual
+    column = {
+        "null-eyecatcher": 0,
+        "null-customer-number": 1,
+        "null-next-statement": 9,
+        "null-available-balance": 10,
+        "null-actual-balance": 11,
+        "null-account-type": 4,
+        "null-interest-rate": 5,
+        "null-overdraft-limit": 7,
+    }
+    for name, col in column.items():
+        s = scs[name]
+        assert rows[int(s["commarea"]["COMM-ACCNO"])] == [col], name
+        assert "#4049" in s["why"] and "expected" not in s

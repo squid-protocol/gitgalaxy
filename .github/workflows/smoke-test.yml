@@ -22,8 +22,13 @@ concurrency:
   # Full Suite Gate runs and five rosetta-audit runs for one commit), and a
   # re-push leaves the superseded run occupying the queue. cancel-in-progress
   # #4825: on for every event; these runs commit nothing, so a superseded run is safe to cancel.
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true  # #4825: read-only, so a superseded main run is cancelled too (frees runners for PRs)
+  # #5133: the nightly has its own group and is never cancelled. It shared main's group, so the next push cancelled it ~5 min in
+  # (all 8 nightlies of 2026-10-15..22) and `full-suite-durations` never stored the calibrated durations.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || (github.event_name == 'schedule' && 'nightly') || github.ref }}
+  # #6514: only a PR (or a dispatch) cancels a superseded run. A main push used to cancel the previous push's run, and under
+  # a stream of merges no run ever finished (8 in a row cancelled 2026-10-24), so main had no green verdict and ci-red-main
+  # could not close. Now one run goes on and the newest push waits behind it (GitHub drops older pending ones).
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
 
 jobs:
   # #5130: the 3 OS x 3 Python smoke grid (package installs, CLI entry points) moved to os-smoke-grid.yml, dispatched
@@ -31,7 +36,7 @@ jobs:
   # ONE environment (ubuntu/3.12), every PR and every main push; full-suite-gate.yml runs it across the OS x Python matrix.
   # The required check (#4825 ruleset): one name, whatever the number of parts.
   full-suite:
-    needs: [tested-tree, full-suite-part]
+    needs: [tested-tree, suite-plan, full-suite-part]
     # #5104: draft PRs skip heavy CI. A main push superseded by the next push (cancel-in-progress) skips this summary
     # instead of failing it (40 false-red `full-suite` jobs on main 2026-10-20); on a PR a cancel still fails it, so a
     # cancelled head can never pass the required check by being skipped.
@@ -43,10 +48,57 @@ jobs:
         env:
           PARTS: ${{ needs.full-suite-part.result }}
           SKIP: ${{ needs.tested-tree.outputs.skip }}
+          PLAN: ${{ needs.suite-plan.outputs.mode }}
         run: |
-          echo "full-suite parts: $PARTS (tested-tree skip: $SKIP)"
-          # #4935: "skipped" is a pass only when the gate proved this tree green on the PR; otherwise it is a failure
-          test "$PARTS" = "success" || { test "$PARTS" = "skipped" && test "$SKIP" = "true"; }
+          echo "full-suite parts: $PARTS (tested-tree skip: $SKIP, suite plan: $PLAN)"
+          # #4935: "skipped" is a pass only when the gate proved this tree green on the PR; otherwise it is a failure.
+          # #6278: or when the suite plan proved the PR changes only prose no test or engine code opens (mode skip).
+          test "$PARTS" = "success" || { test "$PARTS" = "skipped" && { test "$SKIP" = "true" || test "$PLAN" = "skip"; }; }
+
+  # #6278 item 3: how much of the suite a PR runs (tests/tools/suite_select_plan.py, the classifier's area()): `skip` runs no
+  # part (full-suite below reports success), `select` runs only the readers of the changed docs / agent config, `full` (and
+  # every doubt, push, schedule, dispatch: the steps do not run, the output is empty) runs everything. It fails open: a step
+  # that cannot plan leaves mode=full. The job carries the draft condition (#5104); only its steps are PR-only.
+  suite-plan:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    outputs:
+      mode: ${{ steps.plan.outputs.mode }}
+      paths: ${{ steps.plan.outputs.paths }}
+    steps:
+      - name: Check out repository code
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Plan the suite
+        id: plan
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          # the PR's files from the API (whole or not at all, as for the ReDoS sweep plan, #5882): a short list is full
+          labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
+          mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
+          count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
+          args=(--event pull_request --labels "$labels" --github-output "$GITHUB_OUTPUT" --files)
+          if [ "${#files[@]}" -ge "$count" ]; then args+=("${files[@]}"); fi
+          python3 tests/tools/suite_select_plan.py "${args[@]}" > suite-plan.json || { echo "mode=full" >> "$GITHUB_OUTPUT"; echo '{"mode": "full", "reason": "the planner failed"}' > suite-plan.json; }
+          {
+            echo "## Suite plan"
+            echo '```json'
+            cat suite-plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # #4935: a push to main whose tree already passed THIS workflow on its PR head (a squash of an up-to-date PR) is not
   # run again; any doubt runs it (tests/tools/skip_tested_tree.py has the rule, and tests). Always concludes success.
@@ -76,14 +128,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python tests/tools/skip_tested_tree.py smoke-test.yml
 
-  # #5114: the newest measured durations, chosen ONCE for all three parts. A part that restored `test-durations-` itself
+  # #5114: the newest measured durations, chosen ONCE for all the parts. A part that restored `test-durations-` itself
   # could land on a different cache than its neighbours (the nightly saves one between their starts) and pytest-split
   # then cuts different slices. lookup-only downloads nothing; the parts restore this exact key. An empty key (no
   # cache yet, or this job failed) means every part uses the committed .test_durations: the same file, so still one split.
   durations:
     name: durations key
-    needs: tested-tree
-    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
+    needs: [tested-tree, suite-plan]
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.suite-plan.outputs.mode != 'skip') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -106,22 +158,74 @@ jobs:
   # signal on every push without the 12x cost. The full OS x Python-version
   # matrix still gets exercised, just not on every push -- see
   # full-suite-gate.yml.
-  # #4825: the suite (~16.6k tests, up to ~20 min on one runner even with -n auto) runs in 3 parts, each on its own
-  # runner and each still -n auto (pytest-split --splits 3 --group N, balanced by .test_durations: per-test seconds,
+  # #4825: the suite (~16.6k tests, up to ~20 min on one runner even with -n auto) runs in parts (#5919: as many as
+  # shard-plan says), each on its own runner and each still -n auto (pytest-split --splits N --group N, balanced by .test_durations: per-test seconds,
   # refreshed now and then with `pytest tests/ -n 8 --store-durations` (pytest-split installed); a test it does not
   # list counts at the average). `full-suite` below -- the required check -- passes only when every part passed.
   # #4847: every run restores the newest nightly's durations (the cache saved by `full-suite-durations`), falling
   # back to the committed .test_durations on a miss; the nightly parts store their seconds and that job merges them.
-  full-suite-part:
-    name: full-suite part ${{ matrix.group }}/3
-    needs: [tested-tree, durations]
-    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true') }}
+  # #5919: the part count and the part jobs' timeout come from the measured durations (suite_shard_plan.py --smoke), not
+  # from YAML: the suite grows every day. It plans from the exact durations the parts will balance by (the key the
+  # `durations` job chose, else the committed .test_durations). The queue depth is read on a pull request only (empty =
+  # calm). A plan that fails (no durations) skips the parts, so the required `full-suite` check fails.
+  shard-plan:
+    name: plan the suite parts
+    needs: [tested-tree, suite-plan, durations]
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.suite-plan.outputs.mode != 'skip') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read  # the queued PR jobs (ci_layout.py --print-waiting)
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      splits: ${{ steps.plan.outputs.splits }}
+      timeout: ${{ steps.plan.outputs.timeout }}
+    steps:
+      - name: Check out the planner
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: |
+            tests/tools/suite_shard_plan.py
+            tests/tools/ci_shard_plan.py
+            tests/tools/ci_layout.py
+            tests/tools/post_merge_dispatch.py
+            .test_durations
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Restore the durations the plan chose (#4847, #5114)
+        id: durations
+        if: needs.durations.outputs.key != ''
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: durations-cache
+          key: ${{ needs.durations.outputs.key }}
+
+      - name: Balance by the restored durations (else the committed .test_durations)
+        if: steps.durations.outputs.cache-matched-key != ''
+        run: cp durations-cache/test_durations.json .test_durations
+
+      - name: Plan the parts
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          waiting=""
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then waiting=$(python3 tests/tools/ci_layout.py --print-waiting || true); fi
+          python3 tests/tools/suite_shard_plan.py --smoke ${waiting:+--waiting "$waiting"} | tee -a "$GITHUB_OUTPUT"
+
+  full-suite-part:
+    name: full-suite part ${{ matrix.group }}/${{ needs.shard-plan.outputs.splits }}
+    needs: [tested-tree, suite-plan, durations, shard-plan]
+    # #6278: suite plan mode `skip` starts no part (full-suite reports success); empty (push, schedule, a failed plan) is full
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.tested-tree.outputs.skip != 'true' && needs.suite-plan.outputs.mode != 'skip') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJSON(needs.shard-plan.outputs.timeout) }}  # #5919: planned from the durations
     strategy:
       fail-fast: false
-      matrix:
-        group: [1, 2, 3]
+      matrix: ${{ fromJSON(needs.shard-plan.outputs.matrix) }}
     env:
       PYTHONUTF8: "1"
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
@@ -152,7 +256,8 @@ jobs:
           pip install --no-build-isolation -e .
 
       - name: Cache tree-sitter language pack
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: tree_sitter_language_pack
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/tree-sitter-language-pack
           key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
@@ -201,6 +306,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
+          PLAN: ${{ needs.suite-plan.outputs.mode }}
         run: |
           labels="" count=""
           files="$RUNNER_TEMP/pr-files.jsonl"
@@ -220,13 +326,21 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
           # #5166: on a PR, mainframe-ground-truth.yml runs all of tests/cobol_mainframe/ whenever a ground-truth input
-          # changed, and nothing it reads changed otherwise; main, nightly and manual runs keep them here. Through
+          # changed, and nothing it reads changed otherwise; nightly and manual runs keep them here (the nightly stores
+          # their durations). #5953: a main push skips them too: ground truth runs the whole directory on every push
+          # (plus the corpus-backed tests), so Smoke running it again was ~2,000-2,500 test-s twice. Through
           # PYTEST_ADDOPTS so the pytest command line below stays as it is.
-          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then echo "PYTEST_ADDOPTS=--ignore=tests/cobol_mainframe" >> "$GITHUB_ENV"; fi
+          # #6278: not for a `select` run, whose paths may be tests/cobol_mainframe itself (a register doc's reader)
+          if { [ "$GITHUB_EVENT_NAME" = "pull_request" ] || [ "$GITHUB_EVENT_NAME" = "push" ]; } && [ "$PLAN" != "select" ]; then echo "PYTEST_ADDOPTS=--ignore=tests/cobol_mainframe" >> "$GITHUB_ENV"; fi
 
-      - name: Golden Record Integration Test (Pytest), part ${{ matrix.group }}/3
+      # #6278: a `select` run is a few test files: part 1 runs them (no pytest-split), the other parts only report
+      - name: Golden Record Integration Test (Pytest), part ${{ matrix.group }}/${{ needs.shard-plan.outputs.splits }}
+        if: ${{ needs.suite-plan.outputs.mode != 'select' || matrix.group == 1 }}
         env:
+          PLAN: ${{ needs.suite-plan.outputs.mode }}
+          SELECTED: ${{ needs.suite-plan.outputs.paths }}
           GROUP: ${{ matrix.group }}
+          SPLITS: ${{ needs.shard-plan.outputs.splits }}
           EVENT: ${{ github.event_name }}
           SWEEPS: ${{ steps.sweeps.outputs.mode }}
           GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-part-${{ matrix.group }}.json  # #5166: tests/conftest.py writes each test's seconds
@@ -241,11 +355,17 @@ jobs:
           if [ "$SWEEPS" = "none" ]; then marks=(-m "not golden_crucible and not redos_sweep"); fi
           # #5133: least_duration, not pytest-split's default duration_based_chunks (contiguous slices: all of tests/cobol_mainframe
           # landed in part 1, 11.9 min against 4.8 and 3.5)
-          pytest tests/ -n auto -q -ra --durations=25 --timeout=600 --ignore=tests/cobol_mainframe/test_evidence_components.py --splits 3 --splitting-algorithm least_duration --group "$GROUP" "${store[@]}" "${marks[@]}"
+          # #5133: this part's pytest wall seconds, for the nightly's wall-calibrated durations (a failed pytest fails the step first)
+          started=$SECONDS
+          target=(tests/ --splits "$SPLITS" --splitting-algorithm least_duration --group "$GROUP")
+          if [ "$PLAN" = "select" ]; then read -ra target <<< "$SELECTED"; fi
+          pytest "${target[@]}" -n auto -q -ra --durations=25 --timeout=600 --ignore=tests/cobol_mainframe/test_evidence_components.py "${store[@]}" "${marks[@]}"
+          echo $((SECONDS - started)) > "$RUNNER_TEMP/pytest-wall-part-$GROUP.txt"
 
       # #5166 part B: the per-test time gate (a test over 10 s needs a slow marker or a baseline entry; a baselined one
       # fails over 2x). Part of this required job, so it always reports; the suite total is the suite-time job's.
       - name: Per-test time ratchet (#5166)
+        if: ${{ needs.suite-plan.outputs.mode != 'select' || matrix.group == 1 }}
         run: python tests/tools/time_ratchet.py check --times "$RUNNER_TEMP/times-part-${{ matrix.group }}.json"
 
       - name: Upload this part's test times (#5166)
@@ -258,9 +378,13 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-      - name: Keep this part's durations (nightly, #4847)
+      # #5133: the seconds pytest-split records are per-test times under `-n auto` contention, and the contention differs by
+      # part; scaled so the part's seconds sum to its measured pytest wall, the next run's least_duration balances wall time.
+      - name: Keep this part's durations, wall-calibrated (nightly, #4847, #5133)
         if: github.event_name == 'schedule' && success()
-        run: cp .test_durations "$RUNNER_TEMP/durations-part-${{ matrix.group }}.json"
+        run: |
+          python3 tests/tools/calibrate_test_durations.py .test_durations "$RUNNER_TEMP/durations-part-${{ matrix.group }}.json" \
+            --wall "$(cat "$RUNNER_TEMP/pytest-wall-part-${{ matrix.group }}.txt")"
 
       - name: Upload this part's durations (nightly, #4847)
         if: github.event_name == 'schedule' && success()
@@ -269,6 +393,15 @@ jobs:
           name: test-durations-part-${{ matrix.group }}
           path: ${{ runner.temp }}/durations-part-${{ matrix.group }}.json
           retention-days: 7
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the tree-sitter language pack to the cache
+        if: success() && github.event_name != 'pull_request' && steps.tree_sitter_language_pack.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/tree-sitter-language-pack
+          key: tree-sitter-${{ runner.os }}-${{ hashFiles('ci/requirements/treesitter.txt') }}
 
   # #5133: the evidence level deltas (advisory, #4703) used to be the last step of part 3, which made it the slowest part
   # (it waits for the report on top of its share of the suite). Its own job: it starts with the parts, is never in
@@ -308,12 +441,15 @@ jobs:
       - name: Evidence report level deltas (advisory, #4703)
         run: python tests/tools/evidence_report.py --deltas --live >> "$GITHUB_STEP_SUMMARY"
 
-  # #4847: the nightly's three parts' durations, merged (pytest-split's {nodeid: seconds} files, disjoint) and saved
+  # #4847: the nightly's parts' durations, merged (pytest-split's {nodeid: seconds} files, disjoint) and saved
   # under `test-durations-<run id>`; the next run of every part restores the newest one. Not a required check.
   full-suite-durations:
     name: store the suite's durations
-    needs: full-suite-part
-    if: github.event_name == 'schedule' && success()
+    needs: [shard-plan, full-suite-part]
+    # #5133 slice 8: not a bare success(): that is false when ANY ancestor in the needs chain was skipped, and the push-only
+    # `tested-tree` (an ancestor through full-suite-part) is skipped on a schedule run, so the green nightly of 2026-10-25
+    # (run 40179743618) skipped this job and stored no cache.
+    if: ${{ !cancelled() && github.event_name == 'schedule' && needs.full-suite-part.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -329,9 +465,11 @@ jobs:
           path: parts
 
       - name: Merge the parts into one durations file
+        env:
+          SPLITS: ${{ needs.shard-plan.outputs.splits }}
         run: |
           parts=$(find parts -name 'durations-part-*.json' | sort)
-          test "$(printf '%s\n' "$parts" | grep -c .)" = 3 || { echo "expected 3 parts' durations:"; echo "$parts"; exit 1; }
+          test "$(printf '%s\n' "$parts" | grep -c .)" = "$SPLITS" || { echo "expected $SPLITS parts' durations:"; echo "$parts"; exit 1; }
           mkdir -p durations-cache
           python3 tests/tools/merge_test_durations.py durations-cache/test_durations.json $parts
 
@@ -347,8 +485,9 @@ jobs:
   # The total is the sum of the parts' own measured seconds, not the contended durations cache (#5162).
   suite-time:
     name: suite time budget (#5166)
-    needs: full-suite-part
-    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.full-suite-part.result == 'success') }}
+    needs: [suite-plan, shard-plan, full-suite-part]
+    # #6278: a `select` run has only part 1's times, and a `skip` run none: no budget to total
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (!cancelled() && needs.full-suite-part.result == 'success' && (needs.suite-plan.outputs.mode == '' || needs.suite-plan.outputs.mode == 'full')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -370,9 +509,10 @@ jobs:
         env:
           EVENT: ${{ github.event_name }}
           GH_TOKEN: ${{ github.token }}
+          SPLITS: ${{ needs.shard-plan.outputs.splits }}
         run: |
           parts=$(find times -name 'times-part-*.json' | sort)
-          test "$(printf '%s\n' "$parts" | grep -c .)" = 3 || { echo "expected 3 parts' test times:"; echo "$parts"; exit 1; }
+          test "$(printf '%s\n' "$parts" | grep -c .)" = "$SPLITS" || { echo "expected $SPLITS parts' test times:"; echo "$parts"; exit 1; }
           enforce=()
           if [ "$EVENT" = "schedule" ]; then enforce=(--enforce); fi
           status=0

@@ -95,3 +95,21 @@ urllib3==2.2.3 \\
 def test_pin_requirements_check_all():
     rc = main(["--check", "--target", "all"])
     assert rc == 0
+
+
+def test_lockfile_floor_is_python_311():
+    """#3322: the universal compile floor is 3.11, and no lockfile keeps a <3.11 backport marker."""
+    from pathlib import Path
+
+    from tests.tools import pin_requirements as pr
+
+    src = Path(pr.__file__).read_text(encoding="utf-8")
+    assert '"--python-version",\n        "3.11",' in src
+    stale = [
+        p.as_posix()
+        for d in (pr.CI_REQS, pr.TEMPLATE_REQS)
+        for p in sorted(d.glob("*.txt"))
+        if "python_full_version < '3.11'" in p.read_text(encoding="utf-8")
+        or "python_full_version < '3.10" in p.read_text(encoding="utf-8")
+    ]
+    assert stale == []

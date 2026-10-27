@@ -9,16 +9,27 @@ name: Graph Accuracy Audit
 #   - call resolution, Level 2: confident caller->callee links vs pyan3 on
 #     language-crucible's Python repos, and vs the TypeScript compiler's own
 #     type checker on the pinned typescript repo(s) of import_graph_corpus.json
-#     (tests/tools/call_graph_resolution.py + ts_callgraph.js), and vs scip-java
+#     (tests/tools/call_graph_resolution.py + ts_callgraph.js), on express's JavaScript
+#     through the same checker with allowJs (#3781), and vs scip-java
 #     (javac-resolved, through the shared SCIP adapter tests/tools/scip_callgraph.py,
-#     #3783) on the pinned java repo;
+#     #3783) on the pinned java repo, vs libclang (tests/tools/clang_callgraph.py, #3784)
+#     on the pinned c repos (the pip `libclang` wheel comes with callgraph.txt) and the pinned
+#     c++ repo (same adapter, `cpp` mode; the host g++ supplies the C++ system headers), and vs
+#     rust-analyzer 1.90.0 (SCIP, same adapter, #3785) on the pinned serde-rs/json, and vs
+#     golang.org/x/tools 0.37.0's VTA call graph (tests/tools/go_callgraph, Go 1.24+, #3782) on the
+#     pinned spf13/cobra;
 #   - span anchoring: functions whose start_line opens on other code before the
 #     declaration, lower is better (#3543, tests/tools/span_anchor_audit.py).
 # Level 1 (callee names vs tree-sitter) stays in call-graph-accuracy-audit.yml.
-# #5501: each gate is its own parallel job and installs only what it needs (the 9.3 min
-# serial run is now the slowest gate plus ~30 s of setup). `graph-accuracy-audit` is the
-# aggregate job and keeps the old check name: it is green only when every gate is.
-# Same baselines, same --samples as before. Same corpus pin and fork fallback as
+# #6501: a `plan` job (tests/tools/graph_accuracy_plan.py, stdlib) maps the changed files to the gates they can move; the
+# toolchain installs, the corpus fetches and the lanes run only for those (a Haskell rule change runs import-graph and span
+# anchoring, no JDK / Rust / Go / Node). A failed plan runs every gate. The check name stays `graph-accuracy-audit`.
+# #5501: ONE job (the old check name, `graph-accuracy-audit`) installs everything once and runs
+# the gates in four parallel lanes (span anchoring as two shards, #6355) on that runner. The split into five
+# jobs (#5562) cut the serial
+# 9.3 min to ~3 min of execution but measured 6.5 / 8.8 / 13.3 min wall: five runner requests plus an
+# aggregate job each waited in the queue (up to 8 min), while setup was only ~30 s per job. One runner
+# request has one queue wait. Same baselines, same --samples. Same corpus pin and fork fallback as
 # call-graph-accuracy-audit.yml.
 
 on:
@@ -37,16 +48,32 @@ on:
       - "tests/tools/callgraph_refs.py"
       - "tests/tools/ts_callgraph.js"
       - "tests/tools/scip_callgraph.py"
+      - "tests/tools/clang_callgraph.py"
+      - "tests/tools/graph_accuracy_plan.py"  # #6501: the plan job's own code
+      - "tests/tools/change_classifier.py"  # #6501: imported by the planner
+      - "tests/tools/ci_retry.sh"  # wraps the installs
+      - "tests/tools/go_callgraph/**"
       - "tests/tools/span_anchor_audit.py"
       - "tests/import_graph_corpus.json"
       - "tests/import_graph_accuracy_baseline.json"
       - "tests/call_graph_resolution_baseline.json"
       - "tests/call_graph_resolution_typescript_baseline.json"
+      - "tests/call_graph_resolution_javascript_baseline.json"
       - "tests/call_graph_resolution_java_baseline.json"
+      - "tests/call_graph_resolution_rust_baseline.json"
+      - "tests/call_graph_resolution_go_baseline.json"
+      - "tests/call_graph_resolution_c_baseline.json"
+      - "tests/call_graph_resolution_cpp_baseline.json"
       - "tests/span_anchor_baseline.json"
       - ".github/workflows/graph-accuracy-audit.yml"
       - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
+  # #6675: a nightly run on main (every gate: graph_accuracy_plan plans all of them off a pull_request) saves the one
+  # scip-java / cargo / Go cache every PR restores; a PR only restores (its own saves were scoped to its ref, 2.4 GB of
+  # copies no other PR could read). It is also the graph gates' main-side signal.
+  schedule:
+    - cron: "13 7 * * *"  # nightly
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -56,13 +83,43 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  import-graph:
-    name: Import graph vs each language's import statements
+  # #6501: which gates can the changed files move? (graph_accuracy_plan.py; a PR for a language with no gate runs
+  # span anchoring and import-graph at most, a docs-only change nothing). The gates come out as `,a,b,`.
+  plan:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
+    outputs:
+      gates: ${{ steps.plan.outputs.gates }}
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # git diff origin/main...HEAD needs the merge base
+          filter: blob:none  # #5882: history without file contents
+          persist-credentials: false
+
+      - name: Plan the gates
+        id: plan
+        run: |
+          git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
+          python3 tests/tools/graph_accuracy_plan.py --event "$GITHUB_EVENT_NAME" --base origin/main \
+            --github-output "$GITHUB_OUTPUT" | tee plan.json
+          {
+            echo "## Graph-accuracy plan"
+            echo '```json'
+            cat plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  graph-accuracy-audit:
+    needs: [plan]
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI; always(): a failed plan runs every gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      IMPORT_GRAPH_CORPUS_PATH: ${{ github.workspace }}/import-graph-corpus
     steps:
       - name: Checkout GitGalaxy PR
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -70,7 +127,15 @@ jobs:
           path: gitgalaxy
           persist-credentials: false
 
+      # An empty plan output (the plan job failed) resolves to every gate; `,` (planned none) to no gate.
+      - name: Resolve the gates and toolchains
+        id: sel
+        env:
+          PLANNED: ${{ needs.plan.outputs.gates }}
+        run: python3 gitgalaxy/tests/tools/graph_accuracy_plan.py --resolve "$PLANNED" --github-output "$GITHUB_OUTPUT"
+
       - name: Setup Python
+        if: steps.sel.outputs.any == 'true'
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
@@ -79,51 +144,8 @@ jobs:
             gitgalaxy/pyproject.toml
             gitgalaxy/ci/requirements/*.txt
 
-      - name: Install GitGalaxy + tree-sitter-language-pack
-        run: |
-          cd gitgalaxy
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install --no-build-isolation -e .
-          pip install --require-hashes -r ci/requirements/treesitter.txt
-
-      - name: Fetch the pinned import-graph repos
-        env:
-          IMPORT_GRAPH_CORPUS_PATH: ${{ github.workspace }}/import-graph-corpus
-        run: |
-          cd gitgalaxy
-          python tests/tools/import_graph_accuracy.py --fetch-only
-
-      - name: Gate import-graph precision/recall against the baseline
-        env:
-          IMPORT_GRAPH_CORPUS_PATH: ${{ github.workspace }}/import-graph-corpus
-        run: |
-          cd gitgalaxy
-          PYTHONPATH="$PWD" python tests/tools/import_graph_accuracy.py --ci --samples 5 --summary "$GITHUB_STEP_SUMMARY"
-
-  call-resolution-python:
-    name: Call resolution (Level 2, vs pyan3)
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
-    steps:
-      - name: Checkout GitGalaxy PR
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          path: gitgalaxy
-          persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: |
-            gitgalaxy/pyproject.toml
-            gitgalaxy/ci/requirements/*.txt
-
-      - name: Install GitGalaxy + tree-sitter-language-pack + pyan3
+      - name: Install GitGalaxy + tree-sitter-language-pack + pyan3 + libclang
+        if: steps.sel.outputs.any == 'true'
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
@@ -131,108 +153,27 @@ jobs:
           pip install --require-hashes -r ci/requirements/treesitter.txt
           pip install --require-hashes -r ci/requirements/callgraph.txt
 
-      - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml)
-        run: |
-          # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
-          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
-          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
-
-      - name: Gate call-resolution (Level 2, vs pyan3) against the baseline
-        run: |
-          cd gitgalaxy
-          PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py python --ci --samples 5 --summary "$GITHUB_STEP_SUMMARY"
-
-  call-resolution-typescript:
-    name: Call resolution (Level 2, vs the TypeScript checker)
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
-    steps:
-      - name: Checkout GitGalaxy PR
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          path: gitgalaxy
-          persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: |
-            gitgalaxy/pyproject.toml
-            gitgalaxy/ci/requirements/*.txt
-
-      - name: Install GitGalaxy + tree-sitter-language-pack
-        run: |
-          cd gitgalaxy
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install --no-build-isolation -e .
-          pip install --require-hashes -r ci/requirements/treesitter.txt
-
       # The runner's preinstalled node is enough; the version is pinned so the
       # typescript baseline stays comparable (call_graph_resolution.TYPESCRIPT_VERSION).
       # #5048: bounded retry, INFRASTRUCTURE marker (the comment sits above the command: a trailing one is read as packages)
       - name: Install the TypeScript checker (call-resolution reference)
+        if: steps.sel.outputs.node == 'true'
         run: gitgalaxy/tests/tools/ci_retry.sh 4 10 -- npm install --global "typescript@6.0.2"
-
-      - name: Fetch the pinned import-graph repos
-        env:
-          IMPORT_GRAPH_CORPUS_PATH: ${{ github.workspace }}/import-graph-corpus
-        run: |
-          cd gitgalaxy
-          python tests/tools/import_graph_accuracy.py --fetch-only
-
-      - name: Gate call-resolution (Level 2, vs the TypeScript checker) against the baseline
-        env:
-          IMPORT_GRAPH_CORPUS_PATH: ${{ github.workspace }}/import-graph-corpus
-        run: |
-          cd gitgalaxy
-          PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py typescript --ci --samples 5 --summary "$GITHUB_STEP_SUMMARY"
-
-  call-resolution-java:
-    name: Call resolution (Level 2, vs scip-java)
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
-    steps:
-      - name: Checkout GitGalaxy PR
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          path: gitgalaxy
-          persist-credentials: false
-
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: |
-            gitgalaxy/pyproject.toml
-            gitgalaxy/ci/requirements/*.txt
-
-      - name: Install GitGalaxy + tree-sitter-language-pack
-        run: |
-          cd gitgalaxy
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install --no-build-isolation -e .
-          pip install --require-hashes -r ci/requirements/treesitter.txt
 
       # scip-java (the java reference) runs javac with its semanticdb plugin; gson's build
       # wants JDK 17-25. The scip-java jars and the corpus's Maven dependencies are
       # cached: Maven Central rate-limits bursts (scip_callgraph.MAVEN_FLAGS retries 429s).
       - name: Setup JDK 21 (scip-java reference)
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        if: steps.sel.outputs.java == 'true'
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "21"
 
       - name: Cache scip-java and Maven dependencies
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: scip_java_and_maven_dependencies
+        if: steps.sel.outputs.java == 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cache/gitgalaxy/scip-java-*
@@ -240,74 +181,134 @@ jobs:
           key: scip-java-${{ hashFiles('gitgalaxy/tests/tools/scip_callgraph.py', 'gitgalaxy/tests/import_graph_corpus.json') }}
           restore-keys: scip-java-
 
-      - name: Fetch the pinned import-graph repos
-        env:
-          IMPORT_GRAPH_CORPUS_PATH: ${{ github.workspace }}/import-graph-corpus
+      # rust-analyzer (the rust reference) comes with the pinned toolchain; its version is the
+      # baseline's (scip_callgraph.RUST_ANALYZER_VERSION). Dependencies are fetched by cargo metadata.
+      - name: Install the Rust toolchain 1.90.0 with rust-analyzer (call-resolution reference)
+        if: steps.sel.outputs.rust == 'true'
         run: |
-          cd gitgalaxy
-          python tests/tools/import_graph_accuracy.py --fetch-only
+          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- rustup toolchain install 1.90.0 --profile minimal --component rust-analyzer
+          rustup default 1.90.0
 
-      - name: Gate call-resolution (Level 2, vs scip-java) against the baseline
-        env:
-          IMPORT_GRAPH_CORPUS_PATH: ${{ github.workspace }}/import-graph-corpus
-        run: |
-          cd gitgalaxy
-          PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py java --ci --samples 5 --summary "$GITHUB_STEP_SUMMARY"
-
-  span-anchoring:
-    name: Span anchoring
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
-    steps:
-      - name: Checkout GitGalaxy PR
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Cache cargo registry
+        id: cargo_registry
+        if: steps.sel.outputs.rust == 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: gitgalaxy
-          persist-credentials: false
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: cargo-registry-${{ hashFiles('gitgalaxy/tests/import_graph_corpus.json') }}
+          restore-keys: cargo-registry-
 
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      # golang.org/x/tools (the go reference) is built by `go run -C tests/tools/go_callgraph`, which
+      # wants Go 1.24+ (its go.mod); the module cache is keyed by the helper's go.sum.
+      - name: Setup Go 1.24 (call-resolution reference)
+        if: steps.sel.outputs.go == 'true'
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: |
-            gitgalaxy/pyproject.toml
-            gitgalaxy/ci/requirements/*.txt
+          go-version: "1.24"
+          # #6675: setup-go's cache restores and saves in one; off on a PR (it would save a copy scoped to the PR's ref)
+          cache: ${{ github.event_name != 'pull_request' }}
+          cache-dependency-path: gitgalaxy/tests/tools/go_callgraph/go.sum
 
-      - name: Install GitGalaxy + tree-sitter-language-pack
+      # The two corpora are fetched in parallel, once for every gate that reads them.
+      - name: Fetch the pinned import-graph repos and the Language Crucible corpus
+        if: steps.sel.outputs.import_corpus == 'true' || steps.sel.outputs.crucible == 'true'
+        run: |
+          # The crucible pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
+          # #6501: each corpus only for the gates that read it
+          import_pid=
+          if [ "${{ steps.sel.outputs.import_corpus }}" = true ]; then
+            (cd gitgalaxy && python tests/tools/import_graph_accuracy.py --fetch-only) &
+            import_pid=$!
+          fi
+          if [ "${{ steps.sel.outputs.crucible }}" = true ]; then
+            ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
+            gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
+          fi
+          if [ -n "$import_pid" ]; then wait "$import_pid"; fi
+
+      # Four lanes balance the measured gate times (#5501; the lane comment below has the figures): span anchoring is the longest gate, so it runs as
+      # two --shard scans whose merge is the one baseline gate (a shard is a partial measurement and refuses
+      # --ci). Each gate keeps its own baseline, --samples and exit code; its table goes to a per-gate file
+      # and is appended to the job summary afterwards so concurrent writers cannot interleave.
+      - name: Gate every graph-accuracy baseline (four parallel lanes)
+        if: steps.sel.outputs.any == 'true'
         run: |
           cd gitgalaxy
-          python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
-          pip install --no-build-isolation -e .
-          pip install --require-hashes -r ci/requirements/treesitter.txt
-
-      - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml)
-        run: |
-          # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
-          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
-          gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
-
-      - name: Gate span anchoring against the baseline
-        run: |
-          cd gitgalaxy
-          PYTHONPATH="$PWD" python tests/tools/span_anchor_audit.py --ci --samples 3 --summary "$GITHUB_STEP_SUMMARY"
-
-  # The one check name the old single job had. A skipped gate (a draft PR) counts as a pass here,
-  # exactly as the old job's own `if:` skipped it; a failed or cancelled gate fails it.
-  graph-accuracy-audit:
-    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}
-    needs: [import-graph, call-resolution-python, call-resolution-typescript, call-resolution-java, span-anchoring]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Every gate must have succeeded
-        env:
-          RESULTS: ${{ join(needs.*.result, ' ') }}
-        run: |
-          echo "gate results: $RESULTS"
-          for r in $RESULTS; do
-            [ "$r" = "success" ] || { echo "a gate finished as: $r"; exit 1; }
+          mkdir -p "$RUNNER_TEMP/gaa"
+          GATES='${{ steps.sel.outputs.gates }}'  # #6501: ",a,b," from the plan; a gate not in it does not run
+          want() { case "$GATES" in *",$1,"*) return 0 ;; *) return 1 ;; esac; }
+          run_gate() {  # run_gate <name> <command...>: log per gate, one "FAIL name" line on failure
+            name=$1; shift
+            start=$SECONDS
+            ( echo "::group::$name"; PYTHONPATH="$PWD" "$@"; rc=$?; echo "::endgroup::"; exit $rc ) \
+              > "$RUNNER_TEMP/gaa/$name.log" 2>&1 \
+              || echo "FAIL $name" >> "$RUNNER_TEMP/gaa/failed"
+            echo "$name: $((SECONDS - start)) s" >> "$RUNNER_TEMP/gaa/times"
+          }
+          gate() {  # gate <name> <command...>: run_gate with the baseline gate and summary file
+            name=$1; shift
+            want "${name%-[0-9]}" || return 0  # import-graph-1..3 are subsets of the planned import-graph gate
+            run_gate "$name" "$@" --ci --summary "$RUNNER_TEMP/gaa/$name.md"
+          }
+          # Lanes balanced on the gate times measured in run 40160191245 (#5501), longest first: span-shard-1 253,
+          # cpp 315, import-graph-1 295, -2 216, java 192, span-shard-0 160, import-graph-3 147, python 96, rust 41,
+          # c 31, go 23, typescript 17, javascript 14 = 1800 s, so ~450 s per lane is the floor on 4 cores. cpp and
+          # import-graph-1 are the CPU-heavy gates: keep them on separate lanes. The import-graph gate runs as three
+          # language subsets (each its own baseline gate over that subset; together exactly LANGS, pinned by a test).
+          IG1="python tcl go c lua ruby matlab"
+          IG2="objective-c csharp javascript typescript shell solidity rust perl"
+          IG3="cpp java php zig dart kotlin scala haskell swift powershell groovy fortran"
+          ( gate call-cpp python tests/tools/call_graph_resolution.py cpp --samples 5
+            gate call-python python tests/tools/call_graph_resolution.py python --samples 5
+            gate call-c python tests/tools/call_graph_resolution.py c --samples 5 ) &
+          ( gate import-graph-1 python tests/tools/import_graph_accuracy.py $IG1 --jobs 2 --samples 5
+            gate import-graph-3 python tests/tools/import_graph_accuracy.py $IG3 --jobs 2 --samples 5
+            gate call-javascript python tests/tools/call_graph_resolution.py javascript --samples 5 ) &
+          ( ! want span-anchoring || run_gate span-shard-1 python tests/tools/span_anchor_audit.py --shard 1/2 --json "$RUNNER_TEMP/gaa/span1.json" --samples 3
+            gate call-java python tests/tools/call_graph_resolution.py java --samples 5
+            gate call-typescript python tests/tools/call_graph_resolution.py typescript --samples 5 ) &
+          ( gate import-graph-2 python tests/tools/import_graph_accuracy.py $IG2 --jobs 2 --samples 5
+            ! want span-anchoring || run_gate span-shard-0 python tests/tools/span_anchor_audit.py --shard 0/2 --json "$RUNNER_TEMP/gaa/span0.json" --samples 3
+            gate call-rust python tests/tools/call_graph_resolution.py rust --samples 5
+            gate call-go python tests/tools/call_graph_resolution.py go --samples 5 ) &
+          wait
+          # the one span-anchoring baseline gate, over the summed shards (skipped if a shard failed)
+          if want span-anchoring && [ -s "$RUNNER_TEMP/gaa/span0.json" ] && [ -s "$RUNNER_TEMP/gaa/span1.json" ]; then
+            gate span-anchoring python tests/tools/span_anchor_audit.py --merge "$RUNNER_TEMP/gaa/span0.json" "$RUNNER_TEMP/gaa/span1.json" --samples 3
+          fi
+          cat "$RUNNER_TEMP/gaa/times"
+          { echo "### Graph-accuracy gate times"; echo '```'; cat "$RUNNER_TEMP/gaa/times"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          for n in span-shard-0 span-shard-1 import-graph-1 import-graph-2 import-graph-3 call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
+            cat "$RUNNER_TEMP/gaa/$n.log" 2>/dev/null || true
           done
+          for n in import-graph-1 import-graph-2 import-graph-3 call-typescript call-javascript call-c call-java call-python call-cpp call-rust call-go span-anchoring; do
+            cat "$RUNNER_TEMP/gaa/$n.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          done
+          if [ -s "$RUNNER_TEMP/gaa/failed" ]; then
+            cat "$RUNNER_TEMP/gaa/failed"
+            exit 1
+          fi
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save scip-java and Maven dependencies to the cache
+        if: success() && github.event_name != 'pull_request' && steps.scip_java_and_maven_dependencies.outputs.cache-hit != 'true' && (steps.sel.outputs.java == 'true')
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/gitgalaxy/scip-java-*
+            ~/.m2/repository
+          key: scip-java-${{ hashFiles('gitgalaxy/tests/tools/scip_callgraph.py', 'gitgalaxy/tests/import_graph_corpus.json') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the cargo registry to the cache
+        if: success() && github.event_name != 'pull_request' && steps.cargo_registry.outputs.cache-hit != 'true' && (steps.sel.outputs.rust == 'true')
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: cargo-registry-${{ hashFiles('gitgalaxy/tests/import_graph_corpus.json') }}

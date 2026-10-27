@@ -574,3 +574,39 @@ def test_engine_units_are_placed_in_their_program(tmp_path):
         "       IDENTIFICATION DIVISION.\n        PROGRAM-ID. ONE.\n       PROCEDURE DIVISION.\n", encoding="utf-8"
     )
     assert rd._program_placer(one)("MAINLINE", 3) == "MAINLINE"
+
+
+# ==============================================================================
+# The set-difference channel table (#3383)
+# ==============================================================================
+def test_set_channels_are_unique_and_independent():
+    fields = [c.field for c in rd.SET_CHANNELS]
+    assert len(fields) == len(set(fields)) == len(rd.SET_CHANNEL_BY_FIELD)
+    assert len({c.language for c in rd.SET_CHANNELS}) == len(rd.SET_CHANNELS)
+    assert set(fields) <= rd.INDEPENDENT_FIELDS
+
+
+def test_a_set_channel_row_flattens_and_summarizes_through_the_table(mini_repo):
+    for c in rd.SET_CHANNELS:
+        row = {"file": "f", "language": c.language, c.row_key: {"old": ["a", "b"], "db": ["b", "c"]}}
+        for _field, extra_key in c.extra_deltas:
+            row[extra_key] = None
+        flat = rd.flatten([row])
+        assert [(d["field"], d["side"], d["value"]) for d in flat] == [(c.field, "old", "a"), (c.field, "db", "c")]
+        ir = type("IR", (), {"repo_name": "r", "commit_hash": "c", "inventory": lambda self: {}})()
+        summary = rd.summarize(ir, [row])
+        assert summary[c.files] == 1
+        assert [summary[f"{c.count}_{k}"] for k in ("key", "db", "agree")] == [2, 2, 1]
+
+
+def test_a_set_channel_verdict_needs_its_sign_off_flag():
+    for c in rd.SET_CHANNELS:
+        if c.field == "bms_field":
+            continue  # covered by test_bms_field_verdict_needs_explicit_validation
+        delta = {"program": "f", "field": c.field, "side": "db", "value": "zzz"}
+        entry = {c.flag: False, c.items: []}
+        draft_key = {c.section: {"f": entry}}
+        assert rd._key_verdict(delta, draft_key) is None
+        entry[c.flag] = True
+        verdict = rd._key_verdict(delta, draft_key)
+        assert verdict == {"verdict": "engine defect", "confidence": "independent", "decided": True}

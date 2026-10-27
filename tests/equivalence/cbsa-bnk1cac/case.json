@@ -336,6 +336,326 @@
     }
    },
    "why": "customer 9999999999: INQACCCU does not look that number up, CREACC 'N' / '9' -- 'unable to count accounts'"
+  },
+  {
+   "name": "first-entry-send-map-invmpsz",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: the SEND MAP ERASE of the empty map fails INVMPSZ (planned, X71): nothing is sent and the non-NORMAL arm takes the abend routine",
+   "faults": [
+    {
+     "cmd": "SEND-MAP",
+     "map": "BNK1CA",
+     "nth": 1,
+     "resp": "INVMPSZ"
+    }
+   ]
+  },
+  {
+   "name": "validation-failure-send-map-tsioerr",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "CHEQUE",
+     "INTRTI": "0000001"
+    }
+   },
+   "why": "the type-invalid input sends its message with SEND MAP DATAONLY ALARM, which fails TSIOERR (planned, X71): the non-NORMAL arm takes the abend routine",
+   "faults": [
+    {
+     "cmd": "SEND-MAP",
+     "map": "BNK1CA",
+     "nth": 1,
+     "resp": "TSIOERR"
+    }
+   ]
+  },
+  {
+   "name": "customer-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "000000001B",
+     "ACCTYPI": "CURRENT",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "CUSTNOI '000000001B': the trailing letter keeps its zone through BIF DEEDIT, so the field is NOT NUMERIC and the validation message is sent"
+  },
+  {
+   "name": "type-8char-currents",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "current ",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "account type typed as the exact 8-character value 'current ': EDIT-DATA's EVALUATE takes that WHEN arm and normalises it"
+  },
+  {
+   "name": "type-8char-savingss",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "saving  ",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "account type typed as the exact 8-character value 'saving  ': EDIT-DATA's EVALUATE takes that WHEN arm and normalises it"
+  },
+  {
+   "name": "type-8char-mortgage",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "mortgage",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "account type typed as the exact 8-character value 'mortgage': EDIT-DATA's EVALUATE takes that WHEN arm and normalises it"
+  },
+  {
+   "name": "rate-short-fraction",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "CURRENT",
+     "INTRTI": ".123",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "rate '.123': four characters, three after the point, the second INSPECT starts after the only point and tallies none"
+  },
+  {
+   "name": "overdraft-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "CURRENT",
+     "INTRTI": "00001.5",
+     "OVERDRI": "12A"
+    }
+   },
+   "why": "overdraft '12A': not numeric after DEEDIT -- 'Please supply a numeric overdraft limit'"
+  },
+  {
+   "name": "link-creacc-pgmiderr",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "CURRENT",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "LINK to CREACC fails PGMIDERR: the non-NORMAL arm after the LINK",
+   "faults": [
+    {
+     "cmd": "LINK",
+     "program": "CREACC",
+     "resp": "PGMIDERR",
+     "nth": 1
+    }
+   ]
+  },
+  {
+   "name": "type-upper-isa-underscored",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "ISA_____",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "customer 1, account type typed 'ISA_____': ED010's EVALUATE takes the WHEN for that spelling; the create goes through"
+  },
+  {
+   "name": "type-lower-isa-underscored",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "isa_____",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "customer 1, account type typed 'isa_____': ED010's EVALUATE takes the WHEN for that spelling; the create goes through"
+  },
+  {
+   "name": "type-upper-isa-plain",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "ISA",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "customer 1, account type typed 'ISA': ED010's EVALUATE takes the WHEN for that spelling; the create goes through"
+  },
+  {
+   "name": "type-upper-current-underscored",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "CURRENT_",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "customer 1, account type typed 'CURRENT_': ED010's EVALUATE takes the WHEN for that spelling; the create goes through"
+  },
+  {
+   "name": "type-lower-current-underscored",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "current_",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "customer 1, account type typed 'current_': ED010's EVALUATE takes the WHEN for that spelling; the create goes through"
+  },
+  {
+   "name": "type-upper-loan-underscored",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "LOAN____",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "customer 1, account type typed 'LOAN____': ED010's EVALUATE takes the WHEN for that spelling; the create goes through"
+  },
+  {
+   "name": "type-lower-loan-underscored",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "loan____",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "customer 1, account type typed 'loan____': ED010's EVALUATE takes the WHEN for that spelling; the create goes through"
+  },
+  {
+   "name": "type-upper-loan-plain",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "LOAN",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "customer 1, account type typed 'LOAN': ED010's EVALUATE takes the WHEN for that spelling; the create goes through"
+  },
+  {
+   "name": "type-upper-saving-underscored",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "SAVING__",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "customer 1, account type typed 'SAVING__': ED010's EVALUATE takes the WHEN for that spelling; the create goes through"
+  },
+  {
+   "name": "type-lower-saving-underscored",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "saving__",
+     "INTRTI": "00001.5",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "customer 1, account type typed 'saving__': ED010's EVALUATE takes the WHEN for that spelling; the create goes through"
+  },
+  {
+   "name": "rate-three-places-short",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1CA": {
+     "CUSTNOI": "0000000001",
+     "ACCTYPI": "CURRENT",
+     "INTRTI": "1.234",
+     "OVERDRI": "00000500"
+    }
+   },
+   "why": "interest rate '1.234': more than two characters after the point, the re-count from point+2 stays inside INTRTI (1 + 2 + length 5 - 1 = 7), finds no point and tallies 0 -- the rate is accepted"
+  },
+  {
+   "name": "pf12-send-text-tsioerr",
+   "aid": "DFHPF12",
+   "commarea": {},
+   "faults": [
+    {
+     "cmd": "SEND-TEXT",
+     "resp": "TSIOERR"
+    }
+   ],
+   "why": "PF12: SEND-TERMINATION-MSG's SEND TEXT ERASE FREEKB (STM010) fails TSIOERR (planned, register X71): nothing is sent and the non-NORMAL arm takes the abend routine"
+  },
+  {
+   "name": "first-entry-plain-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "EIBCALEN 0: the closing RETURN TRANSID .. COMMAREA RESP (A010) fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its A010 abend routine"
   }
  ],
  "notes": "CBSA's create-account screen (BNK1CAC, transaction OCAC, BMS map BNK1CA of mapset BNK1CAM: the symbolic map is generated from src/base/bms_src/BNK1CAM.bms, @bms/BNK1CAM.cpy). Pseudo-conversational: a first task (EIBCALEN 0) sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 RETURN TRANSID('OMEN') IMMEDIATE (the task's terminal T001 is stated: oracle_assumptions.md X27), PF12 the termination message, CLEAR, ENTER, any other key 'Invalid key pressed.'. ENTER RECEIVEs the map (MAPFAIL abends HBNK through ABNDPROC), BIF DEEDITs the customer number and overdraft, validates the customer number, the account type (upper or lower case), the interest rate (digits, one point, two places, NUMVAL as COMP-1 between 0 and 9999.99) and the overdraft, then LINKs CREACC with SUBPGM-PARMS -- CREACC, INQCUST, INQACCCU and ABNDPROC run in the task, as in cbsa-creacc -- and shows the new account or CREACC's failure. ACCOUNT, PROCTRAN, CONTROL, CUSTOMER and ABNDFILE are compared after every scenario. Every rate typed is exact in both IEEE and HFP (a binary fraction: 1.5, 3.25, 17.75 ...): FUNCTION NUMVAL into the COMP-1 INTRTI-COMP-1 is IBM's long HFP rounded to short in the det port and GnuCOBOL's IEEE float truncated on the MOVE to SUBPGM-INT-RT, which agree only on such values (oracle_assumptions.md C6). INTRT is a NUM field with no JUSTIFY, so a short rate is RIGHT,ZERO justified (leading zeros, #5116) and no scenario types letters into it or into the NUM CUSTNO / OVERDR: a 3270 numeric field cannot key them (owner decision on #5116, 2026-10-15: rate-letters and overdraft-letters dropped). Every rate is typed as all seven characters: IBM does not say what INTRTL holds after BMS justifies the input (X54 assumption 3: the length typed), and INTRTI(1:INTRTL) of a shorter text would be its leading zeros. The COMMAREA is compared as the program RETURNs it, WS-COMM-AREA (the same 32-byte layout as its DFHCOMMAREA, which it reads back only for EIBCALEN). The overdraft is typed as all eight characters, as over the map's initial underscores: EDIT-DATA trims trailing spaces from its length with FUNCTION REVERSE / INSPECT LEADING, and a shorter typed value makes OVERDRL negative and the next INSPECT's reference modification (1:OVERDRL) undefined. Not reached: a customer number or overdraft with no digit at all (BIF DEEDIT of such a field is not modelled: refused), the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK (no fault can be injected on them) and CREACC's fail codes 2-7 that only a Db2 or ENQ failure gives (cbsa-creacc covers them). Data: seed.sql and customer.txt are SYNTHETIC (cbsa-creacc's). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",

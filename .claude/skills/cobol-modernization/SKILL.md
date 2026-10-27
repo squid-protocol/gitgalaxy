@@ -105,7 +105,7 @@ Attribute every difference to one of the differential doc's four causes: old-par
   - Sort by `p.parts` or `p.name`, never bare `Path`, because WindowsPath sorts case-insensitively (#3223 went red on Windows over exactly this).
   - Check a new output with two `PYTHONHASHSEED` values.
 - **Repo `.gitignore` has a global `*.json`.** A new committed JSON needs a `!` whitelist line, or the PR ships without its data.
-- **Python 3.10 is the floor** (CI matrix, `requires-python`). No `except*`, no `tomllib`, no f-string reusing its quote inside `{}`.
+- **Python 3.11 is the floor** (CI matrix, `requires-python`). `tomllib` and `except*` are available; no f-string reusing its quote inside `{}` (that needs 3.12).
 - **The Full Suite Gate matrix runs on a `labeled` event, never on a push.** A commit pushed after the
   label never runs it. Re-run it on the branch's current head with
   `gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch>` (#3209).

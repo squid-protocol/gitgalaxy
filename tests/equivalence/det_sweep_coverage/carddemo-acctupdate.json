@@ -1,42 +1,128 @@
 {
  "format": "det-sweep-coverage/2",
- "scenarios": 137,
+ "scenarios": 140,
  "paragraphs": {
-  "covered": 89,
+  "covered": 95,
   "live": 95
  },
  "branches": {
-  "covered": 310,
+  "covered": 315,
   "total": 397
  },
  "linked": {
   "CSUTLDTC": {
    "paragraphs": {
-    "covered": 0,
+    "covered": 2,
     "live": 2
    },
    "branches": {
-    "covered": 0,
+    "covered": 1,
     "total": 10
    }
   }
  },
+ "uncovered": {
+  "branches": [
+   "930:true",
+   "937:true",
+   "1224:true",
+   "1791:false",
+   "1805:false",
+   "1838:true",
+   "1912:true",
+   "1938:true",
+   "2044:true",
+   "2123:true",
+   "2143:true",
+   "2160:true",
+   "2188:true",
+   "2206:true",
+   "2251:true",
+   "2269:true",
+   "2283:true",
+   "2303:true",
+   "2322:true",
+   "2340:true",
+   "2354:true",
+   "2375:true",
+   "2393:true",
+   "2407:true",
+   "2454:true",
+   "2500:true",
+   "2520:true",
+   "2548:true",
+   "2563:WHEN@2625",
+   "2563:OTHER",
+   "2586:false",
+   "2627:true",
+   "2627:false",
+   "2703:true",
+   "2710:OTHER",
+   "2793:false",
+   "2827:false",
+   "2957:WHEN@2975",
+   "2957:none",
+   "3009:WHEN@3033",
+   "3009:WHEN@3037",
+   "3009:WHEN@3041",
+   "3009:WHEN@3045",
+   "3009:WHEN@3049",
+   "3009:WHEN@3053",
+   "3009:WHEN@3057",
+   "3009:WHEN@3061",
+   "3009:WHEN@3066",
+   "3009:WHEN@3070",
+   "3009:WHEN@3074",
+   "3009:WHEN@3078",
+   "3009:WHEN@3082",
+   "3009:WHEN@3086",
+   "3009:WHEN@3094",
+   "3009:WHEN@3098",
+   "3009:WHEN@3102",
+   "3009:WHEN@3106",
+   "3009:WHEN@3110",
+   "3009:WHEN@3113",
+   "3009:WHEN@3117",
+   "3009:WHEN@3121",
+   "3009:WHEN@3126",
+   "3009:WHEN@3130",
+   "3009:WHEN@3134",
+   "3009:WHEN@3138",
+   "3009:WHEN@3141",
+   "3009:WHEN@3144",
+   "3009:WHEN@3148",
+   "3009:WHEN@3151",
+   "3009:WHEN@3154",
+   "3009:WHEN@3158",
+   "3009:WHEN@3162",
+   "3567:true",
+   "3627:true",
+   "3636:true",
+   "3671:false",
+   "3720:false",
+   "3772:false",
+   "3911:false",
+   "3938:false",
+   "3950:true",
+   "4205:true"
+  ]
+ },
  "inputs": {
-  "case": "74c40a4c7c1afe285663eaf7c8888e2e8c4b1a8ba3c026dd65ab460947b44121",
+  "case": "8cfe59abd4881961204b917d33b962aa92ce73dd284735cfbaf22e59eeaf6d42",
   "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-  "harness": "c894f4be06c9d7db7602b550c60fd6f5c339c34ba7f53e68c3895a1bd36bbc24",
-  "oracle": "3869f6f0ef0199bbb2740962ab86ce23d2a3025c69b1b9fcb55d72025f366ea7",
+  "harness": "4aa149fdf2da2f1e0c37127b8d173d337335275f3ceab77281cdc9cb6aba7f87",
+  "oracle": "2fda9277b9029544924e64ed08da853d100d9933535ff74d02517f6355e1b98e",
   "components": {
    "harness": {
-    "harness:cics": "f2459bf2767d61d0f214ad0bdb30abb25f2875794163a7898e2d95c3fd2fbe6e",
-    "harness:core": "6ca15fe077558291d5457261b5b460f3fa6f7b92a7a11455c436cfee97ebaf39"
+    "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
+    "harness:core": "44d38a01abc69857283e736186feda6396e1cf6e297c12e07a097730aee7f15f"
    },
    "oracle": {
-    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
-    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
-    "oracle:le": "3e9e45ed737eaee3a156a2e00bfade4c956d69c8bf1c0bbe207a9cf107063c78"
+    "oracle:cics-stub": "ff253648e975e1c52de5ed72217b45fa3842747ce167813a7e61257f5a71dd98",
+    "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
+    "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
    }
   }
  },
- "measured_at": "60569a84d4dc95bd66424646bfaae0b73e4212e3"
+ "measured_at": "ae9c218aa4e3c045f5965a487c9a74ffdfe07591"
 }

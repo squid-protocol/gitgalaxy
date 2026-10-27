@@ -13,15 +13,15 @@ a named, ranked fix.
 
 <table>
 <tr>
-<td align="center" width="190"><h2>51 s</h2></td>
-<td align="center" width="190"><h2>53</h2></td>
+<td align="center" width="190"><h2>65 s</h2></td>
+<td align="center" width="190"><h2>58</h2></td>
 <td align="center" width="190"><h2>100%</h2></td>
 <td align="center" width="190"><h2>L0 to L5</h2></td>
 </tr>
 <tr>
-<td align="center" valign="top"><sub><strong>to scan Kubernetes</strong><br />1.39M lines, 5 languages<br /><em><a href="#every-size-in-seconds">speed model</a> · 636 repos charted</em></sub></td>
-<td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />66 recognized · no build, no per-language toolchain<br /><em><a href="#languages">the full list</a></em></sub></td>
-<td align="center" valign="top"><sub><strong>validated function precision</strong><br />vs tree-sitter, 31 languages<br /><em><a href="#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags">pinned corpus</a> · not every repo</em></sub></td>
+<td align="center" valign="top"><sub><strong>to scan Kubernetes</strong><br />2.46M lines, 11 file types · single run, 2026-09-19 (v2.9.1)<br /><em><a href="#every-size-in-seconds">speed model and source</a></em></sub></td>
+<td align="center" valign="top"><sub><strong>languages, down to the function</strong><br />71 recognized · no build, no per-language toolchain<br /><em><a href="#languages">the full list</a> · counted from the registry, checked by a test</em></sub></td>
+<td align="center" valign="top"><sub><strong>validated function precision</strong><br />vs tree-sitter, 31 languages · audit of 2026-08-30<br /><em><a href="docs/self_scan/tri_comparison_README.md">pinned corpus, dated source</a> · not every repo</em></sub></td>
 <td align="center" valign="top"><sub><strong>CICS and batch programs, by evidence level</strong><br />no model; <a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md">live counts</a><br /><em><a href="#every-port-ships-with-its-evidence">oracle is GnuCOBOL</a>, not z/OS</em></sub></td>
 </tr>
 </table>
@@ -60,15 +60,15 @@ same list, and a repository that doesn't build can still be read.
 <a id="languages"></a>
 
 <details>
-<summary><strong>Languages: 66 recognized, 53 read down to the function</strong></summary>
+<summary><strong>Languages: 71 recognized, 58 read down to the function</strong></summary>
 
 From the engine's language definitions
 ([`gitgalaxy/standards/language_standards/`](gitgalaxy/standards/language_standards/)) on
-2026-10-12:
+2026-10-24:
 
 | level | count | languages |
 |---|---|---|
-| **Split into functions**: full structural extraction, functions with their own signals | 53 | `abap`, `ada`, `agc_assembly`, `apex`, `assembly`, `batch`, `bms`, `c`, `cobol`, `cpp`, `csd`, `csharp`, `css`, `dart`, `db2_sql`, `dockerfile`, `easytrieve`, `embedded_python`, `fortran`, `go`, `groovy`, `haskell`, `hlasm`, `html`, `java`, `javascript`, `jcl`, `kotlin`, `livecode`, `lua`, `m4`, `makefile`, `matlab`, `objective-c`, `perl`, `php`, `pli`, `powershell`, `python`, `rexx`, `ruby`, `rust`, `scala`, `scheme`, `shell`, `solidity`, `sqlite`, `swift`, `tcl`, `typescript`, `yacc`, `yaml`, `zig` |
+| **Split into functions**: full structural extraction, functions with their own signals | 58 | `abap`, `acs`, `ada`, `agc_assembly`, `apex`, `assembly`, `batch`, `bms`, `c`, `cobol`, `cpp`, `crystal`, `csd`, `csharp`, `css`, `dart`, `db2_sql`, `dockerfile`, `easytrieve`, `embedded_python`, `fortran`, `fsharp`, `go`, `groovy`, `haskell`, `hlasm`, `html`, `java`, `javascript`, `jcl`, `kotlin`, `livecode`, `lua`, `m4`, `makefile`, `matlab`, `objective-c`, `perl`, `php`, `pli`, `postgresql`, `powershell`, `python`, `rexx`, `ruby`, `rust`, `scala`, `scheme`, `shell`, `solidity`, `sqlite`, `swift`, `tcl`, `typescript`, `yacc`, `yaml`, `zig`, `zscript` |
 | **Structural rules, no function split** | 4 | `glsl`, `hlo`, `markdown`, `mlir` |
 | **Recognized only**: identified, counted and filtered, no structural rules | 9 | `blp`, `csv`, `json`, `nix`, `pbtxt`, `plaintext`, `proto`, `td`, `xml` |
 
@@ -84,10 +84,14 @@ How well each language is *measured* is a separate question, answered in
 ![Engine time against lines of code for 636 public repositories, log-log](https://raw.githubusercontent.com/squid-protocol/gitgalaxy-raw-output/main/speed_charts/latest/loc_vs_time.png)
 
 Every dot is a real public repository, from a 10-line npm package to `flutter` and
-`freebsd-src`. Most repos finish in under a second. **Kubernetes**, about 1.39M lines across
-Go, YAML, JSON, Shell and Proto, scans end to end in **50.83 seconds**. Scan time follows a
-fitted two-regime model: flat at about 0.11 s below about 4.3K LOC, then
-`time(s) ≈ 3.36e-05 × LOC^0.969` (R²=0.88 across 599 repos). The limit: a handful of 20M+ LOC
+`freebsd-src`. Most repos finish in under a second. **Single run, measured 2026-09-19** (v2.9.1,
+zero-dependency mode): **Kubernetes**, 2.46M analyzed lines, mostly Go and YAML, took about 65 s
+between the first and last line of its scan log. Scan time follows a fitted two-regime model
+(636 repos): flat at about 0.04 s below about 2.4K LOC, then
+`time(s) ≈ 1.72e-05 × LOC^0.9975` (R²=0.92 over the 233 repos that fit it). The numbers come from
+[`rate_model.json`](https://github.com/squid-protocol/gitgalaxy-raw-output/tree/main/speed_charts/latest)
+and the [Kubernetes scan log](https://github.com/squid-protocol/gitgalaxy-raw-output/tree/main/v2.9.1/kubernetes)
+in gitgalaxy-raw-output; they are a dated snapshot, and a later batch run replaces them. The limit: a handful of 20M+ LOC
 outliers still take minutes, and a fast scan shows throughput, not insight quality. Accuracy
 is measured separately [below](#accuracy-measured). Every scan behind the chart is published
 unedited in [gitgalaxy-raw-output](https://github.com/squid-protocol/gitgalaxy-raw-output).
@@ -493,7 +497,7 @@ GitGalaxy is designed for local and air-gapped operation.
 
 ``` bash
 pip install gitgalaxy            # zero install dependencies
-pip install "gitgalaxy[full]"    # + tiktoken, xgboost, pandas, numpy, pyyaml
+pip install "gitgalaxy[full]"    # + tiktoken, xgboost, scikit-learn, pandas, numpy, pyyaml
 pip install "gitgalaxy[translator]"  # + tree-sitter-language-pack, for the CICS-to-Java translator
 ```
 
@@ -509,7 +513,7 @@ radius, betweenness, closeness, average path length, modularity, cyclic
 density, articulation points and assortativity is measured exactly as in full
 precision (these are computed natively). What needs the optional engines is
 token mass and read cost (`tiktoken`), ML threat
-classification (`xgboost`/`pandas`/`numpy`) and YAML config/OpenAPI parsing
+classification (`xgboost`/`scikit-learn`/`pandas`/`numpy`) and YAML config/OpenAPI parsing
 (`pyyaml`). A metric that was not computed is reported as absent (`n/a` /
 NULL), never as a zero. Each output says when a scan ran in this mode, and
 [`docs/zero_dependency_mode.md`](docs/zero_dependency_mode.md) lists, field by

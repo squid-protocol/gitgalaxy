@@ -124,6 +124,7 @@ static const char *condition_abcode(int resp) {
     case DFHRESP_ENDDATA: return "AEI2";
     case DFHRESP_PGMIDERR: return "AEI0";
     case DFHRESP_INVREQ: return "AEIP";
+    case DFHRESP_IOERR: return "AEIQ";
     case DFHRESP_CONTAINERERR: return "AEZJ";
     case DFHRESP_CHANNELERR: return "AEZV";
     case DFHRESP_TOKENERR: return "AEZL";

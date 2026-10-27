@@ -336,6 +336,42 @@ def test_retriage_replaces_a_verdict_and_recounts_the_totals_and_operators():
     assert ms.scores(p["total"]) == (2, 5, 4)
 
 
+DECLARED = {"verdict": "declared_difference", "class": "float-store-rounding", "register": "C6", "reason": "r"}
+
+
+def test_a_declared_difference_is_counted_but_not_subtracted_from_the_adjusted_score():
+    # #5401: unlike `equivalent`, a declared difference is a real IBM difference and stays among the judged survivors
+    p = ms.port_entry(_run(), {"x-case/PROG:c": DECLARED, "x-case/PROG:d": {"verdict": "equivalent", "reason": "r"}}, "abc")
+    assert p["total"]["declared_difference"] == 1 and p["total"]["equivalent"] == 1
+    assert ms.scores(p["total"]) == (2, 5, 4)
+    (s,) = [s for s in p["survivors"] if s["id"] == "c"]
+    assert (s["verdict"], s["class"], s["register"]) == ("declared_difference", "float-store-rounding", "C6")
+    assert "+ 1 declared |" in ms.table({"ports": [p]})
+    again = ms.port_entry(_run(), {"x-case/PROG:c": {"verdict": "case_gap", "reason": "r"}}, "abc")
+    assert "declared_difference" not in again["total"]  # the key exists only where non-zero
+    assert ms.retriage_port(again, {"x-case/PROG:c": DECLARED}) == 1
+    assert again["total"]["declared_difference"] == 1 and again["total"]["case_gap"] == 0
+    assert ms.retriage_port(again, {"x-case/PROG:c": {"verdict": "case_gap", "reason": "r"}}) == 1
+    assert "declared_difference" not in again["total"] and "class" not in again["survivors"][0]
+
+
+@pytest.mark.parametrize("bad", [{}, {"class": "float-store-rounding"}, {"register": "C6"},
+                                 {"class": "float-store-rounding", "register": "C2"}, {"class": "other", "register": "C6"}])
+def test_a_declared_difference_without_its_class_and_register_entry_is_refused(bad):
+    triage = {"x-case/PROG:c": {"verdict": "declared_difference", "reason": "r", **bad}}
+    with pytest.raises(SystemExit, match="declared_difference"):
+        ms.port_entry(_run(), triage, "abc")
+
+
+def test_corpt00c_d2fca7d77a_is_the_committed_float_store_declared_difference():
+    results = json.loads(ms.RESULTS.read_text(encoding="utf-8"))
+    (port,) = [p for p in results["ports"] if (p["case"], p["program"]) == ("carddemo-report", "CORPT00C")]
+    (s,) = [s for s in port["survivors"] if s["id"] == "d2fca7d77a"]
+    assert (s["verdict"], s["class"], s["register"]) == ("declared_difference", "float-store-rounding", "C6")
+    assert port["total"]["declared_difference"] == 1
+    assert sum(p["total"].get("declared_difference", 0) for p in results["ports"]) == 1
+
+
 # ---- #4047: the crucible runner's fast mode (a generated project copied per mutant) -----------------------------
 
 

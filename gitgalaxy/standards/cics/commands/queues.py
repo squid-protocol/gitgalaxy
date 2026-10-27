@@ -149,7 +149,7 @@ READQ_TD = Command(
         "INTO": Arg("area_out"),
         "SET": Arg("pointer"),  # #5168: "valid until the next READQ TD or the end of the task"
         "LENGTH": Arg("area_inout", width=2, binary=True, inout_unless_literal=True),
-        "NOSUSPEND": Arg("flag"),  # #5168: QBUSY needs a second task writing the queue: never reached here
+        "NOSUSPEND": Arg("flag"),  # #5168: QBUSY only as a planned READQ-TD fault (X61)
         **RESP_OPTIONS,
     },
     refused={"SYSID": SYSID_REMOTE},

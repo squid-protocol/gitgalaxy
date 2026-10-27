@@ -1,6 +1,6 @@
 """#5233: the CardDemo COPAUS1C equivalence case (the pending-authorization detail screen, transid CPVD: EXEC DLI SCHD / GU /
 GNP / REPL on DBPAUTP0, SEARCH ALL over the decline-reason table, XCTL, and a LINK to the Db2 fraud service COPAUS2C). The
-unit tests need nothing but the case; the proof itself (30 scenarios and the two SQL fault runs, GnuCOBOL against the det
+unit tests need nothing but the case; the proof itself (33 scenarios and the two SQL fault runs, GnuCOBOL against the det
 port, the deployed entry point too) is the det sweep's, `det_port.py run carddemo-copaus1c`."""
 
 from __future__ import annotations
@@ -31,6 +31,7 @@ SCENARIOS = [
     "pf5-service-insert-fails", "pf5-link-fails",
     "entry-gu-system-error", "entry-gu-end-of-db", "entry-gnp-system-error", "entry-gnp-end-of-db",
     "pf8-gnp-system-error", "pf8-gnp-end-of-db", "pf5-repl-fails",
+    "entry-schd-tc-once", "entry-schd-fails", "pf8-schd-fails",
 ]  # fmt: skip
 
 
@@ -84,12 +85,25 @@ def test_the_case_notice_names_the_sources_own_license():
 
 def test_each_dli_fault_is_a_plan_the_stubs_read():
     """#5233: GU, the qualified and the unqualified GNP and REPL each answer a status the program's EVALUATE handles
-    (AC the system-error arm, GB the end-of-database one). SCHD's TC is not planned: the program's TERM after it is refused
-    (no PSB scheduled), so the retry stays a Remaining slice."""
+    (AC the system-error arm, GB the end-of-database one). SCHD answers TC only (once, or on every call), which takes the
+    program's schedule-failure arm (branch 48/48)."""
     case = _case()
     planned = {s["name"]: ec.dli_fault_lines(case, s) for s in case["scenarios"] if s.get("dli_faults")}
     assert planned["entry-gu-end-of-db"] == ["GU 1 GB"]
     assert planned["pf8-gnp-system-error"] == ["GNP 2 AC"]
     assert planned["pf5-repl-fails"] == ["REPL 1 AC"]
-    assert {line.split()[0] for lines in planned.values() for line in lines} == {"GU", "GNP", "REPL"}
-    assert len(planned) == 7
+    assert {line.split()[0] for lines in planned.values() for line in lines} == {"GU", "GNP", "REPL", "SCHD"}
+    assert planned["entry-schd-tc-once"] == ["SCHD 1 TC"]
+    assert planned["entry-schd-fails"] == ["SCHD * TC"]
+    assert len(planned) == 10
+
+
+def test_the_committed_det_port_has_a_recorded_proof():
+    """`evidence.py prove` records a level only for a committed port: this one is the det translator's own."""
+    prov = json.loads((CASE / "port" / "provenance.json").read_text(encoding="utf-8"))
+    assert (prov["program"], prov["translator"]) == ("COPAUS1C", "det")
+    assert (CASE / "port" / "service" / "Copaus1cService.java").is_file()
+    rec = json.loads((CASE / "evidence.json").read_text(encoding="utf-8"))
+    assert rec["proof"]["verdict"] == "proven" and not rec["proof"]["java_failed"]
+    assert rec["provenance"]["written_by"] == "det"
+    assert rec["proof"]["runs"] >= len(SCENARIOS)

@@ -245,6 +245,44 @@ def test_regressions_gate_on_recall_precision_and_consensus_counts():
     assert co.regressions(base, base) == []
 
 
+CLANG = {"recall": 1.0, "precision": 1.0, "disagreements_in_clean_files": 2, "files_fatal": 7}
+
+
+def test_clang_regressions_gate_recall_precision_and_clean_file_disagreements_only():
+    base = {"ports": {}, "clang": {"x": CLANG, "gone": CLANG}}
+    cur = {"ports": {}, "clang": {"x": {**CLANG, "recall": 0.99, "disagreements_in_clean_files": 3, "files_fatal": 99}}}
+    assert co.regressions(cur, base) == [
+        "clang gone: in the baseline, not in this run",
+        "clang x: recall 1.0000 -> 0.9900",
+        "clang x: disagreements in clean files 2 -> 3",
+    ]
+    better = {"ports": {}, "clang": {"x": {**CLANG, "disagreements_in_clean_files": 1}, "gone": CLANG}}
+    assert co.regressions(better, base) == []  # more fatal-error files alone is not a regression
+    assert co.regressions({"ports": {}}, base) == []  # a run without --clang is not compared
+
+
+def test_the_baseline_keeps_clang_numbers_without_examples():
+    full = {**CLANG, "clang_edges": 9, "engine_edges": 9, "agree": 9, "missed": ["a.c: f -> g"]}
+    view = co.baseline_view({"engine_sha": SHA, "ports": {}, "clang": {"x": full}})
+    assert set(view["clang"]["x"]) == set(co.CLANG_KEYS) and "clang" not in co.baseline_view(
+        {"engine_sha": SHA, "ports": {}}
+    )
+
+
+def test_main_clang_without_libclang_is_skipped_and_fails_the_gate(tmp_path, monkeypatch, capsys):
+    import clang_callgraph
+
+    monkeypatch.setattr(clang_callgraph, "libclang_version", lambda: None)
+    funcs = [("m.c", "helper", 1, []), ("m.c", "other", 2, []), ("m.c", "cb", 3, []), ("m.c", "top", 4, [])]
+    make_port(tmp_path, "linuxdoom", {"m.c": SRC}, funcs)
+    args = ["--only", "linuxdoom", "--family", "linuxdoom", "--work", str(tmp_path), "--sha", SHA, "--clang"]
+    assert co.main(args) == 0
+    assert "--clang skipped: libclang is not installed" in capsys.readouterr().out
+    base = tmp_path / "b.json"
+    base.write_text(json.dumps({"ports": {}}))
+    assert co.main([*args, "--baseline", str(base), "--fail-on-regression"]) == 1
+
+
 def test_unlicensed_ports_are_refused():
     with pytest.raises(SystemExit, match="licensed"):
         co.main(["--only", "linuxdoom,not-a-licensed-port"])
@@ -289,4 +327,396 @@ def test_a_body_tree_sitter_closes_early_on_a_parse_error_uses_the_brace_fallbac
     funcs = [("m.c", "helper", 1, []), ("m.c", "f", 2, ["log_it", "helper"]), ("m.c", "log_it", 9, [])]
     repo, scan = make_port(tmp_path, "linuxdoom", {"m.c": EARLY_CLOSE_SRC}, funcs)
     r = co.body_oracle(co.Port("linuxdoom", repo, co.load_port(repo, co.find_db(scan))))
-    assert (r["recall"], r["precision"], r["text_fallback_functions"]) == (1.0, 1.0, 1)
+    # 2: log_it too, whose only parse is the bare-macro `if` "definition" below (see the next test)
+    assert (r["recall"], r["precision"], r["text_fallback_functions"]) == (1.0, 1.0, 2)
+
+
+def test_a_bare_macro_statement_misparsed_as_a_definition_named_if_neither_swallows_nor_matches(tmp_path):
+    # srb2's lua_baselib.c (#6266): `COUNTER_MACRO\n if (!base)` parses as a K&R definition named `if` whose head runs
+    # over the functions below. Matching it gave later functions the wrong body; walking it gave f the file's calls.
+    tree = co._parser("c").parse(EARLY_CLOSE_SRC.encode())
+    nodes = co.function_nodes(tree)
+    assert [co._keyword_named(n) for n in nodes] == [False, False, True]
+    assert co.Body(nodes[1]).broken
+    assert co.definition_at(nodes, 9) is None
+    funcs = [("m.c", "helper", 1, []), ("m.c", "f", 2, ["log_it", "helper"]), ("m.c", "log_it", 9, [])]
+    repo, scan = make_port(tmp_path, "linuxdoom", {"m.c": EARLY_CLOSE_SRC}, funcs)
+    r = co.body_oracle(co.Port("linuxdoom", repo, co.load_port(repo, co.find_db(scan))))
+    assert (r["recall"], r["precision"]) == (1.0, 1.0)
+
+
+CTOR_SRC = """struct Base { Base(int v); virtual ~Base(); };
+struct Mid : public Base { Mid(int v) : Base(v), mode(v) { setup(); } int mode; void setup(); };
+template <class T> class Wrap final : Base { Wrap() : Base(1), T(2) {} };
+int mode(int x) { return x; }
+"""
+
+
+def test_a_base_class_initializer_is_a_constructor_call_and_a_member_entry_is_not(tmp_path):
+    # doom3-bfg / gzdoom / doomsday (#6266): `: Base(v)` is a field_initializer, outside the body tree-sitter walks, so
+    # the engine's real constructor edge read as engine-only. A member entry naming a function stays engine-only.
+    funcs = [
+        ("m.cpp", "Base", 1, []),
+        ("m.cpp", "Mid", 2, ["Base", "mode", "setup"]),
+        ("m.cpp", "mode", 4, []),
+    ]
+    repo, scan = make_port(tmp_path, "doom3-bfg", {"m.cpp": CTOR_SRC}, funcs)
+    bases = co.class_names(repo)  # class -> the base classes its head lists
+    assert bases["Mid"] == {"Base"} and bases["Wrap"] == {"Base"}
+    port = co.Port("doom3-bfg", repo, co.load_port(repo, co.find_db(scan)))
+    mid = next(f for f in port.functions if f[1] == "Mid")
+    assert mid[4].calls["Base"] == "ctor-init" and "mode" not in mid[4].calls
+    r = co.body_oracle(port)
+    assert r["engine_only_by_kind"] == {"absent": 1}  # `mode(v)`, the member
+    assert "ctor-init" not in r["misses_by_shape"] and r["recall"] == 1.0
+
+
+@pytest.mark.parametrize("vendor_dir", ["third_party_sdl", "3rdparty-png", "zlib", "jpeg-6"])
+def test_vendored_functions_are_neither_callers_nor_defined_names(tmp_path, vendor_dir):
+    """Every engine vendor rule, whole input class (#6097): a library's function is not an oracle edge target or source."""
+    files = {"m.c": "void top(void) { inflate(); }\n", f"{vendor_dir}/z.c": "void inflate(void) {}\n"}
+    funcs = [("m.c", "top", 1, ["inflate"]), (f"{vendor_dir}/z.c", "inflate", 1, [])]
+    repo, scan = make_port(tmp_path, "linuxdoom", files, funcs)
+    db = co.find_db(scan)
+    assert {r[2] for r in co.load_port(repo, db)} == {"top", "inflate"}  # no test: nothing dropped
+    rows = co.load_port(repo, db, co.doom_scorer._engine_vendor_test(repo))
+    assert [r[2] for r in rows] == ["top"]
+    r = co.body_oracle(co.Port("linuxdoom", repo, rows))
+    assert (r["oracle_calls"], r["engine_calls"]) == (0, 0)  # inflate is no longer a name the port defines
+
+
+def test_the_ts_oracle_loader_drops_vendored_code_too(tmp_path):
+    import ts_callgraph_oracle as ts
+
+    files = {"m.c": "void top(void) {}\n", "zlib/z.c": "void inflate(void) {}\n"}
+    funcs = [("m.c", "top", 1, []), ("zlib/z.c", "inflate", 1, [])]
+    repo, scan = make_port(tmp_path, "linuxdoom", files, funcs)
+    db = co.find_db(scan)
+    con = sqlite3.connect(db)
+    con.execute("update file_data set language = 'go'")
+    con.commit()
+    con.close()
+    assert len(ts.load_port(repo, db)) == 2
+    assert [r[2] for r in ts.load_port(repo, db, co.doom_scorer._engine_vendor_test(repo))] == ["top"]
+
+
+def test_the_objc_oracle_drops_vendored_code_too(tmp_path):
+    import objc_callgraph_oracle as oc
+
+    repo = tmp_path / "repo"
+    (repo / "zlib").mkdir(parents=True)  # the vendor detector reads the directory on disk
+    db = tmp_path / "scan.db"
+    con = sqlite3.connect(db)
+    con.execute("create table file_data (id integer primary key, file_path text, language text)")
+    con.execute(
+        "create table function_data (file_id integer, func_name text, start_line integer, loc integer, calls_out_to text)"
+    )
+    for fid, rel in enumerate(["Game.m", "zlib/z.m"], 1):
+        con.execute("insert into file_data values (?, ?, 'objective-c')", (fid, f"{repo}/{rel}"))
+        con.execute("insert into function_data values (?, 'f', 1, 1, '[]')", (fid,))
+    con.commit()
+    con.close()
+    assert oc.score(repo, db)["units"] == 2  # no test: nothing dropped
+    assert oc.score(repo, db, vendored=co.doom_scorer._engine_vendor_test(repo))["units"] == 1
+
+
+@pytest.mark.parametrize(
+    "method",
+    [
+        "Hash &hashFor(int s) { return lookup(s); }",
+        "Item *find(int s) const { return lookup(s); }",
+        "Item **findAll(int s) { return lookup(s); }",
+        "const Item &get(int s) const { return lookup(s); }",
+        "void plain(int s) { lookup(s); }",
+        "~Impl() { lookup(0); }",
+    ],
+)
+def test_a_macro_class_method_with_a_pointer_or_reference_return_is_its_own_unit(method):
+    """`DE_PIMPL(X) { ... };` reads as one definition; its methods own their calls whatever they return (#6266)."""
+    body = body_of(f"DE_PIMPL(X)\n{{\n    {method}\n    int field = direct();\n}};\n", "cpp")
+    assert set(body.calls) == {"direct"}
+    assert len(body.nested) == 1
+
+
+@pytest.mark.parametrize(
+    ("init", "calls", "types"),
+    [
+        (": d(new Impl(this))", set(), {"Impl"}),  # doomsday's PIMPL idiom: a construction, not a named call
+        (": size(count(v))", {"count"}, set()),  # a call in the argument list is a call; the member `size` is not
+        (": Base(v), d(make(v), new Impl(this))", {"make"}, {"Impl"}),
+        (": a{helper(v)}", {"helper"}, set()),  # brace initialisation
+    ],
+)
+def test_the_arguments_of_a_member_initializer_are_part_of_the_constructor(init, calls, types):
+    """`: d(new Impl(this))` sits outside the body tree-sitter walks; its arguments still belong to the constructor (#6266)."""
+    body = body_of(f"Widget::Widget(int v) {init}\n{{\n}}\n", "cpp")
+    assert set(body.calls) == calls
+    assert body.types == types
+
+
+@pytest.mark.parametrize(
+    ("init", "calls", "types"),
+    [
+        (": d(new Impl(this))", set(), {"Impl"}),
+        (": _v(std::move(v)), _n(count(v))", {"move", "count"}, set()),
+        (
+            ": Base(v), _r(Rangei(0, p.segmentCount())), _t(Time::invalidTime())",
+            {"Rangei", "segmentCount", "invalidTime"},
+            set(),
+        ),
+        (": name(n), d(new Impl(this))", set(), {"Impl"}),  # `n` then `(this)` of the next entry is no call `n(this)`
+        (": Base(v), _flags(f)", set(), set()),  # the entry names are not calls
+    ],
+)
+def test_a_text_fallback_constructor_reads_the_arguments_of_its_initializer_list(init, calls, types):
+    """A constructor tree-sitter does not parse (a bare macro line, a `#if` head) is read by its braces and head; the
+    initializer arguments are its calls, as on the tree-sitter path above (#6266, doomsday `Impl(...) : _n(std::move(v))`)."""
+    body = co.TextBody(f"Widget::Widget(int v = dflt())\n    {init}\n{{\n}}\n".encode(), 1)
+    assert set(body.calls) == calls
+    assert body.types == types
+
+
+@pytest.mark.parametrize(
+    ("head", "owner"),
+    [
+        ("Widget::Widget(int v) : Base(v) {}", "Widget"),
+        ("Dialog::ButtonItem::ButtonItem(int v) : ui::ActionItem(v) {}", "ButtonItem"),  # doomsday: `A::B::B` nests
+        ("a::b::C::C(int v) : Base(v) {}", "C"),
+    ],
+)
+def test_a_nested_qualified_constructor_belongs_to_its_innermost_scope(head, owner):
+    """The class a base-class entry is checked against is the one named last before the constructor (#6266)."""
+    node = co.definition_at(co.function_nodes(co._parser("cpp").parse(head.encode())), 1)
+    assert co._owner(node) == owner
+    classes = {owner: {"Base", "ActionItem"}, "Dialog": {"Other"}}
+    assert set(co.Body(node, classes).calls) >= {"ActionItem" if "ui::" in head else "Base"}
+
+
+MACRO_CLASS = """DE_PIMPL(Surface),
+DE_OBSERVES(Variable, Deletion)
+{
+    Mat3f tangent = makeTangent();
+    bool isValid() const;
+    void update() override;
+    int slot = 0;
+
+    Impl(Public *i)
+        : Base(i)
+        , var(&variable)
+    {
+        nestedCall();
+    }
+
+    void other()
+    {
+        moreCalls();
+    }
+};
+"""
+
+
+def test_a_macro_class_owns_only_its_member_initializer_calls():
+    body = co.TextBody(MACRO_CLASS.encode(), 1)
+    assert set(body.calls) == {"makeTangent"}  # not the declarations, the ctor head, or the methods' calls
+
+
+def test_a_macro_statement_with_a_brace_body_keeps_every_call():
+    src = "DE_FOR_EACH(i, list)\n{\n    stmt();\n    other(1);\n}\n"
+    assert set(co.TextBody(src.encode(), 1).calls) == {"stmt", "other"}
+
+
+@pytest.mark.parametrize(
+    "stmt",
+    [
+        "DE_FOR_EACH_CONST(Map::Elements, i, dict.elements())\n    {\n        inner(i);\n    }",
+        "DE_NOTIFY_PUBLIC(Swap, i) { inner(i); }",
+        "DE_FOR_OBSERVERS(i, audience())\n        inner(i);",
+    ],
+)
+def test_a_macro_statement_loop_is_part_of_its_function_not_a_nested_one(stmt):
+    """The engine reads `DE_FOR_EACH*` / `DE_NOTIFY*` as a statement of the enclosing function; so does the oracle."""
+    body = body_of(f"void run(Dict &d)\n{{\n    {stmt}\n}}\n", "cpp")
+    assert "inner" in body.calls
+    assert body.nested == []
+
+
+GATED = """void build(int ver)
+{
+    first();
+    GATE(7)
+    {
+        gated();
+    }
+    else
+    {
+        other();
+    }
+    for (int i = 0; i < 3; i++)
+    {
+        late(i);
+    }
+}
+"""
+
+
+def test_an_if_macro_that_closes_the_node_early_is_flagged_and_the_braces_reach_the_real_end():
+    """`GATE(7) {..} else {..}` ends the tree-sitter node with no ERROR; the loop below it parses as file-scope code."""
+    body = body_of(GATED, "cpp")
+    assert body.broken  # the oracle then reads the brace-matched text, which reaches the closing line
+    text = co.TextBody(GATED.encode(), 1)
+    assert text.end_line == GATED.count("\n")
+    assert {"first", "gated", "other", "late"} <= set(text.calls)
+
+
+def test_a_function_followed_by_a_declaration_is_not_flagged():
+    assert not body_of("void f()\n{\n    g();\n}\n\nint x = 1;\n", "cpp").broken
+
+
+@pytest.mark.parametrize(
+    "stmt",
+    [
+        "IFVM(Runner, CanWipe)\n    {\n        inner(1);\n    }",
+        'IFVIRTUALPTRNAME(act, "SectorAction", TriggerAction)\n        {\n            inner(act);\n        }',
+        "IFVIRTUAL(DObject, Tick) { inner(); }",
+    ],
+)
+def test_a_vm_call_macro_block_is_part_of_its_function_not_a_nested_one(stmt):
+    """The engine reads gzdoom's `IFVM` / `IFVIRTUAL*` blocks as a statement of the enclosing function; so does the oracle."""
+    body = body_of(f"bool run(AActor *act)\n{{\n    {stmt}\n    return true;\n}}\n", "cpp")
+    assert "inner" in body.calls
+    assert body.nested == []
+
+
+def test_text_fallback_names_an_explicit_destructor_call_by_its_unit():
+    # a `<` in `->~TArray<T>()` makes tree-sitter misparse the body; the text view must still name `~T`, not `T`
+    body = body_of("void f(Node *p, int a)\n{\n    p->~Node();\n    a = ~g(a);\n}\n", "cpp")
+    assert body.calls["~Node"] == "statement" and body.calls["g"] != "statement"
+    body = co.TextBody(b"void f() { p->~Node(); q.~Item (); a = ~g(a); }", 1)
+    assert {"~Node", "~Item", "g"} <= set(body.calls)
+    assert "Node" not in body.calls and "Item" not in body.calls
+
+
+ALIAS_SRC = """\
+template <typename P> struct Private { typedef P Public; };
+template <typename P> struct Widget : public Private<P> {
+    typedef Private<P> Base;
+    Widget(P *i) : Base(i), _n(0) {}
+    int _n;
+};
+using Core = Private<int>;
+using type = int;
+typedef long count;
+typedef int Bool;
+typedef Plain Alias;
+struct Plain : Core { Plain() : Core(1), Base_x(2) {} int Base_x; };
+"""
+
+
+def test_a_typedef_or_using_alias_names_a_base_class_ctor_call():
+    """`typedef Private<P> Base;` then `: Base(i)` calls the aliased base's constructor (doomsday DE_PIMPL, #6266)."""
+    aliases = co.class_names_of_text(ALIAS_SRC)[co.ALIASES]
+    assert {"Base", "Core", "Alias"} <= aliases and not {"type", "count", "Bool", "Plain"} & aliases
+
+
+@pytest.mark.parametrize(
+    ("head", "names"),
+    [
+        (
+            "AlertItem(const String &msg, Level level)\n    : ui::ActionItem(ShownAsLabel, msg)\n    , _level(level)\n",
+            ["ActionItem", "_level"],
+        ),
+        ("Impl(Public *i) : Base(i)\n", ["Base"]),
+        ("Cls(int a = f(1)) : Base<int>(a)\n", ["Base"]),
+        ("void f(int a = g(1))\n", []),  # no initializer list: a default argument is not one
+        ("int f(bool b) { return b ? 1 : 2; }", []),
+    ],
+)
+def test_the_text_view_reads_a_ctor_initializer_list_with_qualified_and_templated_bases(head, names):
+    assert co._head_initializer_names(head) == names
+
+
+def test_a_misparsed_ctor_with_a_qualified_base_still_gets_the_ctor_call():
+    """tree-sitter loses the class around a macro-heavy head; the brace fallback must still see `: ui::ActionItem(...)`."""
+    src = b"AlertItem(const String &msg)\n    : ui::ActionItem(ShownAsLabel, msg)\n    , _level(1)\n{}\n"
+    body = co.TextBody(src, 1, {"AlertItem": {"ActionItem"}})
+    assert body.calls["ActionItem"] == "ctor-init" and "_level" not in body.calls
+
+
+def test_text_fallback_names_a_template_destructor_call_by_its_unit():
+    # gzdoom `p->~TArray<FString>()`: template arguments sit between the unit name and its `(`
+    body = co.TextBody(b"void f() { p->~TArray<FString>(); q.~Map<int, TArray<int>> (); a = b < c; }", 1)
+    assert {"~TArray", "~Map"} <= set(body.calls)
+    assert "TArray" not in body.calls and "Map" not in body.calls
+
+
+MACRO_HEAD_SRC = """void Seq::Build(size_t n)
+{
+    a_.clear();
+    CLEAR_MEMORY(m_disable, bool, 16);
+    solo_ = ~(size_t)0;
+    loop_.Reset();
+}
+
+void Seq::Next()
+{
+    b();
+}
+"""
+
+
+def test_statements_a_macro_call_turned_into_a_definition_head_stay_part_of_their_function():
+    """edge-classic (#6266): `CLEAR_MEMORY(.., bool, ..);` with the next definition's head reads as a definition whose
+    head holds the statements between: a `;` in a head is no nested function, so those calls stay the caller's."""
+    calls = set(body_of(MACRO_HEAD_SRC, "cpp", 1).calls)
+    assert {"clear", "CLEAR_MEMORY", "Reset"} <= calls
+    assert set(body_of(MACRO_HEAD_SRC, "cpp", 10).calls) == {"b"}
+
+
+def test_a_lambda_in_a_constructor_initializer_does_not_make_the_constructor_a_misparse():
+    src = "DE_PIMPL(X)\n{\n    Impl(P *i, C c)\n        : Base(i)\n        , m(c ? c : [] () { return new T; })\n    {}\n};\n"
+    ctors = [n for n in co.function_nodes(co._parser("cpp").parse(src.encode())) if n.text.startswith(b"Impl(")]
+    assert ctors
+    assert all(co._is_real_nested_function(n) for n in ctors)
+
+
+NOREF_CLASS_SRC = """int makeName(void) { return 1; }
+int tail(void) { return 3; }
+int AUDIENCE_METHOD(int a, int b) { return a; }
+
+DE_PIMPL_NOREF(Variable)
+{
+    int name = makeName();
+
+    ~Impl()
+    {
+        tail();
+    }
+
+    DE_PIMPL_AUDIENCE(Deletion)
+};
+
+AUDIENCE_METHOD(Variable, Deletion)
+
+Variable::Variable(const String &name) : d(new Impl)
+{
+    tail();
+}
+
+double Variable::asNumber() const
+{
+    return tail();
+}
+"""
+
+
+def test_a_macro_class_the_node_runs_past_is_read_by_its_braces_whatever_methods_it_holds(tmp_path):
+    """doomsday variable.cpp (#6266): the `DE_PIMPL_NOREF(X) { ~Impl() {..} };` node runs to the end of the file, and its
+    own methods inside the braces used to veto the brace reading, so file-scope code below was credited to the class."""
+    nodes = co.function_nodes(co._parser("cpp").parse(NOREF_CLASS_SRC.encode()))
+    assert co.definition_at(nodes, 5).end_point[0] + 1 > 16  # the premise: tree-sitter ran over the `};`
+    funcs = [("m.cpp", "makeName", 1, []), ("m.cpp", "tail", 2, []), ("m.cpp", "AUDIENCE_METHOD", 3, []),
+             ("m.cpp", "DE_PIMPL_NOREF", 5, ["makeName"]), ("m.cpp", "~Impl", 9, ["tail"]),
+             ("m.cpp", "Variable", 19, ["tail"]), ("m.cpp", "asNumber", 24, ["tail"])]  # fmt: skip
+    repo, scan = make_port(tmp_path, "doomsday", {"m.cpp": NOREF_CLASS_SRC}, funcs)
+    r = co.body_oracle(co.Port("doomsday", repo, co.load_port(repo, co.find_db(scan))))
+    assert (r["recall"], r["precision"], r["misses_by_shape"]) == (1.0, 1.0, {})

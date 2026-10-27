@@ -95,3 +95,19 @@ def test_boundary_is_documented_and_linked():
         assert needle in doc
     readme = (REPO_ROOT / "gitgalaxy" / "security" / "README.md").read_text(encoding="utf-8")
     assert "ML layer boundary" in readme
+
+
+def test_full_extra_carries_every_package_the_ml_layer_needs():
+    import tomllib
+
+    extras = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"][
+        "optional-dependencies"
+    ]
+    names = {spec.split(">")[0].split("=")[0].split("[")[0].strip().lower() for spec in extras["full"]}
+    # XGBClassifier raises ImportError without scikit-learn, so the ML layer needs all four.
+    assert {"xgboost", "scikit-learn", "pandas", "numpy"} <= names
+
+    # CI installs the hash-locked set, not the extra: a lock without scikit-learn makes the real-model leg skip.
+    for lock in ("engines.in", "engines.txt", "test.txt"):
+        text = (REPO_ROOT / "ci" / "requirements" / lock).read_text(encoding="utf-8").lower()
+        assert "scikit-learn" in text, lock

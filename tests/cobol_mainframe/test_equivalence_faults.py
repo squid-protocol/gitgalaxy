@@ -129,7 +129,8 @@ def test_program_control_ts_and_interval_commands_can_be_planned_too():
         '"CANCEL", reqid',
     ):
         assert cmd in CICS_TASK_JAVA, cmd
-    stub = (Path(__file__).resolve().parents[1] / "equivalence" / "cics" / "ggcics.c").read_text(encoding="utf-8")
+    cics_dir = Path(__file__).resolve().parents[1] / "equivalence" / "cics"
+    stub = "".join(p.read_text(encoding="utf-8") for p in sorted(cics_dir.glob("ggcics*.c")))  # #5274: its families
     for cmd in (
         '"WRITEQ-TS", qname',
         '"XCTL", program',

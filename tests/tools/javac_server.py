@@ -178,3 +178,35 @@ def javac(argv: list[str], **kw: Any) -> subprocess.CompletedProcess:
     if kw.get("check") and rc != 0:
         raise subprocess.CalledProcessError(rc, argv, proc.stdout, proc.stderr)
     return proc
+
+
+def jdk_bin() -> Path | None:
+    """bin/ of the JDK a test would use (JDK_17, else JAVA_HOME), or None when it has no javac."""
+    home = os.environ.get("JDK_17") or os.environ.get("JAVA_HOME")
+    return Path(home) / "bin" if home and (Path(home) / "bin" / "javac").is_file() else None
+
+
+def warm() -> bool:
+    """Start the server and run one compile and one `java` before any test does (#5606).
+
+    The first compile and first run in a pytest-xdist worker pay a JVM start, the JDK's pages and the compiler's cold
+    JIT: on a loaded CI runner that landed on whichever test the worker drew first (0.8 s locally, 15-20 s on CI) and
+    tripped the per-test time ratchet at random. Called from a conftest hook, outside every test's timing. True when
+    warmed; False (nothing started) with no JDK or GITGALAXY_JAVAC_SERVER=0.
+    """
+    bin_dir = jdk_bin()
+    if bin_dir is None or os.environ.get(ENV, "1") == "0":
+        return False
+    with tempfile.TemporaryDirectory(prefix="javac-warm-") as tmp:
+        src = Path(tmp) / "Warm.java"
+        src.write_text("public class Warm { public static void main(String[] a) { System.out.print(a.length); } }\n",
+                       encoding="utf-8")  # fmt: skip
+        out = Path(tmp) / "classes"
+        try:
+            javac([str(bin_dir / "javac"), "-encoding", "UTF-8", "-nowarn", "-d", str(out), str(src)],
+                  check=True, capture_output=True, timeout=120)  # fmt: skip
+            subprocess.run([str(bin_dir / "java"), "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", str(out), "Warm"],  # noqa: S603
+                           check=True, capture_output=True, encoding="utf-8", timeout=120)  # fmt: skip
+        except (OSError, subprocess.SubprocessError):
+            return False  # a warm-up never fails a run: the tests find out for themselves
+    return True

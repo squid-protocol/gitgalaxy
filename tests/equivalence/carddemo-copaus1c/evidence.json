@@ -1,0 +1,948 @@
+{
+ "format": "gitgalaxy-evidence/1",
+ "case": "carddemo-copaus1c",
+ "program": "COPAUS1C",
+ "kind": "cics",
+ "port": {
+  "paths": [
+   "tests/equivalence/carddemo-copaus1c/port/service/Copaus1cService.java",
+   "tests/equivalence/carddemo-copaus1c/port/service/Copaus2cService.java"
+  ],
+  "sha256": "f234d53aafd4fa200843c9687b24b16a2a663e7e67dbfaafb867ef256ca19b8c",
+  "entry_points": [
+   "handleTransaction",
+   "runBatch",
+   "runTask"
+  ]
+ },
+ "inputs": {
+  "port": {
+   "paths": [
+    "tests/equivalence/carddemo-copaus1c/port/**"
+   ],
+   "files": 2,
+   "sha256": "f234d53aafd4fa200843c9687b24b16a2a663e7e67dbfaafb867ef256ca19b8c"
+  },
+  "case": {
+   "paths": [
+    "tests/equivalence/carddemo-copaus1c/**"
+   ],
+   "files": 2,
+   "sha256": "689b6d6fb25b02928b3066fa723facd37259e5744f8df2287acb157d1960383c"
+  },
+  "harness": {
+   "paths": [
+    "tests/tools/equivalence.py",
+    "tests/tools/equivalence_common.py",
+    "tests/tools/equivalence_java.py",
+    "tests/tools/equivalence_inputs.py",
+    "tests/tools/equivalence_cics.py",
+    "tests/tools/equivalence_cics_containers.py",
+    "tests/tools/equivalence_cics_filecontrol.py",
+    "tests/tools/equivalence_cics_conditions.py",
+    "tests/tools/equivalence_cics_faults.py",
+    "tests/tools/equivalence_cics_tempstorage.py",
+    "tests/tools/equivalence_cics_taskcontrol.py",
+    "tests/tools/equivalence_call.py",
+    "tests/tools/equivalence_cache.py",
+    "tests/tools/equivalence_db2.py",
+    "tests/tools/equivalence_oracle.py",
+    "tests/tools/cobol_coverage.py",
+    "tests/tools/java_target_matrix.py",
+    "tests/tools/equivalence_ims.py"
+   ],
+   "files": 18,
+   "sha256": "4aa149fdf2da2f1e0c37127b8d173d337335275f3ceab77281cdc9cb6aba7f87",
+   "components": {
+    "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
+    "harness:core": "44d38a01abc69857283e736186feda6396e1cf6e297c12e07a097730aee7f15f",
+    "harness:db2": "389a27466f489f7499560289b5ceaeabaac2feaeb5b38eabc35b4227ffe604e1",
+    "harness:ims": "788b0fe6a7e9624935a9cefaea81ef0813293eda1404c5f3030db620538f842f"
+   }
+  },
+  "oracle": {
+   "paths": [
+    "tests/equivalence/gnucobol.Dockerfile",
+    "tests/equivalence/gnucobol-db2.Dockerfile",
+    "tests/equivalence/odbc_cli.pin",
+    "tests/equivalence/cics/**",
+    "tests/equivalence/le/**",
+    "tests/equivalence/faults/**",
+    "tests/equivalence/db2/**",
+    "tests/tools/equivalence_sql.py",
+    "tests/equivalence/ims/ggdli.c"
+   ],
+   "files": 46,
+   "sha256": "848c34c7d886f87f4b8bb59ab004960e50725b88325d6300d051c33665533f82",
+   "components": {
+    "oracle:cics-stub": "05ec37e54cc21b62de978b2b9fa2452bde68e1c7a3ed36c8f85779accef3b69b",
+    "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
+    "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
+    "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
+    "oracle:ims": "2fa9d872d0bbc1d6dd15a1ec51ed261d56219565607bef18489e4be7be3857d7",
+    "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
+   }
+  },
+  "generator": {
+   "paths": [
+    "gitgalaxy/tools/cobol_to_java/**"
+   ],
+   "files": 113,
+   "sha256": "aa03dfbf49d4b3b2904ea2d0520f0020e8923b9247d9f8d51f6707321a897cff",
+   "components": {
+    "generator:cobolrt/Accept.java": "4bc260fc6386c11e4654cc76eb67a87ca1fad76647373d1e75484ed61b6a0cf3",
+    "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
+    "generator:cobolrt/Codec.java": "8f64df479294b444eba647528c55b25615d5a4fa962e7447757d0d48d5c342ab",
+    "generator:cobolrt/DetMvs.java": "3c70adb42450f7cb1f82b8a06f90d688d57b90eabfbd289458436f7a64d266f0",
+    "generator:cobolrt/Editing.java": "2ea7c7da4d7aa9a4c07b3358d929740fdc65dd0e44a982cdf5ef6c5f80c15b25",
+    "generator:cobolrt/Field.java": "a4b12b313ae25789fa34988528c85c91a2d0c80f85555e154070ee9f2725809b",
+    "generator:cobolrt/Figurative.java": "be9444226c7a0e96840cee639b855212ab715c4cc37222519b2f3a14cbbad867",
+    "generator:cobolrt/Funcs.java": "b2d30b4ef89f86c951e98d0f17b2fb2ddd45b1c261911b332220d11cf5158f2a",
+    "generator:cobolrt/Hfp.java": "196c5981aad77f0ce4172f27931e116be97f1d8c2967990153efc2394bba8696",
+    "generator:cobolrt/Hole.java": "ef69982f0dadcfd31c7396b6dc5ad16712b01cdbde71b007fe90ce14bd116c0f",
+    "generator:cobolrt/Lossless.java": "84832e9ef01ce29da55addd55ea0ee76dda239cb4d23bfdb67cad83600308097",
+    "generator:cobolrt/Sort.java": "c0c00763b985f8d4f2fd6b764052cd940411552f7c37349cb11814d0343e1262",
+    "generator:cobolrt/Storage.java": "597fe5b2cd4190c4b87dfafd7facc73de3079efebe6188bac5862b78d3b3edf3",
+    "generator:cobolrt/Zoned.java": "089f829155664fdd82f2f99a0699cfb58e40910621b1136eabd2b16c51415349",
+    "generator:cobolrt/batch/DetFiles.java": "fe03a6459ba1dcc2a8ad367c4b7cd1debaf1ab9c661697c4841c726f99354ba1",
+    "generator:cobolrt/cics/DetCics.java": "3ac8d4ca4c7a9b524beed9e846fc1bcae354b2eebb6cd7e72bcbc04df79d0727",
+    "generator:cobolrt/cics/DetJustify.java": "ecf7fab2a14ac125e87f05d7be9bbb13610d1423fc7410c644d00b5767fb812a",
+    "generator:cobolrt/cics/DetMq.java": "40204edf5e82cd78739db956e424860a0121cb3ec44e0a9c1e508ed41fcf3187",
+    "generator:cobolrt/dli/DetDli.java": "56e263bc5b387bd987e6a86ee14ec69a1f72f489bdd2aa921b3e8ae4c96c8902",
+    "generator:cobolrt/le/Ceedate.java": "70613bf5c75dbdf02cc883a0ba74b4a83fd60292085c9ceae3fbc5b5c272d503",
+    "generator:cobolrt/le/Ceedatm.java": "1585bc803db4c422637cad851a8bf3285d3a761d2b118badef6b006852f6e248",
+    "generator:cobolrt/le/Ceedays.java": "6d36e4a60bdbf273162d0b81c8f1db886cfab9fc017aecaee04dd34a18fb6047",
+    "generator:cobolrt/le/Ceedywk.java": "75b94bf56764b828ae269090178184eb834e05b76a928f7517e96928c4002bd3",
+    "generator:cobolrt/le/Ceegmt.java": "0b6f7fb4d7671d19074ef50ee418a0fef8b752f0cabc68a6db21ecb8c6e40c1f",
+    "generator:cobolrt/le/Ceegmto.java": "937c33385934fdf9b241edc341c1900dfd9109d0756d279114da80ea9921aad1",
+    "generator:cobolrt/le/Ceeisec.java": "394d7c9ff85144cc898a78448f6b17b5a930f8902f42068b6af5f2be8ea7a2eb",
+    "generator:cobolrt/le/Ceeloct.java": "5db69f3f3fef44d4303e9e66857f489d30ae6f862c2dee03574c7eb9349f3faf",
+    "generator:cobolrt/le/Ceeqcen.java": "6571d2ed7ca6eb0348d6a23d6fcb2a5c882a097a2917635e2881074fc91cad75",
+    "generator:cobolrt/le/Ceeseci.java": "e5ad976fdd2da3ed94bd0559632d6ff0642bcd1d980f5ebd3f694a79f598b7fb",
+    "generator:cobolrt/le/Ceesecs.java": "9a19442737a13f8439f554f8b1b8ad95b640a8fa598fc9e3cacb745726268692",
+    "generator:cobolrt/le/Ceeutc.java": "c12810fda2a51dac477c0ba79f913f08a5d54d20c49bc778d345fc8f2c32519d",
+    "generator:cobolrt/le/Cobdatft.java": "557be70b157d3a4fd55fbb9fbb20820dea0a23000f3be0170236593826a72e3f",
+    "generator:cobolrt/le/Dsntiac.java": "cf45a631af15438753cf354fe7a251ae4e498a679a76122eddb496428e80ed16",
+    "generator:cobolrt/le/LeTime.java": "0f07e6aec9a364c52b425c5a86adcc9946f9182edc37caa92010bb3986d5f5a8",
+    "generator:cobolrt/le/Mvswait.java": "41482047bde3829fba1da896ce716536e5535ee7d637142d426efd650ec64672",
+    "generator:cobolrt/le/Zuidstck.java": "e16376df0eeed8b8815210b35854eb6369e5f690a9cb056f8b4841140e0b24a1",
+    "generator:cobolrt/mq/QueueManager.java": "6c04ae9207b4375362dd3ec1dd7558c330dfa14f785a9e76e4ee3293e7074308",
+    "generator:cobolrt/sql/DetSql.java": "6b04507a609ed3fc607fd152de0bff932798865b6657ba34ab1cbc35c4a6cfb0",
+    "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
+    "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
+    "generator:core": "1ac9c6427102b5346f29a2a36cafb29a6189425423168c3a16a8e473bafb3fae",
+    "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
+    "generator:det/bll": "51a3de21e2afa9301080d7613bf7ba13c0a053a90c9b4c1b92acfd676b923163",
+    "generator:det/cics": "6fd3b3f809e6ca8bfd5d9dac922b1dc2961ae0280dad4172457ecf02c20f2295",
+    "generator:det/cics_conditions": "c5bfb6ed32df1a582cf010bf59f1f16dd7440e4caa075a0458f62ca9b85f6219",
+    "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
+    "generator:det/cics_faults": "022b25e0d5807e27992c2e0598d06fff3258412b4333821efc748dd7be728b4c",
+    "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
+    "generator:det/cics_taskcontrol": "a28940b9fd127e798b6c4c69b178d93d010c8695eba388ac78d6dca2839e594a",
+    "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
+    "generator:det/dli": "6c94b183b7f40bbce09c623fe2001c3c594534daada2a363417a61a0a3c9f41d",
+    "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
+    "generator:det/engine_layout": "a0019c6bd31e188fbba788e04b5271ce8a342e3b986a2ed1b6c5e8333c40f928",
+    "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
+    "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
+    "generator:det/gen": "ecd3abfa6639c3c666279138c25ef6c3a6493105f163716dea9b3040f649f7fe",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
+    "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
+    "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
+    "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
+    "generator:det/program": "130206871ef0273870d68c8372ee614ea339d9194d00f78e48fa0bf01ae35fca",
+    "generator:det/refine": "4daa99d7534a589b4b46b8517f4109b95f64c956cd101a890e57b6a59eac4e44",
+    "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
+    "generator:det/sql": "31b1c21e12d64b304b46dd4d1a666ccad11f9efa4ae558d1394680b85585044b",
+    "generator:det/stmt": "72ade7437769eb7b8d8e94511613964e6f5cb98f30b4a4c5d6295709534b5176"
+   }
+  },
+  "corpus": {
+   "name": "aws-mainframe-modernization-carddemo",
+   "ref": "59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e",
+   "sha256": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919"
+  },
+  "differences": {
+   "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "options": {
+   "sha256": "253a366c52b35ad1a81006df8950b538aed7c11e3eb4b27ff94639ee6337ecda",
+   "semantic_sha256": "be1b93eb5a2f1d6cb3ab87223de8050850df4068c3674fe5e9d6377d01de0426",
+   "legacy_semantic_sha256": "be1b93eb5a2f1d6cb3ab87223de8050850df4068c3674fe5e9d6377d01de0426",
+   "estate": "aws-mainframe-modernization-carddemo",
+   "effective": {
+    "estate": "aws-mainframe-modernization-carddemo",
+    "compiler": {
+     "product": "Enterprise COBOL",
+     "version": "6.3"
+    },
+    "parm": [
+     "ARITH(COMPAT)",
+     "INTDATE(ANSI)",
+     "NUMPROC(NOPFD)",
+     "TRUNC(STD)",
+     "OPTIMIZE(0)",
+     "NSYMBOL(NATIONAL)",
+     "DISPSIGN(COMPAT)",
+     "CODEPAGE(1140)",
+     "NOSSRANGE",
+     "ZONEDATA(PFD)",
+     "CICS",
+     "NODYNAM",
+     "RENT",
+     "NOSEQ"
+    ],
+    "declared_parm": [
+     "ARITH(COMPAT)",
+     "INTDATE(ANSI)",
+     "NUMPROC(NOPFD)",
+     "TRUNC(STD)",
+     "OPTIMIZE(0)",
+     "NSYMBOL(NATIONAL)",
+     "DISPSIGN(COMPAT)",
+     "CODEPAGE(1140)",
+     "NOSSRANGE",
+     "ZONEDATA(PFD)",
+     "CICS",
+     "NODYNAM",
+     "RENT",
+     "NOSEQ"
+    ],
+    "semantic": {
+     "ARITH": "COMPAT",
+     "INTDATE": "ANSI",
+     "NUMPROC": "NOPFD",
+     "TRUNC": "STD"
+    },
+    "runtime": {
+     "le": {
+      "runtime_options.ABTERMENC": "ABEND",
+      "runtime_options.STORAGE": "NONE,NONE,NONE,0K",
+      "runtime_options.TRAP": "ON,SPIE"
+     },
+     "db2": {
+      "bind.CURRENTDATA": "YES",
+      "bind.ISOLATION": "CS",
+      "ccsid.SQLCCSID": "NO",
+      "format.DATE": "ISO",
+      "format.DEC": "15",
+      "format.DECPT": ".",
+      "format.TIME": "ISO",
+      "precompile.PARM": "HOST(IBMCOB),XREF,SOURCE,FLAG(I),APOST"
+     },
+     "cics": {
+      "region.LOCALCCSID": "037",
+      "translator.options": "CICS"
+     }
+    }
+   },
+   "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
+  },
+  "digest": "11f4f23a880f02003dddf03a635abf2d3618b1a5f39591e4ee7b690ca6583abd"
+ },
+ "proof": {
+  "at": "2026-10-27T11:03:48Z",
+  "verdict": "proven",
+  "runs": 35,
+  "fault_runs": 14,
+  "environments": null,
+  "outputs": {
+   "first-entry-no-commarea": {
+    "equal": 2,
+    "records": 2,
+    "commands": [
+     "XCTL"
+    ]
+   },
+   "entry-approved": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "entry-insufficient-fund": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "entry-fraud-confirmed": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "entry-fraud-removed": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "entry-reason-not-in-table": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "entry-reason-last-entry": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "entry-single-detail": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "entry-account-not-numeric": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "entry-no-selected-key": {
+    "equal": 3,
+    "records": 3,
+    "commands": [
+     "RETURN",
+     "SEND-MAP"
+    ]
+   },
+   "entry-account-without-summary": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "reenter-enter": {
+    "equal": 5,
+    "records": 5,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "pf3-to-summary": {
+    "equal": 3,
+    "records": 3,
+    "commands": [
+     "RECEIVE-MAP",
+     "XCTL"
+    ]
+   },
+   "pf9-invalid-key": {
+    "equal": 5,
+    "records": 5,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "pf8-next-detail": {
+    "equal": 5,
+    "records": 5,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "pf8-at-last-detail": {
+    "equal": 5,
+    "records": 5,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "pf8-single-detail": {
+    "equal": 5,
+    "records": 5,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "pf5-report-new-fraud": {
+    "equal": 7,
+    "records": 7,
+    "commands": [
+     "LINK",
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "pf5-report-existing-row": {
+    "equal": 7,
+    "records": 7,
+    "commands": [
+     "LINK",
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "pf5-remove-fraud": {
+    "equal": 7,
+    "records": 7,
+    "commands": [
+     "LINK",
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "pf5-confirm-removed-fraud": {
+    "equal": 7,
+    "records": 7,
+    "commands": [
+     "LINK",
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "pf5-service-insert-fails": {
+    "equal": 7,
+    "records": 7,
+    "commands": [
+     "LINK",
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT-ROLLBACK"
+    ]
+   },
+   "pf5-link-fails": {
+    "equal": 6,
+    "records": 6,
+    "commands": [
+     "LINK",
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT-ROLLBACK"
+    ]
+   },
+   "entry-gu-system-error": {
+    "equal": 6,
+    "records": 6,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "entry-gu-end-of-db": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "entry-gnp-system-error": {
+    "equal": 5,
+    "records": 5,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "entry-gnp-end-of-db": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "pf8-gnp-system-error": {
+    "equal": 6,
+    "records": 6,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "pf8-gnp-end-of-db": {
+    "equal": 5,
+    "records": 5,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "pf5-repl-fails": {
+    "equal": 8,
+    "records": 8,
+    "commands": [
+     "LINK",
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT-ROLLBACK"
+    ]
+   },
+   "entry-schd-tc-once": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT"
+    ]
+   },
+   "entry-schd-fails": {
+    "equal": 4,
+    "records": 4,
+    "commands": [
+     "RETURN",
+     "SEND-MAP"
+    ]
+   },
+   "pf8-schd-fails": {
+    "equal": 5,
+    "records": 5,
+    "commands": [
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP"
+    ]
+   },
+   "pf5-report-new-fraud--sql-copaus2c-141": {
+    "equal": 7,
+    "records": 7,
+    "commands": [
+     "LINK",
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT-ROLLBACK"
+    ]
+   },
+   "pf5-report-existing-row--sql-copaus2c-222": {
+    "equal": 7,
+    "records": 7,
+    "commands": [
+     "LINK",
+     "RECEIVE-MAP",
+     "RETURN",
+     "SEND-MAP",
+     "SYNCPOINT-ROLLBACK"
+    ]
+   }
+  },
+  "return_code_equal": null,
+  "sysout_compared": null,
+  "attributes_compared": null,
+  "java_failed": false,
+  "facade": {
+   "verdict": "proven",
+   "runs": 35,
+   "passed": 35,
+   "entry_points": [
+    "handleTransaction"
+   ],
+   "failed": [],
+   "error": null
+  },
+  "harness_commit": "051e25bfc0acde4a631b7e7811ed7ba00e8dbfc2",
+  "inputs_digest": "11f4f23a880f02003dddf03a635abf2d3618b1a5f39591e4ee7b690ca6583abd"
+ },
+ "coverage": {
+  "paragraphs": {
+   "covered": 15,
+   "live": 15
+  },
+  "branches": {
+   "covered": 50,
+   "total": 50
+  },
+  "uncovered_branches": [],
+  "handler_labels": {
+   "covered": 0,
+   "total": 0
+  },
+  "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
+  "inputs_digest": "11f4f23a880f02003dddf03a635abf2d3618b1a5f39591e4ee7b690ca6583abd"
+ },
+ "reach": {
+  "entry_points": [
+   "handleTransaction",
+   "runBatch",
+   "runTask"
+  ],
+  "unproven": [
+   {
+    "class": "Copaus1cService",
+    "method": "runProgram",
+    "line": 814,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus1cService",
+    "method": "handleLink",
+    "line": 954,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus1cService",
+    "method": "handleLink",
+    "line": 961,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus1cService",
+    "method": "lastAnswerBytes",
+    "line": 975,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "Copaus1cService",
+    "method": "lastLinkBytes",
+    "line": 984,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "Copaus1cService",
+    "method": "dd",
+    "line": 998,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "abended",
+    "line": 169,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "paragraph",
+    "line": 186,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "condition",
+    "line": 199,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "out_Copaus2cDfhcommarea",
+    "line": 295,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "runProgram",
+    "line": 340,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "handleLink",
+    "line": 430,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "handleLink",
+    "line": 437,
+    "kind": "det_helper"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "lastLinkBytes",
+    "line": 451,
+    "kind": "left_as_generated"
+   },
+   {
+    "class": "Copaus2cService",
+    "method": "dd",
+    "line": 465,
+    "kind": "det_helper"
+   }
+  ],
+  "counts": {
+   "stub": 0,
+   "left_as_generated": 3,
+   "det_helper": 12,
+   "ported_unproven": 0
+  },
+  "generated_compared": true,
+  "port_sha256": "f234d53aafd4fa200843c9687b24b16a2a663e7e67dbfaafb867ef256ca19b8c"
+ },
+ "mutation": null,
+ "differences": [],
+ "oracle": {
+  "kind": "gnucobol-models",
+  "compiler": "cobc (GnuCOBOL) 3.1.2.0",
+  "package": "3.1.2-5+b1",
+  "flags": "-std=ibm -fsign=EBCDIC",
+  "compiler_options": null,
+  "image": {
+   "name": "gitgalaxy-gnucobol-db2:3",
+   "id": "sha256:ec6700c84dabf72e2db919f1f6fc8a9b22a6b435527935374d970be021754989",
+   "base": "debian:bookworm-slim@sha256:3783cc01769c7b2b1b83a5c5ad96c815348e28ed7da68e2e3687004faa906251",
+   "matches_pin": true,
+   "mismatches": []
+  },
+  "models": [
+   {
+    "path": "tests/equivalence/cics/DFHAID.cpy",
+    "sha256": "630c4f2cb617984403b2750dde4022c2e5b56bee0d9367049092af1f80def3c3"
+   },
+   {
+    "path": "tests/equivalence/cics/DFHBMSCA.cpy",
+    "sha256": "716274032abeec7783c189067cef6010ca9832c44072d2010493e3c430523a6a"
+   },
+   {
+    "path": "tests/equivalence/cics/DFHEIBLK.cpy",
+    "sha256": "bfca9678fa65ec53eca2e9692b16e3cefc9639e842341345e1a05424b0e2034b"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics.c",
+    "sha256": "c7afe2659cb0c6b2cb2cf846b497ab6d050e99874310c6f18bc6d6665ebb5cfa"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_conditions.c",
+    "sha256": "7cc9889d754be119a57d85cf03be3487d112439e376b3e6165bc7372cfd3bdb9"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_containers.c",
+    "sha256": "6e2f3c038ababccdd4b4e5873a73cb4c9f627e708cd7461edbfebe323e1988a5"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_enq.c",
+    "sha256": "75523dd5c5e2abf68908cef40594903efea7e03c784fcfe6d7accf4d068bab59"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_faults.c",
+    "sha256": "971acc374c4845c192ff5c51b8614aff8d9e040fa08e238731e8e9cd7df3c0f7"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_filecontrol.c",
+    "sha256": "07375343f42fd4467ba1727b1cb8005e89e20e822ced8b3e6a3c80d401d14c43"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_spec.h",
+    "sha256": "daf90987e6ca9d3067015c60eaaa384ec63194032d8c46fd4b643c6491ba4b79"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_taskcontrol.c",
+    "sha256": "3b3d0446e4d6d290019609d64e680b0f62eead5cf47691919ba50021df55bfc9"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_tempstorage.c",
+    "sha256": "c6da1bf09578792d2e899b3ae3a5d28a92fdfd7716d72099a7c7cb5405081dc2"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_transientdata.c",
+    "sha256": "00961a38063f8fe5179068dee7457d1dc5b5eab7bfd48f1323f637888df5a265"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_web.c",
+    "sha256": "9607c893198e4fc637821e02820ee5db0a16988ed2b6d8363595888e54d6dbe3"
+   },
+   {
+    "path": "tests/equivalence/db2/SQLCA.cpy",
+    "sha256": "2feec0cb41ec13473904f76885f8550b8e518016678ba6ab8deec378568a3674"
+   },
+   {
+    "path": "tests/equivalence/db2/SQLDA.cpy",
+    "sha256": "2f0c5b623926aa9767764344fc9d10fbbad8f9a404e2198c920a37baad8a6b6c"
+   },
+   {
+    "path": "tests/equivalence/db2/dynsql/cbl/DYNDEMO.cbl",
+    "sha256": "5c84ea37bd96c5a503fcd07d94a7b53eadea6be5b78744a3b9307d3a1d769d16"
+   },
+   {
+    "path": "tests/equivalence/db2/dynsql/ddl/DTAB.ddl",
+    "sha256": "271155a181e5405c561a59ccd068da8ec26f2bfbf994a530640a3155bf1a6a2f"
+   },
+   {
+    "path": "tests/equivalence/db2/dynsql/jcl/DYNDEMO.jcl",
+    "sha256": "107f687e0cde38258f3cc65a501a1900f115b254ad09324d5ea60e6fb5b46c64"
+   },
+   {
+    "path": "tests/equivalence/db2/dynsql/seed.sql",
+    "sha256": "7a29b60f0801d1c8b0287ded57ccf206d109ad21627a8ceab29b9abe5ea3aa4b"
+   },
+   {
+    "path": "tests/equivalence/db2/ggsql.c",
+    "sha256": "f3d0954ea93ea8ce11102810e24d39247260e4f8bcac9b4188870519094182b8"
+   },
+   {
+    "path": "tests/equivalence/db2/ggsqlrun.c",
+    "sha256": "6029d1bf8da9b69c143e7d5fda194d50956bb261cd9ce37d7aa814f5511f47ea"
+   },
+   {
+    "path": "tests/equivalence/db2/uow/cbl/UOWDEMO.cbl",
+    "sha256": "e2760b97b7a7d20153c2da0a13b838d586342078eb57724fef53dbb626af5f82"
+   },
+   {
+    "path": "tests/equivalence/db2/uow/ddl/ACCT.ddl",
+    "sha256": "7e555c6935585c64bbe4e0c9bbb341f86fd5629f1af4b1288f46a6c89e5b2ff2"
+   },
+   {
+    "path": "tests/equivalence/db2/uow/jcl/UOWDEMO.jcl",
+    "sha256": "12b0639e1f29cc6f9b6aa9631ae639b498ed6eda8789dadbf6d2b08dd94edc44"
+   },
+   {
+    "path": "tests/equivalence/db2/uow/seed.sql",
+    "sha256": "60a4043a04f8ef42b05718e215aca89897404385a6fe3c660b5932ce0514e78a"
+   },
+   {
+    "path": "tests/equivalence/db2/whenever/cbl/WHENDEMO.cbl",
+    "sha256": "72422a3abc812fd33104d19fe52ebfdd5bbf5e1cf0506c009113e2db33dcfecf"
+   },
+   {
+    "path": "tests/equivalence/db2/whenever/ddl/WTAB.ddl",
+    "sha256": "4c6acedae0523d807381f3e1448b7320f2bbc137e94515733418023319c20cef"
+   },
+   {
+    "path": "tests/equivalence/db2/whenever/jcl/WHENDEMO.jcl",
+    "sha256": "9b3029a39fe1b1c5ceaf06a3ba81dde70523910c1c0d69465786563cf5924424"
+   },
+   {
+    "path": "tests/equivalence/db2/whenever/seed.sql",
+    "sha256": "0c58404dce0d48d2da82ddaf96625cbd6c9ada1bea57c89ea9a709e20df2453f"
+   },
+   {
+    "path": "tests/equivalence/faults/ggabend.c",
+    "sha256": "ad701b6e6ad8cd6af830ae24eabe64cfb93fae7ab8b3af3e50c1c80853aebd44"
+   },
+   {
+    "path": "tests/equivalence/faults/ggdisplay.c",
+    "sha256": "1637e53820229d9d29da3efbefada5782c98891589cb423af58151cf2919bdcb"
+   },
+   {
+    "path": "tests/equivalence/faults/ggfault.c",
+    "sha256": "82f3e785fe10be99567675d29eb5b5d164c48df9a839394e9d85cfa5ef3a5049"
+   },
+   {
+    "path": "tests/equivalence/gnucobol-db2.Dockerfile",
+    "sha256": "c2af37e562a8e00a46bc3f01deba68dbd812c4947ec71327f196739dd47bfb93"
+   },
+   {
+    "path": "tests/equivalence/gnucobol.Dockerfile",
+    "sha256": "5a94ae2757458809461b4e0deaf3139655b719598afc6113e03e4b187af4b693"
+   },
+   {
+    "path": "tests/equivalence/ims/ggdli.c",
+    "sha256": "7a3010fdca8a18bd8bb76b6ff75bd6f284382aac395ae90ff2e704c8ab938dbc"
+   },
+   {
+    "path": "tests/equivalence/le/ceedays.c",
+    "sha256": "09df0023b04d6bbf5e6e92bb50c394532ddf1c54c516c6e87324ede2d6bc6b2c"
+   },
+   {
+    "path": "tests/equivalence/le/ceeloct.c",
+    "sha256": "edcfc622a9688ec78ca03b7f2cd65d17d203237b0cbca2e7cb74bc0b25150f84"
+   },
+   {
+    "path": "tests/equivalence/le/cobdatft.c",
+    "sha256": "df75c2ffbfbfad769135bb5044edf2b9b22440f3ff47e163b515605d2281edf4"
+   },
+   {
+    "path": "tests/equivalence/le/dsntiac.c",
+    "sha256": "4117aa9c2b0d9877ee00fa54b3996a1a50681008a4fe3d033bcc1441718c222b"
+   },
+   {
+    "path": "tests/equivalence/le/ggtiot.c",
+    "sha256": "fc71f03890452f6604190325447ec332af754ef99a392dc90a2691148589cdb3"
+   },
+   {
+    "path": "tests/equivalence/le/le_time.c",
+    "sha256": "5d710d14456328c2f1b3f4e9cbdb4eb08ca210dd0462199fc1be46f1333bfc47"
+   },
+   {
+    "path": "tests/equivalence/le/mvswait.c",
+    "sha256": "ed25d9c9cf3b8f2c7a9e319fdc117bff0ff775b15c1c32b3e0d9c20c33d66321"
+   },
+   {
+    "path": "tests/equivalence/le/zuidstck.c",
+    "sha256": "21cb74ad9c1df6613c1d1be67b16a041ebe9657ff989d6bc4ed7682975b3ec01"
+   },
+   {
+    "path": "tests/equivalence/odbc_cli.pin",
+    "sha256": "1b2288b610ccf5fe0128e1d91d18139978abb261451aa545cc8772e3f2101ff5"
+   },
+   {
+    "path": "tests/tools/equivalence_sql.py",
+    "sha256": "70d91a1e48f88083efc26fd17347ec7e1de53748f812612555ba1e8e799e0fce"
+   }
+  ],
+  "assumptions": null
+ },
+ "provenance": {
+  "written_by": "det",
+  "model": null,
+  "backend": null,
+  "attempt": null,
+  "attempts": null,
+  "ticket_sha256": null,
+  "porting_rules_sha256": null,
+  "proposed_at": null,
+  "generator_version": null,
+  "edited_after": null,
+  "provenance_file": {
+   "path": "tests/equivalence/carddemo-copaus1c/port/provenance.json",
+   "format": "det-port-provenance/1",
+   "sha256": "fb0c8b00aee4abb85444c526f29af3fcae8bc653b29026f5890546b40fb59352"
+  }
+ },
+ "approvals": []
+}

@@ -283,6 +283,7 @@ public class Cousr00cService {
         void abendOn(int resp) {
             String cond = switch (resp) {
                 case 13 -> "NOTFND";
+                case 17 -> "IOERR";
                 case 21 -> "ILLOGIC";
                 case 22 -> "LENGERR";
                 case 26 -> "ITEMERR";

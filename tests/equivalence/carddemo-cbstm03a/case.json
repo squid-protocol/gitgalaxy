@@ -77,5 +77,163 @@
    "record": "FD-HTMLFILE-REC"
   }
  },
+ "faults": [
+  {
+   "name": "trnxfile-open",
+   "plan": [
+    {
+     "dd": "TRNXFILE",
+     "op": "OPEN",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "#6072: 30, a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CBSTM03B's OPEN INPUT TRNXFILE fails and answers RC 30, so 8100-TRNXFILE-OPEN DISPLAYs 'ERROR OPENING TRNXFILE' and PERFORMs 9999-ABEND-PROGRAM (CALL 'CEE3ABD'): both sides end on the same abend"
+  },
+  {
+   "name": "xreffile-open",
+   "plan": [
+    {
+     "dd": "XREFFILE",
+     "op": "OPEN",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "#6072: 30, a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CBSTM03B's OPEN INPUT XREFFILE fails and answers RC 30, so 8200-XREFFILE-OPEN DISPLAYs 'ERROR OPENING XREFFILE' and PERFORMs 9999-ABEND-PROGRAM (CALL 'CEE3ABD'): both sides end on the same abend"
+  },
+  {
+   "name": "custfile-open",
+   "plan": [
+    {
+     "dd": "CUSTFILE",
+     "op": "OPEN",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "#6072: 30, a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CBSTM03B's OPEN INPUT CUSTFILE fails and answers RC 30, so 8300-CUSTFILE-OPEN DISPLAYs 'ERROR OPENING CUSTFILE' and PERFORMs 9999-ABEND-PROGRAM (CALL 'CEE3ABD'): both sides end on the same abend"
+  },
+  {
+   "name": "acctfile-open",
+   "plan": [
+    {
+     "dd": "ACCTFILE",
+     "op": "OPEN",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "#6072: 30, a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CBSTM03B's OPEN INPUT ACCTFILE fails and answers RC 30, so 8400-ACCTFILE-OPEN DISPLAYs 'ERROR OPENING ACCTFILE' and PERFORMs 9999-ABEND-PROGRAM (CALL 'CEE3ABD'): both sides end on the same abend"
+  },
+  {
+   "name": "trnxfile-first-read",
+   "plan": [
+    {
+     "dd": "TRNXFILE",
+     "op": "READ",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "#6072: 30, a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CBSTM03B's first READ of TRNXFILE fails and answers RC 30, so 8100-TRNXFILE-OPEN (the read after the open) DISPLAYs 'ERROR READING TRNXFILE' and PERFORMs 9999-ABEND-PROGRAM (CALL 'CEE3ABD'): both sides end on the same abend"
+  },
+  {
+   "name": "trnxfile-read",
+   "plan": [
+    {
+     "dd": "TRNXFILE",
+     "op": "READ",
+     "nth": 2,
+     "status": "30"
+    }
+   ],
+   "why": "#6072: 30, a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CBSTM03B's next READ of TRNXFILE fails and answers RC 30, so 8500-READTRNX-READ DISPLAYs 'ERROR READING TRNXFILE' and PERFORMs 9999-ABEND-PROGRAM (CALL 'CEE3ABD'): both sides end on the same abend"
+  },
+  {
+   "name": "xreffile-read",
+   "plan": [
+    {
+     "dd": "XREFFILE",
+     "op": "READ",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "#6072: 30, a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CBSTM03B's READ of XREFFILE fails and answers RC 30, so 1000-XREFFILE-GET-NEXT DISPLAYs 'ERROR READING XREFFILE' and PERFORMs 9999-ABEND-PROGRAM (CALL 'CEE3ABD'): both sides end on the same abend"
+  },
+  {
+   "name": "custfile-read",
+   "plan": [
+    {
+     "dd": "CUSTFILE",
+     "op": "READ",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "#6072: 30, a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CBSTM03B's READ of CUSTFILE fails and answers RC 30, so 2000-CUSTFILE-GET DISPLAYs 'ERROR READING CUSTFILE' and PERFORMs 9999-ABEND-PROGRAM (CALL 'CEE3ABD'): both sides end on the same abend"
+  },
+  {
+   "name": "acctfile-read",
+   "plan": [
+    {
+     "dd": "ACCTFILE",
+     "op": "READ",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "#6072: 30, a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CBSTM03B's READ of ACCTFILE fails and answers RC 30, so 3000-ACCTFILE-GET DISPLAYs 'ERROR READING ACCTFILE' and PERFORMs 9999-ABEND-PROGRAM (CALL 'CEE3ABD'): both sides end on the same abend"
+  },
+  {
+   "name": "trnxfile-close",
+   "plan": [
+    {
+     "dd": "TRNXFILE",
+     "op": "CLOSE",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "#6072: 30, a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CBSTM03B's CLOSE of TRNXFILE fails and answers RC 30, so 9100-TRNXFILE-CLOSE DISPLAYs 'ERROR CLOSING TRNXFILE' and PERFORMs 9999-ABEND-PROGRAM (CALL 'CEE3ABD'): both sides end on the same abend"
+  },
+  {
+   "name": "xreffile-close",
+   "plan": [
+    {
+     "dd": "XREFFILE",
+     "op": "CLOSE",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "#6072: 30, a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CBSTM03B's CLOSE of XREFFILE fails and answers RC 30, so 9200-XREFFILE-CLOSE DISPLAYs 'ERROR CLOSING XREFFILE' and PERFORMs 9999-ABEND-PROGRAM (CALL 'CEE3ABD'): both sides end on the same abend"
+  },
+  {
+   "name": "custfile-close",
+   "plan": [
+    {
+     "dd": "CUSTFILE",
+     "op": "CLOSE",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "#6072: 30, a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CBSTM03B's CLOSE of CUSTFILE fails and answers RC 30, so 9300-CUSTFILE-CLOSE DISPLAYs 'ERROR CLOSING CUSTFILE' and PERFORMs 9999-ABEND-PROGRAM (CALL 'CEE3ABD'): both sides end on the same abend"
+  },
+  {
+   "name": "acctfile-close",
+   "plan": [
+    {
+     "dd": "ACCTFILE",
+     "op": "CLOSE",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "#6072: 30, a permanent error (IBM Enterprise COBOL for z/OS Language Reference, File status key values): CBSTM03B's CLOSE of ACCTFILE fails and answers RC 30, so 9400-ACCTFILE-CLOSE DISPLAYs 'ERROR CLOSING ACCTFILE' and PERFORMs 9999-ABEND-PROGRAM (CALL 'CEE3ABD'): both sides end on the same abend"
+  }
+ ],
  "notes": "CardDemo CBSTM03A (job CREASTMT, STEP040), the statement writer: it walks PSA -> TCB -> TIOT to DISPLAY its job, step and DD names (register A2; `mvs_step` states the step, the DDs in CREASTMT.JCL order, on both sides), then drives CBSTM03B (CALLed, compiled and translated as a subprogram) through TRNXFILE, XREFFILE, CUSTFILE and ACCTFILE and writes the plain-text (STMTFILE) and HTML (HTMLFILE) statements, both compared with SYSOUT. TRNXFILE is the first three records of the corpus's dailytran.txt (trnx.txt here); the other three files are the corpus's own data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
 }

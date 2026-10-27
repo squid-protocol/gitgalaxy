@@ -580,6 +580,7 @@ class SignalProcessor:
             f_feature_names = func_ml_brain.get("FEATURE_NAMES", [])
             f_weights = func_ml_brain.get("FEATURE_WEIGHTS", [1.0] * len(f_feature_names))
             f_caps = func_ml_brain.get("CAP_VALUES", {})
+            enc_lang_weight = analysis_lens.FUNCTION_ENCAPSULATION_LANG_WEIGHT.get(lang_id.lower(), 1.0)
             f_dna_sources = func_ml_brain.get("DNA_SOURCES", {})
             f_names = func_ml_brain.get("cluster_names", [])
             f_arch_key = next((k for k in func_ml_brain if k.startswith("ARCHETYPES_K")), None)
@@ -652,6 +653,8 @@ class SignalProcessor:
                             med = f_medians[i] if i < len(f_medians) else 0.0
                             iqr = f_iqrs[i] if i < len(f_iqrs) and f_iqrs[i] > 0 else 1.0
                             w = f_weights[i] if i < len(f_weights) else 1.0
+                            if fname == "log_density_def_encapsulation":
+                                w *= enc_lang_weight
                             scaled_vec.append(((v - med) / iqr) * w)
 
                         best_idx, best_dist = -1, None
@@ -1407,8 +1410,8 @@ class SignalProcessor:
 
     def _calc_raw_temporal_signals(self, temp: dict[str, Any]) -> tuple[float, float]:
         """Calculates Stability (Age) and Raw Churn (Seismic Frequency)."""
-        if not temp or not temp.get("is_git_tracked", False):
-            return 50.0, 0.0
+        if not temp or not temp.get("is_git_tracked", False) or temp.get("history_unreliable", False):
+            return 50.0, 0.0  # #4548: no usable history (non-git, shallow clone): neutral, not a score
 
         mtime = temp.get("mtime", 0.0)
         repo_min = temp.get("repo_min_time", mtime)
@@ -1618,7 +1621,7 @@ class SignalProcessor:
         net_exposure = attack - defense
 
         try:
-            score = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 12.0) * net_exposure))
+            score = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 4.0) * net_exposure))
         except OverflowError:
             score = 100.0 if net_exposure > 0 else 0.0
 

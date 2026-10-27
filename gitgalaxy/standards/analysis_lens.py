@@ -143,10 +143,12 @@ ENGINE_CONSTANTS = {
 # risk term at all. Dialects resolve through LANGUAGE_FAMILY (embedded_python -> python)
 # so a family member can never fall through to a default again.
 #
-# Irc = number of `False` columns (0-4); Ot = 1 + 0.1 * Irc. These weights are
-# provisional -- the magnitude of a language-level term is exactly what no fixture can
-# validate yet (#2720 is the pilot that will). #2655's invariant stays in force in every
-# equation that reads them: Irc corrects measured risk, it never creates it.
+# Irc = gaps * STRICTNESS_IRC_PER_GAP; Ot = 1 + gaps * STRICTNESS_OT_PER_GAP. Both weights
+# are ZERO (owner, 2026-10-23): the #2720 outcome-label pilot found no consistent predictive
+# value at equal measured evidence (pooled rate ratio 0.67, opposite to the table, per-repo
+# signs disagreeing; memo on #2716). The table stays as documentation and as the hook a
+# future measured weight would use. #2655's invariant stays in force in every equation that
+# reads them: Irc corrects measured risk, it never creates it.
 # ------------------------------------------------------------------------------
 
 STRICTNESS_COLUMNS = ("static_types", "enforced_errors", "memory_safe", "no_implicit_globals")
@@ -247,8 +249,8 @@ LANGUAGE_FAMILY: dict[str, str] = {
     "micropython": "python",
 }
 
-STRICTNESS_IRC_PER_GAP = 1  # Irc = gaps * this
-STRICTNESS_OT_PER_GAP = 0.10  # Ot = 1 + gaps * this
+STRICTNESS_IRC_PER_GAP = 0  # Irc = gaps * this; zero since the #2720 pilot (was 1)
+STRICTNESS_OT_PER_GAP = 0.0  # Ot = 1 + gaps * this; zero since the #2720 pilot (was 0.10)
 
 
 def resolve_language_family(lang_id: str) -> str:
@@ -922,7 +924,10 @@ RISK_EQUATION_TUNING = {
         "test_weight": 0.5,
         "doc_weight": 0.1,
         "laplace_smoothing": 20.0,
-        "sigmoid_slope": 12.0,
+        # #4548 item 6: slope 12 reached 99 at a net density of 0.38 weighted hits per line, so 3.8-23% of
+        # files pinned at 99-100 and the ranking among them was lost. Slope 4 (the cognitive_load slope)
+        # reaches 99 only past ~1.15, keeping dense files ordered by density.
+        "sigmoid_slope": 4.0,
         "breach_density_min": 0.03,
         "breach_floor_mult": 500.0,
         "breach_floor_max": 80.0,
@@ -1592,7 +1597,7 @@ def inactive_vectors(scan_config: dict[str, Any] | None = None) -> set[str]:
 # ------------------------------------------------------------------------------
 
 SURFACE_FAMILIES: dict[str, list[str]] = {
-    "memory": ["pointers", "memory_alloc", "explicit_casts"],
+    "memory": ["memory_alloc", "explicit_casts"],
     "cleanup": ["cleanup"],
     "guards": ["safety", "immutability_locks", "encapsulation"],
     "danger": ["safety_bypasses", "high_risk_execution", "inline_asm", "panics_and_aborts"],
@@ -1669,6 +1674,10 @@ SURFACE_FAMILY_EXEMPT: dict[str, str] = {
     "reflection_metaprogramming": (
         "metaprogramming marker: language-level macro/reflection count, not a threat surface (#4548)"
     ),
+    # --- pointer-use marker (1, #4548): a dereference/indirection count (92-98% of the old memory family
+    # --- on C/C++), a language-idiom density, not a memory-corruption signal. Allocation and cast
+    # --- surface stay in the memory family; the raw `pointers` count is still emitted per file ---
+    "pointers": "pointer-use marker: dereference/indirection count, not a memory-corruption surface (#4548)",
     # --- sec_* lens duplicates (6): would double-count signals already
     # --- summed under their non-sec_ counterpart's family ---
     "sec_safety_bypasses": "sec_* duplicate of 'safety_bypasses' (danger family); would double-count",
@@ -1728,6 +1737,12 @@ FUNCTION_ARCHETYPE_DEFINITIONS = {
 # clip raw densities by CAP_VALUES, log1p, RobustScale by MEDIANS/IQRS, multiply by
 # FEATURE_WEIGHTS, then nearest centroid -> cluster_names[idx]. signal_processor.py
 # builds this vector from each function's hit_vector via DNA_SOURCES.
+# #5897: languages whose encapsulation rule counts spelling (lowercase = unexported), so the
+# signal is hot on every function and decides the archetype instead of describing it. The
+# function classifier multiplies the encapsulation feature of these languages' functions by
+# the factor, after scaling (a feature weight, applied on top of FEATURE_WEIGHTS).
+FUNCTION_ENCAPSULATION_LANG_WEIGHT = {"go": 0.3}
+
 GENERAL_FUNCTION_INFERENCE_MODEL = {
     "SCALER_MEDIANS": [
         2.303,

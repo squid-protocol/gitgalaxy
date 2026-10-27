@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-useradd",
+  "entries": [
+    {
+      "unit": "RETURN-TO-PREV-SCREEN",
+      "line": 167,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 79 moves 'COSGN00C' and line 94 'COADM01C'; both fields PIC X(08), COCOM01Y). COUSR01C never moves SPACES or LOW-VALUES into it in between."
+    }
+  ]
+}

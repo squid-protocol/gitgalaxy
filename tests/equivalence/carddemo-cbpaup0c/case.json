@@ -122,6 +122,19 @@
    "why": "#5857: a display frequency of 0000 and a blank: the count (8 digits) sorts above that alphanumeric field, so the final CHKP DISPLAYs its count (the WS-NO-CHKP >= branch)"
   },
   {
+   "name": "checkpoint-freq-compare",
+   "sysin": "13     1 00005 N",
+   "plan": [
+    {
+     "dd": "DLI",
+     "op": "GN",
+     "nth": 3,
+     "status": "AM"
+    }
+   ],
+   "why": "#6072: a checkpoint frequency of four blanks and a 1: not SPACES and not 0, so it is kept, and the summary count (8 digits) sorts above that alphanumeric field (a blank sorts below '0'), so WS-AUTH-SMRY-PROC-CNT > P-CHKP-FREQ is true after every summary and the CHKP fires each time (the checkpoint-frequency true branch). A basic CHKP drops the database position, so the next GN reads the first summary again and the step would never end: the third GN answers AM and the step abends (RC 16) on both sides"
+  },
+  {
    "name": "expiry-not-numeric",
    "sysin": "XX 00002 00005 N",
    "plan": [],

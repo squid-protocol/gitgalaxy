@@ -1,0 +1,62 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-report",
+  "entries": [
+    {
+      "unit": "PROCESS-ENTER-KEY",
+      "line": 347,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF SDTYYYYI IS NOT NUMERIC`: lines 313-315 have just moved WS-NUM-9999 (PIC 9999, line 75: unsigned display digits) into SDTYYYYI (PIC X(4), CORPT00.CPY), so it always holds four digits"
+    },
+    {
+      "unit": "PROCESS-ENTER-KEY",
+      "line": 373,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF EDTYYYYI IS NOT NUMERIC`: lines 325-327 have just moved WS-NUM-9999 (PIC 9999, line 75: unsigned display digits) into EDTYYYYI (PIC X(4), CORPT00.CPY), so it always holds four digits"
+    },
+    {
+      "unit": "PROCESS-ENTER-KEY",
+      "line": 434,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF NOT ERR-FLG-ON` can only be false after an error was flagged, but every MOVE 'Y' TO WS-ERR-FLG (lines 191, 263-298, 333-376, 402, 422, 440, 471, 482, 491, 530) is followed by PERFORM SEND-TRNRPT-SCREEN, which never returns: it ends in GO TO RETURN-TO-CICS (line 580), whose EXEC CICS RETURN (line 587, no RESP / NOHANDLE) ends the task; WS-ERR-FLG starts 'N' (SET ERR-FLG-OFF, line 165)"
+    },
+    {
+      "unit": "PROCESS-ENTER-KEY",
+      "line": 445,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF NOT ERR-FLG-ON` after the report EVALUATE: every MOVE 'Y' TO WS-ERR-FLG (lines 191, 263-298, 333-376, 402, 422, 440, 471, 482, 491, 530) is followed by PERFORM SEND-TRNRPT-SCREEN, which never returns: it ends in GO TO RETURN-TO-CICS (line 580), whose EXEC CICS RETURN (line 587, no RESP / NOHANDLE) ends the task; WS-ERR-FLG starts 'N' (SET ERR-FLG-OFF, line 165)"
+    },
+    {
+      "unit": "SUBMIT-JOB-TO-INTRDR",
+      "line": 476,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF NOT ERR-FLG-ON`: the only flag set before it in this task is line 471, followed by PERFORM SEND-TRNRPT-SCREEN, which never returns; every MOVE 'Y' TO WS-ERR-FLG (lines 191, 263-298, 333-376, 402, 422, 440, 471, 482, 491, 530) is followed by PERFORM SEND-TRNRPT-SCREEN, which never returns: it ends in GO TO RETURN-TO-CICS (line 580), whose EXEC CICS RETURN (line 587, no RESP / NOHANDLE) ends the task; WS-ERR-FLG starts 'N' (SET ERR-FLG-OFF, line 165)"
+    },
+    {
+      "unit": "RETURN-TO-PREV-SCREEN",
+      "line": 542,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF CDEMO-TO-PROGRAM = LOW-VALUES OR SPACES` in RETURN-TO-PREV-SCREEN: the paragraph is only PERFORMed, and every PERFORM of it comes right after a MOVE of a non-blank program name into CDEMO-TO-PROGRAM (line 173 moves 'COSGN00C' and line 188 'COMEN01C'; both fields PIC X(08), COCOM01Y). CORPT00C never moves SPACES or LOW-VALUES into it in between."
+    },
+    {
+      "unit": "SEND-TRNRPT-SCREEN",
+      "line": 562,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "`IF SEND-ERASE-YES`: WS-SEND-ERASE-FLG has VALUE 'Y' (line 47) and the only statement that writes it is SET SEND-ERASE-YES TO TRUE (line 167); SEND-ERASE-NO is never set"
+    }
+  ]
+}

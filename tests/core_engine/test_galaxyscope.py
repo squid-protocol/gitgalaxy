@@ -5,10 +5,19 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 # Adjust imports to match your architecture
 from gitgalaxy.core.aperture import DENIED_EXTENSION, ApertureReason
 from gitgalaxy.core.spatial_correlation import weighted_count
 from gitgalaxy.galaxyscope import Orchestrator, _process_file_worker, _worker_state
+
+
+@pytest.fixture(autouse=True)
+def _scan_outputs_in_tmp(tmp_path, monkeypatch):
+    """Tests pass relative output names ("fake.json"); without this the recorders write
+    `<checkout>_galaxy_llm.md`, `*_master.db`, ... into the repo root (#5521)."""
+    monkeypatch.chdir(tmp_path)
 
 
 class TestGalaxyScopeOrchestrator(unittest.TestCase):

@@ -1,9 +1,12 @@
 """#5628 (part 2): a scoped unit's call to a DIFFERENT unit of the same leaf name is a call
 (`Scope::f` -> free `f`, C# `IEnumerable.GetEnumerator` -> `GetEnumerator`). Self-recursion
-stays dropped (#3327), as do nested declarations (#3360) and `this->f(` / `Scope::f(`."""
+stays dropped (#3327), as do nested declarations (#3360) and `this->f(` / `Scope::f(`. C++ is an
+overload language (#3784): its detector keeps a bare self call with its argument count, and the
+resolver prunes it as recursion when the count picks the unit itself (#3772)."""
 
 import pytest
 
+from gitgalaxy.core.call_resolver import resolve_calls
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -11,6 +14,12 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 def _fns(lang: str, code: str) -> dict[str, dict]:
     functions = StructuralExtractor(lang, LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
     return {f["name"]: f for f in functions}
+
+
+def _self_edges(lang: str, code: str) -> list[dict]:
+    functions = StructuralExtractor(lang, LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+    rows = resolve_calls([{"path": "a.cc", "lang_id": lang, "functions": functions, "classes": []}])[0]
+    return [r for r in rows if r["src_line"] == r["dst_line"]]
 
 
 def test_cpp_scoped_unit_calling_free_function_keeps_the_edge():
@@ -39,13 +48,16 @@ def test_cpp_receiver_call_to_same_name_was_and_stays_a_call():
 @pytest.mark.parametrize("lang", ["c", "cpp"])
 def test_direct_recursion_stays_dropped(lang):
     src = "int r(int n) {\n  return r(n - 1) + helper(n);\n}\n"
-    assert _fns(lang, src)["r"]["calls_out_to"] == ["helper"]
+    # cpp keeps `r` with its count for the resolver's overload choice (#3784); c drops it here
+    assert _fns(lang, src)["r"]["calls_out_to"] == (["helper", "r"] if lang == "cpp" else ["helper"])
+    assert _self_edges(lang, src) == []
 
 
 @pytest.mark.parametrize("lang", ["c", "cpp"])
 def test_free_function_does_not_gain_an_edge_from_a_scoped_namesake(lang):
     src = "void f(int a) {\n  f(a);\n}\n"
-    assert _fns(lang, src)["f"]["calls_out_to"] == []
+    assert _fns(lang, src)["f"]["calls_out_to"] == (["f"] if lang == "cpp" else [])
+    assert _self_edges(lang, src) == []
 
 
 def test_csharp_explicit_interface_impl_calls_the_same_named_method():

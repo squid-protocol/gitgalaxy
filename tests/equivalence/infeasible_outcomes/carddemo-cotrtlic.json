@@ -1,0 +1,102 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-cotrtlic",
+  "entries": [
+    {
+      "unit": "0000-MAIN",
+      "line": 799,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF NOT FLG-TYPEFILTER-NOT-OK AND NOT FLG-DESCFILTER-NOT-OK: FLG-TYPEFILTER-NOT-OK and FLG-DESCFILTER-NOT-OK are set only at 1113, 1254 and 1258, each beside SET INPUT-ERROR (1112, 1252), and the flags live in WS-MISC-STORAGE (fresh every task, INITIALIZE gives spaces). This WHEN is reached only after the first WHEN INPUT-ERROR (699) was not taken, so neither flag is set and the false arm cannot be taken."
+    },
+    {
+      "unit": "0000-MAIN",
+      "line": 843,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF NOT FLG-TYPEFILTER-NOT-OK AND NOT FLG-DESCFILTER-NOT-OK: FLG-TYPEFILTER-NOT-OK and FLG-DESCFILTER-NOT-OK are set only at 1113, 1254 and 1258, each beside SET INPUT-ERROR (1112, 1252), and the flags live in WS-MISC-STORAGE (fresh every task, INITIALIZE gives spaces). This WHEN is reached only after the first WHEN INPUT-ERROR (699) was not taken, so neither flag is set and the false arm cannot be taken."
+    },
+    {
+      "unit": "1210-EDIT-ARRAY",
+      "line": 991,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "IF FLG-TYPEFILTER-CHANGED-YES OR FLG-DESCFILTER-CHANGED-YES: the two flags are set only at 1136 and 1174, inside 1220-EDIT-TYPECD and 1230-EDIT-DESC, which 1200-EDIT-INPUTS performs after 1210-EDIT-ARRAY; WS-MISC-STORAGE is fresh every task and holds no VALUE for them, so neither flag is 'Y' when 1210 runs and the true arm cannot be taken. Assumption: storage without a VALUE clause starts as spaces or low-values."
+    },
+    {
+      "unit": "1230-EDIT-DESC",
+      "line": 1155,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF FLG-DESCFILTER-ISVALID: the only way past the blank test at 1147-1148 is the ELSE at 1151 that SETs FLG-DESCFILTER-ISVALID (1152), and nothing runs between, so the flag is always valid here."
+    },
+    {
+      "unit": "2400-SETUP-SCREEN-ATTRS",
+      "line": 1445,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1454",
+      "family": "G",
+      "reason": "WHEN WS-IN-TYPE-CD = 0: WS-IN-TYPE-CD is PIC X(02) and the literal 0 has one digit, so IBM (numeric integer literal against an alphanumeric item: the literal is compared as the alphanumeric '0', the shorter operand padded with spaces) and cobc both compare it with '0 ', never with '00'; the case's type-filter-zeros scenario ('00') runs and does not take the arm. '0 ' is not NUMERIC, so 1220-EDIT-TYPECD sets FLG-TYPEFILTER-NOT-OK, which the earlier WHEN (1450-1451) takes; spaces, low-values and a valid two-digit code never equal '0 ' or reach this WHEN."
+    },
+    {
+      "unit": "2500-SETUP-MESSAGE",
+      "line": 1506,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "EVALUATE TRUE (OTHER): the arm before it, WHEN WS-NO-INFO-MESSAGE (1550), is true for every input that reaches it: 2000-SEND-MAP performs 2100-SCREEN-INIT (SET WS-NO-INFO-MESSAGE at 1320) before 2500-SETUP-MESSAGE, and WS-INFO-MSG is written only in 2500 itself and at 1859/1912 (PF10 paths that send the map afterwards, taking the first WHENs of this EVALUATE), so the message is blank whenever an unmatched input falls through."
+    },
+    {
+      "unit": "2500-SETUP-MESSAGE",
+      "line": 1543,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF WS-NO-INFO-MESSAGE (PF8 WHEN at 1541): 2100-SCREEN-INIT sets WS-NO-INFO-MESSAGE at 1320 earlier in the same 2000-SEND-MAP and no WHEN of 2500's EVALUATE runs before the one selected, so the message is blank on entry and the false arm cannot be taken."
+    },
+    {
+      "unit": "2500-SETUP-MESSAGE",
+      "line": 1546,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF CA-LAST-PAGE-NOT-SHOWN AND CA-NEXT-PAGE-NOT-EXISTS (PF8 WHEN at 1541): the WHEN already holds CA-NEXT-PAGE-NOT-EXISTS, so the false arm needs CA-LAST-PAGE-SHOWN, but the earlier WHEN (1536-1538: PF8, next page not exists, last page shown) takes every such input first."
+    },
+    {
+      "unit": "9200-UPDATE-RECORD",
+      "line": 1858,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF WS-NO-INFO-MESSAGE: WS-INFO-MSG is written only at 1320 (blank), 1508-1554 (2500-SETUP-MESSAGE, under 2000-SEND-MAP) and this paragraph; 9200-UPDATE-RECORD is performed from the PF10 WHEN of 0000-MAIN before any 2000-SEND-MAP in the task, and WS-MISC-STORAGE is fresh each task, so the message is still blank (SPACES or LOW-VALUES, both in WS-NO-INFO-MESSAGE) and the false arm cannot be taken. Assumption: storage without a VALUE clause starts as spaces or low-values."
+    },
+    {
+      "unit": "9300-DELETE-RECORD",
+      "line": 1911,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF WS-NO-INFO-MESSAGE: WS-INFO-MSG is written only at 1320 (blank), 1508-1554 (2500-SETUP-MESSAGE, under 2000-SEND-MAP) and this paragraph; 9300-DELETE-RECORD is performed from the PF10 WHEN of 0000-MAIN before any 2000-SEND-MAP in the task, and WS-MISC-STORAGE is fresh each task, so the message is still blank (SPACES or LOW-VALUES, both in WS-NO-INFO-MESSAGE) and the false arm cannot be taken. Assumption: storage without a VALUE clause starts as spaces or low-values."
+    },
+    {
+      "unit": "9300-DELETE-RECORD",
+      "line": 1917,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF WS-RETURN-MSG-OFF: 9300-DELETE-RECORD runs only when WS-DELETES-REQUESTED > 0 with no INPUT-ERROR. WS-RETURN-MSG is cleared at 511 and, without INPUT-ERROR, is written before this point only by 1211-EDIT-ARRAY-DESC's 'No change detected' (1072), which needs a 'U' row; a 'U' row together with the 'D' row is two actions (WS-MORETHAN1ACTION sets INPUT-ERROR at 1050), so the message is always OFF here and the false arm cannot be taken."
+    },
+    {
+      "unit": "9300-DELETE-RECORD",
+      "line": 1927,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF WS-RETURN-MSG-OFF: 9300-DELETE-RECORD runs only when WS-DELETES-REQUESTED > 0 with no INPUT-ERROR. WS-RETURN-MSG is cleared at 511 and, without INPUT-ERROR, is written before this point only by 1211-EDIT-ARRAY-DESC's 'No change detected' (1072), which needs a 'U' row; a 'U' row together with the 'D' row is two actions (WS-MORETHAN1ACTION sets INPUT-ERROR at 1050), so the message is always OFF here and the false arm cannot be taken."
+    }
+  ]
+}

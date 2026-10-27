@@ -44,7 +44,7 @@
  },
  "linked": true,
  "screens": {},
- "notes": "CBSA's inquire-customer service (INQCUST, LINKed by BNK1DCS -- transaction ODCS -- and by INQACCCU and CREACC with the INQCUST copybook's COMMAREA). It sets 'N' / '0', keys on the program's own sort code (SORTCODE copybook, 987654; INQCUST-SCODE is ignored) and INQCUST-CUSTNO. INQCUST-CUSTNO 9999999999 or 0000000000 first finds the last customer number with a backwards browse (STARTBR at HIGH-VALUES, READPREV, ENDBR; any failure 'N' / '9' and RETURN): the number of the file's highest key, whatever its sort code. 9999999999 then reads that number; 0000000000 reads a random one, (last - 1) * FUNCTION RANDOM(EIBTASKN) + 1, drawing again (FUNCTION RANDOM with no seed) on each NOTFND up to 1,000 times. READ NORMAL fills the COMMAREA from the record, 'Y'; NOTFND gives 'N' / '1' (blanking name and address on an ordinary number; 9999999999 looks the last customer up once more); any other condition fills ABNDINFO, LINKs ABNDPROC (run in the same task: an ABNDFILE record) and ABENDs CVR1 CANCEL. Each SYSIDERR on a file command is retried after a DELAY FOR SECONDS(3), up to 100 times. FUNCTION RANDOM runs on the oracle's generator (oracle_assumptions.md C12) seeded by EIBTASKN, a stated fact of the run (X21): the random customers are the oracle's, not z/OS's. Not reached: ABEND-HANDLING (the HANDLE ABEND exit runs for an abend AFCR / AFCS / AFCT from VSAM RLS, which no fault raises; the program's own ABEND CVR1 is CANCEL) and the 100-retry ends of the SYSIDERR loops. Data: customer.txt is SYNTHETIC (CBSA generates its customers at random with BANKDATA; the corpus ships none): customers 1-5 and 8 of sort code 987654, one of 123456 and a decoy 999999/0000000003 holding the highest key; abndfile.bin is empty. CUSTOMER and ABNDFILE are compared after every scenario. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
+ "notes": "CBSA's inquire-customer service (INQCUST, LINKed by BNK1DCS -- transaction ODCS -- and by INQACCCU and CREACC with the INQCUST copybook's COMMAREA). It sets 'N' / '0', keys on the program's own sort code (SORTCODE copybook, 987654; INQCUST-SCODE is ignored) and INQCUST-CUSTNO. INQCUST-CUSTNO 9999999999 or 0000000000 first finds the last customer number with a backwards browse (STARTBR at HIGH-VALUES, READPREV, ENDBR; any failure 'N' / '9' and RETURN): the number of the file's highest key, whatever its sort code. 9999999999 then reads that number; 0000000000 reads a random one, (last - 1) * FUNCTION RANDOM(EIBTASKN) + 1, drawing again (FUNCTION RANDOM with no seed) on each NOTFND up to 1,000 times. READ NORMAL fills the COMMAREA from the record, 'Y'; NOTFND gives 'N' / '1' (blanking name and address on an ordinary number; 9999999999 looks the last customer up once more); any other condition fills ABNDINFO, LINKs ABNDPROC (run in the same task: an ABNDFILE record) and ABENDs CVR1 CANCEL. Each SYSIDERR on a file command is retried after a DELAY FOR SECONDS(3), up to 100 times. FUNCTION RANDOM runs on the oracle's generator (oracle_assumptions.md C12) seeded by EIBTASKN, a stated fact of the run (X21): the random customers are the oracle's, not z/OS's. ABEND-HANDLING runs for a planned VSAM RLS abend AFCR / AFCS / AFCT on the READ, the STARTBR or the READPREV (register X70): the storm-drain arm answers 'N' / '2', and a failed SYNCPOINT ROLLBACK LINKs ABNDPROC and ABENDs HROL CANCEL; the program's own ABEND CVR1 is CANCEL. Not reached: the 100-retry ends of the SYSIDERR loops. Data: customer.txt is SYNTHETIC (CBSA generates its customers at random with BANKDATA; the corpus ships none): customers 1-5 and 8 of sort code 987654, one of 123456 and a decoy 999999/0000000003 holding the highest key; abndfile.bin is empty. CUSTOMER and ABNDFILE are compared after every scenario. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
  "scenarios": [
   {
    "name": "found",
@@ -416,6 +416,83 @@
     }
    ],
    "why": "SYSIDERR on ENDBR once, then NORMAL: 'Y'"
+  },
+  {
+   "name": "read-abends-afcr",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000001"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "nth": 1,
+     "resp": "ABEND",
+     "abcode": "AFCR"
+    }
+   ],
+   "why": "#6271 (X70): RLS abend AFCR on the customer READ: the HANDLE ABEND exit (ABEND-HANDLING) takes the storm-drain arm, SYNCPOINT ROLLBACK is NORMAL, 'N' / '2' and RETURN (no ABNDFILE record)"
+  },
+  {
+   "name": "startbr-abends-afcs",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "9999999999"
+   },
+   "faults": [
+    {
+     "cmd": "STARTBR",
+     "file": "CUSTOMER",
+     "nth": 1,
+     "resp": "ABEND",
+     "abcode": "AFCS"
+    }
+   ],
+   "why": "#6271 (X70): RLS abend AFCS on the STARTBR of the last-customer browse: the HANDLE ABEND exit (ABEND-HANDLING) takes the storm-drain arm, SYNCPOINT ROLLBACK is NORMAL, 'N' / '2' and RETURN (no ABNDFILE record)"
+  },
+  {
+   "name": "readprev-abends-afct",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "9999999999"
+   },
+   "faults": [
+    {
+     "cmd": "READPREV",
+     "file": "CUSTOMER",
+     "nth": 1,
+     "resp": "ABEND",
+     "abcode": "AFCT"
+    }
+   ],
+   "why": "#6271 (X70): RLS abend AFCT on the browse's READPREV: the HANDLE ABEND exit (ABEND-HANDLING) takes the storm-drain arm, SYNCPOINT ROLLBACK is NORMAL, 'N' / '2' and RETURN (no ABNDFILE record)"
+  },
+  {
+   "name": "read-abends-afcr-rollback-fails",
+   "commarea": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": "0000000001"
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "nth": 1,
+     "resp": "ABEND",
+     "abcode": "AFCR"
+    },
+    {
+     "cmd": "ROLLBACK",
+     "resp": "INVREQ",
+     "resp2": 200
+    }
+   ],
+   "why": "#6271 (X70, X71): RLS abend AFCR on the READ and the SYNCPOINT ROLLBACK then fails INVREQ: ABEND-HANDLING fills ABNDINFO ('HROL'), LINKs ABNDPROC (an ABNDFILE record) and ABENDs HROL CANCEL"
   }
  ]
 }

@@ -1,5 +1,5 @@
 """#5278: the CardDemo COPAUA0C equivalence case (IMS DBPAUTP0 through EXEC DLI, three VSAM files, the MQ request / reply
-queues) and the harness steps it needed. The unit tests need nothing but the case; the proof itself (17 scenarios,
+queues) and the harness steps it needed. The unit tests need nothing but the case; the proof itself (20 scenarios,
 GnuCOBOL against the det port) is the det sweep's, `det_port.py run carddemo-copaua0c`."""
 
 from __future__ import annotations
@@ -17,6 +17,8 @@ ROOT = Path(__file__).resolve().parents[2]
 TOOLS = ROOT / "tests" / "tools"
 sys.path.insert(0, str(TOOLS))
 
+from gitgalaxy.core.source_text import read_source  # noqa: E402
+
 import equivalence_cics as ec  # noqa: E402
 import equivalence_ims as ims  # noqa: E402
 
@@ -29,6 +31,8 @@ SCENARIOS = [
     "decline-no-summary-over-account-limit", "card-not-in-xref", "account-not-in-master", "customer-not-in-master",
     "same-account-twice", "amount-without-decimals", "amount-with-sign", "three-requests-mixed",
     "read-xref-io-error", "read-acct-io-error", "read-cust-io-error", "no-trigger-data", "no-reply-queue",
+    "gu-summary-bad-status", "repl-summary-fails", "request-longer-than-buffer", "schd-held-after-term",
+    "open-request-queue-fails", "get-request-fails", "close-request-queue-fails", "five-hundred-one-requests",
 ]  # fmt: skip
 
 
@@ -130,4 +134,58 @@ def test_the_committed_det_port_has_a_recorded_proof():
     rec = json.loads((CASE / "evidence.json").read_text(encoding="utf-8"))
     assert rec["proof"]["verdict"] == "proven" and not rec["proof"]["java_failed"]
     assert rec["proof"]["runs"] == len(SCENARIOS) and rec["provenance"]["written_by"] == "det"
-    assert rec["coverage"]["branches"]["total"] == 69
+    assert rec["coverage"]["branches"]["total"] == 71
+
+
+def test_the_request_limit_exit_is_taken_by_a_501_request_scenario():
+    """Line 339 (true): 501 requests in one task end the loop; the reply pointer is never reset, so every reply after the
+    third puts a 201-byte length over the 200-byte buffer (undefined in IBM): the case states that assumption."""
+    case = _case()
+    sc = {s["name"]: s for s in case["scenarios"]}["five-hundred-one-requests"]
+    msgs = sc["mq_messages"]["CARDDEMO.REQUEST.QUEUE"]
+    assert len(msgs) == 501 and len({m["data"] for m in msgs}) == 501
+    notes = case["notes"]
+    assert "WS-RESP-LENGTH" in notes and "line 339" in notes and "assumption" in notes
+    corpus = _corpus()
+    if corpus is None:
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    src = read_source(corpus / APP / "cbl/COPAUA0C.cbl").text.splitlines()
+    assert (
+        "WS-RESP-LENGTH" in src[45] and "VALUE 1" in src[45] and "W02-PUT-BUFFER" in src[107] and "X(200)" in src[107]
+    )
+    assert (
+        sum("WS-RESP-LENGTH" in ln for ln in src) == 3
+    )  # declared, the STRING POINTER, the MQPUT1 length: never reset
+    assert "WS-REQSTS-PROCESS-LIMIT" in src[338] and "VALUE 500" in src[39]
+
+
+def test_the_mq_fault_scenarios_plan_one_failing_call_each():
+    import equivalence_mq as emq
+
+    case = _case()
+    by_name = {s["name"]: s for s in case["scenarios"]}
+    plans = {
+        "open-request-queue-fails": ("MQOPEN", 1),
+        "get-request-fails": ("MQGET", 1),
+        "close-request-queue-fails": ("MQCLOSE", 1),
+    }
+    for name, (verb, nth) in plans.items():
+        faults = by_name[name]["mq_faults"]
+        assert [(f["call"], f["nth"]) for f in faults] == [(verb, nth)]
+        text = emq.cfg(emq.state(case, by_name[name]), "latin-1")
+        assert f"FAULT {verb} {nth} {faults[0]['reason']}" in text
+
+
+@pytest.mark.parametrize(
+    "plan",
+    [
+        [{"call": "MQDISC", "nth": 1, "reason": 2009}],
+        [{"call": "MQCLOSE", "nth": 0, "reason": 2009}],
+        [{"call": "MQCLOSE", "nth": 1, "reason": 2016}],
+    ],
+)
+def test_a_bad_mq_fault_plan_is_refused(plan):
+    import equivalence_mq as emq
+
+    with pytest.raises(ValueError):
+        emq.fault_plan(plan, "x")

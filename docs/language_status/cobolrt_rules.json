@@ -288,6 +288,7 @@
     "be32",
     "put32",
     "bytesAre",
+    "bytesAt",
     "zero",
     "fill",
     "pad",
@@ -296,7 +297,8 @@
     "comp",
     "done",
     "r",
-    "event"
+    "event",
+    "planned"
    ]
   },
   {
@@ -2372,9 +2374,9 @@
   {
    "id": "RT-CICS-WRITEQ-PAST-FROM",
    "family": "CICS",
-   "title": "A WRITEQ TS / TD whose LENGTH runs past its FROM item is refused by name, the task judged up to it",
+   "title": "A WRITEQ TS / TD whose LENGTH runs past its FROM item writes FROM's bytes then spaces to LENGTH (ASSUMED: IBM takes the storage that follows, undefined)",
    "methods": [
-    "within"
+    "padded"
    ],
    "ibm": {
     "doc": "cics-apr",
@@ -2389,7 +2391,7 @@
    "register": [
     "X6"
    ],
-   "status": "REFUSED",
+   "status": "ASSUMED",
    "calibration": "uncalibrated"
   },
   {
@@ -2398,7 +2400,8 @@
    "title": "DOCUMENT CREATE TEXT / BINARY LENGTH(n): n bytes of the area (negative: LENGERR); DOCUMENT RETRIEVE INTO: at most MAXLENGTH bytes, the rest of INTO as it was; past the area refused",
    "methods": [
     "documentBytes",
-    "putDocument"
+    "putDocument",
+    "within"
    ],
    "ibm": {
     "doc": "cics-apr",
@@ -3325,10 +3328,12 @@
   {
    "id": "RT-LE-CEEQCEN",
    "family": "LE",
-   "title": "CEEQCEN: the century window's start (80: the run's default)",
+   "title": "CEEQCEN / CEESCEN: the century window's start (80 by default; CEESCEN sets 0 to 100, else CEE2533)",
    "methods": [
     "qcen",
-    "le/Ceeqcen.java:call"
+    "scen",
+    "le/Ceeqcen.java:call",
+    "le/Ceeqcen.java:set"
    ],
    "site": "le/LeTime.java:qcen",
    "ibm": {
@@ -3590,10 +3595,15 @@
   {
    "id": "RT-DLI-SSA",
    "family": "DLI",
-   "title": "SSAs: segment name, unqualified (blank) or qualified (field, relational operator, value, ')'); AC / AJ / AK as IBM answers them; command codes, boolean qualification and missing levels refused",
+   "title": "SSAs: segment name, unqualified (blank) or qualified (field, relational operator, value, ')'); qualification statements joined by AND (& or *) and OR (+ or |), AND binding tighter, at most 16; AC / AJ / AK as IBM answers them; command codes F, L, P, C, D and - (L only on the last unqualified SSA of a GU, P only on a GU, C only as the one SSA of a GU, D on a get call), the other codes, the independent AND (#) and missing levels refused",
    "methods": [
     "parseSsas",
-    "chain"
+    "catLength",
+    "expandCat",
+    "chain",
+    "isBool",
+    "isCode",
+    "checkCodes"
    ],
    "ibm": {
     "doc": "ims-apis",
@@ -3614,7 +3624,8 @@
    "methods": [
     "qualifies",
     "packedSign",
-    "satisfies"
+    "satisfies",
+    "term"
    ],
    "ibm": {
     "doc": "ims-apis",
@@ -3649,7 +3660,7 @@
   {
    "id": "RT-DLI-GET",
    "family": "DLI",
-   "title": "GU / GN / GNP and their holds: the first segment in hierarchic sequence satisfying the SSAs, from the database's start, from position, or under parentage; GE / GB / GP / GA / GK; position and parentage after the call",
+   "title": "GU / GN / GNP and their holds: the first segment in hierarchic sequence satisfying the SSAs, from the database's start, from position, or under parentage; GE / GB / GP / GA / GK; position and parentage after the call; command code D hands back the D-coded segments before the found one",
    "methods": [
     "get",
     "firstSatisfying",
@@ -3720,9 +3731,11 @@
   {
    "id": "RT-DLI-ISRT",
    "family": "DLI",
-   "title": "ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found",
+   "title": "ISRT: the segment under the parent its SSAs (or current position) locate, among its twins by sequence field; II for a key its twins hold, GE for a parent not found; with command code D, a path insert from the root (each D-coded level kept or created from its slice of the I/O area); on a load-mode PCB (PROCOPT L / LS) the segment is appended in sequence, LB / LC / LD / LE for a duplicate, out-of-sequence, parentless or type-order violation",
    "methods": [
-    "isrt"
+    "isrt",
+    "loadIsrt",
+    "pathIsrt"
    ],
    "ibm": {
     "doc": "ims-apis",
@@ -3741,7 +3754,8 @@
    "family": "DLI",
    "title": "REPL / DLET on the segment the previous get-hold call returned; DJ without one, DA when the I/O area changed the sequence field; DLET removes the segment's dependents",
    "methods": [
-    "change"
+    "change",
+    "changePath"
    ],
    "ibm": {
     "doc": "ims-apis",
@@ -3771,6 +3785,24 @@
    "options": [],
    "register": [
     "I1",
+    "I5"
+   ],
+   "status": "ASSUMED",
+   "calibration": "uncalibrated"
+  },
+  {
+   "id": "RT-DLI-GSAM",
+   "family": "DLI",
+   "title": "A GSAM PCB in load mode: ISRT appends one record of the DBD's length to the output file, any other function is AM, and the PCB mask's segment level is blank; an SSA or an I/O area shorter than the record is refused",
+   "methods": [
+    "gsamCall"
+   ],
+   "ibm": {
+    "doc": "ims-codes",
+    "section": "DL/I status codes"
+   },
+   "options": [],
+   "register": [
     "I5"
    ],
    "status": "ASSUMED",

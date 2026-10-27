@@ -18,8 +18,9 @@ import argparse
 import json
 import os
 import re
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 from gitgalaxy.core.function_population import is_population_function
 from gitgalaxy.metrics import archetype_classifier, archetype_parity
@@ -34,6 +35,446 @@ from gitgalaxy.standards import analysis_lens as config
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution, sec_io, sec_state_mutation
+
+
+# ==============================================================================
+# Mainframe fact sections of the forensic report (#3383): one AuditSection per
+# per-file payload key, in report order. `columns` are `(label, key)` /
+# `(label, key, default)` pairs (a plain `row.get`) or callables `row -> dict`
+# for the keys a row carries only when set (`_when`). A new channel adds a row
+# here instead of a branch in `_mainframe_facts_block`.
+# ==============================================================================
+class AuditSection(NamedTuple):
+    key: str
+    label: str
+    columns: tuple
+    where: Callable | None = None  # keeps only the rows it accepts
+    render: Callable | None = None  # a whole-row renderer instead of columns
+
+
+def _when(pairs, test):
+    """Columns `(key, label)` added only for a row whose value passes `test`."""
+    return lambda r: {label: r[key] for key, label in pairs if test(r.get(key))}
+
+
+def _set(value):
+    return bool(value)
+
+
+def _not_none(value):
+    return value is not None
+
+
+def _audit_row(section, row):
+    out = {}
+    for col in section.columns:
+        if callable(col):
+            out.update(col(row))
+        else:
+            out[col[0]] = row.get(col[1], col[2]) if len(col) > 2 else row.get(col[1])
+    return out
+
+
+def _data_move_line(m):
+    return (
+        f"L{m.get('line', 0)} {m.get('verb')}{' CORR' if m.get('corresponding') else ''} "
+        f"{m.get('source') or '-'}{'(:)' if m.get('source_refmod') else ''} -> "
+        f"{m.get('target')}{'(:)' if m.get('target_refmod') else ''}"
+    )
+
+
+_LINE = ("Line", "line", 0)
+
+AUDIT_SECTIONS = (
+    # #3355: the COMMAREA contract operands ride only on a CICS site that carries them.
+    AuditSection(
+        "call_sites",
+        "Call Sites",
+        (
+            ("Verb", "verb"),
+            ("Form", "form"),
+            ("Operand", "operand"),
+            ("Target", "target"),
+            _LINE,
+            _when(
+                (
+                    ("commarea", "COMMAREA"),
+                    ("commarea_length", "COMMAREA Length"),
+                    ("commarea_datalength", "COMMAREA Data Length"),
+                    ("using_args", "USING"),  # #3454
+                    ("sysid", "SYSID"),  # #3494
+                ),
+                _set,
+            ),
+        ),
+    ),
+    # #3345: the resolved DSN rides only on a binding whose DSN names a symbol.
+    AuditSection(
+        "dataset_bindings",
+        "Dataset Bindings",
+        (
+            ("DD Name", "dd_name"),
+            ("Internal Name", "internal_name"),
+            ("Assign Name", "assign_name"),
+            lambda d: {"Access Modes": d.get("modes") or []},
+            ("DSN", "dsn"),
+            ("Step", "step_name"),
+            _LINE,
+            lambda d: (
+                {"Resolved DSN": d.get("dsn_resolved"), "DSN Resolution": d["dsn_resolution"]}
+                if d.get("dsn_resolution") not in (None, "literal")
+                else {}
+            ),
+        ),
+    ),
+    # #3250: `Attributes` (PL/I's full attribute text) and #3355's COPY members only when present.
+    AuditSection(
+        "record_layouts",
+        "Record Layout",
+        (
+            ("Level", "level"),
+            ("Name", "name"),
+            ("Section", "section"),
+            ("FD", "fd_name"),
+            ("PIC", "pic"),
+            ("Usage", "usage"),
+            ("Occurs Min", "occurs_min"),
+            ("Occurs Max", "occurs_max"),
+            ("Occurs Depending On", "occurs_depending_on"),
+            ("Redefines", "redefines"),
+            ("Value", "value"),
+            ("Ordinal", "ordinal"),
+            ("Parent Ordinal", "parent_ordinal"),
+            _LINE,
+            _when((("attributes", "Attributes"), ("copy_members", "Copy Members")), _set),
+        ),
+    ),
+    # #3344: DB2 `EXEC SQL DECLARE ... TABLE` columns, mirroring sql_table_data.
+    AuditSection(
+        "sql_tables",
+        "SQL Tables",
+        (
+            ("Table", "table"),
+            ("Column No", "colno"),
+            ("Column", "name"),
+            ("SQL Type", "sql_type"),
+            ("Length", "length"),
+            ("Scale", "scale"),
+            ("Nullable", "nullable"),
+            ("Attributes", "attributes"),
+            _LINE,
+        ),
+    ),
+    # #3446: embedded SQL statements, mirroring sql_statement_data.
+    AuditSection(
+        "sql_statements",
+        "SQL Statements",
+        (
+            ("Statement", "ordinal"),
+            ("Verb", "verb"),
+            ("Table", "table"),
+            ("Access", "access"),
+            ("Cursor", "cursor"),
+            ("Host Variables", "host_variables"),
+            _LINE,
+        ),
+    ),
+    # #3347: BMS mapset/map/field rows, mirroring screen_field_data.
+    AuditSection(
+        "screen_fields",
+        "Screen Fields",
+        (
+            ("Kind", "kind"),
+            ("Name", "name"),
+            ("POS Line", "pos_line"),
+            ("POS Column", "pos_column"),
+            ("Length", "length"),
+            ("ATTRB", "attrb"),
+            ("PICIN", "picin"),
+            ("PICOUT", "picout"),
+            ("Initial", "initial"),
+            ("Occurs", "occurs"),
+            ("Attributes", "attributes"),
+            ("Ordinal", "ordinal"),
+            ("Parent Ordinal", "parent_ordinal"),
+            _LINE,
+        ),
+    ),
+    # #3356: CSD resource definitions, mirroring csd_resource_data. A key attribute is listed
+    # only when the record carries it, so a MAPSET row stays a type, name, group and attributes.
+    AuditSection(
+        "csd_resources",
+        "CSD Resources",
+        (
+            ("Type", "resource_type"),
+            ("Name", "name"),
+            ("Group", "group"),
+            _when(
+                (
+                    ("dsname", "DSNAME"),
+                    ("ddname", "DDNAME"),
+                    ("record_format", "Record Format"),
+                    ("key_length", "Key Length"),
+                    ("record_size", "Record Size"),
+                    ("queue_type", "Queue Type"),
+                    ("plan", "Plan"),
+                    ("db2_entry", "DB2 Entry"),
+                    ("transid", "Transid"),
+                    ("program", "Program"),
+                ),
+                _not_none,
+            ),
+            # #5120: provenance only for a macro-table row, so CSD rows are unchanged.
+            lambda r: {"Source": "MACRO", "Macro Table": r.get("macro_table")} if r.get("source") == "MACRO" else {},
+            ("Attributes", "attributes"),
+            _LINE,
+        ),
+    ),
+    # #3351-#3354: EXEC CICS FILE/MAP/QUEUE/CONTAINER/CHANNEL operations, mirroring cics_resource_data.
+    AuditSection(
+        "cics_resources",
+        "CICS Resources",
+        (
+            ("Verb", "verb"),
+            ("Kind", "kind"),
+            ("Access", "access"),
+            ("Operand", "operand"),
+            ("Name", "name"),
+            ("Resolution", "resolution"),
+            ("Candidates", "candidates"),
+            ("Qualifier Operand", "qualifier_operand"),
+            ("Qualifier", "qualifier"),
+            ("Record Clause", "record_clause"),
+            ("Record", "record"),
+            ("Attributes", "attributes"),
+            _LINE,
+        ),
+    ),
+    # #3449: CICS task control (RUN/START/FETCH/RETRIEVE/DELAY/ENQ ...), mirroring cics_task_data.
+    AuditSection(
+        "cics_tasks",
+        "CICS Tasks",
+        (
+            ("Verb", "verb"),
+            ("Target Kind", "target_kind"),
+            ("Operand", "operand"),
+            ("Name", "name"),
+            ("Resolution", "resolution"),
+            ("Candidates", "candidates"),
+            ("Channel Operand", "channel_operand"),
+            ("Channel", "channel"),
+            ("Token", "token"),
+            ("Record Clause", "record_clause"),
+            ("Record", "record"),
+            ("Timing", "timing"),
+            ("Attributes", "attributes"),
+            _LINE,
+        ),
+    ),
+    # #3448: job-submission evidence, mirroring job_submit_data.
+    AuditSection(
+        "job_submits",
+        "Job Submission",
+        (
+            ("Kind", "kind"),
+            ("Step", "step"),
+            ("Name", "name"),
+            ("Target Kind", "target_kind"),
+            ("Target", "target"),
+            _LINE,
+        ),
+    ),
+    # #3447: IBM MQ calls, mirroring mq_call_data.
+    AuditSection(
+        "mq_calls",
+        "MQ Calls",
+        (
+            ("Verb", "verb"),
+            ("Direction", "direction"),
+            ("Operand", "operand"),
+            ("Queue", "queue"),
+            ("Resolution", "resolution"),
+            ("Candidates", "candidates"),
+            ("Handle", "handle"),
+            ("Open Line", "open_line"),
+            ("Options", "options"),
+            _LINE,
+        ),
+    ),
+    # #3453: units of work and error handling, mirroring uow_handler_data.
+    AuditSection(
+        "uow_handlers",
+        "Units Of Work And Handlers",
+        (
+            ("Kind", "kind"),
+            ("Source", "source"),
+            ("Verb", "verb"),
+            ("Condition", "condition"),
+            ("Target", "target"),
+            ("Target Kind", "target_kind"),
+            ("RESP Field", "resp_var"),
+            ("Attributes", "attributes"),
+            _LINE,
+        ),
+    ),
+    # #3455: FILE-CONTROL SELECT definitions, mirroring file_control_data.
+    AuditSection(
+        "file_control",
+        "File Control",
+        (
+            ("Select", "select_name"),
+            ("Assign", "assign"),
+            ("Organization", "organization"),
+            ("Access Mode", "access_mode"),
+            ("Record Key", "record_key"),
+            ("Alternate Keys", "alternate_keys"),
+            ("Relative Key", "relative_key"),
+            ("File Status", "file_status"),
+            ("FD Copies", "fd_copies"),
+            _LINE,
+        ),
+    ),
+    # #3455: IDCAMS DEFINE CLUSTER / AIX / PATH, mirroring vsam_define_data.
+    AuditSection(
+        "vsam_defines",
+        "VSAM Defines",
+        (
+            ("Kind", "kind"),
+            ("Name", "name"),
+            ("Organization", "organization"),
+            ("Key Length", "key_length"),
+            ("Key Offset", "key_offset"),
+            ("Record Avg", "record_avg"),
+            ("Record Max", "record_max"),
+            ("Related", "related"),
+            ("Unique Key", "unique_key"),
+            ("Upgrade", "upgrade"),
+            ("Step", "step"),
+            _LINE,
+        ),
+    ),
+    # #3451: JCL job flow, mirroring job_flow_data (only the keys a row carries).
+    AuditSection(
+        "job_flow",
+        "Job Flow",
+        (
+            ("Kind", "kind"),
+            _when(
+                (
+                    ("name", "Job"),
+                    ("step_ordinal", "Step Ordinal"),
+                    ("step_name", "Step"),
+                    ("program", "Program"),
+                    ("proc", "Proc"),
+                    ("cond", "COND"),
+                    ("if_cond", "IF"),
+                    ("in_proc", "In Proc"),
+                    ("dd_name", "DD"),
+                    ("dsn", "DSN"),
+                    ("disp", "DISP"),
+                    ("generation", "Generation"),
+                ),
+                _not_none,
+            ),
+            _LINE,
+        ),
+    ),
+    # #3454: program entry points that take parameters, mirroring entry_point_data.
+    AuditSection(
+        "entry_points",
+        "Entry Points",
+        (("Kind", "kind"), ("Entry", "entry_name"), ("Params", "params"), _LINE),
+        where=lambda e: e.get("params") or e.get("kind") == "ENTRY",
+    ),
+    # #3450: IMS DL/I calls, mirroring dli_call_data (only the keys a row carries).
+    AuditSection(
+        "dli_calls",
+        "DL/I Calls",
+        (
+            ("Interface", "interface"),
+            _when(
+                (
+                    ("function", "Function"),
+                    ("function_operand", "Function Operand"),
+                    ("pcb", "PCB"),
+                    ("io_area", "IO Area"),
+                    ("segments", "Segments"),
+                    ("ssas", "SSAs"),
+                    ("where", "Where"),
+                    ("psb", "PSB"),
+                ),
+                _set,
+            ),
+            _LINE,
+        ),
+    ),
+    # #3477: IMS PSB / DBD macros and region steps (only the keys a row carries).
+    AuditSection(
+        "ims_gen",
+        "IMS Definitions",
+        (
+            ("Kind", "kind"),
+            _when(
+                (
+                    ("name", "Name"),
+                    ("parent", "Parent"),
+                    ("owner", "Owner"),
+                    ("dbd_name", "DBD"),
+                    ("procopt", "PROCOPT"),
+                    ("pcb_type", "PCB Type"),
+                    ("access", "Access"),
+                    ("bytes", "Bytes"),
+                    ("start", "Start"),
+                    ("psb_name", "PSB"),
+                    ("program", "Program"),
+                ),
+                _not_none,
+            ),
+            _LINE,
+        ),
+    ),
+    # #3496: web-services assistant steps (the API surface), set keys only.
+    AuditSection(
+        "web_services",
+        "Web Services",
+        (
+            ("Assistant", "assistant"),
+            ("Direction", "direction"),
+            _when(
+                tuple(
+                    (k, k.title())
+                    for k in (
+                        "program",
+                        "uri",
+                        "request",
+                        "response",
+                        "interface",
+                        "container",
+                        "binding",
+                        "document",
+                        "transaction",
+                    )
+                ),
+                _set,
+            ),
+            _LINE,
+        ),
+    ),
+    # #3820: SPECIAL-NAMES currency strings / decimal point, mirroring special_names_data.
+    AuditSection(
+        "special_names",
+        "Special Names",
+        (("Clause", "clause"), ("Value", "value"), ("Symbol", "symbol"), _LINE),
+    ),
+    # #3828: CBL / PROCESS compiler options, mirroring compiler_options_data.
+    AuditSection(
+        "compiler_options",
+        "Compiler Options",
+        (("Option", "option"), ("Value", "value"), ("Written", "written"), _LINE),
+    ),
+    # #3452: field-level data movement, one compact line per source -> target pair.
+    AuditSection("data_moves", "Data Moves", (), render=_data_move_line),
+)
 
 
 class AuditRecorder:
@@ -153,422 +594,15 @@ class AuditRecorder:
         every call site, every dataset binding, and the complete DATA DIVISION
         item tree, mirroring the master DB's call_site_data/dataset_data/record_data.
         Each sub-list is omitted when empty, so the block only ever describes facts
-        that are actually present.
+        that are actually present. The sections are the `AUDIT_SECTIONS` table (#3383).
         """
         block = {}
-        calls = file_data.get("call_sites") or []
-        if calls:
-            # #3355: the COMMAREA contract operands ride only on a CICS site that
-            # carries them, so every other call site is unchanged.
-            block["Call Sites"] = [
-                {
-                    "Verb": c.get("verb"),
-                    "Form": c.get("form"),
-                    "Operand": c.get("operand"),
-                    "Target": c.get("target"),
-                    "Line": c.get("line", 0),
-                    **{
-                        label: c[key]
-                        for key, label in (
-                            ("commarea", "COMMAREA"),
-                            ("commarea_length", "COMMAREA Length"),
-                            ("commarea_datalength", "COMMAREA Data Length"),
-                            ("using_args", "USING"),  # #3454
-                            ("sysid", "SYSID"),  # #3494
-                        )
-                        if c.get(key)
-                    },
-                }
-                for c in calls
-            ]
-        datasets = file_data.get("dataset_bindings") or []
-        if datasets:
-            # #3345: the resolved DSN rides only on a binding whose DSN names a
-            # symbol, so a literal DSN (and every COBOL row) is unchanged.
-            block["Dataset Bindings"] = [
-                {
-                    "DD Name": d.get("dd_name"),
-                    "Internal Name": d.get("internal_name"),
-                    "Assign Name": d.get("assign_name"),
-                    "Access Modes": d.get("modes") or [],
-                    "DSN": d.get("dsn"),
-                    "Step": d.get("step_name"),
-                    "Line": d.get("line", 0),
-                    **(
-                        {"Resolved DSN": d.get("dsn_resolved"), "DSN Resolution": d["dsn_resolution"]}
-                        if d.get("dsn_resolution") not in (None, "literal")
-                        else {}
-                    ),
-                }
-                for d in datasets
-            ]
-        records = file_data.get("record_layouts") or []
-        if records:
-            # #3250: `Attributes` (PL/I's full attribute text) is added only when
-            # present, so a COBOL item -- whose clauses all have a key -- is unchanged.
-            block["Record Layout"] = [
-                {
-                    "Level": it.get("level"),
-                    "Name": it.get("name"),
-                    "Section": it.get("section"),
-                    "FD": it.get("fd_name"),
-                    "PIC": it.get("pic"),
-                    "Usage": it.get("usage"),
-                    "Occurs Min": it.get("occurs_min"),
-                    "Occurs Max": it.get("occurs_max"),
-                    "Occurs Depending On": it.get("occurs_depending_on"),
-                    "Redefines": it.get("redefines"),
-                    "Value": it.get("value"),
-                    "Ordinal": it.get("ordinal"),
-                    "Parent Ordinal": it.get("parent_ordinal"),
-                    "Line": it.get("line", 0),
-                    **({"Attributes": it["attributes"]} if it.get("attributes") else {}),
-                    # #3355: the COPY member(s) expanding after this entry, when any.
-                    **({"Copy Members": it["copy_members"]} if it.get("copy_members") else {}),
-                }
-                for it in records
-            ]
-        # #3344: DB2 `EXEC SQL DECLARE ... TABLE` columns, mirroring sql_table_data.
-        sql_tables = file_data.get("sql_tables") or []
-        if sql_tables:
-            block["SQL Tables"] = [
-                {
-                    "Table": c.get("table"),
-                    "Column No": c.get("colno"),
-                    "Column": c.get("name"),
-                    "SQL Type": c.get("sql_type"),
-                    "Length": c.get("length"),
-                    "Scale": c.get("scale"),
-                    "Nullable": c.get("nullable"),
-                    "Attributes": c.get("attributes"),
-                    "Line": c.get("line", 0),
-                }
-                for c in sql_tables
-            ]
-        # #3446: embedded SQL statements, mirroring sql_statement_data.
-        sql_statements = file_data.get("sql_statements") or []
-        if sql_statements:
-            block["SQL Statements"] = [
-                {
-                    "Statement": s.get("ordinal"),
-                    "Verb": s.get("verb"),
-                    "Table": s.get("table"),
-                    "Access": s.get("access"),
-                    "Cursor": s.get("cursor"),
-                    "Host Variables": s.get("host_variables"),
-                    "Line": s.get("line", 0),
-                }
-                for s in sql_statements
-            ]
-        screen = file_data.get("screen_fields") or []
-        if screen:
-            # #3347: BMS mapset/map/field rows, mirroring screen_field_data.
-            block["Screen Fields"] = [
-                {
-                    "Kind": sf.get("kind"),
-                    "Name": sf.get("name"),
-                    "POS Line": sf.get("pos_line"),
-                    "POS Column": sf.get("pos_column"),
-                    "Length": sf.get("length"),
-                    "ATTRB": sf.get("attrb"),
-                    "PICIN": sf.get("picin"),
-                    "PICOUT": sf.get("picout"),
-                    "Initial": sf.get("initial"),
-                    "Occurs": sf.get("occurs"),
-                    "Attributes": sf.get("attributes"),
-                    "Ordinal": sf.get("ordinal"),
-                    "Parent Ordinal": sf.get("parent_ordinal"),
-                    "Line": sf.get("line", 0),
-                }
-                for sf in screen
-            ]
-        # #3356: CSD resource definitions, mirroring csd_resource_data. A key
-        # attribute is listed only when the record carries it, so a MAPSET row
-        # stays a type, name, group and its attribute text.
-        csd = file_data.get("csd_resources") or []
-        if csd:
-            labels = (
-                ("dsname", "DSNAME"),
-                ("ddname", "DDNAME"),
-                ("record_format", "Record Format"),
-                ("key_length", "Key Length"),
-                ("record_size", "Record Size"),
-                ("queue_type", "Queue Type"),
-                ("plan", "Plan"),
-                ("db2_entry", "DB2 Entry"),
-                ("transid", "Transid"),
-                ("program", "Program"),
-            )
-            block["CSD Resources"] = [
-                {
-                    "Type": r.get("resource_type"),
-                    "Name": r.get("name"),
-                    "Group": r.get("group"),
-                    **{label: r[key] for key, label in labels if r.get(key) is not None},
-                    # #5120: provenance only for a macro-table row, so CSD rows are unchanged.
-                    **({"Source": "MACRO", "Macro Table": r.get("macro_table")} if r.get("source") == "MACRO" else {}),
-                    "Attributes": r.get("attributes"),
-                    "Line": r.get("line", 0),
-                }
-                for r in csd
-            ]
-        cics = file_data.get("cics_resources") or []
-        if cics:
-            # #3351-#3354: EXEC CICS FILE/MAP/QUEUE/CONTAINER/CHANNEL operations,
-            # mirroring cics_resource_data.
-            block["CICS Resources"] = [
-                {
-                    "Verb": op.get("verb"),
-                    "Kind": op.get("kind"),
-                    "Access": op.get("access"),
-                    "Operand": op.get("operand"),
-                    "Name": op.get("name"),
-                    "Resolution": op.get("resolution"),
-                    "Candidates": op.get("candidates"),
-                    "Qualifier Operand": op.get("qualifier_operand"),
-                    "Qualifier": op.get("qualifier"),
-                    "Record Clause": op.get("record_clause"),
-                    "Record": op.get("record"),
-                    "Attributes": op.get("attributes"),
-                    "Line": op.get("line", 0),
-                }
-                for op in cics
-            ]
-        tasks = file_data.get("cics_tasks") or []
-        if tasks:
-            # #3449: CICS task control (RUN/START/FETCH/RETRIEVE/DELAY/ENQ ...),
-            # mirroring cics_task_data.
-            block["CICS Tasks"] = [
-                {
-                    "Verb": t.get("verb"),
-                    "Target Kind": t.get("target_kind"),
-                    "Operand": t.get("operand"),
-                    "Name": t.get("name"),
-                    "Resolution": t.get("resolution"),
-                    "Candidates": t.get("candidates"),
-                    "Channel Operand": t.get("channel_operand"),
-                    "Channel": t.get("channel"),
-                    "Token": t.get("token"),
-                    "Record Clause": t.get("record_clause"),
-                    "Record": t.get("record"),
-                    "Timing": t.get("timing"),
-                    "Attributes": t.get("attributes"),
-                    "Line": t.get("line", 0),
-                }
-                for t in tasks
-            ]
-        submits = file_data.get("job_submits") or []
-        if submits:
-            # #3448: job-submission evidence, mirroring job_submit_data.
-            block["Job Submission"] = [
-                {
-                    "Kind": j.get("kind"),
-                    "Step": j.get("step"),
-                    "Name": j.get("name"),
-                    "Target Kind": j.get("target_kind"),
-                    "Target": j.get("target"),
-                    "Line": j.get("line", 0),
-                }
-                for j in submits
-            ]
-        mq = file_data.get("mq_calls") or []
-        if mq:
-            # #3447: IBM MQ calls, mirroring mq_call_data.
-            block["MQ Calls"] = [
-                {
-                    "Verb": q.get("verb"),
-                    "Direction": q.get("direction"),
-                    "Operand": q.get("operand"),
-                    "Queue": q.get("queue"),
-                    "Resolution": q.get("resolution"),
-                    "Candidates": q.get("candidates"),
-                    "Handle": q.get("handle"),
-                    "Open Line": q.get("open_line"),
-                    "Options": q.get("options"),
-                    "Line": q.get("line", 0),
-                }
-                for q in mq
-            ]
-        uow = file_data.get("uow_handlers") or []
-        if uow:
-            # #3453: units of work and error handling, mirroring uow_handler_data.
-            block["Units Of Work And Handlers"] = [
-                {
-                    "Kind": u.get("kind"),
-                    "Source": u.get("source"),
-                    "Verb": u.get("verb"),
-                    "Condition": u.get("condition"),
-                    "Target": u.get("target"),
-                    "Target Kind": u.get("target_kind"),
-                    "RESP Field": u.get("resp_var"),
-                    "Attributes": u.get("attributes"),
-                    "Line": u.get("line", 0),
-                }
-                for u in uow
-            ]
-        selects = file_data.get("file_control") or []
-        if selects:
-            # #3455: FILE-CONTROL SELECT definitions, mirroring file_control_data.
-            block["File Control"] = [
-                {
-                    "Select": f.get("select_name"),
-                    "Assign": f.get("assign"),
-                    "Organization": f.get("organization"),
-                    "Access Mode": f.get("access_mode"),
-                    "Record Key": f.get("record_key"),
-                    "Alternate Keys": f.get("alternate_keys"),
-                    "Relative Key": f.get("relative_key"),
-                    "File Status": f.get("file_status"),
-                    "FD Copies": f.get("fd_copies"),
-                    "Line": f.get("line", 0),
-                }
-                for f in selects
-            ]
-        defines = file_data.get("vsam_defines") or []
-        if defines:
-            # #3455: IDCAMS DEFINE CLUSTER / AIX / PATH, mirroring vsam_define_data.
-            block["VSAM Defines"] = [
-                {
-                    "Kind": v.get("kind"),
-                    "Name": v.get("name"),
-                    "Organization": v.get("organization"),
-                    "Key Length": v.get("key_length"),
-                    "Key Offset": v.get("key_offset"),
-                    "Record Avg": v.get("record_avg"),
-                    "Record Max": v.get("record_max"),
-                    "Related": v.get("related"),
-                    "Unique Key": v.get("unique_key"),
-                    "Upgrade": v.get("upgrade"),
-                    "Step": v.get("step"),
-                    "Line": v.get("line", 0),
-                }
-                for v in defines
-            ]
-        flow = file_data.get("job_flow") or []
-        if flow:
-            # #3451: JCL job flow, mirroring job_flow_data (only the keys a row carries).
-            labels = {
-                "name": "Job",
-                "step_ordinal": "Step Ordinal",
-                "step_name": "Step",
-                "program": "Program",
-                "proc": "Proc",
-                "cond": "COND",
-                "if_cond": "IF",
-                "in_proc": "In Proc",
-                "dd_name": "DD",
-                "dsn": "DSN",
-                "disp": "DISP",
-                "generation": "Generation",
-            }
-            block["Job Flow"] = [
-                {
-                    "Kind": j.get("kind"),
-                    **{lbl: j[k] for k, lbl in labels.items() if j.get(k) is not None},
-                    "Line": j.get("line", 0),
-                }
-                for j in flow
-            ]
-        eps = [e for e in (file_data.get("entry_points") or []) if e.get("params") or e.get("kind") == "ENTRY"]
-        if eps:
-            # #3454: program entry points that take parameters, mirroring entry_point_data.
-            block["Entry Points"] = [
-                {
-                    "Kind": e.get("kind"),
-                    "Entry": e.get("entry_name"),
-                    "Params": e.get("params"),
-                    "Line": e.get("line", 0),
-                }
-                for e in eps
-            ]
-        dli = file_data.get("dli_calls") or []
-        if dli:
-            # #3450: IMS DL/I calls, mirroring dli_call_data (only the keys a row carries).
-            labels = {
-                "function": "Function",
-                "function_operand": "Function Operand",
-                "pcb": "PCB",
-                "io_area": "IO Area",
-                "segments": "Segments",
-                "ssas": "SSAs",
-                "where": "Where",
-                "psb": "PSB",
-            }
-            block["DL/I Calls"] = [
-                {
-                    "Interface": d.get("interface"),
-                    **{lbl: d[k] for k, lbl in labels.items() if d.get(k)},
-                    "Line": d.get("line", 0),
-                }
-                for d in dli
-            ]
-        gen = file_data.get("ims_gen") or []
-        if gen:
-            # #3477: IMS PSB / DBD macros and region steps (only the keys a row carries).
-            labels = {
-                "name": "Name",
-                "parent": "Parent",
-                "owner": "Owner",
-                "dbd_name": "DBD",
-                "procopt": "PROCOPT",
-                "pcb_type": "PCB Type",
-                "access": "Access",
-                "bytes": "Bytes",
-                "start": "Start",
-                "psb_name": "PSB",
-                "program": "Program",
-            }
-            block["IMS Definitions"] = [
-                {
-                    "Kind": g.get("kind"),
-                    **{lbl: g[k] for k, lbl in labels.items() if g.get(k) is not None},
-                    "Line": g.get("line", 0),
-                }
-                for g in gen
-            ]
-        web = file_data.get("web_services") or []
-        if web:
-            # #3496: web-services assistant steps (the API surface), set keys only.
-            block["Web Services"] = [
-                {"Assistant": w.get("assistant"), "Direction": w.get("direction"),
-                 **{k.title(): w[k] for k in ("program", "uri", "request", "response", "interface", "container",
-                                             "binding", "document", "transaction") if w.get(k)},
-                 "Line": w.get("line", 0)}
-                for w in web
-            ]  # fmt: skip
-        special = file_data.get("special_names") or []
-        if special:
-            # #3820: SPECIAL-NAMES currency strings / decimal point, mirroring special_names_data.
-            block["Special Names"] = [
-                {
-                    "Clause": n.get("clause"),
-                    "Value": n.get("value"),
-                    "Symbol": n.get("symbol"),
-                    "Line": n.get("line", 0),
-                }
-                for n in special
-            ]
-        options = file_data.get("compiler_options") or []
-        if options:
-            # #3828: CBL / PROCESS compiler options, mirroring compiler_options_data.
-            block["Compiler Options"] = [
-                {
-                    "Option": o.get("option"),
-                    "Value": o.get("value"),
-                    "Written": o.get("written"),
-                    "Line": o.get("line", 0),
-                }
-                for o in options
-            ]
-        moves = file_data.get("data_moves") or []
-        if moves:
-            # #3452: field-level data movement, one compact line per source -> target pair.
-            block["Data Moves"] = [
-                f"L{m.get('line', 0)} {m.get('verb')}{' CORR' if m.get('corresponding') else ''} "
-                f"{m.get('source') or '-'}{'(:)' if m.get('source_refmod') else ''} -> "
-                f"{m.get('target')}{'(:)' if m.get('target_refmod') else ''}"
-                for m in moves
-            ]
+        for section in AUDIT_SECTIONS:
+            rows = file_data.get(section.key) or []
+            if section.where:
+                rows = [r for r in rows if section.where(r)]
+            if rows:
+                block[section.label] = [section.render(r) if section.render else _audit_row(section, r) for r in rows]
         return block
 
     def generate_report(

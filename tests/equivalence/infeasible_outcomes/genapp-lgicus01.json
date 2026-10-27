@@ -1,0 +1,38 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "genapp-lgicus01",
+  "entries": [
+    {
+      "unit": "MAINLINE",
+      "line": 104,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` is true only for a call with EIBCALEN of 1 to 89 (WS-REQUIRED-CA-LEN is 90: WS-CUSTOMER-LEN 72 plus 18). Before this test the program has already run `MOVE '00' TO CA-NUM-POLICIES` (line 94), and CA-NUM-POLICIES lies at bytes 91-93 of DFHCOMMAREA (header 18 plus first name 10, last name 20, date of birth 10, house name 20, house number 4 and postcode 8 is 90 bytes), so every task with EIBCALEN under 93 writes storage past EIBCALEN, which IBM leaves undefined and the oracle refuses by name (X23: 'COMMAREA past EIBCALEN: not modelled', the task is judged up to that MOVE and never reaches this test). The short-commarea scenario (EIBCALEN 60) shows it: it stops at the MOVE with 0 events. EIBCALEN 90 to 92 is not under 90, and 93 or more also passes the test, so no input the oracle can state takes the arm."
+    },
+    {
+      "unit": "WRITE-ERROR-MESSAGE",
+      "line": 151,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF EIBCALEN > 0` is true never: WRITE-ERROR-MESSAGE has one PERFORM (line 89), inside `IF EIBCALEN IS EQUAL TO ZERO`, so EIBCALEN is 0 on every entry and the COMMAREA copy (lines 151-165) is skipped (the paragraph is followed by an ABEND)."
+    },
+    {
+      "unit": "WRITE-ERROR-MESSAGE",
+      "line": 152,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "Nested in `IF EIBCALEN > 0` (line 151), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 89) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run."
+    },
+    {
+      "unit": "WRITE-ERROR-MESSAGE",
+      "line": 152,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "Nested in `IF EIBCALEN > 0` (line 151), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 89) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run."
+    }
+  ]
+}

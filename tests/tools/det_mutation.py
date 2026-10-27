@@ -21,10 +21,13 @@ Two committed directories, one <CASE>.json per case in each (two PRs measuring d
     every judged mutant's verdict, the survivors in full, and the fingerprints of what the score depends on: the det
     port's own files (`port`), the case, the corpus pin, the harness and the oracle (tests/tools/evidence.py's), and
     the Java generator (`generator`), the cheap stand-in for the port: a reader cannot translate. An entry is
-    trusted only while every fingerprint matches the tree; stale or missing is unknown (`status` returns None).
-    When an input moved, `refresh` translates the case again and, when the port is byte-identical, renews the
-    fingerprints: the generator alone needs no re-run; a case / corpus / harness / oracle move re-runs only the
-    recorded survivors (same seed) and carries the rest (#5862).
+    trusted while the inputs that decide the score match the tree (`BLOCKING`: the case, the corpus pin and the
+    survivors list; the det port's bytes are checked by `refresh`, which translates); stale or missing is unknown
+    (`status` returns None). The generator, harness and oracle (`INFO`) are whole-tree hashes: their drift alone
+    does not stale an entry (owner 2026-10-23, #5862), it is recorded and shown. `refresh` translates the case again
+    and, when the port is byte-identical, renews the fingerprints (a case / corpus / survivors move re-runs only
+    the recorded survivors, same seed, and carries the rest); a port whose bytes moved marks the entry stale
+    (`port`) until `run` records it again.
 
   tests/equivalence/det_mutation_survivors/ -- written by a person: per case, a surviving mutant (by id, with
     the Java line before / after) and its verdict, `equivalent` (the change cannot alter anything the program
@@ -63,7 +66,11 @@ LEDGER = CASES / "det_mutation"  # one <CASE>.json per case (like det_sweep_cove
 SURVIVORS = CASES / "det_mutation_survivors"  # one <CASE>.json per case
 FORMAT = "det-mutation/1"
 SURVIVORS_FORMAT = "det-mutation-survivors/1"
-INPUTS = ("port", "generator", "case", "corpus", "harness", "oracle")
+INPUTS = ("port", "generator", "case", "corpus", "harness", "oracle", "survivors")
+# what decides a recorded score: a moved one makes the entry stale. The generator / harness / oracle fingerprints are
+# whole-tree hashes kept as information (`drifted`); the port's bytes are what they could change, checked by `refresh`
+BLOCKING = ("case", "corpus", "survivors")
+INFO = ("generator", "harness", "oracle")
 VERDICTS = {
     "equivalent": "the change cannot alter anything the program shows (output, screen, files, COMMAREA, abend)",
     "unreachable": "no input of the program reaches the changed code",
@@ -101,25 +108,33 @@ def fingerprints(case: str) -> dict[str, Any]:
     import evidence as ev  # (git-backed: only when a ledger is written / read)
 
     now = ev.compute_inputs(ev.equivalence_target(case))
-    return {name: {k: now[name][k] for k in ("sha256", "components") if k in now[name]} for name in INPUTS
-            if name != "port"}  # fmt: skip
+    out = {name: {k: now[name][k] for k in ("sha256", "components") if k in now[name]} for name in INPUTS
+           if name not in ("port", "survivors")}  # fmt: skip
+    out["survivors"] = {"sha256": survivors_sha(case)}
+    return out
+
+
+def survivors_sha(case: str) -> str:
+    """sha256 of the case's stated survivors (the reviewed list), canonical JSON: a hand edit moves it."""
+    body = json.dumps(load_survivors().get(case, []), sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(body.encode("utf-8")).hexdigest()
 
 
 def _sha(v: Any) -> Any:
     return v.get("sha256") if isinstance(v, dict) else v
 
 
-def stale(entry: dict[str, Any], now: dict[str, Any]) -> list[str]:
-    """The inputs (but `port`, which `refresh` checks by translating) whose fingerprint differs from the tree's. As
-    for an evidence record (#4731), an input whose components the entry stores is stale only when a component the
-    case's target uses changed: a harness change to the Db2 layer does not stale a CICS program's score."""
+def _moved(entry: dict[str, Any], now: dict[str, Any], names: tuple[str, ...]) -> list[str]:
+    """The `names` inputs whose fingerprint differs from the tree's. As for an evidence record (#4731), an input whose
+    components the entry stores differs only when a component the case's target uses changed. An input the entry
+    never recorded (a ledger older than the `survivors` fingerprint) is not counted."""
     import evidence as ev
 
     held = entry.get("inputs") or {}
     comps = entry.get("components") or {}
     out = []
-    for n in INPUTS:
-        if n == "port" or held.get(n) == _sha(now.get(n)):
+    for n in names:
+        if n not in held or held[n] == _sha(now.get(n)):
             continue
         cur = now.get(n)
         moved = (ev.component_changed({"components": comps[n]}, cur)
@@ -127,6 +142,18 @@ def stale(entry: dict[str, Any], now: dict[str, Any]) -> list[str]:
         if moved is None or moved:
             out.append(n)
     return out
+
+
+def stale(entry: dict[str, Any], now: dict[str, Any]) -> list[str]:
+    """The inputs that make the entry stale (#5862): a `BLOCKING` one (case, corpus, survivors list) whose fingerprint
+    differs from the tree's, or `port` when `refresh` found the det port's bytes moved. The generator, harness and
+    oracle alone never stale it (`drifted`): `refresh` compares the port's bytes, which is what they could change."""
+    return _moved(entry, now, BLOCKING) + (["port"] if entry.get("port_moved") else [])
+
+
+def drifted(entry: dict[str, Any], now: dict[str, Any]) -> list[str]:
+    """The `INFO` inputs (generator, harness, oracle) that differ from the tree's: recorded, not staling (#5862)."""
+    return _moved(entry, now, INFO)
 
 
 def case_kind(case: str) -> str:
@@ -279,22 +306,25 @@ def summary(case: str, entry: dict[str, Any], survivors: dict[str, list[dict[str
 def measured(case: str, program: str | None = None) -> dict[str, Any] | None:
     """The case's det-port mutation result, fresh or stale, or None (no entry, or the entry is another program's):
     `summary`'s keys plus `current` (every fingerprint matches the tree) and `stale_inputs` (the ones that moved;
-    ["unknown"] when the fingerprints cannot be computed)."""
+    ["unknown"] when the fingerprints cannot be computed); `drifted` (only when non-empty) lists the generator /
+    harness / oracle inputs that differ from the tree, which do not stale it (#5862)."""
     entry = load().get(case)
     if not entry or not (CASES / case / "case.json").is_file():
         return None
     if program and entry.get("program") and str(entry["program"]).upper() != program.upper():
         return None
+    info: list[str] = []
     try:
-        moved = stale(entry, fingerprints(case))
+        now = fingerprints(case)
+        moved, info = stale(entry, now), drifted(entry, now)
     except (RuntimeError, KeyError, OSError):
         moved = ["unknown"]
-    return {**summary(case, entry), "current": not moved, "stale_inputs": moved}
+    return {**summary(case, entry), "current": not moved, "stale_inputs": moved, **({"drifted": info} if info else {})}
 
 
 def status(case: str, program: str | None = None) -> dict[str, Any] | None:
-    """The evidence report's L5 hook (#4603): the case's det-port mutation result while its ledger entry is fresh,
-    else None (missing, stale, or for another program). Keys: score (caught / judged, 0-1), killed (killed +
+    """The evidence report's L5 hook (#4603): the case's det-port mutation result while its ledger entry is fresh
+    (the case, corpus and survivors list unchanged and the port not found moved; #5862), else None (missing, stale, or for another program). Keys: score (caught / judged, 0-1), killed (killed +
     timeout), survived, stillborn, accounted / unaccounted (survivors with / without a reviewed verdict), chosen /
     mutants / seed (the sample), refuted (stated mutants the run killed), and l5: every survivor accounted for, no
     error, no refuted claim."""
@@ -315,6 +345,8 @@ def describe(s: dict[str, Any] | None) -> str:
             f"mutants, seed {s['seed']}); {acc}")  # fmt: skip
     if s.get("current") is False:
         line = f"stale ({', '.join(s['stale_inputs'])} moved), last measured: {line}"
+    elif s.get("drifted"):
+        line += f" (recorded {', '.join(s['drifted'])} differ from the tree; the port's bytes are checked by refresh)"
     return line
 
 
@@ -467,20 +499,26 @@ def merge_survivors(entry: dict[str, Any], rerun: list[dict[str, Any]]) -> dict[
     return out
 
 
+def _outdated(entry: dict[str, Any], now: dict[str, Any]) -> bool:
+    """A blocking input moved, or a generator / harness / oracle drifted (the port's bytes need comparing)."""
+    return bool(stale(entry, now) or drifted(entry, now))
+
+
 def refresh(cases: list[str], work: Path) -> int:
-    """Renew each stale entry whose det port bytes did not move (#5862). Generator only: translate again, renew the
-    fingerprint. Case / corpus / harness / oracle moved: re-run only the recorded survivors (same seed, operators,
-    scope and mode) and carry the other verdicts; a survivor that now dies drops out of the survivors (a stated
+    """Renew each stale or drifted entry whose det port bytes did not move (#5862). Only generator / harness / oracle
+    drifted: translate again, compare the port's bytes, renew the fingerprints. Case / corpus / survivors list moved:
+    re-run only the recorded survivors (same seed, operators, scope and mode) and carry the other verdicts; a survivor that now dies drops out of the survivors (a stated
     `equivalent` / `unreachable` one is a wrong claim: exit 1), one still surviving with the same Java line before /
     after keeps its stated verdict. Mutants killed before are not re-proven (a case weakened since would not show).
-    Exit 1: a wrong claim, an error, a survivor not re-run. Exit 2: only that a port moved (a person runs `run`); the
+    A port whose bytes moved marks the entry stale (`port_moved`: `run` records it afresh). Exit 1: a wrong claim, an
+    error, a survivor not re-run. Exit 2: only that a port moved (a person runs `run`); the
     scheduled lane (evidence-refresh.yml) warns on 2 and fails on 1."""
     import evidence as ev
     import mutation as mu
 
     ledger = load()
     todo = [c for c in (cases or sorted(ledger))
-            if c in ledger and (CASES / c / "case.json").is_file() and stale(ledger[c], fingerprints(c))]  # fmt: skip
+            if c in ledger and (CASES / c / "case.json").is_file() and _outdated(ledger[c], fingerprints(c))]  # fmt: skip
     if not todo:
         print("det mutation: nothing stale")
         return 0
@@ -491,10 +529,13 @@ def refresh(cases: list[str], work: Path) -> int:
         if not port.is_dir() or port_sha(port) != entry["inputs"]["port"]:
             print(f"{case}: the det port changed: re-run (det_mutation.py run {case} --work DIR)")
             port_moved = True
+            if port.is_dir() and not entry.get("port_moved"):  # stale until `run` records the new port
+                write(case, {**entry, "port_moved": True})
             continue
         now = fingerprints(case)
         moved = stale(entry, now)
-        if moved != ["generator"] and entry.get("survived"):
+        info = drifted(entry, now)
+        if moved and entry.get("survived"):
             only = work / case / "survivors"
             only.mkdir(parents=True, exist_ok=True)
             results = [{"id": s["id"], "verdict": "survived"} for s in entry["survived"]]
@@ -518,13 +559,14 @@ def refresh(cases: list[str], work: Path) -> int:
             if res.get("coverage"):
                 merged["coverage"] = res["coverage"]
             entry = merged
+        entry.pop("port_moved", None)  # (the port is byte-identical again)
         for n, v in now.items():
             entry["inputs"][n] = v["sha256"]
             if "components" in v:
                 entry.setdefault("components", {})[n] = v["components"]
         write(case, entry)
         s = summary(case, entry)
-        print(f"{case}: the det port is unchanged: renewed ({', '.join(moved)}); {_row(s)}")
+        print(f"{case}: the det port is unchanged: renewed ({', '.join(moved + info)}); {_row(s)}")
         for i in s["refuted"]:
             print(f"{case}: {i} is stated {stated(case)[i]['verdict']} but the re-run killed it: the claim is wrong")
             rc = 1
@@ -532,7 +574,9 @@ def refresh(cases: list[str], work: Path) -> int:
 
 
 def changed_cases(ref: str) -> set[str] | None:
-    """The cases whose directory differs from `ref`'s merge base (what this PR changes), or None when git cannot say."""
+    """The cases whose input files differ from `ref`'s merge base (what this PR changes), or None when git cannot say.
+    Output files inside the case directory (`evidence.json`, `evidence.md`, refreshed by evidence-refresh.yml) are not
+    case inputs (matching `evidence.py` `compute_inputs`), so refreshing a record does not flag the case as changed."""
     base = subprocess.run(["git", "merge-base", ref, "HEAD"], cwd=REPO, capture_output=True, text=True, check=False)
     if base.returncode:
         return None
@@ -540,7 +584,13 @@ def changed_cases(ref: str) -> set[str] | None:
                           capture_output=True, text=True, check=False)  # fmt: skip
     if diff.returncode:
         return None
-    return {parts[2] for f in diff.stdout.split() if len(parts := f.split("/")) > 3 and parts[2] not in LEDGER_DIRS}
+    return {
+        parts[2]
+        for f in diff.stdout.split()
+        if len(parts := f.split("/")) > 3
+        and parts[2] not in LEDGER_DIRS
+        and parts[3] not in ("evidence.json", "evidence.md")
+    }
 
 
 def cases_to_rerun(ref: str) -> list[str]:
@@ -558,19 +608,29 @@ def stale_check(ref: str | None = None) -> int:
     scope = changed_cases(ref) if ref else None
     if ref and scope is None:
         print(f"det mutation: cannot diff against {ref}: checking every ledger")
-    bad = []
+    bad: list[str] = []
+    drift: list[str] = []
     for case in sorted(ledger):
         if scope is not None and case not in scope or not (CASES / case / "case.json").is_file():
             continue
+        info: list[str] = []
         try:
-            moved = stale(ledger[case], fingerprints(case))
+            now = fingerprints(case)
+            moved, info = stale(ledger[case], now), drifted(ledger[case], now)
         except (RuntimeError, KeyError, OSError):
             moved = ["unknown"]
+        if not moved and info:
+            drift.append(case)
         if moved:
             bad.append(case)
             print(f"det mutation: {case}: stale ({', '.join(moved)}): python tests/tools/det_mutation.py refresh "
                   f"{case} --work DIR (a det port that moved needs `run`), then commit "
                   f"tests/equivalence/det_mutation/{case}.json")  # fmt: skip
+    if drift:
+        print(
+            f"det mutation: {len(drift)} current ledger(s) with generator / harness / oracle drift (recorded, not "
+            "staling; `refresh` compares the port's bytes)"
+        )
     print("det mutation: no stale ledger" if not bad else f"det mutation: {len(bad)} stale ledger(s)")
     return 1 if bad else 0
 
@@ -593,7 +653,11 @@ def state(case: str, triage: dict[str, dict[str, str]]) -> int:
     if problems:
         raise SystemExit("\n".join(problems))
     write_survivors(case, entries)
-    s = summary(case, load()[case])
+    entry = load()[case]
+    if "survivors" in (entry.get("inputs") or {}):  # the person just reviewed these against the recorded run
+        entry["inputs"]["survivors"] = survivors_sha(case)
+        write(case, entry)
+    s = summary(case, entry)
     print(_row(s))
     return 0
 

@@ -12,6 +12,7 @@ are bound by EXECUTE ... USING :H [:IND], ...: the port writes each value into t
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -64,6 +65,11 @@ def test_the_statement_text_may_span_lines_and_keep_its_case():
         ("EXECUTE IMMEDIATE 'CREATE TABLE T (A INT)'", "INSERT ... VALUES"),
         ("EXECUTE IMMEDIATE 'COMMIT'", "INSERT ... VALUES"),
         ("EXECUTE IMMEDIATE 'SELECT 1 FROM SYSIBM.SYSDUMMY1'", "INSERT ... VALUES"),
+        ("DESCRIBE STMT1 INTO :SQLDA", "EXEC SQL DESCRIBE: .*SQLDA"),
+        ("CONNECT TO LOC1", "EXEC SQL CONNECT: .*location switch"),
+        ("CONNECT RESET", "EXEC SQL CONNECT: .*one connection"),
+        ("CALL PROC1 (:A)", "EXEC SQL CALL: .*stored procedure"),
+        ("SET CURRENT SQLID = 'X'", "EXEC SQL SET: .*SET CURRENT"),
         ("EXECUTE STMT1 USING :A", "EXEC SQL EXECUTE"),
         ("EXECUTE STMT1 USING DESCRIPTOR :SQLDA", "EXEC SQL EXECUTE"),
         ("EXECUTE STMT1", "EXEC SQL EXECUTE"),
@@ -319,3 +325,122 @@ def test_using_in_a_cics_program_is_refused():
     gen.cics = SimpleNamespace()
     with pytest.raises(SqlError, match="CICS"):
         _using("INSERT INTO T VALUES (?)", "USING :WS-ID", gen=gen)
+
+
+# #4269: the forms above that stay refused (DESCRIBE, CONNECT, CALL, host-variable text) wait on a burned program that
+# uses them; this pins the premise of register Q4 ("burned estates using any of them: none") so it fails when it ends.
+_BURNED_CORPORA = (
+    "aws-mainframe-modernization-carddemo",
+    "cics-async-api-credit-card-application-example",
+    "cics-banking-sample-application-cbsa",
+    "cics-genapp",
+    "dbb-mortgage-application",
+    "zecs",
+)
+_REFUSED_SQL_VERB = re.compile(r"EXEC\s+SQL\s+(CALL|CONNECT|DESCRIBE|PREPARE|EXECUTE|WHENEVER)\b", re.I)
+
+
+def test_no_burned_estate_program_issues_a_refused_dynamic_or_connection_sql_verb():
+    root = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", TOOLS.parents[1] / ".mainframe_corpora"))
+    present = [root / n for n in _BURNED_CORPORA if (root / n).is_dir()]
+    if not present:
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    hits = []
+    for corpus in present:
+        for path in corpus.rglob("*"):
+            if path.suffix.lower() not in (".cbl", ".cob", ".cpy") or not path.is_file():
+                continue
+            text = path.read_text(encoding="latin-1")
+            # a fixed-format comment line (* or / in column 7) is not a statement
+            code = "\n".join(ln for ln in text.splitlines() if len(ln) < 7 or ln[6] not in "*/")
+            hits += [f"{path.relative_to(root)}: {m.group(0)}" for m in _REFUSED_SQL_VERB.finditer(code)]
+    assert not hits, "a burned program now issues a refused SQL verb: model it (register Q4):\n" + "\n".join(hits[:10])
+
+
+_SCROLL_AND_ROWSET = [
+    ("FETCH PRIOR FROM C1 INTO :A", "FETCH PRIOR"),
+    ("FETCH FIRST FROM C1 INTO :A", "FETCH FIRST"),
+    ("FETCH LAST FROM C1 INTO :A", "FETCH LAST"),
+    ("FETCH CURRENT FROM C1 INTO :A", "FETCH CURRENT"),
+    ("FETCH BEFORE FROM C1", "FETCH BEFORE"),
+    ("FETCH AFTER FROM C1", "FETCH AFTER"),
+    ("FETCH ABSOLUTE 3 FROM C1 INTO :A", "FETCH ABSOLUTE"),
+    ("FETCH RELATIVE -2 C1 INTO :A", "FETCH RELATIVE"),
+    ("FETCH INSENSITIVE PRIOR FROM C1 INTO :A", "FETCH PRIOR"),
+    ("FETCH SENSITIVE ABSOLUTE :N FROM C1 INTO :A", "FETCH ABSOLUTE"),
+    ("fetch\n  prior\n from c1 into :a", "FETCH PRIOR"),
+    ("FETCH NEXT ROWSET FROM C1 FOR 5 ROWS INTO :A", "multi-row FETCH"),
+    ("FETCH ROWSET STARTING AT ABSOLUTE 4 FROM C1 FOR :N ROWS INTO :A", "FETCH ABSOLUTE|multi-row FETCH"),
+    ("FETCH FROM C1 FOR 3 ROWS INTO :A", "multi-row FETCH"),
+    ("INSERT INTO T (A) VALUES (:A) FOR :N ROWS", "multi-row INSERT"),
+    ("INSERT INTO T (A) VALUES (:A) FOR 10 ROWS ATOMIC", "multi-row INSERT"),
+]
+
+
+@pytest.mark.parametrize("sql, why", _SCROLL_AND_ROWSET)
+def test_scroll_orientations_and_multi_row_forms_are_refused_by_name(sql, why):
+    from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
+
+    with pytest.raises(SqlError, match=rf"(?s)({why}).*register Q4"):
+        _run(sql)
+
+
+@pytest.mark.parametrize("sql", _SCROLL_AND_ROWSET[:3] + _SCROLL_AND_ROWSET[-2:])
+def test_scroll_and_multi_row_forms_are_refused_in_a_cics_program_too(sql):
+    from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
+
+    gen = _Gen()
+    gen.cics = SimpleNamespace()
+    with pytest.raises(SqlError, match="register Q4"):
+        _run(sql[0], gen=gen)
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "FETCH C1 INTO :A",
+        "FETCH NEXT FROM C1 INTO :A",
+        "Fetch Cust_Cursor\n  INTO\n        :A,\n        :B",  # GenApp LGIPDB01's spelling on an INSENSITIVE SCROLL cursor
+        "fetch zip_cursor into :a",
+        "FETCH FIRST-CUR INTO :A",  # a cursor whose name starts with an orientation word
+        "FETCH PRIOR-ROW INTO :A",
+        "INSERT INTO T (A) VALUES ('FOR 3 ROWS')",
+        "INSERT INTO T (A) VALUES (:A)",
+    ],
+)
+def test_plain_fetch_and_insert_are_not_taken_for_scroll_or_multi_row(sql):
+    from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
+
+    # no generated repository method in this stub: the refusal is the missing method, never a Q4 scroll / multi-row one
+    with pytest.raises(SqlError, match="no generated Db2 repository method"):
+        _run(sql)
+
+
+_SCROLL_OR_ROWSET_SQL = re.compile(
+    r"EXEC\s+SQL\s+(?:(?!END-EXEC).)*?\b(?:FETCH\s+(?:(?:INSENSITIVE|SENSITIVE)\s+)?(?:PRIOR|LAST|CURRENT|BEFORE|AFTER|"
+    r"ABSOLUTE|RELATIVE|NEXT\s+ROWSET|ROWSET)\b|FOR\s+:?[A-Z0-9-]+\s+ROWS\b|WITH\s+ROWSET\s+POSITIONING)",
+    re.I | re.S,
+)
+
+
+def test_no_burned_estate_program_uses_a_scroll_fetch_or_multi_row_sql():
+    root = Path(os.environ.get("GITGALAXY_MAINFRAME_CORPORA", TOOLS.parents[1] / ".mainframe_corpora"))
+    present = [root / n for n in _BURNED_CORPORA if (root / n).is_dir()]
+    if not present:
+        pytest.skip("needs the burned mainframe corpora (GITGALAXY_MAINFRAME_CORPORA)")
+    hits = []
+    for corpus in present:
+        for path in corpus.rglob("*"):
+            if path.suffix.lower() not in (".cbl", ".cob", ".cpy") or not path.is_file():
+                continue
+            code = "\n".join(
+                ln for ln in path.read_text(encoding="latin-1").splitlines() if len(ln) < 7 or ln[6] not in "*/"
+            )
+            hits += [f"{path.relative_to(root)}: {_norm_hit(m.group(0))}" for m in _SCROLL_OR_ROWSET_SQL.finditer(code)]
+    assert not hits, "a burned program now uses a scroll FETCH or multi-row SQL: model it (register Q4):\n" + "\n".join(
+        hits[:10]
+    )
+
+
+def _norm_hit(text):
+    return re.sub(r"\s+", " ", text)[:80]

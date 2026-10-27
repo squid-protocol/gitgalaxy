@@ -194,6 +194,25 @@ def test_divergence_and_landmarks_skip_vendored_code(work):
     assert landmark["crispy-doom", "R_DrawColumn"]["found_as"] == ""
 
 
+def _fn(name, loc, file="src/a.c"):
+    return dict(name=name, nname=lineage.norm_name(name), file=file, loc=loc, complexity=loc // 2)
+
+
+def test_landmarks_match_a_dropped_prefix_only_when_the_bare_name_is_specific():
+    fns = [_fn("UseSpecialLine", 30), _fn("draw_column", 12), _fn("Ticker", 50), _fn("Responder", 40),
+           _fn("DamageMobj", 20, "heretic/a.c")]  # fmt: skip
+    got = lineage.canonical(fns, lambda rel: False)
+    assert got["P_UseSpecialLine"]["found_as"] == "UseSpecialLine" and got["P_UseSpecialLine"]["loc"] == 30
+    assert got["R_DrawColumn"]["found_as"] == "draw_column"
+    assert got["M_Responder"]["found_as"] == "Responder"
+    assert got["G_Ticker"]["found_as"] == ""  # "Ticker" is every subsystem's
+    assert got["P_DamageMobj"]["found_as"] == ""  # another game's tree
+    # a function keeping the full name wins over a bigger prefix-less one
+    fns = [_fn("draw_column", 90), _fn("R_DrawColumn", 10)]
+    assert lineage.canonical(fns, lambda rel: False)["R_DrawColumn"]["found_as"] == "R_DrawColumn"
+    assert lineage.canonical(fns, lambda rel: True)["R_DrawColumn"]["found_as"] == ""
+
+
 def test_main_refuses_unlicensed_ports_and_writes_results(work, monkeypatch, capsys):
     with pytest.raises(SystemExit, match="not-a-licensed-port"):
         lineage.main(["--only", "not-a-licensed-port", "--work", str(work), "--sha", SHA])

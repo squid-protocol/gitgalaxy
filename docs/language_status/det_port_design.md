@@ -376,8 +376,16 @@ Only generator output, never a test case:
   `ASSIGN CHANNEL` now run on CicsTask's channels (`putContainer`, `getContainer`, `deleteContainer`, `linkChannel`,
   `xctlChannel`, `assignChannel`) and the stub (GGCPUTC / GGCGETC / GGCDELC / GGCASCH, GG-CHAN), container data
   byte for byte, CONTAINERERR / CHANNELERR / LENGERR / INVREQ with IBM's RESP2 through `condition()` (AEZJ / AEZV by
-  default). Code-page conversion, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and the container browse are refused by name
-  (register X17). Proven through cics-crucible ca-channel-containers (2) on the cobol-stub side and the det port.
+  default). Code-page conversion, SET, BYTEOFFSET, RETURN CHANNEL, MOVE and the container browse were refused by name
+  in this slice (register X17); of those, all but SET have since been modelled (see the #4951 / #5005 slice below). Proven
+  through cics-crucible ca-channel-containers (2) on the cobol-stub side and the det port.
+- #4951 / #5005 channel siblings: `MOVE CONTAINER` and `STARTBROWSE` / `GETNEXT` / `ENDBROWSE CONTAINER` (register X42),
+  `DELETE CHANNEL` and `QUERY CHANNEL` (`deleteChannel` / `queryChannel`, stub GGCDELH / GGCQCHN, register X44; deleting
+  the program's current channel is refused, IBM's RESP2 4 / 5 / 6 all fit it), CCSID conversion (`FROMCCSID` / `INTOCCSID`
+  / `CONVERTST` / `CCSID`) and `BYTEOFFSET` / `PREPEND` on BIT containers (#5285), and `RETURN TRANSID CHANNEL` carried
+  to the next terminal task (#6352, register X17). `GET64` / `PUT64 CONTAINER` run as their 31-bit twins (INTO / FROM an ordinary item, ASSUMED, register X17). Still refused by name: `SET` (and `GET64 ... SET`), `INQUIRE CONTAINER`
+  (BTS only). Proven on both sides by `tests/cics_crucible/test_cics_runtimes.py`; the cics-crucible case `ca-channel-browse`
+  (PR #19 there) is not yet merged or pinned.
 - #4270 slice 2: interval control was refused whole -- START / RETRIEVE / RUN / FETCH in 10 census programs (3 outside
   the burned estates, all RUN / FETCH). `START` (INTERVAL / TIME / AFTER / AT, TERMID, REQID, PROTECT, FROM / LENGTH,
   RTRANSID / RTERMID / QUEUE), `RETRIEVE` (INTO / LENGTH, the data options), `CANCEL REQID` and `RUN TRANSID CHILD` now
@@ -600,7 +608,7 @@ exercised.
 
 A fourth estate, from a different IBM team: [estate4_dbb_mortgage.md](estate4_dbb_mortgage.md). 99.0% of its 204
 statements translate. EPSNBRVL (a CALL with a group USING item; 22/22 branches) and EPSCMORT (CICS, a generated BMS map,
-Db2) are proven. EPSMPMT is not proven on purpose: its payment is computed in floating point (C6; its `NUMPROC(MIG)` is modelled since #4271, C5). EPSMLIST waits for ESDS browse by RBA
+Db2) are proven. EPSMPMT is not proven on purpose: its payment is computed in floating point through an ASSUMED power (C6) and its dead-code FUNCTION ANNUITY is a hole (#5867); its `NUMPROC(MIG)` is modelled since #4271 (C5). EPSMLIST waits for ESDS browse by RBA
 (#4213). Onboarding it needed general fixes: compiler cards from column 1, `ID DIVISION`, group USING items across a
 CALL as contract DTOs, and nested COPY in a copybook's record (the IR).
 
@@ -861,10 +869,13 @@ NULL is distinct.
   (its INITIALIZE ... REPLACING of a table is C17, #5823; its three READ KEYLENGTH(LENGTH OF ...) take the mapped file's key, #5831). A BMP entered `USING` its I/O PCB and DB PCBs translates GN / GNP / DLET / CHKP ID(area) and answers DIBSTAT (#5857; CBPAUP0C
   translates 110/110, pinned in `test_det_dli.py`); its oracle side is linked (`ggdli.c`, #5889). Still holes: other EXEC DLI commands
   and options, and any DIB field but DIBSTAT.
-- **Refused (register I5).** Other EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); GSAM; DL/I calls
-  other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary indexes; logical
-  relationships; load mode. CardDemo's other DL/I programs stop at one of these: PAUDBLOD (CMPAT=YES, an I/O PCB),
-  DBUNLDGS (GSAM PCBs). (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above.)
+- **Refused (register I5).** Other EXEC DLI; BMP / MPP / CICS DL/I programs and the I/O PCB (IMS TM); a GSAM PCB that
+  reads; DL/I calls other than the nine; command codes and boolean SSAs; AIBTDLI / CEETDLI; HDAM order; secondary
+  indexes; logical relationships; load mode on a DB PCB. CardDemo's other DL/I program that stops at one of these:
+  PAUDBLOD (CMPAT=YES, an I/O PCB). **GSAM load mode (#5233, RT-DLI-GSAM).** A TYPE=GSAM PCB with PROCOPT LS is a
+  record output file (`DetDli.gsamCall`, twin of `ggdli.c`'s `gsam_call`): ISRT appends one record, any other
+  function answers AM; `carddemo-dbunldgs` proves DBUNLDGS on it. Reading a GSAM file (PROCOPT G) is used by no burned
+  program (`test_gsam_burned_5233.py` pins it) and stays refused by name. (COPAUA0C, COPAUS0C, COPAUS1C and CBPAUP0C's EXEC DLI commands translate, above.)
 - **COPAUA0C, the authorization task (`carddemo-copaua0c`, #5278).** Transid CP00: an MQTM trigger, MQGET on the request queue, IMS
   DBPAUTP0 by EXEC DLI, three VSAM reads and MQPUT replies. Proven on 17 scenarios (3 fault runs), through the deployed entry point
   too, covering 41/41 paragraphs and 58/69 branches. The det port is committed (`port/service/`, `port/provenance.json`, as CBPAUP0C's),
@@ -880,7 +891,7 @@ NULL is distinct.
   (SEL0002, a declined detail, defensive defaults). Harness steps: a DTO `List` property is a `TableField` (carried in the area's bytes, never JSON), a scalar table reads back as
   `NAME(n)`, and the facade hands the byte-carrying `handleTransaction` the scenario's own bytes. Not claimed: a map attribute byte of X'40'
   (DFHBMUNP), which the port's side cannot tell from a cleared byte. The qualified GNP that finds nothing stays refused (IMS leaves position); the
-  `GE` scenario is the harness's planned status, not a real qualified miss.
+  `GE` scenario is the harness's planned status, not a real qualified miss. The det port is committed (`port/service/`, `port/provenance.json`, as COPAUA0C's), so `evidence.py prove carddemo-copaus0c` records it (`evidence.json`: proven, 33 runs, mutation pending).
 - **COPAUS1C, the detail screen (`carddemo-copaus1c`, #5233).** Transid CPVD, map COPAU1A: SCHD PSB, GU the account's PAUTSUM0 and a qualified
   GNP of the selected PAUTDTL1, the decline reason looked up with SEARCH ALL (found, the table's last entry, and AT END), PF8's unqualified
   GNP, PF5's LINK to COPAUS2C (Db2 `CARDDEMO.AUTHFRDS`: INSERT, and the -803 UPDATE) followed by an EXEC DLI REPL and SYNCPOINT, PF3's XCTL.
@@ -890,7 +901,7 @@ NULL is distinct.
   seed. Seven scenarios plan DL/I status faults (GU `AC` / `GB`, the qualified GNP `AC` / `GB`, PF8's GNP `AC` / `GB`, and a REPL `AC` that takes
   ROLL-BACK and undoes the Db2 INSERT). Left: the 4 uncovered branches, the SCHD `TC` retry and its second failure (TERM after a planned `TC` is
   refused, no PSB being scheduled in the model) and two guards that are always true here. The qualified GNP that finds nothing is refused by name,
-  so no scenario gives a key the account does not hold.
+  so no scenario gives a key the account does not hold. The det port is committed (`port/service/`, with COPAUS2C's service beside it, and `port/provenance.json`), so `evidence.py prove carddemo-copaus1c` records it (`evidence.json`: proven, 32 runs, mutation pending).
 - **CBPAUP0C as a BMP (`carddemo-cbpaup0c`, #5857).** The step is entered USING the I/O PCB and the one DB PCB of PSBPAUTB, reads
   its PRM-INFO card from SYSIN, walks the corpus's own DBPAUTP0 unload with GN / GNP, DLETs the expired details and emptied
   summaries and takes CHKP ID checkpoints. Proven on 12 runs (the base card, control-card scenarios and DL/I status faults, #5944), DBPAUTP0 equal on every run, covering 15/16 paragraphs and 37/40 branches. The det port is committed (`port/service/`, `port/provenance.json`, as CBSTM03A's), so `evidence.py prove carddemo-cbpaup0c` records the proof (`evidence.json`: proven, 12 runs, mutation pending); the det-sweep coverage ledger (`tests/equivalence/det_sweep_coverage/carddemo-cbpaup0c.json`) carries the same numbers. Left: 3 uncovered branches, each needing an I5 modelling decision: l.160 true (a mid-loop CHKP loses position, so GN restarts and the step never ends), l.340 true (the summary DLET always answers DJ: no get-hold of the summary precedes it), l.287 false (no declined detail expires before the first summary's abend).

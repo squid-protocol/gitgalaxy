@@ -248,14 +248,7 @@
    "why": "PF10 with CA-UPDATE-REQUESTED on type ZZ: 9200-UPDATE-RECORD UPDATEs the description"
   }
  ],
- "bounds_refused": {
-  "generated-03": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "generated-04": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "generated-10": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "generated-15": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "generated-21": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout",
-  "generated-22": "COTRTLIC builds WS-STRING-OUT by reference modification with length 0 on this path; IBM (no SSRANGE) does not fault, the bytes moved depend on storage layout"
- },
+ "zero_length_refmod": "COTRTLIC builds WS-STRING-OUT in 2500-SETUP-MESSAGE by reference modification with length 0 on the paths with no info message; IBM (no SSRANGE) moves an empty item, so the MOVE changes nothing (X8)",
  "scenario_generate": {
   "seed": 4507,
   "count": 24,

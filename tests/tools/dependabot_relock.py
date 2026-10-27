@@ -34,14 +34,34 @@ ROOT = Path(__file__).resolve().parents[2]
 REQ_DIRS = ("ci/requirements/", "templates/requirements/")
 TEMPLATE_DIR = "templates/requirements/"
 PIN = re.compile(r"^([A-Za-z0-9_.\-]+)(?:\[[^\]]*\])?==([^\s;\\]+)", re.M)
+DEPENDABOT_BUMP = re.compile(
+    r"^\s*-\s*dependency-name:\s*([A-Za-z0-9_.\-]+)\s*\n\s*dependency-version:\s*([^\s\n]+)",
+    re.M,
+)
+
+
+def _norm(name: str) -> str:
+    return re.sub(r"[-_.]+", "-", name).lower()
 
 
 def parse_pins(text: str) -> dict[str, set[str]]:
     """Map each pinned package (normalised name, extras dropped) to the set of versions a lockfile pins."""
     pins: dict[str, set[str]] = {}
     for name, ver in PIN.findall(text):
-        pins.setdefault(re.sub(r"[-_.]+", "-", name).lower(), set()).add(ver)
+        pins.setdefault(_norm(name), set()).add(ver)
     return pins
+
+
+def parse_dependabot_metadata(text: str) -> dict[str, set[str]]:
+    """Extract (dependency-name, dependency-version) pairs from Dependabot's commit/PR YAML footer.
+
+    Needed when Dependabot's pip-compile drops an "unsafe" package like setuptools or pip from bootstrap.txt
+    instead of writing the new version (#6300), leaving no new version in the .txt diff for parse_pins() to see.
+    """
+    bumps: dict[str, set[str]] = {}
+    for name, ver in DEPENDABOT_BUMP.findall(text or ""):
+        bumps.setdefault(_norm(name), set()).add(ver)
+    return bumps
 
 
 def bumped(base: dict[str, set[str]], head: dict[str, set[str]]) -> dict[str, set[str]]:
@@ -90,6 +110,14 @@ def run(event_path: Path, workdir: Path) -> int:
         base = parse_pins(git("show", f"origin/main:{path}") if _on_main(path) else "")
         for name, vers in bumped(base, parse_pins((workdir / path).read_text(encoding="utf-8"))).items():
             bumps.setdefault(name, set()).update(vers)
+    meta_text = "\n".join(
+        [
+            str(pr.get("body") or ""),
+            git("log", "--format=%B", "origin/main..refs/relock/head"),
+        ]
+    )
+    for name, vers in parse_dependabot_metadata(meta_text).items():
+        bumps.setdefault(name, set()).update(vers)
     if not bumps and not any(p.endswith(".in") for p in changed):
         print(f"#{number}: no pin changes to relock")
         return 0

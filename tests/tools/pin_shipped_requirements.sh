@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Regenerate templates/requirements/*.txt (hash-pinned, #4918) from the .in files beside them.
 # Bump the gitgalaxy pin in the .in files to the new release first. Needs `uv`.
-# --universal + --python-version 3.10: one lockfile valid on every OS and every Python >= 3.10
+# --universal + --python-version 3.11: one lockfile valid on every OS and every Python >= 3.11
 # (action.yml's floor), so the same files serve GitHub, GitLab, Azure and Bitbucket.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"

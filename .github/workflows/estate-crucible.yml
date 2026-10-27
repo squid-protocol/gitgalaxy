@@ -46,7 +46,9 @@ concurrency:
 
 jobs:
   estate:
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    # #6670: not on a PR (it never failed on one in 7 days; pr_gates.py runs it before a push). The pull_request trigger
+    # stays for its `paths`: post_merge_dispatch.py reads them as this workflow's relevance filter on main.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5  # the job takes ~40 s; a hang should fail fast
     env:

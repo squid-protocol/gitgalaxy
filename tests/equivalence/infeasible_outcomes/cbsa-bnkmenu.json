@@ -1,0 +1,125 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-bnkmenu",
+  "entries": [
+    {
+      "unit": "IOT999",
+      "kind": "PARAGRAPH",
+      "outcome": "entered",
+      "family": "G",
+      "reason": "IOT999 (l.968, EXIT) is entered only by falling out of INVOKE-OTHER-TXNS (l.377), and every path out of it ends the task. PMM010 (l.254) performs the section only when VALID-DATA, and EDIT-MENU-DATA (l.363) leaves VALID-DATA-SW 'Y' only for ACTIONI 1-7 or A, each of which has an IF at l.386-897 whose EXEC CICS RETURN TRANSID IMMEDIATE does not return when it succeeds and whose RESP NOT = NORMAL arm ends in PERFORM ABEND-THIS-TASK. Nothing PERFORMs or GO TOs IOT999."
+    },
+    {
+      "unit": "A010",
+      "line": 178,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (178): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "IOT010",
+      "line": 394,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (394): a RETURN TRANSID('ODCS') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "IOT010",
+      "line": 466,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (466): a RETURN TRANSID('ODAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "IOT010",
+      "line": 539,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (539): a RETURN TRANSID('OCCS') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "IOT010",
+      "line": 612,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (612): a RETURN TRANSID('OCAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "IOT010",
+      "line": 685,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (685): a RETURN TRANSID('OUAC') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "IOT010",
+      "line": 758,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (758): a RETURN TRANSID('OCRA') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "IOT010",
+      "line": 831,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (831): a RETURN TRANSID('OTFN') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "IOT010",
+      "line": 897,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF ACTIONI = 'A'` (897) is the last of the eight menu tests: EDIT-MENU-DATA (357-370) lets only '1'-'7' and 'A' through to INVOKE-OTHER-TXNS, and each of the tests for '1' to '7' ends in RETURN TRANSID(...) IMMEDIATE, which does not come back on success (see the RETURN entries above), so 897 is reached only with ACTIONI = 'A' and its false arm has no input."
+    },
+    {
+      "unit": "IOT010",
+      "line": 905,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (905): a RETURN TRANSID('OCCA') IMMEDIATE that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "SMM010",
+      "line": 1052,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 53), set by no statement: only `SET SEND-ERASE` (119, 287) and `SET SEND-DATAONLY-ALARM` (162, 258) write the flag."
+    },
+    {
+      "unit": "SMM010",
+      "line": 1061,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1052), which is never entered."
+    },
+    {
+      "unit": "SMM010",
+      "line": 1061,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1052), which is never entered."
+    },
+    {
+      "unit": "SMM010",
+      "line": 1128,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SMM010 after the first SEND MAP (GO TO SMM999) and '2' is never set (see 1052), so the test is always true."
+    }
+  ]
+}

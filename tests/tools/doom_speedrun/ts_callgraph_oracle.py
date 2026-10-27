@@ -7,7 +7,7 @@ Same contract as ``callgraph_oracle.body_oracle`` (and the same result shape, so
 scores it): each engine function is matched to the tree-sitter function node at its start line, every call in that
 body whose callee is a function the port defines (bare name) is an oracle call, self-edges are dropped on both sides
 (#3327). Covers the languages whose function nodes the scorer's tree-sitter oracle already knows (``SPECS``): go, java,
-csharp, rust, javascript, python. A language outside ``SPECS`` has no oracle: its functions are not read and a port
+csharp, rust, javascript, python, kotlin. A language outside ``SPECS`` has no oracle: its functions are not read and a port
 with none of ``SPECS`` reports ``callgraph`` as ``n/a`` (unscored), never a pass. An engine-only edge is ``absent``
 (callee not in the caller's body: scored), ``comment/string`` (scored), ``type`` (a constructor ``new T(..)``),
 ``function-pointer`` (a bare reference): the last two are reported, not scored. Needs ``tree_sitter_language_pack``.
@@ -17,34 +17,73 @@ import argparse
 import collections
 import functools
 import json
+import re
 import sqlite3
 import sys
 from pathlib import Path
 
+HERE = Path(__file__).resolve().parent
+sys.path.insert(
+    0, str(HERE.parents[2])
+)  # before any gitgalaxy import: a shared venv may editable-install another checkout
+sys.path.insert(0, str(HERE))
+
+import doom_scorer  # noqa: E402
+
 EXAMPLES = 3
 QUOTING = ("quote", "quote_spanned", "stringify")
-NAME_NODES = {"identifier", "field_identifier", "property_identifier", "type_identifier", "simple_identifier"}
+NAME_NODES = {
+    "identifier", "field_identifier", "property_identifier", "type_identifier", "simple_identifier",
+    "predefined_type",  # C# `new string(..)`: a constructor of a built-in type, kind ``type`` (#6266)
+    "word", "simple_word",  # a shell / Tcl command word names the command it runs (#5640)
+}  # fmt: skip
 # a qualified callee reduces to the field that names the function (``a.b.f`` -> ``f``)
 NAME_FIELD = {
     "attribute": "attribute", "selector_expression": "field", "member_expression": "property",
     "member_access_expression": "name", "field_expression": "field", "scoped_identifier": "name",
     "generic_name": None, "generic_function": "function", "member_binding_expression": "name",
-    "conditional_access_expression": "name",
+    "conditional_access_expression": "name", "navigation_suffix": None,
+    "dot_index_expression": "field", "method_index_expression": "method", "command_name": None,
 }  # fmt: skip
+# a qualified callee whose name is the LAST child (Kotlin ``a.b.f``: ``navigation_expression`` = receiver + suffix)
+LAST_CHILD = frozenset({"navigation_expression"})
 TEXT_NODES = {
     "comment", "line_comment", "block_comment", "string", "string_literal", "interpreted_string_literal",
     "raw_string_literal", "rune_literal", "template_string", "verbatim_string_literal", "character_literal",
     "string_content",
+    "multiline_comment", "multiline_string_literal", "raw_string", "heredoc_body",
 }  # fmt: skip
 
 
+# Kotlin stdlib scope / iteration functions called with only a trailing lambda (``x.run { .. }``, ``3.times { .. }``):
+# by name they collide with a port's own ``run()`` override, and the oracle cannot resolve receivers, so they are no calls
+KOTLIN_STDLIB = frozenset("run with apply let also takeIf takeUnless repeat times map filter forEach".split())
+
+
+# a function-valued expression bound to a name is a function of its own: ``window.f = () => {..}``, ``const f = () => ..``
+BINDINGS = {"assignment_expression": "right", "variable_declarator": "value", "pair": "value"}
+
+
 class Spec:
-    def __init__(self, parser, functions, calls, ctors=()):
-        self.parser, self.functions, self.calls, self.ctors = (
+    def __init__(self, parser, functions, calls, ctors=(), bound=()):
+        self.parser, self.functions, self.calls, self.ctors, self.bound = (
             parser,
             frozenset(functions),
             dict(calls),
             frozenset(ctors),
+            frozenset(bound),
+        )
+
+    def is_unit(self, node):
+        """A function definition node, or a bound function expression (the engine names and scores it on its own)."""
+        if node.type in self.functions:
+            return True
+        parent = node.parent
+        return (
+            node.type in self.bound
+            and parent is not None
+            and parent.type in BINDINGS
+            and parent.child_by_field_name(BINDINGS[parent.type]) == node
         )
 
 
@@ -57,8 +96,16 @@ SPECS = {
                    {"invocation_expression": "function"}, {"object_creation_expression"}),
     "rust": Spec("rust", {"function_item"}, {"call_expression": "function"}),
     "javascript": Spec("javascript", {"function_declaration", "method_definition"}, {"call_expression": "function"},
-                       {"new_expression"}),
+                       {"new_expression"},
+                       {"arrow_function", "function_expression"}),
     "python": Spec("python", {"function_definition"}, {"call": "function"}),
+    # shell and Tcl: a command word naming a function defined in the port is a call (#5640); Lua is an ordinary call
+    "lua": Spec("lua", {"function_declaration"}, {"function_call": "name"}),
+    "shell": Spec("bash", {"function_definition"}, {"command": "name"}),
+    "tcl": Spec("tcl", {"procedure"}, {"command": "name"}),
+    # a callee of None is the call node's first named child (Kotlin has no field for it)
+    "kotlin": Spec("kotlin", {"function_declaration", "secondary_constructor", "anonymous_initializer"},
+                   {"call_expression": None}),
 }  # fmt: skip
 
 
@@ -85,11 +132,33 @@ def callee_name(node):
     while node is not None:
         if node.type in NAME_NODES:
             return text_of(node)
+        if node.type in LAST_CHILD:
+            node = (node.named_children or [None])[-1]
+            continue
         if node.type not in NAME_FIELD:
             return None
         field = NAME_FIELD[node.type]
         node = node.child_by_field_name(field) if field else (node.named_children or [None])[0]
     return None
+
+
+def _super_ctor_target(node):
+    """The superclass a Java ``super(...)`` chains to (#3772): the enclosing class's ``extends`` type, or None."""
+    if not node.text.startswith(b"super"):
+        return None
+    cls = node.parent
+    while cls is not None and cls.type != "class_declaration":
+        cls = cls.parent
+    parent = cls.child_by_field_name("superclass") if cls is not None else None
+    target = (parent.named_children or [None])[0] if parent is not None else None
+    if target is not None and target.type == "generic_type":  # `extends Base<T>` names `Base`
+        target = (target.named_children or [None])[0]
+    return callee_name(target) if target is not None else None
+
+
+def _has_arguments(call):
+    """True when a Kotlin call carries a parenthesised argument list (not just a trailing lambda)."""
+    return any(c.type == "value_arguments" for k in call.children if k.type == "call_suffix" for c in k.children)
 
 
 class Body:
@@ -114,16 +183,26 @@ class Body:
                 self.refs.update(text_of(k) for k in kids if not k.children and text_of(k).isidentifier())
             if n.type in TEXT_NODES:
                 self.text_only.append(text_of(n))
+                if spec.parser == "csharp" and n.type == "string_content":
+                    # tree-sitter-c-sharp reads `$"{{{F()}}}"` (`{{`, hole `{F()}`, `}}`) as one literal; the hole is code
+                    self.calls.update(re.findall(r"\{\{\{[^{}]*?\b(\w+)\s*\(", text_of(n)))
                 continue
-            if n.type in spec.functions:
+            if spec.is_unit(n):
                 continue  # a nested function is its own unit
             if n.type in spec.calls:
-                fn = n.child_by_field_name(spec.calls[n.type])
+                field = spec.calls[n.type]
+                fn = n.child_by_field_name(field) if field else (n.named_children or [None])[0]
                 name = callee_name(fn) if fn is not None else None
+                if spec.parser == "kotlin" and name in KOTLIN_STDLIB and not _has_arguments(n):
+                    name = None
                 if name is not None:
                     self.calls.add(name)
                     if fn.type in NAME_NODES:
                         callees.add(fn.id)
+            elif n.type == "explicit_constructor_invocation":
+                name = _super_ctor_target(n)
+                if name is not None:
+                    self.calls.add(name)
             elif n.type in spec.ctors:
                 t = n.child_by_field_name("type") or n.child_by_field_name("constructor")
                 name = callee_name(t) if t is not None else None
@@ -151,7 +230,7 @@ def function_nodes(tree, spec):
     out, stack = [], [tree.root_node]
     while stack:
         n = stack.pop()
-        if n.type in spec.functions:
+        if spec.is_unit(n):
             out.append(n)
         stack.extend(reversed(n.children))
     return out
@@ -168,8 +247,10 @@ def definition_at(nodes, line):
     return best
 
 
-def load_port(repo, db):
-    """Engine functions of a scan in a language of ``SPECS``: [(relpath, language, name, start_line, callees)]."""
+def load_port(repo, db, vendored=None):
+    """Engine functions of a scan in a language of ``SPECS``: [(relpath, language, name, start_line, callees)].
+
+    ``vendored`` (a relpath -> bool test) drops vendored code (#6097)."""
     repo = str(repo).replace("\\", "/").rstrip("/")
     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
     try:
@@ -186,6 +267,8 @@ def load_port(repo, db):
         rel = path.replace("\\", "/")
         if rel.startswith(repo + "/"):
             rel = rel[len(repo) + 1 :]
+        if vendored and vendored(rel):
+            continue
         try:
             callees = json.loads(calls) if calls else []
         except ValueError:
@@ -246,7 +329,7 @@ def main(argv=None):
     ap.add_argument("--db", type=Path, required=True, help="the scan's *_master.db")
     ap.add_argument("--json", type=Path, help="write the result here")
     args = ap.parse_args(argv)
-    rows = load_port(args.root, args.db)
+    rows = load_port(args.root, args.db, doom_scorer._engine_vendor_test(args.root))
     if not rows:
         print("n/a: no function in a language with a tree-sitter call oracle")
         return 0

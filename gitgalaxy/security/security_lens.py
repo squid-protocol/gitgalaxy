@@ -309,8 +309,34 @@ class SecurityLens:
                 r'\b(?:ini_set|ini_restore|putenv)[ \t]*\([ \t]*["\'](?:disable_functions|safe_mode|open_basedir|allow_url_fopen)["\'][ \t]*,[ \t]*["\']?(?:0|off|false|)["\']?[ \t]*\)|'
                 r'\b(?:disable_functions|safe_mode|open_basedir)\b[ \t]*=[ \t]*(?:off|0|false|""|\'\')|'
                 r'process[ \t]*\.[ \t]*env[ \t]*\.[ \t]*NODE_TLS_REJECT_UNAUTHORIZED[ \t]*=[ \t]*["\']?0["\']?|'
-                r"\b(?:verify|strictSSL|rejectUnauthorized|CURLOPT_SSL_VERIFYPEER)[ \t]*[=:,][ \t]*(?:False|false|0)\b",
-                re.I,
+                r"\b(?:verify|strictSSL|rejectUnauthorized|CURLOPT_SSL_VERIFY(?:PEER|HOST))[ \t]*[=:,][ \t]*(?:False|0L?)\b|"
+                # #4108: the same TLS-verification switch spelled by Go, python's ssl module, curl/git and env vars.
+                r"\bInsecureSkipVerify[ \t]*[:=][ \t]*true\b|"
+                r"\b_create_unverified_context\b|"
+                r"\b(?:verify_mode|cert_reqs)[ \t]*[=:][ \t]*(?:\w+\.)*CERT_NONE\b|"
+                r"\bcheck_hostname[ \t]*=[ \t]*False\b|"
+                r"\b(?:verify_ssl|ssl_verify|verify_certs?)[ \t]*[=:][ \t]*(?:False|0)\b|"
+                r"\bsslVerify[ \t]*[=]?[ \t]*(?:false|0)\b|"
+                r"\bPYTHONHTTPSVERIFY[ \t]*=[ \t]*[\"']?0\b|"
+                # #6239: Java trust-all forms: named helpers, a HostnameVerifier that returns true, an empty checkServerTrusted.
+                r"\b(?:NoopHostnameVerifier|ALLOW_ALL_HOSTNAME_VERIFIER|InsecureTrustManagerFactory|TrustAllStrategy)\b|"
+                r"\b(?:set(?:Default)?HostnameVerifier|HostnameVerifier)\b[^\n;]{0,100}->[ \t]*true\b|"
+                r"\bboolean[ \t]+verify[ \t]*\([^)\n]{0,80}\bSSLSession\b[^)\n]{0,40}\)[ \t\r\n]{0,40}\{[ \t\r\n]{0,40}return[ \t]+true[ \t]*;|"
+                r"\bcheckServerTrusted[ \t]*\([^)\n]{0,160}\)[ \t\r\n]{0,20}(?:throws[ \t]+[\w., \t]{1,60}?[ \t\r\n]{0,20})?\{[ \t\r\n]{0,40}\}|"
+                # #6239: .NET accept-any certificate callbacks, PowerShell -SkipCertificateCheck, wget --no-check-certificate.
+                r"\bDangerousAcceptAnyServerCertificateValidator\b|"
+                r"\bServerCertificate(?:Custom)?ValidationCallback[ \t]*\+?=[^;{}]{0,100}?(?:=>[ \t]*(?:\{[ \t\r\n]{0,40}return[ \t]+)?true\b|\bdelegate\b[^;{}]{0,80}\{[ \t\r\n]{0,40}return[ \t]+true\b)|"
+                # PowerShell spellings: a `{ $true }` script block, a TrustAll* CertificatePolicy, a CheckValidationResult returning true.
+                r"\bServerCertificateValidationCallback[ \t]*\+?=[ \t]*\{[ \t\r\n]{0,40}(?:return[ \t]+)?\$true\b|"
+                r"\bCertificatePolicy[ \t]*=[ \t]*(?:New-Object[ \t]+)?\[?[\w.]{0,40}TrustAll|"
+                r"\bCheckValidationResult[ \t]*\([^)\n]{0,160}\)[ \t\r\n]{0,20}\{[ \t\r\n]{0,40}return[ \t]+\$?true\b|"
+                r"(?<![\w-])-SkipCertificateCheck\b(?![ \t]*:[ \t]*\$false)|"
+                r"\bwget\b[^\n|;&]{0,120}?[ \t]--no-check-certificate\b|"
+                r"^[ \t]*check_certificate[ \t]*=[ \t]*(?:off|no)\b|"
+                r"\bNODE_TLS_REJECT_UNAUTHORIZED\b[\"'\]]{0,2}[ \t]*[=:][ \t]*[\"']?0\b|"
+                # `-k` is curl's --insecure; `-K` (config file) must stay silent, so the case flag is scoped off.
+                r"\bcurl\b[^\n|;&]{0,120}?(?:[ \t]--insecure\b|(?-i:[ \t]-[A-Za-z]{0,6}k[A-Za-z]{0,6})(?=[ \t]|$))",
+                re.I | re.M,
             ),
             # 3. Network & I/O Exfiltration Vectors
             "io": re.compile(
@@ -528,19 +554,24 @@ class SecurityLens:
             "self_propagation": re.compile(
                 # 1. copy/write/rename call taking the self-reference as its
                 #    first argument, optionally through ONE normalizer.
-                r"\b(?:fs\.(?:copyFileSync|writeFileSync|appendFileSync|renameSync)"
-                r"|shutil\.(?:copy2?|copyfile|move)|os\.rename"
+                r"\b(?:fs\.(?:copyFileSync|writeFileSync|appendFileSync|renameSync|copyFile|cpSync|cp)"
+                r"|(?:File|IO)\.copy_stream|shutil\.(?:copy2?|copyfile|move)|os\.rename"
                 r"|FileUtils\.(?:cp|copy|mv)|File\.write"
                 r"|file_put_contents|copy|rename"
                 r"|Copy-Item|Move-Item"
                 r")\s*\(\s*"
                 r"(?:(?:os\.path\.(?:abspath|realpath|normpath)|path\.resolve|Resolve-Path|realpath)\s*\([ \t]*){0,1}"
-                r"[\"']?(?:__filename|__dirname|import\.meta\.url|__file__"
+                r"[\"']?(?:(?:__filename|__dirname|import\.meta\.url|__file__"
                 r"|\$PSCommandPath|\$MyInvocation\.MyCommand\.Path|\$0)\b"
+                # #4108: the interpreter's own script path reached another way.
+                r"|sys\.argv\[0\]|\$_SERVER\[[\"']SCRIPT_FILENAME[\"']\])"
                 # 2. shell / powershell command form -- no parentheses at all.
                 r"|\b(?:cp|install|Copy-Item|Move-Item)\b[ \t]+"
                 r"(?:-{1,2}[A-Za-z-]{1,20}(?:[ \t]+[A-Za-z0-9._/=-]{1,32})?[ \t]+){0,3}"
-                r"[\"']?(?:\$0|\$PSCommandPath|\$MyInvocation\.MyCommand\.Path)\b"
+                r"[\"']?(?:(?:\$0|\$PSCommandPath|\$MyInvocation\.MyCommand\.Path|\$BASH_SOURCE)\b"
+                r"|\$\{(?:0|BASH_SOURCE(?:\[0\])?)\})"
+                # 2b. paren-less ruby call (#4108): `FileUtils.cp __FILE__, dest`.
+                r"|\bFileUtils\.(?:cp|copy|mv|install)[ \t]+[\"']?(?:__FILE__|\$0)\b"
                 # 3. read-then-write: writing elsewhere the bytes it just read
                 #    of itself. Bounded, lazy gap over a negated class.
                 r"|\b(?:fs\.(?:writeFileSync|appendFileSync)|File\.write|file_put_contents"

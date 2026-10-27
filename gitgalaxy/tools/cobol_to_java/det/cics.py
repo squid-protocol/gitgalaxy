@@ -15,17 +15,21 @@ from pathlib import Path
 from gitgalaxy.standards.cics.commands import COMMANDS as SPEC
 from gitgalaxy.standards.cics.commands import whole_refusal
 from gitgalaxy.standards.cics.commands.api import COUNTER
-from gitgalaxy.standards.cics.commands.assign import TERMINAL_OPTIONS
-from gitgalaxy.standards.cics.commands.handles import AID_KEYS
+from gitgalaxy.standards.cics.commands.assign import (
+    TERMINAL_OPTIONS,  # noqa: F401 -- the conditions mixin reads it here
+)
+from gitgalaxy.standards.cics.commands.handles import AID_KEYS  # noqa: F401 -- the conditions mixin reads it here
 from gitgalaxy.standards.cics.commands.send_text import TEXT_OPTIONS
 from gitgalaxy.standards.cics.commands.shared import BOTH_FORMS, NEEDS_ARGUMENT
 from gitgalaxy.standards.cics.commands.task import DATE_FORMS, NUMBER_FORMS
 from gitgalaxy.standards.cics.commands.terminal import MAP_OPTIONS, SEND_CONTROL_OPTIONS
 from gitgalaxy.standards.cics.model import GroupKind
-from gitgalaxy.standards.cics.resp import DFHRESP
+from gitgalaxy.standards.cics.resp import DFHRESP  # noqa: F401 -- tests and the conditions mixin read it here
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
+from gitgalaxy.tools.cobol_to_java.det.cics_conditions import ConditionCommands  # #5274
 from gitgalaxy.tools.cobol_to_java.det.cics_containers import ContainerCommands  # #5274
+from gitgalaxy.tools.cobol_to_java.det.cics_faults import FaultCommands  # #5274
 from gitgalaxy.tools.cobol_to_java.det.cics_filecontrol import FileControlCommands  # #5274
 from gitgalaxy.tools.cobol_to_java.det.cics_taskcontrol import TaskControlCommands  # #5274
 
@@ -111,6 +115,8 @@ def command_key(words: list[str], opts: dict) -> str:
     if first in ("ENQ", "DEQ", "DELAY"):
         return first
     if first in ("GET", "PUT", "DELETE", "MOVE") and "CONTAINER" in opts:  # #4270 (DELETE CONTAINER is no file's)
+        return f"{first} CONTAINER"
+    if first in ("GET64", "PUT64") and "CONTAINER" in opts:  # #5005 (X17): the 64-bit forms
         return f"{first} CONTAINER"
     if (
         first in ("DELETE", "QUERY") and "CHANNEL" in opts and "CONTAINER" not in opts
@@ -482,7 +488,7 @@ def item_for(leaf: Leaf) -> L.Item:
 
 
 # ---- the commands ------------------------------------------------------------------------------------------------
-class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
+class Cics(ConditionCommands, ContainerCommands, FaultCommands, FileControlCommands, TaskControlCommands):
     """Translates EXEC CICS for one program; `gen` is the program's det.gen.Gen. A command family split out of this
     file (#5274: the containers / channels commands, det/cics_containers.py) is a base class: `command` dispatches."""
 
@@ -501,6 +507,7 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         # handler state is stacked); set by program._translate from the source before any statement is translated
         self.handle_aid = False
         self.push_handle = False
+        self.handle_abend = False  # #6271 (X70): the program has HANDLE ABEND, so a file command checks for its exit
         self.eibds_read = False  # #5126 (X64): the program reads EIBDS, so a file control command sets it
         # #4528: the region's code page (region_page), set by program._translate; `region_used`: the port declares
         # REGION (a TS command moves bytes between the program's storage and the region)
@@ -598,101 +605,6 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         out.append(f"{ind}    if (to >= 0) {self.g.jump('to')}")
         out.append(f"{ind}}}")
         return out
-
-    # -- ASSIGN
-    def assign(self, opts: dict, ind: str) -> list[str]:
-        """ASSIGN (IBM CICS TS, EXEC CICS ASSIGN): each option's value into its data area. #4270 slice 3: STARTCODE /
-        USERID from what the harness states (CicsTask.withStartcode / withUserid); FACILITY, SCRNHT, SCRNWD from the
-        task's terminal -- for a task with none, INVREQ RESP2 5 ("The task is not associated with a terminal; or the
-        task has no principal facility"), and then no data area is written (IBM does not say what the others hold:
-        register X19). Without a FACILITY / SCRNHT / SCRNWD, ASSIGN raises no condition: RESP is NORMAL."""
-        stores = []
-        for k, v in opts.items():
-            if k in ("RESP", "RESP2", "NOHANDLE"):
-                continue
-            if k in ("SCRNHT", "SCRNWD"):  # a halfword binary
-                n = f"BigDecimal.valueOf(task.assignScreen({'true' if k == 'SCRNWD' else 'false'}))"
-                stores.append(self.g.store_into(self.ref(_arg(v)), n, False))
-                continue
-            src = {"APPLID": "task.assignApplid()", "SYSID": "task.assignSysid()", "ABCODE": "task.abcode()",
-                   # the running program's own name, 8 characters
-                   "PROGRAM": G_jstr(f"{self.g.p.name[:8]:<8}"),
-                   "INVOKINGPROG": "task.invokingProgram()",
-                   "CHANNEL": "task.assignChannel()",  # #4270: 16 characters, blanks without one
-                   "STARTCODE": "task.assignStartcode()", "USERID": "task.assignUserid()",
-                   "FACILITY": "task.assignFacility()"}.get(k)  # fmt: skip
-            if src is None:
-                raise CicsError(f"ASSIGN {k}")
-            stores.append(f"DetCics.putText({self.field(_arg(v))}, {src}, CS);")
-        if not any(k in opts for k in TERMINAL_OPTIONS):  # INVREQ RESP2 5 without a terminal (raised_by)
-            return [ind + x for x in stores] + (
-                self.outcome(opts, "0", "0", ind) if "RESP" in opts or "RESP2" in opts else []
-            )
-        r = self.g.tmpname("assign")
-        return ([f"{ind}int {r} = task.assignTerminalResp();", f"{ind}if ({r} == 0) {{"]
-                + [f"{ind}    {x}" for x in stores] + [f"{ind}}}"]
-                + self.outcome(opts, r, f"({r} == 0 ? 0 : 5)", ind))  # fmt: skip
-
-    # -- #4414: IGNORE CONDITION, HANDLE AID, PUSH / POP HANDLE
-    def conditions(self, verb: str, opts: dict, ignore: bool = False) -> list[str]:
-        """The conditions a HANDLE / IGNORE CONDITION names: each one IBM documents (DFHRESP), never NORMAL. IGNORE
-        CONDITION names no label (IBM, EXEC CICS IGNORE CONDITION: "condition -- the name of the condition to be
-        ignored"). IGNORE CONDITION ERROR is refused: IBM's HANDLE CONDITION takes "the action for ERROR" for a
-        condition with no action of its own whose default is an abend, but does not say whether an IGNORE of ERROR is
-        such an action (docs/language_status/oracle_assumptions.md X16)."""
-        for cond, label in opts.items():
-            if cond not in DFHRESP or cond == "NORMAL":
-                raise CicsError(f"{verb} {cond}: not a documented condition")
-            if ignore and label is not None:
-                raise CicsError(f"{verb} {cond}({label}): IGNORE CONDITION names no label")
-            if ignore and cond == "ERROR":
-                raise CicsError("IGNORE CONDITION ERROR: whether ERROR's action can be to ignore is not documented")
-        return list(opts)
-
-    def handle_aid_(self, opts: dict, ind: str) -> list[str]:
-        """HANDLE AID key(label) ... (IBM, EXEC CICS HANDLE AID): each key's label, taken after an input command
-        (input_outcome); a key with no label is deactivated ("To ignore an AID, issue a HANDLE AID command that
-        specifies the associated option without a label"). Only the attention keys: RESP / NOHANDLE are refused too
-        (no key; HANDLE AID raises no condition here)."""
-        out = []
-        for key, label in opts.items():
-            if key not in AID_KEYS:
-                raise CicsError(f"HANDLE AID {key}: not an attention key")
-            if label is None:  # (-1: deactivated, which DetCics.aidLabel tells from never handled)
-                out.append(f"{ind}aids.put({G_jstr(key)}, -1);")
-                continue
-            if label.upper() not in self.g.para_index:
-                raise CicsError(f"HANDLE AID {key}({label}): no such paragraph")
-            out.append(f"{ind}aids.put({G_jstr(key)}, {self.g.para_index[label.upper()]});")
-        return out
-
-    def push_pop(self, verb: str, opts: dict, ind: str) -> list[str]:
-        """PUSH HANDLE suspends the program's HANDLE CONDITION, IGNORE CONDITION, HANDLE AID and HANDLE ABEND state;
-        POP HANDLE restores the one last pushed, INVREQ when none was (IBM, EXEC CICS PUSH HANDLE / POP HANDLE). The
-        HANDLE ABEND part is CicsTask's (pushHandle / popHandle), the rest the program's own (handlers, aids)."""
-        r = self.g.tmpname("resp")
-        if verb == "PUSH HANDLE":
-            out = [f"{ind}pushed.push(new DetCics.Handlers(handlers, aids));",
-                   f"{ind}handlers.clear();", f"{ind}aids.clear();",
-                   f"{ind}int {r} = DetCics.resp(task.pushHandle());"]  # fmt: skip
-        else:
-            out = [f"{ind}int {r} = DetCics.resp(task.popHandle());",
-                   f"{ind}if ({r} == 0) {{",
-                   f"{ind}    pushed.pop().restore(handlers, aids);",
-                   f"{ind}}}"]  # fmt: skip
-        return out + self.outcome(opts, r, "0", ind)
-
-    def input_outcome(self, opts: dict, resp: str, ind: str) -> list[str]:
-        """#4414: after an input command (RECEIVE MAP, terminal RECEIVE): its outcome, then -- in a program that
-        issues HANDLE AID, unless RESP or NOHANDLE ("no action is to be taken for any condition or attention
-        identifier (AID)") -- the label of the key pressed, else ANYKEY's for a PA / PF key or CLEAR ("Control is
-        passed after the input command is completed"). Which comes first when the command also raised a condition
-        is not documented: the program's aid() refuses that before the condition is acted on (X16)."""
-        if not self.handle_aid or "RESP" in opts or "NOHANDLE" in opts:
-            return self.outcome(opts, resp, "0", ind)
-        to = self.g.tmpname("aidTo")
-        return [f"{ind}aid({resp});", *self.outcome(opts, resp, "0", ind),
-                f"{ind}int {to} = aid({resp});", f"{ind}if ({to} >= 0) {self.g.jump(to)}"]  # fmt: skip
 
     # -- COMMAREA codecs
     def codec(self, cls: str) -> str:
@@ -922,11 +834,14 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         """One EXEC CICS command's Java; a file control command leads with `Cobol.move(<file>, EIBDS)` (#5126, X64),
         set before the command runs so a failed request leaves its file named, in a program that reads EIBDS."""
         lines = self._command(text, ind)
-        if self.eibds_read:
+        if self.eibds_read or self.handle_abend:
             words, opts = parse_exec(text)
             file = opts.get("FILE") or opts.get("DATASET")
             if words[:1] and " ".join(words) in EIBDS_VERBS and file:
-                return [f"{ind}Cobol.move({self.text(file)}, {self.g.eib('EIBDS')}, CS);", *lines]
+                if self.handle_abend and " ".join(words) != "UNLOCK":  # #6271 (X70): an injected file abend
+                    lines = [*lines, *self.abend_exit(ind)]  # went to this program's exit, or unwound past this level
+                if self.eibds_read:
+                    return [f"{ind}Cobol.move({self.text(file)}, {self.g.eib('EIBDS')}, CS);", *lines]
         return lines
 
     def _command(self, text: str, ind: str) -> list[str]:
@@ -944,6 +859,8 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         key = command_key(words, opts)
         if key in ("PUT CONTAINER", "GET CONTAINER", "DELETE CONTAINER"):
             return self.container(key, opts, ind)
+        if key in ("PUT64 CONTAINER", "GET64 CONTAINER"):  # #5005 (X17): the same, INTO / FROM an ordinary item
+            return self.container(key.replace("64", ""), opts, ind)
         if key in ("MOVE CONTAINER", "STARTBROWSE CONTAINER", "GETNEXT CONTAINER", "ENDBROWSE CONTAINER"):
             return self.container_browse(key, opts, ind)  # #4951
         if key in ("DELETE CHANNEL", "QUERY CHANNEL"):
@@ -1108,10 +1025,12 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
                 if not opts.get("LENGTH") or (fixed_len is not None and fixed_len <= self.size(_arg(opts["FROM"])))
                 else 'new String(DetCics.withinRecord({}, {}, "SEND TEXT"), CS)'
             ).format(f, n)
+            pl = g.tmpname("planned")  # #6271 (X71): a planned TSIOERR / INVREQ / LENGERR sends nothing
             return [f"{ind}String {t} = {text};",
-                    f"{ind}task.sendText({t}.substring(0, Math.min({t}.length(), {n})), {n}"
+                    f'{ind}int[] {pl} = task.planned("SEND-TEXT", "-");',
+                    f"{ind}if ({pl}[0] == 0) task.sendText({t}.substring(0, Math.min({t}.length(), {n})), {n}"
                     f"{''.join(', ' + G_jstr(x) for x in flags)});",
-                    *self.outcome(opts, "0", "0", ind)]  # fmt: skip
+                    *self.outcome(opts, f"{pl}[0]", f"{pl}[1]", ind)]  # fmt: skip
         if verb == "RECEIVE" and "MAP" in opts:
             return self.receive_map(opts, ind)
         if verb == "LINK":
@@ -1173,10 +1092,7 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
                         f"{ind}    if (!task.linkAreaBack()) {{ in_{cls}({ca}, {w}, 0); }}",
                         f"{ind}    Cobol.commareaBack({w}, {f});",
                         f"{ind}}}"]  # fmt: skip
-            ex = g.tmpname("exit")
-            out += [f"{ind}String {ex} = task.abendExit();",  # an abend below went to this program's exit
-                    f"{ind}if ({ex} != null) {g.jump(f'paragraph({ex})')}",
-                    f"{ind}if (task.ended()) throw abended();"]  # #4534: unwound past this level  # fmt: skip
+            out += self.abend_exit(ind)  # #4534: an abend below went to the exit, or unwound
             return out + self.outcome(opts, f"DetCics.resp({r})", "task.transferResp2()", ind)  # #4679
         if verb == "RETURN":
             if "CHANNEL" in opts:  # #5005 (X17): the next task's current channel (CicsTask.returnChannel)
@@ -1197,6 +1113,13 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
                 ret_pre, call = self._return_call("returnImmediate", tid, opts, ind, g)
                 rr = g.tmpname("rr")
                 # failing (INVREQ / LENGERR) it returns to the program, which tests RESP; else the task ends
+                return [*ret_pre, f"{ind}int[] {rr} = {call};",
+                        f"{ind}if ({rr}[0] == 0) {{ caBack.run(); throw new Goback(); }}",
+                        *self.outcome(opts, f"{rr}[0]", f"{rr}[1]", ind)]  # fmt: skip
+            if opts.get("TRANSID") and "RESP" in opts:  # #6271 (X71): a planned INVREQ / LENGERR returns to the program
+                tid = self.name(_arg(opts["TRANSID"]))
+                ret_pre, call = self._return_call("returnTransidResp", tid, opts, ind, g)
+                rr = g.tmpname("rr")
                 return [*ret_pre, f"{ind}int[] {rr} = {call};",
                         f"{ind}if ({rr}[0] == 0) {{ caBack.run(); throw new Goback(); }}",
                         *self.outcome(opts, f"{rr}[0]", f"{rr}[1]", ind)]  # fmt: skip
@@ -1250,16 +1173,7 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         if verb in ("WRITE", "REWRITE", "DELETE", "STARTBR", "ENDBR", "UNLOCK"):
             return self.file_update(verb, opts, ind)
         if verb == "HANDLE ABEND":
-            if "LABEL" in opts:
-                label = _arg(opts["LABEL"]).upper()
-                if label not in g.para_index:
-                    raise CicsError(f"HANDLE ABEND LABEL({label}): no such paragraph")
-                return [f"{ind}task.handleAbend({G_jstr(label)});"]
-            if "CANCEL" in opts:
-                return [f"{ind}task.handleAbendCancel();"]
-            if "RESET" in opts:
-                return [f"{ind}task.handleAbendReset();"]
-            raise CicsError("HANDLE ABEND without LABEL, CANCEL or RESET")
+            return self.handle_abend_(opts, ind)
         if verb == "HANDLE CONDITION":
             out = []
             self.conditions(verb, opts)
@@ -1278,11 +1192,7 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         if verb in ("PUSH HANDLE", "POP HANDLE"):
             return self.push_pop(verb, opts, ind)
         if verb == "ABEND":
-            code = self.name(_arg(opts["ABCODE"])) if opts.get("ABCODE") else '""'
-            fn = "abendCancel" if "CANCEL" in opts else "abend"
-            lbl = g.tmpname("exit")
-            return [f"{ind}String {lbl} = task.{fn}({code});", f"{ind}if ({lbl} == null) throw abended();",
-                    f"{ind}if (true) {g.jump(f'paragraph({lbl})')}"]  # fmt: skip
+            return self.abend(opts, ind)
         if verb == "ASSIGN":
             return self.assign(opts, ind)
         if verb == "ASKTIME":
@@ -1407,11 +1317,11 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         if verb == "WRITEQ TD":
             r = g.tmpname("resp")
             f = self.read_field(_arg(opts["FROM"]))
-            n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["FROM"])))
-            if opts.get("LENGTH"):  # #4607 x X6: a LENGTH past FROM is refused, as the stub refuses it
-                n = f'DetCics.within({f}, {n}, "WRITEQ TD")'
-            return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, "
-                    f"Cobol.text({f}, CS).substring(0, {n}));",
+            if opts.get("LENGTH"):  # X6 (ASSUMED): a LENGTH past FROM writes FROM's bytes then spaces, as the stub does
+                data = f'new String(DetCics.padded({f}, {self.int_(_arg(opts["LENGTH"]))}, "WRITEQ TD", CS), CS)'
+            else:
+                data = f"Cobol.text({f}, CS)"
+            return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, {data});",
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
         if verb == "DELETEQ TD":  # #5079 (X57): every record of an intrapartition queue
             r = g.tmpname("resp")
@@ -1425,10 +1335,17 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         if verb in ("SYNCPOINT", "SYNCPOINT ROLLBACK"):
             # #4437: NORMAL -- the only outcome in this region (OPTIONS says why); EIBRESP / RESP / RESP2 written as
             # CICS writes them, never left as the previous command set them
-            call = f"{ind}task.{'rollback' if verb == 'SYNCPOINT ROLLBACK' or 'ROLLBACK' in opts else 'syncpoint'}();"
-            out = [call, *self.outcome({**opts, "NOHANDLE": None}, "0", "0", ind)]  # (NORMAL raises no condition)
+            back = verb == "SYNCPOINT ROLLBACK" or "ROLLBACK" in opts
+            pl = g.tmpname(
+                "planned"
+            )  # #6271 (X71): a planned INVREQ (RESP2 200) is not performed and raises as any condition
+            call = f'{ind}int[] {pl} = task.planned({G_jstr("ROLLBACK" if back else "SYNCPOINT")}, "-");'
+            call2 = f"{ind}if ({pl}[0] == 0) task.{'rollback' if back else 'syncpoint'}();"
+            out = [call, call2, *self.outcome(opts, f"{pl}[0]", f"{pl}[1]", ind)]
             if "RESP2" in opts and "RESP" not in opts:  # RESP2 alone is written too
-                out.append(ind + self.g.store_into(self.ref(_arg(opts["RESP2"])), "BigDecimal.valueOf(0)", False))
+                out.append(
+                    ind + self.g.store_into(self.ref(_arg(opts["RESP2"])), f"BigDecimal.valueOf({pl}[1])", False)
+                )
             return out
         if verb == "SEND CONTROL":
             return self.send_control(opts, ind)
@@ -2061,7 +1978,7 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         goes INTO as the program's own text (a WRITEQ TD wrote it so); a record moved past INTO is refused at run time
         (DetCics.readTd), as READ INTO's is. LENGTH(data-area) is set to the record's length on NORMAL and LENGERR.
         #5168: SET(pointer) LENGTH(data-area) puts the record in a new block, valid to the next READQ TD; NOSUSPEND
-        changes nothing (no second task holds the queue)."""
+        is passed on: only a planned QBUSY (another task writing a LOGICAL queue) reads it."""
         g = self.g
         r = g.tmpname("td")
         setp = opts.get("SET")
@@ -2077,7 +1994,8 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         else:
             into = self.field(_arg(opts["INTO"]))
             maxlen = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{into}.length()"
-        out = [f"{ind}CicsTask.TdResult {r} = task.readqTd({self.name(_arg(opts['QUEUE']))}, {maxlen});"]
+        nos = ", true" if "NOSUSPEND" in opts else ""
+        out = [f"{ind}CicsTask.TdResult {r} = task.readqTd({self.name(_arg(opts['QUEUE']))}, {maxlen}{nos});"]
         if setp:
             out.append(f'{ind}if ({r}.data() != null) DetCics.setBlock(task, {ptr}, "READQ TD", {r}.data(), CS);')
         else:
@@ -2103,11 +2021,12 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
             return [f"{ind}int {r} = task.deleteqTs({queue});", *self.outcome(opts, r, "0", ind)]
         if verb == "WRITEQ":
             f = self.read_field(_arg(opts.get("FROM")))
-            n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{f}.length()"
-            if opts.get("LENGTH"):  # #4607 x X6: a LENGTH past FROM is refused, as the stub refuses it
-                n = f'DetCics.within({f}, {n}, "WRITEQ TS")'
+            if opts.get("LENGTH"):  # X6 (ASSUMED): a LENGTH past FROM writes FROM's bytes then spaces, as the stub does
+                body = f'DetCics.padded({f}, {self.int_(_arg(opts["LENGTH"]))}, "WRITEQ TS", CS)'
+            else:
+                body = f"DetCics.bytes({f}, {f}.length())"
             # #4528: the item in the region's page, as the COBOL side's region keeps it
-            data = f"DetCics.toRegion(DetCics.bytes({f}, {n}), CS, REGION)"
+            data = f"DetCics.toRegion({body}, CS, REGION)"
             if "REWRITE" in opts:
                 out.append(
                     f"{ind}CicsTask.TsResult {r} = task.rewriteqTs({queue}, {self.int_(_arg(opts.get('ITEM')))}, {data});"
@@ -2220,20 +2139,6 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
             raise CicsError("MAP / MAPSET not a constant, nor fixed by the symbolic map")
         return m, ms, guard
 
-    def map_not_found(self, m: str, ms: str, ind: str) -> list[str] | None:
-        """IBM CICS TS (SEND MAP / RECEIVE MAP; abend code ABM0, register X31): a map is found only inside its own
-        mapset (BMS: DFHMSD names the mapset, each DFHMDI a map; MAPSET defaults to the MAP name when omitted). A name
-        that is a mapset of the estate but no map of it asks CICS for a map the mapset does not hold: ABM0, "The map
-        specified for a basic mapping support (BMS) request could not be located", the transaction abnormally
-        terminated. No condition is raised (neither command lists one), so RESP / HANDLE CONDITION do not see it; a
-        HANDLE ABEND exit does -- the lines are EXEC CICS ABEND's, with the abend CICS raises. None: not that case."""
-        if ms not in self.gp.mapsets or m in self.gp.mapsets[ms]:
-            return None
-        lbl = self.g.tmpname("exit")
-        return [f"{ind}String {lbl} = task.abendMapNotFound({G_jstr(m)}, {G_jstr(ms)});",
-                f"{ind}if ({lbl} == null) throw abended();",
-                f"{ind}if (true) {self.g.jump(f'paragraph({lbl})')}"]  # fmt: skip
-
     def screen_slots(self, cls: str) -> list[tuple[str, int | None]]:
         """#5076: a screen class's fields as (name, occurrence): a repeated field once per occurrence (ACCOUNT, 3), any
         other once (COMPANY, None)."""
@@ -2275,9 +2180,11 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         flags = [o for o in MAP_OPTIONS if o in opts]
         screen = "null" if "MAPONLY" in opts else f"{cls}.fromValues({v})"
         out.append(f"{ind}{cls} {scr} = {screen};")
-        out.append(f"{ind}task.sendMap({G_jstr(m)}, {G_jstr(ms)}, {scr}, {sub}"
+        pl = self.g.tmpname("planned")  # #6271 (X71): a planned INVMPSZ / TSIOERR / INVREQ sends nothing
+        out.append(f'{ind}int[] {pl} = task.planned("SEND-MAP", {G_jstr(m)});')
+        out.append(f"{ind}if ({pl}[0] == 0) task.sendMap({G_jstr(m)}, {G_jstr(ms)}, {scr}, {sub}"
                    f"{''.join(', ' + G_jstr(x) for x in flags)});")  # fmt: skip
-        return out + self.outcome(opts, "0", "0", ind)
+        return out + self.outcome(opts, f"{pl}[0]", f"{pl}[1]", ind)
 
     def receive_map(self, opts: dict, ind: str) -> list[str]:
         # #4737 (X28): ASIS -- IBM: "lowercase characters in the 3270 input data stream are not translated to uppercase".
@@ -2293,10 +2200,13 @@ class Cics(ContainerCommands, FileControlCommands, TaskControlCommands):
         into = self.ref(opts["INTO"]) if opts.get("INTO") else E.Ref(m + "I")
         fi = self.g.field_expr(into)
         r, vals, resp = self.g.tmpname("received"), self.g.tmpname("typed"), self.g.tmpname("resp")
-        out = [*guard, f"{ind}java.util.Optional<{cls}> {r} = task.receive({G_jstr(m)}, {G_jstr(ms)}, {cls}.class);",
-               f"{ind}int {resp} = {r}.isPresent() ? 0 : 36;", f"{ind}if ({r}.isPresent()) {{",
-               f"{ind}    java.util.Arrays.fill({fi}.storage().bytes, {fi}.offset(), {fi}.offset() + {fi}.length(), "
-               "(byte) 0);",
+        pl = self.g.tmpname("planned")  # #6271 (X71): a planned INVMPSZ / INVREQ receives nothing: INTO is untouched
+        out = [*guard, f"{ind}int[] {pl} = task.planned(\"RECEIVE-MAP\", {G_jstr(m)});",
+               (f"{ind}java.util.Optional<{cls}> {r} = {pl}[0] != 0 ? java.util.Optional.empty() "
+                f": task.receive({G_jstr(m)}, {G_jstr(ms)}, {cls}.class);"),
+               f"{ind}int {resp} = {pl}[0] != 0 ? {pl}[0] : {r}.isPresent() ? 0 : 36;", f"{ind}if ({r}.isPresent()) {{",
+               (f"{ind}    java.util.Arrays.fill({fi}.storage().bytes, {fi}.offset(), {fi}.offset() + {fi}.length(), "
+                "(byte) 0);"),
                f"{ind}    java.util.Map<String, String> {vals} = {r}.get().screenValues();"]  # fmt: skip
         justify = self.gp.screen_justify(cls)
         for name, k in self.screen_slots(cls):  # #5076: every occurrence of a repeated field, keyed NAME.k

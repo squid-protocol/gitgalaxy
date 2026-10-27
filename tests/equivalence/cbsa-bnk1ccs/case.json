@@ -201,6 +201,50 @@
       }
     },
     {
+      "name": "create-customer",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "every field valid, born 12/07/1985: LINK CRECUST runs the credit check (five RUN children), DATE-OF-BIRTH-CHECK calls CEEDAYS (L1: the picture's 2 slack bytes ruled blank), then writes the CUSTOMER record and the PROCTRAN 'OCC' row",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "12",
+          "DOBMMI": "07",
+          "DOBYYI": "1985"
+        }
+      }
+    },
+    {
+      "name": "born-in-the-future",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "every field valid, born 01/01/2099: the same credit check, CEEDAYS (L1: the picture's 2 slack bytes ruled blank), then DATE-OF-BIRTH-CHECK refuses a date after today; no customer written",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "2099"
+        }
+      }
+    },
+    {
       "name": "title-01-DR",
       "aid": "DFHENTER",
       "commarea": {
@@ -1796,7 +1840,218 @@
           "DOBYYI": "1500"
         }
       }
+    },
+    {
+      "name": "first-entry-send-map-invmpsz",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "EIBCALEN 0: the SEND MAP ERASE of the empty map fails INVMPSZ (planned, X71): nothing is sent and the non-NORMAL arm takes the abend routine",
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "map": "BNK1CC",
+          "nth": 1,
+          "resp": "INVMPSZ"
+        }
+      ]
+    },
+    {
+      "name": "validation-failure-send-map-tsioerr",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "the title-invalid input sends its message with SEND MAP DATAONLY ALARM, which fails TSIOERR (planned, X71): the non-NORMAL arm takes the abend routine",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Madam_____",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "1500"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "map": "BNK1CC",
+          "nth": 1,
+          "resp": "TSIOERR"
+        }
+      ]
+    },
+    {
+      "name": "dd-not-numeric",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "DOBDDI '1B': the trailing letter keeps its zone through BIF DEEDIT, so the field is NOT NUMERIC and the validation message is sent",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "1B",
+          "DOBMMI": "07",
+          "DOBYYI": "1985"
+        }
+      }
+    },
+    {
+      "name": "mm-not-numeric",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "DOBMMI '0B': the trailing letter keeps its zone through BIF DEEDIT, so the field is NOT NUMERIC and the validation message is sent",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "12",
+          "DOBMMI": "0B",
+          "DOBYYI": "1985"
+        }
+      }
+    },
+    {
+      "name": "yyyy-not-numeric",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "DOBYYI '198B': the trailing letter keeps its zone through BIF DEEDIT, so the field is NOT NUMERIC and the validation message is sent",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "12",
+          "DOBMMI": "07",
+          "DOBYYI": "198B"
+        }
+      }
+    },
+    {
+      "name": "title-mr-eight-blanks",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "title 'Mr' plus eight blanks (ten bytes): the EVALUATE's WHEN for that exact padded form",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr        ",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "12",
+          "DOBMMI": "07",
+          "DOBYYI": "1985"
+        }
+      }
+    },
+    {
+      "name": "link-crecust-pgmiderr",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "every field valid, but the LINK CRECUST fails PGMIDERR: the non-NORMAL arm after the LINK",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "12",
+          "DOBMMI": "07",
+          "DOBYYI": "1985"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "LINK",
+          "program": "CRECUST",
+          "resp": "PGMIDERR",
+          "nth": 1
+        }
+      ]
+    },
+    {
+      "name": "born-30-feb",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "born 30/02/1985: passes the day/month range checks but CRECUST's CEEDAYS refuses the date, fail code 'Z'",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "30",
+          "DOBMMI": "02",
+          "DOBYYI": "1985"
+        }
+      }
+    },
+    {
+      "name": "pf12-send-text-tsioerr",
+      "aid": "DFHPF12",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "faults": [
+        {
+          "cmd": "SEND-TEXT",
+          "resp": "TSIOERR"
+        }
+      ],
+      "why": "PF12: SEND-TERMINATION-MSG's SEND TEXT ERASE FREEKB (STM010) fails TSIOERR (planned, register X71): nothing is sent and the non-NORMAL arm takes the abend routine"
+    },
+    {
+      "name": "first-entry-plain-return-invreq",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "RETURN",
+          "resp": "INVREQ",
+          "resp2": 4
+        }
+      ],
+      "why": "EIBCALEN 0: the closing RETURN TRANSID .. COMMAREA RESP (A010) fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its A010 abend routine"
     }
   ],
-  "notes": "CBSA's create-customer screen (BNK1CCS, transaction OCCS, BMS map BNK1CC of mapset BNK1CCM: the symbolic map is generated from src/base/bms_src/BNK1CCM.bms). Pseudo-conversational: Its terminal is a stated fact of the run: T001 (EIBTRMID), UCTRANST NOUCTRAN unless a scenario says UCTRAN or TRANIDONLY (INQUIRE / SET TERMINAL UCTRANST, oracle_assumptions.md X26), the stored setting in WS-COMM-TERM (451 in every returning scenario). A first task stores the terminal's UCTRAN setting (INQUIRE / SET TERMINAL UCTRANST) and sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 and PF12 restore the setting (PF3 RETURN TRANSID('OMEN') IMMEDIATE), CLEAR, ENTER (EDIT-DATA of title, names, address and date of birth, then LINK CRECUST with SUBPGM-PARMS), any other key 'Invalid key pressed.'. Every title spelling EDIT-DATA's EVALUATE lists is a scenario. CRECUST, its five credit-agency children and ABNDPROC run in the task, as in cbsa-crecust (header, data and notes: the async credit check is X18, ASSUMED). #4952 -- NOT PROVABLE (named hole): a customer that passes the date-of-birth check reaches CRECUST's CEEDAYS call, which the oracle refuses by name (oracle_assumptions.md L1: 'CEEDAYS: picture not modelled'), and with it the whole case; so no scenario creates a customer, and the successful create is NOT covered. Every scenario that reaches CRECUST is born in 1500, which CRECUST refuses before CEEDAYS ('O'). Also open: L4 (FC is 8 bytes, LE's token 12) and X18. Data: seed.sql and customer.txt are cbsa-crecust's, SYNTHETIC. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+  "notes": "CBSA's create-customer screen (BNK1CCS, transaction OCCS, BMS map BNK1CC of mapset BNK1CCM: the symbolic map is generated from src/base/bms_src/BNK1CCM.bms). Pseudo-conversational: Its terminal is a stated fact of the run: T001 (EIBTRMID), UCTRANST NOUCTRAN unless a scenario says UCTRAN or TRANIDONLY (INQUIRE / SET TERMINAL UCTRANST, oracle_assumptions.md X26), the stored setting in WS-COMM-TERM (451 in every returning scenario). A first task stores the terminal's UCTRAN setting (INQUIRE / SET TERMINAL UCTRANST) and sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 and PF12 restore the setting (PF3 RETURN TRANSID('OMEN') IMMEDIATE), CLEAR, ENTER (EDIT-DATA of title, names, address and date of birth, then LINK CRECUST with SUBPGM-PARMS), any other key 'Invalid key pressed.'. Every title spelling EDIT-DATA's EVALUATE lists is a scenario. CRECUST, its five credit-agency children and ABNDPROC run in the task, as in cbsa-crecust (header, data and notes: the async credit check is X18, ASSUMED). #4952, #5089 -- ASSUMED (register): create-customer (born 12/07/1985) and born-in-the-future (01/01/2099) reach CRECUST's CEEDAYS call, whose picture is declared 10 bytes over 8 (oracle_assumptions.md L1): the 2 slack bytes are ruled blank by the owner (2026-10-23, ASSUMED), so the call is modelled and a customer is created (CUSTOMER record, PROCTRAN 'OCC' row). born-before-1601 ends before CEEDAYS ('O'). Also open: X18 (the child credit schedule is ASSUMED); L4 is settled. Data: seed.sql and customer.txt are cbsa-crecust's, SYNTHETIC. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
 }

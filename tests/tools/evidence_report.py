@@ -29,7 +29,9 @@ caveats of docs/language_status/oracle_assumptions.md. Each program gets the hig
                                reviewed infeasible outcomes (tests/equivalence/infeasible_outcomes.json, #4602), listed
                                per program as stated assumptions; raw and net numbers both printed
   L5 + mutants accounted for   every surviving mutant of the det port's seeded mutation sample accounted for: the
-                               case's fresh tests/equivalence/det_mutation/<case>.json entry (det_mutation.py, #4628),
+                               case's fresh tests/equivalence/det_mutation/<case>.json entry (det_mutation.py, #4628;
+                               fresh = the case, corpus and survivors list unchanged and the det port's bytes not
+                               found moved; generator / harness / oracle drift is recorded, not staling, #5862),
                                each survivor stated equivalent / unreachable in det_mutation_survivors/<case>.json
                                (owner-reviewed), none refuted; the raw score is a column whatever the level
 
@@ -205,7 +207,7 @@ def crucible_pins() -> dict[str, str]:
         return {"cics": m.group(1) if m else ""}
     if str(REPO / "tests") not in sys.path:
         sys.path.insert(0, str(REPO / "tests"))
-    import _crucible_manifest  # noqa: PLC0415 -- tomllib is 3.11+; the manifest reader covers 3.10 (#4836)
+    import _crucible_manifest  # noqa: PLC0415 -- tomllib fallback vestigial, 3.11 floor (#3322, #4836)
 
     return {k: v.get("ref", "") for k, v in sorted(_crucible_manifest.load(PIN_MANIFEST).items())}
 
@@ -488,7 +490,7 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
     import infeasible_outcomes as io
 
     out["infeasible_stated"] = [
-        {k: e[k] for k in ("key", "unit", "line", "kind", "outcome", "family", "reason")}
+        {k: e[k] for k in ("key", "unit", "line", "kind", "outcome", "family", "reason") if k in e}
         for e in io.stated(case["case"])
     ]
     for e in out["infeasible_stated"]:
@@ -520,6 +522,9 @@ def coverage_of(case: dict[str, Any] | None, swept: dict[str, Any], ledger: dict
     if net is not None:
         out["branches_net"] = {"covered": net[2], "total": net[3]}
         out["branch_net_pct"] = pct(net[2], net[3]) if net[3] else 100.0
+        if net[1] != line[1]:  # only when a reviewed infeasible paragraph was taken out of the live count
+            out["paragraphs_net"] = {"covered": net[0], "live": net[1]}
+            out["paragraph_net_pct"] = pct(net[0], net[1]) if net[1] else 100.0
     out["infeasible_netted"], out["infeasible_refuted"] = netted, refuted
     return out
 
@@ -572,8 +577,9 @@ def level_of(p: dict[str, Any], bars: dict[str, float]) -> tuple[str, list[str]]
     if cov["paragraph_pct"] is None:
         why = "coverage not measured: no fresh det-sweep ledger entry and no local sweep"
         return "L2", [f"paragraph coverage >= {bars['paragraphs']} ({why})"]
-    if cov["paragraph_pct"] < bars["paragraphs"]:
-        return "L2", [f"paragraph coverage >= {bars['paragraphs']} (now {cov['paragraph_pct']})"]
+    para_pct = cov.get("paragraph_net_pct", cov["paragraph_pct"])  # net of reviewed infeasible paragraphs
+    if para_pct < bars["paragraphs"]:
+        return "L2", [f"paragraph coverage >= {bars['paragraphs']} (now {para_pct})"]
     if cov["infeasible_refuted"]:
         return "L3", [f"no refuted infeasible-outcome claim (reached: {', '.join(cov['infeasible_refuted'])})"]
     if cov["branch_net_pct"] is None or cov["branch_net_pct"] < bars["branches"]:
@@ -601,6 +607,7 @@ def mutation_of(case: dict[str, Any] | None, program: str, cache: dict[str, Any]
             "current": bool(s and s["current"]),
             "l5": bool(s and s["l5"]),
             **({k: s[k] for k in ("killed", "survived", "accounted", "unaccounted", "stale_inputs")} if s else {}),
+            **({"drifted": s["drifted"]} if s and s.get("drifted") else {}),
         }
     return cache[key]
 
@@ -1016,7 +1023,9 @@ def level_table(bars: dict[str, float]) -> list[dict[str, str]]:
             "level": "L5",
             "name": "mutants accounted for",
             "condition": "L4, and every surviving mutant of the det port's seeded mutation sample accounted for "
-            "(stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628)",
+            "(stated equivalent / unreachable, owner-reviewed; a fresh det_mutation/ entry, #4628: the case, corpus and "
+            "survivors list unchanged and the det port's bytes not found moved; generator, harness and oracle drift is "
+            "recorded, not staling, #5862)",
         },
     ]
 

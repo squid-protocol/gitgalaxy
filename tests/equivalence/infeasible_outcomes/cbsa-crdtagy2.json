@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-crdtagy2",
+  "entries": [
+    {
+      "unit": "A010",
+      "line": 233,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "R",
+      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` at 233, after `EXEC CICS PUT CONTAINER(WS-CONTAINER-NAME) FROM(WS-CONT-IN) FLENGTH(WS-CONTAINER-LEN) CHANNEL(WS-CHANNEL-NAME)`: the container name ('CIPA') and channel name are MOVEd constants (valid names: no CONTAINERERR 18, no CHANNELERR 1), FLENGTH is `LENGTH OF WS-CONT-IN` (positive: no LENGERR 1), and the command carries no DATATYPE, FROMCCSID or FROMCODEPAGE (no INVREQ 1, 2, 32, 34, no CCSIDERR, no CODEPAGEERR); it follows a GET CONTAINER of the same container and channel that returned NORMAL (the container exists with its own data type, so no INVREQ 33, and it is not CICS-defined: no INVREQ 30). IBM's PUT CONTAINER (CHANNEL) conditions (https://www.ibm.com/docs/en/cics-ts/6.x?topic=summary-put-container-channel) are exactly those; the one left is CHANNELERR RESP2 3, a read-only channel, and the channel here is the one CRECUST built by PUT CONTAINER and passed on RUN TRANSID CHANNEL, which is writable (a read-only channel is IBM's case for CICS-supplied channels). Assumption to review: CHANNELERR 3."
+    }
+  ]
+}

@@ -385,7 +385,7 @@ DEFINITION: dict[str, Any] = {
             + r"]*|\[[^\]\n]{0,80}\])*"
             r"[ \t]*(?:[-+*/%&|^]|<<|>>|\*\*|\?)?=(?![=~>])(?![^\n(]{0,300},[ \t]*$)"
             r"|[" + ID_CONTINUE + r")\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[" + ID_START + r"(*]"
-            r"|\.(?:add|addAll|put|putAll|remove|clear|push|pop|set)\s*\(",
+            r"|\.(?:add|addAll|put|putAll|remove|clear|push|pop|set)[ \t]*\(",
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
@@ -580,5 +580,9 @@ DEFINITION: dict[str, Any] = {
         "listeners": re.compile(r"\b(addListener|on[" + CAPITAL + r"][" + ID_CONTINUE + r"]*|subscribe)\b"),
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"@(?:Ignore|Disabled|PendingFeature)\b|mock\s*\(|spy\s*\("),
+        # #3171 (see c.py, python.py): the mutator-call arm binds `[ \t]*\(`, not
+        # `\s*\(`, so the rule is provably line-local (zero match movement on the
+        # crucible + rosetta corpora); eligibility is re-proven at cache build.
+        "_line_gates": ("state_mutation",),
     },
 }

@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import argparse
 import filecmp
+import hashlib
 import importlib.util
 import os
 import re
@@ -79,12 +80,70 @@ def _jdk(version: int) -> str:
     return os.environ.get(f"JDK_{version}") or os.environ.get("JAVA_HOME", "")
 
 
-def refactor(corpus: Path, work: Path, scan: bool = False) -> Path:
+# What decides an engine scan: the whole package, but not the translator and the two controllers (the generation side),
+# except the stand-in copybooks and the CICS container table the scan itself reads (#5142).
+_SCAN_FREE = (
+    "gitgalaxy/tools/cobol_to_java/",
+    "gitgalaxy/cobol_to_java_controller.py",
+    "gitgalaxy/cobol_refractor_controller.py",
+)
+_SCAN_READS = ("gitgalaxy/tools/cobol_to_java/det/copy/", "gitgalaxy/tools/cobol_to_java/cics_task_containers.py")
+
+
+def scan_key(root: Path, corpus: Path) -> str:
+    """A digest of everything an engine scan of `corpus` depends on: the scan-deciding files of the checkout at
+    `root`, the corpus bytes and the Python version. A scan kept under it is the scan this code would make."""
+    h = hashlib.blake2b(digest_size=16)
+    h.update(f"{sys.version_info[:2]}|{corpus.name}".encode())
+    for base, is_code in ((root, True), (corpus, False)):
+        for f in sorted(base.rglob("*")):
+            rel = f.relative_to(base).as_posix()
+            if not f.is_file() or "__pycache__" in f.parts or ".git" in f.parts or f.suffix == ".pyc":
+                continue
+            if is_code and (
+                not rel.startswith("gitgalaxy/") or (rel.startswith(_SCAN_FREE) and not rel.startswith(_SCAN_READS))
+            ):
+                continue
+            h.update(f"{'E' if is_code else 'C'}:{rel}\0".encode())
+            h.update(f.read_bytes())
+    return h.hexdigest()
+
+
+def refactor(corpus: Path, work: Path, scan: bool = False, scan_cache: Path | None = None) -> Path:
+    """Refactor `corpus` into a clean room. With `scan_cache`, the engine scan (about 90 s on dsf) is kept under
+    `scan_key` and reused by any run whose scan-deciding code and corpus are the same (#5142)."""
     from gitgalaxy import cobol_refractor_controller
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import scan_to_db
 
     src = work / corpus.name
     shutil.copytree(corpus, src, ignore=shutil.ignore_patterns(".git"))
-    with patch("sys.argv", ["cobol-refractor", str(src), *(["--scan"] if scan else [])]):
+    args = [str(src)]
+    if scan and scan_cache is not None:
+        kept = scan_cache / scan_key(REPO_ROOT, corpus)
+        db = kept / f"{corpus.name}_galaxy_master.db"
+        if not (kept / ".complete").is_file():
+            # the head and the base side scan side by side and may share this key: build aside, publish by rename
+            aside = scan_cache / f"{kept.name}.{os.getpid()}.tmp"
+            shutil.rmtree(aside, ignore_errors=True)
+            made = scan_to_db(src, aside)
+            if made.name != db.name:
+                raise FileNotFoundError(f"scan wrote {made}, not {db.name}")
+            (aside / ".complete").write_text("", encoding="utf-8")
+            try:
+                aside.rename(kept)
+            except OSError:  # the other side published first (or a stale half dir is there): ours is the same scan
+                if not (kept / ".complete").is_file():
+                    shutil.rmtree(kept, ignore_errors=True)
+                    aside.rename(kept)
+                else:
+                    shutil.rmtree(aside, ignore_errors=True)
+        mine = work / "scan_db" / db.name  # the refactor may write beside its DB: never the kept copy
+        mine.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(db, mine)
+        args += ["--galaxy-db", str(mine)]
+    elif scan:
+        args.append("--scan")
+    with patch("sys.argv", ["cobol-refractor", *args]):
         cobol_refractor_controller.main()
     return next(work.glob(f"{corpus.name}_gitgalaxy_clean_*"))
 
@@ -163,7 +222,12 @@ def _keep(cache: Path | None, tree: Path) -> None:
 
 
 def same_as(
-    corpus: Path, base: Path, only: list[str] | None, work: Path, base_cache: Path | None = None
+    corpus: Path,
+    base: Path,
+    only: list[str] | None,
+    work: Path,
+    base_cache: Path | None = None,
+    scan_cache: Path | None = None,
 ) -> tuple[bool, str]:
     """(identical, why): generate with this checkout and with `base`, both paths, and compare
     what the build reads (`build_input`). The generations are independent processes, so they
@@ -181,6 +245,7 @@ def same_as(
                 continue
             cmd = [sys.executable, str(me), str(corpus), "--work", str(out), "--no-build"]
             cmd += (["--scan"] if scan else []) + (["--only", *only] if only else [])
+            cmd += ["--scan-cache", str(scan_cache)] if scan and scan_cache else []
             env = dict(os.environ, GITGALAXY_CODE_ROOT=str(root), PYTHONPATH=str(root))
             runs.append((side, scan, out, cmd, env))
 
@@ -253,6 +318,12 @@ def main() -> int:
         "--base-cache", type=Path, default=None, help="with --same-as: keep / reuse the base's generation here"
     )
     ap.add_argument(
+        "--scan-cache",
+        type=Path,
+        default=None,
+        help="keep / reuse the engine scan here, keyed on the scan-deciding code and the corpus (#5142)",
+    )
+    ap.add_argument(
         "--generated",
         type=Path,
         default=None,
@@ -266,7 +337,7 @@ def main() -> int:
     work = args.work or Path(tempfile.mkdtemp(prefix="java_matrix_"))
     work.mkdir(parents=True, exist_ok=True)
     if args.same_as:
-        identical, why = same_as(args.corpus.resolve(), args.same_as, args.only, work, args.base_cache)
+        identical, why = same_as(args.corpus.resolve(), args.same_as, args.only, work, args.base_cache, args.scan_cache)
         print(f"{'IDENTICAL' if identical else 'CHANGED'}: {args.corpus.name}: {why}", flush=True)
         if os.environ.get("GITHUB_OUTPUT"):
             with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
@@ -283,7 +354,9 @@ def main() -> int:
     if origin is None or origin.parents[1] != REPO_ROOT:
         print(f"error: gitgalaxy would be imported from {origin}, not {REPO_ROOT}", file=sys.stderr)
         return 2
-    clean = None if args.generated else refactor(args.corpus.resolve(), work, scan=args.scan)
+    clean = (
+        None if args.generated else refactor(args.corpus.resolve(), work, scan=args.scan, scan_cache=args.scan_cache)
+    )
     failed = 0
     rows = [
         f"### Generated Java compiles: {args.corpus.name}{' (engine scan)' if args.scan else ''}",

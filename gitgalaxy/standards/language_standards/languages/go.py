@@ -36,6 +36,14 @@ DEFINITION: dict[str, Any] = {
     ],
     "shebangs": ["go", "gorun", "yaegi"],
     "lexical_family": "standard_block",
+    # #3798: an import path resolves through go.mod (core/go_modules.py), never the name search.
+    "imports_follow_go_modules": True,
+    # #6572: a multi-line backtick raw string (a test's embedded program, a template) is data, never
+    # code: its `import ( "fmt" )` lines are not imports. The pattern walks the "..." / '.' / one-line
+    # literals too, so a backtick inside one never shifts the pairing; only a literal spanning lines is
+    # blanked, which keeps a one-line ``import `fmt` ``.
+    "import_capture_blank": (r"`[^`]{0,50000}`" + r'|"(?:[^"\\\n]|\\.){0,1000}"' + r"|'(?:[^'\\\n]|\\.){0,8}'"),
+    "import_capture_multiline_only": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_GO,  # #3645: `(*T)(x)` conversions too
@@ -315,7 +323,11 @@ DEFINITION: dict[str, Any] = {
         # #2859: see the globals comment above -- a paren/brace walk classifies
         # which indented identifier lines are direct members of a top-level
         # `var (` / `const (` declaration group.
-        "_scope_filters": {"globals": "go_declaration_group", "branch": "outside_literals"},
+        "_scope_filters": {
+            "globals": "go_declaration_group",
+            "branch": "outside_literals",
+            "encapsulation": "go_package_main",  # #5897: lowercase in `package main` is not a visibility choice
+        },
         # #3072: every state_mutation arm requires one of `=`/`++`/`--`/`<-`/
         # `atomic.`/`delete(` on the match's own line; sweep only those lines.
         # See c.py's entry for the safety contract.

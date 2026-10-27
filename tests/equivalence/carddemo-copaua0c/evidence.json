@@ -27,7 +27,7 @@
     "tests/equivalence/carddemo-copaua0c/**"
    ],
    "files": 2,
-   "sha256": "4fce268a21e1d545fa6f9559531174c582843b2d5770116f61a588bdeda0a9e5"
+   "sha256": "1f96377670f603b881680e2deb921646eda8ba322e3088000cc850e6a7e1802b"
   },
   "harness": {
    "paths": [
@@ -38,6 +38,10 @@
     "tests/tools/equivalence_cics.py",
     "tests/tools/equivalence_cics_containers.py",
     "tests/tools/equivalence_cics_filecontrol.py",
+    "tests/tools/equivalence_cics_conditions.py",
+    "tests/tools/equivalence_cics_faults.py",
+    "tests/tools/equivalence_cics_tempstorage.py",
+    "tests/tools/equivalence_cics_taskcontrol.py",
     "tests/tools/equivalence_call.py",
     "tests/tools/equivalence_cache.py",
     "tests/tools/equivalence_db2.py",
@@ -46,12 +50,12 @@
     "tests/tools/java_target_matrix.py",
     "tests/tools/equivalence_ims.py"
    ],
-   "files": 14,
-   "sha256": "f6fc656cfb906c118205c985d0d60e49de564621c2ff04af298b4752a3ede275",
+   "files": 18,
+   "sha256": "4aa149fdf2da2f1e0c37127b8d173d337335275f3ceab77281cdc9cb6aba7f87",
    "components": {
-    "harness:cics": "21520a4c6440f2956fc2f8062360be697aa8cc1205ec66f51b1917d1fd7aa1a6",
-    "harness:core": "6ca15fe077558291d5457261b5b460f3fa6f7b92a7a11455c436cfee97ebaf39",
-    "harness:ims": "5254ac0cfbb51526951fd101391790f6f8a7b5d45dc3da93592a49f484d739ae"
+    "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
+    "harness:core": "44d38a01abc69857283e736186feda6396e1cf6e297c12e07a097730aee7f15f",
+    "harness:ims": "788b0fe6a7e9624935a9cefaea81ef0813293eda1404c5f3030db620538f842f"
    }
   },
   "oracle": {
@@ -66,21 +70,21 @@
     "tests/tools/equivalence_sql.py",
     "tests/equivalence/ims/ggdli.c"
    ],
-   "files": 39,
-   "sha256": "720f71c29ffd50872fe5ac1677767c843f09319451f8d1a06d3c442231689af1",
+   "files": 46,
+   "sha256": "848c34c7d886f87f4b8bb59ab004960e50725b88325d6300d051c33665533f82",
    "components": {
-    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
-    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
-    "oracle:ims": "b80e1a97c3bcf4314892170ee1a6cb5e55601e4aed5efdf63b4b6386f7712105",
-    "oracle:le": "3e9e45ed737eaee3a156a2e00bfade4c956d69c8bf1c0bbe207a9cf107063c78"
+    "oracle:cics-stub": "05ec37e54cc21b62de978b2b9fa2452bde68e1c7a3ed36c8f85779accef3b69b",
+    "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
+    "oracle:ims": "2fa9d872d0bbc1d6dd15a1ec51ed261d56219565607bef18489e4be7be3857d7",
+    "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
    }
   },
   "generator": {
    "paths": [
     "gitgalaxy/tools/cobol_to_java/**"
    ],
-   "files": 102,
-   "sha256": "097c77e3df3ee3875debb25735203a82a9a7b5304474fa7147ea9ec94ccff36a",
+   "files": 113,
+   "sha256": "7b7b0a83144033535093b58e7dfaac32078b888a3607cfe2f2ec0e107ca902f5",
    "components": {
     "generator:cobolrt/Cobol.java": "0e5d898e6fb899e23c540e201d019a4dcd8a372df07d6b1d9c80a7df261a0c9f",
     "generator:cobolrt/Codec.java": "8f64df479294b444eba647528c55b25615d5a4fa962e7447757d0d48d5c342ab",
@@ -95,30 +99,32 @@
     "generator:cobolrt/Storage.java": "597fe5b2cd4190c4b87dfafd7facc73de3079efebe6188bac5862b78d3b3edf3",
     "generator:cobolrt/Zoned.java": "089f829155664fdd82f2f99a0699cfb58e40910621b1136eabd2b16c51415349",
     "generator:cobolrt/batch/DetFiles.java": "fe03a6459ba1dcc2a8ad367c4b7cd1debaf1ab9c661697c4841c726f99354ba1",
-    "generator:cobolrt/cics/DetCics.java": "3dbd4b5fc6597cef7a50abbfbf544488eb051bb2c215ba597a2a190f917b8bc2",
+    "generator:cobolrt/cics/DetCics.java": "3ac8d4ca4c7a9b524beed9e846fc1bcae354b2eebb6cd7e72bcbc04df79d0727",
     "generator:cobolrt/cics/DetMq.java": "40204edf5e82cd78739db956e424860a0121cb3ec44e0a9c1e508ed41fcf3187",
-    "generator:cobolrt/dli/DetDli.java": "7887ac96d0ae545e080bda422e91b2f196706a4271626a362ba44c5a94a3f4b1",
-    "generator:cobolrt/mq/QueueManager.java": "229bbdaf9082354aa501eb66f45eb7b8d9f3557e653421dc8bed3932cb7cf77b",
+    "generator:cobolrt/dli/DetDli.java": "56e263bc5b387bd987e6a86ee14ec69a1f72f489bdd2aa921b3e8ae4c96c8902",
+    "generator:cobolrt/mq/QueueManager.java": "30bc5f1cae55df5b40a609f31ebeb402b7c0f3c74f53dbcc66b82e0e6e0af04c",
     "generator:cobolrt/standalone/CobolAbend.java": "f8b72030ecb8862738c562b0c826ff9b1a085d92050664082f96e6107d5dfdb7",
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "286f1220d709fb1d4689c6d78a413a9440109a0ecca0472d2e3811c8ac0d9f81",
+    "generator:core": "1ac9c6427102b5346f29a2a36cafb29a6189425423168c3a16a8e473bafb3fae",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
+    "generator:det/cics": "6fd3b3f809e6ca8bfd5d9dac922b1dc2961ae0280dad4172457ecf02c20f2295",
+    "generator:det/cics_conditions": "c5bfb6ed32df1a582cf010bf59f1f16dd7440e4caa075a0458f62ca9b85f6219",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
+    "generator:det/cics_faults": "022b25e0d5807e27992c2e0598d06fff3258412b4333821efc748dd7be728b4c",
     "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
-    "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
+    "generator:det/cics_taskcontrol": "a28940b9fd127e798b6c4c69b178d93d010c8695eba388ac78d6dca2839e594a",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dli": "59300231ec82938ae8606969155f9d0fef4962ad739e8d6da188a7b6202e9ebd",
+    "generator:det/dli": "6c94b183b7f40bbce09c623fe2001c3c594534daada2a363417a61a0a3c9f41d",
     "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "103a0da4d979c518e60d0dda1fc003e7a3f65ddf56c16280091e8a7942f41f4d",
+    "generator:det/gen": "ecd3abfa6639c3c666279138c25ef6c3a6493105f163716dea9b3040f649f7fe",
     "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
     "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
-    "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
+    "generator:det/stmt": "72ade7437769eb7b8d8e94511613964e6f5cb98f30b4a4c5d6295709534b5176"
    }
   },
   "corpus": {
@@ -199,88 +205,347 @@
       "translator.options": "CICS"
      }
     }
-   }
+   },
+   "runtime_sha256": "486d6880280039b47962e4e97342fe0740f30e991fc7aff36d0fd384b1810abc"
   },
-  "digest": "b32bab28a08d6f3c80fdd0f064da13bd483639eecc29dfbed0022b4a7f190159"
+  "digest": "e049143a11e851d623a2bd15699e4e8ceab29f30fc1d20f288c55f7626fc906c"
  },
  "proof": {
-  "at": "2026-10-22T20:04:19Z",
+  "at": "2026-10-27T11:43:57Z",
   "verdict": "proven",
-  "runs": 18,
-  "fault_runs": 4,
+  "runs": 26,
+  "fault_runs": 7,
   "environments": null,
   "outputs": {
    "no-request": {
     "equal": 7,
-    "records": 7
+    "records": 7,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "RETRIEVE",
+     "RETURN"
+    ]
    },
    "approve-summary-found": {
     "equal": 10,
-    "records": 10
+    "records": 10,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT"
+    ]
    },
    "schd-already-held": {
     "equal": 10,
-    "records": 10
+    "records": 10,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT"
+    ]
    },
    "decline-insufficient-funds": {
     "equal": 10,
-    "records": 10
+    "records": 10,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT"
+    ]
    },
    "approve-no-summary": {
     "equal": 10,
-    "records": 10
+    "records": 10,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT"
+    ]
    },
    "decline-no-summary-over-account-limit": {
     "equal": 10,
-    "records": 10
+    "records": 10,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT"
+    ]
    },
    "card-not-in-xref": {
     "equal": 11,
-    "records": 11
+    "records": 11,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT",
+     "WRITEQ-TD"
+    ]
    },
    "account-not-in-master": {
     "equal": 11,
-    "records": 11
+    "records": 11,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT",
+     "WRITEQ-TD"
+    ]
    },
    "customer-not-in-master": {
     "equal": 11,
-    "records": 11
+    "records": 11,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT",
+     "WRITEQ-TD"
+    ]
    },
    "same-account-twice": {
     "equal": 12,
-    "records": 12
+    "records": 12,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT",
+     "WRITEQ-TD"
+    ]
    },
    "amount-without-decimals": {
     "equal": 10,
-    "records": 10
+    "records": 10,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT"
+    ]
    },
    "amount-with-sign": {
     "equal": 10,
-    "records": 10
+    "records": 10,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT"
+    ]
    },
    "three-requests-mixed": {
     "equal": 17,
-    "records": 17
+    "records": 17,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT",
+     "WRITEQ-TD"
+    ]
    },
    "read-xref-io-error": {
     "equal": 8,
-    "records": 8
+    "records": 8,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "RETRIEVE",
+     "RETURN",
+     "WRITEQ-TD"
+    ]
    },
    "read-acct-io-error": {
     "equal": 8,
-    "records": 8
+    "records": 8,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "RETRIEVE",
+     "RETURN",
+     "WRITEQ-TD"
+    ]
    },
    "read-cust-io-error": {
     "equal": 8,
-    "records": 8
+    "records": 8,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "RETRIEVE",
+     "RETURN",
+     "WRITEQ-TD"
+    ]
    },
    "no-trigger-data": {
     "equal": 6,
-    "records": 6
+    "records": 6,
+    "commands": [
+     "MQOPEN",
+     "RETRIEVE",
+     "RETURN",
+     "WRITEQ-TD"
+    ]
    },
    "no-reply-queue": {
     "equal": 9,
-    "records": 9
+    "records": 9,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "WRITEQ-TD"
+    ]
+   },
+   "gu-summary-bad-status": {
+    "equal": 8,
+    "records": 8,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "RETRIEVE",
+     "RETURN",
+     "WRITEQ-TD"
+    ]
+   },
+   "repl-summary-fails": {
+    "equal": 9,
+    "records": 9,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "WRITEQ-TD"
+    ]
+   },
+   "request-longer-than-buffer": {
+    "equal": 8,
+    "records": 8,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "RETRIEVE",
+     "RETURN",
+     "WRITEQ-TD"
+    ]
+   },
+   "schd-held-after-term": {
+    "equal": 8,
+    "records": 8,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "RETRIEVE",
+     "RETURN",
+     "WRITEQ-TD"
+    ]
+   },
+   "open-request-queue-fails": {
+    "equal": 6,
+    "records": 6,
+    "commands": [
+     "MQOPEN",
+     "RETRIEVE",
+     "RETURN",
+     "WRITEQ-TD"
+    ]
+   },
+   "get-request-fails": {
+    "equal": 8,
+    "records": 8,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "RETRIEVE",
+     "RETURN",
+     "WRITEQ-TD"
+    ]
+   },
+   "close-request-queue-fails": {
+    "equal": 11,
+    "records": 11,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT",
+     "WRITEQ-TD"
+    ]
+   },
+   "five-hundred-one-requests": {
+    "equal": 2010,
+    "records": 2010,
+    "commands": [
+     "MQCLOSE",
+     "MQGET",
+     "MQOPEN",
+     "MQPUT1",
+     "RETRIEVE",
+     "RETURN",
+     "SYNCPOINT",
+     "WRITEQ-TD"
+    ]
    }
   },
   "return_code_equal": null,
@@ -289,16 +554,16 @@
   "java_failed": false,
   "facade": {
    "verdict": "proven",
-   "runs": 18,
-   "passed": 18,
+   "runs": 26,
+   "passed": 26,
    "entry_points": [
     "handleTransaction"
    ],
    "failed": [],
    "error": null
   },
-  "harness_commit": "ff0592b561e2c93cfc7e0a3c2b60e0e33c3cbec1+uncommitted",
-  "inputs_digest": "b32bab28a08d6f3c80fdd0f064da13bd483639eecc29dfbed0022b4a7f190159"
+  "harness_commit": "536d6acf7d0c558da9ecb9152601b94665791e9a+uncommitted",
+  "inputs_digest": "e049143a11e851d623a2bd15699e4e8ceab29f30fc1d20f288c55f7626fc906c"
  },
  "coverage": {
   "paragraphs": {
@@ -306,34 +571,10 @@
    "live": 41
   },
   "branches": {
-   "covered": 58,
-   "total": 69
+   "covered": 66,
+   "total": 71
   },
   "uncovered_branches": [
-   {
-    "line": 308,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "1200-SCHEDULE-PSB"
-   },
-   {
-    "line": 339,
-    "kind": "IF",
-    "outcome": "true",
-    "unit": "2000-MAIN-PROCESS"
-   },
-   {
-    "line": 416,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "3100-READ-REQUEST-MQ"
-   },
-   {
-    "line": 627,
-    "kind": "EVALUATE",
-    "outcome": "OTHER",
-    "unit": "5500-READ-AUTH-SUMMRY"
-   },
    {
     "line": 700,
     "kind": "EVALUATE",
@@ -363,18 +604,6 @@
     "kind": "EVALUATE",
     "outcome": "OTHER",
     "unit": "6000-MAKE-DECISION"
-   },
-   {
-    "line": 837,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "8400-UPDATE-SUMMARY"
-   },
-   {
-    "line": 963,
-    "kind": "IF",
-    "outcome": "false",
-    "unit": "9100-CLOSE-REQUEST-QUEUE"
    }
   ],
   "handler_labels": {
@@ -382,7 +611,7 @@
    "total": 0
   },
   "source": "the proof's own traced COBOL runs (cobol_coverage.py)",
-  "inputs_digest": "b32bab28a08d6f3c80fdd0f064da13bd483639eecc29dfbed0022b4a7f190159"
+  "inputs_digest": "e049143a11e851d623a2bd15699e4e8ceab29f30fc1d20f288c55f7626fc906c"
  },
  "reach": {
   "entry_points": [
@@ -473,19 +702,47 @@
    },
    {
     "path": "tests/equivalence/cics/ggcics.c",
-    "sha256": "4a999cd558b9f121f53f3d791b667c4871442e5f167bb07502a9eb56b15d46a9"
+    "sha256": "c7afe2659cb0c6b2cb2cf846b497ab6d050e99874310c6f18bc6d6665ebb5cfa"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_conditions.c",
+    "sha256": "7cc9889d754be119a57d85cf03be3487d112439e376b3e6165bc7372cfd3bdb9"
    },
    {
     "path": "tests/equivalence/cics/ggcics_containers.c",
-    "sha256": "ef11cda70e87cf14758ca327a1e5f28bf4e7813aba11a33ab5260dd55c1a76af"
+    "sha256": "6e2f3c038ababccdd4b4e5873a73cb4c9f627e708cd7461edbfebe323e1988a5"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_enq.c",
+    "sha256": "75523dd5c5e2abf68908cef40594903efea7e03c784fcfe6d7accf4d068bab59"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_faults.c",
+    "sha256": "971acc374c4845c192ff5c51b8614aff8d9e040fa08e238731e8e9cd7df3c0f7"
    },
    {
     "path": "tests/equivalence/cics/ggcics_filecontrol.c",
-    "sha256": "73a09eb183c091d3989ec16786467e091f4d6ff0e7c1ad6b6376cf02031cb5d7"
+    "sha256": "07375343f42fd4467ba1727b1cb8005e89e20e822ced8b3e6a3c80d401d14c43"
    },
    {
     "path": "tests/equivalence/cics/ggcics_spec.h",
-    "sha256": "b6a172241cbbef3fb8f82e1b8131225e74b868f6532019327879c8aefbb06d81"
+    "sha256": "daf90987e6ca9d3067015c60eaaa384ec63194032d8c46fd4b643c6491ba4b79"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_taskcontrol.c",
+    "sha256": "3b3d0446e4d6d290019609d64e680b0f62eead5cf47691919ba50021df55bfc9"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_tempstorage.c",
+    "sha256": "c6da1bf09578792d2e899b3ae3a5d28a92fdfd7716d72099a7c7cb5405081dc2"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_transientdata.c",
+    "sha256": "00961a38063f8fe5179068dee7457d1dc5b5eab7bfd48f1323f637888df5a265"
+   },
+   {
+    "path": "tests/equivalence/cics/ggcics_web.c",
+    "sha256": "9607c893198e4fc637821e02820ee5db0a16988ed2b6d8363595888e54d6dbe3"
    },
    {
     "path": "tests/equivalence/db2/SQLCA.cpy",
@@ -553,7 +810,7 @@
    },
    {
     "path": "tests/equivalence/faults/ggabend.c",
-    "sha256": "d10fab112cf8c0549c7d163d3c4907ce4bc84785170d8b2ea680946658ffbcf2"
+    "sha256": "ad701b6e6ad8cd6af830ae24eabe64cfb93fae7ab8b3af3e50c1c80853aebd44"
    },
    {
     "path": "tests/equivalence/faults/ggdisplay.c",
@@ -573,11 +830,11 @@
    },
    {
     "path": "tests/equivalence/ims/ggdli.c",
-    "sha256": "49b4989afcdc794ebcfe5666597fdead41a22c8e3ada31c3a0361b713a1449e2"
+    "sha256": "7a3010fdca8a18bd8bb76b6ff75bd6f284382aac395ae90ff2e704c8ab938dbc"
    },
    {
     "path": "tests/equivalence/le/ceedays.c",
-    "sha256": "7b924457953ecad2c75ba6d4062b71bd5424b3b0314dc922d911abb419e77828"
+    "sha256": "09df0023b04d6bbf5e6e92bb50c394532ddf1c54c516c6e87324ede2d6bc6b2c"
    },
    {
     "path": "tests/equivalence/le/ceeloct.c",
@@ -597,7 +854,7 @@
    },
    {
     "path": "tests/equivalence/le/le_time.c",
-    "sha256": "07c4ce3e78b578bb8286cbc6ffcd35ea7a308533dd23b0d0b537cb310feb0e03"
+    "sha256": "5d710d14456328c2f1b3f4e9cbdb4eb08ca210dd0462199fc1be46f1333bfc47"
    },
    {
     "path": "tests/equivalence/le/mvswait.c",

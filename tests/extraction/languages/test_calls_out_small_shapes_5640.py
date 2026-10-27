@@ -9,6 +9,7 @@
 * tcl: a one-line brace body (`catch {qux}`, `if {$a} {foo}`, `after 10 {zed}`) is command position.
 * scheme: the formals list of a `lambda` is not a call.
 * lua / tcl: the shapes the issue named (a call after `..` or `not`, a command after `}`) are pinned as working.
+* tcl: top-level script after a proc is no proc's call (the oracle's `main` misses).
 
 Driven through `StructuralExtractor.splice()`, the path a scan takes.
 """
@@ -186,6 +187,17 @@ def test_shell_one_line_keyword_block_is_not_a_function():
     assert "if" not in _functions("shell", "if() { x; }\nwhile() { y; }\nreal() { z; }\n")
 
 
+@pytest.mark.parametrize(
+    "block",
+    ["if ! up; then\n  sleep 1\nfi\n", "while up; do\n  sleep 1\ndone\n", "case $x in\n  a) up ;;\nesac\n"],
+)
+def test_shell_nameless_block_after_a_one_line_function_does_not_borrow_its_name(block):
+    """#6266: `if ! up; then` below `up() { psql; }` was a second `up` that ran to the `fi` (sqldoom run_with_server.sh)."""
+    code = "#!/bin/bash\nup() { psql; }\n" + block
+    units = StructuralExtractor("shell", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+    assert [(f["start_line"], f["loc"]) for f in units if f["name"] == "up"] == [(2, 1)]
+
+
 # --- scheme --------------------------------------------------------------------------------------
 
 
@@ -258,19 +270,66 @@ def test_scheme_procedure_define_is_unchanged():
 # --- lua and tcl: pinned, they already extract these shapes ------------------------------------------
 
 
-def test_lua_call_after_concat_and_not():
-    code = (
-        "local function run_command(reason)\n"
-        "  dbg_writeln(reason..format_stack_frame_info(1))\n"
-        "  while not frame_has_line(2) do x = 1 end\n"
-        "end\n"
-    )
-    assert {"dbg_writeln", "format_stack_frame_info", "frame_has_line"} <= set(_calls("lua", code, "run_command"))
+def _lua(body: str) -> list[str]:
+    return _calls("lua", "local function run(reason)\n  " + body + "\nend\n", "run")
+
+
+@pytest.mark.parametrize(
+    "body, callee",
+    [
+        ("dbg_writeln(reason..format_stack_frame_info(1))", "format_stack_frame_info"),
+        ("x = reason .. y .. z1(1) .. w1(2)", "w1"),
+        ("x = reason..a2(1)..b2(2)", "b2"),
+        ("x = obj:m1(1)..obj.m2(2)", "m2"),
+        ("while not frame_has_line(2) do x = 1 end", "frame_has_line"),
+        ("if not g(1) then x = 1 end", "g"),
+        ("repeat x = 1 until not h(2)", "h"),
+        ("x = not i(3) and j(4)", "j"),
+        ("y = (not k(5))", "k"),
+        ("z = not not l(6)", "l"),
+        ("while not obj:m(1) do x = 1 end", "m"),
+        ("print(not ok(1), (not pk(2)))", "pk"),
+        ("local t = {not a1(1), b1(2)}", "b1"),
+        ("a = not (c1(1))", "c1"),
+    ],
+)
+def test_lua_call_after_concat_or_not(body, callee):
+    assert callee in _lua(body)
+
+
+def test_lua_anonymous_function_calls_belong_to_the_enclosing_unit():
+    """C8: a function expression inside a named unit is part of it (`debugger.lua` `repl = function` is top level)."""
+    code = "local function f()\n  local cb = function(x)\n    foo(x)\n  end\n  g(function() bar() end)\nend\n"
+    assert set(_calls("lua", code, "f")) == {"foo", "g", "bar"}
+
+
+def test_lua_top_level_function_expression_is_not_a_named_unit():
+    """`repl = function(r) ... end` at file level has no enclosing named unit (anonymous is never func_start, #5685):
+    its calls sit in a synthetic bucket the DB does not store, so the #5630 oracle, which hands them to the previous
+    unit, reports them as `run_command` misses (edge-classic debugger.lua:456)."""
+    code = "local function a()\n  x()\nend\nrepl = function(r)\n  while not frame_has_line(1) do y() end\nend\n"
+    functions = _functions("lua", code)
+    assert functions["a"]["calls_out_to"] == ["x"]
+    assert "repl" not in functions
+    assert {"frame_has_line", "y"} <= set(functions["Anonymous_Block"]["calls_out_to"])
 
 
 def test_tcl_command_after_a_closing_brace():
     code = "proc main {} {\n    foreach x $l {\n        puts $x\n    }\n    startClient\n    if {$a} {\n        foo\n    }\n    start\n}\n"
     assert {"startClient", "foo", "start"} <= set(_calls("tcl", code, "main"))
+
+
+def test_tcl_top_level_script_after_a_proc_is_not_the_procs_call():
+    """odamex `tests/bugs/*.tcl`: `startClient` / `start` follow `proc main {...}`'s closing brace at file level, so
+    they are script, not part of `main`. The tcl rule has no top-level unit (its calls are not stored); the #5630
+    oracle hands everything after the last `proc` to it and reports them as `main` misses."""
+    code = (
+        "proc main {} {\n    wait\n    if {$a} {\n        foo\n    }\n}\n"
+        "startClient\nset error [catch { main }]\nif { $error } {\n puts bad\n}\nstart\nend\n"
+    )
+    functions = _functions("tcl", code)
+    assert set(functions) == {"main"}
+    assert set(functions["main"]["calls_out_to"]) == {"wait", "foo"}
 
 
 def test_tcl_foreach_switch_namespace_bodies():

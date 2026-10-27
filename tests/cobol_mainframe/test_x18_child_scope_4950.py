@@ -40,12 +40,11 @@ def _cases_with_children():
     return out
 
 
-def test_the_cases_with_children_are_the_six_known_ones():
+def test_the_cases_with_children_are_the_five_known_ones():
     """A new case with `child_programs` must be checked below by being listed here (and its children read)."""
     assert [n for n, _ in _cases_with_children()] == [
         "asynccc-asyncpnt",
         "cbsa-bnk1ccs",
-        "cbsa-bnk1ccs-create",
         "cbsa-bnk1ccs-generated",
         "cbsa-crecust",
         "cbsa-crecust-generated",

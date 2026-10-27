@@ -44,7 +44,7 @@ DATA DIVISION is nine programs'. Before the fixes below, all 6 were refused.
 | case | program | kind | result | coverage |
 |---|---|---|---|---|
 | `mortgage-nbrvl` | EPSNBRVL, number validator | CALL, group USING item | **proven**, 15 calls | 3/3 paragraphs, 22/22 branches |
-| `mortgage-cmort` | EPSCMORT, mortgage screen | CICS, BMS (generated map), Db2 `SYSIBM.SYSDUMMY1`, CALL EPSNBRVL, LINK EPSMLIST (#4213) | **proven**, 9 scenarios (8 written, plus the automatic SQL-fault task on its SELECT, #4200) | 3/6 paragraphs, 15/21 branches |
+| `mortgage-cmort` | EPSCMORT, mortgage screen | CICS, BMS (generated map), Db2 `SYSIBM.SYSDUMMY1`, CALL EPSNBRVL, LINK EPSMLIST (#4213) | **proven**, 16 scenarios (15 written, plus the automatic SQL-fault task on its SELECT, #4200); the det port is listed unproven in `det_sweep_baseline.json` only because EPSMPMT, which its ENTER path reaches through EPSCSMRT, has a hole (FUNCTION ANNUITY, dead code; #4803, #5867) | 3/6 paragraphs, 15/21 branches |
 | `mortgage-mlist` | EPSMLIST, company list | CICS, BMS (generated map), an ESDS browsed by RBA (STARTBR / READNEXT ... RBA, #4213), the dataset stated by the case | **proven**, 9 scenarios (2 with injected STARTBR / READNEXT conditions) | 5/6 paragraphs, 14/15 branches |
 | `mortgage-mpmt` | EPSMPMT, payment calculator | CALL, binary arguments as field values | **not proven on purpose**: the payment is computed through a COMP-1 item, in hexadecimal floating point on z/OS and in truncated decimal on GnuCOBOL. Since #4271 slice 1 the det runtime models HFP and the interest COMPUTE translates, but the payment's `(1 + C) ** N` (N with decimal places) is a floating-point exponentiation IBM does not document bit for bit. Since #5999 it translates through `Hfp.power`, an ASSUMED routine (the capture kit's reference power; C6, pinned by `test_det_hfp.py`; line 125), no longer a hole, but no z/OS capture agrees with it, so the case stays unproven until one does (#4050; the oracle cannot run HFP). Its `CBL NUMPROC(MIG)` compiles as NUMPROC(NOPFD) under the estate's Enterprise COBOL 6.1 (C5, #4271) | — |
 
@@ -58,7 +58,11 @@ to vary. Its SQLCODE branches are run by the automatic SQL-fault task; +100 cann
   name the engine does not resolve (`CALL WS-CALLED-PROGRAM`, its value from a REDEFINES table), and EPSMPMT's
   payment is computed in floating point (C6). Its `NUMPROC(MIG)` is no longer the obstacle (C5, #4271).
 - A company EPSMLIST lists LINKs EPSCSMRT for its payment (the same reasons), so no scenario lists one: EPSMLIST's
-  A600 and the branch into it are not reached, and no record's contents reach an output. The RBA browse is judged by
+  A600 and the branch into it are not reached, and no record's contents reach an output. Measured 2026-10-26 (#6072):
+  a tenth scenario (principal 200000.00, rate 5.000: two of the four records pass A150) with EPSCSMRT and EPSMPMT
+  listed in the case runs equal on both sides (10 scenarios, 6/6 paragraphs, 15/15 branches), but the sweep then counts
+  EPSMPMT's hole (`called_holes` 1), so EPSMLIST is NOT PROVEN (L1) while it LINKs a program with a hole (owner decision
+  2026-10-11, #4803). The case therefore stays at 9 scenarios, L2, until the FUNCTION ANNUITY hole is settled (#5867). The RBA browse is judged by
   its outcomes there, and pinned rule by rule on both sides by `tests/cics_crucible/test_cics_runtimes.py`
   (oracle_assumptions.md X13).
 - EPSCSMRD has no case: nine programs in one source, LE condition handlers, channels and containers.

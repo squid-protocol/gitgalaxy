@@ -27,7 +27,7 @@ Standard line-coverage tools report high coverage if a file is simply imported a
 Verification risk is calculated across a five-level hierarchy:
 - **Level 1 (Function):** Calculates `BaseImpact` by subtracting internal defenses (assertions, guards) from structural impact, applying a negative modifier for bypassed tests (`it.skip`). External tests dilute their defensive weight (`DefensiveRatio`) if they target multiple functions. An inverse decay formula yields the residual `UntestedImpact`.
 - **Level 2 (Class):** Aggregates function-level impact into `ClassUntestedImpact`.
-- **Level 3 (File):** Normalizes total impact per executable line of code (`CodingLOC`), applying a language Opacity Tax ($Ot$), Directory Test Dampener, and Blast Radius to calculate `AdjustedDensity`. A logistic Sigmoid function maps this to a 0–100 score.
+- **Level 3 (File):** Normalizes total impact per executable line of code (`CodingLOC`), applying a language Opacity Tax ($Ot$, 1.0 for every language since the #2720 pilot), Directory Test Dampener, and Blast Radius to calculate `AdjustedDensity`. A logistic Sigmoid function maps this to a 0–100 score.
 - **Level 4 (Directory):** Mass-weighted average using `CodingLOC` of child files.
 - **Level 5 (Repository):** Mass-weighted average across top-level directories.
 

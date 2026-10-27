@@ -1,0 +1,62 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-bnk1dcs",
+  "entries": [
+    {
+      "unit": "A010",
+      "line": 334,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (334): a RETURN TRANSID that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "DCD010",
+      "line": 1067,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "DELCUS copies INQCUST's INQ-FAIL-CD into COMM-DEL-FAIL-CD (DELCUS 266) and sets no other failure code; INQCUST answers only '1' (318-319, 346-347), '2' (544-545) and '9' (604-605, 637-638, 664-665), never '3', so `COMM-DEL-FAIL-CD = '3'` is never true."
+    },
+    {
+      "unit": "UPDCD010",
+      "line": 1232,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "UPDCUST's other failure codes are 'T' (invalid title, UPDCUST 192-193) and '4' (name and address both blank or leading-space, 264-266). 'T': UPDCUST's title list is BNK1DCS ED2010's (723-756) plus the blank title, which EDIT-DATA2 refuses, so a title UPDCUST rejects never gets past 'Valid titles are'. '4': it needs a name beginning with a space, whose UNSTRING title is blank and so refused at 756 first, so the LINK is never made."
+    },
+    {
+      "unit": "SM010",
+      "line": 1486,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 51), set by no statement: only `SET SEND-ERASE` (208) and `SET SEND-DATAONLY-ALARM` (300, 486) write SEND-FLAG."
+    },
+    {
+      "unit": "SM010",
+      "line": 1496,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1486), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 1496,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1486), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 1563,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) takes the SEND MAP ERASE branch ahead of it and ends at SM999, and '2' is never set (see 1486), so the test is always true."
+    }
+  ]
+}

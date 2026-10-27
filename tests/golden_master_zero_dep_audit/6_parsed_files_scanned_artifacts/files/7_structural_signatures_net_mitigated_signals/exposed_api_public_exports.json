@@ -2598,7 +2598,7 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
       "php/wordpress/class-wp-query.php": 110,
-      "php/wordpress/formatting.php": 66,
+      "php/wordpress/formatting.php": 0,
       "php/wordpress/functions.php": 0,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
@@ -2701,7 +2701,7 @@
       "powershell/core/Run.ps1": 0,
       "powershell/core/SSHRemoting.Basic.Tests.ps1": 0,
       "powershell/core/analyze-pr-test-failures.ps1": 0,
-      "powershell/core/build.psm1": 46,
+      "powershell/core/build.psm1": 47,
       "powershell/core/ci.psm1": 5,
       "powershell/core/ciModule.Tests.ps1": 0,
       "powershell/core/install-powershell.ps1": 3,

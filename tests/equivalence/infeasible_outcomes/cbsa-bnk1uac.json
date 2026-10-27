@@ -1,0 +1,54 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-bnk1uac",
+  "entries": [
+    {
+      "unit": "A010",
+      "line": 303,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (303): a RETURN that succeeds ends the task, so the fall-through arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "VD010",
+      "line": 625,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "The re-count (l.610) is reached only when the first count (l.596, CHARACTERS AFTER '.') exceeded 2 at l.598, so at least three characters follow the only point. It tallies INTRTI(WS-NUM-COUNT-POINT:INTRTL) with WS-NUM-COUNT-POINT = characters before the point + 2, which starts at the first of those characters. AFTER '.' binds only to the last item (FOR ALL '+'); the items for 0-9 and '-' count wherever they sit, and every character after the point is a digit (the checks above reject anything else). So the tally is at least 3 and l.625 > 2 is always true."
+    },
+    {
+      "unit": "SM010",
+      "line": 1149,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 51), which is set only by `SET SEND-ERASE` (208) and `SET SEND-DATAONLY-ALARM` (270, 404); no statement sets SEND-DATAONLY, so the flag is never '2'."
+    },
+    {
+      "unit": "SM010",
+      "line": 1159,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "Same nested test inside the `IF SEND-DATAONLY` block (1149), never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 1159,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` lies inside the `IF SEND-DATAONLY` block (1149), which is never entered (see 1149 true)."
+    },
+    {
+      "unit": "SM010",
+      "line": 1224,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) takes the SEND-MAP-ERASE branch ahead of it and ends at SM999, and '2' is never set (see 1149), so the test is always true."
+    }
+  ]
+}

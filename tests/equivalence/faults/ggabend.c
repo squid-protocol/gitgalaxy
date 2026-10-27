@@ -13,6 +13,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <libcob.h>
 
 extern void ggsql_uow_end(int rollback) __attribute__((weak));
 
@@ -35,6 +36,9 @@ static int binary4(const unsigned char *p) {
 
 int CEE3ABD(unsigned char *abcode, unsigned char *timing) {
     (void)timing;
+    /* #6072: IBM documents the call USING abcode, timing; a bare CALL 'CEE3ABD' (CardDemo's CBSTM03A) leaves the
+     * code undefined. Both sides record U0000 for it (register L2), not whatever the register held. */
+    if (cob_get_global_ptr()->cob_call_params < 1) record_abend(0);
     record_abend(binary4(abcode));
     return 0;
 }

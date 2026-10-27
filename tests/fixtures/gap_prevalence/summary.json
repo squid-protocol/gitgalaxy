@@ -9,28 +9,28 @@
  },
  "coverage_if_closed": [
   {
-   "share": 0.9612,
+   "share": 0.969,
    "top": 1,
    "upper_bound": false,
-   "whole": 124
-  },
-  {
-   "share": 0.9767,
-   "top": 3,
-   "upper_bound": true,
-   "whole": 126
-  },
-  {
-   "share": 0.9767,
-   "top": 5,
-   "upper_bound": true,
-   "whole": 126
+   "whole": 125
   },
   {
    "share": 0.9845,
-   "top": 10,
+   "top": 3,
    "upper_bound": true,
    "whole": 127
+  },
+  {
+   "share": 0.9845,
+   "top": 5,
+   "upper_bound": true,
+   "whole": 127
+  },
+  {
+   "share": 0.9922,
+   "top": 10,
+   "upper_bound": true,
+   "whole": 128
   }
  ],
  "estates": [
@@ -134,7 +134,7 @@
     "none": 0
    },
    "gap": "CEEHDLR: registering an LE user condition handler is not modelled",
-   "owner": "unowned",
+   "owner": "#5106 (le-condition-handling)",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -158,7 +158,7 @@
     "none": 0
    },
    "gap": "CEEHDLU: unregistering an LE user condition handler is not modelled",
-   "owner": "unowned",
+   "owner": "#5106 (le-condition-handling)",
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
@@ -182,30 +182,6 @@
     "none": 1
    },
    "gap": "COMPUTE FUNCTION ANNUITY (IBM defines arg-N / (\u2026) but not the bits of the power or of the floating-point result; oracle_assumptions.md <name>)",
-   "owner": "unowned",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "none": 1
-   },
-   "gap": "COMPUTE exponentiation in a floating-point expression",
    "owner": "unowned",
    "programs": 1,
    "refuses_program": false,
@@ -330,33 +306,9 @@
    "programs": 1,
    "refuses_program": false,
    "status": "not modelled"
-  },
-  {
-   "by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "estates": 1,
-   "estates_by_era": {
-    "0": 0,
-    "1": 0,
-    "2": 0,
-    "3": 0,
-    "4": 1,
-    "none": 0
-   },
-   "gap": "ZUIDSTCK: an assembler store-clock wrapper whose source the estate does not hold, so the N bytes it returns in <name> are not a stated fact",
-   "owner": "unowned",
-   "programs": 1,
-   "refuses_program": false,
-   "status": "not modelled"
   }
  ],
  "programs": 129,
  "scope": "burned estates",
- "whole_now": 122
+ "whole_now": 123
 }

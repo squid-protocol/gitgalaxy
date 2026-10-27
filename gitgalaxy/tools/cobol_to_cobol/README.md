@@ -17,13 +17,13 @@ gap—never guessed.
 <td align="center" width="190"><h2>7</h2></td>
 <td align="center" width="190"><h2>0</h2></td>
 <td align="center" width="190"><h2>5</h2></td>
-<td align="center" width="190"><h2>129</h2></td>
+<td align="center" width="190"><h2>live</h2></td>
 </tr>
 <tr>
 <td align="center" valign="top"><sub><strong>mainframe fact channels</strong><br />calls, CICS, UOW, DB2/IMS/MQ, layouts, JCL, BMS<br /><em><a href="#the-fact-channels-and-galaxyir">fact channels</a> · cross-checked in CI</em></sub></td>
 <td align="center" valign="top"><sub><strong>unexplained differential deltas</strong><br />on keyed corpora (<code>cbsa</code>, <code>zopeneditor</code>)<br /><em><a href="#accuracy-and-differential-verification">differential gate</a> · vs answer keys</em></sub></td>
 <td align="center" valign="top"><sub><strong>CICS macro table families parsed</strong><br /><code>DFHSIT</code>, <code>PCT</code>, <code>PPT</code>, <code>FCT</code>, <code>DCT</code><br /><em><a href="#cics-transaction-and-resource-extraction">resource reader</a> · + CSD</em></sub></td>
-<td align="center" valign="top"><sub><strong>programs staged across 6 estates</strong><br />feeding <code>cobol-to-java</code> &amp; <code>det</code><br /><em><a href="../cobol_to_java/README.md">translator</a> · burned estates</em></sub></td>
+<td align="center" valign="top"><sub><strong>programs staged per burned estate</strong><br />counted on the <a href="https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/language_status/progress.md">progress page</a>, feeding <code>cobol-to-java</code> &amp; <code>det</code><br /><em><a href="../cobol_to_java/README.md">translator</a> · burned estates</em></sub></td>
 </tr>
 </table>
 

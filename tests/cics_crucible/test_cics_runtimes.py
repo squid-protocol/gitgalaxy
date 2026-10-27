@@ -27,7 +27,9 @@ sys.path.insert(0, str(TESTS / "tools"))
 CC = shutil.which("cc") or shutil.which("gcc")
 needs_cc = pytest.mark.skipif(CC is None, reason="needs a C compiler")
 needs_javac = pytest.mark.skipif(shutil.which("javac") is None, reason="needs a JDK (javac)")
-javac = shutil.which("javac") or "javac"  # PATH's javac by its path: tests/tools/javac_server.py serves only an absolute one
+javac = (
+    shutil.which("javac") or "javac"
+)  # PATH's javac by its path: tests/tools/javac_server.py serves only an absolute one
 from javac_server import javac as javac_run  # noqa: E402 -- a javac that stays up: no JVM start a compile
 
 _STUB_MAIN = r"""
@@ -60,18 +62,49 @@ def _stub_obj() -> Path:
     return obj
 
 
+_GG_CICS_TYPEDEF = re.compile(r"typedef struct \{[^}]*\} gg_cics;")
+
+
+@functools.cache
+def _stub_struct() -> str:
+    """The stub's own `gg_cics` typedef, read from ggcics.c."""
+    found = _GG_CICS_TYPEDEF.search(STUB.read_text(encoding="utf-8"))
+    assert found, "ggcics.c no longer declares `typedef struct {...} gg_cics;`"
+    return found.group(0)
+
+
+def _with_stub_struct(main: str) -> str:
+    """#6430: a main's own shorter `gg_cics` typedef is replaced by the stub's. A stub function that writes a field past
+    the main's copy (GGCLINK's `go_to`, #6400) overran the main's stack struct, which crashed on macOS only."""
+    return _GG_CICS_TYPEDEF.sub(lambda _m: _stub_struct(), main)
+
+
 @functools.cache
 def _compiled_stub(main: str) -> Path:
     base = Path(tempfile.mkdtemp(prefix="gitgalaxy-ggcics-exe-"))
     atexit.register(shutil.rmtree, base, True)
     src = base / "main.c"
-    src.write_text("#include <stdlib.h>\n" + main, encoding="ascii")
+    src.write_text("#include <stdlib.h>\n" + _with_stub_struct(main), encoding="ascii")
     exe = base / ("stub.exe" if os.name == "nt" else "stub")
     built = subprocess.run(
         [CC, "-o", str(exe), str(src), str(_stub_obj())], check=False, capture_output=True, text=True
     )  # noqa: S603
     assert built.returncode == 0, built.stderr  # the compiler's own words, on every OS
     return exe
+
+
+def test_every_stub_main_is_compiled_against_the_stubs_own_gg_cics_struct():
+    """#6430: the mains in this file declare shorter `gg_cics` structs; compiling swaps in ggcics.c's, so no stub
+    function can write past a main's copy."""
+    mains = re.findall(
+        r"^_[A-Z0-9_]*MAIN\w* = r\"\"\"(.*?)\"\"\"", Path(__file__).read_text(encoding="utf-8"), re.S | re.M
+    )
+    assert mains and any(_GG_CICS_TYPEDEF.search(m) for m in mains)
+    for main in mains:
+        swapped = _with_stub_struct(main)
+        assert swapped.count("} gg_cics;") == main.count("} gg_cics;")
+        assert all(m == _stub_struct() for m in _GG_CICS_TYPEDEF.findall(swapped))
+    assert "int go_to;" in _stub_struct() and "tochan" in _stub_struct()
 
 
 def _stub(tmp_path: Path, main: str) -> Path:
@@ -868,7 +901,7 @@ def test_the_stubs_aid_bytes_are_the_harness_dfhaid():
     values = {}
     for m in re.finditer(r"02 (DFH\w+)\s+PIC X VALUE (X'([0-9A-F]{2})'|'(''|[^'])')\.", cpy):
         values[m.group(1)] = chr(int(m.group(3), 16)) if m.group(3) else ("'" if m.group(4) == "''" else m.group(4))
-    src = STUB.read_text()
+    src = STUB.read_text() + (STUB.parent / "ggcics_conditions.c").read_text()  # #5274: GGCAID moved to its family file
     for key, dfh in names.items():
         m = re.search(r'\{"' + key + r'", (\'\\\'\'|\'.\'|0x[0-9A-F]+)\}', src)
         assert m, key
@@ -3061,6 +3094,22 @@ def test_the_stub_document_create_and_retrieve(tmp_path):
     assert unstated.returncode == 98 and "document templates are not stated" in unstated.stdout
 
 
+def test_the_stub_creates_more_than_64_documents_in_one_task(tmp_path):
+    """#6072: IBM sets no count of documents a task may create (ZECS000 holds 501), so the stub's tables grow past 64:
+    every token is the next number and the first and the last documents still retrieve their own bytes."""
+    exe = _stub(tmp_path, _X33_MAIN)
+    n = 600
+    args = [a for i in range(n) for a in ("data", f"D{i:03d}", "4")]
+    args += ["get", "4", "4", "GGDOC00000000001", "get", "4", "4", "-", "get", "4", "4", "GGDOC00000000065"]
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    (tmp_path / "out").mkdir(exist_ok=True)
+    out = subprocess.run([str(exe), *args], env=env, capture_output=True, text=True, check=True).stdout.splitlines()  # noqa: S603
+    assert out[64] == "data 0/0 [GGDOC00000000065]" and out[n - 1] == f"data 0/0 [GGDOC{n:011d}]"
+    assert out[n] == "get 0/0 len=4 [D000]"
+    assert out[n + 1] == "get 0/0 len=4 [D599]"
+    assert out[n + 2] == "get 0/0 len=4 [D064]"
+
+
 @needs_javac
 def test_cics_task_document_create_and_retrieve_as_the_stub_does(tmp_path):
     """#4769 (X33): CicsTask answers as the stub does (above): the same tokens, LENGERR RESP2 1 / 2, NOTFND RESP2 1 / 3,
@@ -3449,9 +3498,18 @@ def test_the_stub_web_open_converse_close(tmp_path):
     out = subprocess.run([str(exe), *_X35_STEPS], env=env, capture_output=True, text=True, check=True)  # noqa: S603
     assert out.stdout.splitlines() == _X35_EXPECTED
     events = (tmp_path / "out" / "events.txt").read_text(encoding="latin-1").splitlines()
-    assert [e.split()[1] for e in events] == ["WEB-CONVERSE"] * 4
-    assert "method=PUT" in events[1] and "body=1" in events[1] and "media=746578742F706C61696E" in events[1]
-    assert "query=636C6561723D2A" in events[3] and "resp=22 resp2=57" in events[3]
+    assert [e.split()[1] for e in events] == ["WEB-OPEN"] * 5 + ["WEB-CONVERSE"] * 4 + ["WEB-CLOSE"] * 2
+    hx = lambda t: t.encode("latin-1").hex().upper()  # noqa: E731  # #4767: the connection as the program named it
+    assert events[0].endswith(f"host={hx('zecs.example')} scheme=HTTP resp=0 resp2=0")  # URIMAP: the peer's host
+    assert events[1].endswith(f"host={hx('ZECS.EXAMPLE')} scheme=HTTP resp=0 resp2=0")  # HOST: as the program wrote it
+    assert events[2].endswith("host=- scheme=HTTP resp=22 resp2=21")  # HOSTLENGTH 0: no host
+    assert events[3].endswith(f"host={hx('zecs.example')} scheme=HTTP resp=16 resp2=138")
+    assert events[4].endswith(f"host={hx('zecs.example')} scheme=- resp=16 resp2=40")  # a scheme that is neither
+    assert events[9].endswith("WEB-CLOSE pgm= resp=0 resp2=0")
+    assert events[10].endswith("WEB-CLOSE pgm= resp=19 resp2=27")
+    conv = events[5:9]
+    assert "method=PUT" in conv[1] and "body=1" in conv[1] and "media=746578742F706C61696E" in conv[1]
+    assert "query=636C6561723D2A" in conv[3] and "resp=22 resp2=57" in conv[3]
     for steps, why in _X35_REFUSED:
         bad = subprocess.run([str(exe), *steps], env=env, capture_output=True, text=True, check=False)  # noqa: S603
         assert bad.returncode == 98 and why in bad.stdout, (steps, bad.stdout)
@@ -3520,7 +3578,7 @@ def test_cics_task_web_open_converse_close_as_the_stub_does(tmp_path):
         for (java.util.Map<String, Object> e : t.events()) {{
             System.out.println(e.get("event") + " " + e.get("host") + " " + e.get("method") + " " + e.get("path") + " ["
                     + e.get("query") + "] " + e.get("mediatype") + " " + e.get("body") + " " + e.get("resp") + "/"
-                    + e.get("resp2"));
+                    + e.get("resp2") + " " + e.get("scheme"));
         }}
         String[][] refused = {{{", ".join("{" + ", ".join('"' + x + '"' for x in steps) + "}" for steps, _ in _X35_REFUSED)}}};
         for (String[] steps : refused) {{
@@ -3561,16 +3619,146 @@ def test_cics_task_web_open_converse_close_as_the_stub_does(tmp_path):
     lines = out.splitlines()
     n = len(_X35_EXPECTED)
     assert lines[:n] == _X35_EXPECTED
-    assert lines[n:n + 4] == [
-        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0",
-        "WEB-CONVERSE zecs.example PUT /resources/zc01/k1 [] text/plain stored-data 0/0",
-        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0",
-        "WEB-CONVERSE zecs.example DELETE /deplicate/k2 [clear=*] null null 22/57"]  # fmt: skip
-    refusals = [ln for ln in lines[n + 4 :] if not ln.startswith(("open ", "conv "))]
+    # #4767: each connection opened and closed is recorded too (WEB-OPEN host and scheme as the connection names them)
+    assert lines[n:n + 11] == [
+        "WEB-OPEN zecs.example null null [null] null null 0/0 HTTP",
+        "WEB-OPEN ZECS.EXAMPLE null null [null] null null 0/0 HTTP",
+        "WEB-OPEN  null null [null] null null 22/21 HTTP",
+        "WEB-OPEN zecs.example null null [null] null null 16/138 HTTP",
+        "WEB-OPEN zecs.example null null [null] null null 16/40 null",
+        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0 null",
+        "WEB-CONVERSE zecs.example PUT /resources/zc01/k1 [] text/plain stored-data 0/0 null",
+        "WEB-CONVERSE zecs.example GET /resources/zc01/k1 [] null null 0/0 null",
+        "WEB-CONVERSE zecs.example DELETE /deplicate/k2 [clear=*] null null 22/57 null",
+        "WEB-CLOSE null null null [null] null null 0/0 null",
+        "WEB-CLOSE null null null [null] null null 19/27 null"]  # fmt: skip
+    refusals = [ln for ln in lines[n + 11 :] if not ln.startswith(("open ", "conv "))]
     assert len(refusals) == len(_X35_REFUSED) + 1
     for got, (_steps, why) in zip(refusals, _X35_REFUSED):
         assert why in got and got.endswith(": not modelled"), (got, why)
     assert refusals[-1] == "the HTTP peers are not stated (withHttpPeers): not modelled"
+
+
+_X35_MANY_MAIN = r"""
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCWOPN(gg_cics *c, char *token, char *host, int hostcap);
+int GGCWCNV(gg_cics *c, char *token, char *path, int pathcap, char *query, int querycap, char *from, int fromcap,
+            char *media, int mediacap, char *into, int intocap, char *stext, int stextcap);
+int GGCWCLS(gg_cics *c, char *token);
+static gg_cics c;
+static void put(char *dst, int n, const char *what) { memset(dst, ' ', n); memcpy(dst, what, strlen(what)); }
+/* args: N sessions opened by URIMAP and never closed, then M conversations GET /k<i> on session i % N */
+int main(int argc, char **argv) {
+    int n = atoi(argv[1]), m = argc > 2 ? atoi(argv[2]) : 0, ok = 0;
+    char (*tok)[8] = malloc((size_t)n * 8), host[12] = {0};
+    for (int i = 0; i < n; i++) {
+        put(c.name1, 8, "ZCCLIENT");
+        put(c.flags, 40, "URIMAP");
+        GGCWOPN(&c, tok[i], host, 0);
+    }
+    printf("opened %d first %.8s last %.8s\n", n, tok[0], tok[n - 1]);
+    for (int i = 0; i < m; i++) {
+        char path[64] = {0}, query[64], from[64], media[56], into[40], stext[15], want[16];
+        snprintf(path, sizeof path, "/k%d", i);
+        snprintf(want, sizeof want, "b%d", i);
+        put(c.flags, 40, "PATH");
+        c.num = 748; c.len = 40; c.item = 15; c.hours = (int)strlen(path); c.mins = 0; c.secs = 0;
+        GGCWCNV(&c, tok[i % n], path, 64, query, 64, from, 64, media, 56, into, 40, stext, 15);
+        if (c.resp == 0 && c.num == 200 && c.len == (int)strlen(want) && memcmp(into, want, strlen(want)) == 0) ok++;
+    }
+    printf("answered %d of %d\n", ok, m);
+    if (n > 64) {
+        GGCWCLS(&c, tok[64]);
+        printf("close %d/%d\n", c.resp, c.resp2);
+        GGCWCLS(&c, tok[64]);
+        printf("close again %d/%d\n", c.resp, c.resp2);
+    }
+    return 0;
+}
+"""
+
+
+def _x35_many_cfg(path: Path, exchanges: int, peers: int = 1) -> None:
+    hx = lambda t: t.encode("latin-1").hex().upper()  # noqa: E731
+    lines = [f"P HTTP {hx('zecs.example')} 80 ZCCLIENT {hx('/')}"]
+    lines += [f"X GET {hx(f'/k{i}')} - 200 {hx('OK')} {hx('text/plain')} {hx(f'b{i}')}" for i in range(exchanges)]
+    lines += [f"P HTTP {hx(f'h{p}.example')} 80 U{p:07d} {hx('/')}" for p in range(1, peers)]
+    path.write_text("".join(f"{ln}\n" for ln in lines), encoding="ascii")
+
+
+@needs_cc
+def test_the_stub_web_sessions_and_responses_are_not_capped_at_64_and_256(tmp_path):
+    """#6072: IBM sets no count of sessions a task may open (ZECS000 never closes and opens 501) nor of responses a peer
+    gives, so the stub's tables grow: tokens run on, every stated response is answered (255 / 256 / 257 / 501 of them),
+    and a session past the 64th still closes. The token's four digits are the one bound (9999)."""
+    exe = _stub(tmp_path, _X35_MANY_MAIN)
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    (tmp_path / "out").mkdir()
+
+    def run(n: int, m: int, cfg: Path) -> subprocess.CompletedProcess[str]:
+        return subprocess.run([str(exe), str(n), str(m)], env={**env, "GGCICS_HTTP": str(cfg)},  # noqa: S603
+                              capture_output=True, text=True, check=False)  # fmt: skip
+
+    for n, m in ((65, 65), (300, 255), (300, 256), (300, 257), (600, 501)):
+        cfg = tmp_path / f"many-{m}.cfg"
+        _x35_many_cfg(cfg, m)
+        out = run(n, m, cfg)
+        assert out.returncode == 0, out.stdout
+        assert out.stdout.splitlines() == [f"opened {n} first GGWS0001 last GGWS{n:04d}", f"answered {m} of {m}",
+                                           "close 0/0", "close again 19/27"], (n, m, out.stdout)  # fmt: skip
+    cfg = tmp_path / "one.cfg"
+    _x35_many_cfg(cfg, 1)
+    assert run(9999, 0, cfg).stdout.splitlines()[0] == "opened 9999 first GGWS0001 last GGWS9999"
+    over = run(10000, 0, cfg)
+    assert over.returncode == 98 and "WEB OPEN: more than 9999 sessions in one task" in over.stdout
+    many_peers = tmp_path / "peers.cfg"
+    _x35_many_cfg(many_peers, 1, peers=33)
+    stated = run(1, 0, many_peers)
+    assert stated.returncode == 98 and "more than 32 HTTP peers stated" in stated.stdout
+
+
+@needs_javac
+def test_cics_task_web_sessions_and_responses_are_not_capped_either(tmp_path):
+    """#6072: CicsTask answers 501 stated responses over 501 unclosed sessions as the stub does, and refuses the 10000th
+    open with the stub's words."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.nio.charset.Charset cs = java.nio.charset.StandardCharsets.ISO_8859_1;
+        java.util.List<CicsTask.HttpExchange> xs = new java.util.ArrayList<>();
+        for (int i = 0; i < 501; i++) xs.add(new CicsTask.HttpExchange("GET", "/k" + i, "", 200, "OK", "text/plain", "b" + i));
+        CicsTask t = new CicsTask("ZC01", "ENTER", null, null).withHttpPeers(
+                java.util.List.of(new CicsTask.HttpPeer("HTTP", "zecs.example", 80, "ZCCLIENT", "/", xs)));
+        java.util.List<String> tokens = new java.util.ArrayList<>();
+        int ok = 0;
+        for (int i = 0; i < 501; i++) tokens.add(t.webOpenUrimap("ZCCLIENT").sesstoken());
+        for (int i = 0; i < 501; i++) {
+            String p = "/k" + i;
+            CicsTask.WebResponse r = t.webConverse(tokens.get(i), 748, String.format("%-64.64s", p), p.length(), null, 0,
+                    null, 0, null, 40, 15, cs);
+            if (r.resp() == 0 && r.status() == 200 && new String(r.body(), cs).equals("b" + i)) ok++;
+        }
+        System.out.println("answered " + ok + " of 501 first " + tokens.get(0) + " last " + tokens.get(500));
+        CicsTask u = new CicsTask("ZC01", "ENTER", null, null).withHttpPeers(
+                java.util.List.of(new CicsTask.HttpPeer("HTTP", "zecs.example", 80, "ZCCLIENT", "/", xs)));
+        String last = "";
+        for (int i = 0; i < 9999; i++) last = u.webOpenUrimap("ZCCLIENT").sesstoken();
+        System.out.println("opened 9999 last " + last);
+        try {
+            u.webOpenUrimap("ZCCLIENT");
+            System.out.println("not refused");
+        } catch (UnsupportedOperationException e) {
+            System.out.println(e.getMessage());
+        }
+        """,
+    )
+    assert out.splitlines() == ["answered 501 of 501 first GGWS0001 last GGWS0501", "opened 9999 last GGWS9999",
+                                "WEB OPEN: more than 9999 sessions in one task: not modelled"]  # fmt: skip
 
 
 # ---- #4767 zECS (register X36): WEB PARSE URL ------------------------------------------------------------------------
@@ -3590,6 +3778,13 @@ _X36_STEPS = [
     "parse http://h:80x = 40 - -",
     "parse ://h = 40 - -",
     "parse http://h:65535/x = 40 40 -",
+    "parse http://[2001:db8::1]:81/a?b=c = 40 40 40",
+    "parse https://[::1]/p = 40 40 -",
+    "parse http://192.0.2.7:8080/a?b=c = 40 40 40",
+    "parse http://zecs.example/p = 5 40 -",
+    "parse http://zecs.example/long/path = 40 5 -",
+    "parse http://h/p?abcdef = 40 40 3",
+    "parse http://h/p?abcdef = 40 40 6",
 ]
 _X36_EXPECTED = [
     "parse 0/0 [HTTP] [zecs.example] 8080 [/resources/a] [k=v] 12 12 3",
@@ -3605,11 +3800,25 @@ _X36_EXPECTED = [
     "parse 16/28",
     "parse 16/28",
     "parse 0/0 [HTTP] [h] 65535 [/x] [] 1 2 -",
+    "parse 0/0 [HTTP] [2001:db8::1] 81 [/a] [b=c] 11 2 3",
+    "parse 0/0 [HTTPS] [::1] 443 [/p] [] 3 2 -",
+    "parse 0/0 [HTTP] [192.0.2.7] 8080 [/a] [b=c] 9 2 3",
+    "parse 22/29",
+    "parse 22/30",
+    "parse 22/8",
+    "parse 0/0 [HTTP] [h] 80 [/p] [abcdef] 1 2 6",
 ]
 _X36_REFUSED = [  # (steps, what both runtimes stop with)
     (["parse ftp://h/p = 40 40 -"], "scheme other than HTTP / HTTPS"),
-    (["parse http://u@h/p = 40 40 -"], "user-info or IPv6 host"),
-    (["parse http://[::1]/p = 40 40 -"], "user-info or IPv6 host"),
+    (["parse http://u@h/p = 40 40 -"], "user-info"),
+    (["parse http://[::1/p = 40 40 -"], "IPv6 host that is not"),
+    (["parse http://[]/p = 40 40 -"], "IPv6 host that is not"),
+    (["parse http://[::1]x/p = 40 40 -"], "IPv6 host that is not"),
+    (["parse http://[g::1]/p = 40 40 -"], "IPv6 host that is not"),
+    (["parse http://[::1]]/p = 40 40 -"], "IPv6 host that is not"),
+    (["parse http://h]/p = 40 40 -"], "IPv6 host that is not"),
+    (["parse http://[::1]:/p = 40 40 -"], "empty port"),
+    (["parse http://[::1]:0/p = 40 40 -"], "port 0"),
     (["parse http://h/p#f = 40 40 -"], "fragment"),
     (["parse http://h:/p = 40 40 -"], "empty port"),
     (["parse http://h:0/p = 40 40 -"], "port 0"),
@@ -3617,8 +3826,11 @@ _X36_REFUSED = [  # (steps, what both runtimes stop with)
     (["parse http://h/p 0 40 - -"], "URLLENGTH not above zero"),
     (["parse http://h/p 70 40 - -"], "length beyond its area"),
     (["parse http://h/p = 50 40 -"], "length beyond its area"),
-    (["parse http://zecs.example/p = 5 40 -"], "piece longer than its length"),
-    (["parse http://zecs.example/long/path = 40 5 -"], "piece longer than its length"),
+    (["parse http://zecs.example/long/path = 5 5 -"], "more than one condition at once"),
+    (["parse http://zecs.example/p?abc = 5 40 2"], "more than one condition at once"),
+    (["parse http://zecs.example/%4 = 5 40 -"], "more than one condition at once"),
+    (["parse http://zecs.example:99999/p = 5 40 -"], "more than one condition at once"),
+    (["parse http://zecs.example = 5 40 5"], "PATH or QUERYSTRING the URL has none of"),
     (["parse http://h = 40 40 -"], "PATH or QUERYSTRING the URL has none of"),
     (["parse http://h/p = 40 40 40"], "PATH or QUERYSTRING the URL has none of"),
     (["parse x%4 = 40 - -"], "more than one condition at once"),
@@ -3668,8 +3880,9 @@ int main(int argc, char **argv) {
 @needs_cc
 def test_the_stub_web_parse_url(tmp_path):
     """#4767 zECS (register X36), IBM WEB PARSE URL: scheme (upper case, blank-padded), host, port (explicit, else 80 / 443),
-    path and query string (still escaped) with their lengths; INVREQ 28 for a URL that is none, INVREQ 65 for a bad escape;
-    what IBM leaves open is refused."""
+    path and query string (still escaped) with their lengths, an IPv6 host without its brackets; INVREQ 28 for a URL that is
+    none, INVREQ 65 for a bad escape, LENGERR 29 / 30 / 8 for a host / path / query string longer than its length; what IBM
+    leaves open (two conditions at once, a malformed IPv6 host) is refused."""
     exe = _stub(tmp_path, _X36_MAIN)
     env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
     (tmp_path / "out").mkdir()
@@ -4299,6 +4512,65 @@ _X38_RECEIVES = [  # (steps, the events: (media type, body, resp, resp2))
     (["rcv -3 1"], [(None, None, 22, 16)]),
     (["rcv 5 0", "rcv 5 0"], [("text/plain", "hello", 22, 57)]),  # (the second receive is refused: no second event)
 ]
+
+
+_X38_BIG_MAIN = r"""
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; char chan[16]; int hours, mins, secs;
+                 char rtran[4], rterm[4], rqueue[8]; } gg_cics;
+int GGCWRCV(gg_cics *c, char *into, int intocap, char *media, int mediacap);
+static gg_cics c;
+int main(int argc, char **argv) {
+    static char into[200000];
+    char media[56];
+    long sum = 0;
+    int maxl = argc > 1 ? atoi(argv[1]) : 150000;
+    memset(into, 0, sizeof into);
+    memset(c.flags, ' ', 40);
+    c.num = maxl;
+    GGCWRCV(&c, into, (int)sizeof into, media, 56);
+    for (int i = 0; i < c.len; i++) sum += (unsigned char)into[i];
+    printf("rcv %d/%d len=%d sum=%ld\n", c.resp, c.resp2, c.len, sum);
+    return 0;
+}
+"""
+
+
+def _big_receive(tmp_path: Path, exe: Path, cfg: str, *args: str) -> subprocess.CompletedProcess[str]:
+    req = tmp_path / "bigreq.cfg"
+    req.write_text(cfg, encoding="ascii")
+    out = tmp_path / "bigout"
+    out.mkdir(exist_ok=True)
+    env = {**_stub_base_env(), "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(out), "GGCICS_WEBREQ": str(req)}
+    return subprocess.run([str(exe), *args], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+
+
+@needs_cc
+@pytest.mark.parametrize("size", [1, 15999, 16499, 16500, 31999, 32000, 32001, 40000, 100000])
+def test_the_stub_web_receive_loads_a_request_body_of_any_size(tmp_path, size):
+    """#6072: a stated body of 32000 bytes or more (64000 hex characters) was split by the 33000-byte token buffer, so the B
+    line was dropped and WEB RECEIVE saw no body. Every size now loads whole; MAXLENGTH still cuts it (LENGERR 57)."""
+    exe = _stub(tmp_path, _X38_BIG_MAIN)
+    body = bytes((i * 7 + 3) % 251 for i in range(size))
+    cfg = f"R HTTP 7A656373 80 PUT 2F6B -\nB 746578742F706C61696E {body.hex().upper()}\n"
+    run = _big_receive(tmp_path, exe, cfg)
+    assert run.returncode == 0, run.stdout
+    assert run.stdout.splitlines() == [f"rcv 0/0 len={size} sum={sum(body)}"]
+    if size > 10:
+        cut = _big_receive(tmp_path, exe, cfg, "10")
+        assert cut.stdout.splitlines() == [f"rcv 22/57 len=10 sum={sum(body[:10])}"]
+
+
+@needs_cc
+def test_the_stub_refuses_a_stated_line_longer_than_it_reads(tmp_path):
+    """#6072: a line past the stub's buffer is refused by name, never split into extra tokens (which dropped the body)."""
+    exe = _stub(tmp_path, _X38_BIG_MAIN)
+    cfg = f"R HTTP 7A656373 80 PUT 2F6B -\nB 74 {'41' * 140000}\n"
+    run = _big_receive(tmp_path, exe, cfg)
+    assert run.returncode == 98 and "line longer than the stub reads" in run.stdout, run.stdout
 
 
 @needs_cc

@@ -17,6 +17,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from gitgalaxy.tools.cobol_to_java.det import cics as C  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.det import cics_conditions as CN  # noqa: E402
+from gitgalaxy.tools.cobol_to_java.det import cics_faults as CFL  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_containers as CC  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_filecontrol as CF  # noqa: E402
 from gitgalaxy.tools.cobol_to_java.det import cics_taskcontrol as CT  # noqa: E402
@@ -679,7 +681,7 @@ def test_options_honoured_without_code_say_why():
     whose having no effect the table states."""
     src = Path(C.__file__).read_text(encoding="utf-8")
     code = src[src.index("def command_key") :]
-    for family in (CC, CF, CT):  # #5274: the command families split out of det/cics.py
+    for family in (CC, CF, CT, CN, CFL):  # #5274: the command families split out of det/cics.py
         code += Path(family.__file__).read_text(encoding="utf-8")
     stated = {"NODUMP", "MAIN", "AUXILIARY", "NOSUSPEND", "EQUAL", "GTEQ", "TASK", "UOW", "MAXLIFETIME", "RESOURCE",
               "FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS", "TS",
@@ -989,29 +991,35 @@ class _RespCics(_KeyCics):
 
 
 @pytest.mark.parametrize(
-    ("text", "call"),
+    ("text", "cmd", "call"),
     [
-        ("SYNCPOINT ROLLBACK RESP(R) RESP2(R2)", "task.rollback();"),  # CBSA DBCRFUN 564, INQACC 682
-        ("SYNCPOINT ROLLBACK RESP(R) RESP2(R2)".replace("SYNCPOINT ROLLBACK", "SYNCPOINT ROLLBACK NOHANDLE"),
-         "task.rollback();"),
-        ("SYNCPOINT RESP(R) RESP2(R2)", "task.syncpoint();"),  # XFRFUN 407
-        ("SYNCPOINT", "task.syncpoint();"),
+        ("SYNCPOINT ROLLBACK RESP(R) RESP2(R2)", "ROLLBACK", "task.rollback();"),  # CBSA DBCRFUN 564, INQACC 682
+        ("SYNCPOINT ROLLBACK NOHANDLE RESP(R) RESP2(R2)", "ROLLBACK", "task.rollback();"),
+        ("SYNCPOINT RESP(R) RESP2(R2)", "SYNCPOINT", "task.syncpoint();"),  # XFRFUN 407
+        ("SYNCPOINT", "SYNCPOINT", "task.syncpoint();"),
     ],
 )  # fmt: skip
-def test_syncpoint_writes_normal_into_eibresp_resp_and_resp2(text, call):
-    """#4437 (left by #4411): RESP / RESP2 on SYNCPOINT [ROLLBACK] were accepted and never written, so a program
-    testing `WS-CICS-RESP NOT = DFHRESP(NORMAL)` read what the previous command left there. In the region NORMAL is
-    the only outcome (det.cics.OPTIONS says why); it is written as CICS writes it, and no condition is raised."""
+def test_syncpoint_writes_the_planned_outcome_into_eibresp_resp_and_resp2(text, cmd, call):
+    """#4437 (left by #4411): RESP / RESP2 on SYNCPOINT [ROLLBACK] were accepted and never written. #6271 (X71): the
+    outcome is the one the scenario plans for the command (NORMAL with no plan), the command runs only when none is
+    planned, and the outcome is written as CICS writes it (a condition with no RESP coded raises HANDLE CONDITION)."""
     c = _RespCics()
-    assert c.command(text, "") == [call, "OUTCOME(0, 0);"]
+    assert c.command(text, "") == [
+        f'int[] planned1 = task.planned("{cmd}", "-");',
+        f"if (planned1[0] == 0) {call}",
+        "OUTCOME(planned1[0], planned1[1]);",
+    ]
     (opts,) = c.outcomes
-    assert "NOHANDLE" in opts  # NORMAL raises nothing: no HANDLE CONDITION dispatch
     assert ("RESP" in opts) == ("RESP(" in text) and ("RESP2" in opts) == ("RESP2(" in text)
 
 
 def test_syncpoint_resp2_alone_is_written_too():
     assert _RespCics().command("SYNCPOINT ROLLBACK RESP2(R2)", "") == [
-        "task.rollback();", "OUTCOME(0, 0);", "STORE(R2, BigDecimal.valueOf(0));"]  # fmt: skip
+        'int[] planned1 = task.planned("ROLLBACK", "-");',
+        "if (planned1[0] == 0) task.rollback();",
+        "OUTCOME(planned1[0], planned1[1]);",
+        "STORE(R2, BigDecimal.valueOf(planned1[1]));",
+    ]
 
 
 # A sample of each modelled command that accepts RESP; the commands this double cannot translate say why their RESP
@@ -1031,6 +1039,7 @@ _RESP_SAMPLES = {
     "SEND CONTROL": "SEND CONTROL ERASE", "RECEIVE": "RECEIVE INTO(REC)",
     "PUSH HANDLE": "PUSH HANDLE", "POP HANDLE": "POP HANDLE",
     "PUT CONTAINER": "PUT CONTAINER('C') FROM(REC)", "GET CONTAINER": "GET CONTAINER('C') INTO(REC)",
+    "PUT64 CONTAINER": "PUT64 CONTAINER('C') FROM(REC)", "GET64 CONTAINER": "GET64 CONTAINER('C') INTO(REC)",
     "DELETE CONTAINER": "DELETE CONTAINER('C')",
     "MOVE CONTAINER": "MOVE CONTAINER('C') AS('D')", "STARTBROWSE CONTAINER": "STARTBROWSE CONTAINER BROWSETOKEN(REC)",
     "GETNEXT CONTAINER": "GETNEXT CONTAINER(REC) BROWSETOKEN(REC)",
@@ -1240,6 +1249,52 @@ def test_put_container_is_the_programs_bytes_on_the_task_channel():
     assert ", null, false);" in _ChanCics().command("PUT CONTAINER(CN) FROM(REC)", "")[1]
 
 
+_GET_FORMS = (
+    "CONTAINER(CN) INTO(AREA) FLENGTH(FL) RESP(R) RESP2(R2)",
+    "CONTAINER(CN) CHANNEL(CH) INTO(AREA)",
+    "CONTAINER(CN) CHANNEL(CH) NODATA FLENGTH(FL)",
+    "CONTAINER(CN) INTO(AREA) FLENGTH(FL) BYTEOFFSET(OFF)",
+    "CONTAINER(CN) INTO(AREA) INTOCCSID(1208) CHANNEL(CH)",
+    "CONTAINER(CN) INTO(AREA) CONVERTST(DFHVALUE(NOCONVERT)) CCSID(CS)",
+)
+_PUT_FORMS = (
+    "CONTAINER('REQ') CHANNEL(CH) FROM(REC) CHAR RESP(R) RESP2(R2)",
+    "CONTAINER(CN) FROM(REC) FLENGTH(N) DATATYPE(DFHVALUE(BIT)) APPEND",
+    "CONTAINER(CN) FROM(REC) BIT PREPEND",
+    "CONTAINER(CN) CHANNEL(CH) FROM(REC) FROMCCSID(1208)",
+)
+
+
+@pytest.mark.parametrize("verb, form", [("GET", f) for f in _GET_FORMS] + [("PUT", f) for f in _PUT_FORMS])
+def test_get64_and_put64_container_translate_as_the_32_bit_commands(verb, form):
+    """#5005 (X17), IBM GET64 / PUT64 CONTAINER: the same options, conditions and RESP2 as GET / PUT CONTAINER, with 64-bit
+    INTO / FROM. A COBOL item has no address above the bar, so INTO / FROM are the item: every form of the base command is
+    generated byte for byte as the 64-bit command, and the 64-bit key's spec holds the base's options but SET."""
+    from gitgalaxy.standards.cics.commands import COMMANDS
+
+    assert _ChanCics().command(f"{verb}64 {form}", "") == _ChanCics().command(f"{verb} {form}", "")
+    base, wide = COMMANDS[f"{verb} CONTAINER"], COMMANDS[f"{verb}64 CONTAINER"]
+    assert wide.status == "modelled" and wide.register == "X17" and wide.impl == base.impl
+    assert set(wide.options) == set(base.options) - {"SET"}
+    assert [(o.condition, o.resp2) for o in wide.outcomes] == [(o.condition, o.resp2) for o in base.outcomes]
+
+
+def test_get64_container_set_is_refused_by_name_and_the_code_page_names_stay_refused():
+    """#5005 (X17): SET returns a 64-bit pointer reference, which the pointer lane (31-bit-style blocks, X47) does not hold;
+    INTOCODEPAGE / FROMCODEPAGE are refused as on the base commands; GET64 still needs INTO or NODATA, PUT64 FROM."""
+    for text, why in (
+        ("GET64 CONTAINER(CN) SET(PTR) FLENGTH(FL)", "64-bit pointer"),
+        ("GET64 CONTAINER(CN) CHANNEL(CH) SET(PTR)", "64-bit pointer"),
+        ("GET64 CONTAINER(CN) INTO(AREA) INTOCODEPAGE('IBM-037')", "IANA code-page names"),
+        ("PUT64 CONTAINER(CN) FROM(REC) FROMCODEPAGE('IBM-037')", "IANA code-page names"),
+        ("GET64 CONTAINER(CN)", "needs one of INTO / NODATA"),
+        ("PUT64 CONTAINER(CN)", "needs an argument"),
+        ("PUT64 CONTAINER(CN) FROM(REC) SET(PTR)", "SET"),
+    ):
+        with pytest.raises(C.CicsError, match=why):
+            _ChanCics().command(text, "")
+
+
 def test_byteoffset_and_prepend_pass_to_the_task():  # noqa: E302
     """#5005 (X17), IBM GET CONTAINER BYTEOFFSET and PUT CONTAINER PREPEND: BYTEOFFSET (a data value) calls getContainerAt with the
     most INTO takes; FLENGTH is set back from the length returned. PREPEND is the task's last argument, after the FROMCCSID (-1:
@@ -1414,7 +1469,11 @@ def test_send_text_terminal_is_the_default_disposition():
     plain = _RespCics().command("SEND TEXT FROM(REC) WAIT FREEKB ERASE RESP(R)", "")
     terminal = _RespCics().command("SEND TEXT FROM(REC) TERMINAL WAIT FREEKB ERASE RESP(R)", "")
     assert terminal == plain
-    assert 'task.sendText(text1.substring(0, Math.min(text1.length(), 56)), 56, "ERASE", "FREEKB", "WAIT");' in plain
+    assert 'int[] planned2 = task.planned("SEND-TEXT", "-");' in plain  # #6271 (X71): a planned fault sends nothing
+    assert (
+        'if (planned2[0] == 0) task.sendText(text1.substring(0, Math.min(text1.length(), 56)), 56, "ERASE", "FREEKB",'
+        ' "WAIT");'
+    ) in plain
     for opt, why in (("ACCUM", "logical message"), ("PAGING", "terminal paging"), ("SET(PTR)", "RETPAGE"),
                      ("HEADER(REC)", "page headers"), ("JUSTIFY(KEY)", "page"), ("L80", "printer"),
                      ("NLEOM", "printer"), ("OUTPARTN(KEY)", "unpartitioned"), ("ALTERNATE", "screen size"),
@@ -2149,14 +2208,21 @@ def test_free_child_delay_and_start_channel():
         .command("FREE CHILD(REC) RESP(R)", "")[0]
         .startswith("CicsTask.FetchResult freed1 = task.freeChild(")
     )
-    assert _ChanCics().command("DELAY FOR SECONDS(3)", "")[0] == (
+
+    # #6271 (X72): line 0 reads the scenario's planned fault, line 1 performs the delay when none is planned
+    def delay(cmd: str) -> str:
+        out = _ChanCics().command(cmd, "")
+        assert out[0] == 'int[] planned1 = task.planned("DELAY", "-");'
+        return out[1].removeprefix("if (planned1[0] == 0) ")
+
+    assert delay("DELAY FOR SECONDS(3)") == (
         'task.delay(CicsTask.delayMillis(null, null, null, Long.valueOf(3), null), "DELAY out of range");'
     )
-    assert _ChanCics().command("DELAY INTERVAL(000105)", "")[0] == (
+    assert delay("DELAY INTERVAL(000105)") == (
         'task.delay(CicsTask.delayMillis(Long.valueOf(105), null, null, null, null), "DELAY out of range");'
     )
-    assert _ChanCics().command("DELAY TIME(120000)", "")[0] == 'task.delay(-1L, "DELAY TIME (a time of day)");'
-    assert _ChanCics().command("DELAY", "")[0] == 'task.delay(0L, "DELAY");'
+    assert delay("DELAY TIME(120000)") == 'task.delay(-1L, "DELAY TIME (a time of day)");'
+    assert delay("DELAY") == 'task.delay(0L, "DELAY");'
     start = _ChanCics().command("START TRANSID('T') CHANNEL('CIPCHAN')", "")[0]
     assert ".channel('CIPCHAN'.strip())" in start or ".channel(" in start
 
@@ -2765,9 +2831,9 @@ def test_ts_items_move_between_the_storage_page_and_the_regions():
     assert not c.region_used and c.region == "IBM037"
     out = c.command("WRITEQ TS QUEUE('Q') FROM(REC) LENGTH(10)", "")
     assert (
-        out[0] == "CicsTask.TsResult ts1 = task.writeqTs('Q'.strip(), DetCics.toRegion(DetCics.bytes(f_REC, "
-        'DetCics.within(f_REC, INT(10), "WRITEQ TS")), CS, REGION));'
-    )  # (#4607 x X6: a LENGTH past FROM refused)
+        out[0] == "CicsTask.TsResult ts1 = task.writeqTs('Q'.strip(), DetCics.toRegion("
+        'DetCics.padded(f_REC, INT(10), "WRITEQ TS", CS), CS, REGION));'
+    )  # (X6: a LENGTH past FROM is padded with spaces)
     out = c.command("WRITEQ TS QUEUE('Q') FROM(REC) ITEM(3) REWRITE", "")
     assert "DetCics.toRegion(DetCics.bytes(f_REC, f_REC.length()), CS, REGION)" in out[0]
     out = c.command("READQ TS QUEUE('Q') INTO(REC) LENGTH(VARLEN) ITEM(2)", "")
@@ -3109,22 +3175,23 @@ def test_a_program_without_function_random_carries_no_sequence(tmp_path):
     assert r.stats["holes"] == [] and "funcRandom" not in r.java
 
 
-def test_a_writeq_length_past_from_is_refused_by_the_det_port_as_by_the_stub_x6():
-    """#4607 x X6: a WRITEQ TS / TD LENGTH past its FROM item (GenApp LGSTSQ: 104 bytes from 95) reads the storage
-    that follows the item. The stub stops there ("not modelled"); the det port refuses at the same statement
-    (DetCics.within throws DetCics.PastFrom), so both sides' tasks are judged up to it. Without LENGTH nothing is
-    checked: FROM's own length cannot run past it."""
+def test_a_writeq_length_past_from_is_padded_by_the_det_port_as_by_the_stub_x6():
+    """X6 (ASSUMED, owner 2026-10-21): a WRITEQ TS / TD LENGTH past its FROM item (GenApp LGSTSQ: 104 bytes from 95)
+    writes FROM's bytes then spaces to LENGTH, the fill the stub uses (IBM reads the storage that follows: undefined).
+    Without LENGTH nothing is padded; only a LENGTH over the longest record (32767) is refused (PastFrom)."""
     ts = _ChanCics().command("WRITEQ TS QUEUE('Q') FROM(REC) LENGTH(20) RESP(R)", "")
-    assert ts[0] == ("CicsTask.TsResult ts1 = task.writeqTs('Q'.strip(), DetCics.toRegion(DetCics.bytes(f_REC, "
-                     'DetCics.within(f_REC, INT(20), "WRITEQ TS")), CS, REGION));')  # fmt: skip
+    assert ts[0] == ("CicsTask.TsResult ts1 = task.writeqTs('Q'.strip(), DetCics.toRegion("
+                     'DetCics.padded(f_REC, INT(20), "WRITEQ TS", CS), CS, REGION));')  # fmt: skip
     td = _ChanCics().command("WRITEQ TD QUEUE('Q') FROM(REC) LENGTH(20) RESP(R)", "")
-    assert td[0] == ("int resp1 = task.writeqTd('Q'.strip(), Cobol.text(f_REC, CS).substring(0, "
-                     'DetCics.within(f_REC, INT(20), "WRITEQ TD")));')  # fmt: skip
-    assert "within" not in _ChanCics().command("WRITEQ TS QUEUE('Q') FROM(REC) RESP(R)", "")[0]
-    assert "within" not in _ChanCics().command("WRITEQ TD QUEUE('Q') FROM(REC) RESP(R)", "")[0]
+    assert td[0] == ("int resp1 = task.writeqTd('Q'.strip(), "
+                     'new String(DetCics.padded(f_REC, INT(20), "WRITEQ TD", CS), CS));')  # fmt: skip
+    assert "padded" not in _ChanCics().command("WRITEQ TS QUEUE('Q') FROM(REC) RESP(R)", "")[0]
+    td_plain = _ChanCics().command("WRITEQ TD QUEUE('Q') FROM(REC) RESP(R)", "")[0]
+    assert "padded" not in td_plain and "Cobol.text(f_REC, CS)" in td_plain
     rt = (Path(C.__file__).parent / "cobolrt/cics/DetCics.java").read_text(encoding="utf-8")
     assert "public static final class PastFrom extends UnsupportedOperationException" in rt
-    assert "public static int within(Field f, int n, String what)" in rt
+    assert "public static byte[] padded(Field f, int n, String what, Charset cs)" in rt
+    assert "public static int within(Field f, int n, String what)" in rt  # DOCUMENT CREATE still refuses
 
 
 def test_readq_td_and_deleteq_td_call_the_task_and_move_the_record_into():
@@ -3153,7 +3220,7 @@ def test_readq_td_set_puts_the_record_in_a_block_and_nosuspend_changes_nothing_5
     (DetCics.setBlock, key "READQ TD"), its length to the area; NOSUSPEND is accepted with no effect (no second task holds a queue);
     INTO with SET, SET without a LENGTH area or with a literal one are refused."""
     out = _PtrCics().command("READQ TD QUEUE('Q') SET(PTR) LENGTH(WS-N) NOSUSPEND RESP(R)", "")
-    assert out[0] == "CicsTask.TdResult td1 = task.readqTd('Q'.strip(), Integer.MAX_VALUE);"
+    assert out[0] == "CicsTask.TdResult td1 = task.readqTd('Q'.strip(), Integer.MAX_VALUE, true);"
     assert (
         out[1].startswith("if (td1.data() != null) DetCics.setBlock(task, ") and '"READQ TD", td1.data(), CS' in out[1]
     )

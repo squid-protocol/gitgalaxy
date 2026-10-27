@@ -41,6 +41,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -180,10 +181,88 @@ def audit(corpus: str) -> tuple[dict[str, dict], list[dict]]:
     return report, violations
 
 
+def time_rules(rules: dict[str, Any], finder: CandidateFinder, texts: list[str]) -> dict[str, Any]:
+    """Seconds spent by each stage over `texts`: the per-rule gate, the combined finder, and the real `finditer`
+    sweeps of the gate-accepted rules (per rule). `residual_s` is the sweep time outside the five costliest rules,
+    the most a merged scan could ever remove; `finder_s` is what it would cost to find the candidates."""
+    gates = {n: derive_literal_gate(p) for n, p in rules.items()}
+    gate_s = finder_s = 0.0
+    sweep: dict[str, float] = dict.fromkeys(rules, 0.0)
+    for text in texts:
+        t0 = time.perf_counter()
+        folded = fold_haystack(text)
+        accepted = [n for n, g in gates.items() if g is None or any(lit in (folded if g[1] else text) for lit in g[0])]
+        gate_s += time.perf_counter() - t0
+        t0 = time.perf_counter()
+        finder.candidates(text)
+        finder_s += time.perf_counter() - t0
+        for n in accepted:
+            t0 = time.perf_counter()
+            for _m in rules[n].finditer(text):
+                pass
+            sweep[n] += time.perf_counter() - t0
+    ranked = sorted(sweep.values(), reverse=True)
+    return {
+        "gate_s": gate_s,
+        "finder_s": finder_s,
+        "sweep_s": sum(ranked),
+        "top5_s": sum(ranked[:5]),
+        "residual_s": sum(ranked[5:]),
+    }
+
+
+def time_audit(corpus: str) -> dict[str, dict]:
+    """Per-language `time_rules` over the corpus files' code streams (what coding_analysis sweeps)."""
+    from rule_probe import corpus_files
+
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.core.source_text import read_source
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    out: dict[str, dict] = {}
+    for lang in sorted(LANGUAGE_DEFINITIONS):
+        rules = _rules_of(LANGUAGE_DEFINITIONS[lang])
+        if not rules:
+            continue
+        texts = []
+        for _name, _root, path in corpus_files(lang, corpus):
+            try:
+                texts.append(prism.split_streams(read_source(path).text, lang)["code_stream"])
+            except OSError:
+                continue
+        if texts:
+            out[lang] = {"files": len(texts), **time_rules(rules, CandidateFinder(rules), texts)}
+    return out
+
+
+def _print_times(report: dict[str, dict]) -> None:
+    print(f"{'language':16s} {'files':>5s} {'gate':>8s} {'finder':>8s} {'sweep':>8s} {'top5':>8s} {'residual':>8s}")
+    totals = dict.fromkeys(("gate_s", "finder_s", "sweep_s", "top5_s", "residual_s"), 0.0)
+    for lang, s in sorted(report.items()):
+        print(
+            f"{lang:16s} {s['files']:5d} {s['gate_s']:8.3f} {s['finder_s']:8.3f} "
+            f"{s['sweep_s']:8.3f} {s['top5_s']:8.3f} {s['residual_s']:8.3f}"
+        )
+        for k in totals:
+            totals[k] += s[k]
+    print(
+        f"{'TOTAL':16s} {'':5s} {totals['gate_s']:8.3f} {totals['finder_s']:8.3f} "
+        f"{totals['sweep_s']:8.3f} {totals['top5_s']:8.3f} {totals['residual_s']:8.3f}"
+    )
+    sweep = totals["sweep_s"] or 1.0
+    print(f"residual / (gate + sweep) = {totals['residual_s'] / (totals['gate_s'] + sweep):.1%}")
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[1])
     ap.add_argument("--corpus", choices=("crucible", "rosetta", "both"), default="both")
+    ap.add_argument("--time", action="store_true", help="report stage timings (gate / finder / sweep) instead")
     args = ap.parse_args(argv)
+    if args.time:
+        _print_times(time_audit(args.corpus))
+        return 0
     report, violations = audit(args.corpus)
     print(f"{'language':16s} {'files':>5s} {'rules':>5s} {'checks':>7s} {'cand/check':>10s} {'widened':>8s}")
     for lang, s in sorted(report.items()):

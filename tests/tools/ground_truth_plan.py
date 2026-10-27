@@ -26,14 +26,18 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import change_classifier  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+DOCS = "docs/"
 
 # fnmatch: `*` also crosses `/`. Checked first: these are inputs even where a NON_INPUTS pattern would match.
 INPUTS = (
     "gitgalaxy/*",  # the engine, the registries, the forges (also its READMEs)
     "tests/cobol_mainframe/*",  # the tests, the answer keys, the ledger, the corpora pins
     "tests/equivalence/*",  # the det cases the tests read
-    "docs/language_status/*",  # the register, the rule catalogue, the generated records the tests compare
     "docs/self_scan/ground_truth_history.jsonl",
     ".github/workflows/mainframe-ground-truth.yml",
     "tests/tools/ci_retry.sh",  # the workflow wraps its pip installs in it (#5048)
@@ -41,6 +45,7 @@ INPUTS = (
     ".github/workflows/det-sweep.yml",
     ".github/workflows/evidence-refresh.yml",
     # tests/tools modules a cobol_mainframe test imports (bare), named as tests
+    "tests/tools/test_blocker_report.py",  # test_blocker_leak_burned_5054.py collects its leak scan (#5054)
     "tests/tools/test_cics_spec_status.py",
     "tests/tools/test_evidence_report.py",
     "tests/tools/test_generated_docs.py",
@@ -49,8 +54,8 @@ INPUTS = (
 
 # What the job does not read. Anything matching neither list is an input.
 NON_INPUTS = (
-    "docs/*",  # minus the INPUTS above: wiki, research, benchmarks, self_scan, ci.md ... (push already ignores docs/**)
-    "*.md",  # minus the INPUTS above (gitgalaxy/, tests/cobol_mainframe/, docs/language_status/)
+    "docs/*",  # minus the INPUTS above and the docs/ files the job's code names (is_input asks the classifier)
+    "*.md",  # minus the INPUTS above (gitgalaxy/, tests/cobol_mainframe/)
     ".claude/*",
     ".github/*",  # minus the workflows above; issue templates, dependabot, the other workflows
     # churn / shepherd / CI-digest tooling (never imported by the job's tests; the guard test proves it)
@@ -80,8 +85,19 @@ def matches(path: str, patterns: tuple[str, ...]) -> bool:
 
 
 def is_input(path: str) -> bool:
-    """True unless `path` is provably something the ground-truth job does not read (when in doubt, an input)."""
-    return matches(path, INPUTS) or not matches(path, NON_INPUTS)
+    """True unless `path` is provably something the ground-truth job does not read (when in doubt, an input).
+
+    A docs/ file is an input only when code the job runs names it (change_classifier.py, #6278): the register,
+    oracle_assumptions.md, the rule catalogue and the self_scan ledgers a tool reads are; zos_probes.json and unread prose
+    are not. (Before, only docs/language_status/ asked; the rest of docs/ was skipped even where a reader opened it.) A tests/tools module nothing the job runs names is not either. Every other skip is
+    the NON_INPUTS list, as before."""
+    if matches(path, INPUTS):
+        return True
+    if path.startswith(DOCS):
+        return change_classifier.read_by_ground_truth(path)
+    if path.startswith("tests/tools/") and not matches(path, NON_INPUTS):
+        return change_classifier.runs_in_ground_truth(path)  # a tool nothing the job runs names (ladder_refresh.py)
+    return not matches(path, NON_INPUTS)
 
 
 def plan(files: list[str], event: str) -> dict:

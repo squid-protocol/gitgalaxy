@@ -40,21 +40,17 @@ def test_scenarios_cover_the_credit_check_and_the_paths_around_the_ceedays_hole(
     assert names == ["create-customer", "born-before-1601", "born-in-the-future"]
 
 
-def test_notes_name_every_hole_and_forbid_recording():
+def test_notes_name_the_assumptions_and_forbid_reading_the_level_from_them():
     notes = _case()["notes"]
-    assert "NOT PROVABLE" in notes
-    for hole in ("L1", "X18"):
-        assert hole in notes
-    assert "Never --record" in notes
+    for word in ("L1", "X18", "ASSUMED", "Not recorded as evidence"):
+        assert word in notes
+    assert "NOT PROVABLE" not in notes
 
 
-def test_sweep_baseline_carries_the_holes_by_name():
-    entry = json.loads((ROOT / "tests/equivalence/det_sweep_baseline.json").read_text(encoding="utf-8"))["det"][
-        "cbsa-crecust"
-    ]
-    assert entry["issue"] == "#4952"
-    assert "L1" in entry["why"] and "X18" in entry["why"]
-    assert "picture not modelled" in entry["why"]
+def test_sweep_baseline_no_longer_carries_the_case():
+    # #5089: the slack is ruled blank (L1), so the det proof holds and the baseline is a two-way ratchet
+    det = json.loads((ROOT / "tests/equivalence/det_sweep_baseline.json").read_text(encoding="utf-8"))["det"]
+    assert "cbsa-crecust" not in det and "cbsa-bnk1ccs-create" not in det
 
 
 def test_register_entries_agree_the_case_is_refused_not_proven():

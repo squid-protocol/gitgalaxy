@@ -53,6 +53,10 @@ def test_a_failed_ledger_job_blocks_auto_merge(jobs):
     steps = jobs["refresh"]["steps"]
     auto = next(s for s in steps if s.get("name", "").startswith("Enable squash auto-merge"))
     assert "needs.det-mutation.result == 'success'" in auto["if"]
+    assert "labels[]=shepherd:merge" in auto["run"] and "shepherd:approved" in auto["run"]
+    rehome = next(s for s in steps if s.get("name", "").startswith("Advance gitgalaxy to latest origin/main"))
+    cpr = next(s for s in steps if s.get("id") == "cpr")
+    assert steps.index(rehome) < steps.index(cpr) < steps.index(auto)
     hold = [s for s in steps if "needs.det-mutation.result != 'success'" in str(s.get("if", ""))]
     assert hold, "the run must fail when the ledger job failed"
 
@@ -60,3 +64,21 @@ def test_a_failed_ledger_job_blocks_auto_merge(jobs):
 def test_the_artifact_step_takes_only_ledger_json(jobs):
     step = next(s for s in jobs["refresh"]["steps"] if s.get("name", "").startswith("Put the renewed det mutation"))
     assert "! -name '*.json'" in step["run"] and "-type l" in step["run"]
+
+
+def test_the_blocker_feed_failure_fails_the_run_after_the_records_are_kept(jobs):
+    """#5054: a leak (or a leak scan that did not run) must turn the run red, but only at the last step."""
+    steps = jobs["refresh"]["steps"]
+    feed = next(s for s in steps if s.get("id") == "feed")
+    assert feed.get("continue-on-error") is True and "--require-sources" in feed["run"]
+    final = next(s for s in steps if s.get("name") == "Fail when a re-proof failed")
+    assert "steps.feed.outcome == 'failure'" in final["if"]
+    assert steps.index(final) > steps.index(feed)
+
+
+def test_the_survey_includes_the_cics_crucible_clone(jobs):
+    steps = jobs["refresh"]["steps"]
+    survey = next(s for s in steps if s.get("id") == "survey")
+    assert '--crucible "$GITHUB_WORKSPACE/cics-crucible"' in survey["run"]
+    feed = next(s for s in steps if s.get("id") == "feed")
+    assert '--extra-root "$GITHUB_WORKSPACE/cics-crucible"' in feed["run"]

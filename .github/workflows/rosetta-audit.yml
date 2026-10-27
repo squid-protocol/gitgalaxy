@@ -29,6 +29,13 @@ on:
     branches: [main, v6-dev]
     paths:
       - "gitgalaxy/**"
+      # #6278 slice 4: this job only scans. The scan never imports the COBOL-to-Java translator or its controllers (the same
+      # exclusions as the ground-truth scan key, test_engine_reach_workflows.py pins them); det/copy stays, a scan reads it.
+      - "!gitgalaxy/tools/cobol_to_java/*"
+      - "!gitgalaxy/tools/cobol_to_java/det/*"
+      - "!gitgalaxy/tools/cobol_to_java/det/cobolrt/**"
+      - "!gitgalaxy/cobol_to_java_controller.py"
+      - "!gitgalaxy/cobol_refractor_controller.py"
       - "pyproject.toml"
       - "tests/tools/rosetta_audit.py"
       - ".github/workflows/rosetta-audit.yml"

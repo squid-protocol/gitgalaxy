@@ -81,7 +81,7 @@ test picks its fixture from the env it runs in) — and the crucible test invoke
    fixtures conflict as a unit, so mid-flight main movement means regenerate-again.
 6b. **Tri-comparison chart**: a language with no tree-sitter grammar goes into
    `_GG_ONLY_LANGS` in `tests/tools/tri_comparison_chart.py` (`language_addition_audit.py`
-   doesn't check it). Run `--all --write`, then revert the ledger's `last_reconciled_at` churn.
+   doesn't check it). Run `--all --write`, then revert the ledger's `last_reconciled_at` churn. The import ledger (`--ledger`) does the same plus key reordering (12k-line diff, #6417): keep main's file, insert only the new keys, check `git diff --stat` is additions only (restore old `last_reconciled_at` values from `git show HEAD:`, #6486, #6521).
    `docs/self_scan/manual_verification.json`'s `total` must equal the live found-count or the
    chart falls back to 0/N; re-verify it after a crucible pin bump.
 7. **Docs** (`language-status` skill → `docs/language_status/<lang>.md` + index row), then

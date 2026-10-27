@@ -25,12 +25,15 @@ A case steers what the program must meet:
     "generate": {"copybook": "app/cpy/CVACT01Y.cpy", "record": "ACCOUNT-RECORD", "records": 40, "seed": 7,
                  "fields": {"ACCT-GROUP-ID": {"values": ["A000000000", "DEFAULT"]},
                             "DIS-TRAN-TYPE-CD": {"values": ["01", "02"], "every": 3},
+                            "ROOT-SEG-KEY": {"hex": ["10000000001C", "1000000000AC"]},   # raw bytes, a COMP-3 not NUMERIC
                             "XREF-ACCT-ID": {"from": "ACCTFILE.ACCT-ID", "miss": 0.1},
                             "KTO-DATUM": {"date": "DD.MM.YYYY"}}}
 
 `"digits": true` fills a text field with digits only -- a card number, an account id kept as text -- which its
 PICTURE (X) cannot say. `date` (#3829) gives a field valid dates in a shape -- YYYY, YY, MM and DD, anything else literal --
 text or numeric (`PIC 9(8)` as DDMMYYYY), whatever the field is called; its width must be the field's.
+`hex` (#6072) writes a field's raw bytes, cycled as `values` (with `every`): a value no PICTURE can say, such as
+a COMP-3 with a bad digit nibble for an IS NUMERIC false arm; each must be the field's width.
 `from` draws a field from another dataset's values (generated first), so a join finds its
 row -- and, with `miss`, sometimes does not, so the not-found path runs too. The primary key
 (the case's first `keys` entry) is unique, and an indexed dataset is written in key order,
@@ -309,6 +312,12 @@ def generate_dataset(
             rule = rules.get(f["name"], {})
             if "values" in rule:  # `every` k: the value changes each k rows (a cartesian fill)
                 v = rule["values"][(row // rule.get("every", 1)) % len(rule["values"])]
+            elif (
+                "hex" in rule
+            ):  # #6072: raw bytes (an invalid packed value for an IS NUMERIC test), `every` as `values`
+                v = rule["hex"][(row // rule.get("every", 1)) % len(rule["hex"])]
+                if len(bytes.fromhex(v)) != f["bytes"]:
+                    raise ValueError(f"{name}.{f['name']}: hex {v!r} is not the field's {f['bytes']} bytes")
             elif rule.get("digits"):  # a text field that holds a number (a card number): digits only
                 v = "".join(rng.choice("0123456789") for _ in range(f["bytes"]))
             elif "date" in rule:
@@ -338,8 +347,10 @@ def generate_dataset(
             else:
                 v = field_value(rng, f, row if attempts == row + 1 else row + attempts, alphabet)
             chosen[f["name"]] = v
-            rec[f["offset"] : f["offset"] + f["bytes"]] = encode_field(
-                v, f["pic"], f["usage"], f["bytes"], code_page, data_encoding
+            rec[f["offset"] : f["offset"] + f["bytes"]] = (
+                bytes.fromhex(v)
+                if "hex" in rule
+                else encode_field(v, f["pic"], f["usage"], f["bytes"], code_page, data_encoding)
             )
         if key is not None:
             k = bytes(rec[key["offset"] : key["offset"] + key["length"]])
@@ -390,7 +401,15 @@ def generate_all(case: dict[str, Any], corpus: Path) -> tuple[dict[str, bytes], 
     out: dict[str, bytes] = {}
     for dd in _order(todo):
         spec = todo[dd]
-        fields = common.layout_fields(corpus, spec["generate"]["copybook"], spec["generate"].get("record"))
+        # #5233: a COPY inside the record (PAUDBLOD's CIPAUSMY) resolves in the case's copy_dirs, after the file's own directory
+        dirs = [
+            (corpus / spec["generate"]["copybook"]).parent,
+            *(corpus / d for d in case.get("copy_dirs", [])),
+            corpus,
+        ]
+        fields = common.layout_fields(
+            corpus, spec["generate"]["copybook"], spec["generate"].get("record"), copy_dirs=dirs
+        )
         width = max(f["offset"] + f["bytes"] for f in fields)
         if width > spec["reclen"]:
             raise ValueError(f"{dd}: the layout is {width} bytes, wider than reclen {spec['reclen']}")

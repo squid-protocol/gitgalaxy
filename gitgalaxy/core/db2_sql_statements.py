@@ -140,6 +140,9 @@ _WHERE_CURRENT_OF = re.compile(
 _HOST_NAME = r"[A-Z][A-Z0-9_-]{0,127}"
 _HOST_VAR = re.compile(r"(?<![A-Z0-9_@#$-]):[ \t]{0,4}(" + _HOST_NAME + r"(?:\." + _HOST_NAME + r")?)", re.I)
 _WS = re.compile(r"[ \t\r\n]+")
+# #5736 (#4304): `CALL [schema.]proc` -- the routine a stored-procedure call names. `CALL :HV` (the
+# routine in a host variable) names none and gets no routine.
+_CALL_ROUTINE = re.compile(r"^CALL[ \t\r\n]{1,200}(?!:)(" + _QNAME + r")", re.I)
 # SQL keywords that can follow FROM / JOIN in a position the table regex would
 # otherwise read as a name (`FROM FINAL TABLE (...)`, `DELETE FROM` handled apart).
 _NOT_TABLES = frozenset({"FINAL", "NEW", "OLD", "TABLE", "LATERAL", "UNNEST", "XMLTABLE", "SELECT"})
@@ -211,6 +214,8 @@ def extract_sql_statements(code_stream: str, dialect: str = "cobol") -> list[dic
 
         {ordinal, verb, table, access, cursor, host_variables, line}
 
+    (plus `routine`, the qualified procedure name, on a `CALL` row only)
+
     `ordinal` numbers the statements (1-based), so the rows of one statement
     share it. `verb` is the statement's first keyword (`SELECT`, `INSERT`,
     `DECLARE CURSOR`, `FETCH`, `COMMIT`, ...). `table` is the qualified name as
@@ -278,17 +283,22 @@ def extract_sql_statements(code_stream: str, dialect: str = "cobol") -> list[dic
         ordinal += 1
         line = _line_of(m.start())
         tables: list[tuple[str | None, str | None]] = list(_tables(body, verb.split()[0])) or [(None, None)]
+        routine = None
+        if verb == "CALL":
+            rm = _CALL_ROUTINE.match(statement)  # body has quoted names blanked
+            routine = _qualified_name(rm.group(1)) if rm else None
         for table, access in tables:
-            out.append(
-                {
-                    "ordinal": ordinal,
-                    "verb": verb,
-                    "table": table,
-                    "access": access,
-                    "cursor": cursor,
-                    "host_variables": ",".join(host) or None,
-                    "line": line,
-                    "statement": statement,
-                }
-            )
+            row = {
+                "ordinal": ordinal,
+                "verb": verb,
+                "table": table,
+                "access": access,
+                "cursor": cursor,
+                "host_variables": ",".join(host) or None,
+                "line": line,
+                "statement": statement,
+            }
+            if routine:  # only a CALL row carries the key
+                row["routine"] = routine
+            out.append(row)
     return out

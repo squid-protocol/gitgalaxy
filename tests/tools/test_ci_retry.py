@@ -79,6 +79,7 @@ SITES = [
     ("tri-comparison-audit.yml", "apt-get", "universal-ctags"),
     ("tri-comparison-history.yml", "apt-get", "universal-ctags"),
     ("graph-accuracy-audit.yml", "npm install", "typescript@6.0.2"),
+    ("graph-accuracy-audit.yml", "rustup toolchain install", "1.90.0"),
     ("evidence-refresh.yml", "docker pull", '"$image"'),
     ("det-sweep.yml", "docker pull", "$image"),
 ]
@@ -123,7 +124,13 @@ def test_corpus_clone_goes_through_ci_retry_and_keeps_the_pin(name):
 
 
 # #5048: hash-pinned pip installs. pip's own --retries covers only connection resets, so the wrapper is the fix.
-PIP_RETRIED = ["det-sweep.yml", "full-suite-gate.yml", "java-base-generation.yml", "mainframe-ground-truth.yml"]
+PIP_RETRIED = [
+    "dependabot-relock.yml",
+    "det-sweep.yml",
+    "full-suite-gate.yml",
+    "java-base-generation.yml",
+    "mainframe-ground-truth.yml",
+]
 PIP_LINE = "pip install --require-hashes"
 
 

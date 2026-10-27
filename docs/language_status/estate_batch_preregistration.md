@@ -1,11 +1,12 @@
 # Pre-registration: fresh public batch estates (#3806), a one-shot COBOL batch → Java attempt
 
-*Status: DRAFT, registered 2026-10-20 before any crawl, draw or target. Nothing here has been run. The crawl and the draw wait on the owner (section 0). Any change after a target is chosen counts as a deviation and is recorded in the trial entry (`tests/cobol_mainframe/trials.json`), which cites this file's commit.*
+*Status: registered 2026-10-20 before any crawl, draw or target. The crawl ran 2026-10-23 after the owner's approval (section 0); the draw waits for the target rounds on the candidates page. Any change after a target is chosen counts as a deviation and is recorded in the trial entry (`tests/cobol_mainframe/trials.json`), which cites this file's commit.*
 
 This file adapts [`estate4_preregistration.md`](estate4_preregistration.md) (the CICS estate) to **batch**: COBOL programs run from JCL, with copybooks and VSAM / sequential I/O. Sections not restated here (claim under test, frozen state, pipeline, outcome classes, allowed changes, publication) apply unchanged, with "batch program" for "CICS program". The harness channel set is the batch one (stdout, files; see `docs/agents/mainframe.md`).
 
-## 0. Owner decisions pending (the draw does not run until they are answered)
-- (a) Approve the metadata-only draw, and how many estates (two or three), with licences that permit publication.
+## 0. Owner decisions
+- (a) **Answered 2026-10-23:** the metadata-only draw is approved, with the condition that each drawn estate's licence and tier are recorded before any code is read or anything is published. The candidate list is built and three target rounds are fixed in [`estate_batch_candidates.md`](estate_batch_candidates.md); the draw runs on those rounds. The two-or-three count stays open: three rounds are drawn, the trial uses them in order.
+Still pending:
 - (b) Does opensourcecobol4j count as a fresh estate or a development estate? Until answered it is **not** a candidate and is not added to the lists.
 - (c) Include a private (pilot) estate as the uncontaminated point?
 - (d) Licence and publishing hold (Q16).

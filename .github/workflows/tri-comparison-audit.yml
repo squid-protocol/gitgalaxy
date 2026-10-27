@@ -31,6 +31,9 @@ on:
       - "tests/tools/tri_comparison_reconcile.py"
       - "tests/tools/tri_comparison_ledger.py"
       - "tests/tri_comparison_baseline_*.json"
+      - "tests/tools/accuracy_audit_plan.py"  # #6501: the plan job's own code
+      - "tests/tools/graph_accuracy_plan.py"  # #6501: imported by the planner
+      - "tests/tools/change_classifier.py"  # #6501: imported by the planner
       - ".github/workflows/tri-comparison-audit.yml"
       - "tests/crucible_pins.toml"  # #4825: read by this workflow (workflow_inputs.py)
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
@@ -51,18 +54,50 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  tri-comparison-audit:
+  # #6501: which languages does the diff move? (accuracy_audit_plan.py: `langs` is `all` or a comma list, empty = none.)
+  plan:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.plan.outputs.run }}
+      langs: ${{ steps.plan.outputs.langs }}
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # the diff needs the merge base
+          filter: blob:none  # #5882: history without file contents
+          persist-credentials: false
+
+      - name: Plan the audit
+        id: plan
+        run: |
+          git fetch --no-tags origin main:refs/remotes/origin/main 2>/dev/null || true
+          python3 tests/tools/accuracy_audit_plan.py --audit tri-comparison --event "$GITHUB_EVENT_NAME" --base origin/main \
+            --github-output "$GITHUB_OUTPUT" | tee plan.json
+          {
+            echo "## Accuracy-audit plan"
+            echo '```json'
+            cat plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  tri-comparison-audit:
+    needs: [plan]
+    if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.draft == false) }}  # #5104: draft PRs skip heavy CI; always(): a failed plan runs the audit
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Checkout GitGalaxy PR
+        if: needs.plan.outputs.run != 'false'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
           persist-credentials: false
 
       - name: Setup Python
+        if: needs.plan.outputs.run != 'false'
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
@@ -72,6 +107,7 @@ jobs:
             gitgalaxy/ci/requirements/*.txt
 
       - name: Install GitGalaxy + tree-sitter-language-pack
+        if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
@@ -85,6 +121,7 @@ jobs:
       # could suffer the same silent degradation would be worse than no gate at all, since it
       # would report false confidence instead of an honest failure.
       - name: Install universal-ctags and verify it's the real thing
+        if: needs.plan.outputs.run != 'false'
         run: |
           # #5048: a mirror hiccup is infrastructure, not a code defect: bounded retry, then an INFRASTRUCTURE marker.
           gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'sudo apt-get -o Acquire::Retries=5 update -qq && sudo apt-get -o Acquire::Retries=5 install -y universal-ctags'
@@ -97,12 +134,20 @@ jobs:
       # Same pin golden-crucible.yml / tree-sitter-accuracy-audit.yml use -- this tool reuses
       # that corpus rather than a fresh clone.
       - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml)
+        if: needs.plan.outputs.run != 'false'
         run: |
           # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
           ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
           gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
 
       - name: Run baseline-gated precision regression check across every baselined language
+        if: needs.plan.outputs.run != 'false'
+        env:
+          LANGS: ${{ needs.plan.outputs.langs }}  # via env, never spliced into the script: it comes from changed file names
         run: |
           cd gitgalaxy
-          python tests/tools/tri_comparison_chart.py --all --ci
+          if [ -z "$LANGS" ] || [ "$LANGS" = all ]; then  # empty: the plan job failed
+            python tests/tools/tri_comparison_chart.py --all --ci
+          else
+            python tests/tools/tri_comparison_chart.py --languages "$LANGS" --ci
+          fi

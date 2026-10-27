@@ -31,12 +31,12 @@
         "concurrency": 0.0,
         "dead_code": 8.68,
         "documentation": 75.0,
-        "safety_score": 56.62,
+        "safety_score": 44.48,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 71.28,
-        "tech_debt": 15.9,
+        "tech_debt": 15.41,
         "verification": 41.17
       },
       "file_count": 8,
@@ -69,12 +69,12 @@
         "concurrency": 6.11,
         "dead_code": 5.8,
         "documentation": 96.3,
-        "safety_score": 45.02,
+        "safety_score": 42.06,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.15,
         "state_flux": 23.13,
-        "tech_debt": 24.74,
+        "tech_debt": 23.86,
         "verification": 77.04
       },
       "file_count": 27,
@@ -88,13 +88,13 @@
         "concurrency": 0.0,
         "dead_code": 6.82,
         "documentation": 56.52,
-        "safety_score": 6.15,
+        "safety_score": 6.27,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 5.74,
-        "tech_debt": 20.09,
-        "verification": 12.47
+        "tech_debt": 19.25,
+        "verification": 12.46
       },
       "file_count": 23,
       "total_mass": 681.5
@@ -126,13 +126,13 @@
         "concurrency": 37.14,
         "dead_code": 2.97,
         "documentation": 33.32,
-        "safety_score": 69.16,
+        "safety_score": 52.07,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 41.67,
         "state_flux": 81.08,
-        "tech_debt": 42.87,
-        "verification": 47.27
+        "tech_debt": 40.03,
+        "verification": 47.26
       },
       "file_count": 12,
       "total_mass": 4844.96
@@ -164,12 +164,12 @@
         "concurrency": 12.45,
         "dead_code": 0.0,
         "documentation": 11.88,
-        "safety_score": 20.23,
+        "safety_score": 22.83,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
         "state_flux": 31.01,
-        "tech_debt": 47.65,
+        "tech_debt": 46.72,
         "verification": 2.02
       },
       "file_count": 8,
@@ -202,12 +202,12 @@
         "concurrency": 34.89,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 63.32,
+        "safety_score": 53.94,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 2.98,
+        "tech_debt": 2.72,
         "verification": 62.09
       },
       "file_count": 13,
@@ -221,13 +221,13 @@
         "concurrency": 0.0,
         "dead_code": 1.8,
         "documentation": 100.0,
-        "safety_score": 45.45,
+        "safety_score": 35.56,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 26.73,
-        "tech_debt": 40.97,
-        "verification": 28.27
+        "tech_debt": 24.96,
+        "verification": 28.25
       },
       "file_count": 3,
       "total_mass": 175.6
@@ -240,13 +240,13 @@
         "concurrency": 0.0,
         "dead_code": 2.32,
         "documentation": 76.36,
-        "safety_score": 50.36,
+        "safety_score": 42.78,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 26.99,
-        "tech_debt": 36.2,
-        "verification": 33.4
+        "tech_debt": 31.22,
+        "verification": 33.39
       },
       "file_count": 5,
       "total_mass": 1578.86
@@ -259,12 +259,12 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 16.67,
-        "safety_score": 20.82,
+        "safety_score": 14.81,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 15.28,
-        "tech_debt": 10.9,
+        "tech_debt": 5.03,
         "verification": 2.31
       },
       "file_count": 15,
@@ -297,13 +297,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 95.0,
-        "safety_score": 35.28,
+        "safety_score": 30.89,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 16.03,
-        "tech_debt": 15.83,
-        "verification": 6.21
+        "tech_debt": 11.33,
+        "verification": 6.2
       },
       "file_count": 20,
       "total_mass": 532.24
@@ -316,13 +316,13 @@
         "concurrency": 3.1,
         "dead_code": 0.0,
         "documentation": 82.35,
-        "safety_score": 31.98,
+        "safety_score": 25.42,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 47.06,
         "state_flux": 1.21,
-        "tech_debt": 27.2,
-        "verification": 25.07
+        "tech_debt": 21.26,
+        "verification": 25.05
       },
       "file_count": 17,
       "total_mass": 898.22
@@ -335,12 +335,12 @@
         "concurrency": 0.0,
         "dead_code": 0.26,
         "documentation": 0.0,
-        "safety_score": 24.96,
+        "safety_score": 20.87,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.0,
         "state_flux": 15.15,
-        "tech_debt": 2.71,
+        "tech_debt": 1.04,
         "verification": 2.21
       },
       "file_count": 25,
@@ -359,8 +359,8 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 62.61,
-        "verification": 2.38
+        "tech_debt": 46.21,
+        "verification": 2.36
       },
       "file_count": 4,
       "total_mass": 53.46
@@ -378,8 +378,8 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 76.31,
-        "verification": 2.42
+        "tech_debt": 46.46,
+        "verification": 2.38
       },
       "file_count": 20,
       "total_mass": 278.76
@@ -392,13 +392,13 @@
         "concurrency": 0.0,
         "dead_code": 0.63,
         "documentation": 89.47,
-        "safety_score": 12.32,
+        "safety_score": 10.86,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 47.37,
         "state_flux": 4.81,
-        "tech_debt": 47.11,
-        "verification": 39.06
+        "tech_debt": 32.85,
+        "verification": 39.04
       },
       "file_count": 19,
       "total_mass": 1332.44
@@ -411,13 +411,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 27.78,
-        "safety_score": 16.63,
+        "safety_score": 11.9,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 14.6,
-        "tech_debt": 23.59,
-        "verification": 2.32
+        "tech_debt": 13.82,
+        "verification": 2.31
       },
       "file_count": 18,
       "total_mass": 364.76
@@ -430,13 +430,13 @@
         "concurrency": 0.0,
         "dead_code": 2.05,
         "documentation": 59.09,
-        "safety_score": 3.27,
+        "safety_score": 2.37,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 50.51,
-        "verification": 2.34
+        "tech_debt": 29.01,
+        "verification": 2.33
       },
       "file_count": 22,
       "total_mass": 279.58
@@ -449,12 +449,12 @@
         "concurrency": 0.0,
         "dead_code": 5.88,
         "documentation": 100.0,
-        "safety_score": 26.81,
+        "safety_score": 25.22,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 74.55,
+        "tech_debt": 70.42,
         "verification": 80.0
       },
       "file_count": 10,
@@ -468,13 +468,13 @@
         "concurrency": 0.0,
         "dead_code": 4.26,
         "documentation": 60.87,
-        "safety_score": 66.3,
+        "safety_score": 46.31,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 47.83,
         "state_flux": 10.88,
-        "tech_debt": 59.59,
-        "verification": 2.27
+        "tech_debt": 38.38,
+        "verification": 2.25
       },
       "file_count": 23,
       "total_mass": 238.96
@@ -487,13 +487,13 @@
         "concurrency": 0.0,
         "dead_code": 4.95,
         "documentation": 100.0,
-        "safety_score": 31.88,
+        "safety_score": 22.84,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 77.05,
-        "verification": 2.37
+        "tech_debt": 53.75,
+        "verification": 2.35
       },
       "file_count": 7,
       "total_mass": 49.56
@@ -677,13 +677,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 98.39,
+        "safety_score": 78.07,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 100.0,
-        "tech_debt": 50.0,
-        "verification": 2.43
+        "tech_debt": 30.29,
+        "verification": 2.41
       },
       "file_count": 1,
       "total_mass": 77.9
@@ -696,12 +696,12 @@
         "concurrency": 0.0,
         "dead_code": 5.12,
         "documentation": 99.72,
-        "safety_score": 78.45,
+        "safety_score": 60.64,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 87.24,
-        "tech_debt": 37.5,
+        "tech_debt": 37.05,
         "verification": 80.0
       },
       "file_count": 8,
@@ -715,13 +715,13 @@
         "concurrency": 0.0,
         "dead_code": 8.36,
         "documentation": 53.85,
-        "safety_score": 58.54,
+        "safety_score": 48.02,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.31,
         "state_flux": 52.12,
-        "tech_debt": 15.2,
-        "verification": 31.87
+        "tech_debt": 14.56,
+        "verification": 31.86
       },
       "file_count": 13,
       "total_mass": 2813.3
@@ -734,12 +734,12 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 60.14,
+        "safety_score": 50.57,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 16.8,
-        "tech_debt": 62.25,
+        "tech_debt": 37.75,
         "verification": 2.32
       },
       "file_count": 1,
@@ -753,13 +753,13 @@
         "concurrency": 0.0,
         "dead_code": 4.68,
         "documentation": 57.43,
-        "safety_score": 42.66,
+        "safety_score": 34.29,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 49.75,
-        "tech_debt": 23.2,
-        "verification": 28.22
+        "tech_debt": 18.56,
+        "verification": 28.21
       },
       "file_count": 12,
       "total_mass": 6569.54
@@ -772,12 +772,12 @@
         "concurrency": 0.0,
         "dead_code": 1.35,
         "documentation": 24.89,
-        "safety_score": 48.86,
+        "safety_score": 40.74,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
         "state_flux": 50.0,
-        "tech_debt": 2.01,
+        "tech_debt": 1.98,
         "verification": 40.0
       },
       "file_count": 4,
@@ -810,13 +810,13 @@
         "concurrency": 0.0,
         "dead_code": 1.72,
         "documentation": 100.0,
-        "safety_score": 78.75,
+        "safety_score": 58.11,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 49.73,
-        "tech_debt": 63.37,
-        "verification": 2.35
+        "tech_debt": 39.72,
+        "verification": 2.34
       },
       "file_count": 50,
       "total_mass": 389.38
@@ -829,7 +829,7 @@
         "concurrency": 0.0,
         "dead_code": 1.62,
         "documentation": 75.0,
-        "safety_score": 76.88,
+        "safety_score": 60.01,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -848,12 +848,12 @@
         "concurrency": 0.0,
         "dead_code": 0.91,
         "documentation": 18.67,
-        "safety_score": 37.42,
+        "safety_score": 29.08,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.0,
         "state_flux": 38.98,
-        "tech_debt": 3.65,
+        "tech_debt": 3.15,
         "verification": 19.84
       },
       "file_count": 75,
@@ -867,7 +867,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 33.33,
-        "safety_score": 29.97,
+        "safety_score": 22.25,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -905,12 +905,12 @@
         "concurrency": 0.0,
         "dead_code": 3.54,
         "documentation": 27.86,
-        "safety_score": 43.11,
+        "safety_score": 33.79,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 49.29,
         "state_flux": 31.89,
-        "tech_debt": 37.54,
+        "tech_debt": 27.64,
         "verification": 1.7
       },
       "file_count": 70,
@@ -924,12 +924,12 @@
         "concurrency": 0.0,
         "dead_code": 3.05,
         "documentation": 49.34,
-        "safety_score": 89.25,
+        "safety_score": 71.59,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 49.67,
         "state_flux": 83.01,
-        "tech_debt": 96.72,
+        "tech_debt": 95.41,
         "verification": 57.37
       },
       "file_count": 151,
@@ -943,13 +943,13 @@
         "concurrency": 7.15,
         "dead_code": 4.2,
         "documentation": 45.45,
-        "safety_score": 37.44,
+        "safety_score": 28.97,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 41.4,
-        "tech_debt": 15.96,
-        "verification": 22.33
+        "tech_debt": 15.33,
+        "verification": 22.32
       },
       "file_count": 66,
       "total_mass": 9728.37
@@ -962,13 +962,13 @@
         "concurrency": 3.07,
         "dead_code": 4.54,
         "documentation": 34.44,
-        "safety_score": 59.61,
+        "safety_score": 45.22,
         "secrets_risk": 2.2,
         "spec_match": 0.0,
         "stability": 48.89,
         "state_flux": 66.98,
-        "tech_debt": 25.24,
-        "verification": 5.48
+        "tech_debt": 20.01,
+        "verification": 5.47
       },
       "file_count": 45,
       "total_mass": 3255.36
@@ -981,13 +981,13 @@
         "concurrency": 0.0,
         "dead_code": 3.86,
         "documentation": 100.0,
-        "safety_score": 64.76,
+        "safety_score": 53.07,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 87.77,
-        "tech_debt": 52.61,
-        "verification": 2.37
+        "tech_debt": 40.3,
+        "verification": 2.35
       },
       "file_count": 2,
       "total_mass": 50.68
@@ -1000,13 +1000,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 31.11,
-        "safety_score": 25.16,
+        "safety_score": 19.3,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 25.82,
-        "tech_debt": 29.24,
-        "verification": 2.22
+        "tech_debt": 26.41,
+        "verification": 2.21
       },
       "file_count": 45,
       "total_mass": 946.88
@@ -1019,13 +1019,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 79.64,
+        "safety_score": 60.58,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 99.14,
-        "tech_debt": 30.83,
-        "verification": 2.38
+        "tech_debt": 25.32,
+        "verification": 2.36
       },
       "file_count": 7,
       "total_mass": 335.04
@@ -1057,12 +1057,12 @@
         "concurrency": 0.0,
         "dead_code": 2.51,
         "documentation": 22.22,
-        "safety_score": 34.7,
+        "safety_score": 27.08,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 44.44,
         "state_flux": 33.16,
-        "tech_debt": 2.49,
+        "tech_debt": 2.04,
         "verification": 2.06
       },
       "file_count": 9,
@@ -1076,12 +1076,12 @@
         "concurrency": 0.0,
         "dead_code": 1.38,
         "documentation": 70.81,
-        "safety_score": 67.2,
+        "safety_score": 52.11,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.86,
         "state_flux": 71.43,
-        "tech_debt": 13.74,
+        "tech_debt": 13.49,
         "verification": 57.47
       },
       "file_count": 7,
@@ -1095,13 +1095,13 @@
         "concurrency": 27.49,
         "dead_code": 1.14,
         "documentation": 66.67,
-        "safety_score": 55.55,
+        "safety_score": 42.5,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 59.09,
-        "tech_debt": 3.0,
-        "verification": 28.23
+        "tech_debt": 2.79,
+        "verification": 28.22
       },
       "file_count": 6,
       "total_mass": 511.38
@@ -1114,13 +1114,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 25.0,
-        "safety_score": 23.83,
+        "safety_score": 18.85,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 25.0,
-        "tech_debt": 4.61,
-        "verification": 12.04
+        "tech_debt": 3.54,
+        "verification": 12.03
       },
       "file_count": 8,
       "total_mass": 412.74
@@ -1152,13 +1152,13 @@
         "concurrency": 5.31,
         "dead_code": 0.81,
         "documentation": 29.19,
-        "safety_score": 52.95,
+        "safety_score": 40.88,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 33.33,
         "state_flux": 58.32,
-        "tech_debt": 28.38,
-        "verification": 40.42
+        "tech_debt": 27.88,
+        "verification": 40.41
       },
       "file_count": 12,
       "total_mass": 9224.04
@@ -1171,16 +1171,16 @@
         "concurrency": 0.0,
         "dead_code": 2.49,
         "documentation": 37.06,
-        "safety_score": 54.36,
+        "safety_score": 44.83,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.62,
         "state_flux": 43.67,
-        "tech_debt": 32.63,
+        "tech_debt": 32.49,
         "verification": 55.29
       },
       "file_count": 16,
-      "total_mass": 21791.12
+      "total_mass": 21795.62
     },
     "cpp/mlir": {
       "avg_exposures": {
@@ -1190,12 +1190,12 @@
         "concurrency": 0.0,
         "dead_code": 0.74,
         "documentation": 91.43,
-        "safety_score": 45.26,
+        "safety_score": 36.04,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 55.53,
-        "tech_debt": 60.9,
+        "tech_debt": 48.86,
         "verification": 35.3
       },
       "file_count": 7,
@@ -1209,16 +1209,16 @@
         "concurrency": 5.64,
         "dead_code": 1.53,
         "documentation": 85.71,
-        "safety_score": 46.59,
+        "safety_score": 38.73,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 61.33,
-        "tech_debt": 27.37,
-        "verification": 35.67
+        "tech_debt": 25.8,
+        "verification": 35.66
       },
       "file_count": 7,
-      "total_mass": 1150.1
+      "total_mass": 1153.0
     },
     "cpp/serenity_ak_siphash_cpu": {
       "avg_exposures": {
@@ -1228,13 +1228,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 86.43,
+        "safety_score": 66.47,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 99.59,
-        "tech_debt": 55.26,
-        "verification": 41.2
+        "tech_debt": 38.74,
+        "verification": 41.19
       },
       "file_count": 2,
       "total_mass": 181.94
@@ -1342,12 +1342,12 @@
         "concurrency": 20.17,
         "dead_code": 4.19,
         "documentation": 50.52,
-        "safety_score": 41.13,
+        "safety_score": 37.59,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.86,
         "state_flux": 61.86,
-        "tech_debt": 51.58,
+        "tech_debt": 51.34,
         "verification": 57.48
       },
       "file_count": 7,
@@ -1380,7 +1380,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 32.08,
+        "safety_score": 32.91,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -1399,7 +1399,7 @@
         "concurrency": 0.0,
         "dead_code": 1.72,
         "documentation": 33.33,
-        "safety_score": 25.59,
+        "safety_score": 21.34,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -1418,7 +1418,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 50.0,
-        "safety_score": 27.72,
+        "safety_score": 25.91,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -1437,7 +1437,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 30.0,
-        "safety_score": 10.14,
+        "safety_score": 10.05,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.0,
@@ -1494,7 +1494,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 40.0,
-        "safety_score": 10.13,
+        "safety_score": 10.04,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -1513,7 +1513,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 66.67,
-        "safety_score": 68.62,
+        "safety_score": 62.15,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -1566,20 +1566,20 @@
       "avg_exposures": {
         "api_exposure": 3.19,
         "churn": 0.0,
-        "cognitive_load": 30.03,
+        "cognitive_load": 29.88,
         "concurrency": 12.89,
         "dead_code": 6.88,
         "documentation": 44.0,
-        "safety_score": 22.19,
+        "safety_score": 36.79,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 86.1,
-        "tech_debt": 37.64,
-        "verification": 24.64
+        "tech_debt": 37.45,
+        "verification": 24.63
       },
       "file_count": 7,
-      "total_mass": 22960.2
+      "total_mass": 22872.5
     },
     "db2_sql": {
       "avg_exposures": {
@@ -1608,7 +1608,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 32.7,
+        "safety_score": 29.83,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.0,
@@ -1646,12 +1646,12 @@
         "concurrency": 6.39,
         "dead_code": 2.45,
         "documentation": 79.84,
-        "safety_score": 40.72,
+        "safety_score": 35.53,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 54.44,
-        "tech_debt": 68.31,
+        "tech_debt": 64.23,
         "verification": 16.98
       },
       "file_count": 30,
@@ -1665,12 +1665,12 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 62.22,
-        "safety_score": 33.81,
+        "safety_score": 35.49,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 40.96,
-        "tech_debt": 68.89,
+        "tech_debt": 63.18,
         "verification": 7.87
       },
       "file_count": 12,
@@ -1684,12 +1684,12 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 80.77,
-        "safety_score": 59.36,
+        "safety_score": 53.14,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 67.2,
-        "tech_debt": 33.49,
+        "tech_debt": 31.34,
         "verification": 40.0
       },
       "file_count": 2,
@@ -1703,13 +1703,13 @@
         "concurrency": 1.34,
         "dead_code": 0.79,
         "documentation": 31.19,
-        "safety_score": 52.3,
+        "safety_score": 43.68,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 45.0,
         "state_flux": 72.61,
-        "tech_debt": 56.37,
-        "verification": 8.97
+        "tech_debt": 52.66,
+        "verification": 8.96
       },
       "file_count": 10,
       "total_mass": 728.54
@@ -1722,13 +1722,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 75.0,
-        "safety_score": 29.24,
+        "safety_score": 25.71,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 25.0,
-        "tech_debt": 50.0,
-        "verification": 1.21
+        "tech_debt": 37.75,
+        "verification": 1.2
       },
       "file_count": 2,
       "total_mass": 28.54
@@ -1741,13 +1741,13 @@
         "concurrency": 3.42,
         "dead_code": 4.19,
         "documentation": 99.77,
-        "safety_score": 13.18,
+        "safety_score": 12.58,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 3.14,
-        "tech_debt": 36.6,
-        "verification": 21.8
+        "tech_debt": 35.62,
+        "verification": 21.79
       },
       "file_count": 4,
       "total_mass": 207.04
@@ -1779,13 +1779,13 @@
         "concurrency": 21.9,
         "dead_code": 0.0,
         "documentation": 3.58,
-        "safety_score": 89.64,
+        "safety_score": 71.68,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 92.86,
-        "tech_debt": 26.75,
-        "verification": 30.27
+        "tech_debt": 23.46,
+        "verification": 30.23
       },
       "file_count": 14,
       "total_mass": 3596.72
@@ -1817,13 +1817,13 @@
         "concurrency": 3.06,
         "dead_code": 9.26,
         "documentation": 76.91,
-        "safety_score": 86.91,
+        "safety_score": 72.79,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 46.67,
         "state_flux": 66.43,
-        "tech_debt": 6.09,
-        "verification": 59.16
+        "tech_debt": 5.7,
+        "verification": 59.15
       },
       "file_count": 15,
       "total_mass": 51510.82
@@ -1855,12 +1855,12 @@
         "concurrency": 4.35,
         "dead_code": 11.87,
         "documentation": 44.54,
-        "safety_score": 65.81,
+        "safety_score": 50.09,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
         "state_flux": 74.93,
-        "tech_debt": 43.02,
+        "tech_debt": 41.14,
         "verification": 60.29
       },
       "file_count": 8,
@@ -1874,12 +1874,12 @@
         "concurrency": 0.0,
         "dead_code": 6.08,
         "documentation": 50.0,
-        "safety_score": 82.36,
+        "safety_score": 62.07,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 100.0,
-        "tech_debt": 99.65,
+        "tech_debt": 99.57,
         "verification": 80.0
       },
       "file_count": 1,
@@ -1893,12 +1893,12 @@
         "concurrency": 28.03,
         "dead_code": 4.41,
         "documentation": 33.72,
-        "safety_score": 53.3,
+        "safety_score": 46.42,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 81.58,
-        "tech_debt": 46.05,
+        "tech_debt": 45.24,
         "verification": 68.9
       },
       "file_count": 7,
@@ -1912,12 +1912,12 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 56.0,
+        "safety_score": 51.49,
         "secrets_risk": 100.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 50.34,
-        "tech_debt": 14.41,
+        "tech_debt": 12.73,
         "verification": 0.0
       },
       "file_count": 1,
@@ -1950,13 +1950,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 88.89,
-        "safety_score": 63.31,
+        "safety_score": 49.07,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 44.44,
         "state_flux": 59.08,
-        "tech_debt": 62.91,
-        "verification": 2.16
+        "tech_debt": 55.78,
+        "verification": 2.13
       },
       "file_count": 9,
       "total_mass": 254.94
@@ -1969,7 +1969,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 4.17,
-        "safety_score": 77.6,
+        "safety_score": 56.94,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -1988,7 +1988,7 @@
         "concurrency": 5.26,
         "dead_code": 0.0,
         "documentation": 40.0,
-        "safety_score": 63.8,
+        "safety_score": 47.79,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 45.0,
@@ -2007,7 +2007,7 @@
         "concurrency": 38.79,
         "dead_code": 3.75,
         "documentation": 98.74,
-        "safety_score": 70.18,
+        "safety_score": 57.5,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -2026,13 +2026,13 @@
         "concurrency": 1.74,
         "dead_code": 0.0,
         "documentation": 83.75,
-        "safety_score": 50.34,
+        "safety_score": 38.68,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 31.83,
-        "tech_debt": 66.33,
-        "verification": 5.64
+        "tech_debt": 48.42,
+        "verification": 5.61
       },
       "file_count": 24,
       "total_mass": 397.36
@@ -2045,7 +2045,7 @@
         "concurrency": 1.13,
         "dead_code": 0.0,
         "documentation": 48.0,
-        "safety_score": 47.84,
+        "safety_score": 36.41,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -2064,12 +2064,12 @@
         "concurrency": 30.15,
         "dead_code": 0.25,
         "documentation": 100.0,
-        "safety_score": 26.25,
+        "safety_score": 27.49,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 16.72,
-        "tech_debt": 85.37,
+        "tech_debt": 68.6,
         "verification": 4.9
       },
       "file_count": 30,
@@ -2083,13 +2083,13 @@
         "concurrency": 7.76,
         "dead_code": 0.0,
         "documentation": 75.0,
-        "safety_score": 30.73,
+        "safety_score": 23.35,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 17.95,
-        "tech_debt": 51.25,
-        "verification": 2.34
+        "tech_debt": 32.7,
+        "verification": 2.33
       },
       "file_count": 20,
       "total_mass": 195.08
@@ -2102,12 +2102,12 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 3.33,
-        "safety_score": 21.98,
+        "safety_score": 17.03,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.33,
         "state_flux": 8.26,
-        "tech_debt": 1.25,
+        "tech_debt": 0.86,
         "verification": 4.81
       },
       "file_count": 30,
@@ -2121,7 +2121,7 @@
         "concurrency": 0.87,
         "dead_code": 0.41,
         "documentation": 12.0,
-        "safety_score": 41.83,
+        "safety_score": 30.9,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.0,
@@ -2140,7 +2140,7 @@
         "concurrency": 6.67,
         "dead_code": 0.0,
         "documentation": 6.67,
-        "safety_score": 5.33,
+        "safety_score": 3.93,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 46.67,
@@ -2159,7 +2159,7 @@
         "concurrency": 0.0,
         "dead_code": 7.72,
         "documentation": 92.86,
-        "safety_score": 76.72,
+        "safety_score": 61.68,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -2178,13 +2178,13 @@
         "concurrency": 5.88,
         "dead_code": 0.0,
         "documentation": 85.39,
-        "safety_score": 58.62,
+        "safety_score": 45.63,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 35.65,
-        "tech_debt": 75.86,
-        "verification": 6.95
+        "tech_debt": 58.42,
+        "verification": 6.93
       },
       "file_count": 17,
       "total_mass": 365.02
@@ -2197,13 +2197,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 90.86,
-        "safety_score": 21.3,
+        "safety_score": 21.45,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 12.39,
-        "tech_debt": 95.79,
-        "verification": 2.33
+        "tech_debt": 88.95,
+        "verification": 2.32
       },
       "file_count": 24,
       "total_mass": 349.26
@@ -2216,12 +2216,12 @@
         "concurrency": 1.3,
         "dead_code": 0.34,
         "documentation": 95.56,
-        "safety_score": 14.63,
+        "safety_score": 12.9,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 9.24,
-        "tech_debt": 85.71,
+        "tech_debt": 69.88,
         "verification": 2.32
       },
       "file_count": 30,
@@ -2235,7 +2235,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 17.86,
-        "safety_score": 67.73,
+        "safety_score": 51.58,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.21,
@@ -2273,7 +2273,7 @@
         "concurrency": 0.0,
         "dead_code": 0.48,
         "documentation": 11.96,
-        "safety_score": 8.47,
+        "safety_score": 8.88,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 31.82,
@@ -2330,13 +2330,13 @@
         "concurrency": 8.24,
         "dead_code": 6.08,
         "documentation": 100.0,
-        "safety_score": 76.83,
+        "safety_score": 60.28,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 17.27,
-        "verification": 2.39
+        "tech_debt": 11.56,
+        "verification": 2.36
       },
       "file_count": 2,
       "total_mass": 78.04
@@ -2349,13 +2349,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 50.0,
-        "safety_score": 30.47,
+        "safety_score": 25.37,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 7.69,
         "tech_debt": 0.0,
-        "verification": 2.34
+        "verification": 2.33
       },
       "file_count": 2,
       "total_mass": 33.92
@@ -2463,7 +2463,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 10.0,
-        "safety_score": 22.1,
+        "safety_score": 20.7,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.0,
@@ -2501,7 +2501,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 40.0,
-        "safety_score": 22.39,
+        "safety_score": 20.8,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.0,
@@ -2520,7 +2520,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 14.29,
-        "safety_score": 18.19,
+        "safety_score": 15.65,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.86,
@@ -2558,7 +2558,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 16.67,
-        "safety_score": 29.08,
+        "safety_score": 26.42,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -2596,7 +2596,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 14.2,
+        "safety_score": 21.18,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
@@ -2634,7 +2634,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 20.56,
+        "safety_score": 20.19,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -2653,7 +2653,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 87.37,
+        "safety_score": 65.91,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -2672,7 +2672,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 16.67,
-        "safety_score": 31.52,
+        "safety_score": 27.54,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 41.67,
@@ -2729,7 +2729,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 47.59,
+        "safety_score": 49.2,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -2748,7 +2748,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 50.0,
-        "safety_score": 34.19,
+        "safety_score": 28.2,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
@@ -2767,7 +2767,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 50.0,
-        "safety_score": 30.28,
+        "safety_score": 26.78,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
@@ -2786,7 +2786,7 @@
         "concurrency": 10.9,
         "dead_code": 0.0,
         "documentation": 59.79,
-        "safety_score": 60.99,
+        "safety_score": 49.72,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
@@ -2824,13 +2824,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 36.33,
+        "safety_score": 26.92,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
         "state_flux": 49.82,
-        "tech_debt": 49.67,
-        "verification": 1.2
+        "tech_debt": 48.53,
+        "verification": 1.19
       },
       "file_count": 2,
       "total_mass": 43.6
@@ -2843,13 +2843,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 71.62,
+        "safety_score": 53.42,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 83.2,
-        "tech_debt": 73.11,
-        "verification": 2.36
+        "tech_debt": 37.75,
+        "verification": 2.35
       },
       "file_count": 1,
       "total_mass": 11.52
@@ -2862,13 +2862,13 @@
         "concurrency": 15.18,
         "dead_code": 3.07,
         "documentation": 87.5,
-        "safety_score": 78.49,
+        "safety_score": 61.44,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
         "state_flux": 87.5,
-        "tech_debt": 25.9,
-        "verification": 50.68
+        "tech_debt": 16.23,
+        "verification": 50.65
       },
       "file_count": 8,
       "total_mass": 2947.02
@@ -2881,13 +2881,13 @@
         "concurrency": 18.29,
         "dead_code": 0.0,
         "documentation": 14.29,
-        "safety_score": 54.14,
+        "safety_score": 41.15,
         "secrets_risk": 28.57,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 69.87,
-        "tech_debt": 4.62,
-        "verification": 2.31
+        "tech_debt": 2.03,
+        "verification": 2.3
       },
       "file_count": 7,
       "total_mass": 254.5
@@ -2900,13 +2900,13 @@
         "concurrency": 18.54,
         "dead_code": 2.56,
         "documentation": 91.4,
-        "safety_score": 47.81,
+        "safety_score": 43.54,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 68.54,
-        "tech_debt": 38.96,
-        "verification": 54.17
+        "tech_debt": 31.62,
+        "verification": 54.15
       },
       "file_count": 6,
       "total_mass": 10499.54
@@ -2919,13 +2919,13 @@
         "concurrency": 45.47,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 92.11,
+        "safety_score": 66.26,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 100.0,
         "tech_debt": 0.0,
-        "verification": 2.4
+        "verification": 2.38
       },
       "file_count": 1,
       "total_mass": 52.46
@@ -2934,20 +2934,20 @@
       "avg_exposures": {
         "api_exposure": 4.36,
         "churn": 0.0,
-        "cognitive_load": 54.08,
+        "cognitive_load": 54.09,
         "concurrency": 21.68,
         "dead_code": 4.07,
         "documentation": 42.52,
-        "safety_score": 71.44,
+        "safety_score": 55.87,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 85.63,
-        "tech_debt": 56.11,
+        "tech_debt": 53.64,
         "verification": 68.9
       },
       "file_count": 7,
-      "total_mass": 8293.5
+      "total_mass": 8550.4
     },
     "jcl": {
       "avg_exposures": {
@@ -2976,13 +2976,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 51.45,
+        "safety_score": 39.16,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.35
+        "verification": 2.34
       },
       "file_count": 3,
       "total_mass": 15.76
@@ -2995,13 +2995,13 @@
         "concurrency": 0.0,
         "dead_code": 3.07,
         "documentation": 98.99,
-        "safety_score": 30.3,
+        "safety_score": 22.19,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 1.17,
         "tech_debt": 0.0,
-        "verification": 2.33
+        "verification": 2.32
       },
       "file_count": 99,
       "total_mass": 286.88
@@ -3014,13 +3014,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 53.74,
-        "safety_score": 9.33,
+        "safety_score": 7.66,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.33,
         "state_flux": 0.34,
         "tech_debt": 0.0,
-        "verification": 2.27
+        "verification": 2.26
       },
       "file_count": 30,
       "total_mass": 263.84
@@ -3039,7 +3039,7 @@
         "stability": 50.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.33
+        "verification": 2.32
       },
       "file_count": 1,
       "total_mass": 3.12
@@ -3052,13 +3052,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 16.01,
+        "safety_score": 11.62,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.35
+        "verification": 2.34
       },
       "file_count": 43,
       "total_mass": 181.1
@@ -3071,13 +3071,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 90.0,
-        "safety_score": 57.6,
+        "safety_score": 45.86,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 38.85,
         "tech_debt": 0.0,
-        "verification": 2.34
+        "verification": 2.33
       },
       "file_count": 10,
       "total_mass": 98.88
@@ -3166,12 +3166,12 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 4.76,
-        "safety_score": 29.08,
+        "safety_score": 23.8,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.86,
         "state_flux": 35.51,
-        "tech_debt": 34.06,
+        "tech_debt": 32.1,
         "verification": 13.1
       },
       "file_count": 7,
@@ -3204,13 +3204,13 @@
         "concurrency": 9.21,
         "dead_code": 3.04,
         "documentation": 82.0,
-        "safety_score": 57.79,
+        "safety_score": 44.04,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 56.53,
-        "tech_debt": 70.08,
-        "verification": 16.67
+        "tech_debt": 62.43,
+        "verification": 16.64
       },
       "file_count": 98,
       "total_mass": 19874.54
@@ -3242,13 +3242,13 @@
         "concurrency": 21.95,
         "dead_code": 2.82,
         "documentation": 86.05,
-        "safety_score": 44.11,
+        "safety_score": 41.56,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 77.41,
-        "tech_debt": 19.66,
-        "verification": 45.73
+        "tech_debt": 18.22,
+        "verification": 45.71
       },
       "file_count": 43,
       "total_mass": 11375.7
@@ -3261,13 +3261,13 @@
         "concurrency": 0.0,
         "dead_code": 1.22,
         "documentation": 42.86,
-        "safety_score": 82.93,
+        "safety_score": 60.68,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 85.67,
         "tech_debt": 0.0,
-        "verification": 35.7
+        "verification": 35.68
       },
       "file_count": 7,
       "total_mass": 703.4
@@ -3280,13 +3280,13 @@
         "concurrency": 0.0,
         "dead_code": 1.57,
         "documentation": 52.94,
-        "safety_score": 73.76,
+        "safety_score": 55.65,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 47.06,
         "state_flux": 64.66,
-        "tech_debt": 2.69,
-        "verification": 29.68
+        "tech_debt": 2.36,
+        "verification": 29.66
       },
       "file_count": 17,
       "total_mass": 2147.9
@@ -3299,13 +3299,13 @@
         "concurrency": 0.0,
         "dead_code": 1.08,
         "documentation": 25.93,
-        "safety_score": 36.93,
+        "safety_score": 31.83,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 46.3,
         "state_flux": 34.24,
-        "tech_debt": 39.49,
-        "verification": 5.07
+        "tech_debt": 26.5,
+        "verification": 5.06
       },
       "file_count": 27,
       "total_mass": 790.86
@@ -3318,13 +3318,13 @@
         "concurrency": 6.54,
         "dead_code": 2.56,
         "documentation": 45.45,
-        "safety_score": 50.29,
+        "safety_score": 37.65,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 45.45,
         "state_flux": 47.05,
-        "tech_debt": 4.41,
-        "verification": 2.24
+        "tech_debt": 4.22,
+        "verification": 2.2
       },
       "file_count": 22,
       "total_mass": 421.5
@@ -3380,8 +3380,8 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 63.25,
-        "verification": 2.33
+        "tech_debt": 46.83,
+        "verification": 2.32
       },
       "file_count": 5,
       "total_mass": 85.16
@@ -3399,7 +3399,7 @@
         "spec_match": 0.0,
         "stability": 25.0,
         "state_flux": 0.0,
-        "tech_debt": 12.32,
+        "tech_debt": 11.84,
         "verification": 1.15
       },
       "file_count": 2,
@@ -3432,12 +3432,12 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 50.0,
-        "safety_score": 35.1,
+        "safety_score": 26.43,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
         "state_flux": 34.5,
-        "tech_debt": 36.55,
+        "tech_debt": 18.88,
         "verification": 1.16
       },
       "file_count": 2,
@@ -3527,13 +3527,13 @@
         "concurrency": 11.52,
         "dead_code": 9.02,
         "documentation": 42.86,
-        "safety_score": 79.55,
+        "safety_score": 64.58,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.86,
         "state_flux": 84.53,
-        "tech_debt": 16.52,
-        "verification": 35.36
+        "tech_debt": 11.76,
+        "verification": 35.34
       },
       "file_count": 7,
       "total_mass": 4922.34
@@ -3641,7 +3641,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 25.0,
-        "safety_score": 5.13,
+        "safety_score": 9.64,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -3679,13 +3679,13 @@
         "concurrency": 0.0,
         "dead_code": 3.45,
         "documentation": 100.0,
-        "safety_score": 75.38,
+        "safety_score": 58.79,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 83.3,
-        "tech_debt": 18.97,
-        "verification": 67.1
+        "tech_debt": 18.28,
+        "verification": 67.09
       },
       "file_count": 6,
       "total_mass": 2563.4
@@ -3736,12 +3736,12 @@
         "concurrency": 0.0,
         "dead_code": 3.08,
         "documentation": 99.58,
-        "safety_score": 72.5,
+        "safety_score": 58.67,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 92.04,
-        "tech_debt": 46.77,
+        "tech_debt": 45.18,
         "verification": 80.0
       },
       "file_count": 5,
@@ -3755,16 +3755,16 @@
         "concurrency": 4.19,
         "dead_code": 2.82,
         "documentation": 50.0,
-        "safety_score": 48.13,
+        "safety_score": 37.48,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 41.67,
         "state_flux": 50.0,
-        "tech_debt": 20.14,
+        "tech_debt": 19.78,
         "verification": 40.77
       },
       "file_count": 6,
-      "total_mass": 16440.58
+      "total_mass": 16524.28
     },
     "perl/mojo": {
       "avg_exposures": {
@@ -3774,12 +3774,12 @@
         "concurrency": 40.0,
         "dead_code": 0.0,
         "documentation": 80.0,
-        "safety_score": 62.47,
+        "safety_score": 48.85,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 79.42,
-        "tech_debt": 17.72,
+        "tech_debt": 16.12,
         "verification": 64.46
       },
       "file_count": 5,
@@ -3793,12 +3793,12 @@
         "concurrency": 15.69,
         "dead_code": 4.11,
         "documentation": 70.87,
-        "safety_score": 88.53,
+        "safety_score": 68.54,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 90.6,
-        "tech_debt": 70.8,
+        "tech_debt": 68.98,
         "verification": 80.0
       },
       "file_count": 8,
@@ -3831,13 +3831,13 @@
         "concurrency": 6.42,
         "dead_code": 2.45,
         "documentation": 21.0,
-        "safety_score": 87.35,
+        "safety_score": 65.92,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 99.97,
-        "tech_debt": 71.48,
-        "verification": 35.37
+        "tech_debt": 67.16,
+        "verification": 35.35
       },
       "file_count": 7,
       "total_mass": 1915.32
@@ -3850,12 +3850,12 @@
         "concurrency": 1.62,
         "dead_code": 0.62,
         "documentation": 0.46,
-        "safety_score": 71.02,
+        "safety_score": 54.81,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
         "state_flux": 87.48,
-        "tech_debt": 82.75,
+        "tech_debt": 82.43,
         "verification": 70.0
       },
       "file_count": 8,
@@ -3869,13 +3869,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 37.32,
+        "safety_score": 28.06,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
         "state_flux": 49.82,
-        "tech_debt": 49.92,
-        "verification": 1.2
+        "tech_debt": 49.8,
+        "verification": 1.19
       },
       "file_count": 2,
       "total_mass": 23.88
@@ -3888,13 +3888,13 @@
         "concurrency": 5.49,
         "dead_code": 1.26,
         "documentation": 0.0,
-        "safety_score": 76.1,
+        "safety_score": 57.54,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
         "state_flux": 87.5,
-        "tech_debt": 79.85,
-        "verification": 31.22
+        "tech_debt": 76.38,
+        "verification": 31.21
       },
       "file_count": 8,
       "total_mass": 4363.1
@@ -3907,13 +3907,13 @@
         "concurrency": 2.43,
         "dead_code": 1.54,
         "documentation": 42.14,
-        "safety_score": 87.47,
+        "safety_score": 67.19,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 100.0,
-        "tech_debt": 58.05,
-        "verification": 57.9
+        "tech_debt": 55.38,
+        "verification": 57.88
       },
       "file_count": 7,
       "total_mass": 5550.82
@@ -3939,22 +3939,22 @@
     },
     "php/wordpress": {
       "avg_exposures": {
-        "api_exposure": 8.0,
+        "api_exposure": 1.16,
         "churn": 0.0,
         "cognitive_load": 26.63,
         "concurrency": 3.99,
         "dead_code": 2.49,
         "documentation": 0.0,
-        "safety_score": 74.8,
+        "safety_score": 60.37,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
         "state_flux": 80.31,
-        "tech_debt": 25.43,
+        "tech_debt": 33.41,
         "verification": 40.86
       },
       "file_count": 8,
-      "total_mass": 14164.36
+      "total_mass": 14100.16
     },
     "plaintext": {
       "avg_exposures": {
@@ -4097,13 +4097,13 @@
         "concurrency": 0.0,
         "dead_code": 1.25,
         "documentation": 46.1,
-        "safety_score": 68.48,
+        "safety_score": 51.31,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 41.67,
         "state_flux": 79.75,
-        "tech_debt": 22.06,
-        "verification": 14.96
+        "tech_debt": 13.99,
+        "verification": 14.93
       },
       "file_count": 12,
       "total_mass": 980.02
@@ -4116,13 +4116,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 70.07,
-        "safety_score": 68.76,
+        "safety_score": 52.16,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 37.5,
         "state_flux": 75.0,
-        "tech_debt": 18.28,
-        "verification": 1.81
+        "tech_debt": 9.44,
+        "verification": 1.79
       },
       "file_count": 4,
       "total_mass": 279.08
@@ -4154,35 +4154,35 @@
         "concurrency": 0.0,
         "dead_code": 1.35,
         "documentation": 44.0,
-        "safety_score": 88.99,
+        "safety_score": 70.45,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 93.2,
-        "tech_debt": 2.44,
-        "verification": 11.65
+        "tech_debt": 2.04,
+        "verification": 11.64
       },
       "file_count": 25,
       "total_mass": 2591.06
     },
     "powershell/core": {
       "avg_exposures": {
-        "api_exposure": 3.1,
+        "api_exposure": 3.11,
         "churn": 0.0,
         "cognitive_load": 34.79,
         "concurrency": 3.71,
         "dead_code": 3.85,
-        "documentation": 43.03,
-        "safety_score": 61.79,
+        "documentation": 43.04,
+        "safety_score": 48.8,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.61,
         "state_flux": 63.71,
-        "tech_debt": 7.29,
+        "tech_debt": 6.9,
         "verification": 23.83
       },
       "file_count": 36,
-      "total_mass": 14095.66
+      "total_mass": 16086.16
     },
     "powershell/nvda": {
       "avg_exposures": {
@@ -4192,12 +4192,12 @@
         "concurrency": 0.0,
         "dead_code": 7.12,
         "documentation": 13.33,
-        "safety_score": 70.08,
+        "safety_score": 52.45,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 46.67,
         "state_flux": 67.25,
-        "tech_debt": 5.45,
+        "tech_debt": 4.15,
         "verification": 2.16
       },
       "file_count": 15,
@@ -4211,12 +4211,12 @@
         "concurrency": 0.0,
         "dead_code": 1.4,
         "documentation": 43.68,
-        "safety_score": 78.29,
+        "safety_score": 61.42,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.08,
         "state_flux": 87.8,
-        "tech_debt": 8.12,
+        "tech_debt": 6.8,
         "verification": 20.16
       },
       "file_count": 26,
@@ -4230,12 +4230,12 @@
         "concurrency": 0.0,
         "dead_code": 2.05,
         "documentation": 32.14,
-        "safety_score": 68.49,
+        "safety_score": 54.04,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.08,
         "state_flux": 70.41,
-        "tech_debt": 1.33,
+        "tech_debt": 1.08,
         "verification": 8.2
       },
       "file_count": 26,
@@ -4344,12 +4344,12 @@
         "concurrency": 29.38,
         "dead_code": 2.61,
         "documentation": 48.43,
-        "safety_score": 68.83,
+        "safety_score": 52.13,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 37.5,
         "state_flux": 75.0,
-        "tech_debt": 36.84,
+        "tech_debt": 36.29,
         "verification": 60.0
       },
       "file_count": 4,
@@ -4363,12 +4363,12 @@
         "concurrency": 3.14,
         "dead_code": 0.0,
         "documentation": 48.58,
-        "safety_score": 70.8,
+        "safety_score": 53.58,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.0,
         "state_flux": 79.98,
-        "tech_debt": 39.89,
+        "tech_debt": 39.86,
         "verification": 32.95
       },
       "file_count": 5,
@@ -4382,13 +4382,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 50.0,
-        "safety_score": 27.11,
+        "safety_score": 25.0,
         "secrets_risk": 49.99,
         "spec_match": 0.0,
         "stability": 25.0,
         "state_flux": 49.85,
-        "tech_debt": 49.75,
-        "verification": 1.17
+        "tech_debt": 49.62,
+        "verification": 1.16
       },
       "file_count": 2,
       "total_mass": 57.44
@@ -4401,13 +4401,13 @@
         "concurrency": 2.21,
         "dead_code": 2.13,
         "documentation": 64.95,
-        "safety_score": 54.02,
+        "safety_score": 42.88,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 33.33,
         "state_flux": 38.5,
-        "tech_debt": 42.01,
-        "verification": 27.49
+        "tech_debt": 38.89,
+        "verification": 27.48
       },
       "file_count": 6,
       "total_mass": 13474.22
@@ -4420,13 +4420,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 90.0,
-        "safety_score": 53.96,
+        "safety_score": 49.18,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 65.32,
-        "tech_debt": 99.48,
-        "verification": 2.39
+        "tech_debt": 99.21,
+        "verification": 2.38
       },
       "file_count": 2,
       "total_mass": 67.9
@@ -4458,13 +4458,13 @@
         "concurrency": 18.74,
         "dead_code": 0.21,
         "documentation": 58.56,
-        "safety_score": 54.61,
+        "safety_score": 44.1,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 44.01,
-        "tech_debt": 6.79,
-        "verification": 15.81
+        "tech_debt": 6.42,
+        "verification": 15.79
       },
       "file_count": 23,
       "total_mass": 3843.8
@@ -4477,7 +4477,7 @@
         "concurrency": 22.49,
         "dead_code": 0.31,
         "documentation": 96.74,
-        "safety_score": 43.9,
+        "safety_score": 46.31,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -4496,13 +4496,13 @@
         "concurrency": 50.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 31.39,
+        "safety_score": 25.9,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
         "state_flux": 49.86,
         "tech_debt": 0.0,
-        "verification": 1.21
+        "verification": 1.2
       },
       "file_count": 2,
       "total_mass": 48.7
@@ -4515,12 +4515,12 @@
         "concurrency": 50.0,
         "dead_code": 0.0,
         "documentation": 18.12,
-        "safety_score": 51.15,
+        "safety_score": 40.46,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 37.5,
         "state_flux": 67.0,
-        "tech_debt": 35.6,
+        "tech_debt": 29.88,
         "verification": 1.18
       },
       "file_count": 4,
@@ -4534,13 +4534,13 @@
         "concurrency": 99.97,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 87.61,
+        "safety_score": 71.82,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 99.98,
-        "tech_debt": 92.53,
-        "verification": 28.28
+        "tech_debt": 87.55,
+        "verification": 28.26
       },
       "file_count": 3,
       "total_mass": 217.64
@@ -4553,13 +4553,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 80.6,
+        "safety_score": 60.16,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 99.88,
-        "tech_debt": 32.97,
-        "verification": 2.37
+        "tech_debt": 32.36,
+        "verification": 2.36
       },
       "file_count": 3,
       "total_mass": 79.54
@@ -4568,20 +4568,20 @@
       "avg_exposures": {
         "api_exposure": 14.06,
         "churn": 0.0,
-        "cognitive_load": 34.71,
+        "cognitive_load": 34.7,
         "concurrency": 0.0,
         "dead_code": 5.43,
         "documentation": 31.55,
-        "safety_score": 72.84,
+        "safety_score": 60.68,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 44.74,
         "state_flux": 73.51,
-        "tech_debt": 15.37,
-        "verification": 42.98
+        "tech_debt": 14.42,
+        "verification": 42.97
       },
       "file_count": 19,
-      "total_mass": 17186.78
+      "total_mass": 17217.38
     },
     "python/opencv_dnn_conversion": {
       "avg_exposures": {
@@ -4591,13 +4591,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 70.21,
+        "safety_score": 54.28,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 91.68,
         "tech_debt": 0.0,
-        "verification": 2.35
+        "verification": 2.34
       },
       "file_count": 1,
       "total_mass": 12.88
@@ -4610,7 +4610,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 45.14,
+        "safety_score": 32.61,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
@@ -4629,12 +4629,12 @@
         "concurrency": 0.0,
         "dead_code": 5.96,
         "documentation": 0.0,
-        "safety_score": 50.25,
+        "safety_score": 37.68,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 33.33,
         "state_flux": 65.34,
-        "tech_debt": 27.25,
+        "tech_debt": 20.75,
         "verification": 1.54
       },
       "file_count": 3,
@@ -4648,13 +4648,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 50.0,
-        "safety_score": 69.38,
+        "safety_score": 54.26,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 74.76,
-        "tech_debt": 46.21,
-        "verification": 2.43
+        "tech_debt": 40.88,
+        "verification": 2.41
       },
       "file_count": 2,
       "total_mass": 50.32
@@ -4686,13 +4686,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 16.28,
-        "safety_score": 65.5,
+        "safety_score": 52.22,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 33.33,
         "state_flux": 66.67,
-        "tech_debt": 20.75,
-        "verification": 1.6
+        "tech_debt": 12.58,
+        "verification": 1.59
       },
       "file_count": 3,
       "total_mass": 126.52
@@ -4705,12 +4705,12 @@
         "concurrency": 3.16,
         "dead_code": 4.05,
         "documentation": 29.9,
-        "safety_score": 94.52,
+        "safety_score": 72.36,
         "secrets_risk": 6.14,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 100.0,
-        "tech_debt": 45.54,
+        "tech_debt": 43.57,
         "verification": 80.0
       },
       "file_count": 4,
@@ -4724,12 +4724,12 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 27.08,
-        "safety_score": 60.74,
+        "safety_score": 50.6,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 41.67,
         "state_flux": 68.44,
-        "tech_debt": 31.29,
+        "tech_debt": 26.6,
         "verification": 14.88
       },
       "file_count": 6,
@@ -4762,13 +4762,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 45.14,
+        "safety_score": 31.95,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
         "state_flux": 49.96,
         "tech_debt": 0.0,
-        "verification": 1.16
+        "verification": 1.15
       },
       "file_count": 2,
       "total_mass": 28.58
@@ -4781,13 +4781,13 @@
         "concurrency": 0.0,
         "dead_code": 0.74,
         "documentation": 28.57,
-        "safety_score": 77.46,
+        "safety_score": 60.22,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.86,
         "state_flux": 84.4,
-        "tech_debt": 16.23,
-        "verification": 13.09
+        "tech_debt": 15.95,
+        "verification": 13.08
       },
       "file_count": 7,
       "total_mass": 614.06
@@ -4800,13 +4800,13 @@
         "concurrency": 0.0,
         "dead_code": 1.21,
         "documentation": 39.91,
-        "safety_score": 92.85,
+        "safety_score": 76.05,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 47.37,
         "state_flux": 92.06,
-        "tech_debt": 0.6,
-        "verification": 30.87
+        "tech_debt": 0.54,
+        "verification": 30.86
       },
       "file_count": 19,
       "total_mass": 4199.38
@@ -4838,13 +4838,13 @@
         "concurrency": 0.0,
         "dead_code": 6.49,
         "documentation": 52.26,
-        "safety_score": 61.5,
+        "safety_score": 48.6,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
         "state_flux": 67.34,
-        "tech_debt": 45.77,
-        "verification": 40.91
+        "tech_debt": 42.64,
+        "verification": 40.9
       },
       "file_count": 8,
       "total_mass": 764.12
@@ -4857,7 +4857,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 50.0,
-        "safety_score": 35.51,
+        "safety_score": 28.26,
         "secrets_risk": 50.0,
         "spec_match": 0.0,
         "stability": 25.0,
@@ -4895,7 +4895,7 @@
         "concurrency": 13.08,
         "dead_code": 10.01,
         "documentation": 35.44,
-        "safety_score": 35.49,
+        "safety_score": 37.73,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 38.89,
@@ -4914,7 +4914,7 @@
         "concurrency": 33.85,
         "dead_code": 1.67,
         "documentation": 17.5,
-        "safety_score": 13.76,
+        "safety_score": 12.92,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
@@ -4933,7 +4933,7 @@
         "concurrency": 0.0,
         "dead_code": 1.74,
         "documentation": 56.79,
-        "safety_score": 57.09,
+        "safety_score": 48.21,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -4952,7 +4952,7 @@
         "concurrency": 0.0,
         "dead_code": 7.67,
         "documentation": 50.57,
-        "safety_score": 26.11,
+        "safety_score": 30.44,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 38.89,
@@ -4971,7 +4971,7 @@
         "concurrency": 1.86,
         "dead_code": 19.37,
         "documentation": 62.06,
-        "safety_score": 36.83,
+        "safety_score": 33.55,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
@@ -4990,7 +4990,7 @@
         "concurrency": 53.46,
         "dead_code": 36.65,
         "documentation": 38.26,
-        "safety_score": 20.54,
+        "safety_score": 28.74,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -5009,7 +5009,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 30.0,
-        "safety_score": 57.53,
+        "safety_score": 52.53,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -5028,7 +5028,7 @@
         "concurrency": 6.82,
         "dead_code": 6.06,
         "documentation": 71.3,
-        "safety_score": 47.71,
+        "safety_score": 42.61,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -5066,12 +5066,12 @@
         "concurrency": 0.0,
         "dead_code": 1.44,
         "documentation": 78.07,
-        "safety_score": 59.95,
+        "safety_score": 48.84,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 52.48,
-        "tech_debt": 43.48,
+        "tech_debt": 42.58,
         "verification": 57.83
       },
       "file_count": 7,
@@ -5100,20 +5100,20 @@
       "avg_exposures": {
         "api_exposure": 1.52,
         "churn": 0.0,
-        "cognitive_load": 38.42,
+        "cognitive_load": 39.53,
         "concurrency": 1.95,
         "dead_code": 2.84,
         "documentation": 85.71,
-        "safety_score": 60.06,
+        "safety_score": 53.91,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.86,
-        "state_flux": 51.6,
-        "tech_debt": 13.47,
+        "state_flux": 52.66,
+        "tech_debt": 13.34,
         "verification": 68.57
       },
       "file_count": 7,
-      "total_mass": 23887.92
+      "total_mass": 24902.42
     },
     "shell": {
       "avg_exposures": {
@@ -5142,13 +5142,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 9.52,
-        "safety_score": 35.37,
+        "safety_score": 26.98,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 47.62,
         "state_flux": 30.92,
-        "tech_debt": 8.0,
-        "verification": 9.63
+        "tech_debt": 7.36,
+        "verification": 9.62
       },
       "file_count": 21,
       "total_mass": 412.82
@@ -5161,13 +5161,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 34.91,
-        "safety_score": 46.66,
+        "safety_score": 35.13,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 44.44,
         "state_flux": 55.55,
-        "tech_debt": 25.07,
-        "verification": 19.43
+        "tech_debt": 20.88,
+        "verification": 19.4
       },
       "file_count": 9,
       "total_mass": 1985.0
@@ -5180,13 +5180,13 @@
         "concurrency": 2.44,
         "dead_code": 1.16,
         "documentation": 26.09,
-        "safety_score": 64.05,
+        "safety_score": 49.54,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 47.83,
         "state_flux": 60.85,
-        "tech_debt": 7.78,
-        "verification": 9.09
+        "tech_debt": 7.23,
+        "verification": 9.06
       },
       "file_count": 23,
       "total_mass": 1585.42
@@ -5199,13 +5199,13 @@
         "concurrency": 0.69,
         "dead_code": 3.88,
         "documentation": 36.84,
-        "safety_score": 90.73,
+        "safety_score": 74.94,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 85.52,
-        "tech_debt": 2.17,
-        "verification": 22.86
+        "tech_debt": 1.82,
+        "verification": 22.83
       },
       "file_count": 19,
       "total_mass": 1917.86
@@ -5218,13 +5218,13 @@
         "concurrency": 13.72,
         "dead_code": 0.54,
         "documentation": 82.76,
-        "safety_score": 68.28,
+        "safety_score": 56.3,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.28,
         "state_flux": 51.22,
-        "tech_debt": 68.05,
-        "verification": 3.27
+        "tech_debt": 65.78,
+        "verification": 3.26
       },
       "file_count": 29,
       "total_mass": 1701.52
@@ -5237,7 +5237,7 @@
         "concurrency": 0.0,
         "dead_code": 4.98,
         "documentation": 50.0,
-        "safety_score": 49.89,
+        "safety_score": 44.12,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
@@ -5256,13 +5256,13 @@
         "concurrency": 7.62,
         "dead_code": 2.61,
         "documentation": 15.79,
-        "safety_score": 81.0,
+        "safety_score": 67.79,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 47.83,
         "state_flux": 75.18,
-        "tech_debt": 6.94,
-        "verification": 9.05
+        "tech_debt": 4.27,
+        "verification": 9.03
       },
       "file_count": 23,
       "total_mass": 729.72
@@ -5275,13 +5275,13 @@
         "concurrency": 0.69,
         "dead_code": 7.18,
         "documentation": 24.0,
-        "safety_score": 80.53,
+        "safety_score": 68.75,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 69.49,
         "tech_debt": 0.0,
-        "verification": 8.65
+        "verification": 8.62
       },
       "file_count": 25,
       "total_mass": 964.38
@@ -5294,13 +5294,13 @@
         "concurrency": 16.44,
         "dead_code": 2.15,
         "documentation": 47.75,
-        "safety_score": 67.55,
+        "safety_score": 53.41,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 73.57,
-        "tech_debt": 51.21,
-        "verification": 11.02
+        "tech_debt": 45.0,
+        "verification": 11.0
       },
       "file_count": 27,
       "total_mass": 3568.6
@@ -5313,13 +5313,13 @@
         "concurrency": 0.99,
         "dead_code": 4.16,
         "documentation": 13.04,
-        "safety_score": 77.08,
+        "safety_score": 64.1,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 47.83,
         "state_flux": 51.28,
         "tech_debt": 0.0,
-        "verification": 5.69
+        "verification": 5.66
       },
       "file_count": 23,
       "total_mass": 724.38
@@ -5332,13 +5332,13 @@
         "concurrency": 10.77,
         "dead_code": 0.76,
         "documentation": 50.0,
-        "safety_score": 78.49,
+        "safety_score": 62.47,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 79.97,
-        "tech_debt": 14.28,
-        "verification": 21.81
+        "tech_debt": 11.85,
+        "verification": 21.79
       },
       "file_count": 16,
       "total_mass": 1395.68
@@ -5351,13 +5351,13 @@
         "concurrency": 5.15,
         "dead_code": 1.27,
         "documentation": 26.67,
-        "safety_score": 60.37,
+        "safety_score": 49.91,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 46.67,
         "state_flux": 58.78,
-        "tech_debt": 8.21,
-        "verification": 2.1
+        "tech_debt": 3.73,
+        "verification": 2.07
       },
       "file_count": 15,
       "total_mass": 417.36
@@ -5370,13 +5370,13 @@
         "concurrency": 5.33,
         "dead_code": 0.0,
         "documentation": 66.67,
-        "safety_score": 79.54,
+        "safety_score": 60.44,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 90.43,
-        "tech_debt": 54.23,
-        "verification": 2.37
+        "tech_debt": 42.63,
+        "verification": 2.35
       },
       "file_count": 24,
       "total_mass": 524.34
@@ -5389,13 +5389,13 @@
         "concurrency": 0.0,
         "dead_code": 2.45,
         "documentation": 3.57,
-        "safety_score": 59.73,
+        "safety_score": 52.92,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 46.43,
         "state_flux": 42.26,
         "tech_debt": 0.0,
-        "verification": 7.77
+        "verification": 7.75
       },
       "file_count": 14,
       "total_mass": 353.54
@@ -5427,13 +5427,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 5.36,
-        "safety_score": 48.69,
+        "safety_score": 46.7,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 26.83,
-        "tech_debt": 76.91,
-        "verification": 13.53
+        "tech_debt": 74.64,
+        "verification": 13.52
       },
       "file_count": 7,
       "total_mass": 440.92
@@ -5465,12 +5465,12 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 86.33,
+        "safety_score": 64.71,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 100.0,
-        "tech_debt": 14.9,
+        "tech_debt": 13.97,
         "verification": 80.0
       },
       "file_count": 1,
@@ -5503,13 +5503,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 50.0,
-        "safety_score": 33.25,
+        "safety_score": 27.14,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 25.0,
         "state_flux": 0.0,
-        "tech_debt": 13.45,
-        "verification": 1.27
+        "tech_debt": 9.12,
+        "verification": 1.26
       },
       "file_count": 2,
       "total_mass": 35.82
@@ -5547,7 +5547,7 @@
         "stability": 37.5,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 1.85
+        "verification": 1.82
       },
       "file_count": 4,
       "total_mass": 53.78
@@ -5560,13 +5560,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 75.29,
+        "safety_score": 57.79,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.37
+        "verification": 2.36
       },
       "file_count": 1,
       "total_mass": 6.08
@@ -5623,7 +5623,7 @@
         "stability": 33.33,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 1.56
+        "verification": 1.55
       },
       "file_count": 3,
       "total_mass": 10.54
@@ -5636,13 +5636,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 61.74,
+        "safety_score": 49.73,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 47.37,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.28
+        "verification": 2.26
       },
       "file_count": 19,
       "total_mass": 216.52
@@ -5655,13 +5655,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 26.14,
+        "safety_score": 21.62,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 45.45,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.14
+        "verification": 2.13
       },
       "file_count": 11,
       "total_mass": 314.54
@@ -5712,13 +5712,13 @@
         "concurrency": 0.0,
         "dead_code": 13.92,
         "documentation": 0.0,
-        "safety_score": 24.83,
+        "safety_score": 19.58,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 1.89
+        "verification": 1.88
       },
       "file_count": 5,
       "total_mass": 61.62
@@ -5731,13 +5731,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 3.6,
+        "safety_score": 6.39,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 45.83,
         "state_flux": 0.0,
-        "tech_debt": 6.81,
-        "verification": 2.2
+        "tech_debt": 5.19,
+        "verification": 2.18
       },
       "file_count": 12,
       "total_mass": 262.14
@@ -5750,7 +5750,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 62.13,
+        "safety_score": 55.45,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.86,
@@ -5788,7 +5788,7 @@
         "concurrency": 48.98,
         "dead_code": 7.75,
         "documentation": 12.85,
-        "safety_score": 36.44,
+        "safety_score": 41.25,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -5797,7 +5797,7 @@
         "verification": 35.64
       },
       "file_count": 7,
-      "total_mass": 1756.0
+      "total_mass": 1774.0
     },
     "tabular": {
       "avg_exposures": {
@@ -5921,13 +5921,13 @@
         "concurrency": 1.08,
         "dead_code": 4.49,
         "documentation": 100.0,
-        "safety_score": 85.33,
+        "safety_score": 66.01,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 92.97,
-        "tech_debt": 15.42,
-        "verification": 39.19
+        "tech_debt": 13.2,
+        "verification": 39.17
       },
       "file_count": 19,
       "total_mass": 3893.3
@@ -5940,12 +5940,12 @@
         "concurrency": 0.0,
         "dead_code": 8.02,
         "documentation": 91.45,
-        "safety_score": 88.89,
+        "safety_score": 69.71,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 92.07,
-        "tech_debt": 14.46,
+        "tech_debt": 14.02,
         "verification": 54.14
       },
       "file_count": 9,
@@ -5959,13 +5959,13 @@
         "concurrency": 9.59,
         "dead_code": 2.92,
         "documentation": 25.0,
-        "safety_score": 66.18,
+        "safety_score": 56.44,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 33.33,
         "state_flux": 66.67,
-        "tech_debt": 27.79,
-        "verification": 27.52
+        "tech_debt": 27.25,
+        "verification": 27.5
       },
       "file_count": 6,
       "total_mass": 5353.16
@@ -6206,12 +6206,12 @@
         "concurrency": 0.0,
         "dead_code": 7.35,
         "documentation": 100.0,
-        "safety_score": 96.15,
+        "safety_score": 80.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 99.93,
-        "tech_debt": 87.7,
+        "tech_debt": 85.64,
         "verification": 80.0
       },
       "file_count": 1,
@@ -6225,12 +6225,12 @@
         "concurrency": 0.0,
         "dead_code": 2.72,
         "documentation": 44.87,
-        "safety_score": 50.84,
+        "safety_score": 40.35,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 41.67,
         "state_flux": 56.98,
-        "tech_debt": 10.32,
+        "tech_debt": 10.22,
         "verification": 53.72
       },
       "file_count": 6,
@@ -6249,8 +6249,8 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 88.08,
-        "verification": 2.43
+        "tech_debt": 81.76,
+        "verification": 2.41
       },
       "file_count": 1,
       "total_mass": 19.72
@@ -6263,13 +6263,13 @@
         "concurrency": 0.0,
         "dead_code": 2.38,
         "documentation": 33.45,
-        "safety_score": 50.29,
+        "safety_score": 40.1,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 33.33,
         "state_flux": 50.0,
-        "tech_debt": 49.69,
-        "verification": 1.65
+        "tech_debt": 45.4,
+        "verification": 1.64
       },
       "file_count": 3,
       "total_mass": 133.16
@@ -6282,12 +6282,12 @@
         "concurrency": 0.0,
         "dead_code": 5.32,
         "documentation": 8.11,
-        "safety_score": 78.91,
+        "safety_score": 60.61,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 99.96,
-        "tech_debt": 12.14,
+        "tech_debt": 11.54,
         "verification": 80.0
       },
       "file_count": 1,
@@ -6301,12 +6301,12 @@
         "concurrency": 4.28,
         "dead_code": 0.0,
         "documentation": 23.87,
-        "safety_score": 52.09,
+        "safety_score": 46.84,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.0,
         "state_flux": 3.48,
-        "tech_debt": 21.47,
+        "tech_debt": 21.31,
         "verification": 48.46
       },
       "file_count": 5,
@@ -6325,7 +6325,7 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 41.16,
+        "tech_debt": 31.44,
         "verification": 2.32
       },
       "file_count": 2,
@@ -6339,13 +6339,13 @@
         "concurrency": 99.85,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 91.01,
+        "safety_score": 67.13,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 100.0,
-        "tech_debt": 26.89,
-        "verification": 2.41
+        "tech_debt": 18.24,
+        "verification": 2.4
       },
       "file_count": 1,
       "total_mass": 41.18
@@ -6358,12 +6358,12 @@
         "concurrency": 46.33,
         "dead_code": 0.0,
         "documentation": 22.73,
-        "safety_score": 47.43,
+        "safety_score": 36.38,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 31.82,
         "state_flux": 45.42,
-        "tech_debt": 42.38,
+        "tech_debt": 41.92,
         "verification": 36.78
       },
       "file_count": 11,
@@ -6373,39 +6373,39 @@
       "avg_exposures": {
         "api_exposure": 18.11,
         "churn": 0.0,
-        "cognitive_load": 25.88,
+        "cognitive_load": 29.38,
         "concurrency": 5.24,
         "dead_code": 4.26,
-        "documentation": 60.24,
-        "safety_score": 48.98,
+        "documentation": 60.23,
+        "safety_score": 40.62,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 35.71,
         "state_flux": 54.2,
-        "tech_debt": 25.75,
+        "tech_debt": 25.72,
         "verification": 57.14
       },
       "file_count": 7,
-      "total_mass": 71323.18
+      "total_mass": 77261.48
     },
     "typescript/vscode": {
       "avg_exposures": {
         "api_exposure": 7.64,
         "churn": 0.0,
-        "cognitive_load": 31.38,
+        "cognitive_load": 31.46,
         "concurrency": 39.26,
         "dead_code": 1.61,
-        "documentation": 54.29,
-        "safety_score": 57.96,
+        "documentation": 54.24,
+        "safety_score": 47.63,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.91,
         "state_flux": 59.84,
-        "tech_debt": 50.1,
+        "tech_debt": 49.78,
         "verification": 58.39
       },
       "file_count": 11,
-      "total_mass": 7929.12
+      "total_mass": 8257.52
     },
     "typescript/zod": {
       "avg_exposures": {
@@ -6453,12 +6453,12 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 19.05,
-        "safety_score": 5.56,
+        "safety_score": 6.52,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.86,
         "state_flux": 1.53,
-        "tech_debt": 36.76,
+        "tech_debt": 35.83,
         "verification": 1.97
       },
       "file_count": 7,
@@ -6529,13 +6529,13 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 30.0,
-        "safety_score": 43.53,
+        "safety_score": 32.24,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 50.0,
-        "tech_debt": 13.69,
-        "verification": 2.36
+        "tech_debt": 10.87,
+        "verification": 2.35
       },
       "file_count": 2,
       "total_mass": 72.5
@@ -6643,12 +6643,12 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 66.67,
-        "safety_score": 60.85,
+        "safety_score": 46.29,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 33.33,
         "state_flux": 66.66,
-        "tech_debt": 6.38,
+        "tech_debt": 5.12,
         "verification": 53.33
       },
       "file_count": 3,
@@ -6776,7 +6776,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 49.07,
+        "safety_score": 49.69,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -6814,7 +6814,7 @@
         "concurrency": 16.25,
         "dead_code": 0.0,
         "documentation": 35.79,
-        "safety_score": 28.41,
+        "safety_score": 27.66,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -6833,7 +6833,7 @@
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 100.0,
-        "safety_score": 32.36,
+        "safety_score": 33.01,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -6871,7 +6871,7 @@
         "concurrency": 9.9,
         "dead_code": 7.01,
         "documentation": 92.06,
-        "safety_score": 57.42,
+        "safety_score": 50.61,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 46.43,
@@ -6905,36 +6905,36 @@
       "avg_exposures": {
         "api_exposure": 9.06,
         "churn": 0.0,
-        "cognitive_load": 19.3,
+        "cognitive_load": 19.29,
         "concurrency": 0.0,
         "dead_code": 2.9,
         "documentation": 33.59,
-        "safety_score": 39.56,
+        "safety_score": 39.69,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.0,
         "state_flux": 39.76,
-        "tech_debt": 53.89,
+        "tech_debt": 53.32,
         "verification": 48.49
       },
       "file_count": 5,
-      "total_mass": 3559.96
+      "total_mass": 3561.86
     },
     "zig/mach": {
       "avg_exposures": {
-        "api_exposure": 40.75,
+        "api_exposure": 33.68,
         "churn": 0.0,
         "cognitive_load": 11.79,
         "concurrency": 1.67,
         "dead_code": 3.69,
         "documentation": 53.4,
-        "safety_score": 30.76,
+        "safety_score": 34.05,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 41.38,
-        "tech_debt": 37.01,
-        "verification": 41.22
+        "tech_debt": 45.63,
+        "verification": 41.21
       },
       "file_count": 8,
       "total_mass": 2975.98
@@ -6943,39 +6943,39 @@
       "avg_exposures": {
         "api_exposure": 24.44,
         "churn": 0.0,
-        "cognitive_load": 22.29,
+        "cognitive_load": 22.32,
         "concurrency": 0.0,
         "dead_code": 1.36,
-        "documentation": 73.37,
-        "safety_score": 48.89,
+        "documentation": 73.39,
+        "safety_score": 49.52,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 53.51,
-        "tech_debt": 17.04,
-        "verification": 15.36
+        "tech_debt": 16.42,
+        "verification": 21.8
       },
       "file_count": 12,
-      "total_mass": 3795.92
+      "total_mass": 4455.42
     },
     "zig/zig": {
       "avg_exposures": {
         "api_exposure": 73.39,
         "churn": 0.0,
-        "cognitive_load": 22.42,
+        "cognitive_load": 22.26,
         "concurrency": 8.31,
         "dead_code": 5.09,
-        "documentation": 73.04,
-        "safety_score": 37.9,
+        "documentation": 73.08,
+        "safety_score": 45.82,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 55.5,
-        "tech_debt": 11.85,
-        "verification": 2.57
+        "tech_debt": 11.8,
+        "verification": 15.44
       },
       "file_count": 6,
-      "total_mass": 35104.36
+      "total_mass": 37360.96
     },
     "zig/zig_std_linux_mips": {
       "avg_exposures": {
@@ -6990,8 +6990,8 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 94.61,
-        "verification": 2.38
+        "tech_debt": 94.07,
+        "verification": 2.37
       },
       "file_count": 1,
       "total_mass": 65.44
@@ -7000,20 +7000,20 @@
       "avg_exposures": {
         "api_exposure": 35.55,
         "churn": 0.0,
-        "cognitive_load": 15.73,
+        "cognitive_load": 13.68,
         "concurrency": 10.69,
         "dead_code": 2.69,
-        "documentation": 82.7,
-        "safety_score": 27.38,
+        "documentation": 82.47,
+        "safety_score": 40.71,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 53.44,
-        "tech_debt": 12.19,
-        "verification": 21.8
+        "tech_debt": 10.97,
+        "verification": 12.12
       },
       "file_count": 8,
-      "total_mass": 6446.98
+      "total_mass": 8461.78
     }
   }
 }

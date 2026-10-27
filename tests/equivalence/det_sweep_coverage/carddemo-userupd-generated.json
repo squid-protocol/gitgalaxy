@@ -9,22 +9,41 @@
   "covered": 31,
   "total": 46
  },
+ "uncovered": {
+  "branches": [
+   "99:false",
+   "108:WHEN@124",
+   "113:true",
+   "145:WHEN@146",
+   "157:false",
+   "179:WHEN@180",
+   "179:WHEN@192",
+   "219:false",
+   "223:false",
+   "227:false",
+   "231:false",
+   "236:false",
+   "252:true",
+   "368:WHEN@369",
+   "368:WHEN@377"
+  ]
+ },
  "inputs": {
   "case": "37a3b8c8b5884029d0c10313e8765da54216e50616a87bd8cce2f78f9659a7f3",
   "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-  "harness": "f6fc656cfb906c118205c985d0d60e49de564621c2ff04af298b4752a3ede275",
-  "oracle": "c16b52604cd8fd17fb175d78decab45df98fa472134a0d92759e6bdfe631c71a",
+  "harness": "4aa149fdf2da2f1e0c37127b8d173d337335275f3ceab77281cdc9cb6aba7f87",
+  "oracle": "2fda9277b9029544924e64ed08da853d100d9933535ff74d02517f6355e1b98e",
   "components": {
    "harness": {
-    "harness:cics": "21520a4c6440f2956fc2f8062360be697aa8cc1205ec66f51b1917d1fd7aa1a6",
-    "harness:core": "6ca15fe077558291d5457261b5b460f3fa6f7b92a7a11455c436cfee97ebaf39"
+    "harness:cics": "92ccd39aae83d84431d25678a302453a9dfd55558c5f98ebae82b6405af32180",
+    "harness:core": "44d38a01abc69857283e736186feda6396e1cf6e297c12e07a097730aee7f15f"
    },
    "oracle": {
-    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
-    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
-    "oracle:le": "3e9e45ed737eaee3a156a2e00bfade4c956d69c8bf1c0bbe207a9cf107063c78"
+    "oracle:cics-stub": "ff253648e975e1c52de5ed72217b45fa3842747ce167813a7e61257f5a71dd98",
+    "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
+    "oracle:le": "c918b12c6862c8e08ab03dacb85cd3fff0fd1e2388e3dda05e2810c6c4648bc0"
    }
   }
  },
- "measured_at": "108c7468e4f62175d4da694e4c448e6f55226508"
+ "measured_at": "ae9c218aa4e3c045f5965a487c9a74ffdfe07591"
 }

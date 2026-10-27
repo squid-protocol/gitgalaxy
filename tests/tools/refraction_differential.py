@@ -73,6 +73,8 @@ import re
 import sys
 import tempfile
 from collections import Counter
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -81,6 +83,8 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
+
+from scan_server import scan_to_db  # noqa: E402
 
 from gitgalaxy.core.source_text import read_source  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.cics_transaction_reader import extract_transactions  # noqa: E402
@@ -93,7 +97,6 @@ from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge import analyze_cobol_intent 
 from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.engine_sourcing import engine_lineage, engine_schemas  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import GalaxyIR, load_galaxy_ir  # noqa: E402
-from scan_server import scan_to_db  # noqa: E402
 
 # The sibling readers/scorer. It has no top-level engine imports, so importing it
 # here is cheap and one-directional -- it no longer imports this module (#3211).
@@ -147,18 +150,12 @@ UNEXPLAINED = "unexplained"
 # The CICS resource operations (#3351-#3354) are read by the key's own EXEC CICS
 # reader over the raw source, so a `cics_resource` delta adjudicates once a file
 # is `cics_validated`.
-INDEPENDENT_FIELDS = {
+# The set-difference channels (SET_CHANNELS, below) add their own field to this set.
+_BASE_INDEPENDENT_FIELDS = {
     "program_id",
     "copybook",
     "record",
     "transaction",
-    "pli_record",
-    "sql_column",
-    "bms_field",
-    "jcl_dsn",
-    "csd_resource",
-    "commarea",
-    "cics_resource",
 }
 
 
@@ -436,6 +433,74 @@ def compare_cics(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
     return rows
 
 
+def _bms_symbolic_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    symbolic = [r["bms_symbolic"] for r in rows if r["bms_symbolic"]]
+    return {
+        "bms_symbolic_copybooks": len(symbolic),
+        "bms_symbolic_fields_copybook": sum(len(s["old"]) for s in symbolic),
+        "bms_symbolic_fields_agree": sum(len(set(s["old"]) & set(s["db"])) for s in symbolic),
+    }
+
+
+@dataclass(frozen=True)
+class SetChannel:
+    """One channel compared as `{old, db}` value sets, one row per file (#3383).
+
+    The shared seams (`compare`, `flatten`, `summarize`, `_key_verdict`,
+    INDEPENDENT_FIELDS) iterate SET_CHANNELS, so a new set-difference channel adds
+    one entry here instead of editing each. `language` tags the channel's rows,
+    `row_key` names the `{old, db}` pair in a row, `field` is the delta field, and
+    `section` / `flag` / `items` / `values` locate the answer key's drafted entry
+    for a file, the sign-off flag that lets it adjudicate, and the reader that
+    turns its items into the comparison values. `files` and `count` name the
+    summary metrics (`<count>_key`, `<count>_db`, `<count>_agree`).
+    """
+
+    language: str
+    field: str
+    row_key: str
+    compare: Callable[[Path, GalaxyIR], list[dict[str, Any]]]
+    section: str
+    flag: str
+    items: str
+    values: Callable[[list], set[str]]
+    files: str
+    count: str
+    # More `(delta field, row key)` pairs flattened from the same row, and a summary hook.
+    extra_deltas: tuple = ()
+    extra_summary: Callable[[list[dict[str, Any]]], dict[str, Any]] | None = None
+
+
+# Order is the row order in `compare` and the metric order in `summarize`.
+SET_CHANNELS = (
+    # #3250: PL/I record leaf fields, the key's independent reader vs record_data.
+    SetChannel("pli", "pli_record", "pli_records", compare_pli, "pli_programs", "records_validated", "records",
+               ak.pli_record_fields, "pli_files", "pli_record_fields"),
+    # #3344: DB2 DECLARE TABLE column shapes.
+    SetChannel("sql_table", "sql_column", "sql_tables", compare_sql_tables, "sql_tables", "sql_tables_validated",
+               "columns", ak.sql_column_keys, "sql_table_files", "sql_columns"),
+    # #3347: BMS layout units, plus the generated symbolic-map copybook's names.
+    SetChannel("bms", "bms_field", "bms_fields", compare_bms, "bms_maps", "fields_validated", "fields",
+               ak.bms_layout_units, "bms_maps", "bms_units",
+               extra_deltas=(("bms_symbolic_field", "bms_symbolic"),), extra_summary=_bms_symbolic_summary),
+    # #3345: JCL DD bindings + resolved DSN.
+    SetChannel("jcl", "jcl_dsn", "jcl_dsns", compare_jcl, "jcl_jobs", "dsns_validated", "bindings",
+               ak.jcl_dsn_values, "jcl_members", "jcl_dsns"),
+    # #3356: CSD resource definitions.
+    SetChannel("csd_deck", "csd_resource", "csd", compare_csd, "csd_decks", "resources_validated", "resources",
+               ak.csd_resource_values, "csd_decks", "csd_resources"),
+    # #3355: COMMAREA operands (drafted onto the key's per-program entries).
+    SetChannel("commarea", "commarea", "commareas", compare_commareas, "programs", "commareas_validated",
+               "commareas", ak.commarea_values, "commarea_programs", "commareas"),
+    # #3351-#3354: EXEC CICS resource operations.
+    SetChannel("cics", "cics_resource", "cics", compare_cics, "cics_resources", "cics_validated", "operations",
+               ak.cics_resource_keys, "cics_files", "cics_ops"),
+)  # fmt: skip
+SET_CHANNELS_BY_LANGUAGE = {c.language: c for c in SET_CHANNELS}
+SET_CHANNEL_BY_FIELD = {c.field: c for c in SET_CHANNELS}
+INDEPENDENT_FIELDS = _BASE_INDEPENDENT_FIELDS | {c.field for c in SET_CHANNELS}
+
+
 def _program_placer(path: Path):
     """#4243: names an engine unit at `line` the way the forge names it -- bare in the
     source's first program, `PROG:NAME` in a later (sibling or nested) one, the
@@ -549,33 +614,19 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                 },
             }
         )
-    return (
-        rows
-        + compare_pli(repo, ir)
-        + compare_sql_tables(repo, ir)
-        + compare_bms(repo, ir)
-        + compare_jcl(repo, ir)
-        + compare_csd(repo, ir)
-        + compare_commareas(repo, ir)
-        + compare_cics(repo, ir)
-    )
+    for channel in SET_CHANNELS:
+        rows += channel.compare(repo, ir)
+    return rows
 
 
 def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
-    pli = [r for r in rows if r.get("language") == "pli"]
-    bms = [r for r in rows if r.get("language") == "bms"]
-    symbolic = [r["bms_symbolic"] for r in bms if r["bms_symbolic"]]
-    sql = [r for r in rows if r.get("language") == "sql_table"]
-    jcl = [r for r in rows if r.get("language") == "jcl"]
-    csd = [r for r in rows if r.get("language") == "csd_deck"]
-    commarea = [r for r in rows if r.get("language") == "commarea"]
-    cics = [r for r in rows if r.get("language") == "cics"]
+    by_channel = {c.language: [r for r in rows if r.get("language") == c.language] for c in SET_CHANNELS}
     rows = _cobol_rows(rows)
 
     def count(pred) -> int:
         return sum(1 for r in rows if pred(r))
 
-    return {
+    summary = {
         "repo": ir.repo_name,
         "commit": ir.commit_hash,
         "inventory": ir.inventory(),
@@ -600,38 +651,17 @@ def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
         "transactions_old": sum(len(r["transactions"]["old"]) for r in rows),
         "transactions_db": sum(len(r["transactions"]["db"]) for r in rows),
         "transactions_agree": sum(len(set(r["transactions"]["old"]) & set(r["transactions"]["db"])) for r in rows),
-        "pli_files": len(pli),
-        "pli_record_fields_key": sum(len(r["pli_records"]["old"]) for r in pli),
-        "pli_record_fields_db": sum(len(r["pli_records"]["db"]) for r in pli),
-        "pli_record_fields_agree": sum(len(set(r["pli_records"]["old"]) & set(r["pli_records"]["db"])) for r in pli),
-        "sql_table_files": len(sql),
-        "sql_columns_key": sum(len(r["sql_tables"]["old"]) for r in sql),
-        "sql_columns_db": sum(len(r["sql_tables"]["db"]) for r in sql),
-        "sql_columns_agree": sum(len(set(r["sql_tables"]["old"]) & set(r["sql_tables"]["db"])) for r in sql),
-        "bms_maps": len(bms),
-        "bms_units_key": sum(len(r["bms_fields"]["old"]) for r in bms),
-        "bms_units_db": sum(len(r["bms_fields"]["db"]) for r in bms),
-        "bms_units_agree": sum(len(set(r["bms_fields"]["old"]) & set(r["bms_fields"]["db"])) for r in bms),
-        "bms_symbolic_copybooks": len(symbolic),
-        "bms_symbolic_fields_copybook": sum(len(s["old"]) for s in symbolic),
-        "bms_symbolic_fields_agree": sum(len(set(s["old"]) & set(s["db"])) for s in symbolic),
-        "jcl_members": len(jcl),
-        "jcl_dsns_key": sum(len(r["jcl_dsns"]["old"]) for r in jcl),
-        "jcl_dsns_db": sum(len(r["jcl_dsns"]["db"]) for r in jcl),
-        "jcl_dsns_agree": sum(len(set(r["jcl_dsns"]["old"]) & set(r["jcl_dsns"]["db"])) for r in jcl),
-        "csd_decks": len(csd),
-        "csd_resources_key": sum(len(r["csd"]["old"]) for r in csd),
-        "csd_resources_db": sum(len(r["csd"]["db"]) for r in csd),
-        "csd_resources_agree": sum(len(set(r["csd"]["old"]) & set(r["csd"]["db"])) for r in csd),
-        "commarea_programs": len(commarea),
-        "commareas_key": sum(len(r["commareas"]["old"]) for r in commarea),
-        "commareas_db": sum(len(r["commareas"]["db"]) for r in commarea),
-        "commareas_agree": sum(len(set(r["commareas"]["old"]) & set(r["commareas"]["db"])) for r in commarea),
-        "cics_files": len(cics),
-        "cics_ops_key": sum(len(r["cics"]["old"]) for r in cics),
-        "cics_ops_db": sum(len(r["cics"]["db"]) for r in cics),
-        "cics_ops_agree": sum(len(set(r["cics"]["old"]) & set(r["cics"]["db"])) for r in cics),
     }
+    for channel in SET_CHANNELS:
+        found = by_channel[channel.language]
+        pair = channel.row_key
+        summary[channel.files] = len(found)
+        summary[f"{channel.count}_key"] = sum(len(r[pair]["old"]) for r in found)
+        summary[f"{channel.count}_db"] = sum(len(r[pair]["db"]) for r in found)
+        summary[f"{channel.count}_agree"] = sum(len(set(r[pair]["old"]) & set(r[pair]["db"])) for r in found)
+        if channel.extra_summary:
+            summary.update(channel.extra_summary(found))
+    return summary
 
 
 def to_markdown(summary: dict[str, Any], rows: list[dict[str, Any]]) -> str:
@@ -670,58 +700,16 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
     deltas: list[Delta] = []
     for r in rows:
         prog = r["file"]
-        if r.get("language") == "pli":
-            # #3250: PL/I leaf fields, the key's independent reader vs the engine.
-            rec = r["pli_records"]
-            old, db = set(rec["old"]), set(rec["db"])
-            deltas += [{"program": prog, "field": "pli_record", "side": "old", "value": v} for v in sorted(old - db)]
-            deltas += [{"program": prog, "field": "pli_record", "side": "db", "value": v} for v in sorted(db - old)]
-            continue
-        if r.get("language") == "sql_table":
-            # #3344: DB2 DECLARE TABLE column shapes, the key's reader vs the engine.
-            st = r["sql_tables"]
-            old, db = set(st["old"]), set(st["db"])
-            deltas += [{"program": prog, "field": "sql_column", "side": "old", "value": v} for v in sorted(old - db)]
-            deltas += [{"program": prog, "field": "sql_column", "side": "db", "value": v} for v in sorted(db - old)]
-            continue
-        if r.get("language") == "bms":
-            # #3347: BMS layout units, the key's independent reader vs the engine,
-            # and (where present) the generated symbolic-map copybook's names.
-            for field, pair in (("bms_field", r["bms_fields"]), ("bms_symbolic_field", r["bms_symbolic"])):
+        channel = SET_CHANNELS_BY_LANGUAGE.get(r.get("language"))
+        if channel:
+            # The key's independent reader vs the engine, one delta per set difference.
+            for field, row_key in ((channel.field, channel.row_key), *channel.extra_deltas):
+                pair = r[row_key]
                 if not pair:
                     continue
                 old, db = set(pair["old"]), set(pair["db"])
                 deltas += [{"program": prog, "field": field, "side": "old", "value": v} for v in sorted(old - db)]
                 deltas += [{"program": prog, "field": field, "side": "db", "value": v} for v in sorted(db - old)]
-            continue
-        if r.get("language") == "jcl":
-            # #3345: JCL DD bindings + resolved DSN, the key's reader vs the engine.
-            jd = r["jcl_dsns"]
-            old, db = set(jd["old"]), set(jd["db"])
-            deltas += [{"program": prog, "field": "jcl_dsn", "side": "old", "value": v} for v in sorted(old - db)]
-            deltas += [{"program": prog, "field": "jcl_dsn", "side": "db", "value": v} for v in sorted(db - old)]
-            continue
-        if r.get("language") == "csd_deck":
-            # #3356: CSD resource definitions, the key's reader vs the engine.
-            cd = r["csd"]
-            old, db = set(cd["old"]), set(cd["db"])
-            deltas += [{"program": prog, "field": "csd_resource", "side": "old", "value": v} for v in sorted(old - db)]
-            deltas += [{"program": prog, "field": "csd_resource", "side": "db", "value": v} for v in sorted(db - old)]
-            continue
-        if r.get("language") == "commarea":
-            # #3355: COMMAREA operands, the key's reader vs the engine.
-            ca = r["commareas"]
-            old, db = set(ca["old"]), set(ca["db"])
-            deltas += [{"program": prog, "field": "commarea", "side": "old", "value": v} for v in sorted(old - db)]
-            deltas += [{"program": prog, "field": "commarea", "side": "db", "value": v} for v in sorted(db - old)]
-            continue
-
-        if r.get("language") == "cics":
-            # #3351-#3354: EXEC CICS resource operations, the key's reader vs the engine.
-            cr = r["cics"]
-            old, db = set(cr["old"]), set(cr["db"])
-            deltas += [{"program": prog, "field": "cics_resource", "side": "old", "value": v} for v in sorted(old - db)]
-            deltas += [{"program": prog, "field": "cics_resource", "side": "db", "value": v} for v in sorted(db - old)]
             continue
         pid = r["program_id"]
         # Only the genuine mismatch. A db file legitimately carrying several
@@ -967,99 +955,25 @@ def _classify_cause(d: Delta, ctx: dict[str, Any]) -> str:
     return UNEXPLAINED
 
 
+def _side_verdict(side: str, present: bool) -> str:
+    """db side claims v; old side claims v. The wrong side owns the defect."""
+    if side == "db":
+        return "old-parser defect" if present else "engine defect"
+    return "engine defect" if present else "old-parser defect"
+
+
 def _key_verdict(d: Delta, key: dict[str, Any] | None) -> dict[str, Any] | None:
     """The answer key's verdict on a delta, or None when it cannot adjudicate."""
     if not key:
         return None
-    if d["field"] == "csd_resource":
-        # #3356: drafted, so it adjudicates only once the deck is signed off with
-        # `resources_validated`.
-        deck = key.get("csd_decks", {}).get(d["program"])
-        if not deck or not deck.get("resources_validated"):
+    channel = SET_CHANNEL_BY_FIELD.get(d["field"])
+    if channel:
+        # Drafted, so it adjudicates only once the file is signed off with the channel's flag.
+        entry = key.get(channel.section, {}).get(d["program"])
+        if not entry or not entry.get(channel.flag):
             return None
-        present = d["value"] in ak.csd_resource_values(deck.get("resources", []))
-        verdict = (
-            ("old-parser defect" if present else "engine defect")
-            if d["side"] == "db"
-            else ("engine defect" if present else "old-parser defect")
-        )
-        return {"verdict": verdict, "confidence": "independent", "decided": True}
-    if d["field"] == "commarea":
-        # #3355: drafted, so it adjudicates only once the program is signed off
-        # with `commareas_validated`.
-        prog = key.get("programs", {}).get(d["program"])
-        if not prog or not prog.get("commareas_validated"):
-            return None
-        present = d["value"] in ak.commarea_values(prog.get("commareas", []))
-        verdict = (
-            ("old-parser defect" if present else "engine defect")
-            if d["side"] == "db"
-            else ("engine defect" if present else "old-parser defect")
-        )
-        return {"verdict": verdict, "confidence": "independent", "decided": True}
-    if d["field"] == "jcl_dsn":
-        # #3345: drafted, so it adjudicates only once the member is signed off
-        # with `dsns_validated`.
-        job = key.get("jcl_jobs", {}).get(d["program"])
-        if not job or not job.get("dsns_validated"):
-            return None
-        present = d["value"] in ak.jcl_dsn_values(job.get("bindings", []))
-        verdict = (
-            ("old-parser defect" if present else "engine defect")
-            if d["side"] == "db"
-            else ("engine defect" if present else "old-parser defect")
-        )
-        return {"verdict": verdict, "confidence": "independent", "decided": True}
-    if d["field"] == "cics_resource":
-        # #3351-#3354: drafted, so it adjudicates only once the file is `cics_validated`.
-        cf = key.get("cics_resources", {}).get(d["program"])
-        if not cf or not cf.get("cics_validated"):
-            return None
-        present = d["value"] in ak.cics_resource_keys(cf.get("operations", []))
-        verdict = (
-            ("old-parser defect" if present else "engine defect")
-            if d["side"] == "db"
-            else ("engine defect" if present else "old-parser defect")
-        )
-        return {"verdict": verdict, "confidence": "independent", "decided": True}
-    if d["field"] == "bms_field":
-        # #3347: drafted, so it adjudicates only once the map is `fields_validated`.
-        bms = key.get("bms_maps", {}).get(d["program"])
-        if not bms or not bms.get("fields_validated"):
-            return None
-        present = d["value"] in ak.bms_layout_units(bms.get("fields", []))
-        verdict = (
-            ("old-parser defect" if present else "engine defect")
-            if d["side"] == "db"
-            else ("engine defect" if present else "old-parser defect")
-        )
-        return {"verdict": verdict, "confidence": "independent", "decided": True}
-    if d["field"] == "pli_record":
-        # #3250: drafted like COBOL records, so it adjudicates only once the file
-        # is explicitly signed off with `records_validated`.
-        pli = key.get("pli_programs", {}).get(d["program"])
-        if not pli or not pli.get("records_validated"):
-            return None
-        present = d["value"] in ak.pli_record_fields(pli.get("records", []))
-        verdict = (
-            ("old-parser defect" if present else "engine defect")
-            if d["side"] == "db"
-            else ("engine defect" if present else "old-parser defect")
-        )
-        return {"verdict": verdict, "confidence": "independent", "decided": True}
-    if d["field"] == "sql_column":
-        # #3344: drafted, so it adjudicates only once the declaring file is
-        # explicitly signed off with `sql_tables_validated`.
-        st = key.get("sql_tables", {}).get(d["program"])
-        if not st or not st.get("sql_tables_validated"):
-            return None
-        present = d["value"] in ak.sql_column_keys(st.get("columns", []))
-        verdict = (
-            ("old-parser defect" if present else "engine defect")
-            if d["side"] == "db"
-            else ("engine defect" if present else "old-parser defect")
-        )
-        return {"verdict": verdict, "confidence": "independent", "decided": True}
+        present = d["value"] in channel.values(entry.get(channel.items, []))
+        return {"verdict": _side_verdict(d["side"], present), "confidence": "independent", "decided": True}
     prog = key.get("programs", {}).get(d["program"])
     if not prog or prog.get("verification", {}).get("status") != "validated":
         return None
@@ -1094,15 +1008,8 @@ def _key_verdict(d: Delta, key: dict[str, Any] | None) -> dict[str, Any] | None:
         truth = {t.upper() for t in prog.get("transactions", [])}
     else:
         return None
-    present = v in truth
-    # db side claims v; old side claims v. The wrong side owns the defect.
-    verdict = (
-        ("old-parser defect" if present else "engine defect")
-        if side == "db"
-        else ("engine defect" if present else "old-parser defect")
-    )
     confidence = "independent" if field in INDEPENDENT_FIELDS else "shared_model"
-    return {"verdict": verdict, "confidence": confidence, "decided": True}
+    return {"verdict": _side_verdict(side, v in truth), "confidence": confidence, "decided": True}
 
 
 def classify(repo: Path, rows: list[dict[str, Any]], key: dict[str, Any] | None) -> list[Delta]:

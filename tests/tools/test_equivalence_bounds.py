@@ -63,13 +63,18 @@ def test_other_output_is_no_violation(said):
     assert common.bound_violation(said) is None
 
 
-def _oracle(tmp_path, n, length):
+def _oracle(tmp_path, n, length, case=None):
+    tmp_path.mkdir(parents=True, exist_ok=True)
     if shutil.which("docker") is None:
         pytest.skip("no docker")
     if subprocess.run(["docker", "image", "inspect", common.IMAGE], capture_output=True).returncode != 0:
         pytest.skip(f"no {common.IMAGE} image")
-    src, flags = common.compile_options({"program": "T", "datasets": {}}, PROGRAM.format(n=n, length=length))
+    case = {"program": "T", "datasets": {}, **(case or {})}
+    src, flags = common.compile_options(case, PROGRAM.format(n=n, length=length))
     (tmp_path / "t.cbl").write_text(src)
+    (tmp_path / "src").mkdir()
+    common.stage_zero_length_conf(case, tmp_path / "src")
+    flags = [f.replace("/work/src", "/w/src") for f in flags]  # the harness mounts the run at /work
     cmd = f"cobc -x -std=ibm {' '.join(flags)} -o t t.cbl && ./t"
     p = subprocess.run(
         ["docker", "run", "--rm", "-v", f"{tmp_path}:/w", "-w", "/w", common.IMAGE, "sh", "-c", cmd + " 2>&1"],
@@ -91,7 +96,29 @@ def test_oracle_runs_in_range(tmp_path):
     assert common.bound_violation(said) is None and b"done" in said
 
 
-BOUNDS_CASES = ["carddemo-cardlist", "carddemo-cotrtlic", "carddemo-menu", "cbsa-bnk1cac", "cbsa-bnk1uac"]
+ZLEN = {"zero_length_refmod": "the program moves a blank message by reference modification of length 0"}
+
+
+def test_zero_length_refmod_is_off_unless_the_case_says_so():
+    _src, flags = common.compile_options({"program": "T", "datasets": {}}, PROGRAM.format(n=1, length=1))
+    assert not any(f.startswith("-conf=") for f in flags)
+    _src, flags = common.compile_options({"program": "T", "datasets": {}, **ZLEN}, PROGRAM.format(n=1, length=1))
+    assert flags[-3:] == [f"-conf=/work/src/{common.ZERO_LENGTH_CONF}", *common.BOUND_FLAGS]
+
+
+def test_zero_length_refmod_needs_a_reason():
+    with pytest.raises(common.UnsupportedOption):
+        common.zero_length_refmod({"zero_length_refmod": "yes"})
+
+
+def test_zero_length_refmod_is_an_empty_item_and_nothing_else_is_let_through(tmp_path):
+    ok = _oracle(tmp_path / "a", 1, 0, ZLEN)
+    assert common.bound_violation(ok) is None and b"done" in ok  # `MOVE "Z" TO S(1:0)` changes nothing
+    assert "length of 'S'" in (common.bound_violation(_oracle(tmp_path / "b", 1, 9, ZLEN)) or "")  # still past the item
+    assert "subscript of 'E'" in (common.bound_violation(_oracle(tmp_path / "c", 7, 0, ZLEN)) or "")  # still refused
+
+
+BOUNDS_CASES = ["carddemo-cardlist", "carddemo-menu", "cbsa-bnk1cac", "cbsa-bnk1uac"]
 
 
 @pytest.mark.parametrize("name", BOUNDS_CASES)

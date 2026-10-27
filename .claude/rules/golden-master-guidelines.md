@@ -19,7 +19,7 @@ The test scripts resolve the `LANGUAGE_CRUCIBLE_PATH` corpus relative to the rep
 * **Rule:** Ensure the `language-crucible` corpus is cloned as a **sibling** directory (e.g., `../language-crucible`) to the repo, never inside the repository root.
 
 ### 4. Worktree env for the bless
-* `golden-lock.sh` and `heavy-run.sh` exec `python` by name: put the selfscan venv's bin dir on PATH or they fail with
+* `golden-lock.sh` and `heavy-run.sh` exec `python` by name: put the selfscan venv's bin dir on PATH (re-export it in EVERY Bash call: a worker shell loses it between calls) or they fail with
   `python: No such file` (#5426, #5528). `audit_check.py` shells out to `mypy` the same way (FileNotFoundError 'mypy').
 * `crucible_check.py` from a worktree needs `LANGUAGE_CRUCIBLE_PATH`, `CICS_CRUCIBLE_PATH` and `ESTATE_CRUCIBLE_PATH` set
   to the sibling checkouts (`/srv/storage_16tb/projects/gitgalaxy/<name>` on the owner's box; run `sync-pins.sh` first).
@@ -28,3 +28,6 @@ The test scripts resolve the `LANGUAGE_CRUCIBLE_PATH` corpus relative to the rep
   aperture PR merges (#5481, #5504).
 * A fast lane that skips the detector on an ambiguous-extension `.h` file gets the file banished by
   `statistical_auditor`; skip only the Security Lens (#5441).
+* `crucible_check.py` on pristine HEAD can show ~11k differences when box load is above 6: compare against an
+  unchanged-engine control before reading drift as yours (#6298). `doom_speedrun.py scan` reuses `<work>/scans/<engine-sha>`
+  at the same HEAD: `rm -rf` it to rescan after an engine edit (#6298).

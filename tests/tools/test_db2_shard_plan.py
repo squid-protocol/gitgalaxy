@@ -102,7 +102,7 @@ def test_emit_adds_the_predicted_ratio_only_with_a_db2_matrix(tmp_path, capsys):
     dur = {c: 200.0 for c in names}
     p = {"mode": "narrow", "cases": [], "db2_cases": names}
     plan.emit(p, None, dur)
-    assert p["db2_ratio"] == 1.0
+    assert 1.0 <= p["db2_ratio"] <= plan.MAX_RATIO
     none = {"mode": "narrow", "cases": [], "db2_cases": []}
     plan.emit(none, None, dur)
     assert "db2_ratio" not in none

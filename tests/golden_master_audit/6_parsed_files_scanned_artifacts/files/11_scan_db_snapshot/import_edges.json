@@ -1084,10 +1084,6 @@
       "cpp/NVDA/readme.md": [
         "import:cpp/NVDA/CODE_OF_CONDUCT.md",
         "import:cpp/NVDA/copying.txt"
-      ],
-      "cpp/NVDA/storage.cpp": [
-        "fcall:cobol/gnucobol_internals/parser.y",
-        "fcall:objective-c/worldwideweb/Anchor.m"
       ]
     },
     "cpp/godot": {
@@ -1201,9 +1197,7 @@
         "fcall:csharp/roslyn/LanguageParser.cs"
       ],
       "csharp/roslyn/LanguageParser.cs": [
-        "fcall:csharp/roslyn/CSharpCompilation.cs",
-        "fcall:csharp/roslyn/CSharpSyntaxTree.cs",
-        "fcall:csharp/roslyn/DiagnosticAnalyzer.cs"
+        "fcall:csharp/roslyn/CSharpCompilation.cs"
       ],
       "csharp/roslyn/MethodCompiler.cs": [
         "fcall:csharp/roslyn/CSharpCompilation.cs",
@@ -1236,14 +1230,10 @@
     },
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/builder.go",
-        "import:scheme/racket/io.ss"
+        "fcall:dockerfile/moby/builder/dockerfile/builder.go"
       ],
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/buildargs.go",
-        "import:livecode/livecode/assert.lcb",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/dockerfile/buildargs.go"
       ],
       "dockerfile/moby/builder/dockerfile/builder.go": [
         "fcall:dockerfile/moby/builder/dockerfile/buildargs.go",
@@ -1252,52 +1242,23 @@
         "fcall:dockerfile/moby/builder/dockerfile/evaluator.go",
         "fcall:dockerfile/moby/builder/dockerfile/imagecontext.go",
         "fcall:dockerfile/moby/builder/dockerfile/imageprobe.go",
-        "fcall:dockerfile/moby/builder/dockerfile/internals.go",
-        "import:livecode/livecode/log.livecodescript",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:scheme/racket/io.ss"
-      ],
-      "dockerfile/moby/builder/dockerfile/builder_windows.go": [
-        "import:assembly/bootos/os.asm",
-        "import:lua/cosmopolitan/strings.lua"
+        "fcall:dockerfile/moby/builder/dockerfile/internals.go"
       ],
       "dockerfile/moby/builder/dockerfile/containerbackend.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go",
-        "import:livecode/livecode/log.livecodescript",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:scheme/racket/io.ss"
+        "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go"
       ],
       "dockerfile/moby/builder/dockerfile/copy.go": [
         "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go",
         "fcall:dockerfile/moby/builder/dockerfile/copy_unix.go",
         "fcall:dockerfile/moby/builder/dockerfile/imagecontext.go",
-        "fcall:dockerfile/moby/builder/dockerfile/internals.go",
-        "import:assembly/bootos/os.asm",
-        "import:dockerfile/moby/builder/remotecontext/urlutil/urlutil.go",
-        "import:livecode/livecode/log.livecodescript",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:python/twisted/http.py",
-        "import:scheme/racket/io.ss"
+        "fcall:dockerfile/moby/builder/dockerfile/internals.go"
       ],
       "dockerfile/moby/builder/dockerfile/copy_test.go": [
         "fcall:dockerfile/moby/builder/dockerfile/copy.go",
-        "fcall:dockerfile/moby/builder/dockerfile/imagecontext.go",
-        "import:assembly/bootos/os.asm",
-        "import:livecode/livecode/assert.lcb",
-        "import:python/twisted/http.py",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/dockerfile/imagecontext.go"
       ],
       "dockerfile/moby/builder/dockerfile/copy_unix.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/copy.go",
-        "import:assembly/bootos/os.asm",
-        "import:lua/cosmopolitan/strings.lua"
-      ],
-      "dockerfile/moby/builder/dockerfile/copy_windows.go": [
-        "import:assembly/bootos/os.asm",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua"
+        "fcall:dockerfile/moby/builder/dockerfile/copy.go"
       ],
       "dockerfile/moby/builder/dockerfile/dispatchers.go": [
         "fcall:dockerfile/moby/builder/dockerfile/buildargs.go",
@@ -1308,10 +1269,7 @@
         "fcall:dockerfile/moby/builder/dockerfile/imagecontext.go",
         "fcall:dockerfile/moby/builder/dockerfile/imageprobe.go",
         "fcall:dockerfile/moby/builder/dockerfile/internals.go",
-        "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go",
-        "import:livecode/livecode/network.livecodescript",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua"
+        "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go"
       ],
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": [
         "fcall:dockerfile/moby/builder/dockerfile/buildargs.go",
@@ -1322,32 +1280,20 @@
         "fcall:dockerfile/moby/builder/dockerfile/evaluator.go",
         "fcall:dockerfile/moby/builder/dockerfile/imagecontext.go",
         "fcall:dockerfile/moby/builder/dockerfile/imageprobe.go",
-        "fcall:dockerfile/moby/builder/dockerfile/internals.go",
-        "import:livecode/livecode/assert.lcb",
-        "import:livecode/livecode/network.livecodescript",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:python/twisted/reflect.py",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/dockerfile/internals.go"
       ],
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/internals.go",
-        "import:assembly/bootos/os.asm",
-        "import:lua/cosmopolitan/errors.lua"
+        "fcall:dockerfile/moby/builder/dockerfile/internals.go"
       ],
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go"
       ],
       "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": [
         "fcall:dockerfile/moby/builder/dockerfile/builder_windows.go",
-        "fcall:dockerfile/moby/builder/dockerfile/internals.go",
-        "import:assembly/bootos/os.asm",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua"
+        "fcall:dockerfile/moby/builder/dockerfile/internals.go"
       ],
       "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go"
       ],
       "dockerfile/moby/builder/dockerfile/evaluator.go": [
         "fcall:dockerfile/moby/builder/dockerfile/buildargs.go",
@@ -1355,35 +1301,23 @@
         "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go",
         "fcall:dockerfile/moby/builder/dockerfile/dispatchers.go",
         "fcall:dockerfile/moby/builder/dockerfile/internals.go",
-        "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:python/twisted/reflect.py"
+        "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go"
       ],
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": [
         "fcall:dockerfile/moby/builder/dockerfile/buildargs.go",
         "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go",
         "fcall:dockerfile/moby/builder/dockerfile/dispatchers_test.go",
-        "fcall:dockerfile/moby/builder/dockerfile/evaluator.go",
-        "import:assembly/bootos/os.asm",
-        "import:livecode/livecode/assert.lcb",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/dockerfile/evaluator.go"
       ],
       "dockerfile/moby/builder/dockerfile/imagecontext.go": [
         "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go",
-        "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go",
-        "import:livecode/livecode/log.livecodescript",
-        "import:lua/cosmopolitan/errors.lua"
+        "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go"
       ],
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/imagecontext.go",
-        "import:livecode/livecode/assert.lcb",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/dockerfile/imagecontext.go"
       ],
       "dockerfile/moby/builder/dockerfile/imageprobe.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go",
-        "import:livecode/livecode/log.livecodescript"
+        "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go"
       ],
       "dockerfile/moby/builder/dockerfile/internals.go": [
         "fcall:dockerfile/moby/builder/dockerfile/buildargs.go",
@@ -1393,199 +1327,87 @@
         "fcall:dockerfile/moby/builder/dockerfile/evaluator.go",
         "fcall:dockerfile/moby/builder/dockerfile/imagecontext.go",
         "fcall:dockerfile/moby/builder/dockerfile/imageprobe.go",
-        "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go",
-        "import:livecode/livecode/log.livecodescript",
-        "import:livecode/livecode/network.livecodescript",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua"
-      ],
-      "dockerfile/moby/builder/dockerfile/internals_linux.go": [
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua"
+        "fcall:dockerfile/moby/builder/dockerfile/mockbackend_test.go"
       ],
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go",
-        "import:assembly/bootos/os.asm",
-        "import:livecode/livecode/assert.lcb",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go"
       ],
       "dockerfile/moby/builder/dockerfile/internals_test.go": [
         "fcall:dockerfile/moby/builder/dockerfile/buildargs.go",
         "fcall:dockerfile/moby/builder/dockerfile/evaluator.go",
         "fcall:dockerfile/moby/builder/dockerfile/imagecontext_test.go",
         "fcall:dockerfile/moby/builder/dockerfile/internals.go",
-        "fcall:dockerfile/moby/builder/dockerfile/utils_test.go",
-        "import:assembly/bootos/os.asm",
-        "import:livecode/livecode/assert.lcb",
-        "import:livecode/livecode/network.livecodescript",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/dockerfile/utils_test.go"
       ],
       "dockerfile/moby/builder/dockerfile/internals_windows.go": [
         "fcall:dockerfile/moby/builder/dockerfile/containerbackend.go",
-        "fcall:dockerfile/moby/builder/dockerfile/internals.go",
-        "import:assembly/bootos/os.asm",
-        "import:lua/cosmopolitan/strings.lua"
+        "fcall:dockerfile/moby/builder/dockerfile/internals.go"
       ],
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": [
-        "fcall:dockerfile/moby/builder/dockerfile/copy_unix.go",
-        "import:livecode/livecode/assert.lcb",
-        "import:zig/mach/testing.zig"
-      ],
-      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": [
-        "import:scheme/racket/io.ss"
-      ],
-      "dockerfile/moby/builder/dockerfile/utils_test.go": [
-        "import:assembly/bootos/os.asm",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/dockerfile/copy_unix.go"
       ]
     },
     "dockerfile/moby/builder/remotecontext": {
-      "dockerfile/moby/builder/remotecontext/archive.go": [
-        "import:assembly/bootos/os.asm",
-        "import:dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:scheme/racket/io.ss"
-      ],
       "dockerfile/moby/builder/remotecontext/detect.go": [
         "fcall:dockerfile/moby/builder/remotecontext/archive.go",
         "fcall:dockerfile/moby/builder/remotecontext/git.go",
-        "fcall:dockerfile/moby/builder/remotecontext/remote.go",
-        "import:assembly/bootos/os.asm",
-        "import:dockerfile/moby/builder/remotecontext/urlutil/urlutil.go",
-        "import:livecode/livecode/log.livecodescript",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:scheme/racket/io.ss"
+        "fcall:dockerfile/moby/builder/remotecontext/remote.go"
       ],
       "dockerfile/moby/builder/remotecontext/detect_test.go": [
-        "fcall:dockerfile/moby/builder/remotecontext/detect.go",
-        "import:assembly/bootos/os.asm",
-        "import:livecode/livecode/log.livecodescript",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:zig/mach/testing.zig"
-      ],
-      "dockerfile/moby/builder/remotecontext/filehash.go": [
-        "import:assembly/bootos/os.asm",
-        "import:dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go"
+        "fcall:dockerfile/moby/builder/remotecontext/detect.go"
       ],
       "dockerfile/moby/builder/remotecontext/git.go": [
-        "fcall:dockerfile/moby/builder/remotecontext/archive.go",
-        "import:assembly/bootos/os.asm",
-        "import:livecode/livecode/log.livecodescript"
+        "fcall:dockerfile/moby/builder/remotecontext/archive.go"
       ],
       "dockerfile/moby/builder/remotecontext/lazycontext.go": [
         "fcall:dockerfile/moby/builder/remotecontext/archive.go",
-        "fcall:dockerfile/moby/builder/remotecontext/filehash.go",
-        "import:assembly/bootos/os.asm",
-        "import:lua/cosmopolitan/errors.lua"
-      ],
-      "dockerfile/moby/builder/remotecontext/mimetype.go": [
-        "import:python/twisted/http.py"
+        "fcall:dockerfile/moby/builder/remotecontext/filehash.go"
       ],
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": [
-        "fcall:dockerfile/moby/builder/remotecontext/mimetype.go",
-        "import:livecode/livecode/assert.lcb",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/remotecontext/mimetype.go"
       ],
       "dockerfile/moby/builder/remotecontext/remote.go": [
-        "fcall:dockerfile/moby/builder/remotecontext/mimetype.go",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:python/twisted/http.py",
-        "import:scheme/racket/io.ss"
+        "fcall:dockerfile/moby/builder/remotecontext/mimetype.go"
       ],
       "dockerfile/moby/builder/remotecontext/remote_test.go": [
-        "fcall:dockerfile/moby/builder/remotecontext/remote.go",
-        "import:livecode/livecode/assert.lcb",
-        "import:python/twisted/http.py",
-        "import:scheme/racket/io.ss",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/remotecontext/remote.go"
       ],
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": [
-        "fcall:dockerfile/moby/builder/remotecontext/archive.go",
-        "import:assembly/bootos/os.asm",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:zig/mach/testing.zig"
-      ],
-      "dockerfile/moby/builder/remotecontext/utils_test.go": [
-        "import:assembly/bootos/os.asm",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/remotecontext/archive.go"
       ]
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": [
-        "import:assembly/bootos/os.asm",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:python/twisted/http.py"
-      ],
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": [
-        "fcall:dockerfile/moby/builder/remotecontext/git/gitutils.go",
-        "import:assembly/bootos/os.asm",
-        "import:livecode/livecode/assert.lcb",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:python/twisted/http.py",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/remotecontext/git/gitutils.go"
       ]
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": [
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go",
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go",
-        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go",
-        "import:assembly/bootos/os.asm",
-        "import:scheme/racket/io.ss",
-        "import:zig/mach/testing.zig"
-      ],
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": [
-        "import:lua/cosmopolitan/strings.lua"
+        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": [
-        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": [
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go",
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go",
-        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:scheme/racket/io.ss"
+        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": [
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go",
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go",
         "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go",
-        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go",
-        "import:assembly/bootos/os.asm",
-        "import:livecode/livecode/assert.lcb",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:scheme/racket/io.ss",
-        "import:zig/mach/testing.zig"
-      ],
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": [
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:scheme/racket/io.ss"
+        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": [
-        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go",
-        "import:livecode/livecode/assert.lcb",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:zig/mach/testing.zig"
-      ],
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": [
-        "import:scheme/racket/io.ss"
+        "fcall:dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go"
       ]
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": [
-        "import:lua/cosmopolitan/strings.lua"
-      ],
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": [
-        "fcall:dockerfile/moby/builder/remotecontext/urlutil/urlutil.go",
-        "import:zig/mach/testing.zig"
+        "fcall:dockerfile/moby/builder/remotecontext/urlutil/urlutil.go"
       ]
     },
     "dockerfile/moby/test_targets": {
@@ -1660,12 +1482,7 @@
       "go/core/main.go": [
         "fcall:go/core/server.go",
         "fcall:go/core/syscall_linux.go",
-        "fcall:go/core/value.go",
-        "import:assembly/bootos/counter.asm",
-        "import:assembly/bootos/os.asm",
-        "import:livecode/livecode/log.livecodescript",
-        "import:ruby/rails/base.rb",
-        "import:shell/curl/coverage.sh"
+        "fcall:go/core/value.go"
       ],
       "go/core/mgc.go": [
         "fcall:go/core/proc.go",
@@ -1681,61 +1498,26 @@
         "fcall:go/core/mutex.go",
         "fcall:go/core/proc.go",
         "fcall:go/core/syscall_linux.go",
-        "fcall:go/core/value.go",
-        "import:livecode/livecode/log.livecodescript",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:scheme/racket/io.ss"
+        "fcall:go/core/value.go"
       ],
       "go/core/syscall_linux.go": [
         "fcall:go/core/value.go"
       ],
       "go/core/value.go": [
         "fcall:go/core/mgc.go",
-        "fcall:go/core/proc.go",
-        "import:lua/cosmopolitan/errors.lua"
+        "fcall:go/core/proc.go"
       ]
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": [
-        "fcall:go/kubernetes/scheduler.go",
-        "import:assembly/bootos/os.asm",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:shell/kubernetes/util.sh"
+        "fcall:go/kubernetes/scheduler.go"
       ],
       "go/kubernetes/generic.go": [
-        "fcall:go/kubernetes/scheduler.go",
-        "import:dockerfile/moby/builder/dockerfile/metrics.go"
-      ],
-      "go/kubernetes/kubelet.go": [
-        "import:dockerfile/moby/builder/dockerfile/metrics.go"
+        "fcall:go/kubernetes/scheduler.go"
       ],
       "go/kubernetes/proxier.go": [
         "fcall:go/kubernetes/generic.go",
-        "fcall:go/kubernetes/scheduler.go",
-        "import:dockerfile/moby/builder/dockerfile/metrics.go",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:scheme/racket/io.ss",
-        "import:shell/kubernetes/util.sh"
-      ],
-      "go/kubernetes/replica_set.go": [
-        "import:dockerfile/moby/builder/dockerfile/metrics.go",
-        "import:lua/cosmopolitan/errors.lua",
-        "import:lua/cosmopolitan/strings.lua",
-        "import:python/twisted/reflect.py"
-      ],
-      "go/kubernetes/scheduler.go": [
-        "import:dart/flutter/framework.dart",
-        "import:dockerfile/moby/builder/dockerfile/metrics.go",
-        "import:lua/cosmopolitan/errors.lua"
-      ]
-    },
-    "go/kubernetes_kubectl_tls": {
-      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": [
-        "import:assembly/bootos/os.asm",
-        "import:zig/mach/testing.zig"
+        "fcall:go/kubernetes/scheduler.go"
       ]
     },
     "groovy/fineract_gradle_plugin": {
@@ -2679,10 +2461,6 @@
         "import:lua/redis/strict.lua",
         "import:ruby/rails/base.rb"
       ],
-      "perl/bugzilla/DB.pm": [
-        "import:jcl/cics-banking-sample-application-cbsa/DEFAULT.jcl",
-        "import:nix/ghostty/default.nix"
-      ],
       "perl/bugzilla/Requirements.pm": [
         "import:lua/redis/strict.lua",
         "import:ruby/rails/base.rb"
@@ -2699,9 +2477,7 @@
       ],
       "perl/exiftool/exiftool": [
         "fcall:perl/exiftool/RandomAccess.pm",
-        "import:hlasm/che4z_hlasm/B.hlasm",
-        "import:lua/redis/strict.lua",
-        "import:php/wordpress/formatting.php"
+        "import:lua/redis/strict.lua"
       ]
     },
     "perl/mojo": {
@@ -2731,14 +2507,12 @@
         "import:lua/redis/strict.lua"
       ],
       "perl/spamassassin/PerMsgStatus.pm": [
-        "import:lua/redis/strict.lua",
-        "import:scheme/racket/eval.c"
+        "import:lua/redis/strict.lua"
       ],
       "perl/spamassassin/SpamAssassin.pm": [
         "fcall:perl/spamassassin/Bayes.pm",
         "fcall:perl/spamassassin/Message.pm",
-        "import:lua/redis/strict.lua",
-        "import:rust/tokio/tests.rs"
+        "import:lua/redis/strict.lua"
       ]
     },
     "php/guzzle": {
@@ -2821,7 +2595,6 @@
         "fcall:php/wordpress/plugin.php"
       ],
       "php/wordpress/functions.php": [
-        "fcall:php/wordpress/class-wp-query.php",
         "fcall:php/wordpress/formatting.php",
         "fcall:php/wordpress/plugin.php"
       ],
@@ -3385,7 +3158,6 @@
       ],
       "python/fastapi/tests/test_http_connection_injection.py": [
         "fcall:python/fastapi/fastapi/applications.py",
-        "fcall:python/fastapi/fastapi/datastructures.py",
         "fcall:python/fastapi/fastapi/param_functions.py",
         "import:python/fastapi/fastapi/__init__.py",
         "import:python/fastapi/fastapi/requests.py",
@@ -4127,7 +3899,6 @@
       ],
       "python/fastapi/tests/test_validation_error_context.py": [
         "fcall:python/fastapi/fastapi/applications.py",
-        "fcall:python/fastapi/fastapi/datastructures.py",
         "import:python/fastapi/fastapi/__init__.py",
         "import:python/fastapi/fastapi/exceptions.py",
         "import:python/fastapi/fastapi/testclient.py"
@@ -4151,7 +3922,6 @@
       ],
       "python/fastapi/tests/test_ws_dependencies.py": [
         "fcall:python/fastapi/fastapi/applications.py",
-        "fcall:python/fastapi/fastapi/datastructures.py",
         "fcall:python/fastapi/fastapi/param_functions.py",
         "fcall:python/fastapi/fastapi/routing.py",
         "import:python/fastapi/fastapi/__init__.py",
@@ -4159,7 +3929,6 @@
       ],
       "python/fastapi/tests/test_ws_router.py": [
         "fcall:python/fastapi/fastapi/applications.py",
-        "fcall:python/fastapi/fastapi/datastructures.py",
         "fcall:python/fastapi/fastapi/param_functions.py",
         "fcall:python/fastapi/fastapi/routing.py",
         "import:python/fastapi/fastapi/__init__.py",
@@ -4318,6 +4087,7 @@
       ],
       "scala/kafka/Partition.scala": [
         "fcall:scala/kafka/LogManager.scala",
+        "fcall:scala/kafka/ReplicaManager.scala",
         "fcall:scala/kafka/SocketServer.scala"
       ],
       "scala/kafka/ReplicaManager.scala": [
@@ -4395,7 +4165,7 @@
     },
     "shell/reactos": {
       "shell/reactos/codespell_check.sh": [
-        "fcall:shell/reactos/codespell_changed_files.sh"
+        "import:shell/reactos/codespell_changed_files.sh"
       ]
     },
     "solidity/openzeppelin": {

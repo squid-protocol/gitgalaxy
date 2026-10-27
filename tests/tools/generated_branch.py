@@ -11,6 +11,8 @@ main never moves for them:
     publish  PATH...   commit those working-tree files (a directory: every file beneath it) to generated, on top of its tip, and push it. Nothing is
                        committed when no file differs from the tip. Writers own disjoint paths, so a push rejected
                        because another writer got in first is retried on the new tip.
+    push-head          push the checked-out commit (a writer that builds its own commit on a generated checkout) to generated;
+                       a rejected push is fetched and rebased onto the new tip, then retried (#6563).
     show     PATH      print PATH as published on generated, else the committed copy (what a reader should use).
 
 Plumbing only (a scratch index, `commit-tree`, `push <sha>:refs/heads/generated`): the working tree, HEAD and the
@@ -166,6 +168,36 @@ def publish(
     raise RuntimeError(f"could not push to {BRANCH} after {retries} attempts")
 
 
+def push_head(root: Path = REPO_ROOT, remote: str = "origin", retries: int = 5) -> str:
+    """#6563: push root's HEAD to generated. A push rejected because another writer got in first is rebased onto the
+    new tip and retried; a rebase conflict (same path edited by both) is aborted and raised."""
+    for attempt in range(retries):
+        pushed = subprocess.run(
+            ["git", "push", "--quiet", remote, f"HEAD:refs/heads/{BRANCH}"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if pushed.returncode == 0:
+            return _git(root, "rev-parse", "HEAD")
+        print(f"push to {BRANCH} rejected ({pushed.stderr.strip()[:200]}); rebasing onto the new tip", file=sys.stderr)
+        if attempt < retries - 1:
+            _git_net(root, "fetch", "--quiet", remote, BRANCH)
+            rebased = subprocess.run(
+                ["git", "rebase", "FETCH_HEAD"],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                check=False,
+                env={**os.environ, **_IDENT},
+            )
+            if rebased.returncode:
+                _git(root, "rebase", "--abort", check=False)
+                raise RuntimeError(f"rebase onto {BRANCH} conflicts: {rebased.stderr.strip()[:200]}")
+    raise RuntimeError(f"could not push to {BRANCH} after {retries} attempts")
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -177,8 +209,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("paths", nargs="+")
     p.add_argument("--message", required=True)
     p.add_argument("--stamp", help="writer name; records the source main sha in .generated_from/<name>.txt")
+    h = sub.add_parser("push-head", help="push the checked-out commit to generated, rebasing on a rejected push")
+    h.add_argument("--root", default=str(REPO_ROOT), help="the generated checkout")
     a = ap.parse_args(argv)
-    if a.cmd == "fetch":
+    if a.cmd == "push-head":
+        print(f"pushed {push_head(Path(a.root))} to {BRANCH}")
+    elif a.cmd == "fetch":
         got = fetch(a.paths)
         print(f"restored from {BRANCH}: {', '.join(got) or 'nothing (seeding from the committed copy)'}")
     elif a.cmd == "show":

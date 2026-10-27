@@ -204,12 +204,15 @@ def det_sweep(
     for row in summary:
         cov = _coverage(work / row["case"] / "proof.log")
         out[row["case"]] = {"proved": port_proved(row), "coverage": cov,
+                            **({"cobol_compile_failed": True, "cobc_stderr": row.get("cobc_stderr", "")}
+                               if row.get("cobol_compile_failed") else {}),  # #4493, only when set
                             "called_holes": len(row.get("called_holes") or []),
                             "translated": f"{row.get('translated_statements')}/{row.get('statements')}",
                             "seconds": round(row.get("translate_seconds", 0) + row.get("proof_seconds", 0), 1),
                             "phases": {"translate": {"seconds": row.get("translate_seconds", 0), "count": 1},
                                        **(row.get("phases") or {})},  # #5882: where the seconds went
                             "uncovered": _uncovered(work / row["case"] / "proof" / "cobol" / "coverage.json"),
+                            **_uncovered_paragraphs(work / row["case"] / "proof" / "cobol" / "coverage.json"),
                             "linked": _linked(work / row["case"] / "proof" / "cobol" / "coverage.json")}  # fmt: skip
     return out
 
@@ -225,13 +228,25 @@ def _linked(path: Path) -> dict[str, Any]:
 
 
 def _uncovered(path: Path) -> list[str] | None:
-    """The branch outcomes the proof left uncovered ("line:outcome"), for the #4602 infeasible-outcome check."""
+    """What the proof left uncovered ("line:outcome" per branch outcome, "paragraph:NAME" per paragraph), for the
+    #4602 infeasible-outcome check."""
+    import infeasible_outcomes
+
     try:
-        return [
-            f"{u['line']}:{u['outcome']}" for u in json.loads(path.read_text(encoding="utf-8"))["branches"]["uncovered"]
-        ]
+        return infeasible_outcomes.uncovered_of(json.loads(path.read_text(encoding="utf-8")))
     except (OSError, ValueError, KeyError, TypeError):
         return None
+
+
+def _uncovered_paragraphs(path: Path) -> dict[str, list[str]]:
+    """#6072: the live paragraphs the proof never entered ("NAME:line"), for the ledger's `uncovered` list; the key is
+    there only when there are some."""
+    try:
+        paras = json.loads(path.read_text(encoding="utf-8"))["paragraphs"]["uncovered"]
+        found = [f"{u['name']}:{u['line']}" for u in paras]
+    except (OSError, ValueError, KeyError, TypeError):
+        return {}
+    return {"uncovered_paragraphs": found} if found else {}
 
 
 def model_sweep(work: Path, faults: str, skip_db2: bool = False, only: list[str] | None = None) -> dict[str, dict]:

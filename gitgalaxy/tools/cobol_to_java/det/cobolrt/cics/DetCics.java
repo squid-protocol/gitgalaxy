@@ -205,8 +205,30 @@ public final class DetCics {
         }
     }
 
-    /** #4607 x X6: a WRITEQ's LENGTH n, refused (PastFrom) when it runs past FROM's own length. */
+    /** The longest record a WRITEQ carries (the stub's GG-PADQ). */
+    private static final int MAX_RECORD = 32767;
+
+    /** X6 (ASSUMED, owner 2026-10-21): a WRITEQ's LENGTH n past FROM's own length writes FROM's bytes then SPACES (in the program's page `cs`) to n
+     *  (IBM takes the storage that follows the item: undefined; GnuCOBOL's layout differs). The stub pads the same way.
+     *  A LENGTH over the longest record is refused (PastFrom), as the stub refuses it. */
     // [rule RT-CICS-WRITEQ-PAST-FROM]
+    public static byte[] padded(Field f, int n, String what, Charset cs) {
+        if (n > MAX_RECORD) {
+            throw new PastFrom(what + " LENGTH " + n + " > " + MAX_RECORD + ": not modelled");
+        }
+        byte[] out = new byte[Math.max(n, 0)];
+        int own = Math.min(out.length, f.length());
+        System.arraycopy(f.storage().bytes, f.offset(), out, 0, own);
+        byte[] space = " ".getBytes(cs);
+        for (int i = own; i < out.length; i++) {
+            out[i] = space[i % space.length];
+        }
+        return out;
+    }
+
+    /** #4607 x X6: a LENGTH n, refused (PastFrom) when it runs past FROM's own length (DOCUMENT CREATE; a WRITEQ pads,
+     *  see padded). */
+    // [rule RT-CICS-DOCUMENT]
     public static int within(Field f, int n, String what) {
         if (n > f.length()) {
             throw new PastFrom(what + " LENGTH " + n + " > FROM's " + f.length() + " bytes: not modelled");

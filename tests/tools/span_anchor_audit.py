@@ -32,6 +32,9 @@ whose rate rises beyond the tolerance, so a fix locks in with --regenerate.
     python tests/tools/span_anchor_audit.py                # report
     python tests/tools/span_anchor_audit.py --samples 5    # + examples per language
     python tests/tools/span_anchor_audit.py --ci           # gate vs the baseline
+    python tests/tools/span_anchor_audit.py --shard 0/2 --json a.json   # half of the language directories (#5501) ...
+    python tests/tools/span_anchor_audit.py --shard 1/2 --json b.json   # ... and the other half, in parallel
+    python tests/tools/span_anchor_audit.py --merge a.json b.json --ci  # the one gate, over the summed shards
     python tests/tools/span_anchor_audit.py --regenerate   # rewrite the baseline
 """
 
@@ -42,6 +45,7 @@ import collections
 import json
 import os
 import re
+import shutil
 import sqlite3
 import sys
 import tempfile
@@ -96,8 +100,29 @@ def misanchored(lines: list[str], start_line: int, name: str, lang: str) -> bool
     return all(_is_filler(x, lang) for x in lines[start_line - 1 : decl])
 
 
-def engine_units(crucible: Path) -> list[tuple[str, str, str, int]]:
-    """(language, path relative to data/, name, start_line) from one in-process scan."""
+def parse_shard(text: str) -> tuple[int, int]:
+    """'I/N' -> (I, N) with 0 <= I < N; raises ValueError otherwise."""
+    index, sep, count = text.partition("/")
+    if not (sep and index.isdigit() and count.isdigit()) or not 0 <= int(index) < int(count):
+        raise ValueError(f"--shard wants I/N with 0 <= I < N, got {text!r}")
+    return int(index), int(count)
+
+
+def shard_dirs(data: Path, shard: tuple[int, int]) -> list[Path]:
+    """This shard's top-level language directories: every Nth of the sorted ones, so shards are disjoint and cover all."""
+    index, count = shard
+    return [d for i, d in enumerate(sorted(p for p in data.iterdir() if p.is_dir())) if i % count == index]
+
+
+def _link_or_copy(src: str, dst: str) -> None:
+    try:
+        os.link(src, dst)
+    except OSError:
+        shutil.copy2(src, dst)
+
+
+def engine_units(crucible: Path, shard: tuple[int, int] | None = None) -> list[tuple[str, str, str, int]]:
+    """(language, path relative to data/, name, start_line) from one in-process scan (of one shard's directories)."""
     sys.path.insert(0, str(REPO_ROOT))
     os.environ["GITGALAXY_DISABLE_GIT_HISTORY"] = "1"
     import gitgalaxy
@@ -106,8 +131,13 @@ def engine_units(crucible: Path) -> list[tuple[str, str, str, int]]:
     if Path(gitgalaxy.__file__).resolve().parents[1] != REPO_ROOT:
         raise SystemExit(f"engine import resolved to {gitgalaxy.__file__}, not {REPO_ROOT} -- set PYTHONPATH")
     with tempfile.TemporaryDirectory() as tmp:
+        target = crucible / "data"
+        if shard is not None:  # same relative paths, only this shard's directories (hard links: no copy cost)
+            target = Path(tmp) / "data"
+            for d in shard_dirs(crucible / "data", shard):
+                shutil.copytree(d, target / d.name, copy_function=_link_or_copy)
         argv = sys.argv
-        sys.argv = ["galaxyscope", str(crucible / "data"), "--output", f"{tmp}/c.json", "--db-only"]
+        sys.argv = ["galaxyscope", str(target), "--output", f"{tmp}/c.json", "--db-only"]
         try:
             galaxyscope_main()
         finally:
@@ -124,10 +154,10 @@ def engine_units(crucible: Path) -> list[tuple[str, str, str, int]]:
     return [(str(lang or "").lower(), path, name or "", int(line or 0)) for lang, path, name, line in rows]
 
 
-def measure(crucible: Path, samples: int = 0) -> dict[str, dict[str, Any]]:
+def measure(crucible: Path, samples: int = 0, shard: tuple[int, int] | None = None) -> dict[str, dict[str, Any]]:
     per: dict[str, dict[str, Any]] = collections.defaultdict(lambda: {"units": 0, "misanchored": 0, "examples": []})
     cache: dict[str, list[str] | None] = {}
-    for lang, path, name, line in engine_units(crucible):
+    for lang, path, name, line in engine_units(crucible, shard):
         if not _IDENT.fullmatch(name):
             continue  # synthetic buckets and anonymous units have no declaration to find
         if path not in cache:
@@ -154,6 +184,28 @@ def measure(crucible: Path, samples: int = 0) -> dict[str, dict[str, Any]]:
         }
         for lang, r in sorted(per.items())
         if r["units"]
+    }
+
+
+def merge(parts: list[dict[str, dict[str, Any]]], samples: int = 0) -> dict[str, dict[str, Any]]:
+    """Sum shard results per language. A language's files can sit in several directories (a `.h` file in the
+    c/ or cpp/ directory is another language), so the rate is recomputed from the summed counts, never averaged."""
+    total: dict[str, dict[str, Any]] = {}
+    for part in parts:
+        for lang, r in part.items():
+            t = total.setdefault(lang, {"units": 0, "misanchored": 0, "examples": []})
+            t["units"] += r["units"]
+            t["misanchored"] += r["misanchored"]
+            t["examples"] += r.get("examples", [])
+    return {
+        lang: {
+            "units": t["units"],
+            "misanchored": t["misanchored"],
+            "misanchored_pct": round(100 * t["misanchored"] / t["units"], 1),
+            "examples": t["examples"][:samples],
+        }
+        for lang, t in sorted(total.items())
+        if t["units"]
     }
 
 
@@ -184,11 +236,28 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--regenerate", action="store_true", help="rewrite the committed baseline")
     ap.add_argument("--json", metavar="PATH")
     ap.add_argument("--summary", metavar="PATH", help="append the markdown table here (e.g. $GITHUB_STEP_SUMMARY)")
+    ap.add_argument(
+        "--shard",
+        metavar="I/N",
+        help="measure only every Nth language directory (from I); write --json, gate with --merge",
+    )
+    ap.add_argument("--merge", nargs="+", metavar="JSON", help="sum these --shard --json files instead of scanning")
     a = ap.parse_args(argv)
-    if not (CRUCIBLE / "data").is_dir():
+    shard = None
+    if a.shard:
+        try:
+            shard = parse_shard(a.shard)
+        except ValueError as exc:
+            ap.error(str(exc))
+        if a.regenerate or a.ci or a.merge:
+            ap.error("a --shard is a partial measurement: write --json and gate the sum with --merge")
+    if a.merge:
+        results = merge([json.loads(Path(f).read_text()) for f in a.merge], a.samples)
+    elif not (CRUCIBLE / "data").is_dir():
         print(f"span_anchor_audit: no crucible at {CRUCIBLE} (set LANGUAGE_CRUCIBLE_PATH)")
         return 2
-    results = measure(CRUCIBLE, a.samples)
+    else:
+        results = measure(CRUCIBLE, a.samples, shard)
     table = render(results)
     print(table)
     if a.samples:

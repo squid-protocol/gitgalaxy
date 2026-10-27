@@ -58,9 +58,20 @@ def test_pli_commands_end_at_the_semicolon_and_drop_sequence_numbers():
 def test_the_split_comes_from_estate4_draw():
     import estate4_draw
 
-    assert cc.burned_names() == {n.lower() for n in estate4_draw.BURNED_NAMES}
+    assert cc.burned_names() == {n.lower() for n in estate4_draw.BURNED_NAMES} | {"cics-crucible"}  # #5054
     assert cc.is_burned("cics-genapp") and not cc.is_burned("cics-async-api-redbooks")
     assert "cics-async-api-redbooks" in cc.census_names() and "cics-genapp" not in cc.census_names()
+
+
+def test_census_and_burned_sets_are_disjoint():
+    """#6064: an estate that gets burned must leave the census (the async credit-card example did), never count in both."""
+    import equivalence_env
+    import estate4_draw
+
+    assert not cc.census_names() & cc.burned_names()
+    census = {r.split("/")[-1].lower() for r in equivalence_env.census_repos()}
+    assert census == cc.census_names()
+    assert not census & {n.lower() for n in estate4_draw.BURNED_NAMES}
 
 
 def test_usage_counts_programs_per_option_split_burned(tmp_path):
@@ -124,6 +135,22 @@ def test_survey_runs_split_burned_local_and_census(tmp_path):
     ]  # zecs once, from the main root
     uses = [cc.ProgramUse("zecs", "A.cbl", True, {"ASSIGN": {"APPLID"}}, {"ASSIGN": 1})]
     assert cc.survey_runs(main, census, uses, None) == [("b", main, ["zecs"])]
+
+
+def test_a_crucible_checkout_is_one_more_burned_survey_run(tmp_path):
+    """#5054: the checkout is not under the corpora root; it is surveyed as a corpus named after its directory, its
+    CICS programs are counted, and a run without --crucible is unchanged."""
+    main, work = tmp_path / "main", tmp_path / "ws"
+    corpus(main, "zecs", {"A.cbl": ASSIGN_PROG})
+    crucible = corpus(work, "cics-crucible", {"cases/t/c/src/B.cbl": ASSIGN_PROG})
+    assert cc.survey_runs(main, None, None, None) == [("b", main, ["zecs"])]
+    assert cc.survey_runs(main, None, None, None, crucible) == [
+        ("b", main, ["zecs"]),
+        ("crucible", work, ["cics-crucible"]),
+    ]
+    assert cc.is_burned("cics-crucible")
+    assert cc.cics_programs([main], [crucible]) == {("zecs", "A.cbl"), ("cics-crucible", "cases/t/c/src/B.cbl")}
+    assert cc.cics_programs([main]) == {("zecs", "A.cbl")}
 
 
 def _survey(d: Path, rows: dict) -> None:

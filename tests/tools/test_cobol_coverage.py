@@ -130,6 +130,37 @@ def test_a_dead_unit_entered_and_a_unit_the_engine_cannot_read_are_reported(tmp_
     assert p["covered"] == 4  # neither is counted
 
 
+def test_a_paragraph_holding_an_entry_statement_is_entered_by_it(tmp_path: Path) -> None:
+    """IMS enters a DL/I program at ENTRY 'DLITCBL': GnuCOBOL traces `Entry: DLITCBL` and then the statements, with no
+    Paragraph event for the unit that holds the ENTRY. That unit was entered; a program's own entry (named like its PROGRAM-ID) names no unit."""
+    text = _cbl("PROGRAM-ID. T.", "PROCEDURE DIVISION.", "MAIN-PARA.", "    ENTRY 'DLITCBL'.", "    PERFORM P2.",
+                "    GOBACK.", "P2.", "    DISPLAY 'X'.")  # fmt: skip
+    head = b"Source: 'T.cbl'\nProgram-Id:  T\n"
+    entry = head + b"Program-Id:  T                    Entry: DLITCBL                         Line:      5\n"
+    body = (b"Program-Id:  T                           PERFORM                         Line:      5\n"
+            b"Program-Id:  T                Paragraph: P2                              Line:      7\n"
+            b"Program-Id:  T                           DISPLAY                         Line:      8\n"
+            b"Program-Id:  T                           GOBACK                          Line:      6\n")  # fmt: skip
+    plain = head + b"Program-Id:  T                    Entry: T                               Line:      3\n"
+    got = _measure(tmp_path, text, entry + body)["paragraphs"]
+    assert (got["covered"], got["live"]) == (2, 2)
+    got = _measure(tmp_path, text, plain + body)["paragraphs"]
+    assert (got["covered"], got["live"]) == (1, 2)  # the program's own entry is not a unit: MAIN-PARA stays unrun
+
+
+def test_a_program_with_no_paragraph_is_one_unit_run_by_any_of_its_statements(tmp_path: Path) -> None:
+    """COBSWAIT shape (CardDemo): statements straight after PROCEDURE DIVISION, no header. The trace has no Paragraph
+    event for them, yet the unit is live (1, not 0/0 which reads as 'not measured') and entered when a statement ran."""
+    text = _cbl("PROGRAM-ID. T.", "PROCEDURE DIVISION.", "    DISPLAY 'X'.", "    STOP RUN.")
+    head = b"Source: 'T.cbl'\nProgram-Id:  T\n"
+    entry = head + b"Program-Id:  T                    Entry: T                               Line:      3\n"
+    ran = entry + b"Program-Id:  T                           DISPLAY                         Line:      3\n"
+    got = _measure(tmp_path, text, ran)["paragraphs"]
+    assert (got["covered"], got["live"], got["dead"], got["unread"]) == (1, 1, [], [])
+    got = _measure(tmp_path, text, entry)["paragraphs"]  # entered, no statement ran
+    assert (got["covered"], got["live"]) == (0, 1)
+
+
 def test_gnucobol_when_events_are_not_the_arm(tmp_path: Path) -> None:
     """GnuCOBOL traces some WHENs as statements; the arm is the first real statement after them."""
     trace = TRACE.replace(
@@ -336,6 +367,70 @@ def test_a_condition_rewritten_in_place_stays_exact_in_an_equal_size_block() -> 
     assert lines.get(2) == (2, True) and 2 in lines.exact
 
 
+def _seq(*lines: str) -> str:
+    """Fixed format with a 6-digit sequence number and columns 73-80 numbered, as CardDemo's app-vsam-mq is."""
+    return "\n".join(f"{n * 100 + 100:06d} " + x.ljust(65) + f"{n + 1:08d}" for n, x in enumerate(lines)) + "\n"
+
+
+def _expanded(original: str, expansion: list[str], first: int, last: int) -> str:
+    """The harness's output: original lines first..last (1-based) replaced by `expansion` (unnumbered), the rest kept."""
+    rows = original.split("\n")
+    return "\n".join(rows[: first - 1] + ["           " + x for x in expansion] + rows[last:])
+
+
+RETRIEVE = [
+    "MOVE 'INTO' TO GG-FLAGS", "MOVE LENGTH OF MQTM TO GG-LEN", "CALL 'GGCRTRV' USING GG-CICS",
+    "    BY REFERENCE MQTM", "MOVE GG-RESP TO EIBRESP", "MOVE GG-RESP2 TO EIBRESP2",
+]  # fmt: skip
+
+
+def test_the_if_after_an_expanded_exec_maps_to_its_own_line_not_the_exec_whatever_the_sequence_area() -> None:
+    """#6072: the sequence numbers and the padding made `EXEC CICS RETRIEVE` and the IF after it look alike (CODATE01
+    145 -> 140); a condition rewritten (DFHRESP(NORMAL) -> 0) in a block of unequal size paired with nothing (COPAUA0C 237)."""
+    body = [
+        "A.", "    EXEC CICS RETRIEVE", "      INTO(MQTM)", "      NOHANDLE", "    END-EXEC",
+        "    IF EIBRESP = DFHRESP(NORMAL)", "       MOVE 1 TO X", "    END-IF", "    GOBACK.",
+    ]  # fmt: skip
+    for original in (_seq(*body), _cbl(*body)):  # numbered and plain
+        compiled = _expanded(original, RETRIEVE, 2, 5).replace("DFHRESP(NORMAL)", "0")
+        lines = cov.LineMap(original, compiled)
+        n = len(RETRIEVE)
+        assert [lines.get(2 + k) for k in range(n)] == [(2, False)] * n  # the expansion stands for the EXEC
+        assert lines.get(2 + n) == (6, True) and lines.get(3 + n) == (7, True)
+        assert lines.exact == {1, 6, 7, 8, 9, 10}  # (10: the closing blank)
+
+
+def test_a_line_inside_an_exec_is_never_the_same_line_as_a_compiled_one() -> None:
+    """#6072: `LENGTH (LENGTH OF X)` inside a DLI / SQL call and the compiled `BY VALUE LENGTH OF X` are not one line."""
+    original = _cbl(
+        "A.", "    EXEC DLI GU", "      LENGTH (LENGTH OF REC)", "      INTO (REC)", "    END-EXEC", "    GOBACK."
+    )
+    compiled = _cbl("A.", "    MOVE 'GU' TO GG-FUNC", "    CALL 'GGCDLI' USING GG-CICS", "        BY VALUE LENGTH OF REC",
+                    "        BY REFERENCE REC", "    GOBACK.")  # fmt: skip
+    lines = cov.LineMap(original, compiled)
+    assert lines.exact == {1, 6, 7}  # (7: the closing blank)
+    assert all(lines.get(n) == (2, False) for n in (2, 3, 4, 5))
+
+
+def test_evaluate_when_rewrites_pair_in_equal_and_unequal_blocks() -> None:
+    for extra in ([], ["MOVE 0 TO GG-X"]):  # the compiled block as long as the original, and longer
+        original = _cbl("A.", "    EVALUATE EIBRESP", "       WHEN DFHRESP(NORMAL)", "          MOVE 1 TO X",
+                        "       WHEN DFHRESP(NOTFND)", "          MOVE 2 TO X", "    END-EVALUATE", "    GOBACK.")  # fmt: skip
+        compiled = _cbl("A.", *extra, "    EVALUATE EIBRESP", "       WHEN 0", "          MOVE 1 TO X",
+                        "       WHEN 13", "          MOVE 2 TO X", "    END-EVALUATE", "    GOBACK.")  # fmt: skip
+        k = len(extra)
+        lines = cov.LineMap(original, compiled)
+        assert {lines.get(n + k) for n in (2, 3, 5)} == {(2, True), (3, True), (5, True)}
+
+
+def test_a_free_format_or_identical_program_maps_as_before() -> None:
+    free = "A.\n  IF X = 1\n    DISPLAY 'A'\n  END-IF.\n"
+    assert cov.LineMap(free, free).map == {n: (n, True) for n in range(1, 6)}
+    lines = cov.LineMap(free, "A.\n  MOVE 0 TO GG\n  IF X = 1\n    DISPLAY 'A'\n  END-IF.\n")
+    assert lines.get(2) is None or lines.get(2)[1] is False
+    assert lines.get(3) == (2, True) and lines.get(4) == (3, True)
+
+
 # ---- #5084: the programs a case LINKs / CALLs ---------------------------------------------------------------------
 def test_write_run_coverage_measures_the_linked_programs_over_the_same_trace(tmp_path: Path) -> None:
     main = _cbl("PROGRAM-ID. MAINP.", "PROCEDURE DIVISION.", "A.", "    GOBACK.")
@@ -361,3 +456,26 @@ def test_write_run_coverage_measures_the_linked_programs_over_the_same_trace(tmp
     assert "error" in s["linked"]["BAD"]  # unmeasurable: recorded as unknown, the run goes on
     assert "linked" not in cov.write_run_coverage(out, source=tmp_path / "MAINP.cbl", original=main, compiled=None,
                                                   traces=[t], compiled_name="MAINP.cbl")  # fmt: skip
+
+
+def test_a_case_run_reads_branches_against_the_staged_text_not_the_original(tmp_path):
+    """#6072: the harness stages a lowered program (the PSA -> TCB -> TIOT walk, A2) with lines added before its IFs;
+    the trace names the staged text's lines, so the line map must be built from that text (CBSTM03A read 0/46)."""
+    import equivalence
+
+    corpus, run = tmp_path / "corpus", tmp_path / "run"
+    (run / "src").mkdir(parents=True)
+    corpus.mkdir()
+    (corpus / "t.cbl").write_text(PROGRAM, encoding="latin-1")
+    lowered = PROGRAM.replace("    IF X = 1\n", '    CALL "GGSTUB"\n    CALL "GGSTUB"\n    IF X = 1\n', 1)
+    (run / "src" / "PROGRAM.cbl").write_text(lowered, encoding="latin-1")
+    shifted = TRACE.decode().replace("Line:      9", "Line:     11").replace("Line:     10", "Line:     12")
+    for n in range(14, 24):  # every later line moves down by the two inserted
+        shifted = shifted.replace(f"Line:     {n}\n", f"Line:     {n + 2}\n")
+    trace = run / "trace.txt"
+    trace.write_text(shifted.replace("Source: 'T.cbl'", "Source: 'src/PROGRAM.cbl'"), encoding="latin-1")
+    out = tmp_path / "coverage.json"
+    got = equivalence.cobol_coverage({"program_source": "t.cbl", "program": "T"}, corpus, [trace], out)
+    assert got is not None
+    unlowered = cov.run_coverage(corpus / "t.cbl", PROGRAM, PROGRAM, [trace], "PROGRAM.cbl", None, "latin-1")
+    assert got["branches"]["covered"] > unlowered["branches"]["covered"] == 0

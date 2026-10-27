@@ -2112,3 +2112,38 @@ def test_dbb_epscsmrd_is_keyed_as_thirteen_censused_programs():
     assert sum(1 for s in sib.values() if s["dead"]) == 1
     assert sum(1 for s in [prog, *sib.values()] if any(u["name"] == "MAINLINE" for u in s["units"])) >= 11
     assert prog["verification"]["census"]["by"]
+
+
+# ==============================================================================
+# The draft-section table (#3383)
+# ==============================================================================
+def _section(**kw):
+    return ak.DraftSection(
+        "add-x", "xs", "x_validated", lambda repo, key: {"new.cbl": {"x_validated": False, "v": 1}}, "x files", **kw
+    )
+
+
+def test_a_draft_refresh_keeps_a_signed_off_entry():
+    key = {"xs": {"new.cbl": {"x_validated": True, "v": 0}, "old.cbl": {"x_validated": False}}}
+    assert ak.refresh_draft_section(_section(), Path("."), key) == 2
+    assert key["xs"]["new.cbl"] == {"x_validated": True, "v": 0}
+    assert "old.cbl" in key["xs"]  # an unsigned entry the draft no longer yields is kept by default
+
+
+def test_a_draft_refresh_can_drop_a_stale_unsigned_entry():
+    key = {"xs": {"signed.cbl": {"x_validated": True}, "old.cbl": {"x_validated": False}}}
+    assert ak.refresh_draft_section(_section(drop_stale=True), Path("."), key) == 2
+    assert set(key["xs"]) == {"signed.cbl", "new.cbl"}
+
+
+def test_a_draft_refresh_creates_a_missing_section():
+    key: dict = {}
+    assert ak.refresh_draft_section(_section(), Path("."), key) == 1
+    assert key["xs"]["new.cbl"]["v"] == 1
+
+
+def test_every_draft_section_is_a_unique_subcommand():
+    cmds = [s.cmd for s in ak.DRAFT_SECTIONS]
+    assert len(cmds) == len(set(cmds)) == len(ak.DRAFT_SECTIONS_BY_CMD)
+    assert all(c.startswith("add-") for c in cmds)
+    assert len({s.section for s in ak.DRAFT_SECTIONS}) == len(cmds)

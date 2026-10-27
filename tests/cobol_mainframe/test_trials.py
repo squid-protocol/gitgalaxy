@@ -420,3 +420,94 @@ def test_every_inline_fd_record_of_the_unlocked_carddemo_programs_lays_out():
     # without the estate's copy directory the COPY members do not resolve: named, not silent
     with pytest.raises(common.LayoutError):
         common.layout_fields(base, "app/cbl/CBIMPORT.cbl", "EXPORT-INPUT-RECORD")
+
+
+# ---- #4493: the per-estate harness page ---------------------------------------------------
+def _synthetic_ledger(private: bool = False) -> dict:
+    def prog(final, attempts):
+        return {"final": final, "attempts": attempts}
+
+    def att(n, outcome, cause):
+        return {"n": n, "outcome": outcome, "cause": cause, "fix_commit": None, "at": "2026-10-25", "model": "m"}
+
+    estate = {
+        "id": "fresh-1",
+        "kind": "private",
+        "status": "development",
+        "label": "pilot-A",
+        "trialled_by": "trial-001",
+    }
+    if not private:
+        estate = {"id": "fresh-1", "kind": "public", "status": "development", "repo": "https://example.com/r",
+                  "ref": "a" * 40, "trialled_by": "trial-001"}  # fmt: skip
+    trial = {
+        "id": "trial-001", "estate": "fresh-1", "started": "2026-10-25", "closed": None,
+        "system": {"engine_version": "v", "model_version": "m", "backend": "command"},
+        "eligible": ["A", "B", "C", "D"], "out_of_scope": {"E": "online (CICS)", "F": "online (CICS)"},
+        "programs": {
+            "A": prog("proven@1", [att(1, "proven", None)]),
+            "B": prog("open", [att(1, "failed", "generator")]),
+            "C": prog("open", [att(1, "no-port", "generator")]),
+            "D": prog("open", []),
+        },
+    }  # fmt: skip
+    return {"estates": [estate], "trials": [trial]}
+
+
+def test_the_estate_page_puts_each_program_under_one_status_and_one_blocker():
+    ledger = _synthetic_ledger()
+    page = trial.trial_page(ledger, ledger["trials"][0])
+    assert "programs in the estate: 6" in page and "proven: 1 of 4 eligible (25%)" in page
+    assert "| B | differs |" in page and "| C | couldn't run |" in page and "| D | not attempted |" in page
+    assert "online (CICS) (2): E, F" in page
+    blockers = trial.trial_blockers(ledger["trials"][0])
+    assert [(b["cause"], b["programs"]) for b in blockers] == [("generator", ["B", "C"]), ("undiagnosed", ["D"])]
+    listed = [p for b in blockers for p in b["programs"]]
+    assert sorted(listed) == ["B", "C", "D"]  # exactly one blocker each, the proven one under none
+    assert "unlocks 2" in page
+
+
+def test_fixing_a_blocker_drops_the_predicted_number_of_programs():
+    ledger = _synthetic_ledger()
+    t = ledger["trials"][0]
+    before = trial.trial_blockers(t)[0]
+    assert before["cause"] == "generator"
+    predicted = len(before["programs"])
+    for key in before["programs"]:  # the generator fix lands: both programs prove at attempt 2
+        t["programs"][key]["attempts"].append(
+            {"n": 2, "outcome": "proven", "cause": None, "fix_commit": None, "at": "2026-10-26", "model": "m"}
+        )
+        t["programs"][key]["final"] = "proven@2(generator)"  # fmt: skip
+    after = trial.trial_blockers(t)
+    assert [b["cause"] for b in after] == ["undiagnosed"]
+    assert (
+        sum(len(b["programs"]) for b in trial.trial_blockers(_synthetic_ledger()["trials"][0]))
+        - sum(len(b["programs"]) for b in after)
+        == predicted
+    )
+
+
+def test_a_private_estate_page_names_only_the_label():
+    ledger = _synthetic_ledger(private=True)
+    page = trial.trial_page(ledger, ledger["trials"][0])
+    assert "pilot-A" in page and "fresh-1" not in page and "example.com" not in page
+    assert list(trial.trial_pages(ledger)) == ["pilot-A.md"]
+
+
+def test_the_estate_pages_are_checked_for_staleness_and_orphans(tmp_path):
+    ledger = _synthetic_ledger()
+    assert trial.stale_pages(ledger, tmp_path) == ["fresh-1.md"]
+    trial.write_pages(ledger, tmp_path)
+    assert trial.stale_pages(ledger, tmp_path) == []
+    (tmp_path / "gone.md").write_text("x", encoding="utf-8")
+    assert trial.stale_pages(ledger, tmp_path) == ["gone.md"]
+    assert "[trial-001](trials/fresh-1.md)" in trial.render(ledger)
+
+
+def test_preview_writes_a_rehearsal_page(started, tmp_path, capsys):
+    page = tmp_path / "page.md"
+    rc = trial.main([*started["common"], "preview", "tiny-estate", "--estate-path", str(started["estate"]),
+                     "--work", str(tmp_path / "w"), "--page", str(page)])  # fmt: skip
+    assert rc == 0
+    text = page.read_text(encoding="utf-8")
+    assert "(rehearsal)" in text and "not attempted" in text and "never first-try" in text

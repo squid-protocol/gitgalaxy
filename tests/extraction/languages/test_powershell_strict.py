@@ -543,3 +543,41 @@ def test_powershell_calls_out_strict():
     # 4. ReDoS immunity
     payload = " " * 100000 + "probe_branch"
     assert_redos_immune(calls_out, payload)
+
+
+_ARGS_SPAN_CASES = [
+    # (source, expected span of the parameter list)
+    ('param(\n    [ValidatePattern("^v(-\\w+(\\.\\d{1,2})?)?$")]\n    [string]$Tag,\n    [switch]$Clean\n)', None),
+    ("function Foo([ValidateSet('a)', 'b')] $x, $y) {", "([ValidateSet('a)', 'b')] $x, $y)"),
+    ('function Foo([ValidatePattern("(")] $x) {', '([ValidatePattern("(")] $x)'),
+    ("param($c = (Get-A (Get-B)), $d)", "($c = (Get-A (Get-B)), $d)"),
+    (
+        "function Bar {\n    param(\n        [string]$a,\n        [int]$b\n    )\n}",
+        "(\n        [string]$a,\n        [int]$b\n    )",
+    ),
+]
+
+
+@pytest.mark.parametrize("source,span", _ARGS_SPAN_CASES)
+def test_powershell_args_param_list_nesting_and_strings_regression(source, span):
+    """#3303: the parameter list is matched whole past three paren levels and past parens inside strings."""
+    m = POWERSHELL_RULES["args"].search(source)
+    assert m, source
+    got = next(g for g in m.groups()[1::2] if g) if m.group(1) is None else m.group(2)
+    if span is not None:
+        assert got == span
+    else:
+        assert got.endswith("[switch]$Clean\n)")
+
+
+def test_powershell_args_unterminated_string_and_bare_call_do_not_match():
+    pattern = POWERSHELL_RULES["args"]
+    assert not pattern.search("Foo($a, $b)")
+    assert not pattern.search('function Foo([ValidatePattern("x) {')
+
+
+def test_powershell_args_redos_immunity():
+    pattern = POWERSHELL_RULES["args"]
+    assert_redos_immune(pattern, "param(" + '"' * 40000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "param(" + "(" * 40000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "function f(" + "'a" * 20000, timeout_sec=3.0)

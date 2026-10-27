@@ -1,0 +1,70 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-acctview",
+  "entries": [
+    {
+      "unit": "1300-SETUP-SCREEN-ATTRS",
+      "line": 567,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF WS-NO-INFO-MESSAGE` (WS-INFO-MSG SPACES or LOW-VALUES) is only reached through 1000-SEND-MAP (421), which performs 1200-SETUP-SCREEN-VARS first: 1200 has no GO TO and runs `IF WS-NO-INFO-MESSAGE SET WS-PROMPT-FOR-INPUT TO TRUE` (528-530), so WS-INFO-MSG holds 'Enter or update id of account to display' or an earlier non-blank message when 1300 tests it; nothing else clears it between 1200 and 1300."
+    },
+    {
+      "unit": "2210-EDIT-ACCOUNT",
+      "line": 657,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF` (blank account id) is false only if WS-RETURN-MSG is already non-blank. 0000-MAIN sets it to SPACES at 278 on every entry, and the only writers before 2210 (reached from 2200, 636, under 2000-PROCESS-INPUTS at 362) are 2210's own branches (673) and the EIBCALEN/OTHER arm at 380, which ends the task; 2100-RECEIVE-MAP and 2200 write no message, so the test is always true."
+    },
+    {
+      "unit": "2210-EDIT-ACCOUNT",
+      "line": 670,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF` (non-numeric or zero account id) is false only if WS-RETURN-MSG is already non-blank: it is SPACES from 278, and nothing between that and 2210 writes it (2100-RECEIVE-MAP and 2200-EDIT-MAP-INPUTS move nothing into WS-RETURN-MSG; the blank-id arm at 657-661 writes it only on the path that leaves 2210 before this test), so the test is always true."
+    },
+    {
+      "unit": "9000-READ-ACCT",
+      "line": 704,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF DID-NOT-FIND-ACCT-IN-ACCTDAT` tests WS-RETURN-MSG for the text 'Did not find this account in account master file', which only the `SET DID-NOT-FIND-ACCT-IN-ACCTDAT TO TRUE` at 792 would put there, and that statement is commented out (`*`); 9300's other writers store 'Account:... not found in Acct Master file.Resp:...' (793-805) or WS-FILE-ERROR-MESSAGE (816), neither equal to the 88 value, so the test is always false."
+    },
+    {
+      "unit": "9000-READ-ACCT",
+      "line": 713,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF DID-NOT-FIND-CUST-IN-CUSTDAT` tests WS-RETURN-MSG for 'Did not find associated customer in master file', which only the `SET DID-NOT-FIND-CUST-IN-CUSTDAT TO TRUE` at 842 would put there, and that statement is commented out; 9400's other writers store 'CustId:... not found in customer master.Resp:...' (845-855) or WS-FILE-ERROR-MESSAGE (865), so the test is always false."
+    },
+    {
+      "unit": "9200-GETCARDXREF-BYACCT",
+      "line": 744,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF` in the NOTFND arm of the xref READ is false only if WS-RETURN-MSG is already non-blank. 9200 is performed from 9000 (693), which is reached only from the `ELSE` of `IF INPUT-ERROR` (364-369): no error means no earlier path wrote the message after the SPACES set at 278, so it is blank and the test is always true."
+    },
+    {
+      "unit": "9300-GETACCTDATA-BYACCT",
+      "line": 793,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-RETURN-MSG-OFF` in the NOTFND arm of the account READ is false only if WS-RETURN-MSG is already non-blank. 9300 is performed from 9000 (701) only after 9200 left FLG-ACCTFILTER-NOT-OK unset (697-699), i.e. after a NORMAL xref READ, which writes no message (WHEN OTHER and NOTFND both set FLG-ACCTFILTER-NOT-OK and leave 9000 first), so WS-RETURN-MSG is still the SPACES set at 278 and the test is always true."
+    },
+    {
+      "unit": "ABEND-ROUTINE",
+      "line": 918,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 19-20) inside ABEND-DATA, which no INITIALIZE of the program names (the INITIALIZEs at 268 and 285 are CC-WORK-AREA and CARDDEMO-COMMAREA), and the program writes ABEND-MSG only at 919, inside this very test. It is never LOW-VALUES when ABEND-ROUTINE runs."
+    }
+  ]
+}

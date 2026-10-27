@@ -476,9 +476,9 @@
       "dart/flutter/editable_text.dart": "162 instances",
       "dart/flutter/events.dart": "1 instances",
       "dart/flutter/framework.dart": "183 instances",
-      "dart/flutter/navigator.dart": "201 instances",
+      "dart/flutter/navigator.dart": "198 instances",
       "dart/flutter/object.dart": "386 instances",
-      "dart/flutter/semantics.dart": "370 instances",
+      "dart/flutter/semantics.dart": "369 instances",
       "dart/flutter/theme_data.dart": "109 instances"
     },
     "db2_sql/db2unit": {
@@ -1188,7 +1188,7 @@
       "python/numpy/core.py": "801 instances",
       "python/numpy/crackfortran.py": "1006 instances",
       "python/numpy/func2subr.py": "84 instances",
-      "python/numpy/genapi.py": "101 instances",
+      "python/numpy/genapi.py": "103 instances",
       "python/numpy/generate_numpy_api.py": "22 instances",
       "python/numpy/generate_ufunc_api.py": "15 instances",
       "python/numpy/generate_umath.py": "105 instances",
@@ -1310,10 +1310,10 @@
       "scala/kafka/SocketServer.scala": "33 instances"
     },
     "scheme/racket": {
-      "scheme/racket/cpnanopass.ss": "245 instances",
+      "scheme/racket/cpnanopass.ss": "283 instances",
       "scheme/racket/eval.c": "758 instances",
       "scheme/racket/fun.c": "1938 instances",
-      "scheme/racket/io.ss": "71 instances",
+      "scheme/racket/io.ss": "86 instances",
       "scheme/racket/schemify.rkt": "3 instances",
       "scheme/racket/thread.rkt": "4 instances"
     },

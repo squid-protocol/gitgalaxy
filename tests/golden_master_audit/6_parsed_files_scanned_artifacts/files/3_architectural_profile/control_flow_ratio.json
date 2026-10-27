@@ -1227,12 +1227,12 @@
       "dart/SOURCES.md": "0.0%"
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": "27.6%",
+      "dart/flutter/editable_text.dart": "27.4%",
       "dart/flutter/events.dart": "41.3%",
-      "dart/flutter/framework.dart": "17.7%",
-      "dart/flutter/navigator.dart": "25.0%",
-      "dart/flutter/object.dart": "23.7%",
-      "dart/flutter/semantics.dart": "30.1%",
+      "dart/flutter/framework.dart": "17.5%",
+      "dart/flutter/navigator.dart": "24.1%",
+      "dart/flutter/object.dart": "23.2%",
+      "dart/flutter/semantics.dart": "30.0%",
       "dart/flutter/theme_data.dart": "25.8%"
     },
     "db2_sql": {
@@ -3298,12 +3298,12 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": "0.0%",
-      "scheme/racket/cpnanopass.ss": "12.3%",
+      "scheme/racket/cpnanopass.ss": "14.3%",
       "scheme/racket/eval.c": "18.8%",
       "scheme/racket/fun.c": "25.2%",
-      "scheme/racket/io.ss": "20.7%",
-      "scheme/racket/schemify.rkt": "17.3%",
-      "scheme/racket/thread.rkt": "14.9%"
+      "scheme/racket/io.ss": "22.2%",
+      "scheme/racket/schemify.rkt": "17.4%",
+      "scheme/racket/thread.rkt": "15.3%"
     },
     "shell": {
       "shell/SOURCES.md": "0.0%"

@@ -98,6 +98,8 @@ museum/
 museum_2/
 *.json
 !tests/equivalence/det_sweep_durations.json
+# #6664: the measured seconds the Equivalence E2E shards split by (docs/ci_env_gated_tests.md)
+!tests/equivalence_e2e_durations.json
 # ...except committed regression-check baselines, e.g. dead_key_audit_baseline.json
 # and mypy_audit_baseline.json -- these are source, not generated output.
 !tests/*_baseline.json
@@ -165,6 +167,8 @@ docs/language_status/evidence_report/*
 !tests/cobol_mainframe/ground_truth_ledger.json
 # ...and the port-side blocker ledger (#5051, tests/tools/port_blockers.py).
 !tests/cobol_mainframe/port_blockers.json
+# ...and the customer-blocker signature catalogue (#5054, tests/tools/blocker_ingest.py).
+!tests/cobol_mainframe/blocker_signatures.json
 # ...and the fresh-estate trial ledger (#3805, tests/tools/trial.py).
 !tests/cobol_mainframe/trials.json
 # ...and the CICS crucible runner's ratchet ledger and its fixture case (#3989): the fixture is in the
@@ -183,7 +187,7 @@ docs/language_status/evidence_report/*
 !tests/equivalence/facade_baseline.json
 !tests/equivalence/det_sweep_baseline.json
 !tests/equivalence/det_sweep_coverage/*.json
-!tests/equivalence/infeasible_outcomes.json
+!tests/equivalence/infeasible_outcomes/*.json
 !tests/cics_crucible/ports/*/*/evidence.json
 !tests/cics_crucible/fixture/**/*.json
 !tests/cics_crucible/strengthened/**/*.json
@@ -246,10 +250,13 @@ tests/telemetry_out/
 !tests/fixtures/feature_inventory/*.json
 !tests/fixtures/era_distribution/summary.json
 !tests/fixtures/gap_prevalence/summary.json
+!tests/fixtures/gap_prevalence/census_summary.json
 
 # #4825: the per-program evidence pages are rendered from the records and published to the `generated` branch by
 # .github/workflows/evidence-pages.yml; main never commits them (PRs collided on them).
 docs/language_status/evidence/
+# #4493: the equivalence-harness report is built by evidence-refresh.yml and published to `generated`; never committed.
+docs/language_status/harness/
 # #5057: the aggregate pages rendered from committed sources (tests/tools/generated_docs.py) are published to the
 # `generated` branch by .github/workflows/generated-docs.yml; PRs commit their sources only (they collided on the pages).
 docs/language_status/oracle_assumptions.md

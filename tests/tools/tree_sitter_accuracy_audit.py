@@ -1292,7 +1292,10 @@ def _get_node_name(node: Any) -> str | None:
     if node.type == "function_statement":
         for child in node.children:
             if child.type == "function_name":
-                return child.text.decode("utf8")
+                # #3303: tree-sitter keeps the scope qualifier (`script:Write-Log`); the engine's
+                # func_start deliberately steps over it (`global|script|local|private:`) and
+                # names the function `Write-Log`, so compare on the bare name.
+                return re.sub(r"^(?:global|script|local|private):", "", child.text.decode("utf8"), flags=re.I)
         return None
     # #1295: enum_statement has the identical no-name-field shape as class_statement above --
     # powershell's own class_start regex already intentionally matches "class|enum" (its comment

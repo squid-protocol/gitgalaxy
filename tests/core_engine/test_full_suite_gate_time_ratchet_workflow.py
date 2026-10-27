@@ -56,22 +56,18 @@ def test_times_artifact_is_linux_only_and_stays_out_of_the_budget_merge():
     assert "matrix.part" in up["with"]["name"]
 
 
-# #5764: slowest minutes seen per (os, python) part on the gate's runs of 2026-10-14..20; a cap needs 1.3x headroom.
-# windows 3.11 was 25 min as 2 parts; as 3 parts it is an estimate (~4 min setup + 2/3 of the tests): re-measure.
-SLOWEST_SEEN_MIN = {
-    ("windows-latest", "3.11"): 18,
-    ("windows-latest", "3.12"): 19,
-    ("macos-latest", "3.11"): 16,
-    ("macos-latest", "3.12"): 17,
-}
+# #5764: the slowest minutes seen per (os, python) part live in the planner now (suite_shard_plan.SLOWEST_SEEN_MIN), which
+# floors each leg's cap at 1.3x them; this test still checks the planned legs against them, on whatever durations it reads.
 
 
 def _legs():
-    import json
-    import re
+    """#5919: the legs are planned (suite_shard_plan.py --gate), not typed in the workflow."""
+    import sys
 
-    text = (WORKFLOWS / "full-suite-gate.yml").read_text(encoding="utf-8")
-    return [json.loads(m) for m in re.findall(r"\{\"os\":[^{}]*\}", text)]
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import suite_shard_plan
+
+    return suite_shard_plan.gate_plan(suite_shard_plan.load_durations())["matrix"]
 
 
 def test_the_pytest_step_times_out_before_its_job_so_a_stall_keeps_its_log():
@@ -95,10 +91,21 @@ def test_no_workflow_expression_uses_arithmetic():
                 assert not re.search(r"[\w)\]]\s+[-+*/]\s+[\w(]", bare), f"{path.name}: {line.strip()}"
 
 
+def _seen() -> dict:
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import suite_shard_plan
+
+    return suite_shard_plan.SLOWEST_SEEN_MIN
+
+
 def test_every_leg_cap_has_headroom_over_the_slowest_seen_time():
     legs = _legs()
     assert legs
+    seen_min = _seen()
+    assert {("windows-latest", "3.11"), ("windows-latest", "3.12"), ("macos-latest", "3.11")} <= seen_min.keys()
     for leg in legs:
-        seen = SLOWEST_SEEN_MIN.get((leg["os"], leg["python-version"]))
+        seen = seen_min.get((leg["os"], leg["python-version"]))
         if seen:
             assert leg["timeout"] >= seen * 1.3, leg

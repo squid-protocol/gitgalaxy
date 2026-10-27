@@ -1503,6 +1503,60 @@
    "why": "#4049: 101 on the ENDBR after PF7: the program's ENDBR has no RESP, so the condition abends the task before the screen is sent"
   },
   {
+   "name": "endbr-ioerr-after-a-page-forward",
+   "aid": "DFHPF8",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "IOERR on the ENDBR after PF8: ENDBR has no RESP, so CICS takes its default action and abends the task (AEIQ)"
+    }
+   ],
+   "why": "#6166: IOERR on the ENDBR after PF8: the program's ENDBR has no RESP, so the condition abends the task (AEIQ) before the screen is sent"
+  },
+  {
+   "name": "endbr-ioerr-after-a-page-back",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "USER0006",
+    "CDEMO-CU00-USRID-LAST": "USER0015",
+    "CDEMO-CU00-PAGE-NUM": 2,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "IOERR on the ENDBR after PF7: ENDBR has no RESP, so CICS takes its default action and abends the task (AEIQ)"
+    }
+   ],
+   "why": "#6166: IOERR on the ENDBR after PF7: the program's ENDBR has no RESP, so the condition abends the task (AEIQ) before the screen is sent"
+  },
+  {
    "name": "short-commarea-187",
    "aid": "DFHPF5",
    "commarea": {
@@ -1840,6 +1894,342 @@
     }
    },
    "why": "#4049: a selection flag on a row whose USRID was never received (NUL, not blank): tests the width of the USR-SELECTED blank-or-low test."
+  },
+  {
+   "name": "pf3-xctl-fails",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4049: PF3 sets the target COADM01C and RETURN-TO-PREV-SCREEN's XCTL answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
+  },
+  {
+   "name": "select-update-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0003I": "U",
+     "USRID03I": "ADMIN003"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COUSR02C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4049: a 'U' selection XCTLs to COUSR02C (the line 197 site) and it answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
+  },
+  {
+   "name": "select-delete-xctl-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0007I": "d",
+     "USRID07I": "USER0002"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COUSR03C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4049: a 'd' selection XCTLs to COUSR03C (the line 207 site) and it answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
+  },
+  {
+   "name": "no-commarea-xctl-to-signon-fails",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ],
+   "why": "#4049: EIBCALEN 0 sets the target COSGN00C and RETURN-TO-PREV-SCREEN's XCTL answers PGMIDERR RESP2 3 (the program could not be loaded, IBM CICS TS XCTL conditions); the source has no RESP, so CICS abends the task and no screen or COMMAREA is returned"
+  },
+  {
+   "name": "enter-search-id-spaces",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "USRIDINI": ""
+    }
+   },
+   "why": "#6166: the search id is typed blank (spaces, not the NUL of an unreceived field): USRIDINI = SPACES OR LOW-VALUES takes the first arm, SEC-USR-ID = LOW-VALUES and the list starts at the first user."
+  },
+  {
+   "name": "pf7-first-id-nul-page-1",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "#6166: the first id carried is eight LOW-VALUES (the spaces form is pf7-with-no-first-id): the NOT-SPACES-AND-LOW-VALUES test still reads it as blank; page 1, so 'You are already at the top of the page...'."
+  },
+  {
+   "name": "pf7-first-id-blank-page-3",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "",
+    "CDEMO-CU00-USRID-LAST": "USER0020",
+    "CDEMO-CU00-PAGE-NUM": 3,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "#6166: a blank first id on page 3: SEC-USR-ID = LOW-VALUES and PROCESS-PAGE-BACKWARD browses back from the start of the file."
+  },
+  {
+   "name": "pf7-first-id-nul-page-3",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    "CDEMO-CU00-USRID-LAST": "USER0020",
+    "CDEMO-CU00-PAGE-NUM": 3,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {}
+   },
+   "why": "#6166: eight LOW-VALUES as the first id on page 3: same arm as the blank form, through PROCESS-PAGE-BACKWARD."
+  },
+  {
+   "name": "select-row-1-blank-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0001I": "U",
+     "USRID01I": ""
+    }
+   },
+   "why": "#6166: row 1 selected with 'U' and a blank (spaces) USRID01I: SEL-FLG is U, USR-SELECTED stays blank, nothing is transferred; row 2's id is not looked at."
+  },
+  {
+   "name": "select-delete-row-10-blank-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "USER0016",
+    "CDEMO-CU00-USRID-LAST": "USER0020",
+    "CDEMO-CU00-PAGE-NUM": 3,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0010I": "D",
+     "USRID10I": ""
+    }
+   },
+   "why": "#6166: row 10 selected with 'D' and a blank USRID10I: the last WHEN of the selection loop, the XCTL to COUSR03C is not taken."
+  },
+  {
+   "name": "select-delete-row-3-nul-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0003I": "D"
+    }
+   },
+   "why": "#6166: row 3 selected with 'D' and no USRID03I received (NUL): the delete is not transferred."
+  },
+  {
+   "name": "blank-flag-row-1-then-select-row-2",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "SEL0001I": " ",
+     "USRID01I": "ADMIN001",
+     "SEL0002I": "U",
+     "USRID02I": "ADMIN002"
+    }
+   },
+   "why": "#6166: row 1's flag is a blank (spaces) beside a real id: the WHEN is skipped and row 2's 'U' wins, XCTL to COUSR02C with ADMIN002."
+  },
+  {
+   "name": "nul-flag-row-1-then-select-row-2",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-CU00-USRID-FIRST": "ADMIN001",
+    "CDEMO-CU00-USRID-LAST": "USER0005",
+    "CDEMO-CU00-PAGE-NUM": 1,
+    "CDEMO-CU00-NEXT-PAGE-FLG": "Y"
+   },
+   "receive": {
+    "COUSR0A": {
+     "USRID01I": "ADMIN001",
+     "SEL0002I": "D",
+     "USRID02I": "ADMIN002"
+    }
+   },
+   "why": "#6166: row 1 has an id but no flag received (NUL): the WHEN is skipped and row 2's 'D' wins, XCTL to COUSR03C with ADMIN002."
+  },
+  {
+   "name": "first-entry-endbr-ioerr",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "faults": [
+    {
+     "cmd": "ENDBR",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "IOERR on the ENDBR of the first page: no RESP, so CICS abends the task (AEIQ) before the first screen is sent"
+    }
+   ],
+   "why": "#6166: the first-entry path reaches PROCESS-ENTER-KEY -> PROCESS-PAGE-FORWARD; an abend there ends the task, so nothing may be sent after it (the port's `if (ended) return` after processEnterKey)"
+  },
+  {
+   "name": "no-commarea-xctl-fails-browse-fault-unreached",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COSGN00C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    },
+    {
+     "cmd": "STARTBR",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "never reached: the XCTL above abends the task first, so a port that runs on after it would take this fault"
+    }
+   ],
+   "why": "#6166: as no-commarea-xctl-to-signon-fails, plus a STARTBR fault only a command issued after the dead XCTL would reach"
   }
  ],
  "notes": "CardDemo's user list (transaction CU00, program COUSR00C): a page of ten users browsed from USRSEC (STARTBR / READNEXT, ENDBR), PF8 / PF7 page forward and back from the page's last / first id (a READNEXT / READPREV first steps over the record the browse starts on), a 'U' or 'D' beside a user XCTLs to the update / delete screen. usrsec.txt is CardDemo's ten DUSRSECJ users plus fifteen synthetic ones (USER0006-USER0020, named for computing pioneers, written for this case) so that three pages exist. A defect of the original the case shows: a search past the last id makes STARTBR NOTFND, and the ENDBR that follows (no RESP) abends with INVREQ. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

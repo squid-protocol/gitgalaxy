@@ -1227,12 +1227,12 @@
       "dart/SOURCES.md": 0.0
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 0.601,
+      "dart/flutter/editable_text.dart": 0.599,
       "dart/flutter/events.dart": 0.642,
-      "dart/flutter/framework.dart": 0.818,
-      "dart/flutter/navigator.dart": 0.712,
-      "dart/flutter/object.dart": 1.205,
-      "dart/flutter/semantics.dart": 1.365,
+      "dart/flutter/framework.dart": 0.816,
+      "dart/flutter/navigator.dart": 0.7,
+      "dart/flutter/object.dart": 1.197,
+      "dart/flutter/semantics.dart": 1.362,
       "dart/flutter/theme_data.dart": 0.897
     },
     "db2_sql": {
@@ -1968,7 +1968,7 @@
       "javascript/threejs/Matrix4.js": 1.158,
       "javascript/threejs/Nodes.js": 0.5,
       "javascript/threejs/WebGLProgram.js": 1.064,
-      "javascript/threejs/WebGLRenderer.js": 1.564
+      "javascript/threejs/WebGLRenderer.js": 1.571
     },
     "jcl": {
       "jcl/SOURCES.md": 0.0
@@ -2523,7 +2523,7 @@
       "perl/bugzilla/Requirements.pm": 0.4
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 1.533,
+      "perl/exiftool/ExifTool.pm": 1.535,
       "perl/exiftool/META.json": 0.0,
       "perl/exiftool/Makefile.PL": 0.431,
       "perl/exiftool/README": 0.0,
@@ -2598,7 +2598,7 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0.197,
       "php/wordpress/class-wp-query.php": 1.542,
-      "php/wordpress/formatting.php": 1.306,
+      "php/wordpress/formatting.php": 1.305,
       "php/wordpress/functions.php": 1.019,
       "php/wordpress/license.txt": 0.0,
       "php/wordpress/plugin.php": 0.953,
@@ -2694,14 +2694,14 @@
       "powershell/core/Microsoft.WSMan.Management.psd1": 0.0,
       "powershell/core/PSDiagnostics.psd1": 0.0,
       "powershell/core/Parse-MarkdownLink.ps1": 0.905,
-      "powershell/core/PowerShell__build.psm1": 1.426,
+      "powershell/core/PowerShell__build.psm1": 1.432,
       "powershell/core/RegisterManifest.ps1": 1.275,
       "powershell/core/RegisterMicrosoftUpdate.ps1": 1.962,
       "powershell/core/Run-AttackSurfaceAnalyzer.ps1": 0.832,
       "powershell/core/Run.ps1": 0.931,
       "powershell/core/SSHRemoting.Basic.Tests.ps1": 0.811,
       "powershell/core/analyze-pr-test-failures.ps1": 1.053,
-      "powershell/core/build.psm1": 1.426,
+      "powershell/core/build.psm1": 1.432,
       "powershell/core/ci.psm1": 0.958,
       "powershell/core/ciModule.Tests.ps1": 0.608,
       "powershell/core/install-powershell.ps1": 1.174,
@@ -3100,7 +3100,7 @@
       "python/numpy/crackfortran.py": 1.58,
       "python/numpy/cversions.txt": 0.0,
       "python/numpy/func2subr.py": 1.125,
-      "python/numpy/genapi.py": 1.298,
+      "python/numpy/genapi.py": 1.294,
       "python/numpy/generate_numpy_api.py": 0.865,
       "python/numpy/generate_ufunc_api.py": 0.831,
       "python/numpy/generate_umath.py": 0.597,
@@ -3298,12 +3298,12 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0.0,
-      "scheme/racket/cpnanopass.ss": 0.565,
+      "scheme/racket/cpnanopass.ss": 0.618,
       "scheme/racket/eval.c": 1.452,
       "scheme/racket/fun.c": 1.408,
-      "scheme/racket/io.ss": 0.531,
-      "scheme/racket/schemify.rkt": 0.274,
-      "scheme/racket/thread.rkt": 0.272
+      "scheme/racket/io.ss": 0.568,
+      "scheme/racket/schemify.rkt": 0.276,
+      "scheme/racket/thread.rkt": 0.278
     },
     "shell": {
       "shell/SOURCES.md": 0.0
@@ -3908,8 +3908,8 @@
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/LICENSE.txt": 0.0,
       "typescript/typescript_compiler/binder.ts": 0.8,
-      "typescript/typescript_compiler/checker.ts": 0.778,
-      "typescript/typescript_compiler/emitter.ts": 0.653,
+      "typescript/typescript_compiler/checker.ts": 1.058,
+      "typescript/typescript_compiler/emitter.ts": 0.667,
       "typescript/typescript_compiler/package.json": 0.0,
       "typescript/typescript_compiler/parser.ts": 0.629,
       "typescript/typescript_compiler/types.ts": 0.234
@@ -3919,7 +3919,7 @@
       "typescript/vscode/async.ts": 1.74,
       "typescript/vscode/codeEditorWidget.ts": 0.486,
       "typescript/vscode/eslint.config.js": 0.02,
-      "typescript/vscode/extHost.api.impl.ts": 0.539,
+      "typescript/vscode/extHost.api.impl.ts": 0.55,
       "typescript/vscode/gulpfile.vscode.ts": 0.967,
       "typescript/vscode/instantiationService.ts": 0.918,
       "typescript/vscode/ipc.ts": 1.017,
@@ -4079,26 +4079,26 @@
       "zig/tigerbeetle/direction.zig": 0.579,
       "zig/tigerbeetle/download.sh": 0.913,
       "zig/tigerbeetle/download.win.ps1": 0.93,
-      "zig/tigerbeetle/state_machine.zig": 0.286
+      "zig/tigerbeetle/state_machine.zig": 0.295
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 0.424,
+      "zig/zig/Compilation.zig": 0.425,
       "zig/zig/InternPool.zig": 0.461,
       "zig/zig/Sema.zig": 0.416,
-      "zig/zig/Type.zig": 0.295,
-      "zig/zig/Zcu.zig": 0.364,
-      "zig/zig/main.zig": 1.142
+      "zig/zig/Type.zig": 0.218,
+      "zig/zig/Zcu.zig": 0.363,
+      "zig/zig/main.zig": 1.156
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 0.006
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": 0.214,
-      "zig/zls/DocumentStore.zig": 0.448,
+      "zig/zls/DocumentScope.zig": 0.15,
+      "zig/zls/DocumentStore.zig": 0.327,
       "zig/zls/Server.zig": 0.415,
-      "zig/zls/analysis.zig": 0.537,
-      "zig/zls/ast.zig": 0.67,
-      "zig/zls/config_gen.zig": 0.711,
+      "zig/zls/analysis.zig": 0.518,
+      "zig/zls/ast.zig": 0.654,
+      "zig/zls/config_gen.zig": 0.522,
       "zig/zls/langref.html.in": 0.009,
       "zig/zls/print_ast.zig": 0.139
     }

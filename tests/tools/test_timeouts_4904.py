@@ -239,22 +239,26 @@ def test_cics_crucible_has_image_cache():
 # --------------------------------------------------------------------------------------------------
 # (5) #5156: full-suite-gate shards are complete, and both grids agree
 # --------------------------------------------------------------------------------------------------
-def _full_suite_grids() -> list[list[dict]]:
-    import json
-    import re
-
-    text = (REPO_ROOT / ".github/workflows/full-suite-gate.yml").read_text(encoding="utf-8")
-    return [json.loads(m) for m in re.findall(r"include='(\[.*?\])'", text, re.DOTALL)]
+def _full_suite_gate_text() -> str:
+    return (REPO_ROOT / ".github/workflows/full-suite-gate.yml").read_text(encoding="utf-8")
 
 
-def test_full_suite_gate_parts_are_complete_and_grids_agree():
-    """Each (os, python) leg lists parts 1..splits exactly once, and the tag and manual grids are equal."""
-    grids = _full_suite_grids()
-    assert len(grids) == 2
-    assert grids[0] == grids[1]
+def test_full_suite_gate_legs_are_planned_not_typed():
+    """#5919: no hand-set leg JSON is left in the gate; the plan job emits every leg."""
+    text = _full_suite_gate_text()
+    assert "include='[" not in text
+    assert '"splits"' not in text and '"timeout"' not in text and '"step_timeout"' not in text
+    assert "suite_shard_plan.py --gate" in text
+
+
+def test_full_suite_gate_planned_parts_are_complete_and_in_plan_range():
+    """#5156: each (os, python) leg lists parts 1..splits once, no 3.10 leg (#3322), every cap inside the plan's range."""
+    import suite_shard_plan
+
     legs: dict[tuple, list[int]] = {}
-    for entry in grids[0]:
-        assert entry["part"] <= entry["splits"]
+    for entry in suite_shard_plan.gate_plan(suite_shard_plan.load_durations())["matrix"]:
+        assert entry["python-version"] != "3.10"
+        assert suite_shard_plan.GATE_TIMEOUT_FLOOR <= entry["timeout"] <= suite_shard_plan.GATE_TIMEOUT_CEILING, entry
         legs.setdefault((entry["os"], entry["python-version"], entry["splits"]), []).append(entry["part"])
     assert legs
     for key, parts in legs.items():

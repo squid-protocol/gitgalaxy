@@ -15,12 +15,23 @@ that baseline in the same PR.
 | Callee names (call graph, Level 1) | `tests/tools/call_graph_accuracy.py` | tree-sitter call nodes | language-crucible | `tests/call_graph_accuracy_baseline.json` | `call-graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py python` | pyan3 2.9.0 call graph | language-crucible Python | `tests/call_graph_resolution_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py typescript` | the TypeScript 6.0.2 type checker (`tests/tools/ts_callgraph.js`) | pinned typescript repos, `tests/import_graph_corpus.json` (zod) | `tests/call_graph_resolution_typescript_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py javascript` | the TypeScript 6.0.2 type checker with `allowJs` (`tests/tools/ts_callgraph.js --js`) | pinned javascript repos, `tests/import_graph_corpus.json` (express) | `tests/call_graph_resolution_javascript_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py java` | scip-java 0.12.3 (javac-resolved SCIP, through `tests/tools/scip_callgraph.py`) | pinned java repos, `tests/import_graph_corpus.json` (gson) | `tests/call_graph_resolution_java_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py rust` | rust-analyzer (pinned toolchain 1.90.0; SCIP, through `tests/tools/scip_callgraph.py`) | pinned rust repos, `tests/import_graph_corpus.json` (serde-rs/json) | `tests/call_graph_resolution_rust_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py go` | golang.org/x/tools 0.37.0 VTA call graph (`tests/tools/go_callgraph`, Go 1.24+) | pinned go repos, `tests/import_graph_corpus.json` (cobra) | `tests/call_graph_resolution_go_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py c` | libclang 18.1.1 resolved calls (`tests/tools/clang_callgraph.py`, pip `libclang`) | pinned c repos, `tests/import_graph_corpus.json` (hiredis, libuv) | `tests/call_graph_resolution_c_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py cpp` | libclang 18.1.1 resolved calls, linked by USR (`tests/tools/clang_callgraph.py cpp`, pip `libclang` plus a host g++ for the C++ system headers) | pinned c++ repo, `tests/import_graph_corpus.json` (fmtlib/fmt) | `tests/call_graph_resolution_cpp_baseline.json` | `graph-accuracy-audit.yml` |
 | Import edges | `tests/tools/import_graph_accuracy.py` | each language's import statements (Python `ast`, tree-sitter), resolved by the language's own rule | pinned real repos, `tests/import_graph_corpus.json` | `tests/import_graph_accuracy_baseline.json` | `graph-accuracy-audit.yml` |
 | Span anchoring | `tests/tools/span_anchor_audit.py` | the declaration line in the raw source | language-crucible | `tests/span_anchor_baseline.json` | `graph-accuracy-audit.yml` |
 
 Every step appends its table to the workflow's job summary, so the current numbers are on the
 PR's checks page. The committed baselines hold the numbers on `main`.
+
+Span anchoring is the longest single gate (about 5 min on a CI runner), so it can run as parallel shards
+(#5501): `span_anchor_audit.py --shard I/N --json part.json` scans every Nth language directory, and
+`--merge part*.json --ci` sums the counts and applies the one baseline. A shard cannot gate on its own: a
+language's files sit in several directories (a `.h` file under `c/` can be C or a makefile), so only the summed
+counts give the real rate. The merged shards equal the unsharded run exactly (51 languages, same counts).
 
 **Coverage at a glance:**
 [`self_scan/graph_coverage_chart.svg`](https://github.com/squid-protocol/gitgalaxy/blob/generated/docs/self_scan/graph_coverage_chart.svg) shows the checks
@@ -53,6 +64,13 @@ asks whether an edge joins the two files the source actually joins.
 - **Each repo is scanned on its own**, in a subprocess pinned to the checkout under test.
   Scanning several repos as one lets an import resolve into a different repo, which no real scan
   can do.
+- **Hub agreement (#3797).** Edge precision and recall do not say whether the engine's most
+  depended-on files are the right ones. Per repo and language, both graphs (engine edges; the
+  parser's resolved sets, one edge to each file a statement names) go through the engine's own
+  `graph_engine.pagerank` over the same file set. `hub_overlap_at_10` is the share of the top 10
+  the two agree on; `hub_spearman` is the rank correlation over the union of both top 10s. The
+  language figure is the mean over repos with at least 10 files and a truth edge (PageRank does
+  not pool across repos). It is recorded in the baseline, not yet gated.
 
 A disagreement is a lead, not a verdict. Check it against the source before quoting a number
 (CLAUDE.md, "Comparative-correctness claims"). The known ones: a dynamic import the parser cannot
@@ -172,6 +190,168 @@ python tests/tools/callgraph_refs.py <lang> <repo> > native.json
 python tests/tools/scip_callgraph.py compare native.json scip.json
 ```
 
+## Call resolution in Go (#3782)
+
+Go is scored against the call graph of `golang.org/x/tools` 0.37.0, built by
+`tests/tools/go_callgraph/main.go` (run through `go run -C`, so it needs a Go 1.24+ toolchain on
+PATH; the repo's own `go.sum` pins the module). It type-checks every package of the repo,
+`_test.go` files included (the engine scans them too, and leaving them out left 1,019 engine
+ends unmapped against 2 with them), builds SSA, and takes the VTA graph over a CHA seed.
+Functions are named bare (`Execute`, not `Command.Execute`) at the line of their `func`
+keyword, as the engine names them. A closure's calls belong to its enclosing function, a
+generic instantiation to its declaration, and a call that resolves to a function without a
+body in the repo is `external` (the strict-precision count).
+
+**What the Go reference cannot see (cobra, 1,636 reference edges):** build tags are the host's
+(linux/amd64), so a call in a file a build constraint excludes (a `_windows.go`) is not in the reference. VTA only follows an interface
+call to types that reach it in the analysed program, so a library method called by clients
+outside the repo has no incoming edge. Calls through `reflect` or a value that comes from
+outside get none. Read those as the reference's blind spot, not engine error. The `external`
+verdicts are the engine's: 123 confident links land on a name (`Len`, `Error`) that the checker
+resolves to the standard library, the bare-name collision the strict precision counts.
+
+## Call resolution in C (#3784)
+
+C is scored against **libclang** (`tests/tools/clang_callgraph.py`, the pip `libclang==18.1.1`
+bindings with a bundled library; `pip install libclang==18.1.1`). Each `.c` file is one translation
+unit, with every directory holding a header as an `-I` path; no compilation database is needed for a
+call graph. Directories named `win` are not parsed (they need `<windows.h>`).
+
+- A def is a function with a body, in a `.c` file or a header. A prototype is not (#3757).
+- A static callee is that translation unit's own definition; any other callee is linked by symbol name to
+  every external-linkage def, which is the link group across translation units. Where per-platform files
+  define one external name (`uv__io_poll`), the reference links the call to each.
+- A callee with no def in the repo (libc, a system header) is `external`. A call through a function
+  pointer names no function and is skipped. A macro that expands to a call is a call.
+
+**First numbers vs libclang** (hiredis + libuv, 2,163 confident links judged): precision 100.0%, recall
+25.3%, resolution recall 58.8%, 2,790 confident links unmapped.
+
+**What the reference cannot see:** it parses one preprocessor configuration (Linux), so code under
+another platform's branch has no reference def (its engine links are `unmapped`); Windows-only sources are a second link group since #3784 (below). And
+the recall gap has engine-side causes the reference is right about: libuv's `TEST_IMPL(name)` functions
+(612 reference defs the engine does not extract) and `docs/code/` (113 defs, files the engine does not ingest).
+Headers libclang cannot find (the bundled build has no compiler headers) leave some types unknown, but a
+call to a declared function still resolves.
+
+
+## Call resolution in C++ (#3784)
+
+C++ is scored against the same **libclang** adapter in `cpp` mode (`tests/tools/clang_callgraph.py cpp`,
+`pip install libclang==18.1.1`; the wheel ships no C++ system headers, so the host g++'s `#include <...>`
+list is passed as `-isystem`). Each `.cc`, `.cpp` or `.cxx` file is one translation unit.
+
+- Edges link by USR, so an overload resolves exactly; a call to a template resolves to the pattern, whatever the
+  instantiation. Internal linkage (`static`, an anonymous namespace) stays the translation unit's own definition.
+- A definition is named as the engine names it: bare, except an out-of-line member (`int Foo::bar() {...}`) is
+  `Foo::bar`. A callee with no def in the repo (std, libc) is `external`.
+
+**First numbers vs libclang** (fmt, 1,741 confident links judged): precision 91.1% (96.3% overload-blind, 81.5%
+strict), recall 16.3%, resolution recall 63.8%, 90 wrong-overload links, 204 external, 1,680 unmapped.
+
+**What the reference cannot see:** it parses one preprocessor configuration, and it deliberately does not mimic
+the engine's leading `::name` for out-of-line members of template classes, so those links count as unmapped.
+The low recall is mostly engine-side and is not tuned away: gtest `TEST` macros in `test/`, the `::name`
+convention and template-overload line mismatches. They feed a later miss sweep. A template conversion operator is
+named without its template arguments (`operator Box`), as the engine does.
+
+**gtest bodies (#3784):** a `TEST(suite, name)` body is the reference's `suite_name_Test::TestBody`; the adapter now
+reads the macro line and names it `name`, as the engine does, so 6,117 of the former 6,409 `caller_unmapped` misses map.
+That alone dropped confident precision 91.1% -> 79.1%: their `fmt::format(...)` calls reached an unrelated `format`
+member such as `formatter<X>::format` through the import-stem step. With a namespace-qualified call no longer landing
+on a class member there (`_NAMESPACE_QUALIFIED_LANGS`, C++ only), the first numbers on the larger judged set
+(2,325 confident links, was 1,741) are precision 84.1% (92.9% overload-blind, 75.2% strict), recall 20.1% (was 16.3%),
+resolution recall 58.8%, 203 wrong-overload links. The `import` links to chrono/ranges `formatter::format` are gone.
+**Scope marker (#3784):** the detector also marks a C++ call written `ns::f()` by prefixing its qualifier with `::`
+(`::fmt`, `::a.b`, `::` for a global `::f()`); `x.f()` and `p->f()` stay unmarked. The resolver then tries a free
+function the caller can see (its own file, or one it imports) before the untyped-receiver method ladder, so `fmt::format`
+no longer lands on a `format` member of the caller's own file (the `file` step), and an unmarked `x.f()` can reach a
+member by import stem again. A marked call with no visible free definition falls back to the method ladder; a free
+function the caller cannot see is never linked (`std::move` must not reach a repo `move`). Measured on fmt (2,479
+confident links judged, was 2,325): precision 84.1% (unchanged), recall 21.5% (was 20.1%), resolution recall 63.3% (was
+58.8%), ambiguous precision 35.1% (was 34.1%), 220 wrong-overload links (was 203; more links are judged).
+
+**Lock-annotation tail (#3772):** `void Mock::AllowLeak(const void* p)` followed on its own indented line by
+`GTEST_LOCK_EXCLUDED_(mu) {` was named after the macro, so its callers were unmapped. The `func_start` tail now
+accepts an indented annotation macro with arguments from the LOCK / EXCLUDE / REQUIRE / ACQUIRE / RELEASE / GUARDED
+vocabulary. Before -> after: confident precision 91.1% -> 91.4%, recall 16.3% -> 17.0%, ambiguous precision
+41.5% -> 47.1%, 162 fewer `caller_unmapped`, 67 more links. Resolution recall reads 63.8% -> 62.6% because the 162
+newly mapped callers enter its denominator and only 67 of their edges link; the other 95 fall in buckets already open
+(`ambiguous/receiver` +33, `not_extracted/other` +28, `resolved_outside` +22). Linked edges rose by a net 67; confident-wrong links did not rise (wrong-overload 90 -> 89).
+
+**Overload choice (#3784):** C++ joins `OVERLOAD_LANGS`: the detector records each callee's argument counts
+(`calls_out_arities`), and the resolver picks the same-class, same-file overload declaring that many parameters. A
+count that matches several overloads or none (a default argument, a variadic, an uncounted `Type x(args)`
+construction) leaves an ambiguous `overload` row, never an edge. Measured on fmt (2,188 confident links judged, was
+2,479): precision 92.3% (was 84.1%), strict 82.0% (was 74.9%), wrong-overload links 23 (was 220), recall 20.8% (was
+21.5%), resolution recall 60.5% (was 63.3%). The recall dip is the trade: calls the counts cannot choose are no longer
+guessed. **C (hiredis, libuv)** has no overloads; the reference run is unchanged (2,163 judged, precision 100.0%,
+recall 25.3%, resolution recall 58.8%), so the unmapped links (2,789) are the open C item.
+
+**Class-template member names (#3772):** `Foo<T>::bar(...) {` was named `::bar`: the name tokenizer split at the
+`<`, `,` and `>` of the class's argument list and kept the tail. The detector now strips a class-template argument list
+that is directly followed by `::` (three nesting levels, as the `func_start` rule), so the unit is `Foo::bar` as libclang
+names it (constructors, destructors, operators, `ns::Foo<T>::m` and `template<>` specialisations alike; `operator<`,
+`operator<<` and a return type's `<...>` keep theirs). The own-header filter strips the same list, so the header's
+`Foo<T>::m(` is not read as a call to `m`. Measured on fmt, before -> after: linked edges 2,089 -> 2,139, recall 21.5% ->
+22.0%, resolution recall 59.8% -> 61.3%, `caller_unmapped` 1,249 -> 1,226, confident precision 92.5% -> 92.2% (inside the
+0.5-point tolerance), wrong 170 -> 180 and `unmapped_src` 504 -> 544: callers that were unnamed enter the judged set
+with their links, 10 of them wrong (not read in source one by one). Test:
+`tests/extraction/languages/test_cpp_template_member_names_3772.py`.
+
+**One-line namespace members (#3772):** `func_start` is anchored at the start of a line, so a definition written after
+its namespace opener (`namespace n { template<class T> T Box<T>::get() {...} }`) was not extracted at all. `cpp` now
+accepts up to three `namespace [qualified::name] {` openers before the definition. fmt call-graph metrics are unchanged
+(no such line there) and neither crucible golden nor any doom-rosetta port moves. Not covered: the same shape after
+`extern "C" {` (the one-line form is not reached by the cpp rule; the multi-line form works). Test:
+`tests/extraction/languages/test_cpp_namespace_oneline_member_3772.py`.
+
+**C macro-defined functions (#3784):** libuv defines its tests as `TEST_IMPL(kill) {`, which declares `run_test_kill`;
+the engine names the unit `kill`. The adapter now names a def written as a one-argument macro by the argument (the
+same idea as the gtest names above), so those engine ends map. Adapter only, no engine change. Before -> after
+(hiredis + libuv): confident links judged 2,163 -> 3,532, unmapped 2,789 -> 1,356, precision 100.0% (unchanged),
+recall 25.3% -> 41.5%. Resolution recall reads 58.8% -> 53.6% because the newly mapped callers enter its denominator.
+**C Windows link group (#3784):** libuv `src/win/` (25 files), `test/runner-win.c` and hiredis `sockcompat.c` were not
+parsed because their names collide with the Unix ones. The adapter now parses them as a second group under
+`-D_WIN32`: a Windows caller links to the Windows definitions of a name, falling back to the shared ones (not under
+`unix/`); a Unix caller never links to a Windows definition. No `windows.h` on the host, so a Win32 API call is
+`external`, never an edge. Adapter only, no engine change. Before -> after (hiredis + libuv): confident links judged
+3,532 -> 3,942, unmapped 1,356 -> 635, precision 100.0% (unchanged), recall 41.5% -> 42.3%, resolution recall
+53.6% -> 55.2%.
+**C platform link groups (#3784, slice 6):** a file that names a platform macro (`_WIN32`, `__APPLE__`/`__MACH__`,
+`_AIX`, `__sun`) is now parsed once more with it defined, besides the Linux parse (a Windows-only source is parsed only
+under `-D_WIN32`). That covers the in-file branches the file-name rule missed: libuv `fsevents.c`, `aix.c`, `sunos.c`,
+the `uv_barrier_*` fallbacks in `thread-common.c`, and the `_WIN32` bodies of `test/test-tty-escape-sequence-processing.c`,
+`test-fs.c`, `test-fs-event.c`, `test-spawn.c`. A def only a platform parse saw belongs to that platform's group; a
+platform caller links its group's definitions first, then the shared ones; a Linux caller never links to a platform
+def. One function written as several `#if` variants in one file is one unit to the engine, so an edge to one variant
+links all of them (without that, 20 links were judged `wrong` for picking the other variant). The Windows-only sources also
+get `-D_MSC_VER=1800` (libuv's `snprintf.c` fallback); other files do not (it made hiredis `ffc.h` calls resolve
+outside the repo). Adapter only, no engine change. Before -> after (hiredis + libuv): confident links judged
+3,942 -> 4,264, unmapped 635 -> 237, precision 100.0% (unchanged). **Recall reads 42.3% -> 36.7% and resolution recall
+55.2% -> 49.4%** because the reference now holds the per-platform edges (9,314 -> 11,608): the denominator grew, the
+engine's links did not get worse.
+**What stays unmapped (237):** the `REDIS_TEST` and SSL-only test bodies, the Qt adapter and example, `m4/` macros, and
+other platforms' branches with no macro on the list. C++ (fmt) has no platform-only sources and was measured in the
+section above; its adapter needs no change for this slice.
+**C more platform rows (#3784, slice 7):** `__FreeBSD__`, `__QNX__` and `__MVS__` join `PLATFORMS` (libuv `freebsd.c`,
+`qnx.c` and the in-file branches of `kqueue.c`, `tty.c`, `fs.c`). Measured honestly, the gain is small: confident links
+judged 4,264 -> 4,266, unmapped 237 -> 236, reference edges 11,608 -> 11,617, precision 100.0%, recall 36.7% and
+resolution recall 49.4% unchanged. Most of those files are already parsed through an existing row, or their
+platform-only defs are not called from elsewhere. Adapter only; the baseline is regenerated.
+
+### The three expected findings (#3784 acceptance)
+
+| Expected finding | Where the reference handles it | Pinned by |
+|---|---|---|
+| Calls into header prototypes (bodyless declarations, #3757) | C: a prototype is no def, the call links to the body in whichever `.c` file or header defines it. C++: edges link by USR, which a prototype and its definition share | `test_clang_callgraph_resolves_c_calls_across_translation_units`, `..._cpp_calls_by_usr_with_engine_names` |
+| The C/C++ link group across translation units | C: a non-static callee links by symbol name to every external-linkage def; static callees stay in their own unit; Windows and per-platform parses are further groups. C++: USR linking; an anonymous-namespace or `static` callee stays in its own unit | the same two tests, plus `..._links_windows_sources_as_their_own_group`, `..._parses_a_file_naming_a_platform_macro_once_more_per_platform`, `..._parses_freebsd_qnx_and_mvs_branches_as_platform_groups` |
+| Macros that look like calls | Judged as the compiler sees them: `SQ(x)` expanding to arithmetic is not a call, `VIA(x)` expanding to `helper(x)` is. A def written as a one-argument macro (`TEST_IMPL(kill) {`) is named by the argument, as is a gtest body | the C test above (`SQ` / `VIA`), `..._names_a_one_argument_macro_def_as_the_engine_does`, `..._names_a_gtest_body_by_its_test_name` |
+
+All three are covered and gated by `graph-accuracy-audit.yml` against `tests/call_graph_resolution_c_baseline.json` and
+`tests/call_graph_resolution_cpp_baseline.json`. Open engine-side gaps the reference exposes (unextracted `docs/code/`,
+the `::name` template-member convention, 236 unmapped C ends) are miss-sweep leads for the engine, not reference work.
+
 ## Span anchoring
 
 A unit is mis-anchored when its `start_line` opens before the declaration, on lines that belong
@@ -208,6 +388,54 @@ A fresh Claude Code on the web session installs all of this at CI's pins through
 tools, and both corpora, and it reports up front when the environment can't run
 full-precision golden masters.
 
+### What the JavaScript reference cannot see (#3781)
+
+`javascript` runs the TypeScript checker with `allowJs` over express's `.js/.cjs/.mjs` files
+(`ts_callgraph.js --js`). CommonJS `require` and `exports.f = function` /
+`module.exports = function` declarations resolve and are named as the engine names them
+(no unmapped ends). The checker has little to go on without types: `this.route(...)` inside a
+function assigned to `app.x` and calls on untyped parameters get no edge, so those engine
+links come back `unconfirmed` or the reference edge is simply absent (express: 29 reference
+edges in 341 definitions). Read those as the reference's blind spot, not engine error. All
+numbers are "vs tsc (allowJs)".
+
+### What the Rust reference cannot see (#3785)
+
+`rust` reads rust-analyzer's SCIP index of serde-rs/json through the shared adapter
+(`scip_callgraph.rust_analyzer_contract`). An `impl` method is named by its method name, a
+trait method without a default body is not a definition (#3757), and a macro reference is not
+a call. Macro-generated calls (the `serde` derives, `format_args!` expansions) are invisible
+to a text extractor and to the index's call positions: a deliberate limit, not an engine
+defect. Calls through a trait object or a generic bound resolve to the bodyless trait
+declaration, so they count as neither an edge nor `external`. All numbers are "vs
+rust-analyzer".
+
+Measured against rust-analyzer 1.90.0 on serde-rs/json: confident precision 93.8% (694 judged),
+ambiguous 60.4%, recall 60.1%, resolution recall 64.9%; 41 confident links resolve outside the
+repo and 207 end at a function the index has none for. Read from the real index:
+
+- **`impl` methods carry no owner** (`class_start` has `struct`/`enum`/`trait` but an `impl` block is
+  a separate span), so `self.m()` had no class to walk and 239 of the first 424 `resolved_outside`
+  edges were `self.` calls into the same file. The resolver now lets a `self` receiver in Rust reach
+  any definition (`_IMPL_SELF_LANGS`: recall 39.9% -> 60.1%, precision 92.1% -> 93.8%). Widening
+  every receiver the same way was tried and rejected: `x.len()` linked to every repo `len`
+  (`external` 40 -> 138, precision down to about 71%). A typed receiver (`de.m()`) and a
+  `Type::new(` path need the impl's type as the owner, a detector change not made here.
+
+- rust-analyzer emits **no `enclosing_range`**, so the adapter reads a fn's extent from the
+  source (`scip_callgraph._rust_enclosing`: to the `;` of a bodyless declaration, else through
+  the matching `}`).
+- Code behind a `cfg` feature the index was not built with (`arbitrary_precision`) is not
+  indexed: its links are unmapped.
+- A call through a generic bound or trait object (`visitor.visit_bool(v)`, `R::set_failed`)
+  resolves to the trait declaration or a dependency, so the engine's link to one concrete impl
+  is `external` or `unconfirmed`, not wrong. A bare `Type::new(` the engine ties to the wrong
+  `new` (`from_slice` -> `IoRead::new`, not `SliceRead::new`) and a same-name fn in a sibling
+  module (`normalize`, `iadd_impl` in `lexical/math.rs`) are real engine errors.
+- A call inside a `macro_rules!` body (`tests/test.rs`) is a macro limit.
+
+The baseline is committed, the CI gate runs it (`graph-accuracy-audit.yml`, toolchain 1.90.0), and the session hook installs the toolchain.
+
 ## Running locally
 
 ```sh
@@ -215,6 +443,11 @@ PYTHONPATH="$PWD" python tests/tools/import_graph_accuracy.py --fetch-only      
 PYTHONPATH="$PWD" python tests/tools/import_graph_accuracy.py --samples 5        # report + examples
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py python --ci       # needs pyan3==2.9.0
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py typescript --ci   # needs node + typescript@6.0.2
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py javascript --ci   # same checker, allowJs
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py rust --ci         # needs rustup toolchain 1.90.0 + rust-analyzer
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py go --ci           # needs Go 1.24+ on PATH
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py c --ci            # needs libclang==18.1.1
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py cpp --ci          # libclang==18.1.1 plus a host g++
 PYTHONPATH="$PWD" python tests/tools/span_anchor_audit.py --ci
 python tests/tools/callgraph_triage.py typescript --samples 3     # ranked buckets of misses and wrong links
 python tests/tools/callgraph_check.py                             # the whole chain, one line per step
@@ -222,3 +455,21 @@ python tests/tools/callgraph_check.py                             # the whole ch
 ```
 
 All of them refuse to pass on an empty measurement (#2682).
+
+**Which gates run (#6501).** `graph-accuracy-audit.yml` starts with a `plan` job (`tests/tools/graph_accuracy_plan.py`, stdlib) that maps the
+changed files to the gates they can move: a language's standard selects its call gate (if it has one), import-graph (if the language is in
+`tests/import_graph_corpus.json`) and span anchoring; a gate's tool or baseline selects that gate, and a shared adapter selects every gate on it;
+shared core, the workflow and the corpus list select all; anything else selects none. Toolchains and corpora install only for the selected
+gates. A failed plan runs every gate; the check name `graph-accuracy-audit` is unchanged.
+
+**Call-graph and detection audits (#6501).** `call-graph-accuracy-audit.yml` and `detection-accuracy-audit.yml` each start with a `plan` job
+(`tests/tools/accuracy_audit_plan.py --audit call-graph|detection`, stdlib). A change to a shared input (the tool, its baseline, the crucible pins,
+`detector.py`/`prism.py` or `language_lens.py`/`gitgalaxy_config.py`, any `language_standards` file that is not one language's) runs the audit. A
+language file runs it only when the diff moves something the audit reads: for call-graph, any code line of a baseline language, else a detection
+key; for detection, a `rules` entry (every rule is scored) or a key the lens reads. Comments, `_meta` and underscore-prefixed rules skip it. A hunk
+the planner cannot place, a new file, a non-PR event or a failed plan runs it. The saving is small for detection by construction.
+
+**Tree-sitter audit and history (#6501).** `tree-sitter-accuracy-audit.yml` and `tree-sitter-accuracy-history.yml` also start with a `plan` job
+(`accuracy_audit_plan.py --audit tree-sitter|tree-sitter-history`) that outputs `langs`: a language's file selects that language (an underscore rule
+counts, `_dependency_capture` is read), a baseline file selects its language, a key the lens reads or any shared input selects all; comments and `_meta` select none.
+The history plans the diff since the last successful run, not `github.event.before` (a replaced queued run would drop its push).

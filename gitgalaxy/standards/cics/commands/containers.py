@@ -9,9 +9,11 @@
 # ==============================================================================
 """#4270 slice 1 (#4575): PUT / GET / DELETE CONTAINER (CHANNEL), register X17; #4951: MOVE CONTAINER and the container
 browse (STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER), register X42; #5005: DELETE CHANNEL and QUERY CHANNEL, register
-X44."""
+X44; #5005: GET64 / PUT64 CONTAINER, register X17."""
 
 from __future__ import annotations
+
+from dataclasses import replace
 
 from gitgalaxy.standards.cics.commands.shared import NEEDS_ARGUMENT, RESP_OPTIONS, ibm
 from gitgalaxy.standards.cics.model import (
@@ -458,6 +460,42 @@ QUERY_CHANNEL = Command(
     impl=Impl(java="queryChannel", c="GGCQCHN", **_CHANNEL_IMPL),
 )
 
+# #5005 (X17): GET64 / PUT64 CONTAINER are the same commands with 64-bit data areas: IBM's pages give the same options,
+# conditions and RESP2 values, FLENGTH a fullword on both, and only INTO / FROM / SET "64-bit". A COBOL item has no
+# address above the bar, so INTO / FROM are modelled as the item (ASSUMED, X17); SET returns a 64-bit pointer, which the
+# pointer lane (X47, 31-bit-style blocks) does not hold: refused by name.
+_SET64 = Refusal(
+    "GET64 CONTAINER SET returns a 64-bit pointer reference (an address above the bar): the pointer lane holds "
+    "31-bit-style blocks only (X47 / X58): use INTO",
+    "X17",
+)
+
+
+def _sixty_four(base: Command, verb: str, topic: str) -> Command:
+    """The 64-bit form of a container command: the base's options, outcomes and refusals, SET (the 64-bit pointer) refused."""
+    no_set = "SET" in base.options
+    return replace(
+        base,
+        key=f"{verb}64 CONTAINER",
+        ibm=ibm(f"EXEC CICS {verb}64 CONTAINER", topic),
+        options={o: a for o, a in base.options.items() if o != "SET"},
+        refused={**base.refused, **({"SET": _SET64} if no_set else {})},
+        groups=tuple(g for g in base.groups if "SET" not in g.options + g.any_of)
+        + (
+            (one_of("INTO", "NODATA", msg=f"{verb}64 CONTAINER needs one of INTO / NODATA (SET is not modelled)"),)
+            if no_set
+            else ()
+        ),
+        outcomes=tuple(replace(o, writes=tuple(w for w in o.writes if w != "SET")) for o in base.outcomes),
+        runtime_refusals=tuple(r for r in base.runtime_refusals if not r.situation.startswith("SET ")),
+        engine=None,  # the scan's resource walker (cics_resources._CONTAINER_VERBS) does not read the 64-bit verbs yet
+    )
+
+
+PUT64_CONTAINER = _sixty_four(PUT_CONTAINER, "PUT", "summary-put64-container")
+GET64_CONTAINER = _sixty_four(GET_CONTAINER, "GET", "summary-get64-container")
+
+
 COMMANDS = (
     PUT_CONTAINER,
     GET_CONTAINER,
@@ -468,4 +506,6 @@ COMMANDS = (
     ENDBROWSE_CONTAINER,
     DELETE_CHANNEL,
     QUERY_CHANNEL,
+    PUT64_CONTAINER,
+    GET64_CONTAINER,
 )

@@ -12,6 +12,9 @@ Modes (`EngineLayouts.mode`):
   follow from them.
 - "check": as "engine", and the translator's own computation is kept beside it: any difference refuses the program
   by name (LayoutDisagrees). For one release (#5649), until the translator's copy is deleted.
+SYNCHRONIZED (#5694): the translator's own layout models no SYNC slack; the engine does (#4266). "engine" mode takes the
+engine's slack offsets, a POINTER SYNC at the width in use; "check" mode refuses a record whose slack the translator
+lacks. A level-01 SYNC item starts its record and has no slack (every burned one).
 A record whose items do not pair one to one with the engine's fields (a name or count that differs), or whose width
 the engine does not know (an unexpanded COPY), refuses in both modes: there is nothing to consume."""
 

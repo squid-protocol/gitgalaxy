@@ -15,7 +15,7 @@ import test_proof_blockers as tpb
 
 def burned(res):
     """The fixture corpus is not a burned name: mark its programs burned, as proof_blockers does for a real one."""
-    for p in res["programs"]:
+    for p in res["programs"] + res.get("untranslated", []):
         p["burned"] = True
     return res
 
@@ -215,7 +215,7 @@ def test_input_keys_only_when_something_limits_an_input(tmp_path):
 
 # ---- #4493 issue classes 1 and 3: unclassified because no burned program needs them ------------------------------
 EQUIVALENCE = Path(__file__).resolve().parents[1] / "equivalence"
-STATED_RULES = {"values", "every", "from", "miss", "digits", "date"}
+STATED_RULES = {"values", "every", "from", "miss", "digits", "date", "hex"}  # hex: one field's raw bytes (#6072)
 
 
 def generated_datasets():
@@ -253,7 +253,9 @@ def test_burned_generated_inputs_need_no_class_1_or_3_cause():
         cpy = gen.get("copybook") or spec.get("copybook", "")
         if base is None or not (base / cpy).is_file():
             continue
-        fields = common.layout_fields(base, cpy, gen.get("record") or spec.get("record") or None)
+        fields = common.layout_fields(
+            base, cpy, gen.get("record") or spec.get("record") or None, copy_dirs=hr.copy_dirs(base, case, cpy)
+        )
         names = [f["name"] for f in fields if not f["name"].startswith("FILLER")]
         dup = sorted({n for n in names if names.count(n) > 1})
         assert not dup, f"{name}/{dd}: qualified names needed for {dup}: add a cause to record_cause / FIX_LAYOUT"
@@ -277,3 +279,107 @@ def test_burned_generated_records_have_no_redefines_chosen_by_a_field():
         checked += 1
     if not checked:
         pytest.skip("no burned corpus checkout")
+
+
+def test_untranslated_programs_land_under_one_cause_each(tmp_path):
+    """Classes 4 and 5: a program the translator refused or left holes in has no case, so it is listed by cause."""
+    cases, corpora, cru, det_baseline, rows = fixture(tmp_path)
+    for name in ("LINK1", "LINK2", "STUB", "REFUSED", "NOTCICS"):
+        tpb.write(corpora / "estate" / "a" / f"{name}.cbl", tpb.BATCH if name == "NOTCICS" else tpb.CICS)
+    err = "CopyNotFound: a/{n}.cbl:3: COPY {c}: not found"
+    rows[("estate", "a/LINK1.cbl")] = {"program": "a/LINK1.cbl", "error": err.format(n="LINK1", c="CUSTREC")}
+    rows[("estate", "a/LINK2.cbl")] = {"program": "a/LINK2.cbl", "error": err.format(n="LINK2", c="ACCTREC")}
+    rows[("estate", "a/STUB.cbl")] = {"program": "a/STUB.cbl", "statements": 5, "translated": 4,
+                                      "holes": ["line 12: EXEC EXEC CICS: EXEC CICS GETMAIN not modelled"]}  # fmt: skip
+    rows[("estate", "a/REFUSED.cbl")] = {"program": "a/REFUSED.cbl", "error": "ExprError: a/REFUSED.cbl:9: bad"}
+    rows[("estate", "a/NOTCICS.cbl")] = {"program": "a/NOTCICS.cbl", "error": "ExprError: x"}
+    res = burned(pb.proof_blockers(rows, [corpora], cases_dir=cases, crucible_dir=cru, det_baseline=det_baseline))
+    rep = hr.build(res, "x", cases)
+    by = {b["cause"]: b for b in rep["untranslated"]}
+    link = by["unresolved link"]
+    assert [Path(p).stem for p in link["programs"]] == ["LINK1", "LINK2"]
+    assert "COPY member" in link["fix"] and any("missing copybook CUSTREC" in i for i in link["items"])
+    assert [Path(p).stem for p in by["no stub"]["programs"]] == ["STUB"]
+    assert [Path(p).stem for p in by["refused"]["programs"]] == ["REFUSED"]
+    listed = [p for b in rep["untranslated"] for p in b["programs"]]
+    assert len(listed) == len(set(listed)) and not any("NOTCICS" in p for p in listed)  # not a CICS program
+    assert "## Programs with no translation yet" in hr.markdown(rep)
+    # the proven / blocker counts are untouched: these programs have no proof subject
+    assert rep["coverage"]["programs"] == 9
+
+
+def test_every_copy_refusal_kind_is_an_unresolved_link_naming_the_member(tmp_path):
+    """#4493 class 4: CopyNotFound, CopyAmbiguous and CopyUnresolved (#4468) all state as one fix naming the member;
+    a refusal that is no COPY problem stays `refused`."""
+    cases, corpora, cru, det_baseline, rows = fixture(tmp_path)
+    errs = {
+        "NF": "CopyNotFound: a/NF.cbl:3: COPY NFREC: not found",
+        "AMB": "CopyAmbiguous: a/AMB.cbl:3: COPY AMBREC: found in lib1, lib2",
+        "UNR": "CopyUnresolved: a/UNR.cbl: COPY UNRREC: the engine resolved several files: lib1/UNRREC.cpy, lib2/UNRREC.cpy",
+        "UNR2": "CopyUnresolved: a/UNR2.cbl: COPY NONEREC: the engine resolved nothing; the estate holds x/NONEREC.cpy",
+        "EXPR": "ExprError: a/EXPR.cbl:9: bad",
+    }
+    for n, err in errs.items():
+        tpb.write(corpora / "estate" / "a" / f"{n}.cbl", tpb.CICS)
+        rows[("estate", f"a/{n}.cbl")] = {"program": f"a/{n}.cbl", "error": err}
+    res = burned(pb.proof_blockers(rows, [corpora], cases_dir=cases, crucible_dir=cru, det_baseline=det_baseline))
+    rep = hr.build(res, "x", cases)
+    by = {b["cause"]: b for b in rep["untranslated"]}
+    assert [Path(p).stem for p in by["unresolved link"]["programs"]] == ["AMB", "NF", "UNR", "UNR2"]
+    assert [Path(p).stem for p in by["refused"]["programs"]] == ["EXPR"]
+    items = " | ".join(by["unresolved link"]["items"])
+    assert (
+        "COPY UNRREC: the engine resolved several files" in items
+        and "[COPY NONEREC: the engine resolved nothing" in items
+    )
+    assert "COPY EXPR" not in " | ".join(by["refused"]["items"]) and "[COPY" not in " | ".join(by["refused"]["items"])
+    listed = [p for b in rep["untranslated"] for p in b["programs"]]
+    assert len(listed) == len(set(listed))
+
+
+def test_untranslated_row_carries_the_error_only_for_a_copy_refusal(tmp_path):
+    cases, corpora, cru, det_baseline, rows = fixture(tmp_path)
+    for n in ("U", "E"):
+        tpb.write(corpora / "estate" / "a" / f"{n}.cbl", tpb.CICS)
+    rows[("estate", "a/U.cbl")] = {"program": "a/U.cbl", "error": "CopyUnresolved: a/U.cbl: COPY X: gap"}
+    rows[("estate", "a/E.cbl")] = {"program": "a/E.cbl", "error": "ExprError: a/E.cbl:9: bad"}
+    res = pb.proof_blockers(rows, [corpora], cases_dir=cases, crucible_dir=cru, det_baseline=det_baseline)
+    by = {Path(p["program"]).stem: p for p in res["untranslated"]}
+    assert "COPY X" in by["U"]["error"] and "error" not in by["E"]
+
+
+def test_untranslated_key_only_when_something_is_refused(tmp_path):
+    cases, *rest = fixture(tmp_path)
+    res = proof(cases, *rest)
+    assert [p["program"] for p in res["untranslated"]] == ["a/HOLEY.cbl"]  # the fixture's holey program
+    del res["untranslated"]
+    rep = hr.build(res, "x", cases)
+    assert "untranslated" not in rep and "## Programs with no translation yet" not in hr.markdown(rep)
+    res["untranslated"] = [
+        {"corpus": "estate", "program": "a/N.cbl", "burned": False, "classes": ["missing copybook X"]}
+    ]
+    assert "untranslated" not in hr.build(res, "x", cases)  # a non-burned program is never named
+
+
+def test_copy_inside_a_record_resolves_in_the_cases_copy_dirs(tmp_path):
+    """#5233: the generator finds a nested COPY in the case's `copy_dirs`; the report must not call it unresolved."""
+    corpora, case = layout_case(tmp_path, {"top": cpy("01 REC.", "   COPY INNER.", "   05 A PIC X.")})
+    assert hr.record_cause([corpora], case, "TOP") == "unresolved copy"
+    tpb.write(corpora / "estate" / "cpy" / "INNER.cpy", cpy("   05 B PIC X(2)."))
+    case["copy_dirs"] = ["cpy"]
+    assert hr.record_cause([corpora], case, "TOP") == ""
+
+
+def test_cli_writes_the_page_from_a_proof_blockers_file_deterministically(tmp_path, monkeypatch):
+    """#4493: the nightly CI step is this command; a run writes the page (md + json) and a re-run is byte-identical."""
+    cases, *rest = fixture(tmp_path)
+    src = tmp_path / "proof_blockers.json"
+    src.write_text(json.dumps(proof(cases, *rest)), encoding="utf-8")
+    monkeypatch.setenv("GITGALAXY_MAINFRAME_CORPORA", str(tmp_path / "no-corpora"))
+    pages = []
+    for n in ("a", "b"):
+        assert hr.main([str(src), "--out", str(tmp_path / n), "--estate", "est", "--cases-dir", str(cases)]) == 0
+        pages.append((tmp_path / n / "harness_report.md", tmp_path / n / "harness_report.json"))
+    assert pages[0][0].read_text(encoding="utf-8").startswith("# Equivalence harness report -- est")
+    assert json.loads(pages[0][1].read_text(encoding="utf-8"))["estate"] == "est"
+    assert [p.read_bytes() for p in pages[0]] == [p.read_bytes() for p in pages[1]]

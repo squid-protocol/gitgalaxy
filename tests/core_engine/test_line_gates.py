@@ -184,6 +184,61 @@ def test_line_gates_declared_by_3171_languages():
         assert "state_mutation" in LANGUAGE_DEFINITIONS[lang]["rules"]["_line_gates"]
 
 
+_NARROWED_3171 = ("typescript", "javascript", "python", "csharp", "groovy")
+
+
+def test_line_gates_declared_by_narrowed_languages():
+    # #3171: the `\s*\(` call arms were narrowed to `[ \t]*\(` (zero match
+    # movement on the crucible corpus) so the rule is provably line-local.
+    for lang in _NARROWED_3171:
+        pattern = LANGUAGE_DEFINITIONS[lang]["rules"]["state_mutation"]
+        assert pattern_is_line_local(pattern), f"{lang} state_mutation must stay line-local"
+        assert "state_mutation" in LANGUAGE_DEFINITIONS[lang]["rules"]["_line_gates"]
+
+
+_NARROWED_TEXT = {
+    "typescript": (
+        "let a = 1;\nb = 2;\nthis.items.push(x);\nitems.add (y);\nitems.add\n(z);\ncount++;\n"
+        "this.setState (s);\nconst d = 3;\nif (a == b) { c.delete(k); }\nx = {\n};\n"
+    ),
+    "javascript": (
+        "var a = 1;\nb = 2;\nthis.items.push(x);\nitems.set\t(k, v);\nitems.clear\n();\n--n;\n"
+        "this.setState(s);\nfoo(bar=1);\nconst el = <A b={c} />;\n"
+    ),
+    "python": (
+        "x = 1\nself.items.append(y)\nitems.pop ()\nitems.pop\n()\nd[k] = v\n"
+        "foo(x=1)\ndef f(x=1):\n    pass\nif (n := 3):\n    pass\ny = 1,\n"
+    ),
+    "csharp": (
+        "var a = 1;\nitems.Add(x);\nitems.Remove (y);\nitems.Clear\t();\nitems.Add\n(z);\ncount++;\n"
+        "Foo(ref total);\nvoid M(int p = 1) { }\nif (a == b) { q.Enqueue(k); }\n"
+    ),
+    "groovy": (
+        "def a = 1\nitems.add(x)\nitems.put (k, v)\nitems.clear\t()\nitems.add\n(z)\ncount++\n"
+        "foo(x: 1)\nif (a == b) { q.push(k) }\n"
+    ),
+}
+
+
+def test_parity_narrowed_languages_including_split_call():
+    # The split-call lines (`.add` / `(z)`) are the one form the narrowing
+    # could change; the gate must agree with the plain finditer on all of it,
+    # with and without a trailing newline.
+    for lang in _NARROWED_3171:
+        pattern = LANGUAGE_DEFINITIONS[lang]["rules"]["state_mutation"]
+        text = _NARROWED_TEXT[lang]
+        _assert_parity(pattern, text)
+        _assert_parity(pattern, text.rstrip("\n"))
+        _assert_parity(pattern, "")
+
+
+def test_narrowed_call_arm_no_longer_spans_a_newline():
+    for lang in _NARROWED_3171:
+        pattern = LANGUAGE_DEFINITIONS[lang]["rules"]["state_mutation"]
+        for m in pattern.finditer(_NARROWED_TEXT[lang]):
+            assert "\n" not in m.group(0)
+
+
 def test_parity_last_line_without_trailing_newline():
     _assert_parity(_c_sm(), "a = 1;\nb = 2")
     _assert_parity(_c_sm(), "b = 2")

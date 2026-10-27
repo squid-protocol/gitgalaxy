@@ -102,6 +102,7 @@ import cobol_coverage as cov  # noqa: E402 -- #4023
 import equivalence_common
 import equivalence_db2
 import equivalence_ims
+import le_out_size
 import equivalence_mvs
 import equivalence_oracle
 import equivalence_sql
@@ -125,6 +126,7 @@ from equivalence_common import (
     option_differences,
     read_program,
     stage_copybooks,
+    stage_zero_length_conf,
     require_ascii_runtime,
     reuse,
     run_cobol_step,
@@ -262,6 +264,16 @@ def run_parm(case: dict[str, Any], fault: dict[str, Any] | None = None) -> str |
     return case.get("parm")
 
 
+def cobc_failure_report(case: dict[str, Any], cobol_work: Path, error: str) -> dict[str, Any] | None:
+    """#4493: the report of a case whose COBOL side did not COMPILE (cobc left no `program`): `cobol_compile_failed`
+    and cobc's own stderr, so a sweep row and the blocker page can name it. None for any other COBOL-side failure
+    (a crash at run time, a missing image), which still stops the proof."""
+    if (cobol_work / "program").is_file():
+        return None
+    return {"case": case["name"], "program": case["program"], "outputs": {}, "proven": False,
+            "cobol_compile_failed": True, "cobc_stderr": error.strip()[-4000:]}  # fmt: skip
+
+
 def fresh_fault_log(work: Path, fault: dict[str, Any] | None) -> None:
     """ggfault.c / ggsql APPEND to work/FAULTS: a second pass over the same work dir (a kept baseline run again) would
     log every fault twice, and a --reuse of it would copy the doubled log into each mutant's COBOL side (mutation
@@ -306,6 +318,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
         subs += f" src/SUB{Path(rel).stem.upper()}.cbl"
     stage_copybooks(case, corpus, src)
     comp5_layout_guard(src)  # #4751: a 1- or 2-digit COMP-5 is one byte in GnuCOBOL, a halfword on z/OS (C16)
+    stage_zero_length_conf(case, src)  # X8: a case that lets a zero-length reference modification through
     script = ["set -e", "cd /work"]
     flags = " ".join(["-std=ibm -fsign=EBCDIC", *option_flags, "-I /work/src"])
     import equivalence_inputs  # #3804: `@generate` inputs, from their record layouts
@@ -376,6 +389,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path, fault: dict[str, A
     if ims and fault is not None and dli_fault_plan(fault_plan(fault)):  # #5857: the DL/I statuses the fault run plans
         (work / "dli.faults").write_text(dli_fault_plan(fault_plan(fault)), encoding="ascii")
         sqlenv += "GGDLI_FAULTS=/work/dli.faults GGDLI_FAULTS_LOG=/work/FAULTS "
+    sqlenv += le_out_size.env(program)  # #5003: the output item's size, which the LE date models cannot see
     sqlenv += f"GGMVS_STEP='{case['mvs_step']}' " if case.get("mvs_step") is not None else ""
     if db2:  # #4173: each statement the step runs traced; a fault run's SQL faults, those that fire logged
         # #4507: and what Db2 answered each one (equivalence_db2.cobol_outcomes)
@@ -450,10 +464,9 @@ def cobol_coverage(case: dict[str, Any], corpus: Path, traces: list[Path], out: 
     source, staged = read_program(case, corpus / case["program_source"])
     program, _flags = compile_options(case, source)
     staged_file = traces[0].parent / "src" / "PROGRAM.cbl" if traces else None
-    rewritten = bool(case.get("db2")) or (bool(case.get("ims")) and equivalence_ims.bmp_using(source) is not None)
-    if (
-        rewritten and staged_file is not None and staged_file.is_file()
-    ):  # what ran: the precompiled / BMP-rewritten text
+    # what ran is the staged text: the Db2 precompile, the BMP rewrite and the PSA -> TCB -> TIOT lowering (#5856, A2)
+    # each move or replace lines, and the trace names the staged text's lines (#6072)
+    if staged_file is not None and staged_file.is_file():
         program = staged_file.read_text(encoding=staged)
     return cov.write_run_coverage(out, source=corpus / case["program_source"], original=source, compiled=program,
                                   traces=[t for t in traces if t.is_file()], compiled_name="PROGRAM.cbl",
@@ -870,8 +883,16 @@ def main() -> int:
     if case.get("db2"):  # the case's tables, created from its DDL on the harness's Db2 (equivalence_db2.py)
         with equivalence_common.phase("db2_create"):  # #5882
             equivalence_db2.create(case, corpus)
-    with equivalence_common.phase("cobol_run"):
-        cobol = run_cobol(case, corpus, work / "cobol")
+    try:
+        with equivalence_common.phase("cobol_run"):
+            cobol = run_cobol(case, corpus, work / "cobol")
+    except RuntimeError as e:
+        failed = cobc_failure_report(case, work / "cobol", str(e))
+        if failed is None:
+            raise
+        (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
+        print(f"{case['program']}: cobc did not compile it -- see {work / 'report.json'}")
+        return _recorded(args, work, 1)
     if case.get("db2") and args.sql_faults != "none":  # #4173: the case's SQL faults, resolved to their statements
         import equivalence_cics as ec
 

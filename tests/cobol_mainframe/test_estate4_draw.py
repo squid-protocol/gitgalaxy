@@ -160,3 +160,42 @@ def test_batch_build_refuses_without_owner_approval(capsys):
     args = e4.argparse.Namespace(kind="batch", approved_by_owner=False, cache="/nonexistent")
     assert e4.cmd_build(args) == 6
     assert "refused" in capsys.readouterr().err
+
+
+def test_draw_exclude_removes_earlier_winners_and_keeps_the_full_file_seed(tmp_path, monkeypatch, capsys):
+    cand_file = tmp_path / "cands.json"
+    cand_file.write_text(json.dumps({"candidates": [{**c, "default_branch_sha": "0" * 40} for c in _fake()]}))
+    sig = "cd" * 48
+    rnd = {"signature": sig, "randomness": hashlib.sha256(bytes.fromhex(sig)).hexdigest()}
+    info = {"hash": e4.CHAIN_HASH, "genesis_time": e4.DRAND_GENESIS, "period": e4.DRAND_PERIOD}
+    monkeypatch.setattr(e4, "http_json", lambda url: info if url.endswith("/info") else rnd)
+    monkeypatch.setattr(e4, "kind_paths", lambda kind: (cand_file, tmp_path / "log.json"))
+    full_seed = e4.compute_seed(rnd["randomness"], cand_file.read_bytes())
+    first = e4.select(_fake(), full_seed)[2]["full_name"]
+
+    args = e4.argparse.Namespace(round=1, kind="batch", exclude=[first.upper()])
+    assert e4.cmd_draw(args) == 0
+    out = capsys.readouterr().out
+    rest = [c for c in _fake() if c["full_name"] != first]
+    assert f"seed               : {full_seed}" in out
+    assert f"winner             : {e4.select(rest, full_seed)[2]['full_name']}" in out
+    assert f"total weight       : {sum(c['weight'] for c in rest)}" in out
+
+
+def test_committed_batch_candidates_are_sorted_and_weights_consistent():
+    cands = e4.kind_paths("batch")[0]
+    if not cands.exists():
+        pytest.skip("no batch candidates committed yet")
+    doc = json.loads(cands.read_text())
+    names = [c["full_name"] for c in doc["candidates"]]
+    assert names == sorted(names)
+    assert all(c["weight"] == 1 + c["foreign"] + c["hard"] for c in doc["candidates"])
+    assert doc["total_weight"] == sum(c["weight"] for c in doc["candidates"])
+    assert all(c["license"] in e4.OK_LICENSES and c["jcl_files"] >= 1 for c in doc["candidates"])
+
+
+def test_committed_batch_request_log_has_no_forbidden_endpoint():
+    log = e4.kind_paths("batch")[1]
+    if not log.exists():
+        pytest.skip("no batch request log committed yet")
+    assert e4.forbidden_in_log(json.loads(log.read_text())) == []

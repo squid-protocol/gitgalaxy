@@ -251,6 +251,93 @@
     }
    ],
    "why": "customer 1, but the LINK INQACCCU fails with NOTAUTH: GCD010 fills ABNDINFO from the clock and EIB, LINKs ABNDPROC (an ABNDFILE record) and abends HBNK; no account line is sent"
+  },
+  {
+   "name": "first-entry-send-map-invmpsz",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: the SEND MAP ERASE of the empty map fails INVMPSZ (planned, X71): nothing is sent and the non-NORMAL arm takes the abend routine",
+   "faults": [
+    {
+     "cmd": "SEND-MAP",
+     "map": "BNK1ACC",
+     "nth": 1,
+     "resp": "INVMPSZ"
+    }
+   ]
+  },
+  {
+   "name": "validation-failure-send-map-tsioerr",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000000"
+    }
+   },
+   "why": "the customer-zero input sends its message with SEND MAP DATAONLY ALARM, which fails TSIOERR (planned, X71): the non-NORMAL arm takes the abend routine",
+   "faults": [
+    {
+     "cmd": "SEND-MAP",
+     "map": "BNK1ACC",
+     "nth": 1,
+     "resp": "TSIOERR"
+    }
+   ]
+  },
+  {
+   "name": "customer-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "000000001B"
+    }
+   },
+   "why": "CUSTNOI '000000001B': the trailing letter keeps its zone through BIF DEEDIT, so the field is NOT NUMERIC and the validation message is sent"
+  },
+  {
+   "name": "close-fails",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ACC": {
+     "CUSTNOI": "0000000001"
+    }
+   },
+   "sql_faults": [
+    {
+     "program": "INQACCCU",
+     "line": 348,
+     "sqlcode": -501
+    }
+   ],
+   "why": "customer 1: INQACCCU's CLOSE of the account cursor fails -501 after the accounts were fetched, so it returns COMM-SUCCESS 'N' with a non-zero NUMBER-OF-ACCOUNTS"
+  },
+  {
+   "name": "pf12-send-text-tsioerr",
+   "aid": "DFHPF12",
+   "commarea": {},
+   "faults": [
+    {
+     "cmd": "SEND-TEXT",
+     "resp": "TSIOERR"
+    }
+   ],
+   "why": "PF12: SEND-TERMINATION-MSG's SEND TEXT ERASE FREEKB (STM010) fails TSIOERR (planned, register X71): nothing is sent and the non-NORMAL arm takes the abend routine"
+  },
+  {
+   "name": "first-entry-plain-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "EIBCALEN 0: the closing RETURN TRANSID .. COMMAREA RESP (A010) fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its A010 abend routine"
   }
  ],
  "notes": "CBSA's customer-account-list screen (BNK1CCA, transaction OCCA, BMS map BNK1ACC of mapset BNK1ACC: the symbolic map is generated from src/base/bms_src/BNK1ACC.bms, @bms/BNK1ACC.cpy). Pseudo-conversational: a first task (EIBCALEN 0) sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 RETURN TRANSID('OMEN') IMMEDIATE (the task's terminal T001 is stated: oracle_assumptions.md X27), PF12 the termination message, CLEAR, ENTER, any other key 'Invalid key pressed.'. ENTER RECEIVEs the map (MAPFAIL abends HBNK through ABNDPROC), checks the customer number is numeric, LINKs INQACCCU (INQCUST and ABNDPROC run in the task, as in cbsa-inqacccu) and shows one formatted line per account in the map's ACCOUNT field, which BMS repeats ten times (OCCURS=10). The screen is compared at every occurrence by its subscript (ACCOUNT.1 ... ACCOUNT.10, #5076), as a COMMAREA's OCCURS is (#4765): a second or tenth line that differs is a difference, as is a line one side leaves out. No scenario types letters into the NUM field CUSTNO (owner decision on #5116, 2026-10-15), and none types into one occurrence of ACCOUNT (a protected output field; refused by name). The COMMAREA is compared as the program RETURNs it, WS-COMM-AREA (the same 248-byte layout as its DFHCOMMAREA, which it reads back only for EIBCALEN). ACCOUNT, CUSTOMER and ABNDFILE are compared after every scenario. LINK INQACCCU is faulted with PGMIDERR and NOTAUTH. Not reached: the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN (no fault can be injected on them), and a CUSTNO that is not numeric (a 3270 NUM field cannot key it, owner decision on #5116). Data: seed.sql and customer.txt are SYNTHETIC (cbsa-inqacccu's, with customers 6 and 7 added for the full table). Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

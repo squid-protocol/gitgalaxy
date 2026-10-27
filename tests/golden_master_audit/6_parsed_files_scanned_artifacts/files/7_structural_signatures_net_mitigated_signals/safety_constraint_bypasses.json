@@ -2220,7 +2220,7 @@
       "livecode/livecode/bitwise.lcb": 0,
       "livecode/livecode/bom.livecodescript": 0,
       "livecode/livecode/builder_tool.livecodescript": 0,
-      "livecode/livecode/builder_utilities.livecodescript": 0,
+      "livecode/livecode/builder_utilities.livecodescript": 1,
       "livecode/livecode/button.livecodescript": 0,
       "livecode/livecode/byte.lcb": 0,
       "livecode/livecode/bytecode.lcb": 0,
@@ -2248,7 +2248,7 @@
       "livecode/livecode/encrypt.livecodescript": 0,
       "livecode/livecode/engine.livecodescript": 0,
       "livecode/livecode/engine_builder.livecodescript": 0,
-      "livecode/livecode/ext-urls.livecodescript": 0,
+      "livecode/livecode/ext-urls.livecodescript": 2,
       "livecode/livecode/file.lcb": 0,
       "livecode/livecode/filters.livecodescript": 0,
       "livecode/livecode/foreign-aggregate.lcb": 0,
@@ -3088,7 +3088,7 @@
     },
     "python/micropython_usb_tls": {
       "python/micropython_usb_tls/ssl_verify_callback.py": 0,
-      "python/micropython_usb_tls/tls_dtls.py": 0,
+      "python/micropython_usb_tls/tls_dtls.py": 2,
       "python/micropython_usb_tls/usb_simple_host_pyusb.py": 0
     },
     "python/numpy": {

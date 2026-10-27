@@ -55,22 +55,29 @@ def test_family_members_resolve_to_a_defined_parent():
 
 
 @pytest.mark.parametrize(
-    ("lang", "expected"),
+    ("lang", "gaps"),
     [
-        ("rust", (0, 1.0)),  # all four columns True
-        ("haskell", (0, 1.0)),  # used to fall through to tier 3
-        ("go", (1, 1.1)),  # unenforced errors
-        ("python", (2, 1.2)),
-        ("embedded_python", (2, 1.2)),  # #2653: reads python's row by family
-        ("shell", (3, 1.3)),
-        ("yacc", (4, 1.4)),
-        ("yaml", (0, 1.0)),  # no runtime -> no language-level term
-        ("no-such-language", (0, 1.0)),  # unknown -> none, not the harshest bucket
+        ("rust", 0),  # all four columns True
+        ("haskell", 0),  # used to fall through to tier 3
+        ("go", 1),  # unenforced errors
+        ("python", 2),
+        ("embedded_python", 2),  # #2653: reads python's row by family
+        ("shell", 3),
+        ("yacc", 4),
+        ("yaml", 0),  # no runtime -> no language-level term
+        ("no-such-language", 0),  # unknown -> none, not the harshest bucket
     ],
 )
-def test_strictness_constants(lang, expected):
+def test_strictness_constants(lang, gaps):
     irc, ot = al.strictness_constants(lang)
-    assert (irc, round(ot, 6)) == expected
+    assert (irc, round(ot, 6)) == (gaps * al.STRICTNESS_IRC_PER_GAP, round(1.0 + gaps * al.STRICTNESS_OT_PER_GAP, 6))
+
+
+def test_strictness_weight_is_zero_after_the_outcome_pilot():
+    # Owner 2026-10-23: the #2720 pilot found no consistent predictive value (memo on #2716).
+    # Raising it again needs a measured effect, not a re-tune.
+    assert (al.STRICTNESS_IRC_PER_GAP, al.STRICTNESS_OT_PER_GAP) == (0, 0.0)
+    assert {al.strictness_constants(lang) for lang in al.LANGUAGE_STRICTNESS} == {(0, 1.0)}
 
 
 def test_irc_and_ot_are_bounded_by_the_column_count():

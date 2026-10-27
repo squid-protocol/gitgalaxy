@@ -13,7 +13,7 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_PERL, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -49,13 +49,21 @@ DEFINITION: dict[str, Any] = {
     # this; line_exclusive's real config has Ruby's =begin/=end but not
     # Perl's own POD markers. Known remaining gap, not fixed here.
     "lexical_family": "line_exclusive",
+    # #3798: a POD block (`=head1` ... `=cut`) and everything after `__END__` / `__DATA__` is
+    # documentation or data, never code: its `use A::B;` SYNOPSIS lines are not imports.
+    # The POD span mirrors Prism._PERL_POD_SPAN (bounded lazy body, or the bare opener alone).
+    "import_capture_blank": (
+        r"(?m)^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b[\s\S]{0,15000}?^=cut\b"
+        + r"|^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b"
+        + r"|^__(?:END|DATA)__\b[\s\S]*"
+    ),
     # #3554: `use A::B` is A/B.pm under an @INC root; `::` is the module path separator.
     "import_path_separator": "::",
     # #3544: ...and a candidate must end in A/B even when it is the only B.pm.
     "import_path_mirrors_module_path": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        "calls_out": CALLS_OUT_PERL,  # #6433: paren-less calls
         "_calls_out_ignore": frozenset(
             {
                 "my",
@@ -64,7 +72,6 @@ DEFINITION: dict[str, Any] = {
                 "unless",
                 "elsif",
                 "foreach",
-                "die",
                 # #3359 (contract C2/C7): keywords and quote-like operators, never
                 # calls. `qx(...)` is deliberately absent: it runs a shell command,
                 # an invocation like `system` (the rosetta oracle plants it as one).

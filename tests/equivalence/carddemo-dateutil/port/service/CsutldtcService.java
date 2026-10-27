@@ -96,7 +96,7 @@ public class CsutldtcService {
 
     /**
      * Stand-in for CALL "CEEDAYS" (not in the estate): validates the date against the picture string.
-     * Supported picture tokens: YYYY, MM, DD plus literal separators (trailing blanks ignored). Other tokens
+     * Supported picture tokens: YYYY, MM, DD, or YYYY with DDD (Julian), plus literal separators (trailing blanks ignored). Other tokens
      * (YY, MMM, JJJ, eras ...) are answered as a bad picture string -- the estate's callers use YYYYMMDD and
      * YYYY-MM-DD only. A date character where the picture has a separator is answered as non-numeric data
      * (as the original run reports it), not as a bad date value.
@@ -114,6 +114,7 @@ public class CsutldtcService {
         int year = -1;
         int month = -1;
         int day = -1;
+        int doy = -1;
         int i = 0;
         while (i < f.length()) {
             String tok;
@@ -121,6 +122,8 @@ public class CsutldtcService {
                 tok = "YYYY";
             } else if (f.startsWith("MM", i) && !f.startsWith("MMM", i)) {
                 tok = "MM";
+            } else if (f.startsWith("DDD", i) && month < 0 && day < 0) {
+                tok = "DDD";
             } else if (f.startsWith("DD", i)) {
                 tok = "DD";
             } else if (Character.isLetter(f.charAt(i))) {
@@ -156,19 +159,39 @@ public class CsutldtcService {
                     return FC_BAD_PIC_STRING;
                 }
                 year = v;
+            } else if (tok.equals("DDD")) {
+                if (doy >= 0) {
+                    return FC_BAD_PIC_STRING;
+                }
+                doy = v;
             } else if (tok.equals("MM")) {
-                if (month >= 0) {
+                if (month >= 0 || doy >= 0) {
                     return FC_BAD_PIC_STRING;
                 }
                 month = v;
             } else {
-                if (day >= 0) {
+                if (day >= 0 || doy >= 0) {
                     return FC_BAD_PIC_STRING;
                 }
                 day = v;
             }
             pos += n;
             i += n;
+        }
+        if (doy >= 0) {
+            // YYYY DDD (Julian), either order: the day of the year must exist in that year (CEE2EC, 2508)
+            if (year < 0) {
+                return FC_BAD_PIC_STRING;
+            }
+            boolean leap = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+            if (doy < 1 || doy > (leap ? 366 : 365)) {
+                return FC_BAD_DATE_VALUE;
+            }
+            if (year < 1) {
+                return FC_UNSUPP_RANGE;
+            }
+            LocalDate julian = LocalDate.ofYearDay(year, doy);
+            return julian.isBefore(LocalDate.of(1582, 10, 15)) ? FC_UNSUPP_RANGE : FC_INVALID_DATE;
         }
         if (year < 0 || month < 0 || day < 0) {
             return FC_BAD_PIC_STRING;

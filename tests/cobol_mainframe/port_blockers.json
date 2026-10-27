@@ -17,7 +17,8 @@
     "vsam",
     "eib-fact",
     "oracle-model",
-    "ci-gate"
+    "ci-gate",
+    "ims-mq"
   ],
   "found_by": [
     "review",
@@ -484,6 +485,1283 @@
       "refused_by_name": false,
       "new_class": false,
       "summary": "The equivalence harness had no BMS map support."
+    },
+    {
+      "id": "P033",
+      "estate": "cics-async-api-credit-card-application-example",
+      "after_round": 8,
+      "side": "harness",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": null,
+      "fixed_by": "#4642",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The equivalence harness could not run a CICS task with no COMMAREA (KeyError / IndexError on an empty LINKAGE SECTION) or state a COMMAREA length per scenario; the estate's Java side did not compile without BMS maps."
+    },
+    {
+      "id": "P034",
+      "estate": "cics-async-api-credit-card-application-example",
+      "after_round": 8,
+      "side": "harness",
+      "class": "cics-command",
+      "programs": [],
+      "issue": null,
+      "fixed_by": "#4647",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The equivalence harness had no input channel or output containers (RUN TRANSID CHANNEL / LINK CHANNEL callers, GET / PUT CONTAINER), which every async service takes."
+    },
+    {
+      "id": "P035",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "runtime",
+      "class": "cics-command",
+      "programs": [
+        "cobil00c"
+      ],
+      "issue": 4657,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The det runtime's STARTBR NOTFND / IOERR left RESP2 (EIBRESP2) 0 where the stub and z/OS give 3, exposed once the proof compared DISPLAY output (RESP / REAS shown by COBIL00C)."
+    },
+    {
+      "id": "P036",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "data-layout",
+      "programs": [
+        "cocrdupc"
+      ],
+      "issue": 4875,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A MOVE between same-shape zoned items is a byte copy in cobc, so spaces reached a PIC 9(3) CVV; the det runtime stored zeros, and the entity-backed card file cannot hold non-digit bytes at all."
+    },
+    {
+      "id": "P037",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "harness",
+      "class": "vsam",
+      "programs": [
+        "cbact04c"
+      ],
+      "issue": 4876,
+      "fixed_by": "#4878",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Generated indexed inputs were loaded in ASCII key order where IBM uses EBCDIC prime-key order, so the duplicate alternate-key pick (first XREFFILE record per account) differed."
+    },
+    {
+      "id": "P038",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "vsam",
+      "programs": [
+        "cbexport",
+        "cbimport"
+      ],
+      "issue": 4804,
+      "fixed_by": null,
+      "refused_by_name": true,
+      "new_class": false,
+      "summary": "RECORD KEY EXPORT-SEQUENCE-NUM is defined in WORKING-STORAGE, not the file's record (source IBM and the oracle reject); the translator counted both whole until the OPEN / READ / WRITE / CLOSE was refused by name. Owner decision 2026-10-21: frontier (#5866)."
+    },
+    {
+      "id": "P039",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "cbstm03a"
+      ],
+      "issue": 5856,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "SET ADDRESS OF over z/OS control blocks (PSA, TCB, TIOT) left 5 holes: the program walks the TIOT to read its own DD names."
+    },
+    {
+      "id": "P040",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "ims-mq",
+      "programs": [
+        "cbpaup0c"
+      ],
+      "issue": 5857,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": true,
+      "summary": "Batch EXEC DLI (GN, GNP, DLET, CHKP) and the DIB outside CICS were not modelled: 10 holes."
+    },
+    {
+      "id": "P041",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "db2",
+      "programs": [
+        "cotrtlic"
+      ],
+      "issue": 5858,
+      "fixed_by": "#5873",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "CALL DSNTIAC left 1 hole: Db2's message text is not modelled (oracle assumption Q5), so COTRTLIC could not translate whole."
+    },
+    {
+      "id": "P042",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "control-flow",
+      "programs": [
+        "cbstm03a"
+      ],
+      "issue": 5560,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "ALTER and the altered GO TO were an agreed refusal (9 holes); owner decision 2026-10-18 modelled them."
+    },
+    {
+      "id": "P043",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "harness",
+      "class": "control-flow",
+      "programs": [
+        "comen01c"
+      ],
+      "issue": 4620,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "cobol_coverage.LineMap paired a rewritten EXEC CICS INQUIRE block line by line as exact, so the WHEN COPAUS0C arm never showed as taken although the scenarios ran it."
+    },
+    {
+      "id": "P044",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "harness",
+      "class": "control-flow",
+      "programs": [
+        "corpt00c"
+      ],
+      "issue": 4621,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A GO TO into a paragraph that only RETURNs was not a transfer of control, so CORPT00C's SEND-then-GO-TO outcomes needed hand-written infeasible-outcome entries."
+    },
+    {
+      "id": "P045",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 4679,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "LINK left RESP2 0 on failure, and RETURN TRANSID COMMAREA LENGTH past the DTO still passed only the DTO (CardDemo: 2000 over 172 bytes)."
+    },
+    {
+      "id": "P046",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "transaction-forge",
+      "class": "commarea-bytes",
+      "programs": [
+        "comen01c",
+        "coactupc"
+      ],
+      "issue": 3655,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A CICS program has several inbound COMMAREAs (menu 160 bytes, own re-entry 2000 bytes) but the interface was taken from resolved callers only, leaving a TODO at every menu dispatch case."
+    },
+    {
+      "id": "P047",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "facade",
+      "class": "data-layout",
+      "programs": [],
+      "issue": 4037,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The generated JPA entity for PENDING-AUTH-DETAILS mapped CURRENT-DATE to a reserved SQL column name, so the table was not created on H2."
+    },
+    {
+      "id": "P048",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "facade",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 5291,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Forge-generated facades answered a byte[] for a wide RETURN COMMAREA, and an XCTL without COMMAREA to a target whose RETURN is wide kept the byte[] (siblings of #4695; no burned program needed it to climb a rung)."
+    },
+    {
+      "id": "P049",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "ims-mq",
+      "programs": [
+        "copaua0c"
+      ],
+      "issue": 5278,
+      "fixed_by": "#5300",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The remaining CardDemo MQ program and the MQINQ / MQSET calls it uses were not modelled; CMQGMOV / CMQODV copybooks refused the program whole."
+    },
+    {
+      "id": "P050",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "commarea-bytes",
+      "programs": [
+        "copaus0c",
+        "copaus1c"
+      ],
+      "issue": 5565,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A COMMAREA DTO property the CICS port could not convert (an OCCURS table as List<String>) refused both programs."
+    },
+    {
+      "id": "P051",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "harness",
+      "class": "cics-command",
+      "programs": [
+        "cocrdslc",
+        "cocrdlic"
+      ],
+      "issue": 5401,
+      "fixed_by": "#5412",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Mutation-survivor gaps across seven CardDemo ports: the harness compared SEND TEXT by text only, so an options-changing mutant read as proven (#5412); the oracle refuses 16 of COCRDLIC's 46 scenarios (register X8, open)."
+    },
+    {
+      "id": "P052",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "harness",
+      "class": "oracle-model",
+      "programs": [
+        "cousr00c"
+      ],
+      "issue": 6166,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "IOERR has no oracle abend code (abendOn defaults to INVREQ); found while faulting its XCTL sites. The two COUSR00C harness gaps after an XCTL were case gaps (no scenario reached the return), closed by two scenarios in the userlist case."
+    },
+    {
+      "id": "P053",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "harness",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 4449,
+      "fixed_by": null,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The equivalence harness had no java-facade side: the 14 regenerated CardDemo ports were proven through runTask only, and cross-program facade sides carried an untyped Object."
+    },
+    {
+      "id": "P054",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "zecs001"
+      ],
+      "issue": 4770,
+      "fixed_by": "#5730",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "EXEC CICS GET DCOUNTER with INCREMENT and WRAP (the zECS key allocator) was refused by name; counters were signed fullword only, so ZECS001 could not translate whole."
+    },
+    {
+      "id": "P055",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "zecs000",
+        "zecs001",
+        "zecs003"
+      ],
+      "issue": 4769,
+      "fixed_by": "#4858",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "EXEC CICS DOCUMENT CREATE / RETRIEVE (the document handler) was refused, holding up the HTTP-facing zECS programs."
+    },
+    {
+      "id": "P056",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "ecs001",
+        "zecs000",
+        "zecs001",
+        "zecs003"
+      ],
+      "issue": 4768,
+      "fixed_by": "#4873",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "INQUIRE URIMAP(name) in its direct form and INQUIRE PROGRAM STATUS were refused (only the URIMAP browse and program existence were modelled)."
+    },
+    {
+      "id": "P057",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "zecs001"
+      ],
+      "issue": 5945,
+      "fixed_by": "#6006",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "CALL ZUIDSTCK (an assembler STCK wrapper the estate does not ship) was ZECS001's only hole; it needed a harness-stated TOD stand-in on both runtimes."
+    },
+    {
+      "id": "P058",
+      "estate": "dbb-mortgage-application",
+      "after_round": 7,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "epscsmrt"
+      ],
+      "issue": 4803,
+      "fixed_by": "#4868",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A CICS case's CALLed subprograms were compiled on the COBOL side but never det-translated, so EPSCSMRT (whole, 13/13) could not be cased."
+    },
+    {
+      "id": "P059",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "commarea-bytes",
+      "programs": [
+        "bnk1uac",
+        "inqacc"
+      ],
+      "issue": 4806,
+      "fixed_by": "#4818",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A LINK wrote the callee's DTO back over the caller's COMMAREA, so a numeric field holding spaces the callee never wrote came back as digits."
+    },
+    {
+      "id": "P060",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "db2",
+      "programs": [
+        "updacc"
+      ],
+      "issue": 4579,
+      "fixed_by": "#4580",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "SELECT INTO a binary (COMP) host variable gave SQLCODE -304 for an INTEGER beyond the PICTURE's digits; Db2 stores the full fullword."
+    },
+    {
+      "id": "P061",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "crecust"
+      ],
+      "issue": 4884,
+      "fixed_by": "#4885",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "CRECUST was refused whole only because COPY CEEIGZCT (an IBM LE system copybook) is not in the estate; a stand-in written from public LE documentation was needed."
+    },
+    {
+      "id": "P062",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "bankdata"
+      ],
+      "issue": 4949,
+      "fixed_by": "#5002",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "LE date/time services (CEEGMT, CEEDATM, CEESECS, CEEDATE, CEEISEC, CEEQCEN) were not modelled, so BANKDATA was refused."
+    },
+    {
+      "id": "P063",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "delcus"
+      ],
+      "issue": 5078,
+      "fixed_by": "#5090",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "READ / REWRITE / DELETE / UNLOCK TOKEN (file update tokens) were refused by name; DELCUS was one gap from whole."
+    },
+    {
+      "id": "P064",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "bnk1cac",
+        "bnk1tfn",
+        "bnk1uac"
+      ],
+      "issue": 4741,
+      "fixed_by": "#4759",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "FUNCTION NUMVAL in a fixed-point COMPUTE was exact decimal; IBM evaluates it in long HFP, which blocked the three BNK1 programs translating whole."
+    },
+    {
+      "id": "P065",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [
+        "copaus2c",
+        "lgtestc1",
+        "lgastat1"
+      ],
+      "issue": 4737,
+      "fixed_by": "#4748",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Four CICS options were each the only gap in a program (FORMATTIME RESP, ASKTIME NOHANDLE, RECEIVE MAP ASIS, READQ TS LENGTH(LENGTH OF)); three burned programs (CardDemo, GenApp) were one option from whole, the fourth is in a non-burned repo."
+    },
+    {
+      "id": "P066",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "harness",
+      "class": "ci-gate",
+      "programs": [],
+      "issue": 4530,
+      "fixed_by": "#4536",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "14 committed equivalence ports (11 CardDemo Javadoc, 3 GenApp handleTransaction) had drifted from what the generator writes today, and no CI gate caught it; ports resurfaced, re-proven, and port_surface --check gated."
+    },
+    {
+      "id": "P067",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "harness",
+      "class": "ci-gate",
+      "programs": [
+        "cbact01c",
+        "cbact02c",
+        "cbact03c",
+        "cbact04c",
+        "cbcus01c",
+        "cbtrn01c",
+        "cbtrn02c",
+        "cbtrn03c",
+        "csutldtc",
+        "epsnbrvl",
+        "lgstsq"
+      ],
+      "issue": 5008,
+      "fixed_by": "#5011",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Batch and CALL det cases never got a det-sweep coverage ledger entry, so 11 programs stayed at L2 'coverage not measured' (CardDemo, DBB, GenApp)."
+    },
+    {
+      "id": "P068",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "facade",
+      "class": "commarea-bytes",
+      "programs": [
+        "lgtestp1",
+        "lgtestp2",
+        "lgtestp3",
+        "lgtestp4",
+        "cocrdupc",
+        "epscmort"
+      ],
+      "issue": 4870,
+      "fixed_by": "#4960",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The generated facade answered RETURN TRANSID COMMAREA as a DTO only, losing bytes the DTO cannot decode (non-digits in a numeric DISPLAY field); needed a bytes overload and an overload-aware port_surface (#4888), re-proving ~25 ports."
+    },
+    {
+      "id": "P069",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [
+        "epscsmrt",
+        "cotrtlic"
+      ],
+      "issue": 4736,
+      "fixed_by": "#4750",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Dynamic CALL was the only gap in two burned programs: a REDEFINES-over-VALUE-table target (DBB EPSCSMRT) found no candidates, and CALL DSNTIAC (CardDemo COTRTLIC) is refused by name because Db2's message text is not modelled."
+    },
+    {
+      "id": "P070",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "data-layout",
+      "programs": [
+        "epscsmrd",
+        "cocrdupc",
+        "cousr01c",
+        "cotrn02c",
+        "updacc"
+      ],
+      "issue": 5694,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Record layouts the engine cannot hand the translator: PROCEDURE/FUNCTION-POINTER width (#5841) and SYNC slack (#6117) are done; DFHAID, DFHBMSCA, DFHEIBLK, SQLCA and SQLDA keep the translator's own layout (open)."
+    },
+    {
+      "id": "P071",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "harness",
+      "class": "db2",
+      "programs": [
+        "bankdata",
+        "cbstm03b"
+      ],
+      "issue": 5561,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Two whole-translated batch programs (CBSA BANKDATA, CardDemo CBSTM03B) had no equivalence case that runs them, so they stayed at L1; the harness needed the Db2 generated-rows path with VSAM output, and datasets for a CALLed program."
+    },
+    {
+      "id": "P072",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 4816,
+      "fixed_by": "#4955",
+      "refused_by_name": true,
+      "new_class": false,
+      "summary": "A LINKed det program that XCTLs with its DFHCOMMAREA: the XCTL target ran on a copy and its writes never reached the LINK caller; IBM does not say copy or same storage, so it is refused by name (register X39). No burned program reaches it (CBSA front ends XCTL at level 1)."
+    },
+    {
+      "id": "P073",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 4956,
+      "fixed_by": "#5016",
+      "refused_by_name": true,
+      "new_class": false,
+      "summary": "The same X39 question for a LINKed model-port program XCTLing with the DTO it was LINKed with: CicsTask could not tell the DTO was the caller's area, so the answer was silently 'copy'; now refused by name."
+    },
+    {
+      "id": "P074",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 4957,
+      "fixed_by": "#5021",
+      "refused_by_name": true,
+      "new_class": false,
+      "summary": "The same X39 question through an alias (SET ADDRESS OF / POINTER / LINKAGE re-based, a CALLed subprogram's USING record) of a LINKed program's DFHCOMMAREA: not followed by the first refusal; every LINKAGE 01 an XCTL names is now marked and refused."
+    },
+    {
+      "id": "P075",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 5060,
+      "fixed_by": "#5651",
+      "refused_by_name": true,
+      "new_class": false,
+      "summary": "Model-port scalar fields (a String or numeric DTO field) passed as an XCTL COMMAREA could not be traced to the caller's DFHCOMMAREA, so X39 was not refused; the burned-estate reach was re-checked, and copy-vs-same-storage stays refused until a real CICS calibration run (#4702)."
+    },
+    {
+      "id": "P076",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [],
+      "issue": 4951,
+      "fixed_by": "#5004",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "MOVE CONTAINER and the container browse commands (STARTBROWSE / GETNEXT / ENDBROWSE CONTAINER) were refused whole; found in the #4884 class sweep (channels and containers in the det runtime), modelled with RESP / RESP2 conditions and register entries."
+    },
+    {
+      "id": "P077",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "harness",
+      "class": "cics-command",
+      "programs": [
+        "crecust"
+      ],
+      "issue": 4950,
+      "fixed_by": "#5013",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The async CICS API members the first slice left: FETCH that waits or has TIMEOUT needed a child scheduler (harness redesign), FREE CHILD and START CHANNEL were refused, RUN CHANNEL symbol names were unsourced. CBSA CRECUST exercises the FETCH path; FETCH stayed DIFFERS (never equal) until the scheduler landed."
+    },
+    {
+      "id": "P078",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "harness",
+      "class": "db2",
+      "programs": [
+        "crecust"
+      ],
+      "issue": 4952,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "CBSA CRECUST translated whole (LE + async CICS commands) but had no equivalence case: it needs a Db2 seed and running RUN TRANSID children; never counted proven while a FETCH is DIFFERS or a LINK/CALL target has holes."
+    },
+    {
+      "id": "P079",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "harness",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 4778,
+      "fixed_by": "#4780",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The batch CALL compare (equivalence_call.compare_dto) checked only DTO-mapped fields, and DTOs with a trailing FILLER (CBSA CustctrlDfhcommarea, GenApp Lg* DTOs) kept a short extent, so unmapped LINKAGE bytes were never compared; BMS OCCURS is refused."
+    },
+    {
+      "id": "P080",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "after_round": 3,
+      "side": "det",
+      "class": "vsam",
+      "programs": [
+        "cbstm03b"
+      ],
+      "issue": 5034,
+      "fixed_by": "#5068",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A CALLed subprogram's DDs are bound in its caller's JCL step, not its own (CardDemo CBSTM03B, called by CBSTM03A): det refused every file statement with 'no repository for this file'; the only such refusal left across the surveyed corpora. Fixed by propagating the job's bindings to static CALL targets."
+    },
+    {
+      "id": "P081",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "vsam",
+      "programs": [],
+      "issue": 5072,
+      "refused_by_name": true,
+      "new_class": false,
+      "summary": "DD bindings still coarser than IBM's run unit after #5068: step-level scoping (dataset_lineage is job-wide, so a callee in a job whose two steps bind one DD to different DSNs is refused) and a CALL through a data item; both refused today, not a wrong translation."
+    },
+    {
+      "id": "P082",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "harness",
+      "class": "cics-command",
+      "programs": [
+        "zecs000",
+        "asyncpnt",
+        "zecs003"
+      ],
+      "issue": 5089,
+      "fixed_by": "#5147",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Burned CICS programs translated whole with no runnable equivalence case: ZECS000's install-symbol dataset names, ASYNCPNT's nested RUN TRANSID grandchild, and a proof_blockers EIBFN false positive from a record literal; the harness refused each by name until stated."
+    },
+    {
+      "id": "P083",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 4874,
+      "fixed_by": "#4897",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A fixed-form inline *> comment inside a condition became a statement hole, or crashed the PROCEDURE DIVISION parse after NOT; found fixing #4682 by fuzz, not on a burned program. Dropped at the source layer."
+    },
+    {
+      "id": "P084",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 4682,
+      "fixed_by": "#4872",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A relation's NOT at the end of a source line with its operator on the next crashed the PROCEDURE DIVISION parse instead of translating; found by the P-scaled fuzz, not on a burned program."
+    },
+    {
+      "id": "P085",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 4681,
+      "fixed_by": "#4683",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Det translator holes found proving #4674: an arithmetic expression compared against a different-scale item gave the wrong branch, and the abbreviated 'OR NOT = x' relation did not parse; GnuCOBOL (-std=ibm) as oracle, no burned program named."
+    },
+    {
+      "id": "P086",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "det",
+      "class": "oracle-model",
+      "programs": [],
+      "issue": 4687,
+      "fixed_by": "#5330",
+      "refused_by_name": true,
+      "new_class": false,
+      "summary": "A zero divisor inside a larger COMP-1/COMP-2 expression is a run-time stop in the port while the oracle aligns the NaN; kept as a named stop and registered, not modelled."
+    },
+    {
+      "id": "P087",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "det",
+      "class": "oracle-model",
+      "programs": [],
+      "issue": 4688,
+      "fixed_by": "#5329",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Three float expressions the oracle evaluates differently from IBM (MOVE COMP-1 to an edited item, a compound float COMPUTE, ADD of a COMP-2 zero to COMP-3); pinned as IBM vectors and documented in C6, not made to follow the oracle."
+    },
+    {
+      "id": "P088",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 4690,
+      "fixed_by": "#4696",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A hex literal holding X'0A' or X'0D' in a MOVE emitted a Java string literal that javac cannot compile (the unicode escape ends the line); emitted byte-safe."
+    },
+    {
+      "id": "P089",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 4523,
+      "fixed_by": "#4526",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A single-quoted literal continued onto the next line ('-' in column 7, the continuation opening with an apostrophe) did not parse, nor did a doubled quote inside a literal; the det grammar read only the double-quoted form, so the program was refused."
+    },
+    {
+      "id": "P090",
+      "estate": null,
+      "found_by": "crucible",
+      "after_round": 8,
+      "side": "det",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 4528,
+      "fixed_by": "#4533",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Det ports on the CICS crucible encoded and decoded TS and COMMAREA bytes in the wrong charset, and det/cics.py read DTO copybooks as latin-1, so byte-level proofs failed with the logic right; both now take the region's declared code page."
+    },
+    {
+      "id": "P091",
+      "estate": null,
+      "found_by": "crucible",
+      "after_round": 8,
+      "side": "det",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 4534,
+      "fixed_by": "#4541",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A LINKed program's COMMAREA writes were copied back to the caller only on a normal RETURN, so after the callee abended the caller no longer saw them (CICS passes a local LINK COMMAREA by reference)."
+    },
+    {
+      "id": "P092",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 4539,
+      "fixed_by": "#4556",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "PROGRAM COLLATING SEQUENCE was read only by SORT / MERGE: an alphanumeric relation condition compared in byte order whatever the program's sequence, silently; IBM and GnuCOBOL both apply it."
+    },
+    {
+      "id": "P093",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 4557,
+      "fixed_by": "#4567",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A relation with an ALL literal (IF X = ALL 'ab') made the det generator emit Cobol.compareAll, which the runtime lacked, so the port failed at javac instead of translating or being refused."
+    },
+    {
+      "id": "P094",
+      "estate": "cics-async-api-credit-card-application-example",
+      "after_round": 8,
+      "side": "det",
+      "class": "control-flow",
+      "programs": [
+        "getpol"
+      ],
+      "issue": 4630,
+      "fixed_by": "#4643",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A lone program's last paragraph or section extent ran over its END PROGRAM 'X'. line in all 10 async credit-card programs, so the translator's unit extents disagreed with the engine and the answer key (20 fact cross-check disagreements)."
+    },
+    {
+      "id": "P095",
+      "estate": null,
+      "found_by": "crucible",
+      "after_round": 8,
+      "side": "det",
+      "class": "oracle-model",
+      "programs": [],
+      "issue": 4655,
+      "fixed_by": "#4677",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A zero divisor in COMPUTE / DIVIDE without ON SIZE ERROR threw ArithmeticException in the det runtime; the oracle sets the size-error condition and leaves the receivers unchanged (reachable from non-zero data under ARITHMETIC-OSVS truncation)."
+    },
+    {
+      "id": "P096",
+      "estate": null,
+      "found_by": "crucible",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 4656,
+      "fixed_by": "#4680",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Three statements GnuCOBOL compiles were refused: ZERO inside condition arithmetic ((ZERO + 3) / 12 NOT > D0), ZERO in an EVALUATE WHEN object, and a relation split after NOT across a line end (rejecting the whole PROCEDURE DIVISION); found by the randomized differential run."
+    },
+    {
+      "id": "P097",
+      "estate": null,
+      "found_by": "crucible",
+      "after_round": 8,
+      "side": "det",
+      "class": "oracle-model",
+      "programs": [],
+      "issue": 4662,
+      "fixed_by": "#4693",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The rest of oracle register C11: non-digit zoned data as MOVE sender, arithmetic operand and comparand (and the sign rewrite on a MOVE to binary) gave answers that differ from the oracle; modelled as the oracle computes them."
+    },
+    {
+      "id": "P098",
+      "estate": null,
+      "found_by": "crucible",
+      "after_round": 8,
+      "side": "det",
+      "class": "data-layout",
+      "programs": [],
+      "issue": 4664,
+      "fixed_by": "#4854",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A data name holding a single-byte national letter of the declared code page (cp273 BETRAEGE / GEBUEHR in an estate-crucible program) was refused by name, so the program got no translation and no translator facts; now accepted."
+    },
+    {
+      "id": "P099",
+      "estate": null,
+      "found_by": "crucible",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 4665,
+      "fixed_by": "#4668",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A numeric-edited item compared with a numeric literal was de-edited and compared as a number in the port, while GnuCOBOL compares the edited text, so the program took the other branch with no hole reported."
+    },
+    {
+      "id": "P100",
+      "estate": null,
+      "found_by": "crucible",
+      "after_round": 8,
+      "side": "det",
+      "class": "data-layout",
+      "programs": [],
+      "issue": 4669,
+      "fixed_by": "#4685",
+      "refused_by_name": true,
+      "new_class": false,
+      "summary": "A PIC SVPP99 COMP-3 item (P scaling left of the digits, packed) crashed the translator with ValueError instead of refusing by name; P-scaled pictures are modelled as cobc stores them and the rest refused by name."
+    },
+    {
+      "id": "P101",
+      "estate": null,
+      "found_by": "crucible",
+      "after_round": 8,
+      "side": "det",
+      "class": "data-layout",
+      "programs": [],
+      "issue": 4670,
+      "fixed_by": "#4685",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "MOVE 1200 into a PIC 99PP receiver threw in Cobol.store instead of storing the scaled value (12, scale -2) as cobc does; fixed with the P-scaled picture work for the left- and right-P, COMP-3, binary and zoned receivers."
+    },
+    {
+      "id": "P102",
+      "estate": null,
+      "found_by": "crucible",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 4671,
+      "fixed_by": "#5342",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A comparison of a group (alphanumeric class) operand with a numeric item or literal was neither modelled nor measured against the oracle; a numeric item compared with a group is now compared as its digits."
+    },
+    {
+      "id": "P103",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 4674,
+      "fixed_by": "#4680",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A relational operator on the line after NOT lost the break in statement splitting and made the det translator reject the whole PROCEDURE DIVISION, so the program got no port; GnuCOBOL (-std=ibm) compiles it."
+    },
+    {
+      "id": "P104",
+      "estate": null,
+      "found_by": "crucible",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 4676,
+      "fixed_by": "#4686",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A NOT ON SIZE ERROR after a nested unterminated arithmetic statement bound to the outer statement; the phrase belongs to the innermost open one, so the port ran different statements than the oracle."
+    },
+    {
+      "id": "P105",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "det",
+      "class": "oracle-model",
+      "programs": [],
+      "issue": 4684,
+      "fixed_by": "#4689",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A result overflowing an unsigned binary receiver's bytes (no ON SIZE ERROR) was stored unlike GnuCOBOL's native arithmetic; found by the P-scaled fuzz, reproduced with an unscaled PICTURE. The det runtime now wraps an unsigned binary ADD / SUBTRACT as cobc does."
+    },
+    {
+      "id": "P106",
+      "estate": null,
+      "found_by": "review",
+      "after_round": 8,
+      "side": "harness",
+      "class": "oracle-model",
+      "programs": [],
+      "issue": 4751,
+      "fixed_by": "#4754",
+      "refused_by_name": true,
+      "new_class": false,
+      "summary": "GnuCOBOL lays out a 1-2 digit COMP-5 item in one byte where IBM uses a halfword, so a group holding one gets different offsets and a value past the byte wraps differently; found fuzzing typed binary stores. Refused on the oracle side and declared as register C16, not modelled."
+    },
+    {
+      "id": "P107",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "harness",
+      "class": "commarea-bytes",
+      "programs": [
+        "inqacccu"
+      ],
+      "issue": 4765,
+      "fixed_by": "#4772",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A COMMAREA with an OCCURS was compared at its first occurrence only, and a det LINK of an OCCURS DTO passed the first occurrence's extent; CBSA INQACCCU (up to 20 accounts) was never proven past account 1. The harness now compares every occurrence and the whole table travels."
+    },
+    {
+      "id": "P108",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [],
+      "issue": 4940,
+      "fixed_by": "#4971",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "WEB READ FORMFIELD / QUERYPARM and the WEB browse forms (HTTPHEADER, FORMFIELD, QUERYPARM) were name-only, so a program reading its inbound request got no port; modelled over the stated request (register X38). No burned program is known to use them."
+    },
+    {
+      "id": "P109",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [],
+      "issue": 4941,
+      "fixed_by": "#5036",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "WEB RETRIEVE (server) was name-only: a program retrieving the document it received was refused whole; modelled on both runtimes (register X41), the NORMAL form and SEND ACTION(EVENTUAL) in a later PR."
+    },
+    {
+      "id": "P110",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [],
+      "issue": 4972,
+      "fixed_by": "#5026",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "EXTRACT WEB and EXTRACT TCPIP (client/server address, port, SSL type) were name-only, the older request-reading forms next to WEB EXTRACT; modelled from the stated request (register X38) on both runtimes and translators."
+    },
+    {
+      "id": "P111",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "harness",
+      "class": "commarea-bytes",
+      "programs": [],
+      "issue": 4965,
+      "fixed_by": "#5050",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The CICS crucible and the equivalence harness entered only through handleTransaction(String, T): the byte-carrying overload and lastAnswerBytes() were driven by no scenario, leaving 5 mutation survivors in it triaged unreachable. The harness now drives it and compares the answered bytes with the RETURN's."
+    },
+    {
+      "id": "P112",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [],
+      "issue": 5039,
+      "fixed_by": "#5098",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "CICS fullword named-counter commands (DEFINE / QUERY COUNTER MINIMUM / MAXIMUM, GET INCREMENT WRAP, REWIND, UPDATE, REDUCE / COMPAREMIN / COMPAREMAX, NOSUSPEND) were refused by name after the DCOUNTER slice; modelled on both runtimes, X30's signed reading of low-values stays an assumption."
+    },
+    {
+      "id": "P113",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [],
+      "issue": 5082,
+      "fixed_by": "#5115",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Det RECEIVE MAP ignored DFHMDF JUSTIFY: AMT is JUSTIFY=(RIGHT,ZERO), IBM right-justifies and zero-fills the input and the COBOL side does, so a det PCCONF (translated whole, 47/47) failed 4 of 6 cells against pc-wizard; also proof_reach counted det helpers as ported-unproven."
+    },
+    {
+      "id": "P114",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cics-command",
+      "programs": [],
+      "issue": 5092,
+      "fixed_by": "#5204",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "Tokenless update holds recorded INVREQ RESP2 0 in both runtimes (REWRITE with no prior READ UPDATE: 30; DELETE without RIDFLD: 31; a second tokenless READ UPDATE: 28, not modelled); modelled with the full-key READ and DELETE INVREQ / NOTFND RESP2 values checked against IBM's pages."
+    },
+    {
+      "id": "P115",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "cobol-dialect",
+      "programs": [],
+      "issue": 5645,
+      "fixed_by": "#5654",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "The det translator resolved COPY with its own regex that did not match a quoted copybook literal with an extension (COPY \"x.cpy\".), so the copybook was never expanded and its items were unresolved in the generated Java; the scanner and translator now share one COPY / REPLACING rule."
+    },
+    {
+      "id": "P116",
+      "estate": null,
+      "found_by": "sibling sweep",
+      "after_round": 8,
+      "side": "det",
+      "class": "vsam",
+      "programs": [],
+      "issue": 6065,
+      "fixed_by": "#6111",
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "In an estate with no application JCL job the batch forge emitted no batch package (CobolFiles), so every OPEN / READ / WRITE / CLOSE was a hole (~50 statements), and WRITE ... ADVANCING phrases were holes too (33); about two-thirds of the holes in two non-burned survey corpora. Batch file runtime now generated for file-owning estates; unmodelled WRITE phrases are named."
+    },
+    {
+      "id": "P117",
+      "estate": "zecs",
+      "after_round": 5,
+      "side": "harness",
+      "class": "vsam",
+      "programs": [
+        "zecs001"
+      ],
+      "issue": 6271,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "A GET that hits a stored ZECS001 record cannot be proven: the harness serves every VSAM record at the dataset's fixed reclen, so READ ... LENGTH(ZF-LENGTH) returns the area length (32700) where IBM returns the record's own length, and 3400-STAGE's ZF-DATA(1:ZF-LENGTH) / WEB SEND FROMLENGTH run past 32000 bytes (libcob out of bounds, WEB SEND length beyond its area). The text/* WEB RECEIVE second pass is also not modelled. Also, on the det side, ZECS001 DELETE of a stored key and POST / PUT over an existing key diverge from GnuCOBOL (204 Record not found; SYNCPOINT rollback); cause not diagnosed, so those scenarios were not committed."
+    },
+    {
+      "id": "P118",
+      "estate": "cics-banking-sample-application-cbsa",
+      "after_round": 2,
+      "side": "runtime",
+      "class": "oracle-model",
+      "programs": [
+        "bnk1cra",
+        "bnk1tfn"
+      ],
+      "issue": 6072,
+      "refused_by_name": false,
+      "new_class": false,
+      "summary": "CBSA BNK1CRA / BNK1TFN VALIDATE-AMOUNT cannot be proven for an amount with a 9 after the point (AMTI 1.900): the COMP-1 amount is stored truncated by GnuCOBOL (1.89) and rounded by the Java runtime (1.90), so the two outputs differ (COBOL 1001.89, Java 1001.90); no exactly-binary amount reaches the arm. Left open (CRA 1114:false, TFN 1171:false). Other L3->L4 gaps in the slice are oracle or harness limits, not scenario gaps: X8 bounds refusals, BIF DEEDIT of an empty field, SET TERMINAL UCTRANST then RECEIVE MAP, X54 (an all-blank amount arrives with length 0), and abend injection (#6271, cited by P117)."
     }
   ]
 }

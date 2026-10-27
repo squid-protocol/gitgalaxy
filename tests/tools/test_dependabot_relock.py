@@ -3,7 +3,13 @@
 
 from __future__ import annotations
 
-from tests.tools.dependabot_relock import bumped, outside_req_dirs, parse_pins, upgrade_args
+from tests.tools.dependabot_relock import (
+    bumped,
+    outside_req_dirs,
+    parse_dependabot_metadata,
+    parse_pins,
+    upgrade_args,
+)
 
 MAIN = """certifi==2026.7.22 \\
     --hash=sha256:aa
@@ -50,3 +56,18 @@ def test_a_pr_outside_the_requirement_sets_is_refused():
     assert outside_req_dirs(["ci/requirements/lint.txt", "tests/tools/pin_requirements.py"]) == [
         "tests/tools/pin_requirements.py"
     ]
+
+
+def test_parse_dependabot_metadata_catches_unsafe_package_bumps_dropped_from_txt():
+    # On #6300 Dependabot's pip-compile deleted setuptools from bootstrap.txt instead of writing 84.1.0;
+    # the commit/PR YAML footer still names the exact bump.
+    commit_msg = (
+        "build(deps): bump setuptools from 84.0.0 to 84.1.0 in /ci/requirements\n\n"
+        "---\n"
+        "updated-dependencies:\n"
+        "- dependency-name: setuptools\n"
+        "  dependency-version: 84.1.0\n"
+        "  dependency-type: direct:production\n"
+        "...\n"
+    )
+    assert parse_dependabot_metadata(commit_msg) == {"setuptools": {"84.1.0"}}

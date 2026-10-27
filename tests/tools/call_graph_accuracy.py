@@ -71,12 +71,36 @@ LEDGER = gl.LEDGER
 
 # The languages #3329 scoped for qualifier capture, plus C and Rust: the
 # C-style invocation family where tree-sitter's call node is unambiguous.
-LANGS = ("python", "javascript", "typescript", "java", "go", "c", "cpp", "csharp", "php", "ruby", "rust")
+LANGS = (
+    "python",
+    "javascript",
+    "typescript",
+    "java",
+    "go",
+    "c",
+    "cpp",
+    "csharp",
+    "php",
+    "ruby",
+    "rust",
+    "kotlin",
+    "scala",
+    "swift",
+    "lua",
+    "zig",
+    "dart",
+    "haskell",
+    "perl",
+    "solidity",
+    "apex",
+    "powershell",
+    "tcl",
+)
 
 CALL_NODE_TYPES = frozenset(
     {
         "call",  # python, ruby
-        "call_expression",  # js/ts, c/cpp, go, rust
+        "call_expression",  # js/ts, c/cpp, go, rust, kotlin, scala, swift
         "new_expression",  # js/ts constructor
         "method_invocation",  # java
         "object_creation_expression",  # java, c#, php
@@ -86,11 +110,23 @@ CALL_NODE_TYPES = frozenset(
         "nullsafe_member_call_expression",  # php
         "scoped_call_expression",  # php
         "macro_invocation",  # rust
+        "function_call",  # lua
+        "instance_expression",  # scala `new Foo(1)`
+        "method_call_expression",  # perl `$o->meth(1)`
+        "ambiguous_function_call_expression",  # perl `print "x"`, `save $x`
+        "func1op_call_expression",  # perl unary built-ins: `shift`, `defined $x`
+        "apply",  # haskell `f x y` (curried: the outer applies share the leftmost callee)
+        "infix",  # haskell `f $ x` (any other operator is no call)
+        "FnCallArguments",  # zig: the callee is the sibling before the argument list
+        "argument_part",  # dart: the argument list of `f(x)`, `a.f(x)`, `a?.f(x)`, `a..f(x)`
+        "const_object_expression",  # dart `const Foo(1)`
         "type_conversion_expression",  # go `[]byte(s)` -- a conversion is a call (C3)
+        "command",  # powershell `Get-Item $x`, tcl `puts $x`
+        "invokation_expression",  # powershell `$o.Save(1)`, `[Foo]::Make(2)`
     }
 )
 _CALLEE_FIELDS = ("function", "method", "name", "macro", "constructor", "type")
-_MEMBER_FIELDS = ("property", "field", "name", "attribute", "method")
+_MEMBER_FIELDS = ("property", "field", "name", "attribute", "method", "suffix")
 _LEAF_SUFFIXES = ("identifier", "constant")
 _QUALIFIED_TYPES = frozenset({"scoped_identifier", "qualified_identifier", "scoped_type_identifier"})
 _LINE_SLACK = 3  # decorators/annotations/doc comments can move a start line
@@ -120,9 +156,16 @@ def _leaf_name(node: Any, depth: int = 0) -> str | None:
         return _leaf_name(node.child_by_field_name("function"), depth + 1)
     if node.type in ("generic_name", "generic_type"):  # c# `OfType<T>()`, java `new HashMap<K, V>()`
         return _leaf_name(node.named_children[0], depth + 1) if node.named_children else None
+    if node.type == "stable_type_identifier" and node.named_children:  # scala `new util.HashSet[T]()`
+        return _leaf_name(node.named_children[-1], depth + 1)
     if node.type in _QUALIFIED_TYPES:  # `ControlFlow::Continue`, `OS::get_singleton`
         child = node.child_by_field_name("name")
         return _leaf_name(child, depth + 1) if child is not None else None
+    # solidity `t.call{value: v}(d)` names the call, not `value`
+    if node.type == "struct_expression" and node.named_children:
+        return _leaf_name(node.named_children[0], depth + 1)
+    if node.type in ("function", "method") and not node.named_children:  # perl `Foo::bar` -> `bar`
+        return node.text.decode("utf-8", "replace").rsplit("::", 1)[-1]
     if node.type.endswith(_LEAF_SUFFIXES) or node.type == "name":
         return node.text.decode("utf-8", "replace")
     for field in _MEMBER_FIELDS:
@@ -136,11 +179,123 @@ def _leaf_name(node: Any, depth: int = 0) -> str | None:
     return None
 
 
+def _is_subscript(node: Any) -> bool:
+    """swift parses `headers["k"]` as a call whose argument list opens with `[`: an index is no call (C3)."""
+    suffix = next((c for c in node.named_children if c.type == "call_suffix"), None)
+    args = suffix.named_children[0] if suffix is not None and suffix.named_children else None
+    return args is not None and args.type == "value_arguments" and args.children[0].type == "["
+
+
+def _hs_callee(node: Any) -> str | None:
+    """haskell `f x y` is apply(apply(f, x), y): the callee is the leftmost function of the chain.
+    `f $ x` applies its left operand, so a `$` infix is a call too."""
+    if node.type == "infix":
+        op = node.child_by_field_name("operator")
+        if op is None or op.text != b"$":
+            return None
+        fn = node.child_by_field_name("left_operand")
+    else:
+        fn = node.child_by_field_name("function")
+    for _ in range(64):
+        if fn is None or fn.type != "apply":
+            break
+        fn = fn.child_by_field_name("function")
+    if fn is not None and fn.type == "qualified":  # `Map.insert`: the id after the module
+        fn = fn.child_by_field_name("id")
+    return fn.text.decode("utf-8", "replace") if fn is not None and fn.type in ("variable", "constructor") else None
+
+
+_HS_PATTERN_SPINE = frozenset({"apply", "parens", "infix", "tuple", "list", "as_pattern", "irrefutable"})
+
+
+def _hs_is_pattern(node: Any) -> bool:
+    """haskell `isPara (Para _) = True`, `Left e -> ..`, `\\(Just x) -> ..`: tree-sitter parses a constructor
+    pattern as an `apply`, but a pattern is no call (C3). True when `node` sits in a pattern position."""
+    cur = node
+    while cur.parent is not None:
+        par = cur.parent
+        if par.type == "patterns":
+            return True
+        pat = par.child_by_field_name("pattern")
+        if pat is not None and pat.id == cur.id:
+            return True
+        if par.type not in _HS_PATTERN_SPINE:
+            return False
+        cur = par
+    return False
+
+
+def _dart_callee(node: Any) -> str | None:
+    """dart has no call node: `a.b.save(x)` is identifier, selector(.b), selector(.save), selector(argument_part).
+
+    The call is the `argument_part`; its callee is the name just before it: the identifier, or the
+    selector (`.save`, `?.save`) or cascade selector (`..save`) holding one.
+    """
+    if node.type != "argument_part":
+        # `const Foo(1)` opens with a `const_builtin` token; `const Foo.named(1)` names `named` (the
+        # rightmost identifier, as for `a.b.save()`): the callee is the last name before `arguments` (#6454)
+        named = [c for c in node.named_children if c.type in ("identifier", "type_identifier")]
+        return _leaf_name(named[-1]) if named else None
+    parent = node.parent
+    prev = parent.prev_named_sibling if parent is not None and parent.type == "selector" else node.prev_named_sibling
+    if prev is None:
+        return None
+    if prev.type == "identifier":
+        return prev.text.decode("utf-8", "replace")
+    holder = prev.named_children[0] if prev.type == "selector" and prev.named_children else prev
+    ident = next((c for c in holder.named_children if c.type == "identifier"), None)
+    return ident.text.decode("utf-8", "replace") if ident is not None else None
+
+
+def _ps_tcl_callee(node: Any) -> str | None:
+    """powershell and tcl `command` nodes and powershell `invokation_expression`.
+
+    powershell: the callee is the `command_name` field when it is a plain `command_name` token; a
+    `command_name_expr` (`& $g`, `. ./a.ps1`) is dynamic or dot-sourcing, no named call. A method call
+    names the `member_name` (`$o.Save(1)`, `[Foo]::Make(2)`); a property read has no `argument_list`.
+    tcl: the callee is the first word (`name` field); `ns::k` names its rightmost segment, as the engine does.
+    """
+    if node.type == "invokation_expression":
+        member = next((c for c in node.named_children if c.type == "member_name"), None)
+        has_args = any(c.type == "argument_list" for c in node.named_children)
+        return member.text.decode("utf-8", "replace") if member is not None and has_args else None
+    name = node.child_by_field_name("name")
+    if name is not None:  # tcl
+        return name.text.decode("utf-8", "replace").rsplit("::", 1)[-1] if name.type == "simple_word" else None
+    cname = node.child_by_field_name("command_name")
+    if cname is not None and cname.type == "command_name":
+        return cname.text.decode("utf-8", "replace")
+    return None
+
+
 def _callee(node: Any) -> str | None:
+    if node.type in ("command", "invokation_expression"):
+        return _ps_tcl_callee(node)
+    if node.type in ("apply", "infix"):
+        return _hs_callee(node)
+    if node.type == "func1op_call_expression":  # perl `shift`, `defined $x`: the built-in is the first token
+        return node.children[0].text.decode("utf-8", "replace") if node.children else None
+    if node.type == "FnCallArguments":
+        prev = node.prev_named_sibling
+        # the engine names a builtin without its sigil: `@intCast(x)` -> `intCast`
+        return (
+            prev.text.decode("utf-8", "replace").lstrip("@")
+            if prev is not None and prev.type.endswith("IDENTIFIER")
+            else None
+        )
+    if node.type in ("argument_part", "const_object_expression") or (
+        node.type == "new_expression" and node.child_by_field_name("constructor") is None
+    ):
+        return _dart_callee(node)  # js `new Foo()` has a `constructor` field; dart's does not
+    if _is_subscript(node):
+        return None
     for field in _CALLEE_FIELDS:
         child = node.child_by_field_name(field)
         if child is not None:
             return _leaf_name(child)
+    if node.type in ("call_expression", "instance_expression") and node.named_children:
+        # kotlin, swift `f(x)` and scala `new Foo(x)` carry no callee field: the callee comes first
+        return _leaf_name(node.named_children[0])
     if node.type == "object_creation_expression":  # php: `new Foo(...)` has no field
         for child in node.named_children:
             if child.type in ("name", "qualified_name"):
@@ -180,6 +335,38 @@ def _is_own_leaf_call(node: Any, callee: str, owner: str) -> bool:
 _KEEP_TREE: list[Any] = [None]
 
 
+def _body_of(node: Any) -> Any:
+    """zig `FnProto` and dart `*_signature` hold no body: it is the next sibling (dart: of the wrapper)."""
+    if node.type == "FnProto":
+        nxt = node.next_named_sibling
+        return nxt if nxt is not None and nxt.type == "Block" else None
+    if node.type.endswith("_signature") or node.type == "local_function_declaration":
+        top = node
+        while top.parent is not None and top.parent.type.endswith("_signature"):
+            top = top.parent  # method_signature wraps function_signature
+        nxt = top.next_named_sibling
+        return nxt if nxt is not None and nxt.type == "function_body" else None
+    return None
+
+
+def _bodies_of(node: Any) -> list[Any]:
+    """Every subtree that belongs to `node`'s unit: its body, plus a dart constructor's initializer list (#6454).
+
+    The dart grammar puts `initializers` beside `constructor_signature`, not inside it, so
+    `: x = x ?? const Foo(), y = bar()` is outside the signature and the body: the call there
+    would otherwise read as a not-a-call (the callee's first textual occurrence is its parameter type).
+    """
+    bodies = []
+    if node.type == "constructor_signature":
+        nxt = node.next_named_sibling
+        if nxt is not None and nxt.type == "initializers":
+            bodies.append(nxt)
+    body = _body_of(node)
+    if body is not None:
+        bodies.append(body)
+    return bodies
+
+
 def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, set[str], Any]]:
     """(name, start_line, callee names, node) for every function tree-sitter finds."""
     import tree_sitter_language_pack
@@ -192,8 +379,10 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
     out: list[tuple[str, int, set[str], Any]] = []
     stack: list[tuple[Any, list[tuple[str, set[str]]]]] = [(tree.root_node, [])]
     # iterative walk; `owners` is the chain of enclosing function call-sets
+    body_owners: dict[int, list[tuple[str, set[str]]]] = {}
     while stack:
         node, owners = stack.pop()
+        owners = body_owners.pop(node.id, owners)
         if node.type in func_types:
             name = audit._get_node_name(node)
             # C8 (#3641): an anonymous function is no unit of its own -- its calls stay with the
@@ -202,9 +391,13 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
                 calls: set[str] = set()
                 out.append((name, node.start_point[0] + 1, calls, node))
                 owners = [*owners, (name, calls)]
+                for body in _bodies_of(node):
+                    body_owners[body.id] = owners
         elif node.type in CALL_NODE_TYPES and owners:
             name = _callee(node)
             owner, calls = owners[-1]
+            if lang == "haskell" and node.type == "apply" and _hs_is_pattern(node):
+                name = None
             if name and name not in non_calls and not _is_own_leaf_call(node, name, owner):
                 calls.add(name)
         stack.extend((child, owners) for child in reversed(node.children))
@@ -291,6 +484,26 @@ def _owner(node: Any, func_types: frozenset[str], top: Any, audit: Any) -> Any:
     return top
 
 
+_ERROR_SPANS: dict[tuple[int, int], list[tuple[int, int]]] = {}
+
+
+def _overlaps_parse_error(fn: Any, body: Any) -> bool:
+    """True when tree-sitter's tree has an ERROR or MISSING node over the function (a grammar that
+    cannot parse the construct, e.g. zig tuple destructuring `_, const x = f();`): the callee is
+    absent from the tree because the tree is broken there, not because the call is not one."""
+    root = fn
+    while root.parent is not None:
+        root = root.parent
+    key = (root.id, root.end_byte)
+    if key not in _ERROR_SPANS:
+        _ERROR_SPANS[key] = [
+            (n.start_point[0], n.end_point[0]) for n in _walk(root) if n.type == "ERROR" or n.is_missing
+        ]
+    # rows, not bytes: a broken body starts after the `FnProto` ends, on the same line
+    lo, hi = fn.start_point[0], (body if body is not None else fn).end_point[0]
+    return any(start <= hi and end >= lo for start, end in _ERROR_SPANS[key])
+
+
 def _cause(kind: str, callee: str, fn: Any, lang: str, audit: Any, engine_elsewhere: bool) -> tuple[str, Any]:
     """Why one side has `callee` in `fn` and the other does not, as a shape label.
 
@@ -301,7 +514,12 @@ def _cause(kind: str, callee: str, fn: Any, lang: str, audit: Any, engine_elsewh
     may be the one that is wrong.
     """
     func_types = frozenset(audit.NODE_MAPS[lang]["func_node_types"])
-    calls = [n for n in _walk(fn) if n.type in CALL_NODE_TYPES and _callee(n) == callee]
+    bodies = _bodies_of(fn)
+    calls = [
+        n
+        for n in [*_walk(fn), *(n for b in bodies for n in _walk(b))]
+        if n.type in CALL_NODE_TYPES and _callee(n) == callee
+    ]
     if kind == "fp":
         if callee in CONTRACT_NON_CALLS.get(lang, ()):
             return "fp:contract-non-call", None
@@ -309,12 +527,15 @@ def _cause(kind: str, callee: str, fn: Any, lang: str, audit: Any, engine_elsewh
             inner = _owner(n, func_types, fn, audit)
             if inner.id != fn.id:
                 return f"fp:inner-named-{inner.type}", n
-        ids = [n for n in _walk(fn) if n.text == callee.encode() and not n.children]
+        scope = [*_walk(fn), *(n for b in bodies for n in _walk(b))]
+        ids = [n for n in scope if n.text == callee.encode() and not n.children]
         if ids:
             parent = ids[0].parent
             grand = parent.parent if parent is not None else None
             shape = f"{parent.type if parent else '?'}<{grand.type if grand else '?'}"
             return f"fp:not-a-call-in-ts:{shape}", ids[0]
+        if _overlaps_parse_error(fn, bodies[-1] if bodies else None):
+            return "fp:ts-parse-error", None
         return "fp:outside-ts-function", None
     if engine_elsewhere:
         return "fn:engine-attributes-to-another-function", calls[0] if calls else None

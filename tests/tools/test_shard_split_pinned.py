@@ -49,7 +49,7 @@ def test_the_restore_that_picks_the_newest_runs_once_per_workflow_run():
     pickers = [(wf, jid) for wf, jid, job, step in durations_restores() if "restore-keys" in (step.get("with") or {})]
     # det-sweep `det` is the single nightly merge job (not a shard): it extends the newest file, then saves it; the plan
     # picks the newest of each namespace (#5882: the Db2 cases' own, which Evidence Refresh's single `db2` merge job extends)
-    assert sorted(pickers) == [("det-sweep", "det"), ("det-sweep", "plan"), ("det-sweep", "plan"),
+    assert sorted(pickers) == [("det-sweep", "det"), ("det-sweep", "det"), ("det-sweep", "plan"), ("det-sweep", "plan"),
                                ("evidence-refresh", "db2"), ("smoke-test", "durations")]  # fmt: skip
 
 
@@ -90,3 +90,18 @@ def test_smoke_test_parts_restore_the_exact_key_the_durations_job_chose():
     # a missing key must not fail or skip the part: it falls back to the committed .test_durations
     assert "needs.durations.outputs.key" in step["if"]
     assert "!cancelled()" in part["if"]
+
+
+def test_a_manual_full_sweep_on_main_records_the_db2_durations():
+    """#5882: the det job restores, extends and saves the Db2 durations only for a dispatch on main (a cache saved on a
+    branch or PR ref is read by no one), and only a full Db2 sweep writes them (a partial list would record a subset)."""
+    steps = load("det-sweep")["jobs"]["det"]["steps"]
+    restore = [s for s in restore_steps({"steps": steps}) if "det-db2-durations-" in str(s.get("with"))]
+    save = [s for s in steps if "cache/save" in s.get("uses", "") and "det-db2-durations-" in str(s.get("with"))]
+    assert len(restore) == len(save) == 1
+    for step in (restore[0], save[0]):
+        assert "workflow_dispatch" in step["if"] and "refs/heads/main" in step["if"]
+    assert restore[0]["with"]["restore-keys"].strip() == "det-db2-durations-"
+    assert save[0]["with"]["key"].startswith("det-db2-durations-") and save[0]["with"]["path"] == "durations-db2"
+    run = next(s for s in steps if s.get("id") == "aggregate")["run"]
+    assert '[ "$DB2_CASES" = "all" ]' in run and "--durations durations-db2/det_sweep_durations.json" in run

@@ -1,0 +1,214 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-cotrtupc",
+  "entries": [
+    {
+      "unit": "0001-CHECK-PFKEYS",
+      "line": 605,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF WS-RETURN-MSG-OFF: WS-RETURN-MSG is set OFF (spaces) at 362 on every entry and nothing writes it before 0001-CHECK-PFKEYS runs, so the message is always OFF here and the false arm cannot be taken."
+    },
+    {
+      "unit": "1200-EDIT-MAP-INPUTS",
+      "line": 701,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "0000-MAIN (line 503) handles PFK05 with TTUP-DETAILS-NOT-FOUND first; PFK05 on any other state is rejected by 0001-CHECK-PFKEYS before this edit runs"
+    },
+    {
+      "unit": "1200-EDIT-MAP-INPUTS",
+      "line": 721,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "IF WS-RETURN-MSG-OFF after FLG-TRANFILTER-BLANK: the blank flag comes only from 1245-EDIT-NUM-REQD (via 1210), whose blank arm at 921 writes ' must be supplied.' into WS-RETURN-MSG when it is OFF, and it is the first writer on this path, so the message is never OFF at 721."
+    },
+    {
+      "unit": "1205-COMPARE-OLD-NEW",
+      "line": 799,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF WS-RETURN-MSG-OFF: 1205 is reached only after 1210 passed with the type valid, and no passing edit writes WS-RETURN-MSG (NO-CHANGES-DETECTED at 800 is its first writer), so the message is always OFF here."
+    },
+    {
+      "unit": "1205-COMPARE-OLD-NEW",
+      "line": 805,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF WS-RETURN-MSG-OFF: same path as 799; nothing has written WS-RETURN-MSG before 1205, so the message is always OFF."
+    },
+    {
+      "unit": "1230-EDIT-ALPHANUM-REQD",
+      "line": 863,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF WS-RETURN-MSG-OFF in the blank arm: 1230 is reached (line 761) only when the type edit passed and 1205 left the message OFF (CHANGE-HAS-OCCURRED at 806 does not write it), and 1230 is the first writer, so the message is OFF."
+    },
+    {
+      "unit": "1230-EDIT-ALPHANUM-REQD",
+      "line": 890,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF WS-RETURN-MSG-OFF in the not-ok arm: same path as 863, the first writer on it, message OFF."
+    },
+    {
+      "unit": "1245-EDIT-NUM-REQD",
+      "line": 921,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF WS-RETURN-MSG-OFF in the blank arm: 1245 runs first on the edit path (from 1210), the message is OFF since 362 and nothing writes it before, so the false arm cannot be taken."
+    },
+    {
+      "unit": "1245-EDIT-NUM-REQD",
+      "line": 940,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF WS-RETURN-MSG-OFF in the non-numeric arm: same as 921, first writer on its path."
+    },
+    {
+      "unit": "1245-EDIT-NUM-REQD",
+      "line": 958,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF WS-RETURN-MSG-OFF in the zero arm: same as 921, first writer on its path."
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 979,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1016",
+      "family": "G",
+      "reason": "the earlier WHEN CCARD-AID-PFK12 arm (with the same TTUP-CONFIRM-DELETE state test) is taken first for every input that satisfies this WHEN, so this arm is subsumed"
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 979,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1046",
+      "family": "G",
+      "reason": "TTUP-INVALID-SEARCH-KEYS is SET only at line 729 and is immediately followed by SET TTUP-DETAILS-NOT-FETCHED, so the state is never live when 2000-DECIDE-ACTION evaluates it"
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 979,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1053",
+      "family": "G",
+      "reason": "an earlier branch in 0000-MAIN (line 503) handles PFK05 with TTUP-DETAILS-NOT-FOUND before 2000-DECIDE-ACTION is reached"
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 979,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1065",
+      "family": "G",
+      "reason": "WHEN TTUP-CHANGES-OKAYED-AND-DONE: 0000-MAIN's first EVALUATE (line 410) resets a stored 'C' to TTUP-DETAILS-NOT-FETCHED before any path reaches 2000-DECIDE-ACTION, nothing in 1000-PROCESS-INPUTS sets 'C', and 9600 (which does, at 1588) goes straight to 3000-SEND-MAP, so the state is never 'C' when 2000 runs."
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 1024,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF INPUT-ERROR OR NO-CHANGES-DETECTED OR WS-INVALID-KEY (TTUP-SHOW-DETAILS arm): 2000-DECIDE-ACTION is reached with 'S' only through 1200, whose exits with 'S' kept are the no-change exit (1205 sets NO-CHANGES-DETECTED, since the message is always OFF there, see 799) or an input error; PF12 on 'S' takes the first WHEN, and a stale-key invalid key is sent before 1000 runs. No path reaches the else arm."
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 1067,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "IF CDEMO-FROM-TRANID blank, inside WHEN TTUP-CHANGES-OKAYED-AND-DONE (1065): that arm cannot be taken (see its entry), so neither arm of the test runs."
+    },
+    {
+      "unit": "2000-DECIDE-ACTION",
+      "line": 1067,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "IF CDEMO-FROM-TRANID blank, inside WHEN TTUP-CHANGES-OKAYED-AND-DONE (1065): that arm cannot be taken (see its entry), so neither arm of the test runs."
+    },
+    {
+      "unit": "3250-SETUP-INFOMSG",
+      "line": 1213,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1243",
+      "family": "G",
+      "reason": "WHEN TTUP-CHANGES-OKAYED-BUT-FAILED in 3250-SETUP-INFOMSG: the state is SET only at 1584, under WHEN TABLE-UPDATE-FAILED (1583), which cannot be taken (see that entry); 2000-DECIDE-ACTION abends on a stored 'F' (WHEN OTHER) before 3000-SEND-MAP, so 3250 never sees it."
+    },
+    {
+      "unit": "3250-SETUP-INFOMSG",
+      "line": 1213,
+      "kind": "EVALUATE",
+      "outcome": "none",
+      "family": "G",
+      "reason": "the last WHEN is WS-NO-INFO-MESSAGE (WS-INFO-MSG blank), which is true for any message not matched by an earlier WHEN; WS-INFO-MSG is written only in this EVALUATE"
+    },
+    {
+      "unit": "3390-SETUP-INFOMSG-ATTRS",
+      "line": 1387,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "3390 runs only after 3250 has set a message, so WS-NO-INFO-MESSAGE is never true here"
+    },
+    {
+      "unit": "9100-GET-TRANSACTION-TYPE",
+      "line": 1492,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "WS-RETURN-MSG is set OFF at line 990 before 9000 runs, and nothing before this IF writes a message"
+    },
+    {
+      "unit": "9100-GET-TRANSACTION-TYPE",
+      "line": 1498,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "same as 1492: WS-RETURN-MSG is still OFF on every path reaching this IF"
+    },
+    {
+      "unit": "9600-WRITE-PROCESSING",
+      "line": 1563,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "WS-RETURN-MSG is OFF on the PF5 path into 9600, which clears it before the write"
+    },
+    {
+      "unit": "9600-WRITE-PROCESSING",
+      "line": 1580,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1583",
+      "family": "G",
+      "reason": "WHEN TABLE-UPDATE-FAILED: the 88 is an 'Update of record failed' value of WS-RETURN-MSG, set at 1568 (and 1608 via 9700) and immediately overwritten by the STRING into WS-RETURN-MSG that starts 'Error updating:' / 'Error inserting record into:', with no statement between, so the field never equals the 88 value at 1580 and the arm cannot be taken."
+    },
+    {
+      "unit": "9600-WRITE-PROCESSING",
+      "line": 1580,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@1585",
+      "family": "G",
+      "reason": "DATA-WAS-CHANGED-BEFORE-UPDATE is an 88 on WS-RETURN-MSG that no statement in COTRTUPC sets; its text appears only in the VALUE clause, so the WHEN cannot be true"
+    },
+    {
+      "unit": "ABEND-ROUTINE",
+      "line": 1677,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF ABEND-MSG EQUAL LOW-VALUES`: ABEND-MSG is `PIC X(72) VALUE SPACES` (CSMSG02Y, lines 19-20), a separate 01-level ABEND-DATA that no INITIALIZE of the program names, and the program writes it only at 1077-1078 (a non-blank literal) and 1678. It is never LOW-VALUES."
+    }
+  ]
+}

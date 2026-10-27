@@ -188,7 +188,7 @@
      "sqlcode": -913
     }
    ],
-   "why": "option 3 with LGDPDB01's DELETE failing (SQLCODE -913): CA-RETURN-CODE '90' -> SYNCPOINT ROLLBACK, NO-DELETE; the back end LINKs LGSTSQ first, so the task is judged up to LGSTSQ's refused WRITEQ (X6) and the rest is not compared"
+   "why": "option 3 with LGDPDB01's DELETE failing (SQLCODE -913): CA-RETURN-CODE '90' -> SYNCPOINT ROLLBACK, NO-DELETE; the back end LINKs LGSTSQ first, whose WRITEQ runs past its FROM item and is written padded (X6, ASSUMED), so the whole task is compared"
   },
   {
    "name": "bad-option",
@@ -273,7 +273,7 @@
      "ENP1PREI": "000450"
     }
    },
-   "why": "option 2 for customer 999, who does not exist: LGAPDB01's INSERT into POLICY breaks its foreign key (SQLCODE -530) -> CA-RETURN-CODE '70', SYNCPOINT ROLLBACK, NO-ADD 'Customer does not exist'; the back end LINKs LGSTSQ first, so the task is judged up to LGSTSQ's refused WRITEQ (X6) and the rest is not compared"
+   "why": "option 2 for customer 999, who does not exist: LGAPDB01's INSERT into POLICY breaks its foreign key (SQLCODE -530) -> CA-RETURN-CODE '70', SYNCPOINT ROLLBACK, NO-ADD 'Customer does not exist'; the back end LINKs LGSTSQ first, whose WRITEQ runs past its FROM item and is written padded (X6, ASSUMED), so the whole task is compared"
   },
   {
    "name": "add-fails",
@@ -304,7 +304,7 @@
      "sqlcode": -913
     }
    ],
-   "why": "option 2 with LGAPDB01's INSERT into POLICY failing (SQLCODE -913): CA-RETURN-CODE '90', SYNCPOINT ROLLBACK, NO-ADD WHEN OTHER 'Error Adding ... Policy'; the back end LINKs LGSTSQ first, so the task is judged up to LGSTSQ's refused WRITEQ (X6) and the rest is not compared"
+   "why": "option 2 with LGAPDB01's INSERT into POLICY failing (SQLCODE -913): CA-RETURN-CODE '90', SYNCPOINT ROLLBACK, NO-ADD WHEN OTHER 'Error Adding ... Policy'; the back end LINKs LGSTSQ first, whose WRITEQ runs past its FROM item and is written padded (X6, ASSUMED), so the whole task is compared"
   },
   {
    "name": "update",
@@ -384,8 +384,8 @@
      "sqlcode": -913
     }
    ],
-   "why": "option 4 with LGUPDB01's UPDATE of the type's table failing (SQLCODE -913): CA-RETURN-CODE non-zero -> NO-UPD 'Error Updating ... Policy'; the back end LINKs LGSTSQ first, so the task is judged up to LGSTSQ's refused WRITEQ (X6) and the rest is not compared"
+   "why": "option 4 with LGUPDB01's UPDATE of the type's table failing (SQLCODE -913): CA-RETURN-CODE non-zero -> NO-UPD 'Error Updating ... Policy'; the back end LINKs LGSTSQ first, whose WRITEQ runs past its FROM item and is written padded (X6, ASSUMED), so the whole task is compared"
   }
  ],
- "notes": "GenApp's motor policy test transaction (LGTESTP1, transid SSP1, BMS map SSMAPP1 of mapset SSMAP: the symbolic map is generated from base/src/ssmap.bms, @bms/SSMAP.cpy). A first task (EIBCALEN 0) sends the initialised map and RECEIVEs in the same task; a returning one (EIBCALEN > 0; the program has no DFHCOMMAREA, its own COMM-AREA goes back through RETURN TRANSID) goes straight to the RECEIVE. HANDLE AID CLEAR / PF3 and HANDLE CONDITION MAPFAIL are exercised; the option field picks inquire (1: LGIPOL01), add (2: LGAPOL01, a failure is SYNCPOINT ROLLBACK), delete (3: LGDPOL01), or inquire-then-update (4: LGIPOL01, SEND MAP, a second RECEIVE MAP -- the harness gives a task one input per map, so it reads the same fields -- then LGUPOL01). The case runs the whole chain in the task: the four front ends, their Db2 back ends, the VSAM services and LGSTSQ (twelve programs). The VSAM file is genapp-lgupdb01's; Db2 is db2cre.jcl's tables and rows. POLICY.LASTCHANGED, COMMERCIAL.REQUESTDATE and the COMMAREA's CA-LASTCHANGED are clock fields. Error paths in the back ends LINK LGSTSQ and are judged up to its refused WRITEQ (X6). Uncovered: IF CA-RETURN-CODE > 0 true after the add / delete / update LINKs, and NO-ADD / NO-DELETE / NO-UPD: every back-end failure LINKs LGSTSQ before it returns, and the task is judged up to LGSTSQ's refused WRITEQ (X6), so what follows is not compared or counted. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+ "notes": "GenApp's motor policy test transaction (LGTESTP1, transid SSP1, BMS map SSMAPP1 of mapset SSMAP: the symbolic map is generated from base/src/ssmap.bms, @bms/SSMAP.cpy). A first task (EIBCALEN 0) sends the initialised map and RECEIVEs in the same task; a returning one (EIBCALEN > 0; the program has no DFHCOMMAREA, its own COMM-AREA goes back through RETURN TRANSID) goes straight to the RECEIVE. HANDLE AID CLEAR / PF3 and HANDLE CONDITION MAPFAIL are exercised; the option field picks inquire (1: LGIPOL01), add (2: LGAPOL01, a failure is SYNCPOINT ROLLBACK), delete (3: LGDPOL01), or inquire-then-update (4: LGIPOL01, SEND MAP, a second RECEIVE MAP -- the harness gives a task one input per map, so it reads the same fields -- then LGUPOL01). The case runs the whole chain in the task: the four front ends, their Db2 back ends, the VSAM services and LGSTSQ (twelve programs). The VSAM file is genapp-lgupdb01's; Db2 is db2cre.jcl's tables and rows. POLICY.LASTCHANGED, COMMERCIAL.REQUESTDATE and the COMMAREA's CA-LASTCHANGED are clock fields. Error paths in the back ends LINK LGSTSQ, whose WRITEQs run past their FROM item and are written padded (X6, ASSUMED): the task runs on and is compared whole. Explicit scenarios cover 9/10 paragraphs and 18/19 branches, NO-ADD and NO-DELETE included (LGSTSQ's padded WRITEQ no longer ends the task there). Left: IF CA-RETURN-CODE > 0 true after the update LINK and NO-UPD, because LGUPDB01's CLOSE-PCURSOR resets CA-RETURN-CODE to '00' after every update path (not an X6 effect). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
 }

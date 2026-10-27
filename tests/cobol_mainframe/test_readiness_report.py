@@ -182,3 +182,122 @@ def test_proof_section_is_rendered_and_in_the_delta():
     if pr:
         pr[0]["only"] += 3
         assert rr.delta(old, new)[name]["proofs"][pr[0]["gap"]]["only"][1] == pr[0]["only"]
+
+
+def test_main_markdown_carries_a_proof_section_for_every_estate_with_whole_programs(tmp_path):
+    """#5229: the CLI output (not just render()) ranks proof blockers per burned estate, beside the rules to land."""
+    out = tmp_path / "r.md"
+    assert rr.main(["--top", "0", "--out", str(out)]) == 0
+    text = out.read_text(encoding="utf-8")
+    built = rr.build(top=0)
+    wholes = [n for n, m in built["estates"].items() if m["proofs_to_land"]["whole"]]
+    assert wholes
+    assert text.count("### Proof blockers (") == len(wholes)
+    assert text.count("### Rules to land (") == len(built["estates"])
+
+
+def _prog(named, reach="not measured"):
+    return {
+        "assumptions": {
+            "named_by_commands": [{"id": i, "status": "ASSUMED", "area": f"area {i}"} for i in named],
+            "reach": reach,
+        }
+    }
+
+
+def test_caveats_without_measured_reach_are_the_named_upper_bound():
+    rows = rr.caveats([_prog(["A1", "A2"]), _prog(["A2"])])
+    assert [(r["id"], r["programs"], r["named_only"]) for r in rows] == [("A2", 2, 2), ("A1", 1, 1)]
+
+
+def test_caveats_narrow_to_the_reached_entries_and_mix_with_unmeasured_programs():
+    reached = _prog(["A1", "A2", "A3"], {"registers": ["A2", "A9"]})  # A9 is not named: never counted
+    rows = {r["id"]: r for r in rr.caveats([reached, _prog(["A1", "A2"])])}
+    assert rows["A2"]["programs"] == 2 and rows["A2"]["named_only"] == 1
+    assert rows["A1"]["programs"] == 1 and rows["A1"]["named_only"] == 1
+    assert "A3" not in rows and "A9" not in rows
+
+
+def test_fully_measured_caveats_carry_no_named_only_key_and_render_without_upper_bound():
+    rows = rr.caveats([_prog(["A1", "A2"], {"registers": ["A1"]}), _prog(["A1"], {"registers": []})])
+    assert rows == [{"id": "A1", "status": "ASSUMED", "area": "area A1", "programs": 1}]
+
+
+def test_blockers_one_run_writes_full_and_anonymized_reports_with_stable_hashes(tmp_path):
+    """#5054 done-when 1 and 3: both reports from one run; each full blocker is in the twin under the same category
+    with at least its programs; the hashes repeat with the same salt and change with another."""
+    import blocker_report as br
+
+    estate = rr.estates()[0]
+    salt = tmp_path / "salt"
+
+    def run(out, salt_file):
+        assert (
+            rr.main(["--blockers", str(out), "--salt-file", str(salt_file), "--out", str(tmp_path / "r.md"), estate])
+            == 0
+        )
+        return out / estate
+
+    a, b, other = run(tmp_path / "a", salt), run(tmp_path / "b", salt), run(tmp_path / "c", tmp_path / "salt2")
+    names = sorted(p.name for p in a.iterdir())
+    assert names == [
+        "blocker_report.anon.json",
+        "blocker_report.anon.md",
+        "blocker_report.full.json",
+        "blocker_report.full.md",
+    ]
+    full = json.loads((a / "blocker_report.full.json").read_text(encoding="utf-8"))
+    anon = json.loads((a / "blocker_report.anon.json").read_text(encoding="utf-8"))
+    assert full["blockers"], "the snapshot estate has blockers to compare"
+    key = br.load_salt(salt)
+    twin = {(x["category"], x["signature"]) for x in anon["blockers"]}
+    cats = {}
+    for g in full["blockers"]:
+        cat, _sub, sig = br.classify(g["gap"], key)
+        assert (cat, sig) in twin, g["gap"]
+        cats.setdefault(cat, set()).add(g["gap"])
+    for cat, gaps in cats.items():
+        blocked = {p["program"] for p in full["programs"] if gaps & set(p["gaps"])}
+        assert sum(x["programs_blocked"] for x in anon["blockers"] if x["category"] == cat) >= len(blocked) > 0
+    assert (a / "blocker_report.anon.json").read_bytes() == (b / "blocker_report.anon.json").read_bytes()
+    assert (a / "blocker_report.anon.json").read_bytes() != (other / "blocker_report.anon.json").read_bytes()
+
+
+def test_blockers_needs_a_salt_file():
+    with pytest.raises(SystemExit):
+        rr.main(["--blockers", "somewhere"])
+
+
+def test_blocker_result_is_proof_blockers_shaped():
+    res = rr.blocker_result(
+        "E",
+        [prog("A", gaps=["EXEC CICS FORMATTIME RESP"]), prog("B", nxt=["an equivalence case that runs it"]), prog("C")],
+    )
+    assert res["whole"] == 3 and res["proven"] == 1
+    assert {g["gap"] for g in res["gaps"]} == {"EXEC CICS FORMATTIME RESP", "no case"}
+    assert [p["gaps"] for p in res["programs"]] == [["EXEC CICS FORMATTIME RESP"], ["no case"], []]
+
+
+def _stub_materialize(monkeypatch, tmp_path, calls):
+    import evidence_report as er
+    import support_matrix as sm
+
+    monkeypatch.setattr(rr, "REPORTS", None)
+    monkeypatch.setattr(sm, "REPORTS", tmp_path)
+
+    def fake():
+        calls.append(1)
+        (tmp_path / "est").mkdir()
+        (tmp_path / "est" / "report.json").write_text("{}", encoding="utf-8")
+
+    monkeypatch.setattr(er, "materialize", fake)
+
+
+def test_reports_materializes_the_published_report_when_none_is_on_disk(monkeypatch, tmp_path):
+    """#6722: write_blockers for an estate without an inventory skips estates(), the only other materializer."""
+    calls = []
+    _stub_materialize(monkeypatch, tmp_path, calls)
+    assert rr._reports() == tmp_path
+    assert calls == [1]
+    assert rr._reports() == tmp_path  # a report is on disk now: nothing more is fetched
+    assert calls == [1]

@@ -223,19 +223,19 @@
     "safety_score": {
       "highest": [
         {
-          "name": "build-toolchain.sh",
-          "path": "shell/haiku/build-toolchain.sh",
-          "value": 100.0
-        },
-        {
           "name": "generate_ids_from_drivers.sh",
           "path": "shell/haiku/generate_ids_from_drivers.sh",
-          "value": 100.0
+          "value": 99.8673
         },
         {
           "name": "config3270.sh",
           "path": "shell/linux/config3270.sh",
-          "value": 100.0
+          "value": 99.8186
+        },
+        {
+          "name": "build-toolchain.sh",
+          "path": "shell/haiku/build-toolchain.sh",
+          "value": 99.1193
         }
       ],
       "lowest": [
@@ -403,18 +403,18 @@
     "tech_debt": {
       "highest": [
         {
-          "name": "Chapter_04_codesnippets.s",
-          "path": "assembly/hellosilicon_aarch64/Chapter_04_codesnippets.s",
-          "value": 100.0
-        },
-        {
-          "name": "Chapter_05_codesnippets.s",
-          "path": "assembly/hellosilicon_aarch64/Chapter_05_codesnippets.s",
-          "value": 100.0
-        },
-        {
           "name": "IC1074.2.cbl",
           "path": "cobol/che-che4z_nist_ccvs85/IC1074.2.cbl",
+          "value": 100.0
+        },
+        {
+          "name": "IC2044.2.cbl",
+          "path": "cobol/che-che4z_nist_ccvs85/IC2044.2.cbl",
+          "value": 100.0
+        },
+        {
+          "name": "IC2084.2.cbl",
+          "path": "cobol/che-che4z_nist_ccvs85/IC2084.2.cbl",
           "value": 100.0
         }
       ],

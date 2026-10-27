@@ -113,6 +113,9 @@ class SecurityAuditor:
                         self.logger.info(f"🧠 XGBoost Threat Model loaded successfully from: {model_file.resolve()}")
                 except Exception as e:
                     self.logger.error(f"❌ Failed to load XGBoost model. File exists but threw an error: {e}")
+                    # #2986: the classifier was assigned before load_model ran; an unloaded one must not score.
+                    self.model = None
+                    self.feature_names = []
             else:
                 self.logger.warning(
                     f"⚠️ XGBoost model not found at {local_model} OR {util_model}. Running graph resolution only."

@@ -97,6 +97,28 @@ def test_unmeasured_fails_loudly_past_the_grace(missing, total, fails):
         sp.check_measured(names, total)
 
 
+def test_headroom_plans_below_the_target_and_adds_a_shard_at_the_boundary():
+    # 400 + 8 x 250 / 4 = 900 s fits the target exactly, but not 80% of it
+    assert sp.shards_for(_w(8, 250), 400, 4, 900, 6, headroom=1.0) == 1
+    assert sp.shards_for(_w(8, 250), 400, 4, 900, 6, headroom=sp.HEADROOM) == 2
+    assert sp.shards_for(_w(500, 600), 400, 4, 900, 6, headroom=sp.HEADROOM) == 6  # the cap still holds
+
+
+def test_a_long_case_bounds_its_shard_however_many_jobs_there_are():
+    w = {**_w(7, 100), "pole": 432.0}
+    assert sp.shard_seconds(w, 1, 0, 4) == 432.0  # 1132 s / 4 jobs = 283 s, but the pole alone is 432 s
+    assert sp.shard_seconds(w, 2, 100, 4) == 100 + 432.0
+    # a long pole that alone busts the target cannot be split: more shards do not help, the cap holds
+    assert sp.shards_for({"pole": 2000.0, **_w(3)}, 0, 4, 900, 6) == 4
+    assert sp.timeout_minutes(w, 1, 0, 4, 1, 99, margin=1.0) == 8  # ceil(432 / 60)
+
+
+def test_the_pole_is_placed_alone_first_so_it_does_not_share_with_an_even_load():
+    w = {**_w(12, 100), "pole": 432.0}
+    loads = sp._shard_loads(w, 3)
+    assert sum(c == 432.0 for _, c in loads) == 1 and min(x[0] for x in loads) >= 400  # no shard is starved by it
+
+
 def test_pool_cap_shrinks_under_queue_pressure():
     assert sp.pool_cap(6, None) == 6 and sp.pool_cap(6, 8) == 6
     assert sp.pool_cap(6, 9) == 3 and sp.pool_cap(1, 99) == 1
@@ -115,7 +137,20 @@ def test_db2_shards_follow_the_measured_work_and_timeout_follows_the_shards():
     assert 1 < len(m) <= plan.DB2_MAX_SHARDS and m[-1] == f"{len(m)}/{len(m)}"
     p["db2_matrix"], p["matrix"] = m, []
     t = plan.timeouts_for(p, dur)
-    assert plan.TIMEOUT_FLOOR <= t["db2_timeout"] <= plan.TIMEOUT_CEILING and t["timeout"] == plan.DEFAULT_TIMEOUT
+    assert (
+        plan.DB2_TIMEOUT_FLOOR <= t["db2_timeout"] <= plan.DB2_TIMEOUT_CEILING and t["timeout"] == plan.DEFAULT_TIMEOUT
+    )
+
+
+def test_db2_plan_aims_below_the_budget_and_every_shard_fits_the_headroom_target():
+    p, dur = _db2_plan(24)  # 24 x 200 s
+    m = plan.db2_shards_for(p, durations=dur)
+    n = len(m)
+    w, _ = sp.weights(p["db2_cases"], dur)
+    assert sp.shard_seconds(w, n, plan.DB2_SETUP_S, plan.PROOF_JOBS) <= plan.DB2_TARGET_S * plan.DB2_HEADROOM
+    assert (
+        n == 1 or sp.shard_seconds(w, n - 1, plan.DB2_SETUP_S, plan.PROOF_JOBS) > plan.DB2_TARGET_S * plan.DB2_HEADROOM
+    )
 
 
 def test_db2_shards_busy_queue_halves_the_cap():
@@ -136,7 +171,7 @@ def test_no_durations_keeps_the_count_based_plan_and_default_timeouts():
     p, _ = _db2_plan(13)
     assert plan.db2_shards_for(p) == ["1/3", "2/3", "3/3"]
     assert plan.timeouts_for({**p, "matrix": [], "db2_matrix": ["1/1"]}, None) == {
-        "timeout": plan.DEFAULT_TIMEOUT, "db2_timeout": plan.DEFAULT_TIMEOUT}  # fmt: skip
+        "timeout": plan.DEFAULT_TIMEOUT, "db2_timeout": plan.DB2_TIMEOUT_FLOOR}  # fmt: skip
 
 
 def test_the_committed_durations_size_a_full_sweep_within_the_pool():
@@ -146,9 +181,15 @@ def test_the_committed_durations_size_a_full_sweep_within_the_pool():
     full = {"mode": "full", "cases": "all", "db2_cases": "all"}
     m = plan.db2_shards_for(full, durations=dur)
     assert 1 <= len(m) <= plan.DB2_MAX_SHARDS
+    w, _ = sp.weights(plan.db2_names(full), dur)  # every planned shard under the target with headroom, or the cap
+    n = len(m)
+    assert n == plan.DB2_MAX_SHARDS or (
+        sp.shard_seconds(w, n, plan.DB2_SETUP_S, plan.PROOF_JOBS) <= plan.DB2_TARGET_S * plan.DB2_HEADROOM
+    )
     full["matrix"], full["db2_matrix"] = [f"{i}/6" for i in range(1, 7)], m
     t = plan.timeouts_for(full, dur)
-    assert all(plan.TIMEOUT_FLOOR <= v <= plan.TIMEOUT_CEILING for v in t.values())
+    assert plan.TIMEOUT_FLOOR <= t["timeout"] <= plan.TIMEOUT_CEILING
+    assert plan.DB2_TIMEOUT_FLOOR <= t["db2_timeout"] <= plan.DB2_TIMEOUT_CEILING
 
 
 def _workflow(name: str) -> dict:

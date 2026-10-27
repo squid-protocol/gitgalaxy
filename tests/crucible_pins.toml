@@ -4,7 +4,7 @@
 # workflow (`python3 gitgalaxy/tests/tools/crucible_pins.py get <name>`).
 #
 # Keep it to `key = "value"` lines under [table] headers: tests/_crucible_manifest.py carries a tiny
-# parser for that subset because tomllib only exists on Python 3.11+ and 3.10 is supported.
+# parser for that subset kept from when Python 3.10 was supported (tomllib is 3.11+; the floor is now 3.11, #3322).
 # Bump a ref with `python tests/tools/crucible_pins.py bump <name> <ref>` (it lists what else the
 # bump needs), not by hand.
 #
@@ -27,7 +27,7 @@ default_dir = "estate-crucible"
 
 [cics]
 repo = "https://github.com/squid-protocol/cics-crucible.git"
-ref = "v0.9.0"
+ref = "v0.10.0"
 path_env = "CICS_CRUCIBLE_PATH"
 allow_unpinned_env = "CICS_CRUCIBLE_ALLOW_UNPINNED"
 default_dir = "cics-crucible"

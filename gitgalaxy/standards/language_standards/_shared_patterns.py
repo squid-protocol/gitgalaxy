@@ -155,8 +155,13 @@ JS_LLM_API = _js_package_import(_LLM_API_JS_PACKAGES)
 # scope always counted; so the per-provider `langchain_openai` /
 # `@langchain/openai` count here AND under llm_api. The bounded `_\w{1,64}`
 # suffix is followed by `(?!\w)`, so it cannot split ambiguously.
-PY_LLM_ORCHESTRATOR = _py_package_import(r"langchain(?:_\w{1,64})?|llama_index")
-JS_LLM_ORCHESTRATOR = _js_package_import(r"langchain|llamaindex|@(?:langchain|llamaindex)/[\w.-]+")
+# Agent frameworks that are not named langchain/llama_index count too (#4108): python `langgraph`, `crewai`, `autogen`,
+# `haystack`, `semantic_kernel`, `dspy`, `pydantic_ai`, `smolagents`; npm Vercel's AI SDK (`ai`, `@ai-sdk/*`) and `@mastra/*`.
+# The bare `ai` is safe only because the specifier must END at the name (or a `/`): `'ai-utils'`, `'./ai'` never match.
+PY_LLM_ORCHESTRATOR = _py_package_import(
+    r"langchain(?:_\w{1,64})?|llama_index|langgraph|crewai|autogen|haystack|semantic_kernel|dspy|pydantic_ai|smolagents"
+)
+JS_LLM_ORCHESTRATOR = _js_package_import(r"langchain|llamaindex|ai|@(?:langchain|llamaindex|ai-sdk|mastra)/[\w.-]+")
 # llm_vector_store (#4150): Chroma and Pinecone (npm: `@pinecone-database/*`).
 PY_LLM_VECTOR_STORE = _py_package_import(r"chromadb|pinecone")
 JS_LLM_VECTOR_STORE = _js_package_import(r"chromadb|@pinecone-database/[\w.-]+")
@@ -192,7 +197,8 @@ JS_DL_FRAMEWORKS = _js_package_import(
 # `from OpenSSL import crypto` (which the old rule caught only through the incidental
 # `x509` / `crypto` tokens) still count; `socket.io` is
 # dropped (not a python module name) and `webgl` kept as before.
-PY_HARDWARE_BRIDGE = _py_package_import(r"serialport|usb|bluetooth|websocket|printer|webgl")
+# python's serial library is `pyserial`, imported as `serial` (#4108); `bleak` is its bluetooth-LE client.
+PY_HARDWARE_BRIDGE = _py_package_import(r"serialport|serial|pyserial|usb|bluetooth|bleak|websocket|printer|webgl")
 PY_CRYPTOGRAPHY = _py_package_import(
     r"cryptography|OpenSSL|crypto|bcrypt|x509|tls|ssl|jsonwebtoken|argon2|hashlib|hmac"
 )
@@ -277,6 +283,31 @@ CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION = re.compile(
     r"\s*\("
 )
 
+# #6266: Kotlin's form of the #4124 pattern. A call may omit its parentheses when its last argument is a lambda
+# (`ev.withKey { sc -> .. }`, `pool.submit { .. }`): the name follows a receiver dot and the `{` follows the name.
+# Only the dotted form is read (a bare `name {` is `else {`, `class C {`, `init {`), and not the stdlib
+# scope and iteration functions (`x.let { }`, `xs.map { }`, `x.apply { }`): by name they collide with a port's own
+# `run()` or `map()`, and the engine cannot resolve a receiver's type. Their parenthesised form `x.let(f)` stays a call.
+# Group 1 is the callee (the optional group 2, a zero-width "a dot comes before" mark, sits inside it), so detector.py
+# reads it like the C-style family.
+_KOTLIN_STDLIB_LAMBDA = "run|with|apply|let|also|takeIf|takeUnless|repeat|times|map|filter|forEach"
+CALLS_OUT_KOTLIN = re.compile(
+    rf"(?<!@)\b((?P<lambda_ok>(?<=\.)(?!(?:{_KOTLIN_STDLIB_LAMBDA})\b))?[{ID_START}][{ID_CONTINUE}]*)"
+    r"(?:<(?:" + _GENERIC_ARG_CHAR + r"|<" + _GENERIC_ARG_CHAR + r"{0,200}>){0,200}>[ \t]*)?"
+    r"(?:\s*\(|(?(lambda_ok)[ \t]*\{|(?!)))"
+)
+
+# #6454: Dart's form of the C3 generic pattern. A Dart type argument may be nullable
+# (`ValueNotifier<String?>(null)`, `Completer<T?>()`), so `?` is allowed inside the list; `:` is
+# not (no Dart type-argument list holds one), which keeps a ternary `a<b ? c : d>(e)` out.
+# Everything else is CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION's, bounds included.
+_DART_GENERIC_ARG_CHAR = r"[^<>()\n;{}=|!:\"']"
+CALLS_OUT_DART = re.compile(
+    rf"(?<!@)\b([{ID_START}][{ID_CONTINUE}]*)"
+    r"(?:<(?:" + _DART_GENERIC_ARG_CHAR + r"|<" + _DART_GENERIC_ARG_CHAR + r"{0,200}>\??){0,200}>[ \t]*)?"
+    r"\s*\("
+)
+
 # #3377: Ruby calls without parentheses. `name(` alone found a third of Ruby's
 # calls: idiomatic Ruby writes `obj.to_s`, `xs.each do`, `puts x`, and method
 # names end in `?`/`!` (`key?(k)`, `command! "brew"`). Group 1 is the callee,
@@ -321,6 +352,54 @@ CALLS_OUT_RUBY = re.compile(
     r"|^[ \t]*(?!" + _RUBY_KEYWORD + r")(?=[a-z_][" + ID_CONTINUE + r"]*!?[ \t]+"
     r"(?!(?:if|unless|while|until|rescue|and|or|then|do|in)\b)[" + ID_CONTINUE + r":\"'@$\[%]))"
     r"(" + _RUBY_CALLEE + r")",
+    re.M,
+)
+
+# #6433: Perl calls without parentheses. `name(` alone missed `$obj->method`, `shift`,
+# `blessed $x`, `delete $h->{k}` and `plan tests => 4`. Group 1 is the callee, so
+# detector.py runs it exactly like CALLS_OUT_C_STYLE (qualifier capture, C5 header
+# check). A name is a call when it:
+#   - follows `->` (`$o->save`, `$class->SUPER::new`): a method call, parens or not;
+#   - is followed by `(` and no sigil precedes it (`$x(` is a variable);
+#   - is a unary/list built-in written bare (`shift`, `delete $h->{k}`, `keys %h`),
+#     unless it is a hash key (`{shift}`, `shift =>`);
+#   - opens a statement, or follows `=`, `(`, `!`, `,`, `&&`, `||` or `return`, with an
+#     argument start after blanks (`$ @ \ " '`, a heredoc `<<`, or `word =>`):
+#     `blessed $x`, `plan tests => 4`, `my $v = fetch $k;`. Keywords and word
+#     operators are excluded.
+# A bare word with no `->`, paren or argument (`foo`) is never matched: without a
+# symbol table Perl cannot tell a bareword from a call. Quantifiers are bounded or run
+# over characters their neighbours cannot start with.
+_PERL_NAME = rf"[{ID_START}][{ID_CONTINUE}]*"
+_PERL_KEYWORD = (
+    r"(?:my|our|local|state|sub|use|no|package|require|return|if|elsif|else|unless|while|until|for|foreach"
+    r"|do|eval|and|or|not|xor|x|lt|gt|le|ge|eq|ne|cmp|last|next|redo|goto|when|given|default|continue)"
+    rf"(?![{ID_CONTINUE}])"
+)
+_PERL_BUILTIN = (
+    r"(?:shift|pop|delete|defined|exists|ref|scalar|lc|uc|lcfirst|ucfirst|length|chomp|chop|chr|ord|int|abs|hex"
+    r"|oct|sqrt|log|exp|sin|cos|keys|values|each|caller|undef|rmdir|readlink|chdir|quotemeta|sleep|rand|srand"
+    r"|exit|localtime|gmtime|close|readdir|closedir|stat|lstat|umask|fc|lock)"
+    rf"(?![{ID_CONTINUE}])(?![ \t]*=>)(?!\}})"
+)
+# #6433: a block (`first { $_ > 0 } @l`, `bless {}, $c`), a `%hash`, a `qq{..}` string, or an
+# upper-case file handle (`print OUT $x`) also opens an argument list.
+_PERL_ARG = (
+    rf"(?:[$@\\\"']|%[{ID_START}$]|<<[\"'A-Z_~]|{_PERL_NAME}[ \t]*=>|q[qwx]?[{{(\[<]"
+    r"|\{[^{}\n]{0,200}\}[ \t]*[@$(,]|[A-Z][A-Z0-9_]*[ \t]+[$\"'@]"
+    # #6433: `open FH, ...` (a bareword handle then a comma) and `open my $fh, ...`.
+    r"|[A-Z][A-Z0-9_]*[ \t]*,|my[ \t]+[$@%])"
+)
+_PERL_NOT_CALL = rf"(?:map|grep|sort)(?![{ID_CONTINUE}])"
+CALLS_OUT_PERL = re.compile(
+    r"(?:(?<=->)(?:SUPER::)?"
+    rf"|(?<![$@%{ID_CONTINUE}>-])(?={_PERL_NAME}[ \t]*\()"
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?={_PERL_BUILTIN})"
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?=split(?![{ID_CONTINUE}])[ \t]*/)"
+    rf"|(?:^[ \t]*|(?<==[ \t])|(?<=\()|(?<=!)|(?<=,[ \t])|(?<=&&[ \t])|(?<=\|\|[ \t])|(?<=return[ \t])"
+    rf"|(?<![$@%&{ID_CONTINUE}>:-])(?:or|and|xor|not)[ \t]+)"
+    rf"(?!{_PERL_KEYWORD})(?!{_PERL_NOT_CALL})(?={_PERL_NAME}[ \t]+{_PERL_ARG}))"
+    rf"({_PERL_NAME})",
     re.M,
 )
 
@@ -418,7 +497,10 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_C_STYLE_NO_ANNOTATION,
     CALLS_OUT_C_STYLE_GENERIC,
     CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
+    CALLS_OUT_DART,
+    CALLS_OUT_KOTLIN,
     CALLS_OUT_RUBY,
+    CALLS_OUT_PERL,
     CALLS_OUT_RUST,
     CALLS_OUT_GO,
 )

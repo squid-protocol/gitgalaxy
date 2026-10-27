@@ -577,7 +577,11 @@ DEFINITION: dict[str, Any] = {
         "memory_alloc": re.compile(
             r"\b(alloc|init|new|copy|mutableCopy|retain|malloc|calloc|NX_MALLOC|NX_ZONEMALLOC|NSZoneMalloc)\b"
         ),
-        "inline_asm": re.compile(r"\b(?:__asm__|asm|__asm)\b(?:\s+volatile)?\s*\([^)]*\)"),
+        # GCC stacks its qualifiers (`asm volatile goto (`, `asm inline (`, `__asm__ __volatile__ (`).
+        "inline_asm": re.compile(
+            r"\b(?:__asm__|asm|__asm)\b(?:\s+(?:volatile|__volatile__|__volatile|inline|__inline__|__inline|goto)){0,4}"
+            r"\s*\([^)]*\)"
+        ),
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
         # 38. telemetry: Professional diagnostics.
         "telemetry": re.compile(r"\b(os_log|OSLog|DDLogInfo|DDLogError|DDLogWarn|DDLogDebug|syslog)\b"),

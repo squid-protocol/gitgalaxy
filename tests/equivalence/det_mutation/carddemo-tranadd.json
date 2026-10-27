@@ -5,18 +5,18 @@
  "case": "carddemo-tranadd",
  "entry": {
   "program": "COTRN02C",
-  "commit": "f318fb698819f0e159834eefb3e30c99f647dfde+uncommitted",
-  "date": "2026-10-22",
+  "commit": "10bbd830b22d93b342527f55f6a43648b6949b05",
+  "date": "2026-10-23",
   "mode": "fast",
   "seed": 0,
   "mutants": 2435,
   "out_of_scope": 35,
   "chosen": 150,
-  "coverage": "proven on 78 scenarios, covering 18/18 paragraphs and 72/75 branches",
+  "coverage": null,
   "counts": {
-   "killed": 96,
+   "killed": 111,
    "timeout": 0,
-   "survived": 52,
+   "survived": 37,
    "stillborn": 2,
    "error": 0,
    "pending": 0
@@ -24,19 +24,23 @@
   "killed": [
    "03cad079d5",
    "05ab989717",
+   "0a62d0890d",
    "0f2ee4e60c",
    "16b822ab46",
+   "16c910664c",
    "180b627779",
    "18801774ef",
    "1af8eef4f6",
    "1be04b8732",
    "1e2d399f9c",
    "1e6cefbaa5",
+   "1fc3648964",
    "20769f441e",
    "22d9cc1ccf",
    "264b7f0d33",
    "27cf0729a4",
    "2cccf8a8fe",
+   "2d6479e41b",
    "3458c0688e",
    "3531eae69a",
    "358aa92fac",
@@ -46,9 +50,11 @@
    "3cbd9a2545",
    "3ea384a50b",
    "42e1b31e9a",
+   "453bc1b8db",
    "45f2bbeeaa",
    "46f44d7c43",
    "499baf4d9d",
+   "4a34617660",
    "4ad13cfae7",
    "50ec2090de",
    "517a9e894a",
@@ -60,6 +66,7 @@
    "5f1ac43bbd",
    "5f9657e401",
    "60fec833d0",
+   "62b8024deb",
    "649578b393",
    "66b60022cb",
    "6723d35d3e",
@@ -73,12 +80,14 @@
    "765b616751",
    "76c91f9fc6",
    "78d28e9576",
+   "79bf9bce88",
    "7f9bdc8fff",
    "80db148fc2",
    "85f50f9d11",
    "87722718b2",
    "8b42c4bfbf",
    "8e6cd463c8",
+   "8f630b5096",
    "9064cdeeaf",
    "91cd18e85c",
    "9717e75ffa",
@@ -99,151 +108,37 @@
    "ba340cf721",
    "ba55bf1ada",
    "c213ef5b51",
+   "c3f8957330",
    "c663eac071",
    "c699c0c3dc",
+   "c7a84e59fa",
    "ca53b51e83",
    "cd022234bf",
    "cd1948dd0a",
    "cf2e9e6bf7",
    "d0c75e96d6",
+   "d2a5fecf8a",
    "d75f32f281",
    "d7ad539309",
    "db1fdb63ea",
    "e072777f19",
    "e09ddc8072",
+   "e41a797a1e",
    "ea5d976afc",
+   "ef3aaa4756",
    "f4f713f617",
    "f676a3e4e8",
    "f6966da3db",
    "f9521bc07e",
    "fadaca648f",
-   "fb4675492b"
+   "fb4675492b",
+   "fe65b018ca"
   ],
   "stillborn": [
    "b74bb6eb86",
    "e3cb68cb4e"
   ],
   "survived": [
-   {
-    "id": "8f630b5096",
-    "op": "LIT",
-    "file": "service/Cotrn02cService.java",
-    "line": 54,
-    "before": "\"Q09UUk4wMkNDVDAyICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBUUkFOU0FDVEFDQ1REQVQgQ0NYUkVGICBDWEFDQUlYIE4AAAAAAAAAAE4gICAgICAgICAgICAwMC8wMC8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMFlZWVktTU0tREQ=\"));",
-    "after": "\"X09UUk4wMkNDVDAyICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBUUkFOU0FDVEFDQ1REQVQgQ0NYUkVGICBDWEFDQUlYIE4AAAAAAAAAAE4gICAgICAgICAgICAwMC8wMC8wMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMFlZWVktTU0tREQ=\"));"
-   },
-   {
-    "id": "0a62d0890d",
-    "op": "LIT",
-    "file": "service/Cotrn02cService.java",
-    "line": 92,
-    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
-    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
-   },
-   {
-    "id": "c7a84e59fa",
-    "op": "LIT",
-    "file": "service/Cotrn02cService.java",
-    "line": 129,
-    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
-    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
-   },
-   {
-    "id": "1fc3648964",
-    "op": "LIT",
-    "file": "service/Cotrn02cService.java",
-    "line": 146,
-    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
-    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
-   },
-   {
-    "id": "62b8024deb",
-    "op": "LIT",
-    "file": "service/Cotrn02cService.java",
-    "line": 178,
-    "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
-    "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\","
-   },
-   {
-    "id": "e41a797a1e",
-    "op": "CON",
-    "file": "service/Cotrn02cService.java",
-    "line": 244,
-    "before": "private final Field f89_TITLE02I = Field.alphanumeric(s_COTRN2AI, 107, 40, false);",
-    "after": "private final Field f89_TITLE02I = Field.alphanumeric(s_COTRN2AI, 107, 41, false);"
-   },
-   {
-    "id": "2d6479e41b",
-    "op": "CON",
-    "file": "service/Cotrn02cService.java",
-    "line": 292,
-    "before": "private final Field f185_ERRMSGI = Field.alphanumeric(s_COTRN2AI, 477, 78, false);",
-    "after": "private final Field f185_ERRMSGI = Field.alphanumeric(s_COTRN2AI, 477, 79, false);"
-   },
-   {
-    "id": "79bf9bce88",
-    "op": "CON",
-    "file": "service/Cotrn02cService.java",
-    "line": 296,
-    "before": "private final Field f193_TRNNAMEO = Field.alphanumeric(s_COTRN2AI, 19, 4, false);",
-    "after": "private final Field f193_TRNNAMEO = Field.alphanumeric(s_COTRN2AI, 19, 5, false);"
-   },
-   {
-    "id": "c3f8957330",
-    "op": "CON",
-    "file": "service/Cotrn02cService.java",
-    "line": 345,
-    "before": "private final Field f291_MCITYC = Field.alphanumeric(s_COTRN2AI, 416, 1, false);",
-    "after": "private final Field f291_MCITYC = Field.alphanumeric(s_COTRN2AI, 416, 2, false);"
-   },
-   {
-    "id": "d2a5fecf8a",
-    "op": "CON",
-    "file": "service/Cotrn02cService.java",
-    "line": 411,
-    "before": "private final Field f417_DFHPF11 = Field.alphanumeric(s_DFHAID, 22, 1, false);",
-    "after": "private final Field f417_DFHPF11 = Field.alphanumeric(s_DFHAID, 23, 1, false);"
-   },
-   {
-    "id": "453bc1b8db",
-    "op": "NEG",
-    "file": "service/Cotrn02cService.java",
-    "line": 492,
-    "before": "if (task.level() > 1) {",
-    "after": "if (!(task.level() > 1)) {"
-   },
-   {
-    "id": "4a34617660",
-    "op": "ROR",
-    "file": "service/Cotrn02cService.java",
-    "line": 492,
-    "before": "if (task.level() > 1) {",
-    "after": "if (task.level() <= 1) {"
-   },
-   {
-    "id": "ef3aaa4756",
-    "op": "LIT",
-    "file": "service/Cotrn02cService.java",
-    "line": 504,
-    "before": "default -> throw new Hole(\"CICS file \" + n + \": no store in the generated project\");",
-    "after": "default -> throw new Hole(\"CICS file \" + n + \"X no store in the generated project\");"
-   },
-   {
-    "id": "fe65b018ca",
-    "op": "LIT",
-    "file": "service/Cotrn02cService.java",
-    "line": 519,
-    "before": "java.util.Map.entry(\"SEND-TRNADD-SCREEN\", 7),",
-    "after": "java.util.Map.entry(\"XEND-TRNADD-SCREEN\", 7),"
-   },
-   {
-    "id": "16c910664c",
-    "op": "CON",
-    "file": "service/Cotrn02cService.java",
-    "line": 522,
-    "before": "java.util.Map.entry(\"ADD-TRANSACTION\", 4),",
-    "after": "java.util.Map.entry(\"ADD-TRANSACTION\", 5),"
-   },
    {
     "id": "fa7785f2ac",
     "op": "CON",
@@ -542,51 +437,46 @@
    }
   ],
   "inputs": {
-   "port": "10c66a4930ebcc62ecbbbf0c37d76d5c2035342bb39ec5fe9ad5ecb90c144b11",
-   "generator": "6fc449c5044ccd60b72e16fe8d2fac83eedbbd0c3b06d3e04594a63b0ad40212",
+   "port": "9ac80d7be52c21a0a825eee10198d3bbf1ce8f7163cc911e5a7637c4404c8c34",
+   "generator": "27f397cc6f2fc2f38818e326c651de4b1d2127c06e16565fe60ad933369aaf7c",
    "case": "9f7584b8ab39f4a2e47f7a3eb3b4560d6c9510dac34cdf06f2b24a1dde9fdef7",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "cfa692619ce6fb10c7dd1076f2b885d8ffa2cf6352ec9b564081e1cce86e4e90",
-   "oracle": "ed495da81e6a1a607ebc1aba3daf85ba474192e76c482e7b124b8c2e49b760e2"
+   "harness": "da2c3ff87512c11dd74bd9daae9017fa3f4ee7e7dc962ead4c5cae60412c4c1a",
+   "oracle": "e9a91207341afa76d5dc5bdec3a5fd2419ee34e569bd25110cb5be6171a4f8f6"
   },
   "components": {
    "generator": {
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
+    "generator:core": "3184137b4cda58f351019fe04b65c400a1bdb2ed16fee76b69b353e4e3459cea",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
-    "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
+    "generator:det/cics": "a6cc31fceae58f5b202d49880d55b716d2821a5ea7ed2b45e4f32d6621136df1",
+    "generator:det/cics_conditions": "c5bfb6ed32df1a582cf010bf59f1f16dd7440e4caa075a0458f62ca9b85f6219",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
     "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
     "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dli": "59300231ec82938ae8606969155f9d0fef4962ad739e8d6da188a7b6202e9ebd",
+    "generator:det/dli": "8a81045734ca0b53157f70ed0a4708159a20472e80fa51c334c50fde312133e6",
     "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "aa7ce25ed9096b6ba2b8465f2be013cc1cb13f8bbf60c5077fbaa6530239640f",
-    "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
+    "generator:det/gen": "24111ce4612574da5ff8d7be3fcec4de195f532ef4b20347bb1dd988c7b9d426",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
     "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
-    "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
+    "generator:det/stmt": "72ade7437769eb7b8d8e94511613964e6f5cb98f30b4a4c5d6295709534b5176"
    },
    "harness": {
-    "harness:cics": "a12b1c4f47a4a2d419f7f443b5563d6a8e7d6adc11997003ef3ef03de8446c1a",
-    "harness:core": "7027a1c80de76c69e876c70e853b627ece976d1de704474c26f7c065cb1f61a9"
+    "harness:cics": "8feec8001ee23f80c59f6c43d4895fae7bbd59b5e44d5eccc70af7a0cf403b6c",
+    "harness:core": "808b8ac9e553c3caffe3e5b89d7b7a1d8a04cd0b273490c8f2fb0e16aeb53e77"
    },
    "oracle": {
-    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
-    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
-    "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
+    "oracle:cics-stub": "b46838397e6574dc6f87d10cadb02894e60ee34a607d8aa37453b58e16c521d4",
+    "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
+    "oracle:le": "d3ad2b23aac02cd604a06ef216dc42a338c6584b5c475c9fddeaf1cf551bc668"
    }
   },
-  "refreshed": {
-   "from": "2026-10-22",
-   "survivors_rerun": 52,
-   "stale": [
-    "harness"
-   ]
-  }
+  "port_moved": true
  }
 }

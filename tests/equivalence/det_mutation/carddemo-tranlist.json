@@ -5,8 +5,8 @@
  "case": "carddemo-tranlist",
  "entry": {
   "program": "COTRN00C",
-  "commit": "49e1c815fca0cce60c7afa4f9ec577c975765b9d",
-  "date": "2026-10-22",
+  "commit": "28734a013e294b3a60b9d42c48375c826e01abde+uncommitted",
+  "date": "2026-10-23",
   "mode": "fast",
   "seed": 0,
   "mutants": 2827,
@@ -14,9 +14,9 @@
   "chosen": 150,
   "coverage": "proven on 36 scenarios, covering 16/16 paragraphs and 96/101 branches",
   "counts": {
-   "killed": 86,
+   "killed": 87,
    "timeout": 6,
-   "survived": 56,
+   "survived": 55,
    "stillborn": 2,
    "error": 0,
    "pending": 0
@@ -90,6 +90,7 @@
    "b860f5a317",
    "bc3e816163",
    "c1cc2e678b",
+   "c4926e17db",
    "c5d17bee4a",
    "c72d02c1b7",
    "c96450a56e",
@@ -513,14 +514,6 @@
     "after": "values12.put(\"XDATE07\", Cobol.text(f648_TDATE07O, CS));"
    },
    {
-    "id": "c4926e17db",
-    "op": "LIT",
-    "file": "service/Cotrn00cService.java",
-    "line": 2028,
-    "before": "task.sendMap(\"COTRN0A\", \"COTRN00\", screen14, sub13, \"CURSOR\");",
-    "after": "task.sendMap(\"COTRN0A\", \"XOTRN00\", screen14, sub13, \"CURSOR\");"
-   },
-   {
     "id": "c46a29125d",
     "op": "DEL",
     "file": "service/Cotrn00cService.java",
@@ -570,44 +563,54 @@
    }
   ],
   "inputs": {
-   "port": "f99b040e0de241b3aa5d1c83292d4cf5904dbdb6e8c5aaf1e17f160e415b6135",
-   "generator": "6681c242d15376704d68ac11d16926ab6d83a1c27b09ae334fdd4cf9300735c2",
-   "case": "0bc939fbd94c6c1f93f864edbfcea4b5c9782748b05e1f1b96900dddbffbb2a2",
+   "port": "a0ddbf0706db165bd606e9f1bd196611401adfd1721f66d7223cb8a5dbdfdbdf",
+   "generator": "140bceaf0d6727d934e5f0eeca6332e708567250dcb4326c21e7fded289bf18f",
+   "case": "64f823c7dfe089f280c55998fd61a888565fbb2ce6e792267b772b976d8ed123",
    "corpus": "d0c4803872ec126eb56a170212f76207beff5ab8c2b6507dd6df4a084cdeb919",
-   "harness": "a41f37d0829026486d2db660acd058f66e564afa9d23caf78373083da4410429",
-   "oracle": "27cd5d5127a7ff5cf004d7ea63517333edb599feefc1643485560c707d475c0b"
+   "harness": "efbe51075ec1adca1d2de680be9c28392f4d525f661d39c1d5f9eeaf7ae38c86",
+   "oracle": "e9e74c7b948ad1020416ad6ae58cb9ae52e4027557d0f25419d12926e20cc83e"
   },
   "components": {
    "generator": {
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "a7b1e205ba94cbbb82ef0cd84b755c343c2f7e8afa912e487823daaf34e29af3",
+    "generator:core": "5835676e90b8075f69e69802dc022e2830ebe3ffccae9b2ad090ee45a18931de",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
     "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
     "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dli": "59300231ec82938ae8606969155f9d0fef4962ad739e8d6da188a7b6202e9ebd",
-    "generator:det/dyncall": "88c49b4c2e152b1e81d9afb16790c0faac7e6ce25a5f797a5b7c3528f7de92ae",
+    "generator:det/dli": "8a81045734ca0b53157f70ed0a4708159a20472e80fa51c334c50fde312133e6",
+    "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
-    "generator:det/gen": "6df3c4e25730ed5f5d06c4b9891a4a45958c6fa9808761f5f8078be3ef0d99b4",
-    "generator:det/hfp": "cec77a165f9657e15473ce0c2913b1256451731abc473571ed56951d0faba36c",
+    "generator:det/gen": "bca5020bf4c777be262e3b09840d2aee977e9b69a01b3e2940bcffe3c54028f5",
+    "generator:det/hfp": "d7d641dafd602da31535a68f7f219c201a8d867cb7a1fec1c879be38e9ff86b7",
     "generator:det/layout": "e3c70e4dcbb512324b5b16a57dac4010e60d18b7926c06fff5edbd6cf1a79e3e",
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
-    "generator:det/source": "1a59078834bfd89f31c04759c85727e659c8172b12323d97e3711324d1d8f0bf",
-    "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
+    "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
+    "generator:det/stmt": "72ade7437769eb7b8d8e94511613964e6f5cb98f30b4a4c5d6295709534b5176"
    },
    "harness": {
-    "harness:cics": "213c9450546bf312b75d1e132d67f07d558860d6645035e28f54d04046f36195",
-    "harness:core": "9f0f09fceb678c16b02160f338ec4acea0c4a2df71841ee2ee703437041f6cca"
+    "harness:cics": "524c7ec5b94a8002f7cb66755e3328f295865ecc7399685916101df02b20703c",
+    "harness:core": "d62c9af2a5f83bb39a1deffe40cd7d7d63bb0d2945c4e8cec6b12503931f45ef"
    },
    "oracle": {
-    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
-    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
-    "oracle:le": "200b234c8ffa2bf4cb1a9c143f22a5a3b696279e000cbf67ff9330fdfb7a9183"
+    "oracle:cics-stub": "a87ec1941cad022e2a2706e2d20545b3da939139e7764b7aa9bec9358bcc82ae",
+    "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
+    "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
    }
-  }
+  },
+  "refreshed": {
+   "from": "2026-10-23",
+   "survivors_rerun": 55,
+   "stale": [
+    "generator",
+    "harness",
+    "oracle"
+   ]
+  },
+  "port_moved": true
  }
 }

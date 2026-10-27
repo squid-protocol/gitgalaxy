@@ -1255,49 +1255,49 @@
     },
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": "file_cluster_10",
-      "dockerfile/moby/builder/dockerfile/buildargs_test.go": "file_cluster_13",
+      "dockerfile/moby/builder/dockerfile/buildargs_test.go": "file_cluster_15",
       "dockerfile/moby/builder/dockerfile/builder.go": "file_cluster_12",
-      "dockerfile/moby/builder/dockerfile/builder_unix.go": "file_cluster_16",
-      "dockerfile/moby/builder/dockerfile/builder_windows.go": "file_cluster_16",
+      "dockerfile/moby/builder/dockerfile/builder_unix.go": "file_cluster_15",
+      "dockerfile/moby/builder/dockerfile/builder_windows.go": "file_cluster_15",
       "dockerfile/moby/builder/dockerfile/containerbackend.go": "file_cluster_12",
       "dockerfile/moby/builder/dockerfile/copy.go": "file_cluster_4",
       "dockerfile/moby/builder/dockerfile/copy_test.go": "file_cluster_2",
-      "dockerfile/moby/builder/dockerfile/copy_unix.go": "file_cluster_16",
+      "dockerfile/moby/builder/dockerfile/copy_unix.go": "file_cluster_15",
       "dockerfile/moby/builder/dockerfile/copy_windows.go": "file_cluster_2",
-      "dockerfile/moby/builder/dockerfile/dispatchers.go": "file_cluster_16",
+      "dockerfile/moby/builder/dockerfile/dispatchers.go": "file_cluster_4",
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": "file_cluster_4",
-      "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": "file_cluster_16",
+      "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": "file_cluster_15",
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": "file_cluster_9",
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": "file_cluster_16",
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": "file_cluster_15",
       "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": "file_cluster_9",
       "dockerfile/moby/builder/dockerfile/evaluator.go": "file_cluster_4",
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": "file_cluster_15",
-      "dockerfile/moby/builder/dockerfile/imagecontext.go": "file_cluster_16",
-      "dockerfile/moby/builder/dockerfile/imagecontext_test.go": "file_cluster_16",
+      "dockerfile/moby/builder/dockerfile/imagecontext.go": "file_cluster_10",
+      "dockerfile/moby/builder/dockerfile/imagecontext_test.go": "file_cluster_11",
       "dockerfile/moby/builder/dockerfile/imageprobe.go": "file_cluster_10",
-      "dockerfile/moby/builder/dockerfile/internals.go": "file_cluster_16",
-      "dockerfile/moby/builder/dockerfile/internals_linux.go": "file_cluster_16",
+      "dockerfile/moby/builder/dockerfile/internals.go": "file_cluster_12",
+      "dockerfile/moby/builder/dockerfile/internals_linux.go": "file_cluster_15",
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": "file_cluster_2",
       "dockerfile/moby/builder/dockerfile/internals_test.go": "file_cluster_10",
       "dockerfile/moby/builder/dockerfile/internals_windows.go": "file_cluster_16",
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": "file_cluster_2",
-      "dockerfile/moby/builder/dockerfile/metrics.go": "file_cluster_16",
+      "dockerfile/moby/builder/dockerfile/metrics.go": "file_cluster_2",
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": "file_cluster_10",
-      "dockerfile/moby/builder/dockerfile/utils_test.go": "file_cluster_16"
+      "dockerfile/moby/builder/dockerfile/utils_test.go": "file_cluster_15"
     },
     "dockerfile/moby/builder/remotecontext": {
       "dockerfile/moby/builder/remotecontext/archive.go": "file_cluster_10",
-      "dockerfile/moby/builder/remotecontext/detect.go": "file_cluster_16",
+      "dockerfile/moby/builder/remotecontext/detect.go": "file_cluster_15",
       "dockerfile/moby/builder/remotecontext/detect_test.go": "file_cluster_10",
       "dockerfile/moby/builder/remotecontext/filehash.go": "file_cluster_10",
-      "dockerfile/moby/builder/remotecontext/git.go": "file_cluster_15",
+      "dockerfile/moby/builder/remotecontext/git.go": "file_cluster_10",
       "dockerfile/moby/builder/remotecontext/lazycontext.go": "file_cluster_10",
-      "dockerfile/moby/builder/remotecontext/mimetype.go": "file_cluster_16",
-      "dockerfile/moby/builder/remotecontext/mimetype_test.go": "file_cluster_13",
-      "dockerfile/moby/builder/remotecontext/remote.go": "file_cluster_16",
+      "dockerfile/moby/builder/remotecontext/mimetype.go": "file_cluster_15",
+      "dockerfile/moby/builder/remotecontext/mimetype_test.go": "file_cluster_2",
+      "dockerfile/moby/builder/remotecontext/remote.go": "file_cluster_9",
       "dockerfile/moby/builder/remotecontext/remote_test.go": "file_cluster_15",
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": "file_cluster_12",
-      "dockerfile/moby/builder/remotecontext/utils_test.go": "file_cluster_16"
+      "dockerfile/moby/builder/remotecontext/utils_test.go": "file_cluster_2"
     },
     "dockerfile/moby/builder/remotecontext/git": {
       "dockerfile/moby/builder/remotecontext/git/gitutils.go": "file_cluster_12",
@@ -1311,7 +1311,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": "file_cluster_4",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": "Static: Literature & Documentation",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": "file_cluster_4",
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": "file_cluster_16",
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": "file_cluster_15",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": "file_cluster_15",
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": "file_cluster_10"
     },
@@ -1373,16 +1373,16 @@
       "go/core/mgc.go": "file_cluster_4",
       "go/core/mutex.go": "file_cluster_10",
       "go/core/proc.go": "file_cluster_4",
-      "go/core/server.go": "file_cluster_16",
+      "go/core/server.go": "file_cluster_15",
       "go/core/syscall_linux.go": "file_cluster_15",
       "go/core/value.go": "file_cluster_4"
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": "file_cluster_16"
+      "go/go_runtime_rand/rand.go": "file_cluster_15"
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": "file_cluster_16",
-      "go/kubernetes/generic.go": "file_cluster_16",
+      "go/kubernetes/csi_plugin.go": "file_cluster_10",
+      "go/kubernetes/generic.go": "file_cluster_4",
       "go/kubernetes/kubelet.go": "file_cluster_10",
       "go/kubernetes/options.go": "file_cluster_2",
       "go/kubernetes/proxier.go": "file_cluster_6",
@@ -1390,7 +1390,7 @@
       "go/kubernetes/scheduler.go": "file_cluster_4"
     },
     "go/kubernetes_kubectl_tls": {
-      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "file_cluster_16"
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "file_cluster_15"
     },
     "groovy": {
       "groovy/SOURCES.md": "Static: Literature & Documentation"
@@ -4094,8 +4094,8 @@
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "file_cluster_12",
-      "zig/zls/DocumentStore.zig": "file_cluster_12",
-      "zig/zls/Server.zig": "file_cluster_15",
+      "zig/zls/DocumentStore.zig": "file_cluster_4",
+      "zig/zls/Server.zig": "file_cluster_4",
       "zig/zls/analysis.zig": "file_cluster_4",
       "zig/zls/ast.zig": "file_cluster_4",
       "zig/zls/config_gen.zig": "file_cluster_6",

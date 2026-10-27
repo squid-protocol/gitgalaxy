@@ -151,6 +151,12 @@ The stopping rule: CLEAN_ROUNDS (2) fresh rounds after the field's last engine d
 CLEAN_FACTS (300) facts, which is a 95% bound of 1%. Growing the evidence means pinning more
 unseen corpora (with a census) or reviewing a private estate.
 
+**Port-side blockers are a separate ledger** (#5051). A det-port, transaction-forge, facade, harness or runtime blocker (not an
+engine/forge fact defect) gets a row in `tests/cobol_mainframe/port_blockers.json` in the PR that finds or fixes it: `side`,
+`class`, the burned `estate` (or `estate: null` with `found_by` review / crucible / sibling sweep and `after_round`), `programs`,
+`issue` and/or `fixed_by`, `refused_by_name`. Burned estates only. Then `tests/tools/port_blockers.py report --write`;
+`test_port_blockers.py` fails on an invalid ledger or a stale `docs/language_status/port_blockers.md`.
+
 ## COBOL reader traps that have bitten every reader (the key's, the forge's and the engine's)
 
 - **`\b` before a verb matches after a hyphen.** `END-IF`, `END-PERFORM`, `END-CALL` and `X-CALL` read as `IF`, `PERFORM` and `CALL`. Use `(?<![A-Z0-9-])`. The engine has a registry-wide guard for this: `_hyphenated_words`.

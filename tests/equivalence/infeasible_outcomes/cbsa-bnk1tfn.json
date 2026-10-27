@@ -1,0 +1,78 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-bnk1tfn",
+  "entries": [
+    {
+      "unit": "A010",
+      "line": 255,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (255): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "GCD010",
+      "line": 586,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "XFRFUN sets only fail codes '1' to '4' (291, 968-970, 1017, 1103, 1890); '3' is never returned (see WHEN '3') and '4' is screened out by VA010, so no other value reaches the EVALUATE."
+    },
+    {
+      "unit": "GCD010",
+      "line": 586,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@603",
+      "family": "G",
+      "reason": "WHEN '3' (XFRFUN fail code from an SQLCODE other than +100 on a read or update): every XFRFUN path that sets '3' (968-970, 1014-1017) then ABENDs (519, 579, 488, 669, 747, 819, 890) or hands off to the storm-drain abend handler, whose own RETURN sets '2' (1889-1890); XFRFUN never returns '3' to BNK1TFN."
+    },
+    {
+      "unit": "GCD010",
+      "line": 586,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@610",
+      "family": "G",
+      "reason": "WHEN '4' (XFRFUN sets '4' only for an amount not greater than zero, 291): BNK1TFN rejects an amount of zero or less in VA010 before the LINK."
+    },
+    {
+      "unit": "GCD010",
+      "line": 629,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "SUBPGM-SUCCESS is 'Y' or 'N' on return from XFRFUN; every 'N' arm of the EVALUATE at 586 ends in GO TO GCD999 except WHEN '3', which XFRFUN never returns."
+    },
+    {
+      "unit": "SM010",
+      "line": 745,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 52), set by no statement: only `SET SEND-ERASE` and `SET SEND-DATAONLY-ALARM` (185, 239, 340) write the flag."
+    },
+    {
+      "unit": "SM010",
+      "line": 754,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (745), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 754,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (745), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 819,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SM010 after the first SEND MAP and '2' is never set (see 745), so the test is always true."
+    }
+  ]
+}

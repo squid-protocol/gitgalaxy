@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "genapp-lgacdb01-generated",
+  "entries": [
+    {
+      "unit": "WRITE-ERROR-MESSAGE",
+      "line": 314,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for a call whose COMMAREA is 1 to 90 bytes. Reaching it takes a failing INSERT (line 222 or 251) with EIBCALEN between 1 and 90, but the statement's host variables (CA-PHONE-MOBILE, CA-PHONE-HOME, CA-EMAIL-ADDRESS of LGCMAREA) lie past byte 90 (header 18 + the 72 bytes of first name to postcode), so the task would reference storage past EIBCALEN, which IBM leaves undefined and X23 refuses on both sides (the task is judged up to the reference; the det port binds the host variables before the statement runs, the injected SQL fault reads none). `IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` (line 165, 18 + 72 = 90) already returns '98' for EIBCALEN under 90, leaving exactly 90. The only caller, LGACUS01 (line 134), LINKs with LENGTH(32500), so EIBCALEN is 32500 on every call."
+    }
+  ]
+}

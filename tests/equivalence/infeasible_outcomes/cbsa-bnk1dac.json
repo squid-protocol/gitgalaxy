@@ -1,0 +1,78 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-bnk1dac",
+  "entries": [
+    {
+      "unit": "A010",
+      "line": 303,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (303): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "DAD010",
+      "line": 745,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "DELACC sets fail code '2' on no path: its 'N' returns carry only '1' (not found) and '3' (delete error), so the test of 'N' with fail code '2' is never true."
+    },
+    {
+      "unit": "DAD010",
+      "line": 769,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "The catch-all 'N' test after the fail-code '1' and '3' arms: DELACC sets 'N' only with fail code '1' or '3', both handled by the earlier IFs, so a remaining 'N' never arrives."
+    },
+    {
+      "unit": "SM010",
+      "line": 900,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 48), set by no statement: only `SET SEND-ERASE` and `SET SEND-DATAONLY-ALARM` (199, 262, 411) write the flag."
+    },
+    {
+      "unit": "SM010",
+      "line": 901,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "The MESSAGEO test inside the `IF SEND-DATAONLY` block (900), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 901,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "The MESSAGEO test inside the `IF SEND-DATAONLY` block (900), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 914,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (900), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 914,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (900), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 979,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SM010 after the first SEND MAP and '2' is never set (see 900), so the test is always true."
+    }
+  ]
+}

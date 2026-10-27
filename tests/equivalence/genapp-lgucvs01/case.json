@@ -85,7 +85,7 @@
     "CA-CUSTOMER-NUM": 99,
     "CA-REQUEST-SPECIFIC": "Graham    Cuthbert            1967-01-03                    55  TR68BK  00201101 499787        0208 344344         g.cuthbert@new.example"
    },
-   "why": "READ UPDATE of customer 0000000099: NOTFND (RESP2 80): '81' to CA-RETURN-CODE, WRITE-ERROR-MESSAGE (ASKTIME, FORMATTIME, LINK LGSTSQ with ERROR-MSG, then with the 99-byte CA-ERROR-MSG since EIBCALEN >= 91: IF EIBCALEN > 0 and the >= 91 arm, X6), ABEND LGV1"
+   "why": "READ UPDATE of customer 0000000099: NOTFND (RESP2 80): '81' to CA-RETURN-CODE, WRITE-ERROR-MESSAGE (ASKTIME, FORMATTIME, LINK LGSTSQ with ERROR-MSG, then with the 99-byte CA-ERROR-MSG since EIBCALEN >= 91: IF EIBCALEN > 0 and the >= 91 arm; LGSTSQ's 104-byte WRITEQ is past FROM, X6), ABEND LGV1"
   },
   {
    "name": "update-read-io-error",
@@ -94,7 +94,7 @@
     "CA-CUSTOMER-NUM": 5,
     "CA-REQUEST-SPECIFIC": "Graham    Cuthbert            1967-01-03                    55  TR68BK  00201101 499787        0208 344344         g.cuthbert@new.example"
    },
-   "why": "READ UPDATE of customer 5 fails IOERR (RESP2 120): '81' to CA-RETURN-CODE, WRITE-ERROR-MESSAGE (ASKTIME, FORMATTIME, LINK LGSTSQ with ERROR-MSG, then with the 99-byte CA-ERROR-MSG since EIBCALEN >= 91: IF EIBCALEN > 0 and the >= 91 arm, X6), ABEND LGV1",
+   "why": "READ UPDATE of customer 5 fails IOERR (RESP2 120): '81' to CA-RETURN-CODE, WRITE-ERROR-MESSAGE (ASKTIME, FORMATTIME, LINK LGSTSQ with ERROR-MSG, then with the 99-byte CA-ERROR-MSG since EIBCALEN >= 91: IF EIBCALEN > 0 and the >= 91 arm; LGSTSQ's 104-byte WRITEQ is past FROM, X6), ABEND LGV1",
    "faults": [
     {
      "cmd": "READ",
@@ -111,7 +111,7 @@
     "CA-CUSTOMER-NUM": 5,
     "CA-REQUEST-SPECIFIC": "Graham    Cuthbert            1967-01-03                    55  TR68BK  00201101 499787        0208 344344         g.cuthbert@new.example"
    },
-   "why": "READ UPDATE of customer 5 is NORMAL, the REWRITE fails IOERR (RESP2 120): '82' to CA-RETURN-CODE, WRITE-ERROR-MESSAGE (ASKTIME, FORMATTIME, LINK LGSTSQ with ERROR-MSG, then with the 99-byte CA-ERROR-MSG since EIBCALEN >= 91: IF EIBCALEN > 0 and the >= 91 arm, X6), ABEND LGV2",
+   "why": "READ UPDATE of customer 5 is NORMAL, the REWRITE fails IOERR (RESP2 120): '82' to CA-RETURN-CODE, WRITE-ERROR-MESSAGE (ASKTIME, FORMATTIME, LINK LGSTSQ with ERROR-MSG, then with the 99-byte CA-ERROR-MSG since EIBCALEN >= 91: IF EIBCALEN > 0 and the >= 91 arm; LGSTSQ's 104-byte WRITEQ is past FROM, X6), ABEND LGV2",
    "faults": [
     {
      "cmd": "REWRITE",
@@ -128,7 +128,7 @@
     "CA-CUSTOMER-NUM": 5,
     "CA-REQUEST-SPECIFIC": "Graham    Cuthbert            1967-01-03                    55  TR68BK  00201101 499787        0208 344344         g.cuthbert@new.example"
    },
-   "why": "the REWRITE fails NOSPACE (RESP2 100): '82' to CA-RETURN-CODE, WRITE-ERROR-MESSAGE (ASKTIME, FORMATTIME, LINK LGSTSQ with ERROR-MSG, then with the 99-byte CA-ERROR-MSG since EIBCALEN >= 91: IF EIBCALEN > 0 and the >= 91 arm, X6), ABEND LGV2",
+   "why": "the REWRITE fails NOSPACE (RESP2 100): '82' to CA-RETURN-CODE, WRITE-ERROR-MESSAGE (ASKTIME, FORMATTIME, LINK LGSTSQ with ERROR-MSG, then with the 99-byte CA-ERROR-MSG since EIBCALEN >= 91: IF EIBCALEN > 0 and the >= 91 arm; LGSTSQ's 104-byte WRITEQ is past FROM, X6), ABEND LGV2",
    "faults": [
     {
      "cmd": "REWRITE",
@@ -149,7 +149,7 @@
    "commarea_length": 90
   }
  ],
- "notes": "GenApp's VSAM 'update customer' (LGUCVS01, LINKed by LGUCDB01): EXEC CICS READ FILE('KSDSCUST') INTO(WS-Customer-Area) LENGTH(WS-Commarea-Len = EIBCALEN) RIDFLD(CA-CUSTOMER-NUM) KEYLENGTH(10) UPDATE, then REWRITE FROM(CA-CUSTOMER-NUM) LENGTH(225). Each scenario's KSDSCUST is compared after the task. Every non-NORMAL RESP in this program goes to WRITE-ERROR-MESSAGE, whose first act is EXEC CICS LINK PROGRAM('LGSTSQ') (GenApp's TS/TD error logger). The harness runs one program, but the case's programs list adds LGSTSQ to the same task (X6, #4607), so the error paths run: NOTFND and IOERR on the READ UPDATE ('81', ABEND LGV1), IOERR and NOSPACE on the REWRITE ('82', ABEND LGV2). A task that reaches WRITE-ERROR-MESSAGE is judged only up to LGSTSQ's second LINK (the 99-byte CA-ERROR-MSG), where LGSTSQ writes 104 bytes from a 95-byte WRITE-MSG and the oracle refuses that WRITEQ TD by name (X6); the RESP, the file and the first logged message are compared before it. The faults list injects the file RESPs a healthy data set cannot give (IOERR, NOSPACE); the region ASSIGN SYSID is a deployment fact the corpus does not name. The READ's LENGTH is modelled on both sides (#4436, oracle_assumptions.md X14): WS-Commarea-Len (S9(4) COMP) is MOVEd from EIBCALEN (32500 here), so the LENGTH CICS gets differs from the 1024-byte INTO area; the 225-byte record is shorter than both (NORMAL), and LENGTH is set back to 225. A shorter LENGTH would truncate with LENGERR -- on READ UPDATE refused by name, and its path LINKs LGSTSQ anyway. Keys: PIC 9(10), digits only; no browse. Data: ksdscust.txt as in genapp-lgacvs01 (GenApp's db2cre.jcl sample customers). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
+ "notes": "GenApp's VSAM 'update customer' (LGUCVS01, LINKed by LGUCDB01): EXEC CICS READ FILE('KSDSCUST') INTO(WS-Customer-Area) LENGTH(WS-Commarea-Len = EIBCALEN) RIDFLD(CA-CUSTOMER-NUM) KEYLENGTH(10) UPDATE, then REWRITE FROM(CA-CUSTOMER-NUM) LENGTH(225). Each scenario's KSDSCUST is compared after the task. Every non-NORMAL RESP in this program goes to WRITE-ERROR-MESSAGE, whose first act is EXEC CICS LINK PROGRAM('LGSTSQ') (GenApp's TS/TD error logger). The harness runs one program, but the case's programs list adds LGSTSQ to the same task (X6, #4607), so the error paths run: NOTFND and IOERR on the READ UPDATE ('81', ABEND LGV1), IOERR and NOSPACE on the REWRITE ('82', ABEND LGV2). A task that reaches WRITE-ERROR-MESSAGE runs on through LGSTSQ: LGSTSQ writes EIBCALEN + 5 bytes from its 95-byte WRITE-MSG, which is past FROM, and the stand-in and the det port write FROM's bytes then spaces to LENGTH on both sides (X6, ASSUMED, owner 2026-10-21; IBM writes the storage after FROM, undefined), so the logged records and the end state are compared. WRITE-ERROR-MESSAGE then copies the COMMAREA into CA-DATA and LINKs LGSTSQ again with the 99-byte CA-ERROR-MSG: IF EIBCALEN < 91 true (a short-COMMAREA scenario, 90 bytes) and false (the full COMMAREA) are both judged. IF EIBCALEN > 0 false needs a call with no COMMAREA, which reads LINKAGE past EIBCALEN 0 (X23-class) and the two sides do not agree on, so no scenario states it. The faults list injects the file RESPs a healthy data set cannot give (IOERR, NOSPACE); the region ASSIGN SYSID is a deployment fact the corpus does not name. The READ's LENGTH is modelled on both sides (#4436, oracle_assumptions.md X14): WS-Commarea-Len (S9(4) COMP) is MOVEd from EIBCALEN (32500 here), so the LENGTH CICS gets differs from the 1024-byte INTO area; the 225-byte record is shorter than both (NORMAL), and LENGTH is set back to 225. A shorter LENGTH would truncate with LENGERR -- on READ UPDATE refused by name, and its path LINKs LGSTSQ anyway. Keys: PIC 9(10), digits only; no browse. Data: ksdscust.txt as in genapp-lgacvs01 (GenApp's db2cre.jcl sample customers). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived.",
  "programs": [
   {
    "program": "LGSTSQ",

@@ -369,11 +369,11 @@ def test_our_own_pipelines_are_clean(path):
 
 
 OPEN_SYSTEM_PACKAGE_INSTALLS = {
-    ".github/workflows/doom-rosetta.yml": {(100, "apt")},
-    ".github/workflows/full-suite-gate.yml": {(169, "brew")},
+    ".github/workflows/doom-rosetta.yml": {(110, "apt")},
+    ".github/workflows/full-suite-gate.yml": {(160, "brew")},
     ".github/workflows/os-smoke-grid.yml": {(59, "brew")},
-    ".github/workflows/tri-comparison-audit.yml": {(90, "apt")},
-    ".github/workflows/tri-comparison-history.yml": {(96, "apt")},
+    ".github/workflows/tri-comparison-audit.yml": {(127, "apt")},
+    ".github/workflows/tri-comparison-history.yml": {(135, "apt")},
 }
 
 

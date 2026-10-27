@@ -145,12 +145,12 @@
       "zig/zig/main.zig": 1
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": 1,
-      "zig/zls/DocumentStore.zig": 9,
-      "zig/zls/Server.zig": 33,
-      "zig/zls/analysis.zig": 20,
-      "zig/zls/ast.zig": 6,
-      "zig/zls/config_gen.zig": 4,
+      "zig/zls/DocumentScope.zig": 0,
+      "zig/zls/DocumentStore.zig": 4,
+      "zig/zls/Server.zig": 31,
+      "zig/zls/analysis.zig": 19,
+      "zig/zls/ast.zig": 3,
+      "zig/zls/config_gen.zig": 2,
       "zig/zls/print_ast.zig": 1
     }
   },

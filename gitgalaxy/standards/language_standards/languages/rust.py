@@ -66,6 +66,12 @@ DEFINITION: dict[str, Any] = {
         "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_RUST,  # #3643: macros, turbofish; patterns are not calls
+        # #6454: the pattern operand of `matches!(expr, PATTERN [if guard])` (and the assert forms) names
+        # variants, it calls nothing; the macro, the call-free first operand and a guard keep their calls
+        "_calls_out_masked_blocks": re.compile(
+            r"\b(?:debug_)?(?:assert_)?matches!\s*\(\s*[^(),;{}]{1,120},\s*"
+            r"(?P<mask>(?:(?!\bif\b)(?:[^()]|\((?:[^()]|\([^()]{0,100}\)){0,100}\))){1,300})"
+        ),
         # #3359 (contract C2): keywords and special forms, never calls
         "_calls_out_ignore": frozenset(
             {
@@ -389,7 +395,11 @@ DEFINITION: dict[str, Any] = {
         # syntax), but shared a trailing `\b` -- `asm!(...)` is always
         # followed by `(`, never a word char, so none of these -- the
         # ONLY way to write inline assembly in Rust -- ever matched.
-        "inline_asm": re.compile(r"\bcore::arch::asm!|\bstd::arch::asm!|\basm!|\bglobal_asm!"),
+        # `naked_asm!` (naked functions) and `llvm_asm!` (the pre-`asm!` form) open machine code the same way.
+        "inline_asm": re.compile(
+            r"\bcore::arch::(?:asm|global_asm|naked_asm)!|\bstd::arch::(?:asm|global_asm|naked_asm)!"
+            r"|\b(?:asm|global_asm|naked_asm|llvm_asm)!"
+        ),
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
         # 38. telemetry (Structured Logging / Telemetry)
         # BUG FIX: `info!`/`warn!`/`error!`/`debug!`/`trace!`/`span!` all

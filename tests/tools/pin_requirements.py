@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Manage hash-pinned, universal requirement lockfiles for CI and shipped templates (#4918).
 
-Compiles and validates universal lockfiles valid across all supported OS and Python >= 3.10 matrices,
+Compiles and validates universal lockfiles valid across all supported OS and Python >= 3.11 matrices,
 preserving multi-version environment markers (e.g. for numpy, xgboost, typing-extensions).
 
 Usage:
@@ -29,7 +29,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CI_REQS = ROOT / "ci" / "requirements"
 TEMPLATE_REQS = ROOT / "templates" / "requirements"
 
-# Packages known to require version splits across Python 3.10 / 3.11 / 3.12 matrices.
+# Packages known to require version splits across Python 3.11 / 3.12 matrices.
 # A universal compile MUST preserve their python version markers, not collapse them to a single flat pin.
 MULTIVERSION_PACKAGES = {"numpy", "xgboost"}
 
@@ -79,7 +79,7 @@ def verify_multiversion_markers(path: Path | str, content: str) -> list[str]:
             errors.append(
                 f"{name_str}: {pkg} is pinned to a single version ({entries[0][0]}) without "
                 f"python_full_version markers. In a universal lockfile, {pkg} requires markers "
-                "across the Python >= 3.10 matrix."
+                "across the Python >= 3.11 matrix."
             )
         elif len(entries) > 1:
             for ver, marker in entries:
@@ -117,7 +117,7 @@ def compile_lockfile(
         "--generate-hashes",
         "--universal",
         "--python-version",
-        "3.10",
+        "3.11",
         "--no-header",
         "-q",
     ]

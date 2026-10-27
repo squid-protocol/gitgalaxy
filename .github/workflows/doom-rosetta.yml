@@ -3,8 +3,9 @@ name: DOOM-rosetta
 # Zero-drift check of the pinned DOOM ports against tests/golden_doom_rosetta (#5619, slice 3). The 44 ports total ~6.7M
 # LOC and 7.5 min serial, so the `plan` job packs them into shards by LOC (largest first, into the lightest shard, from
 # the golden's own per-file LOC; #5919: crucible_shard_plan.py also picks the count and the shard timeout) and each shard runs `pytest -m doom_rosetta` with DOOM_ROSETTA_PORTS narrowed to its
-# ports. Clones are fetched at the manifest SHA at run time (never committed) and cached per shard, keyed by the
-# manifest hash. Each shard writes its wall time to the job summary: the PR wall time is the slowest shard.
+# ports. Clones are fetched shallow at the manifest SHA at run time (never committed, never cached: a PR-scoped cache
+# is invisible to every other PR, and the repo's Actions cache is already at its 10 GB cap). Each shard writes its wall
+# time to the job summary: the PR wall time is the slowest shard.
 # Slice 4 (#5630): the nightly `callgraph` job (schedule / manual only) scans the 20 licensed C/C++ ports and fails on a
 # call-graph recall/precision drop against tests/tools/doom_speedrun/callgraph_baseline.json.
 
@@ -22,8 +23,17 @@ on:
       - "tests/tools/doom_rosetta_check.py"
       - "tests/tools/crucible_shard_plan.py"  # #5919: the plan job's shard count and timeout
       - "tests/tools/ci_shard_plan.py"
-      - "tests/tools/doom_speedrun/**"
+      # only the modules the check imports (test_workflow_paths_cover_the_check_imports keeps this list whole); the
+      # paper-study scripts beside them (lineage, fidelity, distribution, study_report, ...) never reach a shard
+      - "tests/tools/doom_speedrun/doom_speedrun.py"
+      - "tests/tools/doom_speedrun/doom_diff.py"
+      - "tests/tools/doom_speedrun/doom_scorer.py"
+      - "tests/tools/doom_speedrun/callgraph_oracle.py"
+      - "tests/tools/doom_speedrun/ts_callgraph_oracle.py"
+      - "tests/tools/doom_speedrun/doom_clang*.py"
+      - "tests/tools/clang_callgraph.py"
       - ".github/workflows/doom-rosetta.yml"
+      - "!**/*.md"  # no scan reads a Markdown file of this repo
   schedule:
     - cron: "37 6 * * *"  # nightly (#5630)
   workflow_dispatch:
@@ -105,14 +115,6 @@ jobs:
           fi
           ctags --version | head -1
 
-      # Keyed by the manifest (it pins every SHA), so the cache only changes when a pin does; the shard index is in the
-      # key because the ports differ per shard.
-      - name: Cache the pinned clones
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ github.workspace }}/../doom-work
-          key: doom-clones-${{ matrix.shard }}-${{ hashFiles('gitgalaxy/tests/doom_rosetta/manifest.csv') }}
-
       - name: Scan the shard and diff against the golden
         run: |
           cd gitgalaxy
@@ -126,7 +128,8 @@ jobs:
 
   # #5630 slice 4: C/C++ call-graph accuracy (tests/tools/doom_speedrun/callgraph_oracle.py) on the baseline's licensed
   # ports. Not a PR check (a scan of 20 ports): nightly and on demand. Exit 1 = recall/precision fell past tolerance, a
-  # baseline port is missing, or consensus engine-misses / false edges grew; regenerate the baseline only with an
+  # baseline port is missing, consensus engine-misses / false edges grew, or the libclang reference (--clang) lost recall /
+  # precision or gained disagreements in clean files; regenerate the baseline only with an
   # explained engine change (README, "C/C++ call-graph oracle").
   callgraph:
     if: ${{ github.event_name != 'pull_request' }}
@@ -158,12 +161,7 @@ jobs:
           pip install --require-hashes -r ci/requirements/yaml.txt
           pip install --no-build-isolation -e .
           pip install --require-hashes -r ci/requirements/treesitter.txt
-
-      - name: Cache the pinned clones
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ github.workspace }}/../doom-work/repos
-          key: doom-callgraph-clones-${{ hashFiles('gitgalaxy/tests/doom_rosetta/manifest.csv') }}
+          pip install --require-hashes -r ci/requirements/callgraph.txt  # libclang, for --clang below
 
       - name: Fetch and scan the baseline's ports
         run: |
@@ -175,7 +173,7 @@ jobs:
       - name: Score call-graph accuracy against the baseline
         run: |
           cd gitgalaxy
-          python tests/tools/doom_speedrun/callgraph_oracle.py --only all \
+          python tests/tools/doom_speedrun/callgraph_oracle.py --only all --clang \
             --baseline tests/tools/doom_speedrun/callgraph_baseline.json --fail-on-regression
 
       - name: Publish the report

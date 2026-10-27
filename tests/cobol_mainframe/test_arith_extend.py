@@ -97,6 +97,7 @@ def _dir(root: Path, name: str) -> Path:
     return root / name
 
 
+@pytest.mark.slow(reason="translates, javac-compiles and runs a program per case (#5178, #5606)")
 @pytest.mark.parametrize("typed", [False, True])
 def test_an_intermediate_within_30_digits_gives_compats_results(typed, tmp_path):
     T = _jdk_or_skip()

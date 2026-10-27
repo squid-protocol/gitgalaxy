@@ -13,7 +13,7 @@ description: "`pip install gitgalaxy` installs **nothing else**. For teams where
 ## Getting full precision
 
 ```bash
-pip install "gitgalaxy[full]"      # tiktoken, xgboost, pandas, numpy, pyyaml
+pip install "gitgalaxy[full]"      # tiktoken, xgboost, scikit-learn, pandas, numpy, pyyaml
 ```
 
 Or add only the engines whose outputs you need (table below). Each is independent: a missing package only costs the rows under its heading (#3028).
@@ -62,9 +62,9 @@ Because every centrality is computed on every install, these all work in every m
 | `token_mass`, `financial_read_cost` (file level), `function_data.token_mass` | NULL (never estimated) |
 | Agent-guardrail `is_agentic_black_hole` / `agentic_isolation_risk` (token mass > 8000) | can never fire (reads 0) |
 
-### `xgboost` + `pandas` + `numpy`: ML threat classification
+### `xgboost` + `scikit-learn` + `pandas` + `numpy`: ML threat classification
 
-Inference needs all three, so a missing one disables it. Each is still detected and reported under its own name, so "Missing Dependencies" says which one to install (#3028).
+Inference needs all four, so a missing one disables it. Each is still detected and reported under its own name, so "Missing Dependencies" says which one to install (#3028).
 
 | Output | Without |
 |---|---|
@@ -78,6 +78,7 @@ The DB columns follow whether inference actually **ran**, not the mode flag (#30
 #### ML layer boundary for validation scans (#2986)
 
 - **No model ships, so there is no full-deps leg.** The XGBoost model file (`gitgalaxy_malware_xgb_multiclass.json`) is not in this repository. A scan with numpy, pandas and xgboost installed but no model still skips inference, so `ml_inference_ran` is false in every public scan, including both golden-master legs. The ML layer is **unexercised, not exonerated**, in all of them.
+- **The inference code path is exercised, the model is not.** `tests/security_auditing/test_ml_real_model_2986.py` trains a tiny synthetic XGBoost model and runs the real load, schema alignment, scoring, threshold, static-asset shield, shadow-patch and recorder chain against it. That proves the plumbing, not detection quality. It needs `scikit-learn` too (`XGBClassifier` raises `ImportError` without it); the `full` extra installs it, so the test runs on `pip install "gitgalaxy[full]"` and skips only where one of the four packages is absent.
 - **Not a CVE detector.** The model classifies malware and supply-chain shapes (Botnet / DDoS, Stealer / Trojan, Dropper / Webshell, Native Infector). It is not expected to fire on CVE-class vulnerabilities, so a CVE ground truth such as temporal-crucible's curl snapshots is the wrong yardstick for it even when a model is present.
 - **How to read a snapshot.** `ai_threat_score IS NULL` means the layer did not run. Only a non-NULL score means it ran. Filter on `repo_data.is_zero_dependency_mode` and `ai_threat_score IS NOT NULL` before counting threats.
 - **Older snapshots.** Scans recorded before #3028 (the temporal-crucible snapshots among them) store `'Safe'` / `0.0` / `0` for the AI columns. Those are placeholders for "did not run", not a clean verdict. `binary_anomaly` / `obfuscation_flag` are not ML: they come from regex signals (`sec_extension_mismatch`, `sec_unicode_steganography`, `sec_self_propagation`), and those snapshots predate their producers (#368, #1150), so their zeros mean "not yet measured", not "measured clean".

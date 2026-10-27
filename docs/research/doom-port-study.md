@@ -33,7 +33,7 @@ README. Read the table with three cautions:
 
 <!-- study:clean-scan begin -->
 
-27 of 44 ports pass every scored check now; 15 of them failed at least one in round 2 (`n/a` = the port was added after round 2; `(vacuous)` = the scorer saw no first-party source files, so the pass proves nothing; `not compared` = ctags has no reading of that language). The call-graph check did not exist in round 2.
+33 of 44 ports pass every scored check now; 18 of them failed at least one in round 2 (`n/a` = the port was added after round 2; `(vacuous)` = the scorer saw no first-party source files, so the pass proves nothing; `not compared` = ctags has no reading of that language). The call-graph check did not exist in round 2.
 
 | port | failed checks, round 2 | failed checks, now | first-party files, now | missed files, round 2 | now | functions vs ctags %, round 2 | now | functions now |
 |---|---|---|---|---|---|---|---|---|
@@ -41,20 +41,20 @@ README. Read the table with three cautions:
 | chocolate-doom | coverage health | - | 576 | 3 | 0 | 0.9 | 0.9 | 5168 |
 | crispy-doom | coverage health | - | 632 | 6 | 0 | 0.8 | 0.8 | 5909 |
 | doomgeneric | coverage | - | 192 | 1 | 0 | 0.1 | 0.1 | 1192 |
-| doomretro | coverage | callgraph | 188 | 3 | 0 | 0.0 | 0.0 | 2236 |
-| prboom-plus | - | callgraph | 286 | 0 | 0 | 2.3 | 2.3 | 2517 |
-| dsda-doom | - | callgraph | 499 | 0 | 0 | 0.4 | 0.4 | 4937 |
+| doomretro | coverage | - | 188 | 3 | 0 | 0.0 | 0.0 | 2236 |
+| prboom-plus | - | - | 286 | 0 | 0 | 2.3 | 2.3 | 2517 |
+| dsda-doom | - | - | 506 | 0 | 0 | 0.4 | 0.4 | 4937 |
 | woof | coverage health | - | 399 | 1 | 0 | 0.8 | 0.8 | 3783 |
 | eternity | coverage health | callgraph | 584 | 2 | 0 | -0.1 | 3.7 | 7328 |
 | odamex | coverage functions | callgraph | 590 | 3 | 0 | -3.3 | -1.8 | 8678 |
-| gzdoom | coverage | callgraph | 1274 | 4 | 0 | 0.0 | 1.8 | 18489 |
+| gzdoom | coverage | callgraph | 1567 | 4 | 0 | 0.0 | 1.8 | 18489 |
 | room4doom | coverage | - | 385 | 10 | 0 | 0.7 | 0.7 | 4684 |
 | gore | coverage | - | 9 | 1 | 0 | 0.0 | 8.4 | 1025 |
-| managed-doom | - | callgraph | 245 | 0 | 0 | 0.0 | -0.1 | 1300 |
-| mochadoom | coverage | callgraph | 452 | 1 | 0 | -0.2 | -0.2 | 3781 |
+| managed-doom | - | - | 245 | 0 | 0 | 0.0 | -0.1 | 1300 |
+| mochadoom | coverage | - | 452 | 1 | 0 | -0.2 | -0.2 | 3781 |
 | rust-doom | - | - | 50 | 0 | 0 | 2.2 | 2.2 | 616 |
 | doom-wasm | coverage | - | 306 | 2 | 0 | 0.7 | 0.7 | 2055 |
-| fastdoom | coverage | callgraph | 387 | 2 | 0 | 1.7 | 1.5 | 1736 |
+| fastdoom | coverage | - | 387 | 2 | 0 | 1.7 | 1.5 | 1736 |
 | puredoom | coverage | - | 130 | 2 | 0 | 0.9 | 1.0 | 1560 |
 | doom-ios | language | - | 304 | 0 | 0 | 1.0 | 1.0 | 1958 |
 | doom3-bfg | coverage | callgraph | 888 | 3 | 0 | -2.1 | 0.8 | 16380 |
@@ -69,18 +69,18 @@ README. Read the table with three cautions:
 | sdl-doom | coverage | - | 182 | 2 | 0 | 0.1 | 0.1 | 1079 |
 | doom3do | coverage | - | 200 | 1 | 0 | 0.0 | 0.0 | 511 |
 | sqldoom | n/a | functions callgraph | 41 | n/a | 0 | n/a | 11.4 | 419 |
-| doomf77 | n/a | - | 0 (vacuous) | n/a | 0 | n/a | not compared | 0 |
-| doom-scheme | n/a | - | 19 | n/a | 0 | n/a | -1.1 | 92 |
-| dartdoom | n/a | - | 4 | n/a | 0 | n/a | not compared | 0 |
-| doo-cr | n/a | - | 0 (vacuous) | n/a | 0 | n/a | not compared | 0 |
-| kocoa-doom | n/a | - | 441 | n/a | 0 | n/a | not compared | 0 |
-| fsharp-doom | n/a | - | 0 (vacuous) | n/a | 0 | n/a | not compared | 0 |
-| cssdoom | n/a | functions callgraph | 54 | n/a | 0 | n/a | 4.7 | 225 |
+| doomf77 | n/a | - | 14 | n/a | 0 | n/a | not compared | 0 |
+| doom-scheme | n/a | - | 74 | n/a | 0 | n/a | -1.1 | 92 |
+| dartdoom | n/a | - | 92 | n/a | 0 | n/a | not compared | 0 |
+| doo-cr | n/a | - | 43 | n/a | 0 | n/a | not compared | 0 |
+| kocoa-doom | n/a | callgraph | 441 | n/a | 0 | n/a | not compared | 0 |
+| fsharp-doom | n/a | - | 18 | n/a | 0 | n/a | not compared | 0 |
+| cssdoom | n/a | functions | 54 | n/a | 0 | n/a | 4.7 | 225 |
 | doom-fx | n/a | - | 71 | n/a | 0 | n/a | -88.9 | 1 |
-| fps-cob | n/a | - | 0 (vacuous) | n/a | 0 | n/a | not compared | 0 |
-| agentic-cobol-doom-cc | n/a | - | 0 (vacuous) | n/a | 0 | n/a | not compared | 0 |
-| agentic-cobol-doom-codex | n/a | - | 2 | n/a | 0 | n/a | 0.0 | 52 |
-| mood | n/a | callgraph | 307 | n/a | 0 | n/a | -0.4 | 1785 |
+| fps-cob | n/a | - | 1 | n/a | 0 | n/a | not compared | 0 |
+| agentic-cobol-doom-cc | n/a | - | 8 | n/a | 0 | n/a | not compared | 0 |
+| agentic-cobol-doom-codex | n/a | - | 14 | n/a | 0 | n/a | 0.0 | 52 |
+| mood | n/a | - | 307 | n/a | 0 | n/a | -0.4 | 1785 |
 
 <!-- study:clean-scan end -->
 
@@ -89,19 +89,19 @@ README. Read the table with three cautions:
 Read from each port's own README at the pinned SHA, never inferred from the code. Examples, quoted briefly:
 chocolate-doom, "Accurate reproduction of the original DOS versions of the games, including bugs" (faithful);
 managed-doom, "Chocolate Doom is used as the reference of compatibility tests" (compatible);
-dartdoom, "A second hardware renderer draws the world as GPU geometry" (enhanced). Twenty ports state nothing, and
-are reported as such rather than guessed.
+dartdoom, "A second hardware renderer draws the world as GPU geometry" (enhanced). Twelve ports state nothing, each with a recorded
+reason (`fidelity_reason` in the manifest), and are reported as unstated rather than guessed.
 
 <!-- study:fidelity begin -->
 
 | class | original | faithful | compatible | enhanced | divergent | unstated |
 |---|---|---|---|---|---|---|
 | assets | - | - | freedoom | - | - | - |
-| engine-port | linuxdoom | chocolate-doom, doom-scheme | crispy-doom, doomf77, gore, inter-doom, managed-doom, prboom-plus | dartdoom, doomretro, doomsday, dsda-doom, edge-classic, eternity, nugget-doom, puredoom, woof | doo-cr | doom-ascii, doom-ios, doom-wasm, doom3do, doomgeneric, fastdoom, gzdoom, kocoa-doom, mochadoom, mood, odamex, sdl-doom, sqldoom, srb2 |
-| raycaster | - | - | - | - | - | agentic-cobol-doom-cc, agentic-cobol-doom-codex, fps-cob |
+| engine-port | linuxdoom | chocolate-doom, doom-scheme, sqldoom | crispy-doom, doomf77, gore, inter-doom, managed-doom, odamex, prboom-plus | dartdoom, doomretro, doomsday, dsda-doom, edge-classic, eternity, fastdoom, nugget-doom, puredoom, woof | doo-cr, doom3do, srb2 | doom-ascii, doom-ios, doom-wasm, doomgeneric, gzdoom, kocoa-doom, mochadoom, mood, sdl-doom |
+| raycaster | - | - | - | - | agentic-cobol-doom-cc, agentic-cobol-doom-codex, fps-cob | - |
 | reimplementation | - | - | room4doom | - | cssdoom, helion, rust-doom | doom-fx, fsharp-doom |
 | separate-engine | - | - | - | - | - | doom3-bfg |
-| **ports** | 1 | 2 | 8 | 9 | 4 | 20 |
+| **ports** | 1 | 3 | 9 | 10 | 9 | 12 |
 
 <!-- study:fidelity end -->
 
@@ -133,34 +133,34 @@ is the lineage claim for a rewrite; exact survival says how much was left untouc
 | prboom-plus | engine-port | compatible | - | 80.5 | 8.8 | 20.8 | 49.1 | - |
 | doom-ios | engine-port | unstated | - | 80.1 | 10.7 | 27.3 | 56.2 | - |
 | inter-doom | engine-port | compatible | crispy-doom | 76.1 | 14.5 | 30.8 | 52.7 | -6.5 |
-| fastdoom | engine-port | unstated | linuxdoom | 72.4 | 6.8 | 24.2 | 53.9 | -93.2 |
+| fastdoom | engine-port | enhanced | linuxdoom | 72.4 | 6.8 | 24.2 | 53.9 | -93.2 |
 | dsda-doom | engine-port | enhanced | prboom-plus | 72.2 | 3.2 | 10.0 | 34.3 | -5.6 |
 | nugget-doom | engine-port | enhanced | woof | 70.5 | 2.9 | 10.9 | 34.4 | 0.3 |
 | doomretro | engine-port | enhanced | chocolate-doom | 69.0 | 0.2 | 2.1 | 20.2 | -34.7 |
 | doom-scheme | engine-port | faithful | - | 68.9 | 0.0 | 0.0 | 0.2 | - |
 | eternity | engine-port | enhanced | - | 66.3 | 0.8 | 5.3 | 23.7 | - |
-| odamex | engine-port | unstated | - | 66.0 | 1.2 | 4.7 | 22.2 | - |
+| odamex | engine-port | compatible | - | 66.0 | 1.2 | 4.7 | 22.2 | - |
 | woof | engine-port | enhanced | - | 49.1 | 2.6 | 9.1 | 25.8 | - |
 | dartdoom | engine-port | enhanced | - | 43.5 | 0.0 | 0.5 | 22.2 | - |
-| srb2 | engine-port | unstated | - | 43.4 | 1.4 | 4.8 | 14.2 | - |
+| srb2 | engine-port | divergent | - | 43.4 | 1.4 | 4.8 | 14.2 | - |
 | gzdoom | engine-port | unstated | - | 32.0 | 0.2 | 0.5 | 2.1 | - |
 | doomsday | engine-port | enhanced | - | 29.9 | 0.6 | 3.2 | 11.2 | - |
 | mochadoom | engine-port | unstated | - | 29.3 | 5.6 | 5.9 | 17.1 | - |
 | kocoa-doom | engine-port | unstated | - | 23.1 | 0.0 | 0.0 | 5.3 | - |
-| doom3do | engine-port | unstated | - | 18.9 | 0.0 | 0.5 | 10.0 | - |
+| doom3do | engine-port | divergent | - | 18.9 | 0.0 | 0.5 | 10.0 | - |
 | room4doom | reimplementation | compatible | - | 13.7 | 0.0 | 0.0 | 0.5 | - |
 | helion | reimplementation | divergent | - | 9.5 | 0.0 | 0.0 | 0.2 | - |
 | edge-classic | engine-port | enhanced | - | 4.4 | 0.0 | 0.0 | 0.2 | - |
 | doomf77 | engine-port | compatible | - | 1.1 | 0.0 | 0.0 | 0.0 | - |
 | managed-doom | engine-port | compatible | - | 0.9 | 0.0 | 0.0 | 0.2 | - |
 | freedoom | assets | compatible | - | 0.9 | 0.0 | 0.0 | 0.0 | - |
-| agentic-cobol-doom-codex | raycaster | unstated | - | 0.8 | 0.0 | 0.0 | 0.0 | - |
+| agentic-cobol-doom-codex | raycaster | divergent | - | 0.8 | 0.0 | 0.0 | 0.0 | - |
 | rust-doom | reimplementation | divergent | - | 0.6 | 0.0 | 0.0 | 0.0 | - |
-| sqldoom | engine-port | unstated | - | 0.6 | 0.0 | 0.0 | 0.0 | - |
+| sqldoom | engine-port | faithful | - | 0.6 | 0.0 | 0.0 | 0.0 | - |
 | fsharp-doom | reimplementation | unstated | - | 0.5 | 0.0 | 0.0 | 0.0 | - |
-| fps-cob | raycaster | unstated | - | 0.5 | 0.0 | 0.0 | 0.0 | - |
+| fps-cob | raycaster | divergent | - | 0.5 | 0.0 | 0.0 | 0.0 | - |
 | doom-fx | reimplementation | unstated | - | 0.3 | 0.0 | 0.0 | 0.0 | - |
-| agentic-cobol-doom-cc | raycaster | unstated | - | 0.3 | 0.0 | 0.0 | 0.0 | - |
+| agentic-cobol-doom-cc | raycaster | divergent | - | 0.3 | 0.0 | 0.0 | 0.0 | - |
 | cssdoom | reimplementation | divergent | - | 0.0 | 0.0 | 0.0 | 0.0 | - |
 
 <!-- study:lineage end -->
@@ -177,56 +177,56 @@ token mass, arguments) and linuxdoom's. It is a shape comparison, not a correctn
 | port | language | stated fidelity | functions | complexity med | % complexity >= 10 | LOC med | dist |
 |---|---|---|---|---|---|---|---|
 | linuxdoom | c | original | 779 | 3 | 19.8 | 21 | 0.00 |
-| puredoom | c | enhanced | 1560 | 2 | 17.7 | 18 | 0.08 |
-| doom-ascii | c | unstated | 1019 | 2 | 13.8 | 20 | 0.10 |
-| sdl-doom | c | unstated | 1079 | 2 | 13.2 | 21 | 0.11 |
-| doomgeneric | c | unstated | 1192 | 2 | 12.6 | 20 | 0.12 |
-| doom3do | c | unstated | 537 | 2 | 16.6 | 16 | 0.13 |
-| mood | c | unstated | 1839 | 2 | 16.8 | 20 | 0.14 |
-| chocolate-doom | c | faithful | 5168 | 2 | 13.2 | 19 | 0.17 |
-| crispy-doom | c | compatible | 5909 | 2 | 14.9 | 19 | 0.17 |
-| prboom-plus | c | compatible | 2517 | 2 | 18.9 | 16 | 0.17 |
-| doom-ios | c | unstated | 1958 | 2 | 16.9 | 14 | 0.18 |
-| doom-wasm | c | unstated | 2055 | 2 | 10.5 | 19 | 0.18 |
-| inter-doom | c | compatible | 6236 | 2 | 15.7 | 16 | 0.20 |
-| managed-doom | csharp | compatible | 1300 | 1 | 9.5 | 15 | 0.20 |
-| cssdoom | javascript | divergent | 225 | 2 | 18.2 | 12 | 0.21 |
-| dartdoom | dart | enhanced | 865 | 2 | 15.6 | 10 | 0.21 |
-| woof | c | enhanced | 3795 | 2 | 13.6 | 16 | 0.21 |
-| nugget-doom | c | enhanced | 4180 | 2 | 14.7 | 16 | 0.24 |
-| dsda-doom | c | enhanced | 4937 | 2 | 13.5 | 13 | 0.24 |
-| gore | go | compatible | 1025 | 2 | 13.4 | 13 | 0.25 |
-| eternity | cpp | enhanced | 7331 | 1 | 13.1 | 12 | 0.27 |
-| doom-scheme | scheme | faithful | 1034 | 1 | 8.4 | 7 | 0.28 |
-| fastdoom | c | unstated | 2135 | 1 | 12.9 | 20 | 0.31 |
-| edge-classic | cpp | enhanced | 4964 | 2 | 14.0 | 13 | 0.32 |
-| doomf77 | fortran | compatible | 146 | 6 | 37.7 | 24 | 0.33 |
-| doom3-bfg | cpp | unstated | 16380 | 1 | 9.8 | 8 | 0.36 |
-| room4doom | rust | compatible | 4684 | 0 | 6.9 | 11 | 0.36 |
-| kocoa-doom | kotlin | unstated | 3565 | 0 | 5.5 | 5 | 0.37 |
-| srb2 | c | unstated | 6762 | 2 | 20.4 | 16 | 0.37 |
-| odamex | cpp | unstated | 8678 | 1 | 9.3 | 8 | 0.37 |
-| agentic-cobol-doom-codex | cobol | unstated | 162 | 2 | 8.0 | 10 | 0.39 |
-| mochadoom | java | unstated | 3781 | 0 | 5.3 | 5 | 0.40 |
-| sqldoom | python | unstated | 419 | 2 | 12.9 | 9 | 0.40 |
-| doomsday | cpp | enhanced | 25618 | 0 | 6.3 | 7 | 0.41 |
-| helion | csharp | divergent | 9801 | 0 | 4.0 | 8 | 0.42 |
-| doomretro | c | enhanced | 2236 | 3 | 24.6 | 18 | 0.43 |
-| doo-cr | crystal | divergent | 1509 | 0 | 7.5 | 3 | 0.44 |
-| doom-fx | assembly | unstated | 2004 | 0 | 2.1 | 12 | 0.44 |
-| agentic-cobol-doom-cc | cobol | unstated | 45 | 4 | 17.8 | 25 | 0.44 |
-| fsharp-doom | fsharp | unstated | 53 | 1 | 9.4 | 12 | 0.47 |
-| rust-doom | rust | divergent | 616 | 0 | 4.4 | 5 | 0.47 |
-| gzdoom | cpp | unstated | 20630 | 1 | 10.1 | 8 | 0.51 |
-| fps-cob | cobol | unstated | 54 | 6 | 33.3 | 32 | 0.54 |
+| puredoom | c | enhanced | 1560 | 2 | 17.7 | 18 | 0.07 |
+| doom-ascii | c | unstated | 1019 | 2 | 13.8 | 20 | 0.08 |
+| sdl-doom | c | unstated | 1079 | 2 | 13.2 | 21 | 0.09 |
+| doomgeneric | c | unstated | 1192 | 2 | 12.6 | 20 | 0.10 |
+| doom3do | c | divergent | 537 | 2 | 16.6 | 16 | 0.11 |
+| chocolate-doom | c | faithful | 5168 | 2 | 13.2 | 19 | 0.13 |
+| mood | c | unstated | 1839 | 2 | 16.8 | 20 | 0.13 |
+| crispy-doom | c | compatible | 5909 | 2 | 14.9 | 19 | 0.13 |
+| prboom-plus | c | compatible | 2517 | 2 | 18.9 | 16 | 0.15 |
+| doom-wasm | c | unstated | 2055 | 2 | 10.5 | 19 | 0.15 |
+| doom-ios | c | unstated | 1958 | 2 | 16.9 | 14 | 0.16 |
+| inter-doom | c | compatible | 6236 | 2 | 15.7 | 16 | 0.16 |
+| cssdoom | javascript | divergent | 225 | 2 | 18.2 | 12 | 0.16 |
+| dartdoom | dart | enhanced | 865 | 2 | 14.3 | 10 | 0.17 |
+| managed-doom | csharp | compatible | 1300 | 1 | 9.5 | 15 | 0.18 |
+| woof | c | enhanced | 3795 | 2 | 13.6 | 16 | 0.18 |
+| eternity | cpp | enhanced | 7331 | 1 | 13.1 | 12 | 0.21 |
+| nugget-doom | c | enhanced | 4180 | 2 | 14.7 | 16 | 0.21 |
+| agentic-cobol-doom-codex | cobol | divergent | 162 | 2 | 8.0 | 10 | 0.23 |
+| doom-scheme | scheme | faithful | 1034 | 1 | 9.1 | 7 | 0.24 |
+| room4doom | rust | compatible | 4684 | 0 | 6.9 | 11 | 0.24 |
+| dsda-doom | c | enhanced | 4937 | 2 | 13.5 | 13 | 0.25 |
+| sqldoom | python | faithful | 419 | 2 | 14.6 | 9 | 0.25 |
+| agentic-cobol-doom-cc | cobol | divergent | 45 | 4 | 17.8 | 25 | 0.26 |
+| doomf77 | fortran | compatible | 146 | 6 | 37.7 | 24 | 0.28 |
+| fastdoom | c | enhanced | 2135 | 1 | 12.9 | 20 | 0.29 |
+| srb2 | c | divergent | 6762 | 2 | 20.4 | 16 | 0.33 |
+| fsharp-doom | fsharp | unstated | 53 | 1 | 9.4 | 12 | 0.34 |
+| edge-classic | cpp | enhanced | 4964 | 2 | 14.0 | 13 | 0.34 |
+| doom3-bfg | cpp | unstated | 16380 | 1 | 9.8 | 8 | 0.34 |
+| fps-cob | cobol | divergent | 54 | 6 | 33.3 | 32 | 0.35 |
+| kocoa-doom | kotlin | unstated | 3565 | 0 | 5.5 | 5 | 0.36 |
+| mochadoom | java | unstated | 3781 | 0 | 5.3 | 5 | 0.36 |
+| odamex | cpp | compatible | 8678 | 1 | 9.3 | 8 | 0.36 |
+| doo-cr | crystal | divergent | 1509 | 0 | 7.5 | 3 | 0.37 |
+| rust-doom | rust | divergent | 616 | 0 | 4.4 | 5 | 0.37 |
+| helion | csharp | divergent | 9801 | 0 | 4.0 | 8 | 0.38 |
+| doom-fx | assembly | unstated | 2004 | 0 | 2.1 | 12 | 0.39 |
+| gore | go | compatible | 1025 | 2 | 13.4 | 13 | 0.39 |
+| doomretro | c | enhanced | 2236 | 3 | 24.6 | 18 | 0.40 |
+| doomsday | cpp | enhanced | 25618 | 0 | 6.3 | 7 | 0.46 |
+| gzdoom | cpp | unstated | 20630 | 1 | 10.1 | 8 | 0.62 |
 
 | metric | linuxdoom median | population median | IQR of port medians | linuxdoom percentile |
 |---|---|---|---|---|
 | complexity | 3.0 | 2.0 | 1.0 - 2.0 | 91 |
 | loc | 21.0 | 14.0 | 9.2 - 19.0 | 91 |
-| func_fan_out | 1.0 | 1.0 | 1.0 - 1.0 | 57 |
-| token_mass | 130.0 | 100.0 | 79.2 - 117.0 | 88 |
-| args | 1.0 | 1.0 | 1.0 - 1.0 | 52 |
+| func_fan_out | 1.0 | 1.0 | 1.0 - 1.0 | 58 |
+| token_mass | 130.0 | 100.0 | 81.2 - 117.0 | 88 |
+| args | 1.0 | 1.0 | 1.0 - 1.0 | 50 |
 
 <!-- study:distribution end -->
 
@@ -253,11 +253,11 @@ Findings, each checked against the source:
 
 | port | landmarks found | complexity ratio, median | range | LOC ratio, median | range |
 |---|---|---|---|---|---|
-| managed-doom | 0 / 12 | - | - | - | - |
-| dartdoom | 11 / 12 | 1.00 | 0.28 - 1.77 | 0.66 | 0.24 - 0.90 |
-| kocoa-doom | 2 / 12 | 0.00 | 0.00 - 0.00 | 0.01 | 0.01 - 0.01 |
-| mochadoom | 4 / 12 | 0.00 | 0.00 - 1.00 | 0.06 | 0.01 - 1.00 |
-| doom-scheme | 9 / 12 | 0.33 | 0.00 - 0.74 | 0.49 | 0.21 - 0.69 |
+| managed-doom | 7 / 12 | 1.00 | 0.50 - 1.80 | 1.12 | 0.89 - 1.30 |
+| dartdoom | 11 / 12 | 0.98 | 0.28 - 1.06 | 0.66 | 0.24 - 0.90 |
+| kocoa-doom | 11 / 12 | 0.86 | 0.00 - 1.71 | 0.86 | 0.01 - 2.03 |
+| mochadoom | 12 / 12 | 0.71 | 0.00 - 1.86 | 0.96 | 0.01 - 2.31 |
+| doom-scheme | 9 / 12 | 0.47 | 0.00 - 0.84 | 0.49 | 0.21 - 0.69 |
 | doomf77 | 0 / 12 | - | - | - | - |
 | gore | 12 / 12 | 1.00 | 0.00 - 1.26 | 0.76 | 0.41 - 0.99 |
 

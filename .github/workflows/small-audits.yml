@@ -41,6 +41,10 @@ jobs:
     name: Small audits
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
 
     steps:
       - name: Check out repository code
@@ -49,7 +53,24 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      # #6278: skip the install and the audit when the PR changes only docs this audit cannot read
+      # (tests/tools/audit_skip_plan.py). The check still starts and reports; it fails open (mode=full).
+      - name: Plan the audit
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
+          mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
+          count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
+          args=(--profile small --event pull_request --labels "$labels" --github-output "$GITHUB_OUTPUT" --files)
+          if [ "${#files[@]}" -ge "$count" ]; then args+=("${files[@]}"); fi
+          python3 tests/tools/audit_skip_plan.py "${args[@]}" || echo "mode=full" >> "$GITHUB_OUTPUT"
+
       - name: Set up Python
+        if: ${{ steps.plan.outputs.mode != 'none' }}
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
@@ -61,20 +82,21 @@ jobs:
       # ast-accuracy-audit imports the package (regex extraction path only);
       # the other three are stdlib-only and do not need this install.
       - name: Install GitGalaxy (for ast-accuracy-audit)
+        if: ${{ steps.plan.outputs.mode != 'none' }}
         run: |
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
           pip install --no-build-isolation -e .
 
       - name: dead-key-audit -- baseline-gated regression check (#325)
-        if: always()
+        if: ${{ always() && steps.plan.outputs.mode != 'none' }}
         run: python tests/dead_key_audit.py --ci
 
       - name: ast-accuracy-audit -- baseline-gated regression check (#1200)
-        if: always()
+        if: ${{ always() && steps.plan.outputs.mode != 'none' }}
         run: python tests/ast_accuracy_audit.py --ci
 
       - name: signal-contract-audit -- baseline-gated contract check (docs/contract_roadmap.md Phase 1)
-        if: always()
+        if: ${{ always() && steps.plan.outputs.mode != 'none' }}
         run: python tests/signal_contract_audit.py --ci
 
       # Non-blocking (#330): flags any PR that modifies a golden-crucible fixture
@@ -83,7 +105,7 @@ jobs:
       # tests/tools/update_golden_master.py and be explained in the PR
       # description -- see CONTRIBUTING.md.
       - name: golden-master-guard -- flag golden fixture changes
-        if: always()
+        if: ${{ always() && steps.plan.outputs.mode != 'none' }}
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |

@@ -26,8 +26,12 @@ def test_rerun_verdicts_keep_only_jobs_that_failed_before_their_latest_attempt()
 def test_each_flaky_job_carries_why_its_first_attempt_failed(monkeypatch):
     class Stats:
         @staticmethod
-        def classify(jobs):
+        def classify(jobs, logs=None):
             return "registry_pull" if jobs[0]["name"].startswith("db2") else "test_failure"
+
+        @staticmethod
+        def scope_jobs(j, _attempt_jobs):
+            return [j]
 
     monkeypatch.setattr(fh, "ci_rerun_stats", Stats)
     v = fh.rerun_verdicts([job("db2 1/4", 1, "failure"), job("db2 1/4", 2, "success")])
@@ -152,3 +156,49 @@ def test_a_killed_refresh_keeps_every_finished_day(tmp_path, monkeypatch):
         pass
     assert sorted(fh.load(cache)["days"]) == ["2026-10-19", "2026-10-20"]
     assert "updated" not in fh.load(cache)
+
+
+def test_a_failed_db2_step_whose_log_shows_a_pull_failure_is_registry_pull_not_db2_start():  # #5603
+    failed = {
+        **job("db2 1/4", 1, "failure"),
+        "id": 7,
+        "steps": [{"name": "Wait for the first Db2 database", "conclusion": "failure"}],
+    }
+    jobs = [failed, job("db2 1/4", 2, "success")]
+    asked = []
+
+    def log(j):
+        asked.append(j["id"])
+        return "x " + fh.ci_rerun_stats.PULL_MARKER
+
+    assert fh.rerun_verdicts(jobs, log) == {"db2 1/4": (True, "registry_pull")}
+    assert fh.rerun_verdicts(jobs) == {"db2 1/4": (True, "db2_start")}  # no log reader: the old reading
+    assert asked == [7]  # one log, for the failed Db2 job only
+
+
+def _steps(*pairs):
+    return [{"name": n, "conclusion": c} for n, c in pairs]
+
+
+def test_a_gate_job_is_attributed_to_the_part_that_failed():
+    jobs = [
+        {**job("ground-truth", 1, "failure"), "steps": _steps(("Every part passed", "failure"))},
+        {**job("part 4/4", 1, "failure"), "steps": _steps(("Per-test time ratchet (#5166)", "failure"))},
+        job("ground-truth", 2, "success"),
+    ]
+    assert fh.rerun_verdicts(jobs)["ground-truth"] == (True, "ratchet")
+
+
+def test_a_rerun_of_a_superseded_run_is_not_counted_as_a_rescue():
+    def api(path):
+        if "/actions/runs?created=" in path:
+            return {"workflow_runs": [{"id": 1, "run_attempt": 2, "status": "completed"}] if "T00:" in path else []}
+        return {
+            "jobs": [
+                {**job("ground-truth", 1, "failure"), "steps": _steps(("Every part passed", "failure"))},
+                job("plan", 1, "cancelled"),
+                job("ground-truth", 2, "success"),
+            ]
+        }
+
+    assert fh.day_reruns(api, "2026-10-16") == {}

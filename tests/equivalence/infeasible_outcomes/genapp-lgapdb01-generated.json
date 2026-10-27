@@ -1,0 +1,22 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "genapp-lgapdb01-generated",
+  "entries": [
+    {
+      "unit": "MAINLINE",
+      "line": 223,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "The second `EVALUATE CA-REQUEST-ID` (the INSERT dispatch) is reached only after the first one (line 184), which has the same four WHEN values ('01AEND', '01AHOU', '01AMOT', '01ACOM') and answers every other request id with '99' and EXEC CICS RETURN. Between the two, nothing assigns CA-REQUEST-ID: the length check only reads EIBCALEN, and INSERT-POLICY moves only DB2-* host fields, EM-SQLREQ and CA-RETURN-CODE. So a task that reaches line 223 holds one of the four ids and its WHEN OTHER cannot run."
+    },
+    {
+      "unit": "WRITE-ERROR-MESSAGE",
+      "line": 581,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF EIBCALEN < 91` (the inner test of WRITE-ERROR-MESSAGE's COMMAREA copy) is true only for a call whose COMMAREA is 1 to 90 bytes. WRITE-ERROR-MESSAGE has two kinds of caller: the no-COMMAREA arm (line 165, EIBCALEN 0, so the outer `IF EIBCALEN > 0` is false) and the failing-SQL arms, which run after `IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN` (line 210) has passed. WS-REQUIRED-CA-LEN is 28 plus the request's full length (lgpolicy.cpy: endowment 124, house 130, motor 137, commercial 1174), so at least 152, and a call with EIBCALEN of 1 to 151 returns '98' before any SQL runs (the add-endowment-short scenario). EIBCALEN is therefore 0 or at least 152 on every path that PERFORMs WRITE-ERROR-MESSAGE."
+    }
+  ]
+}

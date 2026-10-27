@@ -49,6 +49,17 @@ DOCKER_STEP_TIMEOUT = (
     1200  # seconds: hang guard, well above the slowest honest run (normal GnuCOBOL compile + run step time (~15-30s))
 )
 DOCKER_CLEANUP_TIMEOUT = 30  # seconds: ~10x normal docker rm -f (<2s)
+# 2026-10-23: a fault probe looped forever under -ftraceall and its trace.txt grew ~75 MB/s in /tmp until the disk was
+# full (~100 GB); the harness's own timeout never fired because the worker's shell, and so the docker client, was killed
+# first, and the step ran on as root in its container. A step now bounds itself inside the container.
+STEP_FILE_LIMIT_KB = 4 * 1024 * 1024  # 4 GiB per file written (bash `ulimit -f` counts KiB); honest traces are a few MB
+
+
+def guarded(cmd: str, seconds: int) -> str:
+    """Shell `cmd` bounded inside its container: no file over STEP_FILE_LIMIT_KB (the writer gets SIGXFSZ, exit 153),
+    and killed after `seconds` even when the docker client that started it is gone (timeout's exit 124)."""
+    return f"ulimit -f {STEP_FILE_LIMIT_KB}; timeout -k 10 {seconds} {cmd}"
+
 
 # #5048: `docker build` fetches the digest-pinned base and runs apt, so a registry or mirror hiccup fails it
 BUILD_ATTEMPTS = 4
@@ -242,6 +253,29 @@ COBC_OPTIONS = {
 # reading or overwriting whatever GnuCOBOL's layout (not IBM's) puts next to the item. IBM's default has no SSRANGE.
 BOUND_FLAGS = ["-fec=EC-BOUND-SUBSCRIPT", "-fec=EC-BOUND-REF-MOD"]
 _BOUND_VIOLATION = re.compile(rb"libcob: [^\n]*?(subscript|offset|length) of '([^']+)' out of bounds[^\n]*")
+
+
+# X8, the zero-length case: IBM defines a reference modification of length 0 under SSRANGE(ZLEN) (APAR PI53044: the item
+# is empty, nothing is reported) and leaves it undefined under the default NOSSRANGE. A case whose program does it on
+# purpose (COTRTLIC's centred info message, COTRTUPC's 9500) says so in `zero_length_refmod` (the reason): GnuCOBOL's
+# own `ref-mod-zero-length` switch then lets length 0 through, an empty item whose MOVE changes nothing. Every other
+# bound check stays on: a subscript, an offset or a length past the item is still refused by name.
+ZERO_LENGTH_CONF = "zero-length-refmod.conf"
+
+
+def zero_length_refmod(case: dict[str, Any]) -> str:
+    """The reason a case gives for letting a reference modification of length 0 through (X8), else ""."""
+    reason = case.get("zero_length_refmod") or ""
+    if reason and (not isinstance(reason, str) or len(reason) < 20):
+        raise UnsupportedOption('"zero_length_refmod" must give the reason (the program does it on purpose, and where)')
+    return reason
+
+
+def stage_zero_length_conf(case: dict[str, Any], src: Path) -> None:
+    """Write the cobc configuration `-conf=/work/src/zero-length-refmod.conf` names (the IBM dialect plus the switch)
+    into the run's src directory, when the case opts in."""
+    if zero_length_refmod(case):
+        (src / ZERO_LENGTH_CONF).write_text('include "ibm.conf"\nref-mod-zero-length: yes\n', encoding="ascii")
 
 
 def bound_violation(said: bytes | str) -> str | None:
@@ -521,6 +555,8 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
     for u in [*opts.unhonoured(source, data_ccsid(case)), *opts.unhonoured_runtime(data_ccsid(case))]:
         if u["policy"] == "refuse":
             raise UnsupportedOption(f"{u['note']}, so the case cannot be proven")
+    if zero_length_refmod(case):  # X8: staged by stage_zero_length_conf; ahead of BOUND_FLAGS, which stay last
+        flags.append(f"-conf=/work/src/{ZERO_LENGTH_CONF}")
     flags.extend(BOUND_FLAGS)
     flags.extend(not_reserved_flags(source))
     blank = {n for n, _ in cards(source)}
@@ -1042,7 +1078,10 @@ def _docker_run(work: Path, image: str, docker_args: tuple[str, ...]) -> subproc
     # the step runs as root: what it wrote is handed back to the caller (chown), so a reused step can be
     # copied over it and the work directory removed (#4476: the copy over a root-owned pass-1 file was refused)
     owner = f"{os.getuid()}:{os.getgid()}" if hasattr(os, "getuid") else "0:0"
-    keep_status = 'bash /work/run.sh; rc=$?; chown -R "$0" /work 2>/dev/null; exit $rc'
+    # the in-container limit fires before the client's, so a step whose caller died still stops
+    keep_status = (
+        guarded("bash /work/run.sh", DOCKER_STEP_TIMEOUT - 30) + '; rc=$?; chown -R "$0" /work 2>/dev/null; exit $rc'
+    )
     cid = f"gg-eq-{os.getpid()}-{int(time.time() * 1000) % 10000000}"
     cmd = [
         "docker",

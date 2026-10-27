@@ -88,6 +88,7 @@ ALLOWLIST = {
     "TYPEFILE": "CSD DEFINE TDQUEUE option parsed from the deck's operand text (messaging forge _TD_ATTR, #5168)",
     "INDIRECTNAME": "CSD DEFINE TDQUEUE option parsed from the deck's operand text (messaging forge _TD_ATTR, #5168)",
     "OPENTIME": "CSD DEFINE TDQUEUE option parsed from the deck's operand text (messaging forge _TD_ATTR, #5168)",
+    "DSN": "JCL DD keyword parsed from the deck's operand text (core/job_flow.py `_split`); the audit report writes its label from the AUDIT_SECTIONS table (#3383)",
     "COUNTER": "EXEC CICS option keyword parsed from source (det/cics.py parse_exec: GET COUNTER)",
     # --- Parsed source keywords (not a producer/consumer dict contract) ---
     # cics_tasks.py (#3449) keys `opts` by the option words of the EXEC CICS

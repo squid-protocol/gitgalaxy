@@ -16,6 +16,8 @@ on:
     branches: [main]
     paths:
       - "gitgalaxy/**"
+      # #6278 slice 4: a standalone tool nothing here imports (test_engine_reach_workflows.py proves it from the import closure)
+      - "!gitgalaxy/tools/terabyte_log_scanning/**"
       - "pyproject.toml"
       - "tests/cics_crucible/ports/**"
       - "tests/equivalence/*/port/**"
@@ -30,6 +32,8 @@ on:
       - "tests/tools/equivalence_cache.py"
       - "tests/tools/java_target_matrix.py"
       - "tests/tools/mainframe_corpus.py"
+      - "scripts/check_assess_install.py"  # #4726: the clean-install check step below
+      - "tests/tools/assess_install_plan.py"  # #6672: plans that step on a PR
       - ".github/workflows/ports-compile.yml"
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
   # #5131/#5136: no main push trigger. post-merge.yml dispatches this on main (at most once per cadence window, only
@@ -51,6 +55,9 @@ jobs:
     name: committed ports compile
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    permissions:
+      contents: read
+      pull-requests: read  # #6672: the PR's changed files (with their status) plan the clean-install step
     env:
       GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
       PYTHONUTF8: "1"
@@ -90,13 +97,14 @@ jobs:
           pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Setup JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Cache Maven dependencies
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: maven_dependencies
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
           key: ports-compile-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
@@ -144,6 +152,43 @@ jobs:
           python tests/tools/port_surface.py equivalence --work "$RUNNER_TEMP/port_surface" --check
         shell: bash
 
+      # #4726: `gitgalaxy assess` installs and runs on a clean machine, from wheels, on every burned estate. Rides this job
+      # because it already has the checkout and the pinned corpora; no new trigger or matrix. The script builds the wheel
+      # from the checkout and installs it into a fresh venv with --no-index; the wheelhouse (the translator extra's wheels)
+      # is built here, with network, so the translate-only dry run is on.
+      # #6672: on a PR it runs only when a changed file can break the install (tests/tools/assess_install_plan.py:
+      # packaging, the assess command, a file added / removed / renamed under gitgalaxy/, a shipped data file). Main
+      # dispatch and the nightly always run it; an unreadable or short file list, or a failed plan, runs it too.
+      - name: Plan the clean-install check
+        id: assess_plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          cd gitgalaxy
+          args=(--event "$EVENT" --github-output "$GITHUB_OUTPUT")
+          if [ "$EVENT" = "pull_request" ]; then
+            # the PR's files from the API, whole or not at all (as equivalence-e2e.yml's plan): a short list runs the check
+            gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | "\(.status)\t\(.filename)"' > "$RUNNER_TEMP/pr_files.tsv" || : > "$RUNNER_TEMP/pr_files.tsv"
+            count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
+            if [ "$count" -gt 0 ] && [ "$(wc -l < "$RUNNER_TEMP/pr_files.tsv")" -ge "$count" ]; then
+              args+=(--files-tsv "$RUNNER_TEMP/pr_files.tsv")
+            fi
+          fi
+          python3 tests/tools/assess_install_plan.py "${args[@]}" > "$RUNNER_TEMP/assess_plan.json" || echo "run=true" >> "$GITHUB_OUTPUT"
+          { echo "## Clean-install check plan"; echo '```json'; cat "$RUNNER_TEMP/assess_plan.json"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
+
+      - name: Assess clean-install check (burned estates, translator from a wheelhouse)
+        if: steps.assess_plan.outputs.run != 'false'
+        run: |
+          cd gitgalaxy
+          pip wheel "./[translator]" -w "$RUNNER_TEMP/wheelhouse"
+          python scripts/check_assess_install.py --wheelhouse "$RUNNER_TEMP/wheelhouse" --estates "$GITGALAXY_MAINFRAME_CORPORA"
+        shell: bash
+
       - name: Summary
         if: always()
         run: |
@@ -153,3 +198,12 @@ jobs:
             grep -E '^(ok|FAIL|all |[0-9]+ of|  - )' "$RUNNER_TEMP/ports_compile.txt" 2>/dev/null || echo "(no output)"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the Maven dependencies to the cache
+        if: success() && github.event_name != 'pull_request' && steps.maven_dependencies.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: ports-compile-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}

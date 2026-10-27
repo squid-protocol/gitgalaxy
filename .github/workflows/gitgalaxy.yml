@@ -4,7 +4,6 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]  # #5104: a draft starts only the cheap audits
     branches: [main]
-    paths-ignore: ["docs/**"]
   # The post-gate (SARIF / SBOM / LLM brief) used to run on every push to main.
   # With the docs-auto-update bots merging ~40x/day (see the LLM-brief loop
   # below), that meant ~40 full-precision galaxyscope runs/day here AND ~40
@@ -48,12 +47,34 @@ jobs:
     name: Pre-gate (Vault Sentinel, X-Ray, Supply Chain)
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
+      # #6278: no workflow-level `paths-ignore: docs/**` (it also skipped the tests that read docs); this step skips the
+      # three gates when the PR changes only docs / agent config that hold no code or manifest (tests/tools/audit_skip_plan.py).
+      # The job still starts and reports; the planner fails open (mode=full).
+      - name: Plan the gates
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          labels=$(gh api "repos/$REPO/issues/$PR/labels" --jq '[.[].name] | join(",")' || echo "shepherd:full")
+          mapfile -t files < <(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)' || true)
+          count=$(gh api "repos/$REPO/pulls/$PR" --jq .changed_files || echo 0)
+          args=(--profile gate --event pull_request --labels "$labels" --github-output "$GITHUB_OUTPUT" --files)
+          if [ "${#files[@]}" -ge "$count" ]; then args+=("${files[@]}"); fi
+          python3 tests/tools/audit_skip_plan.py "${args[@]}" || echo "mode=full" >> "$GITHUB_OUTPUT"
+
       - name: Vault Sentinel
+        if: ${{ steps.plan.outputs.mode != 'none' }}
         uses: ./
         with:
           tool: vault-sentinel
@@ -61,7 +82,7 @@ jobs:
           version: local
 
       - name: X-Ray Inspector
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.plan.outputs.mode != 'none' }}
         uses: ./
         with:
           tool: xray-inspector
@@ -69,7 +90,7 @@ jobs:
           version: local
 
       - name: Supply Chain Firewall
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.plan.outputs.mode != 'none' }}
         uses: ./
         with:
           tool: supply-chain-firewall
@@ -137,7 +158,7 @@ jobs:
         run: python tests/tools/ci_job_summary.py gitgalaxy-results_audit.json --sbom gitgalaxy-results_sbom.json
 
       - name: Upload SARIF to GitHub Security Tab   # unchanged
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4
         with:
           sarif_file: gitgalaxy-results_sarif.json
 

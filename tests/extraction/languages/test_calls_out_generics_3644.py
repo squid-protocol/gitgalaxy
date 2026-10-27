@@ -96,7 +96,7 @@ def test_generic_calls_reach_calls_out():
     cpp = "void run(int a) {\n    auto x = static_cast<int>(a);\n    auto d = Object::cast_to<EditorDock>(w);\n}\n"
     funcs = _functions("cpp", cpp)
     assert funcs["run"]["calls_out_to"] == ["static_cast", "cast_to"]
-    assert funcs["run"]["calls_out_qualifiers"]["cast_to"] == ["Object"]
+    assert funcs["run"]["calls_out_qualifiers"]["cast_to"] == ["::Object"]
     ts = "function f() {\n  const x = new Array<ExpressionRef>();\n  return helper<number>(1);\n}\n"
     assert _calls("typescript", ts)["f"] == ["Array", "helper"]
     cs = "class C {\n  public int F(int a) {\n    var l = new List<int>();\n    return Go<string>(a);\n  }\n}\n"

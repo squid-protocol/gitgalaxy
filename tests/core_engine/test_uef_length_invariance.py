@@ -146,7 +146,8 @@ def test_no_cliff_at_the_floor(processor, fname, tier):
 
 # Pinned at 51 coding LOC, popularity 0, doc_loc 2, mp 1.0 -- one line past the
 # evidence-mass floor, where the density regime must not move by a rounding step.
-# Provenance: taken from origin/main before #2655; safety re-pinned in #2718 (the
+# Provenance: taken from origin/main before #2655; safety re-pinned in #4548 item 6 (sigmoid slope
+# 12 -> 4) and in #2718 (the
 # 0.75 systems buffer retired, #2717) and documentation in #2718/#2719 (rule hits
 # alone carry fidelity; per-file dynamism replaced the language irc); cognitive
 # load, concurrency and state flux re-pinned in #2719 (dynamism in heat_density,
@@ -157,7 +158,7 @@ def test_no_cliff_at_the_floor(processor, fname, tier):
 PRE_2655_AT_51 = {
     ("tier1", "main"): {
         "cog": 4.7642,
-        "safety": 79.1701,
+        "safety": 60.9467,
         "debt": 0.0,
         "doc": 100.0,
         "api": 6.5172,
@@ -166,7 +167,7 @@ PRE_2655_AT_51 = {
     },
     ("tier1", "a"): {
         "cog": 0.0,
-        "safety": 54.2153,
+        "safety": 51.4081,
         "debt": 0.0,
         "doc": 100.0,
         "api": 9.8496,
@@ -175,7 +176,7 @@ PRE_2655_AT_51 = {
     },
     ("tier1", "b"): {
         "cog": 0.0,
-        "safety": 66.2858,
+        "safety": 55.6101,
         "debt": 0.0,
         "doc": 100.0,
         "api": 9.8496,
@@ -193,7 +194,7 @@ PRE_2655_AT_51 = {
     },
     ("tier3", "main"): {
         "cog": 5.229,
-        "safety": 89.908,
+        "safety": 67.4589,
         "debt": 0.0,
         "doc": 100.0,
         "api": 6.5172,
@@ -202,7 +203,7 @@ PRE_2655_AT_51 = {
     },
     ("tier3", "a"): {
         "cog": 0.0,
-        "safety": 77.1518,
+        "safety": 60.004,
         "debt": 0.0,
         "doc": 100.0,
         "api": 9.8496,
@@ -211,7 +212,7 @@ PRE_2655_AT_51 = {
     },
     ("tier3", "b"): {
         "cog": 0.0,
-        "safety": 82.0704,
+        "safety": 62.4113,
         "debt": 0.0,
         "doc": 100.0,
         "api": 9.8496,

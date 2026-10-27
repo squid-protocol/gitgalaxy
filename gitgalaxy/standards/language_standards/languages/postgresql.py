@@ -74,6 +74,9 @@ DEFINITION: dict[str, Any] = {
     # Mode E units are statement buckets, so the positional contract applies as for db2_sql/sqlite
     # (#2866 corollary 4; the language-addition audit enforces it for every Mode E slicer).
     "invocation_model": "positional",
+    # #5736: `CALL name` sites leaving the file reach call_site_data (mainframe_boundary's `sql` dialect, shared with
+    # db2_sql). TOP LEVEL, not `rules`: language_lens compiles every string value inside `rules` (#2806).
+    "boundary_extraction": "sql",
     "rules": {
         "calls_out": _db2_sql._SQL_CALLS_OUT,
         # branch: PL/pgSQL control (IF / ELSIF / ELSE, CASE and WHEN arms, LOOP

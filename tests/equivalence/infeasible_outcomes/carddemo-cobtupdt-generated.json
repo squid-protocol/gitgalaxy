@@ -1,0 +1,38 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-cobtupdt-generated",
+  "entries": [
+    {
+      "unit": "0001-OPEN-FILES",
+      "line": 84,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-INF-STATUS = '00'` after `OPEN INPUT TR-RECORD` (83) is false only when the OPEN of INPFILE returns another file status. MNTTRDB2 STEP1 allocates INPFILE with a cataloged dataset the step reads (DISP=SHR); a DD that does not allocate fails the step in allocation, before COBTUPDT starts, so the program never sees status 35/37, and the case's INPFILE is an existing fixed 53-byte sequential file, which opens with '00'. A harness that omits the dataset tests the allocator, not this program, and IBM and GnuCOBOL answer differently there, so it is not stated as a scenario."
+    },
+    {
+      "unit": "10031-INSERT-DB",
+      "line": 151,
+      "kind": "EVALUATE",
+      "outcome": "none",
+      "family": "R",
+      "reason": "`EVALUATE TRUE` at 151 has no WHEN OTHER and falls through only for a positive SQLCODE that no WHEN names (> 0). The arms are `= ZERO` (152) and `< 0` (154). Db2 answers a single-row statement with host variables only 0, a negative error or, for UPDATE and DELETE, +100 (Db2 SQL Reference, SQLCODE values: +100 is 'no row found'; INSERT ... VALUES raises no +100 and these statements carry no warning-class SQLCODE), so every answer lands in a WHEN. The proof's Db2 is the oracle: its SQLCODE is compared statement by statement (compare_sql) and none of the generated or hand-written runs returns another positive code."
+    },
+    {
+      "unit": "10032-UPDATE-DB",
+      "line": 177,
+      "kind": "EVALUATE",
+      "outcome": "none",
+      "family": "R",
+      "reason": "`EVALUATE TRUE` at 177 has no WHEN OTHER and falls through only for a positive SQLCODE that is neither +100 nor negative. The arms are `= ZERO` (178), `= +100` (180) and `< 0` (185). Db2 answers a single-row statement with host variables only 0, a negative error or, for UPDATE and DELETE, +100 (Db2 SQL Reference, SQLCODE values: +100 is 'no row found'; INSERT ... VALUES raises no +100 and these statements carry no warning-class SQLCODE), so every answer lands in a WHEN. The proof's Db2 is the oracle: its SQLCODE is compared statement by statement (compare_sql) and none of the generated or hand-written runs returns another positive code."
+    },
+    {
+      "unit": "10033-DELETE-DB",
+      "line": 207,
+      "kind": "EVALUATE",
+      "outcome": "none",
+      "family": "R",
+      "reason": "`EVALUATE TRUE` at 207 has no WHEN OTHER and falls through only for a positive SQLCODE that is neither +100 nor negative. The arms are `= ZERO` (208), `= +100` (210) and `< 0` (216). Db2 answers a single-row statement with host variables only 0, a negative error or, for UPDATE and DELETE, +100 (Db2 SQL Reference, SQLCODE values: +100 is 'no row found'; INSERT ... VALUES raises no +100 and these statements carry no warning-class SQLCODE), so every answer lands in a WHEN. The proof's Db2 is the oracle: its SQLCODE is compared statement by statement (compare_sql) and none of the generated or hand-written runs returns another positive code."
+    }
+  ]
+}

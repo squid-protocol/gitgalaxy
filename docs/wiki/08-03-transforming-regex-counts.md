@@ -33,10 +33,10 @@ A regex sees different amounts in different languages, so a raw count is not com
 | what it corrects for | where the truth lives | the input | replaces |
 |---|---|---|---|
 | **Our rules catch less in some languages.** A `safety` rule that fires 3 times on 2 planted constructs over-credits every hit. | Measured. keyword-rosetta plants identical defence in every language and records what each rule found. | $Fc_s = \min(1,\ planted_s / measured_s)$ per language **and per signal**, generated into `gitgalaxy/standards/fidelity_table.py`. Under-firing stays at 1.0 — that is a rule to fix, and a coefficient that compensates for a fixable gap is a way to stop fixing it. | the single per-language $Fc$, and `_calc_safety`'s `systems_buffer_ratio` |
-| **This language lets you leave things unsaid.** Unenforced error paths, implicit globals, no memory safety, no static types. | The language specification — objective yes/no columns, checkable against documentation. | `analysis_lens.LANGUAGE_STRICTNESS`: one row per language; $Irc$ = number of gaps (0–4), $Ot = 1 + 0.1 \cdot Irc$. Data, markup and configuration formats have no runtime and carry **no** term. Dialects resolve through `LANGUAGE_FAMILY`. | the tier lists |
+| **This language lets you leave things unsaid.** Unenforced error paths, implicit globals, no memory safety, no static types. | The language specification — objective yes/no columns, checkable against documentation. | `analysis_lens.LANGUAGE_STRICTNESS`: one row per language; $Irc$ = gaps × `STRICTNESS_IRC_PER_GAP`, $Ot = 1 +$ gaps × `STRICTNESS_OT_PER_GAP`, both weights **zero** since the #2720 pilot (the table is documentation). Data, markup and configuration formats have no runtime and carry **no** term. Dialects resolve through `LANGUAGE_FAMILY`. | the tier lists |
 | **This file does runtime-dynamic things a regex cannot follow.** `eval`, reflection, dynamic dispatch. | The file — these are already registry signals, counted per file, and since #2908 per unit. | `SignalProcessor._dynamism()` = the file's `reflection_metaprogramming` count (`high_risk_execution` is the safety attack vocabulary and stays there), read by cognitive load (as heat). Documentation moved it a level lower (#2908 Phase 3): each unit's own reflection count raises the weight of *that* unit in the coverage ratio. Concurrency and state flux lost their language term outright; safety and tech debt keep the strictness $Irc$ with a stated reason each (#2719). | the flat $Irc$ in four of the six equations |
 
-Two invariants bound the mechanism. $Irc$ *corrects* measured risk and never creates it: zero measured evidence scores zero in every language (#2655). And the weight on the strictness term is provisional — nothing in the system can validate a language-level shift yet (keyword-rosetta's null hypothesis *is* "no correction", the crucible has no risk labels), so #2720 pilots an outcome fixture before that weight is trusted with more than it carries now.
+Two invariants bound the mechanism. $Irc$ *corrects* measured risk and never creates it: zero measured evidence scores zero in every language (#2655). And the weight on the strictness term is zero: the #2720 outcome-label pilot found no consistent predictive value at equal measured evidence (pooled fix-rate ratio 0.67, opposite to the table, with per-repo signs disagreeing; memo on #2716), so the owner set it to zero on 2026-10-23. The per-file dynamism term (#2719) did predict later fixes (about 1.27×) and keeps its weight. A non-zero strictness weight needs a measured effect, not a re-tune.
 
 The tables the engine actually reads are rendered below from the data files, never typed by hand — a hand-written copy is how the repo once carried two tier tables that disagreed for twenty languages.
 
@@ -45,69 +45,76 @@ The tables the engine actually reads are rendered below from the data files, nev
 <!-- generated:strictness -->
 | language | static types | enforced errors | memory safe | no implicit globals | Irc | Ot |
 |---|---|---|---|---|---|---|
-| `abap` | yes | **no** | yes | yes | 1 | 1.10 |
-| `ada` | yes | **no** | yes | yes | 1 | 1.10 |
-| `agc_assembly` | **no** | **no** | **no** | **no** | 4 | 1.40 |
-| `apex` | yes | **no** | yes | yes | 1 | 1.10 |
-| `assembly` | **no** | **no** | **no** | **no** | 4 | 1.40 |
-| `batch` | **no** | **no** | yes | **no** | 3 | 1.30 |
+| `abap` | yes | **no** | yes | yes | 0 | 1.00 |
+| `acs` | **no** | **no** | yes | yes | 0 | 1.00 |
+| `ada` | yes | **no** | yes | yes | 0 | 1.00 |
+| `agc_assembly` | **no** | **no** | **no** | **no** | 0 | 1.00 |
+| `apex` | yes | **no** | yes | yes | 0 | 1.00 |
+| `assembly` | **no** | **no** | **no** | **no** | 0 | 1.00 |
+| `batch` | **no** | **no** | yes | **no** | 0 | 1.00 |
 | `blp` *(no runtime)* | — | — | — | — | 0 | 1.00 |
 | `bms` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `c` | yes | **no** | **no** | yes | 2 | 1.20 |
-| `cobol` | yes | **no** | yes | **no** | 2 | 1.20 |
-| `cpp` | yes | **no** | **no** | yes | 2 | 1.20 |
-| `csharp` | yes | **no** | yes | yes | 1 | 1.10 |
+| `c` | yes | **no** | **no** | yes | 0 | 1.00 |
+| `cobol` | yes | **no** | yes | **no** | 0 | 1.00 |
+| `cpp` | yes | **no** | **no** | yes | 0 | 1.00 |
+| `crystal` | yes | yes | yes | yes | 0 | 1.00 |
+| `csd` *(no runtime)* | — | — | — | — | 0 | 1.00 |
+| `csharp` | yes | **no** | yes | yes | 0 | 1.00 |
 | `css` *(no runtime)* | — | — | — | — | 0 | 1.00 |
 | `csv` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `dart` | yes | **no** | yes | yes | 1 | 1.10 |
-| `db2_sql` | yes | **no** | yes | yes | 1 | 1.10 |
-| `dockerfile` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `fortran` | yes | **no** | **no** | **no** | 3 | 1.30 |
-| `glsl` | yes | **no** | yes | yes | 1 | 1.10 |
-| `go` | yes | **no** | yes | yes | 1 | 1.10 |
-| `groovy` | **no** | **no** | yes | **no** | 3 | 1.30 |
+| `dart` | yes | **no** | yes | yes | 0 | 1.00 |
+| `db2_sql` | yes | **no** | yes | yes | 0 | 1.00 |
+| `dockerfile` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `easytrieve` | yes | **no** | yes | **no** | 0 | 1.00 |
+| `fortran` | yes | **no** | **no** | **no** | 0 | 1.00 |
+| `fsharp` | yes | **no** | yes | yes | 0 | 1.00 |
+| `glsl` | yes | **no** | yes | yes | 0 | 1.00 |
+| `go` | yes | **no** | yes | yes | 0 | 1.00 |
+| `groovy` | **no** | **no** | yes | **no** | 0 | 1.00 |
 | `haskell` | yes | yes | yes | yes | 0 | 1.00 |
-| `hlasm` | **no** | **no** | **no** | **no** | 4 | 1.40 |
+| `hlasm` | **no** | **no** | **no** | **no** | 0 | 1.00 |
 | `hlo` *(no runtime)* | — | — | — | — | 0 | 1.00 |
 | `html` *(no runtime)* | — | — | — | — | 0 | 1.00 |
 | `java` | yes | yes | yes | yes | 0 | 1.00 |
-| `javascript` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `jcl` | **no** | **no** | yes | **no** | 3 | 1.30 |
+| `javascript` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `jcl` | **no** | **no** | yes | **no** | 0 | 1.00 |
 | `json` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `kotlin` | yes | **no** | yes | yes | 1 | 1.10 |
-| `livecode` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `lua` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `m4` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `makefile` | **no** | **no** | yes | **no** | 3 | 1.30 |
+| `kotlin` | yes | **no** | yes | yes | 0 | 1.00 |
+| `livecode` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `lua` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `m4` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `makefile` | **no** | **no** | yes | **no** | 0 | 1.00 |
 | `markdown` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `matlab` | **no** | **no** | yes | yes | 2 | 1.20 |
+| `matlab` | **no** | **no** | yes | yes | 0 | 1.00 |
 | `mlir` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `nix` | **no** | **no** | yes | yes | 2 | 1.20 |
-| `objective-c` | yes | **no** | **no** | yes | 2 | 1.20 |
+| `nix` | **no** | **no** | yes | yes | 0 | 1.00 |
+| `objective-c` | yes | **no** | **no** | yes | 0 | 1.00 |
 | `pbtxt` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `perl` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `php` | **no** | **no** | yes | yes | 2 | 1.20 |
+| `perl` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `php` | **no** | **no** | yes | yes | 0 | 1.00 |
 | `plaintext` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `pli` | yes | **no** | **no** | **no** | 3 | 1.30 |
-| `powershell` | **no** | **no** | yes | yes | 2 | 1.20 |
+| `pli` | yes | **no** | **no** | **no** | 0 | 1.00 |
+| `postgresql` | yes | **no** | yes | yes | 0 | 1.00 |
+| `powershell` | **no** | **no** | yes | yes | 0 | 1.00 |
 | `proto` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `python` | **no** | **no** | yes | yes | 2 | 1.20 |
-| `rexx` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `ruby` | **no** | **no** | yes | yes | 2 | 1.20 |
+| `python` | **no** | **no** | yes | yes | 0 | 1.00 |
+| `rexx` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `ruby` | **no** | **no** | yes | yes | 0 | 1.00 |
 | `rust` | yes | yes | yes | yes | 0 | 1.00 |
-| `scala` | yes | **no** | yes | yes | 1 | 1.10 |
-| `scheme` | **no** | **no** | yes | yes | 2 | 1.20 |
-| `shell` | **no** | **no** | yes | **no** | 3 | 1.30 |
-| `solidity` | yes | **no** | yes | yes | 1 | 1.10 |
-| `sqlite` | **no** | **no** | yes | yes | 2 | 1.20 |
+| `scala` | yes | **no** | yes | yes | 0 | 1.00 |
+| `scheme` | **no** | **no** | yes | yes | 0 | 1.00 |
+| `shell` | **no** | **no** | yes | **no** | 0 | 1.00 |
+| `solidity` | yes | **no** | yes | yes | 0 | 1.00 |
+| `sqlite` | **no** | **no** | yes | yes | 0 | 1.00 |
 | `swift` | yes | yes | yes | yes | 0 | 1.00 |
-| `tcl` | **no** | **no** | yes | yes | 2 | 1.20 |
+| `tcl` | **no** | **no** | yes | yes | 0 | 1.00 |
 | `td` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `typescript` | yes | **no** | yes | yes | 1 | 1.10 |
+| `typescript` | yes | **no** | yes | yes | 0 | 1.00 |
 | `xml` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `yacc` | **no** | **no** | **no** | **no** | 4 | 1.40 |
+| `yacc` | **no** | **no** | **no** | **no** | 0 | 1.00 |
 | `yaml` *(no runtime)* | — | — | — | — | 0 | 1.00 |
-| `zig` | yes | yes | **no** | yes | 1 | 1.10 |
+| `zig` | yes | yes | **no** | yes | 0 | 1.00 |
+| `zscript` | yes | **no** | yes | yes | 0 | 1.00 |
 
 Dialects read their family's row: `embedded_python` → `python`, `micropython` → `python`.
 <!-- /generated:strictness -->
@@ -118,7 +125,7 @@ Dialects read their family's row: `embedded_python` → `python`, `micropython` 
 | language | `safety` | `test` | `doc` | `ownership` |
 |---|---|---|---|---|
 
-Every language and signal not listed reads 1.00. Source: keyword-rosetta `83fd3487` (51 languages), regenerated by `tests/tools/fidelity_table.py`.
+Every language and signal not listed reads 1.00. Source: keyword-rosetta `c45713c0` (56 languages), regenerated by `tests/tools/fidelity_table.py`.
 <!-- /generated:fidelity -->
 
 ## Pipeline Integration
@@ -139,7 +146,7 @@ The sigmoid gating principle aggressively suppresses minor risks in large files,
 Processing utilizes constant-time floating-point math per file component, resulting in $O(1)$ metric transformation time per unit post-extraction.
 
 ## Future Work
-- Outcome calibration of the strictness weight against fix-commit history (#2720); the fidelity coefficients are already measured, not tuned.
+- A strictness weight above zero only with a measured effect: #2720's pilot found none (and could not test COBOL); the fidelity coefficients are already measured, not tuned.
 - Configurable Breach Cap thresholds per repository.
 
 ## Related Components

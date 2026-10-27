@@ -15,6 +15,13 @@ on:
     branches: [main, v6-dev]
     paths:
       - "gitgalaxy/**"
+      # #6278 slice 4: this job only scans. The scan never imports the COBOL-to-Java translator or its controllers (the same
+      # exclusions as the ground-truth scan key, test_engine_reach_workflows.py pins them); det/copy stays, a scan reads it.
+      - "!gitgalaxy/tools/cobol_to_java/*"
+      - "!gitgalaxy/tools/cobol_to_java/det/*"
+      - "!gitgalaxy/tools/cobol_to_java/det/cobolrt/**"
+      - "!gitgalaxy/cobol_to_java_controller.py"
+      - "!gitgalaxy/cobol_refractor_controller.py"
       - "pyproject.toml"
       - "tests/tools/unicode_gauntlet.py"
       - "tests/unicode_gauntlet/**"
@@ -34,7 +41,9 @@ concurrency:
 
 jobs:
   gauntlet:
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
+    # #6670: not on a PR (it never failed on one in 7 days; pr_gates.py runs it before a push). The pull_request trigger
+    # stays for its `paths`: post_merge_dispatch.py reads them as this workflow's relevance filter on main.
+    if: ${{ github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

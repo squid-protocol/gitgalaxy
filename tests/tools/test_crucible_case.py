@@ -89,10 +89,12 @@ def test_events_table_matches_the_crucible_schema():
     table = {}
     for alt in schema["$defs"]["event"]["oneOf"]:
         props, req = alt["properties"], alt["required"]
-        table[props["event"]["const"]] = (
-            {k for k in req if k not in ("event", "program")},
-            {k for k in props if k not in req and k != "note"},
-        )
+        # an alternative names one event (`const`) or several that share a shape (`enum`, READNEXT / READPREV)
+        for kind in props["event"].get("enum") or [props["event"]["const"]]:
+            table[kind] = (
+                {k for k in req if k not in ("event", "program")},
+                {k for k in props if k not in req and k not in ("note", "event", "program")},
+            )
     mine = {k: (set(r), set(o)) for k, (r, o) in ev.EVENTS.items()}
     assert table == mine
 

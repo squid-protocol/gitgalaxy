@@ -1,0 +1,8 @@
+{
+ "format": "det-port-provenance/1",
+ "program": "COPAUS0C",
+ "translator": "det",
+ "written_by": "the deterministic translator (gitgalaxy/tools/cobol_to_java/det), no model and no person",
+ "command": "python tests/tools/det_port.py run carddemo-copaus0c --faults none --work DIR",
+ "files": "service/ only; the cobolrt runtime is laid from this checkout at proof time (equivalence_java.det_runtime)"
+}

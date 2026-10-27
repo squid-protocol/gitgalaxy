@@ -1,0 +1,29 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-inqcust",
+  "entries": [
+    {
+      "unit": "AH999",
+      "kind": "PARAGRAPH",
+      "outcome": "entered",
+      "family": "G",
+      "reason": "AH999 (l.560, EXIT) is entered only by falling out of `IF WS-STORM-DRAIN = 'N'` (l.552): the true arm ends in EXEC CICS ABEND, which does not return, and the false arm needs WS-STORM-DRAIN 'Y', which only the AFCR/AFCS/AFCT arm sets and that arm ends in EXEC CICS RETURN (see the entry for l.552). Nothing PERFORMs or GO TOs AH999."
+    },
+    {
+      "unit": "RCV010",
+      "line": 357,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-CICS-RESP NOT = DFHRESP(NORMAL)` (l.357) is false only if the READ of CUSTOMER left WS-CICS-RESP NORMAL, and every path that sees NORMAL has already left: the first READ's NORMAL goes to RCV999 (l.273-280), the SYSIDERR retry loop's READ answering NORMAL goes to RCV999 (l.296-301), and the NOTFND arms (l.311-350) all GO TO RCV999 without changing WS-CICS-RESP. Only a non-NORMAL RESP reaches l.357."
+    },
+    {
+      "unit": "AH010",
+      "line": 552,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF WS-STORM-DRAIN = 'N'` (l.552) is false only when WS-STORM-DRAIN is 'Y'. It starts 'N' (l.117) and is set 'Y' only in the WHEN 'AFCR'/'AFCS'/'AFCT' arm of EVALUATE MY-ABEND-CODE (l.456), which ends in EXEC CICS RETURN (l.547) before END-EVALUATE (l.550), so l.552 is never reached with 'Y'."
+    }
+  ]
+}

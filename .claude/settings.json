@@ -26,6 +26,11 @@
     ],
     "additionalDirectories": [
       "/tmp/gh-issues"
+    ],
+    "deny": [
+      "Bash(gh pr merge *)",
+      "Bash(git reset --hard *)",
+      "Bash(git reset --hard)"
     ]
   },
   "hooks": {

@@ -54,8 +54,7 @@ baseline-gated audits / `crucible_check.py` before pushing anything that touches
   when the stack lands, or say so. Stacked PRs run few CI checks until retargeted to main.
 - Text with backticks (PR bodies, commit messages, rulings) goes through a quoted heredoc
   (`<<'EOF'`) or a file, never an unquoted heredoc or a double-quoted `-c` string.
-- Third-party code, papers or tools: follow `docs/research/third-party-material-policy.md` (ideas
-  only, never their code; stop and ask the owner on anything legally questionable).
+- Third-party code, papers or tools: `docs/research/third-party-material-policy.md` (ideas only, never their code; ask the owner if legally questionable).
 - Agent knowledge (lessons, traps, owner policy) lives in the repo, not personal memory:
   `.claude/rules/agent-memory.md`.
 
@@ -131,6 +130,9 @@ has no stubs and fails. Import lazily inside the function.
 - **Every engine or forge defect found on a mainframe estate is logged in
   `tests/cobol_mainframe/field_testing.json`, in the same PR that finds or fixes it** (CI fails on an invalid record or
   stale report; regenerate with `tests/tools/field_testing.py report --write`). Quote coverage only from that report.
+- **Every port-side blocker (det port, transaction forge, facade, harness, runtime) goes in
+  `tests/cobol_mainframe/port_blockers.json` the same way** (regenerate with `tests/tools/port_blockers.py report --write`;
+  `test_port_blockers.py` fails on an invalid ledger or stale page, #5051).
 - Porting loop (`porting-loop` skill) and deterministic port (`det-port` skill; after a translator change run
   `det_port.py check --work DIR` and re-prove exactly the ports it lists).
 - Full text (tiers, cross-verify, oracle register, #5057 render rule, epic #3445): `docs/agents/mainframe.md`.
@@ -180,6 +182,13 @@ mode's venv: from your default shell it silently updates just one fixture (#2547
   Their local runners need the main `.venv` on PATH and refuse to pass on zero languages checked.
 - Full protocol, conflict handling (`golden_store.py export`), runner commands: `docs/agents/differential-scan.md`.
 
+## Changing CI to make it faster or cheaper
+
+Read `docs/ci_experiments_log.md` first: what has been tried, measured and dropped (and why), so a dead end is not
+re-proposed. The pool of ~20 concurrent runners is the limit, so judge a change by the **slot-minutes** it frees (a
+queued job holds no slot), not by how many runner requests it removes. Add an entry, with the measurement and its
+sample, in the PR that makes the change.
+
 ## Re-running the OS x Python matrix
 
 `full-suite-gate.yml` runs on the `labeled` event only, so commits pushed after labelling never go through the
@@ -201,18 +210,14 @@ matrix. After pushing to a labelled PR: `gh workflow run "Full Suite Gate (All O
 
 ## Issue generation and pipeline/CI triage
 
-Two subagents with pinned models are set up for this so routine triage doesn't burn main-context
-tokens or a premium model: `.claude/agents/issue-triage.md` (filing well-formed GitHub issues
-from findings) and `.claude/agents/pipeline-manager.md` (CI status / Dependabot triage — reports
-recommendations, never merges/closes/pushes on its own authority). Invoke via the
-`issue-generation` and `pipeline-check` skills, or the Agent tool directly.
+Pinned-model subagents keep routine triage off the main context: `.claude/agents/issue-triage.md` (files well-formed
+issues from findings) and `.claude/agents/pipeline-manager.md` (CI / Dependabot triage; reports, never merges, closes or
+pushes on its own authority). Invoke via the `issue-generation` / `pipeline-check` skills or the Agent tool.
 
 ## Model tiering
 
-Sonnet by default; Opus manually for architecture planning. Subagents pin models in frontmatter (new ones default to
-Haiku). Details: `docs/agents/model-tiering.md`.
+Sonnet by default; Opus manually for architecture planning; subagents pin models in frontmatter. Details: `docs/agents/model-tiering.md`.
 
 ## Licensing
 
-PolyForm Noncommercial 1.0.0 — free for research/education/hobby use; commercial use requires a
-separate license. Contributions are licensed under the same terms (see `CONTRIBUTING.md`).
+PolyForm Noncommercial 1.0.0: commercial use needs a separate license; contributions use the same terms (`CONTRIBUTING.md`).

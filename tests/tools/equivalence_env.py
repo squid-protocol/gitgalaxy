@@ -35,6 +35,7 @@ worktree, else <main checkout>/../gitgalaxy-worktrees):
   <root>/census/<repo>   the census clones: ONLY estate4_draw.INELIGIBLE_LIST minus the burned estates. A repo whose
                          name is among the blind 4th-estate candidates (docs/language_status/estate4_candidates.json,
                          names compared, nothing else read) is refused: reading it through the translator burns it.
+                         A clone that has since been burned is retired (removed if clean, refused if dirty).
   <root>/provision.json  each clone's URL and commit SHA
 and prints the `--shell` exports for them (CICS_CRUCIBLE_PATH, CICS_CENSUS_CORPORA, GG_SCRATCH, ...). Progress goes to
 stderr, so `eval "$(... --provision)"` works. `--shell --root DIR` exports an existing provision without touching it.
@@ -49,6 +50,7 @@ import os
 import re
 import shlex
 import shutil
+import stat
 import subprocess
 import sys
 import time
@@ -317,6 +319,43 @@ def census_repos() -> list[str]:
     return [r for r in estate4_draw.INELIGIBLE_LIST if r.split("/")[-1].lower() not in burned]
 
 
+def burned_names() -> set[str]:
+    import estate4_draw
+
+    return {n.lower() for n in estate4_draw.BURNED_NAMES}
+
+
+def _writable_retry(func, path, _exc) -> None:
+    """rmtree error hook: git's object files are read-only, which Windows refuses to delete (#6209)."""
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+
+def rmtree_writable(path: Path) -> None:
+    """shutil.rmtree that also removes a git clone's read-only objects on Windows."""
+    if sys.version_info >= (3, 12):
+        shutil.rmtree(path, onexc=_writable_retry)
+    else:
+        shutil.rmtree(path, onerror=_writable_retry)
+
+
+def retire_burned(census: Path, repos: list[str], log=print) -> list[str]:
+    """Remove the census clones that have since been burned (estate4_draw.BURNED_NAMES) and are not on the census list:
+    a leftover one is surveyed as non-burned. A dirty or non-git clone raises ProvisionRefused and nothing is removed."""
+    if not census.is_dir():
+        return []
+    listed = {r.split("/")[-1].lower() for r in repos}
+    burned = burned_names()
+    doomed = [p for p in sorted(census.iterdir()) if p.is_dir() and p.name.lower() in burned - listed]
+    for p in doomed:
+        if not (p / ".git").exists() or _git(["-C", str(p), "status", "--porcelain"]).stdout.strip():
+            raise ProvisionRefused(f"{p} is burned but not a clean git clone: remove or commit it by hand")
+    for p in doomed:
+        log(f"retiring burned clone {p}")
+        rmtree_writable(p)
+    return [p.name for p in doomed]
+
+
 def _git(argv: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
     return subprocess.run(["git", *argv], cwd=cwd, capture_output=True, text=True, check=False)  # noqa: S603, S607
 
@@ -366,6 +405,9 @@ def provision(root: Path, git_base: str | None = None, log=print) -> dict:
     record["crucible"] = {"path": str(crucible), "url": f"{base}/{crucible_repo}", "ref": pinned_ref,
                           "sha": pinned}  # fmt: skip
     census = root / "census"
+    retired = retire_burned(census, repos, log)
+    if retired:
+        record["retired"] = retired
     for repo in repos:
         dest = census / repo.split("/")[-1]
         try:
@@ -418,6 +460,8 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         print(f"# provisioned {root}: cics-crucible {rec['pinned_ref']} ({rec['crucible']['sha'][:12]}), "
               f"{len(rec['census'])} census clones (provision.json)", file=sys.stderr)  # fmt: skip
+        for name in rec.get("retired", []):
+            print(f"# retired burned census clone: {name}", file=sys.stderr)
         for err in rec["errors"]:
             print(f"# WARN: {err}", file=sys.stderr)
     try:

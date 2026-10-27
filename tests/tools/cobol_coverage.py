@@ -72,6 +72,9 @@ from gitgalaxy.tools.cobol_to_cobol import cobol_graveyard_finder as gy  # noqa:
 FORMAT = "cobol-coverage/1"
 TRACE_FLAG = "-ftraceall"
 TRACE_NAME = "trace.txt"
+# a PROCEDURE DIVISION with no paragraph or section header is one unit, run from its first statement: a trace names no
+# Paragraph event for it, so it is entered when any of the program's own statements ran
+IMPLICIT_UNIT = "(PROCEDURE DIVISION)"
 
 
 def trace_env(path: str) -> str:
@@ -487,8 +490,12 @@ def inventory(path: Path, copybook_root: Path | None = None, encoding: str | Non
     split = gy.split_procedure_division(content)
     units = gy.procedure_units(split[1]) if split else []
     names = [u["name"] for u in units if u["name"]]
-    dead = set(names) - gy.reachable_units(units) if units else set()
     where = _unit_lines(raw)
+    if split and not names:
+        start = next((i for i, x in enumerate(raw.split("\n")) if _PROCEDURE.search(x)), None)
+        where = {IMPLICIT_UNIT: start + 2 if start is not None else 1}
+        units, names = [{"name": IMPLICIT_UNIT, "kind": "implicit", "text": split[1]}], [IMPLICIT_UNIT]
+    dead = set(names) - gy.reachable_units(units) if units else set()
     handler: list[str] = []
     for u in units:
         for m in gy._CICS_HANDLE.finditer(u["text"]):
@@ -546,6 +553,38 @@ def read_trace(data: bytes, encoding: str = "utf-8") -> list[Event]:
     return events
 
 
+_REWRITTEN = re.compile(r"(?i)\bDFH(?:RESP|VALUE)\s*\([^)]*\)|\b\d+\b")
+_EXEC_OPEN = re.compile(r"(?i)\bEXEC\s+(?:CICS|DLI|SQL)\b")
+_EXEC_CLOSE = re.compile(r"(?i)\bEND-EXEC\b")
+
+
+def _code_area(line: str) -> str:
+    """A fixed-format line's code (columns 7-72: no sequence number, no padding), else the line."""
+    return line[6:72] if line[:6].isdigit() else line
+
+
+def _blur(line: str) -> str:
+    """The line's code with DFHRESP(x) / DFHVALUE(x) and numbers alike (the harness turns them into numbers)."""
+    return " ".join(_REWRITTEN.sub("#", _code_area(line)).split())
+
+
+def _exec_lines(lines: list[str]) -> set[int]:
+    """Indexes of the lines from an EXEC CICS / DLI / SQL to its END-EXEC."""
+    out: set[int] = set()
+    inside = False
+    for n, ln in enumerate(lines):
+        code = _code_area(ln)
+        if code.lstrip().startswith("*"):
+            continue
+        if not inside and _EXEC_OPEN.search(code):
+            inside = True
+        if inside:
+            out.add(n)
+            if _EXEC_CLOSE.search(code):
+                inside = False
+    return out
+
+
 class LineMap:
     """Compiled line -> (original line, exact). Unchanged lines map exactly, and so does a line the harness
     rewrote in place (`IF WS-RESP NOT = DFHRESP(NORMAL)` -> `... NOT = 0`: paired by similarity inside the
@@ -560,6 +599,7 @@ class LineMap:
         b = a if compiled is None else [x.rstrip() for x in compiled.split("\n")]
         self.map: dict[int, tuple[int, bool]] = {}
         self.exact: set[int] = set()
+        self.exec_lines = _exec_lines(a)
         if a == b:
             self.map = {i + 1: (i + 1, True) for i in range(len(a))}
             self.exact = set(self.map)
@@ -583,30 +623,40 @@ class LineMap:
     def _pairs(self, a: list[str], b: list[str], i1: int, i2: int, j1: int, j2: int) -> dict[int, int]:
         """{compiled index: original index} for the lines of a rewritten block that are the same line, in order.
         #4620: an equal-size block is no longer paired index by index (a 4-line EXEC CICS and its 4 compiled lines are
-        not the same lines); a line pairs when it is similar, or when both are the same IF / EVALUATE (a condition
-        rewritten in place, `NOT = DFHRESP(NORMAL)` -> `NOT = 0`, may be less similar than SIMILAR)."""
+        not the same lines); a line pairs when it is similar, or when both are the same IF / EVALUATE / WHEN (a
+        condition rewritten in place, `NOT = DFHRESP(NORMAL)` -> `NOT = 0`, may be less similar than SIMILAR).
+        #6072: similarity reads the code area only (the sequence number and the padding to column 72 made an EXEC line
+        and the IF after it look alike) with DFHRESP / DFHVALUE / numbers blurred, and a line inside an EXEC ...
+        END-EXEC is never the same line as a compiled one: the harness rewrote it into other statements."""
         if i2 - i1 == j2 - j1:
             pairs = {}
             for k in range(j2 - j1):
-                x, y = a[i1 + k].strip(), b[j1 + k].strip()
-                head = x.split(None, 1)[0].upper() if x else ""
-                if difflib.SequenceMatcher(None, x, y, autojunk=False).ratio() >= self.SIMILAR or (
-                    head in ("IF", "EVALUATE") and y.upper().startswith(head + " ")
-                ):
+                if self._same(a, b, i1 + k, j1 + k) >= self.SIMILAR:
                     pairs[j1 + k] = i1 + k
             return pairs
         pairs: dict[int, int] = {}
         start = j1
         for i in range(i1, i2):
-            best, score = None, self.SIMILAR
+            best, score = None, self.SIMILAR - 1e-9
             for j in range(start, j2):
-                r = difflib.SequenceMatcher(None, a[i].strip(), b[j].strip(), autojunk=False).ratio()
-                if r >= score:
+                r = self._same(a, b, i, j)
+                if r > score:  # (the earliest of equals)
                     best, score = j, r
             if best is not None:
                 pairs[best] = i
                 start = best + 1
         return pairs
+
+    def _same(self, a: list[str], b: list[str], i: int, j: int) -> float:
+        """How alike original line i and compiled line j are (1.0 for a same-head IF / EVALUATE / WHEN condition)."""
+        if i in self.exec_lines:
+            return 0.0
+        x, y = _blur(a[i]), _blur(b[j])
+        head = x.split(None, 1)[0].upper() if x else ""
+        r = difflib.SequenceMatcher(None, x, y, autojunk=False).ratio()
+        if head in ("IF", "EVALUATE", "WHEN") and y.upper().startswith(head + " ") and r >= self.SIMILAR - 0.25:
+            return max(r, self.SIMILAR)
+        return r
 
     def get(self, line: int) -> tuple[int, bool] | None:
         return self.map.get(line)
@@ -642,6 +692,20 @@ def hits(inv: Inventory, events: Iterable[Event], lines: LineMap, compiled_name:
     # every unit entered, the ones the inventory lacks too (summary: `unread`); `L$0`-style names are GnuCOBOL's own
     out = Hits(units={e.name for e in mine if e.kind in ("Section", "Paragraph") and "$" not in e.name})
     points = {b.line: b for b in inv.branches + inv.after_transfer}  # the latter: summary flags a run taking one
+    if IMPLICIT_UNIT in inv.live and any(
+        e.kind == "stmt" and not (compiled_name and e.source and e.source != compiled_name) for e in mine
+    ):
+        out.units.add(IMPLICIT_UNIT)
+    # an ENTRY 'NAME' statement is entered by name, so no Paragraph event names the unit that holds it (IMS enters a
+    # DL/I program at ENTRY 'DLITCBL'): the unit holding the first statement the entry runs was entered
+    for n, e in enumerate(mine[:-1]):
+        nxt = mine[n + 1]
+        own = not compiled_name or nxt.source == compiled_name
+        if e.kind == "Entry" and e.name != inv.program and nxt.kind == "stmt" and own:
+            m = lines.get(nxt.line)
+            unit = inv.unit_of(m[0]) if m is not None else None
+            if unit:
+                out.units.add(unit)
     stmts: list[tuple[int, str, bool]] = []  # (original line, verb, exact)
     for e in mine:
         if e.kind != "stmt" or (compiled_name and e.source and e.source != compiled_name):
@@ -952,7 +1016,10 @@ def run_autotest_case(case: Path, work: Path, image: str = IMAGE) -> dict[str, A
     for f in ("gg-compile", "java"):
         (work / "bin" / f).chmod(0o755)
     user = ["--user", f"{_uid()}"] if _uid() else []
-    proc = subprocess.run(["docker", "run", "--rm", *user, "-v", f"{work}:/work", image, "bash", "/work/run.sh"],  # noqa: S603, S607
+    import equivalence_common as common  # guarded(): a looping traced run must not fill the disk
+
+    proc = subprocess.run(["docker", "run", "--rm", *user, "-v", f"{work}:/work", image,  # noqa: S603, S607
+                           "bash", "-c", common.guarded("bash /work/run.sh", 590)],
                           capture_output=True, check=False, timeout=600)  # fmt: skip
     traces = sorted((work / "trace").glob("*.txt"))
     failed = [n for n, st in enumerate(exp["steps"]) if st["kind"] == "check" and _COMPILES.search(st["command"])

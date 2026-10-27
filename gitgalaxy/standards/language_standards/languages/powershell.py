@@ -15,6 +15,14 @@ from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_S
 
 from .._shared_patterns import CALLS_OUT_COMMAND_POSITION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
+# #3303: a parenthesised parameter list, three paren levels deep, with quoted strings stepped over whole
+# so a paren inside a string (`[ValidatePattern("^v(\\d+)$")]`) neither unbalances nor deepens the match.
+# Every alternative starts on a distinct character class, so there is no overlap to backtrack over.
+_PS_STR = r"""(?:"(?:[^"`]|`.)*"|'[^']*')"""
+_PS_PAREN1 = r"\((?:[^()\"']|" + _PS_STR + r")*\)"
+_PS_PAREN2 = r"\((?:[^()\"']|" + _PS_STR + r"|" + _PS_PAREN1 + r")*\)"
+_PS_PARENS = r"\((?:[^()\"']|" + _PS_STR + r"|" + _PS_PAREN2 + r")*\)"
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "PowerShell 7.5.4 (Core / Cross-Platform / PSClasses)",
@@ -133,13 +141,11 @@ DEFINITION: dict[str, Any] = {
         # same way Python's did (#1199). Name groups added to branches
         # 2/3 too, purely so existing extraction tests keep passing.
         "args": re.compile(
-            r"\b(param)\s*(\((?:[^()]|\([^()]*\))*\))"
-            r"|\bfunction\s+(?:(?:global|script|local|private):)?(["
-            + ID_CONTINUE
-            + r"-]+)\s*(\((?:[^()]|\([^()]*\))*\))"
-            r"|^[ \t]*(?:(?:hidden|static)\s+)*(?:\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+)?"
+            r"\b(param)\s*(" + _PS_PARENS + r")"
+            r"|\bfunction\s+(?:(?:global|script|local|private):)?([" + ID_CONTINUE + r"-]+)\s*(" + _PS_PARENS + r")"
+            r"|^[ \t]*(?:(?:hidden|static)\s+)*(?:\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s*)?"
             r"(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch)\b)"
-            r"([" + ID_START + r"][" + ID_CONTINUE + r"]*)\s*(\((?:[^()]|\([^()]*\))*\))\s*[ \t\n]*\{",
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"]*)\s*(" + _PS_PARENS + r")\s*[ \t\n]*\{",
             re.I | re.M,
         ),
         # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope (process, begin, end).
@@ -182,7 +188,7 @@ DEFINITION: dict[str, Any] = {
         # keyword exclusion.
         "func_start": re.compile(
             r"^[ \t]*(?:function|filter|workflow)\s+(?:(?:global|script|local|private):)?([" + ID_CONTINUE + r"-]+)"
-            r"|^[ \t]*(?:(?:hidden|static)\s+)*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch|param)\b)(["
+            r"|^[ \t]*(?:(?:hidden|static)\s+)*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s*(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch|param)\b)(["
             + ID_START
             + r"]["
             + ID_CONTINUE

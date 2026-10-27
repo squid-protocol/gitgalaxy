@@ -1,0 +1,30 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "genapp-lgupol01-generated",
+  "entries": [
+    {
+      "unit": "WRITE-ERROR-MESSAGE",
+      "line": 186,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF EIBCALEN > 0` is true never: WRITE-ERROR-MESSAGE has one PERFORM (line 101), inside `IF EIBCALEN IS EQUAL TO ZERO` (line 99), so EIBCALEN is 0 on every entry and the COMMAREA copy (lines 186-200) is skipped.."
+    },
+    {
+      "unit": "WRITE-ERROR-MESSAGE",
+      "line": 187,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "Nested in `IF EIBCALEN > 0` (line 186), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run."
+    },
+    {
+      "unit": "WRITE-ERROR-MESSAGE",
+      "line": 187,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "Nested in `IF EIBCALEN > 0` (line 186), which no entry to WRITE-ERROR-MESSAGE satisfies: its only PERFORM (line 101) runs under `IF EIBCALEN IS EQUAL TO ZERO`, so neither outcome of the inner `IF EIBCALEN < 91` can run."
+    }
+  ]
+}

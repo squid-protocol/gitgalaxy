@@ -158,10 +158,21 @@ jobs:
             echo "defer=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # promoter-bot#64 (2026-10-24): the squid-shepherd App has its own API quota; AUTOMATION_PAT shares the
+      # account's 5,000/h with the agent fleet, and the shepherd stopped merging when it ran out. The PAT stays
+      # the fallback (a failed mint leaves the output empty).
+      - name: Mint the squid-shepherd App token
+        id: app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.SHEPHERD_APP_ID }}
+          private-key: ${{ secrets.SHEPHERD_APP_KEY }}
+
       - name: Full lane - close the push lane's open bot PR (superseded)
         if: github.event_name != 'push'
         env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
         run: |
           prs=$(gh api "repos/$REPO/pulls?state=open&head=${REPO%%/*}:auto/evidence-refresh&per_page=10" --jq '.[].number')
           for pr in $prs; do
@@ -230,7 +241,7 @@ jobs:
           pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "17"
@@ -556,7 +567,7 @@ jobs:
           pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "17"
@@ -706,7 +717,7 @@ jobs:
           pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "17"
@@ -866,7 +877,7 @@ jobs:
           pip install --no-build-isolation -e "./gitgalaxy[translator]"
 
       - name: Setup JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "17"
@@ -1047,7 +1058,7 @@ jobs:
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
       - name: Setup JDK 17 (the translation survey)
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "17"
@@ -1067,8 +1078,10 @@ jobs:
           SHA: ${{ steps.asof.outputs.sha }}
         run: |
           cd gitgalaxy
+          # --crucible (#5054): the cics-crucible clone above is surveyed as one more burned corpus (+~1 min), so the
+          # blocker feed below reads its rows and its leak scan runs on it
           PYTHONPATH="$PWD" python tests/tools/cics_census.py survey --baseline --no-census --no-fetch \
-            --sha "$SHA" --root "$GG_SCRATCH"
+            --sha "$SHA" --root "$GG_SCRATCH" --crucible "$GITHUB_WORKSPACE/cics-crucible"
           {
             echo "## Translation survey (${SHA::12}, burned / pinned corpora, no census)"
             echo '```'
@@ -1078,6 +1091,47 @@ jobs:
           # the survey's cache dir minus the translator snapshot (src/) and logs: what `cics_census.py publish` reads
           mkdir -p "$RUNNER_TEMP/blockers-cache/census-cache"
           rsync -a --exclude src --exclude '*.log' "$GG_SCRATCH/census-cache/$SHA" "$RUNNER_TEMP/blockers-cache/census-cache/"
+
+      # #5054 done-when 4: each burned estate's survey through blocker_report + blocker_ingest, as a customer's report
+      # would go (rows match the blockers, known signatures link, hashes stable per salt, no source name leaks). Reads
+      # the survey just cached. A failure (a leak, or an estate whose scan did not run) never holds back the records:
+      # the step is continue-on-error and the job's last step fails the run on `steps.feed.outcome == 'failure'`.
+      - name: Blocker report and ingest per burned estate (#5054)
+        id: feed
+        if: steps.survey.outcome == 'success'
+        continue-on-error: true
+        env:
+          GG_SCRATCH: ${{ runner.temp }}/scratch
+          SHA: ${{ steps.asof.outputs.sha }}
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/blocker_estate_feed.py "$GG_SCRATCH/census-cache/$SHA" \
+            --out "$RUNNER_TEMP/blocker-feed" --extra-root "$GITHUB_WORKSPACE/cics-crucible" --require-sources
+          cat "$RUNNER_TEMP/blocker-feed/feed.md" >> "$GITHUB_STEP_SUMMARY"
+          # the unmatched rows ride the blockers-survey artifact to publish-blockers, which lays them on `generated` for the tick
+          cp "$RUNNER_TEMP/blocker-feed/feed.json" "$RUNNER_TEMP/blockers-cache/blocker_feed.json"
+
+      # #4493: the equivalence harness reports on itself (coverage, run status per program, input generation, blockers phrased
+      # as fixes). It is built here, where the pinned corpora are on disk (the layouts are read from them), from the survey
+      # just taken, and rides in the blockers-survey artifact to publish-blockers. A failure never holds back the survey, the
+      # records or the blockers publish.
+      - name: Build the harness report (#4493)
+        id: harness
+        if: steps.survey.outcome == 'success'
+        continue-on-error: true
+        env:
+          GG_SCRATCH: ${{ runner.temp }}/scratch
+          SHA: ${{ steps.asof.outputs.sha }}
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/harness_report.py --survey "$GG_SCRATCH/census-cache/$SHA" \
+            --estate "burned estates" --out "$RUNNER_TEMP/blockers-cache/harness"
+          {
+            echo "## Harness report (${SHA::12}, burned / pinned corpora)"
+            echo '```'
+            sed -n 1,12p "$RUNNER_TEMP/blockers-cache/harness/harness_report.md"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Keep the survey for the blockers publisher (#4863)
         if: steps.survey.outcome == 'success'
@@ -1275,12 +1329,50 @@ jobs:
             echo "publish=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # promoter-bot#64 (2026-10-24): the squid-shepherd App has its own API quota; AUTOMATION_PAT shares the
+      # account's 5,000/h with the agent fleet, and the shepherd stopped merging when it ran out. The PAT stays
+      # the fallback (a failed mint leaves the output empty).
+      - name: Mint the squid-shepherd App token
+        id: app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.SHEPHERD_APP_ID }}
+          private-key: ${{ secrets.SHEPHERD_APP_KEY }}
+
+      - name: Advance gitgalaxy to latest origin/main before staging the bot PR
+        # The sweep, records, det-mutation and Db2 jobs take ~30-45 min on the pinned commit; merges to main in the
+        # meantime otherwise leave the bot PR conflicting or behind on the files those merges touched. Re-home the
+        # refreshed JSON files onto current origin/main so the PR is clean against main.
+        if: steps.late_gate.outputs.publish != 'false'
+        run: |
+          stage="$RUNNER_TEMP/pr-stage"
+          mkdir -p "$stage"
+          (
+            cd gitgalaxy
+            shopt -s nullglob
+            files=(
+              tests/equivalence/det_sweep_coverage/*.json
+              tests/equivalence/det_mutation/*.json
+              tests/equivalence/*/evidence.json
+              tests/cics_crucible/ports/*/*/evidence.json
+            )
+            if [ "${#files[@]}" -gt 0 ]; then
+              cp --parents "${files[@]}" "$stage/"
+            fi
+            git fetch -q origin main
+            git reset -q --hard origin/main
+            if [ -d "$stage/tests" ]; then
+              cp -r "$stage"/. .
+            fi
+          )
+
       - name: Open or update the bot PR with the refreshed records
         id: cpr
         if: steps.late_gate.outputs.publish != 'false'
         uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
         with:
-          token: ${{ secrets.AUTOMATION_PAT }}
+          token: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
           path: gitgalaxy
           base: main  # never the checked-out ref of another run (#4640)
           commit-message: "evidence: refresh as of commit ${{ steps.asof.outputs.sha }}"
@@ -1308,13 +1400,18 @@ jobs:
         # Only after a clean run: a proof that failed is recorded as not proven and needs a person (#4048).
         if: steps.cpr.outputs.pull-request-number != '' && steps.cpr.outputs.pull-request-operation != 'closed' && needs.records.result == 'success' && needs.det-mutation.result == 'success' && needs.sweep.result == 'success' && steps.ledger_sweep.outcome == 'success' && (needs.db2.result == 'success' || needs.db2.result == 'skipped')
         env:
-          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
+          PAT_TOKEN: ${{ secrets.AUTOMATION_PAT }}
           PR: ${{ steps.cpr.outputs.pull-request-number }}
+          HEAD_SHA: ${{ steps.cpr.outputs.pull-request-head-sha }}
           REPO: ${{ github.repository }}
-        # Right after the PR is opened its checks may not have registered yet, and GitHub then refuses auto-merge on a
-        # "clean" PR ("Pull request is in clean status"). Retry until the checks exist; never merge before CI has run
-        # (if it never gets there, the PR stays open for a person / the merge watcher).
+        # Label and approve for CI shepherd (using AUTOMATION_PAT so the label actor has write permission) so shepherd
+        # manages flake reruns and status digests, and also enable squash auto-merge directly once checks register.
         run: |
+          if [ -n "$PAT_TOKEN" ] && [ -n "$HEAD_SHA" ]; then
+            GH_TOKEN="$PAT_TOKEN" gh api -X POST "repos/$REPO/issues/$PR/labels" -f "labels[]=shepherd:merge" >/dev/null 2>&1 || true
+            GH_TOKEN="$PAT_TOKEN" gh api "repos/$REPO/issues/$PR/comments" -f "body=<!-- shepherd:approved sha=$HEAD_SHA by=squid-protocol -->" >/dev/null 2>&1 || true
+          fi
           for i in $(seq 1 20); do
             if out=$(gh pr merge "$PR" --repo "$REPO" --auto --squash 2>&1); then echo "$out"; exit 0; fi
             echo "$out"
@@ -1323,9 +1420,9 @@ jobs:
           echo "::warning title=Evidence refresh::auto-merge could not be enabled (checks never registered); PR #$PR left open"
 
       - name: Fail when a re-proof failed
-        if: needs.records.result != 'success' || needs.det-mutation.result != 'success' || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || needs.db2.result == 'failure'
+        if: needs.records.result != 'success' || needs.det-mutation.result != 'success' || needs.sweep.result != 'success' || steps.ledger_sweep.outcome == 'failure' || steps.feed.outcome == 'failure' || needs.db2.result == 'failure'
         run: |
-          echo "::error title=Evidence refresh::a record's proof, the det sweep or the Db2 job failed or could not run -- see the summary"
+          echo "::error title=Evidence refresh::a record's proof, the det sweep, the Db2 job or the blocker-feed leak scan failed or could not run -- see the summary"
           exit 1
 
   # #4863 (step 3, one survey a night, one writer): the refresh job's translation survey of main is also the nightly blockers
@@ -1403,7 +1500,7 @@ jobs:
         with:
           path: main
           ref: ${{ needs.refresh.outputs.sha }}
-          persist-credentials: false
+          persist-credentials: true  # the harness step pushes to `generated` from this checkout; no PR code runs here
 
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -1436,6 +1533,8 @@ jobs:
           mkdir -p "$RUNNER_TEMP/generated-preview"
           (cd main && PYTHONPATH="$PWD" python tests/tools/cics_census.py publish --sha "$SHA" \
             --root "$RUNNER_TEMP/blockers-survey" --into "$RUNNER_TEMP/generated-preview")
+          mkdir -p "$RUNNER_TEMP/generated-preview/docs/language_status/blockers"
+          [ ! -f "$RUNNER_TEMP/blockers-survey/blocker_feed.json" ] || cp "$RUNNER_TEMP/blockers-survey/blocker_feed.json" "$RUNNER_TEMP/generated-preview/docs/language_status/blockers/"
           {
             echo "## Blockers publish PREVIEW (${SHA::12}, ref ${GITHUB_REF_NAME}; generated NOT written)"
             echo '```'
@@ -1443,6 +1542,15 @@ jobs:
             echo '```'
             tail -1 "$RUNNER_TEMP/generated-preview/docs/language_status/blockers/blockers_history.jsonl" | cut -c1-300
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Preview the harness report (not main, nothing is pushed) (#4493)
+        if: github.ref != 'refs/heads/main'
+        run: |
+          src="$RUNNER_TEMP/blockers-survey/harness"
+          [ -f "$src/harness_report.md" ] || { echo "::warning title=Harness report::the refresh job built no harness report"; exit 0; }
+          mkdir -p "$RUNNER_TEMP/generated-preview/docs/language_status/harness"
+          cp "$src/harness_report.md" "$src/harness_report.json" "$RUNNER_TEMP/generated-preview/docs/language_status/harness/"
+          echo "Harness report PREVIEW built (generated NOT written)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Keep the preview
         if: github.ref != 'refs/heads/main'
@@ -1474,6 +1582,8 @@ jobs:
           fi
           (cd main && PYTHONPATH="$PWD" python tests/tools/cics_census.py publish --sha "$SHA" \
             --root "$RUNNER_TEMP/blockers-survey" --into "$GITHUB_WORKSPACE/generated")
+          mkdir -p generated/docs/language_status/blockers
+          [ ! -f "$RUNNER_TEMP/blockers-survey/blocker_feed.json" ] || cp "$RUNNER_TEMP/blockers-survey/blocker_feed.json" generated/docs/language_status/blockers/
           cd generated
           [ -f GENERATED_FROM ] || echo "Generated output only -- never edit by hand." > GENERATED_FROM
           if ! grep -q "docs/language_status/blockers/" GENERATED_FROM; then
@@ -1486,7 +1596,7 @@ jobs:
           fi
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
             commit -q -m "blockers baseline as of main $SHA"
-          git push -q origin HEAD:generated
+          python ../main/tests/tools/generated_branch.py push-head --root .  # #6563: another writer may have pushed since the fetch
           {
             echo "## Blockers published (${SHA::12})"
             echo '```'
@@ -1494,3 +1604,23 @@ jobs:
             echo '```'
             echo "history: $(wc -l < docs/language_status/blockers/blockers_history.jsonl) lines"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # #4493: its own step, so a harness report problem never blocks the blockers publish above.
+      - name: Publish the harness report to the generated branch (#4493)
+        if: github.ref == 'refs/heads/main'
+        env:
+          SHA: ${{ needs.refresh.outputs.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          src="$RUNNER_TEMP/blockers-survey/harness"
+          [ -f "$src/harness_report.md" ] || { echo "::warning title=Harness report::the refresh job built no harness report"; exit 0; }
+          mkdir -p main/docs/language_status/harness
+          cp "$src/harness_report.md" "$src/harness_report.json" main/docs/language_status/harness/
+          cd main
+          # `main` was checked out with persist-credentials: false (the first run on 2026-10-24 died with "could not read
+          # Username", run 40136742662): hand this one step the job token, for the push only (main-only step, no PR code)
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          python tests/tools/generated_branch.py publish --stamp harness-report \
+            --message "harness report as of main $SHA" \
+            docs/language_status/harness
+          echo "published the harness report from main ${SHA::12}: https://github.com/${GITHUB_REPOSITORY}/tree/generated/docs/language_status/harness" >> "$GITHUB_STEP_SUMMARY"

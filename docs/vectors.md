@@ -547,13 +547,13 @@ retired from measurement entirely in the tier model; no new tier is density-shap
 ### Tier 1 — `SURFACE_FAMILIES`
 
 `SURFACE_FAMILIES` (in [`gitgalaxy/standards/analysis_lens.py`](../gitgalaxy/standards/analysis_lens.py),
-next to `SIGNAL_SCHEMA`) groups 63 of `SIGNAL_SCHEMA`'s 97 raw-signal names into 22 families:
+next to `SIGNAL_SCHEMA`) groups 62 of `SIGNAL_SCHEMA`'s 97 raw-signal names into 22 families:
 `memory`, `cleanup`, `guards`, `danger`, `concurrency`, `connectivity`, `io`, `crypto`, `ipc`,
 `time`, `serialization`, `regex`, `events`, `tests`, `docs`, `debt`, `mutation`, `dead_code`,
 `credential`, `threat`, `ml_ai`, `ui`. A file's per-family value is a plain **integer sum** of
 its member signals' raw counts — no formula, no constant, no sigmoid.
 
-The remaining 34 names are declared exempt in `SURFACE_FAMILY_EXEMPT` (same file), each with a
+The remaining 35 names are declared exempt in `SURFACE_FAMILY_EXEMPT` (same file), each with a
 one-line reason, in five groups: structural-shape signals that are substrate for complexity
 rather than a measurement surface in their own right (11: `branch`, `structural_boundaries`,
 `args`, `func_start`, `class_start`, `globals`, `decorators`, `import`,
@@ -563,7 +563,8 @@ rather than a measurement surface in their own right (11: `branch`, `structural_
 `generics`, `comprehensions`); `sec_*` lens duplicates of a signal already summed under its
 non-`sec_` counterpart's family, which would double-count if also included (6); the language-level `reflection_metaprogramming`
 marker (C/C++ function-like macros and `goto`, not a threat; the `threat` family sums the security
-lens's `sec_reflection_metaprogramming` instead, #4548); the two
+lens's `sec_reflection_metaprogramming` instead, #4548); `pointers` (a dereference count, 92-98% of
+the old `memory` family on C/C++; `memory` now sums `memory_alloc` + `explicit_casts`, #4548); the two
 injection-surface sensors added by #2985 (`sec_db_hooks`, a raw DB sink the `io` family's
 rules already match, and `sec_amplified_sql_injection`, a derived spatial confirmation over
 `api` + that sink rather than a raw count of its own); and two

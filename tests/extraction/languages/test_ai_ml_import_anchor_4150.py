@@ -71,6 +71,15 @@ _PY_FIRES = [
     ("llm_orchestrator", "from langchain_openai import ChatOpenAI"),
     ("llm_orchestrator", "from llama_index.core import VectorStoreIndex"),
     ("llm_orchestrator", "import llama_index"),
+    # #4108: agent frameworks outside the langchain/llama_index names
+    ("llm_orchestrator", "from langgraph.graph import StateGraph"),
+    ("llm_orchestrator", "import crewai"),
+    ("llm_orchestrator", "from autogen import AssistantAgent"),
+    ("llm_orchestrator", "from haystack.components import Pipeline"),
+    ("llm_orchestrator", "import semantic_kernel as sk"),
+    ("llm_orchestrator", "import dspy"),
+    ("llm_orchestrator", "from pydantic_ai import Agent"),
+    ("llm_orchestrator", "import os, smolagents"),
     ("llm_vector_store", "import chromadb"),
     ("llm_vector_store", "from chromadb.config import Settings"),
     ("llm_vector_store", "from pinecone import Pinecone"),
@@ -136,6 +145,11 @@ _PY_SILENT = [
     ("llm_vector_store", "import pinecone_text"),
     ("ml_traditional", "import sklearn_crfsuite"),
     ("llm_orchestrator", "import langchainhub"),
+    ("llm_orchestrator", "from haystack_utils import x"),
+    ("llm_orchestrator", "from .crewai import crew"),
+    ("llm_orchestrator", "import autogen_ext_local"),
+    ("llm_orchestrator", "import dspy_helpers"),
+    ("llm_orchestrator", "from myproj.langgraph import g"),
     # non-import mentions
     ("dl_frameworks", "model = torch.nn.Linear(3, 4)"),
     ("dl_frameworks", "important = torch"),
@@ -162,6 +176,13 @@ _JS_FIRES = [
     ("llm_orchestrator", "import { ChatOpenAI } from '@langchain/openai';"),
     ("llm_orchestrator", 'import { VectorStoreIndex } from "llamaindex";'),
     ("llm_orchestrator", "import { OpenAI } from '@llamaindex/openai';"),
+    # #4108: Vercel AI SDK and sibling npm agent frameworks
+    ("llm_orchestrator", "import { OpenAIStream } from 'ai';"),
+    ("llm_orchestrator", "import { streamUI } from 'ai/rsc';"),
+    ("llm_orchestrator", "const { generateText } = require(\"ai\");"),
+    ("llm_orchestrator", "const ai = await import('ai');"),
+    ("llm_orchestrator", "import { openai } from '@ai-sdk/openai';"),
+    ("llm_orchestrator", "import { Agent } from '@mastra/core/agent';"),
     ("llm_vector_store", "import { ChromaClient } from 'chromadb';"),
     ("llm_vector_store", "import { Pinecone } from '@pinecone-database/pinecone';"),
     ("llm_vector_store", "const { Pinecone } = require('@pinecone-database/pinecone');"),
@@ -198,6 +219,12 @@ _JS_SILENT = [
     # non-import mentions
     ("dl_frameworks", "const backend = 'tensorflow';"),
     ("llm_orchestrator", "import axios from 'axios';"),
+    ("llm_orchestrator", "import x from 'ai-utils';"),
+    ("llm_orchestrator", "import x from './ai';"),
+    ("llm_orchestrator", "import x from '@/ai/client';"),
+    ("llm_orchestrator", "import x from 'mail';"),
+    ("llm_orchestrator", "import x from '@acme/ai';"),
+    ("llm_orchestrator", "const provider = 'ai';"),
 ]
 
 

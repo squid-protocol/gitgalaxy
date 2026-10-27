@@ -28,6 +28,11 @@ name: Tree-sitter Accuracy History
 # touched" push and a "numbers actually changed" push are different things; this job only ever
 # produces visible output for the latter.
 
+# #6501: a read-only `plan` job (tests/tools/accuracy_audit_plan.py --audit tree-sitter-history, on the push's diff) skips the
+# install, the scan and the publish when no pushed file can move a language (a comment or `_meta` edit, say). That is what
+# `--history` already concludes after the scan (an unchanged batch appends nothing); the plan just does not pay for it.
+# A manual dispatch, an unreadable diff or a failed plan runs everything.
+
 # #4847: the output is published to the `generated` branch (tests/tools/generated_branch.py), not committed to main through
 # an auto-merged PR; the PR-then-merge and loop-guard paragraphs above describe the old mechanism.
 
@@ -58,13 +63,52 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # #6501: can the pushed diff move a language's numbers? (read-only: the job below keeps the write token to itself)
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read  # gh run list: the last successful run's commit
+    outputs:
+      run: ${{ steps.plan.outputs.run }}
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # the diff needs the last planned commit
+          filter: blob:none  # #5882: history without file contents
+          persist-credentials: false
+
+      - name: Plan the run
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Not github.event.before: a queued run is replaced by a newer one, so its diff would miss the replaced push. The
+          # base is the last successful run's commit (a planned skip is a success too), so the diffs chain with no gap. No
+          # earlier run, or a commit gone from history, plans an empty or unreadable diff: it runs.
+          base=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow tree-sitter-accuracy-history.yml --branch main \
+            --event push --status success --limit 1 --json headSha --jq '.[0].headSha' 2>/dev/null || true)
+          python3 tests/tools/accuracy_audit_plan.py --audit tree-sitter-history --event "$GITHUB_EVENT_NAME" --base "${base:-HEAD}" \
+            --github-output "$GITHUB_OUTPUT" | tee plan.json
+          {
+            echo "## Accuracy-history plan"
+            echo '```json'
+            cat plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   tree-sitter-accuracy-history:
+    needs: [plan]
+    if: ${{ always() }}  # a failed plan runs it
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: write
     steps:
       - name: Checkout GitGalaxy
+        if: needs.plan.outputs.run != 'false'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
@@ -74,6 +118,7 @@ jobs:
           persist-credentials: true
 
       - name: Setup Python
+        if: needs.plan.outputs.run != 'false'
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
@@ -83,6 +128,7 @@ jobs:
             gitgalaxy/ci/requirements/*.txt
 
       - name: Install GitGalaxy + tree-sitter-language-pack
+        if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
@@ -90,6 +136,7 @@ jobs:
           pip install --require-hashes -r ci/requirements/treesitter.txt
 
       - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml)
+        if: needs.plan.outputs.run != 'false'
         run: |
           # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
           ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
@@ -98,12 +145,14 @@ jobs:
       # The series is appended to, so it starts from what `generated` last published (the copy committed on main is
       # only the seed and the fallback when the branch has none yet).
       - name: Restore the published series from the generated branch
+        if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
           python tests/tools/generated_branch.py fetch \
             docs/self_scan/tree_sitter_accuracy_history.csv
 
       - name: Append accuracy history + chart
+        if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
           python tests/tools/tree_sitter_accuracy_audit.py --history
@@ -111,6 +160,7 @@ jobs:
 
       # What moved against the previous batch, for whoever reads the run (it used to be the PR body).
       - name: Improvement/regression blurbs
+        if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
           python tests/tools/tree_sitter_accuracy_audit.py --blurbs >> "$GITHUB_STEP_SUMMARY"
@@ -118,7 +168,7 @@ jobs:
       # #4847: output goes to the `generated` branch, never to main (no PR, no auto-merge: main no longer takes a bot
       # commit per run). Only main may write it; a dispatch from another ref publishes nothing.
       - name: Publish to the generated branch
-        if: github.ref == 'refs/heads/main'
+        if: needs.plan.outputs.run != 'false' && github.ref == 'refs/heads/main'
         run: |
           cd gitgalaxy
           python tests/tools/generated_branch.py publish --stamp tree-sitter-accuracy-history \

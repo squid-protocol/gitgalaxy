@@ -63,6 +63,7 @@ MODELLED_CALLS = {
     "CEESECI",
     "CEEDYWK",
     "CEEQCEN",
+    "CEESCEN",
     "CBLTDLI",
 }  # tests/equivalence/le, faults/ggabend.c, ims/ggdli.c (#4893)
 BUCKETS = ("R", "S", "F", "L", "H")

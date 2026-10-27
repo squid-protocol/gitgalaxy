@@ -12,8 +12,7 @@ ZScript is the object-scripting language of GZDoom: C#/Java-like classes, struct
 `States {}` / `Default {}` blocks, `Class<T>` / `Array<T>` / `Map<K,V>` generics, `deprecated("..","..")` /
 `version("x")` attributes, and `#include "path"`. Identifiers are case-insensitive.
 
-**No tree-sitter ground truth, no cross-language control corpus yet.** The keyword-rosetta folder and ledger
-entries are not part of this slice (see §7).
+**No tree-sitter ground truth.** The keyword-rosetta control folder (`data/zscript/`) landed separately (#5783).
 
 ## 1. At a glance
 
@@ -78,6 +77,5 @@ for `import` (the `#include` lines live in `wadsrc/static/zscript.zs`, outside t
 
 - `class_start` names stay empty until `zscript` joins `_CLASS_START_NAMED_EXTRACTION_LANGS` in `detector.py`
   (needs the harden-class-start-extraction pass).
-- No keyword-rosetta control folder or ledger entries; no `tri_comparison_chart.py` `_GG_ONLY_LANGS` entry.
-- No `docs/language_status/README.md` index row.
+- No `tri_comparison_chart.py` `_GG_ONLY_LANGS` entry.
 - No ACS / DECORATE / MAPINFO / SNDINFO support.

@@ -56,13 +56,49 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # #6501: can the diff since the last successful run move this? (accuracy_audit_plan.py; an unknown base runs it)
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read  # gh run list: the last successful run's commit
+    outputs:
+      run: ${{ steps.plan.outputs.run }}
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # the diff needs the last planned commit
+          filter: blob:none  # #5882: history without file contents
+          persist-credentials: false
+
+      - name: Plan the run
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          base=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow tri-comparison-history.yml --branch main \
+            --event push --status success --limit 1 --json headSha --jq '.[0].headSha' 2>/dev/null || true)
+          python3 tests/tools/accuracy_audit_plan.py --audit tri-comparison-history --event "$GITHUB_EVENT_NAME" --base "${base:-HEAD}" \
+            --github-output "$GITHUB_OUTPUT" | tee plan.json
+          {
+            echo "## Accuracy-history plan"
+            echo '```json'
+            cat plan.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   tri-comparison-history:
+    needs: [plan]
+    if: ${{ always() }}  # a failed plan runs it
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: write
     steps:
       - name: Checkout GitGalaxy
+        if: needs.plan.outputs.run != 'false'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: gitgalaxy
@@ -72,6 +108,7 @@ jobs:
           persist-credentials: true
 
       - name: Setup Python
+        if: needs.plan.outputs.run != 'false'
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
@@ -81,6 +118,7 @@ jobs:
             gitgalaxy/ci/requirements/*.txt
 
       - name: Install GitGalaxy + tree-sitter-language-pack
+        if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
           python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
@@ -91,6 +129,7 @@ jobs:
       # job WRITES the chart/ledger, so a silently-degraded ctags here would commit bad data to
       # main instead of just failing a single PR check.
       - name: Install universal-ctags and verify it's the real thing
+        if: needs.plan.outputs.run != 'false'
         run: |
           # #5048: a mirror hiccup is infrastructure, not a code defect: bounded retry, then an INFRASTRUCTURE marker.
           gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'sudo apt-get -o Acquire::Retries=5 update -qq && sudo apt-get -o Acquire::Retries=5 install -y universal-ctags'
@@ -101,12 +140,14 @@ jobs:
           fi
 
       - name: Fetch Language Crucible corpus (pinned in tests/crucible_pins.toml)
+        if: needs.plan.outputs.run != 'false'
         run: |
           # The pin is tests/crucible_pins.toml (one source; a fork PR reads it too).
           ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get language)
           gitgalaxy/tests/tools/ci_retry.sh 4 10 -- bash -c 'rm -rf language-crucible && git clone --branch "$1" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible' _ "$ref"
 
       - name: Regenerate chart + ledger + points-of-interest report
+        if: needs.plan.outputs.run != 'false'
         run: |
           cd gitgalaxy
           python tests/tools/tri_comparison_chart.py --all --write
@@ -115,7 +156,7 @@ jobs:
       # #4847: output goes to the `generated` branch, never to main (no PR, no auto-merge: main no longer takes a bot
       # commit per run). Only main may write it; a dispatch from another ref publishes nothing.
       - name: Publish to the generated branch
-        if: github.ref == 'refs/heads/main'
+        if: needs.plan.outputs.run != 'false' && github.ref == 'refs/heads/main'
         run: |
           cd gitgalaxy
           python tests/tools/generated_branch.py publish --stamp tri-comparison-history \

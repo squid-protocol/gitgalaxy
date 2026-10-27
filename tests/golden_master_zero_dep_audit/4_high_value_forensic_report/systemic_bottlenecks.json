@@ -25,79 +25,79 @@
       },
       {
         "btw": 0.0,
-        "path": "dockerfile/moby/builder/dockerfile/copy.go",
-        "score": 0.001,
-        "state_mutation": 95.106
-      },
-      {
-        "btw": 0.0,
         "path": "dockerfile/moby/builder/dockerfile/internals.go",
         "score": 0.001,
         "state_mutation": 99.6514
+      },
+      {
+        "btw": 0.0,
+        "path": "abap/abapGit/zabapgit.prog.abap",
+        "score": 0.0,
+        "state_mutation": 0.0
       }
     ],
     "fragile_dependency_chain": [
       {
         "close": 0.0562,
-        "err": 66.2775,
+        "err": 55.501,
         "path": "python/fastapi/fastapi/applications.py",
-        "score": 3.723
+        "score": 3.118
       },
       {
         "close": 0.0591,
-        "err": 60.143,
+        "err": 50.5714,
         "path": "python/fastapi/fastapi/__init__.py",
-        "score": 3.555
+        "score": 2.989
+      },
+      {
+        "close": 0.0308,
+        "err": 80.0,
+        "path": "python/fastapi/fastapi/datastructures.py",
+        "score": 2.463
       },
       {
         "close": 0.033,
-        "err": 91.4708,
+        "err": 70.5405,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "score": 3.021
+        "score": 2.33
       },
       {
-        "close": 0.0311,
-        "err": 90.4651,
-        "path": "python/fastapi/fastapi/datastructures.py",
-        "score": 2.813
-      },
-      {
-        "close": 0.0324,
-        "err": 84.3093,
-        "path": "python/fastapi/fastapi/routing.py",
-        "score": 2.731
+        "close": 0.0402,
+        "err": 54.2286,
+        "path": "python/fastapi/fastapi/param_functions.py",
+        "score": 2.181
       }
     ],
     "undocumented_critical_path": [
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 12.971,
-        "score": 1297.1
+        "pr": 12.976,
+        "score": 1297.6
       },
       {
         "doc": 96.9697,
         "path": "python/fastapi/fastapi/applications.py",
-        "pr": 10.176,
-        "score": 986.764
+        "pr": 10.204,
+        "score": 989.479
       },
       {
         "doc": 100.0,
         "path": "rust/tokio/lib.rs",
-        "pr": 6.542,
-        "score": 654.2
+        "pr": 6.425,
+        "score": 642.5
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 6.124,
-        "score": 612.4
+        "pr": 6.146,
+        "score": 614.6
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/param_functions.py",
-        "pr": 5.783,
-        "score": 578.3
+        "pr": 5.803,
+        "score": 580.3
       }
     ]
   }

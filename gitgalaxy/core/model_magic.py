@@ -196,6 +196,9 @@ _SNIFFERS: dict[str, tuple[tuple[str, _Check], ...]] = {
     ".onnx": (("onnx", lambda h, _s: _is_onnx(h)),),
     ".pt": (("pytorch", lambda h, _s: _is_torch(h)),),
     ".pth": (("pytorch", lambda h, _s: _is_torch(h)),),
+    # #4108: Lightning / stable-diffusion checkpoints are torch.save files; Keras writes `.hdf5` as well as `.h5`.
+    ".ckpt": (("pytorch", lambda h, _s: _is_torch(h)),),
+    ".hdf5": (("keras_h5", lambda h, _s: _is_keras_h5(h)),),
     ".bin": (
         ("pytorch", lambda h, _s: _is_torch(h)),
         ("gguf", lambda h, _s: _is_gguf(h)),
@@ -219,7 +222,7 @@ def sniff_model_format(file_path: str | Path, size_bytes: int | None = None) -> 
     sniffers = _SNIFFERS.get(path.suffix.lower())
     if not sniffers:
         return None
-    limit = H5_SCAN_BYTES if path.suffix.lower() == ".h5" else HEADER_BYTES
+    limit = H5_SCAN_BYTES if path.suffix.lower() in (".h5", ".hdf5") else HEADER_BYTES
     try:
         if not path.is_file():
             return None

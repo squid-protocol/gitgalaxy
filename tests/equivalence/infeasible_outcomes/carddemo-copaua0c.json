@@ -1,0 +1,46 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "carddemo-copaua0c",
+  "entries": [
+    {
+      "unit": "6000-MAKE-DECISION",
+      "line": 700,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "`WHEN OTHER` ('9000') of the EVALUATE under `IF AUTH-RESP-DECLINED` (699): a decline is set only at 669 and 677 (each with `SET INSUFFICIENT-FUND`, the fourth arm) and at 681, which runs only when `FOUND-ACCT-IN-MSTR` is false. WS-ACCT-MASTER-READ-FLG is set found at 445-446 and becomes 'N' only through `SET NFOUND-ACCT-IN-MSTR` (492 in 5100 on an xref NOTFND, 539 in 5200 on an ACCTDAT NOTFND), which is the first arm; the other 5200 responses leave it found. Every decline therefore satisfies an earlier arm."
+    },
+    {
+      "unit": "6000-MAKE-DECISION",
+      "line": 700,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@707",
+      "family": "C",
+      "reason": "`WHEN CARD-NOT-ACTIVE` ('A', 88 on WS-DECLINE-REASON-FLG (COPAUA0C line 140)): the only statement that sets the flag is `SET INSUFFICIENT-FUND TO TRUE` (lines 670 and 678); no MOVE or SET writes 'A', and the field is never read from a message or a file, so CARD-NOT-ACTIVE is never true when the EVALUATE at 700 runs."
+    },
+    {
+      "unit": "6000-MAKE-DECISION",
+      "line": 700,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@709",
+      "family": "C",
+      "reason": "`WHEN ACCOUNT-CLOSED` ('C', 88 on WS-DECLINE-REASON-FLG (COPAUA0C line 140)): the only statement that sets the flag is `SET INSUFFICIENT-FUND TO TRUE` (lines 670 and 678); no MOVE or SET writes 'C', and the field is never read from a message or a file, so ACCOUNT-CLOSED is never true when the EVALUATE at 700 runs."
+    },
+    {
+      "unit": "6000-MAKE-DECISION",
+      "line": 700,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@711",
+      "family": "C",
+      "reason": "`WHEN CARD-FRAUD` ('F', 88 on WS-DECLINE-REASON-FLG (COPAUA0C line 140)): the only statement that sets the flag is `SET INSUFFICIENT-FUND TO TRUE` (lines 670 and 678); no MOVE or SET writes 'F', and the field is never read from a message or a file, so CARD-FRAUD is never true when the EVALUATE at 700 runs."
+    },
+    {
+      "unit": "6000-MAKE-DECISION",
+      "line": 700,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@713",
+      "family": "C",
+      "reason": "`WHEN MERCHANT-FRAUD` ('M', 88 on WS-DECLINE-REASON-FLG (COPAUA0C line 140)): the only statement that sets the flag is `SET INSUFFICIENT-FUND TO TRUE` (lines 670 and 678); no MOVE or SET writes 'M', and the field is never read from a message or a file, so MERCHANT-FRAUD is never true when the EVALUATE at 700 runs."
+    }
+  ]
+}

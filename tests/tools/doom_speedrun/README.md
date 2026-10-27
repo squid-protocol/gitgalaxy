@@ -35,11 +35,12 @@ To add a port: read its license from the files, pin a SHA, add a row with `class
 `reimplementation` (an independent engine that plays DOOM data), `raycaster` (a DOOM-like raycaster, not the DOOM
 engine), `separate-engine` (a later id engine) or `assets` (a content project).
 
-`fidelity`, `fidelity_file`, `fidelity_phrase` (#5620): what the port's own README says about its fidelity to the
+`fidelity`, `fidelity_file`, `fidelity_phrase` (#5620), `fidelity_reason` (#6097): what the port's own README says about its fidelity to the
 original, read from the pinned clone. `fidelity` is `original` (linuxdoom), `faithful` (aims to reproduce the original,
 bugs included), `compatible` (states demo / data / behaviour compatibility while changing or adding), `enhanced`
 (states added features, no fidelity claim), `divergent` (disclaims being a port of, or exact to, the original) or
-`unstated` (no README, or silent). Anything but `original` / `unstated` names the README and a short quoted phrase.
+`unstated` (no README, or silent). Anything but `original` / `unstated` names the README and a short quoted phrase;
+`unstated` instead names `fidelity_reason`: `no-readme` or `readme-silent`.
 It records a claim, not a measurement. `fidelity.py check --work DIR` re-reads every phrase from the clones (a missing
 clone is reported as unchecked; `--strict` makes it an error) and `fidelity.py report` prints the class x fidelity counts.
 
@@ -74,7 +75,7 @@ Steps (`fetch`, `scan`, `score`, `report`) can be run singly and are resumable. 
 | 4 | typosquat | no `TYPOSQUATTING DETECTED` log lines |
 | 5 | credentials | no `has_credentials` files (SARIF error-level results are listed in `details.json` for review, never scored) |
 | 6 | health | scan rc is 0 and no `[ERROR]` / `CLASSIFICATION REFUTATION` / `Traceback` log lines (engine-wide warnings ignored) |
-| 7 | callgraph | call edges match the tree-sitter body oracle (C/C++: `callgraph_oracle.py`, below; go, java, csharp, rust, javascript, python: `ts_callgraph_oracle.py`): zero misses and zero engine-only edges of kind `absent` or `comment/string`. Columns `callgraph_recall`, `callgraph_precision`, `callgraph_misses`, `callgraph_engine_only` (scored) and `callgraph_unscored` (engine-only `type`, `function-pointer`, `macro`). A port with no oracle (a licensed C/C++ port with no C/C++ function, or none of those six languages: kotlin, dart, scheme, crystal, fsharp, cobol, fortran, assembly, sql) reports every column as `n/a`: a pass, but shown as unscored |
+| 7 | callgraph | call edges match the tree-sitter body oracle (C/C++: `callgraph_oracle.py`, below; go, java, csharp, rust, javascript, python, kotlin, lua, shell, tcl: `ts_callgraph_oracle.py`): zero misses and zero engine-only edges of kind `absent` or `comment/string`. Columns `callgraph_recall`, `callgraph_precision`, `callgraph_misses`, `callgraph_engine_only` (scored) and `callgraph_unscored` (engine-only `type`, `function-pointer`, `macro`). A port with no oracle (a licensed C/C++ port with no C/C++ function, or none of those seven languages: dart, scheme, crystal, fsharp, cobol, fortran, assembly, sql) reports every column as `n/a`: a pass, but shown as unscored |
 
 The report prints two PERFECT counts while check 7 lands: seven checks (`verdict`) and the first six (`verdict6`).
 
@@ -119,7 +120,7 @@ Blind spots of this oracle:
 - **ctags and tree-sitter share blind spots on C macros.** Both can miss a function a macro generates (`DEFINE_*(...)`),
   and tree-sitter may count a mis-parsed macro use as a function; the delta can cancel real misses and extras.
 - **Languages ctags/tree-sitter lack** (assembly, makefile, ...) are in no oracle: checks 3 and the oracle skip them.
-- **Check 1 only sees `SRC_EXT` files**; a first-party file with another extension is invisible to it.
+- **Check 1 only sees `SRC_EXT` files**; a first-party file with another extension is invisible to it. `SRC_EXT` covers every code language in the manifest (a test pins it); SQL and JCL are not in it.
 - **Vendoring is the engine's call**: a vendored tree the detector misses leaks into check 1/2/3 as first-party.
 - **Check 6 reads the log text**, so a new log wording needs `log_problems` updated.
 - **Check 7 does not score the edge convention (open owner question, #5874):** a C++ constructor (`new T(...)`,
@@ -127,12 +128,19 @@ Blind spots of this oracle:
   a callee named only inside a preprocessor line in the body (`macro`). They are in `callgraph_unscored`, so a port can
   pass with a wrong-by-convention precision (doom3-bfg's gap is mostly `type`). The oracle is one tree-sitter body
   walk: it shares tree-sitter's blind spots (a macro-generated call, a misparsed region falls back to text).
-  `ts_callgraph_oracle.py` is the same walk for the six other covered languages, matched by bare name: no text
+  `ts_callgraph_oracle.py` is the same walk for the ten other covered languages, matched by bare name: no text
   fallback (a function with no node at its start line is counted `unmatched`), a Rust macro's tokens are read as
   `name (...)` (so `vec![T::default()]` counts) except under `quote!`/`quote_spanned!`/`stringify!`, a C# `: base(...)`
-  initializer counts, and a Kotlin/Dart/Scheme/... port is `n/a`. It has no baseline file and no `LICENSED` gate (it
+  initializer counts, a shell or Tcl command word naming a function the port defines is a call (a Lua call is an ordinary call; the three were added for #5640's shapes, measured at 0 misses on edge-classic, sqldoom and odamex), a Kotlin trailing-lambda-only call of a stdlib scope function (`run`, `map`, ...) is no call, and a Dart/Scheme/... port is `n/a`. Crystal is not covered: its grammar swallows ~46% of doo-cr's functions in ERROR nodes. It has no baseline file and no `LICENSED` gate (it
   reads only the scan DB and clone the scorer already has); a mixed port in `LICENSED` (a C port with a Python tool)
   is scored by the C/C++ oracle only.
+- **`doom_clang_calls.py` is a second, compiler-resolved reference for check 7 (C ports, #5630 step 4), reported, never
+  scored.** It runs `tests/tools/clang_callgraph.py` (libclang, preprocessor first) on a clone and compares its edges
+  with `calls_out_to` by (file, caller). The ports have no build, so nearly every file hits a fatal include error
+  (`config.h`, `SDL.h`): clang then guesses types and can lose a call to a function of the same file, so the output
+  counts `disagreements_in_clean_files` apart and most of the delta is that artefact. What survives is a lead, e.g. a
+  call made only through a function-like macro (`FTOM(x)` expanding to `FixedMul(...)`, am_map.c in chocolate-doom
+  and puredoom): the compiler sees it, the engine does not.
 - **Pinned SHAs are the ports' HEAD at study time** (2026-10-18); a force-pushed upstream makes `fetch` fail loudly.
 - **Round 2's CSV was produced at engine `585c243e9`**; the current engine will differ, which is the point.
 - **`#ifdef`/`#else` alternate definitions are both counted.** A static scan cannot know the build configuration, so both branches are real source (owner ruling nyx-o9, 2026-10-21, #5462).
@@ -168,6 +176,13 @@ examples each). `--write-baseline FILE` writes the numbers-only view; `--baselin
 when a port's recall or precision drops by more than `--tolerance` (0.001), a baseline port is missing, or the
 consensus engine-miss or false-edge count grows. That is the hook for the DOOM-rosetta nightly (#5619, #5630): the `callgraph` job of `.github/workflows/doom-rosetta.yml` (schedule and manual dispatch only, never a PR check) runs `fetch` and `scan` on the baseline's ports, then the `--only all --baseline` command, and writes `callgraph.md` to the job summary; regenerate the baseline only with an explained engine change.
 
+`--clang` adds the libclang reference of `doom_clang_calls.py` to the same run (C ports among the scanned ports; needs `libclang`, otherwise it is skipped, and fails `--fail-on-regression`). `--write-baseline` then stores a `clang` section per port (`clang_edges`, `agree`, `recall`, `precision`, `files_fatal`, `disagreements_in_clean_files`) and a plain run keeps the committed one; `--baseline` fails when a port's clang recall or precision drops past `--tolerance`, or its `disagreements_in_clean_files` grows. Files with a fatal parse error (no build, so no `config.h`) are counted apart and never gated: that number moves with the missing headers, not the engine. No include stub is added: the clean-file count already separates the artefact.
+
+Vendored code is dropped from the oracle's functions (#6097, `load_port(..., vendored=)`). Measured at engine `77542d045`
+over the baseline's 23 ports (fresh clones at the manifest SHAs, a fresh scan): `--write-baseline` differs from the
+committed `callgraph_baseline.json` in `engine_sha` only, every recall, precision, hole and consensus count identical,
+so the baseline needed no refresh (the scan already skips vendored directories).
+
 Attribution convention (owner ruling nyx-o8, 2026-10-21): a call inside a nested function is credited to the nested
 function, never to the enclosing one, matching the engine (a C++ local class's method and a GNU C nested function are
 each their own unit). The `else if` that `#ifdef` splitting makes tree-sitter read as a nested definition is not a
@@ -185,8 +200,24 @@ Blind spots:
   `PYTHONMALLOC=debug`, so it looks like a flake).
 - **Names, not symbols.** Edges are compared by unqualified name and restricted to names the port defines, so a call
   to a same-named function in another scope, or through a function-pointer variable, is outside it.
-- **Code under `#if 0` counts** on both sides (neither tool preprocesses); libclang (#3784) is the planned check of
-  the active configuration.
+- **Code under `#if 0` counts** in the engine and the tree-sitter oracle (neither preprocesses); libclang (#3784,
+  `--clang`) sees the active configuration only, so it is the check that separates them (see the clean-file triage
+  below).
+
+### Clean-file disagreements of the libclang reference (#5630, slice 3)
+
+Read in source at scan `2ac09c8ae` (engine unchanged for these shapes since), each line against the clone. A "clean
+file" is one clang parsed without a fatal error; the baseline's `disagreements_in_clean_files`: puredoom 61, nugget-doom
+6, woof 6, inter-doom 3, doomretro 2, the other ten ports 0.
+
+| shape | side | edges | ports | verdict |
+|---|---|---|---|---|
+| call inside a disabled preprocessor branch: `#if 0` (`D_DoomLoop` -> `I_InitGraphics`, `G_Responder` -> `G_DeathMatchSpawnPlayer`, `R_StoreWallRange` -> `FixedDiv`, `AM_drawFline` -> `doom_itoa`) or `#if defined(I_NET_ENABLED)` with the macro never defined (`i_net.c`, 14 edges) | engine-only | 27 | puredoom | engine defect: `calls_out_to` counts the dead branch; clang is right |
+| call made by a function-like macro's body: `Z_ChangeTag(p, t)` expands to `Z_ChangeTag2`, `I_Error`, `doom_concat`, `doom_itoa`, `doom_strcpy`; `FTOM`/`MTOF`/`CXMTOF` to `FixedMul` | clang-only | 34 (28 + 6); inter-doom: 3 via `stbiw__sbgrow` -> `stbiw__sbgrowf` | puredoom, inter-doom | engine miss by design (no macro expansion); the call is real at run time |
+| `static inline` function defined in a header (`p_saveg.h` `saveg_grow` -> `saveg_check_size`, `Z_Realloc`; `m_array.h` `M_ArrayGrow` -> `I_Malloc`, `I_Realloc`) | engine-only | 6 + 6 + 2 | nugget-doom, woof, doomretro | reference blind spot: the edges are in the source; the reference lists none for a header-defined function |
+
+The 8 `sdl_example.c` edges of puredoom's engine-only list are in a fatal-error file (`SDL3/SDL.h` missing) and are not
+counted in the 61. 61 = 27 + 34.
 
 ## Lineage vs linuxdoom (`lineage.py`, #5620)
 
@@ -246,9 +277,32 @@ On the 0e2bf4ade scans it reproduces the study script's numbers for all 30 share
 Blind spots:
 - **A distance is a shape comparison, not a correctness claim.** A port in another language moves every metric by how
   the engine counts that language (what the cross-language slice is for); a large `dist` says "different", not "wrong".
-- **Vendored code is not excluded** (the study script did not either): a port that bundles a library carries its
-  functions in its own distribution. `lineage.py` is the tool that applies the engine's vendor test.
+- **Vendored code is excluded** (#6097; the round-1 script did not): functions under a directory the engine's
+  `VendorDirectoryDetector` calls vendored are dropped, so the numbers differ from round 1 for a port that bundles a
+  library. This reads the clone (`<work>/repos/<port>`, as `lineage.py` does); a port with a scan but no clone is skipped.
+  Measured over the 31 ports with a scan at each of three engine SHAs (2026-10-26): at two recent engine SHAs (`0e2bf4ade`, `b81b19f78`) the filter
+  drops nothing, because the scan already skips vendored directories (function counts identical with and without it);
+  at the older engine `aa8919dea`, which still scanned them, it dropped 11.2% of one port's functions, 3.1% and 2.0%
+  of two others, and 0 on the other 28. It is a guard for a scan that predates the engine's vendor skip.
 - **The majority language names the port** (`lang`); a polyglot port's functions of other code languages stay in.
+
+## Per-subsystem complexity (`subsystem_distribution.py`, #6097)
+
+Slice 1 of the per-subsystem distributions: ONE metric family (cyclomatic complexity) split by linuxdoom subsystem
+(`lineage.subsystem`: file directory and file-name prefix). Per port and subsystem: functions, median, 90th percentile,
+the share with complexity >= 10, and the port's median over linuxdoom's median in the same subsystem (blank under
+`--min-subsystem` functions on either side). Reads the same scans as `distribution.py`; licensed ports only.
+
+```bash
+python tests/tools/doom_speedrun/subsystem_distribution.py [--only gore,room4doom] [--sha SHA] [--min-subsystem N]
+```
+
+Results in `<work>/results/<sha>/distribution/`: `subsystem_distribution.csv`, `subsystem_distribution.md`.
+
+Blind spots:
+- **The split is by file name**: a port that renamed its files has those functions under `other` (its `other %`
+  column says how many), so its subsystem rows describe only the files that kept linuxdoom's prefixes.
+- **Complexity only**: LOC, fan-out, token mass and the plots are later slices (#6097).
 
 ## Study write-up tables (`study_report.py`, #5620)
 

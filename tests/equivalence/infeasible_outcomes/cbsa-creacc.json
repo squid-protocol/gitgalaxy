@@ -1,0 +1,30 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-creacc",
+  "entries": [
+    {
+      "unit": "ENC010",
+      "line": 397,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "R",
+      "reason": "ENQ RESOURCE(NCS-ACC-NO-NAME) LENGTH(16) carries no NOSUSPEND, so a held resource suspends the task instead of returning ENQBUSY (the model refuses a planned-busy ENQ without NOSUSPEND), and the 16-byte length equals the name's size, so LENGERR and INVREQ are not raised either: RESP is always NORMAL."
+    },
+    {
+      "unit": "DNC010",
+      "line": 419,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "R",
+      "reason": "DEQ RESOURCE(NCS-ACC-NO-NAME) LENGTH(16) follows the ENQ of the same 16-byte name in the same task, so the resource is held and the length matches: the DEQ always completes NORMAL."
+    },
+    {
+      "unit": "CD010",
+      "line": 1137,
+      "kind": "EVALUATE",
+      "outcome": "none",
+      "family": "G",
+      "reason": "WS-ORIG-DATE-MM is the month of the task's own date (FORMATTIME DDMMYYYY), always 01-12, and the WHENs list every month 1-12 (1,3,5,7,8,10,12 / 9,4,6,11 / 2): no month matches none."
+    }
+  ]
+}

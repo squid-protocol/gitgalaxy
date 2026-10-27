@@ -51,7 +51,9 @@ yaml = ["PyYAML>=6.0"]
 # unpinned, the same set CI installs ("Install GitGalaxy & Full Precision
 # Engines" in .github/workflows/gitgalaxy.yml). Opt-in like every other extra:
 # a plain `pip install gitgalaxy` still installs nothing.
-full = ["PyYAML>=6.0", "tiktoken", "xgboost", "pandas>=2.0.0", "numpy"]
+# scikit-learn is there because xgboost.XGBClassifier (what the ML threat layer loads) raises
+# ImportError without it (#2986).
+full = ["PyYAML>=6.0", "tiktoken", "xgboost", "scikit-learn", "pandas>=2.0.0", "numpy"]
 
 # Unlike `yaml` above, this extra is never imported by anything under gitgalaxy/ and changes no
 # behavior of the shipped engine -- it exists purely so a contributor can
@@ -147,6 +149,9 @@ exclude = [
 ]
 line-length = 120
 target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
 
 [tool.ruff.lint]
 # Deliberately scoped, not `ALL` -- see #469 for the measured rationale behind

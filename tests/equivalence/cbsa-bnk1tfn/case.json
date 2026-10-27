@@ -532,6 +532,161 @@
           "TACCNOI": "00000002"
         }
       }
+    },
+    {
+      "name": "first-entry-send-map-invmpsz",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "why": "EIBCALEN 0: the SEND MAP ERASE of the empty map fails INVMPSZ (planned, X71): nothing is sent and the non-NORMAL arm takes the abend routine",
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "map": "BNK1TF",
+          "nth": 1,
+          "resp": "INVMPSZ"
+        }
+      ]
+    },
+    {
+      "name": "validation-failure-send-map-tsioerr",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "the amount-letters input sends its message with SEND MAP DATAONLY ALARM, which fails TSIOERR (planned, X71): the non-NORMAL arm takes the abend routine",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "12a"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "SEND-MAP",
+          "map": "BNK1TF",
+          "nth": 1,
+          "resp": "TSIOERR"
+        }
+      ]
+    },
+    {
+      "name": "from-not-numeric",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "FACCNOI '0000000B': the trailing letter keeps its zone through BIF DEEDIT, so the field is NOT NUMERIC and the validation message is sent",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "0000000B",
+          "TACCNOI": "00000002",
+          "AMTI": "100.50"
+        }
+      }
+    },
+    {
+      "name": "to-not-numeric",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "TACCNOI '0000000B': the trailing letter keeps its zone through BIF DEEDIT, so the field is NOT NUMERIC and the validation message is sent",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "0000000B",
+          "AMTI": "100.50"
+        }
+      }
+    },
+    {
+      "name": "update-fails",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "the first ACCOUNT UPDATE in XFRFUN fails -530 (not a storm-drain code): fail code '3', 'could not be applied due to an unexpected error'",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "100.50"
+        }
+      },
+      "sql_faults": [
+        {
+          "program": "XFRFUN",
+          "table": "ACCOUNT",
+          "verb": "UPDATE",
+          "sqlcode": -530,
+          "nth": 1
+        }
+      ]
+    },
+    {
+      "name": "link-xfrfun-pgmiderr",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "LINK to XFRFUN fails PGMIDERR: the non-NORMAL arm after the LINK",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "100.50"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "LINK",
+          "program": "XFRFUN",
+          "resp": "PGMIDERR",
+          "nth": 1
+        }
+      ]
+    },
+    {
+      "name": "amount-leading-spaces-integer",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "amount '   12' (leading spaces, no decimal point): not NUMERIC, the leading spaces are stripped, the tally accepts it and the point count is 0 -- the decimal check is skipped",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "   12"
+        }
+      }
+    },
+    {
+      "name": "amount-blank",
+      "aid": "DFHENTER",
+      "commarea": {},
+      "why": "amount typed as three spaces: every character is a leading space -- 'The Amount entered must be numeric.'",
+      "receive": {
+        "BNK1TF": {
+          "FACCNOI": "00000001",
+          "TACCNOI": "00000002",
+          "AMTI": "   "
+        }
+      }
+    },
+    {
+      "name": "pf12-send-text-tsioerr",
+      "aid": "DFHPF12",
+      "commarea": {},
+      "faults": [
+        {
+          "cmd": "SEND-TEXT",
+          "resp": "TSIOERR"
+        }
+      ],
+      "why": "PF12: SEND-TERMINATION-MSG's SEND TEXT ERASE FREEKB (STM010) fails TSIOERR (planned, register X71): nothing is sent and the non-NORMAL arm takes the abend routine"
+    },
+    {
+      "name": "first-entry-plain-return-invreq",
+      "aid": "DFHENTER",
+      "commarea": null,
+      "faults": [
+        {
+          "cmd": "RETURN",
+          "resp": "INVREQ",
+          "resp2": 4
+        }
+      ],
+      "why": "EIBCALEN 0: the closing RETURN TRANSID .. COMMAREA RESP (A010) fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its A010 abend routine"
     }
   ],
   "notes": "CBSA's transfer-funds screen (BNK1TFN, transaction OTFN, BMS map BNK1TF of mapset BNK1TFM: the symbolic map is generated from src/base/bms_src/BNK1TFM.bms). Pseudo-conversational: a first task sends the empty map; a returning one acts on the AID -- PA keys nothing, PF3 RETURN TRANSID('OMEN') IMMEDIATE, PF12 the termination message, CLEAR, ENTER (BIF DEEDIT of both account numbers, the same-account and zero-account checks, VALIDATE-AMOUNT, then LINK XFRFUN with SUBPGM-PARMS), any other key 'Invalid key pressed.'. XFRFUN and ABNDPROC run in the task, as in cbsa-xfrfun. ACCOUNT and PROCTRAN are compared after every scenario. Every amount typed is exact in a binary double (a COMP-2 holding 9999999999.99 is not: truncated on COBOL, rounded on Java: oracle_assumptions.md C6). The COMMAREA is compared as the program RETURNs it, WS-COMMAREA. Not reached: an amount longer than WS-AMOUNT-UNSTR's 13 characters (the program then reference-modifies 14 characters of a 13-character item: where that reads depends on storage layout, so the Java side refuses it and no scenario is written), an account number with no digit at all (BIF DEEDIT of such a field is not modelled: refused), XFRFUN's code 4 (an amount not above zero: VALIDATE-AMOUNT refuses zero and negatives first) and the failure branches after SEND MAP / SEND TEXT / SEND CONTROL / RETURN / LINK (no fault can be injected on them). Data: seed.sql is cbsa-xfrfun's SYNTHETIC seed. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."

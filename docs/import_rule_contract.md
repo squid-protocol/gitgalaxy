@@ -117,7 +117,13 @@ one (a Scala `package object`, the resolver's #3595 rule) and otherwise there is
 one edge per file of the package, which would hand a 40-file package 40 edges per importer and
 tilt PageRank and blast radius toward big packages. A wildcard over an object's members
 (`a.b.C._`) is an edge to C's file, as any named import is. The graph comparison
-(`import_graph_accuracy.py`) scores Scala and Kotlin by this rule; Java and Go, where the
+(`import_graph_accuracy.py`) scores Scala and Kotlin by this rule, and C# by it too (#3798: `using A.B;` imports a
+namespace, which has no file of its own, so only `using static` and an alias of a type are scored; the engine's
+edge from a `using` to a file named like the namespace's last segment is an open FP shape in the graph comparison
+ledger, not yet ruled on) and Groovy (#3798: `import a.b.*` names a package, so no edge; `import a.b.C`, `as`, `static` forms
+are scored against the files declaring C in a.b, read by pattern on masked text) and Swift (#3798: `import Mod` names a SwiftPM target, so no edge; only `import struct|class|...
+Mod.Name` is scored, against the files of Mod declaring Name; the engine no longer draws an edge from `import Foundation` to a file named
+`Foundation.swift`, ruled in the same PR); Java and Go, where the
 engine's edge already lands inside the package and nothing disagrees, keep the "any file of the
 package" scoring.
 
@@ -194,7 +200,7 @@ json, mlir, nix, pbtxt, plaintext, proto, td, xml).
 | embedded_python | 65 | 7 | **C4/C5**: classifier floor (ledgered inherency); loader calls join |
 | fortran | 309 → 269 | 3 | **C5/C3**: statement position; `IMPORT` out; `#include` in |
 | go | 14 | 3 | **C1**: aliased single-line form `import _ "embed"` joins (no crucible instance; groups count 1) |
-| groovy | 693 | 3 | conforms |
+| groovy | 693 | 3 | conforms (`import`/`as`/`static`; package wildcard is C7, no edge) |
 | haskell | 138 | 3 | conforms (`import qualified … as`) |
 | html | 36 | 3 | conforms; inline module/importmap left (residue) |
 | java | 336 | 3 | conforms (`import static`) |

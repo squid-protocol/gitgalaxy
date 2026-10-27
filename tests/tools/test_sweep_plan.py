@@ -240,7 +240,7 @@ def test_the_workflow_plans_then_deselects_with_golden_crucible_kept():
     checkout = next(s for s in job["steps"] if str(s.get("uses", "")).startswith("actions/checkout"))
     assert checkout["with"]["fetch-depth"] == 1
     # the required aggregate and its needs are unchanged; the matrix gate never deselects
-    assert wf["full-suite"]["needs"] == ["tested-tree", "full-suite-part"]
+    assert wf["full-suite"]["needs"] == ["tested-tree", "suite-plan", "full-suite-part"]  # #6278
     gate = (ROOT / ".github" / "workflows" / "full-suite-gate.yml").read_text(encoding="utf-8")
     assert "redos_sweep" not in gate and "sweep_plan" not in gate
 
@@ -321,22 +321,114 @@ def test_no_engine_non_input_is_in_the_sweeps_import_closure():
         ), pat
 
 
-def test_a_pull_request_ignores_cobol_mainframe_once_and_nothing_else_does():
-    """Ground Truth runs tests/cobol_mainframe/ on a PR; the parts drop it there only, via the plan step's env file."""
+def test_a_pull_request_or_push_ignores_cobol_mainframe_and_nothing_else_does():
+    """Ground Truth runs tests/cobol_mainframe/ on a PR and a main push; the parts drop it there only (the nightly and a
+    manual run keep it, #5953), via the plan step's env file."""
     yaml = pytest.importorskip("yaml")
     wf = yaml.safe_load((ROOT / ".github" / "workflows" / "smoke-test.yml").read_text(encoding="utf-8"))["jobs"]
     job = wf["full-suite-part"]
     plan_step = next(s for s in job["steps"] if s.get("id") == "sweeps")
     run_step = next(s for s in job["steps"] if s.get("name", "").startswith("Golden Record Integration Test"))
-    assert 'if [ "$GITHUB_EVENT_NAME" = "pull_request" ]' in plan_step["run"]
+    assert '[ "$GITHUB_EVENT_NAME" = "pull_request" ] || [ "$GITHUB_EVENT_NAME" = "push" ]' in plan_step["run"]
+    assert "schedule" not in plan_step["run"].split("PYTEST_ADDOPTS")[0].rsplit("if ", 1)[-1]
     assert "PYTEST_ADDOPTS=--ignore=tests/cobol_mainframe" in plan_step["run"]
     assert "cobol_mainframe/test_evidence_components.py" in run_step["run"]  # the older ignore is unchanged
     assert "PYTEST_ADDOPTS" not in run_step["run"]
     gate = (ROOT / ".github" / "workflows" / "full-suite-gate.yml").read_text(encoding="utf-8")
     assert "PYTEST_ADDOPTS" not in gate
+    # #5953: the nightly grid drops ubuntu / 3.12 (smoke-test.yml's nightly is that leg); a tag or manual run keeps it
+    assert '"$GITHUB_EVENT_NAME" = "schedule" ] || {' in gate
+    # post-merge.yml's dispatch (workflow_dispatch on main, no inputs) drops it too; a PR-branch run or full_matrix=true keeps it
+    assert '"$GITHUB_REF" = "refs/heads/main" ]' in gate
+    assert '"$FULL_MATRIX" != "true" ]; }; then\n' in gate
+    assert '.os != "ubuntu-latest" or .["python-version"] != "3.12"' in gate
     gt = yaml.safe_load((ROOT / ".github" / "workflows" / "mainframe-ground-truth.yml").read_text(encoding="utf-8"))
     part = gt["jobs"]["ground-truth-part"]
     assert "fromJSON(needs.plan.outputs.matrix" in part["strategy"]["matrix"]  # #5543: the plan job picks 4 parts or 2
     steps = " ".join(s.get("run", "") for s in part["steps"])
     assert "tests/cobol_mainframe/ " in steps  # the job that now owns the directory still runs all of it
     assert "--splits ${{ matrix.parts }}" in steps  # every layout's groups together are the whole directory
+
+
+def _pr(number, *paths):
+    return {"number": number, "files": [{"path": p} for p in paths]}
+
+
+def test_replay_counts_the_prs_that_skip_and_the_serial_time_they_save():
+    durations = {
+        "tests/extraction/languages/test_x.py::test_x_redos_immune[a]": 30.0,
+        "tests/extraction/languages/test_x.py::test_x_linear_on_pathological": 30.0,
+        "tests/extraction/languages/test_x.py::test_x_branch": 99.0,  # not a sweep by name
+        "tests/core_engine/test_y.py::test_y_redos_sweep": 99.0,  # not under extraction: unmarked
+    }
+    prs = [
+        _pr(1, "docs/ci.md"),
+        _pr(2, "docs/ci.md", "gitgalaxy/core/detector.py"),
+        _pr(3, "tests/tools/det_sweep_plan.py"),
+    ]
+    out = sp.replay(prs, durations)
+    assert (out["prs"], out["skipped"], out["skipped_prs"]) == (3, 2, [1, 3])
+    assert out["share"] == 0.667
+    assert out["sweep_serial_seconds_per_run"] == 60.0
+    assert out["serial_minutes_saved"] == 2.0
+
+
+def test_replay_treats_a_possibly_truncated_or_empty_file_list_as_full():
+    full_page = _pr(1, *[f"docs/{i}.md" for i in range(100)])
+    assert sp.replay([full_page, _pr(2)], {})["skipped"] == 0
+    assert sp.replay([], {}) == {
+        "prs": 0,
+        "skipped": 0,
+        "share": 0.0,
+        "sweep_serial_seconds_per_run": 0.0,
+        "serial_minutes_saved": 0.0,
+        "skipped_prs": [],
+    }
+
+
+def test_the_seconds_helper_names_the_same_tests_the_marker_does():
+    # one rule in two places (tests/conftest.py _is_redos_sweep): the substrings and the directory must agree
+    src = (ROOT / "tests" / "conftest.py").read_text(encoding="utf-8")
+    assert '"redos" in name or "linear_on_pathological" in name' in src
+    assert (
+        sp.sweep_seconds({"tests/extraction/a.py::C::test_redos_one[p]": 1.5, "tests/extraction/a.py::test_b": 2})
+        == 1.5
+    )
+
+
+def test_replay_failure_exits_nonzero_without_planning(monkeypatch, capsys):
+    monkeypatch.setattr(sp, "run_replay", lambda n: (_ for _ in ()).throw(RuntimeError("no gh")))
+    monkeypatch.setattr(sys, "argv", ["sweep_plan.py", "--replay", "5"])
+    assert sp.main() == 1
+    assert "replay failed: no gh" in capsys.readouterr().err
+
+
+# near misses: a path that only LOOKS like a non-input (sibling prefix, nested copy, other extension) stays an input
+NEAR_MISS_INPUT_PATHS = [
+    "gitgalaxy/standards/cics_extra.py",  # the CICS exemption is the directory, not the prefix
+    "gitgalaxy/tools/cobol_to_java_helper.py",  # the translator exemption is its directory
+    "gitgalaxy/cobol_to_java_controller_v2.py",
+    "gitgalaxy/tools/terabyte_log_scanning_x/a.py",
+    "tests/extraction_extra/test_a.py",
+    "requirements-dev.txt",
+    "ci/requirements/extra/lock.txt",
+]
+
+
+@pytest.mark.parametrize("path", NEAR_MISS_INPUT_PATHS)
+def test_a_near_miss_of_a_non_input_pattern_runs_the_sweeps(path):
+    assert sp.plan([path], "pull_request")["mode"] == "full"
+
+
+@pytest.mark.parametrize("event", ["push", "schedule", "workflow_dispatch"])
+def test_main_ignores_the_prs_file_list_on_every_other_event(monkeypatch, tmp_path, capsys, event):
+    rows = [{"filename": "docs/ci.md"}]
+    monkeypatch.setattr(sys, "argv", ["sweep_plan", "--event", event, "--pr-files", str(_pr_list(tmp_path, rows)),
+                                      "--pr-file-count", "1"])  # fmt: skip
+    assert sp.main() == 0
+    assert json.loads(capsys.readouterr().out)["mode"] == "full"
+
+
+def test_replay_counts_a_pr_with_no_files_key_or_a_nameless_entry_as_full():
+    prs = [{"number": 1}, {"number": 2, "files": None}, {"number": 3, "files": [{"additions": 1}]}, _pr(4, "docs/a.md")]
+    assert sp.replay(prs, {})["skipped_prs"] == [4]

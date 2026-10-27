@@ -74,8 +74,19 @@ jobs:
           lookup-only: true
           key: java-same-base-${{ matrix.corpus }}-${{ hashFiles('gitgalaxy/gitgalaxy/cobol_to_java_controller.py', 'gitgalaxy/gitgalaxy/cobol_refractor_controller.py', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_cobol/**', 'gitgalaxy/gitgalaxy/standards/yaml_reader.py', 'gitgalaxy/gitgalaxy/standards/fact_channel_confidence.json', 'gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py') }}
 
+      # #5142: the engine scan (dsf: ~90 s per side) is kept under its own content key (the scan-deciding code, not the
+      # translator), so the pull-request check restores it instead of scanning. java_target_matrix.scan_key is the exact
+      # key inside; this one only has to change whenever that one can.
+      - name: Is the engine scan already kept?
+        id: scan-kept
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/java_scan_cache
+          lookup-only: true
+          key: java-scan-${{ matrix.corpus }}-${{ hashFiles('gitgalaxy/gitgalaxy/**', '!gitgalaxy/gitgalaxy/tools/cobol_to_java/**', '!gitgalaxy/gitgalaxy/cobol_to_java_controller.py', '!gitgalaxy/gitgalaxy/cobol_refractor_controller.py') }}-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/det/copy/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/cics_task_containers.py') }}-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py', 'gitgalaxy/tests/tools/java_target_matrix.py') }}
+
       - name: Setup Python
-        if: steps.kept.outputs.cache-hit != 'true'
+        if: steps.kept.outputs.cache-hit != 'true' || steps.scan-kept.outputs.cache-hit != 'true'
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
@@ -85,7 +96,7 @@ jobs:
             gitgalaxy/ci/requirements/*.txt
 
       - name: Install GitGalaxy
-        if: steps.kept.outputs.cache-hit != 'true'
+        if: steps.kept.outputs.cache-hit != 'true' || steps.scan-kept.outputs.cache-hit != 'true'
         run: |
           cd gitgalaxy
           tests/tools/ci_retry.sh 4 10 -- python -m pip install --require-hashes -r ci/requirements/bootstrap.txt
@@ -93,21 +104,21 @@ jobs:
 
       - name: Cache the pinned corpora
         id: corpora
-        if: steps.kept.outputs.cache-hit != 'true'
+        if: steps.kept.outputs.cache-hit != 'true' || steps.scan-kept.outputs.cache-hit != 'true'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mainframe_corpora
           key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
 
       - name: Fetch the pinned corpora
-        if: steps.kept.outputs.cache-hit != 'true'
+        if: steps.kept.outputs.cache-hit != 'true' || steps.scan-kept.outputs.cache-hit != 'true'
         run: |
           cd gitgalaxy
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
       - name: Save the pinned corpora (main)
-        if: steps.kept.outputs.cache-hit != 'true' && steps.corpora.outputs.cache-hit != 'true' && github.event_name != 'pull_request'
+        if: (steps.kept.outputs.cache-hit != 'true' || steps.scan-kept.outputs.cache-hit != 'true') && steps.corpora.outputs.cache-hit != 'true' && github.event_name != 'pull_request'
         continue-on-error: true  # best effort: a miss only costs the next run a clone
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -116,7 +127,7 @@ jobs:
 
       - name: Generate this commit's Java (both paths)
         id: keep-gen
-        if: steps.kept.outputs.cache-hit != 'true'
+        if: steps.kept.outputs.cache-hit != 'true' || steps.scan-kept.outputs.cache-hit != 'true'
         env:
           CORPUS: ${{ matrix.corpus }}
           CONFIGS: ${{ matrix.configs }}
@@ -129,6 +140,7 @@ jobs:
             "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
             --same-as "$GITHUB_WORKSPACE/gitgalaxy" \
             --base-cache "$RUNNER_TEMP/java_base_cache" \
+            --scan-cache "$RUNNER_TEMP/java_scan_cache" \
             --work "$RUNNER_TEMP/java_keep" \
             "${ONLY[@]}"
 
@@ -138,3 +150,10 @@ jobs:
         with:
           path: ${{ runner.temp }}/java_base_cache
           key: java-same-base-${{ matrix.corpus }}-${{ hashFiles('gitgalaxy/gitgalaxy/cobol_to_java_controller.py', 'gitgalaxy/gitgalaxy/cobol_refractor_controller.py', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_cobol/**', 'gitgalaxy/gitgalaxy/standards/yaml_reader.py', 'gitgalaxy/gitgalaxy/standards/fact_channel_confidence.json', 'gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py') }}
+
+      - name: Save the engine scan under this content (main)
+        if: steps.scan-kept.outputs.cache-hit != 'true' && steps.keep-gen.outcome == 'success'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/java_scan_cache
+          key: java-scan-${{ matrix.corpus }}-${{ hashFiles('gitgalaxy/gitgalaxy/**', '!gitgalaxy/gitgalaxy/tools/cobol_to_java/**', '!gitgalaxy/gitgalaxy/cobol_to_java_controller.py', '!gitgalaxy/gitgalaxy/cobol_refractor_controller.py') }}-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/det/copy/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/cics_task_containers.py') }}-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py', 'gitgalaxy/tests/tools/java_target_matrix.py') }}

@@ -6,7 +6,8 @@
 
 PROOF_BLOCKERS.json is `proof_blockers.py DIR --json` (nothing is re-derived here: the gaps, cases and verdicts are its).
 `--survey DIR` runs proof_blockers on a `cics_census.py survey` directory first. Writes DIR/harness_report.{md,json}.
-The page is generated output: it is not committed (evidence pages are published to the `generated` branch, #5206).
+The page is generated output: it is not committed. evidence-refresh.yml builds it nightly after its survey (`--survey`)
+and publishes it to the `generated` branch under docs/language_status/harness/ (#4493).
 
 The page has four parts:
   coverage      programs in the estate, with a runnable case, proven (counts and %), and the share of paragraphs and
@@ -78,6 +79,9 @@ def fix_for(gap: str, programs: list[str], cases: list[str], details: list[str])
         return f"Write an equivalence case for {noun}: {who}."
     if gap.startswith("no det port"):
         return f"Commit a det port for {noun} (their crucible case runs only the COBOL): {who}."
+    if gap == "cobc: does not compile":
+        why = clip("; ".join(sorted(set(details))) or "no diagnostic recorded")
+        return f"Make the COBOL of {noun} compile under cobc ({why}; fix the source, a copybook or the compile options): {who} (cases: {', '.join(cases)})."  # fmt: skip
     if gap.startswith("known unproven"):
         why = clip("; ".join(sorted(set(details))) or gap)
         return f"Fix {gap.split(':', 1)[1].strip()} ({why}) to prove {noun}: {who} (cases: {', '.join(cases)})."
@@ -199,6 +203,12 @@ def redefines_choices(items: list[dict[str, Any]], record: str = "") -> list[str
     return out
 
 
+def copy_dirs(base: Path, case: dict[str, Any], cpy: str) -> list[Path]:
+    """Where a COPY inside the record resolves, as the generator reads it (#5233): the file's own directory, the case's
+    `copy_dirs`, then the corpus."""
+    return [(base / cpy).parent, *(base / d for d in case.get("copy_dirs", [])), base]
+
+
 def record_limit(roots: list[Path], case: dict[str, Any], dataset: str) -> tuple[str, str]:
     """(cause, symbols) of one generated record's layout limit: a key of FIX_LAYOUT or "", and the names involved."""
     gen = case["datasets"][dataset].get("generate") or {}
@@ -211,7 +221,7 @@ def record_limit(roots: list[Path], case: dict[str, Any], dataset: str) -> tuple
 
     record = gen.get("record") or case["datasets"][dataset].get("record") or None
     try:
-        common.layout_fields(base, cpy, record)
+        common.layout_fields(base, cpy, record, copy_dirs=copy_dirs(base, case, cpy))
     except common.LayoutError as e:
         return ("no layout" if "no record" in str(e) else "unresolved copy"), ""
     from gitgalaxy.core.source_text import read_source
@@ -225,8 +235,8 @@ def record_limit(roots: list[Path], case: dict[str, Any], dataset: str) -> tuple
         import cobol_answer_key as ak
 
         path = base / cpy
-        lines = common._expanded_lines(path, [path.parent, base], [])
-        items = [it for it in ak._data_items(ak.Source(path, list(enumerate(lines, 1))))]
+        lines = common._expanded_lines(path, copy_dirs(base, case, cpy), [])
+        items = list(ak._data_items(ak.Source(path, list(enumerate(lines, 1)))))
         if chosen := redefines_choices(items, record or ""):
             return "redefines", "; ".join(chosen)
     return "", ""
@@ -276,6 +286,65 @@ def input_blockers(
                     "items": sorted(b["items"]), "cases": cases, "programs": sorted(b["programs"]),
                     "tests_held": sum(tests.get(c, 0) for c in cases)})  # fmt: skip
     return sorted(out, key=lambda b: (-b["tests_held"], b["cause"]))
+
+
+LINK_FIX = "Connect the unresolved or ambiguous COPY member(s) so the programs translate whole: {names}"
+STUB_FIX = "Model or stub the runtime service the translator leaves a hole for: {names}"
+
+
+def untranslated_cause(klass: str) -> str:
+    """The #4493 blocker class of one translation gap class (`cics_census.gap_classes`): `unresolved link` (class 4:
+    a COPY member the engine did not connect), `no stub` (class 5: a CICS / Db2 / IMS service nothing models),
+    `refused` (the translator refuses the construct by name) or `hole` (an unmodelled statement)."""
+    if klass.startswith(("missing copybook", "refused: CopyUnresolved")):  # CopyUnresolved: #4468
+        return "unresolved link"
+    if klass.startswith("refused:"):
+        return "refused"
+    if klass.startswith(("EXEC CICS", "EXEC SQL", "EXEC DLI", "CALL CBLTDLI")):
+        return "no stub"
+    return "hole"
+
+
+_COPY_NAME = re.compile(r"\bCOPY\s+([A-Z0-9@#$_-]+)", re.I)
+
+
+def unresolved_detail(p: dict[str, Any]) -> str:
+    """` [COPY NAME: why]` for a program refused over a COPY member (the gap class of a CopyUnresolved refusal drops
+    the name), from the survey row's error; empty when the row carries none."""
+    err = p.get("error") or ""
+    m = _COPY_NAME.search(err)
+    if not err.startswith("Copy") or not m:
+        return ""
+    why = err.split(f"COPY {m.group(1)}", 1)[-1].lstrip(": ").strip()
+    return f" [COPY {m.group(1).upper()}{': ' + clip(why, 120) if why else ''}]"
+
+
+def untranslated_blockers(res: dict[str, Any]) -> list[dict[str, Any]]:
+    """Programs the translator refused or left holes in, which have no proof subject, grouped by cause (each program
+    under ONE cause: its first class) and stated as the fix. Burned, non-crucible programs only. No case exists to
+    unlock, so the count is the programs that would become provable subjects."""
+    from proof_blockers import is_crucible
+
+    by: dict[str, dict[str, Any]] = {}
+    for p in res.get("untranslated", []):
+        if is_crucible(p["corpus"]) or not p.get("burned") or not p["classes"]:
+            continue
+        cause = untranslated_cause(p["classes"][0])
+        b = by.setdefault(cause, {"programs": set(), "items": set()})
+        b["programs"].add(p["program"])
+        b["items"].add(f"{p['program']}: {'; '.join(p['classes'])}{unresolved_detail(p)}")
+    out = []
+    for cause, b in by.items():
+        names = sorted(b["programs"])
+        fix = {"unresolved link": LINK_FIX, "no stub": STUB_FIX}.get(
+            cause,
+            "Teach the translator the construct it "
+            + ("refuses" if cause == "refused" else "leaves a hole for")
+            + ": {names}",
+        )
+        out.append({"cause": cause, "fix": fix.format(names=", ".join(names)) + ".",
+                    "programs": names, "items": sorted(b["items"])})  # fmt: skip
+    return sorted(out, key=lambda b: (-len(b["programs"]), b["cause"]))
 
 
 def case_coverage(cases_dir: Path, name: str) -> dict[str, int] | None:
@@ -372,6 +441,8 @@ def build(
     }  # fmt: skip
     if in_blockers := input_blockers(rows, inputs, tests):
         rep["input_blockers"] = in_blockers
+    if untranslated := untranslated_blockers(res):
+        rep["untranslated"] = untranslated
     return rep
 
 
@@ -426,6 +497,11 @@ def markdown(rep: dict[str, Any]) -> str:
         out += ["", "### Input-generation blockers (highest value first)", ""]
         for n, b in enumerate(rep["input_blockers"], 1):
             out.append(f"{n}. {b['fix']} Holds back {b['tests_held']} tests across {len(b['programs'])} programs.")
+            out += [f"   - {it}" for it in b["items"]]
+    if rep.get("untranslated"):
+        out += ["", "## Programs with no translation yet (no case can run them)", ""]
+        for n, b in enumerate(rep["untranslated"], 1):
+            out.append(f"{n}. {b['fix']} Frees {len(b['programs'])} programs to get a case.")
             out += [f"   - {it}" for it in b["items"]]
     nl = rep["not_listed"]
     out += ["", f"Not listed: {nl['non_burned_programs']} non-burned programs ({nl['note']}).", ""]

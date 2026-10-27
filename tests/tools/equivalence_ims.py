@@ -12,7 +12,8 @@ issues CALL 'CBLTDLI') runs against, and both sides run on the same stated conte
 The DBD and PSB sources are read by the engine's own macro reader (gitgalaxy/core/ims_gen.py); what this model does
 not model is refused here by name (Unsupported): HDAM / PHDAM (the randomizer's root order), logical relationships,
 variable-length segments, a non-unique or missing sequence field, an I/O PCB (CMPAT=YES, TYPE=TP: IMS TM), PROCSEQ (a
-secondary index), load mode on a DB PCB (PROCOPT L), segment-level PROCOPT and partial sensitivity. A GSAM database
+secondary index), a PROCOPT with L beside other options, segment-level PROCOPT and partial sensitivity. A DB PCB with PROCOPT L / LS
+(#5233) is load mode: ISRT only, into an empty database no other PCB shares. A GSAM database
 (#5233) is modelled as a load-mode output only: ACCESS=(GSAM,..) with fixed RECORD=(n), a TYPE=GSAM PCB with PROCOPT
 LS, and ISRT; it takes `"gsam": {"<DBD>": {"copybook": ..., "record": ...}}` to compare its records by field.
 `{"unload": ...}` reads an HD reorganization unload (DFSURGU0) of the corpus: its segments, EBCDIC, each laid out by
@@ -72,9 +73,15 @@ def dbd(text: str, where: str) -> dict[str, Any]:
     if access not in ACCESS:
         raise Unsupported(f"{where}: ACCESS={access or '?'} (only {', '.join(ACCESS)}: the root sequence of an HDAM "
                           "database is its randomizer's, a GSAM / INDEX / LOGICAL database is no hierarchy here)")  # fmt: skip
+    if re.search(r"(?im)^(?!\*)[^\s]*\s+XDFLD\s", text):  # ims_gen_macros drops XDFLD: read it off the source
+        raise Unsupported(f"{where}: XDFLD (a secondary index) is not modelled")
     segs: list[dict[str, Any]] = []
     for r in rows:
         attrs = r["attributes"] or ""
+        if r["kind"] == "LCHILD" and not re.search(r"POINTER\s*=\s*\(?\s*INDX?\b", attrs, re.I):
+            raise Unsupported(
+                f"{where}: LCHILD {r['name']} is not a primary index (a logical relationship: not modelled)"
+            )
         if r["kind"] == "SEGM":
             parent = (r["parent"] or "0").strip("()").split(",")[0].strip().upper() or "0"
             if _keyed(attrs, "SOURCE") or re.search(r"PARENT\s*=\s*\(\([^)]*\)\s*,\s*\(", attrs, re.I):
@@ -133,8 +140,11 @@ def psb(
             if _keyed(attrs, "PROCSEQ"):
                 raise Unsupported(f"{where}: PCB {r['name']}: PROCSEQ (a secondary index) is not modelled")
             procopt = (r["procopt"] or "A").upper()
-            if "L" in procopt:
-                raise Unsupported(f"{where}: PCB {r['name']}: PROCOPT={procopt} (load mode) is not modelled")
+            if "L" in procopt and procopt not in ("L", "LS"):
+                raise Unsupported(f"{where}: PCB {r['name']}: PROCOPT={procopt} (load mode with another option is not "
+                                  "modelled: only L / LS alone)")  # fmt: skip
+            if "L" in procopt and cics:
+                raise Unsupported(f"{where}: PCB {r['name']}: PROCOPT={procopt} (load mode under CICS is not modelled)")
             name = (r["dbd_name"] or "").upper()
             if name not in dbds:
                 raise Unsupported(f"{where}: PCB {r['name']}: DBD {name} is not one of the case's DBDs")
@@ -149,6 +159,9 @@ def psb(
     for p in pcbs:
         if p.get("gsam"):
             continue
+        if p["procopt"] in ("L", "LS") and sum(q.get("dbd") == p["dbd"] for q in pcbs) > 1:
+            raise Unsupported(f"{where}: a load-mode PCB on {p['dbd']} beside another PCB on it (the database is "
+                              "empty until the load ends: not modelled)")  # fmt: skip
         every = [s["name"] for s in dbds[p["dbd"]]["segments"]]
         if sorted(p["sensegs"]) != sorted(every):
             raise Unsupported(f"{where}: a PCB on {p['dbd']} sensitive to {p['sensegs']}, not to every segment "
@@ -302,14 +315,19 @@ def _code(source: str) -> str:
 
 def bmp_using(source: str) -> list[str] | None:
     """#5857 (register I5): the items of a BMP's PROCEDURE DIVISION USING (the I/O PCB first, then the DB PCBs) -- a
-    program with no ENTRY 'DLITCBL' that issues EXEC DLI -- else None."""
+    program that issues EXEC DLI or CALL 'CBLTDLI' and has no ENTRY 'DLITCBL', or (#5233, PAUDBLOD) whose ENTRY lists
+    exactly the header's USING minus the leading I/O PCB (IMS enters a BMP at the header) -- else None."""
     code = _code(source)
-    if entry_using(source) is not None or not re.search(r"\bEXEC\s+DLI\b", code, re.I):
+    if not re.search(r"\bEXEC\s+DLI\b|\bCALL\s+['\"]CBLTDLI['\"]", code, re.I):
         return None
     m = re.search(r"\bPROCEDURE\s+DIVISION\s+USING\s+(.*?)\.", code, re.I | re.S)
     if not m:
         return None
-    return [w for w in (x.upper() for x in m.group(1).split()) if w not in ("BY", "REFERENCE")]
+    head = [w for w in (x.upper() for x in m.group(1).split()) if w not in ("BY", "REFERENCE")]
+    entry = entry_using(source)
+    if entry is not None and not (entry and len(head) == len(entry) + 1 and head[1:] == entry):
+        return None
+    return head
 
 
 def stage(case: dict[str, Any], corpus: Path, source: str, dest: Path) -> list[dict[str, Any]]:

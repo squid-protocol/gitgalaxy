@@ -18,7 +18,9 @@ from .._shared_patterns import (
     COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
+    JS_CRYPTOGRAPHY,
     JS_DL_FRAMEWORKS,
+    JS_HARDWARE_BRIDGE,
     JS_LLM_API,
     JS_LLM_ORCHESTRATOR,
     JS_LLM_VECTOR_STORE,
@@ -702,8 +704,8 @@ DEFINITION: dict[str, Any] = {
             + r"$]*|\[[^\]\n]{0,80}\])*"
             r"[ \t]*(?:[-+*/%&|^]|\*\*|<<|>>>?|&&|\|\||\?\?)?=(?![=>{\"'`])(?![^\n(]{0,300},[ \t]*$)"
             r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_$(]"
-            r"|\bsetState\s*\("
-            r"|\.(?:push|pop|shift|unshift|splice|sort|reverse|fill|copyWithin|set|delete|add|clear)\s*\(",
+            r"|\bsetState[ \t]*\("
+            r"|\.(?:push|pop|shift|unshift|splice|sort|reverse|fill|copyWithin|set|delete|add|clear)[ \t]*\(",
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
@@ -774,6 +776,10 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:arguments\.|prototype|__proto__|Object\.assign|Reflect|Proxy|Object\.defineProperty)\b"
             r"|\.bind\(|\.call\(|\.apply\("
         ),
+        # hardware_bridge / cryptography (#4108): typescript imports the same packages as its
+        # javascript superset (`import * as crypto from 'crypto'`); the rules were never wired here.
+        "hardware_bridge": JS_HARDWARE_BRIDGE,
+        "cryptography": JS_CRYPTOGRAPHY,
         # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
         "llm_api": JS_LLM_API,
         "llm_orchestrator": JS_LLM_ORCHESTRATOR,
@@ -952,5 +958,10 @@ DEFINITION: dict[str, Any] = {
             r"\b(fetch|axios\.post|https\.request)\s*\((?:[^()]|\([^()]*\))*(?:checkmarx|telemetry|metrics|audit|log)\b",
             re.I,
         ),
+        # #3171 (see c.py): every arm of state_mutation needs `=`, `++`/`--` or a
+        # mutator call on the match's own line (call arms bind `[ \t]*\(`, not
+        # `\s*\(`, so the rule is provably line-local); eligibility is re-proven at
+        # cache build, a later edit that breaks it demotes the rule, never miscounts.
+        "_line_gates": ("state_mutation",),
     },
 }

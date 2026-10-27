@@ -479,7 +479,264 @@
     "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
    },
    "why": "PF3: CDEMO-FROM-TRANID / -PROGRAM are blank (cleared on entry), so CA00 / COADM01C; SYNCPOINT and XCTL with CARDDEMO-COMMAREA (FROM CTTU / COTRTUPC, admin user, context 0)"
+  },
+  {
+   "name": "pf3-xctl-fails-abend-routine",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "S",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "why": "#6072: reaches ABEND-ROUTINE (HANDLE ABEND LABEL(ABEND-ROUTINE), app/app-transaction-type-db2/cbl/COTRTUPC.cbl:348). PGMIDERR RESP2 3, the program could not be loaded (IBM CICS TS, XCTL conditions): the XCTL back to the caller fails with no RESP, so CICS abends the task and the active HANDLE ABEND passes control to ABEND-ROUTINE (after the SYNCPOINT, which succeeds)",
+   "faults": [
+    {
+     "cmd": "XCTL",
+     "program": "COADM01C",
+     "nth": 1,
+     "resp": "PGMIDERR",
+     "resp2": 3
+    }
+   ]
+  },
+  {
+   "name": "pf3-back-to-calling-program",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "S",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE",
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC"
+   },
+   "why": "PF3 with CDEMO-FROM-TRANID / -PROGRAM set (CTLI / COTRTLIC, re-entered so the COMMAREA is kept): the XCTL goes back to the caller, not to the admin menu (431 / 438 else arms)"
+  },
+  {
+   "name": "enter-after-cancelled-update",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "B",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE",
+    "TTUP-NEW-TTYP-TYPE": "01",
+    "TTUP-NEW-TTYP-TYPE-DESC": "PURCHASES"
+   },
+   "why": "'B' (TTUP-CHANGES-BACKED-OUT, left by PF12 on a pending update) and ENTER: 2000-DECIDE-ACTION's BACKED-OUT arm"
+  },
+  {
+   "name": "enter-with-lock-error-state",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "L",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE",
+    "TTUP-NEW-TTYP-TYPE": "01",
+    "TTUP-NEW-TTYP-TYPE-DESC": "PURCHASES"
+   },
+   "why": "'L' (TTUP-CHANGES-OKAYED-LOCK-ERROR, left by a -911 on the UPDATE) and ENTER"
+  },
+  {
+   "name": "enter-with-failed-update-state",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "F",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE",
+    "TTUP-NEW-TTYP-TYPE": "01",
+    "TTUP-NEW-TTYP-TYPE-DESC": "PURCHASES"
+   },
+   "why": "'F' (TTUP-CHANGES-OKAYED-BUT-FAILED, left by a failed UPDATE) and ENTER"
+  },
+  {
+   "name": "enter-with-delete-started-state",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "8",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "why": "'8' (TTUP-START-DELETE, left by a refused DELETE) and ENTER"
+  },
+  {
+   "name": "enter-with-delete-failed-state",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "6",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "why": "'6' (TTUP-DELETE-FAILED) and ENTER"
+  },
+  {
+   "name": "enter-with-delete-done-state",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "7",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "why": "'7' (TTUP-DELETE-DONE) and ENTER"
+  },
+  {
+   "name": "enter-after-update-from-caller",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "C",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE",
+    "TTUP-NEW-TTYP-TYPE": "01",
+    "TTUP-NEW-TTYP-TYPE-DESC": "PURCHASES",
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC"
+   },
+   "why": "'C' (TTUP-CHANGES-OKAYED-AND-DONE) and ENTER with CDEMO-FROM-TRANID set: 2000-DECIDE-ACTION's OKAYED-AND-DONE arm keeps the account / card context (1067 else arm)"
+  },
+  {
+   "name": "search-select-fails",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "01"
+    }
+   },
+   "why": "type 01: 9000-READ-TRANTYPE's SELECT fails (-911): INPUT-ERROR, FLG-TRANFILTER-NOT-OK and the Db2 message (1495 arm, 1498 true)",
+   "sql_faults": [
+    {
+     "line": 1475,
+     "nth": 1,
+     "sqlcode": -911
+    }
+   ]
+  },
+  {
+   "name": "search-select-positive-sqlcode",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "01"
+    }
+   },
+   "why": "type 01: the SELECT returns a positive SQLCODE other than +100 (+304): 9100's EVALUATE has no WHEN for it and falls through (1486 none)",
+   "sql_faults": [
+    {
+     "line": 1475,
+     "nth": 1,
+     "sqlcode": 304,
+     "sqlstate": "01504"
+    }
+   ]
+  },
+  {
+   "name": "pf5-update-deadlock",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "N",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE",
+    "TTUP-NEW-TTYP-TYPE": "01",
+    "TTUP-NEW-TTYP-TYPE-DESC": "PURCHASES"
+   },
+   "why": "PF5 saves, the UPDATE deadlocks (-911): COULD-NOT-LOCK-REC-FOR-UPDATE (1563 true), 'L' and the lock-error message",
+   "sql_faults": [
+    {
+     "line": 1544,
+     "nth": 1,
+     "sqlcode": -911
+    }
+   ]
+  },
+  {
+   "name": "pf5-update-fails-other",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "N",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE",
+    "TTUP-NEW-TTYP-TYPE": "01",
+    "TTUP-NEW-TTYP-TYPE-DESC": "PURCHASES"
+   },
+   "why": "PF5 saves, the UPDATE fails (-913): TABLE-UPDATE-FAILED, 'F' and the Db2 message",
+   "sql_faults": [
+    {
+     "line": 1544,
+     "nth": 1,
+     "sqlcode": -913
+    }
+   ]
+  },
+  {
+   "name": "enter-backed-out-key-unchanged",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "B",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "01",
+     "TRTYDSCI": "PURCHASE"
+    }
+   },
+   "why": "'B' (TTUP-CHANGES-BACKED-OUT) and ENTER with the stored key and description sent back unchanged: 1210 passes, 1205 finds no change and 1200 leaves 'B', so 2000-DECIDE-ACTION's BACKED-OUT arm (1041) runs -> TTUP-CHANGES-NOT-OK"
+  },
+  {
+   "name": "enter-delete-started-key-unchanged-abends",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "8",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "01",
+     "TRTYDSCI": "PURCHASE"
+    }
+   },
+   "why": "'8' (TTUP-START-DELETE, left by a refused DELETE) and ENTER, key and description unchanged: 1200 leaves '8' (0000-MAIN resets only 'C', 'L', 'F', '7', '6') and no 2000-DECIDE-ACTION arm names it, so WHEN OTHER (1073) reaches ABEND-ROUTINE with 'UNEXPECTED DATA SCENARIO'"
+  },
+  {
+   "name": "pf5-update-positive-sqlcode",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "N",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE",
+    "TTUP-NEW-TTYP-TYPE": "01",
+    "TTUP-NEW-TTYP-TYPE-DESC": "PURCHASES"
+   },
+   "why": "PF5 saves and the UPDATE returns a positive SQLCODE other than +100 (+304): 9600's EVALUATE has no WHEN for it and falls through (1555 none); WHEN OTHER (1587) reports the update done",
+   "sql_faults": [
+    {
+     "line": 1544,
+     "nth": 1,
+     "sqlcode": 304,
+     "sqlstate": "01504"
+    }
+   ]
   }
  ],
- "notes": "CardDemo's Db2 transaction-type maintenance screen (transaction CTTU, program COTRTUPC, admin menu option 6 or PF2 on COTRTLIC): a type code is validated and looked up in CARDDEMO.TRANSACTION_TYPE; a found type's description can be changed (ENTER validates, PF5 saves, PF12 cancels) or the type deleted (PF4, PF4 again to confirm); a type not found can be added (PF5, the description, ENTER, PF5: the UPDATE finds no row and the program INSERTs). The state between screens is TTUP-CHANGE-ACTION and the old / new details in the program's own COMMAREA area after CARDDEMO-COMMAREA; on entry the program INITIALIZEs CARDDEMO-COMMAREA, so every later screen carries an empty CardDemo area with context 1 -- the scenarios give that state. Both sides run their SQL on one real Db2 (tests/tools/equivalence_db2.py): TRANSACTION_TYPE and TRANSACTION_TYPE_CATEGORY (whose ON DELETE RESTRICT foreign key makes deleting type 01 return -532) are created from the corpus DDL, seeded before each scenario and both compared after it. The seed is the corpus's DB2LTTYP.ctl and DB2LTCAT.ctl INSERTs unchanged, plus five types (08-12) without category rows in a separate INSERT, written for this case and its sibling carddemo-cotrtlic (08 is the type a delete can remove). Not covered: the -911 / other negative SQLCODE branches and a duplicate key on the INSERT, which real data cannot reach (the INSERT runs only after the UPDATE found no row), and the 'UNEXPECTED DATA SCENARIO' ABEND-ROUTINE. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+ "notes": "CardDemo's Db2 transaction-type maintenance screen (transaction CTTU, program COTRTUPC, admin menu option 6 or PF2 on COTRTLIC): a type code is validated and looked up in CARDDEMO.TRANSACTION_TYPE; a found type's description can be changed (ENTER validates, PF5 saves, PF12 cancels) or the type deleted (PF4, PF4 again to confirm); a type not found can be added (PF5, the description, ENTER, PF5: the UPDATE finds no row and the program INSERTs). The state between screens is TTUP-CHANGE-ACTION and the old / new details in the program's own COMMAREA area after CARDDEMO-COMMAREA; on entry the program INITIALIZEs CARDDEMO-COMMAREA, so every later screen carries an empty CardDemo area with context 1 -- the scenarios give that state. Both sides run their SQL on one real Db2 (tests/tools/equivalence_db2.py): TRANSACTION_TYPE and TRANSACTION_TYPE_CATEGORY (whose ON DELETE RESTRICT foreign key makes deleting type 01 return -532) are created from the corpus DDL, seeded before each scenario and both compared after it. The seed is the corpus's DB2LTTYP.ctl and DB2LTCAT.ctl INSERTs unchanged, plus five types (08-12) without category rows in a separate INSERT, written for this case and its sibling carddemo-cotrtlic (08 is the type a delete can remove). The SELECT and UPDATE failure branches (-911, -913, a positive +304) run as injected sql_faults scenarios (search-select-*, pf5-update-*); the INSERT failure is a derived fault. Not covered: the 'UNEXPECTED DATA SCENARIO' ABEND-ROUTINE body, whose stated-infeasible outcomes are in tests/equivalence/infeasible_outcomes/carddemo-cotrtupc.json. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "zero_length_refmod": "COTRTUPC reads the 49-level VARCHAR DCL-TR-DESCRIPTION-TEXT with length 0 in 9500 after a SELECT that returned +304 and filled no host variable; IBM (no SSRANGE) moves an empty item, so the MOVE changes nothing (X8)"
 }

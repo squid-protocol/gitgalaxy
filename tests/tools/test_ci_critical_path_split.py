@@ -126,7 +126,14 @@ def test_the_aggregate_accepts_a_skipped_warm_job_only_when_the_plan_needed_none
 def test_the_layout_follows_the_queue_and_the_cache():
     """#5543: calm = warm + 4 parts (no warm on a cache hit); busy = 2 self-warming parts; only a pull request goes busy."""
     calm = cl.choose("pull_request", "full", False, 0)
-    assert (calm["layout"], calm["warm"], calm["parts"], calm["gate_in_part"]) == ("calm", True, PARTS, False)
+    assert (calm["layout"], calm["warm"], calm["parts"], calm["gate_in_part"]) == ("calm", False, PARTS, True)
+    for event in (
+        "push",
+        "schedule",
+        "workflow_dispatch",
+    ):  # #5543: only main-side runs keep the warm job (it saves the cache)
+        main_side = cl.choose(event, "full", False, 0)
+        assert (main_side["warm"], main_side["parts"], main_side["gate_in_part"]) == (True, PARTS, False), event
     hit = cl.choose("pull_request", "full", True, cl.BUSY_ABOVE)  # at the threshold is still calm
     assert (hit["layout"], hit["warm"], hit["parts"], hit["gate_in_part"]) == ("calm", False, PARTS, True)
     for cached in (False, True):
@@ -187,7 +194,7 @@ def test_the_ground_truth_seconds_are_recorded_and_the_parts_balanced():
     cut them by a default weight. Refresh from the test-times-ground-truth-part-N artifacts of a main run; the replay
     of the parts must then be within 20% (#5133 acceptance)."""
     seconds, totals = _ground_truth_totals()
-    assert len(seconds) > 5500, f"only {len(seconds)} tests/cobol_mainframe/ durations recorded: refresh them"
+    assert len(seconds) > 7000, f"only {len(seconds)} tests/cobol_mainframe/ durations recorded: refresh them"
     assert max(totals) <= min(totals) * 1.2, totals
     assert seconds[0] < sum(totals) / 4, "one test is a quarter of the ground-truth job: no split can balance it"
 
@@ -204,7 +211,8 @@ def test_evidence_deltas_is_advisory_and_off_the_required_check():
 def test_full_suite_parts_are_balanced_by_least_duration():
     """#5133: the default duration_based_chunks cuts contiguous slices, which put tests/cobol_mainframe all in part 1."""
     steps = _jobs("smoke-test.yml")["full-suite-part"]["steps"]
-    runs = [str(s.get("run")) for s in steps if "--splits 3" in str(s.get("run"))]
+    # The part count is planned by the shard-plan job (#5919): match the planned flag, not a literal count.
+    runs = [str(s.get("run")) for s in steps if '--splits "$SPLITS"' in str(s.get("run"))]
     assert runs
     assert all("--splitting-algorithm least_duration" in r for r in runs)
 
@@ -311,10 +319,10 @@ def test_the_three_pre_gates_are_one_job():
     jobs = _jobs("gitgalaxy.yml")
     assert {"vault-sentinel", "xray-inspector", "supply-chain-firewall"}.isdisjoint(jobs)
     steps = jobs["pre-gate"]["steps"]
-    tools = [s["with"]["tool"] for s in steps if s.get("uses") == "./"]
-    assert tools == ["vault-sentinel", "xray-inspector", "supply-chain-firewall"]
+    gates = [s for s in steps if s.get("uses") == "./"]
+    assert [s["with"]["tool"] for s in gates] == ["vault-sentinel", "xray-inspector", "supply-chain-firewall"]
     # each gate runs even when an earlier one failed, and none may swallow its own failure
-    assert all("!cancelled()" in str(s.get("if", "")) for s in steps[2:])
+    assert all("!cancelled()" in str(s.get("if", "")) for s in gates[1:])
     assert not any(s.get("continue-on-error") for s in steps)
 
 

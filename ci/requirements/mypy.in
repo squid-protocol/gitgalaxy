@@ -4,4 +4,4 @@
 # Bump mypy here, recompile, regenerate tests/mypy_audit_baseline.json in the pinned venv, and land all together.
 mypy==2.4.0
 PyYAML==6.0.3
-ruff==0.17.0
+ruff==0.17.1

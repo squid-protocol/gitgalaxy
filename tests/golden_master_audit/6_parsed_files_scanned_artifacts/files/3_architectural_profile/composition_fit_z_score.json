@@ -121,8 +121,8 @@
     },
     "assembly/bootos": {
       "assembly/bootos/Makefile": 3.052,
-      "assembly/bootos/counter.asm": 0.569,
-      "assembly/bootos/os.asm": 1.358
+      "assembly/bootos/counter.asm": 0.549,
+      "assembly/bootos/os.asm": 1.169
     },
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": 3.248,
@@ -1059,10 +1059,10 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0.0,
-      "cobol/gnucobol_internals/codegen.c": 0.47,
+      "cobol/gnucobol_internals/codegen.c": 0.446,
       "cobol/gnucobol_internals/fileio.c": 1.075,
       "cobol/gnucobol_internals/numeric.c": -0.125,
-      "cobol/gnucobol_internals/parser.y": 2.853,
+      "cobol/gnucobol_internals/parser.y": 2.834,
       "cobol/gnucobol_internals/scanner.l": 2.331,
       "cobol/gnucobol_internals/syn_misc.at": 0.464
     },
@@ -1164,12 +1164,12 @@
       "csharp/SOURCES.md": 0.0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 0.763,
-      "csharp/roslyn/CSharpSyntaxTree.cs": -0.236,
-      "csharp/roslyn/DiagnosticAnalyzer.cs": 2.48,
+      "csharp/roslyn/CSharpCompilation.cs": 0.829,
+      "csharp/roslyn/CSharpSyntaxTree.cs": -0.262,
+      "csharp/roslyn/DiagnosticAnalyzer.cs": 2.461,
       "csharp/roslyn/LanguageParser.cs": 1.033,
       "csharp/roslyn/License.txt": 0.0,
-      "csharp/roslyn/MethodCompiler.cs": -0.203,
+      "csharp/roslyn/MethodCompiler.cs": -0.181,
       "csharp/roslyn/Workspace.cs": -0.596
     },
     "css": {
@@ -1227,11 +1227,11 @@
       "dart/SOURCES.md": 0.0
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 0.076,
+      "dart/flutter/editable_text.dart": 0.069,
       "dart/flutter/events.dart": 0.229,
-      "dart/flutter/framework.dart": 0.076,
-      "dart/flutter/navigator.dart": -0.447,
-      "dart/flutter/object.dart": -0.214,
+      "dart/flutter/framework.dart": 0.038,
+      "dart/flutter/navigator.dart": -0.455,
+      "dart/flutter/object.dart": -0.231,
       "dart/flutter/semantics.dart": -0.518,
       "dart/flutter/theme_data.dart": -0.859
     },
@@ -1254,66 +1254,66 @@
       "dockerfile/SOURCES.md": 0.0
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": -0.36,
+      "dockerfile/moby/builder/dockerfile/buildargs.go": 0.1,
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": 2.439,
-      "dockerfile/moby/builder/dockerfile/builder.go": 1.341,
+      "dockerfile/moby/builder/dockerfile/builder.go": 0.188,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0.0,
-      "dockerfile/moby/builder/dockerfile/builder_windows.go": -0.505,
-      "dockerfile/moby/builder/dockerfile/containerbackend.go": 0.553,
-      "dockerfile/moby/builder/dockerfile/copy.go": 1.279,
+      "dockerfile/moby/builder/dockerfile/builder_windows.go": 1.451,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 0.68,
+      "dockerfile/moby/builder/dockerfile/copy.go": -0.565,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 3.037,
-      "dockerfile/moby/builder/dockerfile/copy_unix.go": -0.708,
+      "dockerfile/moby/builder/dockerfile/copy_unix.go": -0.485,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 1.371,
-      "dockerfile/moby/builder/dockerfile/dispatchers.go": 0.814,
-      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 0.589,
-      "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": -0.184,
+      "dockerfile/moby/builder/dockerfile/dispatchers.go": 0.234,
+      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 0.711,
+      "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 1.362,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": -0.731,
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": -0.856,
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 0.179,
       "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 3.239,
-      "dockerfile/moby/builder/dockerfile/evaluator.go": -0.719,
+      "dockerfile/moby/builder/dockerfile/evaluator.go": 0.691,
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": 2.63,
-      "dockerfile/moby/builder/dockerfile/imagecontext.go": -0.126,
-      "dockerfile/moby/builder/dockerfile/imagecontext_test.go": -0.102,
-      "dockerfile/moby/builder/dockerfile/imageprobe.go": 0.222,
-      "dockerfile/moby/builder/dockerfile/internals.go": 0.535,
-      "dockerfile/moby/builder/dockerfile/internals_linux.go": -1.054,
+      "dockerfile/moby/builder/dockerfile/imagecontext.go": 0.303,
+      "dockerfile/moby/builder/dockerfile/imagecontext_test.go": -0.502,
+      "dockerfile/moby/builder/dockerfile/imageprobe.go": -0.25,
+      "dockerfile/moby/builder/dockerfile/internals.go": 0.763,
+      "dockerfile/moby/builder/dockerfile/internals_linux.go": -0.293,
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 3.019,
-      "dockerfile/moby/builder/dockerfile/internals_test.go": 0.945,
+      "dockerfile/moby/builder/dockerfile/internals_test.go": 1.152,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": -0.02,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 3.076,
-      "dockerfile/moby/builder/dockerfile/metrics.go": 1.084,
-      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 1.334,
-      "dockerfile/moby/builder/dockerfile/utils_test.go": -0.461
+      "dockerfile/moby/builder/dockerfile/metrics.go": 2.903,
+      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 1.473,
+      "dockerfile/moby/builder/dockerfile/utils_test.go": 1.415
     },
     "dockerfile/moby/builder/remotecontext": {
-      "dockerfile/moby/builder/remotecontext/archive.go": -0.528,
-      "dockerfile/moby/builder/remotecontext/detect.go": 0.288,
-      "dockerfile/moby/builder/remotecontext/detect_test.go": 1.652,
-      "dockerfile/moby/builder/remotecontext/filehash.go": 0.382,
-      "dockerfile/moby/builder/remotecontext/git.go": 1.793,
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": 0.438,
-      "dockerfile/moby/builder/remotecontext/mimetype.go": 0.828,
+      "dockerfile/moby/builder/remotecontext/archive.go": -0.815,
+      "dockerfile/moby/builder/remotecontext/detect.go": 0.134,
+      "dockerfile/moby/builder/remotecontext/detect_test.go": 1.708,
+      "dockerfile/moby/builder/remotecontext/filehash.go": 0.411,
+      "dockerfile/moby/builder/remotecontext/git.go": 1.841,
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": -0.2,
+      "dockerfile/moby/builder/remotecontext/mimetype.go": 2.55,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0.126,
-      "dockerfile/moby/builder/remotecontext/remote.go": 1.468,
-      "dockerfile/moby/builder/remotecontext/remote_test.go": 0.175,
-      "dockerfile/moby/builder/remotecontext/tarsum_test.go": 0.078,
-      "dockerfile/moby/builder/remotecontext/utils_test.go": -0.476
+      "dockerfile/moby/builder/remotecontext/remote.go": 0.078,
+      "dockerfile/moby/builder/remotecontext/remote_test.go": 0.121,
+      "dockerfile/moby/builder/remotecontext/tarsum_test.go": 0.012,
+      "dockerfile/moby/builder/remotecontext/utils_test.go": 1.921
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 0.383,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 0.92
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": -0.65,
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 1.078
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0.508,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0.542,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 1.595,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": -0.102,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 1.649,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 1.116,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": -0.022,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 1.931,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 0.592,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0.0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 1.196,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 0.001,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0.189,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 0.402
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 0.1,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": -0.169,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0.103,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 0.473
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 2.863,
@@ -1369,28 +1369,28 @@
     },
     "go/core": {
       "go/core/PATENTS": 0.0,
-      "go/core/main.go": 2.5,
-      "go/core/mgc.go": 2.538,
-      "go/core/mutex.go": 0.191,
-      "go/core/proc.go": 1.426,
-      "go/core/server.go": 0.919,
-      "go/core/syscall_linux.go": 0.621,
-      "go/core/value.go": 1.355
+      "go/core/main.go": -0.012,
+      "go/core/mgc.go": 1.838,
+      "go/core/mutex.go": 0.303,
+      "go/core/proc.go": 0.493,
+      "go/core/server.go": 0.974,
+      "go/core/syscall_linux.go": 0.728,
+      "go/core/value.go": 0.31
     },
     "go/go_runtime_rand": {
-      "go/go_runtime_rand/rand.go": 0.587
+      "go/go_runtime_rand/rand.go": 1.058
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": -0.738,
-      "go/kubernetes/generic.go": 1.417,
-      "go/kubernetes/kubelet.go": -0.23,
+      "go/kubernetes/csi_plugin.go": -0.964,
+      "go/kubernetes/generic.go": 1.252,
+      "go/kubernetes/kubelet.go": 0.382,
       "go/kubernetes/options.go": 1.292,
-      "go/kubernetes/proxier.go": 1.011,
-      "go/kubernetes/replica_set.go": 1.576,
-      "go/kubernetes/scheduler.go": 0.089
+      "go/kubernetes/proxier.go": 0.68,
+      "go/kubernetes/replica_set.go": 0.096,
+      "go/kubernetes/scheduler.go": 0.205
     },
     "go/kubernetes_kubectl_tls": {
-      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 2.496
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": 1.569
     },
     "groovy": {
       "groovy/SOURCES.md": 0.0
@@ -1916,7 +1916,7 @@
       "java/springboot/Binder.java": 1.122,
       "java/springboot/JarLauncher.java": 3.032,
       "java/springboot/LICENSE.txt": 0.0,
-      "java/springboot/OnClassCondition.java": 0.098,
+      "java/springboot/OnClassCondition.java": 0.125,
       "java/springboot/ServletWebServerApplicationContext.java": 0.941,
       "java/springboot/SpringApplication.java": 0.922,
       "java/springboot/WebMvcAutoConfiguration.java": 1.572
@@ -2207,7 +2207,7 @@
       "livecode/livecode/arithmetic.lcb": 0.317,
       "livecode/livecode/array.lcb": 0.098,
       "livecode/livecode/array.livecodescript": 2.158,
-      "livecode/livecode/assert.lcb": 2.578,
+      "livecode/livecode/assert.lcb": 2.428,
       "livecode/livecode/assign-ops.lcb": 3.172,
       "livecode/livecode/automaticactivationactivationgroupbehavior.livecodescript": 0.781,
       "livecode/livecode/automaticactivationactivationinputpassfieldbehavior.livecodescript": 0.0,
@@ -2272,12 +2272,12 @@
       "livecode/livecode/line.lcb": -0.471,
       "livecode/livecode/list.lcb": 0.437,
       "livecode/livecode/literal-evaluation.livecodescript": 2.92,
-      "livecode/livecode/log.livecodescript": 3.267,
+      "livecode/livecode/log.livecodescript": 2.981,
       "livecode/livecode/logic.lcb": 0.053,
       "livecode/livecode/map.lcb": -0.054,
       "livecode/livecode/math-foundation.lcb": 0.065,
       "livecode/livecode/math.lcb": -0.071,
-      "livecode/livecode/network.livecodescript": 2.525,
+      "livecode/livecode/network.livecodescript": 2.467,
       "livecode/livecode/printing.livecodescript": 2.997,
       "livecode/livecode/recursion.livecodescript": -0.392,
       "livecode/livecode/repeat.livecodescript": 2.321,
@@ -2318,7 +2318,7 @@
       "lua/cosmopolitan/crashreport.lua": 0.609,
       "lua/cosmopolitan/cstack.lua": -0.086,
       "lua/cosmopolitan/db.lua": 0.714,
-      "lua/cosmopolitan/errors.lua": 0.708,
+      "lua/cosmopolitan/errors.lua": 0.548,
       "lua/cosmopolitan/events.lua": 2.465,
       "lua/cosmopolitan/fetch.lua": 2.255,
       "lua/cosmopolitan/files.lua": 0.134,
@@ -2335,13 +2335,13 @@
       "lua/cosmopolitan/math.lua": 1.134,
       "lua/cosmopolitan/maxmind.lua": 2.318,
       "lua/cosmopolitan/mymodule.lua": 0.0,
-      "lua/cosmopolitan/nextvar.lua": 0.987,
+      "lua/cosmopolitan/nextvar.lua": 0.924,
       "lua/cosmopolitan/opensource.lua": 0.0,
       "lua/cosmopolitan/pm.lua": 1.126,
       "lua/cosmopolitan/printpayload.lua": 0.261,
       "lua/cosmopolitan/redbean-form.lua": 3.278,
       "lua/cosmopolitan/sort.lua": 0.265,
-      "lua/cosmopolitan/strings.lua": 0.503,
+      "lua/cosmopolitan/strings.lua": 0.096,
       "lua/cosmopolitan/tpack.lua": 1.782,
       "lua/cosmopolitan/tracegc.lua": 2.165
     },
@@ -2493,7 +2493,7 @@
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": -0.349,
-      "nix/ghostty/default.nix": 0.024,
+      "nix/ghostty/default.nix": -0.102,
       "nix/ghostty/flake.nix": -0.267,
       "nix/ghostty/shell.nix": -0.079
     },
@@ -2501,7 +2501,7 @@
       "objective-c/SOURCES.md": 0.0
     },
     "objective-c/worldwideweb": {
-      "objective-c/worldwideweb/Anchor.m": 0.954,
+      "objective-c/worldwideweb/Anchor.m": 0.933,
       "objective-c/worldwideweb/HText.c": 1.092,
       "objective-c/worldwideweb/HyperManager.m": 0.694,
       "objective-c/worldwideweb/HyperText.h": 1.184,
@@ -2516,36 +2516,36 @@
       "perl/ack3_tests/file-permission.t": 2.301
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": -0.443,
+      "perl/bugzilla/Auth.pm": -0.477,
       "perl/bugzilla/Bug.pm": 0.026,
-      "perl/bugzilla/CGI.pm": 1.096,
-      "perl/bugzilla/DB.pm": 0.5,
-      "perl/bugzilla/Requirements.pm": 0.718
+      "perl/bugzilla/CGI.pm": 1.04,
+      "perl/bugzilla/DB.pm": 0.479,
+      "perl/bugzilla/Requirements.pm": 0.696
     },
     "perl/exiftool": {
       "perl/exiftool/ExifTool.pm": -0.43,
       "perl/exiftool/META.json": 0.0,
       "perl/exiftool/Makefile.PL": 0.04,
       "perl/exiftool/README": 0.0,
-      "perl/exiftool/RandomAccess.pm": 0.6,
-      "perl/exiftool/exiftool": 0.261
+      "perl/exiftool/RandomAccess.pm": 0.621,
+      "perl/exiftool/exiftool": 0.244
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": 0.222,
+      "perl/mojo/IOLoop.pm": 0.203,
       "perl/mojo/Makefile.PL": 0.124,
-      "perl/mojo/Promise.pm": 0.609,
-      "perl/mojo/Template.pm": 1.262,
-      "perl/mojo/WebSocket.pm": 1.315
+      "perl/mojo/Promise.pm": 0.601,
+      "perl/mojo/Template.pm": 1.228,
+      "perl/mojo/WebSocket.pm": 1.313
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": 0.352,
+      "perl/spamassassin/AsyncLoop.pm": 0.319,
       "perl/spamassassin/Bayes.pm": 2.075,
       "perl/spamassassin/HTML.pm": 1.413,
       "perl/spamassassin/Makefile.PL": 0.796,
-      "perl/spamassassin/Message.pm": 1.362,
-      "perl/spamassassin/Parser.pm": 1.596,
-      "perl/spamassassin/PerMsgStatus.pm": 1.52,
-      "perl/spamassassin/SpamAssassin.pm": 1.235
+      "perl/spamassassin/Message.pm": 1.336,
+      "perl/spamassassin/Parser.pm": 1.579,
+      "perl/spamassassin/PerMsgStatus.pm": 1.482,
+      "perl/spamassassin/SpamAssassin.pm": 1.227
     },
     "php": {
       "php/SOURCES.md": 0.0
@@ -2597,8 +2597,8 @@
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": -0.224,
-      "php/wordpress/class-wp-query.php": 0.455,
-      "php/wordpress/formatting.php": 0.764,
+      "php/wordpress/class-wp-query.php": 0.223,
+      "php/wordpress/formatting.php": 0.779,
       "php/wordpress/functions.php": 0.447,
       "php/wordpress/license.txt": 0.0,
       "php/wordpress/plugin.php": 1.74,
@@ -2694,21 +2694,21 @@
       "powershell/core/Microsoft.WSMan.Management.psd1": -0.142,
       "powershell/core/PSDiagnostics.psd1": -0.123,
       "powershell/core/Parse-MarkdownLink.ps1": 1.963,
-      "powershell/core/PowerShell__build.psm1": 1.039,
+      "powershell/core/PowerShell__build.psm1": 1.547,
       "powershell/core/RegisterManifest.ps1": 2.436,
       "powershell/core/RegisterMicrosoftUpdate.ps1": -0.261,
       "powershell/core/Run-AttackSurfaceAnalyzer.ps1": 0.557,
       "powershell/core/Run.ps1": 1.801,
       "powershell/core/SSHRemoting.Basic.Tests.ps1": 1.404,
       "powershell/core/analyze-pr-test-failures.ps1": 0.729,
-      "powershell/core/build.psm1": 1.202,
+      "powershell/core/build.psm1": 1.808,
       "powershell/core/ci.psm1": 1.393,
       "powershell/core/ciModule.Tests.ps1": 1.131,
       "powershell/core/install-powershell.ps1": 0.641,
       "powershell/core/nanoserver.tests.ps1": -0.438,
       "powershell/core/package-validation.tests.ps1": 1.311,
       "powershell/core/packaging.psd1": -0.237,
-      "powershell/core/packaging.psm1": 0.702,
+      "powershell/core/packaging.psm1": 1.137,
       "powershell/core/packaging.tests.ps1": -0.632,
       "powershell/core/powershell-native__Install-PowerShellRemoting.ps1": 0.658,
       "powershell/core/process-pester-results.ps1": 1.199,
@@ -3103,7 +3103,7 @@
       "python/numpy/genapi.py": 0.596,
       "python/numpy/generate_numpy_api.py": 1.511,
       "python/numpy/generate_ufunc_api.py": 1.152,
-      "python/numpy/generate_umath.py": -0.09,
+      "python/numpy/generate_umath.py": -0.297,
       "python/numpy/generate_umath_doc.py": 1.151,
       "python/numpy/lapack_litemodule.c": 0.936,
       "python/numpy/numpy_api.py": -0.441,
@@ -3139,8 +3139,8 @@
     },
     "python/twisted": {
       "python/twisted/defer.py": 0.362,
-      "python/twisted/http.py": 0.625,
-      "python/twisted/reflect.py": -0.265,
+      "python/twisted/http.py": 0.493,
+      "python/twisted/reflect.py": -0.349,
       "python/twisted/transport.py": 0.374
     },
     "python/wtfpython": {
@@ -3266,7 +3266,7 @@
       "rust/tokio/interval.rs": 2.072,
       "rust/tokio/lib.rs": 0.382,
       "rust/tokio/maybe_done.rs": -0.521,
-      "rust/tokio/tests.rs": -0.53,
+      "rust/tokio/tests.rs": -0.595,
       "rust/tokio/tokio_mpsc_bounded.rs": 1.901,
       "rust/tokio/tokio_named_pipe.rs": 1.573,
       "rust/tokio/tokio_udp.rs": 1.738
@@ -3288,9 +3288,9 @@
       "scala/kafka/Kafka.scala": 1.016,
       "scala/kafka/KafkaApis.scala": -0.124,
       "scala/kafka/KafkaRaftManager.scala": 0.877,
-      "scala/kafka/LogManager.scala": 0.36,
+      "scala/kafka/LogManager.scala": 0.334,
       "scala/kafka/Partition.scala": 1.152,
-      "scala/kafka/ReplicaManager.scala": 0.359,
+      "scala/kafka/ReplicaManager.scala": 0.408,
       "scala/kafka/SocketServer.scala": 1.0
     },
     "scheme": {
@@ -3298,12 +3298,12 @@
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0.0,
-      "scheme/racket/cpnanopass.ss": 1.253,
-      "scheme/racket/eval.c": 0.355,
-      "scheme/racket/fun.c": 0.125,
-      "scheme/racket/io.ss": 1.912,
+      "scheme/racket/cpnanopass.ss": 1.206,
+      "scheme/racket/eval.c": 0.331,
+      "scheme/racket/fun.c": 0.101,
+      "scheme/racket/io.ss": 1.887,
       "scheme/racket/schemify.rkt": 0.818,
-      "scheme/racket/thread.rkt": 1.331
+      "scheme/racket/thread.rkt": 1.332
     },
     "shell": {
       "shell/SOURCES.md": 0.0
@@ -3350,7 +3350,7 @@
       "shell/curl/codespell.sh": -0.418,
       "shell/curl/contributors.sh": 0.124,
       "shell/curl/contrithanks.sh": 0.368,
-      "shell/curl/coverage.sh": 0.302,
+      "shell/curl/coverage.sh": 0.274,
       "shell/curl/distfiles.sh": -0.465,
       "shell/curl/ech_tests.sh": 2.366,
       "shell/curl/firefox-db2pem.sh": 1.501,
@@ -3483,7 +3483,7 @@
       "shell/kubernetes/cluster__common.sh": -0.109,
       "shell/kubernetes/common.sh": 0.399,
       "shell/kubernetes/config-common.sh": 1.542,
-      "shell/kubernetes/config-default.sh": 0.261,
+      "shell/kubernetes/config-default.sh": 0.227,
       "shell/kubernetes/configure-helper.sh": -0.02,
       "shell/kubernetes/e2e-cluster-size.sh": 0.042,
       "shell/kubernetes/etcd.sh": 0.474,
@@ -3755,7 +3755,7 @@
       "swift/alamofire/ParameterEncoder.swift": 1.985,
       "swift/alamofire/Request.swift": 0.401,
       "swift/alamofire/Response.swift": 0.978,
-      "swift/alamofire/Session.swift": 0.141
+      "swift/alamofire/Session.swift": 0.151
     },
     "tabular": {
       "tabular/SOURCES.md": 0.0
@@ -4055,22 +4055,22 @@
       "zig/bun/MimallocArena.zig": 0.33,
       "zig/bun/Parser.zig": 0.423,
       "zig/bun/comptime_string_map.zig": 0.56,
-      "zig/bun/napi.zig": 0.181
+      "zig/bun/napi.zig": 0.176
     },
     "zig/mach": {
       "zig/mach/Core.zig": 1.1,
       "zig/mach/StringTable.zig": 0.692,
       "zig/mach/collision.zig": 0.286,
       "zig/mach/graph.zig": 0.321,
-      "zig/mach/main.zig": 1.459,
+      "zig/mach/main.zig": 1.409,
       "zig/mach/module.zig": 0.313,
-      "zig/mach/testing.zig": 0.525,
+      "zig/mach/testing.zig": 0.328,
       "zig/mach/win32.zig": 1.893
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 0.522,
-      "zig/tigerbeetle/build.zig": 0.686,
-      "zig/tigerbeetle/build_multiversion.zig": -0.498,
+      "zig/tigerbeetle/build.zig": 0.633,
+      "zig/tigerbeetle/build_multiversion.zig": -0.167,
       "zig/tigerbeetle/cluster.zig": 0.495,
       "zig/tigerbeetle/config.zig": 1.463,
       "zig/tigerbeetle/constants.zig": 0.938,
@@ -4079,26 +4079,26 @@
       "zig/tigerbeetle/direction.zig": 1.142,
       "zig/tigerbeetle/download.sh": 1.659,
       "zig/tigerbeetle/download.win.ps1": 0.796,
-      "zig/tigerbeetle/state_machine.zig": -0.051
+      "zig/tigerbeetle/state_machine.zig": -0.092
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 0.078,
-      "zig/zig/InternPool.zig": 0.175,
-      "zig/zig/Sema.zig": 0.171,
-      "zig/zig/Type.zig": 0.383,
-      "zig/zig/Zcu.zig": 0.885,
-      "zig/zig/main.zig": 0.297
+      "zig/zig/Compilation.zig": -0.188,
+      "zig/zig/InternPool.zig": 0.177,
+      "zig/zig/Sema.zig": 0.203,
+      "zig/zig/Type.zig": 0.388,
+      "zig/zig/Zcu.zig": 0.805,
+      "zig/zig/main.zig": 0.071
     },
     "zig/zig_std_linux_mips": {
       "zig/zig_std_linux_mips/mips.zig": 1.8
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": 0.851,
-      "zig/zls/DocumentStore.zig": 1.371,
-      "zig/zls/Server.zig": -0.217,
-      "zig/zls/analysis.zig": 0.769,
-      "zig/zls/ast.zig": 0.467,
-      "zig/zls/config_gen.zig": 0.02,
+      "zig/zls/DocumentScope.zig": 0.355,
+      "zig/zls/DocumentStore.zig": 0.05,
+      "zig/zls/Server.zig": -0.032,
+      "zig/zls/analysis.zig": -0.092,
+      "zig/zls/ast.zig": 0.654,
+      "zig/zls/config_gen.zig": -0.203,
       "zig/zls/langref.html.in": 0.0,
       "zig/zls/print_ast.zig": 1.197
     }

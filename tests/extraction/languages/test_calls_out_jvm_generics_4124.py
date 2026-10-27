@@ -21,6 +21,7 @@ from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 from gitgalaxy.standards.language_standards._shared_patterns import (
     CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
+    CALLS_OUT_KOTLIN,
     QUALIFIED_CALLS_OUT_PATTERNS,
 )
 
@@ -36,14 +37,17 @@ def _functions(lang: str, code: str) -> dict[str, dict]:
     return {f["name"]: f for f in functions}
 
 
-def _callees(text: str) -> list[str]:
-    return [m.group(1) for m in CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION.finditer(text)]
+def _callees(text: str, pattern=CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION) -> list[str]:
+    return [m.group(1) for m in pattern.finditer(text)]
 
 
 def test_pattern_is_registered_and_used_by_the_jvm_languages():
     assert CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION in QUALIFIED_CALLS_OUT_PATTERNS
-    for lang in ("java", "kotlin", "groovy"):
+    for lang in ("java", "groovy"):
         assert LANGUAGE_DEFINITIONS[lang]["rules"]["calls_out"] is CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION
+    # #6266: kotlin's variant adds the trailing-lambda call
+    assert CALLS_OUT_KOTLIN in QUALIFIED_CALLS_OUT_PATTERNS
+    assert LANGUAGE_DEFINITIONS["kotlin"]["rules"]["calls_out"] is CALLS_OUT_KOTLIN
 
 
 @pytest.mark.parametrize(
@@ -119,3 +123,77 @@ def test_kotlin_generic_calls_reach_calls_out():
 )
 def test_redos_immunity(payload):
     assert_redos_immune(CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION, payload, timeout_sec=3.0)
+
+
+# --- #6266: Kotlin trailing-lambda calls (`ev.withKey { .. }`, no parentheses) ---
+
+
+@pytest.mark.parametrize(
+    "text, callee",
+    [
+        ("ev.withKey { sc -> use(sc) }", "withKey"),  # DoomMain.kt
+        ("U.pool!!.submit { task() }", "submit"),  # a `!!` receiver
+        ("rio.readLines { line: String? ->", "readLines"),
+        ("relationMapper.accept{ type, relations ->", "accept"),  # no blank before the brace
+        ("ev?.ifKey { sc -> sc }", "ifKey"),  # a safe call
+        ("tasks.register<Copy> { it.from(x) }", "register"),  # a type argument before the lambda
+        ("ArrayDeque<AsyncCall>()", "ArrayDeque"),  # the #4124 shapes still hold
+        ('tasks.register<Copy>("copy")', "register"),
+    ],
+)
+def test_kotlin_trailing_lambda_call_is_captured(text, callee):
+    assert callee in _callees(text, CALLS_OUT_KOTLIN)
+
+
+@pytest.mark.parametrize(
+    "text, absent",
+    [
+        ("else {", "else"),  # a keyword block
+        ("init { x() }", "init"),
+        ("class Foo {", "Foo"),
+        ("foo { x }", "foo"),  # a bare name: a local, a keyword form or a declaration, never read as a call
+        ("xs.map { it }", "map"),  # stdlib scope and iteration functions are not resolvable by name
+        ("x.let { it }", "let"),
+        ("x.apply { y = 1 }", "apply"),
+        ("xs.forEach { f(it) }", "forEach"),
+        ("val p = a.b\n{", "b"),  # the brace must follow on the same line
+    ],
+)
+def test_kotlin_trailing_lambda_shapes_that_are_not_calls(text, absent):
+    assert absent not in _callees(text, CALLS_OUT_KOTLIN)
+
+
+def test_kotlin_stdlib_name_with_parentheses_is_still_a_call():
+    assert _callees("xs.map(f); x.let(g)", CALLS_OUT_KOTLIN) == ["map", "let"]
+
+
+def test_kotlin_trailing_lambda_reaches_calls_out_with_its_receiver():
+    code = (
+        "class Menu {\n"
+        "    fun Responder(ev: Event): Boolean {\n"
+        "        if (ev.ifKey { sc -> keys.notify(sc) }) return true\n"
+        "        xs.forEach { show(it) }\n"
+        "        return ev.withMouse { m -> m.done() }\n"
+        "    }\n"
+        "}\n"
+    )
+    func = _functions("kotlin", code)["Responder"]
+    assert {"ifKey", "withMouse", "notify", "done", "show"} <= set(func["calls_out_to"])
+    assert "forEach" not in func["calls_out_to"]
+    assert func["calls_out_qualifiers"]["ifKey"] == ["ev"]
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        "a." + "b" * 100000,
+        "a." + "b {" * 50000,
+        "." + "a." * 50000 + "{",
+        "a.b<" + "c" * 100000,
+        "a.b<" + "<c>" * 50000,
+        "x.y" + " " * 100000 + "{",
+        "@" + "a" * 100000 + "{",
+    ],
+)
+def test_kotlin_pattern_redos_immunity(payload):
+    assert_redos_immune(CALLS_OUT_KOTLIN, payload, timeout_sec=3.0)

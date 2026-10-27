@@ -13,6 +13,7 @@ CASES = Path(__file__).resolve().parents[1] / "equivalence"
 # name -> why it has no generated sibling
 EXEMPT = {
     "cbsa-bankdata": "batch loader: DELETEs its sortcode's rows, then writes them; it reads no seeded row",
+    "cbsa-updacc-faults": "SQL-fault case for UPDACC (det-translated, no port): its generated sibling is cbsa-updacc-generated",
 }
 
 
@@ -55,5 +56,5 @@ def test_the_exemptions_are_live():
         assert not (CASES / f"{name}-generated").exists(), name
 
 
-def test_the_only_exemption_is_the_batch_loader():
-    assert set(EXEMPT) == {"cbsa-bankdata"}
+def test_the_only_exemptions_are_the_batch_loader_and_the_fault_case():
+    assert set(EXEMPT) == {"cbsa-bankdata", "cbsa-updacc-faults"}

@@ -5,14 +5,14 @@
  "case": "cbsa-updacc",
  "entry": {
   "program": "UPDACC",
-  "commit": "5abf56ba2fcbac40416b0150b4f2009662c0e40f",
+  "commit": "79349788b2ebae5aab33e06df331b0feb842938e",
   "date": "2026-10-23",
   "mode": "fast",
   "seed": 0,
   "mutants": 713,
   "out_of_scope": 12,
   "chosen": 713,
-  "coverage": "proven on 30 scenarios, covering 7/7 paragraphs and 6/6 branches",
+  "coverage": "proven on 29 scenarios, covering 7/7 paragraphs and 6/6 branches",
   "counts": {
    "killed": 393,
    "timeout": 1,
@@ -2799,24 +2799,24 @@
    }
   ],
   "inputs": {
-   "port": "34b19cae5858006355e0c4102c3430f833442ff6770d2ff3606952631df73cae",
-   "generator": "50b063aa27d27ae305c50e53536e1cff14c8f00406aacf4bda78a8a5e97e55dd",
-   "case": "c7b2674e88606296180cd0523265e1287c1cb22eda3ae20887ca82801a918f6d",
+   "port": "83715e5a5b50dc20b2b8a5b3c8670ecc0b9659015d946c86c9dc5986d6c52d50",
+   "generator": "6ed4fe1b489915a5e3e836889561ab283de19ca869ab7aca27071ab4689b4759",
+   "case": "008f3455b236c9ab8441599c9ca0999f34b59e1d5fb77a97a5d2047efa28a992",
    "corpus": "7a4c86e6d6688f1516ec00cbd81941457457c861bf900e2b3a7f269c6bf9058b",
-   "harness": "03417c19837c61b2f8df1690721a2cea59bfcd81298fa81ef6ad0b368cca4a76",
-   "oracle": "29f60f9a988e4047dbcf970123c8f37bddeaf9331cf41096c4e17de4708b446d"
+   "harness": "6a39e3fdd7582d321fd4b43d444dbd4f0f17880558c46f44423122bf7bb43c5f",
+   "oracle": "f66f2ad55fef5945f0ad1bf7b868e29ddba90190eb8681ece98c3ba3c1ad0aea"
   },
   "components": {
    "generator": {
     "generator:cobolrt/standalone/Sysout.java": "290bd3e17b89bb6883cee226df6137927b753f3858fe5cfb1e3021ff7f8d5c44",
-    "generator:core": "286f1220d709fb1d4689c6d78a413a9440109a0ecca0472d2e3811c8ac0d9f81",
+    "generator:core": "90acb30341e94fb92c2155ac4797623b998b817423705b5604a6ede324dce382",
     "generator:det/__init__": "9dedbc9da92e2e4bfd260e7fd5fb78ee2e41a061466c948250d088ffaa464386",
     "generator:det/cics": "2a4fbbd7a9e55ee9dc6b9fa0e2ff2802c57cab2ff0d36459b676c1143707b507",
     "generator:det/cics_containers": "5fc989229d444423f5b14d2c65a2c7c541efbe6cd0e5dc5a833beaf90c578b6b",
     "generator:det/cics_filecontrol": "3d10979d783b0f39b3184d3111b9e543cd87941cbe7814f0edc65454e6f1f2b7",
     "generator:det/cics_taskcontrol": "7d3892cd106fe0ab3a165551af8497cb67ee0337d2cb97f7a72ef8805710bdbf",
     "generator:det/cvda": "894dce1a06a317be4fee0935fba219b066ef141e48f783953a5fe85c16338e26",
-    "generator:det/dli": "59300231ec82938ae8606969155f9d0fef4962ad739e8d6da188a7b6202e9ebd",
+    "generator:det/dli": "8a81045734ca0b53157f70ed0a4708159a20472e80fa51c334c50fde312133e6",
     "generator:det/dyncall": "7f776808ec711cab1ada988a7ee2aded100227a543eeea393d17f5d389b3dc0c",
     "generator:det/entity": "b6aa37067dc0413f6700ac83e7dd35610d8e2474aa607bdf54b5b8419ee4c7d6",
     "generator:det/expr": "f320b0c2861f0738776e006d5beb65200abfa641f76b07d029475749dae4ee50",
@@ -2826,20 +2826,31 @@
     "generator:det/mq": "25055224f7c943069e828db7a79887ca1f4e6f4a06ec3b9781c97b31226491a0",
     "generator:det/osvs": "4ca3599a4d9a49bd17def291a921278d6f4f45858f65acaf75ae817c17644dd5",
     "generator:det/source": "dd5dec2f1f4f9a6a780228a8216daae573cf51aab899fe35dc71745fec33f2dd",
-    "generator:det/stmt": "014835ecefbec5b761734642ac25fc8270092f80945e8f79bcaaa9d3aee2c9ff"
+    "generator:det/stmt": "72ade7437769eb7b8d8e94511613964e6f5cb98f30b4a4c5d6295709534b5176"
    },
    "harness": {
-    "harness:cics": "a06f5412ff8f1ed2b268c32b393ff896f2f1abaf9275d0db58b275516d87e519",
-    "harness:core": "6ca15fe077558291d5457261b5b460f3fa6f7b92a7a11455c436cfee97ebaf39",
-    "harness:db2": "f33f22bdc78ccbab35734e10c531a0ad98152ea0a73fafc4e034974e3a4fe657"
+    "harness:cics": "18640967ef2da9f5bc6d923c35029f363582311f687e664219dbda418777256c",
+    "harness:core": "d62c9af2a5f83bb39a1deffe40cd7d7d63bb0d2945c4e8cec6b12503931f45ef",
+    "harness:db2": "df4cefe238f828f2233ef1ae1b7c77c21265c7f5ab3af61e753544d50120cd66"
    },
    "oracle": {
-    "oracle:cics-stub": "8d4b95cb03310f91b20292ebc95871479fe57bab9fc6ff33a625667a5860e785",
-    "oracle:core": "9bd2aed0628d99af4c37bbef46e4ec07d7634e6d251de4ef7766364180b63623",
+    "oracle:cics-stub": "12f06c4f6cd3ee0005243e374a882759096e94fbf7fb01fbbdaa8e70588664df",
+    "oracle:core": "b5ba772713fe1ad0da7935c39e6bcfe79fcdaf13f631fb62ed6e2a003fab534a",
     "oracle:db2": "fa83d3d62d91ff633b4697cd7ff1965722d024ee9453567ef5e2b0240d6eb44f",
     "oracle:image-db2": "f138cc0d724e5e2bb4ff947dcd4c1cfed39aa35bfd7dcb27ff18a4e20b2c6198",
     "oracle:le": "784d29a91956cd3efd57e16b59789a42c3ee30f3105125ef14a67fc9271a6ba2"
    }
-  }
+  },
+  "refreshed": {
+   "from": "2026-10-23",
+   "survivors_rerun": 294,
+   "stale": [
+    "generator",
+    "case",
+    "harness",
+    "oracle"
+   ]
+  },
+  "port_moved": true
  }
 }

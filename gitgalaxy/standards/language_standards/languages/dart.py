@@ -14,7 +14,7 @@ from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: comp
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
 from .._shared_patterns import (
-    CALLS_OUT_C_STYLE_NO_ANNOTATION,
+    CALLS_OUT_DART,
     COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
@@ -58,7 +58,7 @@ DEFINITION: dict[str, Any] = {
         # decision. See branch_rule_contract.md, "Literals".
         "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE_NO_ANNOTATION,  # #3359: `@Name(` is an annotation (C1)
+        "calls_out": CALLS_OUT_DART,  # #3359 C1; #6454 `f<T>(x)`, `C<T?>()`
         # #3359 (contract C2): keywords and special forms, never calls
         "_calls_out_ignore": frozenset(
             {
@@ -76,8 +76,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes modern pattern guards (when) and null-coalescing.
+        # #6097: `break`/`continue` are unconditional transfers, so they sit in structural_boundaries beside
+        # `return` (branch_rule_contract.md, #2832), as in C.
         "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|break|continue|when)\b|&&|\|\||\?\?|\?",
+            r"\b(if|else|switch|case|default|for|while|do|when)\b|&&|\|\||\?\?|\?",
             re.I,
         ),
         # 2. args (Parameters / Coupling)
@@ -120,7 +122,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and const/final.
         "structural_boundaries": re.compile(
-            r"\b(var|late|return|yield|await|class|mixin|extension|enum|typedef|import|export|part|library|base|sealed|interface|macro)\b|=>",
+            r"\b(var|late|return|break|continue|yield|await|class|mixin|extension|enum|typedef|import|export|part|library|base|sealed|interface|macro)\b|=>",
             re.I,
         ),
         # 4. func_start (Executable Logic Anchors)

@@ -3,6 +3,7 @@
 counts) and the ranked rules to land, from committed tool outputs only (no corpus, no scan).
 
     python tests/tools/readiness_report.py [ESTATE ...] [--json] [--previous FILE] [--out FILE]
+    python tests/tools/readiness_report.py [ESTATE ...] --blockers DIR --salt-file FILE [--redact-more subclass counts]
 
 Sources (nothing is re-measured here):
   levels / translation   the estate's evidence report.json (evidence_report.py, #4601): each program's level and its
@@ -16,8 +17,13 @@ Sources (nothing is re-measured here):
                          proof_blockers run (that needs a survey and the corpora). The L5 mutant entry is left out
   era                    tests/fixtures/feature_inventory/<estate>.json `eras` (era_tags.py, #5117)
   missing inputs         estate_intake.py (#4709): assumed options and missing copybooks
-  oracle caveats         the register entries the report says each program's commands name (an upper bound: the
-                         report does not measure which entries a program reaches, definition_of_done.md section 3)
+  oracle caveats         the register entries each program relies on: those it reaches when its evidence report
+                         measured that (`assumptions.reach.registers`), else those its commands name (an upper bound,
+                         counted per row in `named_only`; the report does not yet measure reach,
+                         definition_of_done.md section 3)
+  blocker twins          (#5054) with --blockers DIR the same run also writes, per estate, DIR/<estate>/
+                         blocker_report.full.* and the anonymized blocker_report.anon.* (blocker_report.py) from the
+                         programs' gap classes (a whole program: its proof classes; any other: its translation gaps)
   charter                the levels and bars of definition_of_done.md section 2, as the report carries them
 
 "Translated whole" is level L1 and says nothing about proof: the ladder below it is counted with it. A program is not
@@ -73,7 +79,13 @@ def _load(path: Path) -> Any:
 def _reports() -> Path:
     import support_matrix
 
-    return REPORTS if REPORTS is not None else support_matrix.REPORTS
+    if REPORTS is not None:
+        return REPORTS
+    if not any(support_matrix.REPORTS.glob("*/report.json")):  # #6722: a fresh checkout has none; `generated` does
+        import evidence_report
+
+        evidence_report.materialize()
+    return support_matrix.REPORTS
 
 
 def estates() -> list[str]:
@@ -167,13 +179,55 @@ def proofs_to_land(programs: list[dict[str, Any]], top: int = TOP) -> dict[str, 
     }
 
 
+def blocker_result(estate: str, programs: list[dict[str, Any]]) -> dict[str, Any]:
+    """The report's own gaps as a proof_blockers-shaped result (blocker_report.py's input): per program the proof
+    classes when translated whole, else the translation gap classes; ranked by proof_blockers.rank()."""
+    import proof_blockers
+
+    gaps_of: dict[str, list[str]] = {}
+    for p in programs:
+        if p["translation"]["whole"]:
+            found = {c for n in p.get("next") or [] if (c := proof_class(n))}
+        else:
+            found = set(p["translation"]["gap_classes"])
+        gaps_of[p["program"]] = sorted(found)
+    res = proof_blockers.rank({(estate, n): (True, set(g)) for n, g in gaps_of.items()})
+    res["programs"] = [{"corpus": estate, "program": n, "case": None, "gaps": g} for n, g in sorted(gaps_of.items())]
+    return res
+
+
+def write_blockers(
+    names: list[str], out: Path, salt: bytes, redact_more: tuple[str, ...] = ()
+) -> dict[str, dict[str, Path]]:
+    """#5054: the full and the anonymized blocker report of each estate, from the same data as the readiness report."""
+    import blocker_report
+
+    reports = _reports()
+    paths = {}
+    for n in names:
+        programs = sorted(_load(reports / n / "report.json")["programs"], key=lambda p: p["program"])
+        paths[n] = blocker_report.write_reports(blocker_result(n, programs), out / n, salt, n, redact_more)
+    return paths
+
+
 def caveats(programs: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Register entries the programs' commands name, with the programs naming each (an upper bound)."""
+    """Register entries each program relies on, with the programs relying on them.
+
+    A program whose evidence report measured reach (`assumptions.reach` a dict with `registers`, #5229) counts only the
+    entries it reaches; any other program counts every entry its commands name, an upper bound. A row carries
+    `named_only` (programs counted by the upper bound) only when it is non-zero."""
     seen: dict[str, dict[str, Any]] = {}
     for p in programs:
-        for e in (p.get("assumptions") or {}).get("named_by_commands") or []:
-            row = seen.setdefault(e["id"], {"id": e["id"], "status": e["status"], "area": e["area"], "programs": 0})
+        a = p.get("assumptions") or {}
+        named = {e["id"]: e for e in a.get("named_by_commands") or []}
+        reach = a.get("reach")
+        measured = isinstance(reach, dict) and isinstance(reach.get("registers"), list)
+        for rid in sorted(set(reach["registers"]) & set(named)) if measured else sorted(named):
+            e = named[rid]
+            row = seen.setdefault(rid, {"id": rid, "status": e["status"], "area": e["area"], "programs": 0})
             row["programs"] += 1
+            if not measured:
+                row["named_only"] = row.get("named_only", 0) + 1
     return sorted(seen.values(), key=lambda r: (-r["programs"], r["id"]))
 
 
@@ -330,10 +384,21 @@ def render_estate(m: dict[str, Any], d: dict[str, Any] | None = None) -> list[st
         )
     cb = mi["missing_copybooks"]
     out.append("- missing copybooks: " + (", ".join(f"{k} ({len(v)})" for k, v in cb.items()) if cb else "none"))
-    out += ["", "### Oracle caveats the estate's commands name (upper bound)", ""]
+    upper = any(c.get("named_only") for c in m["oracle_caveats"])
+    title = "Oracle caveats the estate relies on" + (
+        " (upper bound where a program's reach is unmeasured)" if upper else ""
+    )
+    out += ["", f"### {title}", ""]
     if m["oracle_caveats"]:
-        out += ["| id | status | area | programs |", "|---|---|---|---|"]
-        out += [f"| {c['id']} | {c['status']} | {c['area']} | {c['programs']} |" for c in m["oracle_caveats"]]
+        out += [
+            "| id | status | area | programs |" + (" named only |" if upper else ""),
+            "|---|---|---|---|" + ("---|" if upper else ""),
+        ]
+        out += [
+            f"| {c['id']} | {c['status']} | {c['area']} | {c['programs']} |"
+            + (f" {c.get('named_only', 0)} |" if upper else "")
+            for c in m["oracle_caveats"]
+        ]
     else:
         out.append("None named.")
     if d is not None:
@@ -375,13 +440,28 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--top", type=int, default=TOP, help="rules listed per estate (0: all)")
     ap.add_argument("--reports", type=Path, help="read evidence reports from here (default: the published ones)")
     ap.add_argument("--out", type=Path, help="write here instead of stdout")
+    ap.add_argument("--blockers", type=Path, help="also write each estate's full and anonymized blocker reports here")
+    ap.add_argument(
+        "--salt-file", type=Path, help="the salt of the anonymized hashes (--blockers; created when missing)"
+    )
+    ap.add_argument("--redact-more", nargs="*", default=[], help="anonymized report: drop subclass / counts / repro")
     args = ap.parse_args(argv)
+    if args.blockers and not args.salt_file:
+        ap.error("--blockers needs --salt-file: one salt is what keeps the hashes comparable between runs")
     if args.reports:
         global REPORTS
         REPORTS = args.reports
     unknown = sorted(set(args.estates) - set(estates()))
     if unknown:
         ap.error(f"not a burned estate with a report and an inventory: {', '.join(unknown)}")
+    if args.blockers:
+        import blocker_report
+
+        bad = sorted(set(args.redact_more) - set(blocker_report.REDACTIONS))
+        if bad:
+            ap.error(f"--redact-more: unknown {', '.join(bad)}; choose from {', '.join(blocker_report.REDACTIONS)}")
+        salt = blocker_report.load_salt(args.salt_file)
+        write_blockers(args.estates or estates(), args.blockers, salt, tuple(args.redact_more))
     rep = build(args.estates or None, args.top)
     prev = _load(args.previous) if args.previous else None
     text = json.dumps(rep, indent=1, sort_keys=True) + "\n" if args.json else render(rep, prev)

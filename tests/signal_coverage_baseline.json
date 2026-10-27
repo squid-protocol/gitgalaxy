@@ -9,15 +9,15 @@
     "Sec Tainted Injection": "placeholder: computation removed in #3101; key kept for SIGNAL_SCHEMA positions"
   },
   "thin_coverage": {
-    "AI Orchestration Frameworks": 3,
+    "AI Orchestration Frameworks": 4,
     "Architectural Diagrams (Mermaid/PlantUML)": 2,
     "Auth Middleware": 11,
     "Cloud LLM API Integrations": 5,
-    "Cryptography": 8,
+    "Cryptography": 11,
     "Deep Learning & Neural Networks": 4,
     "Embedded Credentials & Keys": 7,
     "Global Environment Mutation": 10,
-    "Hardware Bridge": 1,
+    "Hardware Bridge": 3,
     "Inline Assembly Blocks": 6,
     "Instructional Code Examples": 10,
     "Local Inference & Tensor Math": 2,

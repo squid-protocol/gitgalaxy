@@ -57,9 +57,6 @@ _INQUIRE_CONTAINER = (
 
 # (name, IBM topic after "summary-" -- None: the name's own -- reason)
 _NAME_ONLY: tuple[tuple[str, str | None, str], ...] = (
-    # channels and containers beyond the container commands (#4270 slice 1, #4951)
-    ("GET64 CONTAINER", None, "64-bit storage is not modelled"),
-    ("PUT64 CONTAINER", None, "64-bit storage is not modelled"),
     # BTS
     ("ACQUIRE", None, _BTS),
     ("ADD SUBEVENT", None, _BTS),

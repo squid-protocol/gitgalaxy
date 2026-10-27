@@ -205,7 +205,8 @@ class TaskControlCommands:
         """#4950: DELAY (IBM CICS TS, EXEC CICS DELAY) on CicsTask.delay: INTERVAL(hhmmss), or [FOR] HOURS / MINUTES /
         SECONDS / MILLISECS, as milliseconds (CicsTask.delayMillis: -1 out of IBM's ranges); none, INTERVAL(0). A task
         takes no time (X4): NORMAL at once, after the RUN children the wait dispatches. TIME (a time of day) and a
-        value out of range are refused in a task with RUN children (CicsTask.delay)."""
+        value out of range are refused in a task with RUN children (CicsTask.delay). #6271 (X72): a scenario's planned
+        EXPIRED / INVREQ (CicsTask.planned) answers instead, and the delay is not performed."""
         from gitgalaxy.tools.cobol_to_java.det.cics import _arg
 
         def num(o: str) -> str:
@@ -220,7 +221,13 @@ class TaskControlCommands:
             what = "DELAY out of range"
         else:
             ms, what = "0L", "DELAY"
-        return [f'{ind}task.delay({ms}, "{what}");', *self.outcome(opts, "0", "0", ind)]
+        # #6271 (X72): a planned EXPIRED / INVREQ is not performed and raises as any condition
+        pl = self.g.tmpname("planned")
+        return [
+            f'{ind}int[] {pl} = task.planned("DELAY", "-");',
+            f'{ind}if ({pl}[0] == 0) task.delay({ms}, "{what}");',
+            *self.outcome(opts, f"{pl}[0]", f"{pl}[1]", ind),
+        ]
 
     def post(self, opts: dict, ind: str) -> list[str]:
         """#5079 (X63): POST INTERVAL(hhmmss) | TIME(hhmmss) | AFTER / AT HOURS MINUTES SECONDS [SET(ptr)] [REQID] (IBM CICS TS,

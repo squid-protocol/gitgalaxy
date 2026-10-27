@@ -162,6 +162,94 @@
     }
    },
    "why": "the error queue is not defined: its MQOPEN fails first and the error is DISPLAYed"
+  },
+  {
+   "name": "open-input-fails",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "DATE",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.DATE",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "mq_faults": [
+    {
+     "call": "MQOPEN",
+     "nth": 2,
+     "reason": 2009
+    }
+   ],
+   "why": "MQ fault (#6072): the MQOPEN of the request queue answers 2009 (MQOPEN call 2): its non-OK arm"
+  },
+  {
+   "name": "open-output-fails",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "DATE",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.DATE",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "mq_faults": [
+    {
+     "call": "MQOPEN",
+     "nth": 3,
+     "reason": 2035
+    }
+   ],
+   "why": "MQ fault (#6072): the MQOPEN of the reply queue answers 2035 (MQOPEN call 3): its non-OK arm"
+  },
+  {
+   "name": "get-request-fails",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "DATE",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.DATE",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "mq_faults": [
+    {
+     "call": "MQGET",
+     "nth": 1,
+     "reason": 2016
+    }
+   ],
+   "why": "MQ fault (#6072): the first MQGET of the request queue answers 2016 (MQGET call 1): its non-OK arm"
+  },
+  {
+   "name": "put-reply-fails",
+   "mq_messages": {
+    "CARDDEMO.REQUEST.QUEUE": [
+     {
+      "data": "DATE",
+      "format": "MQSTR",
+      "msgtype": 1,
+      "replytoq": "CARD.DEMO.REPLY.DATE",
+      "correlid": "REQ-0001"
+     }
+    ]
+   },
+   "mq_faults": [
+    {
+     "call": "MQPUT",
+     "nth": 1,
+     "reason": 2051
+    }
+   ],
+   "why": "MQ fault (#6072): the MQPUT of the date reply answers 2051 (MQPUT call 1): its non-OK arm"
   }
  ],
  "notes": "CardDemo's MQ date inquiry (transaction CDRD, program CODATE01, app-vsam-mq): each request on the trigger's queue is answered on CARD.DEMO.REPLY.DATE with the ASKTIME / FORMATTIME date and time (the case's pinned clock), a SYNCPOINT after each; errors go to CARD.DEMO.ERROR. The queue manager is a stated fact (\"mq\": its name CSQ1 and CCSID 37 are illustrative, CardDemo fixes neither; the request, reply and error queues the program names), given alike to both sides (register W3). The task is started by the CKTI trigger monitor in production; here its START data is stated: an MQTM (\"start_data\", CMQTML layout) naming the request queue (W8). The MQ copybooks are GitGalaxy-written stand-ins (W1); every MQI call is an event compared on both sides with its completion and reason code, and the queues the task leaves (its normal end commits it, W5) are compared. A wait on the empty request queue ends at once with MQRC_NO_MSG_AVAILABLE (W2). Branch coverage is under-reported: GnuCOBOL's trace gives an EVALUATE / IF that follows an unterminated CALL ... USING the CALL's last line, so cobol_coverage does not see it taken (every MQ call's EVALUATE is reached by these scenarios). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."

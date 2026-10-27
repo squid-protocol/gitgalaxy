@@ -1,0 +1,22 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "genapp-lgstsq",
+  "entries": [
+    {
+      "unit": "MAINLINE",
+      "line": 68,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "`IF WS-INVOKEPROG NOT = SPACES` is true only when ASSIGN INVOKINGPROG names a program, i.e. the task reached LGSTSQ through an EXEC CICS LINK or XCTL (IBM CICS TS, ASSIGN INVOKINGPROG: blank for the first program of a task). This case starts LGSTSQ itself, as the first program of a task (transid LGSQ, STARTCODE TD or a terminal), so INVOKINGPROG is blank on every scenario it can state; the case format has no field naming a caller (equivalence_cics.py passes only the case's program as the task's first program), and no GenApp program in this case LINKs here. The arm is taken, with INVOKINGPROG LGAPDB01, by the LINKed LGSTSQ task of genapp-lgapdb01 (policy-insert-fk-violation) (its WS-FLAG test is not reached there: judging stops at the padded WRITEQ, X6); this entry is a statement about this standalone case, for owner review."
+    },
+    {
+      "unit": "MAINLINE",
+      "line": 113,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`If WS-FLAG = 'R'` is false only when WS-FLAG is 'C', which line 70 sets in the `IF WS-INVOKEPROG NOT = SPACES` arm (the caller-LINKed task) and nothing else assigns: line 78 sets 'R' in the other arm, and WS-FLAG has no VALUE. This case starts LGSTSQ as the first program of a task, so INVOKINGPROG is blank (see the entry for line 68), WS-FLAG is always 'R', and the SEND TEXT always runs. The LINKed LGSTSQ task of genapp-lgapdb01 sets 'C' but is judged only up to the padded WRITEQ (X6), so it does not reach this test either; the false arm stays unproven anywhere (#6271). This entry is a statement about this standalone case, for owner review."
+    }
+  ]
+}

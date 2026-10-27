@@ -1,0 +1,167 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "UPDACC",
+ "program_source": "src/base/cobol_src/UPDACC.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OUAC",
+ "clock": "2026/10/01 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "IBMUSER.ACCOUNT"
+  ],
+  "qualifier": "IBMUSER"
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/UPDACC.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "update-ok-control",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "sql_faults": [],
+   "why": "no fault: the success path on the same row and COMMAREA as the faulted scenarios, so each fault is read against it"
+  },
+  {
+   "name": "update-fails-904",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "sql_faults": [
+    {
+     "program": "UPDACC",
+     "line": 278,
+     "sqlcode": -904
+    }
+   ],
+   "why": "UPDATE of ACCOUNT fails -904 (resource unavailable): the SQLCODE NOT = 0 arm after the UPDATE -- 'N' in COMM-SUCCESS, the 'ERROR: UPDACC returned -904 on UPDATE' DISPLAY, GO TO UAD999, the row untouched and the COMMAREA not refilled"
+  },
+  {
+   "name": "update-fails-913",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "2",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "sql_faults": [
+    {
+     "program": "UPDACC",
+     "line": 278,
+     "sqlcode": -913
+    }
+   ],
+   "why": "UPDATE fails -913 (deadlock / timeout): the same arm with the other SQLCODE the CBSA programs abend on elsewhere"
+  },
+  {
+   "name": "update-fails-803",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "3",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "sql_faults": [
+    {
+     "program": "UPDACC",
+     "line": 278,
+     "sqlcode": -803
+    }
+   ],
+   "why": "UPDATE fails -803 (duplicate key): the same arm, a third SQLCODE (the UPDATE touches no key column, so -803 is not one Db2 gives, but the program's test is NOT = 0)"
+  },
+  {
+   "name": "select-fails-904",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "sql_faults": [
+    {
+     "program": "UPDACC",
+     "line": 191,
+     "sqlcode": -904
+    }
+   ],
+   "why": "SELECT INTO fails -904: the arm after the SELECT -- 'N', 'ERROR: UPDACC returned -904 on SELECT', GO TO UAD999, no UPDATE run"
+  },
+  {
+   "name": "select-fails-913",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "4",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "sql_faults": [
+    {
+     "program": "UPDACC",
+     "line": 191,
+     "sqlcode": -913
+    }
+   ],
+   "why": "SELECT INTO fails -913: the same arm, the other SQLCODE; the table is compared and no UPDATE ran"
+  },
+  {
+   "name": "blank-account-type",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "a blank account type: 'N' without the UPDATE, so the UPDATE arms above are read against a run that never reaches them"
+  },
+  {
+   "name": "account-not-found",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "99",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "SELECT +100 (no such account): 'N', 'ERROR: UPDACC returned +100 on SELECT', no UPDATE -- the SELECT arm taken by Db2, not by an injected fault"
+  }
+ ],
+ "notes": "UPDACC with SQL faults injected (#4507, [c:e095a6ab]): the UPDATE (line 278) and SELECT (line 191) failure arms of CBSA's update-account service on UPDACC's own CRETB01/CREI101 DDL and the hand case's seed. cbsa-updacc and cbsa-updacc-generated run the model-written port, which reaches Db2 through JDBC rather than cobolrt.sql.DetSql, so the proof refuses a sql_faults scenario there (\"no SQL fault hook in UPDACC\"); this case has no port/ directory, so the deterministic translation runs and the seam exists. The statement is addressed by line (the precompiled COBOL source line) and each SQLCODE is compared with GnuCOBOL plus the stub; the table is compared after every scenario. Derived from the CICS Bank Sample Application (CBSA), EPL-2.0: LICENSE is the corpus's own."
+}

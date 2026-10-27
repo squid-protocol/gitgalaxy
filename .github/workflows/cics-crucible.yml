@@ -51,6 +51,7 @@ on:
       - "tests/tools/crucible_pins.py"  # #4825: read by this workflow (workflow_inputs.py)
       - "tests/tools/crucible_shard_plan.py"  # #5919: the plan job's shard count and timeout
       - "tests/tools/ci_shard_plan.py"
+      - "tests/tools/time_ratchet.py"  # #5257: the per-test time ratchet step
   # #5131/#5136: no main push trigger. post-merge.yml dispatches this on main (at most once per cadence window, only
   # when PR runners are idle and main changed a file this workflow reads); the nightly run covers a busy day.
   schedule:
@@ -153,13 +154,14 @@ jobs:
           pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt && pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Setup JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Cache Maven dependencies
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: maven_dependencies
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
           key: cics-crucible-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
@@ -171,7 +173,7 @@ jobs:
       # every later run and shard. The fingerprint check below is still the pin (#4309): a stale image fails it.
       - name: Cache the GnuCOBOL oracle image
         id: image
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/gnucobol-image.tar
           key: gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}
@@ -203,6 +205,24 @@ jobs:
           path: ${{ runner.temp }}/cics_crucible
           if-no-files-found: ignore
 
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the Maven dependencies to the cache
+        if: success() && github.event_name != 'pull_request' && steps.maven_dependencies.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: cics-crucible-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the GnuCOBOL oracle image to the cache
+        if: success() && github.event_name != 'pull_request' && steps.image.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}
+
   runner-tests:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}  # #5104: draft PRs skip heavy CI
     runs-on: ubuntu-latest
@@ -216,6 +236,19 @@ jobs:
         with:
           path: gitgalaxy
           persist-credentials: false
+
+      - name: Clone cics-crucible at the pin
+        run: |
+          # #5954: the tests that read CICS_CRUCIBLE_PATH need the checkout (the pin is tests/crucible_pins.toml).
+          ref=$(python3 gitgalaxy/tests/tools/crucible_pins.py get cics)
+          git init -q cics-crucible
+          git -C cics-crucible remote add origin https://github.com/squid-protocol/cics-crucible.git
+          if echo "$ref" | grep -Eq '^[0-9a-f]{40}$'; then
+            git -C cics-crucible fetch -q --depth 1 origin "$ref"
+          else
+            git -C cics-crucible fetch -q --depth 1 origin "+refs/tags/$ref:refs/tags/$ref"
+          fi
+          git -C cics-crucible checkout -q --detach FETCH_HEAD
 
       - name: Setup Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -232,13 +265,14 @@ jobs:
           pip install --require-hashes -r gitgalaxy/ci/requirements/pytest.txt && pip install --no-build-isolation -e ./gitgalaxy
 
       - name: Setup JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Cache Maven dependencies
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: maven_dependencies
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
           key: cics-crucible-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
@@ -250,7 +284,7 @@ jobs:
       # every later run and shard. The fingerprint check below is still the pin (#4309): a stale image fails it.
       - name: Cache the GnuCOBOL oracle image
         id: image
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/gnucobol-image.tar
           key: gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}
@@ -270,9 +304,55 @@ jobs:
         env:
           EQUIVALENCE_E2E: "1"
           GITGALAXY_ORACLE_STRICT: "1"
+          CICS_CRUCIBLE_PATH: ${{ github.workspace }}/cics-crucible  # #5954: un-skips test_det_port_bytes_4965
+          GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-cics-crucible-e2e.json  # #5257: tests/conftest.py writes each test's seconds
         run: |
           cd gitgalaxy
           python -m pytest -q -p no:cacheprovider tests/cics_crucible -m e2e
+
+      # #5954: the files that read the checkout but are not marked e2e (the -m e2e selection above leaves them out)
+      - name: The tests that read the crucible checkout
+        env:
+          CICS_CRUCIBLE_PATH: ${{ github.workspace }}/cics-crucible
+          GITGALAXY_TEST_TIMES: ${{ runner.temp }}/times-cics-crucible-checkout.json  # #5257
+        run: |
+          cd gitgalaxy
+          python -m pytest -q -p no:cacheprovider -m "not e2e" tests/cics_crucible/test_cics_crucible_runner.py tests/tools/test_blocker_report.py tests/tools/test_crucible_case.py tests/cobol_mainframe/test_blocker_leak.py
+
+      # #5257 (sibling of #5166): the e2e tests run only here, so this is the one run that times them
+      - name: Per-test time ratchet (#5257)
+        run: |
+          cd gitgalaxy
+          python tests/tools/time_ratchet.py check --times "$RUNNER_TEMP/times-cics-crucible-e2e.json" "$RUNNER_TEMP/times-cics-crucible-checkout.json"
+
+      - name: Upload this job's test times (#5257)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-times-cics-crucible
+          path: |
+            ${{ runner.temp }}/times-cics-crucible-e2e.json
+            ${{ runner.temp }}/times-cics-crucible-checkout.json
+          retention-days: 7
+          if-no-files-found: ignore
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the Maven dependencies to the cache
+        if: success() && github.event_name != 'pull_request' && steps.maven_dependencies.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: cics-crucible-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py') }}
+
+      # #6675: main only (a PR's save is scoped to its ref, which nothing else reads); only on a miss
+      - name: Save the GnuCOBOL oracle image to the cache
+        if: success() && github.event_name != 'pull_request' && steps.image.outputs.cache-hit != 'true'
+        continue-on-error: true  # best effort: a lost save race must not fail the job
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/gnucobol-image.tar
+          key: gnucobol-image-${{ hashFiles('gitgalaxy/tests/equivalence/gnucobol.Dockerfile') }}
 
   # The required check (its name is the job id). Always runs: a shard that failed or never started is a failure here,
   # never a pass by absence.

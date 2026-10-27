@@ -11,103 +11,346 @@
  "case": "carddemo-userlist",
  "survivors": [
   {
+   "id": "6c9dd302a5",
+   "op": "LIT",
+   "line": 97,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a byte of its 32767-byte space padding, past the 194 the CARDDEMO-COMMAREA fills): COUSR00C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), and the port overwrites those bytes with the caller's COMMAREA before it does"
+  },
+  {
+   "id": "ef5ef0c3c1",
+   "op": "LIT",
+   "line": 117,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a byte of its 32767-byte space padding, past the 194 the CARDDEMO-COMMAREA fills): COUSR00C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), and the port overwrites those bytes with the caller's COMMAREA before it does"
+  },
+  {
+   "id": "e5244d6b2b",
+   "op": "LIT",
+   "line": 124,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a byte of its 32767-byte space padding, past the 194 the CARDDEMO-COMMAREA fills): COUSR00C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), and the port overwrites those bytes with the caller's COMMAREA before it does"
+  },
+  {
+   "id": "43daad65d7",
+   "op": "LIT",
+   "line": 181,
+   "before": "\"ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "after": "\"XCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg\",",
+   "verdict": "equivalent",
+   "reason": "IMAGE of DFHCOMMAREA (a byte of its 32767-byte space padding, past the 194 the CARDDEMO-COMMAREA fills): COUSR00C reads DFHCOMMAREA only as DFHCOMMAREA(1:EIBCALEN), and the port overwrites those bytes with the caller's COMMAREA before it does"
+  },
+  {
+   "id": "df2429704a",
+   "op": "CON",
+   "line": 245,
+   "before": "private final Field f93_PAGENUMA = Field.alphanumeric(s_COUSR0AI, 164, 1, false);",
+   "after": "private final Field f93_PAGENUMA = Field.alphanumeric(s_COUSR0AI, 165, 1, false);",
+   "verdict": "case-gap",
+   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+  },
+  {
+   "id": "8df4dee96a",
+   "op": "CON",
+   "line": 293,
+   "before": "private final Field f189_UTYPE03A = Field.alphanumeric(s_COUSR0AI, 441, 1, false);",
+   "after": "private final Field f189_UTYPE03A = Field.alphanumeric(s_COUSR0AI, 442, 1, false);",
+   "verdict": "case-gap",
+   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+  },
+  {
+   "id": "64bce0b373",
+   "op": "CON",
+   "line": 332,
+   "before": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 642, 1, false);",
+   "after": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 643, 1, false);",
+   "verdict": "case-gap",
+   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+  },
+  {
+   "id": "d67b4d7463",
+   "op": "CON",
+   "line": 332,
+   "before": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 642, 1, false);",
+   "after": "private final Field f267_FNAME06A = Field.alphanumeric(s_COUSR0AI, 642, 2, false);",
+   "verdict": "case-gap",
+   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+  },
+  {
+   "id": "063c5e0be6",
+   "op": "CON",
+   "line": 401,
+   "before": "private final Field f405_ERRMSGA = Field.alphanumeric(s_COUSR0AI, 1044, 1, false);",
+   "after": "private final Field f405_ERRMSGA = Field.alphanumeric(s_COUSR0AI, 1044, 2, false);",
+   "verdict": "case-gap",
+   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+  },
+  {
+   "id": "cf87264fb7",
+   "op": "CON",
+   "line": 434,
+   "before": "private final Field f471_FNAME01C = Field.alphanumeric(s_COUSR0AI, 218, 1, false);",
+   "after": "private final Field f471_FNAME01C = Field.alphanumeric(s_COUSR0AI, 218, 2, false);",
+   "verdict": "case-gap",
+   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+  },
+  {
+   "id": "f4322ccc77",
+   "op": "CON",
+   "line": 443,
+   "before": "private final Field f489_SEL0002C = Field.alphanumeric(s_COUSR0AI, 280, 1, false);",
+   "after": "private final Field f489_SEL0002C = Field.alphanumeric(s_COUSR0AI, 281, 1, false);",
+   "verdict": "case-gap",
+   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+  },
+  {
+   "id": "84ef57af73",
+   "op": "CON",
+   "line": 466,
+   "before": "private final Field f535_FNAME03O = Field.alphanumeric(s_COUSR0AI, 392, 20, false);",
+   "after": "private final Field f535_FNAME03O = Field.alphanumeric(s_COUSR0AI, 392, 21, false);",
+   "verdict": "harness-gap",
+   "reason": "an O-field one byte longer than its PIC X(20): the extra byte is a NUL, and the screen comparison strips trailing blanks and NULs (decode_record, rstrip) so it cannot see it"
+  },
+  {
+   "id": "b1cfbccbb1",
+   "op": "CON",
+   "line": 488,
+   "before": "private final Field f579_SEL0005C = Field.alphanumeric(s_COUSR0AI, 535, 1, false);",
+   "after": "private final Field f579_SEL0005C = Field.alphanumeric(s_COUSR0AI, 535, 2, false);",
+   "verdict": "case-gap",
+   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+  },
+  {
+   "id": "e5a2ff0185",
+   "op": "CON",
+   "line": 544,
+   "before": "private final Field f691_LNAME08O = Field.alphanumeric(s_COUSR0AI, 844, 20, false);",
+   "after": "private final Field f691_LNAME08O = Field.alphanumeric(s_COUSR0AI, 844, 21, false);",
+   "verdict": "harness-gap",
+   "reason": "an O-field one byte longer than its PIC X(20): the extra byte is a NUL, and the screen comparison strips trailing blanks and NULs (decode_record, rstrip) so it cannot see it"
+  },
+  {
+   "id": "c709e61b6a",
+   "op": "CON",
+   "line": 572,
+   "before": "private final Field f747_LNAME10C = Field.alphanumeric(s_COUSR0AI, 1010, 1, false);",
+   "after": "private final Field f747_LNAME10C = Field.alphanumeric(s_COUSR0AI, 1011, 1, false);",
+   "verdict": "case-gap",
+   "reason": "position or length of an attribute (A) or colour (C) byte of a map field COUSR00C never writes: the SEND MAP comparison reads those bytes only when the scenario states a subfield. Needs SEND MAP events that state them"
+  },
+  {
+   "id": "f8f619ceea",
+   "op": "DEL",
+   "line": 685,
+   "before": "caBack.run();",
+   "after": "/* caBack.run(); */",
+   "verdict": "unreachable",
+   "reason": "inside `if (task.level() > 1)` in abended(): level above 1 is a LINKed program, and no CardDemo program LINKs COUSR00C (it is reached by terminal transaction CU00 and XCTL only)"
+  },
+  {
+   "id": "acda6270ee",
+   "op": "LIT",
+   "line": 693,
+   "before": "case \"USRSEC\" -> new DetCics.Store<SecUserData>(secUserDataRepository::findAll, e -> e.toRecord(CS), b -> SecUserData.fromRecord(b, CS), e -> task.write(\"USRSEC\", () -> secUserDataRepository.save(e)), e -> task.write(\"USRSEC\", () -> secUserDataRepository.delete(e)), 0, 8, CS).withFindById(rec -> secUserDataRepository.findById(id_SecUserData(rec)));",
+   "after": "case \"USRSEC\" -> new DetCics.Store<SecUserData>(secUserDataRepository::findAll, e -> e.toRecord(CS), b -> SecUserData.fromRecord(b, CS), e -> task.write(\"XSRSEC\", () -> secUserDataRepository.save(e)), e -> task.write(\"USRSEC\", () -> secUserDataRepository.delete(e)), 0, 8, CS).withFindById(rec -> secUserDataRepository.findById(id_SecUserData(rec)));",
+   "verdict": "unreachable",
+   "reason": "the USRSEC store's write lambda: COUSR00C only browses USRSEC (STARTBR, READNEXT, READPREV, ENDBR) and has no WRITE or REWRITE, so the lambda is never called"
+  },
+  {
+   "id": "dc1b341b03",
+   "op": "AOR",
+   "line": 782,
+   "before": "d.setCdemoFromTranid(Cobol.text(Field.alphanumeric(s, base + 0, 4, false), CS));",
+   "after": "d.setCdemoFromTranid(Cobol.text(Field.alphanumeric(s, base - 0, 4, false), CS));",
+   "verdict": "equivalent",
+   "reason": "`base + 0` and `base - 0` are the same offset"
+  },
+  {
+   "id": "112c95692a",
+   "op": "AOR",
+   "line": 899,
+   "before": "Cobol.store(f926_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+   "after": "Cobol.store(f926_EIBDATE, BigDecimal.valueOf((now.getYear() - 1900) / 1000L + now.getDayOfYear()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBDATE / EIBTIME are never read by COUSR00C (its date and time come from FUNCTION CURRENT-DATE), and the proof compares neither"
+  },
+  {
+   "id": "df18fe7d16",
+   "op": "AOR",
+   "line": 900,
+   "before": "Cobol.store(f925_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "after": "Cobol.store(f925_EIBTIME, BigDecimal.valueOf(now.getHour() * 10000L - now.getMinute() * 100L + now.getSecond()), false, CS);",
+   "verdict": "equivalent",
+   "reason": "EIBDATE / EIBTIME are never read by COUSR00C (its date and time come from FUNCTION CURRENT-DATE), and the proof compares neither"
+  },
+  {
+   "id": "33d6b2d71c",
+   "op": "DEL",
+   "line": 950,
+   "before": "System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length));",
+   "after": "/* System.arraycopy(cb, 0, s_DFHCOMMAREA.bytes, 0, Math.min(cb.length, s_DFHCOMMAREA.bytes.length)); */",
+   "verdict": "case-gap",
+   "reason": "The byte[] COMMAREA entry (ca instanceof byte[]) is never used: the harness passes a DTO. Needs a task whose COMMAREA is a byte[] (the harness cannot yet express it)"
+  },
+  {
+   "id": "73392963ef",
+   "op": "ROR",
+   "line": 962,
+   "before": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond != null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "after": "caBack = () -> { typed.run(); System.arraycopy(s_DFHCOMMAREA.bytes, 0, raw, 0, Math.min(raw.length, keep)); if (s_DFHCOMMAREA.beyond == null) { System.arraycopy(s_DFHCOMMAREA.beyond, 0, raw, keep, raw.length - keep); } };",
+   "verdict": "unreachable",
+   "reason": "inside `if (raw != null)`, in the write-back to the LINK area: no CardDemo program LINKs COUSR00C, so task.linkArea() is null and this is never entered"
+  },
+  {
+   "id": "43ffc2d158",
+   "op": "ROR",
+   "line": 965,
+   "before": "if (task.exactCommarea() && calen < s_DFHCOMMAREA.bytes.length) {",
+   "after": "if (task.exactCommarea() && calen <= s_DFHCOMMAREA.bytes.length) {",
+   "verdict": "equivalent",
+   "reason": "at calen == the area's length the narrowing copies the area to a same-length array, which changes no byte; for every other calen the comparison agrees"
+  },
+  {
+   "id": "beebb62656",
+   "op": "COR",
+   "line": 1026,
+   "before": "lastLinkBytes = task.linkAreaTaken() && left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "after": "lastLinkBytes = task.linkAreaTaken() || left != null ? java.util.Arrays.copyOf(left, left.length) : null;",
+   "verdict": "unreachable",
+   "reason": "lastLinkBytes is set only in handleLink, which only a caller's LINK reaches; no CardDemo program LINKs COUSR00C"
+  },
+  {
+   "id": "54c95775a1",
+   "op": "AOR",
+   "line": 1101,
+   "before": "performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+   "after": "performThru = java.util.Arrays.copyOf(performThru, mine / 2);",
+   "verdict": "unreachable",
+   "reason": "performThru grows only at a PERFORM nesting depth of 64 (mine == length); COUSR00C nests at most 5 paragraphs deep"
+  },
+  {
+   "id": "5ec2cb3e70",
+   "op": "DEL",
+   "line": 1170,
+   "before": "Cobol.move(DM1, f96_USRIDINL, CS);",
+   "after": "/* Cobol.move(DM1, f96_USRIDINL, CS); */",
+   "verdict": "case-gap",
+   "reason": "MOVE -1 TO USRIDINL (the cursor): the SEND MAP comparison reads the cursor only when the scenario states it. Needs the SEND MAP events to state the cursor"
+  },
+  {
+   "id": "ad68cf86da",
+   "op": "COR",
+   "line": 1287,
+   "before": "if (((!(Cobol.compareFigurative(f50_CDEMO_CU00_USR_SEL_FLG, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f50_CDEMO_CU00_USR_SEL_FLG, Figurative.LOW_VALUES, CS) == 0)) && (!(Cobol.compareFigurative(f51_CDEMO_CU00_USR_SELECTED, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f51_CDEMO_CU00_USR_SELECTED, Figurative.LOW_VALUES, CS) == 0)))) {",
+   "after": "if (((!(Cobol.compareFigurative(f50_CDEMO_CU00_USR_SEL_FLG, Figurative.SPACES, CS) == 0) || !(Cobol.compareFigurative(f50_CDEMO_CU00_USR_SEL_FLG, Figurative.LOW_VALUES, CS) == 0)) && (!(Cobol.compareFigurative(f51_CDEMO_CU00_USR_SELECTED, Figurative.SPACES, CS) == 0) && !(Cobol.compareFigurative(f51_CDEMO_CU00_USR_SELECTED, Figurative.LOW_VALUES, CS) == 0)))) {",
+   "verdict": "equivalent",
+   "reason": "the line 187 test: CDEMO-CU00-USR-SEL-FLG and CDEMO-CU00-USR-SELECTED are always set together by the EVALUATE above it (the flag a non-blank, non-LOW-VALUES SELnnI, or both SPACES), so whenever SELECTED is non-blank the flag is too and `NOT = SPACES` is true either way"
+  },
+  {
+   "id": "cf6184501f",
+   "op": "DEL",
+   "line": 1319,
+   "before": "Cobol.store(f953_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr2)), false, CS);",
+   "after": "/* Cobol.store(f953_EIBRESP, BigDecimal.valueOf(DetCics.resp(xr2)), false, CS); */",
+   "verdict": "equivalent",
+   "reason": "EIBRESP is never read by COUSR00C, and the store is followed by condition(), which throws for the failed XCTL; nothing observes the stored value"
+  },
+  {
+   "id": "55cb3996f7",
+   "op": "ROR",
+   "line": 1323,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (to < 0) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default)"
+  },
+  {
+   "id": "9822a90949",
+   "op": "NEG",
+   "line": 1323,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default)"
+  },
+  {
+   "id": "580bca8eea",
+   "op": "COR",
+   "line": 1333,
+   "before": "if ((Cobol.compareFigurative(f101_USRIDINI, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f101_USRIDINI, Figurative.LOW_VALUES, CS) == 0)) {",
+   "after": "if ((Cobol.compareFigurative(f101_USRIDINI, Figurative.SPACES, CS) == 0 && Cobol.compareFigurative(f101_USRIDINI, Figurative.LOW_VALUES, CS) == 0)) {",
+   "verdict": "case-gap",
+   "reason": "a blank key takes `MOVE LOW-VALUES TO SEC-USR-ID`; the mutant leaves SPACES, and STARTBR GTEQ gives the same start only while no USRSEC key sorts below a blank. Needs a USRSEC record whose key starts below X'20'"
+  },
+  {
+   "id": "709e10b0a6",
+   "op": "COR",
+   "line": 1357,
+   "before": "if ((Cobol.compareFigurative(f46_CDEMO_CU00_USRID_FIRST, Figurative.SPACES, CS) == 0 || Cobol.compareFigurative(f46_CDEMO_CU00_USRID_FIRST, Figurative.LOW_VALUES, CS) == 0)) {",
+   "after": "if ((Cobol.compareFigurative(f46_CDEMO_CU00_USRID_FIRST, Figurative.SPACES, CS) == 0 && Cobol.compareFigurative(f46_CDEMO_CU00_USRID_FIRST, Figurative.LOW_VALUES, CS) == 0)) {",
+   "verdict": "case-gap",
+   "reason": "a blank key takes `MOVE LOW-VALUES TO SEC-USR-ID`; the mutant leaves SPACES, and STARTBR GTEQ gives the same start only while no USRSEC key sorts below a blank. Needs a USRSEC record whose key starts below X'20'"
+  },
+  {
    "id": "557f2a41e8",
    "op": "COR",
    "line": 1490,
    "before": "if ((!(Cobol.compare(f933_EIBAID, f819_DFHENTER, CS) == 0) && !(Cobol.compare(f933_EIBAID, f837_DFHPF8, CS) == 0))) {",
    "after": "if ((!(Cobol.compare(f933_EIBAID, f819_DFHENTER, CS) == 0) || !(Cobol.compare(f933_EIBAID, f837_DFHPF8, CS) == 0))) {",
    "verdict": "equivalent",
-   "reason": "PROCESS-PAGE-BACKWARD is performed only from PROCESS-PF7-KEY, so EIBAID is always PF7 there: `NOT = DFHENTER AND DFHPF8` and `NOT = DFHENTER OR DFHPF8` are both true"
+   "reason": "PROCESS-PAGE-BACKWARD runs only from PROCESS-PF7-KEY (EVALUATE EIBAID WHEN DFHPF7), so EIBAID is PF7: both `NOT = DFHENTER` and `NOT = DFHPF8` are true and `&&` and `||` agree"
   },
   {
-   "id": "fc899c30ca",
+   "id": "4eb811e188",
    "op": "NEG",
-   "line": 1641,
+   "line": 1740,
    "before": "} else if (true) {",
    "after": "} else if (!(true)) {",
    "verdict": "equivalent",
-   "reason": "WHEN OTHER's CONTINUE negated: the branch does nothing either way"
+   "reason": "the WHEN OTHER branch of the EVALUATE is CONTINUE: an empty body, so its test changes nothing"
   },
   {
-   "id": "4e3abb66a8",
-   "op": "ROR",
-   "line": 1764,
-   "before": "if (DetCics.resp(xr9) != 0) {",
-   "after": "if (DetCics.resp(xr9) == 0) {",
+   "id": "2eb7b22df7",
+   "op": "COR",
+   "line": 1749,
+   "before": "if ((Cobol.compareFigurative(f28_CDEMO_TO_PROGRAM, Figurative.LOW_VALUES, CS) == 0 || Cobol.compareFigurative(f28_CDEMO_TO_PROGRAM, Figurative.SPACES, CS) == 0)) {",
+   "after": "if ((Cobol.compareFigurative(f28_CDEMO_TO_PROGRAM, Figurative.LOW_VALUES, CS) == 0 && Cobol.compareFigurative(f28_CDEMO_TO_PROGRAM, Figurative.SPACES, CS) == 0)) {",
+   "verdict": "unreachable",
+   "reason": "RETURN-TO-PREV-SCREEN is performed only after CDEMO-TO-PROGRAM is moved a literal (COSGN00C or COADM01C), so it is never SPACES or LOW-VALUES and neither form of the test is true"
+  },
+  {
+   "id": "b3819a8ca7",
+   "op": "NEG",
+   "line": 1766,
+   "before": "if (to >= 0) return GOTO | to;",
+   "after": "if (!(to >= 0)) return GOTO | to;",
+   "verdict": "unreachable",
+   "reason": "`to` is what condition() returns after a failed XCTL; COUSR00C has no HANDLE CONDITION / ABEND and XCTL has no RESP, so condition() throws for any XCTL failure and never returns (only EOC is ignored by default)"
+  },
+  {
+   "id": "65ffcd0d19",
+   "op": "LIT",
+   "line": 1966,
+   "before": "DetCics.subfields(sub15, \"LNAME04\", f210_LNAME04L, f213_LNAME04A, f567_LNAME04C, f569_LNAME04H, CS);",
+   "after": "DetCics.subfields(sub15, \"XNAME04\", f210_LNAME04L, f213_LNAME04A, f567_LNAME04C, f569_LNAME04H, CS);",
    "verdict": "case-gap",
-   "reason": "the branch takes CICS's default action for an XCTL that raises a condition (PGMIDERR: the task abends); the mutant skips it. Needs an XCTL that fails, i.e. a CSD without COUSR02C/COUSR03C, which would fail every select-update / select-delete scenario of this case: a second case with its own csd is the way"
+   "reason": "the field name subfields() looks the L / A / C / H bytes up by: COUSR00C reads only USRIDINL, but the SEND MAP comparison reads those bytes when the scenario states a subfield. Needs SEND MAP events that state them"
   },
   {
-   "id": "ec45fe7025",
+   "id": "29fa4e2bd9",
    "op": "LIT",
-   "line": 1823,
-   "before": "DetCics.subfields(sub11, \"FNAME03\", f174_FNAME03L, f177_FNAME03A, f531_FNAME03C, f533_FNAME03H, CS);",
-   "after": "DetCics.subfields(sub11, \"XNAME03\", f174_FNAME03L, f177_FNAME03A, f531_FNAME03C, f533_FNAME03H, CS);",
-   "verdict": "equivalent",
-   "reason": "a symbolic-map subfield name mutant: `DetCics.subfields` reports attribute / colour / highlight / cursor for this field only when the program set one, and COUSR00C sets none for a list row field (its only cursor is USRIDIN), so no subfield event is emitted under either name"
-  },
-  {
-   "id": "6a482f5167",
-   "op": "LIT",
-   "line": 1825,
-   "before": "DetCics.subfields(sub11, \"LNAME03\", f180_LNAME03L, f183_LNAME03A, f537_LNAME03C, f539_LNAME03H, CS);",
-   "after": "DetCics.subfields(sub11, \"XNAME03\", f180_LNAME03L, f183_LNAME03A, f537_LNAME03C, f539_LNAME03H, CS);",
-   "verdict": "equivalent",
-   "reason": "a symbolic-map subfield name mutant: `DetCics.subfields` reports attribute / colour / highlight / cursor for this field only when the program set one, and COUSR00C sets none for a list row field (its only cursor is USRIDIN), so no subfield event is emitted under either name"
-  },
-  {
-   "id": "3801e86cc5",
-   "op": "LIT",
-   "line": 1855,
-   "before": "DetCics.subfields(sub11, \"LNAME06\", f270_LNAME06L, f273_LNAME06A, f627_LNAME06C, f629_LNAME06H, CS);",
-   "after": "DetCics.subfields(sub11, \"XNAME06\", f270_LNAME06L, f273_LNAME06A, f627_LNAME06C, f629_LNAME06H, CS);",
-   "verdict": "equivalent",
-   "reason": "a symbolic-map subfield name mutant: `DetCics.subfields` reports attribute / colour / highlight / cursor for this field only when the program set one, and COUSR00C sets none for a list row field (its only cursor is USRIDIN), so no subfield event is emitted under either name"
-  },
-  {
-   "id": "93def40866",
-   "op": "LIT",
-   "line": 1877,
-   "before": "DetCics.subfields(sub11, \"UTYPE08\", f336_UTYPE08L, f339_UTYPE08A, f693_UTYPE08C, f695_UTYPE08H, CS);",
-   "after": "DetCics.subfields(sub11, \"XTYPE08\", f336_UTYPE08L, f339_UTYPE08A, f693_UTYPE08C, f695_UTYPE08H, CS);",
-   "verdict": "equivalent",
-   "reason": "a symbolic-map subfield name mutant: `DetCics.subfields` reports attribute / colour / highlight / cursor for this field only when the program set one, and COUSR00C sets none for a list row field (its only cursor is USRIDIN), so no subfield event is emitted under either name"
-  },
-  {
-   "id": "5128bc4da7",
-   "op": "LIT",
-   "line": 1985,
-   "before": "DetCics.subfields(sub14, \"LNAME06\", f270_LNAME06L, f273_LNAME06A, f627_LNAME06C, f629_LNAME06H, CS);",
-   "after": "DetCics.subfields(sub14, \"XNAME06\", f270_LNAME06L, f273_LNAME06A, f627_LNAME06C, f629_LNAME06H, CS);",
-   "verdict": "equivalent",
-   "reason": "a symbolic-map subfield name mutant: `DetCics.subfields` reports attribute / colour / highlight / cursor for this field only when the program set one, and COUSR00C sets none for a list row field (its only cursor is USRIDIN), so no subfield event is emitted under either name"
-  },
-  {
-   "id": "c433e70be6",
-   "op": "LIT",
-   "line": 2056,
-   "before": "if (typed17.get(\"CURDATE\") != null) {",
-   "after": "if (typed17.get(\"XURDATE\") != null) {",
-   "verdict": "equivalent",
-   "reason": "CURDATEI is overwritten by POPULATE-HEADER-INFO (MOVE ... TO CURDATEO, the same storage) before every SEND-USRLST-SCREEN, so the received value is never observable"
-  },
-  {
-   "id": "906e4a2672",
-   "op": "DEL",
-   "line": 2335,
-   "before": "Cobol.move(DM1, f96_USRIDINL, CS);",
-   "after": "/* Cobol.move(DM1, f96_USRIDINL, CS); */",
-   "verdict": "equivalent",
-   "reason": "READPREV's WHEN OTHER sets USRIDINL to -1, but READPREV is performed only from PROCESS-PAGE-BACKWARD, reached only from PROCESS-PF7-KEY, which has already moved -1 to USRIDINL"
-  },
-  {
-   "id": "48154417b0",
-   "op": "DEL",
-   "line": 2386,
-   "before": "Cobol.store(f953_EIBRESP, BigDecimal.valueOf(resp24), false, CS);",
-   "after": "/* Cobol.store(f953_EIBRESP, BigDecimal.valueOf(resp24), false, CS); */",
-   "verdict": "equivalent",
-   "reason": "COUSR00C never reads EIBRESP (it has no RESP on ENDBR); the statement after it still tests the returned condition"
+   "line": 1984,
+   "before": "DetCics.subfields(sub15, \"FNAME06\", f264_FNAME06L, f267_FNAME06A, f621_FNAME06C, f623_FNAME06H, CS);",
+   "after": "DetCics.subfields(sub15, \"XNAME06\", f264_FNAME06L, f267_FNAME06A, f621_FNAME06C, f623_FNAME06H, CS);",
+   "verdict": "case-gap",
+   "reason": "the field name subfields() looks the L / A / C / H bytes up by: COUSR00C reads only USRIDINL, but the SEND MAP comparison reads those bytes when the scenario states a subfield. Needs SEND MAP events that state them"
   }
  ]
 }

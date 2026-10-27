@@ -210,6 +210,50 @@
       }
     },
     {
+      "name": "create-customer",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "every field valid, born 12/07/1985: LINK CRECUST runs the credit check (five RUN children), DATE-OF-BIRTH-CHECK calls CEEDAYS (L1: the picture's 2 slack bytes ruled blank), then writes the CUSTOMER record and the PROCTRAN 'OCC' row",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "12",
+          "DOBMMI": "07",
+          "DOBYYI": "1985"
+        }
+      }
+    },
+    {
+      "name": "born-in-the-future",
+      "aid": "DFHENTER",
+      "commarea": {
+        "WS-COMM-TERM": 451
+      },
+      "why": "every field valid, born 01/01/2099: the same credit check, CEEDAYS (L1: the picture's 2 slack bytes ruled blank), then DATE-OF-BIRTH-CHECK refuses a date after today; no customer written",
+      "receive": {
+        "BNK1CC": {
+          "CUSTTITI": "Mr________",
+          "CHRISTNI": "Fiona_______________",
+          "CUSTINSI": "K___",
+          "CUSTSNI": "Laidlaw____________",
+          "CUSTAD1I": "17 Abbey Road_____________________________________",
+          "CUSTAD2I": "Winchester",
+          "CUSTAD3I": "SO23 7AA",
+          "DOBDDI": "01",
+          "DOBMMI": "01",
+          "DOBYYI": "2099"
+        }
+      }
+    },
+    {
       "name": "title-invalid",
       "aid": "DFHENTER",
       "commarea": {
@@ -405,7 +449,7 @@
       }
     }
   ],
-  "notes": "BNK1CCS on generated Db2 rows (#4507): the create-customer screen of cbsa-bnk1ccs, its LINKed CRECUST (five credit-agency children and ABNDPROC in the task). The only Db2 statement on this path is CRECUST's INSERT INTO PROCTRAN (customer and its control record are VSAM, customer.txt), so only PROCTRAN is generated from CRETB02 (12 rows, boundary values, a NULL in every nullable column; no key or foreign key) and it is compared after every task with each task's statements (compare_sql); there is nothing to generate for ACCOUNT or CONTROL. Stated scenarios keep the non-ENTER keys, MAPFAIL and the input checks; the ENTERs are generated: every title spelling EDIT-DATA lists, name, initials and address widths, day and month, and only years BEFORE 1601. NOT PROVABLE (named holes, as cbsa-bnk1ccs and cbsa-crecust-generated): L1 (a date of birth from 1601 on reaches CRECUST's CEEDAYS call, which the oracle refuses by name, and with it the whole case, so no scenario creates a customer and no PROCTRAN row is inserted: a partial reach, not a proof), X18 (the child credit schedule is ASSUMED) and L4 (FC is 8 bytes, LE's token 12). Never --record this case while a hole stands. Burned estate (CBSA). customer.txt is cbsa-bnk1ccs's, SYNTHETIC. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
+  "notes": "BNK1CCS on generated Db2 rows (#4507): the create-customer screen of cbsa-bnk1ccs, its LINKed CRECUST (five credit-agency children and ABNDPROC in the task). The only Db2 statement on this path is CRECUST's INSERT INTO PROCTRAN (customer and its control record are VSAM, customer.txt), so only PROCTRAN is generated from CRETB02 (12 rows, boundary values, a NULL in every nullable column; no key or foreign key) and it is compared after every task with each task's statements (compare_sql); there is nothing to generate for ACCOUNT or CONTROL. Stated scenarios keep the non-ENTER keys, MAPFAIL and the input checks; the ENTERs are generated: every title spelling EDIT-DATA lists, name, initials and address widths, day and month, and only years BEFORE 1601 (the two stated scenarios cover the dates from 1601 on). ASSUMED (register, as cbsa-bnk1ccs and cbsa-crecust-generated): L1 (CRECUST's CEEDAYS picture is 10 bytes over 8; the 2 slack bytes are ruled blank, owner 2026-10-23) and X18 (the child credit schedule is ASSUMED). The stated create-customer and born-in-the-future scenarios reach CEEDAYS and insert a PROCTRAN row; the generated ENTERs still draw only years BEFORE 1601, so they end at DATE-OF-BIRTH-CHECK's 'O'. Burned estate (CBSA). customer.txt is cbsa-bnk1ccs's, SYNTHETIC. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived.",
   "port_from": "cbsa-bnk1ccs",
   "scenario_generate": {
     "seed": 4507,

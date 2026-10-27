@@ -186,6 +186,19 @@ jobs:
           # main commits that touch those paths (the push run is path-filtered), so most PRs missed and regenerated both sides.
           key: java-same-base-${{ matrix.corpus }}-${{ github.event_name == 'pull_request' && hashFiles('base/gitgalaxy/cobol_to_java_controller.py', 'base/gitgalaxy/cobol_refractor_controller.py', 'base/gitgalaxy/tools/cobol_to_java/**', 'base/gitgalaxy/tools/cobol_to_cobol/**', 'base/gitgalaxy/standards/yaml_reader.py', 'base/gitgalaxy/standards/fact_channel_confidence.json', 'base/tests/tools/java_target_matrix.py', 'base/tests/cobol_mainframe/corpora.json', 'base/tests/tools/mainframe_corpus.py') || hashFiles('gitgalaxy/gitgalaxy/cobol_to_java_controller.py', 'gitgalaxy/gitgalaxy/cobol_refractor_controller.py', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_cobol/**', 'gitgalaxy/gitgalaxy/standards/yaml_reader.py', 'gitgalaxy/gitgalaxy/standards/fact_channel_confidence.json', 'gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py') }}
 
+      # #5142: the engine scan is kept across runs (java-base-generation.yml seeds it; restore-only here, #4968). The key only
+      # has to change whenever java_target_matrix.scan_key can; the exact key decides inside the tool. Same inputs as the seeding.
+      - name: Key the engine scan cache
+        id: scankey
+        run: echo "key=java-scan-${{ matrix.corpus }}-${{ github.event_name == 'pull_request' && hashFiles('base/gitgalaxy/**', '!base/gitgalaxy/tools/cobol_to_java/**', '!base/gitgalaxy/cobol_to_java_controller.py', '!base/gitgalaxy/cobol_refractor_controller.py') || hashFiles('gitgalaxy/gitgalaxy/**', '!gitgalaxy/gitgalaxy/tools/cobol_to_java/**', '!gitgalaxy/gitgalaxy/cobol_to_java_controller.py', '!gitgalaxy/gitgalaxy/cobol_refractor_controller.py') }}-${{ github.event_name == 'pull_request' && hashFiles('base/gitgalaxy/tools/cobol_to_java/det/copy/**', 'base/gitgalaxy/tools/cobol_to_java/cics_task_containers.py') || hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/det/copy/**', 'gitgalaxy/gitgalaxy/tools/cobol_to_java/cics_task_containers.py') }}-${{ github.event_name == 'pull_request' && hashFiles('base/tests/cobol_mainframe/corpora.json', 'base/tests/tools/mainframe_corpus.py', 'base/tests/tools/java_target_matrix.py') || hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/tests/tools/mainframe_corpus.py', 'gitgalaxy/tests/tools/java_target_matrix.py') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the engine scan
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/java_scan_cache
+          key: ${{ steps.scankey.outputs.key }}
+          restore-keys: java-scan-${{ matrix.corpus }}-
+
       - name: Is the generated Java unchanged? (pull requests)
         id: same
         if: github.event_name == 'pull_request'
@@ -201,13 +214,14 @@ jobs:
             "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
             --same-as "$GITHUB_WORKSPACE/base" \
             --base-cache "$RUNNER_TEMP/java_base_cache" \
+            --scan-cache "$RUNNER_TEMP/java_scan_cache" \
             --work "$RUNNER_TEMP/java_same" \
             --summary "$GITHUB_STEP_SUMMARY" \
             "${ONLY[@]}"
 
       - name: Setup JDK 17 and 21
         if: steps.same.outputs.identical != 'true'
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: |
@@ -272,6 +286,7 @@ jobs:
             "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
             "${REUSE[@]}" \
             --scan \
+            --scan-cache "$RUNNER_TEMP/java_scan_cache" \
             --work "$RUNNER_TEMP/java_matrix_scan" \
             --m2 "$HOME/.m2/repository" \
             --summary "$GITHUB_STEP_SUMMARY" \

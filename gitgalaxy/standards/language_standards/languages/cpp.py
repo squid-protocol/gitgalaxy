@@ -33,6 +33,15 @@ _PARENS = r"\((?:[^()]|\([^()]*\))*\)"
 # or more, on the `)` line or indented below it. Never one with an argument list or at column 0: that is
 # the next macro statement of a chain (gzdoom `EXTERN_CVAR(Bool, x)` / `CUSTOM_CVAR(Int, y, 0, 0) {`).
 _SPEC_MACRO = r"(?:[ \t]+|[ \t]*\n[ \t]+)[A-Z][A-Z0-9_]{1,63}(?![" + ID_CONTINUE + r"]|[ \t]*\()"
+# #3772: a thread-safety annotation macro WITH arguments, on its own indented line below the `)`:
+# `void Mock::AllowLeak(const void* p)\n    GTEST_LOCK_EXCLUDED_(mu) {`. Without this the macro line was read as the
+# definition (named `GTEST_LOCK_EXCLUDED_`) and the real function lost its name. Narrowed to the lock-annotation
+# vocabulary (LOCK / EXCLUDE / REQUIRE / ACQUIRE / RELEASE / GUARDED): any other indented `MACRO(args) {` stays a
+# macro statement chain. The lookahead keeps the name class single, so no two repeats compete for a character.
+_ANNOT_MACRO = (
+    r"[ \t]*\n[ \t]+(?=[A-Z0-9_]{0,63}(?:LOCK|EXCLUDE|REQUIRE|ACQUIRE|RELEASE|GUARDED))[A-Z][A-Z0-9_]{1,63}[ \t]*"
+    + _PARENS
+)
 # A trailing return type token: a qualified name with template arguments (`std::map<int, int>`).
 _RET_TOKEN = r"[a-zA-Z_:" + ID_CONTINUE + r"*<>]+"
 
@@ -114,6 +123,9 @@ DEFINITION: dict[str, Any] = {
     # #3644 (calls_out C3): `Type var(args)` in a body constructs a Type -- the callee is
     # the type, never the variable. A top-level helper flag, not a `rules` pattern (#2806).
     "calls_out_declarator_constructs": True,
+    # #3784: record each callee's argument counts so the call resolver can choose among same-named
+    # overloads (call_resolver.OVERLOAD_LANGS). A top-level helper flag, not a `rules` pattern.
+    "calls_out_arities": True,
     "rules": {
         # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
         # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
@@ -200,6 +212,9 @@ DEFINITION: dict[str, Any] = {
             r"\b(namespace|using|class|struct|enum|union|template|typename|concept|requires|auto|return|void|inline|virtual|explicit|friend|module|export|import|typedef|goto)\b"
         ),
         "func_start": re.compile(
+            # #5630: a line that follows a line ending in `,` is a base-class-list entry
+            # (`class RefValue : public Value,\n    DE_OBSERVES(Variable, Deletion)\n{`), never a definition.
+            r"(?<!,\n)(?<!,\r\n)(?<!,[ \t]\n)(?<!,[ \t]\r\n)"
             "(?:(?!" + C_MACRO_FUNC_START_GUARD + ")"
             # =====================================================================
             # [ CONTEXT: C++ FUNCTION AST EXTRACTOR & REDOS SHIELD]
@@ -224,7 +239,19 @@ DEFINITION: dict[str, Any] = {
             # the identifier position, which the shield doesn't reject).
             # Rejects any line starting with one of these keywords
             # outright, before the loop even starts.
-            r"(?!(?:if|for|while|switch|catch|else)\b)"
+            # #3772: a definition after a namespace opener on the same line
+            # (`namespace n { T Box<T>::get() {...} }`).
+            r"(?:namespace(?:[ \t]+["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:::["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*){0,5})?[ \t]*\{[ \t]*){0,3}"
+            # #6266: `case T(x):` before a block is a label, not a definition named `T`.
+            r"(?!(?:if|for|while|switch|catch|else|case)\b)"
             r"(?:template[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>[ \t\n]*)?"
             # 2. LINKAGE & STORAGE MODIFIERS (Now supports vertical formatting)
             r"(?:(?:static|inline|extern|virtual|_Noreturn|constexpr|consteval|constinit|__inline__|__forceinline)[ \t\n]+){0,5}"
@@ -295,6 +322,13 @@ DEFINITION: dict[str, Any] = {
             # 5. THE "NOT A FUNCTION" SHIELD
             # Prevents control flow (if, while) and primitive types from being captured as function names.
             r"(?!(?:if|for|while|switch|return|catch|else|elif|sizeof|alignas|new|delete|ARGS\d+|NOARGS|int|float|double|char|void|long|short|unsigned|signed|bool|INTEGER|LOGICAL|real|__attribute__|__declspec|__asm__)\b)"
+            # #5630: a macro-statement loop or observer dispatch is a statement, not a definition: doomsday's
+            # `DE_FOR_EACH_CONST(T, i, c)\n{`, `DE_FOR_OBSERVERS(i, a)`, `DE_NOTIFY_PUBLIC(Swap, i) {`, `DE_NOTIFY_VAR(`.
+            r"(?!DE_(?:FOR_(?:EACH|OBSERVERS)|NOTIFY)(?![" + ID_CONTINUE + r"]*[a-z]))"
+            # #5630: gzdoom's scripting-call macros open a block like `if` (`IFVIRTUALPTRNAME(act, "Cls", Fn)\n{ VMCall(..); }`).
+            r"(?!IF(?:VM|(?:OVERRIDEN)?VIRTUAL(?:PTR)?(?:NAME)?)(?![" + ID_CONTINUE + r"]))"
+            # #5630: moodycamel's `MOODYCAMEL_CONSTEXPR_IF (c) {..}` (`if constexpr`) and `MOODYCAMEL_CATCH(...) {..}` open a block.
+            r"(?!MOODYCAMEL_(?:CONSTEXPR_IF|CATCH)(?![" + ID_CONTINUE + r"]))"
             # 6. THE IDENTIFIER CAPTURE (FUNCTION IDENTIFIER - GROUP 1)
             # [IRON WALL]: Ensures the actual function/operator name isn't hijacked by a macro definition.
             # OUT-OF-LINE OPERATOR FIX (epic #813/#821): the operator alternatives had no
@@ -392,6 +426,8 @@ DEFINITION: dict[str, Any] = {
             + _PARENS
             + r"|override|final|&{1,2}|__attribute__\((?:[^)(]|\([^)]*\))*\)|\[\[[^\]]*\]\])|"
             + _SPEC_MACRO
+            + r"|"
+            + _ANNOT_MACRO
             + r"){0,10}"
             r"(?:[ \t\n]*->[ \t]*(?:(?:const|volatile|typename)[ \t]+){0,3}(?:decltype[ \t]*"
             + _PARENS
@@ -402,12 +438,22 @@ DEFINITION: dict[str, Any] = {
             + r"){0,10})(?:[ \t]*[*&]{1,3})?)?"
             r"(?:[ \t\n]+requires[ \t\n(][^{};#]{0,300})?"
             r"(?:[ \t\n]+try)?"
+            # #5630: a macro class head is a chain, `DE_PIMPL(X),\nDE_OBSERVES(A, B)\n{`: the unit starts at the first
+            # macro, not at the last one before the `{`.
+            r"(?:[ \t\n]*,[ \t\n]*[A-Z][A-Z0-9_]{2,}[ \t]*\((?:[^()]|\([^()]*\))*\)){0,8}"
             # 9. THE K&R C AND C++ CONSTRUCTOR GAP (ReDoS mitigated via Strict Bounding)
             # Handles C++ initializer lists (e.g., `MyClass() : a(1) {`) and legacy K&R declarations.
             # [IRON WALL - CATASTROPHIC BACKTRACKING FIX]:
             # We enforce strict numeric bounds (`{0,500}` and `{0,100}`) instead of `+` or `*`.
             # This caps the permutation tree instantly.
-            r"(?:[ \t\n]*(?![ \t]*#):[^{;]{0,2000}|(?:[ \t\n]+(?![ \t]*#)[" + ID_START + r"][^(){};]{0,100};){1,20})?"
+            # #5630: an entry whose argument holds a flat brace-init (`hiddenTags({"a", "b"})`, `ids{1, 2}`) is
+            # consumed whole (a lambda argument's body too, to three brace levels), so its `{` is not taken for the
+            # body's; an entry that does not balance falls back to the plain run below.
+            r"(?:[ \t\n]*(?![ \t]*#):(?:(?:[^{;(]|\((?:[^(){}]|\([^()]*\)|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\)|(?<=["
+            + ID_CONTINUE
+            + r">])\{[^(){};]*\}){0,2000}(?=[ \t\n]*\{)|[^{;]{0,2000})|(?:[ \t\n]+(?![ \t]*#)["
+            + ID_START
+            + r"][^(){};]{0,100};){1,20})?"
             # 10. THE IGNITION (The opening brace confirming it is a definition, not a declaration)
             r"[ \t\n]*\{" + "|" + C_MACRO_FUNC_START_SOURCE + ")",
             re.M,
@@ -435,11 +481,14 @@ DEFINITION: dict[str, Any] = {
         "class_start": re.compile(
             r"^[ \t]*(?:export[ \t\n]+)?"
             r"(?:template[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>[ \t\n]*)?"
-            r"(?:class|struct|union|enum[ \t\n]+class|enum[ \t\n]+struct)[ \t\n]+(?:(?:\[\[[^\]]*\]\]|__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\))[ \t\n]*){0,5}(["
-            + ID_START
-            + r"]["
-            + ID_CONTINUE
-            + r"]*(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?)",
+            r"(?:class|struct|union|enum[ \t\n]+class|enum[ \t\n]+struct)[ \t\n]+(?:(?:\[\[[^\]]*\]\]|__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\))[ \t\n]*){0,5}"
+            # a specialization written with its qualifier (`struct fmt::formatter<T>`) is the unit `formatter<T>`,
+            # not the namespace `fmt`: step over each `Name::` and capture the last segment
+            r"(?:[" + ID_START + r"][" + ID_CONTINUE + r"]*[ \t]*::[ \t]*)*"
+            # #6266: an export macro between the keyword and the name (`class LIBGUI_PUBLIC ImageItem : Item`) is not
+            # the class: step over an ALL-CAPS word that a second identifier (not `final`) follows
+            r"(?:[A-Z][A-Z0-9_]+[ \t\n]+(?=[" + ID_START + r"])(?!final\b))?"
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"]*(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?)",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -667,8 +716,10 @@ DEFINITION: dict[str, Any] = {
         # 36. memory_alloc (Manual Memory Management)
         "memory_alloc": re.compile(r"\b(new|malloc|calloc|realloc|aligned_alloc|mmap|alloca)\b"),
         # 37. inline_asm (The Bare Metal)
+        # GCC stacks its qualifiers (`asm volatile goto (`, `asm inline (`, `__asm__ __volatile__ (`).
         "inline_asm": re.compile(
-            r"\b(?:__asm__|asm|__asm)\b(?:\s+(?:volatile|__volatile__))?\s*\(|\b(?:__asm__|asm|__asm)\b[ \t]*\{"
+            r"\b(?:__asm__|asm|__asm)\b(?:\s+(?:volatile|__volatile__|__volatile|inline|__inline__|__inline|goto)){0,4}"
+            r"\s*\(|\b(?:__asm__|asm|__asm)\b[ \t]*\{"
         ),
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
         # 38. telemetry (Structured Logging / Telemetry)

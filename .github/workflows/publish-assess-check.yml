@@ -1,0 +1,49 @@
+name: Assess install check (published package)
+
+# #4726: after a release is published to PyPI, install that exact version on a clean runner and run `gitgalaxy assess`.
+# Runs only after publish.yml finishes (or by hand with a version); never per PR.
+on:
+  workflow_run:
+    workflows: ["Publish to PyPI and Sync to GitLab"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Published version to check, e.g. 2.4.6 (no leading v)"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  assess-from-pypi:
+    # The tag run's head_branch is the tag name; skip when the publish run failed.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    name: Install gitgalaxy from PyPI and run assess
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      PYTHONUTF8: "1"
+      # Passed through env, never interpolated into the script (the tag name is untrusted text).
+      PUBLISHED_REF: ${{ github.event.inputs.version || github.event.workflow_run.head_branch }}
+    steps:
+      # The default branch's copy of the script: it installs the published package, it never imports this checkout.
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Assess clean-install check (PyPI, translator extra)
+        shell: bash
+        run: |
+          version="${PUBLISHED_REF#v}"
+          if ! [[ "$version" =~ ^[0-9]+(\.[0-9]+){0,2}([A-Za-z0-9.+-]*)$ ]]; then
+            echo "not a release version: $PUBLISHED_REF"; exit 1
+          fi
+          python scripts/check_assess_install.py --from-pypi "$version"

@@ -32,9 +32,12 @@ from typing import Any
 
 TOOLS = Path(__file__).resolve().parent
 REPO = TOOLS.parents[1]
+sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO))
 
-SCHEMA_VERSION = "1.1"
+import gap_prevalence as gp  # noqa: E402
+
+SCHEMA_VERSION = "1.2"
 HASH_HEX = 6
 REDACTIONS = ("subclass", "counts", "repro")
 
@@ -43,6 +46,7 @@ ANON_BLOCKER_FIELDS = {
     "id": "salted hash of the construct signature (stable per customer salt)",
     "category": "blocker category from a fixed list",
     "subclass": "sub-class from fixed vocabulary (CICS verb, refusal class, fact kind); dropped by --redact-more subclass",
+    "construct": "ranking key of the construct class (gap_prevalence vocabulary, #5865); dropped by --redact-more subclass",
     "signature": "construct signature built from fixed vocabulary; every customer name is a KIND_xxxx hash",
     "repro": "optional minimal synthetic COBOL snippet built from the signature, made-up names; dropped by --redact-more repro",
     "programs_blocked": "programs the gap blocks (count)",
@@ -178,6 +182,22 @@ def classify(gap: str, salt: bytes) -> tuple[str, str, str]:
     return "other", "unclassified", "unclassified"
 
 
+def construct_key(gap: str) -> str:
+    """The gap's key in docs/language_status/gap_prevalence.md (`gap_prevalence.scrub_key`: a closed vocabulary, so no
+    customer name survives), so a customer blocker joins a ranking row. A CICS command keeps only the words of the
+    command spec; the first other word ends it."""
+    key = gp.scrub_key(gap.strip())
+    if key.startswith("EXEC CICS"):
+        vocab = vocabulary()
+        kept: list[str] = []
+        for tok in key.split()[2:]:
+            if tok not in vocab:
+                break
+            kept.append(tok)
+        return " ".join(["EXEC CICS", *kept]) if kept else "EXEC CICS: other"
+    return key
+
+
 _HASH = re.compile(r"[A-Z]{3}_[0-9a-f]{%d}" % HASH_HEX)
 
 
@@ -231,7 +251,7 @@ def full_report(res: dict[str, Any], estate: str) -> dict[str, Any]:
     return {
         "schema_version": SCHEMA_VERSION, "kind": "full", "engine_version": engine_version(), "estate": estate,
         "totals": {"whole": res.get("whole", 0), "proven": res.get("proven", 0)},
-        "blockers": [dict(g) for g in res.get("gaps", [])],
+        "blockers": [{**g, "construct": construct_key(g["gap"])} for g in res.get("gaps", [])],
         "programs": [dict(p) for p in res.get("programs", [])],
     }  # fmt: skip
 
@@ -246,8 +266,10 @@ def anon_report(res: dict[str, Any], salt: bytes, estate: str, redact_more: tupl
     merged: dict[tuple[str, str, str], dict[str, Any]] = {}
     seen: dict[tuple[str, str, str], set[tuple[str, str]]] = defaultdict(set)
     index = {g["gap"]: classify(g["gap"], salt) for g in res.get("gaps", [])}
+    construct: dict[tuple[str, str, str], str] = {}
     for g in res.get("gaps", []):
         key = index[g["gap"]]
+        construct.setdefault(key, construct_key(g["gap"]))
         b = merged.setdefault(key, {"programs_only_gap": 0, "programs_one_away": 0})
         b["programs_only_gap"] += g.get("only", 0)
         b["programs_one_away"] += g.get("one_away", 0)
@@ -259,6 +281,8 @@ def anon_report(res: dict[str, Any], salt: bytes, estate: str, redact_more: tupl
         blocker: dict[str, Any] = {"id": hashed(salt, "BLK", sig), "category": cat}
         if "subclass" not in redact_more:
             blocker["subclass"] = sub
+        if "subclass" not in redact_more:  # finer than the sub-class, so it goes with it
+            blocker["construct"] = construct[(cat, sub, sig)]
         blocker["signature"] = sig
         if "repro" not in redact_more and (snippet := repro(cat, sig)):
             blocker["repro"] = snippet

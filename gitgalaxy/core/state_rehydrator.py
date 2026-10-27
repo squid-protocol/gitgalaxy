@@ -461,50 +461,6 @@ class StateRehydrator:
                 # deliberately NOT restored for calls or transactions: resolution
                 # is repo-wide and redone every scan, because a file added or
                 # deleted this commit can change what an unchanged file resolves to.
-                # #3355: the COMMAREA contract operands are per-file (the site's own
-                # EXEC block), so they are restored like `operand`. A baseline
-                # written before #3355 lacks the columns; its rows come back
-                # without the keys, the shape the extractor gives a site with no
-                # COMMAREA -- so a restored row is identical to a re-extracted one.
-                commarea_cols = (
-                    "cs.commarea, cs.commarea_length, cs.commarea_datalength"
-                    if _has_table(cursor, "call_site_data") and _has_column(cursor, "call_site_data", "commarea")
-                    else "NULL AS commarea, NULL AS commarea_length, NULL AS commarea_datalength"
-                )
-                # #3454: the USING list, restored the same way (absent before #3454).
-                using_col = (
-                    "cs.using_args"
-                    if _has_table(cursor, "call_site_data") and _has_column(cursor, "call_site_data", "using_args")
-                    else "NULL AS using_args"
-                )
-                # #3494: SYSID, restored the same way (absent before #3494).
-                sysid_col = (
-                    "cs.sysid"
-                    if _has_table(cursor, "call_site_data") and _has_column(cursor, "call_site_data", "sysid")
-                    else "NULL AS sysid"
-                )
-                calls_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "call_site_data",
-                    "SELECT fd.file_path AS _fp, cs.verb, cs.form, cs.operand, cs.target, cs.line_number AS line, "  # noqa: S608 -- commarea_cols is one of two literals; values are bound
-                    f"{commarea_cols}, {using_col}, {sysid_col} "
-                    "FROM call_site_data cs JOIN file_data fd ON cs.src_file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id",
-                    lambda r: {
-                        "verb": r["verb"],
-                        "form": r["form"],
-                        "operand": r["operand"],
-                        "target": r["target"],
-                        "line": int(r["line"] or 0),
-                        **{
-                            k: r[k]
-                            for k in ("commarea", "commarea_length", "commarea_datalength", "using_args", "sysid")
-                            if r[k]
-                        },
-                    },
-                )
                 # #3383: the registered per-file fact channels (dataset, record, sql_table, csd_resource,
                 # screen_field, cics_resource) -- declared in gitgalaxy/core/fact_channels.py.
                 channel_rows = {
@@ -518,89 +474,6 @@ class StateRehydrator:
                     )
                     for channel in CHANNELS
                 }
-
-                # #3211-followup: the CSD transaction definitions, restored per
-                # deck so an unchanged .csd/JCL keeps its transactions through a
-                # delta scan. `group_name` is aliased to the extractor's `group`
-                # payload key.
-                transactions_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "transaction_data",
-                    "SELECT fd.file_path AS _fp, td.transid, td.program, td.group_name AS _group, "
-                    "td.profile, td.line_number AS line "
-                    "FROM transaction_data td JOIN file_data fd ON td.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY td.id",
-                    lambda r: {
-                        "transid": r["transid"],
-                        "program": r["program"],
-                        "group": r["_group"],
-                        "profile": r["profile"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
-                # #3446: embedded SQL statements, aliased back to the payload keys.
-                # A pre-#3446 baseline has no table and restores nothing.
-                # #3618: the statement text; a pre-#3618 DB has no such column.
-                stmt_col = (
-                    "ss.statement_text AS statement"
-                    if _has_table(cursor, "sql_statement_data")
-                    and _has_column(cursor, "sql_statement_data", "statement_text")
-                    else "NULL AS statement"
-                )
-                sql_statements_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "sql_statement_data",
-                    'SELECT fd.file_path AS _fp, ss.stmt_ordinal AS ordinal, ss.verb, ss.table_name AS "table", '  # noqa: S608 -- stmt_col is one of two literals
-                    f'ss.access, ss.cursor_name AS "cursor", ss.host_variables, ss.line_number AS line, {stmt_col} '
-                    "FROM sql_statement_data ss JOIN file_data fd ON ss.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ss.id",
-                    lambda r: {
-                        "ordinal": int(r["ordinal"] or 0),
-                        "verb": r["verb"],
-                        "table": r["table"],
-                        "access": r["access"],
-                        "cursor": r["cursor"],
-                        "host_variables": r["host_variables"],
-                        "line": int(r["line"] or 0),
-                        "statement": r["statement"],
-                    },
-                )
-
-                # #3449: CICS task control, aliased back to the extractor's payload
-                # keys. A pre-#3449 baseline has no table and restores nothing.
-                cics_tasks_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "cics_task_data",
-                    "SELECT fd.file_path AS _fp, ct.verb, ct.target_kind, ct.target_operand AS operand, "
-                    "ct.target_name AS name, ct.target_resolution AS resolution, ct.target_candidates AS candidates, "
-                    "ct.channel_operand, ct.channel_name AS channel, ct.token, ct.record_clause, "
-                    "ct.record_name AS record, ct.timing, ct.attributes, ct.line_number AS line "
-                    "FROM cics_task_data ct JOIN file_data fd ON ct.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ct.id",
-                    lambda r: {
-                        "verb": r["verb"],
-                        "target_kind": r["target_kind"],
-                        "operand": r["operand"],
-                        "name": r["name"],
-                        "resolution": r["resolution"],
-                        "candidates": r["candidates"],
-                        "channel_operand": r["channel_operand"],
-                        "channel": r["channel"],
-                        "token": r["token"],
-                        "record_clause": r["record_clause"],
-                        "record": r["record"],
-                        "timing": r["timing"],
-                        "attributes": r["attributes"],
-                        "line": int(r["line"] or 0),
-                    },
-                )
 
                 # #3448: job-submission evidence, aliased back to the payload keys.
                 job_submits_by_file = _restore_child_table(
@@ -830,38 +703,6 @@ class StateRehydrator:
                     },
                 )
 
-                # #3496: web-services assistant steps.
-                web_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "web_service_data",
-                    "SELECT fd.file_path AS _fp, ws.assistant, ws.direction, ws.program, ws.uri, ws.request, ws.response, "
-                    'ws.interface, ws.container, ws.binding, ws.document, ws.transaction_id AS "transaction", '
-                    'ws.line_number AS "line" '
-                    "FROM web_service_data ws JOIN file_data fd ON ws.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ws.id",
-                    lambda r: {
-                        **{
-                            k: r[k]
-                            for k in (
-                                "assistant",
-                                "direction",
-                                "program",
-                                "uri",
-                                "request",
-                                "response",
-                                "interface",
-                                "container",
-                                "binding",
-                                "document",
-                                "transaction",
-                            )
-                        },
-                        "line": int(r["line"] or 0),
-                    },
-                )
-
                 # #3820: SPECIAL-NAMES currency strings / decimal point.
                 special_by_file = _restore_child_table(
                     cursor,
@@ -896,37 +737,6 @@ class StateRehydrator:
                     },
                 )
 
-                # #3452: field-level data movement.
-                # #3655: the refmod texts; a pre-#3655 DB has neither column.
-                refmod_cols = (
-                    "dm.source_refmod_text, dm.target_refmod_text"
-                    if _has_table(cursor, "data_move_data")
-                    and _has_column(cursor, "data_move_data", "source_refmod_text")
-                    else "NULL AS source_refmod_text, NULL AS target_refmod_text"
-                )
-                moves_by_file = _restore_child_table(
-                    cursor,
-                    repo_name,
-                    baseline_hash,
-                    "data_move_data",
-                    "SELECT fd.file_path AS _fp, dm.verb, dm.source, dm.source_kind, dm.target, dm.corresponding, "  # noqa: S608 -- refmod_cols is one of two literals
-                    f'dm.source_refmod, dm.target_refmod, dm.line_number AS "line", {refmod_cols} '
-                    "FROM data_move_data dm JOIN file_data fd ON dm.file_id = fd.id "
-                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY dm.id",
-                    lambda r: {
-                        "verb": r["verb"],
-                        "source": r["source"],
-                        "source_kind": r["source_kind"],
-                        "target": r["target"],
-                        "corresponding": bool(r["corresponding"]),
-                        "source_refmod": bool(r["source_refmod"]),
-                        "target_refmod": bool(r["target_refmod"]),
-                        "line": int(r["line"] or 0),
-                        "source_refmod_text": r["source_refmod_text"],
-                        "target_refmod_text": r["target_refmod_text"],
-                    },
-                )
-
                 # The slicer's synthetic top-level buckets: callers without a
                 # function_data row, restored so their calls re-resolve.
                 synthetic_by_file = _restore_child_table(
@@ -956,12 +766,8 @@ class StateRehydrator:
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, []) + synthetic_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
-                    node["call_sites"] = calls_by_file.get(rel_path, [])
                     for channel in CHANNELS:
                         node[channel.payload_key] = channel_rows[channel.name].get(rel_path, [])
-                    node["transaction_defs"] = transactions_by_file.get(rel_path, [])
-                    node["sql_statements"] = sql_statements_by_file.get(rel_path, [])
-                    node["cics_tasks"] = cics_tasks_by_file.get(rel_path, [])
                     node["job_submits"] = job_submits_by_file.get(rel_path, [])
                     node["mq_calls"] = mq_calls_by_file.get(rel_path, [])
                     node["uow_handlers"] = uow_by_file.get(rel_path, [])
@@ -971,8 +777,6 @@ class StateRehydrator:
                     node["entry_points"] = entry_points_by_file.get(rel_path, [])
                     node["dli_calls"] = dli_by_file.get(rel_path, [])
                     node["ims_gen"] = ims_gen_by_file.get(rel_path, [])
-                    node["data_moves"] = moves_by_file.get(rel_path, [])
-                    node["web_services"] = web_by_file.get(rel_path, [])
                     node["special_names"] = special_by_file.get(rel_path, [])  # #3820
                     node["compiler_options"] = options_by_file.get(rel_path, [])  # #3828
             except sqlite3.Error as fc_err:

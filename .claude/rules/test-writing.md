@@ -1,9 +1,10 @@
 # Test Time: the Suite Must Not Get Slower (#5166)
 
-* A test whose CI duration exceeds **10 s** fails the full-suite part (`time_ratchet.py check`) unless it carries
+* A test whose CI duration exceeds **15 s** (`FAIL_S`; 10-15 s is a warning, owner 2026-10-15) fails the full-suite part
+  (`time_ratchet.py check`) unless it carries
   `@pytest.mark.slow(reason="...")` (the reason is required; `tests/conftest.py` refuses an empty one) or is listed in
   `tests/test_time_baseline.json`. Prefer making it faster (fixture scope, one scan instead of many) to marking it.
-* A baselined test fails past **2x** its recorded seconds. The baseline only shrinks: `python tests/tools/time_ratchet.py
+* A baselined test fails past **2.5x** (`FACTOR`) its recorded seconds. The baseline only shrinks: `python tests/tools/time_ratchet.py
   update --times .test_durations` (or the junit-free times file a run writes with `GITGALAXY_TEST_TIMES=file`) lowers entries
   and drops those at or under 10 s; it never raises or adds one. Never hand-edit a number up.
 * The whole-suite budget (`suite_budget_s`) is gated on the nightly main run (>10% over fails and files one issue) and only
@@ -24,3 +25,6 @@
 * **A module-scoped fixture's cost lands on whichever test runs first in a CI split part,** so any consumer of an
   expensive fixture can trip the per-test time ratchet (#5269).
 * **A baselined test fails at 2.5x its baseline even when slow-marked:** split it instead of marking it (#5613).
+* **A test gated on `GITGALAXY_NIGHTLY` is invisible to push/PR CI,** so the time ratchet first sees it on the scheduled run:
+  mark it slow up front (#5994). On a time_ratchet failure read the `--durations` per-phase lines before assuming the test
+  is slow (#6204).

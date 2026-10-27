@@ -184,6 +184,9 @@ def _descriptors(symbol: str) -> list[tuple[str, str]]:
         elif text[i] in "[(":
             close = "]" if text[i] == "[" else ")"
             j = text.index(close, i)
+            if text[i] == "[" and "`" in text[i:j]:  # rust: `[`[u8]`]`, a quoted type holding `]`
+                q = text.index("`", i)
+                j = text.index(close, text.index("`", q + 1))
             out.append((text[i + 1 : j], "[]" if close == "]" else "()"))
             i = j + 1
             continue
@@ -243,6 +246,86 @@ def _text(lines: list[str], span: tuple[int, int, int, int]) -> str:
     return "\n".join(body)
 
 
+def _rust_enclosing(lines: list[str], after: tuple[int, int]) -> list[int]:
+    """rust-analyzer emits no enclosing_range (#3785), so a fn's extent is read from the source:
+    from the end of its name to the `;` of a bodyless declaration, or through the `{...}` block
+    that closes it. Strings, raw strings, chars and comments are skipped. [] when unterminated."""
+    line, col = after
+    depth_sig = 0  # () and [] nesting in the signature, so `[u8; 4]` is not a terminator
+    depth = 0  # braces of the body
+    in_body = False
+    block = 0  # nested /* */ depth
+    raw: int | None = None  # open raw string: number of # to close it
+    while line < len(lines):
+        text = lines[line]
+        while col < len(text):
+            ch = text[col]
+            two = text[col : col + 2]
+            if block:
+                if two == "/*":
+                    block += 1
+                    col += 2
+                elif two == "*/":
+                    block -= 1
+                    col += 2
+                else:
+                    col += 1
+                continue
+            if raw is not None:
+                if ch == '"' and text[col + 1 : col + 1 + raw] == "#" * raw:
+                    col += 1 + raw
+                    raw = None
+                else:
+                    col += 1
+                continue
+            if two == "//":
+                break
+            if two == "/*":
+                block = 1
+                col += 2
+                continue
+            if ch == "r" and (col == 0 or not (text[col - 1].isalnum() or text[col - 1] == "_")):
+                hashes = len(text[col + 1 :]) - len(text[col + 1 :].lstrip("#"))
+                if text[col + 1 + hashes : col + 2 + hashes] == '"':
+                    raw = hashes
+                    col += 2 + hashes
+                    continue
+            if ch == '"':
+                col += 1
+                while col < len(text) and text[col] != '"':
+                    col += 2 if text[col] == "\\" else 1
+                col += 1  # a string that runs past the line is closed by the next quote only when on one line
+                continue
+            if ch == "'":  # a char literal ('{', '\''), not a lifetime ('a)
+                m = text[col + 1 : col + 3]
+                if m.startswith("\\"):
+                    close = text.find("'", col + 3)
+                    col = close + 1 if close >= 0 else col + 1
+                    continue
+                if len(m) == 2 and m[1] == "'":
+                    col += 3
+                    continue
+            elif ch in "([":
+                if not in_body:
+                    depth_sig += 1
+            elif ch in ")]":
+                if not in_body:
+                    depth_sig -= 1
+            elif ch == ";" and not in_body and depth_sig <= 0:
+                return [after[0], after[1], line, col + 1]
+            elif ch == "{":
+                in_body = True
+                depth += 1
+            elif ch == "}" and in_body:
+                depth -= 1
+                if depth == 0:
+                    return [after[0], after[1], line, col + 1]
+            col += 1
+        line += 1
+        col = 0
+    return []
+
+
 def _has_body(lines: list[str], enclosing: list[int], after: tuple[int, int]) -> bool:
     """Code runs there: a `{` block or an arrow `=>` after the declared name."""
     if not enclosing:
@@ -258,6 +341,8 @@ def _is_call(lines: list[str], span: tuple[int, int, int, int]) -> bool:
     tail = lines[line][end:] if line < len(lines) else ""
     rest = tail + "".join("\n" + x for x in lines[line + 1 : line + 3])
     s = rest.lstrip()
+    if s.startswith("::<"):  # rust turbofish `f::<T>(`
+        s = s[2:]
     if s.startswith("<"):  # explicit type arguments: skip a balanced <...>
         depth = 0
         for k, ch in enumerate(s):
@@ -309,7 +394,8 @@ def contract_from_index(data: bytes, root: Path, lang: str) -> dict[str, Any]:
             if is_term and kind not in CALLABLE_KINDS and not _binds_function(lines, o):
                 continue  # a term is a def only when it is bound to a function (`const f = () =>`)
             span = _span(o.range)
-            if not _has_body(lines, o.enclosing, (span[2], span[3])):
+            enclosing = o.enclosing or (_rust_enclosing(lines, (span[2], span[3])) if lang == "rust" else [])
+            if not _has_body(lines, enclosing, (span[2], span[3])):
                 continue
             key: DefKey = (d.path, name, span[0] + 1)
             if _descriptors(o.symbol)[-1:] and _descriptors(o.symbol)[-1][0] in _CONSTRUCTOR_NAMES:
@@ -318,7 +404,7 @@ def contract_from_index(data: bytes, root: Path, lang: str) -> dict[str, Any]:
                 defs_by_symbol[f"{d.path}\0{o.symbol}"] = key
             else:
                 defs_by_symbol[o.symbol] = key
-            scopes[d.path].append((_span(o.enclosing), key))
+            scopes[d.path].append((_span(enclosing), key))
 
     edges: dict[tuple[DefKey, DefKey], int] = {}
     external: set[tuple[DefKey, str]] = set()
@@ -622,6 +708,39 @@ def scip_java_contract(repo: Path) -> dict[str, Any]:
         contract = contract_from_index(index.read_bytes(), work, "java")
         contract["modules"], contract["skipped"] = indexed, skipped
         return contract
+
+
+# ----------------------------------------------------------------------------- rust-analyzer
+
+# The pinned toolchain whose rust-analyzer the rust baseline is measured with (`rust-analyzer
+# --version` reports the toolchain's version). #3785.
+RUST_ANALYZER_VERSION = "1.90.0"
+
+
+def rust_analyzer_version() -> str | None:
+    """The installed rust-analyzer's version when it and cargo are on PATH; None otherwise, so
+    a machine without a Rust toolchain skips the rust reference."""
+    exe = shutil.which("rust-analyzer")
+    if not exe or not shutil.which("cargo"):
+        return None
+    out = subprocess.run([exe, "--version"], capture_output=True, text=True, check=False).stdout.split()
+    return out[1] if len(out) > 1 else None
+
+
+def rust_analyzer_contract(repo: Path) -> dict[str, Any]:
+    """rust-analyzer's call graph of a Cargo workspace: `rust-analyzer scip <repo>` (it runs
+    `cargo metadata`, so dependencies are fetched on first use), read through the shared
+    adapter. An `impl` method is named by its method (`impl#[`Type`]method().`), a trait method
+    without a default body is not a def (#3757), and a macro-generated call (a derive) is
+    invisible to the index: a deliberate limit, not a defect."""
+    with tempfile.TemporaryDirectory(prefix="rust-analyzer-") as tmp:
+        index = Path(tmp) / "index.scip"
+        _run(
+            [shutil.which("rust-analyzer") or "rust-analyzer", "scip", str(repo), "--output", str(index)],
+            repo,
+            "rust-analyzer scip",
+        )
+        return contract_from_index(index.read_bytes(), repo, "rust")
 
 
 # ----------------------------------------------------------------------------- compare

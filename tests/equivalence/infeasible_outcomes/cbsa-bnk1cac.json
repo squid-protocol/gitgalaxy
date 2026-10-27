@@ -1,0 +1,142 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-bnk1cac",
+  "entries": [
+    {
+      "unit": "A010",
+      "line": 256,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "R",
+      "reason": "Same test (256): a RETURN that succeeds ends the task, so the arm where RESP is NORMAL is never executed."
+    },
+    {
+      "unit": "ED010",
+      "line": 472,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "ACCTYPL > 0 is the fall-through of the test at 459, which rejects ACCTYPL < 1 and GO TOs ED999, so the length is always positive here."
+    },
+    {
+      "unit": "ED010",
+      "line": 575,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "Reached only when INTRTI(1:INTRTL) holds a character outside digits, '.', '-', '+' and space. INTRT is a NUM field on the BNK1CA map, which a 3270 cannot key letters or other characters into (owner decision on #5116, 2026-10-15: rate-letters dropped), so every non-numeric rate that reaches the tally is made of the tallied characters and the tally equals INTRTL."
+    },
+    {
+      "unit": "ED010",
+      "line": 637,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "The re-count starts at INTRTI(WS-NUM-COUNT-POINT:INTRTL) with WS-NUM-COUNT-POINT = characters before the point + 2, i.e. past the only point (the point count is exactly 1 here), so INSPECT ... AFTER '.' finds no point and tallies 0; a count above 2 is never reached."
+    },
+    {
+      "unit": "ED010",
+      "line": 724,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "OVERDRI NOT NUMERIC after BIF DEEDIT: the digit tally at 701 rejects any overdraft field holding a non-digit (OVERDRL > tally), and DEEDIT of an all-digit field leaves it numeric."
+    },
+    {
+      "unit": "ED010",
+      "line": 736,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "G",
+      "reason": "CUSTNOL < 1 is rejected at 437 and ACCTYPL < 1 at 459 (both GO TO ED999), so neither can be true here."
+    },
+    {
+      "unit": "CAD010",
+      "line": 849,
+      "kind": "EVALUATE",
+      "outcome": "OTHER",
+      "family": "G",
+      "reason": "CREACC sets a fail code on every 'N' return, and every code it sets has its own WHEN, so OTHER is never reached."
+    },
+    {
+      "unit": "CAD010",
+      "line": 849,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@855",
+      "family": "G",
+      "reason": "WHEN '2': CREACC sets only fail codes '1', '3', '5', '7', '8', '9' and 'A' (318-1224); it never sets '2'."
+    },
+    {
+      "unit": "CAD010",
+      "line": 849,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@862",
+      "family": "G",
+      "reason": "SUBPGM-FAIL-CODE '3' is set only by CREACC's ENQ-NAMED-COUNTER when RESP is not NORMAL (CREACC 397), which is never true: the ENQ has no NOSUSPEND and a 16-byte name of LENGTH(16)."
+    },
+    {
+      "unit": "CAD010",
+      "line": 849,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@869",
+      "family": "G",
+      "reason": "WHEN '4': CREACC sets only fail codes '1', '3', '5', '7', '8', '9' and 'A' (318-1224); it never sets '4'."
+    },
+    {
+      "unit": "CAD010",
+      "line": 849,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@876",
+      "family": "G",
+      "reason": "SUBPGM-FAIL-CODE '5' is set only by CREACC's DEQ-NAMED-COUNTER when RESP is not NORMAL (CREACC 419), which is never true: the DEQ follows the task's own ENQ of the same 16-byte name."
+    },
+    {
+      "unit": "CAD010",
+      "line": 849,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@883",
+      "family": "G",
+      "reason": "WHEN '6': CREACC sets only fail codes '1', '3', '5', '7', '8', '9' and 'A' (318-1224); it never sets '6'."
+    },
+    {
+      "unit": "CAD010",
+      "line": 849,
+      "kind": "EVALUATE",
+      "outcome": "WHEN@911",
+      "family": "G",
+      "reason": "WHEN 'A' (CREACC account type not one of ISA, MORTGAGE, SAVING, CURRENT, LOAN): BNK1CAC accepts only those types in ED010 (474) and normalises them, so CREACC's type check always passes."
+    },
+    {
+      "unit": "SM010",
+      "line": 1039,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF SEND-DATAONLY` tests the 88 on the flag value '2' (line 50), set by no statement: only `SET SEND-ERASE` and `SET SEND-DATAONLY-ALARM` (172, 228, 340) write the flag."
+    },
+    {
+      "unit": "SM010",
+      "line": 1049,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1039), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 1049,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "The RESP test inside the `IF SEND-DATAONLY` block (1039), which is never entered."
+    },
+    {
+      "unit": "SM010",
+      "line": 1116,
+      "kind": "IF",
+      "outcome": "false",
+      "family": "G",
+      "reason": "`IF SEND-DATAONLY-ALARM` is reached only with the flag '3': '1' (SEND-ERASE) leaves SM010 after the first SEND MAP and '2' is never set (see 1039), so the test is always true."
+    }
+  ]
+}

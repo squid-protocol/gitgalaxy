@@ -80,6 +80,8 @@ LIBRARY = {
     "CEEDATE": ("__PACKAGE__.cobolrt.le.Ceedate.call", 4),
     "CEEISEC": ("__PACKAGE__.cobolrt.le.Ceeisec.call", 9),
     "CEEQCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.call", 2),
+    # #5003: sets the window CEEQCEN reads (one class, one setting)
+    "CEESCEN": ("__PACKAGE__.cobolrt.le.Ceeqcen.set", 2),
     # #5003: Lilian seconds to integer fields (the inverse of CEEISEC) and the day of the week of a Lilian date
     "CEESECI": ("__PACKAGE__.cobolrt.le.Ceeseci.call", 9),
     "CEEDYWK": ("__PACKAGE__.cobolrt.le.Ceedywk.call", 3),
@@ -96,6 +98,7 @@ LIBRARY_CLOCK = {
     "CEELOCT",
     "CEEGMT",
     "CEEUTC",
+    "CEESECS",  # #5003: the system year the century window (a YY) is anchored on
 }  # the routines that read the run's clock (the harness pins it, like CURRENT-DATE)
 # The COMP-2 arguments (by position) a routine reads or stores by value (Cobol.num / Cobol.store), never by bytes: HFP on
 # z/OS, IEEE on the oracle (register C6). Every routine with one, and every clock routine, also takes the charset last.
@@ -113,7 +116,7 @@ LIBRARY_FLOATS = {
     "CEEGMTO": {2},
     "CEEUTCO": {2},
 }
-LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, *LIBRARY_RC, "CEEDATE", "CEEQCEN"}
+LIBRARY_CHARSET = {*LIBRARY_CLOCK, *LIBRARY_FLOATS, *LIBRARY_RC, "CEEDATE", "CEEQCEN", "CEESCEN"}
 
 
 def jstr(s: str) -> str:
@@ -2996,8 +2999,8 @@ class Gen:
             target = self.field_expr(ret_ref)
             out.append(f"{ind}Cobol.store({target}, BigDecimal.valueOf({rc}), false, CS);")
             return out
-        if prog in ("CBLTDLI", *dli.REFUSED_BY_NAME):  # #4893: IMS DL/I (det/dli.py, register family I)
-            if prog != "CBLTDLI":
+        if prog in (*dli.CALLS, *dli.REFUSED_BY_NAME):  # #4893: IMS DL/I (det/dli.py, register family I)
+            if prog not in dli.CALLS:
                 raise Untranslatable(dli.REFUSED_BY_NAME[prog])
             return dli.call(self, s, ind)
         lib = LIBRARY.get(prog)

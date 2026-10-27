@@ -22,10 +22,11 @@ GATED = [
     "mainframe-ground-truth",  # #4961; its push run appends and publishes the ground-truth history
     "smoke-test",  # #4961; the per-merge ubuntu full suite
     "java-compile",  # #4964; its push run builds main's tree (the base-generation cache is java-base-generation.yml's, #5142)
+    "equivalence-e2e",  # #5954 slice 4; its post-merge run, planned from the pushed files, is skipped for a tree its PR run proved
 ]  # fmt: skip
 # push `paths` entries the PR filter lacks (the push could fire on a change the PR run was never created for), and
 # PR-only entries (the PR runs where the push does not: harmless). Pinned; an edit to a filter updates it knowingly.
-PUSH_ONLY: dict[str, str] = {}
+PUSH_ONLY: dict[str, str] = {"equivalence-e2e": "no paths filter on either trigger: its plan job decides from the changed files"}
 PR_ONLY = {"java-compile": {"tests/tools/mainframe_corpus.py"}}
 # PR + main-push workflows that are not gated: their push run does something the PR run never did
 NOT_GATED = {"generated-docs": "its push run publishes the rendered pages to `generated`; the PR run only renders"}

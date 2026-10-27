@@ -244,3 +244,73 @@ def test_the_porting_loop_and_crucible_callers_hand_translate_the_engine_layouts
             port_runner.det_port(project, ticket, corpus, tmp_path / "work", "dispatch", False)
     assert seen[0] is None
     assert isinstance(seen[1], EngineLayouts) and seen[1].mode == "check"
+
+
+SYNCED = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. SYNTOY.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-ONE                 PIC S9(8) COMP SYNC.
+       01  WS-TWO                 PIC S9(4) COMP-5 SYNC VALUE 9.
+       01  WS-SY.
+           05  S-A                PIC X.
+           05  S-B                PIC S9(4) COMP SYNC.
+           05  S-C                PIC X.
+           05  S-D                PIC S9(8) COMP SYNC.
+           05  S-P                POINTER SYNC.
+           05  S-E                PIC X.
+       PROCEDURE DIVISION.
+           GOBACK.
+"""
+
+
+@pytest.fixture(scope="module")
+def sync_estate(tmp_path_factory):
+    pytest.importorskip("tree_sitter_language_pack")
+    base = tmp_path_factory.mktemp("engine_layout_5694_sync")
+    repo = base / "repo"
+    repo.mkdir()
+    (repo / "SYNTOY.cbl").write_text(SYNCED, encoding="utf-8")
+    return load_galaxy_ir(scan_to_db(repo, base / "scan")), repo
+
+
+def test_sync_slack_is_the_engines_and_check_mode_refuses_what_the_translator_does_not_model(sync_estate):
+    """#5694: the engine lays SYNC slack out, the translator's own layout does not. A level-01 SYNC item (every
+    burned one: genapp lgwebst5, the async credit-card SEQPNT / ASYNCPNT) starts a record and has no slack, so the two
+    agree. Mid-record slack, and a POINTER SYNC at either width, is the engine's in engine mode; check mode refuses
+    by name rather than let the translator's unaligned offsets stand."""
+    ir, repo = sync_estate
+    lines = program_lines(repo / "SYNTOY.cbl", [repo], None)
+
+    def run(mode, width):
+        recs = L.parse(lines)
+        lay = EngineLayouts.from_ir(ir, "SYNTOY.cbl", repo, mode, width)
+        return recs, lay
+
+    recs = L.parse(lines)
+    own = {x.name: (x.offset, x.size) for r in recs for x in r.walk()}
+    assert [own[n] for n in ("WS-ONE", "WS-TWO")] == [(0, 4), (0, 2)]
+    assert [own[n] for n in ("S-A", "S-B", "S-C", "S-D", "S-P", "S-E")] == [
+        (0, 1),
+        (1, 2),
+        (3, 1),
+        (4, 4),
+        (8, 8),
+        (16, 1),
+    ]  # fmt: skip  (the translator: packed, no slack)
+
+    for width, want in (
+        (ZOS_POINTER_BYTES, [(0, 1), (2, 2), (4, 1), (8, 4), (12, 4), (16, 1)]),
+        (POINTER_BYTES, [(0, 1), (2, 2), (4, 1), (8, 4), (16, 8), (24, 1)]),
+    ):
+        recs, lay = run("engine", width)
+        lay.apply(recs, lines)
+        assert lay.consumed == ["WS-ONE", "WS-TWO", "WS-SY"]
+        assert [_at(recs, n) for n in ("WS-ONE", "WS-TWO")] == [(0, 4), (0, 2)]  # level 01: no slack
+        assert [_at(recs, n) for n in ("S-A", "S-B", "S-C", "S-D", "S-P", "S-E")] == want
+        assert _at(recs, "WS-SY")[1] == want[-1][0] + 1
+
+    recs, lay = run("check", POINTER_BYTES)
+    with pytest.raises(LayoutDisagrees, match=r"01 WS-SY: .*S-B engine @2\+2, translator @1\+2"):
+        lay.apply(recs, lines)

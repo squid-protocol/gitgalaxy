@@ -188,7 +188,7 @@
    "why": "the caller's COMM-EYE differs from the row's ACCOUNT_EYECATCHER: the success path's MOVE HV-ACCOUNT-EYECATCHER TO COMM-EYE is the only thing that makes the returned eyecatcher the row's"
   },
   {
-   "name": "dto-entry-update-type-overdraft-rate",
+   "name": "dto-entry-update",
    "commarea": {
     "COMM-EYE": "ACCT",
     "COMM-SCODE": "987654",
@@ -197,47 +197,8 @@
     "COMM-OVERDRAFT": "750",
     "COMM-INT-RATE": "1.25"
    },
-   "dto_entry": true,
-   "why": "as update-type-overdraft-rate, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
-  },
-  {
-   "name": "dto-entry-update-negative-balance-account",
-   "commarea": {
-    "COMM-EYE": "ACCT",
-    "COMM-SCODE": "987654",
-    "COMM-ACCNO": "3",
-    "COMM-ACC-TYPE": "LOAN",
-    "COMM-OVERDRAFT": "0",
-    "COMM-INT-RATE": "18.5"
-   },
-   "dto_entry": true,
-   "why": "as update-negative-balance-account, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
-  },
-  {
-   "name": "dto-entry-update-max-values",
-   "commarea": {
-    "COMM-EYE": "ACCT",
-    "COMM-SCODE": "987654",
-    "COMM-ACCNO": "6",
-    "COMM-ACC-TYPE": "CURRENT",
-    "COMM-OVERDRAFT": "99999999",
-    "COMM-INT-RATE": "9999.99"
-   },
-   "dto_entry": true,
-   "why": "as update-max-values, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
-  },
-  {
-   "name": "dto-entry-leap-day-opened",
-   "commarea": {
-    "COMM-EYE": "ACCT",
-    "COMM-SCODE": "987654",
-    "COMM-ACCNO": "6",
-    "COMM-ACC-TYPE": "CURRENT",
-    "COMM-OVERDRAFT": "2500",
-    "COMM-INT-RATE": "0"
-   },
-   "dto_entry": true,
-   "why": "as leap-day-opened, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+   "why": "as update-type-overdraft-rate, through the typed DTO alone (#4049): the link-area bytes no longer overwrite what in_ maps, so each COMM-* field's move from the DTO shows in the UPDATE and the refilled COMMAREA",
+   "dto_entry": true
   },
   {
    "name": "dto-entry-account-not-found",
@@ -249,73 +210,8 @@
     "COMM-OVERDRAFT": "0",
     "COMM-INT-RATE": "0"
    },
-   "dto_entry": true,
-   "why": "as account-not-found, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
-  },
-  {
-   "name": "dto-entry-other-sort-code-not-found",
-   "commarea": {
-    "COMM-EYE": "ACCT",
-    "COMM-SCODE": "123456",
-    "COMM-ACCNO": "1",
-    "COMM-ACC-TYPE": "CURRENT",
-    "COMM-OVERDRAFT": "0",
-    "COMM-INT-RATE": "0"
-   },
-   "dto_entry": true,
-   "why": "as other-sort-code-not-found, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
-  },
-  {
-   "name": "dto-entry-blank-account-type",
-   "commarea": {
-    "COMM-EYE": "ACCT",
-    "COMM-SCODE": "987654",
-    "COMM-ACCNO": "2",
-    "COMM-ACC-TYPE": "",
-    "COMM-OVERDRAFT": "0",
-    "COMM-INT-RATE": "0"
-   },
-   "dto_entry": true,
-   "why": "as blank-account-type, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
-  },
-  {
-   "name": "dto-entry-type-starts-with-space",
-   "commarea": {
-    "COMM-EYE": "ACCT",
-    "COMM-SCODE": "987654",
-    "COMM-ACCNO": "2",
-    "COMM-ACC-TYPE": " SAVING",
-    "COMM-OVERDRAFT": "0",
-    "COMM-INT-RATE": "0"
-   },
-   "dto_entry": true,
-   "why": "as type-starts-with-space, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
-  },
-  {
-   "name": "dto-entry-null-statement-date",
-   "commarea": {
-    "COMM-EYE": "ACCT",
-    "COMM-SCODE": "987654",
-    "COMM-ACCNO": "4",
-    "COMM-ACC-TYPE": "ISA",
-    "COMM-OVERDRAFT": "0",
-    "COMM-INT-RATE": "3.1"
-   },
-   "dto_entry": true,
-   "why": "as null-statement-date, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
-  },
-  {
-   "name": "dto-entry-mortgage-update",
-   "commarea": {
-    "COMM-EYE": "ACCT",
-    "COMM-SCODE": "987654",
-    "COMM-ACCNO": "5",
-    "COMM-ACC-TYPE": "MORTGAGE",
-    "COMM-OVERDRAFT": "0",
-    "COMM-INT-RATE": "3.99"
-   },
-   "dto_entry": true,
-   "why": "as mortgage-update, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+   "why": "as account-not-found, through the typed DTO alone (#4049): a failing run returns the caller's DTO fields as in_ mapped them",
+   "dto_entry": true
   },
   {
    "name": "dto-entry-eibcalen-full",
@@ -327,11 +223,12 @@
     "COMM-OVERDRAFT": "750",
     "COMM-INT-RATE": "1.25"
    },
-   "dto_entry": true,
-   "why": "as eibcalen-full, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+   "commarea_length": 99,
+   "why": "as eibcalen-full (99 bytes), through the typed DTO alone (#4049)",
+   "dto_entry": true
   },
   {
-   "name": "dto-entry-foreign-sort-code-blank-type",
+   "name": "dto-entry-foreign-sort-code",
    "commarea": {
     "COMM-EYE": "ACCT",
     "COMM-SCODE": "123456",
@@ -340,11 +237,11 @@
     "COMM-OVERDRAFT": "0",
     "COMM-INT-RATE": "0"
    },
-   "dto_entry": true,
-   "why": "as foreign-sort-code-blank-type, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+   "why": "as foreign-sort-code-blank-type, through the typed DTO alone (#4049): in_ maps COMM-SCODE and COMM-EYE, the failing path returns them",
+   "dto_entry": true
   },
   {
-   "name": "dto-entry-eyecatcher-refilled-from-db",
+   "name": "dto-entry-eyecatcher",
    "commarea": {
     "COMM-EYE": "ZZZZ",
     "COMM-SCODE": "987654",
@@ -353,48 +250,124 @@
     "COMM-OVERDRAFT": "750",
     "COMM-INT-RATE": "1.25"
    },
-   "dto_entry": true,
-   "why": "as eyecatcher-refilled-from-db, through the typed DTO alone: in_ reads the record, fill_ gives the refilled COMMAREA back (#5863)"
+   "why": "as eyecatcher-refilled-from-db, through the typed DTO alone (#4049)",
+   "dto_entry": true
   },
   {
-   "name": "dto-entry-account-not-found-full-record",
+   "name": "dto-entry-caller-fields-kept-on-failure",
    "commarea": {
-    "COMM-EYE": "WXYZ",
-    "COMM-CUSTNO": "1234567890",
+    "COMM-EYE": "ACCT",
     "COMM-SCODE": "987654",
     "COMM-ACCNO": "99",
     "COMM-ACC-TYPE": "CURRENT",
-    "COMM-INT-RATE": "12.34",
-    "COMM-OPENED": "15062020",
-    "COMM-OVERDRAFT": "4321",
-    "COMM-LAST-STMT-DT": "01072021",
-    "COMM-NEXT-STMT-DT": "02082022",
-    "COMM-AVAIL-BAL": "-1234.56",
-    "COMM-ACTUAL-BAL": "7890.12",
-    "COMM-SUCCESS": "Z"
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0",
+    "COMM-CUSTNO": "1234567890",
+    "COMM-OPENED": "15061999",
+    "COMM-LAST-STMT-DT": "01032026",
+    "COMM-NEXT-STMT-DT": "01042026",
+    "COMM-AVAIL-BAL": "-123.45",
+    "COMM-ACTUAL-BAL": "678.90",
+    "COMM-SUCCESS": "Y"
    },
    "dto_entry": true,
-   "why": "the refused update leaves every COMMAREA field the caller sent except COMM-SCODE and COMM-SUCCESS: with every field populated, in_ reads and fill_ gives back each one through the typed DTO alone (#5863)"
+   "why": "a failing run (account 99 not found) through the typed DTO alone, with every COMM-* field the caller sends non-blank / non-zero: the program writes only SCODE and SUCCESS on this path, so the returned COMMAREA shows each other field exactly as in_ mapped it (#4049; the field-by-field moves and widths at the DTO entry)"
   },
   {
-   "name": "dto-entry-other-sort-code-full-record",
+   "name": "null-eyecatcher",
    "commarea": {
-    "COMM-EYE": "WXYZ",
-    "COMM-CUSTNO": "1234567890",
-    "COMM-SCODE": "123456",
-    "COMM-ACCNO": "1",
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "10",
     "COMM-ACC-TYPE": "SAVING",
-    "COMM-INT-RATE": "12.34",
-    "COMM-OPENED": "15062020",
-    "COMM-OVERDRAFT": "4321",
-    "COMM-LAST-STMT-DT": "01072021",
-    "COMM-NEXT-STMT-DT": "02082022",
-    "COMM-AVAIL-BAL": "-1234.56",
-    "COMM-ACTUAL-BAL": "7890.12",
-    "COMM-SUCCESS": "Z"
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
    },
-   "dto_entry": true,
-   "why": "as dto-entry-account-not-found-full-record, refused on the sort code (#5863)"
+   "why": "the row's only NULL is ACCOUNT_EYECATCHER (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-customer-number",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "11",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_CUSTOMER_NUMBER (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-next-statement",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "12",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_NEXT_STATEMENT (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-available-balance",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "13",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_AVAILABLE_BALANCE (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-actual-balance",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "14",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_ACTUAL_BALANCE (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-account-type",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "15",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_ACCOUNT_TYPE (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-interest-rate",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "16",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_INTEREST_RATE (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
+  },
+  {
+   "name": "null-overdraft-limit",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "17",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "the row's only NULL is ACCOUNT_OVERDRAFT_LIMIT (every other column set) and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE. Each column of the null test is judged alone, so a mutant that joins two of them with && instead of || cannot hide behind ACCOUNT_LAST_STATEMENT (#4049)"
   }
  ],
  "notes": "CBSA's update-account service (UPDACC, LINKed with the UPDACC copybook's COMMAREA): the account is read by the program's own sort code (987654) and COMM-ACCNO with a SELECT INTO from Db2 table ACCOUNT (unqualified: the bind's QUALIFIER, IBMUSER); a failed SELECT (+100, -305 ...) or an account type that is blank or starts with a space gives COMM-SUCCESS 'N' and no UPDATE; otherwise ACCOUNT_TYPE, ACCOUNT_INTEREST_RATE and ACCOUNT_OVERDRAFT_LIMIT are UPDATEd, and the COMMAREA is refilled from the host variables, each date reformatted from Db2's character form (YYYY-MM-DD) to DDMMYYYY. The table is compared after every scenario."

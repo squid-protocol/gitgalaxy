@@ -13,7 +13,23 @@
   "applid": "CBSAREGN",
   "sysid": "CICA"
  },
- "datasets": {},
+ "taskn": 4242,
+ "programs": [
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  }
+ },
  "commarea": {
   "segments": [
    {
@@ -192,7 +208,234 @@
    "aid": "DFHPF5",
    "commarea": {},
    "why": "PF5: WHEN OTHER -- 'Invalid key pressed.', SEND MAP DATAONLY ALARM, RETURN TRANSID('OMEN')"
+  },
+  {
+   "name": "option-1-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "1"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "action 1: RETURN TRANSID('ODCS') IMMEDIATE fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its abend routine"
+  },
+  {
+   "name": "option-2-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "2"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "action 2: RETURN TRANSID('ODAC') IMMEDIATE fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its abend routine"
+  },
+  {
+   "name": "option-3-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "3"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "action 3: RETURN TRANSID('OCCS') IMMEDIATE fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its abend routine"
+  },
+  {
+   "name": "option-4-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "4"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "action 4: RETURN TRANSID('OCAC') IMMEDIATE fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its abend routine"
+  },
+  {
+   "name": "option-5-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "5"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "action 5: RETURN TRANSID('OUAC') IMMEDIATE fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its abend routine"
+  },
+  {
+   "name": "option-6-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "6"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "action 6: RETURN TRANSID('OCRA') IMMEDIATE fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its abend routine"
+  },
+  {
+   "name": "option-7-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "7"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "action 7: RETURN TRANSID('OTFN') IMMEDIATE fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its abend routine"
+  },
+  {
+   "name": "option-a-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "A"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "action A: RETURN TRANSID('OCCA') IMMEDIATE fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its abend routine"
+  },
+  {
+   "name": "first-entry-send-map-invmpsz",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "SEND-MAP",
+     "map": "BNK1ME",
+     "resp": "INVMPSZ"
+    }
+   ],
+   "why": "EIBCALEN 0: the SEND MAP ERASE of the menu fails INVMPSZ (planned, X71): nothing is sent and the program goes on to its abend routine"
+  },
+  {
+   "name": "mapfail-dataonly-send-map-tsioerr",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "faults": [
+    {
+     "cmd": "SEND-MAP",
+     "map": "BNK1ME",
+     "nth": 2,
+     "resp": "TSIOERR"
+    }
+   ],
+   "why": "ENTER with no field modified: the second SEND MAP (DATAONLY ALARM, the invalid-value message) fails TSIOERR (planned, X71)"
+  },
+  {
+   "name": "receive-map-invmpsz",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "faults": [
+    {
+     "cmd": "RECEIVE-MAP",
+     "map": "BNK1ME",
+     "resp": "INVMPSZ"
+    }
+   ],
+   "why": "ENTER: RECEIVE MAP fails INVMPSZ (planned, X71), a failure that is not MAPFAIL -- the program goes on to its abend routine"
+  },
+  {
+   "name": "first-entry-plain-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "first entry: the closing RETURN TRANSID('OMEN') COMMAREA LENGTH(1) RESP fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its A010 abend routine"
+  },
+  {
+   "name": "invalid-action-plain-return-invreq",
+   "aid": "DFHENTER",
+   "commarea": {},
+   "receive": {
+    "BNK1ME": {
+     "ACTIONI": "9"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "RETURN",
+     "resp": "INVREQ",
+     "resp2": 4
+    }
+   ],
+   "why": "action 9 (invalid): the closing RETURN TRANSID('OMEN') COMMAREA LENGTH(1) RESP fails INVREQ RESP2 4 (planned: IBM's TRANSID in a program associated with an APPC logical unit, register X71) -- the program goes on to its A010 abend routine"
+  },
+  {
+   "name": "pf12-send-text-tsioerr",
+   "aid": "DFHPF12",
+   "commarea": {},
+   "faults": [
+    {
+     "cmd": "SEND-TEXT",
+     "resp": "TSIOERR"
+    }
+   ],
+   "why": "PF12: SEND-TERMINATION-MSG's SEND TEXT ERASE FREEKB (STM010) fails TSIOERR (planned, register X71): nothing is sent and the non-NORMAL arm takes the abend routine"
   }
  ],
- "notes": "CBSA's main menu (BNKMENU, transaction OMEN, BMS map BNK1ME of mapset BNK1MAI: the symbolic map is generated from src/base/bms_src/BNK1MAI.bms, @bms/BNK1MAI.cpy). Pseudo-conversational: a first task (EIBCALEN 0) sends the menu; a returning one (its 1-byte COMMAREA) acts on the AID -- PA keys do nothing, PF3 / PF12 end the session, CLEAR clears the screen, ENTER reads the action and either starts the chosen transaction with RETURN TRANSID(...) IMMEDIATE or re-sends the menu with a message, any other key re-sends it with 'Invalid key pressed.'. Not reached: the failure branches after RECEIVE MAP (other than MAPFAIL), SEND MAP / SEND TEXT / SEND CONTROL and RETURN -- no fault can be injected on those commands -- and so ABEND-THIS-TASK and the ABNDPROC LINKs. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+ "notes": "CBSA's main menu (BNKMENU, transaction OMEN, BMS map BNK1ME of mapset BNK1MAI: the symbolic map is generated from src/base/bms_src/BNK1MAI.bms, @bms/BNK1MAI.cpy). Pseudo-conversational: a first task (EIBCALEN 0) sends the menu; a returning one (its 1-byte COMMAREA) acts on the AID -- PA keys do nothing, PF3 / PF12 end the session, CLEAR clears the screen, ENTER reads the action and either starts the chosen transaction with RETURN TRANSID(...) IMMEDIATE or re-sends the menu with a message, any other key re-sends it with 'Invalid key pressed.'. A planned condition (X71, #6271) drives the failure paths of RECEIVE MAP (INVMPSZ), SEND MAP (INVMPSZ, TSIOERR) and RETURN IMMEDIATE (INVREQ), and so ABEND-THIS-TASK and the ABNDPROC LINKs. Not reached: the failure branches of the plain RETURN TRANSID with RESP, SEND TEXT and SEND CONTROL -- no fault can be injected on those commands yet. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
 }

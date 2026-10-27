@@ -13,7 +13,8 @@ one-shot measurement at a named, frozen system.
     python tests/tools/trial.py preview <estate-id> --estate-path P --work W [--json F]   # rehearsal, no ledger
     python tests/tools/trial.py sync  <trial-id> --project W/java_h2     # (alias: attempt) import port_log.jsonl
     python tests/tools/trial.py close <trial-id> [--cause PROG=cause ...]
-    python tests/tools/trial.py report [--write]                         # the page + the SVG chart
+    python tests/tools/trial.py preview <estate-id> ... --page F         # also write the estate's page (#4493)
+    python tests/tools/trial.py report [--write]                         # the page + the SVG chart + a page per estate
     python tests/tools/trial.py check                                    # ledger valid, report current (CI)
 
 `start` refuses a development estate (every trialled estate is one), records the frozen system (engine
@@ -31,7 +32,9 @@ between the failure and the next attempt is a fix on our side (its cause, its co
 such commit is the model's. `close` ends the trial: a program still not proven gets its cause declared.
 
 Sources: tests/cobol_mainframe/trials.json (the ledger, committed). Writes
-docs/language_status/fresh_estate_trials.md and fresh_estate_trials.svg (a plain SVG, no plotting library).
+docs/language_status/fresh_estate_trials.md and fresh_estate_trials.svg (a plain SVG, no plotting library), and
+(#4493) docs/language_status/trials/<estate>.md: the equivalence harness's self-report for that trial -- coverage,
+run status per program, out-of-scope reasons and blockers phrased as fixes -- built from the ledger alone.
 """
 
 from __future__ import annotations
@@ -53,6 +56,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 LEDGER = REPO_ROOT / "tests" / "cobol_mainframe" / "trials.json"
 PAGE = REPO_ROOT / "docs" / "language_status" / "fresh_estate_trials.md"
 CHART = REPO_ROOT / "docs" / "language_status" / "fresh_estate_trials.svg"
+PAGES = REPO_ROOT / "docs" / "language_status" / "trials"  # #4493: one harness-style page per trialled estate
 
 KINDS = ("public", "private")
 STATUSES = ("fresh", "development")
@@ -64,7 +68,11 @@ BINS = ("@1", "@2", "@3", "@4+")
 HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
                  "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py",
                  "tests/tools/equivalence_cics_containers.py",  # #5274: the CICS harness's containers family
+                 "tests/tools/equivalence_cics_conditions.py",  # #5274: ... and its conditions family
+                 "tests/tools/equivalence_cics_faults.py",  # #5274: ... and its faults family
                  "tests/tools/equivalence_cics_filecontrol.py",  # #5274: ... and its file control family
+                 "tests/tools/equivalence_cics_tempstorage.py",  # #5274: ... and its temporary storage family
+                 "tests/tools/equivalence_cics_taskcontrol.py",  # #5274: ... and its task / interval control family
                  "tests/tools/cobol_coverage.py",  # #4023: every COBOL run is traced through it
                  "tests/equivalence/faults/ggfault.c", "tests/equivalence/faults/ggabend.c",  # fault runs, CEE3ABD
                  "tests/equivalence/faults/ggdisplay.c",  # #4056: DISPLAY as IBM writes it
@@ -477,6 +485,10 @@ def cmd_preview(opts: argparse.Namespace) -> int:
     print(f"  eligible: {len(eligible)}  out of scope: {len(out)}  programs: {len(eligible) + len(out)}")
     for why, n in sorted(reasons.items(), key=lambda kv: (-kv[1], kv[0])):
         print(f"  out of scope x{n}: {why}")
+    if opts.page:
+        rehearsal = {"estate": opts.estate, "eligible": eligible, "out_of_scope": out,
+                     "programs": {k: {"attempts": [], "final": "open"} for k in eligible}}  # fmt: skip
+        opts.page.write_text(trial_page({"estates": [], "trials": []}, rehearsal, rehearsal=True), encoding="utf-8")
     if opts.json:
         opts.json.write_text(
             json.dumps({"estate": opts.estate, "eligible": eligible, "out_of_scope": out}, indent=1, sort_keys=True)
@@ -715,6 +727,129 @@ def fixes_per_estate(ledger: dict[str, Any]) -> dict[str, dict[str, int]]:
     return out
 
 
+# ---- the per-estate page (#4493) ---------------------------------------------------------
+_BLOCKER_FIX = {
+    "ticket": "Fix the porting ticket (its instructions or context) for",
+    "generator": "Fix the Java generator for",
+    "engine": "Fix the engine's extraction for",
+    "harness": "Fix or extend the equivalence harness so it can run",
+    "model": "Retry with the model, or declare the cause on",
+    "undiagnosed": "Attempt and diagnose",
+}
+
+
+def program_state(p: dict[str, Any]) -> tuple[str, str | None]:
+    """(run status, cause) of one eligible program: proven / differs / couldn't run / not attempted."""
+    final = p["final"]
+    if final.startswith("proven@"):
+        return "proven", None
+    last = p["attempts"][-1] if p["attempts"] else None
+    if final.startswith("not-proven("):
+        cause = final[len("not-proven(") : -1]
+    else:
+        cause = last["cause"] if last else None
+    if last is None:
+        return "not attempted", cause
+    return ("differs" if last["outcome"] == "failed" else "couldn't run"), cause
+
+
+def _pct(n: int, d: int) -> str:
+    return f"{100 * n / d:.0f}%" if d else "-"
+
+
+def trial_blockers(trial: dict[str, Any]) -> list[dict[str, Any]]:
+    """Each non-proven program under exactly ONE cause, sorted by programs held back."""
+    by: dict[str, list[str]] = {}
+    for key, p in sorted(trial["programs"].items()):
+        status, cause = program_state(p)
+        if status != "proven":
+            by.setdefault(cause or "undiagnosed", []).append(key)
+    rows = [{"cause": c, "programs": ps} for c, ps in by.items()]
+    rows.sort(key=lambda r: (-len(r["programs"]), r["cause"]))
+    return rows
+
+
+def trial_page(ledger: dict[str, Any], trial: dict[str, Any], rehearsal: bool = False) -> str:
+    """The harness's self-report for one trial, from the ledger alone (no estate code is read).
+
+    A rehearsal (`preview --page`) has a declaration but no attempts: every eligible program is not attempted."""
+    name = _name(ledger, trial["estate"])
+    elig, oos = trial["eligible"], trial["out_of_scope"]
+    states = {k: program_state(trial["programs"][k]) for k in elig}
+    counts: dict[str, int] = {}
+    for status, _c in states.values():
+        counts[status] = counts.get(status, 0) + 1
+    total = len(elig) + len(oos)
+    proven = counts.get("proven", 0)
+    head = f"# Equivalence harness report: {name}" + (" (rehearsal)" if rehearsal else f" ({trial['id']})")
+    how = ("A rehearsal from `trial.py preview`: no ledger entry, never first-try." if rehearsal else
+           "Generated by `python tests/tools/trial.py report --write` from `tests/cobol_mainframe/trials.json`.")  # fmt: skip
+    out = [head, "", how, "Do not edit by hand.", "", *[f"- {c}" for c in CAVEATS], "", "## Coverage", ""]
+    out += [f"- programs in the estate: {total}",
+            f"- eligible (declared up front): {len(elig)} ({_pct(len(elig), total)})",
+            f"- out of scope: {len(oos)} ({_pct(len(oos), total)})",
+            f"- proven: {proven} of {len(elig)} eligible ({_pct(proven, len(elig))})",
+            "- paragraphs and branches exercised: not measured here (a trial estate has no cobol_coverage run)",
+            "", "## Run status", ""]  # fmt: skip
+    out += [f"- {st}: {counts.get(st, 0)}" for st in ("proven", "differs", "couldn't run", "not attempted")]
+    out += ["", "| program | status | final | attempts (outcome/cause) |", "|---|---|---|---|"]
+    for key in sorted(elig):
+        p = trial["programs"][key]
+        steps = ", ".join(f"{a['n']}:{a['outcome']}" + (f"/{a['cause']}" if a["cause"] else "") for a in p["attempts"])
+        out.append(f"| {key} | {states[key][0]} | {p['final']} | {steps or '-'} |")
+    out += ["", "## Out of scope (declared at start)", ""]
+    by_reason: dict[str, list[str]] = {}
+    for key, why in sorted(oos.items()):
+        by_reason.setdefault(why.replace("|", "/"), []).append(key)
+    if not by_reason:
+        out.append("None.")
+    for why, ps in sorted(by_reason.items(), key=lambda kv: (-len(kv[1]), kv[0])):
+        out.append(f"- {why} ({len(ps)}): {', '.join(ps)}")
+    out += ["", "## Blockers, stated as fixes (most programs held back first)", ""]
+    blockers = trial_blockers(trial)
+    if not blockers:
+        out.append("None: every eligible program is proven.")
+    for n, b in enumerate(blockers, 1):
+        ps = b["programs"]
+        out.append(f"{n}. {_BLOCKER_FIX[b['cause']]} {len(ps)} program{'s' if len(ps) != 1 else ''}: {', '.join(ps)} "
+                   f"(cause: {b['cause']}; unlocks {len(ps)}).")  # fmt: skip
+    return "\n".join(out) + "\n"
+
+
+def page_path(name: str) -> Path:
+    return PAGES / f"{re.sub(r'[^A-Za-z0-9_.-]', '_', name)}.md"
+
+
+def trial_pages(ledger: dict[str, Any]) -> dict[str, str]:
+    """{file name: text} for the latest trial of each estate."""
+    latest = {t["estate"]: t for t in ledger["trials"]}
+    return {page_path(_name(ledger, e)).name: trial_page(ledger, t) for e, t in latest.items()}
+
+
+def stale_pages(ledger: dict[str, Any], pages_dir: Path | None = None) -> list[str]:
+    """The pages that are missing, stale or orphaned (a page for no trial)."""
+    want = trial_pages(ledger)
+    root = pages_dir or PAGES
+    stale = [
+        n for n, text in want.items() if not (root / n).is_file() or (root / n).read_text(encoding="utf-8") != text
+    ]
+    if root.is_dir():
+        stale += [p.name for p in sorted(root.glob("*.md")) if p.name not in want]
+    return stale
+
+
+def write_pages(ledger: dict[str, Any], pages_dir: Path | None = None) -> list[Path]:
+    root = pages_dir or PAGES
+    for old in root.glob("*.md") if root.is_dir() else []:
+        old.unlink()
+    out = []
+    for name, text in trial_pages(ledger).items():
+        root.mkdir(parents=True, exist_ok=True)
+        (root / name).write_text(text, encoding="utf-8")
+        out.append(root / name)
+    return out
+
+
 def _name(ledger: dict[str, Any], estate_id: str) -> str:
     e = _estate(ledger, estate_id) or {}
     return str(e.get("label") or estate_id) if e.get("kind") == "private" else estate_id
@@ -770,9 +905,10 @@ def render(ledger: dict[str, Any]) -> str:
     out += ["", "## Estates", "", "| estate | kind | status | repo @ ref | trialled by |", "|---|---|---|---|---|"]
     for e in ledger["estates"]:
         where = f"{e['repo']} @ {e['ref'][:12]}" if e["kind"] == "public" else "(private)"
-        out.append(
-            f"| {_name(ledger, e['id'])} | {e['kind']} | {e['status']} | {where} | {e.get('trialled_by') or '-'} |"
-        )
+        by = e.get("trialled_by") or "-"
+        if any(t["id"] == by for t in ledger["trials"]):
+            by = f"[{by}](trials/{page_path(_name(ledger, e['id'])).name})"
+        out.append(f"| {_name(ledger, e['id'])} | {e['kind']} | {e['status']} | {where} | {by} |")
     return "\n".join(out) + "\n"
 
 
@@ -915,6 +1051,7 @@ def main(argv: list[str] | None = None) -> int:
     pv.add_argument("--exclude", action="append", help="PROGRAM=reason")
     pv.add_argument("--shipped-data", action="append", help="PROGRAM whose input data the estate ships")
     pv.add_argument("--json", type=Path, help="also write the declaration here")
+    pv.add_argument("--page", type=Path, help="also write the estate's harness page (a rehearsal) here")
     sy = sub.add_parser("sync", aliases=["attempt"], help="import the porting loop's log as attempts")
     sy.add_argument("trial")
     sy.add_argument("--project", type=Path, required=True, help="the trial's generated project (port_log.jsonl)")
@@ -943,7 +1080,8 @@ def main(argv: list[str] | None = None) -> int:
         if opts.write:
             PAGE.write_text(page, encoding="utf-8")
             CHART.write_text(svg, encoding="utf-8")
-            print(f"wrote {PAGE.relative_to(REPO_ROOT)} and {CHART.relative_to(REPO_ROOT)}")
+            n = len(write_pages(ledger))
+            print(f"wrote {PAGE.relative_to(REPO_ROOT)}, {CHART.relative_to(REPO_ROOT)} and {n} estate pages")
         else:
             sys.stdout.write(page)
         return 0
@@ -951,6 +1089,9 @@ def main(argv: list[str] | None = None) -> int:
         if not path.is_file() or path.read_text(encoding="utf-8") != text:
             print(f"{path.relative_to(REPO_ROOT)} is stale: run `python tests/tools/trial.py report --write`")
             return 1
+    if stale := stale_pages(ledger):
+        print(f"estate pages stale ({', '.join(stale)}): run `python tests/tools/trial.py report --write`")
+        return 1
     print("trial ledger: valid, report up to date")
     return 0
 

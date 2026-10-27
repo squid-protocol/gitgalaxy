@@ -19,6 +19,12 @@ on:
   schedule:
     - cron: "17 5 * * 1"  # weekly, Monday
   workflow_dispatch:
+    inputs:
+      scope:
+        description: "full = whole tree (default); pr = the PR's sparse paths, to compare findings on the same SHA (#5499)"
+        type: choice
+        options: [full, pr]
+        default: full
 
 permissions:
   contents: read
@@ -51,7 +57,7 @@ jobs:
       # `muninn.yml` suppressions still match. Schedule and dispatch take the full tree below: the backstop.
       # Keep the list in step with `on.pull_request.paths`; the three root config files are read by the scanners.
       - name: Checkout (PR, filtered paths only)
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' || inputs.scope == 'pr' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -64,19 +70,20 @@ jobs:
             /templates/
             /pyproject.toml
             /requirements*.txt
+            /tests/requirements-mypy.txt
             /action.yml
             /muninn.yml
             /zizmor.yml
 
       - name: Checkout (full tree)
-        if: ${{ github.event_name != 'pull_request' }}
+        if: ${{ github.event_name != 'pull_request' && inputs.scope != 'pr' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - name: Run Muninn
         # zizmor: ignore[github_action_from_unverified_creator_used]
-        uses: skaldlab/muninn@dfbf06a4e2ab86298040a86672501a5dea132a38 # v0.3.13
+        uses: skaldlab/muninn@269494d4517141eda9467d5cf94e35e2ec49b9b7 # v0.3.14
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-on: info
@@ -84,6 +91,15 @@ jobs:
 
       - name: Upload SARIF
         if: always() && hashFiles('muninn.sarif') != ''
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4
         with:
           sarif_file: muninn.sarif
+
+      # #5499: a dispatch keeps the SARIF so a `scope: full` and a `scope: pr` run on one SHA can be diffed with
+      # `tests/tools/muninn_scope_diff.py`.
+      - name: Keep SARIF (dispatch)
+        if: ${{ always() && github.event_name == 'workflow_dispatch' && hashFiles('muninn.sarif') != '' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: muninn-sarif-${{ inputs.scope }}
+          path: muninn.sarif

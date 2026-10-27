@@ -121,8 +121,8 @@
     },
     "assembly/bootos": {
       "assembly/bootos/Makefile": 0,
-      "assembly/bootos/counter.asm": 1,
-      "assembly/bootos/os.asm": 29
+      "assembly/bootos/counter.asm": 0,
+      "assembly/bootos/os.asm": 2
     },
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": 0,
@@ -1062,7 +1062,7 @@
       "cobol/gnucobol_internals/codegen.c": 1,
       "cobol/gnucobol_internals/fileio.c": 0,
       "cobol/gnucobol_internals/numeric.c": 1,
-      "cobol/gnucobol_internals/parser.y": 3,
+      "cobol/gnucobol_internals/parser.y": 2,
       "cobol/gnucobol_internals/scanner.l": 0,
       "cobol/gnucobol_internals/syn_misc.at": 0
     },
@@ -1165,8 +1165,8 @@
     },
     "csharp/roslyn": {
       "csharp/roslyn/CSharpCompilation.cs": 3,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 4,
-      "csharp/roslyn/DiagnosticAnalyzer.cs": 3,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 3,
+      "csharp/roslyn/DiagnosticAnalyzer.cs": 2,
       "csharp/roslyn/LanguageParser.cs": 3,
       "csharp/roslyn/License.txt": 0,
       "csharp/roslyn/MethodCompiler.cs": 1,
@@ -1229,7 +1229,7 @@
     "dart/flutter": {
       "dart/flutter/editable_text.dart": 0,
       "dart/flutter/events.dart": 0,
-      "dart/flutter/framework.dart": 3,
+      "dart/flutter/framework.dart": 2,
       "dart/flutter/navigator.dart": 0,
       "dart/flutter/object.dart": 0,
       "dart/flutter/semantics.dart": 1,
@@ -1281,7 +1281,7 @@
       "dockerfile/moby/builder/dockerfile/internals_test.go": 0,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 0,
-      "dockerfile/moby/builder/dockerfile/metrics.go": 5,
+      "dockerfile/moby/builder/dockerfile/metrics.go": 0,
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 6,
       "dockerfile/moby/builder/dockerfile/utils_test.go": 1
     },
@@ -1308,7 +1308,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 2,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 4,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 2,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 3,
@@ -1316,7 +1316,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 3
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 3,
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 1,
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 0
     },
     "dockerfile/moby/test_targets": {
@@ -1768,7 +1768,7 @@
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": 1,
       "hlasm/che4z_hlasm/AAAAA.hlasm": 0,
-      "hlasm/che4z_hlasm/B.hlasm": 2,
+      "hlasm/che4z_hlasm/B.hlasm": 1,
       "hlasm/che4z_hlasm/BBBBB.hlasm": 0,
       "hlasm/che4z_hlasm/CCCCC.hlasm": 0,
       "hlasm/che4z_hlasm/NOTICE.md": 0,
@@ -2042,7 +2042,7 @@
       "jcl/cics-banking-sample-application-cbsa/CRETS03.jcl": 0,
       "jcl/cics-banking-sample-application-cbsa/DB2BIND.jcl": 0,
       "jcl/cics-banking-sample-application-cbsa/DBCRFUN.jcl": 0,
-      "jcl/cics-banking-sample-application-cbsa/DEFAULT.jcl": 44,
+      "jcl/cics-banking-sample-application-cbsa/DEFAULT.jcl": 43,
       "jcl/cics-banking-sample-application-cbsa/DELACC.jcl": 0,
       "jcl/cics-banking-sample-application-cbsa/DELCUS.jcl": 0,
       "jcl/cics-banking-sample-application-cbsa/DROPDB2.jcl": 0,
@@ -2207,7 +2207,7 @@
       "livecode/livecode/arithmetic.lcb": 0,
       "livecode/livecode/array.lcb": 0,
       "livecode/livecode/array.livecodescript": 0,
-      "livecode/livecode/assert.lcb": 13,
+      "livecode/livecode/assert.lcb": 0,
       "livecode/livecode/assign-ops.lcb": 0,
       "livecode/livecode/automaticactivationactivationgroupbehavior.livecodescript": 1,
       "livecode/livecode/automaticactivationactivationinputpassfieldbehavior.livecodescript": 0,
@@ -2272,12 +2272,12 @@
       "livecode/livecode/line.lcb": 0,
       "livecode/livecode/list.lcb": 0,
       "livecode/livecode/literal-evaluation.livecodescript": 0,
-      "livecode/livecode/log.livecodescript": 11,
+      "livecode/livecode/log.livecodescript": 0,
       "livecode/livecode/logic.lcb": 0,
       "livecode/livecode/map.lcb": 0,
       "livecode/livecode/math-foundation.lcb": 0,
       "livecode/livecode/math.lcb": 0,
-      "livecode/livecode/network.livecodescript": 7,
+      "livecode/livecode/network.livecodescript": 3,
       "livecode/livecode/printing.livecodescript": 0,
       "livecode/livecode/recursion.livecodescript": 0,
       "livecode/livecode/repeat.livecodescript": 0,
@@ -2318,7 +2318,7 @@
       "lua/cosmopolitan/crashreport.lua": 1,
       "lua/cosmopolitan/cstack.lua": 1,
       "lua/cosmopolitan/db.lua": 1,
-      "lua/cosmopolitan/errors.lua": 34,
+      "lua/cosmopolitan/errors.lua": 5,
       "lua/cosmopolitan/events.lua": 1,
       "lua/cosmopolitan/fetch.lua": 2,
       "lua/cosmopolitan/files.lua": 1,
@@ -2341,7 +2341,7 @@
       "lua/cosmopolitan/printpayload.lua": 0,
       "lua/cosmopolitan/redbean-form.lua": 0,
       "lua/cosmopolitan/sort.lua": 0,
-      "lua/cosmopolitan/strings.lua": 26,
+      "lua/cosmopolitan/strings.lua": 0,
       "lua/cosmopolitan/tpack.lua": 1,
       "lua/cosmopolitan/tracegc.lua": 3
     },
@@ -2493,7 +2493,7 @@
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": 0,
-      "nix/ghostty/default.nix": 1,
+      "nix/ghostty/default.nix": 0,
       "nix/ghostty/flake.nix": 0,
       "nix/ghostty/shell.nix": 0
     },
@@ -2501,7 +2501,7 @@
       "objective-c/SOURCES.md": 0
     },
     "objective-c/worldwideweb": {
-      "objective-c/worldwideweb/Anchor.m": 6,
+      "objective-c/worldwideweb/Anchor.m": 5,
       "objective-c/worldwideweb/HText.c": 0,
       "objective-c/worldwideweb/HyperManager.m": 3,
       "objective-c/worldwideweb/HyperText.h": 5,
@@ -2597,8 +2597,8 @@
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
-      "php/wordpress/class-wp-query.php": 1,
-      "php/wordpress/formatting.php": 6,
+      "php/wordpress/class-wp-query.php": 0,
+      "php/wordpress/formatting.php": 5,
       "php/wordpress/functions.php": 4,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 5,
@@ -2846,7 +2846,7 @@
       "python/fastapi/fastapi/background.py": 3,
       "python/fastapi/fastapi/cli.py": 2,
       "python/fastapi/fastapi/concurrency.py": 1,
-      "python/fastapi/fastapi/datastructures.py": 11,
+      "python/fastapi/fastapi/datastructures.py": 7,
       "python/fastapi/fastapi/encoders.py": 3,
       "python/fastapi/fastapi/exception_handlers.py": 1,
       "python/fastapi/fastapi/exceptions.py": 32,
@@ -3139,8 +3139,8 @@
     },
     "python/twisted": {
       "python/twisted/defer.py": 0,
-      "python/twisted/http.py": 9,
-      "python/twisted/reflect.py": 3,
+      "python/twisted/http.py": 2,
+      "python/twisted/reflect.py": 0,
       "python/twisted/transport.py": 2
     },
     "python/wtfpython": {
@@ -3195,7 +3195,7 @@
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": 0,
       "ruby/rails/Rakefile": 0,
-      "ruby/rails/base.rb": 7,
+      "ruby/rails/base.rb": 6,
       "ruby/rails/blob.rb": 0,
       "ruby/rails/generator.rb": 0,
       "ruby/rails/inbound_emails_controller.rb": 0,
@@ -3266,7 +3266,7 @@
       "rust/tokio/interval.rs": 0,
       "rust/tokio/lib.rs": 11,
       "rust/tokio/maybe_done.rs": 0,
-      "rust/tokio/tests.rs": 1,
+      "rust/tokio/tests.rs": 0,
       "rust/tokio/tokio_mpsc_bounded.rs": 0,
       "rust/tokio/tokio_named_pipe.rs": 0,
       "rust/tokio/tokio_udp.rs": 0
@@ -3290,7 +3290,7 @@
       "scala/kafka/KafkaRaftManager.scala": 0,
       "scala/kafka/LogManager.scala": 2,
       "scala/kafka/Partition.scala": 5,
-      "scala/kafka/ReplicaManager.scala": 2,
+      "scala/kafka/ReplicaManager.scala": 3,
       "scala/kafka/SocketServer.scala": 5
     },
     "scheme": {
@@ -3299,9 +3299,9 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0,
       "scheme/racket/cpnanopass.ss": 0,
-      "scheme/racket/eval.c": 2,
+      "scheme/racket/eval.c": 1,
       "scheme/racket/fun.c": 1,
-      "scheme/racket/io.ss": 18,
+      "scheme/racket/io.ss": 2,
       "scheme/racket/schemify.rkt": 0,
       "scheme/racket/thread.rkt": 0
     },
@@ -3350,7 +3350,7 @@
       "shell/curl/codespell.sh": 0,
       "shell/curl/contributors.sh": 0,
       "shell/curl/contrithanks.sh": 0,
-      "shell/curl/coverage.sh": 2,
+      "shell/curl/coverage.sh": 1,
       "shell/curl/distfiles.sh": 0,
       "shell/curl/ech_tests.sh": 0,
       "shell/curl/firefox-db2pem.sh": 0,
@@ -3502,7 +3502,7 @@
       "shell/kubernetes/testcerts__gencerts.sh": 0,
       "shell/kubernetes/testdata__generate.sh": 0,
       "shell/kubernetes/update-codegen.sh": 0,
-      "shell/kubernetes/util.sh": 6
+      "shell/kubernetes/util.sh": 4
     },
     "shell/linux": {
       "shell/linux/COPYING": 0,
@@ -4064,7 +4064,7 @@
       "zig/mach/graph.zig": 1,
       "zig/mach/main.zig": 4,
       "zig/mach/module.zig": 3,
-      "zig/mach/testing.zig": 25,
+      "zig/mach/testing.zig": 2,
       "zig/mach/win32.zig": 0
     },
     "zig/tigerbeetle": {

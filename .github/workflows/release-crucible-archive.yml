@@ -93,12 +93,25 @@ jobs:
             telemetry_out/data_galaxy_gpu.json
             telemetry_out/data_galaxy_llm.md
 
+      # promoter-bot#64 (2026-10-24): the squid-shepherd App has its own API quota; AUTOMATION_PAT shares the
+      # account's 5,000/h with the agent fleet, and the shepherd stopped merging when it ran out. The PAT stays
+      # the fallback (a failed mint leaves the output empty).
+      - name: Mint the squid-shepherd App token
+        id: app-token
+        continue-on-error: true
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.SHEPHERD_APP_ID }}
+          private-key: ${{ secrets.SHEPHERD_APP_KEY }}
+          owner: squid-protocol
+          repositories: gitgalaxy,language-crucible
+
       - name: Checkout Language Crucible
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: squid-protocol/language-crucible
           path: language-crucible-write
-          token: ${{ secrets.AUTOMATION_PAT }}
+          token: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
           persist-credentials: true
 
       - name: Stage the archived baseline
@@ -109,7 +122,7 @@ jobs:
       - name: Open PR with the archived baseline
         uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
         with:
-          token: ${{ secrets.AUTOMATION_PAT }}
+          token: ${{ steps.app-token.outputs.token || secrets.AUTOMATION_PAT }}
           path: language-crucible-write
           repository: squid-protocol/language-crucible
           commit-message: "chore: archive ${{ env.RELEASE_TAG }} crucible baseline"

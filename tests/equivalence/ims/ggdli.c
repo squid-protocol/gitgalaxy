@@ -8,7 +8,7 @@
  *
  *   CALL 'GGDLINIT' USING pcb-1 ... pcb-n      the harness's driver, before it enters the program: binds each DB PCB of
  *                                              the PSB (psb.cfg, in order) to the area passed, and fills its mask
- *   CALL 'CBLTDLI'  USING function pcb io-area [ssa-1 ... ssa-15]
+ *   CALL 'CBLTDLI'  USING function pcb io-area [ssa-1 ... ssa-15]   (CEETDLI, #5233: the same list)
  *   CALL 'GGDLIEND'                            the driver, after the program returns: writes each database
  *   CALL 'GGDLIBMP' USING io-pcb pcb-1 ... pcb-n   the driver of a BMP (#5857): IMS passes the I/O PCB first (PSB
  *                                              CMPAT=YES); the DB PCBs are bound as GGDLINIT does, the PSB scheduled
@@ -28,8 +28,9 @@
  * Modelled (IMS Messages and Codes, "DL/I status codes"): GU GHU GN GHN GNP GHNP ISRT REPL DLET through a DB PCB, with
  * unqualified SSAs and SSAs qualified by one field (EQ GT LT GE LE NE and their symbolic forms) on a C / X field (a
  * byte comparison) or a P field whose operands both carry the same positive sign (where IMS's packed and logical
- * comparisons agree); status blank, GA, GK, GE, GB, GP, II, DJ, DA, AC, AJ, AK, AD, AM. Anything else -- command codes,
- * boolean qualification, another function, a call whose answer depends on what this model leaves open (register I5)
+ * comparisons agree); status blank, GA, GK, GE, GB, GP, II, DJ, DA, AC, AJ, AK, AD, AM. A DB PCB with PROCOPT L / LS (#5233, load_isrt) takes only ISRT, in hierarchic and key order: LB, LC, LD, LE. Command codes F, L, -, C, D and P (on a GU) are
+ * modelled (#5233, check_codes). Anything else -- the other command codes, the # operator, another function, a call
+ * whose answer depends on what this model leaves open (register I5)
  * -- writes "CBLTDLI: ... is not modelled" to stderr and ends the run (exit 98): no proof rests on a guess.
  * Each call returns 0 (RETURN-CODE 0, register I1).
  * A case's fault run may plan a DL/I status on a call (GGDLI_FAULTS, see planned_dli, #5857).
@@ -70,6 +71,11 @@ typedef struct {
     int par;          /* parentage: PAR_AT on `parent` */
     Node *parentage;
     Node *hold;       /* the segment a get-hold call returned, until the next call on this PCB */
+    Node *holdpath[MAXSSA]; /* #5233: the segments a D-coded get-hold returned, in I/O area order (nhp 0: only the held one) */
+    int holdskip[MAXSSA];   /* command code N, per holdpath entry */
+    int nhp;
+    int load;         /* #5233: PROCOPT L / LS on a DB PCB (load mode): ISRT only, in hierarchic and key order */
+    Node *loadlast;   /* the segment the last successful load ISRT inserted */
     int gsam;         /* #5233: a GSAM PCB (load mode): db is -1, `out` collects the records ISRT appended */
     int reclen;
     char dbname[9];
@@ -251,6 +257,7 @@ static void read_psb(void) {
         for (int d = 0; d < ndb; d++)
             if (!strcmp(dbs[d].name, a)) p->db = d;
         p->keylen = k;
+        p->load = !strcmp(p->procopt, "L") || !strcmp(p->procopt, "LS");
         for (int s = 0; s < nseg; s++)
             if (segs[s].db == p->db) p->sensegs++;
         npcb++;
@@ -387,13 +394,65 @@ static Node *ancestor_of_type(Node *n, int seg) {
 }
 
 /* ---- SSAs ------------------------------------------------------------------------------------------------------ */
+#define MAX_TERMS 16
 typedef struct {
-    int seg, fld, op; /* fld -1: unqualified; op 0 EQ 1 GT 2 LT 3 GE 4 LE 5 NE */
+    int fld, op; /* op 0 EQ 1 GT 2 LT 3 GE 4 LE 5 NE */
     const unsigned char *value;
+    int or_; /* #5233: joined to the statement before by OR (else AND); unused on the first */
+} Term;
+typedef struct {
+    int first, last, par, path, enq, up, vee, norepl; /* command codes F, L, P, D, Q, U, V and N (#5233) */
+    Node *anchor; /* U / V: the node at this level on the current position (set per call by get) */
+    const unsigned char *cat; /* command code C (#5233): the concatenated key in the parentheses, else NULL */
+    int seg, fld, op; /* fld -1: unqualified; the first statement (terms[0]) is mirrored here */
+    const unsigned char *value;
+    int nterms;
+    Term terms[MAX_TERMS];
 } Ssa;
 
 static const char *OPS[][3] = {{"EQ", " =", "= "}, {"GT", " >", "> "}, {"LT", " <", "< "},
                                {"GE", ">=", "=>"}, {"LE", "<=", "=<"}, {"NE", "\xac=", "=\xac"}};
+
+/* The bytes of a concatenated key down to a segment type (#5233, command code C). */
+static int cat_length(int seg) {
+    int len = 0;
+    for (int t = seg; t >= 0; t = segs[t].parent) {
+        if (segs[t].key < 0) refuse("the command code C on a segment with no sequence field");
+        len += flds[segs[t].key].bytes;
+    }
+    return len;
+}
+
+/* Command code C (#5233): the concatenated key becomes one SSA per level, qualified EQ on that level's key. */
+static int expand_cat(Ssa *s, int k) {
+    if (k != 1 || !s[0].cat) return k;
+    int path[MAXSSA], depth = 0;
+    for (int t = s[0].seg; t >= 0; t = segs[t].parent) {
+        if (depth == MAXSSA) refuse("more than 15 SSAs");
+        path[depth++] = t;
+    }
+    Ssa src = s[0];
+    const unsigned char *at = src.cat;
+    for (int i = 0; i < depth; i++) {
+        Ssa *x = &s[i];
+        int t = path[depth - 1 - i];
+        x->first = x->last = x->par = x->path = x->enq = x->up = x->vee = x->norepl = 0; /* every flag: s[1..] is stale stack from the call before */
+        x->cat = NULL;
+        x->seg = t;
+        x->fld = segs[t].key;
+        x->op = 0;
+        x->value = at;
+        x->nterms = 1;
+        x->terms[0].fld = x->fld;
+        x->terms[0].op = 0;
+        x->terms[0].value = at;
+        x->terms[0].or_ = 0;
+        at += flds[x->fld].bytes;
+    }
+    s[depth - 1].par = src.par;
+    s[depth - 1].first = src.first;
+    return depth;
+}
 
 /* The SSAs of a call: 0, or the status code that rejects them. */
 static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
@@ -402,27 +461,128 @@ static const char *parse_ssas(int db, unsigned char **raw, int n, Ssa *out) {
         name8(nm, raw[i]);
         out[i].seg = find_seg(db, nm);
         out[i].fld = -1;
+        out[i].first = out[i].last = out[i].par = out[i].path = out[i].enq = out[i].up = out[i].vee = out[i].norepl = 0;
+        out[i].cat = NULL;
         if (out[i].seg < 0) return "AC";
         unsigned char q = raw[i][8];
         if (q == ' ') continue;
-        if (q == '*') refuse("an SSA with command codes");
-        if (q != '(') return "AJ";
-        name8(nm, raw[i] + 9);
-        out[i].fld = find_fld(out[i].seg, nm);
-        if (out[i].fld < 0) return "AK";
-        out[i].op = -1;
-        for (int o = 0; o < 6; o++)
-            for (int v = 0; v < 3; v++)
-                if (!memcmp(raw[i] + 17, OPS[o][v], 2)) out[i].op = o;
-        if (out[i].op < 0) return "AJ";
-        out[i].value = raw[i] + 19;
-        unsigned char end = raw[i][19 + flds[out[i].fld].bytes];
-        if (end == '&' || end == '*' || end == '+' || end == '|' || end == '#') refuse("a boolean SSA qualification");
-        if (end != ')') return "AJ";
-        char t = flds[out[i].fld].type;
-        if (t != 'C' && t != 'X' && t != 'P') refuse("a qualification on a field of a type other than C, X or P");
+        const unsigned char *at = raw[i] + 9;
+        if (q == '*') {
+            /* #5233: command codes, each one of A-Z 0-9 or '-', then '(' or a blank; F, L, P, C, D, N, Q, U, V and - are modelled */
+            while ((*at >= 'A' && *at <= 'Z') || (*at >= '0' && *at <= '9') || *at == '-') {
+                if (*at == 'F')
+                    out[i].first = 1;
+                else if (*at == 'L')
+                    out[i].last = 1;
+                else if (*at == 'P')
+                    out[i].par = 1;
+                else if (*at == 'D')
+                    out[i].path = 1;
+                else if (*at == 'N')
+                    out[i].norepl = 1;
+                else if (*at == 'Q')
+                    out[i].enq = 1; /* #5233: enqueue; no effect with one program, checked in check_codes */
+                else if (*at == 'U')
+                    out[i].up = 1;
+                else if (*at == 'V')
+                    out[i].vee = 1;
+                else if (*at == 'C')
+                    out[i].cat = at; /* the key itself is placed below */
+                else if (*at != '-') {
+                    char what[40];
+                    snprintf(what, sizeof what, "the command code %c", *at);
+                    refuse(what);
+                }
+                at++;
+            }
+            if (*at != ' ' && *at != '(') return "AJ";
+            if (*at == ' ' && out[i].cat) return "AJ";
+            if (*at == ' ') continue;
+            at++;
+            if (out[i].cat) {
+                /* #5233: command code C, SEG*C(concatenated key): the keys from the root down to this segment */
+                int len = cat_length(out[i].seg);
+                if (at[len] != ')') return "AJ";
+                out[i].cat = at;
+                continue;
+            }
+        } else if (q != '(')
+            return "AJ";
+        out[i].nterms = 0;
+        for (;;) {
+            Term *m = &out[i].terms[out[i].nterms];
+            name8(nm, at);
+            m->fld = find_fld(out[i].seg, nm);
+            if (m->fld < 0) return "AK";
+            m->op = -1;
+            for (int o = 0; o < 6; o++)
+                for (int v = 0; v < 3; v++)
+                    if (!memcmp(at + 8, OPS[o][v], 2)) m->op = o;
+            if (m->op < 0) return "AJ";
+            m->value = at + 10;
+            unsigned char end = at[10 + flds[m->fld].bytes];
+            char t = flds[m->fld].type;
+            int bool_op = end == '&' || end == '*' || end == '+' || end == '|';
+            if (t != 'C' && t != 'X' && t != 'P' && (end == ')' || bool_op))
+                refuse("a qualification on a field of a type other than C, X or P");
+            out[i].nterms++;
+            if (end == ')') break;
+            if (end == '#') refuse("a boolean SSA with the independent AND operator (#)");
+            if (!bool_op) return "AJ";
+            if (out[i].nterms == MAX_TERMS) refuse("a boolean SSA of more than 16 qualification statements");
+            out[i].terms[out[i].nterms].or_ = end == '+' || end == '|';
+            at += 11 + flds[m->fld].bytes;
+        }
+        out[i].fld = out[i].terms[0].fld;
+        out[i].op = out[i].terms[0].op;
+        out[i].value = out[i].terms[0].value;
     }
     return 0;
+}
+
+/* Command codes (#5233): Q on a get (no effect: one program, so no other program to wait for); F and L on a GU / GHU or an ISRT (a unique sequence field: no effect on ISRT, and F none on GU,
+ * which starts from the first twin); L only as the last, unqualified SSA. Anything else is refused. */
+static void check_codes(const char *fn, const Ssa *s, int k) {
+    int gu = !strncmp(fn, "GU", 2) || !strncmp(fn, "GHU", 3), is = !strncmp(fn, "ISRT", 4);
+    int ps = 0;
+    for (int i = 0; i < k; i++) {
+        if (s[i].cat && (!gu || k != 1 || s[i].last)) refuse("the command code C other than alone on a GU, without L");
+        if (s[i].path && fn[0] != 'G' && !is) { /* D on an ISRT is the path insert (#5233) */
+            char what[40];
+            snprintf(what, sizeof what, "the command code D on a %.4s", fn);
+            refuse(what);
+        }
+        if (s[i].path && s[i].cat) refuse("the command code D beside C");
+        if (s[i].norepl && (fn[0] != 'G' || fn[1] != 'H' || !s[i].path)) {
+            char what[64];
+            snprintf(what, sizeof what, "the command code N other than with D on a get-hold call (%.4s)", fn);
+            refuse(what);
+        }
+        if (s[i].enq && fn[0] != 'G') { /* #5233: Q (enqueue) is modelled on the gets, where it changes nothing */
+            char what[40];
+            snprintf(what, sizeof what, "the command code Q on a %.4s", fn);
+            refuse(what);
+        }
+        if ((s[i].up || s[i].vee) && (fn[0] != 'G' || s[i].cat)) {
+            char what[48];
+            snprintf(what, sizeof what, "the command code %c%s%.4s", s[i].up ? 'U' : 'V', s[i].cat ? " beside C" : " on a ", s[i].cat ? "" : fn);
+            refuse(what);
+        }
+        if (s[i].par && (!gu || ++ps > 1)) {
+            char what[40];
+            if (gu)
+                refuse("the command code P on more than one SSA");
+            snprintf(what, sizeof what, "the command code P on a %.4s", fn);
+            refuse(what);
+        }
+        if (s[i].first && !gu && !is) {
+            char what[40];
+            snprintf(what, sizeof what, "the command code F on a %.4s", fn);
+            refuse(what);
+        }
+        if (s[i].last && (!(gu || is) || i != k - 1 || s[i].fld >= 0))
+            refuse("the command code L other than on the last, unqualified SSA of a GU or ISRT");
+    }
 }
 
 static int packed_sign(const unsigned char *p, int n) {
@@ -433,17 +593,16 @@ static int packed_sign(const unsigned char *p, int n) {
     return p[n - 1] & 15;
 }
 
-static int qualifies(const Node *n, const Ssa *s) {
-    if (s->fld < 0) return 1;
-    const Fld *f = &flds[s->fld];
+static int term_holds(const Node *n, const Term *m) {
+    const Fld *f = &flds[m->fld];
     const unsigned char *a = n->data + f->start - 1;
     if (f->type == 'P') {
-        int sa = packed_sign(a, f->bytes), sb = packed_sign(s->value, f->bytes);
+        int sa = packed_sign(a, f->bytes), sb = packed_sign(m->value, f->bytes);
         if (sa < 0 || sb < 0 || sa != sb || (sa != 0xC && sa != 0xF))
             refuse("a P-field qualification on operands that are not both valid with one positive sign");
     }
-    int c = memcmp(a, s->value, f->bytes);
-    switch (s->op) {
+    int c = memcmp(a, m->value, f->bytes);
+    switch (m->op) {
     case 0: return c == 0;
     case 1: return c > 0;
     case 2: return c < 0;
@@ -453,6 +612,21 @@ static int qualifies(const Node *n, const Ssa *s) {
     }
 }
 
+/* IBM: statements joined by AND form a set, and the SSA holds when any set does. Every statement is evaluated (no
+   short circuit) so a refusal does not depend on the data. */
+static int qualifies(const Node *n, const Ssa *s) {
+    if (s->fld < 0) return 1;
+    int any = 0, set = term_holds(n, &s->terms[0]);
+    for (int k = 1; k < s->nterms; k++) {
+        if (s->terms[k].or_) {
+            any |= set;
+            set = 1;
+        }
+        set &= term_holds(n, &s->terms[k]);
+    }
+    return any | set;
+}
+
 /* n (of the last SSA's type) satisfies every SSA: each one's segment type is n or an ancestor of n */
 static int satisfies(Node *n, const Ssa *s, int k) {
     if (k == 0) return 1;
@@ -460,6 +634,7 @@ static int satisfies(Node *n, const Ssa *s, int k) {
     for (int i = 0; i < k; i++) {
         Node *a = ancestor_of_type(n, s[i].seg);
         if (!a || !qualifies(a, &s[i])) return 0;
+        if (s[i].anchor && a != s[i].anchor) return 0; /* #5233: U / V */
     }
     return 1;
 }
@@ -571,6 +746,19 @@ static void get(Pcb *p, const char *fn, unsigned char *io, Ssa *s, int k, int ho
     }
     Node *n = NULL, *from = NULL, *bound = NULL;
     int gu = fn[1] == 'U' || fn[2] == 'U', gnp = !gu && strstr(fn, "NP") != NULL;
+    /* #5233: command codes U and V take the current position as qualification: U at its own level, V at its level and
+     * every level above; the node there is the position's ancestor-or-self of that type */
+    int vee = -1;
+    for (int i = 0; i < k; i++)
+        if (s[i].vee) vee = i;
+    for (int i = 0; i < k; i++) {
+        s[i].anchor = NULL;
+        if (s[i].up || i <= vee) {
+            if (p->pos != POS_AT) refuse(i <= vee ? "the command code V with no established position" : "the command code U with no established position");
+            s[i].anchor = ancestor_of_type(p->at, s[i].seg);
+            if (!s[i].anchor) refuse(i <= vee ? "the command code V at a level the current position is not on" : "the command code U at a level the current position is not on");
+        }
+    }
     if (gu) {
         if (k && segs[s[0].seg].parent >= 0) refuse("a GU whose SSAs leave out the root level");
         from = db_first(p->db);
@@ -598,6 +786,12 @@ static void get(Pcb *p, const char *fn, unsigned char *io, Ssa *s, int k, int ho
             n = c;
             break;
         }
+    }
+    if (n && gu && k && s[k - 1].last) { /* #5233: the last twin of the type under the parent the path found */
+        Node *l = n;
+        for (Node *c = n->next; c; c = c->next)
+            if (c->seg == n->seg) l = c;
+        n = l;
     }
     if (!n) {
         int qualified = 0;
@@ -643,7 +837,18 @@ static void get(Pcb *p, const char *fn, unsigned char *io, Ssa *s, int k, int ho
         else if (segs[n->seg].level == segs[p->at->seg].level && n->seg != p->at->seg)
             st = "GK";
     }
-    memcpy(io, n->data, segs[n->seg].bytes);
+    /* #5233: command code D, a path call: each D-coded SSA's segment (the found one's ancestor of that type), in
+     * hierarchic order, then the found segment itself; D on the last SSA adds nothing */
+    unsigned char *at = io;
+    int np = 0;
+    for (int i = 0; i < k - 1; i++)
+        if (s[i].path) {
+            Node *a = ancestor_of_type(n, s[i].seg);
+            np++;
+            memcpy(at, a->data, segs[a->seg].bytes);
+            at += segs[a->seg].bytes;
+        }
+    memcpy(at, n->data, segs[n->seg].bytes);
     status(p, st);
     feedback(p, n);
     p->pos = POS_AT;
@@ -652,14 +857,130 @@ static void get(Pcb *p, const char *fn, unsigned char *io, Ssa *s, int k, int ho
     if (!gnp) {
         p->par = PAR_AT;
         p->parentage = n;
+        for (int i = 0; i < k; i++) /* #5233: command code P sets parentage at the level of its SSA (a GU only) */
+            if (s[i].par) p->parentage = ancestor_of_type(n, s[i].seg);
     }
-    if (hold) p->hold = n;
+    if (hold) {
+        p->hold = n;
+        if (np > 0 || s[k - 1].norepl) { /* #5233: a path get-hold: REPL replaces each segment returned, but those coded N */
+            int j = 0;
+            for (int i = 0; i < k - 1; i++)
+                if (s[i].path) {
+                    p->holdpath[j] = ancestor_of_type(n, s[i].seg);
+                    p->holdskip[j++] = s[i].norepl;
+                }
+            p->holdpath[j] = n;
+            p->holdskip[j++] = s[k - 1].norepl;
+            p->nhp = j;
+        }
+    }
+}
+
+/* Path ISRT (#5233, command code D on an SSA before the last): twin of DetDli.pathIsrt. The I/O area holds each D-coded segment and
+ * then the last, in hierarchic order; a level is found by the sequence field in its slice (D-coded) or by its SSA, and a missing
+ * D-coded one is inserted from its slice. A D-coded segment that exists is kept as is (a GU with a concatenated key resets every flag of the SSAs it expands: stale stack made it a path call). The area's size is the program's job here. */
+static void path_isrt(Pcb *p, unsigned char *io, Ssa *s, int k) {
+    if (segs[s[0].seg].parent >= 0) refuse("an ISRT whose SSAs leave out the root level");
+    unsigned char *at = io;
+    Node *parent = &dbs[p->db].root;
+    for (int i = 0; i < k; i++) {
+        int t = s[i].seg, coded = i == k - 1 || s[i].path;
+        const Fld *key = &flds[segs[t].key];
+        Node *found = NULL;
+        for (Node *c = parent->first; c; c = c->next)
+            if (c->seg == t && (coded ? key_cmp(c, at + key->start - 1) == 0 : satisfies(c, s, i + 1))) {
+                found = c;
+                break;
+            }
+        if (i == k - 1) {
+            if (found) {
+                status(p, "II");
+                feedback(p, parent->parent ? parent : NULL);
+                p->pos = POS_UNKNOWN;
+                p->par = PAR_UNKNOWN;
+                return;
+            }
+            Node *n = calloc(1, sizeof *n);
+            n->seg = t;
+            n->data = malloc(segs[t].bytes);
+            memcpy(n->data, at, segs[t].bytes);
+            link_child(parent, n);
+            status(p, "  ");
+            feedback(p, n);
+            p->pos = POS_AT;
+            p->at = n;
+            p->prevknown = 0;
+            p->par = PAR_UNKNOWN;
+            return;
+        }
+        if (!found && !coded) {
+            status(p, "GE");
+            feedback(p, parent->parent ? parent : NULL);
+            p->pos = POS_UNKNOWN;
+            p->par = PAR_UNKNOWN;
+            return;
+        }
+        if (!found) {
+            Node *n = calloc(1, sizeof *n);
+            n->seg = t;
+            n->data = malloc(segs[t].bytes);
+            memcpy(n->data, at, segs[t].bytes);
+            n->parent = parent; /* so the SSA's qualification can be read before the segment is linked */
+            if (!satisfies(n, s, i + 1)) refuse("a path ISRT whose segment does not satisfy its own SSA");
+            link_child(parent, n);
+            found = n;
+        } else if (!satisfies(found, s, i + 1)) {
+            refuse("a path ISRT whose existing segment does not satisfy its own SSA");
+        }
+        if (coded) at += segs[t].bytes;
+        parent = found;
+    }
 }
 
 /* ISRT: the last SSA names the type inserted (unqualified); the SSAs before it locate the parent, from the root, or
  * there are none and current position does */
+static void load_isrt(Pcb *p, unsigned char *io, Ssa *s, int k) {
+    if (k > 1) refuse("a load-mode ISRT with SSAs before the last");
+    int t = s[0].seg;
+    Node *root = &dbs[p->db].root;
+    if (!p->loadlast && root->first) refuse("load mode into a database that already holds segments");
+    Node *parent = segs[t].parent < 0 ? root : ancestor_of_type(p->loadlast, segs[t].parent);
+    if (!parent) {
+        status(p, "LD");
+        return;
+    }
+    const Fld *key = &flds[segs[t].key];
+    Node *last = parent->first;
+    while (last && last->next) last = last->next;
+    if (last) {
+        const char *bad = NULL;
+        if (last->seg > t)
+            bad = "LE";
+        else if (last->seg == t) {
+            int c = key_cmp(last, io + key->start - 1);
+            bad = c == 0 ? "LB" : c > 0 ? "LC" : NULL;
+        }
+        if (bad) {
+            status(p, bad);
+            return;
+        }
+    }
+    Node *n = calloc(1, sizeof *n);
+    n->seg = t;
+    n->data = malloc(segs[t].bytes);
+    memcpy(n->data, io, segs[t].bytes);
+    link_child(parent, n);
+    p->loadlast = n;
+    status(p, "  ");
+    feedback(p, n);
+    p->pos = POS_AT;
+    p->at = n;
+    p->prevknown = 0;
+    p->par = PAR_UNKNOWN;
+}
+
 static void isrt(Pcb *p, unsigned char *io, Ssa *s, int k) {
-    if (!allows(p, 'I')) {
+    if (!p->load && !allows(p, 'I')) {
         status(p, "AM");
         return;
     }
@@ -670,6 +991,15 @@ static void isrt(Pcb *p, unsigned char *io, Ssa *s, int k) {
         status(p, bad);
         return;
     }
+    if (p->load) {
+        load_isrt(p, io, s, k);
+        return;
+    }
+    for (int i = 0; i < k - 1; i++)
+        if (s[i].path) {
+            path_isrt(p, io, s, k);
+            return;
+        }
     int t = s[k - 1].seg;
     Node *parent;
     if (segs[t].parent < 0) {
@@ -725,7 +1055,7 @@ static void isrt(Pcb *p, unsigned char *io, Ssa *s, int k) {
 }
 
 /* REPL / DLET: on the segment the previous call on this PCB held */
-static void change(Pcb *p, int dlet, unsigned char *io, Node *held, int k) {
+static void change(Pcb *p, int dlet, unsigned char *io, Node *held, int k, Node **path, const int *skip, int npath) {
     if (!allows(p, dlet ? 'D' : 'R')) {
         status(p, "AM");
         return;
@@ -733,6 +1063,25 @@ static void change(Pcb *p, int dlet, unsigned char *io, Node *held, int k) {
     if (k) refuse(dlet ? "a DLET with SSAs" : "a REPL with SSAs");
     if (!held) {
         status(p, "DJ");
+        return;
+    }
+    if (npath) { /* #5233: REPL after a D-coded get-hold: each segment from its slice of the area, except those coded N */
+        if (dlet) refuse("a DLET after a path call (command code D)");
+        unsigned char *at = io;
+        for (int i = 0; i < npath; i++) {
+            const Fld *pk = &flds[segs[path[i]->seg].key];
+            if (!skip[i] && key_cmp(path[i], at + pk->start - 1) != 0) {
+                status(p, "DA");
+                return;
+            }
+            at += segs[path[i]->seg].bytes;
+        }
+        status(p, "  ");
+        at = io;
+        for (int i = 0; i < npath; i++) {
+            if (!skip[i]) memcpy(path[i]->data, at, segs[path[i]->seg].bytes);
+            at += segs[path[i]->seg].bytes;
+        }
         return;
     }
     const Fld *key = &flds[segs[held->seg].key];
@@ -787,6 +1136,11 @@ static int do_call(P *args, int n) {
     fn[4] = 0;
     Node *held = p->hold;
     p->hold = NULL;
+    Node *hpath[MAXSSA];
+    int hskip[MAXSSA], nhpath = p->nhp;
+    memcpy(hpath, p->holdpath, sizeof hpath);
+    memcpy(hskip, p->holdskip, sizeof hskip);
+    p->nhp = 0;
     static const char *KNOWN[] = {"GU  ", "GHU ", "GN  ", "GHN ", "GNP ", "GHNP", "ISRT", "REPL", "DLET", NULL};
     static const char *OTHER[] = {"CHKP", "XRST", "ROLB", "ROLL", "ROLS", "SETS", "SETU", "SYNC", "LOG ", "STAT", "GSCD",
                                   "FLD ", "POS ", "INIT", "INQY", "SNAP", "PCB ", "TERM", "GMSG", "ICMD", "RCMD", "CMD ",
@@ -817,16 +1171,25 @@ static int do_call(P *args, int n) {
         status(p, bad);
         return 0;
     }
+    check_codes(fn, s, k);
+    k = expand_cat(s, k);
     if (fn[0] == 'G')
         get(p, fn, args[2], s, k, fn[1] == 'H');
     else if (!strcmp(fn, "ISRT"))
         isrt(p, args[2], s, k);
     else
-        change(p, fn[0] == 'D', args[2], held, k);
+        change(p, fn[0] == 'D', args[2], held, k, hpath, hskip, nhpath);
     return 0;
 }
 
 int CBLTDLI(P a0, P a1, P a2, P a3, P a4, P a5, P a6, P a7, P a8, P a9, P a10, P a11, P a12, P a13, P a14, P a15,
+            P a16, P a17) {
+    P args[18] = {a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17};
+    return do_call(args, cob_get_num_params());
+}
+
+/* #5233: CALL 'CEETDLI' (Language Environment's interface) takes the same USING list as CBLTDLI. */
+int CEETDLI(P a0, P a1, P a2, P a3, P a4, P a5, P a6, P a7, P a8, P a9, P a10, P a11, P a12, P a13, P a14, P a15,
             P a16, P a17) {
     P args[18] = {a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17};
     return do_call(args, cob_get_num_params());

@@ -45,7 +45,7 @@ at all.
 
 The engine parsed the mixed-language architecture, analyzing **236,754 lines of code** in
 **5.59 seconds** (42,357 LOC/s on this specific run — see
-[`core/README.md`](core/README.md) for the 104-repo benchmark average).
+[`core/README.md`](core/README.md) for the 104-repo benchmark average). *Single run, measured 2026-04-22; not a current or average figure.*
 
 During import resolution, the dependency scanner flagged a structural naming collision
 (`fstream` vs `sstream`) as a typosquatting lookalike — a concrete example of the local

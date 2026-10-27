@@ -60,6 +60,9 @@ IMPORT_BASELINE = REPO_ROOT / "tests" / "import_graph_accuracy_baseline.json"
 CALL_BASELINE = REPO_ROOT / "tests" / "call_graph_accuracy_baseline.json"
 # A panel measured on fewer items than this is drawn faded: too few to quote.
 SMALL_N = 100
+# A hub mean over fewer repos than this is drawn faded: one repo's top-10 is an anecdote.
+SMALL_HUB_REPOS = 2
+HUB_TITLE, HUB_SUB = "Hub agreement", "top-10 PageRank files, vs parser truth"
 
 PANELS = ("imports", "calls", "resolution")
 PANEL_TITLE = {"imports": "Imports", "calls": "Callee names", "resolution": "Call resolution"}
@@ -105,6 +108,20 @@ class Cell:
     @property
     def small(self) -> bool:
         return self.n < SMALL_N
+
+
+@dataclass
+class HubCell:
+    """Hub agreement (#3797): the top-10 PageRank files on the engine's import graph against the
+    same top-10 on the parser-truth graph, averaged over the language's repos."""
+
+    overlap: float  # overlap@10, 0..1
+    spearman: float | None  # rank correlation over the union; None when no repo had one
+    repos: int  # repos the means are over
+
+    @property
+    def small(self) -> bool:
+        return self.repos < SMALL_HUB_REPOS
 
 
 # Registry entries that are data or prose, with no dependency or call graph to measure.
@@ -220,6 +237,17 @@ def resolution_cells(tests_dir: Path = REPO_ROOT / "tests") -> dict[str, Cell]:
     return out
 
 
+def hub_cells(baseline: Path = IMPORT_BASELINE) -> dict[str, HubCell]:
+    """The hub_* keys import_graph_accuracy.py writes; a language with no hub_overlap_at_10 has no
+    hub measurement, and hub_spearman is absent when no repo produced one."""
+    out = {}
+    for lang, r in json.loads(baseline.read_text()).items():
+        if r.get("hub_overlap_at_10") is None:
+            continue
+        out[lang] = HubCell(float(r["hub_overlap_at_10"]), r.get("hub_spearman"), int(r.get("hub_repos") or 0))
+    return out
+
+
 def load(ledger_path: Path = gl.LEDGER) -> dict[str, dict[str, Cell]]:
     """{panel: {language: Cell}} from the committed baselines and ledger."""
     return {
@@ -236,14 +264,25 @@ def _pct(x: float | None) -> str:
     return "-" if x is None else f"{x:.1f}%"
 
 
+def _hub_text(h: HubCell | None) -> str:
+    if h is None:
+        return "not measured"
+    rho = "-" if h.spearman is None else f"{h.spearman:.2f}"
+    return f"{h.overlap * 100:.0f}% / {rho} (repos={h.repos}{', small n' if h.small else ''})"
+
+
 def _star(c: Cell, side: str) -> str:
     return "*" if (c.open_precision if side == "P" else c.open_recall) else ""
 
 
-def render_markdown(data: dict[str, dict[str, Cell]], languages: list[str]) -> str:
-    measured = [lang for lang in languages if any(lang in data[p] for p in PANELS)]
-    head = "| language | " + " | ".join(PANEL_TITLE[p] + " P / R (n)" for p in PANELS) + " |"
-    lines = [head, "|---" * (len(PANELS) + 1) + "|"]
+def render_markdown(
+    data: dict[str, dict[str, Cell]], languages: list[str], hubs: dict[str, HubCell] | None = None
+) -> str:
+    hubs = hubs or {}
+    measured = [lang for lang in languages if lang in hubs or any(lang in data[p] for p in PANELS)]
+    head = "| language | " + " | ".join(PANEL_TITLE[p] + " P / R (n)" for p in PANELS)
+    head += " | Hub overlap@10 / Spearman (repos) |" if hubs else " |"
+    lines = [head, "|---" * (len(PANELS) + 1 + bool(hubs)) + "|"]
     for lang in measured:
         row = [lang]
         for p in PANELS:
@@ -256,12 +295,14 @@ def render_markdown(data: dict[str, dict[str, Cell]], languages: list[str]) -> s
                 f"{_pct(c.precision)}{_star(c, 'P')} / {_pct(c.recall)}{_star(c, 'R')} "
                 f"(n={c.n:,} {c.unit}; {c.detail}{small})"
             )
+        if hubs:
+            row.append(_hub_text(hubs.get(lang)))
         lines.append("| " + " | ".join(row) + " |")
     rest = [lang for lang in languages if lang not in measured]
     lines.append(f"\nNot measured in any panel ({len(rest)} of {len(languages)}): {', '.join(rest)}.")
     lines.append(
         f"\n`*` = a disagreement shape behind this number has no verdict yet, so it is not a claim. "
-        f"small n = fewer than {SMALL_N} items."
+        f"small n = fewer than {SMALL_N} items ({SMALL_HUB_REPOS} repos for hubs)."
     )
     return "\n".join(lines)
 
@@ -290,14 +331,18 @@ _STYLE = """<style>
 </style>"""
 
 
-def render_svg(data: dict[str, dict[str, Cell]], languages: list[str], stamp: str = "") -> str:
-    measured = [lang for lang in languages if any(lang in data[p] for p in PANELS)]
+def render_svg(
+    data: dict[str, dict[str, Cell]], languages: list[str], stamp: str = "", hubs: dict[str, HubCell] | None = None
+) -> str:
+    hubs = hubs or {}
+    measured = [lang for lang in languages if lang in hubs or any(lang in data[p] for p in PANELS)]
     rest = [lang for lang in languages if lang not in measured]
     left, right, top = 16, 16, 106
     label_w, panel_w, row_h = 104, 306, 34
     track_x, track_w = 46, 110  # inside a panel: "Precision"/"Recall", then the 0-100% track
     n_x = track_x + track_w + 48  # then the value, then n and where it was measured
-    width = left + label_w + panel_w * len(PANELS) + right
+    hub_w = 190 if hubs else 0  # the hub panel: two bars and the repo count
+    width = left + label_w + panel_w * len(PANELS) + hub_w + right
 
     # the unmeasured list, wrapped to the chart width
     words, wrapped, line = list(rest), [], ""
@@ -321,7 +366,9 @@ def render_svg(data: dict[str, dict[str, Cell]], languages: list[str], stamp: st
         f'<rect class="surface" x="0" y="0" width="{width}" height="{height}"/>',
         f'<text class="title" x="{left}" y="24">Graph accuracy coverage: imports and calls, per language</text>',
         f'<text class="subtitle" x="{left}" y="42">Measured: imports {counts["imports"]}, callee names '
-        f"{counts['calls']}, call resolution {counts['resolution']} of {len(languages)} languages. "
+        f"{counts['calls']}, call resolution {counts['resolution']}"
+        + (f", hubs {len(hubs)}" if hubs else "")
+        + f" of {len(languages)} languages. "
         "Bars are GitGalaxy's score.</text>",
     ]
     lx = left
@@ -337,6 +384,10 @@ def render_svg(data: dict[str, dict[str, Cell]], languages: list[str], stamp: st
         x = left + label_w + i * panel_w
         p.append(f'<text class="panel-title" x="{x}" y="84">{PANEL_TITLE[panel]}</text>')
         p.append(f'<text class="panel-sub" x="{x}" y="97">{escape(PANEL_SUB[panel])}</text>')
+    hx = left + label_w + panel_w * len(PANELS)
+    if hubs:
+        p.append(f'<text class="panel-title" x="{hx}" y="84">{HUB_TITLE}</text>')
+        p.append(f'<text class="panel-sub" x="{hx}" y="97">{escape(HUB_SUB)}</text>')
 
     for r, lang in enumerate(measured):
         y = top + r * row_h
@@ -381,6 +432,32 @@ def render_svg(data: dict[str, dict[str, Cell]], languages: list[str], stamp: st
             if c.detail:
                 p.append(f'<text class="n" x="{x + n_x}" y="{y + 27}">{escape(c.detail)}</text>')
             p.append("</g>")
+        if hubs:
+            h = hubs.get(lang)
+            if not h:
+                p.append(f'<text class="none" x="{hx}" y="{y + row_h / 2 + 3}">not measured</text>')
+                continue
+            fade = f' opacity="{_SMALL_OPACITY}"' if h.small else ""
+            tip = f"{lang} hubs: {_hub_text(h)} (overlap@10 / Spearman)"
+            p.append(f"<g><title>{escape(tip)}</title>")
+            rho = h.spearman
+            for j, (label, side, frac, text) in enumerate(
+                (
+                    ("overlap@10", "P", h.overlap, f"{h.overlap * 100:.0f}%"),
+                    ("Spearman", "R", None if rho is None else max(rho, 0.0), "-" if rho is None else f"{rho:.2f}"),
+                )
+            ):
+                by = y + 7 + j * 12
+                p.append(f'<text class="pr" x="{hx}" y="{by + 7.5}">{label}</text>')
+                p.append(f'<rect class="track" x="{hx + 52}" y="{by}" width="{track_w}" height="8" rx="2"/>')
+                if frac is not None:
+                    w = max(track_w * frac, 2.0)
+                    p.append(
+                        f'<rect x="{hx + 52}" y="{by}" width="{w:.1f}" height="8" rx="2" fill="{_COLOR[side]}"{fade}/>'
+                    )
+                p.append(f'<text class="val" x="{hx + 52 + track_w + 5}" y="{by + 8}">{text}</text>')
+            p.append(f'<text class="n" x="{hx + 52 + track_w + 40}" y="{y + 15}">repos={h.repos}</text>')
+            p.append("</g>")
 
     y = top + body_h + 24
     p.append(
@@ -392,7 +469,8 @@ def render_svg(data: dict[str, dict[str, Cell]], languages: list[str], stamp: st
     p.append(
         f'<text class="note" x="{left}" y="{y}">* a disagreement shape behind the number has no verdict yet '
         "(docs/self_scan/graph_comparison_ledger.json): not a claim. n counts what recall is out of "
-        "(import statements, calls, reference edges).</text>"
+        "(import statements, calls, reference edges). Hubs: overlap of the top-10 PageRank files, "
+        "and Spearman over their union (bar clamped at 0).</text>"
     )
     p.append(
         f'<text class="note" x="{left}" y="{y + 15}">Call resolution is scored against the reference tool, '
@@ -488,8 +566,9 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
 
     data, languages = load(), all_languages()
-    svg = render_svg(data, languages)
-    table = render_markdown(data, languages)
+    hubs = hub_cells()
+    svg = render_svg(data, languages, hubs=hubs)
+    table = render_markdown(data, languages, hubs)
     if a.summary:
         with open(a.summary, "a", encoding="utf-8") as fh:
             fh.write("## Graph accuracy coverage\n\n" + table + "\n")

@@ -1768,7 +1768,7 @@
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": 4,
       "hlasm/che4z_hlasm/AAAAA.hlasm": 0,
-      "hlasm/che4z_hlasm/B.hlasm": 6,
+      "hlasm/che4z_hlasm/B.hlasm": 5,
       "hlasm/che4z_hlasm/BBBBB.hlasm": 0,
       "hlasm/che4z_hlasm/CCCCC.hlasm": 0,
       "hlasm/che4z_hlasm/NOTICE.md": 0,
@@ -2042,7 +2042,7 @@
       "jcl/cics-banking-sample-application-cbsa/CRETS03.jcl": 0,
       "jcl/cics-banking-sample-application-cbsa/DB2BIND.jcl": 0,
       "jcl/cics-banking-sample-application-cbsa/DBCRFUN.jcl": 1,
-      "jcl/cics-banking-sample-application-cbsa/DEFAULT.jcl": 66,
+      "jcl/cics-banking-sample-application-cbsa/DEFAULT.jcl": 65,
       "jcl/cics-banking-sample-application-cbsa/DELACC.jcl": 2,
       "jcl/cics-banking-sample-application-cbsa/DELCUS.jcl": 3,
       "jcl/cics-banking-sample-application-cbsa/DROPDB2.jcl": 0,
@@ -2319,7 +2319,7 @@
       "lua/cosmopolitan/cstack.lua": 2,
       "lua/cosmopolitan/db.lua": 2,
       "lua/cosmopolitan/errors.lua": 16,
-      "lua/cosmopolitan/events.lua": 5,
+      "lua/cosmopolitan/events.lua": 4,
       "lua/cosmopolitan/fetch.lua": 0,
       "lua/cosmopolitan/files.lua": 2,
       "lua/cosmopolitan/finger.lua": 0,
@@ -2493,7 +2493,7 @@
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": 0,
-      "nix/ghostty/default.nix": 1,
+      "nix/ghostty/default.nix": 0,
       "nix/ghostty/flake.nix": 0,
       "nix/ghostty/shell.nix": 0
     },
@@ -2598,7 +2598,7 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
       "php/wordpress/class-wp-query.php": 0,
-      "php/wordpress/formatting.php": 1,
+      "php/wordpress/formatting.php": 0,
       "php/wordpress/functions.php": 0,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 0,
@@ -3266,7 +3266,7 @@
       "rust/tokio/interval.rs": 0,
       "rust/tokio/lib.rs": 2,
       "rust/tokio/maybe_done.rs": 0,
-      "rust/tokio/tests.rs": 1,
+      "rust/tokio/tests.rs": 0,
       "rust/tokio/tokio_mpsc_bounded.rs": 0,
       "rust/tokio/tokio_named_pipe.rs": 0,
       "rust/tokio/tokio_udp.rs": 0
@@ -3299,7 +3299,7 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 0,
       "scheme/racket/cpnanopass.ss": 0,
-      "scheme/racket/eval.c": 1,
+      "scheme/racket/eval.c": 0,
       "scheme/racket/fun.c": 0,
       "scheme/racket/io.ss": 48,
       "scheme/racket/schemify.rkt": 0,

@@ -51,12 +51,19 @@ MIN_RATE = 0.8
 ISSUE_TITLE = "Flaky CI job: {name}"
 
 
-def cause(job: dict[str, Any]) -> str | None:
-    """Why this failed attempt failed, by ci_rerun_stats' classifier (None where it is not available)."""
-    return ci_rerun_stats.classify([job]) if ci_rerun_stats else None
+def cause(job: dict[str, Any], log: Any = None, attempt_jobs: list[dict[str, Any]] | None = None) -> str | None:
+    """Why this failed attempt failed, by ci_rerun_stats' classifier (None where it is not available).
+
+    `log(job)` reads a job's log; it is called only for a failed Db2 step, to tell a registry pull failure from a Db2
+    start failure (without it every failed Db2 step reads as db2_start).
+    A gate job (`ground-truth`: "Every part passed") is classified with the jobs of its attempt it gates (#5605)."""
+    if not ci_rerun_stats:
+        return None
+    logs = {job.get("name", ""): log(job)} if log and ci_rerun_stats.has_failed_db2_step(job) else None
+    return ci_rerun_stats.classify(ci_rerun_stats.scope_jobs(job, attempt_jobs or []), logs=logs)
 
 
-def rerun_verdicts(jobs: list[dict[str, Any]]) -> dict[str, tuple[bool, str | None]]:
+def rerun_verdicts(jobs: list[dict[str, Any]], log: Any = None) -> dict[str, tuple[bool, str | None]]:
     """{job name: (passed on its latest attempt, why its first failed attempt failed)} for the jobs of one run that
     FAILED on an earlier attempt. A job whose latest attempt was cancelled or skipped says nothing and is left out."""
     by: dict[str, list[dict[str, Any]]] = {}
@@ -68,13 +75,14 @@ def rerun_verdicts(jobs: list[dict[str, Any]]) -> dict[str, tuple[bool, str | No
         last = js[-1]
         failed = [j for j in js[:-1] if j.get("conclusion") == "failure"]
         if failed and last.get("conclusion") in ("success", "failure"):
-            out[name] = (last["conclusion"] == "success", cause(failed[0]))
+            out[name] = (last["conclusion"] == "success", cause(failed[0], log, jobs))
     return out
 
 
-def day_reruns(api: pr_check.Api, day: str) -> dict[str, list[Any]]:
+def day_reruns(api: pr_check.Api, day: str, log: Any = None) -> dict[str, list[Any]]:
     """{job name: [passed on a rerun, failed again, {first-attempt cause: count}]} for the runs created on `day` (UTC)
-    that were rerun."""
+    that were rerun. `log(job)` defaults to ci_rerun_stats.job_log."""
+    log = log or (ci_rerun_stats.job_log if ci_rerun_stats else None)
     out: dict[str, list[Any]] = {}
     for h in range(0, 24, WINDOW_H):
         span = f"{day}T{h:02d}:00:00Z..{day}T{h + WINDOW_H - 1:02d}:59:59Z"
@@ -82,7 +90,9 @@ def day_reruns(api: pr_check.Api, day: str) -> dict[str, list[Any]]:
             if (r.get("run_attempt") or 1) < 2 or r.get("status") != "completed":
                 continue
             jobs = pr_check.paged(api, f"repos/{REPO_SLUG}/actions/runs/{r['id']}/jobs?filter=all", "jobs")
-            for name, (passed, why) in rerun_verdicts(jobs).items():
+            for name, (passed, why) in rerun_verdicts(jobs, log).items():
+                if why == "superseded":
+                    continue  # cancelled by a newer push, then rerun: the job was not nondeterministic (#5605)
                 row = out.setdefault(name, [0, 0, {}])
                 row[0 if passed else 1] += 1
                 if why:

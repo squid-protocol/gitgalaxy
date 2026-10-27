@@ -72,8 +72,8 @@ jobs:
   # .test_durations: one file, so every part cuts the same split). The first cut was two hand-listed files (the ~1480 s
   # test_det_nondigit_zoned.py and test_evidence_components.py) against everything else; a list goes stale as tests move,
   # and a new file always landed in part 1. The ledger gate (and the history it appends) runs once: in the warm job, or in
-  # part 1 when there is none (#5543: tests/tools/ci_layout.py, which `plan` runs, picks the layout: calm = a warm job + 4 parts, skipped
-  # when main saved the scans for this corpora.json + engine state; busy = 2 self-warming parts); the recorded seconds leave the parts level (test_ci_critical_path_split replays the split). `ground-truth`
+  # part 1 when there is none (#5543: tests/tools/ci_layout.py, which `plan` runs, picks the layout: calm = 4 parts, plus a warm job on push / nightly / manual runs only (a PR has none: its parts warm for
+  # themselves, one fewer serial queue wait), skipped when main saved the scans for this corpora.json + engine state; busy = 2 self-warming parts); the recorded seconds leave the parts level (test_ci_critical_path_split replays the split). `ground-truth`
   # below stays the required check (the ruleset names it), exactly as `full-suite` aggregates the suite's parts.
   # #5164: `ground-truth` is required, so it cannot take a path filter (a filtered-out required check never reports).
   # Like det-sweep's plan job (#4825), `plan` reads the diff: a pull request that changes no ground-truth input (docs,
@@ -119,11 +119,13 @@ jobs:
 
       # #5543: what a scan reads: the engine, the corpus pins, the scan driver and what pip installs. A content hash (not
       # the commit), so a commit that changes none of them finds the scans an earlier one saved. Every job of the run
-      # takes the same key from here (MAINFRAME_ENGINE_KEY names the scan directory).
+      # takes the same key from here (MAINFRAME_ENGINE_KEY names the scan directory). The COBOL-to-Java translator is not
+      # imported by a scan (only det/copy is read), so it is left out, as are the standalone cobol_to_cobol forges and terabyte_log_scanning (galaxy_ir and pli_mapping stay in: a scan imports them), the tool READMEs, vault_sentinel and the readiness assess pipeline (readiness/__init__ and offline, full_api_network_map and the supply-chain firewall and X-ray stay in: galaxyscope imports them); tests/core_engine/test_ground_truth_scan_key_workflow.py
+      # fails if a file the scan imports or reads falls out of the key.
       - name: Key the scans by engine state
         id: key
         env:
-          ENGINE: ${{ hashFiles('gitgalaxy/**', 'tests/tools/mainframe_corpus.py', 'pyproject.toml', 'ci/requirements/*.txt') }}
+          ENGINE: ${{ hashFiles('gitgalaxy/**', '!gitgalaxy/tools/terabyte_log_scanning/*', '!gitgalaxy/tools/cobol_to_cobol/cobol_*.py', '!gitgalaxy/tools/cobol_to_cobol/cics_transaction_reader.py', '!gitgalaxy/tools/cobol_to_cobol/completeness_report.py', '!gitgalaxy/tools/cobol_to_cobol/engine_sourcing.py', '!gitgalaxy/tools/cobol_to_cobol/skeleton_export.py', '!gitgalaxy/tools/cobol_to_cobol/README.md', '!gitgalaxy/tools/readiness/assess.py', '!gitgalaxy/tools/readiness/dryrun.py', '!gitgalaxy/tools/readiness/era_tags.py', '!gitgalaxy/tools/readiness/inventory.py', '!gitgalaxy/tools/readiness/jcl_options.py', '!gitgalaxy/tools/readiness/schema.py', '!gitgalaxy/tools/readiness/README.md', '!gitgalaxy/tools/supply_chain_security/vault_sentinel.py', '!gitgalaxy/tools/supply_chain_security/README.md', '!gitgalaxy/tools/network_auditing/README.md', '!gitgalaxy/tools/cobol_to_java/*', '!gitgalaxy/tools/cobol_to_java/det/*', '!gitgalaxy/tools/cobol_to_java/det/cobolrt/**', '!gitgalaxy/cobol_to_java_controller.py', '!gitgalaxy/cobol_refractor_controller.py', 'tests/tools/mainframe_corpus.py', 'pyproject.toml', 'ci/requirements/*.txt') }}
         run: |
           {
             echo "engine=$ENGINE"
@@ -140,7 +142,7 @@ jobs:
           key: ${{ steps.key.outputs.scans }}
           lookup-only: true
 
-      # calm: warm job + 4 parts (the warm job is skipped on a cache hit); busy: 2 self-warming parts, no warm job. The
+      # calm: 4 parts (a warm job only on push / nightly / manual runs, and not on a cache hit); busy: 2 self-warming parts, no warm job. The
       # choice and why are in the summary. A failed step leaves the outputs empty: warm job + 4 parts, as before.
       - name: Choose the layout
         id: layout
@@ -375,13 +377,23 @@ jobs:
         if: needs.plan.outputs.warm != 'false'
         run: tar -C "$GITGALAXY_MAINFRAME_CORPORA" -xzf "$RUNNER_TEMP/scans/corpus-scans.tgz"
 
-      # no warm job and no usable cache: this part scans every corpus itself (the pre-#5559 layout; the busy layout, or a cache evicted since the plan)
+      # no warm job and no usable cache: this part scans itself (the pre-#5559 layout; the busy layout, or a cache evicted since the plan).
+      # #5543: part 1 runs the ledger gate and scans every corpus; any other part scans only the corpora its pytest share reads
+      # (tests/tools/ground_truth_corpora.py). Collection failing leaves no file, which means every corpus.
+      - name: List this part's tests
+        if: needs.plan.outputs.warm == 'false' && steps.scans.outputs.cache-hit != 'true' && matrix.group != 1
+        continue-on-error: true
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python -m pytest --collect-only -q -p no:cacheprovider tests/cobol_mainframe/ \
+            --splits ${{ matrix.parts }} --splitting-algorithm least_duration --group ${{ matrix.group }} > "$RUNNER_TEMP/collected.txt"
+
       - name: Scan the pinned corpora in parallel
         if: needs.plan.outputs.warm == 'false' && steps.scans.outputs.cache-hit != 'true'
         run: |
           cd gitgalaxy
-          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py list | cut -d' ' -f1 \
-            | PYTHONPATH="$PWD" xargs -P 8 -I{} python tests/tools/mainframe_corpus.py scan {}
+          python tests/tools/ground_truth_corpora.py ${{ matrix.group == 1 && '--all' || '' }} --collected "$RUNNER_TEMP/collected.txt" \
+            | PYTHONPATH="$PWD" xargs -r -P 8 -I{} python tests/tools/mainframe_corpus.py scan {}
 
       # the ledger gate runs once per run: in the warm job, or here in part 1 when there is none. History on push / nightly
       # (always calm, so a cache hit lands here): published by publish-history from the artifact this part uploads.

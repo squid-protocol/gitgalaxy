@@ -1,21 +1,30 @@
 {
+  "apex": {
+    "fn": 7,
+    "fp": 12,
+    "matched_functions": 60,
+    "parse_failures": 0,
+    "precision_pct": 95.7,
+    "recall_pct": 97.5,
+    "tp": 269
+  },
   "c": {
     "fn": 90,
-    "fp": 92,
-    "matched_functions": 2559,
+    "fp": 86,
+    "matched_functions": 2561,
     "parse_failures": 0,
     "precision_pct": 99.3,
     "recall_pct": 99.3,
-    "tp": 12968
+    "tp": 12974
   },
   "cpp": {
-    "fn": 52,
-    "fp": 280,
-    "matched_functions": 1280,
+    "fn": 24,
+    "fp": 271,
+    "matched_functions": 1291,
     "parse_failures": 0,
-    "precision_pct": 96.5,
-    "recall_pct": 99.3,
-    "tp": 7683
+    "precision_pct": 96.6,
+    "recall_pct": 99.7,
+    "tp": 7733
   },
   "csharp": {
     "fn": 5,
@@ -26,76 +35,175 @@
     "recall_pct": 99.8,
     "tp": 2632
   },
+  "dart": {
+    "fn": 25,
+    "fp": 23,
+    "matched_functions": 1734,
+    "parse_failures": 0,
+    "precision_pct": 99.1,
+    "recall_pct": 99.1,
+    "tp": 2619
+  },
   "go": {
     "fn": 29,
-    "fp": 5,
-    "matched_functions": 1294,
+    "fp": 9,
+    "matched_functions": 1314,
     "parse_failures": 0,
     "precision_pct": 99.9,
     "recall_pct": 99.6,
-    "tp": 6575
+    "tp": 6648
+  },
+  "haskell": {
+    "fn": 50,
+    "fp": 125,
+    "matched_functions": 142,
+    "parse_failures": 0,
+    "precision_pct": 69.4,
+    "recall_pct": 85.0,
+    "tp": 284
   },
   "java": {
     "fn": 0,
     "fp": 0,
-    "matched_functions": 735,
+    "matched_functions": 802,
     "parse_failures": 0,
     "precision_pct": 100.0,
     "recall_pct": 100.0,
-    "tp": 1946
+    "tp": 2524
   },
   "javascript": {
-    "fn": 59,
-    "fp": 63,
-    "matched_functions": 619,
+    "fn": 56,
+    "fp": 48,
+    "matched_functions": 626,
     "parse_failures": 0,
-    "precision_pct": 97.3,
-    "recall_pct": 97.5,
-    "tp": 2306
+    "precision_pct": 98.0,
+    "recall_pct": 97.7,
+    "tp": 2343
+  },
+  "kotlin": {
+    "fn": 3,
+    "fp": 1,
+    "matched_functions": 27,
+    "parse_failures": 0,
+    "precision_pct": 96.8,
+    "recall_pct": 90.9,
+    "tp": 30
+  },
+  "lua": {
+    "fn": 25,
+    "fp": 34,
+    "matched_functions": 623,
+    "parse_failures": 0,
+    "precision_pct": 97.5,
+    "recall_pct": 98.2,
+    "tp": 1331
+  },
+  "perl": {
+    "fn": 174,
+    "fp": 259,
+    "matched_functions": 943,
+    "parse_failures": 0,
+    "precision_pct": 94.4,
+    "recall_pct": 96.2,
+    "tp": 4370
   },
   "php": {
     "fn": 73,
     "fp": 17,
-    "matched_functions": 1717,
+    "matched_functions": 1721,
     "parse_failures": 0,
     "precision_pct": 99.7,
     "recall_pct": 98.8,
-    "tp": 6236
+    "tp": 6241
+  },
+  "powershell": {
+    "fn": 1640,
+    "fp": 294,
+    "matched_functions": 460,
+    "parse_failures": 0,
+    "precision_pct": 77.7,
+    "recall_pct": 38.4,
+    "tp": 1022
   },
   "python": {
     "fn": 92,
     "fp": 42,
-    "matched_functions": 4045,
+    "matched_functions": 4210,
     "parse_failures": 0,
     "precision_pct": 99.6,
     "recall_pct": 99.2,
-    "tp": 11138
+    "tp": 11507
   },
   "ruby": {
-    "fn": 64,
-    "fp": 0,
-    "matched_functions": 340,
+    "fn": 67,
+    "fp": 1,
+    "matched_functions": 349,
     "parse_failures": 0,
-    "precision_pct": 100.0,
-    "recall_pct": 93.8,
-    "tp": 969
+    "precision_pct": 99.9,
+    "recall_pct": 93.6,
+    "tp": 978
   },
   "rust": {
     "fn": 5,
-    "fp": 250,
-    "matched_functions": 1774,
+    "fp": 299,
+    "matched_functions": 1956,
     "parse_failures": 0,
-    "precision_pct": 96.6,
+    "precision_pct": 96.2,
     "recall_pct": 99.9,
-    "tp": 7189
+    "tp": 7565
+  },
+  "scala": {
+    "fn": 362,
+    "fp": 64,
+    "matched_functions": 541,
+    "parse_failures": 0,
+    "precision_pct": 97.9,
+    "recall_pct": 89.3,
+    "tp": 3022
+  },
+  "solidity": {
+    "fn": 3,
+    "fp": 80,
+    "matched_functions": 99,
+    "parse_failures": 0,
+    "precision_pct": 64.6,
+    "recall_pct": 98.0,
+    "tp": 146
+  },
+  "swift": {
+    "fn": 77,
+    "fp": 3,
+    "matched_functions": 132,
+    "parse_failures": 0,
+    "precision_pct": 99.0,
+    "recall_pct": 79.7,
+    "tp": 302
+  },
+  "tcl": {
+    "fn": 642,
+    "fp": 688,
+    "matched_functions": 369,
+    "parse_failures": 0,
+    "precision_pct": 69.8,
+    "recall_pct": 71.2,
+    "tp": 1589
   },
   "typescript": {
-    "fn": 177,
-    "fp": 23,
-    "matched_functions": 2918,
+    "fn": 260,
+    "fp": 68,
+    "matched_functions": 8473,
     "parse_failures": 0,
-    "precision_pct": 99.6,
-    "recall_pct": 97.2,
-    "tp": 6179
+    "precision_pct": 99.8,
+    "recall_pct": 99.1,
+    "tp": 27296
+  },
+  "zig": {
+    "fn": 91,
+    "fp": 336,
+    "matched_functions": 3539,
+    "parse_failures": 0,
+    "precision_pct": 98.4,
+    "recall_pct": 99.6,
+    "tp": 20595
   }
 }

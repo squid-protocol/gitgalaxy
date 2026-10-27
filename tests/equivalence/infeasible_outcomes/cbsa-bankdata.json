@@ -1,0 +1,14 @@
+{
+  "format": "infeasible-outcomes/2",
+  "case": "cbsa-bankdata",
+  "entries": [
+    {
+      "unit": "GOD010",
+      "line": 917,
+      "kind": "IF",
+      "outcome": "true",
+      "family": "C",
+      "reason": "`IF OPENED-DATE-ATTEMPTS > 100` (GENERATE-OPENED-DATE, performed UNTIL OPENED-DATE-VALID = 'Y', line 730) needs 100 draws in a row where the opened year is not above the birth year (line 912). The year is ((2014 - CUSTOMER-BIRTH-YEAR) * FUNCTION RANDOM) + CUSTOMER-BIRTH-YEAR (lines 892-895) and the birth year is drawn from 1900-1999 (line 527), so a draw fails only when FUNCTION RANDOM is under 1 / (2014 - birth year), at most 1/15: 100 in a row has probability under 15^-100 and the PARM seed cannot be searched to it. Not a logical impossibility: reviewed as unreachable in practice, to be kept under owner review."
+    }
+  ]
+}

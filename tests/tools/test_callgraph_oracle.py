@@ -138,6 +138,23 @@ static void *Start(int c)
     assert body.presence("skipped") == "macro"
 
 
+def test_the_brace_fallback_reads_a_declared_local_as_a_declaration_not_a_call():
+    src = """void Dlg::build()
+{
+    SequentialLayout layout(a.left(), a.top());
+    std::unique_ptr<Rec> map(new Rec);
+    Reader from(block);
+    layout.add(x);
+    emit self().changed();
+    HUDONLY checked(c);
+    return real(c);
+}
+"""
+    body = co.TextBody(src.encode(), 1)
+    assert set(body.calls) == {"left", "top", "add", "self", "changed", "checked", "real"}
+    assert "layout" not in body.calls and "map" not in body.calls and "from" not in body.calls
+
+
 def make_port(work, name, files, funcs):
     """files: {rel: source}; funcs: [(rel, name, start_line, [callees])]."""
     repo = work / "repos" / name

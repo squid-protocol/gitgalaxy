@@ -371,7 +371,7 @@
      "sqlcode": -904
     }
    ],
-   "why": "endowment-3-5, with GET-ENDOW-DB2-INFO's SELECT (line 330) failing SQLCODE -904 (resource unavailable): not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+   "why": "endowment-3-5, with GET-ENDOW-DB2-INFO's SELECT (line 330) failing SQLCODE -904 (resource unavailable): not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so that WRITEQ is written padded (X6, ASSUMED) and the whole task is compared"
   },
   {
    "name": "house-select-fails",
@@ -386,7 +386,7 @@
      "sqlcode": -904
     }
    ],
-   "why": "house-4-6, with GET-HOUSE-DB2-INFO's SELECT (line 444) failing SQLCODE -904 (resource unavailable): not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+   "why": "house-4-6, with GET-HOUSE-DB2-INFO's SELECT (line 444) failing SQLCODE -904 (resource unavailable): not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so that WRITEQ is written padded (X6, ASSUMED) and the whole task is compared"
   },
   {
    "name": "motor-select-fails",
@@ -401,7 +401,7 @@
      "sqlcode": -904
     }
    ],
-   "why": "motor-2-1, with GET-MOTOR-DB2-INFO's SELECT (line 532) failing SQLCODE -904 (resource unavailable): not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+   "why": "motor-2-1, with GET-MOTOR-DB2-INFO's SELECT (line 532) failing SQLCODE -904 (resource unavailable): not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so that WRITEQ is written padded (X6, ASSUMED) and the whole task is compared"
   },
   {
    "name": "commercial-select-fails",
@@ -416,7 +416,7 @@
      "sqlcode": -904
     }
    ],
-   "why": "commercial-1-10, with GET-COMMERCIAL-DB2-INFO-1's SELECT (line 631) failing SQLCODE -904 (resource unavailable): not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+   "why": "commercial-1-10, with GET-COMMERCIAL-DB2-INFO-1's SELECT (line 631) failing SQLCODE -904 (resource unavailable): not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so that WRITEQ is written padded (X6, ASSUMED) and the whole task is compared"
   },
   {
    "name": "commercial-by-policy-select-fails",
@@ -431,7 +431,7 @@
      "sqlcode": -904
     }
    ],
-   "why": "commercial-by-policy-10, with GET-COMMERCIAL-DB2-INFO-2's SELECT (line 734) failing SQLCODE -904 (resource unavailable): not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+   "why": "commercial-by-policy-10, with GET-COMMERCIAL-DB2-INFO-2's SELECT (line 734) failing SQLCODE -904 (resource unavailable): not 0 and not 100 -- '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so that WRITEQ is written padded (X6, ASSUMED) and the whole task is compared"
   },
   {
    "name": "customer-cursor-close-fails",
@@ -446,7 +446,7 @@
      "sqlcode": -904
     }
    ],
-   "why": "customer-cursor-one-row, with CLOSE Cust_Cursor (line 852) failing SQLCODE -904 (resource unavailable): IF SQLCODE NOT EQUAL 0 -- '88', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+   "why": "customer-cursor-one-row, with CLOSE Cust_Cursor (line 852) failing SQLCODE -904 (resource unavailable): IF SQLCODE NOT EQUAL 0 -- '88', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so that WRITEQ is written padded (X6, ASSUMED) and the whole task is compared"
   },
   {
    "name": "zip-cursor-close-fails",
@@ -461,7 +461,7 @@
      "sqlcode": -904
     }
    ],
-   "why": "zip-cursor-so212jn, with CLOSE Zip_Cursor (line 935) failing SQLCODE -904 (resource unavailable): IF SQLCODE NOT EQUAL 0 -- '88', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so the task is judged up to that WRITEQ (X6)"
+   "why": "zip-cursor-so212jn, with CLOSE Zip_Cursor (line 935) failing SQLCODE -904 (resource unavailable): IF SQLCODE NOT EQUAL 0 -- '88', WRITE-ERROR-MESSAGE LINKs LGSTSQ twice; the second (CA-ERROR-MSG, 99 bytes) has LGSTSQ write 104 bytes from its 95-byte WRITE-MSG, so that WRITEQ is written padded (X6, ASSUMED) and the whole task is compared"
   },
   {
    "name": "endowment-short-commarea",
@@ -527,8 +527,8 @@
     }
    ],
    "commarea_length": 40,
-   "why": "#4270 (X23): endowment-select-fails with a 40-byte COMMAREA: the SELECT (line 330) fails -904: '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG, then IF EIBCALEN < 91 is true -- DFHCOMMAREA(1:40) into CA-DATA and the second LINK, whose 104-byte WRITEQ is refused (X6): judged up to it"
+   "why": "#4270 (X23): endowment-select-fails with a 40-byte COMMAREA: the SELECT (line 330) fails -904: '90', WRITE-ERROR-MESSAGE LINKs LGSTSQ with ERROR-MSG, then IF EIBCALEN < 91 is true -- DFHCOMMAREA(1:40) into CA-DATA and the second LINK, whose 104-byte WRITEQ is written padded (X6, ASSUMED): the whole task is compared"
   }
  ],
- "notes": "GenApp's Db2 'inquire policy' (LGIPDB01, LINKed by LGIPOL01 with the 32500-byte LGCMAREA COMMAREA; the COMMAREA is described by the record the caller passes, LGIPOL01's DFHCOMMAREA (COPY LGCMAREA), since LGIPDB01 includes the same copybook with EXEC SQL INCLUDE: the generated DTO is the caller's): the request id, upper-cased, picks the inquiry -- 01IEND / 01IHOU / 01IMOT / 01ICOM a SELECT INTO on POLICY joined with ENDOWMENT / HOUSE / MOTOR / COMMERCIAL by customer and policy number; 02ICOM a commercial SELECT by policy number alone (returning the customer number); 03ICOM the scroll cursor Cust_Cursor over a customer's commercial policies; 05ICOM the cursor Zip_Cursor over COMMERCIAL rows with CA-B-POSTCODE; anything else '99'. A row found is moved into CA-POLICY-COMMON and the type's area, marked 'FINAL'; +100 gives '01'. Tables (unqualified: the bind's QUALIFIER, GENASA1) are GenApp's own (base/cntl/db2cre.jcl: DDL and INSERTs, <DB2DBID> = GENASA1) and compared after every scenario. Seed: @case/seed.sql, every INSERT of db2cre.jcl plus customer 11 (as genapp-lgacdb02's) and three policies of customer 11 with brokerId and payment NULL, the endowment one with PADDINGDATA set (GenApp's own INSERTs never leave them NULL or set it). Cust_Cursor's 20-row cap (l.907-908) is reached by customer 11's 21 commercial policies (customer-cursor-21-rows). Not reachable here: OPEN failing ('89' l.843-847, 926-930: no declared fault yet); a COMMAREA too short for the policy is the '98' scenarios (40 bytes, l.390-392, 487-489, 581-583, 689-691, 793-795). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2021), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived. A negative SQLCODE on each SELECT INTO ('90', l.426-428 and its copies) and on each CLOSE ('88', l.855-859, 938-942) is a declared SQL fault (-904, M2): the auto fault of a SELECT INTO is +100 and a CLOSE gets none. #4607 / X6 (owner decision): LGSTSQ runs in the same task (\"programs\"; \"region\" for its ASSIGN SYSID). An EIBCALEN-0 task (no-commarea) LINKs it with the short ERROR-MSG and ABENDs LGCA, compared whole (the WRITEQ TD and WRITEQ TS it writes too). An error path with the 32500-byte COMMAREA LINKs it a second time with the 99-byte CA-ERROR-MSG; LGSTSQ then writes 104 bytes from its 95-byte WRITE-MSG (X6), so that task is judged up to the refused WRITEQ: what it did before is compared, its end state is not. Not settled on z/OS (#4050)."
+ "notes": "GenApp's Db2 'inquire policy' (LGIPDB01, LINKed by LGIPOL01 with the 32500-byte LGCMAREA COMMAREA; the COMMAREA is described by the record the caller passes, LGIPOL01's DFHCOMMAREA (COPY LGCMAREA), since LGIPDB01 includes the same copybook with EXEC SQL INCLUDE: the generated DTO is the caller's): the request id, upper-cased, picks the inquiry -- 01IEND / 01IHOU / 01IMOT / 01ICOM a SELECT INTO on POLICY joined with ENDOWMENT / HOUSE / MOTOR / COMMERCIAL by customer and policy number; 02ICOM a commercial SELECT by policy number alone (returning the customer number); 03ICOM the scroll cursor Cust_Cursor over a customer's commercial policies; 05ICOM the cursor Zip_Cursor over COMMERCIAL rows with CA-B-POSTCODE; anything else '99'. A row found is moved into CA-POLICY-COMMON and the type's area, marked 'FINAL'; +100 gives '01'. Tables (unqualified: the bind's QUALIFIER, GENASA1) are GenApp's own (base/cntl/db2cre.jcl: DDL and INSERTs, <DB2DBID> = GENASA1) and compared after every scenario. Seed: @case/seed.sql, every INSERT of db2cre.jcl plus customer 11 (as genapp-lgacdb02's) and three policies of customer 11 with brokerId and payment NULL, the endowment one with PADDINGDATA set (GenApp's own INSERTs never leave them NULL or set it). Cust_Cursor's 20-row cap (l.907-908) is reached by customer 11's 21 commercial policies (customer-cursor-21-rows). Not reachable here: OPEN failing ('89' l.843-847, 926-930: no declared fault yet); a COMMAREA too short for the policy is the '98' scenarios (40 bytes, l.390-392, 487-489, 581-583, 689-691, 793-795). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2021), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived. A negative SQLCODE on each SELECT INTO ('90', l.426-428 and its copies) and on each CLOSE ('88', l.855-859, 938-942) is a declared SQL fault (-904, M2): the auto fault of a SELECT INTO is +100 and a CLOSE gets none. #4607 / X6 (owner decision): LGSTSQ runs in the same task (\"programs\"; \"region\" for its ASSIGN SYSID). An EIBCALEN-0 task (no-commarea) LINKs it with the short ERROR-MSG and ABENDs LGCA, compared whole (the WRITEQ TD and WRITEQ TS it writes too). An error path with the 32500-byte COMMAREA LINKs it a second time with the 99-byte CA-ERROR-MSG; LGSTSQ then writes 104 bytes from its 95-byte WRITE-MSG (X6): the WRITEQ is written padded (FROM's bytes then spaces, ASSUMED on both sides), so that task is compared whole. Not settled on z/OS (#4050)."
 }

@@ -30,7 +30,8 @@ on:
       - "tests/tools/doom_speedrun/doom_scorer.py"
       - "tests/tools/doom_speedrun/callgraph_oracle.py"
       - "tests/tools/doom_speedrun/ts_callgraph_oracle.py"
-      - "tests/tools/doom_speedrun/doom_clang.py"
+      - "tests/tools/doom_speedrun/doom_clang*.py"
+      - "tests/tools/clang_callgraph.py"
       - ".github/workflows/doom-rosetta.yml"
       - "!**/*.md"  # no scan reads a Markdown file of this repo
   schedule:
@@ -127,7 +128,8 @@ jobs:
 
   # #5630 slice 4: C/C++ call-graph accuracy (tests/tools/doom_speedrun/callgraph_oracle.py) on the baseline's licensed
   # ports. Not a PR check (a scan of 20 ports): nightly and on demand. Exit 1 = recall/precision fell past tolerance, a
-  # baseline port is missing, or consensus engine-misses / false edges grew; regenerate the baseline only with an
+  # baseline port is missing, consensus engine-misses / false edges grew, or the libclang reference (--clang) lost recall /
+  # precision or gained disagreements in clean files; regenerate the baseline only with an
   # explained engine change (README, "C/C++ call-graph oracle").
   callgraph:
     if: ${{ github.event_name != 'pull_request' }}
@@ -159,6 +161,7 @@ jobs:
           pip install --require-hashes -r ci/requirements/yaml.txt
           pip install --no-build-isolation -e .
           pip install --require-hashes -r ci/requirements/treesitter.txt
+          pip install --require-hashes -r ci/requirements/callgraph.txt  # libclang, for --clang below
 
       - name: Fetch and scan the baseline's ports
         run: |
@@ -170,7 +173,7 @@ jobs:
       - name: Score call-graph accuracy against the baseline
         run: |
           cd gitgalaxy
-          python tests/tools/doom_speedrun/callgraph_oracle.py --only all \
+          python tests/tools/doom_speedrun/callgraph_oracle.py --only all --clang \
             --baseline tests/tools/doom_speedrun/callgraph_baseline.json --fail-on-regression
 
       - name: Publish the report

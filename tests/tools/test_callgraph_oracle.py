@@ -245,6 +245,44 @@ def test_regressions_gate_on_recall_precision_and_consensus_counts():
     assert co.regressions(base, base) == []
 
 
+CLANG = {"recall": 1.0, "precision": 1.0, "disagreements_in_clean_files": 2, "files_fatal": 7}
+
+
+def test_clang_regressions_gate_recall_precision_and_clean_file_disagreements_only():
+    base = {"ports": {}, "clang": {"x": CLANG, "gone": CLANG}}
+    cur = {"ports": {}, "clang": {"x": {**CLANG, "recall": 0.99, "disagreements_in_clean_files": 3, "files_fatal": 99}}}
+    assert co.regressions(cur, base) == [
+        "clang gone: in the baseline, not in this run",
+        "clang x: recall 1.0000 -> 0.9900",
+        "clang x: disagreements in clean files 2 -> 3",
+    ]
+    better = {"ports": {}, "clang": {"x": {**CLANG, "disagreements_in_clean_files": 1}, "gone": CLANG}}
+    assert co.regressions(better, base) == []  # more fatal-error files alone is not a regression
+    assert co.regressions({"ports": {}}, base) == []  # a run without --clang is not compared
+
+
+def test_the_baseline_keeps_clang_numbers_without_examples():
+    full = {**CLANG, "clang_edges": 9, "engine_edges": 9, "agree": 9, "missed": ["a.c: f -> g"]}
+    view = co.baseline_view({"engine_sha": SHA, "ports": {}, "clang": {"x": full}})
+    assert set(view["clang"]["x"]) == set(co.CLANG_KEYS) and "clang" not in co.baseline_view(
+        {"engine_sha": SHA, "ports": {}}
+    )
+
+
+def test_main_clang_without_libclang_is_skipped_and_fails_the_gate(tmp_path, monkeypatch, capsys):
+    import clang_callgraph
+
+    monkeypatch.setattr(clang_callgraph, "libclang_version", lambda: None)
+    funcs = [("m.c", "helper", 1, []), ("m.c", "other", 2, []), ("m.c", "cb", 3, []), ("m.c", "top", 4, [])]
+    make_port(tmp_path, "linuxdoom", {"m.c": SRC}, funcs)
+    args = ["--only", "linuxdoom", "--family", "linuxdoom", "--work", str(tmp_path), "--sha", SHA, "--clang"]
+    assert co.main(args) == 0
+    assert "--clang skipped: libclang is not installed" in capsys.readouterr().out
+    base = tmp_path / "b.json"
+    base.write_text(json.dumps({"ports": {}}))
+    assert co.main([*args, "--baseline", str(base), "--fail-on-regression"]) == 1
+
+
 def test_unlicensed_ports_are_refused():
     with pytest.raises(SystemExit, match="licensed"):
         co.main(["--only", "linuxdoom,not-a-licensed-port"])

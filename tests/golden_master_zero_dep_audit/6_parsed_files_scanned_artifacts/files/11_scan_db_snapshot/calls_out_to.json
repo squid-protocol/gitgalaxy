@@ -62205,7 +62205,6 @@
           "push"
         ],
         "shader_create_from_code@288": [
-          "String",
           "shader_allocate",
           "get_caller_id",
           "can_create_resources_async",

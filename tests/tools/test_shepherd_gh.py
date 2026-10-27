@@ -2,6 +2,7 @@
 
 import json
 import re
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -1075,6 +1076,40 @@ def test_conditional_api_sends_the_kept_etag_and_a_304_returns_the_kept_body(tmp
     fail = sg.pr_check.conditional_api(tmp_path / "other", lambda a: subprocess.CompletedProcess(a, 1, "", "HTTP 404"))
     with pytest.raises(SystemExit):
         fail("repos/x/y/pulls/2")
+
+
+def test_a_restored_store_serves_the_next_pass_by_304_and_survives_bad_entries(tmp_path):
+    store = tmp_path / "store"
+    seen = []
+
+    def run(argv):
+        seen.append("304" if "-H" in argv else "200")
+        if "-H" in argv:
+            return subprocess.CompletedProcess(argv, 1, 'HTTP/2.0 304 Not Modified\nETag: "a"\n\n', "")
+        return subprocess.CompletedProcess(argv, 0, 'HTTP/2.0 200 OK\nETag: "a"\n\n[1]', "")
+
+    assert sg.pr_check.conditional_api(store, run)("repos/x/y/pulls/1") == [1]  # pass 1: cold
+    assert sg.pr_check.conditional_api(store, run)("repos/x/y/pulls/1") == [1]  # pass 2: a restored store
+    assert seen == ["200", "304"] and not list(store.glob("*.tmp"))
+    (entry,) = store.glob("*.json")
+    for bad in ("{torn", '{"body": [1]}', "[]"):  # corrupt, no etag, wrong shape: a plain read
+        entry.write_text(bad, encoding="utf-8")
+        assert sg.pr_check.conditional_api(store, run)("repos/x/y/pulls/1") == [1]
+        assert seen[-1] == "200"
+    blocker = tmp_path / "file"
+    blocker.write_text("", encoding="utf-8")  # an unwritable store (a file, not a dir): still a plain read
+    assert sg.pr_check.conditional_api(blocker / "s", run)("repos/x/y/pulls/1") == [1]
+
+
+def test_prune_api_store_drops_old_temp_and_excess_entries(tmp_path):
+    for i in range(4):
+        (tmp_path / f"{i}.json").write_text("{}", encoding="utf-8")
+        os.utime(tmp_path / f"{i}.json", (1000 + i, 1000 + i))
+    (tmp_path / "x.tmp").write_text("{", encoding="utf-8")
+    (tmp_path / "keep.txt").write_text("", encoding="utf-8")
+    assert sg.pr_check.prune_api_store(tmp_path, max_age_s=100, max_entries=2, now=1102.5) == 4
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["3.json", "keep.txt"]  # 2.json is >100 s old, 0/1 too
+    assert sg.pr_check.prune_api_store(tmp_path / "missing") == 0
 
 
 def test_digest_reuses_the_pr_and_check_runs_it_is_given():

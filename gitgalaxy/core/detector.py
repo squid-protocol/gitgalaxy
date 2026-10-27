@@ -8451,6 +8451,10 @@ class StructuralExtractor:
                                     and re.search(r"\bend\b", past_safe)
                                 ):
                                     break
+                                # #6266: a shell `name() { cmd; }` closed on its own line (#5640) is not the declaration
+                                # of the nameless block below it (`if ! up; then`), whatever the name it carries.
+                                if lang_key == "shell" and _SHELL_ONELINE_FUNCTION.match(past_safe):
+                                    break
                                 fallback = self._extract_semantic_name(past_safe, lang_key)
                                 if fallback != "Anonymous_Block":
                                     satellite_name = fallback

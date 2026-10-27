@@ -293,8 +293,8 @@ def _member_initializers(body):
 
 
 # A preprocessor directive with its `\`-continued lines: a macro defined inside a function is not that function's calls
-# (the engine blanks it too, #6793; the tree-sitter walk skips the node).
-DIRECTIVE = r"^[ \t]*#(?:[^\n]*\\\n)*[^\n]*$"
+# (the engine blanks it too, #6793; the tree-sitter walk skips the node). A CRLF source continues with CR LF.
+DIRECTIVE = r"^[ \t]*#(?:[^\n]*\\\r?\n)*[^\n]*$"
 
 
 def _head_has_statement(head):

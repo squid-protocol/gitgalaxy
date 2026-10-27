@@ -105,6 +105,15 @@ CLASS_HEAD = re.compile(r"\b(?:class|struct)\b[^;{}()<>]*?\b([A-Za-z_]\w*)\s*(?:
 # A class head with a base list: `class A : public B, virtual C<T> {` (the entries after the lone `:`).
 BASE_LIST = re.compile(r"\b(?:class|struct)\b[^;{}()]*?[^:]:(?!:)([^;{}]*)\{")
 BASE_NAME = re.compile(r"([A-Za-z_]\w*)\s*(?:<[^<>]*>)?\s*$")
+# A type alias of a class: `typedef Private<PublicType> Base;` / `using Base = Private<P>;`. A constructor initializer
+# naming one (`Impl(Public *i) : Base(i)`) calls the aliased base's constructor. Capitalised names only, and only when the
+# target is a class the repo declares: `typedef int Bool;` (or `using type = T`) shares its name with a data member `: Bool(v)`.
+ALIAS_DECL = re.compile(
+    r"\btypedef\b\s*(?:typename\s+)?([A-Za-z_][\w:]*)\s*(?:<[^;{}()]*>)?[\s*&]*([A-Z]\w*)\s*;"
+    r"|\busing\s+([A-Z]\w*)\s*=\s*(?:typename\s+)?([A-Za-z_][\w:]*)"
+)
+CLASS_DECL = re.compile(r"\b(?:class|struct)\s+(?:[A-Z_]+\s+)?([A-Za-z_]\w*)\s*[:{<;]")
+ALIASES = ""  # the key of `class_names` that holds the alias names (no class is named "")
 CPP_EXTS = frozenset(".h .hh .hpp .hxx .inl .cc .cpp .cxx".split())
 KEYWORDS = frozenset(
     "if else while for do switch return sizeof alignof _Alignof defined case goto typeof decltype".split()
@@ -268,7 +277,7 @@ class TextBody(Body):
     shape ``unparsed``. Also used when a bare macro statement (``ADD_FILE_COUNTER`` with no semicolon) makes tree-sitter
     close the body early: ``end_line`` says whether the braces reach further."""
 
-    def __init__(self, src, line):
+    def __init__(self, src, line, classes=None):
         self.node, self.calls, self.refs, self.preproc, self.text_only, self.types = None, {}, set(), [], [], set()
         self.end_line = line
         lines = decode_bytes(src).split("\n")
@@ -297,8 +306,33 @@ class TextBody(Body):
             self._text_calls(_member_initializers(body).encode())
         else:
             self._text_calls(body.encode())
+        head = text[:open_at]
+        ctor = re.match(
+            r"\s*(?:[\w:<>~*&\s]*?[\s*&:])?([A-Za-z_]\w*)\s*\(", head
+        )  # a constructor is named for its class
+        classes = classes or {}
+        known = classes.get(ctor.group(1), set()) | classes.get(ALIASES, set()) if ctor else set()
+        for name in _head_initializer_names(head):
+            if name in known:
+                self.calls.setdefault(name, "ctor-init")
         self.refs = set(re.findall(r"\b[A-Za-z_]\w*\b", body)) - set(self.calls)
         self.text_only = [m.group(0) for m in STRIP.finditer(raw[open_at : end + 1])]
+
+
+def _head_initializer_names(head):
+    """The names a constructor head's initializer list calls (`A(i) : ui::Base(i), m(x)` -> Base, m), qualifiers dropped."""
+    depth, names, listed = 0, [], False
+    for m in re.finditer(r"::|[:()]|[A-Za-z_]\w*", head):
+        tok = m.group(0)
+        if tok == "(":
+            depth += 1
+            if depth == 1 and listed and (prev := head[: m.start()].rstrip()[-1:]) and (prev.isalnum() or prev in "_>"):
+                names.append(re.search(r"([A-Za-z_]\w*)\s*(?:<[^<>]*>)?\s*$", head[: m.start()]).group(1))
+        elif tok == ")":
+            depth -= 1
+        elif tok == ":" and depth == 0:
+            listed = True
+    return names
 
 
 def _initializers(node):
@@ -337,30 +371,45 @@ def _bases(classes, node):
     """The base classes its owner lists (every listed base when the owner is not found)."""
     owner = _owner(node)
     if owner in classes:
-        return classes[owner]
-    return set().union(*classes.values()) if owner is None else set()
+        return classes[owner] | classes.get(ALIASES, set())
+    return set().union(*classes.values()) if owner is None else classes.get(ALIASES, set())
 
 
-def class_names(repo):
+def class_names(repo, vendored=None):
     """class -> the base classes its head lists, over a repo's C++ files: what a base-class initializer entry names (a
-    data member `: type(t)` is no call, even when a vendored class elsewhere shares its name)."""
-    bases_of: dict[str, set[str]] = {}
+    data member `: type(t)` is no call, even when a vendored class elsewhere shares its name). Key ``ALIASES`` holds the
+    repo's class-typedef names (`Base`). ``vendored`` (a relpath -> bool test) drops a bundled library's files: its
+    `typedef GenericValue<..> Value;` must not make every first-party member `: Value(v)` a base call."""
+    texts = []
     for root, dirs, files in os.walk(repo):
         dirs[:] = [d for d in dirs if d != ".git"]
         for f in files:
             if os.path.splitext(f)[1].lower() in CPP_EXTS:
+                if vendored and vendored(os.path.relpath(Path(root) / f, repo).replace("\\", "/")):
+                    continue
                 try:
-                    text = (Path(root) / f).read_bytes()
+                    texts.append(decode_bytes((Path(root) / f).read_bytes()))
                 except OSError:
                     continue
-                clean = STRIP.sub(" ", decode_bytes(text))
-                for head in BASE_LIST.finditer(clean):
-                    owner = CLASS_HEAD.search(head.group(0))
-                    if owner is None:
-                        continue
-                    bases_of.setdefault(owner.group(1), set()).update(
-                        m.group(1) for b in head.group(1).split(",") if (m := BASE_NAME.search(b))
-                    )
+    return class_names_of_text(*texts)
+
+
+def class_names_of_text(*texts):
+    """``class_names`` over source texts."""
+    bases_of: dict[str, set[str]] = {}
+    declared, aliases = set(), []
+    for text in texts:
+        clean = STRIP.sub(" ", text)
+        declared.update(CLASS_DECL.findall(clean))
+        aliases.extend((m.group(2) or m.group(3), m.group(1) or m.group(4)) for m in ALIAS_DECL.finditer(clean))
+        for head in BASE_LIST.finditer(clean):
+            owner = CLASS_HEAD.search(head.group(0))
+            if owner is None:
+                continue
+            bases_of.setdefault(owner.group(1), set()).update(
+                m.group(1) for b in head.group(1).split(",") if (m := BASE_NAME.search(b))
+            )
+    bases_of[ALIASES] = {name for name, target in aliases if target.rsplit("::", 1)[-1] in declared}
     return bases_of
 
 
@@ -490,7 +539,11 @@ class Port:
         self.functions = []  # (rel, name, start, engine callee set, Body / TextBody or None)
         self.edges = set()
         trees = {}
-        classes = class_names(self.repo) if any(r[1] == "cpp" for r in rows) else {}
+        classes = (
+            class_names(self.repo, doom_scorer._engine_vendor_test(self.repo))
+            if any(r[1] == "cpp" for r in rows)
+            else {}
+        )
         for rel, lang, fname, start, callees in rows:
             key = (rel, lang)
             if key not in trees:
@@ -501,9 +554,9 @@ class Port:
                     trees[key] = (b"", [])
             src, nodes = trees[key]
             node = definition_at(nodes, start)
-            body = Body(node, classes) if node is not None else TextBody(src, start)
+            body = Body(node, classes) if node is not None else TextBody(src, start, classes)
             if node is not None and body.broken:
-                braces = TextBody(src, start)
+                braces = TextBody(src, start, classes)
                 # end_point[0], never .row: .row on the temporary Point read freed memory (tree-sitter 0.26, #5630).
                 # Braces ending earlier: the node ran over the code below (srb2's bare macro statements, MSVC __asm,
                 # #6266), unless the braces hold whole methods (a broken DE_PIMPL class: their calls are theirs)

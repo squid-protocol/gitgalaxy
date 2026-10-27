@@ -25,7 +25,7 @@ def _faults(**kw):
 
 
 @pytest.mark.parametrize("cmd", ["READ", "READNEXT", "READPREV", "STARTBR", "ENDBR", "WRITE", "REWRITE", "DELETE"])
-@pytest.mark.parametrize("code", ["AFCR", "AFCS", "AFCT"])
+@pytest.mark.parametrize("code", ["AFCR", "AFCS", "AFCT", "AFCC"])
 def test_an_rls_abend_is_planned_on_a_file_command(cmd, code):
     assert ec.fault_lines(_faults(cmd=cmd, abcode=code)) == [f"{cmd} ACCTDAT 1 -1 0 {code}"]
 
@@ -104,7 +104,7 @@ def test_a_det_port_checks_only_file_commands():
     assert not any("abendExit" in ln for ln in lines)
 
 
-@pytest.mark.parametrize("code", ["AFCR", "AFCS", "AFCT"])
+@pytest.mark.parametrize("code", ["AFCR", "AFCS", "AFCT", "AFCC"])
 def test_a_link_abend_is_planned_on_the_program_it_names(code):
     plan = {"cmd": "LINK", "program": "INQCUST", "resp": "ABEND", "abcode": code}
     assert ec.fault_lines({"name": "s", "faults": [plan]}) == [f"LINK INQCUST 1 -1 0 {code}"]
@@ -146,7 +146,7 @@ def test_inqcust_plans_an_rls_abend_on_the_read_the_startbr_and_the_readprev():
     planned = {
         (f["cmd"], f["abcode"]) for sc in case["scenarios"] for f in sc.get("faults", []) if f.get("resp") == "ABEND"
     }
-    assert planned == {("READ", "AFCR"), ("STARTBR", "AFCS"), ("READPREV", "AFCT")}
+    assert planned == {("READ", "AFCR"), ("STARTBR", "AFCS"), ("READPREV", "AFCT"), ("READ", "AFCC")}
 
 
 def test_zecs000_plans_an_rls_abend_on_the_control_read():

@@ -176,8 +176,10 @@ def _file_fault_resp2(sc: dict[str, Any], f: dict[str, Any], cmd: str, resp2: in
 
 # #6271 (register X70): the abend codes IBM documents for a VSAM RLS file control request -- AFCR (the RLS server is
 # unavailable), AFCS (an RLS access to a file with no SMSVSAM), AFCT (an RLS timeout) -- a scenario may plant on a file
-# command: the task abends with the code (cause "system") and a HANDLE ABEND exit gets control. No other code is sourced.
-FILE_ABEND_CODES = ("AFCR", "AFCS", "AFCT")
+# command: the task abends with the code (cause "system") and a HANDLE ABEND exit gets control. AFCC (an internal logic
+# error in the file control request module DFHFCFR) is the code outside the RLS storm-drain family: a program's
+# `EVALUATE ABCODE` none arm. No other code is sourced.
+FILE_ABEND_CODES = ("AFCR", "AFCS", "AFCT", "AFCC")
 
 
 def _abend_fault_line(sc: dict[str, Any], f: dict[str, Any], cmd: str) -> str:

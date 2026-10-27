@@ -223,11 +223,13 @@ def carries_homoglyph(line: str) -> bool:
 # that makes the word a command or call (a flag/URL/quote after curl, a pipe into a shell, `eval(`),
 # never the bare English word. A URL counts as a call argument only right after `(`, `=`, `,` or `[`;
 # a quoted URL after prose (`// Ken's web site: "http://...`) is a citation (#4548, a `basicinlines.h` header).
+# `eval` counts only with an argument: a code span (`` `eval` ``) or an empty `eval()` names the word in prose
+# (#4548 DOOM residue: nugget-doom nano_bsp.c, chocolate-doom man/simplecpp).
 _DEAD_CODE_COMMAND = (
     r"(?:\b(?:curl|wget)\b[ \t]+(?:-|[\"']?https?://|[\"'$])"
     r"|\|[ \t]*(?:sudo[ \t]+)?(?:ba|z)?sh\b"
     r"|\bbash\b[ \t]+(?:-|<\()"
-    r"|\beval\b[ \t]*(?:\(|[\"'$`])"
+    r"|(?<![\"'`])\beval\b[ \t]*(?:\((?![ \t]*\))|[\"'$`])"
     r"|\bbase64\b[ \t]+-|\|[ \t]*base64\b|\bbase64\b[ \t]*\("
     r"|\bnc\s+-e|/dev/tcp|\([ \t]*[\"']?https?://|[=,\[][ \t]*[\"']https?://)"
 )
@@ -396,7 +398,9 @@ class SecurityLens:
                 # #4987: the same holds for the words bash, curl, wget, eval and base64: in prose
                 # ("the bash shell", "eval is slow") they are English. They count only in the shape of
                 # a command or call (_DEAD_CODE_COMMAND).
-                r"(?://|#(?!!)|--|\*>|^.{6}\*)[^\n]*?(?:" + _DEAD_CODE_COMMAND + r"|\bBPXBATCH\b)|"
+                # #4548: a `//` after `:` or a quote is a URL scheme or a string literal on a code line
+                # (odamex `find("http://", 0)`), not a comment opening.
+                r"(?:(?<![:\"'])//|#(?!!)|--|\*>|^.{6}\*)[^\n]*?(?:" + _DEAD_CODE_COMMAND + r"|\bBPXBATCH\b)|"
                 r"/\*(?:(?!\*/).){0,500}?" + _DEAD_CODE_COMMAND,
                 re.I,
             ),

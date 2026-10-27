@@ -813,3 +813,24 @@ def test_a_macro_defined_in_a_function_is_not_that_functions_calls():
     body = co.TextBody(MACRO_IN_FUNCTION_SRC.encode(), 3, {})
     assert "slope" not in body.calls and "helper" in body.calls
     assert len(body.preproc) == 1 and body.preproc[0].startswith("#define SETUP")
+
+
+def test_a_ctor_initializer_list_after_an_unknown_macro_still_gets_the_base_call():
+    """doom3-bfg StrStatic.h (#6266): `ID_INLINE Cls(x) : Base() {` reads the list as an ERROR child of the definition."""
+    src = (
+        b"class Base {};\nclass Cls : public Base {\n\tID_INLINE Cls( int x ) : \n\t\tBase() {\n\t\tgo( x );\n\t}\n};\n"
+    )
+    node = next(n for n in co.function_nodes(co._parser("cpp").parse(src)) if b"Cls" in n.text[:20])
+    assert not co._initializers(node)  # the premise: tree-sitter did not make a field_initializer
+    body = co.Body(node, co.class_names_of_text(src.decode()))
+    assert body.calls["Base"] == "ctor-init" and body.calls["go"] == "statement"
+
+
+def test_the_text_fallback_leaves_a_local_classs_methods_to_their_own_unit():
+    """doom3-bfg CONSOLE_COMMAND (#6266): a method of a class declared inside the body owns its calls, as in the engine."""
+    src = (
+        b'CONSOLE_COMMAND( t, "d", 0 ) {\n\tclass Local : public Base {\n\tpublic:\n\t\tint Call() { inner(); return 0; }\n'
+        b"\t};\n\touter();\n}\n"
+    )
+    body = co.TextBody(src, 1)
+    assert "outer" in body.calls and "inner" not in body.calls

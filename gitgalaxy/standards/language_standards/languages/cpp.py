@@ -324,6 +324,8 @@ DEFINITION: dict[str, Any] = {
             # #5630: a macro-statement loop or observer dispatch is a statement, not a definition: doomsday's
             # `DE_FOR_EACH_CONST(T, i, c)\n{`, `DE_FOR_OBSERVERS(i, a)`, `DE_NOTIFY_PUBLIC(Swap, i) {`, `DE_NOTIFY_VAR(`.
             r"(?!DE_(?:FOR_(?:EACH|OBSERVERS)|NOTIFY)(?![" + ID_CONTINUE + r"]*[a-z]))"
+            # #5630: gzdoom's scripting-call macros open a block like `if` (`IFVIRTUALPTRNAME(act, "Cls", Fn)\n{ VMCall(..); }`).
+            r"(?!IF(?:VM|(?:OVERRIDEN)?VIRTUAL(?:PTR)?(?:NAME)?)(?![" + ID_CONTINUE + r"]))"
             # 6. THE IDENTIFIER CAPTURE (FUNCTION IDENTIFIER - GROUP 1)
             # [IRON WALL]: Ensures the actual function/operator name isn't hijacked by a macro definition.
             # OUT-OF-LINE OPERATOR FIX (epic #813/#821): the operator alternatives had no

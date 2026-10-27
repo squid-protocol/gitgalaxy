@@ -362,9 +362,10 @@ def class_names(repo):
     return bases_of
 
 
-# doomsday's macro statements that take a body, like `for` (`DE_FOR_EACH_CONST(T, i, c) { ... }`, `DE_NOTIFY_PUBLIC(N, i) ...`):
-# tree-sitter reads one as a nested definition, the engine as a statement of its function (#5630).
-MACRO_STATEMENT = re.compile(r"DE_(?:FOR_(?:EACH|OBSERVERS)|NOTIFY)[A-Z_]*")
+# Macro statements that take a body, like `for` (doomsday's `DE_FOR_EACH_CONST(T, i, c) { ... }`, `DE_NOTIFY_PUBLIC(N, i) ...`,
+# gzdoom's `IFVIRTUALPTRNAME(o, "C", F) { ... }`): tree-sitter reads one as a nested definition, the engine as a statement
+# of its function (#5630).
+MACRO_STATEMENT = re.compile(r"DE_(?:FOR_(?:EACH|OBSERVERS)|NOTIFY)[A-Z_]*|IF(?:VM|(?:OVERRIDEN)?VIRTUAL(?:PTR)?(?:NAME)?)")
 
 
 def _is_real_nested_function(node):
